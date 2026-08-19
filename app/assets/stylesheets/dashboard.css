@@ -1,0 +1,74 @@
+/* app/assets/stylesheets/dashboard.css */
+
+/*
+ * Dashboard stylesheet – combines Tailwind utilities with
+ * custom fallbacks for older browsers.
+ */
+
+/* -------------------------------------------------
+ * Core container
+ * ------------------------------------------------- */
+.dashboard {
+  @apply max-w-7xl mx-auto px-4 py-8;
+}
+
+/* -------------------------------------------------
+ * Summary boxes
+ * ------------------------------------------------- */
+.summary-box {
+  @apply bg-white rounded-lg shadow-md p-4 flex flex-col items-center;
+}
+.summary-box h3 {
+  @apply text-lg font-semibold mb-2;
+}
+.summary-box p {
+  @apply text-gray-600;
+}
+
+/* -------------------------------------------------
+ * Table styling – striped rows & hover effect
+ * ------------------------------------------------- */
+.dashboard table {
+  @apply w-full border-collapse;
+}
+.dashboard th,
+.dashboard td {
+  @apply border p-2 text-left;
+}
+.dashboard tbody tr:nth-child(even) {
+  @apply bg-gray-50;
+}
+.dashboard tbody tr:hover {
+  @apply bg-gray-100;
+}
+
+/* -------------------------------------------------
+ * Chart placeholder
+ * ------------------------------------------------- */
+.chart-placeholder {
+  @apply w-full h-96; /* ≈300 px height */
+}
+
+/* -------------------------------------------------
+ * Fallbacks for browsers that don’t understand Tailwind
+ * utilities (e.g., older Safari/IE). These rules are
+ * written in plain CSS so they still apply when Tailwind
+ * is compiled to static CSS.
+ * ------------------------------------------------- */
+@supports not (backdrop-filter: blur(0)) {
+  .summary-box {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Older‑browser box‑shadow fallback (no `shadow-md` utility) */
+.summary-box {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Ensure the container respects max‑width on very small screens */
+@media (max-width: 640px) {
+  .dashboard {
+    @apply px-2;
+  }
+}
