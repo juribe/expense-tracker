@@ -1,5 +1,3 @@
-**Gemfile (complete, with the requested additions)**
-
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
@@ -67,5 +65,3 @@ group :development do
   gem 'bootsnap', require: false
   gem "web-console"
 end
-
-*After saving this file, run `bundle install` to install the newly added `chartkick` and `groupdate` gems.*
