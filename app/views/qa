@@ -1,7 +1,0 @@
-<!-- app/views/qa/dashboard.html.erb -->
-<h1>Dashboard</h1>
-<p>Welcome to the expense tracker dashboard.</p>
-
-<!-- app/views/qa/reports.html.erb -->
-<h1>Reports</h1>
-<p>This is where expense reports will be displayed.</p>
