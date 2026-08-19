@@ -54,7 +54,7 @@ class ExpensesController < ApplicationController
   end
 
   def set_categories
-    @categories = current_user.categories
+    @categories = Category.all
   end
 
   def expense_params

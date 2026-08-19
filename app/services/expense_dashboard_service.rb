@@ -30,7 +30,7 @@ class ExpenseDashboardService
 
   # Returns a hash mapping category names to summed amounts
   def categories_breakdown
-    expenses.group(:category).sum(:amount)
+    expenses.joins(:category).group('categories.name').sum(:amount)
   end
 
   private

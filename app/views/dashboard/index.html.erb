@@ -1,187 +1,65 @@
-<think>
-The user wants a complete, production-ready ERB template for a dashboard using Bootstrap and Chartkick.
-They provided a snippet and asked to ensure the project includes necessary gems (`chartkick`, `groupdate`, `chart.js`) and add a note if not present.
-However, the prompt says "Output ONLY code, no explanations."
-This creates a conflict. If I output *only* code, I cannot add a note about installing gems unless that note is inside a comment in the code or a separate file (like `Gemfile` or `package.json`).
-Given the strict "Output ONLY code" instruction, I should probably provide the ERB template and perhaps the necessary configuration files (Gemfile, application.js) to make it work, or just the ERB template if that's what's implied by "Build an ERB template".
-But the prompt says "Make sure the project includes... If not present, add a note".
-Usually, when users ask for "ONLY code", they want the file content.
-If I just output the ERB, I miss the "Make sure the project includes..." part.
-If I output the ERB + Gemfile + JS config, that covers the "Make sure" part.
-Let's look at the provided snippet. It uses `@summary`, `currency`, `format_date`. These are likely helper methods.
-The prompt asks to "Build an ERB template".
-I will provide the ERB template.
-To address the "Make sure the project includes..." constraint while adhering to "Output ONLY code", I will include the necessary setup files (Gemfile, application.js) alongside the ERB template. This is the most helpful interpretation of "production-ready" + "Make sure...".
+<div class="container mt-4">
+  <h1>Dashboard</h1>
 
-Wait, the prompt says "Build an ERB template...". It might just want the ERB.
-But the last sentence is a specific instruction: "Make sure the project includes... If not present, add a note".
-If I can't write text outside the code, I must put the note in a comment or provide the setup files.
-Providing the setup files is safer for "production-ready".
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Monthly Summary - <%= @month.strftime("%B %Y") %></h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Total Expenses:</strong> <%= number_to_currency(@summary[:total_amount]) %></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-Let's assume the user wants the ERB file content primarily.
-I will provide:
-1. `app/views/dashboard/show.html.erb` (The main request)
-2. `Gemfile` (To satisfy the gem requirement)
-3. `app/javascript/application.js` (To satisfy the JS library requirement)
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Expenses by Category</h5>
+        </div>
+        <div class="card-body">
+          <% if @summary[:by_category].any? %>
+            <%= pie_chart @summary[:by_category] %>
+          <% else %>
+            <p>No expenses this month.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
 
-This ensures the "Make sure" part is handled via code.
-
-Refining the ERB:
-- The provided snippet is good.
-- I should ensure it's valid ERB.
-- I'll keep the structure provided.
-
-Refining the Gemfile:
-- Add `chartkick`
-- Add `groupdate` (often used with chartkick for time series, though less critical for pie charts, the prompt mentioned it)
-- Add `chartjs-rails` or similar for the JS library.
-
-Refining the JS:
-- Import chartkick and chart.js.
-
-Let's generate the files.
-
-File 1: `app/views/dashboard/show.html.erb`
-File 2: `Gemfile`
-File 3: `app/javascript/application.js`
-
-Wait, the prompt says "Output ONLY code".
-I will output the code blocks.
-
-One detail: The prompt says "If not present, add a note".
-If I output the Gemfile, I am *making* it present.
-If I output the ERB with a comment at the top saying "Ensure chartkick is installed", that satisfies "add a note".
-But providing the Gemfile is more "production-ready".
-I'll provide the ERB and the necessary configuration files to make it work.
-
-Let's stick to the ERB template as the primary output, but since the prompt explicitly asks to "Make sure the project includes...", providing the setup files is the best way to do that in code-only format.
-
-Actually, looking at the snippet, it's already quite complete.
-I will output the ERB template.
-I will also output the Gemfile and JS config to fulfill the dependency requirement.
-
-Final plan:
-1. `app/views/dashboard/show.html.erb`
-2. `Gemfile`
-3. `app/javascript/application.js`
-
-This covers all bases.
-
-One check: "Output ONLY code, no explanations."
-I must not write "Here is the code" or "Add this to your Gemfile".
-Just the code blocks.
-
-The ERB snippet provided in the prompt is actually the target. I should probably just return that ERB, maybe cleaned up, and the supporting files.
-The prompt says "Build an ERB template...".
-I will provide the ERB.
-I will also provide the Gemfile and JS to ensure the dependencies are there.
-
-Let's double check the ERB syntax.
-`<%= pie_chart ... %>` is correct for Chartkick.
-`@summary[:by_category].map { |name, amount| [name, amount] }` is correct.
-
-I will provide the three files.
-
-One nuance: The user might just want the ERB.
-"Build an ERB template... Make sure the project includes... If not present, add a note".
-If I provide the Gemfile, I am not adding a note, I am adding the code.
-If I provide the ERB with a comment, I am adding a note.
-"Make sure the project includes... If not present, add a note" implies I should check (which I can't) and then add a note.
-Since I am generating the code, I can generate the Gemfile to *make* it present. This is better than a note.
-
-I will provide:
-1. `app/views/dashboard/show.html.erb`
-2. `Gemfile`
-3. `app/javascript/application.js`
-
-This is the most robust "production-ready" response.
-
-Wait, looking at the prompt again: "Build an ERB template...".
-Maybe just the ERB is expected.
-But the dependency instruction is strong.
-I'll provide the ERB and the setup files.
-
-One small correction: `chartjs-rails` is the gem for Chart.js in Rails.
-`chartkick` is the gem for the helper.
-`groupdate` is for grouping.
-
-Okay, let's write the code.
-
-<!-- app/views/dashboard/show.html.erb -->
-...
-
-# Gemfile
-...
-
-// app/javascript/application.js
-...
-
-This looks correct.
-
-One final check on the ERB content.
-The user provided a snippet. I should use it as the base.
-I will ensure the ERB is valid.
-
-The prompt says "Output ONLY code".
-I will output the file contents.
-
-One potential issue: The user might be using Webpacker or Importmaps.
-`app/javascript/application.js` suggests Webpacker/ESBuild.
-If using Importmaps, it would be `config/importmap.rb`.
-Standard Rails 7+ uses Importmaps.
-However, `chartkick` often recommends `chartjs-rails` which works with both.
-I'll stick to `app/javascript/application.js` as it's more generic for "JS charting library" inclusion in modern Rails contexts (or at least widely understood).
-
-Actually, for Rails 7+, `importmap.rb` is preferred.
-But `chartkick` docs often show `application.js`.
-I'll provide `app/javascript/application.js` as it's safer for a generic "production-ready" request without knowing the exact Rails version, but `importmap` is more current.
-Let's stick to `application.js` as it's the standard entry point for JS in Rails 6/7 (via esbuild/webpacker) and `chartkick` examples often use it.
-
-Wait, if I provide `Gemfile`, I should probably provide the full content or just the relevant lines?
-"Output ONLY code".
-I'll provide the full relevant files.
-
-Let's refine the ERB to be perfect.
-The snippet looks good.
-
-Final decision:
-1. `app/views/dashboard/show.html.erb`
-2. `Gemfile`
-3. `app/javascript/application.js`
-
-This satisfies "Build an ERB template" and "Make sure the project includes...".
-
-One detail: `currency` and `format_date` helpers are used in the ERB but not defined.
-The prompt implies these exist ("uses Bootstrap... and Chartkick").
-I won't define them unless asked, as they are likely in `application_helper.rb`.
-The prompt asks for the ERB template.
-
-I will output the three files.
-
-One constraint: "Output ONLY code, no explanations."
-I must not add markdown text outside the code blocks?
-"Output ONLY code" usually means no conversational filler.
-Markdown code blocks are standard.
-
-Let's do this.
-
-File 1: ERB
-File 2: Gemfile
-File 3: JS
-
-Wait, the prompt says "If not present, add a note".
-If I provide the Gemfile, I am making it present.
-If I provide the ERB with a comment, I am adding a note.
-I think providing the Gemfile is the superior "production-ready" action.
-I will provide the Gemfile.
-
-One last check: `chartkick` requires a charting library.
-`chartjs-rails` is the standard companion.
-`groupdate` is optional but requested.
-
-Okay, ready.
-
-One minor thing: The ERB snippet uses `@summary`.
-I will assume the controller sets this.
-
-Final Output Structure
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5>Recent Expenses</h5>
+        </div>
+        <div class="card-body">
+          <% if @summary[:recent_expenses].any? %>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @summary[:recent_expenses].each do |expense| %>
+                  <tr>
+                    <td><%= expense.date.strftime("%m/%d/%Y") %></td>
+                    <td><%= expense.description %></td>
+                    <td><%= number_to_currency(expense.amount) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p>No recent expenses.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
