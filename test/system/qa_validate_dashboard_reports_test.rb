@@ -5,42 +5,56 @@ class QaValidateDashboardReportsTest < ApplicationSystemTestCase
     # Any setup needed before each test
   end
   
-  class DashboardAndReportsTest < ApplicationSystemTestCase
-  test "user can view dashboard and generate expense report" do
+  class DashboardReportsTest < ApplicationSystemTestCase
+  test "user can view dashboard and generate reports" do
     # Sign in
     visit "/users/sign_in"
     fill_in "Email", with: "test@example.com"
     fill_in "Password", with: "password123"
     click_button "Log in"
+    assert_text "Dashboard"
     assert_current_path "/dashboard"
-    assert_text "Welcome, test@example.com"
 
-    # Verify dashboard widgets
-    assert_selector "h2", text: "Recent Expenses"
-    assert_selector "div.dashboard-summary"
-    assert_selector "span.total-expense", text: /\$\d+/
+    # Verify dashboard widgets are present
+    assert_selector "h2", text: "Monthly Expenses"
+    assert_selector ".total-expense", text: "$0.00"
 
-    # Navigate to Reports page
+    # Create a sample expense to have data for reports
+    click_link "Add Expense"
+    fill_in "Amount", with: "120.50"
+    fill_in "Description", with: "Office Supplies"
+    select "2023", from: "Year"
+    select "March", from: "Month"
+    select "Supplies", from: "Category"
+    click_button "Create Expense"
+    assert_text "Expense was successfully created"
+    assert_current_path "/expenses"
+
+    # Return to dashboard and verify the new expense appears
+    click_link "Dashboard"
+    assert_current_path "/dashboard"
+    assert_text "Office Supplies"
+    assert_selector ".total-expense", text: "$120.50"
+
+    # Navigate to reports page
     click_link "Reports"
     assert_current_path "/reports"
-    assert_text "Generate Expense Report"
+    assert_text "Generate Report"
 
-    # Set report filters
-    select "Last 30 Days", from: "Date Range"
+    # Generate a monthly report
+    select "March 2023", from: "Month"
     select "All Categories", from: "Category"
-    click_button "Generate Report"
-
-    # Verify report output
-    assert_text "Expense Report"
+    click_button "Generate"
+    assert_text "Report for March 2023"
     assert_selector "table.report-table"
-    assert_selector "th", text: "Date"
-    assert_selector "th", text: "Category"
-    assert_selector "th", text: "Amount"
-    assert_text "$"
+    assert_text "Office Supplies"
+    assert_text "$120.50"
 
-    # Export the report
-    click_button "Export CSV"
-    assert_text "Report exported successfully"
+    # Verify download link for the report
+    assert_selector "a", text: "Download CSV"
+    click_link "Download CSV"
+    # Assuming the download triggers a response, we just confirm the link exists
+    assert_text "Your CSV report is being prepared"
   end
 end
 end
