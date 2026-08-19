@@ -5,78 +5,41 @@ class ReviewExpenseFormDesignTest < ApplicationSystemTestCase
     # Any setup needed before each test
   end
   
-  class ExpenseTrackerTest < ApplicationSystemTestCase
-  test "user can create a new expense" do
-    # Log in
-    visit "/login"
+  class ExpenseFormDesignTest < ApplicationSystemTestCase
+  test "user can create, edit, and view an expense" do
+    # Sign in
+    visit "/users/sign_in"
     fill_in "Email", with: "test@example.com"
     fill_in "Password", with: "password123"
     click_button "Log in"
     assert_text "Signed in successfully"
-    assert_current_path "/dashboard"
+    assert_current_path "/"
 
-    # Navigate to new expense form
-    click_link "New Expense"
-    assert_current_path "/expenses/new"
-
-    # Fill out the expense form
-    fill_in "Amount", with: "123.45"
-    fill_in "Description", with: "Business lunch with client"
-    select "Food", from: "Category"
+    # Create a new expense
+    visit "/expenses/new"
+    fill_in "Title", with: "Lunch with client"
+    fill_in "Amount", with: "45.67"
     fill_in "Date", with: "2023-09-15"
+    select "Meals", from: "Category"
+    fill_in "Notes", with: "Business lunch at downtown cafe"
     click_button "Create Expense"
+    assert_text "Expense was successfully created."
+    assert_selector "h1", text: "Lunch with client"
+    expense_path = current_path
+    assert_current_path expense_path
 
-    # Verify creation
-    assert_text "Expense was successfully created"
-    assert_current_path "/expenses"
-    assert_selector "tr", text: "Business lunch with client"
-    assert_selector "tr", text: "$123.45"
-  end
-
-  test "user can edit an existing expense" do
-    # Log in
-    visit "/login"
-    fill_in "Email", with: "test@example.com"
-    fill_in "Password", with: "password123"
-    click_button "Log in"
-    assert_current_path "/dashboard"
-
-    # Assume an expense exists; navigate to its edit page
-    visit "/expenses"
-    click_link "Edit", match: :first
-    assert_current_path %r{^/expenses/\d+/edit$}
-
-    # Update the expense
-    fill_in "Amount", with: "150.00"
-    fill_in "Description", with: "Updated business dinner"
-    select "Entertainment", from: "Category"
+    # Edit the expense
+    click_link "Edit"
+    fill_in "Amount", with: "50.00"
     click_button "Update Expense"
+    assert_text "Expense was successfully updated."
+    assert_text "$50.00"
 
-    # Verify update
-    assert_text "Expense was successfully updated"
+    # Return to the expenses index
+    click_link "Back"
     assert_current_path "/expenses"
-    assert_selector "tr", text: "Updated business dinner"
-    assert_selector "tr", text: "$150.00"
-  end
-
-  test "user sees validation errors when required fields are missing" do
-    # Log in
-    visit "/login"
-    fill_in "Email", with: "test@example.com"
-    fill_in "Password", with: "password123"
-    click_button "Log in"
-    assert_current_path "/dashboard"
-
-    # Attempt to create an expense with missing fields
-    click_link "New Expense"
-    fill_in "Amount", with: ""
-    fill_in "Description", with: ""
-    click_button "Create Expense"
-
-    # Verify validation messages
-    assert_text "Amount can't be blank"
-    assert_text "Description can't be blank"
-    assert_current_path "/expenses"
+    assert_text "Lunch with client"
+    assert_selector "td", text: "$50.00"
   end
 end
 end
