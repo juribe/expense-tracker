@@ -24,7 +24,7 @@
         </div>
         <div class="col-md-3">
           <%= f.label :frequency, "Frequency", class: "form-label" %>
-          <%= f.select :frequency, Expense.frequencies.keys.map { |f| [f.humanize, f] }, { include_blank: "All" }, class: "form-select" %>
+          <%= f.select :frequency, frequency_options, { include_blank: "All" }, class: "form-select" %>
         </div>
         <div class="col-md-2 d-flex align-items-end">
           <%= f.submit "Filter", class: "btn btn-outline-primary w-100" %>
@@ -53,9 +53,7 @@
               <td><%= expense.date.strftime("%b %d, %Y") %></td>
               <td><%= expense.description %></td>
               <td>
-                <span class="badge" style="background-color: <%= expense.category.color %>">
-                  <i class="bi bi-<%= expense.category.icon %>"></i> <%= expense.category.name %>
-                </span>
+                <%= category_badge(expense.category) %>
               </td>
               <td><span class="badge bg-secondary"><%= expense.frequency.humanize %></span></td>
               <td class="text-end fw-bold text-danger">-$<%= number_with_precision(expense.amount, precision: 2) %></td>

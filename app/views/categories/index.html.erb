@@ -1,17 +1,45 @@
-<h1>Categories</h1>
-
-<%= link_to 'New Category', new_category_path, class: 'button is-primary' %>
-
-<ul class="list-unstyled">
-  <% @categories.each do |category| %>
-    <li class="category-item">
-      <strong><%= category.name %></strong> – <%= category.description %>
-      | <%= link_to 'Show', category, class: 'mr-2' %>
-      <%= link_to 'Edit', edit_category_path(category), class: 'mr-2' %>
-      <%= link_to 'Delete', category, 
-                  method: :delete, 
-                  data: { confirm: 'Are you sure?' }, 
-                  class: 'btn btn-danger' %>
-    </li>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><i class="bi bi-tags me-2"></i>Categories</h1>
+  <%= link_to new_category_path, class: "btn btn-primary" do %>
+    <i class="bi bi-plus-lg me-1"></i>New Category
   <% end %>
-</ul>
+</div>
+
+<% if @categories.any? %>
+  <div class="row g-3">
+    <% @categories.each do |category| %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <%= category_badge(category) %>
+              <div class="btn-group btn-group-sm">
+                <%= link_to edit_category_path(category), class: "btn btn-outline-primary", title: "Edit" do %>
+                  <i class="bi bi-pencil"></i>
+                <% end %>
+                <%= button_to category_path(category), method: :delete, class: "btn btn-outline-danger", title: "Delete", data: { confirm: "Are you sure?" }, form: { style: "display: inline-block" } do %>
+                  <i class="bi bi-trash"></i>
+                <% end %>
+              </div>
+            </div>
+            <p class="text-muted mb-0"><%= category.description %></p>
+            <small class="text-muted">
+              <%= pluralize(category.expenses.count, "expense") %>
+            </small>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="p-5 text-center">
+      <i class="bi bi-tags display-4 text-muted mb-3 d-block"></i>
+      <h4 class="mb-2">No categories yet</h4>
+      <p class="text-muted">Create your first category to organize expenses.</p>
+      <%= link_to new_category_path, class: "btn btn-primary mt-3" do %>
+        <i class="bi bi-plus-lg me-1"></i>New Category
+      <% end %>
+    </div>
+  </div>
+<% end %>
