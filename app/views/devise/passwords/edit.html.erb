@@ -1,25 +1,56 @@
-<h2>Change your password</h2>
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card shadow-sm my-5">
+      <div class="card-body p-4 p-md-5">
+        <% if @success_notice %>
+          <h1 class="h3 mb-3 text-center fw-bold">Password updated</h1>
+          <div class="alert alert-success" role="alert" data-auto-redirect-to="<%= root_path %>">
+            <i class="bi bi-check-circle me-2"></i><%= @success_notice %>
+          </div>
+          <p class="text-center text-muted small mb-0">Redirecting you to your dashboard…</p>
+        <% else %>
+          <h1 class="h3 mb-1 text-center fw-bold">Reset your password</h1>
+          <p class="text-muted text-center mb-4">Choose a new password for your account.</p>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
-  <%= f.hidden_field :reset_password_token %>
+          <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "auth-form" }) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+            <%= f.hidden_field :reset_password_token %>
 
-  <div class="field">
-    <p><%= f.label :password, "New password" %></p>
-    <% if @minimum_password_length %>
-      <p><em>(<%= @minimum_password_length %> characters minimum)</em></p>
-    <% end %>
-    <p><%= f.password_field :password, autofocus: true, autocomplete: "new-password" %></p>
+            <div class="mb-3">
+              <%= f.label :password, "New password", class: "form-label" %>
+              <% if @minimum_password_length %>
+                <span class="text-muted small">(<%= @minimum_password_length %> characters minimum)</span>
+              <% end %>
+              <div class="position-relative">
+                <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "form-control password-field", placeholder: "New password" %>
+                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
+                        data-toggle-pw-target="#user_password" aria-label="Show password">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :password_confirmation, "Confirm new password", class: "form-label" %>
+              <div class="position-relative">
+                <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control password-field", placeholder: "Repeat new password" %>
+                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
+                        data-toggle-pw-target="#user_password_confirmation" aria-label="Show password">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">Reset Password</button>
+          <% end %>
+
+          <p class="text-center mt-3 mb-0">
+            Remembered? <%= link_to "Back to Sign In", new_session_path(resource_name), class: "link-secondary" %>
+          </p>
+        <% end %>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <p><%= f.label :password_confirmation, "Confirm new password" %></p>
-    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Change my password" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+<%= render "devise/shared/auth_scripts" %>

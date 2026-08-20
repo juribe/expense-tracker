@@ -8,3 +8,41 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* -------------------------------------------------
+ * Devise authentication forms
+ * ------------------------------------------------- */
+.auth-form .form-label {
+  font-weight: 500;
+}
+
+.auth-form .form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* Space for the visibility toggle inside password inputs */
+.password-field {
+  padding-right: 2.75rem;
+}
+
+.toggle-pw {
+  z-index: 3;
+  color: #6c757d;
+  padding: 0 0.75rem;
+  text-decoration: none;
+}
+
+.toggle-pw:hover {
+  color: #0d6efd;
+}
+
+.auth-form .btn:hover {
+  filter: brightness(0.95);
+}
+
+@media (max-width: 575.98px) {
+  .auth-form .card-body {
+    padding: 1.5rem !important;
+  }
+}
