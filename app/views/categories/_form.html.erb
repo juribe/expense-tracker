@@ -1,26 +1,167 @@
-<%= form_with(model: category, local: true) do |form| %>
-  <% if category.errors.any? %>
-    <div id="error_explanation" style="background-color: #fcf8e3; padding: 10px; margin-bottom: 20px; border: 1px solid #e0c080;">
-      <h2><%= pluralize(category.errors.count, "error") %> prohibited this <%= category.class.model_name.human.downcase %> from being saved:</h2>
-      <ul>
-        <% category.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
+<div class="container-fluid py-4 category-form" style="max-width: 960px; margin: 0 auto;">
+  <%= form_with(model: category, local: true, html: { novalidate: false }) do |form| %>
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-tags me-2"></i><%= category.new_record? ? "Create" : "Edit" %> Category
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <!-- Error Summary -->
+        <div class="alert alert-danger <%= category.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
+          <h6 class="alert-heading">
+            <i class="bi bi-exclamation-circle me-1"></i>Please fix the following errors:
+          </h6>
+          <ul class="mb-0" id="error-summary-list">
+            <% category.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="row g-3">
+          <!-- Category Name -->
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <%= form.label :name, class: "form-label" do %>
+                Name <span class="text-danger">*</span>
+              <% end %>
+              <%= form.text_field :name, class: "form-control #{field_class(category, :name)}", placeholder: "e.g., Electronics", autocomplete: "off", aria_describedby: "nameHelp" %>
+              <div id="nameHelp" class="form-text">A short, unique name for the category.</div>
+              <% if category.errors[:name].any? %>
+                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :name) %></div>
+              <% else %>
+                <div class="valid-feedback"><i class="bi bi-check-circle me-1"></i>Looks good!</div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Slug (auto-generated) -->
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <%= form.label :slug, class: "form-label" do %>
+                Slug <i class="bi bi-info-circle text-muted" title="Auto-generated from name"></i>
+              <% end %>
+              <%= form.text_field :slug, class: "form-control-plaintext bg-light rounded px-2", disabled: true, title: "Auto-generated from name", aria_describedby: "slugHelp" %>
+              <div id="slugHelp" class="form-text"><i class="bi bi-magic me-1"></i>Auto-generated from name</div>
+            </div>
+          </div>
+
+          <!-- Parent Category -->
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <%= form.label :parent_id, "Parent Category", class: "form-label" %>
+              <%= form.collection_select :parent_id, @parent_categories, :id, :name, { prompt: "None (Root)" }, class: "form-select #{field_class(category, :parent_id)}", aria_describedby: "parentHelp" %>
+              <div id="parentHelp" class="form-text">Optional parent category for nesting.</div>
+              <% if category.errors[:parent_id].any? %>
+                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :parent_id) %></div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Status Toggle -->
+          <div class="col-12 col-md-6">
+            <div class="mb-3 pt-4 d-print-none">
+              <div class="form-check form-switch">
+                <%= form.check_box :active, class: "form-check-input", role: "switch", aria_describedby: "activeHelp" %>
+                <%= form.label :active, "Active", class: "form-check-label" %>
+              </div>
+              <div id="activeHelp" class="form-text ms-2">Inactive categories are hidden from new expenses.</div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="col-12">
+            <div class="mb-3">
+              <%= form.label :description, class: "form-label" %>
+              <%= form.text_area :description, class: "form-control #{field_class(category, :description)}", rows: 3, placeholder: "Optional detailed description", aria_describedby: "descriptionHelp", autocomplete: "off" %>
+              <div id="descriptionHelp" class="form-text">Optional.</div>
+              <% if category.errors[:description].any? %>
+                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :description) %></div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Image Upload -->
+          <div class="col-12">
+            <div class="mb-3 d-print-none">
+              <%= form.label :image, "Image", class: "form-label" %>
+              <div class="input-group">
+                <%= form.file_field :image, class: "form-control", accept: "image/*", aria_describedby: "imageHelp" %>
+                <button type="button" class="btn btn-outline-secondary" id="image-browse-btn">
+                  <i class="bi bi-folder2-open me-1"></i>Browse
+                </button>
+              </div>
+              <div id="imageHelp" class="form-text">Optional. PNG or JPG recommended.</div>
+              <img id="image-preview" class="img-thumbnail d-none mt-2" style="max-width: 160px; max-height: 160px;" alt="Category image preview">
+              <% if category.image.present? && !category.new_record? %>
+                <img class="img-thumbnail mt-2" style="max-width: 160px; max-height: 160px;" src="<%= category.image %>" alt="<%= category.name %>">
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
+        <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-x-lg me-1"></i>Cancel
         <% end %>
-      </ul>
+        <%= form.submit "Save Category", class: "btn btn-primary", id: "save-category-btn" %>
+      </div>
     </div>
+
+    <script>
+      (function () {
+        var form = document.querySelector(".category-form form");
+        var saveBtn = document.getElementById("save-category-btn");
+        var nameInput = document.getElementById("category_name");
+        var fileInput = document.getElementById("category_image");
+        var browseBtn = document.getElementById("image-browse-btn");
+        var preview = document.getElementById("image-preview");
+
+        function refreshSaveState() {
+          if (!saveBtn) return;
+          var isNew = <%= category.new_record? ? "true" : "false" %>;
+          var hasName = nameInput && nameInput.value.trim().length > 0;
+          saveBtn.disabled = isNew ? !hasName : false;
+        }
+
+        if (form) {
+          form.addEventListener("input", function () {
+            form.dataset.dirty = "true";
+            refreshSaveState();
+          });
+          form.addEventListener("submit", function () {
+            var summary = document.getElementById("error-summary");
+            var invalid = form.querySelectorAll(".is-invalid").length > 0;
+            if (summary && invalid) {
+              summary.classList.remove("d-none");
+            }
+          });
+        }
+
+        if (browseBtn && fileInput) {
+          browseBtn.addEventListener("click", function () {
+            fileInput.click();
+          });
+        }
+
+        if (fileInput && preview) {
+          fileInput.addEventListener("change", function () {
+            var file = fileInput.files[0];
+            if (file) {
+              preview.src = URL.createObjectURL(file);
+              preview.classList.remove("d-none");
+            } else {
+              preview.src = "";
+              preview.classList.add("d-none");
+            }
+          });
+        }
+
+        refreshSaveState();
+      })();
+    </script>
   <% end %>
-
-  <div class="field">
-    <%= form.label :name %>
-    <%= form.text_field :name, autocomplete: "off" %>
-  </div>
-
-  <div class="field">
-    <%= form.label :description %>
-    <%= form.text_area :description, rows: 4, autocomplete: "off" %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit "Save", class: "btn btn-primary" %>
-  </div>
-<% end %>
+</div>

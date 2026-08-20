@@ -13,4 +13,14 @@ module ApplicationHelper
   def active_class(controller)
     controller_name == controller ? "active" : ""
   end
+
+  def field_class(object, method)
+    return "" unless object.errors.any?
+
+    object.errors[method].any? ? "is-invalid" : "is-valid"
+  end
+
+  def field_error(object, method)
+    object.errors[method].first
+  end
 end

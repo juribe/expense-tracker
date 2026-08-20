@@ -1,4 +1,24 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
+<% if flash[:success] %>
+  <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" id="success-toast" data-bs-delay="3000">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-check-circle me-1"></i><%= flash[:success] %>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var toastEl = document.getElementById("success-toast");
+      if (toastEl && window.bootstrap) {
+        var toast = new bootstrap.Toast(toastEl, { delay: 3000, autohide: true });
+        toast.show();
+      }
+    })();
+  </script>
+<% end %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
   <h1><i class="bi bi-tags me-2"></i>Categories</h1>
   <%= link_to new_category_path, class: "btn btn-primary" do %>
     <i class="bi bi-plus-lg me-1"></i>New Category
@@ -12,20 +32,26 @@
         <div class="card h-100 shadow-sm">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <%= category_badge(category) %>
-              <div class="btn-group btn-group-sm">
-                <%= link_to edit_category_path(category), class: "btn btn-outline-primary", title: "Edit" do %>
+              <%= link_to category_badge(category), category_path(category), class: "text-decoration-none" %>
+              <div class="btn-group btn-group-sm d-print-none">
+                <%= link_to edit_category_path(category), class: "btn btn-outline-primary", title: "Edit", aria: { label: "Edit #{category.name}" } do %>
                   <i class="bi bi-pencil"></i>
                 <% end %>
-                <%= button_to category_path(category), method: :delete, class: "btn btn-outline-danger", title: "Delete", data: { confirm: "Are you sure?" }, form: { style: "display: inline-block" } do %>
+                <%= button_to category_path(category), method: :delete, class: "btn btn-outline-danger", title: "Delete", aria: { label: "Delete #{category.name}" }, data: { confirm: "Are you sure?" }, form: { style: "display: inline-block" } do %>
                   <i class="bi bi-trash"></i>
                 <% end %>
               </div>
             </div>
             <p class="text-muted mb-0"><%= category.description %></p>
+            <small class="text-muted d-block">
+              <i class="bi bi-diagram-2 me-1"></i><%= category.parent&.name || "Root" %>
+            </small>
             <small class="text-muted">
               <%= pluralize(category.expenses.count, "expense") %>
             </small>
+            <% unless category.active %>
+              <span class="badge bg-secondary ms-1">Inactive</span>
+            <% end %>
           </div>
         </div>
       </div>

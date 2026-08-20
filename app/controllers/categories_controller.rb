@@ -1,5 +1,6 @@
 class CategoriesController < ApplicationController
   before_action :set_category, only: [:show, :edit, :update, :destroy]
+  before_action :set_parent_categories, only: [:new, :create, :edit, :update]
 
   # GET /categories
   def index
@@ -24,10 +25,10 @@ class CategoriesController < ApplicationController
     @category = Category.new(category_params)
     respond_to do |format|
       if @category.save
-        format.html { redirect_to @category, notice: 'Category was successfully created.' }
+        format.html { redirect_to @category, flash: { success: 'Category was successfully created.' } }
         format.json { render :show, status: :created, location: @category }
       else
-        format.html { render :new }
+        format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @category.errors, status: :unprocessable_entity }
       end
     end
@@ -37,10 +38,10 @@ class CategoriesController < ApplicationController
   def update
     respond_to do |format|
       if @category.update(category_params)
-        format.html { redirect_to @category, notice: 'Category was successfully updated.' }
+        format.html { redirect_to @category, flash: { success: 'Category was successfully updated.' } }
         format.json { render :show, status: :ok, location: @category }
       else
-        format.html { render :edit }
+        format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @category.errors, status: :unprocessable_entity }
       end
     end
@@ -50,7 +51,7 @@ class CategoriesController < ApplicationController
   def destroy
     @category.destroy
     respond_to do |format|
-      format.html { redirect_to categories_url, notice: 'Category was successfully destroyed.' }
+      format.html { redirect_to categories_url, flash: { success: 'Category was successfully destroyed.' } }
       format.json { head :no_content }
     end
   end
@@ -64,7 +65,12 @@ class CategoriesController < ApplicationController
     redirect_to categories_path
   end
 
+  def set_parent_categories
+    @parent_categories = Category.all
+    @parent_categories = @parent_categories.where.not(id: @category.id) if @category&.persisted?
+  end
+
   def category_params
-    params.require(:category).permit(:name, :description)
+    params.require(:category).permit(:name, :slug, :parent_id, :description, :active, :image)
   end
 end

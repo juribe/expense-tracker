@@ -1,15 +1,68 @@
-<h1><%= @category.name %></h1>
-
-<p><strong>Description:</strong> <%= @category.description %></p>
-
-<% if current_user && current_user.admin? %>
-  <%= link_to 'Edit', edit_category_path(@category) %> |
-  <%= link_to 'Destroy', category_path(@category),
-              method: :delete,
-              data: { confirm: 'Are you sure?' },
-              style: :danger %>
+<% if flash[:success] %>
+  <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true" id="success-toast" data-bs-delay="3000">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-check-circle me-1"></i><%= flash[:success] %>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var toastEl = document.getElementById("success-toast");
+      if (toastEl && window.bootstrap) {
+        var toast = new bootstrap.Toast(toastEl, { delay: 3000, autohide: true });
+        toast.show();
+      }
+    })();
+  </script>
 <% end %>
 
-<p>
-  <%= link_to 'Back to Categories', categories_path %>
-</p>
+<div class="container-fluid py-4" style="max-width: 960px; margin: 0 auto;">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">
+        <i class="bi bi-tags me-2"></i><%= @category.name %>
+        <% unless @category.active %>
+          <span class="badge bg-secondary ms-2">Inactive</span>
+        <% end %>
+      </h4>
+    </div>
+    <div class="card-body">
+      <% if @category.image.present? %>
+        <img src="<%= @category.image %>" class="img-thumbnail mb-3" style="max-width: 160px; max-height: 160px;" alt="<%= @category.name %>">
+      <% end %>
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Slug</dt>
+        <dd class="col-sm-9"><code><%= @category.slug %></code></dd>
+
+        <dt class="col-sm-3">Parent Category</dt>
+        <dd class="col-sm-9"><%= @category.parent&.name || "None (Root)" %></dd>
+
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9"><%= @category.description.presence || "—" %></dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">
+          <%= @category.active ? '<i class="bi bi-check-circle text-success"></i> Active'.html_safe : '<i class="bi bi-x-circle text-danger"></i> Inactive'.html_safe %>
+        </dd>
+
+        <dt class="col-sm-3">Expenses</dt>
+        <dd class="col-sm-9"><%= pluralize(@category.expenses.count, "expense") %></dd>
+      </dl>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Back to Categories
+      <% end %>
+      <div class="d-flex gap-2">
+        <%= link_to edit_category_path(@category), class: "btn btn-outline-primary" do %>
+          <i class="bi bi-pencil me-1"></i>Edit
+        <% end %>
+        <%= button_to category_path(@category), method: :delete, class: "btn btn-outline-danger", data: { confirm: "Are you sure?" }, form: { class: "d-inline" } do %>
+          <i class="bi bi-trash me-1"></i>Destroy
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
