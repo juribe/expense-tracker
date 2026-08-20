@@ -120,6 +120,14 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "tr[data-testid=row]", count: 5
   end
 
+  test "GET /expenses shows the subtotal of the visible page, not the filtered total" do
+    30.times { |i| create_expense(amount: 10.0 + i, date: Date.today, description: "Expense #{i}") }
+    get expenses_path, params: { page: 2 }
+    assert_response :success
+    assert_select "#pageFoot", text: /Page total \$185\.00/
+    assert_select "#pageFoot", text: /Filtered total \$735\.00/
+  end
+
   test "GET /expenses.csv exports the filtered set as CSV" do
     create_expense(amount: 12.50, date: Date.new(2026, 3, 10), description: 'Lunch, "business"')
     create_expense(amount: 8.00, date: Date.new(2026, 1, 1), description: "Excluded", category: @other_category)
@@ -153,7 +161,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     a = create_expense(amount: 1, date: Date.today, description: "A")
     b = create_expense(amount: 2, date: Date.today, description: "B")
     c = create_expense(amount: 3, date: Date.today, description: "C")
-    delete bulk_destroy_expenses_path, params: { ids: [a.id, c.id] }
+    delete bulk_destroy_expenses_path, params: { ids: [ a.id, c.id ] }
     assert_redirected_to expenses_path
     assert Expense.exists?(b.id)
     assert_not Expense.exists?(a.id)

@@ -10,15 +10,15 @@ module ExpensesHelper
     active = current_sort == column
     dir = if active
             current_dir == "asc" ? "desc" : "asc"
-          else
+    else
             DEFAULT_SORT_DIR.fetch(column, "asc")
-          end
+    end
     aria_sort = active ? (current_dir == "asc" ? "ascending" : "descending") : nil
     icon = if active
              current_dir == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill"
-           else
+    else
              "bi-chevron-expand"
-           end
+    end
 
     attrs = { scope: "col", class: ("text-end" if column == "amount") }
     attrs["aria-sort"] = aria_sort if aria_sort
@@ -95,13 +95,13 @@ module ExpensesHelper
     pages.each do |page|
       items << if page == :ellipsis
                  content_tag(:li, content_tag(:span, "…", class: "page-link"), class: "page-item disabled")
-               else
+      else
                  pagination_item(
                    link_to(page.to_s, expenses_path(page_params.merge(page: page))),
                    item_class: "page-item#{' active' if page == current_page}",
                    active: page == current_page
                  )
-               end
+      end
     end
     items
   end
@@ -109,8 +109,8 @@ module ExpensesHelper
   def pagination_window(current_page, total_pages)
     return (1..total_pages).to_a if total_pages <= (PAGINATION_WINDOW * 2) + 1
 
-    start_page = [current_page - PAGINATION_WINDOW, 1].max
-    end_page = [current_page + PAGINATION_WINDOW, total_pages].min
+    start_page = [ current_page - PAGINATION_WINDOW, 1 ].max
+    end_page = [ current_page + PAGINATION_WINDOW, total_pages ].min
     window = (start_page..end_page).to_a
     window.unshift(1) unless window.include?(1)
     window.push(total_pages) unless window.include?(total_pages)

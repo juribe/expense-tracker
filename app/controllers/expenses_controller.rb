@@ -5,10 +5,10 @@ class ExpensesController < ApplicationController
   before_action :authenticate_user!
 
   # Load the expense record for actions that need it
-  before_action :set_expense, only: [:show, :edit, :update, :destroy]
+  before_action :set_expense, only: [ :show, :edit, :update, :destroy ]
 
   # Load categories for forms and the index filter
-  before_action :set_categories, only: [:index, :new, :create, :edit, :update]
+  before_action :set_categories, only: [ :index, :new, :create, :edit, :update ]
 
   SORTABLE_COLUMNS = %w[date description category frequency amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
@@ -34,7 +34,7 @@ class ExpensesController < ApplicationController
           @total_count = @expenses.count
           @filtered_total = @expenses.sum(:amount)
           paginate_expenses
-          @page_subtotal = @expenses.sum(:amount)
+          @page_subtotal = @expenses.sum(&:amount)
           render :index
         end
       end
@@ -74,7 +74,7 @@ class ExpensesController < ApplicationController
   def create
     @expense = current_user.expenses.build(expense_params)
     if @expense.save
-      redirect_to expenses_path, notice: 'Expense was successfully created.'
+      redirect_to expenses_path, notice: "Expense was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -85,7 +85,7 @@ class ExpensesController < ApplicationController
 
   def update
     if @expense.update(expense_params)
-      redirect_to expenses_path(redirect_params), notice: 'Expense was successfully updated.'
+      redirect_to expenses_path(redirect_params), notice: "Expense was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -93,7 +93,7 @@ class ExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-    redirect_to expenses_path(redirect_params), notice: 'Expense was successfully deleted.'
+    redirect_to expenses_path(redirect_params), notice: "Expense was successfully deleted."
   end
 
   def bulk_destroy
@@ -201,7 +201,7 @@ class ExpensesController < ApplicationController
     @page = params[:page].to_i.positive? ? params[:page].to_i : 1
     @page = @total_pages if @page > @total_pages
     @offset = (@page - 1) * @per_page
-    @expenses = @expenses.limit(@per_page).offset(@offset)
+    @expenses = @expenses.limit(@per_page).offset(@offset).to_a
   end
 
   def render_csv(expenses)

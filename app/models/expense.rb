@@ -14,7 +14,7 @@ class Expense < ApplicationRecord
   def self.dashboard_summary(user:, month: Time.zone.today)
     expenses = for_user(user).in_month(month)
     total_amount = expenses.sum(:amount)
-    by_category = expenses.joins(:category).group('categories.name').sum(:amount)
+    by_category = expenses.joins(:category).group("categories.name").sum(:amount)
     recent_expenses = expenses.recent(5)
     {
       total_amount: total_amount,
