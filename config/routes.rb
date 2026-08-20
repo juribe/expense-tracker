@@ -6,6 +6,11 @@ Rails.application.routes.draw do
   # Devise authentication
   devise_for :users
 
+  # Allow sign out via GET as a no-JS fallback (Turbo/JS may not be loaded)
+  devise_scope :user do
+    get "users/sign_out", to: "devise/sessions#destroy", as: :user_session_sign_out_get
+  end
+
   # QA Validation routes
   get 'qa/validate', to: 'qa_validate_dashboard_reports#index'
   get 'qa/validate/dashboard', to: 'qa_validate_dashboard_reports#dashboard'
