@@ -1,0 +1,49 @@
+<div class="container mt-4">
+  <h1>QA Validation Results</h1>
+  
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>All Checks</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Timestamp:</strong> <%= @validation[:timestamp] %></p>
+          <p><strong>Overall Status:</strong> 
+            <% if @validation[:status] == "PASS" %>
+              <span class="badge bg-success">PASS</span>
+            <% else %>
+              <span class="badge bg-danger">FAIL</span>
+            <% end %>
+          </p>
+          <p><strong>Message:</strong> <%= @validation[:message] %></p>
+          
+          <table class="table mt-3">
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @validation[:checks]&.each do |name, passed| %>
+                <tr>
+                  <td><%= name.to_s.titleize %></td>
+                  <td>
+                    <% if passed %>
+                      <span class="badge bg-success">PASS</span>
+                    <% else %>
+                      <span class="badge bg-danger">FAIL</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          
+          <%= link_to "Back to All Validations", qa_validate_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
