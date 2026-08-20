@@ -1,0 +1,41 @@
+<div class="container mt-4">
+  <h1>Monthly Reports</h1>
+  
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>Expense Summary by Month</h5>
+        </div>
+        <div class="card-body">
+          <% if @monthly_summary.any? %>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Total Expenses</th>
+                  <th>Count</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @monthly_summary.each do |report| %>
+                  <tr>
+                    <td><%= report[:month] %></td>
+                    <td><%= number_to_currency(report[:total]) %></td>
+                    <td><%= report[:count] %></td>
+                    <td>
+                      <%= link_to "View Details", monthly_report_path(report[:month]), class: "btn btn-sm btn-primary" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p>No expenses recorded yet.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   # Resources
   resources :expenses
   resources :categories
+  resources :monthly_reports, only: [:index, :show]
 
   # Dashboard
   get 'dashboard', to: 'dashboard#index'
