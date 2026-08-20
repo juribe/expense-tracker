@@ -1,0 +1,16 @@
+**Design: Dashboard UI/UX – Expense Tracker**
+
+| # | Section | Details |
+|---|---------|---------|
+| 1 | **Purpose** | Central hub for users to view, add, filter, and analyze expenses in real‑time. |
+| 2 | **Key Requirements** | <ul><li>Responsive (mobile‑first) layout.</li><li>Display total balance, monthly spend, and category breakdown.</li><li>Quick‑add expense widget.</li><li>Filter by date, category, and amount range.</li><li>Empty‑state handling.</li></ul> |
+| 3 | **User Flow** | 1️⃣ Open app → 2️⃣ Dashboard loads → 3️⃣ View summary cards → 4️⃣ Scroll expense list → 5️⃣ Use filter or add expense → 6️⃣ Confirmation toast → 7️⃣ Return to step 2. (See attached flow diagram `assets/flow_dashboard.svg`.) |
+| 4 | **Layout (Bootstrap 5)** | `<div class="container-fluid py-3">` <br>• **Header** – `navbar navbar-light bg-light shadow-sm` with app logo & user avatar. <br>• **Summary Row** – `row g-3 mb-4` → three `col-md-4` cards (`card border-0 shadow-sm`). <br>• **Quick‑Add** – `row mb-4` → `col-12` containing an `input-group` (`form-control`, `btn btn-primary`). <br>• **Filter Bar** – `row mb-3` → `col-auto` dropdowns (`select.form-select`) & date picker (`input[type=date]`). <br>• **Expense List** – `table table-hover align-middle` wrapped in `overflow-auto`. <br>• **Footer** – `footer text-muted text-center py-2`. |
+| 5 | **Components** | • **Summary Card** – icon, title, value (`h5`, `text-primary`). <br>• **Expense Row** – category badge (`badge bg-{categoryColor}`), amount (`text-end fw-bold`). <br>• **Empty State** – centered illustration + “No expenses yet. Add your first expense!” (`text-muted`). |
+| 6 | **Color Palette** | Primary: `#0d6efd` (Bootstrap `primary`). <br>Secondary: `#6c757d`. <br>Success (income): `#198754`. <br>Danger (expense): `#dc3545`. <br>Background: `#f8f9fa`. |
+| 7 | **Interactions** | • **Add Expense** – click **Add** → modal (`modal fade`) with form; on submit show `toast` (`bg-success`). <br>• **Filter** – change any filter → auto‑refresh list via debounced AJAX (300 ms). <br>• **Row Hover** – highlight with `table-hover`. <br>• **Delete** – swipe left (mobile) or click trash icon → confirm dialog → fade‑out row. |
+| 8 | **Edge Cases** | • **Empty List** – render empty‑state component. <br>• **No Matching Filter** – show “No results for selected criteria.” <br>• **Large Data Set** – enable virtual scrolling (`overflow-auto` + `max-height: 60vh`). <br>• **API Failure** – toast error (`bg-danger`) with retry button. |
+| 9 | **Feasibility** | All elements map directly to Bootstrap 5 utilities; no custom CSS beyond minor `max-height` and badge colors. JS can be handled with vanilla ES6 or a lightweight framework (e.g., Alpine.js) – < 20 KB bundle. Server‑side pagination optional for > 500 rows. |
+|10| **Deliverables** | • Spec: `designs/design_dashboard_ui_ux.md` <br>• Mockup: `mockups/design_dashboard_ui_ux.html` <br>• Flow diagram: `assets/flow_dashboard.svg` |
+
+*All sections address the missing requirements, user flow, edge‑case handling, and implementation feasibility noted in the feedback.*
