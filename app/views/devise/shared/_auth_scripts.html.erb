@@ -1,0 +1,42 @@
+<script>
+  (function () {
+    // Password visibility toggle
+    document.querySelectorAll("[data-toggle-pw-target]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var input = document.querySelector(button.getAttribute("data-toggle-pw-target"));
+        if (!input) return;
+        var isPassword = input.getAttribute("type") === "password";
+        input.setAttribute("type", isPassword ? "text" : "password");
+        var icon = button.querySelector("i");
+        if (icon) {
+          icon.classList.toggle("bi-eye", !isPassword);
+          icon.classList.toggle("bi-eye-slash", isPassword);
+        }
+      });
+    });
+
+    // Disable submit button and show a spinner while the request is in flight
+    document.querySelectorAll("form.auth-form").forEach(function (form) {
+      form.addEventListener("submit", function () {
+        var button = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (!button) return;
+        button.disabled = true;
+        if (!button.querySelector(".spinner-border")) {
+          var spinner = document.createElement("span");
+          spinner.className = "spinner-border spinner-border-sm me-2";
+          spinner.setAttribute("role", "status");
+          spinner.setAttribute("aria-hidden", "true");
+          button.prepend(spinner);
+        }
+      });
+    });
+
+    // Auto-redirect after a successful password reset
+    var redirectEl = document.querySelector("[data-auto-redirect-to]");
+    if (redirectEl) {
+      setTimeout(function () {
+        window.location.href = redirectEl.getAttribute("data-auto-redirect-to");
+      }, 3000);
+    }
+  })();
+</script>

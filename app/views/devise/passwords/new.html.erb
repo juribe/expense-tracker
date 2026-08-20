@@ -1,16 +1,37 @@
-<h2>Forgot your password?</h2>
+<div class="row justify-content-center">
+  <div class="col-12 col-md-5 col-lg-4">
+    <div class="card shadow-sm my-5">
+      <div class="card-body p-4 p-md-5">
+        <% if @success_notice %>
+          <h1 class="h3 mb-3 text-center fw-bold">Check your inbox</h1>
+          <div class="alert alert-success" role="alert">
+            <i class="bi bi-envelope-check me-2"></i><%= @success_notice %>
+          </div>
+          <p class="text-center mb-0">
+            <%= link_to "Back to Sign In", new_session_path(resource_name), class: "link-secondary" %>
+          </p>
+        <% else %>
+          <h1 class="h3 mb-1 text-center fw-bold">Forgot your password?</h1>
+          <p class="text-muted text-center mb-4">Enter your email and we'll send you a reset link.</p>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+          <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autofocus: true, autocomplete: "email" %></p>
+            <div class="mb-3">
+              <%= f.label :email, class: "form-label" %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control form-control-lg", placeholder: "you@example.com" %>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">Send Reset Link</button>
+          <% end %>
+
+          <p class="text-center mt-3 mb-0">
+            Remembered? <%= link_to "Back to Sign In", new_session_path(resource_name), class: "link-secondary" %>
+          </p>
+        <% end %>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="actions">
-    <%= f.submit "Send me password reset instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+<%= render "devise/shared/auth_scripts" %>
