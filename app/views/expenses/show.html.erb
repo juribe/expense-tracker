@@ -1,0 +1,22 @@
+<dl class="drawer-dl mb-4">
+  <dt>Date</dt>
+  <dd><%= @expense.date.strftime("%b %d, %Y") %></dd>
+  <dt>Amount</dt>
+  <dd class="amount">-<%= number_to_currency(@expense.amount) %></dd>
+  <dt>Description</dt>
+  <dd>
+    <% if @expense.description.present? %>
+      <%= @expense.description %>
+    <% else %>
+      <span class="text-muted">No description</span>
+    <% end %>
+  </dd>
+  <dt>Category</dt>
+  <dd><%= category_badge(@expense.category) %></dd>
+  <dt>Frequency</dt>
+  <dd><%= @expense.frequency.humanize %></dd>
+  <dt>Created</dt>
+  <dd><%= @expense.created_at.strftime("%b %d, %Y %l:%M %p") %></dd>
+  <dt>Updated</dt>
+  <dd><%= @expense.updated_at.strftime("%b %d, %Y %l:%M %p") %></dd>
+</dl>

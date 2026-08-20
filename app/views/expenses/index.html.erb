@@ -1,81 +1,421 @@
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-receipt"></i> Expenses</h1>
-    <%= link_to new_expense_path, class: "btn btn-primary" do %>
-      <i class="bi bi-plus-lg"></i> Add Expense
-    <% end %>
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="mb-0"><i class="bi bi-receipt me-2"></i>Expenses</h1>
+    <div class="d-flex gap-2 header-actions flex-column flex-sm-row">
+      <% if @total_count.to_i > 0 %>
+        <%= link_to expenses_path(page_params.merge(format: :csv)), class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-download me-1"></i>Export CSV
+        <% end %>
+      <% else %>
+        <button type="button" class="btn btn-outline-secondary" aria-disabled="true" disabled title="Nothing to export">
+          <i class="bi bi-download me-1"></i>Export CSV
+        </button>
+      <% end %>
+      <%= link_to new_expense_path, class: "btn btn-primary" do %>
+        <i class="bi bi-plus-lg me-1"></i> Add Expense
+      <% end %>
+    </div>
   </div>
 
   <!-- Filters -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <%= form_with url: expenses_path, method: :get, class: "row g-3" do |f| %>
-        <div class="col-md-3">
+      <%= form_with url: expenses_path, method: :get, class: "row g-3", data: { testid: "filter-form" } do |f| %>
+        <div class="col-12 col-md-4 col-lg-2">
           <%= f.label :category_id, "Category", class: "form-label" %>
           <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, params[:category_id]), { include_blank: "All Categories" }, class: "form-select" %>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-4 col-lg-2">
           <%= f.label :start_date, "From", class: "form-label" %>
-          <%= f.date_field :start_date, value: params[:start_date], class: "form-control" %>
+          <%= f.date_field :start_date, value: params[:start_date], class: "form-control#{' is-invalid' if @filter_errors[:start_date]}", aria: ({ invalid: "true" } if @filter_errors[:start_date]) %>
+          <% if @filter_errors[:start_date] %><div class="invalid-feedback"><%= @filter_errors[:start_date] %></div><% end %>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-4 col-lg-2">
           <%= f.label :end_date, "To", class: "form-label" %>
-          <%= f.date_field :end_date, value: params[:end_date], class: "form-control" %>
+          <%= f.date_field :end_date, value: params[:end_date], class: "form-control#{' is-invalid' if @filter_errors[:end_date]}", aria: ({ invalid: "true" } if @filter_errors[:end_date]) %>
+          <% if @filter_errors[:end_date] %><div class="invalid-feedback"><%= @filter_errors[:end_date] %></div><% end %>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-md-4 col-lg-2">
           <%= f.label :frequency, "Frequency", class: "form-label" %>
-          <%= f.select :frequency, frequency_options, { include_blank: "All" }, class: "form-select" %>
+          <%= f.select :frequency, frequency_options, { include_blank: "All", selected: params[:frequency] }, class: "form-select" %>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-          <%= f.submit "Filter", class: "btn btn-outline-primary w-100" %>
+        <div class="col-6 col-md-4 col-lg-2">
+          <%= f.label :min_amount, "Min amount", class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <%= f.number_field :min_amount, value: params[:min_amount], step: 0.01, min: 0, placeholder: "0.00", class: "form-control#{' is-invalid' if @filter_errors[:min_amount]}", aria: ({ invalid: "true" } if @filter_errors[:min_amount]) %>
+          </div>
+          <% if @filter_errors[:min_amount] %><div class="invalid-feedback"><%= @filter_errors[:min_amount] %></div><% end %>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <%= f.label :max_amount, "Max amount", class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <%= f.number_field :max_amount, value: params[:max_amount], step: 0.01, min: 0, placeholder: "0.00", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <%= f.submit "Filter", class: "btn btn-outline-primary" %>
+          <%= link_to "Clear", expenses_path, class: "btn btn-outline-secondary" %>
+        </div>
+      <% end %>
+
+      <% if @filter_errors.any? %>
+        <div class="alert alert-danger alert-dismissible fade show mt-3 mb-0" role="alert">
+          Fix the highlighted filter fields and try again.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <% if filter_params.any? { |_k, v| v.present? } %>
+        <div id="chips" class="mt-3">
+          <% { category_id: "Category", start_date: "From", end_date: "To", frequency: "Frequency", min_amount: "Min", max_amount: "Max" }.each do |key, label| %>
+            <% value = params[key] %>
+            <% next if value.blank? %>
+            <% chip_label = key == :category_id ? @categories.find { |c| c.id.to_s == value.to_s }&.name : (key == :frequency ? value.humanize : value) %>
+            <%= link_to expenses_path(sort_params.except(key)), class: "chip text-decoration-none", data: { testid: "chip-#{key}" }, aria: { label: "Remove #{label} filter" } do %>
+              <%= label %>: <%= chip_label %>
+              <button type="button" aria-hidden="true" tabindex="-1" class="ms-1">&times;</button>
+            <% end %>
+          <% end %>
         </div>
       <% end %>
     </div>
   </div>
 
-  <!-- Expenses List -->
-  <div class="card shadow-sm">
-    <div class="table-responsive">
-      <table class="table table-hover mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Frequency</th>
-            <th class="text-end">Amount</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @expenses.each do |expense| %>
-            <tr>
-              <td><%= expense.date.strftime("%b %d, %Y") %></td>
-              <td><%= expense.description %></td>
-              <td>
-                <%= category_badge(expense.category) %>
-              </td>
-              <td><span class="badge bg-secondary"><%= expense.frequency.humanize %></span></td>
-              <td class="text-end fw-bold text-danger">-$<%= number_with_precision(expense.amount, precision: 2) %></td>
-              <td class="text-end">
-                <%= link_to edit_expense_path(expense), class: "btn btn-sm btn-outline-primary" do %>
-                  <i class="bi bi-pencil"></i>
-                <% end %>
-                <%= button_to expense_path(expense), method: :delete, class: "btn btn-sm btn-outline-danger", form: { style: "display: inline-block" } do %>
-                  <i class="bi bi-trash"></i>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+  <% if @load_error %>
+    <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert" data-testid="error">
+      <span>Couldn't load expenses.</span>
+      <%= link_to "Retry", expenses_path(state_query), class: "btn btn-sm btn-outline-danger" %>
     </div>
-    
-    <% if @expenses.empty? %>
-      <div class="text-center text-muted py-5">
-        <i class="bi bi-inbox fs-1"></i>
-        <p class="mt-3">No expenses yet. Add your first one!</p>
+  <% end %>
+
+  <div class="d-flex justify-content-between align-items-baseline mb-2">
+    <p class="results-meta mb-0" id="resultsMeta" aria-live="polite">
+      <%= "#{@total_count} #{'expense'.pluralize(@total_count)} · #{number_to_currency(@filtered_total)}" %>
+    </p>
+    <span class="small text-muted d-none d-md-inline">25 per page</span>
+  </div>
+
+  <div class="bulk-bar" id="bulkBar" role="region" aria-label="Bulk actions">
+    <strong id="bulkCount">0 selected</strong>
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSel">Select none</button>
+    <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete"><i class="bi bi-trash me-1"></i>Delete selected</button>
+  </div>
+
+  <div class="card shadow-sm" id="tableCard">
+    <% if @load_error %>
+    <% elsif @total_count == 0 && !filter_params.any? { |_k, v| v.present? } %>
+      <div class="p-5 text-center" data-testid="empty">
+        <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+        <h2 class="h4 mb-2">No expenses yet</h2>
+        <p class="text-muted mb-0">Add your first one to see it here.</p>
+        <%= link_to new_expense_path, class: "btn btn-primary mt-3" do %>
+          <i class="bi bi-plus-lg me-1"></i> Add Expense
+        <% end %>
+      </div>
+    <% elsif @total_count == 0 %>
+      <div class="p-5 text-center" data-testid="empty">
+        <i class="bi bi-funnel display-4 text-muted mb-3 d-block"></i>
+        <h2 class="h4 mb-2">No expenses match these filters</h2>
+        <p class="text-muted mb-0">Try clearing a filter or widening the date range.</p>
+        <%= link_to "Clear filters", expenses_path, class: "btn btn-outline-secondary mt-3" %>
+      </div>
+    <% else %>
+      <div data-testid="table">
+        <div class="table-responsive desktop-table">
+          <table class="table table-hover align-middle mb-0" id="expenseTable" aria-busy="false">
+            <caption class="visually-hidden">Your expenses</caption>
+            <thead class="table-light">
+              <tr>
+                <th scope="col" style="width:2.5rem">
+                  <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all expenses on this page">
+                </th>
+                <%= sortable_column_header("Date", "date", current_sort: @sort, current_dir: @dir) %>
+                <%= sortable_column_header("Description", "description", current_sort: @sort, current_dir: @dir) %>
+                <%= sortable_column_header("Category", "category", current_sort: @sort, current_dir: @dir) %>
+                <%= sortable_column_header("Frequency", "frequency", current_sort: @sort, current_dir: @dir) %>
+                <%= sortable_column_header("Amount", "amount", current_sort: @sort, current_dir: @dir) %>
+                <th scope="col" class="text-end"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <% @expenses.each do |expense| %>
+                <tr data-id="<%= expense.id %>" tabindex="0" data-testid="row"
+                    data-view-url="<%= expense_path(expense) %>"
+                    data-edit-url="<%= edit_expense_path(expense, state_query) %>"
+                    data-delete-url="<%= expense_path(expense, state_query) %>">
+                  <td>
+                    <input type="checkbox" class="form-check-input row-check"
+                           aria-label="Select expense, <%= expense.date.strftime("%b %d, %Y") %> <%= expense.description.presence || "no description" %>">
+                  </td>
+                  <td class="text-nowrap"><%= expense.date.strftime("%b %d, %Y") %></td>
+                  <td class="desc-cell" title="<%= expense.description %>">
+                    <% if expense.description.present? %>
+                      <%= expense.description %>
+                    <% else %>
+                      <span class="text-muted">No description</span>
+                    <% end %>
+                  </td>
+                  <td><%= category_badge(expense.category) %></td>
+                  <td><span class="badge bg-secondary"><%= expense.frequency.humanize %></span></td>
+                  <td class="text-end amount">-<%= number_to_currency(expense.amount) %></td>
+                  <td class="text-end text-nowrap" data-stop="1">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-open-drawer
+                            aria-label="View <%= expense.description.presence || "expense" %>">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <%= link_to edit_expense_path(expense, state_query), class: "btn btn-sm btn-outline-primary",
+                                aria: { label: "Edit #{expense.description.presence || 'expense'}" } do %>
+                      <i class="bi bi-pencil"></i>
+                    <% end %>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-delete
+                            data-delete-url="<%= expense_path(expense, state_query) %>"
+                            aria-label="Delete <%= expense.description.presence || "expense" %>">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mobile-list" id="mobileList">
+          <% @expenses.each do |expense| %>
+            <div class="mobile-item" data-id="<%= expense.id %>" tabindex="0" data-testid="row"
+                 data-view-url="<%= expense_path(expense) %>"
+                 data-edit-url="<%= edit_expense_path(expense, state_query) %>"
+                 data-delete-url="<%= expense_path(expense, state_query) %>">
+              <input type="checkbox" class="form-check-input row-check mt-2"
+                     aria-label="Select expense, <%= expense.date.strftime("%b %d, %Y") %>">
+              <div>
+                <div class="small text-muted"><%= expense.date.strftime("%b %d, %Y") %> · <%= category_badge(expense.category) %></div>
+                <div class="mt-1">
+                  <% if expense.description.present? %>
+                    <%= expense.description %>
+                  <% else %>
+                    <span class="text-muted">No description</span>
+                  <% end %>
+                </div>
+                <div class="mt-1"><span class="badge bg-secondary"><%= expense.frequency.humanize %></span></div>
+              </div>
+              <div class="text-end">
+                <div class="amount">-<%= number_to_currency(expense.amount) %></div>
+                <div class="mobile-actions mt-2" data-stop="1">
+                  <button type="button" class="btn btn-outline-secondary" data-open-drawer
+                          aria-label="View <%= expense.description.presence || "expense" %>">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <%= link_to edit_expense_path(expense, state_query), class: "btn btn-outline-primary",
+                              aria: { label: "Edit #{expense.description.presence || 'expense'}" } do %>
+                    <i class="bi bi-pencil"></i>
+                  <% end %>
+                  <button type="button" class="btn btn-outline-danger" data-delete
+                          data-delete-url="<%= expense_path(expense, state_query) %>"
+                          aria-label="Delete <%= expense.description.presence || "expense" %>">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top small text-muted">
+          <span id="pageFoot">
+            Showing <%= @offset + 1 %>-<%= @offset + @expenses.length %> of <%= @total_count %> ·
+            Page total <%= number_to_currency(@page_subtotal) %> ·
+            Filtered total <%= number_to_currency(@filtered_total) %>
+          </span>
+        </div>
+        <%= pagination_nav(current_page: @page, total_pages: @total_pages) %>
       </div>
     <% end %>
   </div>
 </div>
+
+<!-- Loading skeleton shown while Turbo fetches the next expenses page -->
+<div id="loadingState" class="d-none" aria-busy="true" data-testid="loading">
+  <div class="card shadow-sm p-3">
+    <div class="skel mb-3"></div>
+    <div class="skel mb-3" style="width:90%"></div>
+    <div class="skel mb-3" style="width:80%"></div>
+    <div class="skel mb-3"></div>
+    <div class="skel mb-3" style="width:70%"></div>
+    <div class="skel mb-3"></div>
+    <div class="skel" style="width:85%"></div>
+  </div>
+</div>
+
+<!-- Expense details drawer -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="detailDrawer" aria-labelledby="drawerTitle">
+  <div class="offcanvas-header border-bottom">
+    <h2 class="offcanvas-title h5" id="drawerTitle">Expense</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" id="drawerBody"></div>
+  <div class="offcanvas-footer border-top p-3 d-flex gap-2">
+    <a href="#" class="btn btn-outline-primary" id="drawerEdit"><i class="bi bi-pencil me-1"></i>Edit</a>
+    <button type="button" class="btn btn-outline-danger" id="drawerDelete"><i class="bi bi-trash me-1"></i>Delete</button>
+    <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="offcanvas">Close</button>
+  </div>
+</div>
+
+<!-- Delete confirm modal (single or bulk) -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="deleteTitle">Delete expense?</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="deleteBody">This cannot be undone.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= form_with url: "#", method: :delete, id: "deleteForm", class: "d-none" do %>
+  <input type="hidden" name="ids" id="deleteIds">
+<% end %>
+
+<script>
+(function () {
+  if (window.__expensesTableInit) return;
+  window.__expensesTableInit = true;
+
+  var $ = function (sel) { return document.querySelector(sel); };
+  var $$ = function (sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); };
+
+  function stateQuery() {
+    var q = new URLSearchParams(location.search);
+    var keys = ["category_id", "start_date", "end_date", "frequency", "min_amount", "max_amount", "sort", "dir", "page"];
+    var out = [];
+    keys.forEach(function (k) {
+      var v = q.get(k);
+      if (v) out.push(encodeURIComponent(k) + "=" + encodeURIComponent(v));
+    });
+    return out.length ? "?" + out.join("&") : "";
+  }
+
+  function urlWithState(path) {
+    var sep = path.indexOf("?") === -1 ? "?" : "&";
+    return path + sep + stateQuery().replace(/^\?/, "");
+  }
+
+  function updateBulk() {
+    var checks = $$(".row-check");
+    var n = checks.filter(function (c) { return c.checked; }).length;
+    $("#bulkBar").classList.toggle("show", n > 0);
+    $("#bulkCount").textContent = n + " selected";
+    var all = $("#selectAll");
+    if (all) all.checked = checks.length > 0 && n === checks.length;
+  }
+
+  function openDrawer(url, editUrl, deleteUrl) {
+    var body = $("#drawerBody");
+    body.innerHTML = '<div class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading&hellip;</span></div></div>';
+    fetch(url, { headers: { "Accept": "text/html" } })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        body.innerHTML = html;
+        $("#drawerEdit").href = editUrl;
+        $("#drawerDelete").setAttribute("data-delete-url", deleteUrl);
+        var offcanvas = bootstrap.Offcanvas.getOrCreateInstance("#detailDrawer");
+        offcanvas.show();
+      });
+  }
+
+  function openDelete(url, count) {
+    $("#deleteTitle").textContent = count > 1 ? "Delete " + count + " expenses?" : "Delete expense?";
+    $("#deleteBody").textContent = count > 1 ? "Delete " + count + " expenses? This cannot be undone." : "This cannot be undone.";
+    $("#deleteForm").action = url;
+    bootstrap.Modal.getOrCreateInstance("#deleteModal").show();
+  }
+
+  document.addEventListener("change", function (e) {
+    if (e.target.matches(".row-check, #selectAll")) {
+      if (e.target.id === "selectAll") {
+        $$(".row-check").forEach(function (c) { c.checked = e.target.checked; });
+      }
+      updateBulk();
+    }
+  });
+
+  document.addEventListener("click", function (e) {
+    var row = e.target.closest("tr[data-id], .mobile-item[data-id]");
+    if (row && !e.target.closest("[data-stop], input, button, a")) {
+      openDrawer(row.dataset.viewUrl, row.dataset.editUrl, row.dataset.deleteUrl);
+      return;
+    }
+    var viewBtn = e.target.closest("[data-open-drawer]");
+    if (viewBtn) {
+      row = viewBtn.closest("tr[data-id], .mobile-item[data-id]");
+      openDrawer(row.dataset.viewUrl, row.dataset.editUrl, row.dataset.deleteUrl);
+      return;
+    }
+    var delBtn = e.target.closest("[data-delete]");
+    if (delBtn) {
+      openDelete(delBtn.dataset.deleteUrl || delBtn.closest("[data-delete-url]").dataset.deleteUrl, 1);
+      return;
+    }
+    if (e.target.id === "clearSel") {
+      $$(".row-check").forEach(function (c) { c.checked = false; });
+      updateBulk();
+    }
+    if (e.target.id === "bulkDelete") {
+      var ids = $$("tr[data-id], .mobile-item[data-id]")
+        .filter(function (el) { return el.querySelector(".row-check") && el.querySelector(".row-check").checked; })
+        .map(function (el) { return el.dataset.id; });
+      if (ids.length) {
+        $("#deleteIds").value = ids.join(",");
+        openDelete("<%= bulk_destroy_expenses_path %>" + stateQuery(), ids.length);
+      }
+    }
+    if (e.target.id === "confirmDelete") {
+      var form = $("#deleteForm");
+      var action = form.action || "";
+      if (action === "" || action === location.href.split("#")[0]) return;
+      var methodInput = form.querySelector("input[name=_method]");
+      if (!methodInput) {
+        methodInput = document.createElement("input");
+        methodInput.type = "hidden";
+        methodInput.name = "_method";
+        methodInput.value = "delete";
+        form.appendChild(methodInput);
+      }
+      bootstrap.Modal.getInstance("#deleteModal").hide();
+      bootstrap.Offcanvas.getInstance("#detailDrawer") && bootstrap.Offcanvas.getInstance("#detailDrawer").hide();
+      form.requestSubmit();
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      var row = e.target.closest("tr[data-id], .mobile-item[data-id]");
+      if (row && !e.target.closest("[data-stop], input, button, a")) {
+        openDrawer(row.dataset.viewUrl, row.dataset.editUrl, row.dataset.deleteUrl);
+      }
+    }
+  });
+
+  document.addEventListener("turbo:before-fetch-request", function (e) {
+    if (!e.target.url || e.target.url.indexOf("/expenses") === -1) return;
+    if (e.target.url.indexOf(".csv") !== -1) return;
+    if (e.target.fetchOptions && (e.target.fetchOptions.method || "get").toLowerCase() !== "get") return;
+    var tableCard = $("#tableCard");
+    if (tableCard) tableCard.classList.add("d-none");
+    var loading = $("#loadingState");
+    if (loading) loading.classList.remove("d-none");
+  });
+
+  document.addEventListener("turbo:render", function () {
+    var loading = $("#loadingState");
+    if (loading && location.pathname === "/expenses") loading.classList.add("d-none");
+  });
+})();
+</script>

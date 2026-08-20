@@ -21,7 +21,11 @@ Rails.application.routes.draw do
   get 'qa/validate/run_all', to: 'qa_validate_dashboard_reports#run_all'
 
   # Resources
-  resources :expenses
+  resources :expenses do
+    collection do
+      delete :bulk_destroy
+    end
+  end
   resources :categories
   resources :monthly_reports, only: [:index, :show]
 
