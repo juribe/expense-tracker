@@ -6,7 +6,7 @@ require "rails/test_help"
 
 module ActiveSupport
   class TestCase
-    parallelize(threads: [Etc.nprocessors, 4].min)
+    parallelize(workers: :number_of_processors)
 
     fixtures :all
 
@@ -15,6 +15,10 @@ module ActiveSupport
     end
   end
 end
+
+
+require "capybara/rails"
+require "capybara/minitest"
 
 
 require "capybara/rails"
