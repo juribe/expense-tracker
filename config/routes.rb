@@ -1,4 +1,3 @@
-# config/routes.rb
 Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
@@ -28,11 +27,9 @@ Rails.application.routes.draw do
   end
   resources :categories
   resources :monthly_reports, only: [:index, :show]
-  # CRUD happens on the index page via modals, so new/edit/show are not exposed.
-  resources :recurring_transactions, except: [:new, :edit, :show] do
+  resources :monthly_expenses do
     member do
-      post :process_transaction
-      patch :toggle_active
+      post :pay
     end
   end
 
