@@ -43,7 +43,7 @@ class RecurringTransactionProcessor
         transaction.save!
 
         occurrence = recurring_transaction.occurrences.create!(
-          transaction: transaction,
+          generated_transaction: transaction,
           transaction_date: date,
           period: period
         )

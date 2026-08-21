@@ -28,7 +28,8 @@ Rails.application.routes.draw do
   end
   resources :categories
   resources :monthly_reports, only: [:index, :show]
-  resources :recurring_transactions do
+  # CRUD happens on the index page via modals, so new/edit/show are not exposed.
+  resources :recurring_transactions, except: [:new, :edit, :show] do
     member do
       post :process_transaction
       patch :toggle_active

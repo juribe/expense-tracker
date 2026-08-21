@@ -52,6 +52,11 @@ class RecurringTransaction < ApplicationRecord
     income? ? "Receive" : "Pay"
   end
 
+  # Past tense of the action, used in confirmation messages.
+  def completed_action_label
+    income? ? "Received" : "Paid"
+  end
+
   def past_action_label
     income? ? "Last received" : "Last paid"
   end

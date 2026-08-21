@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class RecurringTransactionsController < ApplicationController
-  before_action :set_categories, only: [ :index ]
+  include ActionView::Helpers::NumberHelper
+
+  # Categories are needed whenever the index page (and its form modal) renders.
+  before_action :set_categories, only: [ :index, :create, :update ]
   before_action :load_index_data, only: [ :index ]
   before_action :set_recurring_transaction, only: [ :update, :destroy, :process_transaction, :toggle_active ]
 
@@ -53,7 +56,7 @@ class RecurringTransactionsController < ApplicationController
 
     if result.success?
       redirect_to recurring_transactions_path(type: @recurring_transaction.transaction_type),
-                  notice: "#{@recurring_transaction.action_label}ed #{number_to_currency(result.transaction.amount)} " \
+                  notice: "#{@recurring_transaction.completed_action_label} #{number_to_currency(result.transaction.amount)} " \
                           "on #{result.transaction.date.strftime('%B %-d, %Y')}."
     else
       redirect_to recurring_transactions_path(type: @recurring_transaction.transaction_type),

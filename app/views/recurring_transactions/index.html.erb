@@ -1,0 +1,401 @@
+<div class="container-fluid py-4" data-testid="recurring-page">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-3">
+      <li class="breadcrumb-item"><%= link_to "Dashboard", dashboard_path %></li>
+      <li class="breadcrumb-item active" aria-current="page">Recurring Transactions</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h4 class="text-primary mb-0"><i class="bi bi-arrow-repeat me-2"></i>Recurring Transactions</h4>
+    <button type="button" class="btn btn-success ms-auto" data-testid="add-recurring"
+            onclick="RecurringUI.openFormModal('create')">
+      <i class="bi bi-plus-lg me-1"></i>Add Recurring
+    </button>
+  </div>
+
+  <!-- Income / Expense tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <%= link_to recurring_transactions_path(type: "income"),
+                  class: "nav-link #{'active' if @transaction_type == 'income'}" do %>
+        <i class="bi bi-arrow-down-circle me-1"></i>Income
+      <% end %>
+    </li>
+    <li class="nav-item">
+      <%= link_to recurring_transactions_path(type: "expense"),
+                  class: "nav-link #{'active' if @transaction_type == 'expense'}" do %>
+        <i class="bi bi-arrow-up-circle me-1"></i>Expense
+      <% end %>
+    </li>
+  </ul>
+
+  <div class="card shadow-sm" data-testid="recurring-card">
+    <% if @recurring_transactions.empty? %>
+      <div class="text-center py-5" data-testid="empty-state">
+        <i class="bi bi-arrow-repeat display-4 text-muted d-block mb-3"></i>
+        <h5>No recurring transactions yet</h5>
+        <p class="text-muted">Set up a monthly income or payment to track it here.</p>
+        <button type="button" class="btn btn-outline-primary" onclick="RecurringUI.openFormModal('create')">
+          Add your first
+        </button>
+      </div>
+    <% else %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" data-testid="recurring-table">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Category</th>
+              <th scope="col">Description</th>
+              <th scope="col" class="text-end">Monthly Amount</th>
+              <th scope="col" class="d-none d-md-table-cell">Payment Day</th>
+              <th scope="col" class="d-none d-md-table-cell"><%= @recurring_transactions.first&.past_action_label || "Last Received" %></th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @recurring_transactions.each do |rt| %>
+              <% status = rt.status_for(@current_period) %>
+              <tr data-testid="recurring-row"
+                  data-id="<%= rt.id %>"
+                  data-category-id="<%= rt.category_id %>"
+                  data-description="<%= rt.description %>"
+                  data-amount="<%= rt.amount %>"
+                  data-payment-day="<%= rt.payment_day %>"
+                  data-active="<%= rt.active? %>"
+                  data-type="<%= rt.transaction_type %>"
+                  data-edit-url="<%= recurring_transaction_path(rt) %>"
+                  data-delete-url="<%= recurring_transaction_path(rt) %>"
+                  data-toggle-url="<%= toggle_active_recurring_transaction_path(rt) %>"
+                  data-process-url="<%= process_transaction_recurring_transaction_path(rt) %>">
+                <td><%= category_badge(rt.category) %></td>
+                <td><%= rt.description.presence || content_tag(:span, "No description", class: "text-muted") %></td>
+                <td class="text-end amount"><%= number_to_currency(rt.amount) %></td>
+                <td class="d-none d-md-table-cell"><%= rt.payment_day %></td>
+                <td class="d-none d-md-table-cell">
+                  <% if (last = rt.last_occurrence) %>
+                    <%= last.transaction_date.strftime("%B %-d, %Y") %>
+                  <% else %>
+                    <span class="text-muted">&mdash;</span>
+                  <% end %>
+                </td>
+                <td data-testid="status">
+                  <% case status %>
+                  <% when :pending %>
+                    <span class="badge bg-success">Pending</span>
+                  <% when :completed %>
+                    <span class="badge bg-secondary">Completed</span>
+                  <% else %>
+                    <span class="badge bg-danger">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="text-end text-nowrap">
+                  <button type="button" class="btn btn-outline-primary btn-sm me-1" data-testid="edit"
+                          aria-label="Edit <%= rt.description.presence || 'recurring transaction' %>"
+                          onclick="RecurringUI.openFormModal('edit', this.closest('tr'))">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="deactivate"
+                          aria-label="<%= rt.active? ? 'Deactivate' : 'Activate' %> <%= rt.description.presence || 'recurring transaction' %>"
+                          title="<%= rt.active? ? 'Deactivate' : 'Activate' %>"
+                          onclick="RecurringUI.toggleActive(this)">
+                    <i class="bi bi-power"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="delete"
+                          aria-label="Delete <%= rt.description.presence || 'recurring transaction' %>"
+                          onclick="RecurringUI.confirmDelete(this)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <% if status == :pending %>
+                    <button type="button" class="btn btn-primary btn-sm" data-testid="process"
+                            onclick="RecurringUI.openProcessModal(this.closest('tr'))">
+                      <i class="bi bi-cash-coin me-1"></i><%= rt.action_label %>
+                    </button>
+                  <% elsif status == :completed %>
+                    <button type="button" class="btn btn-outline-secondary btn-sm disabled" data-testid="process-disabled"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Already processed this month" tabindex="-1" aria-disabled="true">
+                      <i class="bi bi-check-lg me-1"></i><%= rt.action_label %>
+                    </button>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Create / Edit modal -->
+<div class="modal fade" id="recurringFormModal" tabindex="-1" aria-labelledby="recurringFormTitle" aria-hidden="true"
+     data-testid="form-modal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <%= form_with model: @recurring_transaction, local: true, id: "recurringForm" do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title" id="recurringFormTitle">Add Recurring Transaction</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= f.label :category_id, "Category", class: "form-label" %>
+              <%= f.collection_select :category_id, @categories, :id, :name,
+                                      { prompt: "Select a category" },
+                                      class: "form-select #{field_class(@recurring_transaction, :category_id)}", required: true %>
+              <div class="invalid-feedback"><%= field_error(@recurring_transaction, :category_id) %></div>
+            </div>
+            <div class="col-md-6" id="typeField">
+              <%= f.label :transaction_type, "Type", class: "form-label" %>
+              <%= f.select :transaction_type,
+                           options_for_select(RecurringTransaction::TRANSACTION_TYPES.map { |t| [t.humanize, t] }, @transaction_type),
+                           { prompt: "Select a type" },
+                           class: "form-select #{field_class(@recurring_transaction, :transaction_type)}", required: true %>
+              <div class="invalid-feedback"><%= field_error(@recurring_transaction, :transaction_type) %></div>
+            </div>
+            <div class="col-md-6">
+              <%= f.label :description, "Description", class: "form-label" %>
+              <%= f.text_field :description, class: "form-control #{field_class(@recurring_transaction, :description)}",
+                               maxlength: 255, placeholder: "e.g. Freelance Job" %>
+              <div class="invalid-feedback"><%= field_error(@recurring_transaction, :description) %></div>
+            </div>
+            <div class="col-md-6">
+              <%= f.label :amount, "Monthly Amount", class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= f.number_field :amount, class: "form-control #{field_class(@recurring_transaction, :amount)}",
+                                   step: 0.01, min: 0.01, required: true, placeholder: "0.00" %>
+              </div>
+              <div class="invalid-feedback"><%= field_error(@recurring_transaction, :amount) %></div>
+            </div>
+            <div class="col-md-6">
+              <%= f.label :payment_day, "Expected Payment Day", class: "form-label" %>
+              <%= f.number_field :payment_day, class: "form-control #{field_class(@recurring_transaction, :payment_day)}",
+                                 min: 1, max: 31, required: true, placeholder: "1-31" %>
+              <div class="invalid-feedback"><%= field_error(@recurring_transaction, :payment_day) %></div>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check form-switch">
+                <%= f.check_box :active, class: "form-check-input", role: "switch", id: "recurring_active_switch" %>
+                <%= f.label :active, "Active", class: "form-check-label", for: "recurring_active_switch" %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <%= f.submit "Save", class: "btn btn-primary", data: { testid: "save-recurring" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Receive / Pay confirmation modal -->
+<div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processTitle" aria-hidden="true"
+     data-testid="process-modal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <form id="processForm" method="post" data-turbo="false">
+        <div class="modal-header">
+          <h5 class="modal-title" id="processTitle">Confirm Receive</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-0">Category</label>
+            <p class="form-control-plaintext fw-bold" id="processCategory"></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-0">Description</label>
+            <p class="form-control-plaintext" id="processDescription"></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-0">Configured Amount</label>
+            <p class="form-control-plaintext" id="processConfiguredAmount"></p>
+          </div>
+          <div class="mb-3">
+            <label for="processDate" class="form-label">Transaction Date</label>
+            <input type="date" class="form-control" id="processDate" name="date" required>
+          </div>
+          <div class="mb-3">
+            <label for="processAmount" class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="processAmount" name="amount"
+                     step="0.01" min="0.01" required>
+            </div>
+            <div class="form-text">You can adjust the amount for this specific transaction.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Back</button>
+          <button type="submit" class="btn btn-success" id="processConfirm" data-testid="confirm-process">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteRtModal" tabindex="-1" aria-labelledby="deleteRtTitle" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteRtTitle">Delete recurring transaction?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">The configuration and its history will be permanently removed. This cannot be undone.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteRt" data-testid="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if @open_form_modal %>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      RecurringUI.openFormModal(<%= @recurring_transaction.persisted? ? "'edit'" : "'create'" %>);
+    });
+  </script>
+<% end %>
+
+<script>
+(function () {
+  if (window.RecurringUI) return;
+
+  var formModal, processModal, deleteModal;
+  var currentRow = null;
+
+  function $(sel) { return document.querySelector(sel); }
+
+  function initModals() {
+    formModal = bootstrap.Modal.getOrCreateInstance("#recurringFormModal");
+    processModal = bootstrap.Modal.getOrCreateInstance("#processModal");
+    deleteModal = bootstrap.Modal.getOrCreateInstance("#deleteRtModal");
+  }
+
+  function setFormMode(mode, row) {
+    var isEdit = mode === "edit";
+    var form = $("#recurringForm");
+    var typeSelect = $("#recurring_transaction_transaction_type");
+
+    $("#recurringFormTitle").textContent = isEdit ? "Edit Recurring Transaction" : "Add Recurring Transaction";
+
+    // A hand-pointed form needs an explicit _method override for updates.
+    var methodInput = form.querySelector('input[name="_method"]');
+    if (isEdit) {
+      if (!methodInput) {
+        methodInput = document.createElement("input");
+        methodInput.type = "hidden";
+        methodInput.name = "_method";
+        form.appendChild(methodInput);
+      }
+      methodInput.value = "patch";
+    } else if (methodInput) {
+      methodInput.remove();
+    }
+
+    if (isEdit && row) {
+      form.action = row.dataset.editUrl;
+      $("#recurring_transaction_category_id").value = row.dataset.categoryId;
+      typeSelect.value = row.dataset.type;
+      typeSelect.disabled = true; // type is immutable after creation
+      $("#recurring_transaction_description").value = row.dataset.description || "";
+      $("#recurring_transaction_amount").value = row.dataset.amount;
+      $("#recurring_transaction_payment_day").value = row.dataset.paymentDay;
+      $("#recurring_active_switch").checked = row.dataset.active === "true";
+    } else if (!isEdit) {
+      form.action = "<%= recurring_transactions_path %>";
+      form.reset();
+      typeSelect.disabled = false;
+      typeSelect.value = "<%= j @transaction_type %>";
+      $("#recurring_active_switch").checked = true;
+    }
+  }
+
+  window.RecurringUI = {
+    openFormModal: function (mode, row) {
+      initModals();
+      setFormMode(mode, row);
+      formModal.show();
+    },
+
+    openProcessModal: function (row) {
+      initModals();
+      currentRow = row;
+      var isIncome = row.dataset.type === "income";
+
+      $("#processTitle").textContent = isIncome ? "Confirm Receive" : "Confirm Pay";
+      $("#processConfirm").textContent = isIncome ? "Receive" : "Pay";
+      $("#processCategory").textContent =
+        row.querySelector("td .badge").textContent;
+      $("#processDescription").textContent = row.cells[1].textContent.trim();
+      $("#processConfiguredAmount").textContent = row.cells[2].textContent.trim();
+
+      var today = new Date();
+      var pad = function (n) { return String(n).padStart(2, "0"); };
+      $("#processDate").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
+      $("#processAmount").value = parseFloat(row.dataset.amount).toFixed(2);
+
+      var form = $("#processForm");
+      form.action = row.dataset.processUrl;
+
+      // Rails needs the authenticity token on this hand-built form.
+      if (!form.querySelector('input[name="authenticity_token"]')) {
+        var token = document.querySelector('meta[name="csrf-token"]');
+        var input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "authenticity_token";
+        input.value = token ? token.content : "";
+        form.appendChild(input);
+      }
+
+      processModal.show();
+    },
+
+    confirmDelete: function (button) {
+      initModals();
+      currentRow = button.closest("tr");
+      deleteModal.show();
+    },
+
+    toggleActive: function (button) {
+      var row = button.closest("tr");
+      var form = document.createElement("form");
+      form.method = "post";
+      form.action = row.dataset.toggleUrl;
+      form.innerHTML =
+        '<input type="hidden" name="_method" value="patch">' +
+        '<input type="hidden" name="authenticity_token" value="' +
+        (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
+      document.body.appendChild(form);
+      form.submit();
+    }
+  };
+
+  document.addEventListener("click", function (e) {
+    if (e.target.id !== "confirmDeleteRt" || !currentRow) return;
+    var form = document.createElement("form");
+    form.method = "post";
+    form.action = currentRow.dataset.deleteUrl;
+    form.innerHTML =
+      '<input type="hidden" name="_method" value="delete">' +
+      '<input type="hidden" name="authenticity_token" value="' +
+      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
+    document.body.appendChild(form);
+    deleteModal.hide();
+    form.submit();
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltips.forEach(function (el) { new bootstrap.Tooltip(el); });
+  });
+})();
+</script>
