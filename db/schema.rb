@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_20_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_21_000010) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -38,6 +38,30 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_000000) do
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
+  create_table "monthly_expense_payments", force: :cascade do |t|
+    t.integer "monthly_expense_id", null: false
+    t.integer "expense_id", null: false
+    t.date "payment_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_id"], name: "index_monthly_expense_payments_on_expense_id"
+    t.index ["monthly_expense_id", "payment_date"], name: "index_monthly_expense_payments_on_me_and_payment_date"
+    t.index ["monthly_expense_id"], name: "index_monthly_expense_payments_on_monthly_expense_id"
+  end
+
+  create_table "monthly_expenses", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "category_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "description"
+    t.integer "payment_day"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_monthly_expenses_on_category_id"
+    t.index ["user_id"], name: "index_monthly_expenses_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name", default: "", null: false
     t.datetime "created_at", null: false
@@ -53,4 +77,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_000000) do
 
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
+  add_foreign_key "monthly_expense_payments", "expenses"
+  add_foreign_key "monthly_expense_payments", "monthly_expenses"
+  add_foreign_key "monthly_expenses", "categories"
+  add_foreign_key "monthly_expenses", "users"
 end

@@ -1,4 +1,3 @@
-# config/routes.rb
 Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
@@ -28,6 +27,11 @@ Rails.application.routes.draw do
   end
   resources :categories
   resources :monthly_reports, only: [:index, :show]
+  resources :monthly_expenses do
+    member do
+      post :pay
+    end
+  end
 
   # Dashboard
   get 'dashboard', to: 'dashboard#index'
