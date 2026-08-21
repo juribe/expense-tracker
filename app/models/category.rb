@@ -5,6 +5,8 @@ class Category < ApplicationRecord
   has_many :children, class_name: 'Category', foreign_key: :parent_id, dependent: :nullify
 
   has_many :expenses, dependent: :destroy
+  has_many :incomes, dependent: :destroy
+  has_many :recurring_transactions, dependent: :destroy
 
   before_validation :generate_slug, if: -> { slug.blank? || name_changed? }
 
