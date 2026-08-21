@@ -9,7 +9,7 @@ class CreateMonthlyExpensePayments < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :monthly_expense_payments, [:monthly_expense_id, :payment_date],
+    add_index :monthly_expense_payments, [ :monthly_expense_id, :payment_date ],
               name: "index_monthly_expense_payments_on_me_and_payment_date"
   end
 end

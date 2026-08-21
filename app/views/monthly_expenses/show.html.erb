@@ -1,0 +1,66 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Monthly Expense</h4>
+          <% if @monthly_expense.status_for == :paid %>
+            <span class="badge bg-success">Paid this month</span>
+          <% else %>
+            <span class="badge bg-warning text-dark">Pending this month</span>
+          <% end %>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Category</dt>
+            <dd class="col-sm-8"><%= category_badge(@monthly_expense.category) %></dd>
+
+            <dt class="col-sm-4">Description</dt>
+            <dd class="col-sm-8"><%= @monthly_expense.description.presence || "&mdash;".html_safe %></dd>
+
+            <dt class="col-sm-4">Monthly Amount</dt>
+            <dd class="col-sm-8"><%= number_to_currency(@monthly_expense.amount) %></dd>
+
+            <dt class="col-sm-4">Payment Day</dt>
+            <dd class="col-sm-8"><%= @monthly_expense.payment_day.presence || "&mdash;".html_safe %></dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8"><%= @monthly_expense.active? ? "Active" : "Inactive" %></dd>
+          </dl>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <%= link_to "Edit", edit_monthly_expense_path(@monthly_expense), class: "btn btn-outline-primary" %>
+          <%= link_to "Back to Monthly Expenses", monthly_expenses_path, class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+
+      <% if @monthly_expense.monthly_expense_payments.any? %>
+        <div class="card shadow mt-4">
+          <div class="card-header">
+            <h5 class="mb-0">Payment History</h5>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Payment Date</th>
+                  <th scope="col" class="text-end">Amount</th>
+                  <th scope="col"><span class="visually-hidden">Expense link</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @monthly_expense.monthly_expense_payments.order(payment_date: :desc).each do |payment| %>
+                  <tr>
+                    <td><%= payment.payment_date.strftime("%b %d, %Y") %></td>
+                    <td class="text-end amount"><%= number_to_currency(payment.expense.amount) %></td>
+                    <td><%= link_to "View expense", expense_path(payment.expense), class: "btn btn-sm btn-outline-secondary" %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

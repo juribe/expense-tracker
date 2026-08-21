@@ -14,10 +14,9 @@ class MonthlyExpensePayment < ApplicationRecord
     scope = monthly_expense&.monthly_expense_payments
     return if scope.nil? || payment_date.blank?
 
-    conflict = scope.where.not(id: id).exists?(
-      scope.arel_table[:payment_date].gteq(payment_date.beginning_of_month)
-        .and(scope.arel_table[:payment_date].lteq(payment_date.end_of_month))
-    )
+    conflict = scope.where.not(id: id)
+                    .where(payment_date: payment_date.beginning_of_month..payment_date.end_of_month)
+                    .exists?
     errors.add(:payment_date, "already has a payment for this month") if conflict
   end
 end

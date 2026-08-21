@@ -14,6 +14,7 @@ class MonthlyExpensesController < ApplicationController
 
   def new
     @monthly_expense = current_user.monthly_expenses.new(payment_day: Date.current.day)
+    load_categories
   end
 
   def create
@@ -21,16 +22,20 @@ class MonthlyExpensesController < ApplicationController
     if @monthly_expense.save
       redirect_to monthly_expenses_path, notice: "Monthly expense was successfully created."
     else
+      load_categories
       render :new, status: :unprocessable_entity
     end
   end
 
-  def edit; end
+  def edit
+    load_categories
+  end
 
   def update
     if @monthly_expense.update(monthly_expense_params)
       redirect_to monthly_expenses_path, notice: "Monthly expense was successfully updated."
     else
+      load_categories
       render :edit, status: :unprocessable_entity
     end
   end
@@ -64,6 +69,10 @@ class MonthlyExpensesController < ApplicationController
   # Authorization: only the owner can manage or pay a monthly expense.
   def set_monthly_expense
     @monthly_expense = current_user.monthly_expenses.find(params[:id])
+  end
+
+  def load_categories
+    @categories = Category.all
   end
 
   def monthly_expense_params

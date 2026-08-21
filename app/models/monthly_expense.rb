@@ -25,10 +25,18 @@ class MonthlyExpense < ApplicationRecord
 
   # True when a payment exists whose date falls within +date+'s month.
   def paid_in_month?(date)
-    monthly_expense_payments.exists?(
-      monthly_expense_payments.arel_table[:payment_date].gteq(date.beginning_of_month)
-        .and(monthly_expense_payments.arel_table[:payment_date].lteq(date.end_of_month))
-    )
+    monthly_expense_payments
+      .where(payment_date: date.beginning_of_month..date.end_of_month)
+      .exists?
+  end
+
+  # Suggested payment date within +month+: the configured payment_day clamped
+  # to the length of that month (e.g. day 31 becomes 28/29 in February).
+  # Falls back to +month+ itself when no payment_day is configured.
+  def suggested_payment_date(month = Date.current)
+    return month if payment_day.blank?
+
+    Date.new(month.year, month.month, [ payment_day, month.end_of_month.day ].min)
   end
 
   # Status of the configuration for the current month.
