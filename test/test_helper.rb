@@ -15,22 +15,3 @@ module ActiveSupport
     end
   end
 end
-
-require "capybara/rails"
-require "capybara/minitest"
-
-
-require "capybara/rails"
-require "capybara/minitest"
-
-
-require "capybara/rails"
-require "capybara/minitest"
-
-
-require "capybara/rails"
-require "capybara/minitest"
-
-
-require "capybara/rails"
-require "capybara/minitest"
