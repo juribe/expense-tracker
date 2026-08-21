@@ -25,7 +25,14 @@ Rails.application.routes.draw do
       delete :bulk_destroy
     end
   end
+  resources :incomes
   resources :categories
+  resources :recurring_transactions do
+    member do
+      post :process_transaction
+      post :toggle_active
+    end
+  end
   resources :monthly_reports, only: [:index, :show]
   resources :monthly_expenses do
     member do

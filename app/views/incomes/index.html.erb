@@ -1,0 +1,190 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h1 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Incomes</h1>
+      <p class="text-muted mb-0">Recent income entries for your account.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <%= link_to recurring_transactions_path(type: "income"), class: "btn btn-outline-primary" do %>
+        <i class="bi bi-arrow-down-circle me-1"></i> Monthly Income
+      <% end %>
+      <%= link_to new_income_path, class: "btn btn-primary" do %>
+        <i class="bi bi-plus-lg me-1"></i> Add Income
+      <% end %>
+    </div>
+  </div>
+
+  <% if @monthly_income_plans.any? %>
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h2 class="h5 mb-0"><i class="bi bi-arrow-down-circle me-2 text-success"></i>Monthly income plans</h2>
+        <span class="small text-muted">Click Receive to create the actual income transaction</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Category</th>
+              <th scope="col">Description</th>
+              <th scope="col" class="text-end">Monthly Amount</th>
+              <th scope="col" class="d-none d-md-table-cell">Day</th>
+              <th scope="col" class="d-none d-md-table-cell">Last Received</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @monthly_income_plans.each do |rt| %>
+              <% status = rt.status_for(@current_period) %>
+              <tr>
+                <td><%= category_badge(rt.category) %></td>
+                <td><%= rt.description.presence || content_tag(:span, "No description", class: "text-muted") %></td>
+                <td class="text-end amount"><%= number_to_currency(rt.amount) %></td>
+                <td class="d-none d-md-table-cell"><%= rt.payment_day %></td>
+                <td class="d-none d-md-table-cell">
+                  <% if (last = rt.last_occurrence) %>
+                    <%= last.transaction_date.strftime("%b %d, %Y") %>
+                  <% else %>
+                    <span class="text-muted">&mdash;</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if status == :pending %>
+                    <span class="badge bg-success">Pending</span>
+                  <% elsif status == :completed %>
+                    <span class="badge bg-secondary">Completed</span>
+                  <% else %>
+                    <span class="badge bg-danger">Inactive</span>
+                  <% end %>
+                </td>
+                <td class="text-end text-nowrap">
+                  <% if status == :pending %>
+                    <button type="button"
+                            class="btn btn-sm btn-success"
+                            data-process-income
+                            data-process-url="<%= process_transaction_recurring_transaction_path(rt) %>"
+                            data-process-title="Confirm Receive - <%= rt.category.name %>"
+                            data-process-category="<%= rt.category.name %>"
+                            data-process-description="<%= rt.description %>"
+                            data-process-amount="<%= rt.amount %>"
+                            data-process-confirm="Receive">
+                      <i class="bi bi-cash-coin me-1"></i>Receive
+                    </button>
+                  <% else %>
+                    <button type="button" class="btn btn-sm btn-outline-secondary disabled" disabled>
+                      <i class="bi bi-check-lg me-1"></i>Receive
+                    </button>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="d-flex justify-content-between align-items-baseline mb-3">
+    <p class="results-meta mb-0" id="resultsMeta" aria-live="polite">
+      <%= "#{@incomes.count} #{'income'.pluralize(@incomes.count)}" %>
+    </p>
+    <span class="small text-muted d-none d-md-inline">Most recent 50</span>
+  </div>
+
+  <% if @incomes.any? %>
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="incomeTable">
+          <caption class="visually-hidden">Your incomes</caption>
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Category</th>
+              <th scope="col">Description</th>
+              <th scope="col">Frequency</th>
+              <th scope="col" class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @incomes.each do |income| %>
+              <tr data-testid="row" data-id="<%= income.id %>">
+                <td class="text-nowrap"><%= income.date.strftime("%b %d, %Y") %></td>
+                <td><%= category_badge(income.category) %></td>
+                <td class="desc-cell" title="<%= income.description %>">
+                  <% if income.description.present? %>
+                    <%= income.description %>
+                  <% else %>
+                    <span class="text-muted">No description</span>
+                  <% end %>
+                </td>
+                <td><span class="badge bg-secondary"><%= income.frequency.humanize %></span></td>
+                <td class="text-end fw-bold amount text-success"><%= number_to_currency(income.amount) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% else %>
+    <div class="card shadow-sm">
+      <div class="p-5 text-center" data-testid="empty">
+        <i class="bi bi-cash-stack display-4 text-muted mb-3 d-block"></i>
+        <h4 class="mb-2">No incomes yet</h4>
+        <p class="text-muted mb-0">Add your first income entry to start tracking money coming in.</p>
+        <%= link_to new_income_path, class: "btn btn-primary mt-3" do %>
+          <i class="bi bi-plus-lg me-1"></i>Add Income
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%= render "shared/process_recurring_modal",
+           modal_id: "incomeProcessModal",
+           title_id: "incomeProcessTitle",
+           title: "Confirm Receive",
+           form_id: "incomeProcessForm",
+           category_id: "incomeProcessCategory",
+           description_id: "incomeProcessDescription",
+           configured_amount_id: "incomeProcessConfiguredAmount",
+           date_input_id: "incomeProcessDate",
+           amount_input_id: "incomeProcessAmount",
+           confirm_id: "incomeProcessConfirm",
+           confirm_testid: "confirm-income-process",
+           confirm_label: "Confirm Receive",
+           back_label: "Back",
+           amount_hint: "You can adjust the amount for this specific income.",
+           testid: "income-process-modal" %>
+
+<script>
+(function () {
+  if (window.__incomeProcessModalInit) return;
+  window.__incomeProcessModalInit = true;
+
+  var modal = null;
+
+  function openModal(button) {
+    var form = document.getElementById("incomeProcessForm");
+    var category = button.dataset.processCategory || "";
+    var description = button.dataset.processDescription || "No description";
+    var amount = button.dataset.processAmount || "";
+    var title = button.dataset.processTitle || "Confirm Receive";
+
+    form.action = button.dataset.processUrl;
+
+    document.getElementById("incomeProcessTitle").textContent = title;
+    document.getElementById("incomeProcessCategory").textContent = category;
+    document.getElementById("incomeProcessDescription").textContent = description;
+    document.getElementById("incomeProcessConfiguredAmount").textContent = "$" + Number(amount).toFixed(2);
+    document.getElementById("incomeProcessDate").value = "<%= Date.current %>";
+    document.getElementById("incomeProcessAmount").value = Number(amount).toFixed(2);
+
+    (modal || (modal = bootstrap.Modal.getOrCreateInstance("#incomeProcessModal"))).show();
+  }
+
+  document.addEventListener("click", function (e) {
+    var button = e.target.closest("[data-process-income]");
+    if (button) openModal(button);
+  });
+})();
+</script>

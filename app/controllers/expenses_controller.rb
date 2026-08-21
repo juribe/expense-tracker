@@ -9,6 +9,7 @@ class ExpensesController < ApplicationController
 
   # Load categories for forms and the index filter
   before_action :set_categories, only: [ :index, :new, :create, :edit, :update ]
+  before_action :load_monthly_expense_plans, only: [ :index ]
 
   SORTABLE_COLUMNS = %w[date description category frequency amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
@@ -218,5 +219,13 @@ class ExpensesController < ApplicationController
       end
     end
     send_data csv, filename: "expenses-#{Date.today}.csv", type: "text/csv"
+  end
+
+  def load_monthly_expense_plans
+    @monthly_expense_plans = current_user.recurring_transactions
+                                         .includes(:category, :occurrences)
+                                         .of_type("expense")
+                                         .ordered
+    @current_period = Date.current.strftime("%Y-%m")
   end
 end

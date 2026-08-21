@@ -107,7 +107,8 @@
   </div>
 </div>
 
-<%= form_with url: "#", method: :post, id: "deleteForm", class: "d-none" do %>
+<%= form_with url: "#", method: :post, id: "deleteForm", class: "d-none", authenticity_token: false do %>
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
   <input type="hidden" name="_method" value="delete">
 <% end %>
 
@@ -119,7 +120,8 @@
         <h2 class="modal-title h5" id="payTitle">Confirm Payment</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <%= form_with url: "#", method: :post, id: "payForm", scope: :monthly_expense_payment, local: true do |f| %>
+      <%= form_with url: "#", scope: :monthly_expense_payment, method: :post, id: "payForm", local: true, authenticity_token: false do |f| %>
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
         <div class="modal-body">
           <p class="mb-3" id="paySubtitle"></p>
           <div class="mb-3">

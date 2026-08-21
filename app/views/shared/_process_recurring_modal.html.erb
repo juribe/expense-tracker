@@ -1,0 +1,45 @@
+<div class="modal fade" id="<%= modal_id %>" tabindex="-1" aria-labelledby="<%= title_id %>" aria-hidden="true"
+     data-testid="<%= testid %>">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <form id="<%= form_id %>" method="post" data-turbo="false">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <div class="modal-header">
+          <h5 class="modal-title" id="<%= title_id %>"><%= title %></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-0">Category</label>
+            <p class="form-control-plaintext fw-bold" id="<%= category_id %>"></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-0">Description</label>
+            <p class="form-control-plaintext" id="<%= description_id %>"></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-0">Configured Amount</label>
+            <p class="form-control-plaintext" id="<%= configured_amount_id %>"></p>
+          </div>
+          <div class="mb-3">
+            <label for="<%= date_input_id %>" class="form-label">Transaction Date</label>
+            <input type="date" class="form-control" id="<%= date_input_id %>" name="date" required>
+          </div>
+          <div class="mb-3">
+            <label for="<%= amount_input_id %>" class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" id="<%= amount_input_id %>" name="amount"
+                     step="0.01" min="0.01" required>
+            </div>
+            <div class="form-text"><%= amount_hint %></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= back_label %></button>
+          <button type="submit" class="btn btn-success" id="<%= confirm_id %>" data-testid="<%= confirm_testid %>"><%= confirm_label %></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -6,8 +6,8 @@ class Expense < ApplicationRecord
 
   # Scopes
   scope :for_user, ->(user) { where(user_id: user.id) }
-  scope :in_month, ->(date) { where(created_at: date.beginning_of_month..date.end_of_month) }
-  scope :recent, ->(limit = 5) { order(created_at: :desc).limit(limit) }
+  scope :in_month, ->(date) { where(date: date.beginning_of_month..date.end_of_month) }
+  scope :recent, ->(limit = 5) { order(date: :desc, created_at: :desc).limit(limit) }
   scope :in_category, ->(category_id) { where(category_id: category_id) }
 
   # Helper for the dashboard

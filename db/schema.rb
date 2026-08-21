@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_21_000010) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_21_000300) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -38,6 +38,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_000010) do
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
+  create_table "incomes", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "category_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "description"
+    t.date "date", null: false
+    t.string "frequency", default: "one_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_incomes_on_category_id"
+    t.index ["user_id"], name: "index_incomes_on_user_id"
+  end
+
   create_table "monthly_expense_payments", force: :cascade do |t|
     t.integer "monthly_expense_id", null: false
     t.integer "expense_id", null: false
@@ -62,6 +75,35 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_000010) do
     t.index ["user_id"], name: "index_monthly_expenses_on_user_id"
   end
 
+  create_table "recurring_transaction_occurrences", force: :cascade do |t|
+    t.integer "recurring_transaction_id", null: false
+    t.string "transaction_type", null: false
+    t.integer "transaction_id", null: false
+    t.date "transaction_date", null: false
+    t.string "period", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recurring_transaction_id", "period"], name: "index_recurring_transactions_on_period", unique: true
+    t.index ["recurring_transaction_id"], name: "idx_on_recurring_transaction_id_50fae07783"
+    t.index ["transaction_type", "transaction_id"], name: "index_recurring_transaction_occurrences_on_transaction"
+  end
+
+  create_table "recurring_transactions", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "category_id", null: false
+    t.string "transaction_type", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "description"
+    t.string "frequency", default: "monthly", null: false
+    t.integer "payment_day"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_recurring_transactions_on_category_id"
+    t.index ["transaction_type"], name: "index_recurring_transactions_on_transaction_type"
+    t.index ["user_id"], name: "index_recurring_transactions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name", default: "", null: false
     t.datetime "created_at", null: false
@@ -77,8 +119,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_000010) do
 
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
+  add_foreign_key "incomes", "categories"
+  add_foreign_key "incomes", "users"
   add_foreign_key "monthly_expense_payments", "expenses"
   add_foreign_key "monthly_expense_payments", "monthly_expenses"
   add_foreign_key "monthly_expenses", "categories"
   add_foreign_key "monthly_expenses", "users"
+  add_foreign_key "recurring_transaction_occurrences", "recurring_transactions"
+  add_foreign_key "recurring_transactions", "categories"
+  add_foreign_key "recurring_transactions", "users"
 end
