@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
-class Income < ApplicationRecord
-  belongs_to :user
-  belongs_to :category
-
-  # Scopes
-  scope :for_user, ->(user) { where(user_id: user.id) }
-  scope :in_month, ->(date) { where(date: date.beginning_of_month..date.end_of_month) }
-  scope :recent, ->(limit = 5) { order(date: :desc).limit(limit) }
+class Income < Transaction
+  default_scope { income }
 
   # Dashboard summary for the given month
   def self.dashboard_summary(user:, month: Time.zone.today)
@@ -18,6 +12,7 @@ class Income < ApplicationRecord
 
     {
       total_amount: total_amount,
+      signed_total_amount: total_amount,
       by_category: by_category,
       recent_incomes: recent_incomes
     }

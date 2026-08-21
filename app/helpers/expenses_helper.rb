@@ -1,5 +1,5 @@
 module ExpensesHelper
-  SORTABLE_COLUMNS = %w[date description category frequency amount].freeze
+  SORTABLE_COLUMNS = %w[date description category amount].freeze
   DEFAULT_SORT_DIR = { "date" => "desc", "amount" => "desc" }.freeze
   PAGINATION_WINDOW = 2
 
@@ -61,14 +61,13 @@ module ExpensesHelper
       category_id: params[:category_id],
       start_date: params[:start_date],
       end_date: params[:end_date],
-      frequency: params[:frequency],
       min_amount: params[:min_amount],
       max_amount: params[:max_amount]
     }.compact_blank
   end
 
   def sort_params
-    filter_params.slice(:category_id, :start_date, :end_date, :frequency, :min_amount, :max_amount)
+    filter_params.slice(:category_id, :start_date, :end_date, :min_amount, :max_amount)
   end
 
   def page_params

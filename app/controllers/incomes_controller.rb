@@ -28,13 +28,13 @@ class IncomesController < ApplicationController
   private
 
   def income_params
-    params.require(:income).permit(:amount, :description, :date, :category_id, :frequency)
+    params.require(:income).permit(:amount, :description, :date, :category_id)
   end
 
   def load_monthly_income_plans
-    @monthly_income_plans = current_user.recurring_transactions
-                                       .includes(:category, :occurrences)
-                                       .of_type("income")
+    @monthly_income_plans = current_user.recurring_templates
+                                       .includes(:category, :transactions)
+                                       .income
                                        .ordered
     @current_period = Date.current.strftime("%Y-%m")
   end

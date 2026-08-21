@@ -27,22 +27,15 @@ Rails.application.routes.draw do
   end
   resources :incomes
   resources :categories
-  resources :recurring_transactions do
+  resources :recurring_templates do
     member do
       post :process_transaction
       post :toggle_active
     end
   end
   resources :monthly_reports, only: [:index, :show]
-  resources :monthly_expenses do
-    member do
-      post :pay
-    end
-  end
 
-  # Dashboard
+  # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
-
-  # Root route
-  root to: 'dashboard#index'
+  root to: 'categories#index'
 end

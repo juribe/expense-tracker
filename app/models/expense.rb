@@ -1,20 +1,15 @@
 # frozen_string_literal: true
 
-class Expense < ApplicationRecord
-  belongs_to :user
-  belongs_to :category
+class Expense < Transaction
+  default_scope { expense }
 
-  # Scopes
-  scope :for_user, ->(user) { where(user_id: user.id) }
-  scope :in_month, ->(date) { where(date: date.beginning_of_month..date.end_of_month) }
-  scope :recent, ->(limit = 5) { order(date: :desc, created_at: :desc).limit(limit) }
   scope :in_category, ->(category_id) { where(category_id: category_id) }
 
   # Helper for the dashboard
   def self.dashboard_summary(user:, month: Time.zone.today)
     expenses = for_user(user).in_month(month)
     total_amount = expenses.sum(:amount)
-    by_category = expenses.joins(:category).group("categories.name").sum(:amount)
+    by_category = expenses.joins(:category).group("categories.name").sum(Arel.sql("ABS(amount)"))
     recent_expenses = expenses.recent(5)
     {
       total_amount: total_amount,

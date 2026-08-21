@@ -11,7 +11,7 @@ class ExpensesController < ApplicationController
   before_action :set_categories, only: [ :index, :new, :create, :edit, :update ]
   before_action :load_monthly_expense_plans, only: [ :index ]
 
-  SORTABLE_COLUMNS = %w[date description category frequency amount].freeze
+  SORTABLE_COLUMNS = %w[date description category amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
   DEFAULT_SORT_DIR = { "date" => "desc", "amount" => "desc" }.freeze
   DEFAULT_PAGE_SIZE = 25
@@ -136,11 +136,11 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
-    params.require(:expense).permit(:amount, :description, :date, :frequency, :category_id)
+    params.require(:expense).permit(:amount, :description, :date, :category_id)
   end
 
   def filter_query
-    params.permit(:category_id, :start_date, :end_date, :frequency, :min_amount, :max_amount).to_h
+    params.permit(:category_id, :start_date, :end_date, :min_amount, :max_amount).to_h
   end
 
   def redirect_params
@@ -168,7 +168,7 @@ class ExpensesController < ApplicationController
     end
 
     if params[:min_amount].present? && params[:max_amount].present? &&
-       params[:min_amount].to_d > params[:max_amount].to_d
+       money_value(params[:min_amount]) > money_value(params[:max_amount])
       errors[:min_amount] = "Min amount cannot exceed Max amount."
     end
     errors
@@ -185,14 +185,18 @@ class ExpensesController < ApplicationController
     @expenses = @expenses.in_category(params[:category_id]) if params[:category_id].present?
     @expenses = @expenses.where("date >= ?", params[:start_date]) if params[:start_date].present?
     @expenses = @expenses.where("date <= ?", params[:end_date]) if params[:end_date].present?
-    @expenses = @expenses.where(frequency: params[:frequency]) if params[:frequency].present?
-    @expenses = @expenses.where("amount >= ?", params[:min_amount]) if params[:min_amount].present?
-    @expenses = @expenses.where("amount <= ?", params[:max_amount]) if params[:max_amount].present?
+    @expenses = @expenses.where("ABS(amount) >= ?", money_value(params[:min_amount])) if params[:min_amount].present?
+    @expenses = @expenses.where("ABS(amount) <= ?", money_value(params[:max_amount])) if params[:max_amount].present?
   end
 
   def apply_sort
-    order_column = @sort == "category" ? "categories.name" : "expenses.#{@sort}"
-    @expenses = @expenses.order("#{order_column} #{@dir}")
+    if @sort == "category"
+      @expenses = @expenses.left_joins(:category).order("categories.name #{@dir}")
+    elsif @sort == "amount"
+      @expenses = @expenses.order(Arel.sql("ABS(#{Expense.table_name}.amount) #{@dir}"))
+    else
+      @expenses = @expenses.order("#{Expense.table_name}.#{@sort} #{@dir}")
+    end
   end
 
   def paginate_expenses
@@ -207,13 +211,12 @@ class ExpensesController < ApplicationController
 
   def render_csv(expenses)
     csv = CSV.generate(headers: true) do |rows|
-      rows << %w[date description category frequency amount]
+      rows << %w[date description category amount]
       expenses.find_each do |expense|
         rows << [
           expense.date,
           expense.description.to_s,
           expense.category&.name.to_s,
-          expense.frequency,
           expense.amount.to_s
         ]
       end
@@ -221,10 +224,18 @@ class ExpensesController < ApplicationController
     send_data csv, filename: "expenses-#{Date.today}.csv", type: "text/csv"
   end
 
+  def money_value(value)
+    return nil if value.blank?
+
+    BigDecimal(value.to_s.delete(","))
+  rescue ArgumentError, TypeError
+    nil
+  end
+
   def load_monthly_expense_plans
-    @monthly_expense_plans = current_user.recurring_transactions
-                                         .includes(:category, :occurrences)
-                                         .of_type("expense")
+    @monthly_expense_plans = current_user.recurring_templates
+                                         .includes(:category, :transactions)
+                                         .expense
                                          .ordered
     @current_period = Date.current.strftime("%Y-%m")
   end

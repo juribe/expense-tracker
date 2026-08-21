@@ -13,7 +13,13 @@
 
   <div class="mb-3">
     <%= f.label :amount, "Amount *", class: "form-label" %>
-    <%= f.number_field :amount, step: "0.01", min: 0.01, class: "form-control", placeholder: "0.01" %>
+    <%= f.text_field :amount,
+                     value: money_field_value(@income.amount),
+                     class: "form-control",
+                     placeholder: "0.00",
+                     inputmode: "decimal",
+                     autocomplete: "off",
+                     data: { money_input: true } %>
   </div>
 
   <div class="mb-3">
@@ -29,11 +35,6 @@
   <div class="mb-3">
     <%= f.label :category_id, "Category" , class: "form-label" %>
     <%= f.collection_select :category_id, Category.all, :id, :name, include_blank: true, class: "form-select" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :frequency, "Frequency" , class: "form-label" %>
-    <%= f.select :frequency, [["One time", "one_time"], ["Monthly", "monthly"], ["Weekly", "weekly"]], { include_blank: true }, class: "form-select" %>
   </div>
 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end">

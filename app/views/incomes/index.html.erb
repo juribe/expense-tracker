@@ -5,7 +5,7 @@
       <p class="text-muted mb-0">Recent income entries for your account.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-      <%= link_to recurring_transactions_path(type: "income"), class: "btn btn-outline-primary" do %>
+      <%= link_to recurring_templates_path(kind: "income"), class: "btn btn-outline-primary" do %>
         <i class="bi bi-arrow-down-circle me-1"></i> Monthly Income
       <% end %>
       <%= link_to new_income_path, class: "btn btn-primary" do %>
@@ -43,7 +43,7 @@
                 <td class="d-none d-md-table-cell"><%= rt.payment_day %></td>
                 <td class="d-none d-md-table-cell">
                   <% if (last = rt.last_occurrence) %>
-                    <%= last.transaction_date.strftime("%b %d, %Y") %>
+                    <%= last.date.strftime("%b %d, %Y") %>
                   <% else %>
                     <span class="text-muted">&mdash;</span>
                   <% end %>
@@ -62,7 +62,7 @@
                     <button type="button"
                             class="btn btn-sm btn-success"
                             data-process-income
-                            data-process-url="<%= process_transaction_recurring_transaction_path(rt) %>"
+                            data-process-url="<%= process_transaction_recurring_template_path(rt) %>"
                             data-process-title="Confirm Receive - <%= rt.category.name %>"
                             data-process-category="<%= rt.category.name %>"
                             data-process-description="<%= rt.description %>"
@@ -101,7 +101,6 @@
               <th scope="col">Date</th>
               <th scope="col">Category</th>
               <th scope="col">Description</th>
-              <th scope="col">Frequency</th>
               <th scope="col" class="text-end">Amount</th>
             </tr>
           </thead>
@@ -117,7 +116,6 @@
                     <span class="text-muted">No description</span>
                   <% end %>
                 </td>
-                <td><span class="badge bg-secondary"><%= income.frequency.humanize %></span></td>
                 <td class="text-end fw-bold amount text-success"><%= number_to_currency(income.amount) %></td>
               </tr>
             <% end %>
@@ -178,6 +176,7 @@
     document.getElementById("incomeProcessConfiguredAmount").textContent = "$" + Number(amount).toFixed(2);
     document.getElementById("incomeProcessDate").value = "<%= Date.current %>";
     document.getElementById("incomeProcessAmount").value = Number(amount).toFixed(2);
+    if (window.MoneyInputs) window.MoneyInputs.formatField(document.getElementById("incomeProcessAmount"), true);
 
     (modal || (modal = bootstrap.Modal.getOrCreateInstance("#incomeProcessModal"))).show();
   }

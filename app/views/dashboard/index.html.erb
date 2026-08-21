@@ -61,7 +61,7 @@
                 <td><%= expense.date.strftime("%b %d, %Y") %></td>
                 <td><%= category_badge(expense.category) %></td>
                 <td><%= expense.description %></td>
-                <td class="text-end fw-bold text-danger">-<%= number_to_currency(expense.amount) %></td>
+                <td class="text-end fw-bold text-danger"><%= number_to_currency(expense.amount) %></td>
               </tr>
             <% end %>
           </tbody>
@@ -91,7 +91,14 @@
             <%= f.label :amount, class: "form-label small" %>
             <div class="input-group">
               <span class="input-group-text">$</span>
-              <%= f.number_field :amount, step: 0.01, class: "form-control", placeholder: "0.00", required: true %>
+              <%= f.text_field :amount,
+                               value: money_field_value(f.object.amount&.abs),
+                               class: "form-control",
+                               placeholder: "0.00",
+                               required: true,
+                               inputmode: "decimal",
+                               autocomplete: "off",
+                               data: { money_input: true } %>
             </div>
           </div>
           <div class="mb-2">
@@ -106,7 +113,6 @@
             <%= f.label :description, "Description (optional)", class: "form-label small" %>
             <%= f.text_field :description, class: "form-control", placeholder: "e.g., Lunch at cafe" %>
           </div>
-          <%= f.hidden_field :frequency, value: "one_time" %>
           <%= f.submit "Add Expense", class: "btn btn-success w-100" do %>
             <i class="bi bi-check-circle me-1"></i>Add Expense
           <% end %>

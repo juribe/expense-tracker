@@ -6,6 +6,6 @@ class User < ApplicationRecord
 
   has_many :incomes, dependent: :destroy
   has_many :expenses, dependent: :destroy
-  has_many :recurring_transactions, dependent: :destroy
-  has_many :monthly_expenses, dependent: :destroy
+  has_many :transactions, dependent: :destroy
+  has_many :recurring_templates, dependent: :destroy
 end

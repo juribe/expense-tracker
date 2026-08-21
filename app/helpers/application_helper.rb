@@ -6,10 +6,6 @@ module ApplicationHelper
     tag.span(category.name, class: "badge bg-#{color}")
   end
 
-  def frequency_options
-    %w[one_time weekly monthly yearly].map { |f| [f.humanize, f] }
-  end
-
   def active_class(controller)
     controller_name == controller ? "active" : ""
   end
@@ -22,5 +18,13 @@ module ApplicationHelper
 
   def field_error(object, method)
     object.errors[method].first
+  end
+
+  def money_field_value(value)
+    return "" if value.blank?
+
+    number_with_precision(value.to_d, precision: 2, strip_insignificant_zeros: true, delimiter: ",")
+  rescue NoMethodError, ArgumentError
+    value.to_s
   end
 end
