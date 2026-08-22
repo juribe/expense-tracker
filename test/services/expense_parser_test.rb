@@ -9,11 +9,11 @@ class ExpenseParserTest < ActiveSupport::TestCase
     @parking = Category.create!(name: "Parking")
     @gasoline = Category.create!(name: "Gasoline")
     @groceries = Category.create!(name: "Groceries")
-    @saved_api_key = ENV.delete("OPENAI_API_KEY")
+    @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
 
   teardown do
-    ENV["OPENAI_API_KEY"] = @saved_api_key
+    ENV["MISTRAL_API_KEY"] = @saved_api_key
   end
 
   # 2026-08-22 is a Saturday.
@@ -147,7 +147,7 @@ class ExpenseParserTest < ActiveSupport::TestCase
         ]
       end
     end
-    ENV["OPENAI_API_KEY"] = "test-key"
+    ENV["MISTRAL_API_KEY"] = "test-key"
 
     result = parser_class.call(text: "gasté 120 mil en veterinaria", user: @user, today: TODAY)
 
@@ -165,7 +165,7 @@ class ExpenseParserTest < ActiveSupport::TestCase
         raise ExpenseParser::AIError, "boom"
       end
     end
-    ENV["OPENAI_API_KEY"] = "test-key"
+    ENV["MISTRAL_API_KEY"] = "test-key"
 
     result = parser_class.call(text: "50 mil en almuerzo", user: @user, today: TODAY)
 
@@ -183,7 +183,7 @@ class ExpenseParserTest < ActiveSupport::TestCase
         ]
       end
     end
-    ENV["OPENAI_API_KEY"] = "test-key"
+    ENV["MISTRAL_API_KEY"] = "test-key"
 
     result = parser_class.call(text: "test", user: @user, today: TODAY)
 

@@ -20,8 +20,8 @@ require "uri"
 #     errors: ["..."]
 #   }
 #
-# When an OpenAI-compatible API key is configured the text is interpreted by an
-# LLM using strict JSON output. Otherwise - or whenever the AI call fails - a
+# When a Mistral API key is configured the text is interpreted by an LLM using
+# strict JSON output. Otherwise - or whenever the AI call fails - a
 # deterministic rule-based parser handles common Colombian expressions such as
 # "50 mil", "50 lucas", "50.000 pesos", "50k" and "medio millón", plus relative
 # dates like "hoy", "ayer", "anteayer" and weekdays ("el lunes").
@@ -128,12 +128,12 @@ class ExpenseParser
   end
 
   def ai_api_key
-    ENV["OPENAI_API_KEY"].presence
+    ENV["MISTRAL_API_KEY"].presence
   end
 
-  # Calls an OpenAI-compatible chat completions endpoint with JSON output.
+  # Calls the Mistral chat completions endpoint with JSON output.
   def parse_with_ai
-    uri = URI(ENV.fetch("OPENAI_BASE_URL", "https://api.openai.com/v1/chat/completions"))
+    uri = URI(ENV.fetch("MISTRAL_BASE_URL", "https://api.mistral.ai/v1/chat/completions"))
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = uri.scheme == "https"
     http.open_timeout = 10
@@ -143,7 +143,7 @@ class ExpenseParser
     request["Content-Type"] = "application/json"
     request["Authorization"] = "Bearer #{ai_api_key}"
     request.body = {
-      model: ENV.fetch("OPENAI_MODEL", "gpt-4o-mini"),
+      model: ENV.fetch("MISTRAL_MODEL", "mistral-small-latest"),
       temperature: 0,
       response_format: { type: "json_object" },
       messages: [

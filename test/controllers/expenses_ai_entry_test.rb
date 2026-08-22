@@ -9,11 +9,11 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     @user = User.create!(name: "AI Entry User", email: "ai-entry@example.com", password: "password123")
     @restaurants = Category.create!(name: "Restaurants")
     sign_in @user
-    @saved_api_key = ENV.delete("OPENAI_API_KEY")
+    @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
 
   teardown do
-    ENV["OPENAI_API_KEY"] = @saved_api_key
+    ENV["MISTRAL_API_KEY"] = @saved_api_key
   end
 
   test "POST /expenses/parse requires authentication" do

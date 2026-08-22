@@ -44,6 +44,9 @@ gem "thruster", require: false
 
 gem "devise"
 
+# Loads environment variables from .env in development and test.
+gem "dotenv-rails", groups: [ :development, :test ]
+
 # ---- New gems for charting ----
 gem "chartkick"
 gem "groupdate"
