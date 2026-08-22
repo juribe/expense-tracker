@@ -294,38 +294,73 @@
   }
 
   function setFormMode(mode, row) {
-    var isEdit = mode === "edit";
-    var form = $("#recurringForm");
+  var isEdit = mode === "edit";
+  var form = $("#recurringForm");
 
-    $("#recurringFormTitle").textContent = isEdit ? "Edit Monthly Expense" : "Add Monthly Expense";
+  $("#recurringFormTitle").textContent =
+    isEdit ? "Edit Monthly Expense" : "Add Monthly Expense";
 
-    var methodInput = form.querySelector('input[name="_method"]');
-    if (isEdit) {
-      if (!methodInput) {
-        methodInput = document.createElement("input");
-        methodInput.type = "hidden";
-        methodInput.name = "_method";
-        form.appendChild(methodInput);
-      }
-      methodInput.value = "patch";
-    } else if (methodInput) {
+  // Always refresh CSRF token
+  var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  var csrfInput = form.querySelector('input[name="authenticity_token"]');
+
+  if (csrfMeta) {
+    if (!csrfInput) {
+      csrfInput = document.createElement("input");
+      csrfInput.type = "hidden";
+      csrfInput.name = "authenticity_token";
+      form.appendChild(csrfInput);
+    }
+
+    csrfInput.value = csrfMeta.content;
+  }
+
+  var methodInput = form.querySelector('input[name="_method"]');
+
+  if (isEdit) {
+    if (!methodInput) {
+      methodInput = document.createElement("input");
+      methodInput.type = "hidden";
+      methodInput.name = "_method";
+      form.appendChild(methodInput);
+    }
+
+    methodInput.value = "patch";
+
+    form.action = row.dataset.editUrl;
+
+    $("#recurring_template_category_id").value =
+      row.dataset.categoryId;
+
+    $("#recurring_template_description").value =
+      row.dataset.description || "";
+
+    $("#recurring_template_amount").value =
+      row.dataset.amount;
+
+    if (window.MoneyInputs) {
+      window.MoneyInputs.formatField(
+        $("#recurring_template_amount"),
+        true
+      );
+    }
+
+    $("#recurring_template_payment_day").value =
+      row.dataset.paymentDay;
+
+    $("#recurring_active_switch").checked =
+      row.dataset.active === "true";
+
+  } else {
+    if (methodInput) {
       methodInput.remove();
     }
 
-    if (isEdit && row) {
-      form.action = row.dataset.editUrl;
-      $("#recurring_template_category_id").value = row.dataset.categoryId;
-      $("#recurring_template_description").value = row.dataset.description || "";
-      $("#recurring_template_amount").value = row.dataset.amount;
-      if (window.MoneyInputs) window.MoneyInputs.formatField($("#recurring_template_amount"), true);
-      $("#recurring_template_payment_day").value = row.dataset.paymentDay;
-      $("#recurring_active_switch").checked = row.dataset.active === "true";
-    } else if (!isEdit) {
-      form.action = "<%= monthly_expenses_path %>";
-      form.reset();
-      $("#recurring_active_switch").checked = true;
-    }
+    form.action = "<%= monthly_expenses_path %>";
+    form.reset();
+    $("#recurring_active_switch").checked = true;
   }
+}
 
   window.RecurringUI = {
     openFormModal: function (mode, row) {
