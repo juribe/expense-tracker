@@ -18,7 +18,7 @@ module RecurringTemplateActions
   end
 
   def create
-    @recurring_template = current_user.recurring_templates.build(recurring_template_params)
+    @recurring_template = current_user.recurring_templates.build(recurring_template_params.merge(kind: template_kind))
 
     if @recurring_template.save
       redirect_to index_path,
