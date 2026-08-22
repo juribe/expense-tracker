@@ -502,6 +502,10 @@
         methodInput.value = "delete";
         form.appendChild(methodInput);
       }
+      form.innerHTML =
+      '<input type="hidden" name="_method" value="delete">' +
+      '<input type="hidden" name="authenticity_token" value="' +
+      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
       bootstrap.Modal.getInstance("#deleteModal").hide();
       bootstrap.Offcanvas.getInstance("#detailDrawer") && bootstrap.Offcanvas.getInstance("#detailDrawer").hide();
       form.requestSubmit();
