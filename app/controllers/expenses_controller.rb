@@ -124,6 +124,67 @@ class ExpensesController < ApplicationController
     end
   end
 
+  # POST /expenses/parse
+  # Interprets natural language (typed or transcribed voice) WITHOUT persisting
+  # anything. The user reviews/edits the detected expenses before saving them.
+  def parse
+    text = params[:text].presence || params[:transcription].presence
+    if text.blank?
+      return respond_parse_error("Please write or dictate your expenses first.")
+    end
+
+    result = ExpenseParser.call(text: text, user: current_user)
+
+    respond_to do |format|
+      format.json do
+        if result[:expenses].any?
+          render json: result, status: :ok
+        else
+          message = result[:errors].presence ||
+                    "No expenses were detected. Try something like \"50 mil en almuerzo\"."
+          render json: { engine: result[:engine], transcription: result[:transcription], expenses: [], errors: Array(message) },
+                 status: :unprocessable_entity
+        end
+      end
+      format.html { redirect_to expenses_path, alert: "Use the AI entry box to detect expenses." }
+    end
+  end
+
+  # POST /expenses/bulk_create
+  # Persists several confirmed expenses in a single action.
+  def bulk_create
+    inputs = bulk_expense_inputs
+    if inputs.empty?
+      return respond_bulk_error("No expenses to save.")
+    end
+
+    created_count = 0
+    ActiveRecord::Base.transaction do
+      inputs.each_with_index do |input, index|
+        begin
+          expense = build_expense_from_confirmed_input(input)
+          unless expense.save
+            raise ActiveRecord::RecordInvalid, row_error(expense, index)
+          end
+        rescue ArgumentError => e
+          raise ArgumentError, "Expense #{index + 1}: #{e.message}"
+        end
+        created_count += 1
+      end
+    end
+
+    respond_to do |format|
+      format.json { render json: { created: created_count, redirect_to: expenses_url }, status: :created }
+      format.html do
+        redirect_to expenses_path, notice: "#{created_count} #{'expense'.pluralize(created_count)} created."
+      end
+    end
+  rescue ArgumentError => e
+    respond_bulk_error(e.message)
+  rescue ActiveRecord::RecordInvalid => e
+    respond_bulk_error(e.message)
+  end
+
   private
 
   def set_expense
@@ -229,5 +290,81 @@ class ExpensesController < ApplicationController
     BigDecimal(value.to_s.delete(","))
   rescue ArgumentError, TypeError
     nil
+  end
+
+  # ------------------------------------------------------- ai entry helpers
+
+  def respond_parse_error(message)
+    respond_to do |format|
+      format.json { render json: { expenses: [], errors: [ message ] }, status: :unprocessable_entity }
+      format.html do
+        redirect_to expenses_path, alert: message
+      end
+    end
+  end
+
+  def bulk_expense_inputs
+    raw = params[:expenses]
+    raw = raw.values if raw.is_a?(ActionController::Parameters)
+    Array(raw).filter_map do |input|
+      next if input.blank?
+
+      source = input.respond_to?(:to_unsafe_h) ? input.to_unsafe_h : input
+      ActionController::Parameters.new(source).permit(
+        :amount, :description, :date, :transaction_date, :category_id, :new_category_name, :confidence
+      ).to_h
+    end
+  end
+
+  def build_expense_from_confirmed_input(input)
+    amount = money_value(input[:amount])
+    raise ArgumentError, "Amount is required." if amount.nil?
+    raise ArgumentError, "Amount must be greater than zero." unless amount.positive?
+
+    date = parse_confirmed_date(input[:transaction_date].presence || input[:date])
+
+    Expense.new(
+      user: current_user,
+      category: resolve_confirmed_category!(input),
+      amount: amount,
+      description: input[:description].to_s.presence,
+      date: date,
+      source: "ai"
+    )
+  end
+
+  def parse_confirmed_date(value)
+    return Date.current if value.blank?
+
+    Date.iso8601(value.to_s)
+  rescue ArgumentError, TypeError
+    raise ArgumentError, "Date is invalid."
+  end
+
+  def resolve_confirmed_category!(input)
+    category_id = input[:category_id]
+    new_name = input[:new_category_name].to_s.strip
+
+    if category_id.present?
+      Category.find(category_id)
+    elsif new_name.present?
+      Category.find_by(name: new_name) ||
+        Category.where("lower(name) = ?", new_name.downcase).first ||
+        Category.create!(name: new_name)
+    else
+      raise ArgumentError, "A category is required."
+    end
+  end
+
+  def row_error(expense, index)
+    details = expense.errors.full_messages.join(", ")
+    "Expense #{index + 1}: #{details.presence || 'could not be saved'}."
+  end
+
+  def respond_bulk_error(message)
+    respond_to do |format|
+      format.json { render json: { errors: [ message ] }, status: :unprocessable_entity }
+      format.html { redirect_to expenses_path, alert: message }
+    end
   end
 end

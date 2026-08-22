@@ -1,0 +1,425 @@
+<div class="card shadow-sm border-primary mb-4" data-testid="ai-entry-card">
+  <div class="card-body">
+    <h2 class="h5 mb-3"><i class="bi bi-stars me-2" aria-hidden="true"></i>¿Qué gastaste hoy?</h2>
+    <form id="aiParseForm" data-testid="ai-form" data-turbo="false"
+          data-parse-url="<%= parse_expenses_path(format: :json) %>"
+          data-bulk-create-url="<%= bulk_create_expenses_path(format: :json) %>"
+          data-today="<%= Date.current.iso8601 %>">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+      <label class="form-label visually-hidden" for="aiExpenseText">Describe your expenses</label>
+      <textarea id="aiExpenseText" name="text" class="form-control" rows="2"
+                placeholder='Ej: Me gasté 50 mil en un restaurante y 20 mil en parqueadero'
+                data-testid="ai-text-input"></textarea>
+
+      <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
+        <button type="button" class="btn btn-outline-secondary" id="aiMicButton" data-testid="ai-mic-button"
+                aria-label="Record a voice note" title="Record a voice note">
+          <i class="bi bi-mic" aria-hidden="true"></i> Dictate
+        </button>
+        <button type="submit" class="btn btn-primary" id="aiParseButton" data-testid="ai-parse-button">
+          <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i>Detect expenses
+        </button>
+        <span id="aiStatus" class="small text-muted ms-1" role="status" aria-live="polite"></span>
+      </div>
+
+      <div id="aiTranscriptionWrap" class="alert alert-info mt-3 mb-0 d-none" data-testid="ai-transcription">
+        <i class="bi bi-soundwave me-1" aria-hidden="true"></i><strong>Transcription:</strong>
+        <span id="aiTranscriptionText"></span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Preview / confirmation modal -->
+<div class="modal fade" id="aiPreviewModal" tabindex="-1" aria-labelledby="aiPreviewTitle" aria-hidden="true"
+     data-testid="ai-preview-modal">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="aiPreviewTitle">Detected expenses</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="aiPreviewError" class="alert alert-danger d-none" role="alert"></div>
+        <div id="aiPreviewRows"></div>
+      </div>
+      <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-primary btn-sm" id="aiAddRow" data-testid="ai-add-row">
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
+        </button>
+        <div class="d-flex align-items-center gap-3">
+          <strong id="aiPreviewTotal" data-testid="ai-total">Total: $0</strong>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="aiSaveAll" data-testid="ai-save-all">
+            <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Save Expenses
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  if (window.__aiEntryInit) return;
+  window.__aiEntryInit = true;
+
+  var CATEGORIES = <%= raw (@categories || []).map { |c| { id: c.id, name: c.name } }.to_json %>;
+
+  var $ = function (sel) { return document.querySelector(sel); };
+
+  var form = $("#aiParseForm");
+  var textarea = $("#aiExpenseText");
+  var micButton = $("#aiMicButton");
+  var statusEl = $("#aiStatus");
+  var transcriptionWrap = $("#aiTranscriptionWrap");
+  var transcriptionText = $("#aiTranscriptionText");
+  var modalEl = $("#aiPreviewModal");
+  var rowsEl = $("#aiPreviewRows");
+  var totalEl = $("#aiPreviewTotal");
+  var errorEl = $("#aiPreviewError");
+
+  function csrfToken() {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : "";
+  }
+
+  function setStatus(message) {
+    statusEl.textContent = message || "";
+  }
+
+  function money(value) {
+    var n = Number(value);
+    if (!isFinite(n)) n = 0;
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  function todayISO() {
+    return form.dataset.today || new Date().toISOString().slice(0, 10);
+  }
+
+  // ------------------------------------------------------------------ parsing
+
+  function parseExpenses() {
+    var text = textarea.value.trim();
+    if (!text) {
+      setStatus("Write or dictate what you spent first.");
+      textarea.focus();
+      return;
+    }
+
+    var button = $("#aiParseButton");
+    button.disabled = true;
+    setStatus("Detecting expenses…");
+
+    fetch(form.dataset.parseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-Token": csrfToken()
+      },
+      body: JSON.stringify({ text: text })
+    }).then(function (response) {
+      return response.json().then(function (data) {
+        return { ok: response.ok, data: data };
+      });
+    }).then(function (result) {
+      button.disabled = false;
+      if (!result.ok || !result.data.expenses || !result.data.expenses.length) {
+        setStatus("");
+        var message = (result.data.errors && result.data.errors[0]) || "No expenses were detected.";
+        window.alert(message);
+        return;
+      }
+      setStatus(result.data.expenses.length + " expense(s) detected. Review them before saving.");
+      renderPreview(result.data.expenses);
+      bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }).catch(function () {
+      button.disabled = false;
+      setStatus("Could not detect expenses. Please try again.");
+    });
+  }
+
+  // ------------------------------------------------------------------ preview
+
+  function option(value, label, selected) {
+    var opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = label;
+    opt.selected = !!selected;
+    return opt;
+  }
+
+  function buildSelect(expense) {
+    var select = document.createElement("select");
+    select.className = "form-select form-select-sm ai-field-category";
+    select.setAttribute("aria-label", "Category");
+
+    var matched = null;
+    if (expense.category_id) {
+      matched = CATEGORIES.filter(function (c) { return String(c.id) === String(expense.category_id); })[0];
+    }
+
+    CATEGORIES.forEach(function (category) {
+      select.appendChild(option(category.id, category.name, !!(matched && matched.id === category.id)));
+    });
+
+    if (!matched && expense.category_name) {
+      select.appendChild(option("new:" + expense.category_name,
+        "New category: " + expense.category_name, true));
+    }
+    return select;
+  }
+
+  function labeledField(labelText, field, className) {
+    var wrapper = document.createElement("div");
+    wrapper.className = className;
+    var label = document.createElement("label");
+    label.className = "form-label small mb-1";
+    label.textContent = labelText;
+    wrapper.appendChild(label);
+    wrapper.appendChild(field);
+    return wrapper;
+  }
+
+  function buildRow(expense) {
+    expense = expense || {};
+    var row = document.createElement("div");
+    row.className = "card mb-2 ai-expense-row";
+    row.setAttribute("data-testid", "ai-row");
+    if (expense.low_confidence) row.classList.add("border-warning");
+
+    var body = document.createElement("div");
+    body.className = "card-body p-2";
+
+    if ((expense.warnings && expense.warnings.length) || expense.low_confidence) {
+      var warning = document.createElement("div");
+      warning.className = "alert alert-warning py-1 px-2 small mb-2";
+      warning.setAttribute("role", "alert");
+      warning.textContent = "⚠️ " + ((expense.warnings && expense.warnings.join(" ")) ||
+        "We are not sure about this expense. Please confirm the details.");
+      body.appendChild(warning);
+    }
+
+    var grid = document.createElement("div");
+    grid.className = "row g-2 align-items-end";
+
+    var description = document.createElement("input");
+    description.type = "text";
+    description.className = "form-control form-control-sm ai-field-description";
+    description.value = expense.description || "";
+    description.setAttribute("aria-label", "Description");
+    grid.appendChild(labeledField("Description", description, "col-md-4"));
+
+    grid.appendChild(labeledField("Category", buildSelect(expense), "col-md-3"));
+
+    var amount = document.createElement("input");
+    amount.type = "number";
+    amount.min = "0";
+    amount.step = "any";
+    amount.className = "form-control form-control-sm ai-field-amount";
+    amount.value = expense.amount != null ? expense.amount : "";
+    amount.setAttribute("aria-label", "Amount");
+    grid.appendChild(labeledField("Amount", amount, "col-6 col-md-2"));
+
+    var dateField = document.createElement("input");
+    dateField.type = "date";
+    dateField.className = "form-control form-control-sm ai-field-date";
+    dateField.value = expense.transaction_date || todayISO();
+    dateField.setAttribute("aria-label", "Date");
+    grid.appendChild(labeledField("Date", dateField, "col-6 col-md-2"));
+
+    var actions = document.createElement("div");
+    actions.className = "col-md-1 d-grid";
+    var remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "btn btn-outline-danger btn-sm ai-remove";
+    remove.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i>';
+    remove.setAttribute("aria-label", "Remove expense");
+    actions.appendChild(remove);
+    grid.appendChild(actions);
+
+    body.appendChild(grid);
+    row.appendChild(body);
+
+    amount.addEventListener("input", updateTotal);
+    remove.addEventListener("click", function () {
+      row.remove();
+      updateTotal();
+      if (!rowsEl.querySelector(".ai-expense-row")) hideModal();
+    });
+    return row;
+  }
+
+  function renderPreview(expenses) {
+    rowsEl.textContent = "";
+    errorEl.classList.add("d-none");
+    expenses.forEach(function (expense) {
+      rowsEl.appendChild(buildRow(expense));
+    });
+    updateTotal();
+  }
+
+  function updateTotal() {
+    var total = 0;
+    rowsEl.querySelectorAll(".ai-expense-row").forEach(function (row) {
+      total += Number(row.querySelector(".ai-field-amount").value) || 0;
+    });
+    totalEl.textContent = "Total: " + money(total);
+  }
+
+  function showModalError(message) {
+    errorEl.textContent = message;
+    errorEl.classList.remove("d-none");
+  }
+
+  function hideModal() {
+    var instance = bootstrap.Modal.getInstance(modalEl);
+    if (instance) instance.hide();
+  }
+
+  function collectExpenses() {
+    var invalid = [];
+    var expenses = [];
+    Array.prototype.forEach.call(rowsEl.querySelectorAll(".ai-expense-row"), function (row, index) {
+      var amountValue = row.querySelector(".ai-field-amount").value;
+      var category = row.querySelector(".ai-field-category").value;
+      var isNewCategory = category.indexOf("new:") === 0;
+      var entry = {
+        description: row.querySelector(".ai-field-description").value,
+        amount: amountValue,
+        transaction_date: row.querySelector(".ai-field-date").value,
+        category_id: isNewCategory ? "" : category,
+        new_category_name: isNewCategory ? category.slice(4) : ""
+      };
+      if (!amountValue || Number(amountValue) <= 0 || (!isNewCategory && !category)) {
+        invalid.push(index + 1);
+      }
+      expenses.push(entry);
+    });
+    return { expenses: expenses, invalid: invalid };
+  }
+
+  function saveExpenses() {
+    var collected = collectExpenses();
+    if (!collected.expenses.length) return;
+
+    if (collected.invalid.length) {
+      showModalError("Check expense(s) " + collected.invalid.join(", ") +
+        ": they need an amount greater than zero and a valid category.");
+      return;
+    }
+
+    var saveButton = $("#aiSaveAll");
+    saveButton.disabled = true;
+
+    fetch(form.dataset.bulkCreateUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRF-Token": csrfToken()
+      },
+      body: JSON.stringify({ expenses: collected.expenses })
+    }).then(function (response) {
+      return response.json().then(function (data) {
+        return { ok: response.ok, data: data };
+      });
+    }).then(function (result) {
+      saveButton.disabled = false;
+      if (result.ok) {
+        window.location.href = result.data.redirect_to || "<%= expenses_path %>";
+      } else {
+        showModalError((result.data.errors && result.data.errors[0]) ||
+          "The expenses could not be saved. Please review them.");
+      }
+    }).catch(function () {
+      saveButton.disabled = false;
+      showModalError("Could not save expenses. Please try again.");
+    });
+  }
+
+  // -------------------------------------------------------------------- voice
+
+  function initVoice() {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      micButton.disabled = true;
+      micButton.title = "Voice input is not supported by this browser.";
+      return;
+    }
+
+    var recognition = new SpeechRecognition();
+    var recording = false;
+    recognition.lang = "es-CO";
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    function setRecordingUI(active) {
+      recording = active;
+      micButton.classList.toggle("btn-danger", active);
+      micButton.classList.toggle("btn-outline-secondary", !active);
+      micButton.innerHTML = active
+        ? '<i class="bi bi-stop-circle" aria-hidden="true"></i> Stop'
+        : '<i class="bi bi-mic" aria-hidden="true"></i> Dictate';
+    }
+
+    recognition.onstart = function () {
+      setRecordingUI(true);
+      setStatus("Listening… describe your expenses.");
+    };
+
+    recognition.onresult = function (event) {
+      var transcript = "";
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      textarea.value = transcript.trim();
+    };
+
+    recognition.onerror = function (event) {
+      setStatus("Voice recognition failed (" + event.error + "). You can type instead.");
+    };
+
+    recognition.onend = function () {
+      setRecordingUI(false);
+      if (textarea.value.trim()) {
+        transcriptionWrap.classList.remove("d-none");
+        transcriptionText.textContent = textarea.value.trim();
+        parseExpenses();
+      } else {
+        setStatus("");
+      }
+    };
+
+    micButton.addEventListener("click", function () {
+      if (recording) {
+        recognition.stop();
+      } else {
+        try {
+          recognition.start();
+        } catch (error) {
+          setStatus("Could not start voice recognition.");
+        }
+      }
+    });
+  }
+
+  // --------------------------------------------------------------------- init
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    parseExpenses();
+  });
+
+  $("#aiAddRow").addEventListener("click", function () {
+    rowsEl.appendChild(buildRow({ transaction_date: todayISO() }));
+    updateTotal();
+  });
+
+  $("#aiSaveAll").addEventListener("click", saveExpenses);
+
+  initVoice();
+})();
+</script>

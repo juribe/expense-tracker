@@ -16,8 +16,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
-  def create_expense(amount:, date:, category: @category, frequency: "one_time", description: "Lunch")
-    @user.expenses.create!(amount: amount, date: date, category: category, frequency: frequency, description: description)
+  def create_expense(amount:, date:, category: @category, description: "Lunch")
+    @user.expenses.create!(amount: amount, date: date, category: category, description: description)
   end
 
   test "GET /expenses renders the table with expenses" do
@@ -66,10 +66,10 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "Mid"
   end
 
-  test "GET /expenses filters by date range and frequency" do
-    create_expense(amount: 10.00, date: Date.new(2026, 1, 10), frequency: "weekly", description: "Old")
-    create_expense(amount: 20.00, date: Date.new(2026, 3, 15), frequency: "monthly", description: "Rent")
-    get expenses_path, params: { start_date: "2026-03-01", end_date: "2026-03-31", frequency: "monthly" }
+  test "GET /expenses filters by date range" do
+    create_expense(amount: 10.00, date: Date.new(2026, 1, 10), description: "Old")
+    create_expense(amount: 20.00, date: Date.new(2026, 3, 15), description: "Rent")
+    get expenses_path, params: { start_date: "2026-03-01", end_date: "2026-03-31" }
     assert_response :success
     assert_select "tr[data-testid=row]", count: 1
     assert_select "td", text: "Rent"
@@ -111,7 +111,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses paginates at 25 rows and preserves page param" do
-    30.times { |i| create_expense(amount: i, date: Date.today, description: "Expense #{i}") }
+    30.times { |i| create_expense(amount: i + 1, date: Date.today, description: "Expense #{i}") }
     get expenses_path, params: { page: 1 }
     assert_response :success
     assert_select "tr[data-testid=row]", count: 25
@@ -124,8 +124,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     30.times { |i| create_expense(amount: 10.0 + i, date: Date.today, description: "Expense #{i}") }
     get expenses_path, params: { page: 2 }
     assert_response :success
-    assert_select "#pageFoot", text: /Page total \$185\.00/
-    assert_select "#pageFoot", text: /Filtered total \$735\.00/
+    assert_select "#pageFoot", text: /Page total -\$60\.00/
+    assert_select "#pageFoot", text: /Filtered total -\$735\.00/
   end
 
   test "GET /expenses.csv exports the filtered set as CSV" do
@@ -134,8 +134,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     get expenses_path(format: :csv), params: { category_id: @category.id }
     assert_response :success
     assert_equal "text/csv", response.media_type
-    assert_includes response.body, "date,description,category,frequency,amount"
-    assert_includes response.body, '2026-03-10,"Lunch, ""business""",Food,one_time,12.5'
+    assert_includes response.body, "date,description,category,amount"
+    assert_includes response.body, '2026-03-10,"Lunch, ""business""",Food,-12.5'
     assert_includes response.body, "Food"
     refute_includes response.body, "Excluded"
   end
