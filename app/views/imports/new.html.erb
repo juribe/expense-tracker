@@ -1,0 +1,74 @@
+<div class="container-fluid py-4 import-recurring-templates" style="max-width: 800px; margin: 0 auto;">
+  <%= form_with(url: imports_path, local: true, html: { multipart: true }) do |form| %>
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-upload me-2"></i>Import Recurring Templates
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <div class="alert alert-info" role="alert">
+          <h6 class="alert-heading mb-2">
+            <i class="bi bi-info-circle me-1"></i>CSV Format
+          </h6>
+          <p class="mb-2">Download and use this template:</p>
+          <code class="bg-white p-2 rounded">category,kind,amount,description,payment_day,active</code>
+          <div class="mt-2">
+            <small class="text-muted">
+              Required: <strong>category</strong> (category name)<br>
+              Optional: <strong>kind</strong> (income/expense), <strong>amount</strong>, <strong>description</strong>, 
+              <strong>payment_day</strong>, <strong>active</strong> (true/false)
+            </small>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="file" class="form-label">CSV File <span class="text-danger">*</span></label>
+          <input type="file" id="file" name="file" accept=".csv,text/csv" class="form-control" required>
+          <div class="form-text">Select a CSV file with recurring template data.</div>
+        </div>
+
+        <% if @categories.any? %>
+          <div class="mb-3">
+            <label for="import_category" class="form-label">Default Category (optional)</label>
+            <%= form.collection_select :default_category_id, @categories, :id, :name, { prompt: "Use category from CSV" }, class: "form-select", id: "import_category" %>
+            <div class="form-text">If selected, all imports will use this category instead of reading from CSV.</div>
+          </div>
+        <% else %>
+          <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>No categories found. Please create categories first.
+          </div>
+        <% end %>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end gap-2">
+        <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-x-lg me-1"></i>Cancel
+        <% end %>
+        <%= form.submit "Import Templates", class: "btn btn-primary", id: "import-btn" %>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var form = document.querySelector(".import-recurring-templates form");
+        var fileInput = document.getElementById("file");
+        
+        if (fileInput) {
+          fileInput.addEventListener("change", function() {
+            if (this.files.length > 0) {
+              var fileName = this.files[0].name;
+              var fileContent = this.files[0].text();
+              var preview = document.createElement("div");
+              preview.className = "mt-2 p-2 bg-light border rounded";
+              preview.innerHTML = "<strong>Preview:</strong><br><small class=\"text-monospace\" style=\"font-size: 0.85em;\">" + 
+                fileContent.split('\\n').slice(0, 5).join('<br>') + "</small>";
+              this.parentNode.appendChild(preview);
+            }
+          });
+        }
+      })();
+    </script>
+  <% end %>
+</div>

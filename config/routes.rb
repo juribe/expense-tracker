@@ -35,6 +35,8 @@ Rails.application.routes.draw do
   end
   resources :monthly_reports, only: [:index, :show]
 
+  resources :imports, only: [:new, :create]
+
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'
