@@ -9,7 +9,6 @@ class ExpensesController < ApplicationController
 
   # Load categories for forms and the index filter
   before_action :set_categories, only: [ :index, :new, :create, :edit, :update ]
-  before_action :load_monthly_expense_plans, only: [ :index ]
 
   SORTABLE_COLUMNS = %w[date description category amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
@@ -230,13 +229,5 @@ class ExpensesController < ApplicationController
     BigDecimal(value.to_s.delete(","))
   rescue ArgumentError, TypeError
     nil
-  end
-
-  def load_monthly_expense_plans
-    @monthly_expense_plans = current_user.recurring_templates
-                                         .includes(:category, :transactions)
-                                         .expense
-                                         .ordered
-    @current_period = Date.current.strftime("%Y-%m")
   end
 end

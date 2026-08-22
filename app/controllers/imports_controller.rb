@@ -19,7 +19,7 @@ class ImportsController < ApplicationController
     if importer.errors.any?
       redirect_to new_import_path, alert: importer.errors.join(" ")
     else
-      redirect_to recurring_templates_path(kind: "expense"), notice: importer.notice
+      redirect_to monthly_expenses_path, notice: importer.notice
     end
   end
 end

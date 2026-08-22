@@ -1,49 +1,33 @@
-<div class="container-fluid py-4" data-testid="recurring-page">
+<div class="container-fluid py-4" data-testid="monthly-incomes-page">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
       <li class="breadcrumb-item"><%= link_to "Dashboard", dashboard_path %></li>
-      <li class="breadcrumb-item active" aria-current="page">Recurring Templates</li>
+      <li class="breadcrumb-item active" aria-current="page">Monthly Income</li>
     </ol>
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h4 class="text-primary mb-0"><i class="bi bi-arrow-repeat me-2"></i>Recurring Templates</h4>
+    <h4 class="text-primary mb-0"><i class="bi bi-arrow-down-circle me-2"></i>Monthly Income</h4>
     <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
       <i class="bi bi-upload me-1"></i>Import Templates
     <% end %>
     <button type="button" class="btn btn-success ms-auto" data-testid="add-recurring"
             onclick="RecurringUI.openFormModal('create')">
-      <i class="bi bi-plus-lg me-1"></i>Add Recurring
+      <i class="bi bi-plus-lg me-1"></i>Add Income
     </button>
   </div>
-
-  <!-- Income / Expense tabs -->
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <%= link_to recurring_templates_path(kind: "income"),
-                  class: "nav-link #{'active' if @kind == 'income'}" do %>
-        <i class="bi bi-arrow-down-circle me-1"></i>Income
-      <% end %>
-    </li>
-    <li class="nav-item">
-      <%= link_to recurring_templates_path(kind: "expense"),
-                  class: "nav-link #{'active' if @kind == 'expense'}" do %>
-        <i class="bi bi-arrow-up-circle me-1"></i>Expense
-      <% end %>
-    </li>
-  </ul>
 
   <!-- Filter -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <%= form_with url: recurring_templates_path(kind: @kind), method: :get, class: "row g-3 align-items-end", data: { testid: "filter-form" } do |f| %>
+      <%= form_with url: monthly_incomes_path, method: :get, class: "row g-3 align-items-end", data: { testid: "filter-form" } do |f| %>
         <div class="col-12 col-md-4 col-lg-2">
           <%= f.label :status, "Status", class: "form-label" %>
           <%= f.select :status, options_for_select([["All", "all"], ["Paid", "completed"], ["Pending", "pending"]], @status_filter), {}, class: "form-select" %>
         </div>
         <div class="col-12 d-flex gap-2">
           <%= f.submit "Filter", class: "btn btn-outline-primary" %>
-          <%= link_to "Clear", recurring_templates_path(kind: @kind), class: "btn btn-outline-secondary" %>
+          <%= link_to "Clear", monthly_incomes_path, class: "btn btn-outline-secondary" %>
         </div>
       <% end %>
     </div>
@@ -52,20 +36,20 @@
   <!-- Totals -->
   <div class="d-flex justify-content-between align-items-baseline mb-2">
     <p class="results-meta mb-0" data-testid="results-meta">
-      <%= "#{@total_count} #{'recurring template'.pluralize(@total_count)} · #{number_to_currency(@filtered_total)}" %>
+      <%= "#{@total_count} #{'recurring income'.pluralize(@total_count)} · #{number_to_currency(@filtered_total)}" %>
     </p>
   </div>
 
   <div class="card shadow-sm" data-testid="recurring-card">
     <% if @recurring_templates.empty? %>
       <div class="text-center py-5" data-testid="empty-state">
-        <i class="bi bi-arrow-repeat display-4 text-muted d-block mb-3"></i>
+        <i class="bi bi-arrow-down-circle display-4 text-muted d-block mb-3"></i>
         <% if @status_filter != "all" %>
           <h5>No matching templates</h5>
           <p class="text-muted">Try changing your filter or clear it to see all templates.</p>
         <% else %>
-          <h5>No recurring templates yet</h5>
-          <p class="text-muted">Set up a monthly income or payment to track it here.</p>
+          <h5>No monthly income templates yet</h5>
+          <p class="text-muted">Set up a recurring income to track it here.</p>
           <button type="button" class="btn btn-outline-primary" onclick="RecurringUI.openFormModal('create')">
             Add your first template
           </button>
@@ -80,7 +64,7 @@
               <th scope="col">Description</th>
               <th scope="col" class="text-end">Monthly Amount</th>
               <th scope="col" class="d-none d-md-table-cell">Payment Day</th>
-              <th scope="col" class="d-none d-md-table-cell"><%= @recurring_templates.first&.past_action_label || "Last Received" %></th>
+              <th scope="col" class="d-none d-md-table-cell">Last Received</th>
               <th scope="col">Status</th>
               <th scope="col" class="text-end">Actions</th>
             </tr>
@@ -96,10 +80,10 @@
                   data-payment-day="<%= rt.payment_day %>"
                   data-active="<%= rt.active? %>"
                   data-type="<%= rt.kind %>"
-                  data-edit-url="<%= recurring_template_path(rt) %>"
-                  data-delete-url="<%= recurring_template_path(rt) %>"
-                  data-toggle-url="<%= toggle_active_recurring_template_path(rt) %>"
-                  data-process-url="<%= process_transaction_recurring_template_path(rt) %>">
+                  data-edit-url="<%= monthly_income_path(rt) %>"
+                  data-delete-url="<%= monthly_income_path(rt) %>"
+                  data-toggle-url="<%= toggle_active_monthly_income_path(rt) %>"
+                  data-process-url="<%= process_transaction_monthly_income_path(rt) %>">
                 <td><%= category_badge(rt.category) %></td>
                 <td><%= rt.description.presence || content_tag(:span, "No description", class: "text-muted") %></td>
                 <td class="text-end amount"><%= number_to_currency(rt.signed_amount) %></td>
@@ -123,31 +107,31 @@
                 </td>
                 <td class="text-end text-nowrap">
                   <button type="button" class="btn btn-outline-primary btn-sm me-1" data-testid="edit"
-                          aria-label="Edit <%= rt.description.presence || 'recurring template' %>"
+                          aria-label="Edit <%= rt.description.presence || 'recurring income' %>"
                           onclick="RecurringUI.openFormModal('edit', this.closest('tr'))">
                     <i class="bi bi-pencil"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="deactivate"
-                          aria-label="<%= rt.active? ? 'Deactivate' : 'Activate' %> <%= rt.description.presence || 'recurring template' %>"
+                          aria-label="<%= rt.active? ? 'Deactivate' : 'Activate' %> <%= rt.description.presence || 'recurring income' %>"
                           title="<%= rt.active? ? 'Deactivate' : 'Activate' %>"
                           onclick="RecurringUI.toggleActive(this)">
                     <i class="bi bi-power"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="delete"
-                          aria-label="Delete <%= rt.description.presence || 'recurring template' %>"
+                          aria-label="Delete <%= rt.description.presence || 'recurring income' %>"
                           onclick="RecurringUI.confirmDelete(this)">
                     <i class="bi bi-trash"></i>
                   </button>
                   <% if status == :pending %>
                     <button type="button" class="btn btn-primary btn-sm" data-testid="process"
                             onclick="RecurringUI.openProcessModal(this.closest('tr'))">
-                      <i class="bi bi-cash-coin me-1"></i><%= rt.action_label %>
+                      <i class="bi bi-cash-coin me-1"></i>Receive
                     </button>
                   <% elsif status == :completed %>
                     <button type="button" class="btn btn-outline-secondary btn-sm disabled" data-testid="process-disabled"
                             data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Already processed this month" tabindex="-1" aria-disabled="true">
-                      <i class="bi bi-check-lg me-1"></i><%= rt.action_label %>
+                            title="Already received this month" tabindex="-1" aria-disabled="true">
+                      <i class="bi bi-check-lg me-1"></i>Received
                     </button>
                   <% end %>
                 </td>
@@ -167,7 +151,7 @@
     <div class="modal-content">
       <%= form_with model: @recurring_template, local: true, id: "recurringForm" do |f| %>
         <div class="modal-header">
-          <h5 class="modal-title" id="recurringFormTitle">Add Recurring Template</h5>
+          <h5 class="modal-title" id="recurringFormTitle">Add Monthly Income</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -178,14 +162,6 @@
                                       { prompt: "Select a category" },
                                       class: "form-select #{field_class(@recurring_template, :category_id)}", required: true %>
               <div class="invalid-feedback"><%= field_error(@recurring_template, :category_id) %></div>
-            </div>
-            <div class="col-md-6" id="typeField">
-              <%= f.label :kind, "Type", class: "form-label" %>
-              <%= f.select :kind,
-                           options_for_select(RecurringTemplate::TRANSACTION_TYPES.map { |t| [t.humanize, t] }, @kind),
-                           { prompt: "Select a type" },
-                           class: "form-select #{field_class(@recurring_template, :kind)}", required: true %>
-              <div class="invalid-feedback"><%= field_error(@recurring_template, :kind) %></div>
             </div>
             <div class="col-md-6">
               <%= f.label :description, "Description", class: "form-label" %>
@@ -231,7 +207,7 @@
   </div>
 </div>
 
-<!-- Receive / Pay confirmation modal -->
+<!-- Receive confirmation modal -->
 <div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processTitle" aria-hidden="true"
      data-testid="process-modal">
   <div class="modal-dialog modal-sm">
@@ -270,7 +246,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Back</button>
-          <button type="submit" class="btn btn-success" id="processConfirm" data-testid="confirm-process">Confirm</button>
+          <button type="submit" class="btn btn-success" id="processConfirm" data-testid="confirm-process">Receive</button>
         </div>
       </form>
     </div>
@@ -282,7 +258,7 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteRtTitle">Delete recurring template?</h5>
+        <h5 class="modal-title" id="deleteRtTitle">Delete recurring income?</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">The configuration and its history will be permanently removed. This cannot be undone.</div>
@@ -320,11 +296,9 @@
   function setFormMode(mode, row) {
     var isEdit = mode === "edit";
     var form = $("#recurringForm");
-    var typeSelect = $("#recurring_template_kind");
 
-    $("#recurringFormTitle").textContent = isEdit ? "Edit Recurring Template" : "Add Recurring Template";
+    $("#recurringFormTitle").textContent = isEdit ? "Edit Monthly Income" : "Add Monthly Income";
 
-    // A hand-pointed form needs an explicit _method override for updates.
     var methodInput = form.querySelector('input[name="_method"]');
     if (isEdit) {
       if (!methodInput) {
@@ -341,18 +315,14 @@
     if (isEdit && row) {
       form.action = row.dataset.editUrl;
       $("#recurring_template_category_id").value = row.dataset.categoryId;
-      typeSelect.value = row.dataset.type;
-      typeSelect.disabled = true; // type is immutable after creation
       $("#recurring_template_description").value = row.dataset.description || "";
       $("#recurring_template_amount").value = row.dataset.amount;
       if (window.MoneyInputs) window.MoneyInputs.formatField($("#recurring_template_amount"), true);
       $("#recurring_template_payment_day").value = row.dataset.paymentDay;
       $("#recurring_active_switch").checked = row.dataset.active === "true";
     } else if (!isEdit) {
-      form.action = "<%= recurring_templates_path %>";
+      form.action = "<%= monthly_incomes_path %>";
       form.reset();
-      typeSelect.disabled = false;
-      typeSelect.value = "<%= j @kind %>";
       $("#recurring_active_switch").checked = true;
     }
   }
@@ -367,10 +337,9 @@
     openProcessModal: function (row) {
       initModals();
       currentRow = row;
-      var isIncome = row.dataset.type === "income";
 
-      $("#processTitle").textContent = isIncome ? "Confirm Receive" : "Confirm Pay";
-      $("#processConfirm").textContent = isIncome ? "Receive" : "Pay";
+      $("#processTitle").textContent = "Confirm Receive";
+      $("#processConfirm").textContent = "Receive";
       $("#processCategory").textContent =
         row.querySelector("td .badge").textContent;
       $("#processDescription").textContent = row.cells[1].textContent.trim();
@@ -385,7 +354,6 @@
       var form = $("#processForm");
       form.action = row.dataset.processUrl;
 
-      // Rails needs the authenticity token on this hand-built form.
       if (!form.querySelector('input[name="authenticity_token"]')) {
         var token = document.querySelector('meta[name="csrf-token"]');
         var input = document.createElement("input");

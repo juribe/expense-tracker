@@ -33,6 +33,20 @@ Rails.application.routes.draw do
       post :toggle_active
     end
   end
+
+  resources :monthly_incomes, only: [ :index, :create, :update, :destroy ] do
+    member do
+      post :process_transaction
+      post :toggle_active
+    end
+  end
+
+  resources :monthly_expenses, only: [ :index, :create, :update, :destroy ] do
+    member do
+      post :process_transaction
+      post :toggle_active
+    end
+  end
   resources :monthly_reports, only: [:index, :show]
 
   resources :imports, only: [:new, :create]

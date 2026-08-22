@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class IncomesController < ApplicationController
-  before_action :load_monthly_income_plans, only: :index
-
   # GET /incomes or /incomes.json
   def index
     @incomes = Income.for_user(current_user).recent(50)
@@ -30,13 +28,4 @@ class IncomesController < ApplicationController
   def income_params
     params.require(:income).permit(:amount, :description, :date, :category_id)
   end
-
-  def load_monthly_income_plans
-    @monthly_income_plans = current_user.recurring_templates
-                                       .includes(:category, :transactions)
-                                       .income
-                                       .ordered
-    @current_period = Date.current.strftime("%Y-%m")
-  end
-
 end
