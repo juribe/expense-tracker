@@ -79,6 +79,22 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil session[:gmail_oauth_state]
   end
 
+  test "update saves search criteria under the search_config column" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    patch gmail_connection_path, params: {
+      search_config: { senders: "notifications@bank.com, alerts@nequi.co", domains: "", subject_keywords: "" }
+    }
+
+    assert_redirected_to gmail_connection_path
+    assert_match(/Search criteria updated/, flash[:notice])
+
+    connection = @user.gmail_connections.last
+    assert_equal [ "notifications@bank.com", "alerts@nequi.co" ], connection.search_config_hash[:senders]
+    assert_equal [], connection.search_config_hash[:domains]
+    assert_equal [], connection.search_config_hash[:subject_keywords]
+  end
+
   test "disconnect removes the connection but keeps processed email history" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
     ProcessedEmail.create!(user: @user, provider: "gmail", message_id: "m1", status: "processed")

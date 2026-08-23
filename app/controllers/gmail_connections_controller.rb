@@ -53,7 +53,7 @@ class GmailConnectionsController < ApplicationController
   end
 
   def update
-    @connection.update!(search_config_params)
+    @connection.update!(search_config: search_config_params)
     redirect_to gmail_connection_path, notice: "Search criteria updated."
   end
 
