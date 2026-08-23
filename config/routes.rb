@@ -53,6 +53,18 @@ Rails.application.routes.draw do
 
   resources :imports, only: [:new, :create]
 
+  # Gmail expense import
+  get "settings/gmail", to: "gmail_connections#index", as: :gmail_connection
+  patch "settings/gmail", to: "gmail_connections#update"
+  delete "settings/gmail", to: "gmail_connections#destroy"
+  post "settings/gmail/sync", to: "gmail_connections#sync", as: :sync_gmail_connection
+  post "settings/gmail/auth/start", to: "gmail_connections#start_auth", as: :start_gmail_auth
+  get "auth/google/callback", to: "gmail_connections#callback", as: :google_callback
+  scope "gmail/reviews" do
+    post ":id/approve", to: "gmail_connections#approve", as: :approve_gmail_review
+    post ":id/reject", to: "gmail_connections#reject", as: :reject_gmail_review
+  end
+
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'

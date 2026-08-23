@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_21_001100) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_23_000003) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -38,6 +38,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_001100) do
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
+  create_table "gmail_connections", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "email", null: false
+    t.string "google_account_id"
+    t.string "access_token"
+    t.string "refresh_token"
+    t.datetime "token_expires_at"
+    t.json "search_config", default: {}
+    t.datetime "last_synced_at"
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "email"], name: "index_gmail_connections_on_user_id_and_email", unique: true
+    t.index ["user_id"], name: "index_gmail_connections_on_user_id"
+  end
+
   create_table "incomes", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "category_id", null: false
@@ -49,6 +65,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_001100) do
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_incomes_on_category_id"
     t.index ["user_id"], name: "index_incomes_on_user_id"
+  end
+
+  create_table "processed_emails", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "expense_id"
+    t.string "provider", default: "gmail", null: false
+    t.string "message_id", null: false
+    t.string "status", default: "processed", null: false
+    t.text "payload"
+    t.string "failure_reason"
+    t.integer "attempts", default: 0, null: false
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_id"], name: "index_processed_emails_on_expense_id"
+    t.index ["provider", "message_id"], name: "index_processed_emails_on_provider_and_message_id", unique: true
+    t.index ["status"], name: "index_processed_emails_on_status"
+    t.index ["user_id"], name: "index_processed_emails_on_user_id"
   end
 
   create_table "recurring_templates", force: :cascade do |t|
@@ -80,8 +114,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_001100) do
     t.integer "recurring_template_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "gmail_message_id"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
+    t.index ["gmail_message_id"], name: "index_transactions_on_gmail_message_id"
     t.index ["kind"], name: "index_transactions_on_kind"
     t.index ["recurring_template_id"], name: "index_transactions_on_recurring_template_id"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
@@ -103,8 +139,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_001100) do
 
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
+  add_foreign_key "gmail_connections", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
+  add_foreign_key "processed_emails", "transactions", column: "expense_id"
+  add_foreign_key "processed_emails", "users"
   add_foreign_key "recurring_templates", "categories"
   add_foreign_key "recurring_templates", "users"
   add_foreign_key "transactions", "categories"
