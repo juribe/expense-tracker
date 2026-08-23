@@ -1,18 +1,19 @@
-# Override cssbundling-rails tasks.
-# This app ships plain stylesheets from app/assets/stylesheets and has no
-# `build:css` npm script, so the bundler tasks are no-ops. Applied in every
-# environment so `db:test:prepare` / asset tasks never fail with
-# "Missing script: build:css".
+# Override cssbundling-rails tasks to skip in test environment
+# This prevents "No suitable tool found for installing JavaScript dependencies" errors
 
-Rake::Task["css:build"].clear if Rake::Task.task_defined?("css:build")
-Rake::Task["css:install"].clear if Rake::Task.task_defined?("css:install")
-
-namespace :css do
-  task :build do
-    # No-op: CSS is served directly from app/assets/stylesheets.
-  end
-
-  task :install do
-    # No-op: no CSS build dependencies are used by this app.
+if Rails.env.test?
+  Rake::Task["css:build"].clear if Rake::Task.task_defined?("css:build")
+  Rake::Task["css:install"].clear if Rake::Task.task_defined?("css:install")
+  
+  namespace :css do
+    task :build do
+      # Skip CSS building in test environment
+      puts "[css:build] Skipped in test environment"
+    end
+    
+    task :install do
+      # Skip CSS installation in test environment
+      puts "[css:install] Skipped in test environment"
+    end
   end
 end

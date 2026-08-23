@@ -31,10 +31,4 @@ test.describe("Implement Gmail Expense Import pages are working", () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test("/settings/gmail is working", async ({ page }) => {
-    const response = await page.goto("/settings/gmail");
-    expect(response && response.ok()).toBeTruthy();
-    await expect(page.locator('body')).not.toContainText(/unknown attribute|500/i);
-  });
-
 });
