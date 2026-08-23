@@ -61,8 +61,10 @@
 
 <script>
 (function () {
-  if (window.__aiEntryInit) return;
-  window.__aiEntryInit = true;
+  // Listeners are bound to whatever DOM is present at run time and this block
+  // deliberately has no one-shot window guard: if client-side navigation
+  // (e.g. Turbo) is ever introduced, the script will simply re-run against
+  // the fresh elements instead of silently leaving every button dead.
 
   var CATEGORIES = <%= raw (@categories || []).map { |c| { id: c.id, name: c.name } }.to_json %>;
 
@@ -352,6 +354,7 @@
 
     var recognition = new SpeechRecognition();
     var recording = false;
+    var sawVoiceError = false;
     recognition.lang = "es-CO";
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
@@ -365,9 +368,25 @@
         : '<i class="bi bi-mic" aria-hidden="true"></i> Dictate';
     }
 
+    var VOICE_ERRORS = {
+      "not-allowed": "Microphone access was denied. Allow the mic permission for this site (and in System Settings) and try again.",
+      "service-not-allowed": "The browser blocked the speech service. Check site permissions or try Chrome.",
+      "audio-capture": "No microphone was detected.",
+      "network": "Network problem while contacting the speech service. Check your connection.",
+      "no-speech": "No speech was detected. Click Dictate and speak again."
+    };
+
+    function setStatusError(message) {
+      statusEl.classList.add("text-danger");
+      setStatus(message);
+    }
+
     recognition.onstart = function () {
+      statusEl.classList.remove("text-danger");
+      sawVoiceError = false;
       setRecordingUI(true);
       setStatus("Listening… describe your expenses.");
+      console.info("[ai_entry] SpeechRecognition started");
     };
 
     recognition.onresult = function (event) {
@@ -379,7 +398,10 @@
     };
 
     recognition.onerror = function (event) {
-      setStatus("Voice recognition failed (" + event.error + "). You can type instead.");
+      sawVoiceError = true;
+      console.warn("[ai_entry] SpeechRecognition error:", event.error);
+      setStatusError(VOICE_ERRORS[event.error] ||
+        "Voice recognition failed (" + event.error + "). You can type instead.");
     };
 
     recognition.onend = function () {
@@ -388,8 +410,8 @@
         transcriptionWrap.classList.remove("d-none");
         transcriptionText.textContent = textarea.value.trim();
         parseExpenses();
-      } else {
-        setStatus("");
+      } else if (!sawVoiceError) {
+        setStatusError("Dictation ended without capturing text. Click Dictate and try again.");
       }
     };
 
@@ -400,7 +422,8 @@
         try {
           recognition.start();
         } catch (error) {
-          setStatus("Could not start voice recognition.");
+          console.warn("[ai_entry] Could not start recognition:", error);
+          setStatusError("Could not start voice recognition: " + error.message);
         }
       }
     });
