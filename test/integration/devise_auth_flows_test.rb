@@ -40,7 +40,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_equal "Jane Doe", user.name
     assert_redirected_to root_path
     follow_redirect!
-    assert_select "nav .navbar-brand", /Expense Tracker/
+    assert_select ".sidebar-brand", /Expense Tracker/
   end
 
   test "sign up with mismatched passwords re-renders the form with errors" do

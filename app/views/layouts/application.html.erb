@@ -20,7 +20,6 @@
     <%= stylesheet_link_tag :expenses, "data-turbo-track": "reload" %>
     <style>
       body { background: #f8f9fa; }
-      .navbar-brand { font-weight: 700; }
       .card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
       .btn { border-radius: 8px; }
       .summary-value { font-size: 2rem; }
@@ -28,71 +27,92 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-      <div class="container-fluid">
-        <%= link_to dashboard_path, class: "navbar-brand d-flex align-items-center" do %>
-          <i class="bi bi-wallet2 me-2"></i> Expense Tracker
-        <% end %>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarContent" aria-controls="navbarContent"
-                aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-         <div class="collapse navbar-collapse" id="navbarContent">
-           <% if user_signed_in? %>
-           <ul class="navbar-nav me-auto">
-             <li class="nav-item"><%= link_to "Dashboard", dashboard_path, class: "nav-link #{active_class('dashboard')}" %></li>
-             <li class="nav-item"><%= link_to "Expenses", expenses_path, class: "nav-link #{active_class('expenses')}" %></li>
-              <li class="nav-item"><%= link_to "Incomes", incomes_path, class: "nav-link #{active_class('incomes')}" %></li>
-              <li class="nav-item"><%= link_to "Monthly Income", monthly_incomes_path, class: "nav-link #{active_class('monthly_incomes')}" %></li>
-              <li class="nav-item"><%= link_to "Monthly Expenses", monthly_expenses_path, class: "nav-link #{active_class('monthly_expenses')}" %></li>
-              <li class="nav-item"><%= link_to "Categories", categories_path, class: "nav-link #{active_class('categories')}" %></li>
-              <li class="nav-item"><%= link_to "Money Sources", money_sources_path, class: "nav-link #{active_class('money_sources')}" %></li>
-              <li class="nav-item"><%= link_to "Gmail Import", gmail_connection_path, class: "nav-link #{active_class('gmail_connections')}" %></li>
-             <li class="nav-item"><%= link_to "Monthly Reports", monthly_reports_path, class: "nav-link #{active_class('monthly_reports')}" %></li>
-           </ul>
-           <% end %>
-          <ul class="navbar-nav ms-auto">
-            <% if user_signed_in? %>
-              <li class="nav-item">
-                <span class="nav-link text-white-50"><i class="bi bi-person-circle me-1"></i><%= current_user.email %></span>
-              </li>
-              <li class="nav-item">
-                <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "nav-link" do %>
-                  <i class="bi bi-box-arrow-right me-1"></i>Sign out
-                <% end %>
-              </li>
-            <% else %>
-              <li class="nav-item"><%= link_to "Sign in", new_user_session_path, class: "nav-link" %></li>
-              <li class="nav-item"><%= link_to "Sign up", new_user_registration_path, class: "nav-link" %></li>
-            <% end %>
-          </ul>
+    <% if user_signed_in? %>
+      <%= render "shared/sidebar" %>
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <div class="main-content">
+        <div class="mobile-topbar d-lg-none">
+          <button class="btn btn-link" id="sidebarToggle" aria-label="Toggle sidebar">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <span class="fw-bold">Expense Tracker</span>
         </div>
+
+        <div class="container py-4">
+          <% if notice %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <%= notice %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% end %>
+          <% if alert %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <%= alert %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% end %>
+
+          <%= yield %>
+        </div>
+
+        <footer class="text-center py-3 mt-4 border-top">
+          <small class="text-muted">&copy; <%= Date.today.year %> Expense Tracker</small>
+        </footer>
       </div>
-    </nav>
+    <% else %>
+      <main class="container py-4">
+        <% if notice %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= notice %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% end %>
+        <% if alert %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= alert %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% end %>
 
-    <main class="container py-4">
-      <% if notice %>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <%= notice %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      <% end %>
-      <% if alert %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <%= alert %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      <% end %>
+        <%= yield %>
+      </main>
 
-      <%= yield %>
-    </main>
-
-    <footer class="bg-white text-center py-3 mt-4 border-top">
-      <small class="text-muted">© <%= Date.today.year %> Expense Tracker</small>
-    </footer>
+      <footer class="bg-white text-center py-3 mt-4 border-top">
+        <small class="text-muted">&copy; <%= Date.today.year %> Expense Tracker</small>
+      </footer>
+    <% end %>
 
     <%= javascript_include_tag "application", defer: true %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toggle = document.getElementById('sidebarToggle');
+        var sidebar = document.getElementById('sidebar');
+        var backdrop = document.getElementById('sidebarBackdrop');
+
+        function openSidebar() {
+          sidebar.classList.add('open');
+          backdrop.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+          sidebar.classList.remove('open');
+          backdrop.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+
+        if (toggle) {
+          toggle.addEventListener('click', function() {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+          });
+        }
+
+        if (backdrop) {
+          backdrop.addEventListener('click', closeSidebar);
+        }
+      });
+    </script>
   </body>
 </html>

@@ -76,8 +76,12 @@
             <h6 class="mb-3">Identifiers (for auto-matching imports)</h6>
             <div id="identifiers">
               <% blank_ident = Struct.new(:kind, :value).new("", "") %>
-              <% (@money_source.identifiers.presence || [ blank_ident ]).each_with_index do |ident, idx| %>
+              <% identifier_list = @identifier_rows || @money_source.identifiers %>
+              <% (identifier_list.presence || [ blank_ident ]).each_with_index do |ident, idx| %>
                 <div class="row mb-2 identifier-row">
+                  <% if ident.respond_to?(:persisted?) && ident.persisted? %>
+                    <input type="hidden" name="identifiers[<%= idx %>][id]" value="<%= ident.id %>">
+                  <% end %>
                   <div class="col-md-4">
                     <select name="identifiers[<%= idx %>][kind]" class="form-select form-select-sm">
                       <option value="">Select type...</option>

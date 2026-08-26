@@ -1,0 +1,22 @@
+**Design Definition – Money Sources (Accounts, Cards, Wallets, Transfers & Matching)**  
+
+| # | Layout / Component | Bootstrap 5 Classes | Colors / Styling | Interaction / State |
+|---|-------------------|----------------------|------------------|----------------------|
+| 1 | **Navbar** – “Money Sources” entry under **Finance** | `navbar`, `nav-link` | `text-primary` | Highlights active page; collapses on mobile (`navbar-toggler`) |
+| 2 | **Sources Index** – header + “Add Source” button | `container-fluid py-3`, `d-flex justify-content-between`, `btn btn-outline-primary` | – | Button opens **Source Form** modal |
+| 3 | **Sources Table** – grouped by *Kind* (Accounts, Debit Cards, Credit Cards, Wallets) | `table table-hover align-middle` | Credit‑card balance: `text-danger`; positive balance: `text-success`; inactive row: `bg-light opacity-75` | Row click → edit modal; hover shows “Deactivate” icon |
+| 4 | **Empty State** – centered illustration & CTA | `d-flex flex-column align-items-center py-5` | `text-muted` | CTA button same as line 2 |
+| 5 | **Source Form (Modal)** – fields: Name, Kind (select), Bank, Starting Balance, Parent (conditional), Identifiers (repeatable) | `modal-dialog modal-lg`, `form-control`, `select form-select`, `input-group` | Required *asterisk*: `text-danger` | Kind = `debit_card` → show Parent select; Debit card → hide Starting Balance; Add Identifier → append row; Inline validation (`invalid-feedback`) |
+| 6 | **Identifier Row** – Kind dropdown + Value input + remove icon | `row g-2 align-items-center mb-2` | – | Duplicate‑identifier error → red border + message |
+| 7 | **Transfer List** – table with From / To / Amount / Date / Note | `table table-sm table-striped` | Amount negative (outgoing) → `text-danger`; positive → `text-success` | Inline “Edit” button opens **Transfer Form** modal |
+| 8 | **Transfer Form (Modal)** – From/To selects (grouped by Kind), Amount, Date picker, Note | `form-select`, `input-group`, `form-control` | – | Validation: same source → `toast` error; insufficient funds → inline `invalid-feedback` |
+| 9 | **Expense / Income Form – Source Selector** | `select form-select` with `<optgroup>` (Accounts & Wallets, Credit Cards, Debit Cards nested) | – | Selecting a Debit Card shows tooltip “Balance credited to parent account” |
+| 10 | **Expenses Index – Source Column & Filter** | `table`, filter dropdown `form-select w-auto` | – | CSV export column header = “Source” |
+| 11 | **Gmail Review Queue** – list of auto‑extracted expenses with “Matched Source” badge or “Unmatched” button | `list-group`, `badge bg-success` / `badge bg-secondary` | Unmatched → `btn btn-outline-warning btn-sm` | Clicking “Unmatched” opens **Source Matcher** side‑sheet (identifiers editor) |
+| 12 | **AI Entry Modal** – optional per‑row source dropdown (same optgroup logic) | `modal`, `form-select` | – | Pre‑fill with AI‑suggested source; user can override |
+| 13 | **Recurring Template Form** – optional Source select (same component) | `form-select` inside template modal | – | If omitted, template applies to “Any source” |
+| 14 | **Deactivating a Source** – toggle switch in edit modal; greyed out rows; tooltip “Has transactions – can’t delete” | `form-check form-switch` | Inactive row: `bg-light` | Switch on → source becomes inactive; transactions remain linked |
+| 15 | **Ambiguous Bank‑Name Match** – expense shows “⚠️ Multiple matches” badge; user must manually select source | `badge bg-warning text-dark` | – | Opens **Source Matcher** side‑sheet |
+| 16 | **Mobile / Responsive** – tables become horizontal scroll (`overflow-auto`), selects become full‑width (`w-100`), modals full‑screen (`modal-fullscreen-md-down`) | – | – | Touch‑friendly tap targets (`min-height: 44px`) |
+| 17 | **Copy / Strings** – all labels, placeholders, tooltips, error messages listed in `i18n/finance.json` (e.g., “Add new source”, “Identifier must be 4 digits”, “Insufficient funds”) | – | – | UI pulls strings via `t('finance.xxx')` |
+| 18 | **Component / Style Changes** – new `SourceCard` component, `IdentifierRow` component, `BadgeStatus` utility, update `table` theme to support `bg-light` inactive rows, add `text-danger` for credit‑card debt, extend `form-select` with optgroup styling | – | – | Documented in `components/README.md` |

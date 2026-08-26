@@ -27,8 +27,13 @@ class MoneySourcesController < ApplicationController
   # POST /money_sources
   def create
     @money_source = current_user.money_sources.build(money_source_params)
-    if @money_source.save
-      save_identifiers(@money_source)
+    @identifier_rows = collect_identifier_rows
+
+    @money_source.valid?
+    collect_identifier_errors
+
+    if @money_source.errors.empty? && @money_source.save
+      persist_identifiers(@identifier_rows)
       redirect_to money_sources_path, notice: "Money source was successfully created."
     else
       render :new, status: :unprocessable_entity
@@ -37,8 +42,14 @@ class MoneySourcesController < ApplicationController
 
   # PATCH/PUT /money_sources/1
   def update
-    if @money_source.update(money_source_params)
-      save_identifiers(@money_source)
+    @money_source.assign_attributes(money_source_params)
+    @identifier_rows = collect_identifier_rows
+
+    @money_source.valid?
+    collect_identifier_errors
+
+    if @money_source.errors.empty? && @money_source.save
+      persist_identifiers(@identifier_rows)
       redirect_to money_sources_path, notice: "Money source was successfully updated."
     else
       render :edit, status: :unprocessable_entity
@@ -65,29 +76,52 @@ class MoneySourcesController < ApplicationController
     head :not_found
   end
 
-  def save_identifiers(money_source)
-    return unless params[:identifiers].present?
+  def collect_identifier_rows
+    return [] unless params[:identifiers].present?
 
     raw = params[:identifiers]
     raw = raw.values if raw.is_a?(ActionController::Parameters)
 
-    new_ids = []
-
-    Array(raw).each do |ident|
+    Array(raw).filter_map do |ident|
       next if ident.blank?
 
       source = ident.respond_to?(:to_unsafe_h) ? ident.to_unsafe_h : ident
-      permitted = ActionController::Parameters.new(source).permit(:kind, :value)
+      permitted = ActionController::Parameters.new(source).permit(:id, :kind, :value)
       kind = permitted[:kind].to_s.strip
       value = permitted[:value].to_s.strip
-      next if kind.blank? || value.blank?
+      next if kind.blank? && value.blank?
 
-      identifier = money_source.identifiers.find_or_initialize_by(kind: kind)
+      identifier = if permitted[:id].present?
+                     @money_source.identifiers.find_by(id: permitted[:id]) || @money_source.identifiers.build
+                   else
+                     @money_source.identifiers.build
+                   end
+
+      identifier.kind = kind
       identifier.value = value
-      identifier.save!
-      new_ids << identifier.id
+      identifier
+    end
+  end
+
+  def collect_identifier_errors
+    @identifier_rows.each do |identifier|
+      next if identifier.valid?
+      identifier.errors.full_messages.each do |msg|
+        @money_source.errors.add(:base, "Identifier: #{msg}")
+      end
+    end
+  end
+
+  def persist_identifiers(identifier_rows)
+    new_ids = []
+
+    identifier_rows.each do |identifier|
+      identifier.money_source = @money_source
+      if identifier.save
+        new_ids << identifier.id
+      end
     end
 
-    money_source.identifiers.where.not(id: new_ids).destroy_all
+    @money_source.identifiers.where.not(id: new_ids).destroy_all
   end
 end

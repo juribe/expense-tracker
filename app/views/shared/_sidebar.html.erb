@@ -1,0 +1,78 @@
+<%# Sidebar Navigation %>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <%= link_to dashboard_path, class: "sidebar-brand" do %>
+      <i class="bi bi-wallet2"></i>
+      <span>Expense Tracker</span>
+    <% end %>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Overview</div>
+      <%= link_to dashboard_path, class: "sidebar-link #{active_class('dashboard')}" do %>
+        <i class="bi bi-grid-1x2"></i>
+        <span>Dashboard</span>
+      <% end %>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Transactions</div>
+      <%= link_to expenses_path, class: "sidebar-link #{active_class('expenses')}" do %>
+        <i class="bi bi-credit-card"></i>
+        <span>Expenses</span>
+      <% end %>
+      <%= link_to incomes_path, class: "sidebar-link #{active_class('incomes')}" do %>
+        <i class="bi bi-wallet2"></i>
+        <span>Income</span>
+      <% end %>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Recurring</div>
+      <%= link_to monthly_incomes_path, class: "sidebar-link #{active_class('monthly_incomes')}" do %>
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Recurring Income</span>
+      <% end %>
+      <%= link_to monthly_expenses_path, class: "sidebar-link #{active_class('monthly_expenses')}" do %>
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Recurring Expenses</span>
+      <% end %>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Insights</div>
+      <%= link_to monthly_reports_path, class: "sidebar-link #{active_class('monthly_reports')}" do %>
+        <i class="bi bi-graph-up"></i>
+        <span>Reports</span>
+      <% end %>
+    </div>
+
+    <div class="sidebar-section sidebar-settings">
+      <div class="sidebar-section-title">Settings</div>
+      <%= link_to categories_path, class: "sidebar-link #{active_class('categories')}" do %>
+        <i class="bi bi-tags"></i>
+        <span>Categories</span>
+      <% end %>
+      <%= link_to money_sources_path, class: "sidebar-link #{active_class('money_sources')}" do %>
+        <i class="bi bi-bank"></i>
+        <span>Money Sources</span>
+      <% end %>
+      <%= link_to gmail_connection_path, class: "sidebar-link #{active_class('gmail_connections')}" do %>
+        <i class="bi bi-envelope-at"></i>
+        <span>Gmail Integration</span>
+      <% end %>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <i class="bi bi-person-circle"></i>
+      <span><%= current_user.email %></span>
+    </div>
+    <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "sidebar-link" do %>
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Sign out</span>
+    <% end %>
+  </div>
+</aside>
