@@ -91,16 +91,28 @@
           <div class="table-responsive">
             <table class="table table-sm align-middle" data-testid="review-table">
               <thead>
-                <tr><th>Merchant</th><th>Amount</th><th>Date</th><th>Confidence</th><th></th></tr>
+                <tr><th>Merchant</th><th>Amount</th><th>Date</th><th>Confidence</th><th>Card/Bank</th><th></th></tr>
               </thead>
               <tbody>
                 <% @pending_reviews.each do |review| %>
                   <% (review.payload_data["transactions"] || []).each do |t| %>
+                    <% matched_source = MoneySources::Match.call(user: current_user, card_last_four: t["card_last_four"], bank: t["bank"]) %>
                     <tr data-testid="review-row">
                       <td><%= t["merchant"] %> <span class="badge bg-light text-dark"><%= t["type"] %></span></td>
                       <td><%= number_to_currency(t["amount"].to_f, unit: "$ ", delimiter: ",", separator: ".") %></td>
                       <td><%= t["occurred_at"]&.to_s&.first(10) %></td>
                       <td><%= "#{(t['confidence'].to_f * 100).round}%".html_safe %></td>
+                      <td>
+                        <% if t["card_last_four"].present? %>
+                          <span class="badge bg-light text-dark"><i class="bi bi-credit-card me-1"></i>****<%= t["card_last_four"] %></span>
+                        <% end %>
+                        <% if t["bank"].present? %>
+                          <span class="badge bg-light text-dark"><i class="bi bi-bank me-1"></i><%= t["bank"] %></span>
+                        <% end %>
+                        <% if matched_source %>
+                          <div class="small text-success mt-1"><i class="bi bi-check-circle me-1"></i><%= matched_source.display_name %></div>
+                        <% end %>
+                      </td>
                       <td class="text-end">
                         <%= button_to "Approve", approve_gmail_review_path(review.id), method: :post,
                               class: "btn btn-success btn-sm me-1" %>

@@ -29,6 +29,8 @@ Rails.application.routes.draw do
   end
   resources :incomes
   resources :categories
+  resources :money_sources
+  resources :transfers, only: [ :index, :new, :create, :destroy ]
   resources :recurring_templates do
     member do
       post :process_transaction

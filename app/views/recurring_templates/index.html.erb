@@ -94,6 +94,7 @@
                   data-description="<%= rt.description %>"
                   data-amount="<%= rt.amount %>"
                   data-payment-day="<%= rt.payment_day %>"
+                  data-money-source-id="<%= rt.money_source_id %>"
                   data-active="<%= rt.active? %>"
                   data-type="<%= rt.kind %>"
                   data-edit-url="<%= recurring_template_path(rt) %>"
@@ -213,6 +214,12 @@
               <%= f.number_field :payment_day, class: "form-control #{field_class(@recurring_template, :payment_day)}",
                                  min: 1, max: 31, required: true, placeholder: "1-31" %>
               <div class="invalid-feedback"><%= field_error(@recurring_template, :payment_day) %></div>
+            </div>
+            <div class="col-md-6">
+              <%= f.label :money_source_id, "Money Source", class: "form-label" %>
+              <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                                      { include_blank: "None" },
+                                      class: "form-select" %>
             </div>
             <div class="col-md-6 d-flex align-items-end">
               <div class="form-check form-switch">
@@ -347,12 +354,14 @@
       $("#recurring_template_amount").value = row.dataset.amount;
       if (window.MoneyInputs) window.MoneyInputs.formatField($("#recurring_template_amount"), true);
       $("#recurring_template_payment_day").value = row.dataset.paymentDay;
+      $("#recurring_template_money_source_id").value = row.dataset.moneySourceId || "";
       $("#recurring_active_switch").checked = row.dataset.active === "true";
     } else if (!isEdit) {
       form.action = "<%= recurring_templates_path %>";
       form.reset();
       typeSelect.disabled = false;
       typeSelect.value = "<%= j @kind %>";
+      $("#recurring_template_money_source_id").value = "";
       $("#recurring_active_switch").checked = true;
     }
   }

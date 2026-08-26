@@ -84,6 +84,12 @@ module Gmail
             next
           end
 
+          money_source = MoneySources::Match.call(
+            user: @connection.user,
+            card_last_four: transaction[:card_last_four],
+            bank: transaction[:bank]
+          )
+
           expense_ids << Expenses::Create.call(
             user: @connection.user,
             amount: transaction[:amount],
@@ -91,7 +97,8 @@ module Gmail
             category: transaction[:category],
             occurred_at: Time.zone.parse(transaction[:occurred_at]),
             source: :gmail,
-            gmail_message_id: @message_id
+            gmail_message_id: @message_id,
+            money_source: money_source
           ).id
         end
       end

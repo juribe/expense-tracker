@@ -1,0 +1,65 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">New Transfer</h4>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @transfer, local: true do |f| %>
+            <% if @transfer.errors.any? %>
+              <div class="alert alert-danger">
+                <h6><%= pluralize(@transfer.errors.count, "error") %> prohibited this transfer from being saved:</h6>
+                <ul>
+                  <% @transfer.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :from_source_id, "From", class: "form-label" %>
+                <%= f.collection_select :from_source_id, @money_sources, :id, :display_name, { include_blank: "Select..." }, class: "form-select" %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :to_source_id, "To", class: "form-label" %>
+                <%= f.collection_select :to_source_id, @money_sources, :id, :display_name, { include_blank: "Select..." }, class: "form-select" %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :amount, "Amount", class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= f.text_field :amount,
+                      value: money_field_value(@transfer.amount),
+                      class: "form-control",
+                      placeholder: "0.00",
+                      inputmode: "decimal",
+                      autocomplete: "off",
+                      data: { money_input: true } %>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :date, class: "form-label" %>
+                <%= f.date_field :date, class: "form-control" %>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :note, "Note", class: "form-label" %>
+              <%= f.text_area :note, class: "form-control", rows: 2, placeholder: "Optional note about this transfer" %>
+            </div>
+
+            <div class="d-grid">
+              <%= f.submit "Create Transfer", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

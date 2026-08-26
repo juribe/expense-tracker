@@ -10,6 +10,9 @@ class ExpensesController < ApplicationController
   # Load categories for forms and the index filter
   before_action :set_categories, only: [ :index, :new, :create, :edit, :update ]
 
+  # Load money sources for forms and filters
+  before_action :set_money_sources, only: [ :index, :new, :create, :edit, :update ]
+
   SORTABLE_COLUMNS = %w[date description category amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
   DEFAULT_SORT_DIR = { "date" => "desc", "amount" => "desc" }.freeze
@@ -195,12 +198,16 @@ class ExpensesController < ApplicationController
     @categories = Category.all
   end
 
+  def set_money_sources
+    @money_sources = current_user.money_sources.active.order(:kind, :name)
+  end
+
   def expense_params
-    params.require(:expense).permit(:amount, :description, :date, :category_id)
+    params.require(:expense).permit(:amount, :description, :date, :category_id, :money_source_id)
   end
 
   def filter_query
-    params.permit(:category_id, :start_date, :end_date, :min_amount, :max_amount).to_h
+    params.permit(:category_id, :start_date, :end_date, :min_amount, :max_amount, :money_source_id).to_h
   end
 
   def redirect_params
@@ -247,6 +254,7 @@ class ExpensesController < ApplicationController
     @expenses = @expenses.where("date <= ?", params[:end_date]) if params[:end_date].present?
     @expenses = @expenses.where("ABS(amount) >= ?", money_value(params[:min_amount])) if params[:min_amount].present?
     @expenses = @expenses.where("ABS(amount) <= ?", money_value(params[:max_amount])) if params[:max_amount].present?
+    @expenses = @expenses.where(money_source_id: params[:money_source_id]) if params[:money_source_id].present?
   end
 
   def apply_sort
@@ -271,13 +279,14 @@ class ExpensesController < ApplicationController
 
   def render_csv(expenses)
     csv = CSV.generate(headers: true) do |rows|
-      rows << %w[date description category amount]
+      rows << %w[date description category amount source]
       expenses.find_each do |expense|
         rows << [
           expense.date,
           expense.description.to_s,
           expense.category&.name.to_s,
-          expense.amount.to_s
+          expense.amount.to_s,
+          expense.money_source&.name.to_s
         ]
       end
     end
@@ -311,7 +320,7 @@ class ExpensesController < ApplicationController
 
       source = input.respond_to?(:to_unsafe_h) ? input.to_unsafe_h : input
       ActionController::Parameters.new(source).permit(
-        :amount, :description, :date, :transaction_date, :category_id, :new_category_name, :confidence
+        :amount, :description, :date, :transaction_date, :category_id, :new_category_name, :confidence, :money_source_id
       ).to_h
     end
   end
@@ -323,13 +332,19 @@ class ExpensesController < ApplicationController
 
     date = parse_confirmed_date(input[:transaction_date].presence || input[:date])
 
+    money_source = nil
+    if input[:money_source_id].present?
+      money_source = current_user.money_sources.find(input[:money_source_id])
+    end
+
     Expense.new(
       user: current_user,
       category: resolve_confirmed_category!(input),
       amount: amount,
       description: input[:description].to_s.presence,
       date: date,
-      source: "ai"
+      source: "ai",
+      money_source: money_source
     )
   end
 

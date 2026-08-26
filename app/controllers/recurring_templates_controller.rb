@@ -5,6 +5,7 @@ class RecurringTemplatesController < ApplicationController
 
   # Categories are needed whenever the index page (and its form modal) renders.
   before_action :set_categories, only: [ :index, :create, :update ]
+  before_action :set_money_sources, only: [ :index, :create, :update ]
   before_action :load_index_data, only: [ :index ]
   before_action :set_recurring_template, only: [ :update, :destroy, :process_transaction, :toggle_active ]
 
@@ -80,6 +81,10 @@ class RecurringTemplatesController < ApplicationController
     @categories = Category.all
   end
 
+  def set_money_sources
+    @money_sources = current_user.money_sources.active.order(:kind, :name)
+  end
+
   def load_index_data
     @kind = %w[income expense].include?(params[:kind]) ? params[:kind] : "income"
     @recurring_templates = current_user.recurring_templates
@@ -105,13 +110,13 @@ class RecurringTemplatesController < ApplicationController
 
   def recurring_template_params
     params.require(:recurring_template)
-          .permit(:category_id, :kind, :amount, :description, :payment_day, :active)
+          .permit(:category_id, :kind, :amount, :description, :payment_day, :active, :money_source_id)
   end
 
   # The transaction type is immutable after creation so historical
   # occurrences stay consistent.
   def update_params
     params.require(:recurring_template)
-          .permit(:category_id, :amount, :description, :payment_day, :active)
+          .permit(:category_id, :amount, :description, :payment_day, :active, :money_source_id)
   end
 end

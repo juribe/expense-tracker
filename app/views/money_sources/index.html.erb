@@ -1,0 +1,89 @@
+<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+  <h1><i class="bi bi-wallet2 me-2"></i>Money Sources</h1>
+  <div class="d-flex gap-2">
+    <%= link_to new_transfer_path, class: "btn btn-outline-primary" do %>
+      <i class="bi bi-arrow-left-right me-1"></i>New Transfer
+    <% end %>
+    <%= link_to new_money_source_path, class: "btn btn-primary" do %>
+      <i class="bi bi-plus-lg me-1"></i>New Money Source
+    <% end %>
+  </div>
+</div>
+
+<% if @money_sources.any? %>
+  <div class="row g-3">
+    <% @money_sources.each do |source| %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-<%= source_kind_icon(source.kind) %> me-1"></i>
+                  <%= source.name %>
+                </h5>
+                <small class="text-muted"><%= source_kind_label(source.kind) %></small>
+                <% if source.bank.present? %>
+                  <small class="text-muted d-block"><i class="bi bi-bank me-1"></i><%= source.bank %></small>
+                <% end %>
+              </div>
+              <div class="btn-group btn-group-sm d-print-none">
+                <%= link_to edit_money_source_path(source), class: "btn btn-outline-primary", title: "Edit" do %>
+                  <i class="bi bi-pencil"></i>
+                <% end %>
+                <%= button_to money_source_path(source), method: :delete, class: "btn btn-outline-danger", title: "Delete", data: { confirm: "Are you sure?" }, form: { style: "display: inline-block" } do %>
+                  <i class="bi bi-trash"></i>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <div class="small text-muted mb-1">Balance</div>
+              <div class="fs-5 fw-bold <%= source.credit_card? ? 'text-danger' : 'text-success' %>">
+                <%= source.balance_label %>
+              </div>
+              <% if source.debit_card? && source.parent %>
+                <small class="text-muted">Linked to <%= source.parent.name %></small>
+              <% end %>
+            </div>
+
+            <% if source.identifiers.any? %>
+              <div class="mt-2">
+                <% source.identifiers.each do |ident| %>
+                  <span class="badge bg-light text-dark me-1">
+                    <i class="bi bi-<%= ident.kind == 'card_last_four' ? 'credit-card' : 'tag' %> me-1"></i>
+                    <%= identifier_display(ident) %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div class="mt-2">
+              <small class="text-muted">
+                <%= pluralize(source.transactions.count, "transaction") %>
+                <% if source.children.any? %>
+                  · <%= pluralize(source.children.count, "linked card") %>
+                <% end %>
+              </small>
+            </div>
+
+            <% unless source.active? %>
+              <span class="badge bg-secondary mt-2">Inactive</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="p-5 text-center">
+      <i class="bi bi-wallet2 display-4 text-muted mb-3 d-block"></i>
+      <h4 class="mb-2">No money sources yet</h4>
+      <p class="text-muted">Add your accounts, cards, and wallets to track balances.</p>
+      <%= link_to new_money_source_path, class: "btn btn-primary mt-3" do %>
+        <i class="bi bi-plus-lg me-1"></i>New Money Source
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_23_000003) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_24_000005) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -67,6 +67,32 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_000003) do
     t.index ["user_id"], name: "index_incomes_on_user_id"
   end
 
+  create_table "money_source_identifiers", force: :cascade do |t|
+    t.integer "money_source_id", null: false
+    t.string "kind", null: false
+    t.string "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "value"], name: "index_money_source_identifiers_on_kind_and_value", unique: true
+    t.index ["money_source_id", "kind"], name: "index_money_source_identifiers_on_money_source_id_and_kind"
+    t.index ["money_source_id"], name: "index_money_source_identifiers_on_money_source_id"
+  end
+
+  create_table "money_sources", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "name", null: false
+    t.string "kind", null: false
+    t.string "bank"
+    t.integer "parent_id"
+    t.decimal "starting_balance", precision: 12, scale: 2, default: "0.0", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_money_sources_on_parent_id"
+    t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
+    t.index ["user_id"], name: "index_money_sources_on_user_id"
+  end
+
   create_table "processed_emails", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "expense_id"
@@ -97,8 +123,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_000003) do
     t.string "source", default: "manual", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "money_source_id"
     t.index ["category_id"], name: "index_recurring_templates_on_category_id"
     t.index ["kind"], name: "index_recurring_templates_on_kind"
+    t.index ["money_source_id"], name: "index_recurring_templates_on_money_source_id"
     t.index ["user_id", "kind"], name: "index_recurring_templates_on_user_id_and_kind"
     t.index ["user_id"], name: "index_recurring_templates_on_user_id"
   end
@@ -115,13 +143,30 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_000003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "gmail_message_id"
+    t.integer "money_source_id"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
     t.index ["gmail_message_id"], name: "index_transactions_on_gmail_message_id"
     t.index ["kind"], name: "index_transactions_on_kind"
+    t.index ["money_source_id"], name: "index_transactions_on_money_source_id"
     t.index ["recurring_template_id"], name: "index_transactions_on_recurring_template_id"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
+  end
+
+  create_table "transfers", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "from_source_id", null: false
+    t.integer "to_source_id", null: false
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.date "date", null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["from_source_id"], name: "index_transfers_on_from_source_id"
+    t.index ["to_source_id"], name: "index_transfers_on_to_source_id"
+    t.index ["user_id", "date"], name: "index_transfers_on_user_id_and_date"
+    t.index ["user_id"], name: "index_transfers_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -142,11 +187,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_23_000003) do
   add_foreign_key "gmail_connections", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
+  add_foreign_key "money_source_identifiers", "money_sources"
+  add_foreign_key "money_sources", "money_sources", column: "parent_id"
+  add_foreign_key "money_sources", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id"
   add_foreign_key "processed_emails", "users"
   add_foreign_key "recurring_templates", "categories"
+  add_foreign_key "recurring_templates", "money_sources"
   add_foreign_key "recurring_templates", "users"
   add_foreign_key "transactions", "categories"
+  add_foreign_key "transactions", "money_sources"
   add_foreign_key "transactions", "recurring_templates"
   add_foreign_key "transactions", "users"
+  add_foreign_key "transfers", "money_sources", column: "from_source_id"
+  add_foreign_key "transfers", "money_sources", column: "to_source_id"
+  add_foreign_key "transfers", "users"
 end

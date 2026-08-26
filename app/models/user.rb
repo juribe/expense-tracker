@@ -10,4 +10,6 @@ class User < ApplicationRecord
   has_many :recurring_templates, dependent: :destroy
   has_many :gmail_connections, dependent: :destroy
   has_many :processed_emails, dependent: :destroy
+  has_many :money_sources, dependent: :destroy
+  has_many :transfers, dependent: :destroy
 end

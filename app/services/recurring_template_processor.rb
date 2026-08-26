@@ -44,7 +44,8 @@ class RecurringTemplateProcessor
           date: date,
           kind: recurring_template.kind,
           recurring_template: recurring_template,
-          source: "recurring_template"
+          source: "recurring_template",
+          money_source: recurring_template.money_source
         )
         transaction.save!
       end

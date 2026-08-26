@@ -67,6 +67,7 @@
   // the fresh elements instead of silently leaving every button dead.
 
   var CATEGORIES = <%= raw (@categories || []).map { |c| { id: c.id, name: c.name } }.to_json %>;
+  var MONEY_SOURCES = <%= raw (@money_sources || []).map { |s| { id: s.id, name: s.display_name } }.to_json %>;
 
   var $ = function (sel) { return document.querySelector(sel); };
 
@@ -174,6 +175,19 @@
     return select;
   }
 
+  function buildSourceSelect(expense) {
+    var select = document.createElement("select");
+    select.className = "form-select form-select-sm ai-field-source";
+    select.setAttribute("aria-label", "Money Source");
+
+    select.appendChild(option("", "None"));
+    MONEY_SOURCES.forEach(function (source) {
+      select.appendChild(option(source.id, source.name, !!(expense.money_source_id && String(expense.money_source_id) === String(source.id))));
+    });
+
+    return select;
+  }
+
   function labeledField(labelText, field, className) {
     var wrapper = document.createElement("div");
     wrapper.className = className;
@@ -231,6 +245,10 @@
     dateField.value = expense.transaction_date || todayISO();
     dateField.setAttribute("aria-label", "Date");
     grid.appendChild(labeledField("Date", dateField, "col-6 col-md-2"));
+
+    if (MONEY_SOURCES.length > 0) {
+      grid.appendChild(labeledField("Source", buildSourceSelect(expense), "col-6 col-md-2"));
+    }
 
     var actions = document.createElement("div");
     actions.className = "col-md-1 d-grid";
@@ -293,7 +311,8 @@
         amount: amountValue,
         transaction_date: row.querySelector(".ai-field-date").value,
         category_id: isNewCategory ? "" : category,
-        new_category_name: isNewCategory ? category.slice(4) : ""
+        new_category_name: isNewCategory ? category.slice(4) : "",
+        money_source_id: row.querySelector(".ai-field-source") ? row.querySelector(".ai-field-source").value : ""
       };
       if (!amountValue || Number(amountValue) <= 0 || (!isNewCategory && !category)) {
         invalid.push(index + 1);

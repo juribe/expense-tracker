@@ -5,6 +5,7 @@ class RecurringTemplate < ApplicationRecord
 
   belongs_to :user
   belongs_to :category
+  belongs_to :money_source, optional: true
   has_many :transactions, dependent: :nullify
 
   validates :amount, presence: true, numericality: { greater_than: 0 }

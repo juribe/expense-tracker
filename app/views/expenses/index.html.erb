@@ -30,6 +30,10 @@
           <%= f.label :category_id, "Category", class: "form-label" %>
           <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, params[:category_id]), { include_blank: "All Categories" }, class: "form-select" %>
         </div>
+        <div class="col-12 col-md-4 col-lg-2">
+          <%= f.label :money_source_id, "Source", class: "form-label" %>
+          <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: "All Sources" }, class: "form-select" %>
+        </div>
         <div class="col-6 col-md-4 col-lg-2">
           <%= f.label :start_date, "From", class: "form-label" %>
           <%= f.date_field :start_date, value: params[:start_date], class: "form-control#{' is-invalid' if @filter_errors[:start_date]}", aria: ({ invalid: "true" } if @filter_errors[:start_date]) %>
@@ -83,10 +87,10 @@
 
       <% if filter_params.any? { |_k, v| v.present? } %>
         <div id="chips" class="mt-3">
-          <% { category_id: "Category", start_date: "From", end_date: "To", min_amount: "Min", max_amount: "Max" }.each do |key, label| %>
+          <% { category_id: "Category", money_source_id: "Source", start_date: "From", end_date: "To", min_amount: "Min", max_amount: "Max" }.each do |key, label| %>
             <% value = params[key] %>
             <% next if value.blank? %>
-            <% chip_label = key == :category_id ? @categories.find { |c| c.id.to_s == value.to_s }&.name : value %>
+            <% chip_label = key == :category_id ? @categories.find { |c| c.id.to_s == value.to_s }&.name : key == :money_source_id ? @money_sources.find { |s| s.id.to_s == value.to_s }&.name : value %>
             <%= link_to expenses_path(sort_params.except(key)), class: "chip text-decoration-none", data: { testid: "chip-#{key}" }, aria: { label: "Remove #{label} filter" } do %>
               <%= label %>: <%= chip_label %>
               <button type="button" aria-hidden="true" tabindex="-1" class="ms-1">&times;</button>

@@ -1,0 +1,146 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><%= @money_source.new_record? ? 'New' : 'Edit' %> Money Source</h4>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @money_source, local: true do |f| %>
+            <% if @money_source.errors.any? %>
+              <div class="alert alert-danger">
+                <h6><%= pluralize(@money_source.errors.count, "error") %> prohibited this money source from being saved:</h6>
+                <ul>
+                  <% @money_source.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :name, class: "form-label" %>
+                <%= f.text_field :name, class: "form-control", placeholder: "e.g. Bancolombia Savings" %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :kind, "Type", class: "form-label" %>
+                <%= f.select :kind,
+                    options_for_select(
+                      MoneySource::KINDS.map { |k| [k.titleize, k] },
+                      @money_source.kind
+                    ),
+                    {},
+                    class: "form-select" %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :bank, "Bank", class: "form-label" %>
+                <%= f.text_field :bank, class: "form-control", placeholder: "e.g. Bancolombia" %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :parent_id, "Linked To (for cards)", class: "form-label" %>
+                <%= f.collection_select :parent_id,
+                    current_user.money_sources.where(kind: %w[account wallet]).where.not(id: @money_source.id),
+                    :id, :display_name,
+                    { include_blank: "None" },
+                    class: "form-select" %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :starting_balance, "Starting Balance", class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= f.text_field :starting_balance,
+                      value: money_field_value(@money_source.starting_balance),
+                      class: "form-control",
+                      placeholder: "0.00",
+                      inputmode: "decimal",
+                      autocomplete: "off",
+                      data: { money_input: true } %>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="form-check mt-4 pt-2">
+                  <%= f.check_box :active, class: "form-check-input" %>
+                  <%= f.label :active, "Active", class: "form-check-label" %>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+            <h6 class="mb-3">Identifiers (for auto-matching imports)</h6>
+            <div id="identifiers">
+              <% blank_ident = Struct.new(:kind, :value).new("", "") %>
+              <% (@money_source.identifiers.presence || [ blank_ident ]).each_with_index do |ident, idx| %>
+                <div class="row mb-2 identifier-row">
+                  <div class="col-md-4">
+                    <select name="identifiers[<%= idx %>][kind]" class="form-select form-select-sm">
+                      <option value="">Select type...</option>
+                      <%= options_for_select(
+                        MoneySourceIdentifier::KINDS.map { |k| [k.titleize, k] },
+                        ident.kind
+                      ) %>
+                    </select>
+                  </div>
+                  <div class="col-md-7">
+                    <input type="text" name="identifiers[<%= idx %>][value]" class="form-control form-control-sm"
+                           placeholder="e.g. 1234 or Bancolombia" value="<%= ident.value %>">
+                  </div>
+                  <div class="col-md-1">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="Remove">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="addIdentifier">
+              <i class="bi bi-plus-lg me-1"></i>Add Identifier
+            </button>
+
+            <div class="d-grid mt-3">
+              <%= f.submit class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var idx = document.querySelectorAll('.identifier-row').length;
+  document.getElementById('addIdentifier').addEventListener('click', function() {
+    var container = document.getElementById('identifiers');
+    var row = document.createElement('div');
+    row.className = 'row mb-2 identifier-row';
+    row.innerHTML =
+      '<div class="col-md-4">' +
+      '<select name="identifiers[' + idx + '][kind]" class="form-select form-select-sm">' +
+      '<option value="">Select type...</option>' +
+      '<option value="card_last_four">Card Last Four</option>' +
+      '<option value="bank_name">Bank Name</option>' +
+      '<option value="account_number">Account Number</option>' +
+      '</select></div>' +
+      '<div class="col-md-7">' +
+      '<input type="text" name="identifiers[' + idx + '][value]" class="form-control form-control-sm" placeholder="e.g. 1234 or Bancolombia">' +
+      '</div>' +
+      '<div class="col-md-1">' +
+      '<button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="Remove"><i class="bi bi-x-lg"></i></button>' +
+      '</div>';
+    container.appendChild(row);
+    idx++;
+  });
+
+  document.getElementById('identifiers').addEventListener('click', function(e) {
+    var btn = e.target.closest('.remove-identifier');
+    if (btn) btn.closest('.identifier-row').remove();
+  });
+})();
+</script>

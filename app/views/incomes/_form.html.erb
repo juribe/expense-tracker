@@ -37,6 +37,11 @@
     <%= f.collection_select :category_id, Category.all, :id, :name, include_blank: true, class: "form-select" %>
   </div>
 
+  <div class="mb-3">
+    <%= f.label :money_source_id, "Money Source", class: "form-label" %>
+    <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: "None" }, class: "form-select" %>
+  </div>
+
   <div class="d-grid gap-2 d-md-flex justify-content-md-end">
     <%= f.submit "Create Income", class: "btn btn-primary" %>
     <%= link_to "Cancel", incomes_path, class: "btn btn-outline-secondary" %>

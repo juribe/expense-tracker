@@ -128,6 +128,12 @@ class GmailConnectionsController < ApplicationController
     transactions.filter_map do |transaction|
       next unless transaction["type"] == "expense"
 
+      money_source = MoneySources::Match.call(
+        user: current_user,
+        card_last_four: transaction["card_last_four"],
+        bank: transaction["bank"]
+      )
+
       Expenses::Create.call(
         user: current_user,
         amount: transaction["amount"],
@@ -135,7 +141,8 @@ class GmailConnectionsController < ApplicationController
         category: transaction["category"],
         occurred_at: Time.zone.parse(transaction["occurred_at"].to_s) || Time.current,
         source: :gmail,
-        gmail_message_id: review.message_id
+        gmail_message_id: review.message_id,
+        money_source: money_source
       ).id
     end
   end
