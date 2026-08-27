@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expenses — Bulk Update (Mockup) — Expense Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #212529;
+      --muted: #6c757d;
+      --page: #f8f9fa;
+      --line: #dee2e6;
+      --danger: #dc3545;
+      --primary: #0d6efd;
+      --sidebar-w: 240px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { background: var(--page); color: var(--ink); font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .navbar-brand { font-weight: 700; }
+    .card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .btn { border-radius: 8px; }
+    h1 { font-size: 1.75rem; font-weight: 700; }
+    .table thead th { white-space: nowrap; font-size: .8125rem; letter-spacing: .01em; color: #495057; }
+    .amount { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--danger); white-space: nowrap; }
+    .desc-cell { max-width: 26ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sort-btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .35rem; color: inherit; font-weight: 600; }
+    .sort-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+    .sort-btn.active { color: var(--primary); }
+    .sort-btn .bi { font-size: .75rem; opacity: .55; }
+    .sort-btn.active .bi { opacity: 1; }
+    tbody tr { cursor: pointer; }
+    tbody tr:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+    .bulk-bar {
+      display: none;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem 1rem;
+      background: #e7f1ff;
+      border: 1px solid #b6d4fe;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .bulk-bar.show { display: flex; flex-wrap: wrap; }
+    #bulkCount { color: #084298; }
+    .results-meta { font-size: .875rem; color: var(--muted); }
+    .chip { display: inline-flex; align-items: center; gap: .25rem; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: .15rem .6rem; font-size: .8125rem; margin: 0 .25rem .25rem 0; }
+    .chip button { all: unset; cursor: pointer; line-height: 1; color: var(--muted); padding: .15rem; }
+    .chip button:focus-visible { outline: 2px solid var(--primary); }
+    .mobile-list { display: none; }
+    .mobile-item { display: grid; grid-template-columns: auto 1fr auto; gap: .5rem .75rem; padding: 1rem; border-bottom: 1px solid var(--line); background: #fff; }
+    .mobile-item:last-child { border-bottom: 0; }
+    .mobile-actions { display: flex; gap: .25rem; }
+    .mobile-actions .btn { min-width: 44px; min-height: 44px; }
+    .skel { height: 14px; border-radius: 4px; background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%); background-size: 400% 100%; animation: wave 1.4s ease infinite; }
+    @keyframes wave { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+    @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+
+    /* Sidebar layout (mirrors app/views/layouts + shared/_sidebar) */
+    .sidebar {
+      width: var(--sidebar-w);
+      position: fixed; top: 0; bottom: 0; left: 0; z-index: 1040;
+      background: #0d2035; color: #c7d4e2;
+      display: flex; flex-direction: column;
+      padding: 1rem 0.75rem;
+      overflow-y: auto;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: .6rem; color: #fff; text-decoration: none; font-weight: 700; font-size: 1.05rem; padding: .25rem .5rem .9rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-brand i { font-size: 1.4rem; }
+    .sidebar-section-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: #8aa0b5; padding: 1rem .5rem .35rem; }
+    .sidebar-link { display: flex; align-items: center; gap: .6rem; color: #c7d4e2; text-decoration: none; padding: .5rem .6rem; border-radius: 8px; font-size: .9rem; }
+    .sidebar-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .sidebar-link.active { background: var(--primary); color: #fff; }
+    .sidebar-link i { width: 1.1em; text-align: center; }
+    .sidebar-nav { flex: 1; }
+    .sidebar-settings { border-top: 1px solid rgba(255,255,255,.08); margin-top: .5rem; }
+    .sidebar-footer { border-top: 1px solid rgba(255,255,255,.08); padding-top: .75rem; }
+    .sidebar-user { display: flex; align-items: center; gap: .5rem; color: #8aa0b5; font-size: .8rem; padding: .25rem .5rem .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .main-content { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; }
+    .mobile-topbar { display: none; }
+
+    @media (max-width: 991.98px) {
+      .sidebar { transform: translateX(-100%); transition: transform .2s; }
+      .sidebar.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,.3); }
+      .main-content { margin-left: 0; }
+      .mobile-topbar { display: flex; align-items: center; gap: .5rem; background: var(--primary); color: #fff; padding: .5rem .75rem; }
+      .mobile-topbar .btn-link { color: #fff; }
+    }
+    @media (max-width: 767.98px) {
+      .desktop-table { display: none; }
+      .mobile-list { display: block; }
+      .header-actions { width: 100%; }
+      .header-actions .btn { width: 100%; }
+    }
+    .summary-line { font-size: .875rem; color: var(--muted); }
+    .modal-title { font-size: 1rem; }
+    .modal-footer .btn { min-width: 110px; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="#"><i class="bi bi-wallet2"></i> Expense Tracker</a>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Overview</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Transactions</div>
+        <a class="sidebar-link active" href="#"><i class="bi bi-credit-card"></i> Expenses</a>
+        <a class="sidebar-link" href="#"><i class="bi bi-wallet2"></i> Income</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Recurring</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-arrow-repeat"></i> Recurring Income</a>
+        <a class="sidebar-link" href="#"><i class="bi bi-arrow-clockwise"></i> Recurring Expenses</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Insights</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-graph-up"></i> Reports</a>
+      </div>
+      <div class="sidebar-section sidebar-settings">
+        <div class="sidebar-section-title">Settings</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-tags"></i> Categories</a>
+        <a class="sidebar-link" href="#"><i class="bi bi-bank"></i> Money Sources</a>
+        <a class="sidebar-link" href="#"><i class="bi bi-envelope-at"></i> Gmail Integration</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user"><i class="bi bi-person-circle"></i> jose@example.com</div>
+      <a class="sidebar-link" href="#"><i class="bi bi-box-arrow-right"></i> Sign out</a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="mobile-topbar">
+      <button class="btn btn-link" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi bi-list fs-4"></i></button>
+      <span class="fw-bold">Expense Tracker</span>
+    </div>
+
+    <main class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="mb-0"><i class="bi bi-receipt me-2"></i>Expenses</h1>
+        <div class="d-flex gap-2 header-actions flex-column flex-sm-row">
+          <a class="btn btn-outline-primary" href="#"><i class="bi bi-arrow-up-circle me-1"></i> Monthly Expense</a>
+          <button type="button" class="btn btn-outline-secondary"><i class="bi bi-download me-1"></i>Export CSV</button>
+          <a class="btn btn-primary" href="#"><i class="bi bi-plus-lg me-1"></i>Add Expense</a>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <form class="row g-3" onsubmit="return false;">
+            <div class="col-12 col-md-4 col-lg-2">
+              <label class="form-label" for="fCategory">Category</label>
+              <select class="form-select" id="fCategory"><option value="">All Categories</option></select>
+            </div>
+            <div class="col-12 col-md-4 col-lg-2">
+              <label class="form-label" for="fSource">Source</label>
+              <select class="form-select" id="fSource"><option value="">All Sources</option></select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+              <label class="form-label" for="fStart">From</label>
+              <input class="form-control" type="date" id="fStart">
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+              <label class="form-label" for="fEnd">To</label>
+              <input class="form-control" type="date" id="fEnd">
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+              <label class="form-label" for="fMin">Min amount</label>
+              <div class="input-group"><span class="input-group-text">$</span><input class="form-control" id="fMin" placeholder="0.00"></div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+              <label class="form-label" for="fMax">Max amount</label>
+              <div class="input-group"><span class="input-group-text">$</span><input class="form-control" id="fMax" placeholder="0.00"></div>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button class="btn btn-outline-primary" type="button" id="applyFilter">Filter</button>
+              <button class="btn btn-outline-secondary" type="button" id="clearFilter">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-baseline mb-2">
+        <p class="results-meta mb-0" id="resultsMeta" aria-live="polite">20 expenses · $3,412.86</p>
+        <span class="small text-muted d-none d-md-inline">25 per page</span>
+      </div>
+
+      <!-- Bulk bar (extended) -->
+      <div class="bulk-bar" id="bulkBar" role="region" aria-label="Bulk actions">
+        <strong id="bulkCount" aria-live="polite">0 selected</strong>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory"><i class="bi bi-tags me-1"></i>Change Category</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource"><i class="bi bi-wallet2 me-1"></i>Change Money Source</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="clearSel">Select none</button>
+        <button type="button" class="btn btn-sm btn-danger" id="bulkDelete"><i class="bi bi-trash me-1"></i>Delete selected</button>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="table-responsive desktop-table">
+          <table class="table table-hover align-middle mb-0" id="expenseTable">
+            <caption class="visually-hidden">Your expenses</caption>
+            <thead class="table-light">
+              <tr>
+                <th scope="col" style="width:2.5rem">
+                  <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all expenses on this page">
+                </th>
+                <th scope="col">Date</th>
+                <th scope="col">Description</th>
+                <th scope="col">Category</th>
+                <th scope="col">Source</th>
+                <th scope="col" class="text-end">Amount</th>
+                <th scope="col" class="text-end"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="mobile-list" id="mobileList"></div>
+        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top small text-muted">
+          <span id="pageFoot">Showing 1–20 of 20 · Page total $3,412.86</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="text-center py-3 mt-4 border-top">
+      <small class="text-muted">&copy; 2026 Expense Tracker</small>
+    </footer>
+  </div>
+
+  <!-- Change Category modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="categoryTitle">Change category</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="summary-line mb-3" id="categorySummary">You're about to change the category on <strong>0</strong> selected expense(s).</p>
+          <label class="form-label" for="categorySelect">New Category</label>
+          <select class="form-select" id="categorySelect"></select>
+          <div class="invalid-feedback" id="categoryFeedback" hidden>Please choose a category.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="categoryConfirm"><i class="bi bi-check-lg me-1"></i>Update 0 expenses</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Money Source modal -->
+  <div class="modal fade" id="sourceModal" tabindex="-1" aria-labelledby="sourceTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="sourceTitle">Change money source</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="summary-line mb-3" id="sourceSummary">You're about to change the money source on <strong>0</strong> selected expense(s).</p>
+          <label class="form-label" for="sourceSelect">New Money Source</label>
+          <select class="form-select" id="sourceSelect"></select>
+          <div class="invalid-feedback" id="sourceFeedback" hidden>Please choose a money source.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="sourceConfirm"><i class="bi bi-check-lg me-1"></i>Update 0 expenses</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success toast (mockup-only feedback) -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" id="toastHost">
+    <div class="toast align-items-center text-bg-success border-0" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">N expenses updated.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    var CATEGORY_COLORS = { "Food & Dining": "warning", "Groceries": "success", "Health": "danger", "Housing": "primary", "Transit": "secondary", "Utilities": "dark", "Software": "info", "Entertainment": "primary" };
+    var ICONS = { "Checking": "bank", "Debit Card": "credit-card", "Credit Card": "credit-card-2-front", "Cash": "cash", "Wallet": "wallet2" };
+    var CATEGORIES = ["Food & Dining", "Groceries", "Health", "Housing", "Transit", "Utilities", "Software", "Entertainment"];
+    var SOURCES = [
+      { name: "Checking · Chase", kind: "Checking" },
+      { name: "Debit · Chase Debit", kind: "Debit Card" },
+      { name: "Credit · Chase Sapphire", kind: "Credit Card" },
+      { name: "Cash", kind: "Cash" },
+      { name: "Wallet · Apple Pay", kind: "Wallet" }
+    ];
+    var DATA = [
+      { id: 1, date: "2026-08-18", desc: "Whole Foods groceries", cat: "Groceries", src: "Checking · Chase", amt: 87.42 },
+      { id: 2, date: "2026-08-18", desc: "Starbucks latte", cat: "Food & Dining", src: "Credit · Chase Sapphire", amt: 6.15 },
+      { id: 3, date: "2026-08-17", desc: "Monthly rent", cat: "Housing", src: "Checking · Chase", amt: 1850.00 },
+      { id: 4, date: "2026-08-16", desc: "Shell gas", cat: "Transit", src: "Debit · Chase Debit", amt: 45.90 },
+      { id: 5, date: "2026-08-16", desc: "Netflix", cat: "Software", src: "Credit · Chase Sapphire", amt: 15.49 },
+      { id: 6, date: "2026-08-15", desc: "Pharmacy", cat: "Health", src: "Debit · Chase Debit", amt: 22.47 },
+      { id: 7, date: "2026-08-14", desc: "", cat: "Transit", src: "Wallet · Apple Pay", amt: 41.20 },
+      { id: 8, date: "2026-08-13", desc: "Dinner with Ana", cat: "Food & Dining", src: "Credit · Chase Sapphire", amt: 64.18 },
+      { id: 9, date: "2026-08-12", desc: "Internet", cat: "Utilities", src: "Checking · Chase", amt: 79.99 },
+      { id: 10, date: "2026-08-11", desc: "Figma seat", cat: "Software", src: "Credit · Chase Sapphire", amt: 15.00 },
+      { id: 11, date: "2026-08-10", desc: "Groceries · Trader Joe's", cat: "Groceries", src: "Debit · Chase Debit", amt: 112.30 },
+      { id: 12, date: "2026-08-09", desc: "Spotify", cat: "Software", src: "Credit · Chase Sapphire", amt: 9.99 },
+      { id: 13, date: "2026-08-08", desc: "Light bill", cat: "Utilities", src: "Checking · Chase", amt: 61.20 },
+      { id: 14, date: "2026-08-07", desc: "Coffee beans", cat: "Groceries", src: "Cash", amt: 18.75 },
+      { id: 15, date: "2026-08-06", desc: "Movie tickets", cat: "Entertainment", src: "Credit · Chase Sapphire", amt: 42.00 },
+      { id: 16, date: "2026-08-05", desc: "Uber ride", cat: "Transit", src: "Wallet · Apple Pay", amt: 23.60 },
+      { id: 17, date: "2026-08-04", desc: "Dentist copay", cat: "Health", src: "Debit · Chase Debit", amt: 35.00 },
+      { id: 18, date: "2026-08-03", desc: "Water bill", cat: "Utilities", src: "Checking · Chase", amt: 48.55 },
+      { id: 19, date: "2026-08-02", desc: "Lunch", cat: "Food & Dining", src: "Cash", amt: 12.75 },
+      { id: 20, date: "2026-08-01", desc: "Bus pass", cat: "Transit", src: "Debit · Chase Debit", amt: 28.00 }
+    ];
+
+    var rows = DATA.slice();
+    var money = n => "-" + n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    var dateFmt = iso => new Date(iso + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    var badge = cat => `<span class="badge bg-${CATEGORY_COLORS[cat] || "secondary"}">${cat}</span>`;
+    var srcBadge = s => {
+      var kind = s.split(" · ")[1] || s;
+      var icon = ICONS[kind] || "circle";
+      return `<span class="badge bg-light text-dark"><i class="bi bi-${icon} me-1"></i>${s}</span>`;
+    };
+    var descText = r => r.desc ? r.desc : `<span class="text-muted">No description</span>`;
+
+    function rowActions() {
+      return `
+        <button type="button" class="btn btn-sm btn-outline-secondary" aria-label="View"><i class="bi bi-eye"></i></button>
+        <a class="btn btn-sm btn-outline-primary" href="#" aria-label="Edit"><i class="bi bi-pencil"></i></a>
+        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete"><i class="bi bi-trash"></i></button>`;
+    }
+
+    function render() {
+      var total = rows.reduce((s, r) => s + r.amt, 0);
+      document.getElementById("resultsMeta").textContent = rows.length + " expense" + (rows.length === 1 ? "" : "s") + " · " + total.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      document.getElementById("pageFoot").textContent = "Showing 1–" + rows.length + " of " + rows.length + " · Page total " + total.toLocaleString("en-US", { style: "currency", currency: "USD" });
+      document.getElementById("tableBody").innerHTML = rows.map(r => `
+        <tr data-id="${r.id}">
+          <td><input type="checkbox" class="form-check-input row-check" aria-label="Select expense, ${dateFmt(r.date)} ${r.desc || "no description"}"></td>
+          <td class="text-nowrap">${dateFmt(r.date)}</td>
+          <td class="desc-cell" title="${r.desc || ""}">${descText(r)}</td>
+          <td>${badge(r.cat)}</td>
+          <td>${srcBadge(r.src)}</td>
+          <td class="text-end amount">${money(r.amt)}</td>
+          <td class="text-end text-nowrap" data-stop="1">${rowActions()}</td>
+        </tr>`).join("");
+      document.getElementById("mobileList").innerHTML = rows.map(r => `
+        <div class="mobile-item" data-id="${r.id}">
+          <input type="checkbox" class="form-check-input row-check mt-2" aria-label="Select expense, ${dateFmt(r.date)}">
+          <div>
+            <div class="small text-muted">${dateFmt(r.date)} · ${badge(r.cat)}</div>
+            <div class="mt-1">${descText(r)}<br>${srcBadge(r.src)}</div>
+          </div>
+          <div class="text-end"><div class="amount">${money(r.amt)}</div></div>
+        </div>`).join("");
+      bindChecks();
+      updateBulk();
+    }
+
+    function bindChecks() {
+      document.querySelectorAll(".row-check").forEach(c => c.addEventListener("change", updateBulk));
+    }
+
+    function selectedIds() {
+      var els = document.querySelectorAll(".row-check, .mobile-item .row-check");
+      return [...document.querySelectorAll("tr[data-id]")]
+        .filter(tr => tr.querySelector(".row-check") && tr.querySelector(".row-check").checked)
+        .map(tr => +tr.dataset.id);
+    }
+
+    function updateBulk() {
+      var n = document.querySelectorAll(".row-check:checked").length;
+      document.getElementById("bulkBar").classList.toggle("show", n > 0);
+      document.getElementById("bulkCount").textContent = n + " selected";
+      var all = document.querySelectorAll(".row-check");
+      document.getElementById("selectAll").checked = all.length > 0 && n === all.length;
+    }
+
+    function showToast(msg) {
+      document.getElementById("toastBody").textContent = msg;
+      var t = bootstrap.Toast.getOrCreateInstance("#successToast");
+      t.show();
+    }
+
+    function openCategoryModal(n) {
+      document.getElementById("categoryTitle").textContent = "Change category for " + n + (n === 1 ? " expense" : " expenses");
+      document.getElementById("categorySummary").innerHTML = "You're about to change the category on <strong>" + n + "</strong> selected expense" + (n === 1 ? "" : "s") + ".";
+      document.getElementById("categoryConfirm").innerHTML = `<i class="bi bi-check-lg me-1"></i>Update ${n} expense${n===1?"":"s"}`;
+      var sel = document.getElementById("categorySelect");
+      sel.innerHTML = '<option value="">Choose a category…</option>' + CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join("");
+      sel.value = ""; sel.classList.remove("is-invalid"); document.getElementById("categoryFeedback").hidden = true;
+      bootstrap.Modal.getOrCreateInstance("#categoryModal").show();
+    }
+
+    function openSourceModal(n) {
+      document.getElementById("sourceTitle").textContent = "Change money source for " + n + (n === 1 ? " expense" : " expenses");
+      document.getElementById("sourceSummary").innerHTML = "You're about to change the money source on <strong>" + n + "</strong> selected expense" + (n === 1 ? "" : "s") + ".";
+      document.getElementById("sourceConfirm").innerHTML = `<i class="bi bi-check-lg me-1"></i>Update ${n} expense${n===1?"":"s"}`;
+      var sel = document.getElementById("sourceSelect");
+      sel.innerHTML = '<option value="">Choose a money source…</option>' + SOURCES.map(s => `<option value="${s.name}"><i class="bi bi-${ICONS[s.kind]}"></i> ${s.name}</option>`).join("");
+      sel.value = ""; sel.classList.remove("is-invalid"); document.getElementById("sourceFeedback").hidden = true;
+      bootstrap.Modal.getOrCreateInstance("#sourceModal").show();
+    }
+
+    // Filters populate
+    document.getElementById("fCategory").innerHTML = '<option value="">All Categories</option>' + CATEGORIES.map(c => `<option>${c}</option>`).join("");
+    document.getElementById("fSource").innerHTML = '<option value="">All Sources</option>' + SOURCES.map(s => `<option>${s.name}</option>`).join("");
+
+    document.getElementById("applyFilter").addEventListener("click", function () {
+      var fc = document.getElementById("fCategory").value;
+      var fs = document.getElementById("fSource").value;
+      var start = document.getElementById("fStart").value;
+      var end = document.getElementById("fEnd").value;
+      var min = document.getElementById("fMin").value === "" ? null : Number(document.getElementById("fMin").value);
+      var max = document.getElementById("fMax").value === "" ? null : Number(document.getElementById("fMax").value);
+      rows = DATA.filter(r => {
+        if (fc && r.cat !== fc) return false;
+        if (fs && r.src !== fs) return false;
+        if (start && r.date < start) return false;
+        if (end && r.date > end) return false;
+        if (min != null && r.amt < min) return false;
+        if (max != null && r.amt > max) return false;
+        return true;
+      });
+      render();
+    });
+    document.getElementById("clearFilter").addEventListener("click", function () {
+      document.getElementById("fCategory").value = ""; document.getElementById("fSource").value = "";
+      document.getElementById("fStart").value = ""; document.getElementById("fEnd").value = "";
+      document.getElementById("fMin").value = ""; document.getElementById("fMax").value = "";
+      rows = DATA.slice(); render();
+    });
+
+    document.getElementById("selectAll").addEventListener("change", function (e) {
+      document.querySelectorAll(".row-check").forEach(c => { c.checked = e.target.checked; });
+      updateBulk();
+    });
+    document.getElementById("clearSel").addEventListener("click", function () {
+      document.querySelectorAll(".row-check").forEach(c => c.checked = false);
+      updateBulk();
+    });
+    document.getElementById("bulkCategory").addEventListener("click", function () {
+      var n = selectedIds().length;
+      if (n) openCategoryModal(n);
+    });
+    document.getElementById("bulkSource").addEventListener("click", function () {
+      var n = selectedIds().length;
+      if (n) openSourceModal(n);
+    });
+    document.getElementById("categoryConfirm").addEventListener("click", function () {
+      var sel = document.getElementById("categorySelect");
+      if (!sel.value) { sel.classList.add("is-invalid"); document.getElementById("categoryFeedback").hidden = false; return; }
+      var n = selectedIds().length;
+      bootstrap.Modal.getInstance("#categoryModal").hide();
+      showToast(n + " expense" + (n === 1 ? "" : "s") + " moved to " + sel.value + ".");
+      document.querySelectorAll(".row-check").forEach(c => c.checked = false);
+      updateBulk();
+    });
+    document.getElementById("sourceConfirm").addEventListener("click", function () {
+      var sel = document.getElementById("sourceSelect");
+      if (!sel.value) { sel.classList.add("is-invalid"); document.getElementById("sourceFeedback").hidden = false; return; }
+      var n = selectedIds().length;
+      bootstrap.Modal.getInstance("#sourceModal").hide();
+      showToast(n + " expense" + (n === 1 ? "" : "s") + " moved to " + sel.value + ".");
+      document.querySelectorAll(".row-check").forEach(c => c.checked = false);
+      updateBulk();
+    });
+    document.getElementById("bulkDelete").addEventListener("click", function () {
+      var n = selectedIds().length;
+      if (!n) return;
+      bootstrap.Modal.getOrCreateInstance("#categoryModal").hide();
+      showToast(n + " expense" + (n === 1 ? "" : "s") + " deleted (mockup).");
+      document.querySelectorAll(".row-check").forEach(c => c.checked = false);
+      updateBulk();
+    });
+
+    document.getElementById("sidebarToggle").addEventListener("click", function () {
+      document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    render();
+  </script>
+</body>
+</html>
