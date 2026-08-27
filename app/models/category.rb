@@ -13,12 +13,14 @@ class Category < ApplicationRecord
   before_validation :generate_slug, if: -> { slug.blank? || name_changed? }
 
   validates :name, presence: true
-  validates :slug, presence: true, uniqueness: true
+  validates :slug, presence: true
   validates :category_type, inclusion: { in: %w[income expense], allow_nil: true }
   validate :parent_must_not_be_self
   validate :default_category_not_owned_by_user
   validate :custom_category_not_named_like_default, on: :create
   validate :unique_custom_category_per_user_and_type
+  validate :unique_name_within_scope
+  validate :unique_slug_within_scope
 
   scope :active, -> { where(active: true) }
   scope :roots, -> { where(parent_id: nil) }
@@ -85,5 +87,30 @@ class Category < ApplicationRecord
     return unless existing.exists?
 
     errors.add(:name, "has already been taken for this category type")
+  end
+
+  def unique_name_within_scope
+    return unless name.present? && category_type.present?
+
+    duplicates = scope_candidates.where(name: name)
+    duplicates = duplicates.where.not(id: id) if persisted?
+    errors.add(:name, "has already been taken") if duplicates.exists?
+  end
+
+  def unique_slug_within_scope
+    return unless slug.present? && category_type.present?
+
+    duplicates = scope_candidates.where(slug: slug)
+    duplicates = duplicates.where.not(id: id) if persisted?
+    errors.add(:slug, "has already been taken") if duplicates.exists?
+  end
+
+  def scope_candidates
+    base = Category.where(category_type: category_type)
+    if is_default?
+      base.where(is_default: true)
+    else
+      base.where(is_default: false, user_id: user_id)
+    end
   end
 end

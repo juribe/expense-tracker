@@ -1,5 +1,6 @@
 class CategoriesController < ApplicationController
   before_action :set_category, only: [:show, :edit, :update, :destroy]
+  before_action :set_parent_categories, only: [:new, :create, :edit, :update]
 
   # GET /categories
   def index
@@ -79,6 +80,10 @@ class CategoriesController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     flash[:alert] = "Category not found."
     redirect_to categories_path
+  end
+
+  def set_parent_categories
+    @parent_categories = Category.for_user(current_user).order(:name)
   end
 
   def category_params
