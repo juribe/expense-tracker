@@ -115,8 +115,14 @@
     <span class="small text-muted d-none d-md-inline">25 per page</span>
   </div>
 
-  <div class="bulk-bar" id="bulkBar" role="region" aria-label="Bulk actions">
-    <strong id="bulkCount">0 selected</strong>
+  <div class="bulk-bar" id="bulkBar" role="region" aria-label="Bulk actions" data-testid="bulk-bar">
+    <strong id="bulkCount" aria-live="polite">0 selected</strong>
+    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category">
+      <i class="bi bi-tags me-1"></i>Change Category
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source">
+      <i class="bi bi-wallet2 me-1"></i>Change Money Source
+    </button>
     <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSel">Select none</button>
     <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete"><i class="bi bi-trash me-1"></i>Delete selected</button>
   </div>
@@ -298,6 +304,50 @@
   <input type="hidden" name="ids" id="deleteIds">
 <% end %>
 
+<!-- Bulk update confirm modal (Change Category / Change Money Source / both) -->
+<%= form_with url: bulk_update_expenses_path, method: :patch, id: "bulkEditForm", data: { testid: "bulk-update-form" } do %>
+  <div class="modal fade" id="bulkEditModal" tabindex="-1" aria-labelledby="bulkEditTitle" aria-hidden="true" data-testid="bulk-update-modal">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="bulkEditTitle">Edit expenses</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= hidden_field_tag :expense_ids, nil, id: "bulkExpenseIds" %>
+          <p class="text-muted" id="bulkEditSummary">Update the selected expenses.</p>
+          <div class="mb-3">
+            <label for="bulkCategorySelect" class="form-label">New Category</label>
+            <select id="bulkCategorySelect" name="category_id" class="form-select" data-testid="bulk-category-select">
+              <option value="">No change</option>
+              <% @categories.each do |category| %>
+                <option value="<%= category.id %>"><%= category.name %></option>
+              <% end %>
+            </select>
+            <div class="invalid-feedback" id="bulkCategoryFeedback">Choose a category and/or money source to update.</div>
+          </div>
+          <div class="mb-3">
+            <label for="bulkSourceSelect" class="form-label">New Money Source</label>
+            <select id="bulkSourceSelect" name="money_source_id" class="form-select" data-testid="bulk-source-select">
+              <option value="">No change</option>
+              <% @money_sources.each do |source| %>
+                <option value="<%= source.id %>"><%= source.display_name %></option>
+              <% end %>
+            </select>
+            <div class="invalid-feedback" id="bulkSourceFeedback">Choose a category and/or money source to update.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="confirmBulkEdit" data-testid="confirm-bulk-update" disabled>
+            <i class="bi bi-check-lg me-1"></i>Update expenses
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <%= render "shared/process_recurring_modal",
            modal_id: "expenseProcessModal",
            title_id: "expenseProcessTitle",
@@ -325,7 +375,7 @@
 
   function stateQuery() {
     var q = new URLSearchParams(location.search);
-    var keys = ["category_id", "start_date", "end_date", "min_amount", "max_amount", "sort", "dir", "page"];
+    var keys = ["category_id", "money_source_id", "start_date", "end_date", "min_amount", "max_amount", "sort", "dir", "page"];
     var out = [];
     keys.forEach(function (k) {
       var v = q.get(k);
@@ -346,6 +396,49 @@
     $("#bulkCount").textContent = n + " selected";
     var all = $("#selectAll");
     if (all) all.checked = checks.length > 0 && n === checks.length;
+  }
+
+  function selectedIds() {
+    return $$("tr[data-id], .mobile-item[data-id]")
+      .filter(function (el) { return el.querySelector(".row-check") && el.querySelector(".row-check").checked; })
+      .map(function (el) { return el.dataset.id; });
+  }
+
+  function updateBulkEdit() {
+    var n = ($("#bulkExpenseIds").value || "").split(",").filter(Boolean).length;
+    var hasValue = !!$("#bulkCategorySelect").value || !!$("#bulkSourceSelect").value;
+    var btn = $("#confirmBulkEdit");
+    btn.disabled = !hasValue;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Update ' + n + " " + (n === 1 ? "expense" : "expenses");
+    if (hasValue) {
+      $("#bulkCategorySelect").classList.remove("is-invalid");
+      $("#bulkSourceSelect").classList.remove("is-invalid");
+    }
+  }
+
+  var bulkEditFocus = "category";
+
+  function openBulkEdit(field) {
+    var ids = selectedIds();
+    if (!ids.length) return;
+    var n = ids.length;
+    var word = "expense" + (n === 1 ? "" : "s");
+    bulkEditFocus = field;
+    $("#bulkExpenseIds").value = ids.join(",");
+    $("#bulkEditForm").action = urlWithState("<%= bulk_update_expenses_path %>");
+    $("#bulkEditTitle").textContent =
+      field === "category"
+        ? "Change category for " + n + " " + word
+        : "Change money source for " + n + " " + word;
+    var what = field === "category" ? "the category" : "the money source";
+    $("#bulkEditSummary").innerHTML =
+      "You're about to change " + what + " on <strong>" + n + "</strong> selected " + word + ".";
+    $("#bulkCategorySelect").value = "";
+    $("#bulkSourceSelect").value = "";
+    $("#bulkCategorySelect").classList.remove("is-invalid");
+    $("#bulkSourceSelect").classList.remove("is-invalid");
+    updateBulkEdit();
+    bootstrap.Modal.getOrCreateInstance("#bulkEditModal").show();
   }
 
   function openDrawer(url, editUrl, deleteUrl) {
@@ -390,6 +483,9 @@
       }
       updateBulk();
     }
+    if (e.target.matches("#bulkCategorySelect, #bulkSourceSelect")) {
+      updateBulkEdit();
+    }
   });
 
   document.addEventListener("click", function (e) {
@@ -418,10 +514,11 @@
       $$(".row-check").forEach(function (c) { c.checked = false; });
       updateBulk();
     }
+    if (e.target.id === "bulkCategory" || e.target.id === "bulkSource") {
+      openBulkEdit(e.target.id === "bulkCategory" ? "category" : "source");
+    }
     if (e.target.id === "bulkDelete") {
-      var ids = $$("tr[data-id], .mobile-item[data-id]")
-        .filter(function (el) { return el.querySelector(".row-check") && el.querySelector(".row-check").checked; })
-        .map(function (el) { return el.dataset.id; });
+      var ids = selectedIds();
       if (ids.length) {
         $("#deleteIds").value = ids.join(",");
         openDelete("<%= bulk_destroy_expenses_path %>" + stateQuery(), ids.length);
@@ -447,6 +544,23 @@
       bootstrap.Offcanvas.getInstance("#detailDrawer") && bootstrap.Offcanvas.getInstance("#detailDrawer").hide();
       form.requestSubmit();
     }
+  });
+
+  $("#bulkEditForm").addEventListener("submit", function (e) {
+    if (!$("#bulkCategorySelect").value && !$("#bulkSourceSelect").value) {
+      e.preventDefault();
+      $("#bulkCategorySelect").classList.add("is-invalid");
+      $("#bulkSourceSelect").classList.add("is-invalid");
+      return;
+    }
+    var btn = $("#confirmBulkEdit");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Updating&hellip;';
+  });
+
+  $("#bulkEditModal").addEventListener("shown.bs.modal", function () {
+    var target = bulkEditFocus === "source" ? $("#bulkSourceSelect") : $("#bulkCategorySelect");
+    if (target) target.focus();
   });
 
   document.addEventListener("keydown", function (e) {

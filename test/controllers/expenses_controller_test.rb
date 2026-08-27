@@ -30,6 +30,19 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#resultsMeta", text: /1 expense/
   end
 
+  test "GET /expenses renders the bulk update bar and modal" do
+    create_expense(amount: 12.50, date: Date.today)
+    create_source(name: "Visa", kind: "credit_card", bank: "Chase")
+    get expenses_path
+    assert_response :success
+    assert_select "#bulkBar button[data-testid=bulk-category]"
+    assert_select "#bulkBar button[data-testid=bulk-source]"
+    assert_select "#bulkEditModal[data-testid=bulk-update-modal]"
+    assert_select "select[data-testid=bulk-category-select] option", text: "Food"
+    assert_select "select[data-testid=bulk-source-select] option", text: "Visa · Chase"
+    assert_select "button[data-testid=confirm-bulk-update]"
+  end
+
   test "GET /expenses shows empty state when no expenses exist" do
     get expenses_path
     assert_response :success
@@ -173,5 +186,109 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to expenses_path
     follow_redirect!
     assert_equal "No expenses selected.", flash[:alert]
+  end
+
+  def create_source(name: "Credit Card", kind: "credit_card", **opts)
+    @user.money_sources.create!({ name: name, kind: kind, starting_balance: 0 }.merge(opts))
+  end
+
+  test "PATCH /expenses/bulk_update changes category for selected expenses" do
+    a = create_expense(amount: 1, date: Date.today, description: "A")
+    b = create_expense(amount: 2, date: Date.today, description: "B")
+    patch bulk_update_expenses_path, params: { expense_ids: [ a.id, b.id ], category_id: @other_category.id }
+    assert_redirected_to expenses_path
+    assert_equal @other_category.id, a.reload.category_id
+    assert_equal @other_category.id, b.reload.category_id
+    follow_redirect!
+    assert_equal "2 expenses updated.", flash[:notice]
+  end
+
+  test "PATCH /expenses/bulk_update changes money source for selected expenses" do
+    a = create_expense(amount: 1, date: Date.today)
+    b = create_expense(amount: 2, date: Date.today)
+    source = create_source
+    patch bulk_update_expenses_path, params: { expense_ids: [ a.id, b.id ], money_source_id: source.id }
+    assert_redirected_to expenses_path
+    assert_equal source.id, a.reload.money_source_id
+    assert_equal source.id, b.reload.money_source_id
+  end
+
+  test "PATCH /expenses/bulk_update changes category and money source in one request" do
+    a = create_expense(amount: 1, date: Date.today)
+    source = create_source
+    patch bulk_update_expenses_path,
+          params: { expense_ids: [ a.id ], category_id: @other_category.id, money_source_id: source.id }
+    assert_redirected_to expenses_path
+    a.reload
+    assert_equal @other_category.id, a.category_id
+    assert_equal source.id, a.money_source_id
+  end
+
+  test "PATCH /expenses/bulk_update only updates the fields provided" do
+    source = create_source
+    a = create_expense(amount: 1, date: Date.today)
+    a.update!(money_source_id: source.id)
+    patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], category_id: @other_category.id }
+    assert_redirected_to expenses_path
+    a.reload
+    assert_equal @other_category.id, a.category_id
+    assert_equal source.id, a.money_source_id
+  end
+
+  test "PATCH /expenses/bulk_update ignores expense ids not owned by the current user" do
+    other_user = User.create!(name: "Other", email: "bulk_update_other@example.com", password: "password123")
+    other_expense = other_user.expenses.create!(amount: 5, date: Date.today, description: "Theirs", category: @category)
+    mine = create_expense(amount: 2, date: Date.today)
+    patch bulk_update_expenses_path, params: { expense_ids: [ mine.id, other_expense.id ], category_id: @other_category.id }
+    assert_redirected_to expenses_path
+    assert_equal @other_category.id, mine.reload.category_id
+    assert_not_equal @other_category.id, other_expense.reload.category_id
+    follow_redirect!
+    assert_equal "1 expense updated.", flash[:notice]
+  end
+
+  test "PATCH /expenses/bulk_update rejects a category not available to the user" do
+    other_user = User.create!(name: "Other", email: "bulk_update_cat_other@example.com", password: "password123")
+    other_category = Category.create!(name: "Secret Cat", user: other_user, is_default: false, category_type: "expense")
+    a = create_expense(amount: 1, date: Date.today)
+    original = a.category_id
+    patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], category_id: other_category.id }
+    assert_redirected_to expenses_path
+    assert_equal original, a.reload.category_id
+    follow_redirect!
+    assert_equal "Couldn't update expenses: category was not found for this user.", flash[:alert]
+  end
+
+  test "PATCH /expenses/bulk_update rejects a money source not owned by the user" do
+    other_user = User.create!(name: "Other", email: "bulk_update_src_other@example.com", password: "password123")
+    other_source = other_user.money_sources.create!(name: "Other Bank", kind: "account", starting_balance: 0)
+    a = create_expense(amount: 1, date: Date.today)
+    patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], money_source_id: other_source.id }
+    assert_redirected_to expenses_path
+    assert_nil a.reload.money_source_id
+    follow_redirect!
+    assert_equal "Couldn't update expenses: money source was not found for this user.", flash[:alert]
+  end
+
+  test "PATCH /expenses/bulk_update rejects empty expense ids" do
+    patch bulk_update_expenses_path, params: { expense_ids: [], category_id: @other_category.id }
+    assert_redirected_to expenses_path
+    follow_redirect!
+    assert_equal "No expenses selected.", flash[:alert]
+  end
+
+  test "PATCH /expenses/bulk_update rejects requests without any field to change" do
+    a = create_expense(amount: 1, date: Date.today)
+    patch bulk_update_expenses_path, params: { expense_ids: [ a.id ] }
+    assert_redirected_to expenses_path
+    follow_redirect!
+    assert_equal "Choose a category and/or money source to update.", flash[:alert]
+  end
+
+  test "PATCH /expenses/bulk_update preserves filters, sort, and page on redirect" do
+    a = create_expense(amount: 1, date: Date.today)
+    url = bulk_update_expenses_path(category_id: @category.id, sort: "date", dir: "asc", page: "2")
+    patch url, params: { expense_ids: [ a.id ], category_id: @other_category.id }
+    assert_redirected_to expenses_path(category_id: @category.id.to_s, sort: "date", dir: "asc", page: "2")
   end
 end

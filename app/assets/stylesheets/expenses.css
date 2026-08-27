@@ -92,4 +92,5 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   .header-actions { width: 100%; }
   .header-actions .btn { width: 100%; }
   .desc-cell { max-width: 100%; }
+  .bulk-bar > .btn { flex: 1 1 100%; min-height: 44px; }
 }
