@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   resources :expenses do
     collection do
       delete :bulk_destroy
+      patch :bulk_update
       post :parse
       post :bulk_create
     end

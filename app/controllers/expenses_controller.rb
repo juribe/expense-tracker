@@ -127,6 +127,53 @@ class ExpensesController < ApplicationController
     end
   end
 
+  # PATCH /expenses/bulk_update
+  # Bulk-updates the category and/or money source of many expenses at once.
+  def bulk_update
+    raw = request.request_parameters
+    ids = Array(raw["expense_ids"]).flat_map { |value| value.to_s.split(",") }.map(&:to_i).reject(&:zero?)
+    category_id = raw["category_id"].presence
+    money_source_id = raw["money_source_id"].presence
+
+    if ids.empty?
+      redirect_to expenses_path(bulk_update_state), alert: "No expenses selected."
+      return
+    end
+
+    if category_id.blank? && money_source_id.blank?
+      redirect_to expenses_path(bulk_update_state), alert: "Choose a category and/or money source to update."
+      return
+    end
+
+    if category_id.present? && !Category.for_user(current_user).where(id: category_id).exists?
+      redirect_to expenses_path(bulk_update_state),
+                  alert: "Couldn't update expenses: category was not found for this user."
+      return
+    end
+
+    if money_source_id.present? && !current_user.money_sources.where(id: money_source_id).exists?
+      redirect_to expenses_path(bulk_update_state),
+                  alert: "Couldn't update expenses: money source was not found for this user."
+      return
+    end
+
+    scope = current_user.expenses.where(id: ids)
+    count = scope.count
+    if count.zero?
+      redirect_to expenses_path(bulk_update_state), alert: "No expenses selected."
+      return
+    end
+
+    updates = {}
+    updates[:category_id] = category_id.to_i if category_id.present?
+    updates[:money_source_id] = money_source_id.to_i if money_source_id.present?
+
+    scope.update_all(updates)
+
+    redirect_to expenses_path(bulk_update_state),
+                notice: "#{count} #{'expense'.pluralize(count)} updated."
+  end
+
   # POST /expenses/parse
   # Interprets natural language (typed or transcribed voice) WITHOUT persisting
   # anything. The user reviews/edits the detected expenses before saving them.
@@ -215,6 +262,16 @@ class ExpensesController < ApplicationController
       sort: params[:sort],
       dir: params[:dir],
       page: params[:page]
+    ).compact_blank
+  end
+
+  # State (filters, sort, pagination) for bulk_update redirects. Read from the
+  # query string only, so the update fields in the request body (category_id /
+  # money_source_id) never collide with the preserved filter values.
+  def bulk_update_state
+    request.query_parameters.slice(
+      "category_id", "money_source_id", "start_date", "end_date",
+      "min_amount", "max_amount", "sort", "dir", "page"
     ).compact_blank
   end
 
