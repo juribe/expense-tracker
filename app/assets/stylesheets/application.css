@@ -10,41 +10,110 @@
  */
 
 /* -------------------------------------------------
- * Devise authentication forms
+ * Design Tokens (First Contact AI)
  * ------------------------------------------------- */
-.auth-form .form-label {
-  font-weight: 500;
+:root {
+  /* Colors - Light Theme */
+  --bs-primary: #5D87FF;
+  --bs-primary-rgb: 93, 135, 255;
+  --bs-secondary: #49BEFF;
+  --bs-secondary-rgb: 73, 190, 255;
+  --bs-success: #13DEB9;
+  --bs-success-rgb: 19, 222, 185;
+  --bs-warning: #FFAE1F;
+  --bs-warning-rgb: 255, 174, 31;
+  --bs-danger: #FA896B;
+  --bs-danger-rgb: 250, 137, 107;
+  --bs-info: #539BFF;
+  --bs-info-rgb: 83, 155, 255;
+
+  /* Gray Scale */
+  --bs-gray-100: #F6F9FC;
+  --bs-gray-200: #EAEFF4;
+  --bs-gray-300: #DFE5EF;
+  --bs-gray-400: #7C8FAC;
+  --bs-gray-500: #5A6A85;
+  --bs-gray-600: #2A3547;
+
+  /* Body */
+  --bs-body-bg: #F6F9FC;
+  --bs-body-color: #5A6A85;
+  --bs-heading-color: #2A3547;
+  --bs-link-color: #5D87FF;
+  --bs-link-hover-color: #4A6FE0;
+  --bs-border-color: #EBF1F6;
+
+  /* Border Radius */
+  --bs-border-radius: 0.75rem;
+  --bs-border-radius-sm: 0.375rem;
+  --bs-border-radius-lg: 1rem;
+
+  /* Shadows */
+  --bs-box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
+  --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+  /* Font */
+  --bs-font-sans-serif: "Plus Jakarta Sans", sans-serif;
+
+  /* Sidebar */
+  --sidebar-background: #1E1E2D;
+  --sidebar-foreground: #A4ABC5;
+  --sidebar-primary: #763EBD;
+  --sidebar-accent: #252636;
+  --sidebar-border: #2E3039;
 }
 
-.auth-form .form-control:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+/* -------------------------------------------------
+ * Global Body & Typography
+ * ------------------------------------------------- */
+body {
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: var(--bs-font-sans-serif);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-/* Space for the visibility toggle inside password inputs */
-.password-field {
-  padding-right: 2.75rem;
+h1, h2, h3, h4, h5, h6 {
+  color: var(--bs-heading-color);
 }
 
-.toggle-pw {
-  z-index: 3;
-  color: #6c757d;
-  padding: 0 0.75rem;
-  text-decoration: none;
+.summary-value {
+  font-size: 2rem;
 }
 
-.toggle-pw:hover {
-  color: #0d6efd;
+/* -------------------------------------------------
+ * Components
+ * ------------------------------------------------- */
+.card {
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: var(--bs-border-radius);
 }
 
-.auth-form .btn:hover {
-  filter: brightness(0.95);
+.btn {
+  border-radius: var(--bs-border-radius-sm);
 }
 
-@media (max-width: 575.98px) {
-  .auth-form .card-body {
-    padding: 1.5rem !important;
-  }
+.form-control,
+.form-select {
+  border-radius: var(--bs-border-radius-sm);
+  border-color: var(--bs-border-color);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(93, 135, 255, 0.25);
+}
+
+.alert {
+  border-radius: var(--bs-border-radius);
+}
+
+.table {
+  --bs-table-bg: transparent;
 }
 
 /* -------------------------------------------------
@@ -56,8 +125,8 @@
   left: 0;
   bottom: 0;
   width: 250px;
-  background: #fff;
-  border-right: 1px solid #e9ecef;
+  background: var(--sidebar-background);
+  border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
   z-index: 1040;
@@ -66,21 +135,21 @@
 
 .sidebar-header {
   padding: 1.25rem 1rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--sidebar-border);
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #212529;
+  color: #FFFFFF;
   font-weight: 700;
   font-size: 1.1rem;
 }
 
 .sidebar-brand i {
   font-size: 1.4rem;
-  color: #0d6efd;
+  color: var(--sidebar-primary);
   margin-right: 0.5rem;
 }
 
@@ -99,7 +168,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #adb5bd;
+  color: var(--sidebar-foreground);
+  opacity: 0.5;
 }
 
 .sidebar-link {
@@ -107,19 +177,19 @@
   align-items: center;
   padding: 0.45rem 1.25rem;
   text-decoration: none;
-  color: #495057;
+  color: var(--sidebar-foreground);
   font-size: 0.875rem;
-  transition: background-color 0.15s, color 0.15s;
+  transition: all 0.15s ease;
 }
 
 .sidebar-link:hover {
-  background-color: #f8f9fa;
-  color: #212529;
+  background: var(--sidebar-accent);
+  color: #FFFFFF;
 }
 
 .sidebar-link.active {
-  background-color: #e7f1ff;
-  color: #0d6efd;
+  background: rgba(118, 62, 189, 0.15);
+  color: var(--sidebar-primary);
   font-weight: 500;
 }
 
@@ -132,16 +202,17 @@
 }
 
 .sidebar-settings {
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--sidebar-border);
   margin-top: 0.5rem;
 }
 
 .sidebar-settings .sidebar-section-title {
-  color: #ced4da;
+  color: var(--sidebar-foreground);
+  opacity: 0.4;
 }
 
 .sidebar-footer {
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--sidebar-border);
   padding: 0.75rem 1rem;
 }
 
@@ -149,7 +220,7 @@
   display: flex;
   align-items: center;
   font-size: 0.8rem;
-  color: #6c757d;
+  color: var(--sidebar-foreground);
   margin-bottom: 0.375rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -161,6 +232,7 @@
   margin-right: 0.5rem;
   font-size: 1.1rem;
   flex-shrink: 0;
+  color: var(--sidebar-primary);
 }
 
 /* Main content offset */
@@ -173,15 +245,19 @@
   display: none;
   align-items: center;
   padding: 0.625rem 1rem;
-  background: #fff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--sidebar-background);
+  border-bottom: 1px solid var(--sidebar-border);
 }
 
 .mobile-topbar .btn-link {
   text-decoration: none;
-  color: #212529;
+  color: #FFFFFF;
   padding: 0;
   margin-right: 0.75rem;
+}
+
+.mobile-topbar span {
+  color: #FFFFFF;
 }
 
 /* Backdrop */
@@ -217,5 +293,58 @@
 
   .mobile-topbar {
     display: flex;
+  }
+}
+
+/* -------------------------------------------------
+ * Auth Forms (Gradient Background)
+ * ------------------------------------------------- */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #5D87FF 0%, #49BEFF 100%);
+  padding: 2rem;
+}
+
+.auth-content {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-form .form-label {
+  font-weight: 500;
+  color: var(--bs-heading-color);
+}
+
+.auth-form .form-control:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(93, 135, 255, 0.15);
+}
+
+/* Space for the visibility toggle inside password inputs */
+.password-field {
+  padding-right: 2.75rem;
+}
+
+.toggle-pw {
+  z-index: 3;
+  color: var(--bs-gray-400);
+  padding: 0 0.75rem;
+  text-decoration: none;
+}
+
+.toggle-pw:hover {
+  color: var(--bs-primary);
+}
+
+.auth-form .btn:hover {
+  filter: brightness(0.95);
+}
+
+@media (max-width: 575.98px) {
+  .auth-form .card-body {
+    padding: 1.5rem !important;
   }
 }

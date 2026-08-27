@@ -2,7 +2,7 @@
 
 h1 { font-size: 1.75rem; }
 
-.table thead th { white-space: nowrap; font-size: .8125rem; letter-spacing: .01em; color: #495057; }
+.table thead th { white-space: nowrap; font-size: .8125rem; letter-spacing: .01em; color: var(--bs-gray-500); }
 .amount { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--bs-danger); white-space: nowrap; }
 .desc-cell { max-width: 28ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -28,14 +28,14 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   align-items: center;
   gap: .75rem;
   padding: .65rem 1rem;
-  background: #e7f1ff;
-  border: 1px solid #b6d4fe;
-  border-radius: 8px;
+  background: rgba(93, 135, 255, 0.1);
+  border: 1px solid rgba(93, 135, 255, 0.2);
+  border-radius: var(--bs-border-radius-sm);
   margin-bottom: 1rem;
 }
 .bulk-bar.show { display: flex; flex-wrap: wrap; }
 
-.results-meta { font-size: .875rem; color: var(--bs-secondary-color); }
+.results-meta { font-size: .875rem; color: var(--bs-gray-500); }
 
 .chip {
   display: inline-flex;
@@ -52,7 +52,7 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   all: unset;
   cursor: pointer;
   line-height: 1;
-  color: var(--bs-secondary-color);
+  color: var(--bs-gray-400);
   padding: .15rem;
 }
 .chip button:focus-visible { outline: 2px solid var(--bs-primary); }
@@ -66,6 +66,7 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   border-bottom: 1px solid var(--bs-border-color);
   background: #fff;
   cursor: pointer;
+  border-radius: var(--bs-border-radius);
 }
 .mobile-item:last-child { border-bottom: 0; }
 .mobile-item:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -2px; }
@@ -75,14 +76,14 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
 .skel {
   height: 14px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+  background: linear-gradient(90deg, var(--bs-gray-200) 25%, var(--bs-gray-100) 50%, var(--bs-gray-200) 75%);
   background-size: 400% 100%;
   animation: wave 1.4s ease infinite;
 }
 @keyframes wave { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
 
-.drawer-dl dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-secondary-color); }
+.drawer-dl dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-gray-400); }
 .drawer-dl dd { margin-bottom: 1rem; }
 
 @media (max-width: 767.98px) {
