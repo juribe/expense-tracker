@@ -78,7 +78,7 @@ class RecurringTemplatesController < ApplicationController
   private
 
   def set_categories
-    @categories = Category.all
+    @categories = Category.for_user(current_user)
   end
 
   def set_money_sources

@@ -117,7 +117,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "approve creates expenses from a reviewed transaction" do
-    category = Category.create!(name: "Restaurants")
+    category = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     review = ProcessedEmail.create!(
       user: @user,
       provider: "gmail",

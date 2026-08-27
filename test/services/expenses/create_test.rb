@@ -6,7 +6,7 @@ module Expenses
   class CreateTest < ActiveSupport::TestCase
     setup do
       @user = User.create!(name: "Create User", email: "expenses_create_test@example.com", password: "password123")
-      @category = Category.create!(name: "Restaurants")
+      @category = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     end
 
     def create(**overrides)

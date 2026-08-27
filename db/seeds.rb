@@ -1,9 +1,32 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# frozen_string_literal: true
+
+# Default categories — shared across all users
+EXPENSE_DEFAULTS = [
+  "Food & Dining",
+  "Transportation",
+  "Housing",
+  "Utilities",
+  "Health",
+  "Entertainment",
+  "Shopping",
+  "Education",
+  "Travel",
+  "Other"
+].freeze
+
+INCOME_DEFAULTS = [
+  "Salary",
+  "Freelance",
+  "Investments",
+  "Business",
+  "Gifts",
+  "Other"
+].freeze
+
+EXPENSE_DEFAULTS.each do |name|
+  Category.find_or_create_by!(name: name, is_default: true, category_type: "expense")
+end
+
+INCOME_DEFAULTS.each do |name|
+  Category.find_or_create_by!(name: name, is_default: true, category_type: "income")
+end

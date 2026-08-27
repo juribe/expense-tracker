@@ -85,7 +85,7 @@ class ExpenseParser
     @text = text.to_s.strip
     @user = user
     @today = today
-    @categories = Category.all.order(:name).to_a
+    @categories = Category.for_user(user).order(:name).to_a
     @notes = []
   end
 

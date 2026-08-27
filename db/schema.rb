@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_24_000005) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_26_000001) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -20,9 +20,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_24_000005) do
     t.bigint "parent_id"
     t.boolean "active", default: true, null: false
     t.string "image"
+    t.bigint "user_id"
+    t.boolean "is_default", default: false, null: false
+    t.string "category_type"
+    t.index ["category_type"], name: "index_categories_on_category_type"
+    t.index ["is_default"], name: "index_categories_on_is_default"
     t.index ["name"], name: "index_categories_on_name", unique: true
     t.index ["parent_id"], name: "index_categories_on_parent_id"
     t.index ["slug"], name: "index_categories_on_slug", unique: true
+    t.index ["user_id"], name: "index_categories_on_user_id"
   end
 
   create_table "expenses", force: :cascade do |t|
@@ -182,6 +188,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_24_000005) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "categories", "users"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
   add_foreign_key "gmail_connections", "users"

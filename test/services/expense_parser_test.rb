@@ -5,10 +5,10 @@ require "test_helper"
 class ExpenseParserTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Parser User", email: "parser@example.com", password: "password123")
-    @restaurants = Category.create!(name: "Restaurants")
-    @parking = Category.create!(name: "Parking")
-    @gasoline = Category.create!(name: "Gasoline")
-    @groceries = Category.create!(name: "Groceries")
+    @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+    @parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    @gasoline = Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    @groceries = Category.create!(name: "Groceries", is_default: true, category_type: "expense")
     @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
 

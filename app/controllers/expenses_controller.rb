@@ -195,7 +195,7 @@ class ExpensesController < ApplicationController
   end
 
   def set_categories
-    @categories = Category.all
+    @categories = Category.for_user(current_user)
   end
 
   def set_money_sources
@@ -365,7 +365,7 @@ class ExpensesController < ApplicationController
     elsif new_name.present?
       Category.find_by(name: new_name) ||
         Category.where("lower(name) = ?", new_name.downcase).first ||
-        Category.create!(name: new_name)
+        Category.create!(name: new_name, user: current_user, is_default: false)
     else
       raise ArgumentError, "A category is required."
     end

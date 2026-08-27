@@ -7,7 +7,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
 
   setup do
     @user = User.create!(name: "AI Entry User", email: "ai-entry@example.com", password: "password123")
-    @restaurants = Category.create!(name: "Restaurants")
+    @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     sign_in @user
     @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
@@ -75,7 +75,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/bulk_create saves several expenses in one action" do
-    parking = Category.create!(name: "Parking")
+    parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
 
     post bulk_create_expenses_path(format: :json), params: {
       expenses: [
@@ -120,7 +120,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/bulk_create rolls everything back when a row is invalid" do
-    parking = Category.create!(name: "Parking")
+    parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
 
     assert_no_changes -> { Expense.count } do
       post bulk_create_expenses_path(format: :json), params: {

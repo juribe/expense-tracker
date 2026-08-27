@@ -4,7 +4,7 @@ class ImportsController < ApplicationController
   before_action :authenticate_user!
 
   def new
-    @categories = Category.all
+    @categories = Category.for_user(current_user)
   end
 
   def create

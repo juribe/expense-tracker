@@ -6,7 +6,7 @@ module Gmail
   class ExpenseImporterTest < ActiveSupport::TestCase
     setup do
       @user = User.create!(name: "Importer User", email: "gmail_importer_test@example.com", password: "password123")
-      Category.create!(name: "Restaurants")
+      Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
       @connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
       @message = {
         id: "msg-100",

@@ -73,8 +73,8 @@ module Expenses
       name = @category.to_s.strip
       raise Invalid, "category is required" if name.blank?
 
-      Category.where("lower(name) = ?", name.downcase).first ||
-        Category.create!(name: name.split.map(&:capitalize).join(" "))
+      Category.for_user(@user).where("lower(name) = ?", name.downcase).first ||
+        Category.create!(name: name.split.map(&:capitalize).join(" "), user: @user, is_default: false)
     end
 
     def normalize_description

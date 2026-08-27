@@ -9,6 +9,7 @@ class IncomesController < ApplicationController
   # GET /incomes/new
   def new
     @income = Income.new
+    @categories = Category.for_user(current_user)
     @money_sources = current_user.money_sources.active.order(:kind, :name)
   end
 
@@ -20,6 +21,7 @@ class IncomesController < ApplicationController
     if @income.save
       redirect_to incomes_path, notice: "Income was successfully created."
     else
+      @categories = Category.for_user(current_user)
       @money_sources = current_user.money_sources.active.order(:kind, :name)
       render :new, status: :unprocessable_entity
     end

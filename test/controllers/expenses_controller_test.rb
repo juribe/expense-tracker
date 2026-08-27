@@ -11,8 +11,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       email: "expenses_index_test@example.com",
       password: "password123"
     )
-    @category = Category.create!(name: "Food")
-    @other_category = Category.create!(name: "Transport")
+    @category = Category.create!(name: "Food", is_default: true, category_type: "expense")
+    @other_category = Category.create!(name: "Transport", is_default: true, category_type: "expense")
     sign_in @user
   end
 

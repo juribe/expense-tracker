@@ -5,7 +5,7 @@ require "test_helper"
 class ProcessedEmailTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Processed Email User", email: "processed_email_test@example.com", password: "password123")
-    @category = Category.create!(name: "Food PE")
+    @category = Category.create!(name: "Food PE", is_default: true, category_type: "expense")
     @email = ProcessedEmail.new(
       user: @user,
       provider: "gmail",

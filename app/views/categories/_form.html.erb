@@ -21,6 +21,22 @@
         </div>
 
         <div class="row g-3">
+          <!-- Category Type -->
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <%= form.label :category_type, "Category Type", class: "form-label" %>
+              <%= form.select :category_type,
+                    [["Expense", "expense"], ["Income", "income"]],
+                    { prompt: "Select type..." },
+                    class: "form-select #{field_class(category, :category_type)}",
+                    aria_describedby: "typeHelp" %>
+              <div id="typeHelp" class="form-text">Whether this category is for expenses or income.</div>
+              <% if category.errors[:category_type].any? %>
+                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :category_type) %></div>
+              <% end %>
+            </div>
+          </div>
+
           <!-- Category Name -->
           <div class="col-12 col-md-6">
             <div class="mb-3">
