@@ -53,4 +53,8 @@ Rails.application.configure do
   
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Use Solid Queue (database-backed) for Active Job so background jobs like the
+  # Gmail recurring sync can be exercised against the primary test database.
+  config.active_job.queue_adapter = :solid_queue
 end
