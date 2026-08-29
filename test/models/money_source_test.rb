@@ -21,17 +21,17 @@ class MoneySourceTest < ActiveSupport::TestCase
   test "name is required" do
     source = MoneySource.new(user: @user, kind: "account")
     assert_not source.valid?
-    assert_includes source.errors[:name], "can't be blank"
+    assert_includes source.errors[:name], I18n.t("errors.messages.blank")
   end
 
   test "kind is required and must be in KINDS" do
     source = MoneySource.new(user: @user, name: "Test")
     assert_not source.valid?
-    assert_includes source.errors[:kind], "can't be blank"
+    assert_includes source.errors[:kind], I18n.t("errors.messages.blank")
 
     source.kind = "invalid"
     assert_not source.valid?
-    assert_includes source.errors[:kind], "is not included in the list"
+    assert_includes source.errors[:kind], I18n.t("errors.messages.inclusion")
   end
 
   test "kind is normalized to lowercase" do

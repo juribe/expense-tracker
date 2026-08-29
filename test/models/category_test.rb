@@ -11,7 +11,7 @@ class CategoryTest < ActiveSupport::TestCase
   test "name is required" do
     category = Category.new(name: "")
     assert_not category.valid?
-    assert_includes category.errors[:name], "can't be blank"
+    assert_includes category.errors[:name], I18n.t("errors.messages.blank")
   end
 
   test "slug is auto-generated from name" do
@@ -42,7 +42,7 @@ class CategoryTest < ActiveSupport::TestCase
     category = Category.create!(name: "Food")
     category.parent = category
     assert_not category.valid?
-    assert_includes category.errors[:parent_id], "can't be the category itself"
+    assert_includes category.errors[:parent_id], I18n.t("validation.category_self_parent")
   end
 
   test "description is optional" do
@@ -107,7 +107,7 @@ class CategoryTest < ActiveSupport::TestCase
     user = User.create!(name: "Test", email: "default_user_#{Time.now.to_i}@example.com", password: "password123")
     cat = Category.new(name: "Locked", is_default: true, category_type: "expense", user: user)
     assert_not cat.valid?
-    assert_includes cat.errors[:user_id], "can't be set on default categories"
+    assert_includes cat.errors[:user_id], I18n.t("validation.default_user")
   end
 
   test "custom category cannot have same name as default of same type" do
@@ -115,7 +115,7 @@ class CategoryTest < ActiveSupport::TestCase
     user = User.create!(name: "Test", email: "dup_default_#{Time.now.to_i}@example.com", password: "password123")
     cat = Category.new(name: "Food & Dining", is_default: false, category_type: "expense", user: user)
     assert_not cat.valid?
-    assert_includes cat.errors[:name], "is already a default category for this type"
+    assert_includes cat.errors[:name], I18n.t("validation.default_name")
   end
 
   test "custom category uniqueness per user and type" do
@@ -123,7 +123,7 @@ class CategoryTest < ActiveSupport::TestCase
     Category.create!(name: "Crypto", is_default: false, category_type: "expense", user: user)
     duplicate = Category.new(name: "Crypto", is_default: false, category_type: "expense", user: user)
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:name], "has already been taken for this category type"
+    assert_includes duplicate.errors[:name], I18n.t("validation.duplicate_type")
   end
 
   test "different users can have same custom category name" do
@@ -137,7 +137,7 @@ class CategoryTest < ActiveSupport::TestCase
   test "category_type validates inclusion" do
     cat = Category.new(name: "Test", category_type: "invalid")
     assert_not cat.valid?
-    assert_includes cat.errors[:category_type], "is not included in the list"
+    assert_includes cat.errors[:category_type], I18n.t("errors.messages.inclusion")
   end
 
   test "category_type can be nil" do

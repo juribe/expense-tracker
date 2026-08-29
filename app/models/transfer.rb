@@ -17,6 +17,6 @@ class Transfer < ApplicationRecord
   def different_sources
     return if from_source_id.blank? || to_source_id.blank?
 
-    errors.add(:to_source, "must be different from from_source") if from_source_id == to_source_id
+    errors.add(:to_source, I18n.t("validation.transfer_sources")) if from_source_id == to_source_id
   end
 end

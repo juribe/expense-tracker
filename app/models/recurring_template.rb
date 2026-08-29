@@ -55,15 +55,15 @@ class RecurringTemplate < ApplicationRecord
   end
 
   def action_label
-    income? ? "Receive" : "Pay"
+    income? ? I18n.t("monthly_incomes.receive") : I18n.t("monthly_expenses.pay", default: "Pagar")
   end
 
   def completed_action_label
-    income? ? "Received" : "Paid"
+    income? ? I18n.t("monthly_incomes.received") : I18n.t("monthly_expenses.paid", default: "Pagado")
   end
 
   def past_action_label
-    income? ? "Last received" : "Last paid"
+    income? ? I18n.t("recurring.last_received") : I18n.t("monthly_expenses.last_paid", default: "Último pago")
   end
 
   private

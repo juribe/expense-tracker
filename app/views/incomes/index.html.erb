@@ -1,49 +1,49 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-      <h1 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Incomes</h1>
-      <p class="text-muted mb-0">Recent income entries for your account.</p>
+      <h1 class="mb-0"><i class="bi bi-cash-stack me-2"></i><%= t("incomes.index.title") %></h1>
+      <p class="text-muted mb-0"><%= t("incomes.index.subtitle") %></p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
       <%= link_to monthly_incomes_path, class: "btn btn-outline-primary" do %>
-        <i class="bi bi-arrow-down-circle me-1"></i> Monthly Income
+        <i class="bi bi-arrow-down-circle me-1"></i> <%= t("incomes.index.monthly_income") %>
       <% end %>
       <%= link_to new_income_path, class: "btn btn-primary" do %>
-        <i class="bi bi-plus-lg me-1"></i> Add Income
+        <i class="bi bi-plus-lg me-1"></i> <%= t("incomes.index.add_income") %>
       <% end %>
     </div>
   </div>
 
   <div class="d-flex justify-content-between align-items-baseline mb-3">
     <p class="results-meta mb-0" id="resultsMeta" aria-live="polite">
-      <%= "#{@incomes.count} #{'income'.pluralize(@incomes.count)}" %>
+      <%= t("incomes.count", count: @incomes.count) %>
     </p>
-    <span class="small text-muted d-none d-md-inline">Most recent 50</span>
+    <span class="small text-muted d-none d-md-inline"><%= t("incomes.index.recent") %></span>
   </div>
 
   <% if @incomes.any? %>
     <div class="card shadow-sm">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" id="incomeTable">
-          <caption class="visually-hidden">Your incomes</caption>
+          <caption class="visually-hidden"><%= t("incomes.index.caption") %></caption>
           <thead class="table-light">
             <tr>
-              <th scope="col">Date</th>
-              <th scope="col">Category</th>
-              <th scope="col">Description</th>
-              <th scope="col" class="text-end">Amount</th>
+              <th scope="col"><%= t("incomes.index.columns.date") %></th>
+              <th scope="col"><%= t("incomes.index.columns.category") %></th>
+              <th scope="col"><%= t("incomes.index.columns.description") %></th>
+              <th scope="col" class="text-end"><%= t("incomes.index.columns.amount") %></th>
             </tr>
           </thead>
           <tbody>
             <% @incomes.each do |income| %>
               <tr data-testid="row" data-id="<%= income.id %>">
-                <td class="text-nowrap"><%= income.date.strftime("%b %d, %Y") %></td>
+                <td class="text-nowrap"><%= l(income.date, format: :short) %></td>
                 <td><%= category_badge(income.category) %></td>
                 <td class="desc-cell" title="<%= income.description %>">
                   <% if income.description.present? %>
                     <%= income.description %>
                   <% else %>
-                    <span class="text-muted">No description</span>
+                    <span class="text-muted"><%= t("incomes.index.no_description") %></span>
                   <% end %>
                 </td>
                 <td class="text-end fw-bold amount text-success"><%= number_to_currency(income.amount) %></td>
@@ -57,10 +57,10 @@
     <div class="card shadow-sm">
       <div class="p-5 text-center" data-testid="empty">
         <i class="bi bi-cash-stack display-4 text-muted mb-3 d-block"></i>
-        <h4 class="mb-2">No incomes yet</h4>
-        <p class="text-muted mb-0">Add your first income entry to start tracking money coming in.</p>
+        <h4 class="mb-2"><%= t("incomes.index.empty.title") %></h4>
+        <p class="text-muted mb-0"><%= t("incomes.index.empty.body") %></p>
         <%= link_to new_income_path, class: "btn btn-primary mt-3" do %>
-          <i class="bi bi-plus-lg me-1"></i>Add Income
+          <i class="bi bi-plus-lg me-1"></i><%= t("incomes.index.add_income") %>
         <% end %>
       </div>
     </div>
@@ -70,7 +70,7 @@
 <%= render "shared/process_recurring_modal",
            modal_id: "incomeProcessModal",
            title_id: "incomeProcessTitle",
-           title: "Confirm Receive",
+           title: t("recurring.confirm_receive"),
            form_id: "incomeProcessForm",
            category_id: "incomeProcessCategory",
            description_id: "incomeProcessDescription",
@@ -79,9 +79,9 @@
            amount_input_id: "incomeProcessAmount",
            confirm_id: "incomeProcessConfirm",
            confirm_testid: "confirm-income-process",
-           confirm_label: "Confirm Receive",
-           back_label: "Back",
-           amount_hint: "You can adjust the amount for this specific income.",
+           confirm_label: t("recurring.confirm_receive"),
+           back_label: t("recurring.back"),
+           amount_hint: t("recurring.amount_hint"),
            testid: "income-process-modal" %>
 
 <script>
@@ -94,9 +94,9 @@
   function openModal(button) {
     var form = document.getElementById("incomeProcessForm");
     var category = button.dataset.processCategory || "";
-    var description = button.dataset.processDescription || "No description";
+    var description = button.dataset.processDescription || "<%= t('incomes.index.no_description') %>";
     var amount = button.dataset.processAmount || "";
-    var title = button.dataset.processTitle || "Confirm Receive";
+    var title = button.dataset.processTitle || "<%= t('recurring.confirm_receive') %>";
 
     form.action = button.dataset.processUrl;
 

@@ -2,33 +2,33 @@
   <div class="col-12 col-md-4">
     <div class="card text-center h-100 shadow-sm">
       <div class="card-body">
-        <h5 class="card-title text-muted">Net Balance</h5>
+        <h5 class="card-title text-muted"><%= t("dashboard.net_balance", default: "Saldo neto") %></h5>
         <p class="summary-value fw-bold <%= @net_balance.negative? ? 'text-danger' : 'text-success' %> mb-1"><%= number_to_currency(@net_balance) %></p>
         <i class="bi bi-wallet2 <%= @net_balance.negative? ? 'text-danger' : 'text-success' %>"></i>
-        <p class="text-muted small mb-0"><%= @month.strftime("%B %Y") %></p>
+        <p class="text-muted small mb-0"><%= l(@month, format: :month_year, default: "%B %Y") %></p>
       </div>
     </div>
   </div>
   <div class="col-12 col-md-4">
     <div class="card text-center h-100 shadow-sm">
       <div class="card-body">
-        <h5 class="card-title text-muted">Expenses This Month</h5>
+        <h5 class="card-title text-muted"><%= t("dashboard.expenses_this_month", default: "Gastos de este mes") %></h5>
         <p class="summary-value fw-bold text-danger mb-1"><%= @expense_summary[:recent_expenses].count %></p>
         <i class="bi bi-receipt text-danger"></i>
-        <p class="text-muted small mb-0">transactions</p>
+        <p class="text-muted small mb-0"><%= t("reports.transactions", default: "Transacciones") %></p>
       </div>
     </div>
   </div>
   <div class="col-12 col-md-4">
     <div class="card h-100 shadow-sm">
       <div class="card-body">
-        <h5 class="card-title text-muted mb-3">Category Breakdown</h5>
+        <h5 class="card-title text-muted mb-3"><%= t("dashboard.category_breakdown", default: "Distribución por categoría") %></h5>
         <% if @expense_summary[:by_category].any? %>
           <%= pie_chart @expense_summary[:by_category], height: "200px" %>
         <% else %>
           <div class="text-center text-muted py-4">
             <i class="bi bi-pie-chart display-4 d-block mb-2"></i>
-            <span>No expenses this month</span>
+            <span><%= t("dashboard.no_expenses_this_month", default: "No hay gastos este mes") %></span>
           </div>
         <% end %>
       </div>
@@ -40,25 +40,25 @@
   <div class="col-12 col-lg-8">
     <div class="card shadow-sm h-100">
       <div class="card-header d-flex justify-content-between align-items-center bg-white">
-        <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Recent Expenses</h5>
+        <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i><%= t("dashboard.recent_expenses", default: "Gastos recientes") %></h5>
         <%= link_to expenses_path, class: "btn btn-sm btn-outline-primary" do %>
-          View all <i class="bi bi-arrow-right ms-1"></i>
+          <%= t("dashboard.view_all", default: "Ver todos") %> <i class="bi bi-arrow-right ms-1"></i>
         <% end %>
       </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th scope="col">Date</th>
-              <th scope="col">Category</th>
-              <th scope="col">Description</th>
-              <th scope="col" class="text-end">Amount</th>
+              <th scope="col"><%= t("common.date") %></th>
+              <th scope="col"><%= t("common.category") %></th>
+              <th scope="col"><%= t("common.description") %></th>
+              <th scope="col" class="text-end"><%= t("common.amount") %></th>
             </tr>
           </thead>
           <tbody>
             <% @expense_summary[:recent_expenses].each do |expense| %>
               <tr>
-                <td><%= expense.date.strftime("%b %d, %Y") %></td>
+                <td><%= l(expense.date, format: :long) %></td>
                 <td><%= category_badge(expense.category) %></td>
                 <td><%= expense.description %></td>
                 <td class="text-end fw-bold text-danger"><%= number_to_currency(expense.amount) %></td>
@@ -70,10 +70,10 @@
       <% if @expense_summary[:recent_expenses].empty? %>
         <div class="p-5 text-center">
           <i class="bi bi-clipboard-x display-4 text-muted mb-3 d-block"></i>
-          <h4 class="mb-2">No expenses found</h4>
-          <p class="text-muted">Add a new expense to get started.</p>
+          <h4 class="mb-2"><%= t("dashboard.no_expenses", default: "No se encontraron gastos") %></h4>
+          <p class="text-muted"><%= t("dashboard.add_expense_to_start", default: "Agrega un gasto nuevo para comenzar.") %></p>
           <%= link_to new_expense_path, class: "btn btn-primary mt-3" do %>
-            <i class="bi bi-plus-lg me-1"></i>Add First Expense
+            <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
           <% end %>
         </div>
       <% end %>
@@ -83,7 +83,7 @@
   <div class="col-12 col-lg-4">
     <div class="card shadow-sm h-100">
       <div class="card-header bg-success text-white">
-        <i class="bi bi-plus-circle me-2"></i>Quick Add Expense
+        <i class="bi bi-plus-circle me-2"></i><%= t("dashboard.quick_add_expense", default: "Agregar gasto rápido") %>
       </div>
       <div class="card-body">
         <%= form_with model: Expense.new, local: true do |f| %>
@@ -94,7 +94,7 @@
               <%= f.text_field :amount,
                                value: money_field_value(f.object.amount&.abs),
                                class: "form-control",
-                               placeholder: "0.00",
+                               placeholder: t("expenses.placeholder_amount"),
                                required: true,
                                inputmode: "decimal",
                                autocomplete: "off",
@@ -102,7 +102,7 @@
             </div>
           </div>
           <div class="mb-2">
-            <%= f.label :category_id, "Category", class: "form-label small" %>
+            <%= f.label :category_id, t("common.category"), class: "form-label small" %>
             <%= f.collection_select :category_id, Category.all, :id, :name, {}, class: "form-select", required: true %>
           </div>
           <div class="mb-2">
@@ -110,11 +110,11 @@
             <%= f.date_field :date, class: "form-control", value: Date.today, required: true %>
           </div>
           <div class="mb-3">
-            <%= f.label :description, "Description (optional)", class: "form-label small" %>
-            <%= f.text_field :description, class: "form-control", placeholder: "e.g., Lunch at cafe" %>
+            <%= f.label :description, "#{t("common.description")} (#{t("common.optional")})", class: "form-label small" %>
+            <%= f.text_field :description, class: "form-control", placeholder: t("expenses.description_placeholder") %>
           </div>
-          <%= f.submit "Add Expense", class: "btn btn-success w-100" do %>
-            <i class="bi bi-check-circle me-1"></i>Add Expense
+          <%= f.submit t("expenses.add_expense"), class: "btn btn-success w-100" do %>
+            <i class="bi bi-check-circle me-1"></i><%= t("expenses.add_expense") %>
           <% end %>
         <% end %>
       </div>

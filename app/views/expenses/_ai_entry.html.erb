@@ -1,43 +1,43 @@
 <div class="card shadow-sm border-primary mb-4" data-testid="ai-entry-card">
   <div class="card-body">
-    <h2 class="h5 mb-3"><i class="bi bi-stars me-2" aria-hidden="true"></i>¿Qué gastaste hoy?</h2>
+    <h2 class="h5 mb-3"><i class="bi bi-stars me-2" aria-hidden="true"></i><%= t("expenses.ai_what_did_you_spend") %></h2>
     <form id="aiParseForm" data-testid="ai-form" data-turbo="false"
           data-parse-url="<%= parse_expenses_path(format: :json) %>"
           data-bulk-create-url="<%= bulk_create_expenses_path(format: :json) %>"
           data-today="<%= Date.current.iso8601 %>">
       <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-      <label class="form-label visually-hidden" for="aiExpenseText">Describe your expenses</label>
+      <label class="form-label visually-hidden" for="aiExpenseText"><%= t("expenses.ai_describe") %></label>
       <textarea id="aiExpenseText" name="text" class="form-control" rows="2"
-                placeholder='Ej: Me gasté 50 mil en un restaurante y 20 mil en parqueadero'
+                placeholder="<%= t('expenses.ai_placeholder') %>"
                 data-testid="ai-text-input"></textarea>
 
       <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
         <button type="button" class="btn btn-outline-secondary" id="aiMicButton" data-testid="ai-mic-button"
-                aria-label="Record a voice note" title="Record a voice note">
-          <i class="bi bi-mic" aria-hidden="true"></i> Dictate
+                aria-label="<%= t('expenses.ai_record_voice') %>" title="<%= t('expenses.ai_record_voice') %>">
+          <i class="bi bi-mic" aria-hidden="true"></i> <%= t("expenses.ai_dictate") %>
         </button>
         <button type="submit" class="btn btn-primary" id="aiParseButton" data-testid="ai-parse-button">
-          <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i>Detect expenses
+          <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i><%= t("expenses.ai_detect") %>
         </button>
         <span id="aiStatus" class="small text-muted ms-1" role="status" aria-live="polite"></span>
       </div>
 
       <div id="aiTranscriptionWrap" class="alert alert-info mt-3 mb-0 d-none" data-testid="ai-transcription">
-        <i class="bi bi-soundwave me-1" aria-hidden="true"></i><strong>Transcription:</strong>
+        <i class="bi bi-soundwave me-1" aria-hidden="true"></i><strong><%= t("expenses.ai_transcription") %></strong>
         <span id="aiTranscriptionText"></span>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Preview / confirmation modal -->
+<!-- Modal de vista previa / confirmación -->
 <div class="modal fade" id="aiPreviewModal" tabindex="-1" aria-labelledby="aiPreviewTitle" aria-hidden="true"
      data-testid="ai-preview-modal">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="aiPreviewTitle">Detected expenses</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="aiPreviewTitle"><%= t("expenses.ai_detected_title") %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
         <div id="aiPreviewError" class="alert alert-danger d-none" role="alert"></div>
@@ -45,13 +45,13 @@
       </div>
       <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
         <button type="button" class="btn btn-outline-primary btn-sm" id="aiAddRow" data-testid="ai-add-row">
-          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t("expenses.ai_add_expense") %>
         </button>
         <div class="d-flex align-items-center gap-3">
-          <strong id="aiPreviewTotal" data-testid="ai-total">Total: $0</strong>
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <strong id="aiPreviewTotal" data-testid="ai-total"><%= t("common.total") %>: 0</strong>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
           <button type="button" class="btn btn-success" id="aiSaveAll" data-testid="ai-save-all">
-            <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Save Expenses
+            <i class="bi bi-check-lg me-1" aria-hidden="true"></i><%= t("expenses.save_expenses") %>
           </button>
         </div>
       </div>
@@ -60,7 +60,7 @@
 </div>
 
 <script>
-(function () {
+function initializeAiEntry() {
   // Listeners are bound to whatever DOM is present at run time and this block
   // deliberately has no one-shot window guard: if client-side navigation
   // (e.g. Turbo) is ever introduced, the script will simply re-run against
@@ -72,6 +72,8 @@
   var $ = function (sel) { return document.querySelector(sel); };
 
   var form = $("#aiParseForm");
+  if (!form || form.dataset.aiInitialized === "true") return;
+  form.dataset.aiInitialized = "true";
   var textarea = $("#aiExpenseText");
   var micButton = $("#aiMicButton");
   var statusEl = $("#aiStatus");
@@ -91,6 +93,12 @@
     statusEl.textContent = message || "";
   }
 
+  function detectedCountMessage(count) {
+    return count === 1
+      ? <%= raw(t("expenses.ai_detected_count", count: 1).to_json) %>
+      : <%= raw(t("expenses.ai_detected_count", count: 2).to_json) %>;
+  }
+
   function money(value) {
     var n = Number(value);
     if (!isFinite(n)) n = 0;
@@ -106,14 +114,14 @@
   function parseExpenses() {
     var text = textarea.value.trim();
     if (!text) {
-      setStatus("Write or dictate what you spent first.");
+      setStatus(<%= raw(t("expenses.ai_write_first").to_json) %>);
       textarea.focus();
       return;
     }
 
     var button = $("#aiParseButton");
     button.disabled = true;
-    setStatus("Detecting expenses…");
+    setStatus(<%= raw(t("expenses.ai_detecting").to_json) %>);
 
     fetch(form.dataset.parseUrl, {
       method: "POST",
@@ -131,16 +139,16 @@
       button.disabled = false;
       if (!result.ok || !result.data.expenses || !result.data.expenses.length) {
         setStatus("");
-        var message = (result.data.errors && result.data.errors[0]) || "No expenses were detected.";
+        var message = (result.data.errors && result.data.errors[0]) || <%= raw(t("expenses.ai_no_expenses_detected").to_json) %>;
         window.alert(message);
         return;
       }
-      setStatus(result.data.expenses.length + " expense(s) detected. Review them before saving.");
+      setStatus(detectedCountMessage(result.data.expenses.length));
       renderPreview(result.data.expenses);
       bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }).catch(function () {
       button.disabled = false;
-      setStatus("Could not detect expenses. Please try again.");
+      setStatus(<%= raw(t("expenses.ai_detect_failed").to_json) %>);
     });
   }
 
@@ -157,7 +165,7 @@
   function buildSelect(expense) {
     var select = document.createElement("select");
     select.className = "form-select form-select-sm ai-field-category";
-    select.setAttribute("aria-label", "Category");
+    select.setAttribute("aria-label", <%= raw(t("common.category").to_json) %>);
 
     var matched = null;
     if (expense.category_id) {
@@ -170,7 +178,7 @@
 
     if (!matched && expense.category_name) {
       select.appendChild(option("new:" + expense.category_name,
-        "New category: " + expense.category_name, true));
+        <%= raw(t("expenses.ai_new_category", name: "__NAME__").to_json) %>.replace("__NAME__", expense.category_name), true));
     }
     return select;
   }
@@ -178,9 +186,9 @@
   function buildSourceSelect(expense) {
     var select = document.createElement("select");
     select.className = "form-select form-select-sm ai-field-source";
-    select.setAttribute("aria-label", "Money Source");
+    select.setAttribute("aria-label", <%= raw(t("expenses.ai_source").to_json) %>);
 
-    select.appendChild(option("", "None"));
+    select.appendChild(option("", <%= raw(t("common.none").to_json) %>));
     MONEY_SOURCES.forEach(function (source) {
       select.appendChild(option(source.id, source.name, !!(expense.money_source_id && String(expense.money_source_id) === String(source.id))));
     });
@@ -214,7 +222,7 @@
       warning.className = "alert alert-warning py-1 px-2 small mb-2";
       warning.setAttribute("role", "alert");
       warning.textContent = "⚠️ " + ((expense.warnings && expense.warnings.join(" ")) ||
-        "We are not sure about this expense. Please confirm the details.");
+        <%= raw(t("expenses.ai_uncertain").to_json) %>);
       body.appendChild(warning);
     }
 
@@ -225,10 +233,10 @@
     description.type = "text";
     description.className = "form-control form-control-sm ai-field-description";
     description.value = expense.description || "";
-    description.setAttribute("aria-label", "Description");
-    grid.appendChild(labeledField("Description", description, "col-md-4"));
+    description.setAttribute("aria-label", <%= raw(t("common.description").to_json) %>);
+    grid.appendChild(labeledField(<%= raw(t("common.description").to_json) %>, description, "col-md-4"));
 
-    grid.appendChild(labeledField("Category", buildSelect(expense), "col-md-3"));
+    grid.appendChild(labeledField(<%= raw(t("common.category").to_json) %>, buildSelect(expense), "col-md-3"));
 
     var amount = document.createElement("input");
     amount.type = "number";
@@ -236,18 +244,18 @@
     amount.step = "any";
     amount.className = "form-control form-control-sm ai-field-amount";
     amount.value = expense.amount != null ? expense.amount : "";
-    amount.setAttribute("aria-label", "Amount");
-    grid.appendChild(labeledField("Amount", amount, "col-6 col-md-2"));
+    amount.setAttribute("aria-label", <%= raw(t("common.amount").to_json) %>);
+    grid.appendChild(labeledField(<%= raw(t("common.amount").to_json) %>, amount, "col-6 col-md-2"));
 
     var dateField = document.createElement("input");
     dateField.type = "date";
     dateField.className = "form-control form-control-sm ai-field-date";
     dateField.value = expense.transaction_date || todayISO();
-    dateField.setAttribute("aria-label", "Date");
-    grid.appendChild(labeledField("Date", dateField, "col-6 col-md-2"));
+    dateField.setAttribute("aria-label", <%= raw(t("common.date").to_json) %>);
+    grid.appendChild(labeledField(<%= raw(t("common.date").to_json) %>, dateField, "col-6 col-md-2"));
 
     if (MONEY_SOURCES.length > 0) {
-      grid.appendChild(labeledField("Source", buildSourceSelect(expense), "col-6 col-md-2"));
+      grid.appendChild(labeledField(<%= raw(t("expenses.ai_source").to_json) %>, buildSourceSelect(expense), "col-6 col-md-2"));
     }
 
     var actions = document.createElement("div");
@@ -256,7 +264,7 @@
     remove.type = "button";
     remove.className = "btn btn-outline-danger btn-sm ai-remove";
     remove.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i>';
-    remove.setAttribute("aria-label", "Remove expense");
+    remove.setAttribute("aria-label", <%= raw(t("expenses.ai_remove_expense").to_json) %>);
     actions.appendChild(remove);
     grid.appendChild(actions);
 
@@ -327,8 +335,8 @@
     if (!collected.expenses.length) return;
 
     if (collected.invalid.length) {
-      showModalError("Check expense(s) " + collected.invalid.join(", ") +
-        ": they need an amount greater than zero and a valid category.");
+      showModalError("Revisa el/los gasto(s) " + collected.invalid.join(", ") +
+        ": necesitan un monto mayor que cero y una categoría válida.");
       return;
     }
 
@@ -353,11 +361,11 @@
         window.location.href = result.data.redirect_to || "<%= expenses_path %>";
       } else {
         showModalError((result.data.errors && result.data.errors[0]) ||
-          "The expenses could not be saved. Please review them.");
+          "Los gastos no se pudieron guardar. Por favor revísalos.");
       }
     }).catch(function () {
       saveButton.disabled = false;
-      showModalError("Could not save expenses. Please try again.");
+      showModalError("No se pudieron guardar los gastos. Inténtalo de nuevo.");
     });
   }
 
@@ -367,7 +375,7 @@
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       micButton.disabled = true;
-      micButton.title = "Voice input is not supported by this browser.";
+      micButton.title = "Tu navegador no admite entrada de voz.";
       return;
     }
 
@@ -383,16 +391,16 @@
       micButton.classList.toggle("btn-danger", active);
       micButton.classList.toggle("btn-outline-secondary", !active);
       micButton.innerHTML = active
-        ? '<i class="bi bi-stop-circle" aria-hidden="true"></i> Stop'
-        : '<i class="bi bi-mic" aria-hidden="true"></i> Dictate';
+        ? '<i class="bi bi-stop-circle" aria-hidden="true"></i> Detener'
+        : '<i class="bi bi-mic" aria-hidden="true"></i> Dictar';
     }
 
     var VOICE_ERRORS = {
-      "not-allowed": "Microphone access was denied. Allow the mic permission for this site (and in System Settings) and try again.",
-      "service-not-allowed": "The browser blocked the speech service. Check site permissions or try Chrome.",
-      "audio-capture": "No microphone was detected.",
-      "network": "Network problem while contacting the speech service. Check your connection.",
-      "no-speech": "No speech was detected. Click Dictate and speak again."
+      "not-allowed": "Se denegó el acceso al micrófono. Permite el permiso del micrófono para este sitio (y en Ajustes del Sistema) e inténtalo de nuevo.",
+      "service-not-allowed": "El navegador bloqueó el servicio de voz. Revisa los permisos del sitio o prueba con Chrome.",
+      "audio-capture": "No se detectó ningún micrófono.",
+      "network": "Problema de red al contactar el servicio de voz. Revisa tu conexión.",
+      "no-speech": "No se detectó voz. Haz clic en Dictar y vuelve a hablar."
     };
 
     function setStatusError(message) {
@@ -404,7 +412,7 @@
       statusEl.classList.remove("text-danger");
       sawVoiceError = false;
       setRecordingUI(true);
-      setStatus("Listening… describe your expenses.");
+      setStatus("Escuchando… describe tus gastos.");
       console.info("[ai_entry] SpeechRecognition started");
     };
 
@@ -420,7 +428,7 @@
       sawVoiceError = true;
       console.warn("[ai_entry] SpeechRecognition error:", event.error);
       setStatusError(VOICE_ERRORS[event.error] ||
-        "Voice recognition failed (" + event.error + "). You can type instead.");
+        "Falló el reconocimiento de voz (" + event.error + "). Puedes escribir en su lugar.");
     };
 
     recognition.onend = function () {
@@ -430,7 +438,7 @@
         transcriptionText.textContent = textarea.value.trim();
         parseExpenses();
       } else if (!sawVoiceError) {
-        setStatusError("Dictation ended without capturing text. Click Dictate and try again.");
+        setStatusError("El dictado terminó sin capturar texto. Haz clic en Dictar e inténtalo de nuevo.");
       }
     };
 
@@ -442,7 +450,7 @@
           recognition.start();
         } catch (error) {
           console.warn("[ai_entry] Could not start recognition:", error);
-          setStatusError("Could not start voice recognition: " + error.message);
+          setStatusError("No se pudo iniciar el reconocimiento de voz: " + error.message);
         }
       }
     });
@@ -463,5 +471,9 @@
   $("#aiSaveAll").addEventListener("click", saveExpenses);
 
   initVoice();
-})();
+}
+
+document.addEventListener("turbo:load", initializeAiEntry);
+document.addEventListener("DOMContentLoaded", initializeAiEntry);
+if (document.readyState !== "loading") initializeAiEntry();
 </script>

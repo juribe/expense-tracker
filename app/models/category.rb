@@ -56,13 +56,13 @@ class Category < ApplicationRecord
   def parent_must_not_be_self
     return if parent_id.blank? || id.blank?
 
-    errors.add(:parent_id, "can't be the category itself") if parent_id == id
+    errors.add(:parent_id, I18n.t("validation.category_self_parent")) if parent_id == id
   end
 
   def default_category_not_owned_by_user
     return unless is_default? && user_id.present?
 
-    errors.add(:user_id, "can't be set on default categories")
+    errors.add(:user_id, I18n.t("validation.default_user"))
   end
 
   def custom_category_not_named_like_default
@@ -74,7 +74,7 @@ class Category < ApplicationRecord
                                .exists?
     return unless existing_default
 
-    errors.add(:name, "is already a default category for this type")
+    errors.add(:name, I18n.t("validation.default_name"))
   end
 
   def unique_custom_category_per_user_and_type
@@ -86,7 +86,7 @@ class Category < ApplicationRecord
     existing = existing.where.not(id: id) if persisted?
     return unless existing.exists?
 
-    errors.add(:name, "has already been taken for this category type")
+    errors.add(:name, I18n.t("validation.duplicate_type"))
   end
 
   def unique_name_within_scope
@@ -94,7 +94,7 @@ class Category < ApplicationRecord
 
     duplicates = scope_candidates.where(name: name)
     duplicates = duplicates.where.not(id: id) if persisted?
-    errors.add(:name, "has already been taken") if duplicates.exists?
+    errors.add(:name, I18n.t("validation.duplicate")) if duplicates.exists?
   end
 
   def unique_slug_within_scope
@@ -102,7 +102,7 @@ class Category < ApplicationRecord
 
     duplicates = scope_candidates.where(slug: slug)
     duplicates = duplicates.where.not(id: id) if persisted?
-    errors.add(:slug, "has already been taken") if duplicates.exists?
+    errors.add(:slug, I18n.t("validation.duplicate")) if duplicates.exists?
   end
 
   def scope_candidates

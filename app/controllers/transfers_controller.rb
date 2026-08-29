@@ -24,7 +24,7 @@ class TransfersController < ApplicationController
   def create
     @transfer = current_user.transfers.build(transfer_params)
     if @transfer.save
-      redirect_to transfers_path, notice: "Transfer was successfully created."
+      redirect_to transfers_path, notice: t("transfers.flashes.created")
     else
       @money_sources = current_user.money_sources.active.order(:kind, :name)
       render :new, status: :unprocessable_entity
@@ -34,7 +34,7 @@ class TransfersController < ApplicationController
   # DELETE /transfers/1
   def destroy
     @transfer.destroy
-    redirect_to transfers_path, notice: "Transfer was successfully deleted."
+    redirect_to transfers_path, notice: t("transfers.flashes.deleted")
   end
 
   private

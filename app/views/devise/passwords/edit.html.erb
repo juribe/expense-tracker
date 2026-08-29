@@ -3,49 +3,49 @@
     <div class="card shadow-sm my-5">
       <div class="card-body p-4 p-md-5">
         <% if @success_notice %>
-          <h1 class="h3 mb-3 text-center fw-bold">Password updated</h1>
+          <h1 class="h3 mb-3 text-center fw-bold"><%= t("devise.passwords.updated_title", default: "Contraseña actualizada") %></h1>
           <div class="alert alert-success" role="alert" data-auto-redirect-to="<%= root_path %>">
             <i class="bi bi-check-circle me-2"></i><%= @success_notice %>
           </div>
-          <p class="text-center text-muted small mb-0">Redirecting you to your dashboard…</p>
+          <p class="text-center text-muted small mb-0"><%= t("devise.passwords.redirecting", default: "Te redirigimos a tu panel…") %></p>
         <% else %>
-          <h1 class="h3 mb-1 text-center fw-bold">Reset your password</h1>
-          <p class="text-muted text-center mb-4">Choose a new password for your account.</p>
+          <h1 class="h3 mb-1 text-center fw-bold"><%= t("devise.passwords.reset_title", default: "Restablece tu contraseña") %></h1>
+          <p class="text-muted text-center mb-4"><%= t("devise.passwords.reset_subtitle", default: "Elige una nueva contraseña para tu cuenta.") %></p>
 
           <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "auth-form" }) do |f| %>
             <%= render "devise/shared/error_messages", resource: resource %>
             <%= f.hidden_field :reset_password_token %>
 
             <div class="mb-3">
-              <%= f.label :password, "New password", class: "form-label" %>
+              <%= f.label :password, t("auth.new_password_label"), class: "form-label" %>
               <% if @minimum_password_length %>
-                <span class="text-muted small">(<%= @minimum_password_length %> characters minimum)</span>
+                <span class="text-muted small">(<%= t("auth.minimum_password", count: @minimum_password_length) %>)</span>
               <% end %>
               <div class="position-relative">
-                <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "form-control password-field", placeholder: "New password" %>
+                <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "form-control password-field", placeholder: t("auth.new_password_placeholder") %>
                 <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
-                        data-toggle-pw-target="#user_password" aria-label="Show password">
+                        data-toggle-pw-target="#user_password" aria-label="<%= t('auth.show_password') %>">
                   <i class="bi bi-eye"></i>
                 </button>
               </div>
             </div>
 
             <div class="mb-3">
-              <%= f.label :password_confirmation, "Confirm new password", class: "form-label" %>
+              <%= f.label :password_confirmation, t("auth.password_confirmation_label"), class: "form-label" %>
               <div class="position-relative">
-                <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control password-field", placeholder: "Repeat new password" %>
+                <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control password-field", placeholder: t("auth.password_repeat_placeholder") %>
                 <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
-                        data-toggle-pw-target="#user_password_confirmation" aria-label="Show password">
+                        data-toggle-pw-target="#user_password_confirmation" aria-label="<%= t('auth.show_password') %>">
                   <i class="bi bi-eye"></i>
                 </button>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg w-100">Reset Password</button>
+            <button type="submit" class="btn btn-primary btn-lg w-100"><%= t("devise.passwords.reset_button", default: "Restablecer contraseña") %></button>
           <% end %>
 
           <p class="text-center mt-3 mb-0">
-            Remembered? <%= link_to "Back to Sign In", new_session_path(resource_name), class: "link-secondary" %>
+            <%= t("devise.passwords.remembered", default: "¿Ya la recordaste?") %> <%= link_to t("auth.back_to_sign_in"), new_session_path(resource_name), class: "link-secondary" %>
           </p>
         <% end %>
       </div>

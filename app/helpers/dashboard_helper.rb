@@ -3,7 +3,7 @@ module DashboardHelper
   include ActionView::Helpers::DateHelper
 
   def currency(amount)
-    number_to_currency(amount, unit: current_user&.currency || '$')
+    number_to_currency(amount)
   end
 
   def category_label(name, amount)

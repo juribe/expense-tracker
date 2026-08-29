@@ -24,7 +24,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     create_transfer
     get transfers_path
     assert_response :success
-    assert_select "h1", text: /Transfers/
+    assert_select "h1", text: I18n.t("transfers.index.title")
   end
 
   test "GET /transfers shows empty state when no transfers" do
@@ -53,7 +53,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to transfers_path
     follow_redirect!
-    assert_equal "Transfer was successfully created.", flash[:notice]
+    assert_equal I18n.t("transfers.flashes.created"), flash[:notice]
   end
 
   test "POST /transfers renders new on validation failure" do

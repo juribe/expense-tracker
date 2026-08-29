@@ -6,8 +6,8 @@ test.describe('monthly reports are working', () => {
     await signUp(page);
     const response = await page.goto('/monthly_reports');
     expect(response && response.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: 'Monthly Balance' })).toBeVisible();
-    await expect(page.getByText('No transactions recorded yet.')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Balance mensual' })).toBeVisible();
+    await expect(page.getByText('Aún no hay transacciones registradas.')).toBeVisible();
   });
 
   test('user can view a monthly report after adding an expense', async ({ page }) => {
@@ -18,15 +18,15 @@ test.describe('monthly reports are working', () => {
     await page.locator('#expense_amount').fill('1250.00');
     await page.locator('#expense_date').fill('2023-01-15');
     await page.locator('#expense_description').fill('January rent');
-    await page.getByRole('button', { name: /Create Expense/ }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
 
     await page.goto('/monthly_reports');
     await expect(page.getByText('2023-01')).toBeVisible();
-    await expect(page.getByText('-$1,250.00').first()).toBeVisible();
+    await expect(page.getByText('-$1.250').first()).toBeVisible();
 
-    await page.getByRole('link', { name: 'View Details' }).click();
+    await page.getByRole('link', { name: 'Ver detalles' }).click();
     await expect(page).toHaveURL(/\/monthly_reports\/2023-01/);
-    await expect(page.getByRole('heading', { name: 'Monthly Balance: 2023-01' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Balance mensual: 2023-01' })).toBeVisible();
     await expect(page.getByText('January rent')).toBeVisible();
   });
 });

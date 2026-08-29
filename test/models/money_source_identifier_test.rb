@@ -16,24 +16,24 @@ class MoneySourceIdentifierTest < ActiveSupport::TestCase
   test "kind is required and must be in KINDS" do
     ident = MoneySourceIdentifier.new(money_source: @source, value: "1234")
     assert_not ident.valid?
-    assert_includes ident.errors[:kind], "can't be blank"
+    assert_includes ident.errors[:kind], I18n.t("errors.messages.blank")
 
     ident.kind = "invalid"
     assert_not ident.valid?
-    assert_includes ident.errors[:kind], "is not included in the list"
+    assert_includes ident.errors[:kind], I18n.t("errors.messages.inclusion")
   end
 
   test "value is required" do
     ident = MoneySourceIdentifier.new(money_source: @source, kind: "card_last_four")
     assert_not ident.valid?
-    assert_includes ident.errors[:value], "can't be blank"
+    assert_includes ident.errors[:value], I18n.t("errors.messages.blank")
   end
 
   test "value uniqueness scoped to kind" do
     MoneySourceIdentifier.create!(money_source: @source, kind: "card_last_four", value: "1234")
     duplicate = MoneySourceIdentifier.new(money_source: @source, kind: "card_last_four", value: "1234")
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:value], "has already been taken"
+    assert_includes duplicate.errors[:value], I18n.t("errors.messages.taken")
 
     # Different kind allows same value
     other = MoneySourceIdentifier.new(money_source: @source, kind: "account_number", value: "1234")
@@ -71,7 +71,7 @@ class MoneySourceIdentifierTest < ActiveSupport::TestCase
     inactive = @user.money_sources.create!(name: "Old Card", kind: "credit_card", active: false)
     ident = MoneySourceIdentifier.new(money_source: inactive, kind: "card_last_four", value: "5678")
     assert_not ident.valid?
-    assert_includes ident.errors[:money_source], "must be active"
+    assert_includes ident.errors[:money_source], I18n.t("validation.source_inactive")
   end
 
   test "destroying money_source destroys identifiers" do

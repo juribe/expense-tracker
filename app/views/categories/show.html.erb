@@ -4,7 +4,7 @@
       <div class="toast-body">
         <i class="bi bi-check-circle me-1"></i><%= flash[:success] %>
       </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="<%= t('common.close') %>"></button>
     </div>
   </div>
   <script>
@@ -24,10 +24,10 @@
       <h4 class="mb-0">
         <i class="bi bi-tags me-2"></i><%= @category.name %>
         <% if @category.default? %>
-          <span class="badge bg-secondary ms-2"><i class="bi bi-lock me-1"></i>Default</span>
+          <span class="badge bg-secondary ms-2"><i class="bi bi-lock me-1"></i>Por defecto</span>
         <% end %>
         <% unless @category.active %>
-          <span class="badge bg-secondary ms-2">Inactive</span>
+          <span class="badge bg-secondary ms-2">Inactiva</span>
         <% end %>
       </h4>
     </div>
@@ -39,40 +39,40 @@
         <dt class="col-sm-3">Slug</dt>
         <dd class="col-sm-9"><code><%= @category.slug %></code></dd>
 
-        <dt class="col-sm-3">Parent Category</dt>
-        <dd class="col-sm-9"><%= @category.parent&.name || "None (Root)" %></dd>
+        <dt class="col-sm-3">Categoría Padre</dt>
+        <dd class="col-sm-9"><%= @category.parent&.name || "Ninguna (Raíz)" %></dd>
 
-        <dt class="col-sm-3">Description</dt>
+        <dt class="col-sm-3">Descripción</dt>
         <dd class="col-sm-9"><%= @category.description.presence || "—" %></dd>
 
-        <dt class="col-sm-3">Type</dt>
-        <dd class="col-sm-9"><%= @category.category_type&.titleize || "All types" %></dd>
+        <dt class="col-sm-3">Tipo</dt>
+        <dd class="col-sm-9"><%= category_type_label(@category.category_type) %></dd>
 
-        <dt class="col-sm-3">Ownership</dt>
+        <dt class="col-sm-3">Propiedad</dt>
         <dd class="col-sm-9">
-          <%= @category.default? ? '<i class="bi bi-shield-lock"></i> Default (shared)'.html_safe : '<i class="bi bi-person"></i> Custom (yours)'.html_safe %>
+          <%= @category.default? ? '<i class="bi bi-shield-lock"></i> Por defecto (compartida)'.html_safe : '<i class="bi bi-person"></i> Personalizada (tuya)'.html_safe %>
         </dd>
 
-        <dt class="col-sm-3">Status</dt>
+        <dt class="col-sm-3">Estado</dt>
         <dd class="col-sm-9">
-          <%= @category.active ? '<i class="bi bi-check-circle text-success"></i> Active'.html_safe : '<i class="bi bi-x-circle text-danger"></i> Inactive'.html_safe %>
+          <%= @category.active ? '<i class="bi bi-check-circle text-success"></i> Activa'.html_safe : '<i class="bi bi-x-circle text-danger"></i> Inactiva'.html_safe %>
         </dd>
 
-        <dt class="col-sm-3">Expenses</dt>
-        <dd class="col-sm-9"><%= pluralize(@category.expenses.count, "expense") %></dd>
+        <dt class="col-sm-3">Gastos</dt>
+        <dd class="col-sm-9"><%= pluralize(@category.expenses.count, "gasto") %></dd>
       </dl>
     </div>
     <div class="card-footer d-flex justify-content-between">
       <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-arrow-left me-1"></i>Back to Categories
+        <i class="bi bi-arrow-left me-1"></i>Volver a Categorías
       <% end %>
       <% if @category.custom? && @category.editable_by?(current_user) %>
         <div class="d-flex gap-2">
           <%= link_to edit_category_path(@category), class: "btn btn-outline-primary" do %>
-            <i class="bi bi-pencil me-1"></i>Edit
+            <i class="bi bi-pencil me-1"></i>Editar
           <% end %>
-          <%= button_to category_path(@category), method: :delete, class: "btn btn-outline-danger", data: { confirm: "Are you sure?" }, form: { class: "d-inline" } do %>
-            <i class="bi bi-trash me-1"></i>Destroy
+          <%= button_to category_path(@category), method: :delete, class: "btn btn-outline-danger", data: { confirm: "¿Estás seguro?" }, form: { class: "d-inline" } do %>
+            <i class="bi bi-trash me-1"></i>Eliminar
           <% end %>
         </div>
       <% end %>

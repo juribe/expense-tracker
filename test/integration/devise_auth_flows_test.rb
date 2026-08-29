@@ -16,13 +16,13 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
   test "sign up page renders the required fields and navigation links" do
     get new_user_registration_path
     assert_response :success
-    assert_select "h1", text: "Create Account"
+    assert_select "h1", text: I18n.t("auth.sign_up")
     assert_select "#user_name"
     assert_select "#user_email"
     assert_select "#user_password"
     assert_select "#user_password_confirmation"
-    assert_select "button[type='submit']", text: "Create Account"
-    assert_select "a[href='#{new_user_session_path}']", text: "Sign In"
+    assert_select "button[type='submit']", text: I18n.t("auth.sign_up")
+    assert_select "a[href='#{new_user_session_path}']", text: I18n.t("auth.log_in")
   end
 
   test "sign up creates a user with name and signs them in" do
@@ -40,7 +40,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_equal "Jane Doe", user.name
     assert_redirected_to root_path
     follow_redirect!
-    assert_select ".sidebar-brand", /Expense Tracker/
+    assert_select ".sidebar-brand", I18n.t("layout.app_title")
   end
 
   test "sign up with mismatched passwords re-renders the form with errors" do
@@ -62,12 +62,12 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
   test "sign in page renders fields, remember me, forgot password and sign up link" do
     get new_user_session_path
     assert_response :success
-    assert_select "h1", text: "Welcome back"
+    assert_select "h1", text: I18n.t("auth.sign_in")
     assert_select "#user_email"
     assert_select "#user_password"
     assert_select "#user_remember_me"
-    assert_select "a[href='#{new_user_password_path}']", text: "Forgot password?"
-    assert_select "a[href='#{new_user_registration_path}']", text: "Sign up"
+    assert_select "a[href='#{new_user_password_path}']", text: I18n.t("auth.forgot_password")
+    assert_select "a[href='#{new_user_registration_path}']", text: I18n.t("auth.sign_up")
   end
 
   test "sign in with valid credentials redirects to the dashboard" do
@@ -90,10 +90,10 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
   test "forgot password page renders email field and back to sign in link" do
     get new_user_password_path
     assert_response :success
-    assert_select "h1", text: "Forgot your password?"
+    assert_select "h1", text: I18n.t("auth.forgot_password")
     assert_select "#user_email"
-    assert_select "button[type='submit']", text: "Send Reset Link"
-    assert_select "a[href='#{new_user_session_path}']", text: "Back to Sign In"
+    assert_select "button[type='submit']", text: I18n.t("devise.passwords.send_reset", default: "Enviar enlace de restablecimiento")
+    assert_select "a[href='#{new_user_session_path}']", text: I18n.t("auth.back_to_sign_in")
   end
 
   test "forgot password sends a reset link and shows inline success" do
@@ -101,8 +101,8 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
       post user_password_path, params: { user: { email: @user.email } }
     end
     assert_response :success
-    assert_select "h1", text: "Check your inbox"
-    assert_select ".alert-success", /We've emailed a reset link/
+    assert_select "h1", text: I18n.t("devise.passwords.sent_title", default: "Revisa tu bandeja de entrada")
+    assert_select ".alert-success", /correo/
     assert_equal @user.email, ActionMailer::Base.deliveries.last.to.first
   end
 
@@ -118,10 +118,10 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     token = @user.send_reset_password_instructions
     get edit_user_password_path(reset_password_token: token)
     assert_response :success
-    assert_select "h1", text: "Reset your password"
+    assert_select "h1", text: I18n.t("devise.passwords.reset_title", default: "Restablece tu contraseña")
     assert_select "#user_password"
     assert_select "#user_password_confirmation"
-    assert_select "button[type='submit']", text: "Reset Password"
+    assert_select "button[type='submit']", text: I18n.t("devise.passwords.reset_button", default: "Restablecer contraseña")
   end
 
   test "reset password updates the password and shows inline success" do
@@ -134,8 +134,8 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
       }
     }
     assert_response :success
-    assert_select "h1", text: "Password updated"
-    assert_select ".alert-success", /Your password has been updated/
+    assert_select "h1", text: I18n.t("devise.passwords.updated_title", default: "Contraseña actualizada")
+    assert_select ".alert-success", /contraseña/
     assert_select "[data-auto-redirect-to='#{root_path}']"
     assert @user.reload.valid_password?("newpassword456")
     assert_equal @user.id, session["warden.user.user.key"].first.first

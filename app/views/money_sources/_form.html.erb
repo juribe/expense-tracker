@@ -3,13 +3,13 @@
     <div class="col-md-8">
       <div class="card shadow">
         <div class="card-header bg-primary text-white">
-          <h4 class="mb-0"><%= @money_source.new_record? ? 'New' : 'Edit' %> Money Source</h4>
+          <h4 class="mb-0"><%= @money_source.new_record? ? t("money_sources.form.title_new") : t("money_sources.form.title_edit") %></h4>
         </div>
         <div class="card-body">
           <%= form_with model: @money_source, local: true do |f| %>
             <% if @money_source.errors.any? %>
               <div class="alert alert-danger">
-                <h6><%= pluralize(@money_source.errors.count, "error") %> prohibited this money source from being saved:</h6>
+                <h6><%= t("money_sources.form.error_prohibited", count: @money_source.errors.count) %></h6>
                 <ul>
                   <% @money_source.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
@@ -21,13 +21,13 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <%= f.label :name, class: "form-label" %>
-                <%= f.text_field :name, class: "form-control", placeholder: "e.g. Bancolombia Savings" %>
+                <%= f.text_field :name, class: "form-control", placeholder: t("money_sources.form.placeholder_name") %>
               </div>
               <div class="col-md-6 mb-3">
-                <%= f.label :kind, "Type", class: "form-label" %>
+                <%= f.label :kind, t("common.type", default: "Tipo"), class: "form-label" %>
                 <%= f.select :kind,
                     options_for_select(
-                      MoneySource::KINDS.map { |k| [k.titleize, k] },
+                      source_kind_options,
                       @money_source.kind
                     ),
                     {},
@@ -37,28 +37,28 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <%= f.label :bank, "Bank", class: "form-label" %>
-                <%= f.text_field :bank, class: "form-control", placeholder: "e.g. Bancolombia" %>
+                <%= f.label :bank, t("money_sources.form.bank", default: "Banco"), class: "form-label" %>
+                <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
               </div>
               <div class="col-md-6 mb-3">
-                <%= f.label :parent_id, "Linked To (for cards)", class: "form-label" %>
+                <%= f.label :parent_id, t("money_sources.form.linked_to"), class: "form-label" %>
                 <%= f.collection_select :parent_id,
                     current_user.money_sources.where(kind: %w[account wallet]).where.not(id: @money_source.id),
                     :id, :display_name,
-                    { include_blank: "None" },
+                    { include_blank: t("money_sources.form.none") },
                     class: "form-select" %>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <%= f.label :starting_balance, "Starting Balance", class: "form-label" %>
+                <%= f.label :starting_balance, t("money_sources.form.starting_balance", default: "Saldo inicial"), class: "form-label" %>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
                   <%= f.text_field :starting_balance,
                       value: money_field_value(@money_source.starting_balance),
                       class: "form-control",
-                      placeholder: "0.00",
+                      placeholder: t("money_sources.form.placeholder_balance"),
                       inputmode: "decimal",
                       autocomplete: "off",
                       data: { money_input: true } %>
@@ -67,13 +67,13 @@
               <div class="col-md-6 mb-3">
                 <div class="form-check mt-4 pt-2">
                   <%= f.check_box :active, class: "form-check-input" %>
-                  <%= f.label :active, "Active", class: "form-check-label" %>
+                  <%= f.label :active, t("common.active"), class: "form-check-label" %>
                 </div>
               </div>
             </div>
 
             <hr>
-            <h6 class="mb-3">Identifiers (for auto-matching imports)</h6>
+            <h6 class="mb-3"><%= t("money_sources.form.identifiers_title") %></h6>
             <div id="identifiers">
               <% blank_ident = Struct.new(:kind, :value).new("", "") %>
               <% identifier_list = @identifier_rows || @money_source.identifiers %>
@@ -84,19 +84,19 @@
                   <% end %>
                   <div class="col-md-4">
                     <select name="identifiers[<%= idx %>][kind]" class="form-select form-select-sm">
-                      <option value="">Select type...</option>
+                      <option value=""><%= t("identifiers.select_type") %></option>
                       <%= options_for_select(
-                        MoneySourceIdentifier::KINDS.map { |k| [k.titleize, k] },
+                        MoneySourceIdentifier::KINDS.map { |k| [identifier_kind_label(k), k] },
                         ident.kind
                       ) %>
                     </select>
                   </div>
                   <div class="col-md-7">
                     <input type="text" name="identifiers[<%= idx %>][value]" class="form-control form-control-sm"
-                           placeholder="e.g. 1234 or Bancolombia" value="<%= ident.value %>">
+                           placeholder="<%= t("money_sources.form.placeholder_identifier_value") %>" value="<%= ident.value %>">
                   </div>
                   <div class="col-md-1">
-                    <button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="Remove">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="<%= t("money_sources.form.remove_identifier") %>">
                       <i class="bi bi-x-lg"></i>
                     </button>
                   </div>
@@ -104,7 +104,7 @@
               <% end %>
             </div>
             <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="addIdentifier">
-              <i class="bi bi-plus-lg me-1"></i>Add Identifier
+              <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.form.add_identifier") %>
             </button>
 
             <div class="d-grid mt-3">
@@ -127,16 +127,16 @@
     row.innerHTML =
       '<div class="col-md-4">' +
       '<select name="identifiers[' + idx + '][kind]" class="form-select form-select-sm">' +
-      '<option value="">Select type...</option>' +
-      '<option value="card_last_four">Card Last Four</option>' +
-      '<option value="bank_name">Bank Name</option>' +
-      '<option value="account_number">Account Number</option>' +
+      '<option value=""><%= t("identifiers.select_type") %></option>' +
+      '<option value="card_last_four"><%= identifier_kind_label("card_last_four") %></option>' +
+      '<option value="bank_name"><%= identifier_kind_label("bank_name") %></option>' +
+      '<option value="account_number"><%= identifier_kind_label("account_number") %></option>' +
       '</select></div>' +
       '<div class="col-md-7">' +
-      '<input type="text" name="identifiers[' + idx + '][value]" class="form-control form-control-sm" placeholder="e.g. 1234 or Bancolombia">' +
+      '<input type="text" name="identifiers[' + idx + '][value]" class="form-control form-control-sm" placeholder="<%= t("money_sources.form.placeholder_identifier_value") %>">' +
       '</div>' +
       '<div class="col-md-1">' +
-      '<button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="Remove"><i class="bi bi-x-lg"></i></button>' +
+      '<button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="<%= t("money_sources.form.remove_identifier") %>"><i class="bi bi-x-lg"></i></button>' +
       '</div>';
     container.appendChild(row);
     idx++;

@@ -3,7 +3,7 @@
     <div class="card shadow-sm border-0">
       <div class="card-header bg-primary text-white">
         <h4 class="mb-0">
-          <i class="bi bi-tags me-2"></i><%= category.new_record? ? "Create" : "Edit" %> Category
+          <i class="bi bi-tags me-2"></i><%= category.new_record? ? t("categories.create_category") : t("categories.edit_category") %>
         </h4>
       </div>
 
@@ -11,7 +11,7 @@
         <!-- Error Summary -->
         <div class="alert alert-danger <%= category.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
           <h6 class="alert-heading">
-            <i class="bi bi-exclamation-circle me-1"></i>Please fix the following errors:
+            <i class="bi bi-exclamation-circle me-1"></i><%= t("categories.form_errors") %>
           </h6>
           <ul class="mb-0" id="error-summary-list">
             <% category.errors.full_messages.each do |message| %>
@@ -24,13 +24,13 @@
           <!-- Category Type -->
           <div class="col-12 col-md-6">
             <div class="mb-3">
-              <%= form.label :category_type, "Category Type", class: "form-label" %>
+              <%= form.label :category_type, Category.human_attribute_name(:category_type), class: "form-label" %>
               <%= form.select :category_type,
-                    [["Expense", "expense"], ["Income", "income"]],
-                    { prompt: "Select type..." },
+                    [[t("types.expense"), "expense"], [t("types.income"), "income"]],
+                    { prompt: t("categories.select_type") },
                     class: "form-select #{field_class(category, :category_type)}",
                     aria_describedby: "typeHelp" %>
-              <div id="typeHelp" class="form-text">Whether this category is for expenses or income.</div>
+              <div id="typeHelp" class="form-text"><%= t("categories.type_help") %></div>
               <% if category.errors[:category_type].any? %>
                 <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :category_type) %></div>
               <% end %>
@@ -41,14 +41,14 @@
           <div class="col-12 col-md-6">
             <div class="mb-3">
               <%= form.label :name, class: "form-label" do %>
-                Name <span class="text-danger">*</span>
+                <%= Category.human_attribute_name(:name) %> <span class="text-danger">*</span>
               <% end %>
-              <%= form.text_field :name, class: "form-control #{field_class(category, :name)}", placeholder: "e.g., Electronics", autocomplete: "off", aria_describedby: "nameHelp" %>
-              <div id="nameHelp" class="form-text">A short, unique name for the category.</div>
+              <%= form.text_field :name, class: "form-control #{field_class(category, :name)}", placeholder: t("categories.name_placeholder"), autocomplete: "off", aria_describedby: "nameHelp" %>
+              <div id="nameHelp" class="form-text"><%= t("categories.name_help") %></div>
               <% if category.errors[:name].any? %>
                 <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :name) %></div>
               <% else %>
-                <div class="valid-feedback"><i class="bi bi-check-circle me-1"></i>Looks good!</div>
+                <div class="valid-feedback"><i class="bi bi-check-circle me-1"></i><%= t("categories.name_valid") %></div>
               <% end %>
             </div>
           </div>
@@ -57,19 +57,19 @@
           <div class="col-12 col-md-6">
             <div class="mb-3">
               <%= form.label :slug, class: "form-label" do %>
-                Slug <i class="bi bi-info-circle text-muted" title="Auto-generated from name"></i>
+                <%= Category.human_attribute_name(:slug) %> <i class="bi bi-info-circle text-muted" title="<%= t('categories.slug_help') %>"></i>
               <% end %>
-              <%= form.text_field :slug, class: "form-control-plaintext bg-light rounded px-2", disabled: true, title: "Auto-generated from name", aria_describedby: "slugHelp" %>
-              <div id="slugHelp" class="form-text"><i class="bi bi-magic me-1"></i>Auto-generated from name</div>
+              <%= form.text_field :slug, class: "form-control-plaintext bg-light rounded px-2", disabled: true, title: t("categories.slug_help"), aria_describedby: "slugHelp" %>
+              <div id="slugHelp" class="form-text"><i class="bi bi-magic me-1"></i><%= t("categories.slug_help") %></div>
             </div>
           </div>
 
           <!-- Parent Category -->
           <div class="col-12 col-md-6">
             <div class="mb-3">
-              <%= form.label :parent_id, "Parent Category", class: "form-label" %>
-              <%= form.collection_select :parent_id, @parent_categories, :id, :name, { prompt: "None (Root)" }, class: "form-select #{field_class(category, :parent_id)}", aria_describedby: "parentHelp" %>
-              <div id="parentHelp" class="form-text">Optional parent category for nesting.</div>
+              <%= form.label :parent_id, Category.human_attribute_name(:parent_id), class: "form-label" %>
+              <%= form.collection_select :parent_id, @parent_categories, :id, :name, { prompt: t("categories.parent_none") }, class: "form-select #{field_class(category, :parent_id)}", aria_describedby: "parentHelp" %>
+              <div id="parentHelp" class="form-text"><%= t("categories.parent_help") %></div>
               <% if category.errors[:parent_id].any? %>
                 <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :parent_id) %></div>
               <% end %>
@@ -81,9 +81,9 @@
             <div class="mb-3 pt-4 d-print-none">
               <div class="form-check form-switch">
                 <%= form.check_box :active, class: "form-check-input", role: "switch", aria_describedby: "activeHelp" %>
-                <%= form.label :active, "Active", class: "form-check-label" %>
+                <%= form.label :active, Category.human_attribute_name(:active), class: "form-check-label" %>
               </div>
-              <div id="activeHelp" class="form-text ms-2">Inactive categories are hidden from new expenses.</div>
+              <div id="activeHelp" class="form-text ms-2"><%= t("categories.active_help") %></div>
             </div>
           </div>
 
@@ -91,8 +91,8 @@
           <div class="col-12">
             <div class="mb-3">
               <%= form.label :description, class: "form-label" %>
-              <%= form.text_area :description, class: "form-control #{field_class(category, :description)}", rows: 3, placeholder: "Optional detailed description", aria_describedby: "descriptionHelp", autocomplete: "off" %>
-              <div id="descriptionHelp" class="form-text">Optional.</div>
+              <%= form.text_area :description, class: "form-control #{field_class(category, :description)}", rows: 3, placeholder: t("categories.description_placeholder"), aria_describedby: "descriptionHelp", autocomplete: "off" %>
+              <div id="descriptionHelp" class="form-text"><%= t("common.optional") %></div>
               <% if category.errors[:description].any? %>
                 <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :description) %></div>
               <% end %>
@@ -102,15 +102,15 @@
           <!-- Image Upload -->
           <div class="col-12">
             <div class="mb-3 d-print-none">
-              <%= form.label :image, "Image", class: "form-label" %>
+              <%= form.label :image, Category.human_attribute_name(:image), class: "form-label" %>
               <div class="input-group">
                 <%= form.file_field :image, class: "form-control", accept: "image/*", aria_describedby: "imageHelp" %>
                 <button type="button" class="btn btn-outline-secondary" id="image-browse-btn">
-                  <i class="bi bi-folder2-open me-1"></i>Browse
+                  <i class="bi bi-folder2-open me-1"></i><%= t("categories.browse") %>
                 </button>
               </div>
-              <div id="imageHelp" class="form-text">Optional. PNG or JPG recommended.</div>
-              <img id="image-preview" class="img-thumbnail d-none mt-2" style="max-width: 160px; max-height: 160px;" alt="Category image preview">
+              <div id="imageHelp" class="form-text"><%= t("categories.image_help") %></div>
+              <img id="image-preview" class="img-thumbnail d-none mt-2" style="max-width: 160px; max-height: 160px;" alt="<%= t('categories.image_preview_alt') %>">
               <% if category.image.present? && !category.new_record? %>
                 <img class="img-thumbnail mt-2" style="max-width: 160px; max-height: 160px;" src="<%= category.image %>" alt="<%= category.name %>">
               <% end %>
@@ -121,9 +121,9 @@
 
       <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
         <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-x-lg me-1"></i>Cancel
+          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
         <% end %>
-        <%= form.submit "Save Category", class: "btn btn-primary", id: "save-category-btn" %>
+        <%= form.submit t("categories.save"), class: "btn btn-primary", id: "save-category-btn" %>
       </div>
     </div>
 

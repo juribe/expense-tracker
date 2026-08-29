@@ -146,6 +146,6 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to expenses_path
     follow_redirect!
-    assert_equal "1 expense created.", flash[:notice]
+    assert_equal I18n.t("expenses.bulk_created", count: 1, default: "1 gasto creado."), flash[:notice]
   end
 end

@@ -1,19 +1,19 @@
 <div class="container-fluid py-4" data-testid="monthly-expenses-page">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
-      <li class="breadcrumb-item"><%= link_to "Dashboard", dashboard_path %></li>
-      <li class="breadcrumb-item active" aria-current="page">Monthly Expenses</li>
+      <li class="breadcrumb-item"><%= link_to t("nav.dashboard"), dashboard_path %></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= t("nav.recurring_expenses") %></li>
     </ol>
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h4 class="text-primary mb-0"><i class="bi bi-arrow-up-circle me-2"></i>Monthly Expenses</h4>
+    <h4 class="text-primary mb-0"><i class="bi bi-arrow-up-circle me-2"></i><%= t("nav.recurring_expenses") %></h4>
     <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
-      <i class="bi bi-upload me-1"></i>Import Templates
+      <i class="bi bi-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
     <% end %>
     <button type="button" class="btn btn-success ms-auto" data-testid="add-recurring"
             onclick="RecurringUI.openFormModal('create')">
-      <i class="bi bi-plus-lg me-1"></i>Add Expense
+      <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
     </button>
   </div>
 
@@ -22,12 +22,12 @@
     <div class="card-body">
       <%= form_with url: monthly_expenses_path, method: :get, class: "row g-3 align-items-end", data: { testid: "filter-form" } do |f| %>
         <div class="col-12 col-md-4 col-lg-2">
-          <%= f.label :status, "Status", class: "form-label" %>
-          <%= f.select :status, options_for_select([["All", "all"], ["Paid", "completed"], ["Pending", "pending"]], @status_filter), {}, class: "form-select" %>
+          <%= f.label :status, t("common.status"), class: "form-label" %>
+          <%= f.select :status, options_for_select([[t("common.all"), "all"], [t("monthly_expenses.paid", default: "Pagados"), "completed"], [t("statuses.pending"), "pending"]], @status_filter), {}, class: "form-select" %>
         </div>
         <div class="col-12 d-flex gap-2">
-          <%= f.submit "Filter", class: "btn btn-outline-primary" %>
-          <%= link_to "Clear", monthly_expenses_path, class: "btn btn-outline-secondary" %>
+          <%= f.submit t("common.filter"), class: "btn btn-outline-primary" %>
+          <%= link_to t("common.clear"), monthly_expenses_path, class: "btn btn-outline-secondary" %>
         </div>
       <% end %>
     </div>
@@ -36,7 +36,7 @@
   <!-- Totals -->
   <div class="d-flex justify-content-between align-items-baseline mb-2">
     <p class="results-meta mb-0" data-testid="results-meta">
-      <%= "#{@total_count} #{'recurring expense'.pluralize(@total_count)} · #{number_to_currency(@filtered_total)}" %>
+      <%= t("monthly_expenses.results_count", count: @total_count, amount: number_to_currency(@filtered_total), default: "%{count} gastos recurrentes · %{amount}") %>
     </p>
   </div>
 
@@ -45,13 +45,13 @@
       <div class="text-center py-5" data-testid="empty-state">
         <i class="bi bi-arrow-up-circle display-4 text-muted d-block mb-3"></i>
         <% if @status_filter != "all" %>
-          <h5>No matching templates</h5>
-          <p class="text-muted">Try changing your filter or clear it to see all templates.</p>
+          <h5><%= t("monthly_incomes.empty.no_matching") %></h5>
+          <p class="text-muted"><%= t("monthly_incomes.empty.filter_hint") %></p>
         <% else %>
-          <h5>No monthly expense templates yet</h5>
-          <p class="text-muted">Set up a recurring payment to track it here.</p>
+          <h5><%= t("monthly_expenses.empty.title", default: "Aún no hay plantillas de gastos mensuales") %></h5>
+          <p class="text-muted"><%= t("monthly_expenses.empty.body", default: "Configura un pago recurrente para registrarlo aquí.") %></p>
           <button type="button" class="btn btn-outline-primary" onclick="RecurringUI.openFormModal('create')">
-            Add your first template
+            <%= t("monthly_incomes.empty.add_first") %>
           </button>
         <% end %>
       </div>
@@ -60,13 +60,13 @@
         <table class="table table-hover align-middle mb-0" data-testid="recurring-table">
           <thead class="table-light">
             <tr>
-              <th scope="col">Category</th>
-              <th scope="col">Description</th>
-              <th scope="col" class="text-end">Monthly Amount</th>
-              <th scope="col" class="d-none d-md-table-cell">Payment Day</th>
-              <th scope="col" class="d-none d-md-table-cell">Last Paid</th>
-              <th scope="col">Status</th>
-              <th scope="col" class="text-end">Actions</th>
+              <th scope="col"><%= t("common.category") %></th>
+              <th scope="col"><%= t("common.description") %></th>
+              <th scope="col" class="text-end"><%= t("monthly_incomes.columns.monthly_amount") %></th>
+              <th scope="col" class="d-none d-md-table-cell"><%= t("recurring.expected_payment_day") %></th>
+              <th scope="col" class="d-none d-md-table-cell"><%= t("monthly_expenses.last_paid", default: "Último pago") %></th>
+              <th scope="col"><%= t("common.status") %></th>
+              <th scope="col" class="text-end"><%= t("common.actions") %></th>
             </tr>
           </thead>
           <tbody>
@@ -85,12 +85,12 @@
                   data-toggle-url="<%= toggle_active_monthly_expense_path(rt) %>"
                   data-process-url="<%= process_transaction_monthly_expense_path(rt) %>">
                 <td><%= category_badge(rt.category) %></td>
-                <td><%= rt.description.presence || content_tag(:span, "No description", class: "text-muted") %></td>
+                <td><%= rt.description.presence || content_tag(:span, t("recurring.no_description"), class: "text-muted") %></td>
                 <td class="text-end amount"><%= number_to_currency(rt.signed_amount) %></td>
                 <td class="d-none d-md-table-cell"><%= rt.payment_day %></td>
                 <td class="d-none d-md-table-cell">
                   <% if (last = rt.last_occurrence) %>
-                    <%= last.date.strftime("%B %-d, %Y") %>
+                    <%= l(last.date, format: :long) %>
                   <% else %>
                     <span class="text-muted">&mdash;</span>
                   <% end %>
@@ -98,40 +98,40 @@
                 <td data-testid="status">
                   <% case status %>
                   <% when :pending %>
-                    <span class="badge bg-success">Pending</span>
+                    <span class="badge bg-success"><%= t("statuses.pending") %></span>
                   <% when :completed %>
-                    <span class="badge bg-secondary">Completed</span>
+                    <span class="badge bg-secondary"><%= t("statuses.completed") %></span>
                   <% else %>
-                    <span class="badge bg-danger">Inactive</span>
+                    <span class="badge bg-danger"><%= t("statuses.inactive") %></span>
                   <% end %>
                 </td>
                 <td class="text-end text-nowrap">
                   <button type="button" class="btn btn-outline-primary btn-sm me-1" data-testid="edit"
-                          aria-label="Edit <%= rt.description.presence || 'recurring expense' %>"
+                          aria-label="<%= t("recurring.edit_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
                           onclick="RecurringUI.openFormModal('edit', this.closest('tr'))">
                     <i class="bi bi-pencil"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="deactivate"
-                          aria-label="<%= rt.active? ? 'Deactivate' : 'Activate' %> <%= rt.description.presence || 'recurring expense' %>"
-                          title="<%= rt.active? ? 'Deactivate' : 'Activate' %>"
+                          aria-label="<%= rt.active? ? t("recurring.deactivate_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) : t("recurring.activate_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
+                          title="<%= rt.active? ? t("recurring.deactivate") : t("recurring.activate") %>"
                           onclick="RecurringUI.toggleActive(this)">
                     <i class="bi bi-power"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="delete"
-                          aria-label="Delete <%= rt.description.presence || 'recurring expense' %>"
+                          aria-label="<%= t("recurring.delete_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
                           onclick="RecurringUI.confirmDelete(this)">
                     <i class="bi bi-trash"></i>
                   </button>
                   <% if status == :pending %>
                     <button type="button" class="btn btn-primary btn-sm" data-testid="process"
                             onclick="RecurringUI.openProcessModal(this.closest('tr'))">
-                      <i class="bi bi-cash-coin me-1"></i>Pay
+                      <i class="bi bi-cash-coin me-1"></i><%= t("monthly_expenses.pay", default: "Pagar") %>
                     </button>
                   <% elsif status == :completed %>
                     <button type="button" class="btn btn-outline-secondary btn-sm disabled" data-testid="process-disabled"
                             data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Already paid this month" tabindex="-1" aria-disabled="true">
-                      <i class="bi bi-check-lg me-1"></i>Paid
+                            title="<%= t("monthly_expenses.paid_tooltip", default: "Ya pagado este mes") %>" tabindex="-1" aria-disabled="true">
+                      <i class="bi bi-check-lg me-1"></i><%= t("monthly_expenses.paid", default: "Pagado") %>
                     </button>
                   <% end %>
                 </td>
@@ -151,33 +151,33 @@
     <div class="modal-content">
       <%= form_with model: @recurring_template, local: true, id: "recurringForm" do |f| %>
         <div class="modal-header">
-          <h5 class="modal-title" id="recurringFormTitle">Add Monthly Expense</h5>
+          <h5 class="modal-title" id="recurringFormTitle"><%= t("monthly_expenses.form.add_title", default: "Agregar gasto mensual") %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <%= f.label :category_id, "Category", class: "form-label" %>
+              <%= f.label :category_id, t("common.category"), class: "form-label" %>
               <%= f.collection_select :category_id, @categories, :id, :name,
-                                      { prompt: "Select a category" },
+                                      { prompt: t("recurring.select_category") },
                                       class: "form-select #{field_class(@recurring_template, :category_id)}", required: true %>
               <div class="invalid-feedback"><%= field_error(@recurring_template, :category_id) %></div>
             </div>
             <div class="col-md-6">
-              <%= f.label :description, "Description", class: "form-label" %>
+              <%= f.label :description, t("common.description"), class: "form-label" %>
               <%= f.text_field :description, class: "form-control #{field_class(@recurring_template, :description)}",
                                maxlength: 255, placeholder: "e.g. Netflix Subscription" %>
               <div class="invalid-feedback"><%= field_error(@recurring_template, :description) %></div>
             </div>
             <div class="col-md-6">
-              <%= f.label :amount, "Monthly Amount", class: "form-label" %>
+              <%= f.label :amount, t("monthly_incomes.columns.monthly_amount"), class: "form-label" %>
               <div class="input-group">
                 <span class="input-group-text">$</span>
                 <%= f.text_field :amount,
                                  value: money_field_value(@recurring_template.amount),
                                  class: "form-control #{field_class(@recurring_template, :amount)}",
                                  required: true,
-                                 placeholder: "0.00",
+                                 placeholder: t("expenses.placeholder_amount"),
                                  inputmode: "decimal",
                                  autocomplete: "off",
                                  data: { money_input: true } %>
@@ -185,7 +185,7 @@
               <div class="invalid-feedback"><%= field_error(@recurring_template, :amount) %></div>
             </div>
             <div class="col-md-6">
-              <%= f.label :payment_day, "Expected Payment Day", class: "form-label" %>
+              <%= f.label :payment_day, t("recurring.expected_payment_day"), class: "form-label" %>
               <%= f.number_field :payment_day, class: "form-control #{field_class(@recurring_template, :payment_day)}",
                                  min: 1, max: 31, required: true, placeholder: "1-31" %>
               <div class="invalid-feedback"><%= field_error(@recurring_template, :payment_day) %></div>
@@ -199,8 +199,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <%= f.submit "Save", class: "btn btn-primary", data: { testid: "save-recurring" } %>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
+          <%= f.submit t("common.save"), class: "btn btn-primary", data: { testid: "save-recurring" } %>
         </div>
       <% end %>
     </div>
@@ -214,39 +214,39 @@
     <div class="modal-content">
       <form id="processForm" method="post" data-turbo="false">
         <div class="modal-header">
-          <h5 class="modal-title" id="processTitle">Confirm Pay</h5>
+          <h5 class="modal-title" id="processTitle"><%= t("monthly_expenses.confirm_pay", default: "Confirmar pago") %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label text-muted small mb-0">Category</label>
+            <label class="form-label text-muted small mb-0"><%= t("common.category") %></label>
             <p class="form-control-plaintext fw-bold" id="processCategory"></p>
           </div>
           <div class="mb-3">
-            <label class="form-label text-muted small mb-0">Description</label>
+            <label class="form-label text-muted small mb-0"><%= t("common.description") %></label>
             <p class="form-control-plaintext" id="processDescription"></p>
           </div>
           <div class="mb-3">
-            <label class="form-label text-muted small mb-0">Configured Amount</label>
+            <label class="form-label text-muted small mb-0"><%= t("recurring.configured_amount") %></label>
             <p class="form-control-plaintext" id="processConfiguredAmount"></p>
           </div>
           <div class="mb-3">
-            <label for="processDate" class="form-label">Transaction Date</label>
+            <label for="processDate" class="form-label"><%= t("recurring.transaction_date") %></label>
             <input type="date" class="form-control" id="processDate" name="date" required>
           </div>
           <div class="mb-3">
-            <label for="processAmount" class="form-label">Amount</label>
+            <label for="processAmount" class="form-label"><%= t("common.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
               <input type="text" class="form-control" id="processAmount" name="amount"
                      inputmode="decimal" autocomplete="off" data-money-input="true" required>
             </div>
-            <div class="form-text">You can adjust the amount for this specific transaction.</div>
+            <div class="form-text"><%= t("recurring.amount_hint") %></div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Back</button>
-          <button type="submit" class="btn btn-success" id="processConfirm" data-testid="confirm-process">Pay</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("recurring.back") %></button>
+          <button type="submit" class="btn btn-success" id="processConfirm" data-testid="confirm-process"><%= t("monthly_expenses.pay", default: "Pagar") %></button>
         </div>
       </form>
     </div>
@@ -258,13 +258,13 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteRtTitle">Delete recurring expense?</h5>
+        <h5 class="modal-title" id="deleteRtTitle"><%= t("monthly_expenses.delete_title", default: "¿Eliminar gasto recurrente?") %></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">The configuration and its history will be permanently removed. This cannot be undone.</div>
+      <div class="modal-body"><%= t("monthly_incomes.delete_confirmation_body") %></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteRt" data-testid="confirm-delete">Delete</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteRt" data-testid="confirm-delete"><%= t("common.delete") %></button>
       </div>
     </div>
   </div>
