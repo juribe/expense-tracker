@@ -35,6 +35,7 @@ async function createCategory(page, name, description = '') {
   if (description) {
     await page.locator('#category_description').fill(description);
   }
+  await page.locator('#category_category_type').selectOption({ label: 'Expense' });
   await page.getByRole('button', { name: 'Save Category' }).click();
   await expect(page).toHaveURL(/\/categories\/\d+/);
 }

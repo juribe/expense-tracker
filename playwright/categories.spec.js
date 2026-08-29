@@ -14,6 +14,7 @@ test.describe('category pages are working', () => {
 
     await page.locator('#category_name').fill(name);
     await page.locator('#category_description').fill('Expenses for meals and groceries');
+    await page.locator('#category_category_type').selectOption({ label: 'Expense' });
     await page.getByRole('button', { name: 'Save Category' }).click();
 
     await expect(page).toHaveURL(/\/categories\/\d+/);
@@ -56,9 +57,10 @@ test.describe('category pages are working', () => {
 
     await page.goto('/categories/new');
     await page.locator('#category_name').fill(name);
+    await page.locator('#category_category_type').selectOption({ label: 'Expense' });
     await page.getByRole('button', { name: 'Save Category' }).click();
 
-    await expect(page.getByText('Name has already been taken')).toBeVisible();
+    await expect(page.getByText('Name has already been taken', { exact: true })).toBeVisible();
     await expect(page.locator('#error-summary')).toBeVisible();
     await expect(page.locator('input.is-invalid')).toBeVisible();
   });

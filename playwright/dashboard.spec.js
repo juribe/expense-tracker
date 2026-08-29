@@ -6,7 +6,7 @@ test.describe('dashboard is working', () => {
     await signUp(page);
     const response = await page.goto('/dashboard');
     expect(response && response.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: 'Total Balance' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Net Balance' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Expenses This Month' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Category Breakdown' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Recent Expenses' })).toBeVisible();
