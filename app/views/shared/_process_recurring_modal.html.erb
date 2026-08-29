@@ -10,23 +10,23 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label text-muted small mb-0">Category</label>
+            <label class="form-label text-muted small mb-0"><%= t("common.category") %></label>
             <p class="form-control-plaintext fw-bold" id="<%= category_id %>"></p>
           </div>
           <div class="mb-3">
-            <label class="form-label text-muted small mb-0">Description</label>
+            <label class="form-label text-muted small mb-0"><%= t("common.description") %></label>
             <p class="form-control-plaintext" id="<%= description_id %>"></p>
           </div>
           <div class="mb-3">
-            <label class="form-label text-muted small mb-0">Configured Amount</label>
+            <label class="form-label text-muted small mb-0"><%= t("recurring.configured_amount") %></label>
             <p class="form-control-plaintext" id="<%= configured_amount_id %>"></p>
           </div>
           <div class="mb-3">
-            <label for="<%= date_input_id %>" class="form-label">Transaction Date</label>
+            <label for="<%= date_input_id %>" class="form-label"><%= t("recurring.transaction_date") %></label>
             <input type="date" class="form-control" id="<%= date_input_id %>" name="date" required>
           </div>
           <div class="mb-3">
-            <label for="<%= amount_input_id %>" class="form-label">Amount</label>
+            <label for="<%= amount_input_id %>" class="form-label"><%= t("common.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
               <input type="text" class="form-control" id="<%= amount_input_id %>" name="amount"

@@ -1,20 +1,20 @@
 <dl class="drawer-dl mb-4">
-  <dt>Date</dt>
-  <dd><%= @expense.date.strftime("%b %d, %Y") %></dd>
-  <dt>Amount</dt>
+  <dt><%= t("common.date") %></dt>
+  <dd><%= l(@expense.date, format: :short) %></dd>
+  <dt><%= t("common.amount") %></dt>
   <dd class="amount"><%= number_to_currency(@expense.amount) %></dd>
-  <dt>Description</dt>
+  <dt><%= t("common.description") %></dt>
   <dd>
     <% if @expense.description.present? %>
       <%= @expense.description %>
     <% else %>
-      <span class="text-muted">No description</span>
+      <span class="text-muted"><%= t("expenses.no_description") %></span>
     <% end %>
   </dd>
-  <dt>Category</dt>
+  <dt><%= t("common.category") %></dt>
   <dd><%= category_badge(@expense.category) %></dd>
-  <dt>Created</dt>
-  <dd><%= @expense.created_at.strftime("%b %d, %Y %l:%M %p") %></dd>
-  <dt>Updated</dt>
-  <dd><%= @expense.updated_at.strftime("%b %d, %Y %l:%M %p") %></dd>
+  <dt><%= t("common.created_at", default: "Creado") %></dt>
+  <dd><%= l(@expense.created_at, format: :short) %></dd>
+  <dt><%= t("common.updated_at", default: "Actualizado") %></dt>
+  <dd><%= l(@expense.updated_at, format: :short) %></dd>
 </dl>

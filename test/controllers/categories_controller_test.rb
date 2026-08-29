@@ -72,7 +72,7 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     category = Category.create!(name: "Locked", is_default: true, category_type: "expense")
     get edit_category_path(category)
     assert_redirected_to categories_path
-    assert_equal "You can only edit your own categories.", flash[:alert]
+    assert_equal I18n.t("category_messages.only_own_edit"), flash[:alert]
   end
 
   test "cannot delete a default category" do
@@ -81,7 +81,7 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
       delete category_path(category)
     end
     assert_redirected_to categories_path
-    assert_equal "You can only delete your own categories.", flash[:alert]
+    assert_equal I18n.t("category_messages.only_own_delete"), flash[:alert]
   end
 
   test "POST /categories supports parent category" do

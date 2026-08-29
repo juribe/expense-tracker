@@ -3,50 +3,50 @@
     <div class="card shadow-sm border-0">
       <div class="card-header bg-primary text-white">
         <h4 class="mb-0">
-          <i class="bi bi-upload me-2"></i>Import Recurring Templates
+          <i class="bi bi-upload me-2"></i><%= t("imports.title", default: "Importar plantillas recurrentes") %>
         </h4>
       </div>
 
       <div class="card-body">
         <div class="alert alert-info" role="alert">
           <h6 class="alert-heading mb-2">
-            <i class="bi bi-info-circle me-1"></i>CSV Format
+            <i class="bi bi-info-circle me-1"></i><%= t("imports.csv_format", default: "Formato CSV") %>
           </h6>
-          <p class="mb-2">Download and use this template:</p>
+          <p class="mb-2"><%= t("imports.download_template", default: "Descarga y usa esta plantilla:") %></p>
           <code class="bg-white p-2 rounded">category,kind,amount,description,payment_day,active</code>
           <div class="mt-2">
             <small class="text-muted">
-              Required: <strong>category</strong> (category name)<br>
-              Optional: <strong>kind</strong> (income/expense), <strong>amount</strong>, <strong>description</strong>, 
+              <%= t("imports.required", default: "Obligatorio") %>: <strong>category</strong> (<%= t("common.category").downcase %>)<br>
+              <%= t("common.optional") %>: <strong>kind</strong> (income/expense), <strong>amount</strong>, <strong>description</strong>,
               <strong>payment_day</strong>, <strong>active</strong> (true/false)
             </small>
           </div>
         </div>
 
         <div class="mb-3">
-          <label for="file" class="form-label">CSV File <span class="text-danger">*</span></label>
+          <label for="file" class="form-label"><%= t("imports.csv_file", default: "Archivo CSV") %> <span class="text-danger">*</span></label>
           <input type="file" id="file" name="file" accept=".csv,text/csv" class="form-control" required>
-          <div class="form-text">Select a CSV file with recurring template data.</div>
+          <div class="form-text"><%= t("imports.select_file", default: "Selecciona un archivo CSV con datos de plantillas recurrentes.") %></div>
         </div>
 
         <% if @categories.any? %>
           <div class="mb-3">
-            <label for="import_category" class="form-label">Default Category (optional)</label>
-            <%= form.collection_select :default_category_id, @categories, :id, :name, { prompt: "Use category from CSV" }, class: "form-select", id: "import_category" %>
-            <div class="form-text">If selected, all imports will use this category instead of reading from CSV.</div>
+            <label for="import_category" class="form-label"><%= t("imports.default_category", default: "Categoría por defecto (opcional)") %></label>
+            <%= form.collection_select :default_category_id, @categories, :id, :name, { prompt: t("imports.category_from_csv", default: "Usar la categoría del CSV") }, class: "form-select", id: "import_category" %>
+            <div class="form-text"><%= t("imports.default_category_help", default: "Si la seleccionas, todas las importaciones usarán esta categoría en lugar de leerla del CSV.") %></div>
           </div>
         <% else %>
           <div class="alert alert-warning" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>No categories found. Please create categories first.
+            <i class="bi bi-exclamation-triangle me-2"></i><%= t("imports.no_categories", default: "No se encontraron categorías. Crea primero una categoría.") %>
           </div>
         <% end %>
       </div>
 
       <div class="card-footer d-flex justify-content-end gap-2">
         <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-x-lg me-1"></i>Cancel
+          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
         <% end %>
-        <%= form.submit "Import Templates", class: "btn btn-primary", id: "import-btn" %>
+        <%= form.submit t("nav.recurring", default: "Importar plantillas"), class: "btn btn-primary", id: "import-btn" %>
       </div>
     </div>
 
@@ -62,7 +62,7 @@
               var fileContent = this.files[0].text();
               var preview = document.createElement("div");
               preview.className = "mt-2 p-2 bg-light border rounded";
-              preview.innerHTML = "<strong>Preview:</strong><br><small class=\"text-monospace\" style=\"font-size: 0.85em;\">" + 
+              preview.innerHTML = "<strong><%= t("imports.preview", default: "Vista previa") %>:</strong><br><small class=\"text-monospace\" style=\"font-size: 0.85em;\">" +
                 fileContent.split('\\n').slice(0, 5).join('<br>') + "</small>";
               this.parentNode.appendChild(preview);
             }

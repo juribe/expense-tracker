@@ -77,7 +77,7 @@ class ExpensesController < ApplicationController
   def create
     @expense = current_user.expenses.build(expense_params)
     if @expense.save
-      redirect_to expenses_path, notice: "Expense was successfully created."
+      redirect_to expenses_path, notice: t("expenses.created")
     else
       render :new, status: :unprocessable_entity
     end
@@ -88,7 +88,7 @@ class ExpensesController < ApplicationController
 
   def update
     if @expense.update(expense_params)
-      redirect_to expenses_path(redirect_params), notice: "Expense was successfully updated."
+      redirect_to expenses_path(redirect_params), notice: t("expenses.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -96,7 +96,7 @@ class ExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-    redirect_to expenses_path(redirect_params), notice: "Expense was successfully deleted."
+    redirect_to expenses_path(redirect_params), notice: t("expenses.deleted")
   end
 
   def bulk_destroy
@@ -105,7 +105,7 @@ class ExpensesController < ApplicationController
     count = scope.count
 
     if count.zero?
-      redirect_to expenses_path(redirect_params), alert: "No expenses selected."
+      redirect_to expenses_path(redirect_params), alert: t("expenses.no_selection")
       return
     end
 
@@ -120,10 +120,10 @@ class ExpensesController < ApplicationController
 
     deleted = count - failed
     if failed.zero?
-      redirect_to expenses_path(redirect_params), notice: "#{deleted} #{'expense'.pluralize(deleted)} deleted."
+      redirect_to expenses_path(redirect_params), notice: t("expenses.bulk_deleted", count: deleted)
     else
       redirect_to expenses_path(redirect_params),
-                  alert: "Deleted #{deleted} of #{count} expenses. #{failed} could not be deleted."
+                  alert: t("expenses.bulk_deleted_partial", deleted: deleted, count: count, failed: failed)
     end
   end
 
@@ -136,31 +136,31 @@ class ExpensesController < ApplicationController
     money_source_id = raw["money_source_id"].presence
 
     if ids.empty?
-      redirect_to expenses_path(bulk_update_state), alert: "No expenses selected."
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.no_selection")
       return
     end
 
     if category_id.blank? && money_source_id.blank?
-      redirect_to expenses_path(bulk_update_state), alert: "Choose a category and/or money source to update."
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.choose_category_or_source")
       return
     end
 
     if category_id.present? && !Category.for_user(current_user).where(id: category_id).exists?
       redirect_to expenses_path(bulk_update_state),
-                  alert: "Couldn't update expenses: category was not found for this user."
+                  alert: t("expenses.update_category_not_found")
       return
     end
 
     if money_source_id.present? && !current_user.money_sources.where(id: money_source_id).exists?
       redirect_to expenses_path(bulk_update_state),
-                  alert: "Couldn't update expenses: money source was not found for this user."
+                  alert: t("expenses.update_source_not_found")
       return
     end
 
     scope = current_user.expenses.where(id: ids)
     count = scope.count
     if count.zero?
-      redirect_to expenses_path(bulk_update_state), alert: "No expenses selected."
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.no_selection")
       return
     end
 
@@ -171,7 +171,7 @@ class ExpensesController < ApplicationController
     scope.update_all(updates)
 
     redirect_to expenses_path(bulk_update_state),
-                notice: "#{count} #{'expense'.pluralize(count)} updated."
+                notice: t("expenses.bulk_updated", count: count)
   end
 
   # POST /expenses/parse
@@ -180,7 +180,7 @@ class ExpensesController < ApplicationController
   def parse
     text = params[:text].presence || params[:transcription].presence
     if text.blank?
-      return respond_parse_error("Please write or dictate your expenses first.")
+      return respond_parse_error(t("expenses.ai_write_first"))
     end
 
     result = ExpenseParser.call(text: text, user: current_user)
@@ -190,13 +190,12 @@ class ExpensesController < ApplicationController
         if result[:expenses].any?
           render json: result, status: :ok
         else
-          message = result[:errors].presence ||
-                    "No expenses were detected. Try something like \"50 mil en almuerzo\"."
+          message = result[:errors].presence || t("expenses.ai_no_expenses_hint")
           render json: { engine: result[:engine], transcription: result[:transcription], expenses: [], errors: Array(message) },
                  status: :unprocessable_entity
         end
       end
-      format.html { redirect_to expenses_path, alert: "Use the AI entry box to detect expenses." }
+      format.html { redirect_to expenses_path, alert: t("expenses.ai_use_entry_box") }
     end
   end
 
@@ -205,7 +204,7 @@ class ExpensesController < ApplicationController
   def bulk_create
     inputs = bulk_expense_inputs
     if inputs.empty?
-      return respond_bulk_error("No expenses to save.")
+      return respond_bulk_error(t("expenses.no_expenses_to_save"))
     end
 
     created_count = 0
@@ -217,7 +216,7 @@ class ExpensesController < ApplicationController
             raise ActiveRecord::RecordInvalid, row_error(expense, index)
           end
         rescue ArgumentError => e
-          raise ArgumentError, "Expense #{index + 1}: #{e.message}"
+          raise ArgumentError, t("expenses.bulk_row_error", index: index + 1, message: e.message)
         end
         created_count += 1
       end
@@ -226,7 +225,7 @@ class ExpensesController < ApplicationController
     respond_to do |format|
       format.json { render json: { created: created_count, redirect_to: expenses_url }, status: :created }
       format.html do
-        redirect_to expenses_path, notice: "#{created_count} #{'expense'.pluralize(created_count)} created."
+        redirect_to expenses_path, notice: t("expenses.bulk_created", count: created_count)
       end
     end
   rescue ArgumentError => e
@@ -412,7 +411,7 @@ class ExpensesController < ApplicationController
 
     Date.iso8601(value.to_s)
   rescue ArgumentError, TypeError
-    raise ArgumentError, "Date is invalid."
+    raise ArgumentError, t("expenses.invalid_date")
   end
 
   def resolve_confirmed_category!(input)
@@ -426,13 +425,14 @@ class ExpensesController < ApplicationController
         Category.where("lower(name) = ?", new_name.downcase).first ||
         Category.create!(name: new_name, user: current_user, is_default: false)
     else
-      raise ArgumentError, "A category is required."
+      raise ArgumentError, t("expenses.category_required")
     end
   end
 
   def row_error(expense, index)
     details = expense.errors.full_messages.join(", ")
-    "Expense #{index + 1}: #{details.presence || 'could not be saved'}."
+    t("expenses.bulk_row_error", index: index + 1,
+      message: details.presence || t("expenses.could_not_be_saved"))
   end
 
   def respond_bulk_error(message)

@@ -9,7 +9,7 @@ class ImportsController < ApplicationController
 
   def create
     if params[:file].blank?
-      redirect_to new_import_path, alert: "Please select a CSV file."
+      redirect_to new_import_path, alert: t("imports.file_required")
       return
     end
 

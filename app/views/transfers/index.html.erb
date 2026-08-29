@@ -1,11 +1,11 @@
 <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-arrow-left-right me-2"></i>Transfers</h1>
+  <h1><i class="bi bi-arrow-left-right me-2"></i><%= t("transfers.index.title") %></h1>
   <div class="d-flex gap-2">
     <%= link_to money_sources_path, class: "btn btn-outline-primary" do %>
-      <i class="bi bi-wallet2 me-1"></i>Money Sources
+      <i class="bi bi-wallet2 me-1"></i><%= t("nav.money_sources") %>
     <% end %>
     <%= link_to new_transfer_path, class: "btn btn-primary" do %>
-      <i class="bi bi-plus-lg me-1"></i>New Transfer
+      <i class="bi bi-plus-lg me-1"></i><%= t("transfers.index.new") %>
     <% end %>
   </div>
 </div>
@@ -14,21 +14,21 @@
   <div class="card shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <caption class="visually-hidden">Your transfers</caption>
+        <caption class="visually-hidden"><%= t("transfers.index.caption") %></caption>
         <thead class="table-light">
           <tr>
-            <th scope="col">Date</th>
-            <th scope="col">From</th>
-            <th scope="col">To</th>
-            <th scope="col" class="text-end">Amount</th>
-            <th scope="col">Note</th>
-            <th scope="col" class="text-end">Actions</th>
+            <th scope="col"><%= t("common.date") %></th>
+            <th scope="col"><%= t("transfers.new.from", default: "Desde") %></th>
+            <th scope="col"><%= t("transfers.new.to", default: "Hacia") %></th>
+            <th scope="col" class="text-end"><%= t("common.amount") %></th>
+            <th scope="col"><%= t("transfers.new.note", default: "Nota") %></th>
+            <th scope="col" class="text-end"><%= t("common.actions") %></th>
           </tr>
         </thead>
         <tbody>
           <% @transfers.each do |transfer| %>
             <tr data-testid="row" data-id="<%= transfer.id %>">
-              <td class="text-nowrap"><%= transfer.date.strftime("%b %d, %Y") %></td>
+              <td class="text-nowrap"><%= l(transfer.date, format: :long) %></td>
               <td><%= transfer.from_source.name %></td>
               <td><%= transfer.to_source.name %></td>
               <td class="text-end fw-bold"><%= number_to_currency(transfer.amount) %></td>
@@ -36,7 +36,7 @@
                 <%= transfer.note.presence || "—" %>
               </td>
               <td class="text-end">
-                <%= button_to transfer_path(transfer), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: "Delete this transfer?" }, form: { style: "display: inline-block" } do %>
+                <%= button_to transfer_path(transfer), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: t("transfers.index.delete_confirm") }, form: { style: "display: inline-block" } do %>
                   <i class="bi bi-trash"></i>
                 <% end %>
               </td>
@@ -50,10 +50,10 @@
   <div class="card shadow-sm">
     <div class="p-5 text-center" data-testid="empty">
       <i class="bi bi-arrow-left-right display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2">No transfers yet</h4>
-      <p class="text-muted">Record transfers between your money sources.</p>
+      <h4 class="mb-2"><%= t("transfers.index.empty_title") %></h4>
+      <p class="text-muted"><%= t("transfers.index.empty_body") %></p>
       <%= link_to new_transfer_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i>New Transfer
+        <i class="bi bi-plus-lg me-1"></i><%= t("transfers.index.new") %>
       <% end %>
     </div>
   </div>

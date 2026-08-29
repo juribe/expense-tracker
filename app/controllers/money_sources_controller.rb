@@ -34,7 +34,7 @@ class MoneySourcesController < ApplicationController
 
     if @money_source.errors.empty? && @money_source.save
       persist_identifiers(@identifier_rows)
-      redirect_to money_sources_path, notice: "Money source was successfully created."
+      redirect_to money_sources_path, notice: t("money_sources.flashes.created")
     else
       render :new, status: :unprocessable_entity
     end
@@ -50,7 +50,7 @@ class MoneySourcesController < ApplicationController
 
     if @money_source.errors.empty? && @money_source.save
       persist_identifiers(@identifier_rows)
-      redirect_to money_sources_path, notice: "Money source was successfully updated."
+      redirect_to money_sources_path, notice: t("money_sources.flashes.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -59,7 +59,7 @@ class MoneySourcesController < ApplicationController
   # DELETE /money_sources/1
   def destroy
     @money_source.destroy
-    redirect_to money_sources_path, notice: "Money source was successfully deleted."
+    redirect_to money_sources_path, notice: t("money_sources.flashes.deleted")
   end
 
   private
@@ -107,7 +107,7 @@ class MoneySourcesController < ApplicationController
     @identifier_rows.each do |identifier|
       next if identifier.valid?
       identifier.errors.full_messages.each do |msg|
-        @money_source.errors.add(:base, "Identifier: #{msg}")
+        @money_source.errors.add(:base, t("money_sources.form.identifier_error_prefix", message: msg))
       end
     end
   end

@@ -1,11 +1,11 @@
 <div class="container mt-4">
-  <h1>Monthly Balance</h1>
+  <h1><%= t("reports.monthly_balance", default: "Balance mensual") %></h1>
 
   <div class="row mt-4">
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-header bg-white">
-          <h5 class="mb-0">Income vs Expense by Month</h5>
+          <h5 class="mb-0"><%= t("reports.income_vs_expense", default: "Ingresos y gastos por mes") %></h5>
         </div>
         <div class="card-body">
           <% if @monthly_summary.any? %>
@@ -13,12 +13,12 @@
               <table class="table table-hover align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th scope="col">Month</th>
-                    <th scope="col" class="text-end">Income</th>
-                    <th scope="col" class="text-end">Expenses</th>
-                    <th scope="col" class="text-end">Net</th>
-                    <th scope="col" class="text-end">Transactions</th>
-                    <th scope="col">Actions</th>
+                    <th scope="col"><%= t("reports.month") %></th>
+                    <th scope="col" class="text-end"><%= t("types.income_plural") %></th>
+                    <th scope="col" class="text-end"><%= t("types.expense_plural") %></th>
+                    <th scope="col" class="text-end"><%= t("reports.net", default: "Neto") %></th>
+                    <th scope="col" class="text-end"><%= t("reports.transactions", default: "Transacciones") %></th>
+                    <th scope="col"><%= t("common.actions") %></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -32,7 +32,7 @@
                       </td>
                       <td class="text-end"><%= report[:count] %></td>
                       <td>
-                        <%= link_to "View Details", monthly_report_path(report[:month]), class: "btn btn-sm btn-primary" %>
+                        <%= link_to t("reports.view_details", default: "Ver detalles"), monthly_report_path(report[:month]), class: "btn btn-sm btn-primary" %>
                       </td>
                     </tr>
                   <% end %>
@@ -40,7 +40,7 @@
               </table>
             </div>
           <% else %>
-            <p>No transactions recorded yet.</p>
+            <p><%= t("reports.no_transactions", default: "Aún no hay transacciones registradas.") %></p>
           <% end %>
         </div>
       </div>

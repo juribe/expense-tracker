@@ -8,7 +8,7 @@ class GmailConnectionsController < ApplicationController
   end
 
   rescue_from Gmail::OauthClient::Error do |exception|
-    redirect_to gmail_connection_path, alert: "Google OAuth error: #{exception.message}"
+    redirect_to gmail_connection_path, alert: t("gmail_messages.oauth_error", message: exception.message)
   end
 
   def index
@@ -23,7 +23,7 @@ class GmailConnectionsController < ApplicationController
   def start_auth
     unless Gmail::OauthClient.configured?
       return redirect_to gmail_connection_path,
-                         alert: "Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET."
+                         alert: t("gmail.oauth_missing")
     end
 
     state = SecureRandom.hex(16)
@@ -34,7 +34,7 @@ class GmailConnectionsController < ApplicationController
   end
 
   def callback
-    return oauth_failed("Invalid OAuth state. Please try again.") unless valid_state?
+    return oauth_failed(t("gmail_messages.invalid_state")) unless valid_state?
 
     tokens = Gmail::OauthClient.exchange_code(code: params[:code], redirect_uri: google_callback_url)
     info = Gmail::OauthClient.userinfo(tokens[:access_token])
@@ -49,26 +49,25 @@ class GmailConnectionsController < ApplicationController
     connection.save!
 
     session.delete(:gmail_oauth_state)
-    redirect_to gmail_connection_path, notice: "Gmail account #{info[:email]} connected successfully."
+    redirect_to gmail_connection_path, notice: t("gmail_messages.connected", email: info[:email])
   end
 
   def update
     @connection.update!(search_config: search_config_params)
-    redirect_to gmail_connection_path, notice: "Search criteria updated."
+    redirect_to gmail_connection_path, notice: t("gmail_messages.criteria_updated")
   end
 
   def destroy
     email = @connection.email
     @connection.destroy!
-    redirect_to gmail_connection_path, notice: "Gmail account #{email} disconnected."
+    redirect_to gmail_connection_path, notice: t("gmail_messages.disconnected", email: email)
   end
   def sync
     summary = Gmail::SyncService.call(@connection)
     message = if summary[:error]
-                "Sync failed: #{summary[:error]}"
+                t("gmail_messages.sync_failed", message: summary[:error])
     else
-                "Sync finished — #{summary[:created]} created, #{summary[:needs_review]} pending review, " \
-                  "#{summary[:failed]} failed."
+                t("gmail_messages.sync_finished", created: summary[:created], pending: summary[:needs_review], failed: summary[:failed])
     end
     redirect_to gmail_connection_path, notice: message
   end
@@ -80,14 +79,14 @@ class GmailConnectionsController < ApplicationController
 
     review.update!(status: "processed", expense_id: expense_ids.first, failure_reason: nil,
                    processed_at: Time.current)
-    redirect_to gmail_connection_path, notice: "#{expense_ids.size} expense(s) created from email review."
+    redirect_to gmail_connection_path, notice: t("gmail_messages.expenses_created", count: expense_ids.size)
   end
 
   # Discards a reviewed transaction without creating expenses.
   def reject
     review = current_user.processed_emails.gmail.needs_review.find(params[:id])
     review.update!(status: "ignored", failure_reason: "rejected by user", processed_at: Time.current)
-    redirect_to gmail_connection_path, notice: "Transaction discarded."
+    redirect_to gmail_connection_path, notice: t("gmail_messages.transaction_discarded")
   end
 
   private
@@ -97,7 +96,7 @@ class GmailConnectionsController < ApplicationController
                   current_user.gmail_connections.order(:id).last
     return if @connection
 
-    redirect_to gmail_connection_path, alert: "No Gmail account is connected."
+    redirect_to gmail_connection_path, alert: t("gmail_messages.no_connection")
   end
 
   def valid_state?

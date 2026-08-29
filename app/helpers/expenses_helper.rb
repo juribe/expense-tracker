@@ -37,10 +37,10 @@ module ExpensesHelper
   def pagination_nav(current_page:, total_pages:)
     return if total_pages <= 1
 
-    content_tag(:nav, "aria-label": "Expense pages", data: { testid: "pagination" }) do
+    content_tag(:nav, "aria-label": t("expenses.pagination_aria"), data: { testid: "pagination" }) do
       content_tag(:ul, class: "pagination justify-content-center mb-0") do
         concat pagination_item(
-          link_to("Previous", expenses_path(page_params.merge(page: current_page - 1))),
+          link_to(t("common.previous"), expenses_path(page_params.merge(page: current_page - 1))),
           item_class: "page-item#{' disabled' if current_page == 1}",
           active: false
         )
@@ -48,7 +48,7 @@ module ExpensesHelper
           concat item
         end
         concat pagination_item(
-          link_to("Next", expenses_path(page_params.merge(page: current_page + 1))),
+          link_to(t("common.next"), expenses_path(page_params.merge(page: current_page + 1))),
           item_class: "page-item#{' disabled' if current_page == total_pages}",
           active: false
         )

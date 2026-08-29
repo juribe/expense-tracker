@@ -22,7 +22,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     get gmail_connection_path
 
     assert_response :success
-    assert_select "h1", text: /Gmail Expense Import/
+    assert_select "h1", text: I18n.t("gmail.title")
   end
 
   test "start_auth redirects to google when oauth is configured" do
@@ -41,7 +41,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
       post start_gmail_auth_path
 
       assert_redirected_to gmail_connection_path
-      assert_match(/not configured/, flash[:alert])
+      assert_match(/configurado/, flash[:alert])
     end
   end
 
@@ -49,7 +49,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     get google_callback_path, params: { code: "abc", state: "evil-state" }
 
     assert_redirected_to gmail_connection_path
-    assert_match(/state/i, flash[:alert])
+    assert_match(/estado/i, flash[:alert])
     assert_equal 0, GmailConnection.count
   end
 
@@ -87,7 +87,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to gmail_connection_path
-    assert_match(/Search criteria updated/, flash[:notice])
+    assert_equal I18n.t("gmail_messages.criteria_updated"), flash[:notice]
 
     connection = @user.gmail_connections.last
     assert_equal [ "notifications@bank.com", "alerts@nequi.co" ], connection.search_config_hash[:senders]
@@ -113,7 +113,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to gmail_connection_path
-    assert_match(/Sync finished/, flash[:notice])
+    assert_match(/Sincronización terminada/, flash[:notice])
   end
 
   test "approve creates expenses from a reviewed transaction" do

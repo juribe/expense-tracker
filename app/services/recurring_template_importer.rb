@@ -19,10 +19,10 @@ class RecurringTemplateImporter
 
     user.recurring_templates.insert_all!(templates) unless templates.empty?
 
-    @notice << "#{templates.size} recurring template(s) imported successfully."
+    @notice << I18n.t("recurring.imported", count: templates.size)
     @notice.join(" ")
   rescue => e
-    @errors << "Import failed: #{e.message}"
+    @errors << I18n.t("recurring.import_failed", message: e.message)
     ""
   end
 

@@ -22,7 +22,7 @@ class RecurringTemplatesController < ApplicationController
 
     if @recurring_template.save
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
-                  notice: "Recurring #{@recurring_template.kind} was successfully created."
+                  notice: t("recurring.template_created", label: @recurring_template.completed_action_label)
     else
       load_index_data
       @open_form_modal = true
@@ -33,7 +33,7 @@ class RecurringTemplatesController < ApplicationController
   def update
     if @recurring_template.update(update_params)
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
-                  notice: "Recurring #{@recurring_template.kind} was successfully updated."
+                  notice: t("recurring.template_updated")
     else
       load_index_data
       @open_form_modal = true
@@ -45,7 +45,7 @@ class RecurringTemplatesController < ApplicationController
     type = @recurring_template.kind
     @recurring_template.destroy
     redirect_to recurring_templates_path(kind: type),
-                notice: "Recurring #{type} was successfully deleted."
+                notice: t("recurring.template_deleted")
   end
 
   # Receive (income) / Pay (expense): creates the real one-time transaction.
@@ -58,8 +58,10 @@ class RecurringTemplatesController < ApplicationController
 
     if result.success?
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
-                  notice: "#{@recurring_template.completed_action_label} #{number_to_currency(result.transaction.amount)} " \
-                          "on #{result.transaction.date.strftime('%B %-d, %Y')}."
+                  notice: t("recurring.processed_on",
+                            action: @recurring_template.completed_action_label,
+                            amount: number_to_currency(result.transaction.amount),
+                            date: I18n.l(result.transaction.date, format: :long))
     else
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
                   alert: result.error,
@@ -72,7 +74,7 @@ class RecurringTemplatesController < ApplicationController
     @recurring_template.update!(active: !@recurring_template.active?)
     state = @recurring_template.active? ? "activated" : "deactivated"
     redirect_to recurring_templates_path(kind: @recurring_template.kind),
-                notice: "Recurring #{@recurring_template.kind} was successfully #{state}."
+                notice: t("recurring.template_#{state}")
   end
 
   private

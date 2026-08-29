@@ -22,7 +22,7 @@ module RecurringTemplateActions
 
     if @recurring_template.save
       redirect_to index_path,
-                  notice: "#{@recurring_template.completed_action_label} recurring template was successfully created."
+                  notice: t("recurring.template_created", label: @recurring_template.completed_action_label)
     else
       load_index_data
       @open_form_modal = true
@@ -33,7 +33,7 @@ module RecurringTemplateActions
   def update
     if @recurring_template.update(update_params)
       redirect_to index_path,
-                  notice: "Recurring template was successfully updated."
+                  notice: t("recurring.template_updated")
     else
       load_index_data
       @open_form_modal = true
@@ -44,7 +44,7 @@ module RecurringTemplateActions
   def destroy
     @recurring_template.destroy
     redirect_to index_path,
-                notice: "Recurring template was successfully deleted."
+                notice: t("recurring.template_deleted")
   end
 
   def process_transaction
@@ -56,8 +56,10 @@ module RecurringTemplateActions
 
     if result.success?
       redirect_to index_path,
-                  notice: "#{@recurring_template.completed_action_label} #{number_to_currency(result.transaction.amount)} " \
-                          "on #{result.transaction.date.strftime('%B %-d, %Y')}."
+                  notice: t("recurring.processed_on",
+                            action: @recurring_template.completed_action_label,
+                            amount: number_to_currency(result.transaction.amount),
+                            date: I18n.l(result.transaction.date, format: :long))
     else
       redirect_to index_path,
                   alert: result.error,
@@ -69,7 +71,7 @@ module RecurringTemplateActions
     @recurring_template.update!(active: !@recurring_template.active?)
     state = @recurring_template.active? ? "activated" : "deactivated"
     redirect_to index_path,
-                notice: "Recurring template was successfully #{state}."
+                notice: t("recurring.template_#{state}")
   end
 
   private

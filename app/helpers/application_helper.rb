@@ -40,7 +40,40 @@ module ApplicationHelper
   end
 
   def source_kind_label(kind)
-    kind.to_s.titleize
+    t("kinds.#{kind.to_s}", default: kind.to_s.titleize)
+  end
+
+  def source_kind_options
+    MoneySource::KINDS.map { |kind| [ source_kind_label(kind), kind ] }
+  end
+
+  def category_type_label(scope)
+    case scope.to_s
+    when "expense" then t("types.expense")
+    when "income" then t("types.income")
+    else t("types.all")
+    end
+  end
+
+  def identifier_kind_label(kind)
+    t("identifiers.#{kind.to_s}", default: kind.to_s.titleize)
+  end
+
+  def status_label(status)
+    case status.to_s
+    when "pending" then t("statuses.pending")
+    when "completed" then t("statuses.completed")
+    when "active" then t("statuses.active")
+    when "inactive" then t("statuses.inactive")
+    else t("statuses.inactive")
+    end
+  end
+
+  def statuses_label(status)
+    case status.to_s
+    when "activated" then t("statuses.activated")
+    when "deactivated" then t("statuses.deactivated")
+    end
   end
 
   def identifier_display(ident)

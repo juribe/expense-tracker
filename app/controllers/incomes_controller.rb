@@ -19,7 +19,7 @@ class IncomesController < ApplicationController
     @income.user = current_user
 
     if @income.save
-      redirect_to incomes_path, notice: "Income was successfully created."
+      redirect_to incomes_path, notice: t("incomes.flashes.created")
     else
       @categories = Category.for_user(current_user)
       @money_sources = current_user.money_sources.active.order(:kind, :name)

@@ -3,13 +3,13 @@
     <div class="col-md-8">
       <div class="card shadow">
         <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">New Transfer</h4>
+          <h4 class="mb-0"><%= t("transfers.new.title") %></h4>
         </div>
         <div class="card-body">
           <%= form_with model: @transfer, local: true do |f| %>
             <% if @transfer.errors.any? %>
               <div class="alert alert-danger">
-                <h6><%= pluralize(@transfer.errors.count, "error") %> prohibited this transfer from being saved:</h6>
+                <h6><%= t("transfers.new.error_prohibited", count: @transfer.errors.count) %></h6>
                 <ul>
                   <% @transfer.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
@@ -20,24 +20,24 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <%= f.label :from_source_id, "From", class: "form-label" %>
-                <%= f.collection_select :from_source_id, @money_sources, :id, :display_name, { include_blank: "Select..." }, class: "form-select" %>
+                <%= f.label :from_source_id, t("transfers.new.from", default: "Desde"), class: "form-label" %>
+                <%= f.collection_select :from_source_id, @money_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
               </div>
               <div class="col-md-6 mb-3">
-                <%= f.label :to_source_id, "To", class: "form-label" %>
-                <%= f.collection_select :to_source_id, @money_sources, :id, :display_name, { include_blank: "Select..." }, class: "form-select" %>
+                <%= f.label :to_source_id, t("transfers.new.to", default: "Hacia"), class: "form-label" %>
+                <%= f.collection_select :to_source_id, @money_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <%= f.label :amount, "Amount", class: "form-label" %>
+                <%= f.label :amount, t("common.amount"), class: "form-label" %>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
                   <%= f.text_field :amount,
                       value: money_field_value(@transfer.amount),
                       class: "form-control",
-                      placeholder: "0.00",
+                      placeholder: t("transfers.new.amount_placeholder"),
                       inputmode: "decimal",
                       autocomplete: "off",
                       data: { money_input: true } %>
@@ -50,12 +50,12 @@
             </div>
 
             <div class="mb-3">
-              <%= f.label :note, "Note", class: "form-label" %>
-              <%= f.text_area :note, class: "form-control", rows: 2, placeholder: "Optional note about this transfer" %>
+              <%= f.label :note, t("transfers.new.note", default: "Nota"), class: "form-label" %>
+              <%= f.text_area :note, class: "form-control", rows: 2, placeholder: t("transfers.new.note_placeholder") %>
             </div>
 
             <div class="d-grid">
-              <%= f.submit "Create Transfer", class: "btn btn-primary" %>
+              <%= f.submit t("transfers.new.submit"), class: "btn btn-primary" %>
             </div>
           <% end %>
         </div>

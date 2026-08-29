@@ -1,11 +1,11 @@
 <div class="container mt-4">
-  <h1>Monthly Balance: <%= @month %></h1>
+  <h1><%= t("reports.monthly_balance", default: "Balance mensual") %>: <%= @month %></h1>
 
   <div class="row mt-4">
     <div class="col-md-8">
       <div class="card shadow-sm">
         <div class="card-header bg-white">
-          <h5 class="mb-0">Transactions</h5>
+          <h5 class="mb-0"><%= t("reports.transactions", default: "Transacciones") %></h5>
         </div>
         <div class="card-body">
           <% if @transactions.any? %>
@@ -13,24 +13,24 @@
               <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Category</th>
-                    <th scope="col" class="text-end">Amount</th>
+                    <th scope="col"><%= t("common.date") %></th>
+                    <th scope="col"><%= t("common.type", default: "Tipo") %></th>
+                    <th scope="col"><%= t("common.description") %></th>
+                    <th scope="col"><%= t("common.category") %></th>
+                    <th scope="col" class="text-end"><%= t("common.amount") %></th>
                   </tr>
                 </thead>
                 <tbody>
                   <% @transactions.each do |transaction| %>
                     <tr>
-                      <td><%= transaction.date.strftime("%b %d, %Y") %></td>
+                      <td><%= l(transaction.date, format: :long) %></td>
                       <td>
                         <span class="badge <%= transaction.is_a?(Income) ? 'bg-success' : 'bg-danger' %>">
-                          <%= transaction.is_a?(Income) ? "Income" : "Expense" %>
+                          <%= transaction.is_a?(Income) ? t("types.income") : t("types.expense") %>
                         </span>
                       </td>
                       <td><%= transaction.description.presence || "—" %></td>
-                      <td><%= transaction.category&.name || "Uncategorized" %></td>
+                      <td><%= transaction.category&.name || t("common.uncategorized", default: "Sin categoría") %></td>
                       <td class="text-end fw-bold <%= transaction.amount.negative? ? 'text-danger' : 'text-success' %>">
                         <%= number_to_currency(transaction.amount) %>
                       </td>
@@ -40,7 +40,7 @@
               </table>
             </div>
           <% else %>
-            <p>No transactions for this month.</p>
+            <p><%= t("reports.no_month_transactions", default: "No hay transacciones para este mes.") %></p>
           <% end %>
         </div>
       </div>
@@ -49,13 +49,13 @@
     <div class="col-md-4">
       <div class="card shadow-sm">
         <div class="card-header bg-white">
-          <h5 class="mb-0">Summary</h5>
+          <h5 class="mb-0"><%= t("reports.summary", default: "Resumen") %></h5>
         </div>
         <div class="card-body">
-          <p><strong>Income:</strong> <%= number_to_currency(@income_total) %></p>
-          <p><strong>Expenses:</strong> <%= number_to_currency(@expense_total) %></p>
+          <p><strong><%= t("types.income") %>:</strong> <%= number_to_currency(@income_total) %></p>
+          <p><strong><%= t("types.expense_plural") %>:</strong> <%= number_to_currency(@expense_total) %></p>
           <p>
-            <strong>Net:</strong>
+            <strong><%= t("reports.net", default: "Neto") %>:</strong>
             <span class="fw-bold <%= @net_total.negative? ? 'text-danger' : 'text-success' %>">
               <%= number_to_currency(@net_total) %>
             </span>
@@ -65,5 +65,5 @@
     </div>
   </div>
 
-  <%= link_to "Back to Monthly Reports", monthly_reports_path, class: "btn btn-secondary mt-3" %>
+  <%= link_to t("reports.back", default: "Volver a reportes mensuales"), monthly_reports_path, class: "btn btn-secondary mt-3" %>
 </div>

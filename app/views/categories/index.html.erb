@@ -4,7 +4,7 @@
       <div class="toast-body">
         <i class="bi bi-check-circle me-1"></i><%= flash[:success] %>
       </div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="<%= t('common.close') %>"></button>
     </div>
   </div>
   <script>
@@ -19,14 +19,14 @@
 <% end %>
 
 <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-tags me-2"></i>Categories</h1>
+  <h1><i class="bi bi-tags me-2"></i><%= t("categories.title") %></h1>
   <%= link_to new_category_path, class: "btn btn-primary" do %>
-    <i class="bi bi-plus-lg me-1"></i>New Category
+    <i class="bi bi-plus-lg me-1"></i><%= t("categories.new") %>
   <% end %>
 </div>
 
 <% if @default_categories.any? %>
-  <h5 class="text-muted mb-3"><i class="bi bi-shield-lock me-1"></i>Default Categories</h5>
+  <h5 class="text-muted mb-3"><i class="bi bi-shield-lock me-1"></i><%= t("categories.default_section") %></h5>
   <div class="row g-3 mb-4">
     <% @default_categories.each do |category| %>
       <div class="col-12 col-md-6 col-lg-4">
@@ -34,11 +34,11 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <%= link_to category_badge(category), category_path(category), class: "text-decoration-none" %>
-              <span class="badge bg-secondary" title="Default category"><i class="bi bi-lock"></i></span>
+              <span class="badge bg-secondary" title="<%= t('categories.default_title') %>"><i class="bi bi-lock"></i></span>
             </div>
             <p class="text-muted mb-0"><%= category.description %></p>
             <small class="text-muted d-block">
-              <%= category.category_type&.titleize || "All types" %>
+              <%= category_type_label(category.category_type) %>
             </small>
           </div>
         </div>
@@ -48,7 +48,7 @@
 <% end %>
 
 <% if @custom_categories.any? %>
-  <h5 class="text-muted mb-3"><i class="bi bi-person me-1"></i>My Categories</h5>
+  <h5 class="text-muted mb-3"><i class="bi bi-person me-1"></i><%= t("categories.custom_section") %></h5>
   <div class="row g-3">
     <% @custom_categories.each do |category| %>
       <div class="col-12 col-md-6 col-lg-4">
@@ -57,26 +57,26 @@
             <div class="d-flex justify-content-between align-items-start mb-2">
               <%= link_to category_badge(category), category_path(category), class: "text-decoration-none" %>
               <div class="btn-group btn-group-sm d-print-none">
-                <%= link_to edit_category_path(category), class: "btn btn-outline-primary", title: "Edit", aria: { label: "Edit #{category.name}" } do %>
+                <%= link_to edit_category_path(category), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("categories.edit_aria", name: category.name) } do %>
                   <i class="bi bi-pencil"></i>
                 <% end %>
-                <%= button_to category_path(category), method: :delete, class: "btn btn-outline-danger", title: "Delete", aria: { label: "Delete #{category.name}" }, data: { confirm: "Are you sure?" }, form: { style: "display: inline-block" } do %>
+                <%= button_to category_path(category), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("categories.delete_aria", name: category.name) }, data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
                   <i class="bi bi-trash"></i>
                 <% end %>
               </div>
             </div>
             <p class="text-muted mb-0"><%= category.description %></p>
             <small class="text-muted d-block">
-              <i class="bi bi-diagram-2 me-1"></i><%= category.parent&.name || "Root" %>
+              <i class="bi bi-diagram-2 me-1"></i><%= category.parent&.name || t("categories.root") %>
             </small>
             <small class="text-muted">
-              <%= pluralize(category.expenses.count, "expense") %>
+              <%= t("categories.expenses_count", count: category.expenses.count) %>
             </small>
             <small class="text-muted d-block">
-              <%= category.category_type&.titleize || "All types" %>
+              <%= category_type_label(category.category_type) %>
             </small>
             <% unless category.active %>
-              <span class="badge bg-secondary ms-1">Inactive</span>
+              <span class="badge bg-secondary ms-1"><%= t("categories.inactive") %></span>
             <% end %>
           </div>
         </div>
@@ -89,10 +89,10 @@
   <div class="card shadow-sm">
     <div class="p-5 text-center">
       <i class="bi bi-tags display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2">No categories yet</h4>
-      <p class="text-muted">Create your first category to organize expenses.</p>
+      <h4 class="mb-2"><%= t("categories.empty_title") %></h4>
+      <p class="text-muted"><%= t("categories.empty_body") %></p>
       <%= link_to new_category_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i>New Category
+        <i class="bi bi-plus-lg me-1"></i><%= t("categories.new") %>
       <% end %>
     </div>
   </div>

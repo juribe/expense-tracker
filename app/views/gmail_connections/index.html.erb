@@ -1,15 +1,15 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0"><i class="bi bi-envelope-paper me-2"></i>Gmail Expense Import</h1>
+  <h1 class="h3 mb-0"><i class="bi bi-envelope-paper me-2"></i><%= t("gmail.title") %></h1>
   <% if @connection&.active? %>
-    <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary", form: { data: { turbo_confirm: "Fetch new emails now?" } } do %>
-      <i class="bi bi-arrow-repeat me-1"></i>Sync now
+    <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary", form: { data: { turbo_confirm: t("gmail.fetch_confirm") } } do %>
+      <i class="bi bi-arrow-repeat me-1"></i><%= t("gmail.sync_now") %>
     <% end %>
   <% end %>
 </div>
 
 <% unless @configured %>
   <div class="alert alert-warning">
-    <strong>Google OAuth is not configured on this server.</strong>
+    <strong><%= t("gmail.oauth_missing") %></strong>
     Set <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> (Google Cloud console,
     Gmail API enabled, redirect URI <code>&lt;app-url&gt;/auth/google/callback</code>) to enable connections.
   </div>
@@ -19,29 +19,29 @@
   <div class="col-lg-5">
     <div class="card mb-4">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-link-45deg me-1"></i>Connection</h2>
+        <h2 class="h5 card-title"><i class="bi bi-link-45deg me-1"></i><%= t("gmail.connection") %></h2>
         <% if @connection %>
           <p class="mb-1">
             <i class="bi bi-envelope-check me-1 text-success"></i>
             <strong><%= @connection.email %></strong>
             <span class="badge bg-<%= @connection.active? ? 'success' : 'secondary' %>">
-              <%= @connection.active? ? "Active" : "Paused" %>
+              <%= @connection.active? ? t("gmail.active") : t("gmail.paused") %>
             </span>
           </p>
           <p class="text-muted small mb-3">
-            Last synced:
-            <%= @connection.last_synced_at ? @connection.last_synced_at.strftime("%B %d, %Y %H:%M") : "never" %>
+            <%= t("gmail.last_synced") %>:
+            <%= @connection.last_synced_at ? l(@connection.last_synced_at, format: :long) : t("gmail.never") %>
           </p>
           <div class="d-flex gap-2">
-            <%= button_to "Disconnect", gmail_connection_path, method: :delete,
+            <%= button_to t("gmail.disconnect"), gmail_connection_path, method: :delete,
                   class: "btn btn-outline-danger btn-sm",
-                  form: { data: { turbo_confirm: "Disconnect #{@connection.email}?" } } %>
+                  form: { data: { turbo_confirm: t("gmail.disconnect_confirm", email: @connection.email) } } %>
           </div>
         <% else %>
-          <p class="text-muted">Connect your Gmail account so bank transaction notifications are imported automatically.</p>
+          <p class="text-muted"><%= t("gmail.connect_help") %></p>
           <%= button_to start_gmail_auth_path, method: :post, class: "btn btn-primary",
                 disabled: !@configured do %>
-            <i class="bi bi-google me-1"></i>Connect Gmail account
+            <i class="bi bi-google me-1"></i><%= t("gmail.connect") %>
           <% end %>
         <% end %>
       </div>
@@ -50,31 +50,30 @@
     <% if @connection %>
       <div class="card">
         <div class="card-body">
-          <h2 class="h5 card-title"><i class="bi bi-sliders me-1"></i>Transaction email criteria</h2>
+          <h2 class="h5 card-title"><i class="bi bi-sliders me-1"></i><%= t("gmail.criteria") %></h2>
           <p class="text-muted small">
-            Emails matching these senders/domains and subject keywords are candidates for import.
-            Leave blank to use sensible defaults.
+            <%= t("gmail.criteria_help") %>
           </p>
           <%= form_with model: @connection, url: gmail_connection_path, method: :patch, scope: :search_config do |f| %>
             <div class="mb-2">
-              <%= f.label :senders, "Sender addresses", class: "form-label small mb-1" %>
+              <%= f.label :senders, t("gmail.senders"), class: "form-label small mb-1" %>
               <%= f.text_area :senders, rows: 2, class: "form-control form-control-sm",
                     placeholder: "notifications@bancolombia.com.co, alerts@nequi.co",
                     value: @connection.search_config_hash[:senders].join(", ") %>
             </div>
             <div class="mb-2">
-              <%= f.label :domains, "Sender domains", class: "form-label small mb-1" %>
+              <%= f.label :domains, t("gmail.domains"), class: "form-label small mb-1" %>
               <%= f.text_area :domains, rows: 2, class: "form-control form-control-sm",
                     placeholder: "bank.com, creditcard.bank.com",
                     value: @connection.search_config_hash[:domains].join(", ") %>
             </div>
             <div class="mb-3">
-              <%= f.label :subject_keywords, "Subject keywords", class: "form-label small mb-1" %>
+              <%= f.label :subject_keywords, t("gmail.subject_keywords"), class: "form-label small mb-1" %>
               <%= f.text_area :subject_keywords, rows: 2, class: "form-control form-control-sm",
                     placeholder: "compra, transacción, pago",
                     value: @connection.search_config_hash[:subject_keywords].join(", ") %>
             </div>
-            <%= f.submit "Save criteria", class: "btn btn-sm btn-primary" %>
+            <%= f.submit t("gmail.save_criteria"), class: "btn btn-sm btn-primary" %>
           <% end %>
         </div>
       </div>
@@ -85,13 +84,13 @@
     <% if @pending_reviews.any? %>
       <div class="card mb-4 border-warning">
         <div class="card-body">
-          <h2 class="h5 card-title"><i class="bi bi-eye me-1"></i>Pending review
+          <h2 class="h5 card-title"><i class="bi bi-eye me-1"></i><%= t("gmail.pending_review") %>
             <span class="badge bg-warning text-dark"><%= @pending_reviews.size %></span></h2>
-          <p class="text-muted small">Low-confidence transactions need your confirmation before creating expenses.</p>
+          <p class="text-muted small"><%= t("gmail.pending_help") %></p>
           <div class="table-responsive">
             <table class="table table-sm align-middle" data-testid="review-table">
               <thead>
-                <tr><th>Merchant</th><th>Amount</th><th>Date</th><th>Confidence</th><th>Card/Bank</th><th></th></tr>
+                <tr><th><%= t("gmail.merchant") %></th><th><%= t("common.amount") %></th><th><%= t("common.date") %></th><th><%= t("gmail.confidence") %></th><th><%= t("gmail.card_bank") %></th><th></th></tr>
               </thead>
               <tbody>
                 <% @pending_reviews.each do |review| %>
@@ -114,11 +113,11 @@
                         <% end %>
                       </td>
                       <td class="text-end">
-                        <%= button_to "Approve", approve_gmail_review_path(review.id), method: :post,
+                        <%= button_to t("gmail.approve"), approve_gmail_review_path(review.id), method: :post,
                               class: "btn btn-success btn-sm me-1" %>
-                        <%= button_to "Discard", reject_gmail_review_path(review.id), method: :post,
+                        <%= button_to t("gmail.discard"), reject_gmail_review_path(review.id), method: :post,
                               class: "btn btn-outline-secondary btn-sm",
-                              form: { data: { turbo_confirm: "Discard this transaction?" } } %>
+                              form: { data: { turbo_confirm: t("gmail.discard_confirm") } } %>
                       </td>
                     </tr>
                   <% end %>
@@ -132,13 +131,13 @@
 
     <div class="card mb-4">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-clock-history me-1"></i>Recent Gmail imports</h2>
+        <h2 class="h5 card-title"><i class="bi bi-clock-history me-1"></i><%= t("gmail.recent_imports") %></h2>
         <% if @recent_imports.any? %>
           <ul class="list-group list-group-flush" data-testid="recent-imports">
             <% @recent_imports.each do |expense| %>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                  <%= link_to expense.description.presence || "(no description)", expense_path(expense) %>
+                  <%= link_to expense.description.presence || t("gmail.no_description"), expense_path(expense) %>
                   <small class="text-muted d-block"><%= expense.date %></small>
                 </span>
                 <strong><%= number_to_currency(expense.amount.to_f, unit: "$ ", delimiter: ",", separator: ".") %></strong>
@@ -146,14 +145,14 @@
             <% end %>
           </ul>
         <% else %>
-          <p class="text-muted mb-0" data-testid="no-imports">No expenses imported from Gmail yet.</p>
+          <p class="text-muted mb-0" data-testid="no-imports"><%= t("gmail.no_imports") %></p>
         <% end %>
       </div>
     </div>
 
     <div class="card">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-gear me-1"></i>How it works</h2>
+        <h2 class="h5 card-title"><i class="bi bi-gear me-1"></i><%= t("gmail.how_it_works") %></h2>
         <ol class="text-muted small mb-2">
           <li>Your Gmail account is linked with Google OAuth (read-only scope).</li>
           <li>A background job polls the account every <%= @polling_interval %> minute(s)

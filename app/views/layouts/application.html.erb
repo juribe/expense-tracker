@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Expense Tracker" %></title>
+    <title><%= content_for(:title) || t("layout.app_title") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -31,10 +31,10 @@
 
       <div class="main-content">
         <div class="mobile-topbar d-lg-none">
-          <button class="btn btn-link" id="sidebarToggle" aria-label="Toggle sidebar">
+          <button class="btn btn-link" id="sidebarToggle" aria-label="<%= t('nav.toggle_sidebar') %>">
             <i class="bi bi-list fs-4"></i>
           </button>
-          <span class="fw-bold">Expense Tracker</span>
+          <span class="fw-bold"><%= t("layout.app_title") %></span>
         </div>
 
         <div class="container py-4">
@@ -55,7 +55,7 @@
         </div>
 
         <footer class="text-center py-3 mt-4 border-top">
-          <small class="text-muted">&copy; <%= Date.today.year %> Expense Tracker</small>
+          <small class="text-muted"><%= t("layout.footer", year: Date.today.year) %></small>
         </footer>
       </div>
     <% else %>

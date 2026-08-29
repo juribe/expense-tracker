@@ -27,7 +27,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=table]"
     assert_select "tr[data-testid=row]", count: 1
     assert_select "form[data-testid=filter-form]"
-    assert_select "#resultsMeta", text: /1 expense/
+    assert_select "#resultsMeta", text: /1 gasto/
   end
 
   test "GET /expenses renders the bulk update bar and modal" do
@@ -47,7 +47,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     get expenses_path
     assert_response :success
     assert_select "[data-testid=empty]"
-    assert_select "h2", text: "No expenses yet"
+    assert_select "h2", text: I18n.t("expenses.empty_title")
     assert_select "table", count: 0
   end
 
@@ -56,7 +56,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     get expenses_path, params: { category_id: @other_category.id }
     assert_response :success
     assert_select "[data-testid=empty]"
-    assert_select "h2", text: "No expenses match these filters"
+    assert_select "h2", text: I18n.t("expenses.no_results_title")
   end
 
   test "GET /expenses filters by category with a row-level where filter" do
@@ -100,7 +100,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     get expenses_path, params: { start_date: "2026-04-01", end_date: "2026-03-01" }
     assert_response :success
     assert_select "input.is-invalid"
-    assert_select "div.alert-danger", text: /Fix the highlighted filter fields/
+    assert_select "div.alert-danger", text: /Corrige/
   end
 
   test "GET /expenses sorts by amount ascending" do
@@ -137,8 +137,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     30.times { |i| create_expense(amount: 10.0 + i, date: Date.today, description: "Expense #{i}") }
     get expenses_path, params: { page: 2 }
     assert_response :success
-    assert_select "#pageFoot", text: /Page total -\$60\.00/
-    assert_select "#pageFoot", text: /Filtered total -\$735\.00/
+    assert_select "#pageFoot", text: /Total de página -\$60/
+    assert_select "#pageFoot", text: /Total filtrado -\$735/
   end
 
   test "GET /expenses.csv exports the filtered set as CSV" do
@@ -158,7 +158,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     get expense_path(expense)
     assert_response :success
     assert_select "dl.drawer-dl"
-    assert_select "dt", text: "Amount"
+    assert_select "dt", text: I18n.t("common.amount")
   end
 
   test "DELETE /expenses/:id destroys and preserves filter query" do
@@ -167,7 +167,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to expenses_path(category_id: @category.id.to_s, sort: "amount", dir: "asc")
     assert_not Expense.exists?(expense.id)
     follow_redirect!
-    assert_equal "Expense was successfully deleted.", flash[:notice]
+    assert_equal I18n.t("expenses.deleted"), flash[:notice]
   end
 
   test "DELETE /expenses/bulk_destroy removes selected expenses" do
@@ -185,7 +185,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     delete bulk_destroy_expenses_path, params: { ids: [] }
     assert_redirected_to expenses_path
     follow_redirect!
-    assert_equal "No expenses selected.", flash[:alert]
+    assert_equal I18n.t("expenses.no_selection"), flash[:alert]
   end
 
   def create_source(name: "Credit Card", kind: "credit_card", **opts)
@@ -200,7 +200,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @other_category.id, a.reload.category_id
     assert_equal @other_category.id, b.reload.category_id
     follow_redirect!
-    assert_equal "2 expenses updated.", flash[:notice]
+    assert_equal I18n.t("expenses.bulk_updated", count: 2), flash[:notice]
   end
 
   test "PATCH /expenses/bulk_update changes money source for selected expenses" do
@@ -244,7 +244,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @other_category.id, mine.reload.category_id
     assert_not_equal @other_category.id, other_expense.reload.category_id
     follow_redirect!
-    assert_equal "1 expense updated.", flash[:notice]
+    assert_equal I18n.t("expenses.bulk_updated", count: 1), flash[:notice]
   end
 
   test "PATCH /expenses/bulk_update rejects a category not available to the user" do
@@ -256,7 +256,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to expenses_path
     assert_equal original, a.reload.category_id
     follow_redirect!
-    assert_equal "Couldn't update expenses: category was not found for this user.", flash[:alert]
+    assert_equal I18n.t("expenses.update_category_not_found"), flash[:alert]
   end
 
   test "PATCH /expenses/bulk_update rejects a money source not owned by the user" do
@@ -267,14 +267,14 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to expenses_path
     assert_nil a.reload.money_source_id
     follow_redirect!
-    assert_equal "Couldn't update expenses: money source was not found for this user.", flash[:alert]
+    assert_equal I18n.t("expenses.update_source_not_found"), flash[:alert]
   end
 
   test "PATCH /expenses/bulk_update rejects empty expense ids" do
     patch bulk_update_expenses_path, params: { expense_ids: [], category_id: @other_category.id }
     assert_redirected_to expenses_path
     follow_redirect!
-    assert_equal "No expenses selected.", flash[:alert]
+    assert_equal I18n.t("expenses.no_selection"), flash[:alert]
   end
 
   test "PATCH /expenses/bulk_update rejects requests without any field to change" do
@@ -282,7 +282,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id ] }
     assert_redirected_to expenses_path
     follow_redirect!
-    assert_equal "Choose a category and/or money source to update.", flash[:alert]
+    assert_equal I18n.t("expenses.choose_category_or_source"), flash[:alert]
   end
 
   test "PATCH /expenses/bulk_update preserves filters, sort, and page on redirect" do

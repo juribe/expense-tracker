@@ -1,7 +1,7 @@
 <%= form_with model: @income, local: true do |f| %>
   <% if @income.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@income.errors.count, "error") %> prohibited this income from being saved:</h2>
+      <h2><%= t("incomes.form.errors", count: @income.errors.count) %></h2>
 
       <ul>
         <% @income.errors.full_messages.each do |msg| %>
@@ -12,7 +12,7 @@
   <% end %>
 
   <div class="mb-3">
-    <%= f.label :amount, "Amount *", class: "form-label" %>
+    <%= f.label :amount, t("incomes.form.amount_label"), class: "form-label" %>
     <%= f.text_field :amount,
                      value: money_field_value(@income.amount),
                      class: "form-control",
@@ -23,27 +23,27 @@
   </div>
 
   <div class="mb-3">
-    <%= f.label :description, "Description" , class: "form-label" %>
-    <%= f.text_field :description, class: "form-control", placeholder: "e.g. Salary, Freelance project" %>
+    <%= f.label :description, t("activerecord.attributes.income.description"), class: "form-label" %>
+    <%= f.text_field :description, class: "form-control", placeholder: t("incomes.form.description_placeholder") %>
   </div>
 
   <div class="mb-3">
-    <%= f.label :date, "Date *", class: "form-label" %>
+    <%= f.label :date, t("incomes.form.date_label"), class: "form-label" %>
     <%= f.date_field :date, value: Date.current, class: "form-control" %>
   </div>
 
   <div class="mb-3">
-    <%= f.label :category_id, "Category" , class: "form-label" %>
+    <%= f.label :category_id, t("activerecord.attributes.income.category_id"), class: "form-label" %>
     <%= f.collection_select :category_id, @categories, :id, :name, include_blank: true, class: "form-select" %>
   </div>
 
   <div class="mb-3">
-    <%= f.label :money_source_id, "Money Source", class: "form-label" %>
-    <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: "None" }, class: "form-select" %>
+    <%= f.label :money_source_id, t("incomes.form.money_source_label"), class: "form-label" %>
+    <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("common.none") }, class: "form-select" %>
   </div>
 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <%= f.submit "Create Income", class: "btn btn-primary" %>
-    <%= link_to "Cancel", incomes_path, class: "btn btn-outline-secondary" %>
+    <%= f.submit t("incomes.form.submit"), class: "btn btn-primary" %>
+    <%= link_to t("common.cancel"), incomes_path, class: "btn btn-outline-secondary" %>
   </div>
 <% end %>

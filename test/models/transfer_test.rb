@@ -23,27 +23,27 @@ class TransferTest < ActiveSupport::TestCase
   test "amount must be present and greater than 0" do
     transfer = Transfer.new(user: @user, from_source: @savings, to_source: @checking, date: Date.today)
     assert_not transfer.valid?
-    assert_includes transfer.errors[:amount], "can't be blank"
+    assert_includes transfer.errors[:amount], I18n.t("errors.messages.blank")
 
     transfer.amount = 0
     assert_not transfer.valid?
-    assert_includes transfer.errors[:amount], "must be greater than 0"
+    assert_includes transfer.errors[:amount], I18n.t("errors.messages.greater_than", count: 0)
 
     transfer.amount = -10
     assert_not transfer.valid?
-    assert_includes transfer.errors[:amount], "must be greater than 0"
+    assert_includes transfer.errors[:amount], I18n.t("errors.messages.greater_than", count: 0)
   end
 
   test "date must be present" do
     transfer = Transfer.new(user: @user, from_source: @savings, to_source: @checking, amount: 100)
     assert_not transfer.valid?
-    assert_includes transfer.errors[:date], "can't be blank"
+    assert_includes transfer.errors[:date], I18n.t("errors.messages.blank")
   end
 
   test "from_source and to_source must be different" do
     transfer = Transfer.new(user: @user, from_source: @savings, to_source: @savings, amount: 100, date: Date.today)
     assert_not transfer.valid?
-    assert_includes transfer.errors[:to_source], "must be different from from_source"
+    assert_includes transfer.errors[:to_source], I18n.t("validation.transfer_sources")
   end
 
   test "for_user scope filters by user" do

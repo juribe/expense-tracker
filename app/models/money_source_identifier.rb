@@ -33,6 +33,6 @@ class MoneySourceIdentifier < ApplicationRecord
   def parent_must_be_active
     return unless money_source && !money_source.active?
 
-    errors.add(:money_source, "must be active")
+    errors.add(:money_source, I18n.t("validation.source_inactive"))
   end
 end

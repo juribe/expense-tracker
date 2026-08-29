@@ -22,7 +22,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     create_source
     get money_sources_path
     assert_response :success
-    assert_select "h1", text: /Money Sources/
+    assert_select "h1", text: I18n.t("nav.money_sources")
   end
 
   test "GET /money_sources shows empty state when no sources" do
@@ -45,7 +45,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to money_sources_path
     follow_redirect!
-    assert_equal "Money source was successfully created.", flash[:notice]
+    assert_equal I18n.t("money_sources.flashes.created"), flash[:notice]
   end
 
   test "POST /money_sources creates with identifiers" do

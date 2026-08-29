@@ -35,11 +35,11 @@ test.describe("AI powered expense entry survives Turbo navigation", () => {
     await expect(page.getByTestId('ai-text-input')).toBeVisible();
 
     // Turbo Drive visit away from /expenses...
-    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await page.getByRole('link', { name: 'Panel' }).click();
     await expect(page).toHaveURL(/dashboard/);
 
     // ...and back through the navbar link (client-side Turbo visit, no reload).
-    await page.getByRole('link', { name: 'Expenses', exact: true }).click();
+    await page.getByRole('link', { name: 'Gastos', exact: true }).click();
     await expect(page).toHaveURL(/\/expenses/);
 
     // Regression: the inline script used to bail out on a one-shot window
