@@ -212,6 +212,25 @@ es:
     expenses_count:
       one: "%{count} gasto"
       other: "%{count} gastos"
+    defaults:
+      expense:
+        - "Comida y restaurantes"
+        - "Transporte"
+        - "Vivienda"
+        - "Servicios públicos"
+        - "Salud"
+        - "Entretenimiento"
+        - "Compras"
+        - "Educación"
+        - "Viajes"
+        - "Otros"
+      income:
+        - "Salario"
+        - "Trabajo independiente"
+        - "Inversiones"
+        - "Negocio"
+        - "Regalos"
+        - "Otros"
 
   nav:
     overview: "Resumen"
