@@ -315,12 +315,14 @@ class ExpensesController < ApplicationController
   end
 
   def apply_sort
+    # Append a stable secondary sort key (id) so that rows sharing the same
+    # primary sort value produce deterministic pagination across databases.
     if @sort == "category"
-      @expenses = @expenses.left_joins(:category).order("categories.name #{@dir}")
+      @expenses = @expenses.left_joins(:category).order("categories.name #{@dir}, #{Expense.table_name}.id #{@dir}")
     elsif @sort == "amount"
-      @expenses = @expenses.order(Arel.sql("ABS(#{Expense.table_name}.amount) #{@dir}"))
+      @expenses = @expenses.order(Arel.sql("ABS(#{Expense.table_name}.amount) #{@dir}, #{Expense.table_name}.id #{@dir}"))
     else
-      @expenses = @expenses.order("#{Expense.table_name}.#{@sort} #{@dir}")
+      @expenses = @expenses.order("#{Expense.table_name}.#{@sort} #{@dir}, #{Expense.table_name}.id #{@dir}")
     end
   end
 

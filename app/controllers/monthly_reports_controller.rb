@@ -6,13 +6,13 @@ class MonthlyReportsController < ApplicationController
 
   def index
     income_rows = current_user.incomes
-      .select("strftime('%Y-%m', date) as month, SUM(amount) as income_total, COUNT(*) as income_count")
-      .group("strftime('%Y-%m', date)")
+      .select("TO_CHAR(date, 'YYYY-MM') as month, SUM(amount) as income_total, COUNT(*) as income_count")
+      .group("TO_CHAR(date, 'YYYY-MM')")
       .index_by(&:month)
 
     expense_rows = current_user.expenses
-      .select("strftime('%Y-%m', date) as month, SUM(amount) as expense_total, COUNT(*) as expense_count")
-      .group("strftime('%Y-%m', date)")
+      .select("TO_CHAR(date, 'YYYY-MM') as month, SUM(amount) as expense_total, COUNT(*) as expense_count")
+      .group("TO_CHAR(date, 'YYYY-MM')")
       .index_by(&:month)
 
     months = (income_rows.keys + expense_rows.keys).uniq.sort.reverse
@@ -35,11 +35,11 @@ class MonthlyReportsController < ApplicationController
 
   def show
     @incomes = current_user.incomes
-      .where("strftime('%Y-%m', date) = ?", @month)
+      .where("TO_CHAR(date, 'YYYY-MM') = ?", @month)
       .order(date: :desc)
 
     @expenses = current_user.expenses
-      .where("strftime('%Y-%m', date) = ?", @month)
+      .where("TO_CHAR(date, 'YYYY-MM') = ?", @month)
       .order(date: :desc)
 
     @transactions = (@incomes.to_a + @expenses.to_a).sort_by { |record| [record.date, record.created_at || Time.at(0)] }.reverse
