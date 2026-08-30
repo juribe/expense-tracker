@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-wallet2 me-2"></i><%= @money_source.name %></h1>
-    <div class="d-flex gap-2">
+    <h1><i class="bi bi-<%= source_kind_icon(@money_source.kind) %> me-2"></i><%= @money_source.name %></h1>
+    <div class="d-flex gap-2 flex-wrap">
       <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
         <i class="bi bi-pencil me-1"></i><%= t("common.edit") %>
       <% end %>
@@ -12,29 +12,47 @@
   </div>
 
   <div class="row g-4">
-    <div class="col-md-6">
+    <div class="col-lg-7">
+      <% if @money_source.debt? %>
+        <%= render "debt_panel", source: @money_source %>
+      <% else %>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
+            <div class="fs-4 fw-bold text-success"><%= @money_source.balance_label %></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-lg-5">
       <div class="card shadow-sm">
         <div class="card-body">
           <h5 class="card-title"><%= t("money_sources.show.details") %></h5>
           <dl class="row mb-0">
-            <dt class="col-sm-4"><%= t("common.type", default: "Tipo") %></dt>
-            <dd class="col-sm-8"><%= source_kind_label(@money_source.kind) %></dd>
-            <dt class="col-sm-4"><%= t("money_sources.form.bank", default: "Banco") %></dt>
-            <dd class="col-sm-8"><%= @money_source.bank.presence || "—" %></dd>
-            <dt class="col-sm-4"><%= t("money_sources.form.starting_balance", default: "Saldo inicial") %></dt>
-            <dd class="col-sm-8"><%= number_to_currency(@money_source.starting_balance) %></dd>
-            <dt class="col-sm-4"><%= t("money_sources.show.current_balance") %></dt>
-            <dd class="col-sm-8 fw-bold <%= @money_source.credit_card? ? 'text-danger' : 'text-success' %>">
-              <%= @money_source.balance_label %>
-            </dd>
-            <dt class="col-sm-4"><%= t("money_sources.show.status") %></dt>
-            <dd class="col-sm-8"><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %></dd>
+            <dt class="col-sm-5"><%= t("common.type", default: "Tipo") %></dt>
+            <dd class="col-sm-7"><%= source_kind_label(@money_source.kind) %></dd>
+            <dt class="col-sm-5"><%= t("money_sources.form.bank", default: "Banco") %></dt>
+            <dd class="col-sm-7"><%= @money_source.bank.presence || "—" %></dd>
+            <% if @money_source.debt? %>
+              <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
+              <dd class="col-sm-7 fw-bold text-danger">
+                <%= number_to_currency(@money_source.loan? ? @money_source.outstanding_balance : @money_source.used_credit) %>
+              </dd>
+            <% else %>
+              <dt class="col-sm-5"><%= t("money_sources.form.starting_balance", default: "Saldo inicial") %></dt>
+              <dd class="col-sm-7"><%= number_to_currency(@money_source.starting_balance) %></dd>
+              <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
+              <dd class="col-sm-7 fw-bold text-success">
+                <%= @money_source.balance_label %>
+              </dd>
+            <% end %>
+            <dt class="col-sm-5"><%= t("money_sources.show.status") %></dt>
+            <dd class="col-sm-7"><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %></dd>
           </dl>
         </div>
       </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm">
+
+      <div class="card shadow-sm mt-4">
         <div class="card-body">
           <h5 class="card-title"><%= t("money_sources.show.tags") %></h5>
           <% if @money_source.tags.any? %>

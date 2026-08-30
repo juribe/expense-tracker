@@ -18,6 +18,7 @@ class MoneySourcesController < ApplicationController
   # GET /money_sources/new
   def new
     @money_source = current_user.money_sources.build
+    @money_source.build_credit_account
   end
 
   # GET /money_sources/1/edit
@@ -65,7 +66,18 @@ class MoneySourcesController < ApplicationController
   end
 
   def money_source_params
-    params.require(:money_source).permit(:name, :kind, :bank, :parent_id, :starting_balance, :active)
+    permitted = [ :name, :kind, :bank, :parent_id, :starting_balance, :active ]
+
+    if params.dig(:money_source, :kind).to_s.in?(%w[credit_card loan]) || @money_source&.debt?
+      permitted << {
+        credit_account_attributes: [ :id, :credit_limit, :interest_rate, :interest_rate_type,
+                                     :card_brand, :card_last_four, :statement_day, :payment_due_day,
+                                     :principal_amount, :outstanding_balance, :installment_amount,
+                                     :installment_count, :payment_frequency, :start_date, :end_date ]
+      }
+    end
+
+    params.require(:money_source).permit(permitted)
   end
 
   def not_found

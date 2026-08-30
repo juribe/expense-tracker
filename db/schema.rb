@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_30_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_31_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,6 +32,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_30_000002) do
     t.index ["parent_id"], name: "index_categories_on_parent_id"
     t.index ["slug"], name: "index_categories_on_slug"
     t.index ["user_id"], name: "index_categories_on_user_id"
+  end
+
+  create_table "credit_accounts", force: :cascade do |t|
+    t.bigint "money_source_id", null: false
+    t.decimal "credit_limit", precision: 14, scale: 2
+    t.decimal "interest_rate", precision: 8, scale: 4
+    t.string "interest_rate_type"
+    t.string "card_brand"
+    t.string "card_last_four"
+    t.integer "statement_day"
+    t.integer "payment_due_day"
+    t.decimal "principal_amount", precision: 14, scale: 2
+    t.decimal "outstanding_balance", precision: 14, scale: 2
+    t.decimal "installment_amount", precision: 14, scale: 2
+    t.integer "installment_count"
+    t.string "payment_frequency"
+    t.date "start_date"
+    t.date "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
   end
 
   create_table "expenses", force: :cascade do |t|
@@ -314,6 +335,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_30_000002) do
   end
 
   add_foreign_key "categories", "users"
+  add_foreign_key "credit_accounts", "money_sources"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
   add_foreign_key "gmail_connections", "users"
