@@ -145,4 +145,77 @@ class MoneySourceTest < ActiveSupport::TestCase
     account.destroy
     assert_nil card.reload.parent_id
   end
+
+  test "loan is a supported kind" do
+    assert_includes MoneySource::KINDS, "loan"
+    loan = create_source(name: "Car Loan", kind: "loan")
+    assert loan.persisted?
+  end
+
+  test "loan? and debt? predicates" do
+    loan = create_source(name: "Loan", kind: "loan")
+    cc = create_source(name: "Visa", kind: "credit_card")
+    acct = create_source(name: "Account", kind: "account")
+    assert loan.loan?
+    assert loan.debt?
+    assert cc.debt?
+    assert_not acct.debt?
+    assert_not cc.loan?
+  end
+
+  test "credit_account association" do
+    cc = create_source(name: "Visa", kind: "credit_card")
+    cc.build_credit_account(credit_limit: 1000, card_brand: "visa", card_last_four: "1234")
+    cc.save!
+    assert cc.credit_account?
+    assert_equal 1000, cc.credit_limit
+    assert_equal "1234", cc.card_last_four
+    assert_equal "visa", cc.card_brand
+  end
+
+  test "used_credit is the positive debt for a credit card" do
+    cc = create_source(name: "Visa", kind: "credit_card", starting_balance: 0)
+    category = Category.create!(name: "Shopping")
+    cc.transactions.create!(user: @user, category: category, amount: -150, date: Date.today, kind: "expense", source: "manual")
+    assert_equal BigDecimal("150"), cc.reload.used_credit
+  end
+
+  test "used_credit is zero for non-debt sources" do
+    acct = create_source(name: "Account", starting_balance: 100)
+    assert_equal 0, acct.used_credit
+  end
+
+  test "available_credit is credit_limit minus used_credit" do
+    cc = create_source(name: "Visa", kind: "credit_card", starting_balance: 0)
+    cc.build_credit_account(credit_limit: 1000)
+    cc.save!
+    category = Category.create!(name: "Shopping")
+    cc.transactions.create!(user: @user, category: category, amount: -300, date: Date.today, kind: "expense", source: "manual")
+    assert_equal BigDecimal("300"), cc.reload.used_credit
+    assert_equal BigDecimal("700"), cc.available_credit
+    assert_equal BigDecimal("30"), cc.credit_utilization
+  end
+
+  test "outstanding_balance reflects stored loan balance" do
+    loan = create_source(name: "Car Loan", kind: "loan")
+    loan.build_credit_account(principal_amount: 114, outstanding_balance: 95, installment_count: 72)
+    loan.save!
+    assert_equal BigDecimal("95"), loan.reload.outstanding_balance
+  end
+
+  test "remaining_installments and repayment_progress are derived" do
+    loan = create_source(name: "Car Loan", kind: "loan")
+    loan.build_credit_account(principal_amount: 100, outstanding_balance: 60, installment_count: 10)
+    loan.save!
+    loan.reload
+    assert_equal 6, loan.remaining_installments
+    assert_equal BigDecimal("60"), loan.repayment_progress
+  end
+
+  test "display_name includes card brand last four for credit card" do
+    cc = create_source(name: "Bancolombia Visa", kind: "credit_card", bank: "Bancolombia")
+    cc.build_credit_account(card_last_four: "1234")
+    cc.save!
+    assert_equal "Bancolombia Visa · Bancolombia · 1234", cc.reload.display_name
+  end
 end

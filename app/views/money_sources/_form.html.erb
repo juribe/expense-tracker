@@ -21,7 +21,8 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <%= f.label :name, class: "form-label" %>
-                <%= f.text_field :name, class: "form-control", placeholder: t("money_sources.form.placeholder_name") %>
+                <%= f.text_field :name, class: "form-control #{field_class(f.object, :name)}", placeholder: t("money_sources.form.placeholder_name") %>
+                <div class="invalid-feedback"><%= field_error(f.object, :name) %></div>
               </div>
               <div class="col-md-6 mb-3">
                 <%= f.label :kind, t("common.type", default: "Tipo"), class: "form-label" %>
@@ -31,39 +32,177 @@
                       @money_source.kind
                     ),
                     {},
-                    class: "form-select" %>
+                    class: "form-select",
+                    id: "money_source_kind" %>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <%= f.label :bank, t("money_sources.form.bank", default: "Banco"), class: "form-label" %>
-                <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
-              </div>
-              <div class="col-md-6 mb-3">
-                <%= f.label :parent_id, t("money_sources.form.linked_to"), class: "form-label" %>
-                <%= f.collection_select :parent_id,
-                    current_user.money_sources.where(kind: %w[account wallet]).where.not(id: @money_source.id),
-                    :id, :display_name,
-                    { include_blank: t("money_sources.form.none") },
-                    class: "form-select" %>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <%= f.label :starting_balance, t("money_sources.form.starting_balance", default: "Saldo inicial"), class: "form-label" %>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <%= f.text_field :starting_balance,
-                      value: money_field_value(@money_source.starting_balance),
-                      class: "form-control",
-                      placeholder: t("money_sources.form.placeholder_balance"),
-                      inputmode: "decimal",
-                      autocomplete: "off",
-                      data: { money_input: true } %>
+            <div data-kind-panel="account cash wallet">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= f.label :bank, t("money_sources.form.bank", default: "Banco"), class: "form-label" %>
+                  <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <%= f.label :starting_balance, t("money_sources.form.starting_balance", default: "Saldo inicial"), class: "form-label" %>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <%= f.text_field :starting_balance,
+                        value: money_field_value(@money_source.starting_balance),
+                        class: "form-control",
+                        placeholder: t("money_sources.form.placeholder_balance"),
+                        inputmode: "decimal",
+                        autocomplete: "off",
+                        data: { money_input: true } %>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            <div data-kind-panel="debit_card">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= f.label :bank, t("money_sources.form.bank", default: "Banco"), class: "form-label" %>
+                  <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <%= f.label :parent_id, t("money_sources.form.linked_to"), class: "form-label" %>
+                  <%= f.collection_select :parent_id,
+                      current_user.money_sources.where(kind: %w[account wallet]).where.not(id: @money_source.id),
+                      :id, :display_name,
+                      { include_blank: t("money_sources.form.none") },
+                      class: "form-select" %>
+                </div>
+              </div>
+            </div>
+
+            <% ca = @money_source.credit_account || @money_source.build_credit_account %>
+            <%= f.fields_for :credit_account, ca do |ca_f| %>
+              <div data-kind-panel="credit_card">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= f.label :bank, t("money_sources.form.bank_issuer"), class: "form-label" %>
+                    <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :card_brand, t("money_sources.form.card_brand"), class: "form-label" %>
+                    <%= ca_f.select :card_brand,
+                        options_for_select(CreditAccount::CARD_BRANDS.map { |b| [ t("money_sources.form.card_brand_options.#{b}"), b ] }, ca.card_brand),
+                        { include_blank: true },
+                        class: "form-select" %>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :card_last_four, t("money_sources.form.last_four"), class: "form-label" %>
+                    <%= ca_f.text_field :card_last_four, class: "form-control", maxlength: 4, inputmode: "numeric" %>
+                    <div class="form-text"><%= t("money_sources.form.last_four_hint") %></div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :credit_limit, t("money_sources.form.credit_limit"), class: "form-label" %>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <%= ca_f.text_field :credit_limit, value: money_field_value(ca.credit_limit), class: "form-control", data: { money_input: true } %>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :interest_rate, t("money_sources.form.interest_rate"), class: "form-label" %>
+                    <div class="input-group">
+                      <%= ca_f.text_field :interest_rate, value: money_field_value(ca.interest_rate), class: "form-control", inputmode: "decimal" %>
+                      <span class="input-group-text">%</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :interest_rate_type, t("money_sources.form.interest_rate_type"), class: "form-label" %>
+                    <%= ca_f.select :interest_rate_type,
+                        options_for_select(CreditAccount::INTEREST_RATE_TYPES.values.map { |t| [ t("money_sources.form.rate_type.#{t}"), t ] }, ca.interest_rate_type),
+                        { include_blank: true },
+                        class: "form-select" %>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :statement_day, t("money_sources.form.statement_day"), class: "form-label" %>
+                    <%= ca_f.number_field :statement_day, class: "form-control", min: 1, max: 31 %>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :payment_due_day, t("money_sources.form.payment_due_day"), class: "form-label" %>
+                    <%= ca_f.number_field :payment_due_day, class: "form-control", min: 1, max: 31 %>
+                  </div>
+                </div>
+                <div class="form-text mb-2"><%= t("money_sources.form.day_hint") %></div>
+              </div>
+
+              <div data-kind-panel="loan">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= f.label :bank, t("money_sources.form.lender"), class: "form-label" %>
+                    <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :principal_amount, t("money_sources.form.original_principal"), class: "form-label" %>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <%= ca_f.text_field :principal_amount, value: money_field_value(ca.principal_amount), class: "form-control", data: { money_input: true } %>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :interest_rate, t("money_sources.form.interest_rate"), class: "form-label" %>
+                    <div class="input-group">
+                      <%= ca_f.text_field :interest_rate, value: money_field_value(ca.interest_rate), class: "form-control", inputmode: "decimal" %>
+                      <span class="input-group-text">%</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :interest_rate_type, t("money_sources.form.interest_rate_type"), class: "form-label" %>
+                    <%= ca_f.select :interest_rate_type,
+                        options_for_select(CreditAccount::INTEREST_RATE_TYPES.values.map { |t| [ t("money_sources.form.rate_type.#{t}"), t ] }, ca.interest_rate_type),
+                        { include_blank: true },
+                        class: "form-select" %>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :installment_amount, t("money_sources.form.installment_amount"), class: "form-label" %>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <%= ca_f.text_field :installment_amount, value: money_field_value(ca.installment_amount), class: "form-control", data: { money_input: true } %>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :installment_count, t("money_sources.form.installment_count"), class: "form-label" %>
+                    <%= ca_f.number_field :installment_count, class: "form-control", min: 1 %>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <%= ca_f.label :payment_frequency, t("money_sources.form.payment_frequency"), class: "form-label" %>
+                    <%= ca_f.select :payment_frequency,
+                        options_for_select(CreditAccount::PAYMENT_FREQUENCIES.map { |t| [ t("money_sources.form.frequency.#{t}"), t ] }, ca.payment_frequency),
+                        { include_blank: true },
+                        class: "form-select" %>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="row">
+                      <div class="col-6">
+                        <%= ca_f.label :start_date, t("money_sources.form.start_date"), class: "form-label" %>
+                        <%= ca_f.date_field :start_date, class: "form-control" %>
+                      </div>
+                      <div class="col-6">
+                        <%= ca_f.label :end_date, t("money_sources.form.end_date"), class: "form-label" %>
+                        <%= ca_f.date_field :end_date, class: "form-control" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="row">
               <div class="col-md-6 mb-3">
                 <div class="form-check mt-4 pt-2">
                   <%= f.check_box :active, class: "form-check-input" %>
@@ -107,25 +246,51 @@
 
 <script>
 (function() {
-  var idx = document.querySelectorAll('.tag-row').length;
-  document.getElementById('addTag').addEventListener('click', function() {
-    var container = document.getElementById('tags');
-    var row = document.createElement('div');
-    row.className = 'row mb-2 tag-row';
-    row.innerHTML =
-      '<div class="col-md-7">' +
-      '<input type="text" name="tags[' + idx + '][value]" class="form-control form-control-sm" placeholder="<%= t("money_sources.form.placeholder_tag_value") %>">' +
-      '</div>' +
-      '<div class="col-md-1">' +
-      '<button type="button" class="btn btn-sm btn-outline-danger remove-tag" title="<%= t("money_sources.form.remove_tag") %>"><i class="bi bi-x-lg"></i></button>' +
-      '</div>';
-    container.appendChild(row);
-    idx++;
-  });
+  function applyKind(kind) {
+    document.querySelectorAll('[data-kind-panel]').forEach(function(el) {
+      var panelKinds = el.getAttribute('data-kind-panel').split(' ');
+      var active = panelKinds.indexOf(kind) !== -1;
+      el.hidden = !active;
+      // Disable inputs in inactive panels so their duplicate field names
+      // (e.g. credit_account interest_rate appears in both credit_card and
+      // loan panels) don't overwrite the active panel's values on submit.
+      el.querySelectorAll('input, select, textarea').forEach(function(input) {
+        input.disabled = !active;
+      });
+    });
+  }
 
-  document.getElementById('tags').addEventListener('click', function(e) {
-    var btn = e.target.closest('.remove-tag');
-    if (btn) btn.closest('.tag-row').remove();
-  });
+  var kindSelect = document.getElementById('money_source_kind');
+  if (kindSelect) {
+    applyKind(kindSelect.value);
+    kindSelect.addEventListener('change', function() { applyKind(kindSelect.value); });
+  }
+
+  var idx = document.querySelectorAll('.tag-row').length;
+  var addTag = document.getElementById('addTag');
+  if (addTag) {
+    addTag.addEventListener('click', function() {
+      var container = document.getElementById('tags');
+      var row = document.createElement('div');
+      row.className = 'row mb-2 tag-row';
+      row.innerHTML =
+        '<div class="col-md-7">' +
+        '<input type="text" name="tags[' + idx + '][value]" class="form-control form-control-sm" placeholder="<%= t("money_sources.form.placeholder_tag_value") %>">' +
+        '</div>' +
+        '<div class="col-md-1">' +
+        '<button type="button" class="btn btn-sm btn-outline-danger remove-tag" title="<%= t("money_sources.form.remove_tag") %>"><i class="bi bi-x-lg"></i></button>' +
+        '</div>';
+      container.appendChild(row);
+      idx++;
+    });
+  }
+
+  var tagsContainer = document.getElementById('tags');
+  if (tagsContainer) {
+    tagsContainer.addEventListener('click', function(e) {
+      var btn = e.target.closest('.remove-tag');
+      if (btn) btn.closest('.tag-row').remove();
+    });
+  }
 })();
 </script>

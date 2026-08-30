@@ -35,7 +35,20 @@ module ApplicationHelper
     when "credit_card" then "credit-card-2-front"
     when "cash" then "cash"
     when "wallet" then "wallet2"
+    when "loan" then "cash-coin"
     else "circle"
+    end
+  end
+
+  # Returns the progress-bar color class for a utilization / repayment percent.
+  def credit_utilization_class(pct)
+    pct = pct.to_f
+    if pct > 80
+      "bg-danger"
+    elsif pct >= 50
+      "bg-warning"
+    else
+      "bg-success"
     end
   end
 

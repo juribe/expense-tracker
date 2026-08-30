@@ -92,6 +92,12 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--bs-border-radius);
 }
 
+/* Debt sources (credit cards, loans) get a left accent to distinguish
+ * them from asset cards in the money sources index and show pages. */
+.card-debt {
+  border-left: 4px solid var(--bs-danger);
+}
+
 .btn {
   border-radius: var(--bs-border-radius-sm);
 }

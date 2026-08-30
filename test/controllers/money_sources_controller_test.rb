@@ -127,4 +127,146 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     get money_source_path(other_source)
     assert_response :not_found
   end
+
+  test "POST /money_sources creates a credit card with credit_account" do
+    assert_difference "MoneySource.count", 1 do
+      assert_difference "CreditAccount.count", 1 do
+        post money_sources_path, params: {
+          money_source: {
+            name: "Visa", kind: "credit_card", bank: "Bancolombia",
+            credit_account_attributes: {
+              credit_limit: "20000000", card_brand: "visa", card_last_four: "1234",
+              interest_rate: "24.5", interest_rate_type: "effective_annual",
+              statement_day: "15", payment_due_day: "30"
+            }
+          }
+        }
+      end
+    end
+    assert_redirected_to money_sources_path
+    source = MoneySource.last
+    assert_equal "credit_card", source.kind
+    assert_equal "Bancolombia", source.bank
+    assert_equal BigDecimal("20000000"), source.credit_account.credit_limit
+    assert_equal "1234", source.credit_account.card_last_four
+  end
+
+  test "POST /money_sources creates a loan with credit_account" do
+    assert_difference "MoneySource.count", 1 do
+      assert_difference "CreditAccount.count", 1 do
+        post money_sources_path, params: {
+          money_source: {
+            name: "Car Loan", kind: "loan", bank: "Banco",
+            credit_account_attributes: {
+              principal_amount: "114000000", outstanding_balance: "95000000",
+              interest_rate: "21.27", interest_rate_type: "effective_annual",
+              installment_count: "72", installment_amount: "2686800",
+              payment_frequency: "monthly", start_date: "2024-01-01", end_date: "2030-01-01"
+            }
+          }
+        }
+      end
+    end
+    assert_redirected_to money_sources_path
+    source = MoneySource.last
+    assert_equal "loan", source.kind
+    assert_equal BigDecimal("114000000"), source.credit_account.principal_amount
+    assert_equal "monthly", source.credit_account.payment_frequency
+  end
+
+  test "POST /money_sources does not create credit_account for account kind" do
+    assert_difference "MoneySource.count", 1 do
+      assert_difference "CreditAccount.count", 0 do
+        post money_sources_path, params: {
+          money_source: { name: "Checking", kind: "account", starting_balance: "1000" }
+        }
+      end
+    end
+  end
+
+  test "GET index groups debt sources" do
+    create_source(name: "Checking", kind: "account")
+    create_source(name: "Visa", kind: "credit_card")
+    get money_sources_path
+    assert_response :success
+    assert_select "h1", text: I18n.t("nav.money_sources")
+  end
+
+  test "GET show renders debt panel for a credit card" do
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Bancolombia")
+    source.build_credit_account(credit_limit: 20000000, card_brand: "visa", card_last_four: "1234")
+    source.save!
+    get money_source_path(source)
+    assert_response :success
+    assert_select ".card-debt"
+  end
+
+  test "GET show renders debt panel for a loan" do
+    source = create_source(name: "Car Loan", kind: "loan", bank: "Banco")
+    source.build_credit_account(principal_amount: 114000000, outstanding_balance: 95000000,
+                                installment_count: 72, installment_amount: 2686800,
+                                payment_frequency: "monthly")
+    source.save!
+    get money_source_path(source)
+    assert_response :success
+    assert_select ".card-debt"
+  end
+
+  test "GET show renders loan outstanding balance, not zero" do
+    source = create_source(name: "Car Loan", kind: "loan", bank: "Banco")
+    source.build_credit_account(principal_amount: 114000000, outstanding_balance: 95000000,
+                                installment_count: 72, installment_amount: 2686800,
+                                payment_frequency: "monthly")
+    source.save!
+    get money_source_path(source)
+    assert_response :success
+    assert_match(/\$95\.000\.000/, response.body)
+  end
+
+  test "GET index renders a loan card without error" do
+    source = create_source(name: "Car Loan", kind: "loan", bank: "Banco")
+    source.build_credit_account(principal_amount: 114000000, outstanding_balance: 95000000,
+                                installment_count: 72, installment_amount: 2686800,
+                                payment_frequency: "monthly", interest_rate: 21.27,
+                                interest_rate_type: "effective_annual")
+    source.save!
+    get money_sources_path
+    assert_response :success
+    assert_match(/Car Loan/, response.body)
+  end
+
+  test "GET new renders kind panels" do
+    get new_money_source_path
+    assert_response :success
+    assert_select "[data-kind-panel]"
+  end
+
+  test "GET edit renders form with existing credit account" do
+    source = create_source(name: "Visa", kind: "credit_card")
+    source.build_credit_account(credit_limit: 20000000, card_brand: "visa", card_last_four: "1234")
+    source.save!
+    get edit_money_source_path(source)
+    assert_response :success
+    assert_select "select[name='money_source[credit_account_attributes][card_brand]']"
+  end
+
+  test "PATCH updates credit_account through nested attributes" do
+    source = create_source(name: "Visa", kind: "credit_card")
+    source.build_credit_account(credit_limit: 1000000, card_last_four: "1111")
+    source.save!
+
+    patch money_source_path(source), params: {
+      money_source: {
+        name: source.name, kind: "credit_card",
+        credit_account_attributes: {
+          id: source.credit_account.id,
+          credit_limit: "2000000", card_last_four: "2222"
+        }
+      }
+    }
+    assert_redirected_to money_sources_path
+    source.reload
+    assert_equal BigDecimal("2000000"), source.credit_account.credit_limit
+    assert_equal "2222", source.credit_account.card_last_four
+  end
 end
