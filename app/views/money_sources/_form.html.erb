@@ -249,7 +249,14 @@
   function applyKind(kind) {
     document.querySelectorAll('[data-kind-panel]').forEach(function(el) {
       var panelKinds = el.getAttribute('data-kind-panel').split(' ');
-      el.hidden = panelKinds.indexOf(kind) === -1;
+      var active = panelKinds.indexOf(kind) !== -1;
+      el.hidden = !active;
+      // Disable inputs in inactive panels so their duplicate field names
+      // (e.g. credit_account interest_rate appears in both credit_card and
+      // loan panels) don't overwrite the active panel's values on submit.
+      el.querySelectorAll('input, select, textarea').forEach(function(input) {
+        input.disabled = !active;
+      });
     });
   }
 
