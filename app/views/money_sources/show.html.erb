@@ -36,16 +36,15 @@
     <div class="col-md-6">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h5 class="card-title"><%= t("money_sources.show.identifiers") %></h5>
-          <% if @money_source.identifiers.any? %>
-            <% @money_source.identifiers.each do |ident| %>
+          <h5 class="card-title"><%= t("money_sources.show.tags") %></h5>
+          <% if @money_source.tags.any? %>
+            <% @money_source.tags.each do |tag| %>
               <span class="badge bg-light text-dark me-1 mb-1">
-                <i class="bi bi-<%= ident.kind == 'card_last_four' ? 'credit-card' : 'tag' %> me-1"></i>
-                <%= identifier_display(ident) %>
+                <%= tag.value %>
               </span>
             <% end %>
           <% else %>
-            <p class="text-muted mb-0"><%= t("money_sources.show.no_identifiers") %></p>
+            <p class="text-muted mb-0"><%= t("money_sources.show.no_tags") %></p>
           <% end %>
         </div>
       </div>

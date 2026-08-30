@@ -1,55 +1,59 @@
 # frozen_string_literal: true
 
 module MoneySources
-  # Matches an incoming transaction to a MoneySource using extracted
-  # identifiers (card_last_four, bank). Returns the matched MoneySource or nil.
+  # Matches an incoming transaction to a MoneySource using normalized tags.
+  # Returns a single MoneySource when unambiguous, an array of candidates when
+  # the tag is ambiguous, and nil when nothing matches.
   #
+  #   MoneySources::Match.call(user: user, tag: "Tarjeta Clásica")
   #   MoneySources::Match.call(user: user, card_last_four: "1234", bank: "Bancolombia")
   class Match
-    def self.call(user:, card_last_four: nil, bank: nil)
-      new(user: user, card_last_four: card_last_four, bank: bank).call
+    def self.call(user:, **kwargs)
+      new(user: user, **kwargs).call
     end
 
-    def initialize(user:, card_last_four: nil, bank: nil)
+    def initialize(user:, tag: nil, card_last_four: nil, bank: nil)
       @user = user
-      @card_last_four = normalize_card(card_last_four)
-      @bank = bank.to_s.strip.presence
+      @tag = tag
+      @card_last_four = card_last_four
+      @bank = bank
     end
 
     def call
-      match_by_card || match_by_bank
+      sources = candidate_sources.to_a
+      return nil if sources.empty?
+      return sources.first if sources.one?
+
+      sources
     end
 
     private
 
-    def match_by_card
-      return nil if @card_last_four.blank?
+    # Resolves every lookup value against the user's active MoneySource tags.
+    # card_last_four/bank are legacy hints: they become ordinary tag lookups.
+    def candidate_sources
+      values = lookup_values
+      return MoneySource.none if values.empty?
 
-      sources = MoneySource
-        .active
-        .joins(:identifiers)
-        .where(user: @user)
-        .where(money_source_identifiers: { kind: "card_last_four", value: @card_last_four })
-
-      sources.first if sources.one?
+      values.flat_map { |value| sources_with_tag(value).to_a }.uniq(&:id)
     end
 
-    def match_by_bank
-      return nil if @bank.blank?
+    def lookup_values
+      values = []
+      values << MoneySourceTag.normalize(@tag) if @tag.present?
 
-      normalized_bank = @bank.downcase.strip
-      sources = MoneySource
-        .active
-        .joins(:identifiers)
-        .where(user: @user)
-        .where(money_source_identifiers: { kind: "bank_name", value: normalized_bank })
-
-      sources.first if sources.one?
+      values << last_four if last_four.present?
+      values << @bank.to_s.strip.downcase if @bank.present?
+      values
     end
 
-    def normalize_card(value)
-      digits = value.to_s.scan(/\d/).join
-      digits[-4..]&.then { |last4| last4.length == 4 ? last4 : nil }
+    def last_four
+      digits = @card_last_four.to_s.scan(/\d/).join
+      digits[-4..] if digits.length >= 4
+    end
+
+    def sources_with_tag(value)
+      MoneySource.with_tag(value).where(user: @user)
     end
   end
 end

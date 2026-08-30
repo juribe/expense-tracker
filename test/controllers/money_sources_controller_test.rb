@@ -48,17 +48,16 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("money_sources.flashes.created"), flash[:notice]
   end
 
-  test "POST /money_sources creates with identifiers" do
+  test "POST /money_sources creates with tags" do
     assert_difference "MoneySource.count", 1 do
-      assert_difference "MoneySourceIdentifier.count", 1 do
+      assert_difference "MoneySourceTag.count", 1 do
         post money_sources_path, params: {
-          money_source: { name: "Visa", kind: "credit_card" },
-          identifiers: [{ kind: "card_last_four", value: "1234" }]
+          money_source: { name: "Visa", kind: "credit_card", tags: [ "1234" ] }
         }
       end
     end
     source = MoneySource.last
-    assert_equal "1234", source.identifiers.first.value
+    assert_equal "1234", source.tags.first.value
   end
 
   test "POST /money_sources renders new on validation failure" do
@@ -91,27 +90,27 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated Name", source.reload.name
   end
 
-  test "PATCH /money_sources/:id updates identifiers" do
+  test "PATCH /money_sources/:id updates tags" do
     source = create_source
-    source.identifiers.create!(kind: "card_last_four", value: "1111")
+    source.tags.create!(value: "1111")
 
     patch money_source_path(source), params: {
       money_source: { name: source.name },
-      identifiers: [{ kind: "card_last_four", value: "9999" }]
+      tags: [ "9999" ]
     }
-    assert_equal 1, source.reload.identifiers.count
-    assert_equal "9999", source.identifiers.first.value
+    assert_equal 1, source.reload.tags.count
+    assert_equal "9999", source.tags.first.value
   end
 
-  test "PATCH /money_sources/:id removes identifiers when blank" do
+  test "PATCH /money_sources/:id removes tags when blank" do
     source = create_source
-    source.identifiers.create!(kind: "card_last_four", value: "1111")
+    source.tags.create!(value: "1111")
 
     patch money_source_path(source), params: {
       money_source: { name: source.name },
-      identifiers: []
+      tags: []
     }
-    assert_equal 0, source.reload.identifiers.count
+    assert_equal 0, source.reload.tags.count
   end
 
   test "DELETE /money_sources/:id destroys the money source" do

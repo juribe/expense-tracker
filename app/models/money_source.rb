@@ -6,7 +6,7 @@ class MoneySource < ApplicationRecord
   belongs_to :user
   belongs_to :parent, class_name: "MoneySource", optional: true
   has_many :children, class_name: "MoneySource", foreign_key: :parent_id, dependent: :nullify
-  has_many :identifiers, class_name: "MoneySourceIdentifier", dependent: :destroy
+  has_many :tags, class_name: "MoneySourceTag", dependent: :destroy
   has_many :transactions, dependent: :nullify
   has_many :recurring_templates, dependent: :nullify
   has_many :outgoing_transfers, class_name: "Transfer", foreign_key: :from_source_id, dependent: :destroy
@@ -14,10 +14,13 @@ class MoneySource < ApplicationRecord
 
   validates :name, presence: true
   validates :kind, presence: true, inclusion: { in: KINDS }
-  validates :starting_balance, presence: true, numericality: true
+  validates :starting_balance, numericality: true
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
+  scope :with_tag, ->(value) {
+    joins(:tags).where(tags: { value: MoneySourceTag.normalize(value) }).where(active: true).distinct
+  }
 
   before_validation :normalize_kind
 

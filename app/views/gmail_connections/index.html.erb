@@ -95,7 +95,7 @@
               <tbody>
                 <% @pending_reviews.each do |review| %>
                   <% (review.payload_data["transactions"] || []).each do |t| %>
-                    <% matched_source = MoneySources::Match.call(user: current_user, card_last_four: t["card_last_four"], bank: t["bank"]) %>
+                    <% candidate_sources = Array(MoneySources::Match.call(user: current_user, card_last_four: t["card_last_four"], bank: t["bank"])) %>
                     <tr data-testid="review-row">
                       <td><%= t["merchant"] %> <span class="badge bg-light text-dark"><%= t["type"] %></span></td>
                       <td><%= number_to_currency(t["amount"].to_f, unit: "$ ", delimiter: ",", separator: ".") %></td>
@@ -108,8 +108,10 @@
                         <% if t["bank"].present? %>
                           <span class="badge bg-light text-dark"><i class="bi bi-bank me-1"></i><%= t["bank"] %></span>
                         <% end %>
-                        <% if matched_source %>
-                          <div class="small text-success mt-1"><i class="bi bi-check-circle me-1"></i><%= matched_source.display_name %></div>
+                        <% if candidate_sources.one? %>
+                          <div class="small text-success mt-1"><i class="bi bi-check-circle me-1"></i><%= candidate_sources.first.display_name %></div>
+                        <% elsif candidate_sources.many? %>
+                          <div class="small text-warning mt-1"><i class="bi bi-exclamation-triangle me-1"></i><%= t("gmail.ambiguous_match", default: "Ambiguous match") %>: <%= candidate_sources.map(&:display_name).join(", ") %></div>
                         <% end %>
                       </td>
                       <td class="text-end">

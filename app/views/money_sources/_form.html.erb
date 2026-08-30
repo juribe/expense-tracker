@@ -73,38 +73,26 @@
             </div>
 
             <hr>
-            <h6 class="mb-3"><%= t("money_sources.form.identifiers_title") %></h6>
-            <div id="identifiers">
-              <% blank_ident = Struct.new(:kind, :value).new("", "") %>
-              <% identifier_list = @identifier_rows || @money_source.identifiers %>
-              <% (identifier_list.presence || [ blank_ident ]).each_with_index do |ident, idx| %>
-                <div class="row mb-2 identifier-row">
-                  <% if ident.respond_to?(:persisted?) && ident.persisted? %>
-                    <input type="hidden" name="identifiers[<%= idx %>][id]" value="<%= ident.id %>">
-                  <% end %>
-                  <div class="col-md-4">
-                    <select name="identifiers[<%= idx %>][kind]" class="form-select form-select-sm">
-                      <option value=""><%= t("identifiers.select_type") %></option>
-                      <%= options_for_select(
-                        MoneySourceIdentifier::KINDS.map { |k| [identifier_kind_label(k), k] },
-                        ident.kind
-                      ) %>
-                    </select>
-                  </div>
+            <h6 class="mb-3"><%= t("money_sources.form.tags_title") %></h6>
+            <div id="tags">
+              <% blank_tag = Struct.new(:value).new("") %>
+              <% tag_list = @tag_values || @money_source.tags %>
+              <% (tag_list.presence || [ blank_tag ]).each_with_index do |tag, idx| %>
+                <div class="row mb-2 tag-row">
                   <div class="col-md-7">
-                    <input type="text" name="identifiers[<%= idx %>][value]" class="form-control form-control-sm"
-                           placeholder="<%= t("money_sources.form.placeholder_identifier_value") %>" value="<%= ident.value %>">
+                    <input type="text" name="tags[<%= idx %>][value]" class="form-control form-control-sm"
+                           placeholder="<%= t("money_sources.form.placeholder_tag_value") %>" value="<%= tag.respond_to?(:value) ? tag.value : tag %>">
                   </div>
                   <div class="col-md-1">
-                    <button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="<%= t("money_sources.form.remove_identifier") %>">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-tag" title="<%= t("money_sources.form.remove_tag") %>">
                       <i class="bi bi-x-lg"></i>
                     </button>
                   </div>
                 </div>
               <% end %>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="addIdentifier">
-              <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.form.add_identifier") %>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="addTag">
+              <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.form.add_tag") %>
             </button>
 
             <div class="d-grid mt-3">
@@ -119,32 +107,25 @@
 
 <script>
 (function() {
-  var idx = document.querySelectorAll('.identifier-row').length;
-  document.getElementById('addIdentifier').addEventListener('click', function() {
-    var container = document.getElementById('identifiers');
+  var idx = document.querySelectorAll('.tag-row').length;
+  document.getElementById('addTag').addEventListener('click', function() {
+    var container = document.getElementById('tags');
     var row = document.createElement('div');
-    row.className = 'row mb-2 identifier-row';
+    row.className = 'row mb-2 tag-row';
     row.innerHTML =
-      '<div class="col-md-4">' +
-      '<select name="identifiers[' + idx + '][kind]" class="form-select form-select-sm">' +
-      '<option value=""><%= t("identifiers.select_type") %></option>' +
-      '<option value="card_last_four"><%= identifier_kind_label("card_last_four") %></option>' +
-      '<option value="bank_name"><%= identifier_kind_label("bank_name") %></option>' +
-      '<option value="account_number"><%= identifier_kind_label("account_number") %></option>' +
-      '</select></div>' +
       '<div class="col-md-7">' +
-      '<input type="text" name="identifiers[' + idx + '][value]" class="form-control form-control-sm" placeholder="<%= t("money_sources.form.placeholder_identifier_value") %>">' +
+      '<input type="text" name="tags[' + idx + '][value]" class="form-control form-control-sm" placeholder="<%= t("money_sources.form.placeholder_tag_value") %>">' +
       '</div>' +
       '<div class="col-md-1">' +
-      '<button type="button" class="btn btn-sm btn-outline-danger remove-identifier" title="<%= t("money_sources.form.remove_identifier") %>"><i class="bi bi-x-lg"></i></button>' +
+      '<button type="button" class="btn btn-sm btn-outline-danger remove-tag" title="<%= t("money_sources.form.remove_tag") %>"><i class="bi bi-x-lg"></i></button>' +
       '</div>';
     container.appendChild(row);
     idx++;
   });
 
-  document.getElementById('identifiers').addEventListener('click', function(e) {
-    var btn = e.target.closest('.remove-identifier');
-    if (btn) btn.closest('.identifier-row').remove();
+  document.getElementById('tags').addEventListener('click', function(e) {
+    var btn = e.target.closest('.remove-tag');
+    if (btn) btn.closest('.tag-row').remove();
   });
 })();
 </script>

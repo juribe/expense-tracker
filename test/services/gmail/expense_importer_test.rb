@@ -78,6 +78,26 @@ module Gmail
       assert_equal expense.id, processed.expense_id
     end
 
+    test "assigns the money source when exactly one source matches" do
+      source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+      source.tags.create!(value: "1234")
+
+      result = importer.call(@message)
+
+      assert_equal :processed, result.status
+      assert_equal source, Expense.find(result.expense_ids.first).money_source
+    end
+
+    test "does not auto-assign a money source when the match is ambiguous" do
+      @user.money_sources.create!(name: "Source A", kind: "credit_card").tags.create!(value: "1234")
+      @user.money_sources.create!(name: "Source B", kind: "credit_card").tags.create!(value: "1234")
+
+      result = importer.call(@message)
+
+      assert_equal :processed, result.status
+      assert_nil Expense.find(result.expense_ids.first).money_source
+    end
+
     test "never processes the same message twice" do
       importer.call(@message)
 

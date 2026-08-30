@@ -8,7 +8,7 @@ class MoneySourcesController < ApplicationController
 
   # GET /money_sources
   def index
-    @money_sources = current_user.money_sources.includes(:parent, :identifiers, :children).order(:kind, :name)
+    @money_sources = current_user.money_sources.includes(:parent, :tags, :children).order(:kind, :name)
   end
 
   # GET /money_sources/1
@@ -27,13 +27,11 @@ class MoneySourcesController < ApplicationController
   # POST /money_sources
   def create
     @money_source = current_user.money_sources.build(money_source_params)
-    @identifier_rows = collect_identifier_rows
-
-    @money_source.valid?
-    collect_identifier_errors
+    @tag_values = collect_tag_values
+    validate_with_tags
 
     if @money_source.errors.empty? && @money_source.save
-      persist_identifiers(@identifier_rows)
+      persist_tags(@tag_values)
       redirect_to money_sources_path, notice: t("money_sources.flashes.created")
     else
       render :new, status: :unprocessable_entity
@@ -43,13 +41,11 @@ class MoneySourcesController < ApplicationController
   # PATCH/PUT /money_sources/1
   def update
     @money_source.assign_attributes(money_source_params)
-    @identifier_rows = collect_identifier_rows
-
-    @money_source.valid?
-    collect_identifier_errors
+    @tag_values = collect_tag_values
+    validate_with_tags
 
     if @money_source.errors.empty? && @money_source.save
-      persist_identifiers(@identifier_rows)
+      persist_tags(@tag_values)
       redirect_to money_sources_path, notice: t("money_sources.flashes.updated")
     else
       render :edit, status: :unprocessable_entity
@@ -76,52 +72,39 @@ class MoneySourcesController < ApplicationController
     head :not_found
   end
 
-  def collect_identifier_rows
-    return [] unless params[:identifiers].present?
-
-    raw = params[:identifiers]
+  # Tags are edited through plain `tags[...][value]` inputs (the old
+  # identifiers pattern) and are persisted separately from strong params.
+  def collect_tag_values
+    raw = params.dig(:money_source, :tags)
+    raw = params[:tags] if raw.blank?
     raw = raw.values if raw.is_a?(ActionController::Parameters)
 
-    Array(raw).filter_map do |ident|
-      next if ident.blank?
-
-      source = ident.respond_to?(:to_unsafe_h) ? ident.to_unsafe_h : ident
-      permitted = ActionController::Parameters.new(source).permit(:id, :kind, :value)
-      kind = permitted[:kind].to_s.strip
-      value = permitted[:value].to_s.strip
-      next if kind.blank? && value.blank?
-
-      identifier = if permitted[:id].present?
-                     @money_source.identifiers.find_by(id: permitted[:id]) || @money_source.identifiers.build
-                   else
-                     @money_source.identifiers.build
-                   end
-
-      identifier.kind = kind
-      identifier.value = value
-      identifier
+    Array(raw).filter_map do |tag|
+      value = tag.is_a?(ActionController::Parameters) ? tag[:value] : tag
+      value.to_s.strip.downcase.presence
     end
   end
 
-  def collect_identifier_errors
-    @identifier_rows.each do |identifier|
-      next if identifier.valid?
-      identifier.errors.full_messages.each do |msg|
-        @money_source.errors.add(:base, t("money_sources.form.identifier_error_prefix", message: msg))
+  def validate_with_tags
+    @money_source.valid?
+
+    @tag_values.each do |value|
+      tag = @money_source.tags.find_or_initialize_by(value: value)
+      next if tag.valid?
+
+      tag.errors.full_messages.each do |message|
+        @money_source.errors.add(:base, t("money_sources.form.tag_error_prefix", message: message))
       end
     end
   end
 
-  def persist_identifiers(identifier_rows)
-    new_ids = []
-
-    identifier_rows.each do |identifier|
-      identifier.money_source = @money_source
-      if identifier.save
-        new_ids << identifier.id
-      end
+  def persist_tags(tag_values)
+    new_ids = tag_values.filter_map do |value|
+      tag = @money_source.tags.find_or_initialize_by(value: value)
+      tag.save
+      tag.id
     end
 
-    @money_source.identifiers.where.not(id: new_ids).destroy_all
+    @money_source.tags.where.not(id: new_ids).destroy_all
   end
 end

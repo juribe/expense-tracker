@@ -55,10 +55,6 @@ module ApplicationHelper
     end
   end
 
-  def identifier_kind_label(kind)
-    t("identifiers.#{kind.to_s}", default: kind.to_s.titleize)
-  end
-
   def status_label(status)
     case status.to_s
     when "pending" then t("statuses.pending")
@@ -73,19 +69,6 @@ module ApplicationHelper
     case status.to_s
     when "activated" then t("statuses.activated")
     when "deactivated" then t("statuses.deactivated")
-    end
-  end
-
-  def identifier_display(ident)
-    case ident.kind
-    when "card_last_four"
-      "**** #{ident.value}"
-    when "bank_name"
-      ident.value.titleize
-    when "account_number"
-      "****#{ident.value.last(4)}"
-    else
-      ident.value
     end
   end
 end

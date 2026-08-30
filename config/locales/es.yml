@@ -158,13 +158,6 @@ es:
     cash: "Efectivo"
     wallet: "Monedero"
 
-  identifiers:
-    card_last_four: "Últimos 4 de la tarjeta"
-    bank_name: "Nombre del banco"
-    account_number: "Número de cuenta"
-    select_type: "Selecciona el tipo..."
-    remove: "Eliminar"
-
   categories:
     title: "Categorías"
     new: "Nueva categoría"
@@ -274,24 +267,24 @@ es:
       details: "Detalles"
       current_balance: "Saldo actual"
       status: "Estado"
-      identifiers: "Identificadores"
-      no_identifiers: "No hay identificadores configurados."
+      tags: "Etiquetas de coincidencia"
+      no_tags: "No hay etiquetas configuradas."
     form:
       title_new: "Nueva Fuente de Dinero"
       title_edit: "Editar Fuente de Dinero"
       error_prohibited:
         one: "%{count} error impidió guardar la fuente de dinero:"
         other: "%{count} errores impidieron guardar la fuente de dinero:"
-      identifier_error_prefix: "Identificador: %{message}"
+      tag_error_prefix: "Etiqueta: %{message}"
       placeholder_name: "p. ej. Ahorros Bancolombia"
       placeholder_bank: "p. ej. Bancolombia"
       placeholder_balance: "0.00"
       linked_to: "Vinculada a (para tarjetas)"
       none: "Ninguno"
-      identifiers_title: "Identificadores (para coincidencia automática de importaciones)"
-      add_identifier: "Agregar identificador"
-      placeholder_identifier_value: "p. ej. 1234 o Bancolombia"
-      remove_identifier: "Eliminar"
+      tags_title: "Etiquetas de coincidencia (para reconocer la fuente en emails)"
+      add_tag: "Agregar etiqueta"
+      placeholder_tag_value: "p. ej. tarjeta clásica o 1234"
+      remove_tag: "Eliminar"
       submit_create: "Crear Fuente de Dinero"
       submit_update: "Actualizar Fuente de Dinero"
     flashes:
@@ -647,6 +640,7 @@ es:
     merchant: "Comercio"
     confidence: "Confianza"
     card_bank: "Tarjeta/Banco"
+    ambiguous_match: "Coincidencia ambigua"
     approve: "Aprobar"
     discard: "Descartar"
     discard_confirm: "¿Descartar esta transacción?"

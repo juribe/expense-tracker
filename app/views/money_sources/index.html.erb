@@ -47,12 +47,11 @@
               <% end %>
             </div>
 
-            <% if source.identifiers.any? %>
+            <% if source.tags.any? %>
               <div class="mt-2">
-                <% source.identifiers.each do |ident| %>
+                <% source.tags.each do |tag| %>
                   <span class="badge bg-light text-dark me-1">
-                    <i class="bi bi-<%= ident.kind == 'card_last_four' ? 'credit-card' : 'tag' %> me-1"></i>
-                    <%= identifier_display(ident) %>
+                    <%= tag.value %>
                   </span>
                 <% end %>
               </div>

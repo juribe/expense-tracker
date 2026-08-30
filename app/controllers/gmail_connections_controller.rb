@@ -127,11 +127,14 @@ class GmailConnectionsController < ApplicationController
     transactions.filter_map do |transaction|
       next unless transaction["type"] == "expense"
 
-      money_source = MoneySources::Match.call(
+      matched = MoneySources::Match.call(
         user: current_user,
         card_last_four: transaction["card_last_four"],
         bank: transaction["bank"]
       )
+      # Match returns an array when several sources share the tag. Do not
+      # auto-assign: leave the expense without a source for manual review.
+      money_source = matched if matched.is_a?(MoneySource)
 
       Expenses::Create.call(
         user: current_user,

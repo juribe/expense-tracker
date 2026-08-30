@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_27_075530) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_30_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -76,15 +76,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_27_075530) do
     t.index ["user_id"], name: "index_incomes_on_user_id"
   end
 
-  create_table "money_source_identifiers", force: :cascade do |t|
-    t.integer "money_source_id", null: false
-    t.string "kind", null: false
+  create_table "money_source_tags", force: :cascade do |t|
+    t.bigint "money_source_id", null: false
     t.string "value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["kind", "value"], name: "index_money_source_identifiers_on_kind_and_value", unique: true
-    t.index ["money_source_id", "kind"], name: "index_money_source_identifiers_on_money_source_id_and_kind"
-    t.index ["money_source_id"], name: "index_money_source_identifiers_on_money_source_id"
+    t.index ["money_source_id", "value"], name: "index_money_source_tags_on_money_source_id_and_value", unique: true
+    t.index ["money_source_id"], name: "index_money_source_tags_on_money_source_id"
+    t.index ["value"], name: "index_money_source_tags_on_value"
   end
 
   create_table "money_sources", force: :cascade do |t|
@@ -97,7 +96,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_27_075530) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "identifier"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
+    t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
     t.index ["user_id"], name: "index_money_sources_on_user_id"
   end
@@ -318,7 +319,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_27_075530) do
   add_foreign_key "gmail_connections", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
-  add_foreign_key "money_source_identifiers", "money_sources"
+  add_foreign_key "money_source_tags", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
   add_foreign_key "money_sources", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id"

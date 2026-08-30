@@ -84,11 +84,14 @@ module Gmail
             next
           end
 
-          money_source = MoneySources::Match.call(
+          matched = MoneySources::Match.call(
             user: @connection.user,
             card_last_four: transaction[:card_last_four],
             bank: transaction[:bank]
           )
+          # Match returns an array when several sources share the tag. Do not
+          # auto-assign: leave the expense without a source for manual review.
+          money_source = matched if matched.is_a?(MoneySource)
 
           expense_ids << Expenses::Create.call(
             user: @connection.user,

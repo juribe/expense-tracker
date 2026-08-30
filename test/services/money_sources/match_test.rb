@@ -13,107 +13,131 @@ module MoneySources
       MoneySources::Match.call(user: @user, **overrides)
     end
 
-    test "returns nil when no identifiers exist" do
-      assert_nil match(card_last_four: "1234", bank: "Bancolombia")
+    test "returns nil when no tags exist" do
+      assert_nil match(tag: "tarjeta clásica")
     end
 
-    test "matches by card_last_four when exactly one active source has that identifier" do
+    test "matches by tag when exactly one active source has that tag" do
       source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-      source.identifiers.create!(kind: "card_last_four", value: "1234")
+      source.tags.create!(value: "tarjeta clásica")
 
-      result = match(card_last_four: "1234")
+      result = match(tag: "Tarjeta Clásica")
       assert_equal source, result
     end
 
-    test "normalizes card_last_four input" do
+    test "normalizes tag input" do
       source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-      source.identifiers.create!(kind: "card_last_four", value: "1234")
+      source.tags.create!(value: "tarjeta clásica")
 
-      assert_equal source, match(card_last_four: "98761234")
-      assert_equal source, match(card_last_four: "abcd-1234")
+      assert_equal source, match(tag: "  Tarjeta Clásica  ")
+      assert_equal source, match(tag: "TARJETA CLÁSICA")
     end
 
-    test "does not match card from different user" do
+    test "does not match tag from different user" do
       other_source = @other_user.money_sources.create!(name: "Other Visa", kind: "credit_card")
-      other_source.identifiers.create!(kind: "card_last_four", value: "5678")
+      other_source.tags.create!(value: "tarjeta clásica")
 
-      assert_nil match(card_last_four: "5678")
+      assert_nil match(tag: "tarjeta clásica")
     end
 
-    test "does not match inactive source by card" do
+    test "does not match tag from inactive source" do
       source = @user.money_sources.create!(name: "Old Card", kind: "credit_card")
-      source.identifiers.create!(kind: "card_last_four", value: "1234")
+      source.tags.create!(value: "tarjeta clásica")
       source.update!(active: false)
 
-      assert_nil match(card_last_four: "1234")
+      assert_nil match(tag: "tarjeta clásica")
     end
 
-    test "matches by bank_name when exactly one active source has that identifier" do
-      source = @user.money_sources.create!(name: "Savings", kind: "account", bank: "bancolombia")
-      source.identifiers.create!(kind: "bank_name", value: "bancolombia")
+    test "matches by tag for bank-like value" do
+      source = @user.money_sources.create!(name: "Savings", kind: "account")
+      source.tags.create!(value: "bancolombia")
 
-      result = match(bank: "Bancolombia")
+      result = match(tag: "Bancolombia")
       assert_equal source, result
     end
 
-    test "normalizes bank name input" do
+    test "normalizes bank tag input" do
       source = @user.money_sources.create!(name: "Savings", kind: "account")
-      source.identifiers.create!(kind: "bank_name", value: "bancolombia")
+      source.tags.create!(value: "bancolombia")
 
-      assert_equal source, match(bank: "  Bancolombia  ")
-      assert_equal source, match(bank: "BANCOLOMBIA")
+      assert_equal source, match(tag: "  Bancolombia  ")
+      assert_equal source, match(tag: "BANCOLOMBIA")
     end
 
-    test "does not match bank from different user" do
+    test "does not match bank tag from different user" do
       other_source = @other_user.money_sources.create!(name: "Other Savings", kind: "account")
-      other_source.identifiers.create!(kind: "bank_name", value: "davivienda")
+      other_source.tags.create!(value: "davivienda")
 
-      assert_nil match(bank: "Davivienda")
+      assert_nil match(tag: "Davivienda")
     end
 
-    test "does not match inactive source by bank_name" do
+    test "does not match inactive source by bank tag" do
       source = @user.money_sources.create!(name: "Old Account", kind: "account")
-      source.identifiers.create!(kind: "bank_name", value: "bancolombia")
+      source.tags.create!(value: "bancolombia")
       source.update!(active: false)
 
-      assert_nil match(bank: "Bancolombia")
+      assert_nil match(tag: "Bancolombia")
     end
 
-    test "prefers card match over bank match" do
+    test "prefers tag match" do
       card_source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-      card_source.identifiers.create!(kind: "card_last_four", value: "1234")
+      card_source.tags.create!(value: "1234")
 
       bank_source = @user.money_sources.create!(name: "Savings", kind: "account")
-      bank_source.identifiers.create!(kind: "bank_name", value: "bancolombia")
+      bank_source.tags.create!(value: "bancolombia")
 
-      result = match(card_last_four: "1234", bank: "Bancolombia")
+      result = match(tag: "1234")
       assert_equal card_source, result
     end
 
-    test "falls back to bank match when card is nil" do
-      bank_source = @user.money_sources.create!(name: "Savings", kind: "account")
-      bank_source.identifiers.create!(kind: "bank_name", value: "bancolombia")
+    test "returns multiple candidates when multiple sources have same tag" do
+      source_1 = @user.money_sources.create!(name: "Source A", kind: "account")
+      source_1.tags.create!(value: "tarjeta clásica")
 
-      result = match(bank: "Bancolombia")
-      assert_equal bank_source, result
+      source_2 = @user.money_sources.create!(name: "Source B", kind: "account")
+      source_2.tags.create!(value: "tarjeta clásica")
+
+      result = match(tag: "tarjeta clásica")
+      assert_includes result, source_1
+      assert_includes result, source_2
+      assert_equal 2, result.length
     end
 
-    test "returns nil when both card and bank are blank" do
-      assert_nil match
+    test "returns only active sources when matching" do
+      inactive = @user.money_sources.create!(name: "Inactive", kind: "account", active: false)
+      active_source = @user.money_sources.create!(name: "Active", kind: "account")
+      active_source.tags.create!(value: "tarjeta clásica")
+      inactive.tags.create!(value: "tarjeta clásica")
+
+      result = match(tag: "tarjeta clásica")
+      assert_equal active_source, result
     end
 
-    test "returns nil when card has no match and bank is nil" do
+    test "returns nil for non-existent tag" do
+      assert_nil match(tag: "non_existent")
+    end
+
+    test "with_tag returns an empty relation for a non-existent tag" do
+      assert_empty MoneySource.with_tag("non_existent")
+    end
+
+    test "with_tag scope works" do
       source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-      source.identifiers.create!(kind: "card_last_four", value: "1234")
+      source.tags.create!(value: "tarjeta clásica")
 
-      assert_nil match(card_last_four: "9999")
+      result = MoneySource.with_tag("Tarjeta Clásica")
+      assert_includes result, source
     end
 
-    test "returns nil when card is nil and bank has no match" do
-      source = @user.money_sources.create!(name: "Savings", kind: "account")
-      source.identifiers.create!(kind: "bank_name", value: "bancolombia")
+    test "with_tag returns only active sources" do
+      inactive = @user.money_sources.create!(name: "Inactive", kind: "account", active: false)
+      active_source = @user.money_sources.create!(name: "Active", kind: "account")
+      active_source.tags.create!(value: "tarjeta clásica")
+      inactive.tags.create!(value: "tarjeta clásica")
 
-      assert_nil match(bank: "Davivienda")
+      result = MoneySource.with_tag("tarjeta clásica")
+      assert_includes result, active_source
+      refute_includes result, inactive
     end
   end
 end

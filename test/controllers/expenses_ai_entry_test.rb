@@ -133,7 +133,8 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     errors = JSON.parse(response.body)["errors"]
-    assert errors.first.to_s.include?("Expense 2")
+    row_label = I18n.t("expenses.bulk_row_error", index: 2, message: "[MSG]").split("[MSG]").first
+    assert errors.first.to_s.include?(row_label)
   end
 
   test "POST /expenses/bulk_create redirects HTML requests back to the list" do
