@@ -117,14 +117,14 @@
 
   <div class="bulk-bar" id="bulkBar" role="region" aria-label="<%= t('expenses.bulk_actions_label') %>" data-testid="bulk-bar">
     <strong id="bulkCount" aria-live="polite"><%= t("expenses.bulk_selected", count: 0) %></strong>
-    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category">
+    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
       <i class="bi bi-tags me-1"></i><%= t("expenses.bulk_category_button") %>
     </button>
-    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source">
+    <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
       <i class="bi bi-wallet2 me-1"></i><%= t("expenses.bulk_source_button") %>
     </button>
-    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSel"><%= t("common.clear") %></button>
-    <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete"><i class="bi bi-trash me-1"></i><%= t("expenses.delete_selected") %></button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSel" disabled><%= t("common.clear") %></button>
+    <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete" disabled><i class="bi bi-trash me-1"></i><%= t("expenses.delete_selected") %></button>
   </div>
 
   <div class="card shadow-sm" id="tableCard">
@@ -389,17 +389,23 @@
 
   function updateBulk() {
     var checks = $$(".row-check");
-    var n = checks.filter(function (c) { return c.checked; }).length;
-    $("#bulkBar").classList.toggle("show", n > 0);
+    var n = selectedIds().length;
+    var has = n > 0;
     $("#bulkCount").textContent = n + " seleccionados";
     var all = $("#selectAll");
-    if (all) all.checked = checks.length > 0 && n === checks.length;
+    if (all) all.checked = checks.length > 0 && $$(".row-check").filter(function (c) { return c.checked; }).length === checks.length;
+    ["bulkCategory", "bulkSource", "clearSel", "bulkDelete"].forEach(function (id) {
+      var el = $("#" + id);
+      if (el) el.disabled = !has;
+    });
   }
 
   function selectedIds() {
-    return $$("tr[data-id], .mobile-item[data-id]")
+    var seen = {};
+    $$("tr[data-id], .mobile-item[data-id]")
       .filter(function (el) { return el.querySelector(".row-check") && el.querySelector(".row-check").checked; })
-      .map(function (el) { return el.dataset.id; });
+      .forEach(function (el) { seen[el.dataset.id] = true; });
+    return Object.keys(seen);
   }
 
   function updateBulkEdit() {
