@@ -24,7 +24,8 @@ tbody tr { cursor: pointer; }
 tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -2px; }
 
 .bulk-bar {
-  display: none;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: .75rem;
   padding: .65rem 1rem;
@@ -33,7 +34,6 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   border-radius: var(--bs-border-radius-sm);
   margin-bottom: 1rem;
 }
-.bulk-bar.show { display: flex; flex-wrap: wrap; }
 
 .results-meta { font-size: .875rem; color: var(--bs-gray-500); }
 
