@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Credit Cards &amp; Loans (Mockup) — Expense Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bs-primary: #5D87FF; --bs-primary-rgb: 93, 135, 255;
+      --bs-secondary: #49BEFF; --bs-secondary-rgb: 73, 190, 255;
+      --bs-success: #13DEB9; --bs-success-rgb: 19, 222, 185;
+      --bs-warning: #FFAE1F; --bs-warning-rgb: 255, 174, 31;
+      --bs-danger: #FA896B; --bs-danger-rgb: 250, 137, 107;
+      --bs-gray-100: #F6F9FC; --bs-gray-200: #EAEFF4; --bs-gray-300: #DFE5EF;
+      --bs-gray-400: #7C8FAC; --bs-gray-500: #5A6A85; --bs-gray-600: #2A3547;
+      --bs-body-bg: #F6F9FC; --bs-body-color: #5A6A85; --bs-heading-color: #2A3547;
+      --bs-border-color: #EBF1F6;
+      --sidebar-background: #1E1E2D; --sidebar-foreground: #A4ABC5;
+      --sidebar-primary: #763EBD; --sidebar-accent: #252636; --sidebar-border: #2E3039;
+    }
+    html, body { height: 100%; }
+    body { background: var(--bs-body-bg); color: var(--bs-body-color); font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 0.875rem; line-height: 1.5; }
+    h1, h2, h3, h4, h5, h6 { color: var(--bs-heading-color); }
+    .summary-value { font-size: 2rem; }
+    .card { border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-radius: 0.75rem; }
+    .btn { border-radius: 0.375rem; }
+    .form-control, .form-select { border-radius: 0.375rem; border-color: var(--bs-border-color); }
+    .form-control:focus, .form-select:focus { border-color: var(--bs-primary); box-shadow: 0 0 0 0.25rem rgba(93,135,255,0.25); }
+    .amount-value { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .progress { background-color: var(--bs-gray-200); }
+    .card-debt { border-left: 4px solid var(--bs-danger); }
+    .debt-section-title { color: var(--bs-danger); }
+
+    /* Sidebar (mirrors app/assets/stylesheets/application.css) */
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: var(--sidebar-background); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; z-index: 1040; overflow-y: auto; }
+    .sidebar-header { padding: 1.25rem 1rem; border-bottom: 1px solid var(--sidebar-border); }
+    .sidebar-brand { display: flex; align-items: center; text-decoration: none; color: #FFFFFF; font-weight: 700; font-size: 1.1rem; }
+    .sidebar-brand i { font-size: 1.4rem; color: var(--sidebar-primary); margin-right: 0.5rem; }
+    .sidebar-nav { flex: 1; padding: 0.5rem 0; }
+    .sidebar-section { padding: 0.125rem 0; }
+    .sidebar-section-title { padding: 0.625rem 1.25rem 0.25rem; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--sidebar-foreground); opacity: 0.5; }
+    .sidebar-link { display: flex; align-items: center; padding: 0.45rem 1.25rem; text-decoration: none; color: var(--sidebar-foreground); font-size: 0.875rem; transition: all 0.15s ease; }
+    .sidebar-link:hover { background: var(--sidebar-accent); color: #FFFFFF; }
+    .sidebar-link.active { background: rgba(118, 62, 189, 0.15); color: var(--sidebar-primary); font-weight: 500; }
+    .sidebar-link i { width: 1.25rem; margin-right: 0.75rem; font-size: 1rem; text-align: center; flex-shrink: 0; }
+    .sidebar-settings { border-top: 1px solid var(--sidebar-border); margin-top: 0.5rem; }
+    .sidebar-footer { border-top: 1px solid var(--sidebar-border); padding: 0.75rem 1rem; }
+    .sidebar-user { display: flex; align-items: center; font-size: 0.8rem; color: var(--sidebar-foreground); margin-bottom: 0.375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.25rem; }
+    .sidebar-user i { margin-right: 0.5rem; font-size: 1.1rem; flex-shrink: 0; color: var(--sidebar-primary); }
+    .main-content { margin-left: 250px; }
+    .mobile-topbar { display: none; align-items: center; padding: 0.625rem 1rem; background: var(--sidebar-background); border-bottom: 1px solid var(--sidebar-border); }
+    .mobile-topbar .btn-link { text-decoration: none; color: #FFFFFF; padding: 0; margin-right: 0.75rem; }
+    .mobile-topbar span { color: #FFFFFF; }
+    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1035; }
+    .sidebar-backdrop.active { display: block; }
+    @media (max-width: 991.98px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .mobile-topbar { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="sidebar-brand" href="#"><i class="bi bi-wallet2"></i><span>Expense Tracker</span></a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Overview</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Transactions</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-credit-card"></i><span>Expenses</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-wallet2"></i><span>Income</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Recurring</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-arrow-repeat"></i><span>Recurring Income</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-arrow-clockwise"></i><span>Recurring Expenses</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reports</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-graph-up"></i><span>Reports</span></a>
+      </div>
+      <div class="sidebar-section sidebar-settings">
+        <div class="sidebar-section-title">Settings</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-tags"></i><span>Categories</span></a>
+        <a class="sidebar-link active" href="#"><i class="bi bi-bank"></i><span>Money Sources</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-envelope-at"></i><span>Gmail Integration</span></a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user"><i class="bi bi-person-circle"></i><span>jose@example.com</span></div>
+      <a class="sidebar-link" href="#"><i class="bi bi-box-arrow-right"></i><span>Sign out</span></a>
+    </div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="main-content">
+    <div class="mobile-topbar">
+      <button class="btn btn-link" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi bi-list fs-4"></i></button>
+      <span class="fw-bold">Expense Tracker</span>
+    </div>
+
+    <main class="container py-4">
+
+      <!-- ============================================================
+           1. MONEY SOURCES INDEX — grouped "Assets & Money" / "Credit & Debt"
+           ============================================================ -->
+      <section id="source-index" aria-label="Money sources">
+        <div class="d-flex justify-content-between align-items-center mb-4 d-print-none flex-wrap gap-2">
+          <h1 class="mb-0"><i class="bi bi-wallet2 me-2"></i>Money Sources</h1>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="#"><i class="bi bi-arrow-left-right me-1"></i>New Transfer</a>
+            <a class="btn btn-primary" href="#source-form"><i class="bi bi-plus-lg me-1"></i>New Source</a>
+          </div>
+        </div>
+
+        <!-- Full-list empty state (shown only when there are NO sources at all)
+        <div class="card shadow-sm">
+          <div class="p-5 text-center">
+            <i class="bi bi-wallet2 display-4 text-muted mb-3 d-block"></i>
+            <h4 class="mb-2">No money sources yet</h4>
+            <p class="text-muted">Add your accounts, cards, cash and wallets to keep track of your balances.</p>
+            <a class="btn btn-primary mt-3" href="#"><i class="bi bi-plus-lg me-1"></i>New Source</a>
+          </div>
+        </div>
+        -->
+
+        <!-- ---------- Assets & Money ---------- -->
+        <h2 class="h6 fw-bold text-uppercase text-muted mb-3">
+          <i class="bi bi-piggy-bank me-1"></i>Assets &amp; Money
+        </h2>
+        <div class="row g-3">
+          <!-- Account -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-bank me-1"></i>Bancolombia Ahorros</h5>
+                    <small class="text-muted">Account <span class="badge bg-light text-dark ms-1">1016</span></small>
+                    <small class="text-muted d-block"><i class="bi bi-bank me-1"></i>Bancolombia</small>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#" title="Edit" aria-label="Edit Bancolombia Ahorros"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Bancolombia Ahorros"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Balance</div>
+                  <div class="fs-5 fw-bold text-success amount-value">$24,530,000</div>
+                </div>
+                <div class="mt-2">
+                  <span class="badge bg-light text-dark me-1"><i class="bi bi-tag me-1"></i>personal</span>
+                </div>
+                <div class="mt-2">
+                  <small class="text-muted">34 transactions</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Debit card linked to account -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-credit-card me-1"></i>Debit · Bancolombia · 4567</h5>
+                    <small class="text-muted">Debit Card</small>
+                    <small class="text-muted d-block"><i class="bi bi-bank me-1"></i>Bancolombia</small>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#" title="Edit" aria-label="Edit Debit · Bancolombia · 4567"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Debit · Bancolombia · 4567"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Balance</div>
+                  <div class="fs-5 fw-bold text-success">→ Bancolombia Ahorros</div>
+                  <small class="text-muted">Linked card · balance shown on parent account</small>
+                </div>
+                <div class="mt-2"><small class="text-muted">47 transactions</small></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cash -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-cash me-1"></i>Cash</h5>
+                    <small class="text-muted">Cash</small>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#" title="Edit" aria-label="Edit Cash"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Cash"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Balance</div>
+                  <div class="fs-5 fw-bold text-success amount-value">$850,000</div>
+                </div>
+                <div class="mt-2">
+                  <span class="badge bg-light text-dark me-1"><i class="bi bi-tag me-1"></i>emergency</span>
+                </div>
+                <div class="mt-2"><small class="text-muted">12 transactions</small></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wallet -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-wallet2 me-1"></i>Nequi</h5>
+                    <small class="text-muted">Wallet · nequi@user.com</small>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#" title="Edit" aria-label="Edit Nequi"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Nequi"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Balance</div>
+                  <div class="fs-5 fw-bold text-success amount-value">$1,200,000</div>
+                </div>
+                <div class="mt-2"><small class="text-muted">28 transactions</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Credit & Debt ---------- -->
+        <h2 class="h6 fw-bold text-uppercase debt-section-title mb-1 mt-5">
+          <i class="bi bi-credit-card-2-front me-1"></i>Credit &amp; Debt
+        </h2>
+        <p class="small text-muted mb-3">Credit cards and loans are debt. The amounts below are what you owe, not money you own.</p>
+
+        <div class="row g-3">
+          <!-- Credit card 1 -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card card-debt h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-credit-card-2-front me-1"></i>Bancolombia Visa</h5>
+                    <small class="text-muted">Credit Card · Bancolombia</small>
+                    <div class="mt-1">
+                      <span class="badge bg-light text-dark"><i class="bi bi-credit-card-2-front me-1"></i>Visa · 1234</span>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#source-show" title="Edit" aria-label="Edit Bancolombia Visa"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Bancolombia Visa"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Credit available</div>
+                  <div class="fs-5 fw-bold text-success amount-value">$13,000,000
+                    <span class="text-muted fw-normal fs-6">of $20,000,000</span>
+                  </div>
+                  <div class="progress mt-2" role="progressbar" aria-label="Credit used" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                    <div class="progress-bar bg-success" style="width: 35%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between small text-muted mt-1">
+                    <span>Used <strong class="text-danger">$7,000,000</strong></span>
+                    <span><strong>35%</strong></span>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-flex flex-wrap gap-2 small text-muted">
+                  <span><i class="bi bi-percent me-1"></i>24.5% <abbr title="Effective annual">EA</abbr></span>
+                  <span><i class="bi bi-calendar-event me-1"></i>Statement: 15</span>
+                  <span><i class="bi bi-calendar-check me-1"></i>Due: 30</span>
+                </div>
+
+                <div class="mt-2">
+                  <span class="badge bg-light text-dark me-1"><i class="bi bi-tag me-1"></i>personal</span>
+                  <span class="badge bg-light text-dark me-1"><i class="bi bi-tag me-1"></i>travel</span>
+                </div>
+                <div class="mt-2"><small class="text-muted">62 transactions</small></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Credit card 2 (high utilization -> warning/red state) -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card card-debt h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-credit-card-2-front me-1"></i>Mastercard Black</h5>
+                    <small class="text-muted">Credit Card · Banco de Bogotá</small>
+                    <div class="mt-1">
+                      <span class="badge bg-light text-dark"><i class="bi bi-credit-card-2-front me-1"></i>Mastercard · 8901</span>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#" title="Edit" aria-label="Edit Mastercard Black"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Mastercard Black"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Credit available</div>
+                  <div class="fs-5 fw-bold text-danger amount-value">$800,000
+                    <span class="text-muted fw-normal fs-6">of $8,000,000</span>
+                  </div>
+                  <div class="progress mt-2" role="progressbar" aria-label="Credit used" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                    <div class="progress-bar bg-danger" style="width: 90%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between small text-muted mt-1">
+                    <span>Used <strong class="text-danger">$7,200,000</strong></span>
+                    <span><strong>90%</strong></span>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-flex flex-wrap gap-2 small text-muted">
+                  <span><i class="bi bi-percent me-1"></i>18% <abbr title="Nominal annual">NA</abbr></span>
+                  <span><i class="bi bi-calendar-event me-1"></i>Statement: 10</span>
+                  <span><i class="bi bi-calendar-check me-1"></i>Due: 25</span>
+                </div>
+
+                <div class="mt-2"><small class="text-muted">40 transactions</small></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loan 1 -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card card-debt h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-cash-coin me-1"></i>Kia Seltos Loan</h5>
+                    <small class="text-muted">Loan · Banco de Occidente</small>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#source-show-loan" title="Edit" aria-label="Edit Kia Seltos Loan"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Kia Seltos Loan"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Outstanding balance</div>
+                  <div class="fs-5 fw-bold text-danger amount-value">$95,000,000</div>
+                  <div class="progress mt-2" role="progressbar" aria-label="Loan repaid" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                    <div class="progress-bar bg-success" style="width: 42%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between small text-muted mt-1">
+                    <span>Original <strong>$114,000,000</strong></span>
+                    <span><strong>42%</strong> repaid</span>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-flex flex-wrap gap-2 small text-muted">
+                  <span><i class="bi bi-percent me-1"></i>21.27% <abbr title="Effective annual">EA</abbr></span>
+                  <span><i class="bi bi-cash-stack me-1"></i>$2,686,800 / month</span>
+                </div>
+                <div class="mt-2"><small class="text-muted"><i class="bi bi-arrow-repeat me-1"></i>42 of 72 installments remaining</small></div>
+
+                <div class="mt-2">
+                  <span class="badge bg-light text-dark me-1"><i class="bi bi-tag me-1"></i>car</span>
+                </div>
+                <div class="mt-2"><small class="text-muted">24 transactions</small></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loan 2 -->
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card card-debt h-100 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h5 class="card-title mb-0"><i class="bi bi-cash-coin me-1"></i>Home Office Loan</h5>
+                    <small class="text-muted">Loan · Davivienda</small>
+                  </div>
+                  <div class="btn-group btn-group-sm d-print-none">
+                    <a class="btn btn-outline-primary" href="#" title="Edit" aria-label="Edit Home Office Loan"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-outline-danger" title="Delete" aria-label="Delete Home Office Loan"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <div class="small text-muted mb-1">Outstanding balance</div>
+                  <div class="fs-5 fw-bold text-danger amount-value">$12,000,000</div>
+                  <div class="progress mt-2" role="progressbar" aria-label="Loan repaid" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+                    <div class="progress-bar bg-success" style="width: 33%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between small text-muted mt-1">
+                    <span>Original <strong>$18,000,000</strong></span>
+                    <span><strong>33%</strong> repaid</span>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-flex flex-wrap gap-2 small text-muted">
+                  <span><i class="bi bi-percent me-1"></i>24% <abbr title="Effective annual">EA</abbr></span>
+                  <span><i class="bi bi-cash-stack me-1"></i>$587,000 / month</span>
+                </div>
+                <div class="mt-2"><small class="text-muted"><i class="bi bi-arrow-repeat me-1"></i>23 of 36 installments remaining</small></div>
+
+                <div class="mt-2"><small class="text-muted">9 transactions</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="my-5">
+
+      <!-- ============================================================
+           2. CREDIT CARD SHOW / DETAIL
+           ============================================================ -->
+      <section id="source-show" aria-label="Credit card detail">
+        <div class="d-flex justify-content-between align-items-center mb-4 d-print-none flex-wrap gap-2">
+          <h1 class="mb-0"><i class="bi bi-credit-card-2-front me-2"></i>Bancolombia Visa</h1>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="#source-form"><i class="bi bi-pencil me-1"></i>Edit</a>
+            <a class="btn btn-outline-secondary" href="#source-index"><i class="bi bi-arrow-left me-1"></i>Back</a>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Debt / credit panel -->
+          <div class="col-lg-7">
+            <div class="card card-debt shadow-sm h-100">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                  <div>
+                    <h2 class="h5 card-title mb-1"><i class="bi bi-credit-card-2-front me-1"></i>Credit card</h2>
+                    <div>
+                      <span class="badge bg-light text-dark me-1"><i class="bi bi-credit-card-2-front me-1"></i>Visa · 1234</span>
+                      <span class="badge bg-light text-dark"><i class="bi bi-bank me-1"></i>Bancolombia</span>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="fs-4 fw-bold text-danger amount-value">$7,000,000</div>
+                    <small class="text-muted">Current debt</small>
+                  </div>
+                </div>
+
+                <div class="row text-center g-0 border-top pt-3 border-bottom pb-3 mb-3">
+                  <div class="col-4">
+                    <div class="fs-5 fw-bold amount-value">$20,000,000</div>
+                    <div class="small text-muted">Approved</div>
+                  </div>
+                  <div class="col-4 border-start">
+                    <div class="fs-5 fw-bold text-danger amount-value">$7,000,000</div>
+                    <div class="small text-muted">Used</div>
+                  </div>
+                  <div class="col-4 border-start">
+                    <div class="fs-5 fw-bold text-success amount-value">$13,000,000</div>
+                    <div class="small text-muted">Available</div>
+                  </div>
+                </div>
+
+                <div class="progress mb-1" role="progressbar" aria-label="Credit used" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                  <div class="progress-bar bg-success" style="width: 35%"></div>
+                </div>
+                <small class="text-muted">Used: 35% of approved credit</small>
+
+                <div class="alert alert-warning d-flex align-items-start gap-2 mt-3 mb-2 py-2 px-3" role="alert">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <small>Next statement on the 15<span class="text-lowercase">th</span>, payment due on the 30<span class="text-lowercase">th</span>.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Details + tags -->
+          <div class="col-lg-5">
+            <div class="card shadow-sm mb-4">
+              <div class="card-body">
+                <h2 class="h5 card-title mb-3">Details</h2>
+                <dl class="row mb-0">
+                  <dt class="col-sm-5">Type</dt>
+                  <dd class="col-sm-7">Credit Card</dd>
+                  <dt class="col-sm-5">Issuer</dt>
+                  <dd class="col-sm-7">Bancolombia</dd>
+                  <dt class="col-sm-5">Brand</dt>
+                  <dd class="col-sm-7">Visa</dd>
+                  <dt class="col-sm-5">Last four digits</dt>
+                  <dd class="col-sm-7">1234</dd>
+                  <dt class="col-sm-5">Interest rate</dt>
+                  <dd class="col-sm-7"><span class="badge bg-primary">24.5% EA</span></dd>
+                  <dt class="col-sm-5">Statement day</dt>
+                  <dd class="col-sm-7"><i class="bi bi-calendar-event me-1"></i>15</dd>
+                  <dt class="col-sm-5">Payment due day</dt>
+                  <dd class="col-sm-7"><i class="bi bi-calendar-check me-1"></i>30</dd>
+                  <dt class="col-sm-5">Status</dt>
+                  <dd class="col-sm-7"><span class="badge bg-success">Active</span></dd>
+                </dl>
+              </div>
+            </div>
+
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h2 class="h5 card-title mb-3">Tags</h2>
+                <span class="badge bg-light text-dark me-1 mb-1"><i class="bi bi-tag me-1"></i>personal</span>
+                <span class="badge bg-light text-dark me-1 mb-1"><i class="bi bi-tag me-1"></i>travel</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active installments -->
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h2 class="h5 card-title mb-3"><i class="bi bi-arrow-repeat me-1"></i>Active installments</h2>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <caption class="visually-hidden">Financed purchases still being paid</caption>
+                    <thead class="table-light">
+                      <tr>
+                        <th scope="col">Purchase</th>
+                        <th scope="col" class="text-nowrap">Date</th>
+                        <th scope="col" class="text-end">Original amount</th>
+                        <th scope="col" class="text-end">Installment</th>
+                        <th scope="col" class="text-end">Installment amount</th>
+                        <th scope="col" class="text-end">Remaining balance</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Smart TV 55&quot; <span class="badge bg-light text-dark ms-1"><i class="bi bi-tag me-1"></i>entertainment</span></td>
+                        <td class="text-nowrap">Feb 10, 2026</td>
+                        <td class="text-end amount-value">$2,000,000</td>
+                        <td class="text-end">4 <span class="text-muted">/ 12</span></td>
+                        <td class="text-end amount-value">$189,000</td>
+                        <td class="text-end amount-value text-danger">$1,512,000</td>
+                        <td><span class="badge bg-primary">Active</span></td>
+                      </tr>
+                      <tr>
+                        <td>Gaming laptop <span class="badge bg-light text-dark ms-1"><i class="bi bi-tag me-1"></i>tech</span></td>
+                        <td class="text-nowrap">Nov 20, 2025</td>
+                        <td class="text-end amount-value">$6,000,000</td>
+                        <td class="text-end">10 <span class="text-muted">/ 24</span></td>
+                        <td class="text-end amount-value">$295,000</td>
+                        <td class="text-end amount-value text-danger">$4,130,000</td>
+                        <td><span class="badge bg-primary">Active</span></td>
+                      </tr>
+                      <tr>
+                        <td>Airline tickets <span class="badge bg-light text-dark ms-1"><i class="bi bi-tag me-1"></i>travel</span></td>
+                        <td class="text-nowrap">Jan 5, 2026</td>
+                        <td class="text-end amount-value">$3,600,000</td>
+                        <td class="text-end">2 <span class="text-muted">/ 6</span></td>
+                        <td class="text-end amount-value">$620,000</td>
+                        <td class="text-end amount-value text-danger">$2,480,000</td>
+                        <td><span class="badge bg-primary">Active</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="text-muted small mt-2"><i class="bi bi-info-circle me-1"></i>Installments belong to each financed transaction, not to the card. Purchases without installments are not listed.</div>
+                <!-- Empty state for a card with no installments:
+                <p class="text-muted mb-0 text-center py-3"><i class="bi bi-arrow-repeat me-1"></i>No active installments.</p> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="my-5">
+
+      <!-- ============================================================
+           3. LOAN SHOW / DETAIL
+           ============================================================ -->
+      <section id="source-show-loan" aria-label="Loan detail">
+        <div class="d-flex justify-content-between align-items-center mb-4 d-print-none flex-wrap gap-2">
+          <h1 class="mb-0"><i class="bi bi-cash-coin me-2"></i>Kia Seltos Loan</h1>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="#source-form"><i class="bi bi-pencil me-1"></i>Edit</a>
+            <a class="btn btn-outline-secondary" href="#source-index"><i class="bi bi-arrow-left me-1"></i>Back</a>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <div class="card card-debt shadow-sm h-100">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                  <div>
+                    <h2 class="h5 card-title mb-1"><i class="bi bi-cash-coin me-1"></i>Loan</h2>
+                    <span class="badge bg-light text-dark"><i class="bi bi-bank me-1"></i>Banco de Occidente</span>
+                  </div>
+                  <div class="text-end">
+                    <div class="fs-4 fw-bold text-danger amount-value">$95,000,000</div>
+                    <small class="text-muted">Outstanding balance</small>
+                  </div>
+                </div>
+
+                <div class="row text-center g-0 border-top pt-3 border-bottom pb-3 mb-3">
+                  <div class="col-6">
+                    <div class="fs-5 fw-bold amount-value">$114,000,000</div>
+                    <div class="small text-muted">Original principal</div>
+                  </div>
+                  <div class="col-6 border-start">
+                    <div class="fs-5 fw-bold amount-value">$2,686,800</div>
+                    <div class="small text-muted">Monthly payment</div>
+                  </div>
+                </div>
+
+                <div class="progress mb-1" role="progressbar" aria-label="Loan repaid" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
+                  <div class="progress-bar bg-success" style="width: 42%"></div>
+                </div>
+                <small class="text-muted">42% of principal repaid · 42 of 72 installments remaining</small>
+
+                <div class="alert alert-warning d-flex align-items-start gap-2 mt-3 mb-0 py-2 px-3" role="alert">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <small>This is debt. Payments reduce the outstanding balance; it is not money available to spend.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="card shadow-sm mb-4">
+              <div class="card-body">
+                <h2 class="h5 card-title mb-3">Details</h2>
+                <dl class="row mb-0">
+                  <dt class="col-sm-5">Type</dt>
+                  <dd class="col-sm-7">Loan</dd>
+                  <dt class="col-sm-5">Lender</dt>
+                  <dd class="col-sm-7">Banco de Occidente</dd>
+                  <dt class="col-sm-5">Interest rate</dt>
+                  <dd class="col-sm-7"><span class="badge bg-primary">21.27% EA</span></dd>
+                  <dt class="col-sm-5">Installment amount</dt>
+                  <dd class="col-sm-7"><span class="amount-value">$2,686,800</span></dd>
+                  <dt class="col-sm-5">Installment count</dt>
+                  <dd class="col-sm-7">72</dd>
+                  <dt class="col-sm-5">Payment frequency</dt>
+                  <dd class="col-sm-7"><i class="bi bi-calendar-week me-1"></i>Monthly</dd>
+                  <dt class="col-sm-5">Start date</dt>
+                  <dd class="col-sm-7">Jan 15, 2025</dd>
+                  <dt class="col-sm-5">End date</dt>
+                  <dd class="col-sm-7">Dec 15, 2030</dd>
+                  <dt class="col-sm-5">Remaining</dt>
+                  <dd class="col-sm-7">42 installments</dd>
+                  <dt class="col-sm-5">Status</dt>
+                  <dd class="col-sm-7"><span class="badge bg-success">Active</span></dd>
+                </dl>
+              </div>
+            </div>
+
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h2 class="h5 card-title mb-3">Tags</h2>
+                <span class="badge bg-light text-dark me-1 mb-1"><i class="bi bi-tag me-1"></i>car</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="my-5">
+
+      <!-- ============================================================
+           4. MONEY SOURCE FORM — kind-conditional panels
+           ============================================================ -->
+      <section id="source-form" aria-label="Money source form">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-9">
+            <div class="card shadow">
+              <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">New Money Source</h2>
+              </div>
+              <div class="card-body">
+                <form novalidate>
+                  <!-- Server-side error summary (shown on failed create/edit) -->
+                  <div class="alert alert-danger" role="alert">
+                    <h6>3 errors prevented this money source from being saved:</h6>
+                    <ul class="mb-0">
+                      <li>Credit limit is required</li>
+                      <li>Last four digits must be exactly 4 digits</li>
+                      <li>Interest rate must be a valid percentage</li>
+                    </ul>
+                  </div>
+
+                  <!-- Common fields -->
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label" for="fName">Name <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="fName" value="Bancolombia Visa">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label" for="fKind">Type</label>
+                      <select class="form-select" id="fKind" aria-describedby="kindHelp">
+                        <option value="account">Account</option>
+                        <option value="debit_card">Debit Card</option>
+                        <option value="credit_card" selected>Credit Card</option>
+                        <option value="cash">Cash</option>
+                        <option value="wallet">Wallet</option>
+                        <option value="loan">Loan</option>
+                      </select>
+                      <div class="form-text" id="kindHelp">Only the fields relevant to the selected type are shown.</div>
+                    </div>
+                  </div>
+
+                  <!-- Panel: account / cash / wallet -->
+                  <div data-kind-panel="account cash wallet">
+                    <hr>
+                    <h6 class="mb-3">Account details</h6>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fBankAsset">Bank</label>
+                        <input type="text" class="form-control" id="fBankAsset" placeholder="e.g. Bancolombia">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fStartAsset">Starting balance</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input type="text" class="form-control" id="fStartAsset" placeholder="0.00" inputmode="decimal" autocomplete="off">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Panel: debit_card -->
+                  <div data-kind-panel="debit_card">
+                    <hr>
+                    <h6 class="mb-3">Debit card details</h6>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fBankDebit">Bank</label>
+                        <input type="text" class="form-control" id="fBankDebit" placeholder="e.g. Bancolombia">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label" for="fParent">Linked to</label>
+                        <select class="form-select" id="fParent" aria-describedby="parentHelp">
+                          <option value="">None</option>
+                          <option>Bancolombia Ahorros</option>
+                          <option>Nequi</option>
+                        </select>
+                        <div class="form-text" id="parentHelp">Balance is credited to the parent account.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Panel: credit_card -->
+                  <div data-kind-panel="credit_card">
+                    <hr>
+                    <h6 class="mb-3"><i class="bi bi-credit-card-2-front me-1 text-primary"></i>Credit card details</h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label" for="fIssuer">Bank / Issuer</label>
+                        <input type="text" class="form-control" id="fIssuer" value="Bancolombia">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fBrand">Card brand</label>
+                        <select class="form-select" id="fBrand">
+                          <option>Visa</option>
+                          <option>Mastercard</option>
+                          <option>Amex</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fLast4">Last four digits</label>
+                        <input type="text" class="form-control is-invalid" id="fLast4" value="123" inputmode="numeric" maxlength="4" aria-describedby="last4Feedback">
+                        <div class="invalid-feedback" id="last4Feedback">Last four digits must be exactly 4 digits.</div>
+                        <div class="form-text">Never store the full card number, CVV or PIN.</div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fLimit">Credit limit</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input type="text" class="form-control is-invalid" id="fLimit" value="20000000" inputmode="decimal" autocomplete="off" aria-describedby="limitFeedback">
+                          <div class="invalid-feedback" id="limitFeedback">Credit limit is required and cannot be negative.</div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fRate">Interest rate (%)</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control is-invalid" id="fRate" value="abc" inputmode="decimal" aria-describedby="rateFeedback">
+                          <span class="input-group-text">%</span>
+                          <div class="invalid-feedback" id="rateFeedback">Interest rate must be a valid percentage.</div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fRateType">Interest rate type</label>
+                        <select class="form-select" id="fRateType">
+                          <option value="effective_annual" selected>Effective annual (EA)</option>
+                          <option value="nominal_annual">Nominal annual (NA)</option>
+                          <option value="monthly">Monthly</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fStatement">Statement day</label>
+                        <input type="number" class="form-control" id="fStatement" value="15" min="1" max="31" aria-describedby="dayHelp">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fDue">Payment due day</label>
+                        <input type="number" class="form-control" id="fDue" value="30" min="1" max="31">
+                        <div class="form-text" id="dayHelp">Recurring billing cycle days of the month (1–31).</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Panel: loan -->
+                  <div data-kind-panel="loan">
+                    <hr>
+                    <h6 class="mb-3"><i class="bi bi-cash-coin me-1 text-primary"></i>Loan details</h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label" for="fLender">Lender</label>
+                        <input type="text" class="form-control" id="fLender" placeholder="e.g. Banco de Occidente">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fPrincipal">Original principal</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input type="text" class="form-control" id="fPrincipal" placeholder="0.00" inputmode="decimal" autocomplete="off">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fLoanRate">Interest rate (%)</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" id="fLoanRate" value="21.27" inputmode="decimal">
+                          <span class="input-group-text">%</span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fLoanRateType">Interest rate type</label>
+                        <select class="form-select" id="fLoanRateType">
+                          <option value="effective_annual" selected>Effective annual (EA)</option>
+                          <option value="nominal_annual">Nominal annual (NA)</option>
+                          <option value="monthly">Monthly</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fInstallmentAmt">Installment amount</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input type="text" class="form-control" id="fInstallmentAmt" value="2686800" inputmode="decimal" autocomplete="off">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fInstallmentCount">Installment count</label>
+                        <input type="number" class="form-control" id="fInstallmentCount" value="72" min="1">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fFrequency">Payment frequency</label>
+                        <select class="form-select" id="fFrequency">
+                          <option value="weekly">Weekly</option>
+                          <option value="biweekly">Biweekly</option>
+                          <option value="monthly" selected>Monthly</option>
+                          <option value="quarterly">Quarterly</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fStartDate">Start date</label>
+                        <input type="date" class="form-control" id="fStartDate" value="2025-01-15">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="fEndDate">End date</label>
+                        <input type="date" class="form-control" id="fEndDate" value="2030-12-15">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Common active + tags -->
+                  <hr>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="fActive" checked>
+                        <label class="form-check-label" for="fActive">Active</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h6 class="mb-3">Tags</h6>
+                  <div class="row mb-2">
+                    <div class="col-md-7">
+                      <input type="text" class="form-control form-control-sm" value="personal">
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-md-7">
+                      <input type="text" class="form-control form-control-sm" value="travel">
+                    </div>
+                  </div>
+                  <div class="d-grid mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Save Money Source</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-center py-3 mt-4 border-top">
+      <small class="text-muted">&copy; 2026 Expense Tracker</small>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Kind-conditional form panels (mirrors the planned _form.js behavior)
+    function applyKind(kind) {
+      document.querySelectorAll('[data-kind-panel]').forEach(function (el) {
+        var kinds = el.getAttribute('data-kind-panel').split(/\s+/);
+        el.hidden = kinds.indexOf(kind) === -1;
+      });
+    }
+    var kindSelect = document.getElementById('fKind');
+    kindSelect.addEventListener('change', function () { applyKind(kindSelect.value); });
+    applyKind(kindSelect.value);
+
+    // Mobile sidebar toggle
+    var toggle = document.getElementById('sidebarToggle');
+    var sidebar = document.getElementById('sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    function openSidebar() { sidebar.classList.add('open'); backdrop.classList.add('active'); }
+    function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('active'); }
+    toggle.addEventListener('click', function () {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    backdrop.addEventListener('click', closeSidebar);
+  </script>
+</body>
+</html>
