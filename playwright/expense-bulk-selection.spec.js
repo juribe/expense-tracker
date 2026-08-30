@@ -46,10 +46,24 @@ test.describe('expense bulk selection bar', () => {
     await expect(page.locator('#bulkCount')).toHaveText(/\b2 seleccionados\b/);
     await expect(page.locator('#bulkCount')).not.toHaveText(/4/);
 
-    const ids = await desktopRows.evaluateAll((rows) =>
-      rows.filter((r) => r.querySelector('.row-check').checked).map((r) => r.dataset.id)
-    );
-    expect(ids.length).toBe(2);
+    const countText = await page.locator('#bulkCount').textContent();
+    const shownCount = parseInt(countText.match(/(\d+)/)[1], 10);
+
+    const distinctChecked = await page.evaluate(() => {
+      const seen = {};
+      document.querySelectorAll('tr[data-id], .mobile-item[data-id]').forEach((el) => {
+        const cb = el.querySelector('.row-check');
+        if (cb && cb.checked) seen[el.dataset.id] = true;
+      });
+      return Object.keys(seen).length;
+    });
+
+    expect(shownCount).toBe(2);
+    expect(distinctChecked).toBe(2);
+
+    await desktopRows.nth(2).locator('.row-check').check();
+    await expect(page.locator('#bulkCount')).toHaveText(/\b3 seleccionados\b/);
+    await expect(page.locator('#bulkCount')).not.toHaveText(/6/);
 
     await expect(page.getByTestId('bulk-category')).toBeEnabled();
     await expect(page.getByTestId('bulk-source')).toBeEnabled();
