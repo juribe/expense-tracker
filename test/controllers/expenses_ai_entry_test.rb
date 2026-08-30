@@ -103,6 +103,21 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     assert_equal Date.new(2026, 8, 21), parqueadero.date
   end
 
+  test "POST /expenses/bulk_create persists the selected money source" do
+    source = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    post bulk_create_expenses_path(format: :json), params: {
+      expenses: [
+        { amount: "50000", description: "Almuerzo", transaction_date: "2026-08-22",
+          category_id: @restaurants.id, money_source_id: source.id }
+      ]
+    }
+
+    assert_response :created
+    expense = @user.expenses.sole
+    assert_equal source, expense.money_source
+  end
+
   test "POST /expenses/bulk_create creates missing categories by name" do
     assert_difference -> { Category.count }, +1 do
       post bulk_create_expenses_path(format: :json), params: {

@@ -86,6 +86,7 @@ class ExpenseParser
     @user = user
     @today = today
     @categories = Category.for_user(user).order(:name).to_a
+    @money_sources = MoneySource.active.where(user: user).to_a
     @notes = []
   end
 
@@ -93,6 +94,7 @@ class ExpenseParser
     entries, engine = run_provider
     expenses = entries.filter_map do |entry|
       expense = build_expense(entry)
+      assign_money_source(expense)
       if expense.valid?
         expense
       else
@@ -418,6 +420,43 @@ class ExpenseParser
 
   # -------------------------------------------------------------------- shared
 
+  # A single mention of an account in the message usually applies to every
+  # detected expense (e.g. "gasté 50 mil en almuerzo y 20 mil en parqueadero
+  # desde nequi"). If a specific source was already attached, leave it alone.
+  def assign_money_source(expense)
+    return if expense.money_source_id.present?
+
+    source = detect_money_source(@text)
+    return unless source
+
+    expense.money_source_id = source.id
+    expense.money_source_name = source.name
+  end
+
+  # Finds the user's active MoneySource that best matches the message by name,
+  # bank or tag. Returns nil when nothing clearly matches.
+  def detect_money_source(text)
+    return nil if text.blank?
+
+    clean = normalize_text(text)
+    @money_sources.each do |source|
+      next unless source_matches?(source, clean)
+
+      return source
+    end
+    nil
+  end
+
+  def source_matches?(source, clean)
+    values = [ source.name, source.bank ]
+    values.concat(source.tags.map(&:value))
+    values.compact.map { |value| normalize_text(value) }.any? do |value|
+      next false if value.blank?
+
+      clean.match?(/\b#{Regexp.escape(value)}\b/)
+    end
+  end
+
   def serialize(expense)
     {
       amount: expense.amount&.to_f,
@@ -428,7 +467,9 @@ class ExpenseParser
       create_category: expense.create_category || false,
       confidence: expense.confidence,
       low_confidence: expense.low_confidence?,
-      warnings: Array(expense.warnings)
+      warnings: Array(expense.warnings),
+      money_source_id: expense.money_source_id,
+      money_source_name: expense.money_source_name
     }
   end
 

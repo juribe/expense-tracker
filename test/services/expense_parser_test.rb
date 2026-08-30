@@ -132,6 +132,52 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_instance_of Float, result[:expenses][0][:confidence]
   end
 
+  test "detects the money source mentioned by name" do
+    source = @user.money_sources.create!(name: "Cuenta Nequi", kind: "account", bank: "Bancolombia")
+    result = parse("Me gasté 50 mil en almuerzo con la cuenta nequi")
+
+    expense = result[:expenses].first
+    assert_equal source.id, expense[:money_source_id]
+    assert_equal source.name, expense[:money_source_name]
+  end
+
+  test "detects the money source mentioned by tag" do
+    source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+    source.tags.create!(value: "tarjeta clásica")
+    result = parse("Pag 50 mil en el restaurante con la tarjeta clásica")
+
+    assert_equal source.id, result[:expenses].first[:money_source_id]
+  end
+
+  test "detects the money source by bank name" do
+    source = @user.money_sources.create!(name: "Ahorros", kind: "account", bank: "Davivienda")
+    result = parse("pagué 30 mil con davivienda en el mercado")
+
+    assert_equal source.id, result[:expenses].first[:money_source_id]
+  end
+
+  test "ignores inactive money sources when detecting" do
+    @user.money_sources.create!(name: "Vieja tarjeta", kind: "credit_card", active: false)
+    result = parse("gasté 10 mil con la vieja tarjeta en el cine")
+
+    assert_nil result[:expenses].first[:money_source_id]
+  end
+
+  test "returns nil money source when none is mentioned" do
+    result = parse("50 mil en almuerzo")
+
+    assert_nil result[:expenses].first[:money_source_id]
+    assert_nil result[:expenses].first[:money_source_name]
+  end
+
+  test "applies a single mentioned money source to every detected expense" do
+    source = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+    result = parse("gasté 50 mil en restaurante y 20 mil en parqueadero desde nequi")
+
+    assert_equal source.id, result[:expenses][0][:money_source_id]
+    assert_equal source.id, result[:expenses][1][:money_source_id]
+  end
+
   test "uses AI results when the provider succeeds" do
     parser_class = Class.new(ExpenseParser) do
       define_method(:parse_with_ai) do
