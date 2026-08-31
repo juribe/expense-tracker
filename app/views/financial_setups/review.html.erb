@@ -1,0 +1,56 @@
+<% @step_key = "review" %>
+<%= render "stepper", step_key: @step_key %>
+
+<%
+  summary = FinancialSetupWizard.source_steps.map do |setup_step|
+    key = setup_step.key.to_s
+    { step: setup_step, count: @setup.draft_sources(key).size }
+  end
+  total_sources = summary.sum { |item| item[:count] }
+%>
+
+<div class="card shadow">
+  <div class="card-body p-4">
+    <h3 class="fw-bold text-primary mb-4"><%= t("wizard.review.title") %></h3>
+
+    <% summary.each do |item| %>
+      <% next if item[:count].zero? %>
+      <div class="card border mb-2">
+        <div class="card-body py-3 d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#collapse<%= item[:step].key %>" style="cursor:pointer;">
+          <span><i class="bi bi-<%= item[:step].icon %> me-2 text-primary"></i><span class="fw-bold"><%= t("wizard.review.#{item[:step].key}", count: item[:count]) %></span></span>
+          <span class="text-muted"><i class="bi bi-chevron-down"></i></span>
+        </div>
+        <div class="collapse" id="collapse<%= item[:step].key %>">
+          <ul class="list-group list-group-flush">
+            <% @setup.draft_sources(item[:step].key.to_s).each do |source| %>
+              <li class="list-group-item d-flex justify-content-between">
+                <span><%= source["name"] %></span>
+                <% if source["balance"].present? %><span class="text-muted"><%= number_to_currency(source["balance"]) %></span><% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+
+    <hr>
+    <div class="text-center">
+      <p class="fs-4 fw-bold mb-1"><%= t("wizard.review.total_sources", count: total_sources) %></p>
+      <p class="text-muted small"><%= t("wizard.review.confirm_hint") %></p>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <div>
+        <%= link_to financial_setup_step_path(step: :loans), class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-arrow-left me-1"></i><%= t("wizard.review.back_to_edit") %>
+        <% end %>
+      </div>
+      <div>
+        <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
+        <%= button_to financial_setup_complete_path, method: :post, class: "btn btn-primary btn-lg", form: { data: { turbo: false } } do %>
+          <i class="bi bi-check-circle me-1"></i><%= t("wizard.review.complete") %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

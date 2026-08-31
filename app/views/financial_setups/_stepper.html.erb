@@ -1,0 +1,26 @@
+<%# Stepper showing wizard progress across steps. %>
+<% step_idx = FinancialSetupWizard.step_keys.index(@step_key.to_sym) %>
+<nav class="d-none d-lg-flex flex-wrap align-items-center gap-2 mb-3" aria-label="<%= t("wizard.steps_title") %>">
+  <% FinancialSetupWizard.steps.each_with_index do |setup_step, idx| %>
+    <% done = idx < step_idx.to_i %>
+    <% current = idx == step_idx.to_i %>
+    <div class="d-flex align-items-center gap-2">
+      <% if done %>
+        <span class="badge rounded-pill bg-success"><i class="bi bi-check-lg"></i></span>
+        <span class="text-muted"><%= t(setup_step.label_key) %></span>
+      <% elsif current %>
+        <span class="badge rounded-pill bg-primary" aria-current="step"><%= idx + 1 %></span>
+        <span class="fw-bold"><%= t(setup_step.label_key) %></span>
+      <% else %>
+        <span class="badge rounded-pill bg-light text-muted border"><%= idx + 1 %></span>
+        <span class="text-muted"><%= t(setup_step.label_key) %></span>
+      <% end %>
+      <% if idx < FinancialSetupWizard.steps.length - 1 %>
+        <i class="bi bi-chevron-right text-muted mx-1"></i>
+      <% end %>
+    </div>
+  <% end %>
+</nav>
+<div class="d-lg-none mb-3">
+  <span class="text-muted"><%= t("wizard.step_of", current: step_idx.to_i + 1, total: FinancialSetupWizard.steps.length) %></span>
+</div>

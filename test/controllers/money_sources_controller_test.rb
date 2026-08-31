@@ -31,6 +31,24 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid]", count: 0
   end
 
+  test "GET /money_sources shows the resume banner for an in-progress setup" do
+    setup = @user.financial_setups.create!(status: "in_progress")
+    setup.set_choice("accounts", "skip")
+    setup.save!
+
+    get money_sources_path
+    assert_response :success
+    assert_select "[data-testid='unfinished-setup-banner']", count: 1 do
+      assert_select "a[href='#{financial_setup_path}']"
+    end
+  end
+
+  test "GET /money_sources hides the resume banner for a fresh setup" do
+    get money_sources_path
+    assert_response :success
+    assert_select "[data-testid='unfinished-setup-banner']", count: 0
+  end
+
   test "GET /money_sources/new renders the form" do
     get new_money_source_path
     assert_response :success

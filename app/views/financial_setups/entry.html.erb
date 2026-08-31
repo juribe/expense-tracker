@@ -1,0 +1,32 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow border-0 text-center">
+      <div class="card-body p-5">
+        <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 88px; height: 88px;">
+          <i class="bi bi-bank fs-1"></i>
+        </div>
+        <h2 class="fw-bold text-primary"><%= t("wizard.entry.title") %></h2>
+        <p class="text-muted mb-4"><%= t("wizard.entry.body") %></p>
+
+        <div class="row g-2 justify-content-center mb-4">
+          <div class="col-auto">
+            <span class="badge bg-light text-dark px-3 py-2"><i class="bi bi-pencil-square me-1"></i><%= t("wizard.entry.chip_manual") %></span>
+          </div>
+          <div class="col-auto">
+            <span class="badge bg-light text-dark px-3 py-2"><i class="bi bi-upload me-1"></i><%= t("wizard.entry.chip_import") %></span>
+          </div>
+          <div class="col-auto">
+            <span class="badge bg-light text-dark px-3 py-2"><i class="bi bi-arrow-right-circle me-1"></i><%= t("wizard.entry.chip_skip") %></span>
+          </div>
+        </div>
+
+        <%= form_with url: financial_setup_step_path(step: FinancialSetupWizard.source_step_keys.first), method: :get, local: true do %>
+          <div class="d-grid gap-2">
+            <%= submit_tag t("wizard.entry.start"), class: "btn btn-primary btn-lg" %>
+          </div>
+        <% end %>
+        <%= link_to t("wizard.entry.not_now"), dashboard_path, class: "btn btn-link text-muted mt-2" %>
+      </div>
+    </div>
+  </div>
+</div>

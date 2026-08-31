@@ -71,4 +71,18 @@ Rails.application.routes.draw do
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'
+
+  # Hybrid financial setup wizard
+  get "financial_setup", to: "financial_setups#show", as: :financial_setup
+  get "financial_setup/done", to: "financial_setups#done", as: :financial_setup_done
+  post "financial_setup/select", to: "financial_setups#select", as: :financial_setup_select
+  post "financial_setup/manual", to: "financial_setups#save_manual", as: :financial_setup_manual
+  post "financial_setup/upload", to: "financial_setups#process_upload", as: :financial_setup_upload
+  post "financial_setup/import_confirm", to: "financial_setups#import_confirm", as: :financial_setup_import_confirm
+  post "financial_setup/complete", to: "financial_setups#complete", as: :financial_setup_complete
+  post "financial_setup/dismiss", to: "financial_setups#dismiss", as: :financial_setup_dismiss
+  get "financial_setup/step/:step", to: "financial_setups#step", as: :financial_setup_step
+  get "financial_setup/step/:step/manual", to: "financial_setups#manual", as: :financial_setup_manual_screen
+  get "financial_setup/step/:step/upload", to: "financial_setups#upload", as: :financial_setup_upload_screen
+  get "financial_setup/step/:step/import_review", to: "financial_setups#import_review", as: :financial_setup_import_review
 end

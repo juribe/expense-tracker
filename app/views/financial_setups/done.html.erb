@@ -1,0 +1,15 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow border-0 text-center">
+      <div class="card-body p-5">
+        <i class="bi bi-check-circle-fill display-1 text-success"></i>
+        <h3 class="fw-bold mt-3 mb-2"><%= t("wizard.done.title") %></h3>
+        <p class="text-muted mb-1"><%= t("wizard.done.summary", count: @count) %></p>
+        <p class="text-muted mb-4"><%= t("wizard.done.hint") %></p>
+        <%= link_to dashboard_path, class: "btn btn-primary btn-lg" do %>
+          <i class="bi bi-grid-1x2 me-1"></i><%= t("wizard.done.go_dashboard") %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
