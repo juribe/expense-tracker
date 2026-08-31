@@ -196,6 +196,12 @@ class FinancialSetupsController < ApplicationController
     redirect_to dashboard_path, notice: t("wizard.dismissed")
   end
 
+  # POST /financial_setup/reset — clear all wizard progress and start over
+  def reset
+    @setup.reset!
+    redirect_to financial_setup_path, notice: t("wizard.reset.done")
+  end
+
   private
 
   def set_setup
@@ -255,10 +261,19 @@ class FinancialSetupsController < ApplicationController
     raw = params[:sources] && params[:sources][idx.to_s]
     return {} if raw.blank?
 
-    %w[name bank balance outstanding_balance credit_limit card_last_four
-       interest_rate interest_rate_type monthly_payment kind identifier]
+    fields = %w[name bank balance outstanding_balance credit_limit card_last_four
+                interest_rate interest_rate_type monthly_payment kind identifier]
       .to_h { |key| [ key, raw[key].to_s.strip ] }
       .compact_blank
+
+    # Derive last four digits from an edited card number when no last-four was
+    # provided directly.
+    if fields["identifier"].present? && fields["card_last_four"].blank?
+      last4 = fields["identifier"].scan(/\d/).join[-4..]
+      fields["card_last_four"] = last4 if last4&.length == 4
+    end
+
+    fields
   end
 
   def render_upload_renderer(step_key)    @step = FinancialSetupWizard.step(step_key)

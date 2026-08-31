@@ -210,6 +210,7 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
     get financial_setup_import_review_path(step: :accounts)
     assert_response :success
+    assert_select "h3", text: I18n.t("wizard.review_extract.title", count: 1, noun: I18n.t("wizard.review.accounts", count: 1).downcase)
     assert_select "input[name='duplicates[1234]'][value='update'][checked='checked']"
     assert_match(/Market/, response.body)
     assert_match(/Bancolombia Savings/, response.body)

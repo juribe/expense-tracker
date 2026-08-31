@@ -353,3 +353,23 @@ h1, h2, h3, h4, h5, h6 {
     padding: 1.5rem !important;
   }
 }
+
+/* -------------------------------------------------
+ * Choice Cards (Wizard Selection)
+ * ------------------------------------------------- */
+.choice-card {
+  cursor: pointer;
+  border: 1px solid var(--bs-gray-200) !important;
+  transition: all 0.15s ease;
+}
+
+.choice-card:hover {
+  border-color: var(--bs-primary) !important;
+  box-shadow: 0 0 0 3px rgba(93, 135, 255, 0.15);
+}
+
+.choice-card.selected {
+  border: 2px solid var(--bs-primary) !important;
+  background: rgba(93, 135, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.12);
+}

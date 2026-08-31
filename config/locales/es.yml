@@ -230,6 +230,10 @@ es:
   wizard:
     steps_title: "Progreso"
     step_of: "Paso %{current} de %{total}"
+    reset:
+      done: "Datos del asistente borrados. Puedes empezar de nuevo."
+      confirm: "¿Estás seguro? Esto borrará todo lo que has añadido y reiniciará la configuración."
+      button: "Empezar de nuevo"
     steps:
       accounts: "Cuentas"
       credit_cards: "Tarjetas de Crédito"
@@ -289,6 +293,13 @@ es:
       password_label: "Contraseña"
       unlock: "Desbloquear documento"
       password_error: "La contraseña es incorrecta. Intenta de nuevo."
+      import_failed: "La importación falló: %{message}"
+      pdf_encrypted: "Este PDF está cifrado. Ingresa la contraseña correcta."
+      pdf_unreadable: "No se pudo leer este PDF. El archivo puede estar dañado o cifrado."
+      no_file: "No se subió ningún archivo."
+      empty_file: "El archivo está vacío."
+      unsupported_type: "Tipo de archivo no admitido. Sube un PDF, CSV o Excel."
+      extract_failed: "No se pudo extraer texto de este documento. Prueba con otro archivo."
     review:
       title: "Tu configuración financiera"
       accounts:
@@ -307,9 +318,7 @@ es:
       back_to_edit: "Volver a editar"
       complete: "Finalizar configuración"
     review_extract:
-      title:
-        one: "Encontramos %{count} %{noun}"
-        other: "Encontramos %{count} %{noun}"
+      title: "Encontramos %{noun}"
       hint: "Revisa la información extraída antes de que se agregue a tu cuenta. Puedes conservar, eliminar o editar cada elemento."
       keep: "Conservar"
       possible_duplicate: "Posible duplicado"

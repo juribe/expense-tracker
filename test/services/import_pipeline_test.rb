@@ -39,21 +39,21 @@ class ImportPipelineTest < ActiveSupport::TestCase
   test "rejects a missing file" do
     result = ImportPipeline.new(user: @user, extractor: successful_extractor).call(file: nil)
     assert_not result.ok?
-    assert_equal "No file was uploaded.", result.error
+    assert_equal I18n.t("wizard.upload.no_file"), result.error
   end
 
   test "rejects an unsupported file type" do
     result = ImportPipeline.new(user: @user, extractor: successful_extractor)
                            .call(file: uploaded_file("1234", "statement.txt"))
     assert_not result.ok?
-    assert_match(/Unsupported file type/, result.error)
+    assert_equal I18n.t("wizard.upload.unsupported_type"), result.error
   end
 
   test "rejects an empty file" do
     result = ImportPipeline.new(user: @user, extractor: successful_extractor)
                            .call(file: uploaded_file("", "statement.csv"))
     assert_not result.ok?
-    assert_equal "File is empty.", result.error
+    assert_equal I18n.t("wizard.upload.empty_file"), result.error
   end
 
   test "extracts sources and transactions from a csv" do

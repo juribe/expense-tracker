@@ -81,6 +81,7 @@ Rails.application.routes.draw do
   post "financial_setup/import_confirm", to: "financial_setups#import_confirm", as: :financial_setup_import_confirm
   post "financial_setup/complete", to: "financial_setups#complete", as: :financial_setup_complete
   post "financial_setup/dismiss", to: "financial_setups#dismiss", as: :financial_setup_dismiss
+  post "financial_setup/reset", to: "financial_setups#reset", as: :financial_setup_reset
   get "financial_setup/step/:step", to: "financial_setups#step", as: :financial_setup_step
   get "financial_setup/step/:step/manual", to: "financial_setups#manual", as: :financial_setup_manual_screen
   get "financial_setup/step/:step/upload", to: "financial_setups#upload", as: :financial_setup_upload_screen

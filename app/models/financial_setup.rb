@@ -72,4 +72,9 @@ class FinancialSetup < ApplicationRecord
   def dismiss!
     update!(status: "dismissed")
   end
+
+  # Clears all wizard progress so the user can start again from the beginning.
+  def reset!
+    update!(status: "in_progress", current_step: 0, data: {})
+  end
 end

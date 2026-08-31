@@ -22,10 +22,10 @@ class ImportPipeline
     return failure(validation) if validation.is_a?(String)
 
     format = detect_format(file)
-    return failure("Unsupported file type. Please upload a PDF, CSV, or Excel file.") unless format
+    return failure(I18n.t("wizard.upload.unsupported_type")) unless format
 
     text = extract_text(file, format, password: password)
-    return failure("Could not extract text from this document. Please try another file.") if text.blank?
+    return failure(I18n.t("wizard.upload.extract_failed")) if text.blank?
 
     extraction = run_extraction(text)
     return failure(extraction[:error]) unless extraction[:ok?]
@@ -35,7 +35,7 @@ class ImportPipeline
 
     Result.new(ok?: true, sources: sources, transactions: transactions, error: nil)
   rescue StandardError => e
-    failure("Import failed: #{e.message}")
+    failure(I18n.t("wizard.upload.import_failed", message: e.message))
   end
 
   private
@@ -45,11 +45,11 @@ class ImportPipeline
   end
 
   def validate_upload(file)
-    return "No file was uploaded." if file.blank?
-    return "File is empty." if file.respond_to?(:size) && file.size.zero?
+    return I18n.t("wizard.upload.no_file") if file.blank?
+    return I18n.t("wizard.upload.empty_file") if file.respond_to?(:size) && file.size.zero?
 
     original = file.respond_to?(:original_filename) ? file.original_filename : file.path.to_s
-    return "Unsupported file type. Please upload a PDF, CSV, or Excel file." unless SUPPORTED_FORMATS.include?(File.extname(original.to_s).downcase)
+    return I18n.t("wizard.upload.unsupported_type") unless SUPPORTED_FORMATS.include?(File.extname(original.to_s).downcase)
 
     nil
   end
@@ -63,30 +63,45 @@ class ImportPipeline
   # the caller: the password is only used here during extraction and is never
   # persisted or logged.
   def extract_text(file, format, password: nil)
-    case format
-    when ".csv"
-      file.respond_to?(:read) ? file.read : File.read(file.path)
-    when ".xlsx"
-      extract_xlsx(file)
-    when ".pdf"
-      extract_pdf(file, password: password)
-    end
+    raw = case format
+          when ".csv"
+            file.respond_to?(:read) ? file.read : File.read(file.path)
+          when ".xlsx"
+            extract_xlsx(file)
+          when ".pdf"
+            extract_pdf(file, password: password)
+          end
+    raw&.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
   end
 
   def extract_xlsx(file)
     content = file.respond_to?(:read) ? file.read : File.read(file.path)
     return content if defined?(RubyXL) || defined?(Roo)
 
-    # Without a spreadsheet gem, fall back to returning the raw bytes length so
-    # "no text" is avoided only when some content exists.
     content.presence
   end
 
   def extract_pdf(file, password: nil)
-    content = file.respond_to?(:read) ? file.read : File.read(file.path)
-    return content if defined?(PDF::Reader)
+    require "tempfile"
+    tmp = Tempfile.new([ "upload", ".pdf" ])
+    tmp.binmode
+    tmp.write(file.respond_to?(:read) ? file.read : File.binread(file.path))
+    tmp.rewind
 
-    content.presence
+    reader = if password.present?
+               PDF::Reader.new(tmp, password: password)
+             else
+               PDF::Reader.new(tmp)
+             end
+
+    pages = reader.pages.map(&:text).join("\n\n")
+    pages.presence
+  rescue PDF::Reader::EncryptedPDFError
+    raise I18n.t("wizard.upload.pdf_encrypted")
+  rescue PDF::Reader::Error
+    raise I18n.t("wizard.upload.pdf_unreadable")
+  ensure
+    tmp&.close!
   end
 
   def run_extraction(text)

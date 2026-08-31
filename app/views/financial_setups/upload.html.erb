@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <%= form_with url: financial_setup_upload_path, method: :post, local: true, data: { turbo: false }, html: { id: "statementForm" } do %>
+    <%= form_with url: financial_setup_upload_path, method: :post, local: true, data: { turbo: false }, html: { id: "statementForm", multipart: true } do %>
       <%= hidden_field_tag :step, @step_key %>
       <input type="hidden" name="password" id="statementPasswordHidden">
 
@@ -85,6 +85,13 @@ document.addEventListener('DOMContentLoaded', function() {
   browseBtn.addEventListener('click', function() { fileInput.click(); });
   dropzone.addEventListener('click', function() { fileInput.click(); });
 
+  var unlockBtn = document.getElementById('unlockBtn');
+  if (unlockBtn) {
+    unlockBtn.addEventListener('click', function() {
+      submitWithPassword();
+    });
+  }
+
   ['dragover', 'dragenter'].forEach(function(ev) {
     dropzone.addEventListener(ev, function(e) { e.preventDefault(); dropzone.classList.add('bg-primary-subtle'); });
   });
@@ -104,6 +111,15 @@ document.addEventListener('DOMContentLoaded', function() {
     fileSize.textContent = file.size ? '(' + formatSize(file.size) + ')' : '';
     fileChip.classList.remove('d-none');
     uploadBtn.disabled = false;
+
+    var isPdf = file.name.toLowerCase().endsWith('.pdf');
+    var passwordCard = document.querySelector('.password-card');
+    if (isPdf) {
+      passwordCard.classList.remove('d-none');
+    } else {
+      passwordCard.classList.add('d-none');
+      document.getElementById('statementPassword').value = '';
+    }
   }
 
   function formatSize(bytes) {
@@ -112,18 +128,19 @@ document.addEventListener('DOMContentLoaded', function() {
     return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
+  function submitWithPassword() {
+    var pwd = document.getElementById('statementPassword').value;
+    document.getElementById('statementPasswordHidden').value = pwd;
+    uploadProgress.classList.remove('d-none');
+    progressBar.style.width = '50%';
+    form.submit();
+  }
+
   form.addEventListener('submit', function(e) {
     var pwd = document.getElementById('statementPassword').value;
     document.getElementById('statementPasswordHidden').value = pwd;
-    if (pwd) {
-      e.preventDefault();
-      uploadProgress.classList.remove('d-none');
-      progressBar.style.width = '100%';
-      setTimeout(function() { form.submit(); }, 300);
-    } else {
-      uploadProgress.classList.remove('d-none');
-      progressBar.style.width = '50%';
-    }
+    uploadProgress.classList.remove('d-none');
+    progressBar.style.width = '50%';
   });
 });
 </script>

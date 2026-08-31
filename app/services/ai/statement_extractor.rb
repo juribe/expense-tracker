@@ -87,8 +87,23 @@ module Ai
         ]
       }.to_json
 
-      response = http.request(request)
-      raise ExtractionError, "AI HTTP #{response.code}" unless response.code.to_i == 200
+      response = nil
+      attempts = 0
+      loop do
+        attempts += 1
+        begin
+          response = http.request(request)
+        rescue Net::OpenTimeout, Net::ReadTimeout
+          response = nil
+        end
+
+        break if attempts > 2
+        break if response.nil? == false && response.code.to_i < 500
+
+        sleep(2**attempts)
+      end
+
+      raise ExtractionError, "AI HTTP #{response.code}" unless response&.code.to_i == 200
 
       content = JSON.parse(response.body).dig("choices", 0, "message", "content")
       JSON.parse(content)
@@ -104,6 +119,19 @@ module Ai
         available, balances, credit limits, loan balances and payment information.
         Amounts are positive numbers in the smallest published unit shown ("$5.420.000" COP means 5420000).
         kind must be one of: account, credit_card, loan.
+
+        IMPORTANT — CARD NUMBER (crítico):
+        Credit-card statements often print the card number at the END of the document under
+        a label like "Número de tarjeta", "No. tarjeta", "Tarjeta", or "Card number". Look for it
+        carefully. When found:
+          - Set "card_last_four" to ONLY its LAST FOUR digits (e.g. "7890").
+          - NEVER return or include the full card number. Do NOT set "identifier" to the full
+            card number; set it to the same last four digits.
+          - Give this number PRIORITY: if it appears, use it as the card's identifier even if a
+            contract or reference number appears elsewhere.
+          - The "número de tarjeta" (card number) is NOT the "número de contrato" (contract number)
+            or "referencia" (reference); prefer the card number when both exist.
+
         Respond with ONLY JSON of the shape:
         {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
           "sub_kind":"savings","card_last_four":"1234","balance":5420000,
@@ -123,23 +151,35 @@ module Ai
       kind = entry["kind"].to_s.downcase
       return nil unless %w[account credit_card loan].include?(kind)
 
-      name = entry["name"].to_s.strip
+      raw_name = entry["name"].to_s.strip
       bank = entry["bank"].to_s.strip.presence
+      name = raw_name unless card_number?(raw_name)
       return nil if name.blank? && bank.blank?
+
+      identifier = entry["identifier"].to_s.strip.presence
+      card_last_four = normalize_card(entry["card_last_four"])
+      card_last_four ||= normalize_card(identifier)
+
+      # SECURITY: never keep a full credit-card number anywhere. For credit
+      # cards, reduce the identifier to the last four digits so the full number
+      # is never persisted, displayed, or logged.
+      if kind == "credit_card" && card_last_four.present?
+        identifier = card_last_four
+      end
 
       {
         kind: kind,
         name: name.presence || bank,
         bank: bank,
         sub_kind: entry["sub_kind"].to_s.strip.presence,
-        card_last_four: normalize_card(entry["card_last_four"]),
+        card_last_four: card_last_four,
         balance: parse_amount(entry["balance"]),
         credit_limit: parse_amount(entry["credit_limit"]),
         outstanding_balance: parse_amount(entry["outstanding_balance"]),
         monthly_payment: parse_amount(entry["monthly_payment"]),
         interest_rate: parse_amount(entry["interest_rate"]),
         interest_rate_type: normalize_rate_type(entry["interest_rate_type"]),
-        identifier: entry["identifier"].to_s.strip.presence
+        identifier: identifier
       }
     end
 
@@ -209,6 +249,13 @@ module Ai
     def normalize_card(value)
       digits = value.to_s.scan(/\d/).join
       digits[-4..]&.then { |last4| last4.length == 4 ? last4 : nil }
+    end
+
+    # A card number is a long run of digits (>= 12). Used to avoid using a raw
+    # card number as the displayed name.
+    def card_number?(value)
+      digits = value.to_s.gsub(/[\s-]/, "").scan(/\d/).join
+      digits.length >= 12
     end
 
     def normalize_rate_type(value)

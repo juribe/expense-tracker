@@ -54,6 +54,12 @@
                 <label class="form-label small text-muted mb-0"><%= money_key == "outstanding_balance" ? t("wizard.manual.outstanding_balance") : t("wizard.manual.current_balance") %></label>
                 <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>">
               </div>
+              <% if source["kind"] == "credit_card" %>
+                <div class="col-12 col-md-4">
+                  <label class="form-label small text-muted mb-0"><%= t("wizard.review_extract.card_number") %></label>
+                  <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric" placeholder="Last 4 digits">
+                </div>
+              <% end %>
             </fieldset>
 
             <% if dup["duplicate"] %>
@@ -68,31 +74,6 @@
                   <% end %>
                 </div>
               </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-
-      <% if @transactions.any? %>
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle me-1"></i>
-          <%= t("wizard.review_extract.transactions_summary", count: @transactions.size) %>
-          <button type="button" class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#txReviewPanel">
-            <%= t("wizard.review_extract.review_transactions") %>
-          </button>
-        </div>
-        <div class="collapse" id="txReviewPanel">
-          <div class="card mb-3">
-            <ul class="list-group list-group-flush">
-              <% @transactions.first(20).each do |tx| %>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span><%= tx["date"] %> · <%= tx["description"] %></span>
-                  <span class="fw-bold <%= tx["type"] == "expense" ? "text-danger" : "text-success" %>"><%= number_to_currency(tx["amount"]) %></span>
-                </li>
-              <% end %>
-            </ul>
-            <% if @transactions.size > 20 %>
-              <div class="card-footer text-muted small"><%= t("wizard.review_extract.more_transactions", count: @transactions.size - 20) %></div>
             <% end %>
           </div>
         </div>

@@ -71,9 +71,34 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     init(document);
+    bindChoiceCards();
   });
 
   document.addEventListener("turbo:load", function () {
     init(document);
+    bindChoiceCards();
   });
+
+  function bindChoiceCards() {
+    document.querySelectorAll('[role="radiogroup"] .choice-card').forEach(function (card) {
+      if (card.dataset.choiceBound === "true") return;
+      card.dataset.choiceBound = "true";
+
+      card.addEventListener("click", function () {
+        var group = card.closest('[role="radiogroup"]');
+        group.querySelectorAll('.choice-card').forEach(function (c) {
+          c.classList.remove('selected');
+          c.setAttribute('aria-checked', 'false');
+        });
+        card.classList.add('selected');
+        card.setAttribute('aria-checked', 'true');
+
+        var radio = card.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+
+        var form = card.closest('form');
+        if (form) form.submit();
+      });
+    });
+  }
 })();

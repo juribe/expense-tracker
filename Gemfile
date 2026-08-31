@@ -43,6 +43,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 gem "devise"
+gem "pdf-reader"
 
 # Loads environment variables from .env in development and test.
 gem "dotenv-rails", groups: [ :development, :test ]

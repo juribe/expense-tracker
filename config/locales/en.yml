@@ -31,6 +31,10 @@ en:
   hello: "Hello world"
   wizard:
     steps_title: "Progress"
+    reset:
+      done: "Wizard data cleared. You can start again."
+      confirm: "Are you sure? This will erase everything you've added and start the setup over."
+      button: "Start over"
     step_of: "Step %{current} of %{total}"
     steps:
       accounts: "Accounts"
@@ -52,6 +56,9 @@ en:
     select:
       invalid: "Please select a valid option."
       prompt: "How would you like to add your %{kind}?"
+      added: "Already added (%{count})"
+      edit: "Edit"
+      none_added: "Nothing added for this step yet."
       manual: "Add manually"
       manual_hint: "Add one or more %{kind} by entering the information yourself."
       import: "Import a statement"
@@ -91,6 +98,13 @@ en:
       password_label: "Password"
       unlock: "Unlock document"
       password_error: "The password is incorrect. Please try again."
+      import_failed: "Import failed: %{message}"
+      pdf_encrypted: "This PDF is encrypted. Please provide the correct password."
+      pdf_unreadable: "Could not read this PDF. The file may be corrupted or encrypted."
+      no_file: "No file was uploaded."
+      empty_file: "File is empty."
+      unsupported_type: "Unsupported file type. Please upload a PDF, CSV, or Excel file."
+      extract_failed: "Could not extract text from this document. Please try another file."
     review:
       title: "Your financial setup"
       accounts: "%{count} Accounts"
@@ -101,7 +115,7 @@ en:
       back_to_edit: "Back to edit"
       complete: "Complete setup"
     review_extract:
-      title: "We found %{count} %{noun}"
+      title: "We found %{noun}"
       hint: "Review the extracted information before it is added to your account. You can keep, remove, or edit each item."
       keep: "Keep"
       possible_duplicate: "Possible duplicate"
@@ -110,6 +124,7 @@ en:
       create: "Create new"
       ignore: "Ignore"
       balance: "Balance"
+      card_number: "Card number"
       kind_account: "Account"
       kind_credit_card: "Credit card"
       kind_loan: "Loan"
