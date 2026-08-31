@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_31_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_31_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_31_000000) do
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_expenses_on_category_id"
     t.index ["user_id"], name: "index_expenses_on_user_id"
+  end
+
+  create_table "financial_setups", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "current_step", default: 0, null: false
+    t.string "status", default: "in_progress", null: false
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "status"], name: "index_financial_setups_on_user_id_and_status"
+    t.index ["user_id"], name: "index_financial_setups_on_user_id"
   end
 
   create_table "gmail_connections", force: :cascade do |t|
@@ -338,6 +349,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_31_000000) do
   add_foreign_key "credit_accounts", "money_sources"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
+  add_foreign_key "financial_setups", "users"
   add_foreign_key "gmail_connections", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"

@@ -9,6 +9,10 @@ class MoneySourcesController < ApplicationController
   # GET /money_sources
   def index
     @money_sources = current_user.money_sources.includes(:parent, :tags, :children).order(:kind, :name)
+    @setup = current_user.financial_setups
+                         .where(status: %w[in_progress dismissed])
+                         .order(updated_at: :desc, id: :desc)
+                         .first
   end
 
   # GET /money_sources/1

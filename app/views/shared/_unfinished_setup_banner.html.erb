@@ -1,0 +1,16 @@
+<% if setup.present? && setup.resumable? %>
+  <div class="alert alert-primary alert-dismissible fade show d-flex flex-wrap justify-content-between align-items-center gap-2 d-print-none" role="alert" data-testid="unfinished-setup-banner">
+    <div>
+      <i class="bi bi-magic me-1"></i>
+      <span><%= t("wizard.resume_banner.text") %></span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <%= link_to financial_setup_path, class: "btn btn-sm btn-primary" do %>
+        <i class="bi bi-arrow-right-circle me-1"></i><%= t("wizard.resume_banner.resume") %>
+      <% end %>
+      <%= button_to financial_setup_dismiss_path, method: :post, class: "btn btn-sm btn-outline-secondary", form: { data: { turbo: false } } do %>
+        <%= t("wizard.resume_banner.dismiss") %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

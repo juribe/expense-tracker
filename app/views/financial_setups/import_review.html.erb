@@ -1,0 +1,114 @@
+<% @step_key = @step.key.to_s %>
+<%= render "stepper", step_key: @step_key %>
+
+<div class="card shadow">
+  <div class="card-body p-4">
+    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.review_extract.title", count: @sources.size, noun: t(@step.review_noun_key.to_s, count: @sources.size).downcase) %></h3>
+    <p class="text-muted mb-4"><%= t("wizard.review_extract.hint") %></p>
+
+    <%= form_with url: financial_setup_import_confirm_path, method: :post, local: true, data: { turbo: false } do %>
+      <%= hidden_field_tag :step, @step_key %>
+
+      <% @sources.each_with_index do |source, idx| %>
+        <% dup_key = FinancialSetupWizard.duplicate_key(source) %>
+        <% dup = @duplicates[dup_key.to_s] || {} %>
+        <% money_key = source["kind"] == "loan" ? "outstanding_balance" : "balance" %>
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-<%= source_kind_icon(source["kind"]) %> fs-4 text-primary"></i>
+                <div>
+                  <span class="fw-bold"><%= source["name"] %></span>
+                  <% if source["card_last_four"].present? %>
+                    <span class="badge bg-light text-dark">••••<%= source["card_last_four"] %></span>
+                  <% end %>
+                  <div class="text-muted small">
+                    <% if source["sub_kind"].present? %><%= source["sub_kind"].titleize %><% else %><%= t("wizard.review_extract.kind_#{source["kind"]}") %><% end %>
+                  </div>
+                  <div class="small">
+                    <% bal = money_field_value(source[money_key]) %>
+                    <% if bal.present? %>
+                      <span class="fw-bold"><%= t("wizard.review_extract.balance") %>: <span class="text-<%= source["kind"] == "loan" ? "danger" : "success" %>"><%= number_to_currency(source[money_key]) %></span></span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="form-check form-switch">
+                <%= check_box_tag "keep[#{idx}]", "1", true, class: "form-check-input" %>
+                <label class="form-check-label small text-muted"><%= t("wizard.review_extract.keep") %></label>
+              </div>
+            </div>
+
+            <fieldset class="row g-2 mt-3">
+              <legend class="visually-hidden"><%= t("wizard.manual.edit") %></legend>
+              <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-0"><%= t("wizard.manual.name") %></label>
+                <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][name]" value="<%= source["name"] %>">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-0"><%= t("wizard.manual.bank") %></label>
+                <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][bank]" value="<%= source["bank"] %>">
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-0"><%= money_key == "outstanding_balance" ? t("wizard.manual.outstanding_balance") : t("wizard.manual.current_balance") %></label>
+                <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>">
+              </div>
+            </fieldset>
+
+            <% if dup["duplicate"] %>
+              <div class="alert alert-warning py-2 mt-2 mb-0">
+                <span class="badge bg-warning text-dark me-2"><%= t("wizard.review_extract.possible_duplicate") %></span>
+                <div class="btn-group btn-group-sm mt-1" role="group" aria-label="<%= t("wizard.review_extract.duplicate_choice") %>">
+                  <% [["update", "update"], ["create", "create"], ["ignore", "ignore"]].each do |label_key, value| %>
+                    <label class="btn btn-outline-<%= value == "create" ? "secondary" : (value == "ignore" ? "danger" : "primary") %>">
+                      <%= radio_button_tag "duplicates[#{dup_key}]", value, (dup["choice"] || "update") == value %>
+                      <%= t("wizard.review_extract.#{label_key}") %>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @transactions.any? %>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= t("wizard.review_extract.transactions_summary", count: @transactions.size) %>
+          <button type="button" class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#txReviewPanel">
+            <%= t("wizard.review_extract.review_transactions") %>
+          </button>
+        </div>
+        <div class="collapse" id="txReviewPanel">
+          <div class="card mb-3">
+            <ul class="list-group list-group-flush">
+              <% @transactions.first(20).each do |tx| %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><%= tx["date"] %> · <%= tx["description"] %></span>
+                  <span class="fw-bold <%= tx["type"] == "expense" ? "text-danger" : "text-success" %>"><%= number_to_currency(tx["amount"]) %></span>
+                </li>
+              <% end %>
+            </ul>
+            <% if @transactions.size > 20 %>
+              <div class="card-footer text-muted small"><%= t("wizard.review_extract.more_transactions", count: @transactions.size - 20) %></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-outline-secondary" do %>
+            <i class="bi bi-x-lg me-1"></i><%= t("wizard.review_extract.cancel_import") %>
+          <% end %>
+        </div>
+        <div>
+          <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
+          <%= submit_tag t("wizard.review_extract.confirm"), class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

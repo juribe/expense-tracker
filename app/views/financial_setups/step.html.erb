@@ -1,0 +1,57 @@
+<% @step_key = @step.key.to_s %>
+<%= render "stepper", step_key: @step_key %>
+
+<div class="card shadow">
+  <div class="card-body p-4">
+    <h3 class="fw-bold text-primary mb-1"><%= t(@step.label_key) %></h3>
+    <p class="text-muted mb-4"><%= t("wizard.select.prompt", kind: t(@step.label_key).downcase) %></p>
+
+    <div class="row g-3">
+      <%= form_with url: financial_setup_select_path, local: true, method: :post, data: { turbo: false } do %>
+        <%= hidden_field_tag :step, @step_key %>
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="card border shadow-sm h-100 p-3 text-center" role="radio" aria-checked="false">
+              <input type="radio" name="choice" value="manual" class="visually-hidden">
+              <i class="bi bi-pencil-square display-4 text-primary d-block mb-2"></i>
+              <span class="fw-bold d-block"><%= t("wizard.select.manual") %></span>
+              <span class="text-muted small d-block"><%= t("wizard.select.manual_hint", kind: t(@step.label_key).downcase) %></span>
+            </label>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="card border shadow-sm h-100 p-3 text-center" role="radio" aria-checked="false">
+              <input type="radio" name="choice" value="import" class="visually-hidden">
+              <i class="bi bi-upload display-4 text-primary d-block mb-2"></i>
+              <span class="fw-bold d-block"><%= t("wizard.select.import") %></span>
+              <span class="text-muted small d-block"><%= t("wizard.select.import_hint") %></span>
+            </label>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="card border shadow-sm h-100 p-3 text-center" role="radio" aria-checked="false">
+              <input type="radio" name="choice" value="skip" class="visually-hidden">
+              <i class="bi bi-arrow-right-circle display-4 text-muted d-block mb-2"></i>
+              <span class="fw-bold d-block"><%= t("wizard.select.skip") %></span>
+              <span class="text-muted small d-block"><%= t("wizard.select.skip_hint", kind: t(@step.label_key).downcase) %></span>
+            </label>
+          </div>
+
+          <div class="col-12 d-flex justify-content-between mt-4">
+            <div>
+              <% if step_idx = FinancialSetupWizard.step_keys.index(@step.key) and step_idx > 0 %>
+                <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[step_idx - 1]), class: "btn btn-outline-secondary" do %>
+                  <i class="bi bi-arrow-left me-1"></i><%= t("wizard.back") %>
+                <% end %>
+              <% else %>
+                <span></span>
+              <% end %>
+            </div>
+            <div>
+              <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
+              <%= submit_tag t("wizard.continue"), class: "btn btn-primary" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<% @step_key = @step.key.to_s %>
+<%= render "stepper", step_key: @step_key %>
+
+<div class="card shadow">
+  <div class="card-body p-4">
+    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.manual.title", kind: t(@step.label_key).downcase) %></h3>
+    <p class="text-muted mb-4"><%= t("wizard.manual.hint") %></p>
+
+    <%= form_with url: financial_setup_manual_path, method: :post, local: true, data: { turbo: false } do %>
+      <%= hidden_field_tag :step, @step_key %>
+
+      <div id="manualRows">
+        <% @rows.each_with_index do |row, idx| %>
+          <%= render "manual_row", row: row, idx: idx, kind: @step.kind %>
+        <% end %>
+      </div>
+
+      <button type="button" class="btn btn-outline-primary mb-4" id="addAnotherRow">
+        <i class="bi bi-plus-lg me-1"></i><%= t("wizard.manual.add_another") %>
+      </button>
+
+      <div class="d-flex justify-content-between">
+        <div>
+          <% prev_index = FinancialSetupWizard.step_keys.index(@step.key) - 1 %>
+          <% if prev_index >= 0 %>
+            <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[prev_index]), class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-1"></i><%= t("wizard.back") %>
+            <% end %>
+          <% end %>
+        </div>
+        <div>
+          <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
+          <%= submit_tag t("wizard.continue"), class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<template id="manualRowTemplate">
+  <%= render "manual_row", row: { "name" => "", "bank" => "" }, idx: "{IDX}", kind: @step.kind %>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var container = document.getElementById('manualRows');
+  var addBtn = document.getElementById('addAnotherRow');
+  if (!container || !addBtn) return;
+  var idx = container.querySelectorAll('.manual-row').length;
+
+  addBtn.addEventListener('click', function() {
+    var template = document.getElementById('manualRowTemplate');
+    var html = template.innerHTML.replaceAll('{IDX}', idx);
+    container.insertAdjacentHTML('beforeend', html);
+    idx++;
+  });
+
+  container.addEventListener('click', function(e) {
+    var btn = e.target.closest('.remove-row');
+    if (btn && container.querySelectorAll('.manual-row').length > 1) {
+      btn.closest('.manual-row').remove();
+    }
+  });
+});
+</script>

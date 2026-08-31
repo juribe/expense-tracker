@@ -12,4 +12,5 @@ class User < ApplicationRecord
   has_many :processed_emails, dependent: :destroy
   has_many :money_sources, dependent: :destroy
   has_many :transfers, dependent: :destroy
+  has_many :financial_setups, dependent: :destroy
 end
