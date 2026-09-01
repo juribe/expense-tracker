@@ -23,7 +23,9 @@ module ApplicationHelper
   def money_field_value(value)
     return "" if value.blank?
 
-    number_with_precision(value.to_d, precision: 2, strip_insignificant_zeros: true, delimiter: ",")
+    # Colombian format via the es locale: "." thousands, "," decimals
+    # (67.429.112,92). number helpers read the format from I18n.
+    number_with_precision(value.to_d, precision: 2, strip_insignificant_zeros: true)
   rescue NoMethodError, ArgumentError
     value.to_s
   end
@@ -58,6 +60,23 @@ module ApplicationHelper
 
   def source_kind_options
     MoneySource::KINDS.map { |kind| [ source_kind_label(kind), kind ] }
+  end
+
+  # Interest-rate type options with localized labels (reuses the money-sources
+  # form's rate_type translations).
+  def rate_type_options
+    CreditAccount::INTEREST_RATE_TYPES.values.map do |type|
+      [ t("money_sources.form.rate_type.#{type}", default: type.titleize), type ]
+    end
+  end
+
+  # Available credit = credit limit minus the current debt (balance), floored at 0.
+  def available_credit_for(row)
+    limit = row["credit_limit"].to_d
+    debt = row["balance"].to_d
+    return 0 if limit <= 0
+
+    [ limit - debt, 0 ].max
   end
 
   def category_type_label(scope)

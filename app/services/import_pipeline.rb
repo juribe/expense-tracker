@@ -18,6 +18,7 @@ class ImportPipeline
   end
 
   def call(file:, password: nil)
+    Rails.logger.info "[ImportPipeline] Starting import for file: #{file.respond_to?(:original_filename) ? file.original_filename : 'unknown'}"
     validation = validate_upload(file)
     return failure(validation) if validation.is_a?(String)
 
@@ -27,14 +28,22 @@ class ImportPipeline
     text = extract_text(file, format, password: password)
     return failure(I18n.t("wizard.upload.extract_failed")) if text.blank?
 
+    Rails.logger.info "[ImportPipeline] Text extracted successfully. Running AI extraction..."
     extraction = run_extraction(text)
+    if extraction.nil?
+      Rails.logger.error "[ImportPipeline] AI extractor returned NIL"
+      return failure("AI extractor returned no result")
+    end
+    Rails.logger.info "[ImportPipeline] AI extraction result: #{extraction.inspect}"
     return failure(extraction[:error]) unless extraction[:ok?]
 
-    sources = build_sources(extraction[:data][:sources])
-    transactions = extraction[:data][:transactions] || []
+    sources = build_sources(extraction.dig(:data, :sources) || [])
+    transactions = extraction.dig(:data, :transactions) || []
 
+    Rails.logger.info "[ImportPipeline] Import complete. Sources: #{sources.size}, Transactions: #{transactions.size}"
     Result.new(ok?: true, sources: sources, transactions: transactions, error: nil)
   rescue StandardError => e
+    Rails.logger.error "[ImportPipeline] CRASH: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
     failure(I18n.t("wizard.upload.import_failed", message: e.message))
   end
 

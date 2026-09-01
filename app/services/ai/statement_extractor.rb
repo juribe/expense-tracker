@@ -17,19 +17,29 @@ module Ai
 
     class ExtractionError < StandardError; end
 
+    STATEMENT_CHAR_LIMIT = 12_000
+    STATEMENT_HEAD_CHARS = 8_000
+    STATEMENT_TAIL_CHARS = 4_000
+
+    ACCOUNT_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?cuenta|cuenta\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|account\s*(?:number|no\.?|\#)/i
+    CARD_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?tarjeta|card\s*(?:number|no\.?|\#)/i
+    LOAN_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?(?:cr[eé]dito|pr[eé]stamo|contrato)|contrato\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|loan\s*(?:number|no\.?|\#)/i
+    LABELED_NUMBER = /([*\d][\d\s\-*.]{4,32}[\d*])/
+
     class << self
-      def parse(raw)
-        new.parse_payload(raw)
+      def parse(raw, text: nil)
+        new.parse_payload(raw, text: text)
       end
     end
 
-    def parse_payload(raw)
+    def parse_payload(raw, text: nil)
       raise ExtractionError, "AI response is not a JSON object" unless raw.is_a?(Hash)
 
       sources_raw = raw["sources"]
       raise ExtractionError, "missing 'sources' array" unless sources_raw.is_a?(Array)
 
       sources = sources_raw.filter_map { |entry| normalize_source(entry) }
+      sources = apply_labeled_identifiers(sources, text) if text.present?
 
       transactions = []
       raw_transactions = raw["transactions"]
@@ -49,7 +59,7 @@ module Ai
         return failure("AI extraction is not configured (missing MISTRAL_API_KEY).")
       end
 
-      data = self.class.parse(request_extraction(text))
+      data = self.class.parse(request_extraction(text), text: text)
       { ok?: true, data: data, error: nil }
     rescue ExtractionError => e
       failure(e.message)
@@ -83,7 +93,7 @@ module Ai
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: system_prompt },
-          { role: "user", content: "Statement contents:\n\n#{text.to_s[0, 12_000]}" }
+          { role: "user", content: "Statement contents:\n\n#{statement_window(text)}" }
         ]
       }.to_json
 
@@ -106,37 +116,78 @@ module Ai
       raise ExtractionError, "AI HTTP #{response.code}" unless response&.code.to_i == 200
 
       content = JSON.parse(response.body).dig("choices", 0, "message", "content")
+      raise ExtractionError, "AI response content is empty" if content.blank?
       JSON.parse(content)
     rescue JSON::ParserError, TypeError, KeyError => e
       raise ExtractionError, "invalid AI response (#{e.message})"
+    end
+
+    def statement_window(text)
+      str = text.to_s
+      return str if str.length <= STATEMENT_CHAR_LIMIT
+
+      "#{str[0, STATEMENT_HEAD_CHARS]}\n\n[...]\n\n#{str[-STATEMENT_TAIL_CHARS, STATEMENT_TAIL_CHARS]}"
     end
 
     def system_prompt
       <<~PROMPT
         You analyze bank, credit-card, or loan statement documents and extract the financial
         source(s) they belong to, plus any transactions shown.
-        Identify the institution, account/card/loan type, an identifier or last-four digits when
-        available, balances, credit limits, loan balances and payment information.
+        Identify the institution, account/card/loan type, identifier, balances, credit limits,
+        loan balances and payment information.
         Amounts are positive numbers in the smallest published unit shown ("$5.420.000" COP means 5420000).
         kind must be one of: account, credit_card, loan.
 
-        IMPORTANT — CARD NUMBER (crítico):
-        Credit-card statements often print the card number at the END of the document under
-        a label like "Número de tarjeta", "No. tarjeta", "Tarjeta", or "Card number". Look for it
-        carefully. When found:
-          - Set "card_last_four" to ONLY its LAST FOUR digits (e.g. "7890").
-          - NEVER return or include the full card number. Do NOT set "identifier" to the full
-            card number; set it to the same last four digits.
-          - Give this number PRIORITY: if it appears, use it as the card's identifier even if a
-            contract or reference number appears elsewhere.
-          - The "número de tarjeta" (card number) is NOT the "número de contrato" (contract number)
-            or "referencia" (reference); prefer the card number when both exist.
+        REVOLVING LINE OF CREDIT — a "crédito rotativo" / "línea de crédito rotativa" /
+        revolving credit line is a LOAN, NEVER a credit card. Classify it as kind="loan"
+        even when the document shows a card number, a "cupo", or revolving interest.
+
+        IDENTIFIERS — follow the kind exactly:
+        ACCOUNT (cuenta bancaria / savings / checking):
+          - Look for the "número de cuenta" / "Nro. de cuenta" / "Cuenta No." /
+            "Account number" (typically 8–20 digits).
+          - identifier MUST be ONLY the last four digits of the account number
+            (privacy — the full number is never stored), just like credit cards.
+          - card_last_four MUST be those same last four digits.
+          - If a debit-card number also appears, IGNORE it. The account number wins.
+          - Do NOT use NIT, cédula, número de transacción, referencia de pago, número de extracto,
+            or contrato as the account identifier.
+
+        CREDIT CARD:
+          - Look for "Número de tarjeta" / "No. tarjeta" / "Card number" (often at the end).
+          - card_last_four = ONLY its last four digits. identifier = those same last four.
+          - NEVER return the full card number.
+          - Prefer the card number over contrato / referencia.
+
+        MONEY FIELDS — map the printed labels to fields, keep amounts positive:
+          CREDIT CARD:
+            - credit_limit = the total credit line: "CUPO ASIGNADO", "Cupo asignado", "Cupo total",
+              "Límite de crédito", "Cupo".
+            - balance = the current DEBT owed by the client (money used), NOT the available credit:
+              "Saldo actual", "Saldo de deuda", "Saldo total", "Deuda", "Saldo del periodo".
+              Do NOT return "Cupo disponible" / available credit as balance.
+          LOAN:
+            - principal_amount = the total money originally disbursed to the client:
+              "Valor desembolsado", "Monto desembolsado", "Capital desembolsado",
+              "Valor del crédito", "Valor del préstamo".
+            - outstanding_balance = what is still owed: "Saldo capital", "Saldo actual",
+              "Saldo pendiente", "Saldo de capital".
+            - monthly_payment = "Cuota mensual", "Valor cuota", "Cuota fija", "Cuota mínima".
+            - For revolving lines (crédito rotativo): credit_limit = "CUPO ASIGNADO" / "Cupo total",
+              outstanding_balance = "Saldo actual" / "Saldo de deuda", and principal_amount is
+              the originally disbursed value when printed.
+
+        LOAN:
+          - identifier = the full loan / credit / contract number as printed. card_last_four = null.
+          - For a revolving line, prefer the "crédito" / contract number over any card number.
 
         Respond with ONLY JSON of the shape:
         {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
-          "sub_kind":"savings","card_last_four":"1234","balance":5420000,
+          "sub_kind":"savings","card_last_four":"5689","balance":5420000,
           "credit_limit":null,"outstanding_balance":null,"monthly_payment":null,
-          "interest_rate":null,"interest_rate_type":null,"identifier":"1234"}],
+          "interest_rate":null,"interest_rate_type":null,"identifier":"5689"},
+         {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","principal_amount":8000000,
+          "outstanding_balance":6000000,"monthly_payment":350000}],
          "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
           "type":"expense","category":"restaurants","confidence":0.98}]}
         When a document contains no identifiable financial source, respond with {"sources":[]}.
@@ -156,16 +207,7 @@ module Ai
       name = raw_name unless card_number?(raw_name)
       return nil if name.blank? && bank.blank?
 
-      identifier = entry["identifier"].to_s.strip.presence
-      card_last_four = normalize_card(entry["card_last_four"])
-      card_last_four ||= normalize_card(identifier)
-
-      # SECURITY: never keep a full credit-card number anywhere. For credit
-      # cards, reduce the identifier to the last four digits so the full number
-      # is never persisted, displayed, or logged.
-      if kind == "credit_card" && card_last_four.present?
-        identifier = card_last_four
-      end
+      identifier, card_last_four = normalize_source_ids(kind, entry)
 
       {
         kind: kind,
@@ -173,10 +215,13 @@ module Ai
         bank: bank,
         sub_kind: entry["sub_kind"].to_s.strip.presence,
         card_last_four: card_last_four,
-        balance: parse_amount(entry["balance"]),
+        # Loans have no "balance" concept in our model (outstanding_balance is
+        # what is owed); nil out whatever the AI returns there to avoid junk.
+        balance: kind == "loan" ? nil : parse_amount(entry["balance"]),
         credit_limit: parse_amount(entry["credit_limit"]),
         outstanding_balance: parse_amount(entry["outstanding_balance"]),
         monthly_payment: parse_amount(entry["monthly_payment"]),
+        principal_amount: parse_amount(entry["principal_amount"]),
         interest_rate: parse_amount(entry["interest_rate"]),
         interest_rate_type: normalize_rate_type(entry["interest_rate_type"]),
         identifier: identifier
@@ -215,15 +260,25 @@ module Ai
       nil
     end
 
+    # Colombian rule: "." is the thousands separator, "," the decimal one.
+    # Handles "5.420.000", "1234,92" and the mixed "67.429.112,92".
     def parse_amount_text(text)
       return 0.0 if text.blank?
 
-      if text.match?(/\A\d{1,3}(?:\.\d{3})+\z/)
-        text.delete(".").to_f
-      elsif text.match?(/\A\d+(?:,\d{1,2})\z/)
-        text.tr(",", ".").to_f
+      cleaned = text.gsub(/[^0-9.,\-]/, "")
+      return 0.0 if cleaned.blank? || cleaned == "-"
+
+      if cleaned.match?(/\A-?\d{1,3}(?:\.\d{3})+,\d+\z/)
+        # "67.429.112,92" — dot thousands + comma decimals
+        cleaned.delete(".").tr(",", ".").to_f
+      elsif cleaned.match?(/\A-?\d{1,3}(?:\.\d{3})+\z/)
+        # "5.420.000" — dot thousands only
+        cleaned.delete(".").to_f
+      elsif cleaned.match?(/\A-?\d+,\d+\z/)
+        # "1234,92" — comma is the decimal separator
+        cleaned.tr(",", ".").to_f
       else
-        text.gsub(/[^0-9.\-]/, "").to_f
+        cleaned.to_f
       end
     end
 
@@ -246,10 +301,90 @@ module Ai
       0.5
     end
 
-    def normalize_card(value)
-      digits = value.to_s.scan(/\d/).join
-      digits[-4..]&.then { |last4| last4.length == 4 ? last4 : nil }
+    def normalize_source_ids(kind, entry)
+      raw_identifier = digits_only(entry["identifier"])
+      card_last_four = normalize_card(entry["card_last_four"])
+
+      case kind
+      when "account"
+        # SECURITY: never keep a full account number. Store the last four digits
+        # only (like cards). Keep a short identifier intact for dedup.
+        last4 = normalize_card(raw_identifier)
+        [ last4 || raw_identifier, last4 ]
+      when "credit_card"
+        card_last_four ||= normalize_card(raw_identifier)
+        # SECURITY: never keep a full credit-card number. Identifier is last four only.
+        [ card_last_four, card_last_four ]
+      else
+        identifier = raw_identifier.presence
+        identifier = nil if identifier && pan_like?(identifier)
+        [ identifier, nil ]
+      end
     end
+
+    def pan_like?(value)
+      digits = value.to_s.gsub(/\s+/, "")
+      digits.length >= 12 && digits.match?(/\A\d+\z/)
+    end
+
+    def apply_labeled_identifiers(sources, text)
+      hints = labeled_identifiers(text)
+      sources.map { |source| merge_labeled_identifier(source, hints) }
+    end
+
+    def labeled_identifiers(text)
+      {
+        account: labeled_digits(text, ACCOUNT_NUMBER_LABEL, min: 8, max: 20),
+        card: labeled_digits(text, CARD_NUMBER_LABEL, min: 4, max: 19),
+        loan: labeled_digits(text, LOAN_NUMBER_LABEL, min: 4, max: 20)
+      }
+    end
+
+    def labeled_digits(text, label, min:, max:)
+      combined = Regexp.new("(?:#{label.source})[:.\\s]*#{LABELED_NUMBER.source}", Regexp::IGNORECASE | Regexp::MULTILINE)
+      text.to_s.scan(combined).each do |match|
+        digits = Array(match).join.scan(/\d/).join
+        return digits if digits.length.between?(min, max)
+      end
+      nil
+    end
+
+    def merge_labeled_identifier(source, hints)
+      case source[:kind]
+      when "account"
+        # Only the last four digits are ever stored, matching cards.
+        if hints[:account].present?
+          last4 = normalize_card(hints[:account])
+          source[:identifier] = last4 if last4.present?
+          source[:card_last_four] = last4 if last4.present?
+        end
+      when "credit_card"
+        if hints[:card].present?
+          last4 = hints[:card][-4..]
+          source[:card_last_four] = last4
+          source[:identifier] = last4
+        end
+      else
+        source[:card_last_four] = nil
+        # Loans keep the full contract number. Fill it in from the labeled
+        # text only when the AI did not provide one.
+        if source[:kind] == "loan" && source[:identifier].blank? && hints[:loan].present?
+          source[:identifier] = hints[:loan]
+        end
+      end
+      source
+    end
+
+    def digits_only(value)
+      value.to_s.scan(/\d/).join.presence
+    end
+
+  def normalize_card(value)
+    digits = digits_only(value)
+    return nil unless digits
+    last4 = digits[-4..]
+    last4&.length == 4 ? last4 : nil
+  end
 
     # A card number is a long run of digits (>= 12). Used to avoid using a raw
     # card number as the displayed name.

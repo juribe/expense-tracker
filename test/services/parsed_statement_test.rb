@@ -21,12 +21,12 @@ class ParsedStatementTest < ActiveSupport::TestCase
     assert_nil statement.credit_limit
   end
 
-  test "serializes to a plain hash" do
+  test "serializes to a plain hash with string keys" do
     statement = ParsedStatement.new(kind: "account", name: "Savings", bank: "Bancolombia", balance: "100")
     hash = statement.to_h
-    assert_equal "account", hash[:kind]
-    assert_equal BigDecimal("100"), hash[:balance]
-    assert_nil hash[:transactions] if hash.key?(:transactions)
+    assert_equal "account", hash["kind"]
+    assert_equal BigDecimal("100"), hash["balance"]
+    assert_nil hash["transactions"] if hash.key?("transactions")
   end
 
   test "display_name shows masked last four when present" do

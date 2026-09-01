@@ -25,7 +25,8 @@
             <% @setup.draft_sources(item[:step].key.to_s).each do |source| %>
               <li class="list-group-item d-flex justify-content-between">
                 <span><%= source["name"] %></span>
-                <% if source["balance"].present? %><span class="text-muted"><%= number_to_currency(source["balance"]) %></span><% end %>
+                <% amount = source["kind"] == "loan" ? (source["outstanding_balance"].presence || source["balance"]) : source["balance"].presence %>
+                <% if amount.present? %><span class="text-muted"><%= number_to_currency(amount) %></span><% end %>
               </li>
             <% end %>
           </ul>
@@ -41,7 +42,7 @@
 
     <div class="d-flex justify-content-between mt-4">
       <div>
-        <%= link_to financial_setup_step_path(step: :loans), class: "btn btn-outline-secondary" do %>
+        <%= link_to financial_setup_step_path(step: FinancialSetupWizard.source_step_keys.last), class: "btn btn-outline-secondary" do %>
           <i class="bi bi-arrow-left me-1"></i><%= t("wizard.review.back_to_edit") %>
         <% end %>
       </div>

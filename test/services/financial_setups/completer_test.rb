@@ -59,6 +59,7 @@ class CompleterTest < ActiveSupport::TestCase
     setup.replace_draft_sources("loans", [
       {
         "name" => "Car Loan", "bank" => "Banco", "kind" => "loan",
+        "principal_amount" => "100000000",
         "outstanding_balance" => "95000000", "monthly_payment" => "2686800",
         "interest_rate" => "21.27", "interest_rate_type" => "effective_annual"
       }
@@ -69,8 +70,25 @@ class CompleterTest < ActiveSupport::TestCase
     assert result.ok?
     source = @user.money_sources.first
     assert_equal "loan", source.kind
+    assert_equal BigDecimal("100000000"), source.credit_account.principal_amount
     assert_equal BigDecimal("95000000"), source.credit_account.outstanding_balance
     assert_equal BigDecimal("2686800"), source.credit_account.installment_amount
+  end
+
+  test "creates a manual loan with its contract number" do
+    setup = setup_for("loans", choice: "manual")
+    setup.replace_draft_sources("loans", [
+      {
+        "name" => "Crédito Hipotecario", "bank" => "Banco", "kind" => "loan",
+        "identifier" => "73000123456",
+        "outstanding_balance" => "66959722", "monthly_payment" => "1130642"
+      }
+    ])
+    setup.save!
+
+    result = complete(setup)
+    assert result.ok?
+    assert_equal "73000123456", @user.money_sources.first.identifier
   end
 
   test "skips blank manual rows" do

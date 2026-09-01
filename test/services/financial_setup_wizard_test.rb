@@ -3,13 +3,13 @@
 require "test_helper"
 
 class FinancialSetupWizardTest < ActiveSupport::TestCase
-  test "defines accounts, credit cards, loans and review steps in order" do
-    assert_equal %i[accounts credit_cards loans review], FinancialSetupWizard.step_keys
+  test "defines cash, accounts, credit cards, loans and review steps in order" do
+    assert_equal %i[cash accounts credit_cards loans review], FinancialSetupWizard.step_keys
   end
 
   test "each source step declares a monetary kind" do
     kinds = FinancialSetupWizard.source_steps.map(&:kind)
-    assert_equal %w[account credit_card loan], kinds
+    assert_equal %w[cash account credit_card loan], kinds
   end
 
   test "exposes the review step without a kind" do

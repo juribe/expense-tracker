@@ -113,11 +113,39 @@ class FinancialSetupsController < ApplicationController
 
     if result.ok?
       @setup.set_choice(step_key, "import")
-      @setup.replace_draft_sources(step_key, result.sources.map(&:to_h))
+
+      # Imported sources live only in the import state, accumulated across
+      # multiple "import more" uploads. Never pull from draft_sources, which
+      # holds manual entries — so switching to import only shows fresh imports.
+      current_imports = Array(@setup.import_state(step_key)["sources"])
+      new_sources = result.sources.map(&:to_h)
+
+      # A step only accepts sources of its own kind. The AI may misclassify a
+      # document (e.g. a credit-card statement uploaded in the loans step), and
+      # the completer creates every source as the step's kind — keeping a
+      # mismatched source would create a record with the wrong kind and junk
+      # fields, so drop it and tell the user.
+      step_kind = FinancialSetupWizard.step(step_key)&.kind
+      matched_sources = result.sources
+      if step_kind.present?
+        new_sources, mismatched = new_sources.partition { |s| s["kind"] == step_kind }
+        matched_sources = result.sources.select { |s| s.kind == step_kind }
+        if mismatched.any?
+          flash.now[:alert] = t("wizard.upload.ignored_kinds",
+                                count: mismatched.size,
+                                kind: t("wizard.steps.#{step_key}").downcase)
+        end
+      end
+
+      imported = (current_imports + new_sources).uniq do |s|
+        id = s["identifier"].to_s.gsub(/\D/, "")
+        id.presence || "#{s["bank"]}-#{s["name"]}"
+      end
+
       @setup.set_import_state(step_key, {
-        sources: result.sources.map(&:to_h),
+        sources: imported,
         transactions: result.transactions,
-        duplicates: duplicates_for(step_key, result.sources)
+        duplicates: duplicates_for(step_key, matched_sources)
       })
       @setup.save!
       redirect_to financial_setup_import_review_path(step: step_key)
@@ -125,6 +153,81 @@ class FinancialSetupsController < ApplicationController
       flash.now[:alert] = result.error
       render_upload_renderer(step_key)
     end
+  end
+
+  # GET /financial_setup/step/:step/edit_all — combined editor for the
+  # whole "Added" list (manual + imported rows), each tagged with its origin.
+  def edit_all
+    @step = FinancialSetupWizard.step(params[:step])
+    @step_key = @step.key.to_s
+    @rows = combined_edit_rows(@step_key)
+    @rows = [ blank_row.merge("origin" => "manual") ] if @rows.empty?
+    @steps = FinancialSetupWizard.steps
+    render :edit_all
+  end
+
+  # POST /financial_setup/save_edits — persists the combined editor, routing
+  # each edited row back to the store it originally came from. Rows carry the
+  # orig_key they were rendered with, so a cleared/edited identifier still
+  # matches the stored row and unrendered fields are preserved.
+  def save_edits
+    step_key = params.require(:step)
+    rows = clean_edit_rows(params[:sources] || [])
+
+    manual_store = @setup.draft_sources(step_key)
+    import_store = Array(@setup.import_state(step_key)["sources"])
+
+    new_manual = []
+    new_import = []
+    rows.each do |row|
+      origin = row.delete("origin")
+      orig_key = row.delete("orig_key").presence
+      finder = ->(entry) { find_stored_row(entry, orig_key, row) }
+
+      if origin == "import"
+        base = import_store.find(&finder)
+        new_import << (base ? base.merge(row) : row)
+      else
+        base = manual_store.find(&finder)
+        new_manual << (base ? base.merge(row) : row)
+      end
+    end
+
+    @setup.replace_draft_sources(step_key, new_manual)
+    import = @setup.import_state(step_key)
+    import["sources"] = new_import
+    @setup.set_import_state(step_key, import)
+    @setup.save!
+    redirect_to financial_setup_step_path(step: step_key), notice: t("wizard.select.edited")
+  end
+
+  def remove_source
+    step_key = params.require(:step)
+    idx = params.require(:idx).to_i
+
+    manual = @setup.draft_sources(step_key)
+    imported = Array(@setup.import_state(step_key)["sources"])
+
+    # The step screen "Added" list is a combined summary (manual + import), so
+    # idx points into that combined list. Resolve the target there, then remove
+    # it from whichever store actually holds it — never cross-write the stores.
+    combined = (manual + imported).uniq do |s|
+      s["identifier"].presence || "#{s["bank"]}-#{s["name"]}"
+    end
+    target = combined[idx]
+    if target.nil?
+      return redirect_to financial_setup_step_path(step: step_key), alert: "Source not found"
+    end
+
+    key = ->(s) { s["identifier"].to_s.gsub(/\D/, "").presence || "#{s["bank"]}-#{s["name"]}" }
+    manual.reject! { |s| key.call(s) == key.call(target) }
+    imported.reject! { |s| key.call(s) == key.call(target) }
+
+    @setup.replace_draft_sources(step_key, manual)
+    @setup.set_import_state(step_key, @setup.import_state(step_key).merge("sources" => imported))
+    @setup.save!
+
+    redirect_to financial_setup_step_path(step: step_key), notice: "Source removed"
   end
 
   # GET /financial_setup/:step/import_review — review extracted + duplicate choices
@@ -154,7 +257,7 @@ class FinancialSetupsController < ApplicationController
     sources.each_with_index do |source, idx|
       next if keep.present? && keep[idx.to_s].blank?
 
-      merged_sources << source.merge(edit_fields(idx))
+      merged_sources << source.merge(edit_fields(idx, source["kind"]))
     end
 
     choices = params[:duplicates] || {}
@@ -165,7 +268,13 @@ class FinancialSetupsController < ApplicationController
     import["sources"] = merged_sources
     import["duplicates"] = resolved
     @setup.set_import_state(step_key, import)
-    advance_or_save(step_key)
+
+    if params[:save_only]
+      @setup.save!
+      redirect_to financial_setup_step_path(step: step_key), notice: t("wizard.review_extract.saved")
+    else
+      advance_or_save(step_key)
+    end
   end
 
   # POST /financial_setup/complete
@@ -231,19 +340,77 @@ class FinancialSetupsController < ApplicationController
     { "name" => "", "bank" => "", "starting_balance" => "" }
   end
 
+  # Combined "Added" list for a step (manual + import), each row tagged with an
+  # "origin" key so the combined editor can route edits back to its store, and
+  # an "orig_key" frozen at render time so saving still matches the stored row
+  # even when the user cleared or changed the identifier.
+  def combined_edit_rows(step_key)
+    manual_rows = @setup.draft_sources(step_key).map do |row|
+      row.merge("origin" => "manual", "orig_key" => edit_key(row))
+    end
+    import_rows = Array(@setup.import_state(step_key)["sources"]).map do |row|
+      row.merge("origin" => "import", "orig_key" => edit_key(row))
+    end
+    (manual_rows + import_rows).uniq { |row| edit_key(row) }
+  end
+
+  def edit_key(row)
+    identifier = row["identifier"].to_s.gsub(/\D/, "")
+    identifier.presence || "#{row["bank"]}-#{row["name"]}"
+  end
+
+  # Matches a stored row against an edited one: prefer the orig_key the editor
+  # rendered (stable even if the identifier was cleared), fall back to the
+  # row's current key.
+  def find_stored_row(entry, orig_key, row)
+    if orig_key.present?
+      edit_key(entry) == orig_key
+    else
+      edit_key(entry) == edit_key(row)
+    end
+  end
+
   def clean_rows(rows)
     rows = rows.values if rows.respond_to?(:values)
     rows.filter_map do |row|
       row = row.permit(:name, :bank, :kind, :starting_balance, :balance,
                        :credit_limit, :interest_rate, :interest_rate_type,
-                       :card_brand, :card_last_four, :principal_amount,
+                       :card_brand, :card_last_four, :identifier, :principal_amount,
                        :outstanding_balance, :monthly_payment, :payment_frequency,
                        :statement_day)
       h = row.to_h
       next if Array(h).blank?
 
-      h.transform_values { |v| v.is_a?(String) ? v.strip : v }
+      normalize_row_money(h)
     end.compact
+  end
+
+  # Same as clean_rows but keeps the origin tag used by the combined editor
+  # (manual vs import) so each row can be routed back to its own store.
+  def clean_edit_rows(rows)
+    rows = rows.values if rows.respond_to?(:values)
+    rows.filter_map do |row|
+      row = row.permit(:origin, :orig_key, :name, :bank, :kind, :starting_balance, :balance,
+                       :credit_limit, :interest_rate, :interest_rate_type,
+                       :card_brand, :card_last_four, :identifier, :principal_amount,
+                       :outstanding_balance, :monthly_payment, :payment_frequency,
+                       :statement_day)
+      h = row.to_h
+      next if Array(h).blank?
+
+      normalize_row_money(h)
+    end.compact
+  end
+
+  def normalize_row_money(h)
+    money_fields = %w[balance starting_balance credit_limit outstanding_balance monthly_payment principal_amount]
+    h.each_with_object({}) do |(field, value), out|
+      v = value.is_a?(String) ? value.strip : value
+      v = normalize_money_string(v) if money_fields.include?(field) && v.is_a?(String)
+      # Rates have no thousands separator: only the decimal comma flips.
+      v = v.tr(",", ".") if field == "interest_rate" && v.is_a?(String)
+      out[field] = v
+    end
   end
 
   def duplicates_for(step_key, sources)
@@ -257,23 +424,38 @@ class FinancialSetupsController < ApplicationController
 
   # Inline edit fields from the review screen, as a string-keyed hash. Blank
   # fields are dropped so a cleared input removes the stored value.
-  def edit_fields(idx)
+  def edit_fields(idx, kind = nil)
     raw = params[:sources] && params[:sources][idx.to_s]
     return {} if raw.blank?
 
     fields = %w[name bank balance outstanding_balance credit_limit card_last_four
-                interest_rate interest_rate_type monthly_payment kind identifier]
-      .to_h { |key| [ key, raw[key].to_s.strip ] }
+                interest_rate interest_rate_type monthly_payment principal_amount kind identifier]
+      .to_h do |key|
+        value = raw[key].to_s.strip
+        value = normalize_money_string(value) if %w[balance outstanding_balance credit_limit monthly_payment principal_amount].include?(key)
+        value = value.tr(",", ".") if key == "interest_rate"
+        [ key, value ]
+      end
       .compact_blank
 
     # Derive last four digits from an edited card number when no last-four was
-    # provided directly.
-    if fields["identifier"].present? && fields["card_last_four"].blank?
+    # provided directly. Only for credit cards — loan contract numbers are not
+    # card numbers.
+    if kind == "credit_card" && fields["identifier"].present? && fields["card_last_four"].blank?
       last4 = fields["identifier"].scan(/\d/).join[-4..]
       fields["card_last_four"] = last4 if last4&.length == 4
     end
 
     fields
+  end
+
+  # Colombian rule: "." is the thousands separator and "," the decimal one
+  # ("67.429.112,92"). Converts to the machine format ("67429112.92") so
+  # decimal columns and BigDecimal parse the value correctly.
+  def normalize_money_string(value)
+    return value if value.blank?
+
+    value.delete(".").tr(",", ".")
   end
 
   def render_upload_renderer(step_key)    @step = FinancialSetupWizard.step(step_key)

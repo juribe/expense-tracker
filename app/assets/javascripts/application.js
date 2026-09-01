@@ -1,25 +1,33 @@
 (function () {
+  // Colombian number rule: "." is the thousands separator, "," is the decimal
+  // separator ("67.429.112,92").
+
   function sanitizeValue(value) {
-    return String(value == null ? "" : value).replace(/,/g, "").trim();
+    // Machine format for form submission: drop thousands dots, decimal
+    // comma becomes a dot so server-side decimal casting parses correctly.
+    return String(value == null ? "" : value).replace(/\./g, "").replace(/,/g, ".").trim();
   }
 
   function formatValue(value, finalize) {
-    var raw = sanitizeValue(value);
+    var raw = String(value == null ? "" : value).replace(/\./g, "").trim();
     if (!raw) return "";
 
-    var hasDot = raw.indexOf(".") !== -1;
-    var parts = raw.split(".");
+    var hasComma = raw.indexOf(",") !== -1;
+    var parts = raw.split(",");
     var integerPart = parts.shift().replace(/[^\d]/g, "");
     var decimalPart = parts.join("").replace(/[^\d]/g, "").slice(0, 2);
 
     if (!integerPart) integerPart = "0";
-    integerPart = String(parseInt(integerPart, 10)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    integerPart = String(parseInt(integerPart, 10)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-    if (!hasDot) return integerPart;
-    if (finalize) decimalPart = decimalPart.replace(/0+$/, "");
-    if (!decimalPart) return integerPart;
-
-    return integerPart + "." + decimalPart;
+    if (!hasComma) return integerPart;
+    // Keep the comma while typing so decimals can be entered; on blur drop a
+    // trailing comma with no digits after it.
+    if (finalize) {
+      decimalPart = decimalPart.replace(/0+$/, "");
+      if (!decimalPart) return integerPart;
+    }
+    return integerPart + "," + decimalPart;
   }
 
   function formatInput(input, finalize) {
@@ -58,6 +66,7 @@
     var scope = root || document;
     scope.querySelectorAll("[data-money-input='true']").forEach(bindInput);
     scope.querySelectorAll("form").forEach(bindForm);
+    bindAvailableCredit(scope);
   }
 
   window.MoneyInputs = {
@@ -99,6 +108,44 @@
         var form = card.closest('form');
         if (form) form.submit();
       });
+    });
+  }
+
+  function toNumber(str) {
+    var n = parseFloat(String(str == null ? "" : str).replace(/[^\d.]/g, ""));
+    return isNaN(n) ? 0 : n;
+  }
+
+  function formatCurrencyNumber(value) {
+    // es-CO: "." thousands, "," decimals.
+    return "$" + Math.max(0, value).toLocaleString("es-CO", { maximumFractionDigits: 2 });
+  }
+
+  function updateAvailableCredit(row) {
+    var balanceInput = row.querySelector("[data-ca-balance='true']");
+    var limitInput = row.querySelector("[data-ca-limit='true']");
+    var readout = row.querySelector("[data-ca-available='true']");
+    if (!limitInput || !readout) return;
+
+    var limit = toNumber(limitInput.value);
+    var debt = balanceInput ? toNumber(balanceInput.value) : 0;
+    readout.textContent = formatCurrencyNumber(limit - debt);
+  }
+
+  function bindAvailableCredit(scope) {
+    scope.querySelectorAll(".manual-row").forEach(function (row) {
+      var limitInput = row.querySelector("[data-ca-limit='true']");
+      if (!limitInput || limitInput.dataset.caBound === "true") return;
+      limitInput.dataset.caBound = "true";
+
+      limitInput.addEventListener("input", function () { updateAvailableCredit(row); });
+      limitInput.addEventListener("blur", function () { updateAvailableCredit(row); });
+
+      var balanceInput = row.querySelector("[data-ca-balance='true']");
+      if (balanceInput) {
+        balanceInput.addEventListener("input", function () { updateAvailableCredit(row); });
+        balanceInput.addEventListener("blur", function () { updateAvailableCredit(row); });
+      }
     });
   }
 })();

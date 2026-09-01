@@ -3,7 +3,6 @@
   <div class="card-header d-flex justify-content-between align-items-center bg-light">
     <span class="fw-bold"><%= row["name"].presence || t("wizard.manual.row_name") %></span>
     <span class="btn-group btn-group-sm">
-      <button type="button" class="btn btn-outline-secondary edit-row" title="<%= t("wizard.manual.edit") %>"><i class="bi bi-pencil"></i></button>
       <button type="button" class="btn btn-outline-danger remove-row" title="<%= t("wizard.manual.remove") %>"><i class="bi bi-trash"></i></button>
     </span>
   </div>
@@ -15,48 +14,68 @@
         <label class="form-label"><%= t("wizard.manual.name") %></label>
         <input type="text" name="sources[<%= index %>][name]" value="<%= row["name"] %>" class="form-control">
       </div>
-      <div class="col-md-6">
-        <label class="form-label"><%= kind == "loan" ? t("wizard.manual.lender") : t("wizard.manual.bank") %></label>
-        <input type="text" name="sources[<%= index %>][bank]" value="<%= row["bank"] %>" class="form-control">
-      </div>
+      <% unless kind == "cash" %>
+        <div class="col-md-6">
+          <label class="form-label"><%= kind == "loan" ? t("wizard.manual.lender") : t("wizard.manual.bank") %></label>
+          <input type="text" name="sources[<%= index %>][bank]" value="<%= row["bank"] %>" class="form-control">
+        </div>
+      <% end %>
 
-      <% if %w[account credit_card].include?(kind) %>
+       <% if kind == "cash" %>
+         <div class="col-md-6">
+           <label class="form-label"><%= t("wizard.manual.current_cash") %></label>
+           <div class="input-group">
+             <span class="input-group-text">$</span>
+             <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true">
+           </div>
+         </div>
+       <% elsif %w[account credit_card].include?(kind) %>
+         <div class="col-md-6">
+           <label class="form-label"><%= kind == "credit_card" ? t("wizard.manual.card_last_four") : t("wizard.manual.identifier") %></label>
+           <input type="text" name="sources[<%= index %>][identifier]" value="<%= row["identifier"] %>" maxlength="4" class="form-control" inputmode="numeric">
+         </div>
         <div class="col-md-6">
-          <label class="form-label"><%= kind == "credit_card" ? t("wizard.manual.current_balance") : t("wizard.manual.starting_balance") %></label>
+          <label class="form-label"><%= kind == "credit_card" ? t("wizard.manual.current_debt") : t("wizard.manual.starting_balance") %></label>
           <div class="input-group">
             <span class="input-group-text">$</span>
-            <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true">
+            <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true" <%= kind == "credit_card" ? 'data-ca-balance="true"' : "" %>>
           </div>
         </div>
-      <% end %>
-      <% if kind == "credit_card" %>
-        <div class="col-md-6">
-          <label class="form-label"><%= t("wizard.manual.credit_limit") %></label>
-          <div class="input-group">
-            <span class="input-group-text">$</span>
-            <input type="text" name="sources[<%= index %>][credit_limit]" value="<%= money_field_value(row["credit_limit"]) %>" class="form-control" data-money-input="true">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><%= t("wizard.manual.card_last_four") %></label>
-          <input type="text" name="sources[<%= index %>][card_last_four]" value="<%= row["card_last_four"] %>" maxlength="4" class="form-control" inputmode="numeric">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><%= t("wizard.manual.interest_rate") %></label>
-          <div class="input-group">
-            <input type="text" name="sources[<%= index %>][interest_rate]" value="<%= row["interest_rate"] %>" class="form-control" inputmode="decimal">
-            <span class="input-group-text">%</span>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label"><%= t("wizard.manual.interest_rate_type") %></label>
-          <select name="sources[<%= index %>][interest_rate_type]" class="form-select">
-            <%= options_for_select(CreditAccount::INTEREST_RATE_TYPES.values, row["interest_rate_type"]) %>
-          </select>
-        </div>
-      <% end %>
+       <% end %>
+       <% if kind == "credit_card" %>
+         <div class="col-md-6">
+           <label class="form-label"><%= t("wizard.manual.credit_limit") %></label>
+           <div class="input-group">
+             <span class="input-group-text">$</span>
+             <input type="text" name="sources[<%= index %>][credit_limit]" value="<%= money_field_value(row["credit_limit"]) %>" class="form-control" data-money-input="true" data-ca-limit="true">
+           </div>
+         </div>
+         <div class="col-md-6">
+           <label class="form-label"><%= t("wizard.manual.interest_rate") %></label>
+           <div class="input-group">
+             <input type="text" name="sources[<%= index %>][interest_rate]" value="<%= money_field_value(row["interest_rate"]) %>" class="form-control" inputmode="decimal" data-money-input="true">
+             <span class="input-group-text">%</span>
+           </div>
+         </div>
+         <div class="col-md-6">
+           <label class="form-label"><%= t("wizard.manual.interest_rate_type") %></label>
+           <select name="sources[<%= index %>][interest_rate_type]" class="form-select">
+             <%= options_for_select(rate_type_options, row["interest_rate_type"]) %>
+           </select>
+         </div>
+         <div class="col-12">
+           <span class="form-text text-success"><%= t("wizard.manual.available_credit") %>: <span class="fw-bold" data-ca-available="true">$<%= number_with_delimiter(available_credit_for(row)) %></span></span>
+         </div>
+       <% end %>
 
       <% if kind == "loan" %>
+        <div class="col-md-6">
+          <label class="form-label"><%= t("wizard.manual.original_principal") %></label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="text" name="sources[<%= index %>][principal_amount]" value="<%= money_field_value(row["principal_amount"]) %>" class="form-control" data-money-input="true">
+          </div>
+        </div>
         <div class="col-md-6">
           <label class="form-label"><%= t("wizard.manual.outstanding_balance") %></label>
           <div class="input-group">
@@ -74,19 +93,29 @@
         <div class="col-md-6">
           <label class="form-label"><%= t("wizard.manual.interest_rate") %></label>
           <div class="input-group">
-            <input type="text" name="sources[<%= index %>][interest_rate]" value="<%= row["interest_rate"] %>" class="form-control" inputmode="decimal">
+            <input type="text" name="sources[<%= index %>][interest_rate]" value="<%= money_field_value(row["interest_rate"]) %>" class="form-control" inputmode="decimal" data-money-input="true">
             <span class="input-group-text">%</span>
           </div>
         </div>
         <div class="col-md-6">
           <label class="form-label"><%= t("wizard.manual.interest_rate_type") %></label>
           <select name="sources[<%= index %>][interest_rate_type]" class="form-select">
-            <%= options_for_select(CreditAccount::INTEREST_RATE_TYPES.values, row["interest_rate_type"]) %>
+            <%= options_for_select(rate_type_options, row["interest_rate_type"]) %>
           </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label"><%= t("wizard.manual.contract_number") %></label>
+          <input type="text" name="sources[<%= index %>][identifier]" value="<%= row["identifier"] %>" class="form-control">
         </div>
       <% end %>
 
       <input type="hidden" name="sources[<%= index %>][kind]" value="<%= kind %>">
+      <% if row["origin"].present? %>
+        <input type="hidden" name="sources[<%= index %>][origin]" value="<%= row["origin"] %>">
+      <% end %>
+      <% if row["orig_key"].present? %>
+        <input type="hidden" name="sources[<%= index %>][orig_key]" value="<%= row["orig_key"] %>">
+      <% end %>
     </div>
   </div>
 </div>

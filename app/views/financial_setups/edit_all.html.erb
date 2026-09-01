@@ -3,10 +3,10 @@
 
 <div class="card shadow">
   <div class="card-body p-4">
-    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.manual.title", kind: t(@step.label_key).downcase) %></h3>
-    <p class="text-muted mb-4"><%= t("wizard.manual.hint") %></p>
+    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.edit_all.title", kind: t(@step.label_key).downcase) %></h3>
+    <p class="text-muted mb-4"><%= t("wizard.edit_all.hint") %></p>
 
-    <%= form_with url: financial_setup_manual_path, method: :post, local: true, data: { turbo: false } do %>
+    <%= form_with url: financial_setup_save_edits_path, method: :post, local: true, data: { turbo: false } do %>
       <%= hidden_field_tag :step, @step_key %>
 
       <div id="manualRows">
@@ -24,12 +24,6 @@
            <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
              <i class="bi bi-x-lg me-1"></i><%= t("wizard.cancel") %>
            <% end %>
-           <% prev_index = FinancialSetupWizard.step_keys.index(@step.key) - 1 %>
-           <% if prev_index >= 0 %>
-             <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[prev_index]), class: "btn btn-outline-secondary" do %>
-               <i class="bi bi-arrow-left me-1"></i><%= t("wizard.back") %>
-             <% end %>
-           <% end %>
            <% unless @step.kind == "cash" %>
              <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-outline-primary" do %>
                <i class="bi bi-cloud-upload me-1"></i><%= t("wizard.select.import") %>
@@ -38,7 +32,7 @@
          </div>
          <div>
            <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
-           <%= submit_tag t("wizard.continue"), class: "btn btn-primary" %>
+           <%= submit_tag t("wizard.save_changes"), class: "btn btn-primary" %>
          </div>
        </div>
     <% end %>
@@ -46,7 +40,7 @@
 </div>
 
 <template id="manualRowTemplate">
-  <%= render "manual_row", row: { "name" => "", "bank" => "" }, idx: "{IDX}", kind: @step.kind %>
+  <%= render "manual_row", row: { "name" => "", "bank" => "", "origin" => "manual" }, idx: "{IDX}", kind: @step.kind %>
 </template>
 
 <script>
@@ -67,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   container.addEventListener('click', function(e) {
     var btn = e.target.closest('.remove-row');
-    if (btn && container.querySelectorAll('.manual-row').length > 1) {
+    if (btn) {
       btn.closest('.manual-row').remove();
     }
   });

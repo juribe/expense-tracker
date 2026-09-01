@@ -86,4 +86,7 @@ Rails.application.routes.draw do
   get "financial_setup/step/:step/manual", to: "financial_setups#manual", as: :financial_setup_manual_screen
   get "financial_setup/step/:step/upload", to: "financial_setups#upload", as: :financial_setup_upload_screen
   get "financial_setup/step/:step/import_review", to: "financial_setups#import_review", as: :financial_setup_import_review
+  get "financial_setup/step/:step/edit_all", to: "financial_setups#edit_all", as: :financial_setup_edit_all
+  post "financial_setup/save_edits", to: "financial_setups#save_edits", as: :financial_setup_save_edits
+  post "financial_setup/remove_source", to: "financial_setups#remove_source", as: :financial_setup_remove_source
 end

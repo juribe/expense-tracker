@@ -55,7 +55,8 @@ module FinancialSetups
         name: row["name"],
         kind: kind,
         bank: row["bank"],
-        starting_balance: row["starting_balance"] || row["balance"] || 0
+        starting_balance: row["starting_balance"] || row["balance"] || 0,
+        identifier: row["identifier"].presence
       )
 
       if %w[credit_card loan].include?(kind)

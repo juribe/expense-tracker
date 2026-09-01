@@ -33,6 +33,24 @@ class FinancialSetup < ApplicationRecord
     Array(data.dig(step_key.to_s, "sources"))
   end
 
+  def append_draft_sources(step_key, sources)
+    current = draft_sources(step_key)
+    
+    # Standardize identifier for comparison (remove non-digits)
+    normalize_id = ->(id) { id.to_s.gsub(/\D/, "") }
+    
+    # Combine and deduplicate. Use identifier as primary key.
+    # If identifier is missing, fallback to bank + name.
+    updated = (current + sources).uniq do |s|
+      id = normalize_id.call(s["identifier"])
+      # We only treat it as a match if there is actually an ID.
+      # If ID is blank, we fall back to bank+name to avoid grouping all "id-less" accounts together.
+      id.presence || "#{s["bank"]}-#{s["name"]}"
+    end
+    
+    self.data = data.deep_merge(step_key.to_s => { "sources" => updated })
+  end
+
   def replace_draft_sources(step_key, sources)
     self.data = data.deep_merge(step_key.to_s => { "sources" => sources.any? ? sources : [] })
   end

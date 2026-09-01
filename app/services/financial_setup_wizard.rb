@@ -12,6 +12,8 @@ class FinancialSetupWizard
   Step = Struct.new(:key, :kind, :label_key, :icon, :review_noun_key, keyword_init: true)
 
   STEPS = [
+    Step.new(key: :cash, kind: "cash", label_key: "wizard.steps.cash",
+             icon: "cash", review_noun_key: "wizard.review.cash"),
     Step.new(key: :accounts, kind: "account", label_key: "wizard.steps.accounts",
              icon: "bank", review_noun_key: "wizard.review.accounts"),
     Step.new(key: :credit_cards, kind: "credit_card", label_key: "wizard.steps.credit_cards",
