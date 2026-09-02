@@ -127,6 +127,17 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='unfinished-setup-banner']", count: 0
   end
 
+  test "GET /money_sources/recognition renders the prototype with fake data" do
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "h1", text: I18n.t("money_sources.recognition.title")
+    assert_select "[data-testid='recognition-row']", count: 5
+    assert_select "[data-testid='recognition-edit-panel']", count: 1
+    assert_select "[data-testid='recognition-chip']", count: 7
+    assert_match(/Davibank Clásica/, response.body)
+    assert_match(/Tarjeta Oro/, response.body)
+  end
+
   test "GET /money_sources/new renders the form" do
     get new_money_source_path
     assert_response :success

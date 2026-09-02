@@ -37,6 +37,13 @@ class MoneySourcesController < ApplicationController
   def show
   end
 
+  # GET /money_sources/recognition
+  # Static prototype of the "Source Recognition" configuration page.
+  # Renders fake data; the real implementation replaces the in-view fixture
+  # with MoneySourceRecognition records (see docs/source_recognition_implementation.md).
+  def recognition
+  end
+
   # GET /money_sources/new
   def new
     @money_source = current_user.money_sources.build

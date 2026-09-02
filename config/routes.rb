@@ -33,6 +33,8 @@ Rails.application.routes.draw do
   get "money_sources/cash",         to: "money_sources#index", as: :money_sources_cash, defaults: { type: "cash" }
   get "money_sources/credit_cards", to: "money_sources#index", as: :money_sources_credit_cards, defaults: { type: "credit_cards" }
   get "money_sources/loans",        to: "money_sources#index", as: :money_sources_loans, defaults: { type: "loans" }
+  # Source Recognition prototype (static markup with fake data)
+  get "money_sources/recognition", to: "money_sources#recognition", as: :money_sources_recognition
   resources :money_sources, id: /[0-9]+/
   resources :transfers, only: [ :index, :new, :create, :destroy ]
   resources :recurring_templates do

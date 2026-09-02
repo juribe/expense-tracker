@@ -1,0 +1,206 @@
+<%# 
+  PROTOTYPE: "Reconocimiento de fuentes" — static markup with fake data.
+  No database records are used. The implementer must replace the FAKE_DATA
+  fixture below with real MoneySource + MoneySourceRecognition collections
+  and wire the actions (see docs/source_recognition_implementation.md).
+%>
+<%
+  # ------------------------- FAKE DATA (replace me) -------------------------
+  fake_sources = [
+    {
+      id: 1, name: "Davibank Clásica", kind: "credit_card", icon: "credit-card-2-front",
+      accent: "accent-purple", configured: true, expanded: true,
+      keywords: [ "davibank", "clásica", "tarjeta clásica" ],
+      senders: [ "notificaciones@davibank.com", "alertas@davibank.com.co" ],
+      subjects: [ "Transacción aprobada", "DAVIbank te notifica" ]
+    },
+    {
+      id: 2, name: "Davibank Rotativo", kind: "loan", icon: "arrow-repeat",
+      accent: "accent-teal", configured: true, expanded: false,
+      keywords: [], senders: [], subjects: []
+    },
+    {
+      id: 3, name: "Bancolombia Ahorros", kind: "account", icon: "bank",
+      accent: "accent-amber", configured: true, expanded: false,
+      keywords: [], senders: [], subjects: []
+    },
+    {
+      id: 4, name: "Crédito Vehículo", kind: "loan", icon: "car-front",
+      accent: "accent-rose", configured: true, expanded: false,
+      keywords: [], senders: [], subjects: []
+    },
+    {
+      id: 5, name: "Tarjeta Oro", kind: "credit_card", icon: "credit-card-2-front",
+      accent: "accent-blue", configured: false, expanded: false,
+      keywords: [], senders: [], subjects: []
+    }
+  ].freeze
+  fake_sources.freeze
+
+  kind_badges = {
+    "credit_card" => { label: t("kinds.credit_card"), class: "recognition-badge-type" },
+    "loan" => { label: t("kinds.loan"), class: "recognition-badge-loan" },
+    "account" => { label: t("kinds.account"), class: "recognition-badge-account" }
+  }
+  editing = fake_sources.find { |s| s[:expanded] }
+%>
+
+<header class="recognition-header">
+  <div class="recognition-header-icon" aria-hidden="true"><i class="bi bi-envelope-paper-heart"></i></div>
+  <div class="min-w-0 flex-grow-1">
+    <h1 class="recognition-title"><%= t("money_sources.recognition.title") %></h1>
+    <p class="recognition-subtitle"><%= t("money_sources.recognition.subtitle") %></p>
+  </div>
+  <div class="recognition-header-actions d-print-none">
+    <button type="button" class="btn btn-outline-secondary recognition-help-btn">
+      <i class="bi bi-question-circle" aria-hidden="true"></i><%= t("money_sources.recognition.how_it_works") %>
+    </button>
+    <button type="button" class="btn btn-outline-primary recognition-gmail-btn">
+      <i class="bi bi-envelope" aria-hidden="true"></i><%= t("money_sources.recognition.connect_gmail") %>
+    </button>
+  </div>
+</header>
+
+<section class="recognition-table-card" aria-label="<%= t("money_sources.recognition.title") %>">
+  <table class="recognition-table">
+    <thead>
+      <tr>
+        <th><%= t("money_sources.recognition.col_source") %></th>
+        <th><%= t("money_sources.recognition.col_type") %></th>
+        <th><%= t("money_sources.recognition.col_status") %></th>
+        <th class="text-end"><%= t("money_sources.recognition.col_actions") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% fake_sources.each do |source| %>
+        <tr data-testid="recognition-row">
+          <td>
+            <div class="recognition-source-cell">
+              <span class="recognition-row-icon <%= source[:accent] %>" aria-hidden="true"><i class="bi bi-<%= source[:icon] %>"></i></span>
+              <span class="recognition-row-name"><%= source[:name] %></span>
+            </div>
+          </td>
+          <td>
+            <% badge = kind_badges[source[:kind]] %>
+            <span class="recognition-badge <%= badge[:class] %>"><%= badge[:label] %></span>
+          </td>
+          <td>
+            <% if source[:configured] %>
+              <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
+              </span>
+            <% else %>
+              <span class="recognition-status recognition-status-pending" data-testid="recognition-status">
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i><%= t("money_sources.recognition.status_unconfigured") %>
+              </span>
+            <% end %>
+          </td>
+          <td class="text-end">
+            <div class="recognition-row-actions d-print-none">
+              <button type="button" class="btn recognition-icon-btn btn-edit" title="<%= t("common.edit") %>" aria-label="<%= t("common.edit") %>">
+                <i class="bi bi-pencil" aria-hidden="true"></i>
+              </button>
+              <% if source[:configured] %>
+                <button type="button" class="btn recognition-icon-btn btn-delete" title="<%= t("money_sources.recognition.delete_config") %>" aria-label="<%= t("money_sources.recognition.delete_config") %>">
+                  <i class="bi bi-trash" aria-hidden="true"></i>
+                </button>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<% if editing %>
+  <%# Inline edit panel — in the real implementation this expands under the
+      edited row (or renders for the source in params[:id]). %>
+  <section class="recognition-edit-panel" data-testid="recognition-edit-panel" aria-label="<%= t("money_sources.recognition.edit_title") %>">
+    <div class="recognition-edit-head">
+      <div class="recognition-edit-identity">
+        <span class="recognition-row-icon <%= editing[:accent] %> recognition-edit-icon" aria-hidden="true"><i class="bi bi-<%= editing[:icon] %>"></i></span>
+        <div>
+          <h2 class="recognition-edit-title"><%= t("money_sources.recognition.edit_title") %> <%= editing[:name] %></h2>
+          <div class="recognition-edit-subtitle"><%= kind_badges[editing[:kind]][:label] %></div>
+        </div>
+      </div>
+      <button type="button" class="btn recognition-icon-btn" title="<%= t("common.cancel") %>" aria-label="<%= t("common.cancel") %>">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="recognition-edit-grid">
+      <%# A. Identificación %>
+      <div class="recognition-section">
+        <div class="recognition-section-title">
+          <%= t("money_sources.recognition.section_identification") %>
+          <i class="bi bi-info-circle" title="<%= t("money_sources.recognition.section_identification_hint") %>" aria-hidden="true"></i>
+        </div>
+        <p class="recognition-section-desc"><%= t("money_sources.recognition.section_identification_desc") %></p>
+        <div class="recognition-chips">
+          <% editing[:keywords].each do |keyword| %>
+            <span class="recognition-chip" data-testid="recognition-chip">
+              <%= keyword %>
+              <button type="button" class="recognition-chip-remove" aria-label="<%= t("money_sources.recognition.remove") %>"><i class="bi bi-x"></i></button>
+            </span>
+          <% end %>
+          <button type="button" class="recognition-chip-add"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add") %></button>
+        </div>
+        <div class="recognition-section-foot">
+          <div class="recognition-section-example"><%= t("money_sources.recognition.identification_example") %></div>
+          <div class="recognition-section-count"><%= t("money_sources.recognition.keywords_count", count: editing[:keywords].length) %></div>
+        </div>
+      </div>
+
+      <%# B. Remitentes / Dominios %>
+      <div class="recognition-section">
+        <div class="recognition-section-title">
+          <%= t("money_sources.recognition.section_senders") %>
+          <i class="bi bi-info-circle" title="<%= t("money_sources.recognition.section_senders_hint") %>" aria-hidden="true"></i>
+        </div>
+        <p class="recognition-section-desc"><%= t("money_sources.recognition.section_senders_desc") %></p>
+        <div class="recognition-chips">
+          <% editing[:senders].each do |sender| %>
+            <span class="recognition-chip" data-testid="recognition-chip">
+              <%= sender %>
+              <button type="button" class="recognition-chip-remove" aria-label="<%= t("money_sources.recognition.remove") %>"><i class="bi bi-x"></i></button>
+            </span>
+          <% end %>
+          <button type="button" class="recognition-chip-add"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_sender") %></button>
+        </div>
+        <div class="recognition-section-foot">
+          <div class="recognition-section-example"><%= t("money_sources.recognition.senders_example") %></div>
+          <div class="recognition-section-count"><%= t("money_sources.recognition.senders_count", count: editing[:senders].length) %></div>
+        </div>
+      </div>
+
+      <%# C. Encabezados / Asuntos %>
+      <div class="recognition-section">
+        <div class="recognition-section-title">
+          <%= t("money_sources.recognition.section_subjects") %>
+          <i class="bi bi-info-circle" title="<%= t("money_sources.recognition.section_subjects_hint") %>" aria-hidden="true"></i>
+        </div>
+        <p class="recognition-section-desc"><%= t("money_sources.recognition.section_subjects_desc") %></p>
+        <div class="recognition-chips">
+          <% editing[:subjects].each do |subject| %>
+            <span class="recognition-chip" data-testid="recognition-chip">
+              <%= subject %>
+              <button type="button" class="recognition-chip-remove" aria-label="<%= t("money_sources.recognition.remove") %>"><i class="bi bi-x"></i></button>
+            </span>
+          <% end %>
+          <button type="button" class="recognition-chip-add"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_pattern") %></button>
+        </div>
+        <div class="recognition-section-foot">
+          <div class="recognition-section-example"><%= t("money_sources.recognition.subjects_example") %></div>
+          <div class="recognition-section-count"><%= t("money_sources.recognition.patterns_count", count: editing[:subjects].length) %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="recognition-edit-footer d-print-none">
+      <button type="button" class="btn btn-outline-primary"><%= t("common.cancel") %></button>
+      <button type="button" class="btn btn-primary"><%= t("money_sources.recognition.save_changes") %></button>
+    </div>
+  </section>
+<% end %>

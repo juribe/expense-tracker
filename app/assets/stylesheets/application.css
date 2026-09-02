@@ -558,6 +558,65 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 575.98px) { .cc-metrics { grid-template-columns: 1fr; } }
 
 /* -------------------------------------------------
+ * Source Recognition (prototype)
+ * ------------------------------------------------- */
+.recognition-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+.recognition-header-icon { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 1rem; font-size: 1.4rem; color: #7B61E0; background: rgba(123, 97, 224, .12); flex-shrink: 0; }
+.recognition-title { font-size: 1.5rem; font-weight: 800; color: var(--loan-strong); margin: 0; }
+.recognition-subtitle { margin: .15rem 0 0; font-size: .875rem; color: var(--loan-muted); max-width: 42rem; }
+.recognition-header-actions { display: flex; gap: .5rem; flex-shrink: 0; }
+.recognition-help-btn { border-radius: 999px; font-size: .8125rem; }
+.recognition-gmail-btn { border-radius: .625rem; font-size: .875rem; font-weight: 600; }
+.recognition-table-card { background: var(--loan-card-bg); border: 1px solid var(--loan-card-border); border-radius: 1rem; box-shadow: var(--loan-card-shadow); overflow: hidden; }
+.recognition-table { width: 100%; border-collapse: collapse; margin: 0; }
+.recognition-table th { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); padding: 1rem 1.5rem; border-bottom: 1px solid var(--loan-card-border); background: #fafbfc; text-align: left; }
+.recognition-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--loan-card-border); vertical-align: middle; }
+.recognition-table tbody tr:last-child td { border-bottom: 0; }
+.recognition-table tbody tr:hover td { background: #fafbfc; }
+.recognition-source-cell { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+.recognition-row-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: .75rem; font-size: 1rem; color: var(--loan-accent); background: var(--loan-accent-soft); flex-shrink: 0; }
+.recognition-row-name { font-weight: 700; color: var(--loan-strong); }
+.recognition-badge { display: inline-block; padding: .25rem .75rem; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+.recognition-badge-type { color: #7B61E0; background: rgba(123, 97, 224, .12); }
+.recognition-badge-loan { color: #0FA3A3; background: rgba(15, 163, 163, .12); }
+.recognition-badge-account { color: #5D87FF; background: rgba(93, 135, 255, .12); }
+.recognition-status { display: inline-flex; align-items: center; gap: .4rem; font-size: .875rem; font-weight: 600; }
+.recognition-status-ok { color: #16a34a; }
+.recognition-status-pending { color: #E8912D; }
+.recognition-row-actions { display: inline-flex; gap: .4rem; }
+.recognition-icon-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; font-size: .85rem; padding: 0; background: transparent; border: 1px solid var(--loan-card-border); color: var(--loan-muted); transition: all .15s ease; }
+.recognition-icon-btn.btn-edit:hover { background: var(--loan-accent-soft); color: var(--loan-accent); border-color: var(--loan-accent); }
+.recognition-icon-btn.btn-delete:hover { background: #fde8ea; color: #dc3545; border-color: #dc3545; }
+
+.recognition-edit-panel { margin-top: 1.25rem; background: var(--loan-card-bg); border: 1px solid var(--loan-card-border); border-radius: 1rem; box-shadow: var(--loan-card-shadow); padding: 1.5rem 1.75rem; }
+.recognition-edit-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--loan-card-border); }
+.recognition-edit-identity { display: flex; align-items: center; gap: .85rem; }
+.recognition-edit-icon { width: 44px; height: 44px; font-size: 1.15rem; }
+.recognition-edit-title { font-size: 1.125rem; font-weight: 800; color: var(--loan-strong); margin: 0; }
+.recognition-edit-subtitle { font-size: .8125rem; color: var(--loan-muted); margin-top: .1rem; }
+.recognition-edit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; padding: 1.5rem 0; }
+.recognition-section-title { font-size: .9375rem; font-weight: 700; color: var(--loan-strong); display: flex; align-items: center; gap: .35rem; }
+.recognition-section-title .bi-info-circle { color: var(--loan-muted); font-size: .8rem; cursor: help; }
+.recognition-section-desc { font-size: .8125rem; color: var(--loan-muted); margin: .35rem 0 1rem; min-height: 2.4em; }
+.recognition-chips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.recognition-chip { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .75rem; border-radius: .625rem; border: 1px solid var(--loan-card-border); background: #f8f9fb; font-size: .8125rem; font-weight: 600; color: var(--loan-strong); }
+.recognition-chip-remove { border: 0; background: transparent; padding: 0; color: var(--loan-muted); font-size: .85rem; line-height: 1; cursor: pointer; display: inline-flex; }
+.recognition-chip-remove:hover { color: #dc3545; }
+.recognition-chip-add { display: inline-flex; align-items: center; gap: .3rem; padding: .35rem .85rem; border-radius: .625rem; border: 1px dashed var(--loan-card-border); background: transparent; font-size: .8125rem; font-weight: 600; color: var(--loan-muted); cursor: pointer; transition: all .15s ease; }
+.recognition-chip-add:hover { color: var(--loan-accent); border-color: var(--loan-accent); background: var(--loan-accent-soft); }
+.recognition-section-foot { margin-top: 1.25rem; }
+.recognition-section-example { font-size: .75rem; color: var(--loan-muted); }
+.recognition-section-count { font-size: .75rem; color: var(--loan-muted); margin-top: .35rem; font-weight: 600; }
+.recognition-edit-footer { display: flex; justify-content: flex-end; gap: .6rem; padding-top: 1.25rem; border-top: 1px solid var(--loan-card-border); }
+@media (max-width: 991.98px) { .recognition-edit-grid { grid-template-columns: 1fr; } }
+@media (max-width: 575.98px) {
+  .recognition-header { flex-wrap: wrap; }
+  .recognition-header-actions { width: 100%; }
+  .recognition-table th:nth-child(2), .recognition-table td:nth-child(2) { display: none; }
+  .recognition-edit-panel { padding: 1.25rem; }
+}
+
+/* -------------------------------------------------
  * Choice Cards (Wizard Selection)
  * ------------------------------------------------- */
 .choice-card {
