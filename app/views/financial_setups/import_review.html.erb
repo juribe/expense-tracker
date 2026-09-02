@@ -1,162 +1,231 @@
 <% @step_key = @step.key.to_s %>
 <%= render "stepper", step_key: @step_key %>
+<%
+  # Kind-aware copy: the import review only runs on source steps.
+  kind = @step.kind
+  count = @sources.size
+%>
 
-<div class="card shadow">
-  <div class="card-body p-4">
-    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.review_extract.title", count: @sources.size, noun: t(@step.review_noun_key.to_s, count: @sources.size).downcase) %></h3>
-    <p class="text-muted mb-4"><%= t("wizard.review_extract.hint") %></p>
-
-    <%= form_with url: financial_setup_import_confirm_path, method: :post, local: true, data: { turbo: false } do %>
-      <%= hidden_field_tag :step, @step_key %>
-
-      <% @sources.each_with_index do |source, idx| %>
-        <% dup_key = FinancialSetupWizard.duplicate_key(source) %>
-        <% dup = @duplicates[dup_key.to_s] || {} %>
-        <% money_key = source["kind"] == "loan" ? "outstanding_balance" : "balance" %>
-        <div class="card mb-3 manual-row">
-          <div class="card-body">
-             <div class="d-flex justify-content-between align-items-start">
-               <div class="d-flex align-items-center gap-2">
-                 <i class="bi bi-<%= source_kind_icon(source["kind"]) %> fs-4 text-primary"></i>
-                 <div>
-                   <span class="fw-bold"><%= source["name"] %></span>
-                   <% if source["card_last_four"].present? %>
-                     <span class="badge bg-light text-dark">••••<%= source["card_last_four"] %></span>
-                   <% end %>
-                   <div class="text-muted small">
-                     <% if source["sub_kind"].present? %><%= source["sub_kind"].titleize %><% else %><%= t("wizard.review_extract.kind_#{source["kind"]}") %><% end %>
-                   </div>
-                   <div class="small">
-                     <% bal = money_field_value(source[money_key]) %>
-                     <% if bal.present? %>
-                       <span class="fw-bold"><%= t("wizard.review_extract.balance") %>: <span class="text-<%= source["kind"] == "loan" ? "danger" : "success" %>"><%= number_to_currency(source[money_key]) %></span></span>
-                     <% end %>
-                   </div>
-                 </div>
-               </div>
-               <div class="d-flex gap-2">
-                 <button type="button" class="btn btn-link text-danger p-0 import-remove" data-confirm="<%= t("wizard.review_extract.remove_confirm", default: "Remove this account?") %>">
-                   <i class="bi bi-trash"></i>
-                 </button>
-               </div>
-             </div>
-             <%= hidden_field_tag "keep[#{idx}]", "1" %>
-
-            <fieldset class="row g-2 mt-3">
-              <legend class="visually-hidden"><%= t("wizard.manual.edit") %></legend>
-              <div class="col-12 col-md-4">
-                <label class="form-label small text-muted mb-0"><%= t("wizard.manual.name") %></label>
-                <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][name]" value="<%= source["name"] %>">
-              </div>
-              <div class="col-12 col-md-4">
-                <label class="form-label small text-muted mb-0"><%= t("wizard.manual.bank") %></label>
-                <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][bank]" value="<%= source["bank"] %>">
-              </div>
-               <div class="col-12 col-md-4">
-                 <label class="form-label small text-muted mb-0"><%= source["kind"] == "credit_card" ? t("wizard.manual.current_debt") : (money_key == "outstanding_balance" ? t("wizard.manual.outstanding_balance") : t("wizard.manual.current_balance")) %></label>
-                 <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>" data-money-input="true" <%= source["kind"] == "credit_card" ? 'data-ca-balance="true"' : "" %>>
-               </div>
-               <% if source["kind"] == "credit_card" %>
-                 <div class="col-12 col-md-4">
-                   <label class="form-label small text-muted mb-0"><%= t("wizard.manual.card_last_four") %></label>
-                   <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric" placeholder="<%= t("wizard.manual.card_last_four") %>">
-                 </div>
-                 <div class="col-12 col-md-4">
-                   <label class="form-label small text-muted mb-0"><%= t("wizard.manual.credit_limit") %></label>
-                   <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][credit_limit]" value="<%= money_field_value(source["credit_limit"]) %>" data-money-input="true" data-ca-limit="true">
-                 </div>
-                 <div class="col-12 col-md-4">
-                   <label class="form-label small text-muted mb-0"><%= t("wizard.manual.interest_rate") %></label>
-                   <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][interest_rate]" value="<%= money_field_value(source["interest_rate"]) %>" inputmode="decimal" data-money-input="true">
-                 </div>
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small text-muted mb-0"><%= t("wizard.manual.interest_rate_type") %></label>
-                    <select name="sources[<%= idx %>][interest_rate_type]" class="form-select form-select-sm">
-                      <%= options_for_select(rate_type_options, source["interest_rate_type"]) %>
-                    </select>
-                  </div>
-                  <div class="col-12">
-                    <span class="form-text text-success"><%= t("wizard.manual.available_credit") %>: <span class="fw-bold" data-ca-available="true">$<%= number_with_delimiter(available_credit_for(source)) %></span></span>
-                  </div>
-                 <% elsif source["kind"] == "loan" %>
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small text-muted mb-0"><%= t("wizard.manual.original_principal") %></label>
-                    <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][principal_amount]" value="<%= money_field_value(source["principal_amount"]) %>" data-money-input="true">
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small text-muted mb-0"><%= t("wizard.manual.monthly_payment") %></label>
-                    <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][monthly_payment]" value="<%= money_field_value(source["monthly_payment"]) %>" data-money-input="true">
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small text-muted mb-0"><%= t("wizard.manual.interest_rate") %></label>
-                    <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][interest_rate]" value="<%= money_field_value(source["interest_rate"]) %>" inputmode="decimal" data-money-input="true">
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small text-muted mb-0"><%= t("wizard.manual.interest_rate_type") %></label>
-                    <select name="sources[<%= idx %>][interest_rate_type]" class="form-select form-select-sm">
-                      <%= options_for_select(rate_type_options, source["interest_rate_type"]) %>
-                    </select>
-                  </div>
-                  <div class="col-12 col-md-4">
-                    <label class="form-label small text-muted mb-0"><%= t("wizard.manual.contract_number") %></label>
-                    <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"] %>">
-                  </div>
-                 <% else %>
-                 <div class="col-12 col-md-4">
-                   <label class="form-label small text-muted mb-0"><%= t("wizard.manual.identifier") %></label>
-                   <input type="text" class="form-control form-control-sm" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric" placeholder="<%= t("wizard.manual.identifier_hint") %>">
-                 </div>
-               <% end %>
-            </fieldset>
-
-            <% if dup["duplicate"] %>
-              <div class="alert alert-warning py-2 mt-2 mb-0">
-                <span class="badge bg-warning text-dark me-2"><%= t("wizard.review_extract.possible_duplicate") %></span>
-                <div class="btn-group btn-group-sm mt-1" role="group" aria-label="<%= t("wizard.review_extract.duplicate_choice") %>">
-                  <% [["update", "update"], ["create", "create"], ["ignore", "ignore"]].each do |label_key, value| %>
-                    <label class="btn btn-outline-<%= value == "create" ? "secondary" : (value == "ignore" ? "danger" : "primary") %>">
-                      <%= radio_button_tag "duplicates[#{dup_key}]", value, (dup["choice"] || "update") == value %>
-                      <%= t("wizard.review_extract.#{label_key}") %>
-                    </label>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-
-      <div class="d-flex justify-content-between mt-4">
-        <div class="d-flex gap-2">
-          <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-outline-secondary" do %>
-            <i class="bi bi-plus-lg me-1"></i><%= t("wizard.review_extract.import_more", default: "Import more documents") %>
-          <% end %>
-          <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-outline-secondary" do %>
-            <i class="bi bi-x-lg me-1"></i><%= t("wizard.review_extract.cancel_import") %>
-          <% end %>
-        </div>
-        <div>
-          <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
-          <%= button_tag t("wizard.review_extract.save_only"), type: "submit", name: "save_only", value: "1", class: "btn btn-outline-primary" %>
-          <%= submit_tag t("wizard.review_extract.confirm"), class: "btn btn-primary" %>
-        </div>
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <h1 class="fw-bold text-primary mb-1"><%= t("wizard.review_extract.page_title.#{kind}", count: count) %></h1>
+    <p class="text-muted mb-1"><%= t("wizard.review_extract.page_subtitle.#{kind}", count: count) %></p>
+    <% if count > 0 %>
+      <div class="text-muted small">
+        <i class="bi bi-file-earmark-text me-1"></i><%= t("wizard.review_extract.found_status.#{kind}", count: count) %>
       </div>
     <% end %>
   </div>
+  <div class="d-none d-lg-flex align-items-center gap-2 bg-primary-subtle rounded-3 p-3">
+    <i class="bi bi-shield-check fs-4 text-primary"></i>
+    <div>
+      <div class="fw-semibold small"><%= t("wizard.review_extract.security_title") %></div>
+      <div class="text-muted small"><%= t("wizard.review_extract.security_hint") %></div>
+    </div>
+  </div>
 </div>
 
+<%= form_with url: financial_setup_import_confirm_path, method: :post, local: true, data: { turbo: false } do %>
+  <%= hidden_field_tag :step, @step_key %>
+
+  <% if @sources.empty? %>
+    <div class="card mb-4">
+      <div class="card-body p-4 text-center">
+        <i class="bi bi-inbox display-4 text-muted d-block mb-2"></i>
+        <p class="text-muted mb-3"><%= t("wizard.review_extract.empty_state") %></p>
+        <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-primary" do %>
+          <i class="bi bi-cloud-arrow-up me-1"></i><%= t("wizard.review_extract.import_document") %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% @sources.each_with_index do |source, idx| %>
+    <% dup_key = FinancialSetupWizard.duplicate_key(source) %>
+    <% dup = @duplicates[dup_key.to_s] || {} %>
+    <% money_key = source["kind"] == "loan" ? "outstanding_balance" : "balance" %>
+    <% balance_label = source["kind"] == "credit_card" ? t("wizard.manual.current_debt") : (money_key == "outstanding_balance" ? t("wizard.manual.outstanding_balance") : t("wizard.manual.current_balance")) %>
+    <% balance_color = source["kind"] == "account" ? "success" : "danger" %>
+
+    <div class="card mb-4 manual-row">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 56px; height: 56px;">
+              <i class="bi bi-<%= source_kind_icon(source["kind"]) %> fs-4"></i>
+            </div>
+            <div>
+              <div class="fs-5 fw-bold">
+                <%= source["name"] %>
+                <% if source["card_last_four"].present? %>
+                  <span class="badge bg-light text-dark border fw-normal">•••• <%= source["card_last_four"] %></span>
+                <% end %>
+              </div>
+              <% if source["bank"].present? %><div class="text-muted"><%= source["bank"] %></div><% end %>
+              <% bal = money_field_value(source[money_key]) %>
+              <% if bal.present? %>
+                <div class="small"><%= balance_label %>: <span class="fw-bold text-<%= balance_color %>"><%= number_to_currency(source[money_key]) %></span></div>
+              <% end %>
+            </div>
+          </div>
+          <button type="button" class="btn btn-link text-danger text-decoration-none small p-0 import-remove"
+                  data-confirm="<%= t("wizard.review_extract.remove_confirm") %>">
+            <i class="bi bi-trash me-1"></i><%= t("wizard.review_extract.delete_source.#{source["kind"]}", default: t("wizard.review_extract.delete_source.account")) %>
+          </button>
+        </div>
+        <%= hidden_field_tag "keep[#{idx}]", "1" %>
+
+        <hr class="my-4">
+
+        <fieldset class="row g-3">
+          <legend class="visually-hidden"><%= t("wizard.manual.edit") %></legend>
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-muted mb-1"><%= t("wizard.manual.name") %></label>
+            <input type="text" class="form-control" name="sources[<%= idx %>][name]" value="<%= source["name"] %>">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-muted mb-1"><%= t("wizard.manual.bank") %></label>
+            <input type="text" class="form-control" name="sources[<%= idx %>][bank]" value="<%= source["bank"] %>">
+          </div>
+           <div class="col-12 col-md-4">
+             <label class="form-label small text-muted mb-1"><%= balance_label %></label>
+             <input type="text" class="form-control" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>" data-money-input="true" <%= source["kind"] == "credit_card" ? 'data-ca-balance="true"' : "" %>>
+           </div>
+           <% if source["kind"] == "credit_card" %>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.card_last_four") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric" placeholder="<%= t("wizard.manual.card_last_four") %>">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.credit_limit") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][credit_limit]" value="<%= money_field_value(source["credit_limit"]) %>" data-money-input="true" data-ca-limit="true">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.interest_rate") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][interest_rate]" value="<%= money_field_value(source["interest_rate"]) %>" inputmode="decimal" data-money-input="true">
+             </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-1"><%= t("wizard.manual.interest_rate_type") %></label>
+                <select name="sources[<%= idx %>][interest_rate_type]" class="form-select">
+                  <%= options_for_select(rate_type_options, source["interest_rate_type"]) %>
+                </select>
+              </div>
+              <div class="col-12">
+                <span class="form-text text-success"><%= t("wizard.manual.available_credit") %>: <span class="fw-bold" data-ca-available="true">$<%= number_with_delimiter(available_credit_for(source)) %></span></span>
+              </div>
+             <% elsif source["kind"] == "loan" %>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.original_principal") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][principal_amount]" value="<%= money_field_value(source["principal_amount"]) %>" data-money-input="true">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.monthly_payment") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][monthly_payment]" value="<%= money_field_value(source["monthly_payment"]) %>" data-money-input="true">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.installment_count") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][installment_count]" value="<%= source["installment_count"] %>" inputmode="numeric">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.installments_paid") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][installments_paid]" value="<%= source["installments_paid"] %>" inputmode="numeric">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.interest_rate") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][interest_rate]" value="<%= money_field_value(source["interest_rate"]) %>" inputmode="decimal" data-money-input="true">
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.interest_rate_type") %></label>
+               <select name="sources[<%= idx %>][interest_rate_type]" class="form-select">
+                 <%= options_for_select(rate_type_options, source["interest_rate_type"]) %>
+               </select>
+             </div>
+             <div class="col-12 col-md-4">
+               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.contract_number") %></label>
+               <input type="text" class="form-control" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"] %>">
+             </div>
+            <% else %>
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted mb-1"><%= t("wizard.manual.identifier") %></label>
+              <input type="text" class="form-control" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric" placeholder="<%= t("wizard.manual.identifier_hint") %>">
+            </div>
+          <% end %>
+        </fieldset>
+
+        <div class="bg-primary-subtle rounded-3 p-3 mt-4 small text-muted">
+          <i class="bi bi-info-circle text-primary me-1"></i><%= t("wizard.review_extract.review_hint") %>
+        </div>
+
+        <% if dup["duplicate"] %>
+          <div class="alert alert-warning py-2 mt-3 mb-0">
+            <span class="badge bg-warning text-dark me-2"><%= t("wizard.review_extract.possible_duplicate") %></span>
+            <div class="btn-group btn-group-sm mt-1" role="group" aria-label="<%= t("wizard.review_extract.duplicate_choice") %>">
+              <% [["update", "update"], ["create", "create"], ["ignore", "ignore"]].each do |label_key, value| %>
+                <label class="btn btn-outline-<%= value == "create" ? "secondary" : (value == "ignore" ? "danger" : "primary") %>">
+                  <%= radio_button_tag "duplicates[#{dup_key}]", value, (dup["choice"] || "update") == value %>
+                  <%= t("wizard.review_extract.#{label_key}") %>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @sources.any? %>
+    <div class="border rounded-3 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-cloud-arrow-up fs-3 text-primary"></i>
+        <div>
+          <div class="fw-bold"><%= t("wizard.review_extract.missing_prompt.#{kind}") %></div>
+          <div class="text-muted small"><%= t("wizard.review_extract.missing_hint.#{kind}") %></div>
+        </div>
+      </div>
+      <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-link text-primary text-decoration-none px-0" do %>
+        <%= t("wizard.review_extract.import_document") %> <i class="bi bi-arrow-right ms-1"></i>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4 pt-3 border-top">
+    <div>
+      <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i><%= t("wizard.back") %>
+      <% end %>
+    </div>
+    <div class="d-flex align-items-center flex-wrap gap-2 gap-md-3">
+      <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted text-decoration-none" %>
+      <%= button_tag t("wizard.review_extract.save_only"), type: "submit", name: "save_only", value: "1", class: "btn btn-outline-primary" %>
+      <%= button_tag type: "submit", class: "btn btn-primary btn-lg" do %>
+        <%= t("wizard.review_extract.confirm") %> <i class="bi bi-arrow-right ms-1"></i>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.import-remove').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var msg = btn.dataset.confirm || 'Remove this account?';
-      if (!window.confirm(msg)) return;
-      // Hide the account card and clear its keep field so it's dropped on confirm.
-      var card = btn.closest('.card');
-      card.classList.add('d-none');
-      var keepInput = card.querySelector('input[name^="keep["]');
-      if (keepInput) keepInput.value = '';
-    });
+(function () {
+  // Delegated on document so it works no matter how the page was rendered
+  // (full load or Turbo visit) — per-element DOMContentLoaded listeners were
+  // missing the first click after Turbo restores/renders the page. The window
+  // guard keeps the handler from being attached twice.
+  if (window.__importRemoveBound) return;
+  window.__importRemoveBound = true;
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.import-remove');
+    if (!btn) return;
+
+    var msg = btn.dataset.confirm || 'Remove this account?';
+    if (!window.confirm(msg)) return;
+
+    // Hide the account card and clear its keep field so it's dropped on confirm.
+    var card = btn.closest('.card');
+    if (!card) return;
+    card.classList.add('d-none');
+    var keepInput = card.querySelector('input[name^="keep["]');
+    if (keepInput) keepInput.value = '';
   });
-});
+})();
 </script>

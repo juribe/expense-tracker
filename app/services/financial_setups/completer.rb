@@ -33,9 +33,19 @@ module FinancialSetups
 
     def create_for_step(step_key)
       choice = @setup.choice_for(step_key)
-      return [] if choice.blank? || choice == "skip"
+      return [] if choice.blank?
+      # "skip" only means skip when the step has nothing in it. Sources can be
+      # present with a skip choice when the user continued with what they had
+      # already added (the step screen's "Continuar" option), so create from
+      # data presence, merging both stores.
+      return [] if choice == "skip" && !step_has_sources?(step_key)
 
-      choice == "import" ? create_imports(step_key) : create_manuals(step_key)
+      create_manuals(step_key) + create_imports(step_key)
+    end
+
+    def step_has_sources?(step_key)
+      @setup.draft_sources(step_key).any? { |row| !blank_manual_row?(row) } ||
+        Array(@setup.import_state(step_key)["sources"]).any?
     end
 
     def create_manuals(step_key)
@@ -55,7 +65,7 @@ module FinancialSetups
         name: row["name"],
         kind: kind,
         bank: row["bank"],
-        starting_balance: row["starting_balance"] || row["balance"] || 0,
+        starting_balance: starting_balance_for(kind, row),
         identifier: row["identifier"].presence
       )
 
@@ -64,6 +74,7 @@ module FinancialSetups
       end
 
       source.save!
+      create_payment_recurrence(source, row)
       source
     end
 
@@ -77,6 +88,8 @@ module FinancialSetups
         principal_amount: row["principal_amount"],
         outstanding_balance: row["outstanding_balance"],
         installment_amount: row["monthly_payment"],
+        installment_count: row["installment_count"],
+        installments_paid: row["installments_paid"],
         payment_frequency: row["payment_frequency"],
         statement_day: row["statement_day"]
       )
@@ -132,7 +145,7 @@ module FinancialSetups
         name: entry["name"] || entry["bank"],
         kind: kind,
         bank: entry["bank"],
-        starting_balance: entry["balance"] || 0,
+        starting_balance: starting_balance_for(kind, entry),
         identifier: entry["identifier"].presence
       )
 
@@ -140,7 +153,50 @@ module FinancialSetups
         build_credit_account(source, entry)
       end
       source.save!
+      create_payment_recurrence(source, entry)
       source
+    end
+
+    # The app stores credit-card debt as a NEGATIVE balance so card usage keeps
+    # deducting from the available credit (see MoneySource#used_credit). The
+    # wizard collects the debt as a positive magnitude ("Deuda actual").
+    def starting_balance_for(kind, row)
+      raw = row["starting_balance"].presence || row["balance"].presence
+      return 0 if raw.blank?
+
+      balance = raw.to_d
+      kind == "credit_card" && balance.positive? ? -balance : balance
+    end
+
+    # Loans and credit cards have a fixed periodic payment. When the wizard
+    # knows the monthly amount, create a recurring expense so the payment
+    # shows up month after month without manual entry.
+    def create_payment_recurrence(source, row)
+      return unless %w[credit_card loan].include?(source.kind)
+
+      amount = row["monthly_payment"].to_d
+      return unless amount.positive?
+
+      RecurringTemplate.create!(
+        user: @user,
+        category: payment_category,
+        kind: "expense",
+        amount: amount,
+        frequency: "monthly",
+        description: I18n.t("wizard.recurring.payment_description", name: source.name),
+        money_source: source,
+        source: "wizard"
+      )
+    end
+
+    # Recurring payments share one default expense category, created on demand
+    # (same pattern as db/seeds.rb).
+    def payment_category
+      @payment_category ||= Category.find_or_create_by!(
+        name: I18n.t("categories.debt_payments"),
+        is_default: true,
+        category_type: "expense"
+      )
     end
   end
 end

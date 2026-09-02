@@ -45,7 +45,7 @@ en:
     back: "Back"
     cancel: "Cancel"
     continue: "Continue"
-    exit_resume: "Exit & resume later"
+    exit_resume: "Continue later"
     dismissed: "You can resume your financial setup at any time from the dashboard."
     entry:
       title: "Let's set up your finances"
@@ -97,6 +97,8 @@ en:
       outstanding_balance: "Current outstanding balance"
       original_principal: "Original amount received"
       monthly_payment: "Monthly payment"
+      installment_count: "Number of installments"
+      installments_paid: "Installments paid"
     edit_all:
       title: "Edit your %{kind}"
       hint: "Edit the information of all added sources, whether imported or entered manually."
@@ -137,9 +139,55 @@ en:
       back_to_edit: "Back to edit"
       complete: "Complete setup"
     review_extract:
-      title: "We found %{noun}"
-      hint: "Review the extracted information before it is added to your account. You can keep, remove, or edit each item."
-      keep: "Keep"
+      page_title:
+        account:
+          one: "Review your account"
+          other: "Review your accounts"
+        credit_card:
+          one: "Review your credit card"
+          other: "Review your credit cards"
+        loan:
+          one: "Review your loan"
+          other: "Review your loans"
+      page_subtitle:
+        account:
+          one: "We found this account in your document. Verify the details before continuing."
+          other: "We found %{count} accounts in your document. Verify the details before continuing."
+        credit_card:
+          one: "We found this card in your document. Verify the details before continuing."
+          other: "We found %{count} cards in your document. Verify the details before continuing."
+        loan:
+          one: "We found this loan in your document. Verify the details before continuing."
+          other: "We found %{count} loans in your document. Verify the details before continuing."
+      found_status:
+        account:
+          one: "%{count} account found"
+          other: "%{count} accounts found"
+        credit_card:
+          one: "%{count} card found"
+          other: "%{count} cards found"
+        loan:
+          one: "%{count} loan found"
+          other: "%{count} loans found"
+      missing_prompt:
+        account: "Missing an account?"
+        credit_card: "Missing a card?"
+        loan: "Missing a loan?"
+      missing_hint:
+        account: "Import another document to find more accounts."
+        credit_card: "Import another document to find more cards."
+        loan: "Import another document to find more loans."
+      import_document: "Import document"
+      delete_source:
+        account: "Delete account"
+        credit_card: "Delete card"
+        loan: "Delete loan"
+      remove_confirm: "Are you sure you want to delete it?"
+      review_hint: "Tip: Check that the amounts and numbers are correct. You can edit any field if needed."
+      security_title: "Your information is safe"
+      security_hint: "We never share your bank data."
+      empty_state: "Nothing to review yet. Import a document to get started."
+      save_only: "Save changes"
       possible_duplicate: "Possible duplicate"
       duplicate_choice: "How to handle the possible duplicate"
       update: "Update existing"
@@ -167,5 +215,10 @@ en:
       text: "You have a financial setup in progress. Pick up right where you left off."
       resume: "Resume setup"
       dismiss: "Dismiss"
+    recurring:
+      payment_description: "Payment for %{name}"
+
+  categories:
+    debt_payments: "Debt payments"
   nav:
     setup_wizard: "Setup"

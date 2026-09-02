@@ -62,10 +62,13 @@ module Ai
     test "keeps the loan principal amount (valor desembolsado)" do
       data = parse("sources" => [ { "kind" => "loan", "name" => "Libre Inversión",
                                     "bank" => "Bancolombia", "principal_amount" => "8.000.000",
-                                    "outstanding_balance" => "6.000.000" } ])
+                                    "outstanding_balance" => "6.000.000", "installment_count" => "48 cuotas",
+                                    "installments_paid" => "Cuota 12" } ])
       source = data[:sources].first
       assert_equal BigDecimal("8000000"), source[:principal_amount]
       assert_equal BigDecimal("6000000"), source[:outstanding_balance]
+      assert_equal 48, source[:installment_count]
+      assert_equal 12, source[:installments_paid]
     end
 
     test "parses Colombian number formats" do
@@ -80,6 +83,22 @@ module Ai
       assert_equal BigDecimal("1234567"), balances[1]
       assert_equal BigDecimal("1234.92"), balances[2]
       assert_equal BigDecimal("5420000"), balances[3]
+    end
+
+    test "repairs digit-soup amounts using the statement text" do
+      # AI concatenates "19.877.599,71" into 1987759971; the text still shows
+      # the formatted amount, so the parser must restore the decimals.
+      raw = { "sources" => [ { "kind" => "credit_card", "name" => "Crédito Rotativo",
+                               "bank" => "Davibank", "balance" => 1987759971 } ] }
+      data = Ai::StatementExtractor.parse(raw, text: "Saldo actual 19.877.599,71 al corte")
+      assert_equal BigDecimal("19877599.71"), data[:sources].first[:balance]
+    end
+
+    test "keeps genuinely large whole amounts that match the text" do
+      raw = { "sources" => [ { "kind" => "loan", "name" => "Libre Inversión",
+                               "bank" => "Bancolombia", "principal_amount" => 1987759971 } ] }
+      data = Ai::StatementExtractor.parse(raw, text: "Valor desembolsado 1.987.759.971")
+      assert_equal BigDecimal("1987759971"), data[:sources].first[:principal_amount]
     end
 
     test "instructs the AI to classify revolving credit lines as loans" do

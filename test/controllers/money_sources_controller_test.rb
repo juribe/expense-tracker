@@ -169,6 +169,23 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1234", source.credit_account.card_last_four
   end
 
+  test "POST /money_sources accepts Colombian-formatted decimals" do
+    post money_sources_path, params: {
+      money_source: {
+        name: "Visa", kind: "credit_card", bank: "Bancolombia", starting_balance: "1.234.567,89",
+        credit_account_attributes: {
+          credit_limit: "20.000.000", card_brand: "visa", card_last_four: "1234",
+          interest_rate: "29,3", interest_rate_type: "effective_annual"
+        }
+      }
+    }
+    assert_redirected_to money_sources_path
+    source = MoneySource.last
+    assert_equal BigDecimal("1234567.89"), source.starting_balance
+    assert_equal BigDecimal("20000000"), source.credit_account.credit_limit
+    assert_equal BigDecimal("29.3"), source.credit_account.interest_rate
+  end
+
   test "POST /money_sources creates a loan with credit_account" do
     assert_difference "MoneySource.count", 1 do
       assert_difference "CreditAccount.count", 1 do

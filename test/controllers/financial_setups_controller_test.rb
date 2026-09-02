@@ -94,6 +94,28 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/3/, response.body)
   end
 
+  test "step screen counts deduplicated sources when an import duplicates an added account" do
+    setup_record
+    @setup.set_choice("accounts", "import")
+    @setup.replace_draft_sources("accounts", [
+      { "identifier" => "5986", "name" => "Cuenta de Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "608" }
+    ])
+    @setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "5986", "name" => "Cuenta de Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "608" },
+        { "identifier" => "8901", "name" => "Ahorros Davibank", "bank" => "Davibank", "kind" => "account", "balance" => "500000" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    get financial_setup_step_path(step: :accounts)
+    assert_response :success
+    # 3 raw rows across stores, but only 2 unique accounts.
+    assert_match(I18n.t("wizard.select.added", count: 2), response.body)
+    assert_match(/2 cuentas/, response.body)
+  end
+
   test "redirects an unknown step to the entry screen" do
     get financial_setup_step_path(step: :wallet)
     assert_redirected_to financial_setup_path
@@ -107,6 +129,24 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to financial_setup_step_path(step: :credit_cards)
     assert_equal "skip", @setup.reload.choice_for("accounts")
     assert_equal 2, @setup.current_step
+  end
+
+  test "POST select with skip keeps the existing choice when the step has sources" do
+    setup_record
+    @setup.set_choice("accounts", "import")
+    @setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "5986", "name" => "Cuenta de Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "608" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    # The third card reads "Continuar" when sources exist — it must not clobber
+    # the import choice, or completion would skip the step.
+    post financial_setup_select_path, params: { step: "accounts", choice: "skip" }
+    assert_redirected_to financial_setup_step_path(step: :credit_cards)
+    assert_equal "import", @setup.reload.choice_for("accounts")
   end
 
   test "POST select with manual routes to the manual screen" do
@@ -276,6 +316,40 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "POST upload shows the newest imported sources first" do
+    setup_record
+    first_result = ImportPipeline::Result.new(
+      ok?: true,
+      sources: [ ParsedStatement.new(kind: "account", name: "Ahorros", bank: "Bancolombia", balance: "1000000", identifier: "1111") ],
+      transactions: [], error: nil
+    )
+    first_pipeline = Object.new
+    first_pipeline.define_singleton_method(:call) { |file:, password: nil| first_result }
+
+    second_result = ImportPipeline::Result.new(
+      ok?: true,
+      sources: [ ParsedStatement.new(kind: "account", name: "Corriente", bank: "Davivienda", balance: "2000000", identifier: "2222") ],
+      transactions: [], error: nil
+    )
+    second_pipeline = Object.new
+    second_pipeline.define_singleton_method(:call) { |file:, password: nil| second_result }
+
+    stub_method(ImportPipeline, :new, ->(*) { first_pipeline }) do
+      post financial_setup_upload_path, params: { step: "accounts", file: upload_file("statement.csv") }
+      assert_redirected_to financial_setup_import_review_path(step: :accounts)
+    end
+    stub_method(ImportPipeline, :new, ->(*) { second_pipeline }) do
+      post financial_setup_upload_path, params: { step: "accounts", file: upload_file("other.csv") }
+      assert_redirected_to financial_setup_import_review_path(step: :accounts)
+    end
+
+    names = @setup.reload.import_state("accounts")["sources"].map { |s| s["name"] }
+    assert_equal %w[Corriente Ahorros], names
+    # The import review renders in stored order, so the newest is on top there too.
+    get financial_setup_import_review_path(step: :accounts)
+    assert_match(/Corriente/, response.body)
+  end
+
   test "GET import_review renders extracted sources and duplicate choice" do
     setup_record
     @setup.set_import_state("accounts", {
@@ -290,7 +364,7 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
     get financial_setup_import_review_path(step: :accounts)
     assert_response :success
-    assert_select "h3", text: I18n.t("wizard.review_extract.title", count: 1, noun: I18n.t("wizard.review.accounts", count: 1).downcase)
+    assert_select "h1", text: I18n.t("wizard.review_extract.page_title.account", count: 1)
     assert_select "input[name='duplicates[1234]'][value='update'][checked='checked']"
     assert_match(/Bancolombia Savings/, response.body)
   end
@@ -301,7 +375,7 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
       "sources" => [
         { "identifier" => "987654321", "name" => "Car Loan", "bank" => "Banco", "kind" => "loan",
           "outstanding_balance" => "95000000", "principal_amount" => "100000000",
-          "monthly_payment" => "2686800",
+          "monthly_payment" => "2686800", "installment_count" => "48", "installments_paid" => "12",
           "interest_rate" => "21.27", "interest_rate_type" => "effective_annual" }
       ],
       "duplicates" => {}
@@ -313,6 +387,8 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='sources[0][outstanding_balance]']"
     assert_select "input[name='sources[0][principal_amount]'][value='100.000.000']"
     assert_select "input[name='sources[0][monthly_payment]'][value='2.686.800']"
+    assert_select "input[name='sources[0][installment_count]'][value='48']"
+    assert_select "input[name='sources[0][installments_paid]'][value='12']"
     assert_select "input[name='sources[0][interest_rate]'][value='21,27']"
     assert_select "select[name='sources[0][interest_rate_type]']"
     # Loan identifiers are full contract numbers, not last four.
@@ -400,6 +476,42 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "57349802", source["balance"]
     assert_equal "57405600.50", source["credit_limit"]
     assert_equal "29.3", source["interest_rate"]
+  end
+
+  test "POST import_confirm keeps decimals from the browser machine format" do
+    # The input mask submits "972548.58" (dot as decimal). The server must not
+    # treat that dot as a thousands separator (regression: saved 97254858).
+    setup_record
+    @setup.set_import_state("accounts", {
+      "sources" => [ { "identifier" => "1234", "name" => "Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "0" } ],
+      "duplicates" => { "1234" => { "choice" => "create" } }
+    })
+    @setup.save!
+
+    post financial_setup_import_confirm_path, params: {
+      step: "accounts",
+      sources: { "0" => { name: "Ahorros", bank: "Bancolombia", balance: "972548.58" } }
+    }
+
+    source = @setup.reload.import_state("accounts")["sources"].first
+    assert_equal "972548.58", source["balance"]
+  end
+
+  test "POST import_confirm strips thousands from dot-grouped display values" do
+    setup_record
+    @setup.set_import_state("accounts", {
+      "sources" => [ { "identifier" => "1234", "name" => "Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "0" } ],
+      "duplicates" => { "1234" => { "choice" => "create" } }
+    })
+    @setup.save!
+
+    post financial_setup_import_confirm_path, params: {
+      step: "accounts",
+      sources: { "0" => { name: "Ahorros", bank: "Bancolombia", balance: "97.254.852" } }
+    }
+
+    source = @setup.reload.import_state("accounts")["sources"].first
+    assert_equal "97254852", source["balance"]
   end
 
   test "POST import_confirm with save_only keeps the same step" do
@@ -620,6 +732,32 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/Bancolombia Savings/, response.body)
     assert_match(/1 fuente financiera configurada/, response.body)
+  end
+
+  test "GET review shows imported credit cards and loans too" do
+    setup_record
+    @setup.set_choice("accounts", "skip")
+    @setup.set_choice("credit_cards", "import")
+    @setup.set_import_state("credit_cards", {
+      "sources" => [
+        { "identifier" => "5194", "name" => "Tarjeta de Crédito", "bank" => "Davibank", "kind" => "credit_card", "balance" => "1078648" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.set_choice("loans", "import")
+    @setup.set_import_state("loans", {
+      "sources" => [
+        { "identifier" => "3459", "name" => "Crédito de Vehículo", "bank" => "Santander", "kind" => "loan", "outstanding_balance" => "112068976" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    get financial_setup_step_path(step: :review)
+    assert_response :success
+    assert_match(/Tarjeta de Crédito/, response.body)
+    assert_match(/Crédito de Vehículo/, response.body)
+    assert_match(/2 fuentes financieras configurada/, response.body)
   end
 
   test "POST dismiss marks the setup dismissed and keeps progress" do

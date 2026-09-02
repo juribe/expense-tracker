@@ -77,11 +77,26 @@ class MoneySourcesController < ApplicationController
         credit_account_attributes: [ :id, :credit_limit, :interest_rate, :interest_rate_type,
                                      :card_brand, :card_last_four, :statement_day, :payment_due_day,
                                      :principal_amount, :outstanding_balance, :installment_amount,
-                                     :installment_count, :payment_frequency, :start_date, :end_date ]
+                                     :installment_count, :installments_paid, :payment_frequency, :start_date, :end_date ]
       }
     end
 
-    params.require(:money_source).permit(permitted)
+    normalize_money_params!(params.require(:money_source)).permit(permitted)
+  end
+
+  # The forms render Colombian-formatted values ("29,3", "1.234.567,89"); the
+  # browser mask submits machine format ("29.3"). Normalize both so decimal
+  # columns cast cleanly instead of failing "is not a number".
+  def normalize_money_params!(money_source)
+    money_source[:starting_balance] = MoneyFormat.normalize(money_source[:starting_balance]) if money_source[:starting_balance].present?
+
+    credit_account = money_source[:credit_account_attributes]
+    return money_source unless credit_account
+
+    %w[credit_limit interest_rate principal_amount outstanding_balance installment_amount].each do |field|
+      credit_account[field] = MoneyFormat.normalize(credit_account[field]) if credit_account[field].present?
+    end
+    money_source
   end
 
   def not_found

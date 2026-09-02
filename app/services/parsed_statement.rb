@@ -10,7 +10,7 @@ class ParsedStatement
   ATTRIBUTES = %i[
     kind name bank sub_kind card_last_four
     balance credit_limit outstanding_balance monthly_payment principal_amount
-    interest_rate interest_rate_type identifier transaction_count
+    installment_count installments_paid interest_rate interest_rate_type identifier transaction_count
   ].freeze
 
   attr_accessor(*ATTRIBUTES)

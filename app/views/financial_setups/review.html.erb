@@ -2,9 +2,11 @@
 <%= render "stepper", step_key: @step_key %>
 
 <%
+  # The review must show manual drafts AND confirmed imports, so it reads each
+  # step through the same deduplicated presenter the step screens use.
   summary = FinancialSetupWizard.source_steps.map do |setup_step|
-    key = setup_step.key.to_s
-    { step: setup_step, count: @setup.draft_sources(key).size }
+    presenter = FinancialSetups::StepPresenter.new(setup: @setup, step: setup_step)
+    { step: setup_step, presenter: presenter, count: presenter.added_count }
   end
   total_sources = summary.sum { |item| item[:count] }
 %>
@@ -22,10 +24,10 @@
         </div>
         <div class="collapse" id="collapse<%= item[:step].key %>">
           <ul class="list-group list-group-flush">
-            <% @setup.draft_sources(item[:step].key.to_s).each do |source| %>
+            <% item[:presenter].added_sources.each do |source| %>
               <li class="list-group-item d-flex justify-content-between">
                 <span><%= source["name"] %></span>
-                <% amount = source["kind"] == "loan" ? (source["outstanding_balance"].presence || source["balance"]) : source["balance"].presence %>
+                <% amount = item[:presenter].display_amount(source) %>
                 <% if amount.present? %><span class="text-muted"><%= number_to_currency(amount) %></span><% end %>
               </li>
             <% end %>

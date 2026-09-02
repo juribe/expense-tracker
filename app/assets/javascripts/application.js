@@ -1,21 +1,30 @@
 (function () {
-  // Colombian number rule: "." is the thousands separator, "," is the decimal
-  // separator ("67.429.112,92").
+  // Colombian number rule: "." is the thousands separator and "," is the
+  // decimal separator. A number never has more than one comma — only the
+  // first comma typed starts the decimals; extra commas are ignored.
 
   function sanitizeValue(value) {
-    // Machine format for form submission: drop thousands dots, decimal
-    // comma becomes a dot so server-side decimal casting parses correctly.
-    return String(value == null ? "" : value).replace(/\./g, "").replace(/,/g, ".").trim();
+    // Machine format for form submission: drop the thousands dots, turn the
+    // single decimal comma into a dot so server-side decimal casting parses.
+    var raw = String(value == null ? "" : value).replace(/\./g, "").trim();
+    var commaIndex = raw.indexOf(",");
+    if (commaIndex === -1) return raw;
+
+    var integerPart = raw.slice(0, commaIndex);
+    var decimalPart = raw.slice(commaIndex + 1).replace(/,/g, "");
+    return integerPart + "." + decimalPart;
   }
 
   function formatValue(value, finalize) {
     var raw = String(value == null ? "" : value).replace(/\./g, "").trim();
     if (!raw) return "";
 
-    var hasComma = raw.indexOf(",") !== -1;
-    var parts = raw.split(",");
-    var integerPart = parts.shift().replace(/[^\d]/g, "");
-    var decimalPart = parts.join("").replace(/[^\d]/g, "").slice(0, 2);
+    var commaIndex = raw.indexOf(",");
+    var hasComma = commaIndex !== -1;
+    var integerPart = (hasComma ? raw.slice(0, commaIndex) : raw).replace(/[^\d]/g, "");
+    var decimalPart = hasComma
+      ? raw.slice(commaIndex + 1).replace(/,/g, "").replace(/[^\d]/g, "").slice(0, 2)
+      : "";
 
     if (!integerPart) integerPart = "0";
     integerPart = String(parseInt(integerPart, 10)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");

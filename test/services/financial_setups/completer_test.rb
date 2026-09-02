@@ -48,7 +48,10 @@ class CompleterTest < ActiveSupport::TestCase
     assert result.ok?
     source = @user.money_sources.first
     assert_equal "credit_card", source.kind
-    assert_equal BigDecimal("500000"), source.starting_balance
+    # Card debt is stored negative so usage keeps deducting available credit.
+    assert_equal BigDecimal("-500000"), source.starting_balance
+    assert_equal BigDecimal("500000"), source.used_credit
+    assert_equal BigDecimal("9500000"), source.available_credit
     assert_equal BigDecimal("10000000"), source.credit_account.credit_limit
     assert_equal "1234", source.credit_account.card_last_four
     assert_equal BigDecimal("24.5"), source.credit_account.interest_rate
@@ -61,6 +64,7 @@ class CompleterTest < ActiveSupport::TestCase
         "name" => "Car Loan", "bank" => "Banco", "kind" => "loan",
         "principal_amount" => "100000000",
         "outstanding_balance" => "95000000", "monthly_payment" => "2686800",
+        "installment_count" => "48", "installments_paid" => "12",
         "interest_rate" => "21.27", "interest_rate_type" => "effective_annual"
       }
     ])
@@ -73,6 +77,59 @@ class CompleterTest < ActiveSupport::TestCase
     assert_equal BigDecimal("100000000"), source.credit_account.principal_amount
     assert_equal BigDecimal("95000000"), source.credit_account.outstanding_balance
     assert_equal BigDecimal("2686800"), source.credit_account.installment_amount
+    assert_equal 48, source.credit_account.installment_count
+    assert_equal 12, source.credit_account.installments_paid
+  end
+
+  test "creates a recurring expense for a loan with a monthly payment" do
+    setup = setup_for("loans", choice: "manual")
+    setup.replace_draft_sources("loans", [
+      {
+        "name" => "Car Loan", "bank" => "Banco", "kind" => "loan",
+        "outstanding_balance" => "95000000", "monthly_payment" => "2686800"
+      }
+    ])
+    setup.save!
+
+    assert_difference "RecurringTemplate.count", 1 do
+      assert complete(setup).ok?
+    end
+
+    template = RecurringTemplate.last
+    assert_equal "expense", template.kind
+    assert_equal "monthly", template.frequency
+    assert_equal BigDecimal("2686800"), template.amount
+    assert_equal "wizard", template.source
+    assert_equal @user.money_sources.first.id, template.money_source_id
+  end
+
+  test "creates a recurring expense for an imported credit card with a payment" do
+    setup = setup_for("credit_cards", choice: "import")
+    setup.set_import_state("credit_cards", {
+      "sources" => [
+        { "identifier" => "5194", "name" => "Tarjeta de Crédito", "bank" => "Davibank", "kind" => "credit_card",
+          "balance" => "1078648", "credit_limit" => "20200000", "monthly_payment" => "1008855.0" }
+      ],
+      "duplicates" => { "5194" => { "choice" => "create" } }
+    })
+    setup.save!
+
+    assert_difference "RecurringTemplate.count", 1 do
+      assert complete(setup).ok?
+    end
+    assert_equal BigDecimal("1008855"), RecurringTemplate.last.amount
+  end
+
+  test "does not create a recurring expense without a monthly payment" do
+    setup = setup_for("accounts", choice: "manual")
+    setup.replace_draft_sources("accounts", [
+      { "name" => "Savings", "bank" => "Bancolombia", "balance" => "100" }
+    ])
+    setup.save!
+
+    assert_no_difference "RecurringTemplate.count" do
+      assert complete(setup).ok?
+    end
   end
 
   test "creates a manual loan with its contract number" do
@@ -109,6 +166,27 @@ class CompleterTest < ActiveSupport::TestCase
     setup = setup_for(choice: "skip")
     assert complete(setup).ok?
     assert_equal 0, @user.money_sources.count
+  end
+
+  test "creates sources even when the choice is skip but data was added" do
+    # Regression: the step screen's "Continuar" option kept a skip choice while
+    # the user had already added sources — completion must still create them.
+    setup = setup_for(choice: "skip")
+    setup.replace_draft_sources("accounts", [
+      { "name" => "Savings", "bank" => "Bancolombia", "balance" => "100" }
+    ])
+    setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "8901", "name" => "Davibank", "bank" => "Davibank", "kind" => "account", "balance" => "500" }
+      ],
+      "duplicates" => { "8901" => { "choice" => "create" } }
+    })
+    setup.save!
+
+    result = complete(setup)
+    assert result.ok?
+    assert_equal %w[account account], @user.money_sources.reload.map(&:kind)
+    assert_equal %w[Davibank Savings], @user.money_sources.map(&:name).sort
   end
 
   test "creates imported sources" do

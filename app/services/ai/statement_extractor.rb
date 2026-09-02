@@ -40,6 +40,7 @@ module Ai
 
       sources = sources_raw.filter_map { |entry| normalize_source(entry) }
       sources = apply_labeled_identifiers(sources, text) if text.present?
+      sources = repair_amounts_from_text(sources, text) if text.present?
 
       transactions = []
       raw_transactions = raw["transactions"]
@@ -136,6 +137,10 @@ module Ai
         Identify the institution, account/card/loan type, identifier, balances, credit limits,
         loan balances and payment information.
         Amounts are positive numbers in the smallest published unit shown ("$5.420.000" COP means 5420000).
+        AMOUNT PRECISION — amounts printed like "19.877.599,71" have a decimal part. Return
+        19877599.71 (keeping the decimals). NEVER join the decimal digits into the integer part
+        (1987759971 is WRONG). When in doubt, return the number exactly as the digits before the
+        decimal separator, with the digits after it as decimals.
         kind must be one of: account, credit_card, loan.
 
         REVOLVING LINE OF CREDIT — a "crédito rotativo" / "línea de crédito rotativa" /
@@ -173,6 +178,11 @@ module Ai
             - outstanding_balance = what is still owed: "Saldo capital", "Saldo actual",
               "Saldo pendiente", "Saldo de capital".
             - monthly_payment = "Cuota mensual", "Valor cuota", "Cuota fija", "Cuota mínima".
+            - installment_count = the TOTAL number of installments of the credit:
+              "Número de cuotas", "Total de cuotas", "Cuotas totales", "Plazo en cuotas".
+            - installments_paid = how many installments the client has already paid
+              (which installment the loan is on now): "Cuotas pagadas", "Cuota actual No.",
+              "Cuotas canceladas", "Cuotas pagadas a la fecha".
             - For revolving lines (crédito rotativo): credit_limit = "CUPO ASIGNADO" / "Cupo total",
               outstanding_balance = "Saldo actual" / "Saldo de deuda", and principal_amount is
               the originally disbursed value when printed.
@@ -187,7 +197,7 @@ module Ai
           "credit_limit":null,"outstanding_balance":null,"monthly_payment":null,
           "interest_rate":null,"interest_rate_type":null,"identifier":"5689"},
          {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","principal_amount":8000000,
-          "outstanding_balance":6000000,"monthly_payment":350000}],
+          "outstanding_balance":6000000,"monthly_payment":350000,"installment_count":36}],
          "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
           "type":"expense","category":"restaurants","confidence":0.98}]}
         When a document contains no identifiable financial source, respond with {"sources":[]}.
@@ -222,6 +232,8 @@ module Ai
         outstanding_balance: parse_amount(entry["outstanding_balance"]),
         monthly_payment: parse_amount(entry["monthly_payment"]),
         principal_amount: parse_amount(entry["principal_amount"]),
+        installment_count: normalize_count(entry["installment_count"]),
+        installments_paid: normalize_count(entry["installments_paid"]),
         interest_rate: parse_amount(entry["interest_rate"]),
         interest_rate_type: normalize_rate_type(entry["interest_rate_type"]),
         identifier: identifier
@@ -282,6 +294,11 @@ module Ai
       end
     end
 
+    # Integer counts (e.g. "48 cuotas", "Número de cuotas: 24").
+    def normalize_count(value)
+      value.to_s.scan(/\d/).join.presence&.to_i
+    end
+
     def normalize_type(value)
       type = value.to_s.downcase
       case type
@@ -330,6 +347,30 @@ module Ai
     def apply_labeled_identifiers(sources, text)
       hints = labeled_identifiers(text)
       sources.map { |source| merge_labeled_identifier(source, hints) }
+    end
+
+    MONEY_FIELDS = %i[balance credit_limit outstanding_balance monthly_payment principal_amount].freeze
+
+    # The AI sometimes concatenates a formatted amount's digits into one
+    # integer ("19.877.599,71" -> 1987759971). When an AI amount is a whole
+    # number whose digits match the digits of an amount printed in the
+    # statement, replace it with the value parsed from the text.
+    def repair_amounts_from_text(sources, text)
+      candidates = text.to_s.scan(/\d{1,3}(?:\.\d{3})+(?:,\d+)?/).map do |match|
+        { digits: match.scan(/\d/).join, value: parse_amount_text(match) }
+      end
+      return sources if candidates.empty?
+
+      sources.map do |source|
+        MONEY_FIELDS.each do |field|
+          value = source[field]
+          next unless value.is_a?(Numeric) && value == value.truncate
+
+          match = candidates.find { |candidate| candidate[:digits] == value.to_i.to_s }
+          source[field] = BigDecimal(match[:value].to_s) if match
+        end
+        source
+      end
     end
 
     def labeled_identifiers(text)

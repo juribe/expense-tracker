@@ -30,6 +30,7 @@ class CreditAccount < ApplicationRecord
   validates :principal_amount, :outstanding_balance, :installment_amount,
             numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
   validates :installment_count, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
+  validates :installments_paid, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_blank: true
   validates :payment_frequency, inclusion: { in: PAYMENT_FREQUENCIES }, allow_blank: true
 
   validate :valid_loan_date_range

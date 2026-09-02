@@ -207,6 +207,7 @@ es:
     expenses_count:
       one: "%{count} gasto"
       other: "%{count} gastos"
+    debt_payments: "Pagos de créditos"
     defaults:
       expense:
         - "Comida y restaurantes"
@@ -243,7 +244,7 @@ es:
     back: "Atrás"
     cancel: "Cancelar"
     continue: "Continuar"
-    exit_resume: "Salir y continuar después"
+    exit_resume: "Continuar después"
     dismissed: "Puedes retomar la configuración de tus finanzas cuando quieras desde el panel."
     select:
       invalid: "Selecciona una opción válida."
@@ -295,6 +296,8 @@ es:
       outstanding_balance: "Saldo actual pendiente"
       original_principal: "Monto original recibido"
       monthly_payment: "Cuota mensual"
+      installment_count: "Número de cuotas"
+      installments_paid: "Cuotas pagadas"
     edit_all:
       title: "Edita tus %{kind}"
       hint: "Edita la información de todas las fuentes agregadas, importadas o ingresadas manualmente."
@@ -345,9 +348,55 @@ es:
       back_to_edit: "Volver a editar"
       complete: "Finalizar configuración"
     review_extract:
-      title: "Encontramos %{noun}"
-      hint: "Revisa la información extraída antes de que se agregue a tu cuenta. Puedes conservar, eliminar o editar cada elemento."
-      keep: "Conservar"
+      page_title:
+        account:
+          one: "Revisa tu cuenta"
+          other: "Revisa tus cuentas"
+        credit_card:
+          one: "Revisa tu tarjeta de crédito"
+          other: "Revisa tus tarjetas de crédito"
+        loan:
+          one: "Revisa tu préstamo"
+          other: "Revisa tus préstamos"
+      page_subtitle:
+        account:
+          one: "Encontramos esta cuenta en tu documento. Verifica los datos antes de continuar."
+          other: "Encontramos %{count} cuentas en tu documento. Verifica los datos antes de continuar."
+        credit_card:
+          one: "Encontramos esta tarjeta en tu documento. Verifica los datos antes de continuar."
+          other: "Encontramos %{count} tarjetas en tu documento. Verifica los datos antes de continuar."
+        loan:
+          one: "Encontramos este préstamo en tu documento. Verifica los datos antes de continuar."
+          other: "Encontramos %{count} préstamos en tu documento. Verifica los datos antes de continuar."
+      found_status:
+        account:
+          one: "%{count} cuenta encontrada"
+          other: "%{count} cuentas encontradas"
+        credit_card:
+          one: "%{count} tarjeta encontrada"
+          other: "%{count} tarjetas encontradas"
+        loan:
+          one: "%{count} préstamo encontrado"
+          other: "%{count} préstamos encontrados"
+      missing_prompt:
+        account: "¿Falta alguna cuenta?"
+        credit_card: "¿Falta alguna tarjeta?"
+        loan: "¿Falta algún préstamo?"
+      missing_hint:
+        account: "Importa otro documento para buscar más cuentas."
+        credit_card: "Importa otro documento para buscar más tarjetas."
+        loan: "Importa otro documento para buscar más préstamos."
+      import_document: "Importar documento"
+      delete_source:
+        account: "Eliminar cuenta"
+        credit_card: "Eliminar tarjeta"
+        loan: "Eliminar préstamo"
+      remove_confirm: "¿Seguro que quieres eliminarlo?"
+      review_hint: "Consejo: Revisa que los montos y los números sean correctos. Puedes editar cualquier campo si es necesario."
+      security_title: "Tu información está segura"
+      security_hint: "No compartimos tus datos bancarios."
+      empty_state: "No encontramos nada para revisar. Importa un documento para comenzar."
+      save_only: "Guardar cambios"
       possible_duplicate: "Posible duplicado"
       duplicate_choice: "Cómo manejar el posible duplicado"
       update: "Actualizar existente"
@@ -381,6 +430,8 @@ es:
       text: "Tienes una configuración financiera pendiente. Puedes retomarla donde la dejaste."
       resume: "Retomar configuración"
       dismiss: "Descartar"
+    recurring:
+      payment_description: "Cuota de %{name}"
 
   nav:
     overview: "Resumen"

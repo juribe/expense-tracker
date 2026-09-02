@@ -3,7 +3,12 @@
 
 <div class="card shadow">
   <div class="card-body p-4">
-    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.manual.title", kind: t(@step.label_key).downcase) %></h3>
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <h3 class="fw-bold text-primary mb-0"><%= t("wizard.manual.title", kind: t(@step.label_key).downcase) %></h3>
+      <button type="button" class="btn btn-sm btn-outline-primary" id="addAnotherRow">
+        <i class="bi bi-plus-lg me-1"></i><%= t("wizard.manual.add_another") %>
+      </button>
+    </div>
     <p class="text-muted mb-4"><%= t("wizard.manual.hint") %></p>
 
     <%= form_with url: financial_setup_manual_path, method: :post, local: true, data: { turbo: false } do %>
@@ -15,25 +20,10 @@
         <% end %>
       </div>
 
-      <button type="button" class="btn btn-outline-primary mb-4" id="addAnotherRow">
-        <i class="bi bi-plus-lg me-1"></i><%= t("wizard.manual.add_another") %>
-      </button>
-
        <div class="d-flex justify-content-between">
          <div class="d-flex gap-2">
            <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
              <i class="bi bi-x-lg me-1"></i><%= t("wizard.cancel") %>
-           <% end %>
-           <% prev_index = FinancialSetupWizard.step_keys.index(@step.key) - 1 %>
-           <% if prev_index >= 0 %>
-             <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[prev_index]), class: "btn btn-outline-secondary" do %>
-               <i class="bi bi-arrow-left me-1"></i><%= t("wizard.back") %>
-             <% end %>
-           <% end %>
-           <% unless @step.kind == "cash" %>
-             <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-outline-primary" do %>
-               <i class="bi bi-cloud-upload me-1"></i><%= t("wizard.select.import") %>
-             <% end %>
            <% end %>
          </div>
          <div>
@@ -50,26 +40,29 @@
 </template>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var container = document.getElementById('manualRows');
-  var addBtn = document.getElementById('addAnotherRow');
-  if (!container || !addBtn) return;
-  var idx = container.querySelectorAll('.manual-row').length;
+(function () {
+  if (window.__manualRowsBound) return;
+  window.__manualRowsBound = true;
 
-  addBtn.addEventListener('click', function() {
-    var template = document.getElementById('manualRowTemplate');
-    var html = template.innerHTML.replaceAll('{IDX}', idx);
-    container.insertAdjacentHTML('beforeend', html);
-    idx++;
-    // Bind money formatting (and the available-credit readout) to the new row.
-    if (window.MoneyInputs) MoneyInputs.init();
-  });
+  // Delegated on document so the buttons keep working after Turbo renders.
+  document.addEventListener('click', function (e) {
+    var addBtn = e.target.closest('#addAnotherRow');
+    if (addBtn) {
+      var container = document.getElementById('manualRows');
+      var template = document.getElementById('manualRowTemplate');
+      if (!container || !template) return;
+      var idx = container.querySelectorAll('.manual-row').length;
+      var html = template.innerHTML.replaceAll('{IDX}', idx);
+      container.insertAdjacentHTML('beforeend', html);
+      if (window.MoneyInputs) MoneyInputs.init();
+      return;
+    }
 
-  container.addEventListener('click', function(e) {
-    var btn = e.target.closest('.remove-row');
-    if (btn && container.querySelectorAll('.manual-row').length > 1) {
-      btn.closest('.manual-row').remove();
+    var removeBtn = e.target.closest('.remove-row');
+    if (removeBtn) {
+      var rows = document.querySelectorAll('#manualRows .manual-row');
+      if (rows.length > 1) removeBtn.closest('.manual-row').remove();
     }
   });
-});
+})();
 </script>

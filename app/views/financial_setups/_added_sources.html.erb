@@ -1,0 +1,39 @@
+<%# "Added" summary for a wizard step: deduplicated manual + import rows.
+    Locals: presenter (FinancialSetups::StepPresenter), step_key. %>
+<div class="mt-4">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-1"></i><%= t("wizard.select.added", count: presenter.added_count) %></h6>
+    <% if presenter.has_added? %>
+      <%= link_to financial_setup_edit_all_path(step: step_key), class: "btn btn-sm btn-outline-primary" do %>
+        <i class="bi bi-pencil me-1"></i><%= t("wizard.select.edit") %>
+      <% end %>
+    <% end %>
+  </div>
+  <% if presenter.has_added? %>
+    <ul class="list-group">
+      <% presenter.added_sources.each_with_index do |source, idx| %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <%= source["name"] %>
+            <% last4 = presenter.masked_last_four(source) %>
+            <% if last4.present? %>
+              <span class="badge bg-light text-dark">••••<%= last4 %></span>
+            <% end %>
+          </span>
+          <div class="d-flex align-items-center gap-2">
+            <% amount = presenter.display_amount(source) %>
+            <% if amount.present? %><span class="text-muted"><%= number_to_currency(amount) %></span><% end %>
+            <%= button_to financial_setup_remove_source_path, params: { step: step_key, idx: idx },
+                          method: :post,
+                          class: "btn btn-link text-danger p-0",
+                          data: { turbo: false, confirm: "Remove this account?" } do %>
+              <i class="bi bi-trash"></i>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-muted small mb-0"><%= t("wizard.select.none_added") %></p>
+  <% end %>
+</div>

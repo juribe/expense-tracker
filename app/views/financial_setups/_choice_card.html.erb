@@ -1,0 +1,10 @@
+<%# Selectable wizard choice card.
+    Locals: value (radio value), icon, icon_color, title, hint, col_class. %>
+<div class="col-12 <%= col_class %>">
+  <label class="card choice-card h-100 p-3 text-center" role="radio" aria-checked="false">
+    <input type="radio" name="choice" value="<%= value %>" class="visually-hidden">
+    <i class="bi bi-<%= icon %> display-4 <%= icon_color %> d-block mb-2"></i>
+    <span class="fw-bold d-block"><%= title %></span>
+    <span class="text-muted small d-block"><%= hint %></span>
+  </label>
+</div>

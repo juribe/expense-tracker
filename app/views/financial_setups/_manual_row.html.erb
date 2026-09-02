@@ -91,6 +91,14 @@
           </div>
         </div>
         <div class="col-md-6">
+          <label class="form-label"><%= t("wizard.manual.installment_count") %></label>
+          <input type="text" name="sources[<%= index %>][installment_count]" value="<%= row["installment_count"] %>" class="form-control" inputmode="numeric">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label"><%= t("wizard.manual.installments_paid") %></label>
+          <input type="text" name="sources[<%= index %>][installments_paid]" value="<%= row["installments_paid"] %>" class="form-control" inputmode="numeric">
+        </div>
+        <div class="col-md-6">
           <label class="form-label"><%= t("wizard.manual.interest_rate") %></label>
           <div class="input-group">
             <input type="text" name="sources[<%= index %>][interest_rate]" value="<%= money_field_value(row["interest_rate"]) %>" class="form-control" inputmode="decimal" data-money-input="true">

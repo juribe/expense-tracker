@@ -1,4 +1,5 @@
 <% @step_key = @step.key.to_s %>
+<% presenter = FinancialSetups::StepPresenter.new(setup: @setup, step: @step) %>
 <%= render "stepper", step_key: @step_key %>
 
 <div class="card shadow">
@@ -9,47 +10,10 @@
     <div class="row g-3">
       <%= form_with url: financial_setup_select_path, local: true, method: :post, data: { turbo: false } do %>
         <%= hidden_field_tag :step, @step_key %>
-        <%
-          # When the step already has sources, the third option means
-          # "continue with what's added", not "skip".
-          added_count = @setup.draft_sources(@step_key).size + Array(@setup.import_state(@step_key)["sources"]).size
-          has_added = added_count > 0
-          # Cash lives in your pocket — there is nothing to import.
-          is_cash = @step.kind == "cash"
-        %>
         <div class="row g-3" role="radiogroup" aria-label="<%= t(@step.label_key) %>">
-          <div class="col-12 <%= is_cash ? "col-md-6" : "col-md-4" %>">
-            <label class="card choice-card h-100 p-3 text-center" role="radio" aria-checked="false">
-              <input type="radio" name="choice" value="manual" class="visually-hidden">
-              <i class="bi bi-pencil-square display-4 text-primary d-block mb-2"></i>
-              <span class="fw-bold d-block"><%= t("wizard.select.manual") %></span>
-              <span class="text-muted small d-block"><%= t("wizard.select.manual_hint", kind: t(@step.label_key).downcase) %></span>
-            </label>
-          </div>
-          <% unless is_cash %>
-            <div class="col-12 col-md-4">
-              <label class="card choice-card h-100 p-3 text-center" role="radio" aria-checked="false">
-                <input type="radio" name="choice" value="import" class="visually-hidden">
-                <i class="bi bi-upload display-4 text-primary d-block mb-2"></i>
-                <span class="fw-bold d-block"><%= t("wizard.select.import") %></span>
-                <span class="text-muted small d-block"><%= t("wizard.select.import_hint") %></span>
-              </label>
-            </div>
+          <% wizard_choice_cards(presenter, @step).each do |card| %>
+            <%= render "choice_card", card %>
           <% end %>
-          <div class="col-12 <%= is_cash ? "col-md-6" : "col-md-4" %>">
-            <label class="card choice-card h-100 p-3 text-center" role="radio" aria-checked="false">
-              <input type="radio" name="choice" value="skip" class="visually-hidden">
-              <i class="bi bi-<%= has_added ? "check2-circle text-primary" : "arrow-right-circle text-muted" %> display-4 d-block mb-2"></i>
-              <span class="fw-bold d-block"><%= has_added ? t("wizard.select.continue_title") : t("wizard.select.skip") %></span>
-              <span class="text-muted small d-block">
-                <% if has_added %>
-                  <%= t("wizard.select.continue_hint", count: added_count, kind: t(@step.label_key).downcase) %>
-                <% else %>
-                  <%= t("wizard.select.skip_hint", kind: t(@step.label_key).downcase) %>
-                <% end %>
-              </span>
-            </label>
-          </div>
 
           <div class="col-12 d-flex justify-content-between mt-4">
             <div>
@@ -69,66 +33,7 @@
       <% end %>
 
       <% if @setup.choice_for(@step_key).present? %>
-        <%
-          choice = @setup.choice_for(@step_key)
-          manual_rows = @setup.draft_sources(@step_key)
-          import_rows = Array(@setup.import_state(@step_key)["sources"])
-
-          # Summary list: shows everything added for the step (manual + import).
-          added = (manual_rows + import_rows).uniq do |s|
-            s["identifier"].presence || "#{s["bank"]}-#{s["name"]}"
-          end
-        %>
-        <div class="mt-4">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-1"></i><%= t("wizard.select.added", count: added.size) %></h6>
-            <% if added.any? %>
-              <%= link_to financial_setup_edit_all_path(step: @step_key), class: "btn btn-sm btn-outline-primary" do %>
-                <i class="bi bi-pencil me-1"></i><%= t("wizard.select.edit") %>
-              <% end %>
-            <% end %>
-          </div>
-            <% if added.any? %>
-              <ul class="list-group">
-                <% added.each_with_index do |source, idx| %>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>
-                      <%= source["name"] %>
-                      <%
-                        last4 = source["card_last_four"].presence
-                        last4 ||= source["identifier"].to_s.gsub(/\D/, "")[-4, 4]
-                      %>
-                      <% if last4.present? %>
-                        <span class="badge bg-light text-dark">••••<%= last4 %></span>
-                      <% end %>
-                    </span>
-                    <div class="d-flex align-items-center gap-2">
-                      <%
-                        if source["kind"] == "credit_card"
-                          balance = source["credit_limit"].to_i > 0 ? available_credit_for(source) : nil
-                        elsif source["kind"] == "loan"
-                          # A loan's money is the outstanding balance; "balance"
-                          # may hold extraction junk (e.g. "0.0").
-                          balance = source["outstanding_balance"].presence || source["balance"]
-                        else
-                          balance = source["balance"].presence
-                        end
-                      %>
-                      <% if balance.present? %><span class="text-muted"><%= number_to_currency(balance) %></span><% end %>
-                      <%= button_to financial_setup_remove_source_path, params: { step: @step_key, idx: idx }, 
-                                    method: :post, 
-                                    class: "btn btn-link text-danger p-0", 
-                                    data: { turbo: false, confirm: "Remove this account?" } do %>
-                        <i class="bi bi-trash"></i>
-                      <% end %>
-                    </div>
-                  </li>
-                <% end %>
-              </ul>
-            <% else %>
-            <p class="text-muted small mb-0"><%= t("wizard.select.none_added") %></p>
-          <% end %>
-        </div>
+        <%= render "added_sources", presenter: presenter, step_key: @step_key %>
       <% end %>
     </div>
   </div>

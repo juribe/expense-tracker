@@ -79,6 +79,48 @@ module ApplicationHelper
     [ limit - debt, 0 ].max
   end
 
+  # Option hashes for the wizard's step-screen choice cards (rendered through
+  # the _choice_card partial). Content and layout vary by step kind and by
+  # whether the step already has sources added.
+  def wizard_choice_cards(presenter, step)
+    kind_label = t(step.label_key).downcase
+    col_class = presenter.importable? ? "col-md-4" : "col-md-6"
+
+    cards = [ {
+      value: "manual", icon: "pencil-square", icon_color: "text-primary",
+      title: t("wizard.select.manual"),
+      hint: t("wizard.select.manual_hint", kind: kind_label),
+      col_class: col_class
+    } ]
+
+    if presenter.importable?
+      cards << {
+        value: "import", icon: "upload", icon_color: "text-primary",
+        title: t("wizard.select.import"),
+        hint: t("wizard.select.import_hint"),
+        col_class: "col-md-4"
+      }
+    end
+
+    if presenter.has_added?
+      cards << {
+        value: "skip", icon: "check2-circle", icon_color: "text-primary",
+        title: t("wizard.select.continue_title"),
+        hint: t("wizard.select.continue_hint", count: presenter.added_count, kind: kind_label),
+        col_class: col_class
+      }
+    else
+      cards << {
+        value: "skip", icon: "arrow-right-circle", icon_color: "text-muted",
+        title: t("wizard.select.skip"),
+        hint: t("wizard.select.skip_hint", kind: kind_label),
+        col_class: col_class
+      }
+    end
+
+    cards
+  end
+
   def category_type_label(scope)
     case scope.to_s
     when "expense" then t("types.expense")
