@@ -1,0 +1,32 @@
+<%= render "shared/unfinished_setup_banner", setup: @setup %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+  <h1><i class="bi bi-cash-stack me-2"></i><%= t("money_sources.index.cash_title") %></h1>
+  <div class="d-flex gap-2">
+    <%= link_to new_transfer_path, class: "btn btn-outline-primary" do %>
+      <i class="bi bi-arrow-left-right me-1"></i><%= t("money_sources.index.new_transfer") %>
+    <% end %>
+    <%= link_to new_money_source_path, class: "btn btn-primary" do %>
+      <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new") %>
+    <% end %>
+  </div>
+</div>
+
+<% if @money_sources.any? %>
+  <div class="row g-3 mb-4">
+    <% @money_sources.each do |source| %>
+      <%= render partial: "money_source", locals: { source: source } %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="p-5 text-center">
+      <i class="bi bi-cash-stack display-4 text-muted mb-3 d-block"></i>
+      <h4 class="mb-2"><%= t("money_sources.index.cash_empty_title") %></h4>
+      <p class="text-muted"><%= t("money_sources.index.cash_empty_body") %></p>
+      <%= link_to new_money_source_path, class: "btn btn-primary mt-3" do %>
+        <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new") %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

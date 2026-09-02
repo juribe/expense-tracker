@@ -32,7 +32,7 @@
        <% elsif %w[account credit_card].include?(kind) %>
          <div class="col-md-6">
            <label class="form-label"><%= kind == "credit_card" ? t("wizard.manual.card_last_four") : t("wizard.manual.identifier") %></label>
-           <input type="text" name="sources[<%= index %>][identifier]" value="<%= row["identifier"] %>" maxlength="4" class="form-control" inputmode="numeric">
+           <input type="text" name="sources[<%= index %>][identifier]" value="<%= row["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" class="form-control" inputmode="numeric">
          </div>
         <div class="col-md-6">
           <label class="form-label"><%= kind == "credit_card" ? t("wizard.manual.current_debt") : t("wizard.manual.starting_balance") %></label>
@@ -113,7 +113,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label"><%= t("wizard.manual.contract_number") %></label>
-          <input type="text" name="sources[<%= index %>][identifier]" value="<%= row["identifier"] %>" class="form-control">
+          <input type="text" name="sources[<%= index %>][identifier]" value="<%= row["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" class="form-control" inputmode="numeric">
         </div>
       <% end %>
 

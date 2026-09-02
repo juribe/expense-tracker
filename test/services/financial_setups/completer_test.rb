@@ -132,7 +132,7 @@ class CompleterTest < ActiveSupport::TestCase
     end
   end
 
-  test "creates a manual loan with its contract number" do
+  test "creates a manual loan with only its last-four contract number" do
     setup = setup_for("loans", choice: "manual")
     setup.replace_draft_sources("loans", [
       {
@@ -145,7 +145,7 @@ class CompleterTest < ActiveSupport::TestCase
 
     result = complete(setup)
     assert result.ok?
-    assert_equal "73000123456", @user.money_sources.first.identifier
+    assert_equal "3456", @user.money_sources.first.identifier
   end
 
   test "skips blank manual rows" do

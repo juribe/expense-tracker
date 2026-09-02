@@ -28,7 +28,9 @@
               <li class="list-group-item d-flex justify-content-between">
                 <span><%= source["name"] %></span>
                 <% amount = item[:presenter].display_amount(source) %>
-                <% if amount.present? %><span class="text-muted"><%= number_to_currency(amount) %></span><% end %>
+                <% if amount.present? %>
+                  <span class="text-muted"><span class="small"><%= item[:presenter].display_label(source) %>:</span> <%= number_to_currency(amount) %></span>
+                <% end %>
               </li>
             <% end %>
           </ul>

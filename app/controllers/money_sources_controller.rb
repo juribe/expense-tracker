@@ -6,13 +6,31 @@ class MoneySourcesController < ApplicationController
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
+  FILTERS = {
+    "cash" => %w[cash wallet account debit_card],
+    "credit_cards" => %w[credit_card],
+    "loans" => %w[loan]
+  }.freeze
+
   # GET /money_sources
   def index
-    @money_sources = current_user.money_sources.includes(:parent, :tags, :children).order(:kind, :name)
+    scope = current_user.money_sources.includes(:parent, :tags, :children)
+
+    @filter = params[:type].presence
+    if @filter && FILTERS[@filter]
+      scope = scope.where(kind: FILTERS[@filter])
+    end
+
+    @money_sources = scope.order(:kind, :name)
+    @counts = FILTERS.each_with_object({}) do |(key, kinds), out|
+      out[key] = current_user.money_sources.where(kind: kinds).count
+    end
     @setup = current_user.financial_setups
                          .where(status: %w[in_progress dismissed])
                          .order(updated_at: :desc, id: :desc)
                          .first
+
+    render @filter ? "index_#{@filter}" : :index
   end
 
   # GET /money_sources/1
@@ -70,7 +88,7 @@ class MoneySourcesController < ApplicationController
   end
 
   def money_source_params
-    permitted = [ :name, :kind, :bank, :parent_id, :starting_balance, :active ]
+    permitted = [ :name, :kind, :bank, :parent_id, :starting_balance, :active, :identifier ]
 
     if params.dig(:money_source, :kind).to_s.in?(%w[credit_card loan]) || @money_source&.debt?
       permitted << {

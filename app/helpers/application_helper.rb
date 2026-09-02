@@ -10,6 +10,10 @@ module ApplicationHelper
     controller_name == controller ? "active" : ""
   end
 
+  def money_source_filter_active?(filter)
+    @filter == filter ? "active" : ""
+  end
+
   def field_class(object, method)
     return "" unless object.errors.any?
 
@@ -79,6 +83,67 @@ module ApplicationHelper
     [ limit - debt, 0 ].max
   end
 
+  # Contextual icon + restrained accent for a loan card, inferred from the loan
+  # name so each loan reads visually distinct without a data-model change.
+  LOAN_ACCENTS = {
+    revolving: { icon: "arrow-repeat", accent: "accent-teal" },
+    mortgage: { icon: "house", accent: "accent-purple" },
+    vehicle: { icon: "car", accent: "accent-amber" },
+    education: { icon: "mortarboard", accent: "accent-blue" },
+    personal: { icon: "wallet2", accent: "accent-rose" },
+    business: { icon: "briefcase", accent: "accent-blueviolet" }
+  }.freeze
+
+  def loan_identity(loan)
+    return { icon: "cash-coin", accent: "accent-slate" } unless loan.is_a?(MoneySource)
+
+    name = [ loan.name, loan.bank ].compact.join(" ").downcase
+    key =
+      if name.match?(/rotativo|revolving|sobregiro|credit.?card/)
+        :revolving
+      elsif name.match?(/hipotec|mortgage|vivienda|house/)
+        :mortgage
+      elsif name.match?(/veh[ií]culo|vehicular|auto|car|moto/)
+        :vehicle
+      elsif name.match?(/educaci[oó]n|estudio|student|universit/)
+        :education
+      elsif name.match?(/libre|personal|consumo/)
+        :personal
+      elsif name.match?(/empresa|negocio|pyme|comercial|business/)
+        :business
+      else
+        :revolving
+      end
+    LOAN_ACCENTS.fetch(key)
+  end
+
+  # Best-effort next payment date for a loan card. Prefers a scheduled
+  # recurring template (payment day); otherwise derives a date from the loan's
+  # start date and payment frequency. Returns nil when it cannot be known, so
+  # the view shows "Sin fecha" rather than a fabricated value.
+  def next_payment_date(loan)
+    return nil unless loan.is_a?(MoneySource) && loan.loan?
+
+    if (rt = loan.recurring_templates.active.order(:payment_day).first) && rt.payment_day
+      return next_day_of_month(rt.payment_day)
+    end
+
+    derive_loan_payment_date(loan)
+  end
+
+  # Aggregates used by the loans dashboard summary card.
+  def loan_summary(loans)
+    loans = Array(loans)
+    total_balance = loans.sum { |l| l.outstanding_balance.to_d }
+    active_count = loans.count { |l| l.active? }
+    remaining = loans.sum do |l|
+      value = l.remaining_installments
+      value.is_a?(Numeric) && value.positive? ? value : 0
+    end
+    next_30d = loans.sum { |l| l.active? && l.installment_amount.present? ? l.installment_amount.to_d : 0 }
+    { total_balance: total_balance, active_count: active_count, remaining: remaining, next_30d: next_30d }
+  end
+
   # Option hashes for the wizard's step-screen choice cards (rendered through
   # the _choice_card partial). Content and layout vary by step kind and by
   # whether the step already has sources added.
@@ -144,5 +209,34 @@ module ApplicationHelper
     when "activated" then t("statuses.activated")
     when "deactivated" then t("statuses.deactivated")
     end
+  end
+
+  # --- private helpers for the loans dashboard ---
+
+  def next_day_of_month(day)
+    today = Date.current
+    candidate = Date.new(today.year, today.month, day.to_i)
+    candidate = candidate.next_month if candidate < today
+    candidate
+  rescue ArgumentError, TypeError
+    nil
+  end
+
+  PERIOD_ADVANCE = { "weekly" => 7, "biweekly" => 14, "monthly" => 1.month, "quarterly" => 3.months }.freeze
+
+  def derive_loan_payment_date(loan)
+    return nil if loan.start_date.blank? || loan.payment_frequency.blank?
+
+    period = PERIOD_ADVANCE[loan.payment_frequency]
+    return nil if period.nil?
+
+    paid = loan.credit_account&.installments_paid.to_i
+    current = advance_period(loan.start_date, period, paid)
+    current = current + period if current < Date.current
+    current
+  end
+
+  def advance_period(date, period, count)
+    date + (period * count)
   end
 end

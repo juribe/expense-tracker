@@ -67,18 +67,36 @@ module FinancialSetups
       row["card_last_four"].presence || row["identifier"].to_s.gsub(/\D/, "")[-4, 4]
     end
 
-    # The money figure the step list shows for a row.
-    #   credit_card -> available credit (limit - debt) when a limit exists
-    #   loan        -> outstanding balance ("balance" may hold extraction junk)
+    # The money figure the step list shows for a row. Follows one rule:
+    #   assets -> what the user has available (balance)
+    #   debt   -> what the user currently owes (credit-card balance / loan
+    #             outstanding balance)
+    #   credit_card -> amount owed (the wizard stores this positive "current
+    #             debt" in balance), never available credit
+    #   loan        -> remaining balance owed
     #   others      -> current balance
     def display_amount(row)
       case @step.kind
       when "credit_card"
-        available_credit(row)
+        row["balance"].presence
       when "loan"
-        row["outstanding_balance"].presence || row["balance"]
+        row["outstanding_balance"].presence
       else
         row["balance"].presence
+      end
+    end
+
+    # Short, explicit label describing what the displayed figure means per kind:
+    #   account/cash -> balance ("Saldo") ; credit_card -> current debt
+    #   ("Deuda actual") ; loan -> remaining balance ("Saldo pendiente").
+    def display_label(row)
+      case @step.kind
+      when "credit_card"
+        I18n.t("wizard.manual.current_debt")
+      when "loan"
+        I18n.t("wizard.manual.outstanding_balance")
+      else
+        I18n.t("wizard.manual.current_balance")
       end
     end
 
@@ -87,13 +105,6 @@ module FinancialSetups
     def tagged_rows
       @setup.draft_sources(step_key).map { |row| row.merge("origin" => "manual") } +
         Array(@setup.import_state(step_key)["sources"]).map { |row| row.merge("origin" => "import") }
-    end
-
-    def available_credit(row)
-      limit = row["credit_limit"].to_d
-      return nil if limit <= 0
-
-      [ limit - row["balance"].to_d, 0 ].max
     end
   end
 end

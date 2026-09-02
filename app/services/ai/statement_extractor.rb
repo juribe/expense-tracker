@@ -188,7 +188,8 @@ module Ai
               the originally disbursed value when printed.
 
         LOAN:
-          - identifier = the full loan / credit / contract number as printed. card_last_four = null.
+          - identifier MUST be ONLY the last four digits of the contract / credit / loan
+            number. card_last_four = null. (privacy — the full number is never stored)
           - For a revolving line, prefer the "crédito" / contract number over any card number.
 
         Respond with ONLY JSON of the shape:
@@ -333,15 +334,10 @@ module Ai
         # SECURITY: never keep a full credit-card number. Identifier is last four only.
         [ card_last_four, card_last_four ]
       else
-        identifier = raw_identifier.presence
-        identifier = nil if identifier && pan_like?(identifier)
-        [ identifier, nil ]
+        # SECURITY: never keep a full loan / contract number. Store the last
+        # four digits only, consistent with accounts and credit cards.
+        [ normalize_card(raw_identifier), nil ]
       end
-    end
-
-    def pan_like?(value)
-      digits = value.to_s.gsub(/\s+/, "")
-      digits.length >= 12 && digits.match?(/\A\d+\z/)
     end
 
     def apply_labeled_identifiers(sources, text)
@@ -407,10 +403,11 @@ module Ai
         end
       else
         source[:card_last_four] = nil
-        # Loans keep the full contract number. Fill it in from the labeled
-        # text only when the AI did not provide one.
+        # Loans store only the last four digits of the contract number, matching
+        # accounts and cards. Fill it in from the labeled text only when the AI
+        # did not provide one.
         if source[:kind] == "loan" && source[:identifier].blank? && hints[:loan].present?
-          source[:identifier] = hints[:loan]
+          source[:identifier] = normalize_card(hints[:loan])
         end
       end
       source

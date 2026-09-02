@@ -35,6 +35,7 @@ class MoneySource < ApplicationRecord
   }
 
   before_validation :normalize_kind
+  before_validation :normalize_identifier_to_last_four
 
   def balance
     base = starting_balance.to_d
@@ -139,5 +140,15 @@ class MoneySource < ApplicationRecord
 
   def normalize_kind
     self.kind = kind.to_s.downcase if kind.present?
+  end
+
+  # SECURITY: never store a full account / card / loan number. Only the last
+  # four digits are saved, regardless of what the form, import, or API provides.
+  def normalize_identifier_to_last_four
+    return if identifier.blank?
+    return if kind == "cash" || kind == "wallet"
+
+    digits = identifier.to_s.gsub(/\D/, "")
+    self.identifier = digits.chars.last(4).join if digits.present?
   end
 end

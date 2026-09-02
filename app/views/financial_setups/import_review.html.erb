@@ -142,7 +142,7 @@
              </div>
              <div class="col-12 col-md-4">
                <label class="form-label small text-muted mb-1"><%= t("wizard.manual.contract_number") %></label>
-               <input type="text" class="form-control" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"] %>">
+               <input type="text" class="form-control" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric">
              </div>
             <% else %>
             <div class="col-12 col-md-4">

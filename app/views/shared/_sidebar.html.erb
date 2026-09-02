@@ -58,9 +58,17 @@
         <i class="bi bi-tags"></i>
         <span><%= t("nav.categories") %></span>
       <% end %>
-      <%= link_to money_sources_path, class: "sidebar-link #{active_class('money_sources')}" do %>
-        <i class="bi bi-bank"></i>
-        <span><%= t("nav.money_sources") %></span>
+      <%= link_to money_sources_cash_path, class: "sidebar-link #{money_source_filter_active?('cash')}" do %>
+        <i class="bi bi-cash-stack"></i>
+        <span><%= t("nav.money_sources_cash") %></span>
+      <% end %>
+      <%= link_to money_sources_credit_cards_path, class: "sidebar-link #{money_source_filter_active?('credit_cards')}" do %>
+        <i class="bi bi-credit-card-2-front"></i>
+        <span><%= t("nav.money_sources_credit_cards") %></span>
+      <% end %>
+      <%= link_to money_sources_loans_path, class: "sidebar-link #{money_source_filter_active?('loans')}" do %>
+        <i class="bi bi-cash-coin"></i>
+        <span><%= t("nav.money_sources_loans") %></span>
       <% end %>
       <%= link_to gmail_connection_path, class: "sidebar-link #{active_class('gmail_connections')}" do %>
         <i class="bi bi-envelope-at"></i>

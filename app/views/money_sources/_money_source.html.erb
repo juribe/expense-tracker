@@ -28,21 +28,21 @@
 
       <div class="mt-3">
         <% if source.credit_card? %>
-          <div class="small text-muted mb-1"><%= t("money_sources.index.available_credit") %></div>
+          <div class="small text-muted mb-1"><%= t("money_sources.index.current_debt") %></div>
           <% if source.credit_limit.to_i > 0 %>
-            <div class="fs-5 fw-bold <%= source.available_credit.to_f > source.used_credit ? 'text-success' : 'text-danger' %>">
-              <%= number_to_currency(source.available_credit) %>
+            <div class="fs-5 fw-bold text-danger">
+              <%= number_to_currency(source.used_credit) %>
               <span class="text-muted fw-normal fs-6"><%= t("money_sources.index.credit_of", limit: number_to_currency(source.credit_limit)) %></span>
             </div>
             <div class="progress mt-2" role="progressbar" aria-label="<%= t("money_sources.index.used_credit") %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
               <div class="progress-bar <%= credit_utilization_class(source.credit_utilization) %>" style="width: <%= [ source.credit_utilization, 100 ].min %>%"></div>
             </div>
             <div class="d-flex justify-content-between mt-2 small">
-              <span class="fw-bold text-danger"><%= t("money_sources.index.used_credit") %> <%= number_to_currency(source.used_credit) %></span>
+              <span class="text-muted"><%= t("money_sources.index.available_credit") %> <%= number_to_currency(source.available_credit) %></span>
               <span class="text-muted"><%= source.credit_utilization %>%</span>
             </div>
           <% else %>
-            <div class="fs-5 fw-bold text-danger"><%= t("money_sources.index.current_debt") %> <%= number_to_currency(source.used_credit) %></div>
+            <div class="fs-5 fw-bold text-danger"><%= number_to_currency(source.used_credit) %></div>
           <% end %>
           <div class="small text-muted d-flex flex-wrap gap-2 mt-2">
             <% if source.interest_rate.present? %>

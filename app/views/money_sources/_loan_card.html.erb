@@ -1,0 +1,84 @@
+<%# Loan card for the loans dashboard. Locals: source (MoneySource loan). %>
+<%
+  identity = loan_identity(source)
+  paid_pct = source.loan? ? [ (100 - source.repayment_progress).round(1), 0 ].max : 0
+  next_payment = source.loan? ? next_payment_date(source) : nil
+%>
+<article class="loan-card" data-testid="loan-card">
+  <div class="loan-card-head">
+    <div class="loan-identity">
+      <span class="loan-icon <%= identity[:accent] %>" aria-hidden="true"><i class="bi bi-<%= identity[:icon] %>"></i></span>
+      <div class="min-w-0">
+        <h3 class="loan-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
+        <div class="loan-meta">
+          <span><%= t("money_sources.loans.type") %></span>
+          <% if source.bank.present? %>
+            <span class="ms-2"><i class="bi bi-bank" aria-hidden="true"></i><%= source.bank %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="loan-actions d-print-none" role="group" aria-label="<%= source.name %>">
+      <%= link_to edit_money_source_path(source), class: "btn loan-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
+        <i class="bi bi-pencil" aria-hidden="true"></i>
+      <% end %>
+      <%= button_to money_source_path(source), method: :delete, class: "btn loan-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
+        <i class="bi bi-trash" aria-hidden="true"></i>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="loan-balance">
+    <div class="loan-balance-label"><%= t("money_sources.loans.outstanding_balance") %></div>
+    <div class="loan-balance-amount"><%= number_to_currency(source.outstanding_balance) %></div>
+  </div>
+
+  <% if source.principal_amount.to_i > 0 %>
+    <div class="loan-progress">
+      <div class="loan-progress-head">
+        <span class="loan-progress-label"><%= t("money_sources.loans.progress_label") %></span>
+        <span class="loan-progress-pct"><%= t("money_sources.loans.repaid", pct: paid_pct) %></span>
+      </div>
+      <div class="progress" role="progressbar" aria-label="<%= t("money_sources.loans.repaid", pct: paid_pct) %>" aria-valuenow="<%= paid_pct %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" style="width: <%= [ paid_pct, 100 ].min %>%"></div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="loan-metrics">
+    <div class="loan-meter">
+      <div class="loan-meter-label"><%= t("money_sources.loans.original") %></div>
+      <div class="loan-meter-value"><%= number_to_currency(source.principal_amount) %></div>
+    </div>
+    <div class="loan-meter">
+      <div class="loan-meter-label"><%= t("money_sources.loans.rate") %></div>
+      <div class="loan-meter-value"><%= source.interest_rate_label || "—" %></div>
+    </div>
+    <div class="loan-meter">
+      <div class="loan-meter-label"><%= t("money_sources.loans.remaining_installments") %></div>
+      <div class="loan-meter-value">
+        <% if source.remaining_installments.present? && source.installment_count.present? %>
+          <%= number_with_delimiter(source.remaining_installments) %> <span class="text-muted">de <%= number_with_delimiter(source.installment_count) %></span>
+        <% else %>
+          —
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if source.installment_amount.present? %>
+    <div class="loan-payment">
+      <i class="bi bi-cash-stack" aria-hidden="true"></i>
+      <span class="loan-payment-label"><%= t("money_sources.loans.monthly_payment") %></span>
+      <span class="loan-payment-value"><%= number_to_currency(source.installment_amount) %></span>
+    </div>
+  <% end %>
+
+  <div class="loan-card-foot">
+    <span class="loan-foot-item"><i class="bi bi-calendar-event" aria-hidden="true"></i><span><%= t("money_sources.loans.next_payment") %></span><strong><%= next_payment ? l(next_payment, format: :short) : t("money_sources.loans.no_next_payment") %></strong></span>
+    <% if source.transactions.any? %>
+      <span class="loan-foot-divider" aria-hidden="true"></span>
+      <span class="loan-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.loans.transactions_count", count: source.transactions.count) %></span></span>
+    <% end %>
+  </div>
+</article>

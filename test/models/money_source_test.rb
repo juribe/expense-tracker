@@ -218,4 +218,26 @@ class MoneySourceTest < ActiveSupport::TestCase
     cc.save!
     assert_equal "Bancolombia Visa · Bancolombia · 1234", cc.reload.display_name
   end
+
+  test "account identifier is reduced to last four digits on save" do
+    source = create_source(name: "Savings", kind: "account", identifier: "1234567890")
+    assert_equal "7890", source.reload.identifier
+  end
+
+  test "credit_card identifier is reduced to last four digits on save" do
+    source = create_source(name: "Visa", kind: "credit_card", identifier: "4000000000001234")
+    assert_equal "1234", source.reload.identifier
+  end
+
+  test "loan identifier is reduced to last four digits on save" do
+    source = create_source(name: "Car Loan", kind: "loan", identifier: "987654321098")
+    source.build_credit_account(principal_amount: 100)
+    source.save!
+    assert_equal "1098", source.reload.identifier
+  end
+
+  test "short identifier remains intact" do
+    source = create_source(name: "Savings", kind: "account", identifier: "12")
+    assert_equal "12", source.reload.identifier
+  end
 end

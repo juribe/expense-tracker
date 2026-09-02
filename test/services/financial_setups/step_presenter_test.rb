@@ -80,28 +80,46 @@ module FinancialSetups
       assert_nil presenter.masked_last_four({ "identifier" => "" })
     end
 
-    test "display_amount shows available credit for credit cards with a limit" do
+    test "display_amount shows amount owed (current debt) for credit cards, not available credit" do
       step = FinancialSetupWizard.step(:credit_cards)
       row = { "balance" => "2000000", "credit_limit" => "10000000" }
-      assert_equal BigDecimal("8000000"), presenter(step).display_amount(row)
+      assert_equal "2000000", presenter(step).display_amount(row)
     end
 
-    test "display_amount is nil for credit cards without a limit" do
+    test "display_amount shows the debt even when a credit card has a limit" do
       step = FinancialSetupWizard.step(:credit_cards)
-      assert_nil presenter(step).display_amount({ "balance" => "500", "credit_limit" => "0" })
-      assert_nil presenter(step).display_amount({ "balance" => "500" })
+      row = { "balance" => "2000000", "credit_limit" => "10000000" }
+      refute_equal "8000000", presenter(step).display_amount(row)
+    end
+
+    test "display_amount shows the debt for credit cards without a limit" do
+      step = FinancialSetupWizard.step(:credit_cards)
+      assert_equal "500", presenter(step).display_amount({ "balance" => "500", "credit_limit" => "0" })
+      assert_equal "500", presenter(step).display_amount({ "balance" => "500" })
+      assert_nil presenter(step).display_amount({ "balance" => "", "credit_limit" => "100" })
     end
 
     test "display_amount prefers outstanding balance for loans" do
       step = FinancialSetupWizard.step(:loans)
       row = { "balance" => "0.0", "outstanding_balance" => "67429112" }
       assert_equal "67429112", presenter(step).display_amount(row)
-      assert_equal "100", presenter(step).display_amount({ "balance" => "100" })
+    end
+
+    test "display_amount ignores stale balance extraction junk for loans" do
+      step = FinancialSetupWizard.step(:loans)
+      assert_nil presenter(step).display_amount({ "balance" => "100" })
     end
 
     test "display_amount shows the balance for accounts" do
       assert_equal "608", presenter.display_amount({ "balance" => "608" })
       assert_nil presenter.display_amount({ "balance" => "" })
+    end
+
+    test "display_label names the value per kind" do
+      assert_equal "Deuda actual", presenter(FinancialSetupWizard.step(:credit_cards)).display_label({})
+      assert_equal "Saldo pendiente", presenter(FinancialSetupWizard.step(:loans)).display_label({})
+      assert_equal "Saldo actual", presenter(FinancialSetupWizard.step(:accounts)).display_label({})
+      assert_equal "Saldo actual", presenter(FinancialSetupWizard.step(:cash)).display_label({})
     end
   end
 end

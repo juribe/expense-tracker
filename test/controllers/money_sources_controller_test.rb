@@ -31,6 +31,74 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid]", count: 0
   end
 
+  test "GET /money_sources/cash filters to cash and accounts only" do
+    create_source(name: "Checking", kind: "account")
+    create_source(name: "Cash", kind: "cash")
+    create_source(name: "Visa", kind: "credit_card")
+    get money_sources_cash_path
+    assert_response :success
+    assert_select "h1", text: I18n.t("money_sources.index.cash_title")
+    assert_match(/Checking/, response.body)
+    assert_match(/Cash/, response.body)
+    assert_no_match(/Visa/, response.body)
+  end
+
+  test "GET /money_sources/credit_cards filters to credit cards only" do
+    create_source(name: "Checking", kind: "account")
+    create_source(name: "Visa", kind: "credit_card")
+    create_source(name: "Car Loan", kind: "loan")
+    get money_sources_credit_cards_path
+    assert_response :success
+    assert_select "h1", text: I18n.t("money_sources.index.credit_cards_title")
+    assert_match(/Visa/, response.body)
+    assert_no_match(/Checking/, response.body)
+    assert_no_match(/Car Loan/, response.body)
+  end
+
+  test "GET /money_sources/loans filters to loans only" do
+    create_source(name: "Visa", kind: "credit_card")
+    create_source(name: "Car Loan", kind: "loan")
+    get money_sources_loans_path
+    assert_response :success
+    assert_select "h1", text: I18n.t("money_sources.index.loans_title")
+    assert_match(/Car Loan/, response.body)
+    assert_no_match(/Visa/, response.body)
+  end
+
+  test "GET /money_sources/loans renders cards and a summary with correct totals" do
+    loan = @user.money_sources.create!(name: "Crédito Hipotecario", kind: "loan", starting_balance: 0, active: true, bank: "Davibank")
+    loan.build_credit_account(principal_amount: 170900000, outstanding_balance: 66959723,
+                              installment_amount: 1130642, installment_count: 192, installments_paid: 75,
+                              interest_rate: 18.05, interest_rate_type: "effective_annual",
+                              payment_frequency: "monthly", start_date: "2020-01-15")
+    loan.save!
+
+    get money_sources_loans_path
+    assert_response :success
+
+    assert_select "[data-testid='loan-card']", count: 1
+    assert_select "[data-testid='loans-summary']", count: 1
+    # Remaining balance owed is the primary figure.
+    assert_match(/66\.959\.723/, response.body)
+    # Summary total matches the single card's outstanding balance.
+    assert_match(/66\.959\.723/, response.body)
+    assert_match(/#{I18n.t("money_sources.loans.summary_total")}/, response.body)
+    assert_match(/#{I18n.t("money_sources.loans.repaid", pct: 60.8)}/, response.body)
+  end
+
+  test "GET /money_sources/loans shows the empty state without loans" do
+    get money_sources_loans_path
+    assert_response :success
+    assert_select "[data-testid='loan-card']", count: 0
+    assert_match(/#{I18n.t("money_sources.index.loans_empty_title")}/, response.body)
+  end
+
+  test "GET /money_sources/credit_cards shows empty state" do
+    get money_sources_credit_cards_path
+    assert_response :success
+    assert_select "h1", text: I18n.t("money_sources.index.credit_cards_title")
+  end
+
   test "GET /money_sources shows the resume banner for an in-progress setup" do
     setup = @user.financial_setups.create!(status: "in_progress")
     setup.set_choice("accounts", "skip")

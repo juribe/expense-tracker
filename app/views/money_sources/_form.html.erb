@@ -57,6 +57,18 @@
                   </div>
                 </div>
               </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= f.label :identifier, t("money_sources.form.account_number_last4"), class: "form-label" %>
+                  <%= f.text_field :identifier,
+                      value: @money_source.identifier.to_s.gsub(/\D/, ""),
+                      class: "form-control",
+                      maxlength: 4,
+                      inputmode: "numeric",
+                      placeholder: t("money_sources.form.last_four_hint") %>
+                  <div class="form-text"><%= t("money_sources.form.account_last4_hint") %></div>
+                </div>
+              </div>
             </div>
 
             <div data-kind-panel="debit_card">
@@ -141,6 +153,18 @@
                     <%= f.label :bank, t("money_sources.form.lender"), class: "form-label" %>
                     <%= f.text_field :bank, class: "form-control", placeholder: t("money_sources.form.placeholder_bank") %>
                   </div>
+                  <div class="col-md-6 mb-3">
+                    <%= f.label :identifier, t("money_sources.form.contract_number_last4"), class: "form-label" %>
+                    <%= f.text_field :identifier,
+                        value: @money_source.identifier.to_s.gsub(/\D/, ""),
+                        class: "form-control",
+                        maxlength: 4,
+                        inputmode: "numeric",
+                        placeholder: t("money_sources.form.last_four_hint") %>
+                    <div class="form-text"><%= t("money_sources.form.contract_last4_hint") %></div>
+                  </div>
+                </div>
+                <div class="row">
                   <div class="col-md-6 mb-3">
                     <%= ca_f.label :principal_amount, t("money_sources.form.original_principal"), class: "form-label" %>
                     <div class="input-group">

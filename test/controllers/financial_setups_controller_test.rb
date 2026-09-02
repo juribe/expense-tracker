@@ -391,8 +391,8 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='sources[0][installments_paid]'][value='12']"
     assert_select "input[name='sources[0][interest_rate]'][value='21,27']"
     assert_select "select[name='sources[0][interest_rate_type]']"
-    # Loan identifiers are full contract numbers, not last four.
-    assert_select "input[name='sources[0][identifier]'][value='987654321']"
+    # Loan identifiers are reduced to last four digits for privacy.
+    assert_select "input[name='sources[0][identifier]'][value='4321']"
   end
 
   test "POST import_confirm drops unchecked sources" do

@@ -116,19 +116,19 @@ module Ai
       assert_equal "3210", source[:card_last_four]
     end
 
-    test "fills a missing loan identifier from a labeled contract number" do
+    test "reduces a missing loan identifier from a labeled contract number to last four" do
       raw = { "sources" => [ { "kind" => "loan", "name" => "Crédito Hipotecario", "bank" => "Bancolombia" } ] }
       data = Ai::StatementExtractor.parse(raw, text: "Número de contrato: 73000123456")
       source = data[:sources].first
-      assert_equal "73000123456", source[:identifier]
+      assert_equal "3456", source[:identifier]
       assert_nil source[:card_last_four]
     end
 
-    test "does not override a loan identifier already extracted" do
+    test "reduces an already-extracted loan identifier to last four digits" do
       raw = { "sources" => [ { "kind" => "loan", "name" => "Crédito", "bank" => "Bancolombia",
                                "identifier" => "111222333" } ] }
       data = Ai::StatementExtractor.parse(raw, text: "Número de contrato: 73000123456")
-      assert_equal "111222333", data[:sources].first[:identifier]
+      assert_equal "2333", data[:sources].first[:identifier]
     end
 
     test "raises when no financial sources are extracted" do

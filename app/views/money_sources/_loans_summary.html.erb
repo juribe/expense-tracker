@@ -1,0 +1,25 @@
+<%# Loans dashboard summary card. Locals: loans (array of MoneySource). %>
+<%
+  summary = loan_summary(loans)
+  summaries = [
+    { icon: "wallet2", label: t("money_sources.loans.summary_total"), value: number_to_currency(summary[:total_balance]) },
+    { icon: "cash-coin", label: t("money_sources.loans.summary_active"), value: number_with_delimiter(summary[:active_count]) },
+    { icon: "arrow-repeat", label: t("money_sources.loans.summary_remaining"), value: number_with_delimiter(summary[:remaining]) },
+    { icon: "calendar-event", label: t("money_sources.loans.summary_next_payments"), value: number_to_currency(summary[:next_30d]) }
+  ]
+%>
+<section class="loans-summary" data-testid="loans-summary">
+  <div class="loans-summary-head">
+    <h2><%= t("money_sources.loans.summary_title") %></h2>
+    <p><%= t("money_sources.loans.summary_subtitle") %></p>
+  </div>
+  <div class="loans-summary-metrics">
+    <% summaries.each do |metric| %>
+      <div class="loans-summary-metric">
+        <div class="loans-summary-icon" aria-hidden="true"><i class="bi bi-<%= metric[:icon] %>"></i></div>
+        <div class="loans-summary-label"><%= metric[:label] %></div>
+        <div class="loans-summary-value"><%= metric[:value] %></div>
+      </div>
+    <% end %>
+  </div>
+</section>

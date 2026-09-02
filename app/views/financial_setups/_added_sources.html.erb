@@ -22,7 +22,10 @@
           </span>
           <div class="d-flex align-items-center gap-2">
             <% amount = presenter.display_amount(source) %>
-            <% if amount.present? %><span class="text-muted"><%= number_to_currency(amount) %></span><% end %>
+            <% if amount.present? %>
+              <span class="text-muted small"><%= presenter.display_label(source) %></span>
+              <span class="text-muted"><%= number_to_currency(amount) %></span>
+            <% end %>
             <%= button_to financial_setup_remove_source_path, params: { step: step_key, idx: idx },
                           method: :post,
                           class: "btn btn-link text-danger p-0",
