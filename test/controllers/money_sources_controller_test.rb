@@ -129,7 +129,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
         money_source: { name: "New Account", kind: "account", starting_balance: 500 }
       }
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_cash_path
     follow_redirect!
     assert_equal I18n.t("money_sources.flashes.created"), flash[:notice]
   end
@@ -172,7 +172,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     patch money_source_path(source), params: {
       money_source: { name: "Updated Name" }
     }
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_cash_path
     assert_equal "Updated Name", source.reload.name
   end
 
@@ -204,7 +204,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_difference "MoneySource.count", -1 do
       delete money_source_path(source)
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_cash_path
   end
 
   test "user cannot access other user's money source" do
@@ -229,7 +229,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_credit_cards_path
     source = MoneySource.last
     assert_equal "credit_card", source.kind
     assert_equal "Bancolombia", source.bank
@@ -247,7 +247,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
         }
       }
     }
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_credit_cards_path
     source = MoneySource.last
     assert_equal BigDecimal("1234567.89"), source.starting_balance
     assert_equal BigDecimal("20000000"), source.credit_account.credit_limit
@@ -270,7 +270,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_loans_path
     source = MoneySource.last
     assert_equal "loan", source.kind
     assert_equal BigDecimal("114000000"), source.credit_account.principal_amount
@@ -367,7 +367,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
         }
       }
     }
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_credit_cards_path
     source.reload
     assert_equal BigDecimal("2000000"), source.credit_account.credit_limit
     assert_equal "2222", source.credit_account.card_last_four

@@ -55,7 +55,7 @@ class MoneySourcesController < ApplicationController
 
     if @money_source.errors.empty? && @money_source.save
       persist_tags(@tag_values)
-      redirect_to money_sources_path, notice: t("money_sources.flashes.created")
+      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.created")
     else
       render :new, status: :unprocessable_entity
     end
@@ -69,7 +69,7 @@ class MoneySourcesController < ApplicationController
 
     if @money_source.errors.empty? && @money_source.save
       persist_tags(@tag_values)
-      redirect_to money_sources_path, notice: t("money_sources.flashes.updated")
+      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -78,10 +78,18 @@ class MoneySourcesController < ApplicationController
   # DELETE /money_sources/1
   def destroy
     @money_source.destroy
-    redirect_to money_sources_path, notice: t("money_sources.flashes.deleted")
+    redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
   end
 
   private
+
+  def kind_index_path(source)
+    case source.kind
+    when "credit_card" then money_sources_credit_cards_path
+    when "loan" then money_sources_loans_path
+    else money_sources_cash_path
+    end
+  end
 
   def set_money_source
     @money_source = current_user.money_sources.find(params[:id])
