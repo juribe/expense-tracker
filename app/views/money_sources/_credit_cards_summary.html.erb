@@ -1,0 +1,29 @@
+<%# Credit cards dashboard summary card. Locals: sources (array of MoneySource). %>
+<%
+  sources = Array(sources)
+  total_debt = sources.sum { |s| s.used_credit.to_d }
+  total_limit = sources.sum { |s| s.credit_limit.to_d }
+  total_available = sources.sum { |s| s.available_credit.to_d }
+  avg_utilization = total_limit > 0 ? (total_debt / total_limit * 100).round(1) : 0
+  summaries = [
+    { icon: "credit-card-2-front", label: t("money_sources.credit_cards.summary_total_debt"), value: number_to_currency(total_debt) },
+    { icon: "graph-up-arrow", label: t("money_sources.credit_cards.summary_total_limit"), value: number_to_currency(total_limit) },
+    { icon: "piggy-bank", label: t("money_sources.credit_cards.summary_available"), value: number_to_currency(total_available) },
+    { icon: "speedometer2", label: t("money_sources.credit_cards.summary_utilization"), value: "#{avg_utilization}%" }
+  ]
+%>
+<section class="loans-summary" data-testid="credit-cards-summary">
+  <div class="loans-summary-head">
+    <h2><%= t("money_sources.credit_cards.summary_title") %></h2>
+    <p><%= t("money_sources.credit_cards.summary_subtitle") %></p>
+  </div>
+  <div class="loans-summary-metrics">
+    <% summaries.each do |metric| %>
+      <div class="loans-summary-metric">
+        <div class="loans-summary-icon" aria-hidden="true"><i class="bi bi-<%= metric[:icon] %>"></i></div>
+        <div class="loans-summary-label"><%= metric[:label] %></div>
+        <div class="loans-summary-value"><%= metric[:value] %></div>
+      </div>
+    <% end %>
+  </div>
+</section>

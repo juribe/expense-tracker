@@ -1,0 +1,70 @@
+<%# Account/cash card for the accounts dashboard. Locals: source (MoneySource). %>
+<%
+  icon = source_kind_icon(source.kind)
+  kind_label = source_kind_label(source.kind)
+  balance = source.balance
+  is_debit_linked = source.debit_card? && source.parent
+%>
+<article class="account-card" data-testid="account-card">
+  <div class="account-card-head">
+    <div class="account-identity">
+      <span class="account-icon accent-teal" aria-hidden="true"><i class="bi bi-<%= icon %>"></i></span>
+      <div class="min-w-0">
+        <h3 class="account-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
+        <div class="account-meta">
+          <span><%= kind_label %></span>
+          <% if source.bank.present? %>
+            <span class="ms-2"><i class="bi bi-bank" aria-hidden="true"></i><%= source.bank %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="account-actions d-print-none" role="group" aria-label="<%= source.name %>">
+      <%= link_to edit_money_source_path(source), class: "btn account-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
+        <i class="bi bi-pencil" aria-hidden="true"></i>
+      <% end %>
+      <%= button_to money_source_path(source), method: :delete, class: "btn account-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
+        <i class="bi bi-trash" aria-hidden="true"></i>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="account-balance">
+    <div class="account-balance-label"><%= t("money_sources.accounts.balance") %></div>
+    <div class="account-balance-amount <%= balance >= 0 ? 'text-success' : 'text-danger' %>"><%= number_to_currency(balance) %></div>
+  </div>
+
+  <% if is_debit_linked %>
+    <div class="account-linked">
+      <i class="bi bi-link-45deg" aria-hidden="true"></i>
+      <span><%= t("money_sources.accounts.linked_to", name: source.parent.name) %></span>
+    </div>
+  <% end %>
+
+  <div class="account-metrics">
+    <% if source.tags.any? %>
+      <div class="account-meter">
+        <div class="account-meter-label"><%= t("money_sources.accounts.tags") %></div>
+        <div class="account-meter-value">
+          <% source.tags.each do |tag| %>
+            <span class="badge bg-light text-dark me-1"><%= tag.value %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="account-card-foot">
+    <% if source.transactions.any? %>
+      <span class="account-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.count) %></span></span>
+    <% end %>
+    <% if source.children.any? %>
+      <span class="account-foot-divider" aria-hidden="true"></span>
+      <span class="account-foot-item"><i class="bi bi-credit-card" aria-hidden="true"></i><span><%= t("money_sources.index.linked_cards_count", count: source.children.count) %></span></span>
+    <% end %>
+    <% unless source.active? %>
+      <span class="account-foot-divider" aria-hidden="true"></span>
+      <span class="account-foot-item"><span class="badge bg-secondary"><%= t("common.inactive", default: "Inactiva") %></span></span>
+    <% end %>
+  </div>
+</article>

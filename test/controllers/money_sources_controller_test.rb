@@ -33,26 +33,36 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /money_sources/cash filters to cash and accounts only" do
     create_source(name: "Checking", kind: "account")
-    create_source(name: "Cash", kind: "cash")
+    create_source(name: "Cash", kind: "cash", starting_balance: 500000)
     create_source(name: "Visa", kind: "credit_card")
     get money_sources_cash_path
     assert_response :success
     assert_select "h1", text: I18n.t("money_sources.index.cash_title")
+    assert_select "[data-testid='account-card']", count: 2
+    assert_select "[data-testid='accounts-summary']", count: 1
     assert_match(/Checking/, response.body)
     assert_match(/Cash/, response.body)
     assert_no_match(/Visa/, response.body)
+    assert_match(/500\.000/, response.body)
   end
 
-  test "GET /money_sources/credit_cards filters to credit cards only" do
+  test "GET /money_sources/credit_cards filters to credit cards only and renders summary" do
     create_source(name: "Checking", kind: "account")
-    create_source(name: "Visa", kind: "credit_card")
-    create_source(name: "Car Loan", kind: "loan")
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Bancolombia", starting_balance: -3000000)
+    source.build_credit_account(credit_limit: 20000000, card_brand: "visa", card_last_four: "1234",
+                                interest_rate: 24.5, interest_rate_type: "effective_annual")
+    source.save!
     get money_sources_credit_cards_path
     assert_response :success
     assert_select "h1", text: I18n.t("money_sources.index.credit_cards_title")
+    assert_select "[data-testid='credit-card-card']", count: 1
+    assert_select "[data-testid='credit-cards-summary']", count: 1
     assert_match(/Visa/, response.body)
     assert_no_match(/Checking/, response.body)
-    assert_no_match(/Car Loan/, response.body)
+    # Current debt is the primary figure on the card.
+    assert_match(/\$3\.000\.000/, response.body)
+    # Summary totals: total debt matches the card's current debt.
+    assert_match(/\$3\.000\.000/, response.body)
   end
 
   test "GET /money_sources/loans filters to loans only" do

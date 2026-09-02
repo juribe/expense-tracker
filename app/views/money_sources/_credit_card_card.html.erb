@@ -1,0 +1,82 @@
+<%# Credit card card for the credit cards dashboard. Locals: source (MoneySource credit_card). %>
+<%
+  utilization = source.credit_utilization
+  card_id_parts = [ source.card_brand, source.card_last_four ].compact_blank
+%>
+<article class="credit-card-card" data-testid="credit-card-card">
+  <div class="cc-card-head">
+    <div class="cc-identity">
+      <span class="cc-icon accent-blue" aria-hidden="true"><i class="bi bi-credit-card-2-front"></i></span>
+      <div class="min-w-0">
+        <h3 class="cc-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
+        <div class="cc-meta">
+          <span><%= t("money_sources.credit_cards.type") %></span>
+          <% if source.bank.present? %>
+            <span class="ms-2"><i class="bi bi-bank" aria-hidden="true"></i><%= source.bank %></span>
+          <% end %>
+          <% if card_id_parts.any? %>
+            <span class="ms-2"><%= card_id_parts.join(" · ") %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="cc-actions d-print-none" role="group" aria-label="<%= source.name %>">
+      <%= link_to edit_money_source_path(source), class: "btn cc-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
+        <i class="bi bi-pencil" aria-hidden="true"></i>
+      <% end %>
+      <%= button_to money_source_path(source), method: :delete, class: "btn cc-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
+        <i class="bi bi-trash" aria-hidden="true"></i>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="cc-balance">
+    <div class="cc-balance-label"><%= t("money_sources.credit_cards.current_debt") %></div>
+    <div class="cc-balance-amount"><%= number_to_currency(source.used_credit) %></div>
+  </div>
+
+  <% if source.credit_limit.to_i > 0 %>
+    <div class="cc-progress">
+      <div class="cc-progress-head">
+        <span class="cc-progress-label"><%= t("money_sources.credit_cards.utilization") %></span>
+        <span class="cc-progress-pct"><%= utilization %>%</span>
+      </div>
+      <div class="progress" role="progressbar" aria-label="<%= t("money_sources.credit_cards.utilization") %>" aria-valuenow="<%= utilization %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar <%= credit_utilization_class(utilization) %>" style="width: <%= [ utilization, 100 ].min %>%"></div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="cc-metrics">
+    <div class="cc-meter">
+      <div class="cc-meter-label"><%= t("money_sources.credit_cards.credit_limit") %></div>
+      <div class="cc-meter-value"><%= source.credit_limit.present? ? number_to_currency(source.credit_limit) : "—" %></div>
+    </div>
+    <div class="cc-meter">
+      <div class="cc-meter-label"><%= t("money_sources.credit_cards.available") %></div>
+      <div class="cc-meter-value"><%= source.available_credit.present? ? number_to_currency(source.available_credit) : "—" %></div>
+    </div>
+    <div class="cc-meter">
+      <div class="cc-meter-label"><%= t("money_sources.credit_cards.rate") %></div>
+      <div class="cc-meter-value"><%= source.interest_rate_label || "—" %></div>
+    </div>
+  </div>
+
+  <div class="cc-card-foot">
+    <% if source.statement_day.present? %>
+      <span class="cc-foot-item"><i class="bi bi-calendar-event" aria-hidden="true"></i><span><%= t("money_sources.credit_cards.statement_day") %></span><strong><%= source.statement_day %></strong></span>
+    <% end %>
+    <% if source.payment_due_day.present? %>
+      <% if source.statement_day.present? %>
+        <span class="cc-foot-divider" aria-hidden="true"></span>
+      <% end %>
+      <span class="cc-foot-item"><i class="bi bi-calendar-check" aria-hidden="true"></i><span><%= t("money_sources.credit_cards.payment_due_day") %></span><strong><%= source.payment_due_day %></strong></span>
+    <% end %>
+    <% if source.transactions.any? %>
+      <% if source.statement_day.present? || source.payment_due_day.present? %>
+        <span class="cc-foot-divider" aria-hidden="true"></span>
+      <% end %>
+      <span class="cc-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.count) %></span></span>
+    <% end %>
+  </div>
+</article>

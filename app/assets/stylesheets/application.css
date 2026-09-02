@@ -477,6 +477,87 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 575.98px) { .loans-summary { padding: 1.5rem 1.25rem; } .loans-summary-metrics { grid-template-columns: 1fr; } .loans-summary-metric + .loans-summary-metric { border-left: 0; border-top: 1px solid var(--loan-card-border); padding-top: 1.25rem; } }
 
 /* -------------------------------------------------
+ * Account Card (Accounts / Cash Dashboard)
+ * ------------------------------------------------- */
+.account-card {
+  background: var(--loan-card-bg);
+  border: 1px solid var(--loan-card-border);
+  border-radius: 1rem;
+  box-shadow: var(--loan-card-shadow);
+  padding: 1.5rem 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.account-card:hover { box-shadow: var(--loan-card-hover); transform: translateY(-2px); }
+.account-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; }
+.account-identity { display: flex; align-items: center; gap: .75rem; min-width: 0; flex: 1; }
+.account-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: .75rem; font-size: 1.1rem; color: var(--loan-accent); background: var(--loan-accent-soft); flex-shrink: 0; }
+.account-name { font-size: 1rem; font-weight: 700; color: var(--loan-strong); margin: 0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.account-meta { font-size: .75rem; color: var(--loan-muted); margin-top: .1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .5rem; }
+.account-actions { display: flex; gap: .35rem; flex-shrink: 0; align-self: flex-start; }
+.account-action-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; font-size: .8rem; padding: 0; background: transparent; border: 1px solid var(--loan-card-border); color: var(--loan-muted); transition: all .15s ease; }
+.account-action-btn.btn-edit:hover { background: var(--loan-accent-soft); color: var(--loan-accent); border-color: var(--loan-accent); }
+.account-action-btn.btn-delete:hover { background: #fde8ea; color: #dc3545; border-color: #dc3545; }
+.account-balance { display: flex; flex-direction: column; gap: .15rem; }
+.account-balance-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); }
+.account-balance-amount { font-size: 1.65rem; font-weight: 800; color: var(--loan-strong); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.account-linked { display: flex; align-items: center; gap: .35rem; font-size: .8125rem; color: var(--loan-muted); }
+.account-metrics { display: flex; flex-direction: column; gap: .35rem; }
+.account-meter { display: flex; justify-content: space-between; align-items: center; font-size: .8125rem; }
+.account-meter-label { color: var(--loan-muted); }
+.account-meter-value { font-weight: 600; color: var(--loan-strong); }
+.account-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .65rem; padding-top: .85rem; border-top: 1px solid var(--loan-card-border); font-size: .75rem; color: var(--loan-muted); }
+.account-foot-item { display: inline-flex; align-items: center; gap: .25rem; }
+.account-foot-item i { font-size: .8rem; }
+.account-foot-divider { width: 3px; height: 3px; border-radius: 50%; background: var(--loan-card-border); }
+
+/* -------------------------------------------------
+ * Credit Card Card (Credit Cards Dashboard)
+ * ------------------------------------------------- */
+.credit-card-card {
+  background: var(--loan-card-bg);
+  border: 1px solid var(--loan-card-border);
+  border-radius: 1rem;
+  box-shadow: var(--loan-card-shadow);
+  padding: 1.5rem 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.credit-card-card:hover { box-shadow: var(--loan-card-hover); transform: translateY(-2px); }
+.cc-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .75rem; }
+.cc-identity { display: flex; align-items: center; gap: .75rem; min-width: 0; flex: 1; }
+.cc-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: .75rem; font-size: 1.1rem; color: var(--loan-accent); background: var(--loan-accent-soft); flex-shrink: 0; }
+.cc-icon.accent-blue { --loan-accent: #5D87FF; --loan-accent-rgb: 93, 135, 255; }
+.cc-name { font-size: 1rem; font-weight: 700; color: var(--loan-strong); margin: 0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-meta { font-size: .75rem; color: var(--loan-muted); margin-top: .1rem; display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .5rem; }
+.cc-actions { display: flex; gap: .35rem; flex-shrink: 0; align-self: flex-start; }
+.cc-action-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; font-size: .8rem; padding: 0; background: transparent; border: 1px solid var(--loan-card-border); color: var(--loan-muted); transition: all .15s ease; }
+.cc-action-btn.btn-edit:hover { background: var(--loan-accent-soft); color: var(--loan-accent); border-color: var(--loan-accent); }
+.cc-action-btn.btn-delete:hover { background: #fde8ea; color: #dc3545; border-color: #dc3545; }
+.cc-balance { display: flex; flex-direction: column; gap: .15rem; }
+.cc-balance-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); }
+.cc-balance-amount { font-size: 1.65rem; font-weight: 800; color: var(--loan-strong); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.cc-progress { display: flex; flex-direction: column; gap: .4rem; }
+.cc-progress-head { display: flex; justify-content: space-between; align-items: center; font-size: .75rem; }
+.cc-progress-label { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); }
+.cc-progress-pct { font-weight: 700; color: var(--loan-strong); }
+.cc-progress .progress { height: 6px; border-radius: 999px; background: var(--loan-track); overflow: hidden; }
+.cc-progress .progress-bar { border-radius: 999px; }
+.cc-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.cc-meter { display: flex; flex-direction: column; gap: .15rem; }
+.cc-meter-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); }
+.cc-meter-value { font-size: .95rem; font-weight: 700; color: var(--loan-strong); font-variant-numeric: tabular-nums; }
+.cc-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .65rem; padding-top: .85rem; border-top: 1px solid var(--loan-card-border); font-size: .75rem; color: var(--loan-muted); }
+.cc-foot-item { display: inline-flex; align-items: center; gap: .25rem; }
+.cc-foot-item i { font-size: .8rem; }
+.cc-foot-divider { width: 3px; height: 3px; border-radius: 50%; background: var(--loan-card-border); }
+@media (max-width: 575.98px) { .cc-metrics { grid-template-columns: 1fr; } }
+
+/* -------------------------------------------------
  * Choice Cards (Wizard Selection)
  * ------------------------------------------------- */
 .choice-card {
