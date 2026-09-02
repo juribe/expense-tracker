@@ -225,6 +225,7 @@ en:
     money_sources_cash: "Cash & Accounts"
     money_sources_credit_cards: "Credit Cards"
     money_sources_loans: "Loans"
+    source_recognition: "Source Recognition"
 
   money_sources:
     index:
@@ -294,7 +295,7 @@ en:
       subtitle: "Manage your accounts, cash and debit cards."
       balance: "Available balance"
       linked_to: "Linked to %{name}"
-      tags: "Tags"
+      recognition: "Recognition"
       summary_title: "Accounts summary"
       summary_subtitle: "Total available balance"
       summary_total: "Total available balance"
@@ -358,6 +359,19 @@ en:
         one: "%{count} pattern"
         other: "%{count} patterns"
       save_changes: "Save changes"
+      unsaved_changes: "You have unsaved changes. Close without saving?"
+      saved: "Recognition configuration saved."
+      deleted: "Recognition configuration removed."
+      suggestions_title: "Suggested configuration"
+      suggestions_desc: "You already have another source from the same institution configured. You can reuse its senders and headers."
+      add_suggestions: "Add suggestions"
+      dismiss_suggestions: "Dismiss suggestions"
+      suggested_from_name: "Suggested from the source name"
+      suggested_from_institution: "Suggested from the institution"
+      suggested_from_last_four: "Suggested from the last 4 digits"
+      suggested_from_source: "Suggested from %{source}"
+      last_four_hint: "This source has no last 4 digits saved. Adding them improves recognition in emails."
+      last_four_cta: "Add last 4 digits"
       gmail_blocked: "Before connecting Gmail, configure how to identify your money sources in the emails."
     form:
       last_four_hint: "Never store the full card number, CVV or PIN."

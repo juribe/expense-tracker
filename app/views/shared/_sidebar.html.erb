@@ -76,6 +76,10 @@
         <i class="bi bi-envelope-at"></i>
         <span><%= t("nav.gmail") %></span>
       <% end %>
+      <%= link_to money_sources_recognition_path, class: "sidebar-link #{'active' if controller_name == 'money_sources' && action_name == 'recognition'}" do %>
+        <i class="bi bi-envelope-paper-heart"></i>
+        <span><%= t("nav.source_recognition") %></span>
+      <% end %>
     </div>
   </nav>
 

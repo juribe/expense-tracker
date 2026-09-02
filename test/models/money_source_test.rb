@@ -240,4 +240,29 @@ class MoneySourceTest < ActiveSupport::TestCase
     source = create_source(name: "Savings", kind: "account", identifier: "12")
     assert_equal "12", source.reload.identifier
   end
+
+  test "last_four returns the stored identifier digits" do
+    source = create_source(name: "Savings", kind: "account", identifier: "5678")
+    assert_equal "5678", source.last_four
+  end
+
+  test "last_four uses only the ending digits, never a random slice" do
+    source = create_source(name: "Savings", kind: "account", identifier: "9999")
+    # Bypass the normalization callback to simulate a legacy over-long value.
+    source.update_columns(identifier: "12345678")
+    assert_equal "5678", source.last_four
+  end
+
+  test "last_four is nil with fewer than four digits" do
+    source = create_source(name: "Savings", kind: "account", identifier: "12")
+    assert_nil source.last_four
+    assert_nil create_source(name: "Cash", kind: "cash").last_four
+  end
+
+  test "last_four falls back to the credit card last four" do
+    source = create_source(name: "Visa", kind: "credit_card")
+    source.build_credit_account(credit_limit: 1000000, card_last_four: "4321")
+    source.save!
+    assert_equal "4321", source.last_four
+  end
 end

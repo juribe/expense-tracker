@@ -86,7 +86,8 @@ class ExpenseParser
     @user = user
     @today = today
     @categories = Category.for_user(user).order(:name).to_a
-    @money_sources = MoneySource.active.where(user: user).to_a
+    @money_sources = MoneySource.active.where(user: user)
+                                .includes(recognition: :recognition_identifiers).to_a
     @notes = []
   end
 
@@ -434,7 +435,7 @@ class ExpenseParser
   end
 
   # Finds the user's active MoneySource that best matches the message by name,
-  # bank or tag. Returns nil when nothing clearly matches.
+  # bank or recognition keyword. Returns nil when nothing clearly matches.
   def detect_money_source(text)
     return nil if text.blank?
 
@@ -449,7 +450,7 @@ class ExpenseParser
 
   def source_matches?(source, clean)
     values = [ source.name, source.bank ]
-    values.concat(source.tags.map(&:value))
+    values.concat(source.recognition_identifiers.select(&:keyword?).map(&:value))
     values.compact.map { |value| normalize_text(value) }.any? do |value|
       next false if value.blank?
 

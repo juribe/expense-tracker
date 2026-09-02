@@ -23,7 +23,7 @@ class StatementDuplicateDetector
   def by_identifier(statement)
     return nil if statement.identifier.blank?
 
-    target = MoneySourceTag.normalize(statement.identifier)
+    target = statement.identifier.to_s.strip.downcase
     @user.money_sources.find_by("lower(trim(identifier)) = ?", target)
   end
 

@@ -236,27 +236,13 @@
             </div>
 
             <hr>
-            <h6 class="mb-3"><%= t("money_sources.form.tags_title") %></h6>
-            <div id="tags">
-              <% blank_tag = Struct.new(:value).new("") %>
-              <% tag_list = @tag_values || @money_source.tags %>
-              <% (tag_list.presence || [ blank_tag ]).each_with_index do |tag, idx| %>
-                <div class="row mb-2 tag-row">
-                  <div class="col-md-7">
-                    <input type="text" name="tags[<%= idx %>][value]" class="form-control form-control-sm"
-                           placeholder="<%= t("money_sources.form.placeholder_tag_value") %>" value="<%= tag.respond_to?(:value) ? tag.value : tag %>">
-                  </div>
-                  <div class="col-md-1">
-                    <button type="button" class="btn btn-sm btn-outline-danger remove-tag" title="<%= t("money_sources.form.remove_tag") %>">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
-                  </div>
-                </div>
+            <div class="mb-3">
+              <h6 class="mb-1"><%= t("money_sources.form.recognition_title") %></h6>
+              <p class="text-muted small mb-2"><%= t("money_sources.form.recognition_hint") %></p>
+              <%= link_to money_sources_recognition_path, class: "btn btn-sm btn-outline-secondary" do %>
+                <i class="bi bi-envelope-paper-heart me-1"></i><%= t("money_sources.form.recognition_link") %>
               <% end %>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="addTag">
-              <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.form.add_tag") %>
-            </button>
 
             <div class="d-grid mt-3">
               <%= f.submit class: "btn btn-primary" %>
@@ -288,33 +274,6 @@
   if (kindSelect) {
     applyKind(kindSelect.value);
     kindSelect.addEventListener('change', function() { applyKind(kindSelect.value); });
-  }
-
-  var idx = document.querySelectorAll('.tag-row').length;
-  var addTag = document.getElementById('addTag');
-  if (addTag) {
-    addTag.addEventListener('click', function() {
-      var container = document.getElementById('tags');
-      var row = document.createElement('div');
-      row.className = 'row mb-2 tag-row';
-      row.innerHTML =
-        '<div class="col-md-7">' +
-        '<input type="text" name="tags[' + idx + '][value]" class="form-control form-control-sm" placeholder="<%= t("money_sources.form.placeholder_tag_value") %>">' +
-        '</div>' +
-        '<div class="col-md-1">' +
-        '<button type="button" class="btn btn-sm btn-outline-danger remove-tag" title="<%= t("money_sources.form.remove_tag") %>"><i class="bi bi-x-lg"></i></button>' +
-        '</div>';
-      container.appendChild(row);
-      idx++;
-    });
-  }
-
-  var tagsContainer = document.getElementById('tags');
-  if (tagsContainer) {
-    tagsContainer.addEventListener('click', function(e) {
-      var btn = e.target.closest('.remove-tag');
-      if (btn) btn.closest('.tag-row').remove();
-    });
   }
 })();
 </script>

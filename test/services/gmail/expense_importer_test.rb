@@ -79,8 +79,7 @@ module Gmail
     end
 
     test "assigns the money source when exactly one source matches" do
-      source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-      source.tags.create!(value: "1234")
+      source = @user.money_sources.create!(name: "Visa", kind: "credit_card", identifier: "1234")
 
       result = importer.call(@message)
 
@@ -89,9 +88,13 @@ module Gmail
     end
 
     test "does not auto-assign a money source when the match is ambiguous" do
-      @user.money_sources.create!(name: "Source A", kind: "credit_card").tags.create!(value: "1234")
-      @user.money_sources.create!(name: "Source B", kind: "credit_card").tags.create!(value: "1234")
+      clasica = @user.money_sources.create!(name: "Source A", kind: "credit_card", identifier: "1111")
+      clasica.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+      oro = @user.money_sources.create!(name: "Source B", kind: "credit_card", identifier: "2222")
+      oro.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
 
+      # The extracted last four ("1234") matches neither source, so the
+      # ambiguous recognition match stays unresolved.
       result = importer.call(@message)
 
       assert_equal :processed, result.status
@@ -202,6 +205,62 @@ module Gmail
       assert_equal :failed, result.status
       assert_equal 0, Expense.count
       assert_match(/amount/i, ProcessedEmail.find_by(message_id: "msg-100").failure_reason)
+    end
+
+    # --- source recognition -------------------------------------------------
+
+    def recognized_message
+      @message.merge(
+        from: "Davibank <notificaciones@davibank.com>",
+        headers: [ { "name" => "From", "value" => "Davibank <notificaciones@davibank.com>" } ]
+      )
+    end
+
+    test "assigns the source via recognition when the email matches its configuration" do
+      source = @user.money_sources.create!(name: "Davibank Clásica", kind: "credit_card", identifier: "5678")
+      source.ensure_recognition.replace_identifiers(sender: [ "notificaciones@davibank.com" ])
+
+      result = importer.call(recognized_message)
+
+      assert_equal :processed, result.status
+      assert_equal source, Expense.find(result.expense_ids.first).money_source
+    end
+
+    test "recognition takes precedence over legacy attribute matching" do
+      recognized = @user.money_sources.create!(name: "Davibank Clásica", kind: "credit_card", identifier: "5678")
+      recognized.ensure_recognition.replace_identifiers(sender: [ "notificaciones@davibank.com" ])
+      @user.money_sources.create!(name: "Tagged Source", kind: "credit_card", identifier: "1234")
+
+      result = importer.call(recognized_message)
+
+      assert_equal :processed, result.status
+      assert_equal recognized, Expense.find(result.expense_ids.first).money_source
+    end
+
+    test "AI-extracted card last four disambiguates an ambiguous recognition match" do
+      clasica = @user.money_sources.create!(name: "Davibank Clásica", kind: "credit_card", identifier: "1111")
+      clasica.ensure_recognition.replace_identifiers(domain: [ "davibank.com" ])
+      oro = @user.money_sources.create!(name: "Davibank Oro", kind: "credit_card", identifier: "2222")
+      oro.ensure_recognition.replace_identifiers(domain: [ "davibank.com" ])
+
+      extractor = FakeExtractor.new({ ok?: true, data: { transactions: [ transaction(card_last_four: "2222") ], should_ignore: false, reason: nil }, error: nil })
+      result = importer(extractor: extractor).call(recognized_message)
+
+      assert_equal :processed, result.status
+      assert_equal oro, Expense.find(result.expense_ids.first).money_source
+    end
+
+    test "ambiguous recognition without disambiguating digits leaves the expense unassigned" do
+      clasica = @user.money_sources.create!(name: "Davibank Clásica", kind: "credit_card", identifier: "1111")
+      clasica.ensure_recognition.replace_identifiers(domain: [ "davibank.com" ])
+      oro = @user.money_sources.create!(name: "Davibank Oro", kind: "credit_card", identifier: "2222")
+      oro.ensure_recognition.replace_identifiers(domain: [ "davibank.com" ])
+
+      extractor = FakeExtractor.new({ ok?: true, data: { transactions: [ transaction(card_last_four: nil) ], should_ignore: false, reason: nil }, error: nil })
+      result = importer(extractor: extractor).call(recognized_message)
+
+      assert_equal :processed, result.status
+      assert_nil Expense.find(result.expense_ids.first).money_source
     end
   end
 end

@@ -22,7 +22,7 @@ module Gmail
     end
 
     # `message` is the normalized hash produced by Gmail::Client#get_message:
-    #   { id:, subject:, body_text:, internal_date:, snippet: }
+    #   { id:, from:, subject:, body_text:, internal_date:, snippet:, headers: }
     def call(message)
       @message_id = message[:id].to_s
       return skipped("already processed") if already_processed?
@@ -31,6 +31,11 @@ module Gmail
       unless detection.transactional?
         return record!(:ignored, reason: detection.reason)
       end
+
+      # Email-level source recognition (senders/domains/subjects/keywords).
+      # Runs once per message; per-transaction matching may still disambiguate
+      # using the AI-extracted card digits.
+      @recognition = SourceRecognition::Matcher.call(user: @connection.user, message: message)
 
       process_extraction(message)
     end
@@ -84,14 +89,10 @@ module Gmail
             next
           end
 
-          matched = MoneySources::Match.call(
-            user: @connection.user,
-            card_last_four: transaction[:card_last_four],
-            bank: transaction[:bank]
-          )
-          # Match returns an array when several sources share the tag. Do not
-          # auto-assign: leave the expense without a source for manual review.
-          money_source = matched if matched.is_a?(MoneySource)
+        matched = resolve_money_source(transaction)
+        # Match returns an array when several sources share the tag. Do not
+        # auto-assign: leave the expense without a source for manual review.
+        money_source = matched if matched.is_a?(MoneySource)
 
           expense_ids << Expenses::Create.call(
             user: @connection.user,
@@ -110,6 +111,31 @@ module Gmail
       record!(:processed, expense_ids: expense_ids, reason: reason)
     rescue Expenses::Create::Invalid, ActiveRecord::RecordInvalid => e
       record!(:failed, reason: e.message)
+    end
+
+    # Source resolution precedence for a transaction:
+    #   1. Email-level recognition with a single winner -> that source.
+    #   2. Recognition ambiguous (several candidates of the same bank) ->
+    #      the AI-extracted card last-four disambiguates when exactly one
+    #      candidate's last_four matches.
+    #   3. Legacy tag matching (MoneySources::Match) — sources without
+    #      recognition config keep working through their tags.
+    #   Returns a MoneySource or nil (nil/array => no auto-assignment).
+    def resolve_money_source(transaction)
+      return @recognition if @recognition.is_a?(MoneySource)
+
+      if @recognition.is_a?(Array) && transaction[:card_last_four].present?
+        target = transaction[:card_last_four].to_s.scan(/\d/).join[-4..]
+        disambiguated = @recognition.select { |source| source.last_four == target }
+        return disambiguated.first if disambiguated.one?
+      end
+
+      matched = MoneySources::Match.call(
+        user: @connection.user,
+        card_last_four: transaction[:card_last_four],
+        bank: transaction[:bank]
+      )
+      matched if matched.is_a?(MoneySource)
     end
 
     def record!(status, expense_ids: [], reason: nil, payload: nil)

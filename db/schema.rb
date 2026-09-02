@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_02_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_03_222300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -109,14 +109,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_02_000000) do
     t.index ["user_id"], name: "index_incomes_on_user_id"
   end
 
-  create_table "money_source_tags", force: :cascade do |t|
-    t.bigint "money_source_id", null: false
+  create_table "money_source_recognition_identifiers", force: :cascade do |t|
+    t.bigint "money_source_recognition_id", null: false
+    t.string "kind", null: false
     t.string "value", null: false
+    t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["money_source_id", "value"], name: "index_money_source_tags_on_money_source_id_and_value", unique: true
-    t.index ["money_source_id"], name: "index_money_source_tags_on_money_source_id"
-    t.index ["value"], name: "index_money_source_tags_on_value"
+    t.index ["money_source_recognition_id", "kind", "position"], name: "index_mrs_identifiers_on_recognition_kind_position"
+    t.index ["money_source_recognition_id", "kind", "value"], name: "index_mrs_identifiers_on_recognition_kind_value", unique: true
+    t.index ["money_source_recognition_id"], name: "idx_on_money_source_recognition_id_39b1679ecd"
+  end
+
+  create_table "money_source_recognitions", force: :cascade do |t|
+    t.bigint "money_source_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_source_id"], name: "index_money_source_recognitions_on_money_source_id", unique: true
   end
 
   create_table "money_sources", force: :cascade do |t|
@@ -354,7 +363,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_02_000000) do
   add_foreign_key "gmail_connections", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
-  add_foreign_key "money_source_tags", "money_sources"
+  add_foreign_key "money_source_recognition_identifiers", "money_source_recognitions"
+  add_foreign_key "money_source_recognitions", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
   add_foreign_key "money_sources", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id"

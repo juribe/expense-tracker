@@ -83,6 +83,14 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/#{I18n.t("nav.money_sources_cash")}/, response.body)
   end
 
+  test "sidebar shows the source recognition link under settings" do
+    get money_sources_cash_path
+    assert_response :success
+    assert_select "aside.sidebar a[href='#{money_sources_recognition_path}']" do
+      assert_select "span", text: I18n.t("nav.source_recognition")
+    end
+  end
+
   test "renders each wizard step" do
     FinancialSetupWizard.step_keys.each do |step_key|
       get financial_setup_step_path(step: step_key)

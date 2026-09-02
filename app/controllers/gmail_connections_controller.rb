@@ -26,6 +26,11 @@ class GmailConnectionsController < ApplicationController
                          alert: t("gmail.oauth_missing")
     end
 
+    unless current_user.money_sources.any?(&:recognition_configured?)
+      return redirect_to money_sources_recognition_path,
+                         alert: t("money_sources.recognition.gmail_blocked")
+    end
+
     state = SecureRandom.hex(16)
     session[:gmail_oauth_state] = state
 

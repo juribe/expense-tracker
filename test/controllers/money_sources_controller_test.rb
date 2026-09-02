@@ -127,15 +127,102 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='unfinished-setup-banner']", count: 0
   end
 
-  test "GET /money_sources/recognition renders the prototype with fake data" do
+  test "GET /money_sources/recognition lists sources with unconfigured status and no edit panel" do
+    create_source(name: "Mi Cuenta", kind: "account")
     get money_sources_recognition_path
     assert_response :success
     assert_select "h1", text: I18n.t("money_sources.recognition.title")
-    assert_select "[data-testid='recognition-row']", count: 5
+    assert_select "[data-testid='recognition-row']", count: 1
+    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_unconfigured')}/
+    assert_select "[data-testid='recognition-edit-panel']", count: 0
+  end
+
+  test "GET /money_sources/recognition shows configured status and delete action" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_configured')}/
+    assert_select "[data-testid='recognition-row'] form[action='#{money_source_recognition_destroy_path(source.id)}']"
+    expected_confirm = "#{I18n.t('money_sources.recognition.delete_confirm_title')} #{I18n.t('money_sources.recognition.delete_confirm_body')}"
+    assert_select "[data-testid='recognition-row'] form[data-turbo-confirm='#{expected_confirm}']"
+  end
+
+  test "GET /money_sources/recognition?edit opens the edit drawer with chips and suggestions" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"], sender: ["no-reply@davibank.com"])
+    get money_sources_recognition_path(edit: source.id)
+    assert_response :success
     assert_select "[data-testid='recognition-edit-panel']", count: 1
-    assert_select "[data-testid='recognition-chip']", count: 7
-    assert_match(/Davibank Clásica/, response.body)
-    assert_match(/Tarjeta Oro/, response.body)
+    assert_select "[data-testid='recognition-edit-panel'].recognition-drawer[role='dialog']"
+    assert_select ".recognition-drawer-overlay"
+    assert_select "[data-testid='recognition-chip']", count: 2
+    assert_select "form[action='#{money_source_recognition_path(source.id)}'][method='post']"
+    assert_select "form.recognition-form[data-unsaved-message='#{I18n.t('money_sources.recognition.unsaved_changes')}']"
+    assert_select "[data-testid='recognition-drawer-foot'] [data-testid='recognition-save']"
+    assert_select "[data-recognition-dismiss-suggestions]"
+    assert_select ".recognition-suggestions-actions [data-recognition-accept-suggestions]"
+    assert_select "[data-testid='last-four-hint']", count: 1
+  end
+
+  test "GET /money_sources/recognition?edit hides the last-four hint when digits exist" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank", identifier: "5678")
+    get money_sources_recognition_path(edit: source.id)
+    assert_response :success
+    assert_select "[data-testid='last-four-hint']", count: 0
+    assert_select ".recognition-chip-suggested[data-suggested-value='5678']"
+  end
+
+  test "GET /money_sources/recognition without edit renders no drawer" do
+    create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select ".recognition-drawer", count: 0
+    assert_select ".recognition-drawer-overlay", count: 0
+  end
+
+  test "PATCH /money_sources/recognition/:id adds and removes identifiers per kind" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"], sender: ["no-reply@davibank.com"])
+
+    patch money_source_recognition_path(source.id),
+          params: { keywords: ["davi", "origen"], senders: ["factura@davibank.com", "davibank.com"], subjects: ["Movimiento"] }
+
+    assert_redirected_to money_sources_recognition_path
+    source.reload
+    ids = source.recognition.recognition_identifiers
+    assert_equal %w[davi origen], ids.select(&:keyword?).map(&:value).sort
+    assert_equal ["factura@davibank.com"], ids.select(&:sender?).map(&:value)
+    assert_equal ["davibank.com"], ids.select(&:domain?).map(&:value)
+    assert_equal ["Movimiento"], ids.select(&:subject?).map(&:value)
+  end
+
+  test "PATCH /money_sources/recognition/:id with all-empty values destroys recognition" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    assert source.recognition_configured?
+
+    patch money_source_recognition_path(source.id), params: { keywords: [], senders: [], subjects: [] }
+
+    assert_redirected_to money_sources_recognition_path
+    source.reload
+    assert_not source.recognition_configured?
+    assert_nil source.recognition
+    assert source.reload.persisted?, "delete must not destroy the money source"
+  end
+
+  test "DELETE /money_sources/recognition/:id removes recognition but keeps the source" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    source_id = source.id
+
+    delete money_source_recognition_destroy_path(source.id)
+
+    assert_redirected_to money_sources_recognition_path
+    source = MoneySource.find(source_id)
+    assert source.persisted?
+    assert_not source.recognition_configured?
+    assert_nil source.recognition
   end
 
   test "GET /money_sources/new renders the form" do
@@ -155,16 +242,13 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("money_sources.flashes.created"), flash[:notice]
   end
 
-  test "POST /money_sources creates with tags" do
+  test "POST /money_sources creates a credit card" do
     assert_difference "MoneySource.count", 1 do
-      assert_difference "MoneySourceTag.count", 1 do
-        post money_sources_path, params: {
-          money_source: { name: "Visa", kind: "credit_card", tags: [ "1234" ] }
-        }
-      end
+      post money_sources_path, params: {
+        money_source: { name: "Visa", kind: "credit_card" }
+      }
     end
-    source = MoneySource.last
-    assert_equal "1234", source.tags.first.value
+    assert_redirected_to money_sources_credit_cards_path
   end
 
   test "POST /money_sources renders new on validation failure" do
@@ -195,29 +279,6 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to money_sources_cash_path
     assert_equal "Updated Name", source.reload.name
-  end
-
-  test "PATCH /money_sources/:id updates tags" do
-    source = create_source
-    source.tags.create!(value: "1111")
-
-    patch money_source_path(source), params: {
-      money_source: { name: source.name },
-      tags: [ "9999" ]
-    }
-    assert_equal 1, source.reload.tags.count
-    assert_equal "9999", source.tags.first.value
-  end
-
-  test "PATCH /money_sources/:id removes tags when blank" do
-    source = create_source
-    source.tags.create!(value: "1111")
-
-    patch money_source_path(source), params: {
-      money_source: { name: source.name },
-      tags: []
-    }
-    assert_equal 0, source.reload.tags.count
   end
 
   test "DELETE /money_sources/:id destroys the money source" do

@@ -26,6 +26,9 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "start_auth redirects to google when oauth is configured" do
+    source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+
     with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
       post start_gmail_auth_path
 
@@ -33,6 +36,31 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
       assert_match(%r{\Ahttps://accounts\.google\.com/o/oauth2/v2/auth}, @response.headers["Location"])
       assert_includes @response.headers["Location"], "client_id=client-id"
       refute_nil session[:gmail_oauth_state]
+    end
+  end
+
+  test "start_auth blocks gmail until at least one source is recognized" do
+    source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
+    assert_not source.recognition_configured?
+
+    with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
+      post start_gmail_auth_path
+
+      assert_redirected_to money_sources_recognition_path
+      assert_equal I18n.t("money_sources.recognition.gmail_blocked"), flash[:alert]
+      assert_nil session[:gmail_oauth_state]
+    end
+  end
+
+  test "start_auth allows gmail when a source is recognition-configured" do
+    source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+
+    with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
+      post start_gmail_auth_path
+
+      assert_response :redirect
+      assert_match(%r{\Ahttps://accounts\.google\.com/o/oauth2/v2/auth}, @response.headers["Location"])
     end
   end
 
@@ -54,6 +82,9 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "callback connects the gmail account and stores tokens" do
+    source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+
     with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
       post start_gmail_auth_path
       assert_response :redirect

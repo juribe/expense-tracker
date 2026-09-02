@@ -141,9 +141,9 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_equal source.name, expense[:money_source_name]
   end
 
-  test "detects the money source mentioned by tag" do
+  test "detects the money source mentioned by recognition keyword" do
     source = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-    source.tags.create!(value: "tarjeta clásica")
+    source.ensure_recognition.replace_identifiers(keyword: [ "tarjeta clásica" ])
     result = parse("Pag 50 mil en el restaurante con la tarjeta clásica")
 
     assert_equal source.id, result[:expenses].first[:money_source_id]

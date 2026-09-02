@@ -89,11 +89,12 @@
         <% end %>
       </div>
 
-      <% if source.tags.any? %>
+      <% recognition_keywords = source.recognition_identifiers.select(&:keyword?).map(&:value) %>
+      <% if recognition_keywords.any? %>
         <div class="mt-2">
-          <% source.tags.each do |tag| %>
+          <% recognition_keywords.each do |keyword| %>
             <span class="badge bg-light text-dark me-1">
-              <%= tag.value %>
+              <%= keyword %>
             </span>
           <% end %>
         </div>

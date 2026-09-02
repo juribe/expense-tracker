@@ -14,7 +14,7 @@ class MoneySourcesController < ApplicationController
 
   # GET /money_sources
   def index
-    scope = current_user.money_sources.includes(:parent, :tags, :children)
+    scope = current_user.money_sources.includes(:parent, :children, recognition: :recognition_identifiers)
 
     @filter = params[:type].presence
     if @filter && FILTERS[@filter]
@@ -38,10 +38,46 @@ class MoneySourcesController < ApplicationController
   end
 
   # GET /money_sources/recognition
-  # Static prototype of the "Source Recognition" configuration page.
-  # Renders fake data; the real implementation replaces the in-view fixture
-  # with MoneySourceRecognition records (see docs/source_recognition_implementation.md).
   def recognition
+    @money_sources = current_user.money_sources
+                                 .includes(recognition: :recognition_identifiers)
+                                 .order(:kind, :name)
+
+    if params[:edit].present?
+      @editing = current_user.money_sources.find(params[:edit])
+      @suggestions = SourceRecognition::SuggestionEngine.new(source: @editing).call
+    end
+  end
+
+  # PATCH /money_sources/recognition/:money_source_id
+  def update_recognition
+    source = current_user.money_sources.find(params[:money_source_id])
+    senders, domains = classify_senders(Array(params[:senders]))
+    subjects, headers = classify_subjects(Array(params[:subjects]))
+    values = {
+      keyword: Array(params[:keywords]),
+      sender: senders,
+      domain: domains,
+      subject: subjects,
+      header: headers
+    }
+
+    if values.values.all? { |v| Array(v).compact_blank.empty? }
+      source.recognition&.destroy
+      return redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.deleted")
+    end
+
+    recognition = source.ensure_recognition
+    recognition.replace_identifiers(**values)
+
+    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved")
+  end
+
+  # DELETE /money_sources/recognition/:money_source_id
+  def destroy_recognition
+    source = current_user.money_sources.find(params[:money_source_id])
+    source.recognition&.destroy
+    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.deleted")
   end
 
   # GET /money_sources/new
@@ -57,11 +93,8 @@ class MoneySourcesController < ApplicationController
   # POST /money_sources
   def create
     @money_source = current_user.money_sources.build(money_source_params)
-    @tag_values = collect_tag_values
-    validate_with_tags
 
-    if @money_source.errors.empty? && @money_source.save
-      persist_tags(@tag_values)
+    if @money_source.save
       redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.created")
     else
       render :new, status: :unprocessable_entity
@@ -71,11 +104,8 @@ class MoneySourcesController < ApplicationController
   # PATCH/PUT /money_sources/1
   def update
     @money_source.assign_attributes(money_source_params)
-    @tag_values = collect_tag_values
-    validate_with_tags
 
-    if @money_source.errors.empty? && @money_source.save
-      persist_tags(@tag_values)
+    if @money_source.save
       redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.updated")
     else
       render :edit, status: :unprocessable_entity
@@ -96,6 +126,35 @@ class MoneySourcesController < ApplicationController
     when "loan" then money_sources_loans_path
     else money_sources_cash_path
     end
+  end
+
+  # The senders section mixes real addresses (sender) and bare domains
+  # (domain). An email address always carries "@" (a sender); only a bare
+  # domain like "davibank.com" is stored as a domain.
+  def classify_senders(list)
+    senders, domains = [], []
+    list.compact_blank.each do |value|
+      if value.match?(/\A[\w.-]+\.[a-z]{2,}\z/i) && !value.include?("@")
+        domains << value
+      else
+        senders << value
+      end
+    end
+    [senders, domains]
+  end
+
+  # The subjects section mixes subject text (subject) and RFC header patterns
+  # like "From: ..." (header). A value with a top-level ":" is a header.
+  def classify_subjects(list)
+    subjects, headers = [], []
+    list.compact_blank.each do |value|
+      if value.include?(":")
+        headers << value
+      else
+        subjects << value
+      end
+    end
+    [subjects, headers]
   end
 
   def set_money_source
@@ -134,41 +193,5 @@ class MoneySourcesController < ApplicationController
 
   def not_found
     head :not_found
-  end
-
-  # Tags are edited through plain `tags[...][value]` inputs (the old
-  # identifiers pattern) and are persisted separately from strong params.
-  def collect_tag_values
-    raw = params.dig(:money_source, :tags)
-    raw = params[:tags] if raw.blank?
-    raw = raw.values if raw.is_a?(ActionController::Parameters)
-
-    Array(raw).filter_map do |tag|
-      value = tag.is_a?(ActionController::Parameters) ? tag[:value] : tag
-      value.to_s.strip.downcase.presence
-    end
-  end
-
-  def validate_with_tags
-    @money_source.valid?
-
-    @tag_values.each do |value|
-      tag = @money_source.tags.find_or_initialize_by(value: value)
-      next if tag.valid?
-
-      tag.errors.full_messages.each do |message|
-        @money_source.errors.add(:base, t("money_sources.form.tag_error_prefix", message: message))
-      end
-    end
-  end
-
-  def persist_tags(tag_values)
-    new_ids = tag_values.filter_map do |value|
-      tag = @money_source.tags.find_or_initialize_by(value: value)
-      tag.save
-      tag.id
-    end
-
-    @money_source.tags.where.not(id: new_ids).destroy_all
   end
 end

@@ -54,15 +54,16 @@
 
       <div class="card shadow-sm mt-4">
         <div class="card-body">
-          <h5 class="card-title"><%= t("money_sources.show.tags") %></h5>
-          <% if @money_source.tags.any? %>
-            <% @money_source.tags.each do |tag| %>
+          <h5 class="card-title"><%= t("money_sources.show.recognition") %></h5>
+          <% recognition_keywords = @money_source.recognition_identifiers.select(&:keyword?).map(&:value) %>
+          <% if recognition_keywords.any? %>
+            <% recognition_keywords.each do |keyword| %>
               <span class="badge bg-light text-dark me-1 mb-1">
-                <%= tag.value %>
+                <%= keyword %>
               </span>
             <% end %>
           <% else %>
-            <p class="text-muted mb-0"><%= t("money_sources.show.no_tags") %></p>
+            <p class="text-muted mb-0"><%= t("money_sources.recognition.status_unconfigured") %></p>
           <% end %>
         </div>
       </div>

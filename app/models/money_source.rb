@@ -4,8 +4,9 @@
 # Common financial-source entity (account, debit_card, credit_card, cash,
 # wallet, loan). Credit/debt-specific details live on a CreditAccount.
 #
-# Associations: belongs_to :user/parent, has_many children/tags/transactions/
-#   recurring_templates/outgoing_transfers/incoming_transfers, has_one :credit_account
+# Associations: belongs_to :user/parent, has_many children/transactions/
+#   recurring_templates/outgoing_transfers/incoming_transfers, has_one :credit_account,
+#   has_one :recognition (Source Recognition identifiers)
 # Methods: balance, used_credit, available_credit, debt?, credit_card?, loan?
 #
 # Example: source.used_credit
@@ -15,12 +16,13 @@ class MoneySource < ApplicationRecord
   belongs_to :user
   belongs_to :parent, class_name: "MoneySource", optional: true
   has_many :children, class_name: "MoneySource", foreign_key: :parent_id, dependent: :nullify
-  has_many :tags, class_name: "MoneySourceTag", dependent: :destroy
   has_many :transactions, dependent: :nullify
   has_many :recurring_templates, dependent: :nullify
   has_many :outgoing_transfers, class_name: "Transfer", foreign_key: :from_source_id, dependent: :destroy
   has_many :incoming_transfers, class_name: "Transfer", foreign_key: :to_source_id, dependent: :destroy
   has_one :credit_account, dependent: :destroy
+  has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
+  has_many :recognition_identifiers, through: :recognition, source: :recognition_identifiers
 
   accepts_nested_attributes_for :credit_account, allow_destroy: true
 
@@ -30,9 +32,6 @@ class MoneySource < ApplicationRecord
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
-  scope :with_tag, ->(value) {
-    joins(:tags).where(tags: { value: MoneySourceTag.normalize(value) }).where(active: true).distinct
-  }
 
   before_validation :normalize_kind
   before_validation :normalize_identifier_to_last_four
@@ -134,6 +133,32 @@ class MoneySource < ApplicationRecord
     parts << bank if bank.present?
     parts << card_last_four if credit_card? && card_last_four.present?
     parts.join(" · ")
+  end
+
+  # Whether minimum recognition configuration exists (≥ 1 identifier of any kind).
+  def recognition_configured?
+    recognition_identifiers.any?
+  end
+
+  # The source's last four digits, used as a recognition signal. Re-derived
+  # from the raw stored value so only the ENDING digits are ever used (never a
+  # random or partial slice). Falls back to the credit card's last four and
+  # returns nil when there aren't exactly four digits to work with.
+  def last_four
+    raw = identifier.presence
+    raw ||= credit_account.card_last_four if credit_card? && credit_account
+    ending = raw.to_s.gsub(/\D/, "").chars.last(4).join
+    ending if ending.length == 4
+  end
+
+  # Lazily builds the recognition record (persisted on save) without creating
+  # it just for a look-up.
+  def ensure_recognition
+    recognition || build_recognition
+  end
+
+  def institution
+    bank.to_s.strip.downcase.presence
   end
 
   private

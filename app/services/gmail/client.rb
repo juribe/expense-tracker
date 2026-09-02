@@ -34,7 +34,7 @@ module Gmail
     end
 
     # Fetches one message and returns it in normalized form:
-    #   { id:, subject:, body_text:, internal_date: (Time or nil) }
+    #   { id:, from:, subject:, body_text:, internal_date:, snippet:, headers: }
     def get_message(message_id)
       raw = authenticated_get(URI("#{API_BASE}/messages/#{URI.encode_www_form_component(message_id)}"))
       normalize(raw)
@@ -69,10 +69,12 @@ module Gmail
 
       {
         id: raw["id"],
+        from: header.call("From").to_s,
         subject: header.call("Subject").to_s,
         body_text: extract_body_text(raw),
         internal_date: parse_internal_date(raw["internalDate"] || header.call("Date")),
-        snippet: raw["snippet"].to_s
+        snippet: raw["snippet"].to_s,
+        headers: headers.map { |h| { "name" => h["name"].to_s, "value" => h["value"].to_s } }
       }
     end
 

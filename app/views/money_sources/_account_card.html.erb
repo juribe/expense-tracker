@@ -42,12 +42,13 @@
   <% end %>
 
   <div class="account-metrics">
-    <% if source.tags.any? %>
+    <% recognition_keywords = source.recognition_identifiers.select(&:keyword?).map(&:value) %>
+    <% if recognition_keywords.any? %>
       <div class="account-meter">
-        <div class="account-meter-label"><%= t("money_sources.accounts.tags") %></div>
+        <div class="account-meter-label"><%= t("money_sources.accounts.recognition") %></div>
         <div class="account-meter-value">
-          <% source.tags.each do |tag| %>
-            <span class="badge bg-light text-dark me-1"><%= tag.value %></span>
+          <% recognition_keywords.each do |keyword| %>
+            <span class="badge bg-light text-dark me-1"><%= keyword %></span>
           <% end %>
         </div>
       </div>

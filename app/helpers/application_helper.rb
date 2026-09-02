@@ -219,6 +219,22 @@ module ApplicationHelper
     current_user.financial_setups.exists?(status: "completed")
   end
 
+  # Short caption explaining where a recognition suggestion came from.
+  # s is a { value:, source: } hash where source is :name, :institution or a
+  # sibling Money Source name.
+  def suggestion_provenance(s)
+    case s[:source]
+    when :name
+      t("money_sources.recognition.suggested_from_name")
+    when :institution
+      t("money_sources.recognition.suggested_from_institution")
+    when :last_four
+      t("money_sources.recognition.suggested_from_last_four")
+    else
+      t("money_sources.recognition.suggested_from_source", source: s[:source])
+    end
+  end
+
   # --- private helpers for the loans dashboard ---
 
   def next_day_of_month(day)
