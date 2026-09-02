@@ -296,6 +296,8 @@ en:
       account_last4_hint: "Only the last 4 digits of the account number are saved for privacy."
       contract_number_last4: "Last 4 digits of the contract"
       contract_last4_hint: "Only the last 4 digits of the contract/loan number are saved for privacy."
+      start_date: "Payment start date"
+      end_date: "Payment end date"
 
   wizard:
     manual:

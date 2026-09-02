@@ -597,8 +597,8 @@ es:
         biweekly: "Quincenal"
         monthly: "Mensual"
         quarterly: "Trimestral"
-      start_date: "Fecha de inicio"
-      end_date: "Fecha de fin"
+      start_date: "Fecha de inicio de pago"
+      end_date: "Fecha de fin de pago"
       outstanding_balance: "Saldo pendiente"
     flashes:
       created: "La fuente de dinero se creó correctamente."
