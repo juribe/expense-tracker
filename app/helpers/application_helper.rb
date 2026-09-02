@@ -88,7 +88,7 @@ module ApplicationHelper
   LOAN_ACCENTS = {
     revolving: { icon: "arrow-repeat", accent: "accent-teal" },
     mortgage: { icon: "house", accent: "accent-purple" },
-    vehicle: { icon: "car", accent: "accent-amber" },
+    vehicle: { icon: "car-front", accent: "accent-amber" },
     education: { icon: "mortarboard", accent: "accent-blue" },
     personal: { icon: "wallet2", accent: "accent-rose" },
     business: { icon: "briefcase", accent: "accent-blueviolet" }

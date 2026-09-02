@@ -36,7 +36,7 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal({ icon: "house", accent: "accent-purple" }, loan_identity(@loan))
     assert_equal({ icon: "arrow-repeat", accent: "accent-teal" },
                  loan_identity(@user.money_sources.create!(name: "Crédito Rotativo", kind: "loan", starting_balance: 0)))
-    assert_equal({ icon: "car", accent: "accent-amber" },
+    assert_equal({ icon: "car-front", accent: "accent-amber" },
                  loan_identity(@user.money_sources.create!(name: "Crédito de Vehículo", kind: "loan", starting_balance: 0)))
   end
 
