@@ -14,9 +14,11 @@
         <i class="bi bi-grid-1x2"></i>
         <span><%= t("nav.dashboard") %></span>
       <% end %>
-      <%= link_to financial_setup_path, class: "sidebar-link #{active_class('financial_setups')}" do %>
-        <i class="bi bi-magic"></i>
-        <span><%= t("nav.setup_wizard") %></span>
+      <% unless financial_setup_completed? %>
+        <%= link_to financial_setup_path, class: "sidebar-link #{active_class('financial_setups')}" do %>
+          <i class="bi bi-magic"></i>
+          <span><%= t("nav.setup_wizard") %></span>
+        <% end %>
       <% end %>
     </div>
 

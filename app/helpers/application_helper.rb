@@ -211,6 +211,14 @@ module ApplicationHelper
     end
   end
 
+  # True when the current user has finished the initial setup wizard, so the
+  # sidebar can stop surfacing the setup entry point.
+  def financial_setup_completed?
+    return false unless respond_to?(:current_user) && current_user.present?
+
+    current_user.financial_setups.exists?(status: "completed")
+  end
+
   # --- private helpers for the loans dashboard ---
 
   def next_day_of_month(day)

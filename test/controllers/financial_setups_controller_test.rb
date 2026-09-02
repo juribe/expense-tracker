@@ -68,6 +68,21 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to financial_setup_done_path
   end
 
+  test "setup wizard link is shown in the sidebar when setup is not completed" do
+    get financial_setup_path
+    assert_response :success
+    assert_match(/#{I18n.t("nav.setup_wizard")}/, response.body)
+  end
+
+  test "setup wizard link is hidden in the sidebar once setup is completed" do
+    setup_record
+    @setup.complete!
+    get money_sources_cash_path
+    assert_response :success
+    assert_no_match(/#{I18n.t("nav.setup_wizard")}/, response.body)
+    assert_match(/#{I18n.t("nav.money_sources_cash")}/, response.body)
+  end
+
   test "renders each wizard step" do
     FinancialSetupWizard.step_keys.each do |step_key|
       get financial_setup_step_path(step: step_key)
