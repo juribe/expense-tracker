@@ -149,6 +149,8 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /money_sources/recognition?edit opens the edit drawer with chips and suggestions" do
+    sibling = create_source(name: "Davibank Clásica", kind: "account", bank: "Davibank")
+    sibling.ensure_recognition.replace_identifiers(sender: ["notificaciones@davibank.com"], subject: ["Transacción aprobada"])
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
     source.ensure_recognition.replace_identifiers(keyword: ["davi"], sender: ["no-reply@davibank.com"])
     get money_sources_recognition_path(edit: source.id)
@@ -160,9 +162,48 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{money_source_recognition_path(source.id)}'][method='post']"
     assert_select "form.recognition-form[data-unsaved-message='#{I18n.t('money_sources.recognition.unsaved_changes')}']"
     assert_select "[data-testid='recognition-drawer-foot'] [data-testid='recognition-save']"
-    assert_select "[data-recognition-dismiss-suggestions]"
-    assert_select ".recognition-suggestions-actions [data-recognition-accept-suggestions]"
     assert_select "[data-testid='last-four-hint']", count: 1
+  end
+
+  test "GET /money_sources/recognition?edit renders per-section confirmed and suggested chips" do
+    sibling = create_source(name: "Davibank Clásica", kind: "account", bank: "Davibank")
+    sibling.ensure_recognition.replace_identifiers(sender: ["notificaciones@davibank.com"], subject: ["Transacción aprobada"])
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+      kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail", observation_count: 2
+    )
+
+    get money_sources_recognition_path(edit: source.id)
+
+    assert_response :success
+    # Confirmed chips only (the suggested sender must not appear as confirmed).
+    assert_select "[data-recognition-chips='senders'] [data-testid='recognition-chip']", count: 0
+    # Per-section suggested blocks: name keyword, sibling sender/subject and
+    # the persisted gmail sender.
+    assert_select "[data-testid='recognition-suggested-block']", count: 3
+    assert_select ".recognition-chip-suggested[data-suggested-for='senders'][data-suggested-value='nuevo@davibank.com']"
+    assert_select ".recognition-chip-suggested[data-suggested-for='senders'][data-suggested-value='notificaciones@davibank.com']"
+    assert_select ".recognition-chip-suggested[data-suggested-for='subjects'][data-suggested-value='Transacción aprobada']"
+    assert_select ".recognition-chip-suggested[data-suggested-for='keywords'][data-suggested-value='davibank']"
+    # Per-suggestion accept and dismiss controls.
+    assert_select "[data-recognition-accept-suggestion]", count: 4
+    assert_select "[data-recognition-dismiss-suggestion]", count: 4
+    assert_select ".recognition-chip-suggested .recognition-chip-provenance",
+                  text: I18n.t("money_sources.recognition.suggested_from_gmail")
+  end
+
+  test "GET /money_sources/recognition shows the suggestion count badge for suggested-only sources" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+      kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail"
+    )
+
+    get money_sources_recognition_path
+
+    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_unconfigured')}/
+    assert_select "[data-testid='recognition-suggestion-count']",
+                  text: I18n.t("money_sources.recognition.status_suggestions", count: 1)
   end
 
   test "GET /money_sources/recognition?edit hides the last-four hint when digits exist" do
@@ -209,6 +250,57 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_not source.recognition_configured?
     assert_nil source.recognition
     assert source.reload.persisted?, "delete must not destroy the money source"
+  end
+
+  test "PATCH /money_sources/recognition/:id promotes accepted suggestions without duplicating them" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.recognition_identifiers.create!(
+      kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail", observation_count: 3
+    )
+    recognition.replace_identifiers(keyword: ["davi"])
+
+    patch money_source_recognition_path(source.id),
+          params: { keywords: ["davi"], senders: ["nuevo@davibank.com"], subjects: [] }
+
+    source.reload
+    senders = source.recognition_identifiers.where(kind: "sender")
+    assert_equal 1, senders.count
+    assert senders.first.confirmed?
+    assert source.recognition_configured?
+  end
+
+  test "PATCH /money_sources/recognition/:id deletes dismissed suggestions and preserves untouched ones" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.replace_identifiers(keyword: ["davi"])
+    recognition.recognition_identifiers.create!(kind: "sender", value: "descartado@davibank.com", status: "suggested", origin: "gmail")
+    recognition.recognition_identifiers.create!(kind: "sender", value: "pendiente@davibank.com", status: "suggested", origin: "gmail")
+
+    patch money_source_recognition_path(source.id),
+          params: {
+            keywords: ["davi"], senders: [], subjects: [],
+            dismissed: { senders: ["descartado@davibank.com"] }
+          }
+
+    source.reload
+    assert_nil source.recognition.recognition_identifiers.find_by(kind: "sender", value: "descartado@davibank.com")
+    assert source.recognition.recognition_identifiers.exists?(kind: "sender", value: "pendiente@davibank.com")
+  end
+
+  test "PATCH /money_sources/recognition/:id with all-empty keeps untouched suggestions and record" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.replace_identifiers(keyword: ["davi"])
+    recognition.recognition_identifiers.create!(kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail")
+
+    patch money_source_recognition_path(source.id), params: { keywords: [], senders: [], subjects: [] }
+
+    assert_redirected_to money_sources_recognition_path
+    source.reload
+    assert_not source.recognition_configured?
+    assert source.recognition.present?
+    assert source.recognition.recognition_identifiers.exists?(kind: "sender", value: "nuevo@davibank.com")
   end
 
   test "DELETE /money_sources/recognition/:id removes recognition but keeps the source" do

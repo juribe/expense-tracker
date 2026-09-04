@@ -68,6 +68,7 @@ Rails.application.routes.draw do
   patch "settings/gmail", to: "gmail_connections#update"
   delete "settings/gmail", to: "gmail_connections#destroy"
   post "settings/gmail/sync", to: "gmail_connections#sync", as: :sync_gmail_connection
+  get "settings/gmail/sync_status", to: "gmail_connections#sync_status", as: :gmail_sync_status
   post "settings/gmail/auth/start", to: "gmail_connections#start_auth", as: :start_gmail_auth
   get "auth/google/callback", to: "gmail_connections#callback", as: :google_callback
   scope "gmail/reviews" do

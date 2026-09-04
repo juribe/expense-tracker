@@ -24,7 +24,7 @@ class EmailTransactionDetector
   }.freeze
 
   def call(subject:, body:)
-    text = "#{subject}\n#{body}".to_s
+    text = "#{subject}\n#{body}".to_s.dup.force_encoding(Encoding::UTF_8)
 
     NON_TRANSACTIONAL_PATTERNS.each do |reason, pattern|
       next unless text.match?(pattern)

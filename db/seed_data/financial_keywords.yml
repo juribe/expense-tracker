@@ -1,0 +1,117 @@
+# Global dictionary of words that signal a financial / transactional email.
+# Categories:
+#   transactions - purchases, payments, transfers, withdrawals...
+#   cards        - card and credit-limit related words
+#   loans        - loans, installments, statements
+#   status       - outcome words (approved, declined...)
+#   security     - security / authentication alerts
+#
+# Weights express how strong a signal the category is: transaction and status
+# words describe money movement; card/loan/security words alone do not.
+#
+# These keywords are signals, never a classification on their own: an email
+# matching only generic words (e.g. "tarjeta") must not be treated as a
+# transaction. Values are unique across categories.
+keywords:
+  transactions:
+    weight: 2
+    values:
+      - transacción
+      - transaccion
+      - transacciones
+      - movimiento
+      - movimientos
+      - compra
+      - compras
+      - consumo
+      - consumos
+      - pago
+      - pagos
+      - pagaste
+      - pagado
+      - retiro
+      - retiros
+      - retiro en efectivo
+      - transferencia
+      - transferencias
+      - transferiste
+      - transferencia recibida
+      - transferencia enviada
+      - consignación
+      - consignacion
+      - abono
+      - débito
+      - debito
+      - crédito
+      - credito
+      - avance
+      - desembolso
+
+  cards:
+    weight: 1
+    values:
+      - tarjeta
+      - tarjetas
+      - tarjeta de crédito
+      - tarjeta de credito
+      - tarjeta débito
+      - tarjeta debito
+      - compra con tu tarjeta
+      - consumo con tu tarjeta
+      - cupo
+      - cupo disponible
+      - tarjeta terminada
+      - tarjeta clásica
+      - tarjeta clasica
+      - visa
+      - mastercard
+      - american express
+
+  loans:
+    weight: 1
+    values:
+      - préstamo
+      - prestamo
+      - cuota
+      - cuotas
+      - saldo
+      - saldo pendiente
+      - pago mínimo
+      - pago minimo
+      - fecha de pago
+      - vencimiento
+      - financiación
+      - financiacion
+
+  status:
+    weight: 2
+    values:
+      - aprobada
+      - aprobado
+      - aprobadas
+      - aprobados
+      - rechazada
+      - rechazado
+      - realizada
+      - realizado
+      - confirmada
+      - confirmado
+      - exitosa
+      - exitoso
+      - exitosamente
+      - procesada
+      - procesado
+
+  security:
+    weight: 1
+    values:
+      - alerta
+      - alerta de seguridad
+      - seguridad
+      - operación
+      - operacion
+      - código
+      - codigo
+      - autenticación
+      - autenticacion
+      - intento de compra

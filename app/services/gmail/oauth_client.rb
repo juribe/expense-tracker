@@ -112,7 +112,7 @@ module Gmail
       end
 
       def perform(http, request)
-        http.use_ssl ||= true
+        http.use_ssl = true
         response = http.request(request)
         unless response.code.to_i == 200
           snippet = response.body.to_s[0, 300]

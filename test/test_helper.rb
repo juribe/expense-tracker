@@ -14,6 +14,16 @@ module ActiveSupport
       post user_session_path, params: { user: { email: user.email, password: "password123" } }
     end
 
+    # Temporarily swaps the Active Job queue adapter (e.g. :test or :inline)
+    # for the duration of the block, restoring the original afterwards.
+    def with_active_job_adapter(adapter)
+      original = ActiveJob::Base.queue_adapter
+      ActiveJob::Base.queue_adapter = adapter
+      yield
+    ensure
+      ActiveJob::Base.queue_adapter = original
+    end
+
     # Temporarily replaces a class/instance method for the duration of the
     # block. Pass a fixed return value or anything callable (it receives the
     # original arguments).

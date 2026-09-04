@@ -132,5 +132,19 @@ module SourceRecognition
     test "handles legacy message shape without from or headers" do
       assert_nil SourceRecognition::Matcher.call(user: @user, message: { id: "m", subject: "s", body_text: "nada" })
     end
+
+    test "suggested (discovered) identifiers never drive matching" do
+      @clasica.recognition.recognition_identifiers.create!(
+        kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail"
+      )
+
+      assert_nil match(from: "Nuevo <nuevo@davibank.com>", subject: "s", body: "movimiento registrado")
+    end
+
+    test "anchored last-four detection is exposed for discovery" do
+      assert Matcher.last_four_in_body?("compra con su tarjeta •••• 5678 por 20,300", "5678")
+      assert Matcher.last_four_in_body?("tarjeta terminada en 5678", "5678")
+      refute Matcher.last_four_in_body?("monto 5,678 en el comercio", "5678")
+    end
   end
 end

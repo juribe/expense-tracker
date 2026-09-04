@@ -25,6 +25,16 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: I18n.t("gmail.title")
   end
 
+  test "index renders the sync button with a loading spinner for an active connection" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "button", text: /#{I18n.t("gmail.sync_now")}/
+    assert_select "button[data-turbo-submits-with]"
+  end
+
   test "start_auth redirects to google when oauth is configured" do
     source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
     source.ensure_recognition.replace_identifiers(keyword: ["davi"])
@@ -39,16 +49,26 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "start_auth blocks gmail until at least one source is recognized" do
-    source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
-    assert_not source.recognition_configured?
-
+  test "start_auth blocks gmail when the user has no money sources" do
     with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
       post start_gmail_auth_path
 
       assert_redirected_to money_sources_recognition_path
       assert_equal I18n.t("money_sources.recognition.gmail_blocked"), flash[:alert]
       assert_nil session[:gmail_oauth_state]
+    end
+  end
+
+  test "start_auth allows gmail without recognition configuration (first sync discovers it)" do
+    @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
+
+    with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
+      post start_gmail_auth_path
+
+      assert_response :redirect
+      assert_match(%r{\Ahttps://accounts\.google\.com/o/oauth2/v2/auth}, @response.headers["Location"])
+      assert_includes @response.headers["Location"], "client_id=client-id"
+      refute_nil session[:gmail_oauth_state]
     end
   end
 
@@ -137,14 +157,56 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, ProcessedEmail.count
   end
 
-  test "sync reports a summary" do
+  test "sync enqueues a background job instead of blocking the request" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
-    stub_method(Gmail::SyncService, :call, { fetched: 0, created: 0, ignored: 0, needs_review: 0, failed: 0, skipped: 0 }) do
-      post sync_gmail_connection_path
+
+    with_active_job_adapter(:test) do
+      assert_enqueued_with(job: GmailSyncJob) do
+        post sync_gmail_connection_path
+      end
     end
 
     assert_redirected_to gmail_connection_path
-    assert_match(/Sincronización terminada/, flash[:notice])
+    assert_match(/segundo plano/, flash[:notice])
+  end
+
+  test "sync_status reports a running sync" do
+    connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
+    connection.update_column(:syncing, Time.current)
+
+    get gmail_sync_status_path
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal true, body["syncing"]
+    assert_nil body["summary"]
+  end
+
+  test "sync_status reports the stored summary once complete" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+    GmailConnection.first.update!(syncing: nil, last_sync_summary: { fetched: 3, created: 2, failed: 1 })
+
+    get gmail_sync_status_path
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal false, body["syncing"]
+    assert_equal 3, body["summary"]["fetched"]
+  end
+
+  test "sync runs the job which reports the summary" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+    connection = GmailConnection.first
+    summary = { fetched: 0, created: 0, ignored: 0, needs_review: 0, failed: 0, skipped: 0 }
+    calls = 0
+
+    stub_method(Gmail::SyncService, :call, ->(*) { calls += 1; summary }) do
+      with_active_job_adapter(:inline) do
+        GmailSyncJob.perform_later(connection_id: connection.id)
+      end
+    end
+
+    assert_equal 1, calls
   end
 
   test "approve creates expenses from a reviewed transaction" do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_03_222300) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_04_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -69,6 +69,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_03_222300) do
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
+  create_table "financial_institutions", force: :cascade do |t|
+    t.string "canonical_name", null: false
+    t.jsonb "aliases", default: [], null: false
+    t.jsonb "domains", default: [], null: false
+    t.jsonb "keywords", default: [], null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["canonical_name"], name: "index_financial_institutions_on_canonical_name", unique: true
+  end
+
+  create_table "financial_keywords", force: :cascade do |t|
+    t.string "value", null: false
+    t.string "category", null: false
+    t.integer "weight", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_financial_keywords_on_category"
+    t.index ["value"], name: "index_financial_keywords_on_value", unique: true
+  end
+
   create_table "financial_setups", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.integer "current_step", default: 0, null: false
@@ -78,6 +99,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_03_222300) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "status"], name: "index_financial_setups_on_user_id_and_status"
     t.index ["user_id"], name: "index_financial_setups_on_user_id"
+  end
+
+  create_table "financial_subject_patterns", force: :cascade do |t|
+    t.string "value", null: false
+    t.integer "weight", default: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["value"], name: "index_financial_subject_patterns_on_value", unique: true
   end
 
   create_table "gmail_connections", force: :cascade do |t|
@@ -92,6 +121,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_03_222300) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "syncing"
+    t.json "last_sync_summary"
     t.index ["user_id", "email"], name: "index_gmail_connections_on_user_id_and_email", unique: true
     t.index ["user_id"], name: "index_gmail_connections_on_user_id"
   end
@@ -116,9 +147,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_03_222300) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status", default: "confirmed", null: false
+    t.string "origin", default: "user", null: false
+    t.integer "observation_count", default: 1, null: false
+    t.datetime "last_seen_at"
     t.index ["money_source_recognition_id", "kind", "position"], name: "index_mrs_identifiers_on_recognition_kind_position"
     t.index ["money_source_recognition_id", "kind", "value"], name: "index_mrs_identifiers_on_recognition_kind_value", unique: true
     t.index ["money_source_recognition_id"], name: "idx_on_money_source_recognition_id_39b1679ecd"
+    t.index ["status"], name: "index_money_source_recognition_identifiers_on_status"
   end
 
   create_table "money_source_recognitions", force: :cascade do |t|

@@ -57,6 +57,13 @@ module Expenses
       end
     end
 
+    test "rejects amounts that would overflow the numeric(10,2) column" do
+      [ 100_000_000, BigDecimal("99_999_999.999"), "999_999_999" ].each do |amount|
+        error = assert_raises(Expenses::Create::Invalid) { create(amount: amount) }
+        assert_match(/too large|invalid/, error.message)
+      end
+    end
+
     test "rejects an invalid date" do
       assert_raises(Expenses::Create::Invalid) { create(occurred_at: "not-a-date") }
     end

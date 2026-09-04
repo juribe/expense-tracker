@@ -220,10 +220,12 @@ module ApplicationHelper
   end
 
   # Short caption explaining where a recognition suggestion came from.
-  # s is a { value:, source: } hash where source is :name, :institution or a
-  # sibling Money Source name.
+  # s is a { value:, source: } hash where source is :gmail, :name,
+  # :institution, :last_four or a sibling Money Source name.
   def suggestion_provenance(s)
     case s[:source]
+    when :gmail
+      t("money_sources.recognition.suggested_from_gmail")
     when :name
       t("money_sources.recognition.suggested_from_name")
     when :institution

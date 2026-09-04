@@ -226,19 +226,26 @@
     });
   }
 
-  function recognitionAcceptSuggestions(panel) {
-    var suggestions = panel.querySelectorAll(".recognition-chip-suggested[data-suggested-for]");
-    suggestions.forEach(function (s) {
-      var chipsEl = panel.querySelector("[data-recognition-chips='" + s.dataset.suggestedFor + "']");
-      if (!chipsEl) return;
-      var value = s.dataset.suggestedValue || "";
-      var existing = chipsEl.querySelectorAll('input[name="' + recognitionFieldName(s.dataset.suggestedFor) + '"]');
-      var dup = false;
-      existing.forEach(function (h) { if (h.value === value) dup = true; });
-      if (dup) return;
-      chipsEl.insertBefore(recognitionMakeChip(value, s.dataset.suggestedFor), chipsEl.querySelector(".recognition-chip-add"));
-      recognitionRefreshCount(chipsEl);
-    });
+  function recognitionAcceptChip(suggestedChip, panel) {
+    var chipsEl = panel.querySelector("[data-recognition-chips='" + suggestedChip.dataset.suggestedFor + "']");
+    if (!chipsEl) return;
+    var value = suggestedChip.dataset.suggestedValue || "";
+    var kind = suggestedChip.dataset.suggestedFor;
+    var existing = chipsEl.querySelectorAll('input[name="' + recognitionFieldName(kind) + '"]');
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].value === value) return;
+    }
+    chipsEl.insertBefore(recognitionMakeChip(value, kind), chipsEl.querySelector(".recognition-chip-add"));
+    recognitionRefreshCount(chipsEl);
+  }
+
+  function recognitionDismissChip(suggestedChip, form) {
+    if (!form) return;
+    var hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.name = "dismissed[" + suggestedChip.dataset.suggestedFor + "][]";
+    hidden.value = suggestedChip.dataset.suggestedValue || "";
+    form.appendChild(hidden);
   }
 
   // --- drawer dirty tracking -------------------------------------------------
@@ -261,11 +268,6 @@
     var form = recognitionForm();
     var message = (form && form.dataset.unsavedMessage) || "Are you sure?";
     return !recognitionIsDirty() || window.confirm(message);
-  }
-
-  function recognitionDismissSuggestions(panel) {
-    var block = panel.querySelector(".recognition-suggestions");
-    if (block) block.remove();
   }
 
   // ---------------------------------------------------------------- Confirm dialogs
@@ -312,20 +314,21 @@
       recognitionMarkDirty();
       return;
     }
-    var focusBtn = e.target.closest("[data-recognition-accept-suggestions]");
+    var focusBtn = e.target.closest("[data-recognition-accept-suggestion]");
     if (focusBtn) {
+      var chip = focusBtn.closest(".recognition-chip-suggested");
       var panel = focusBtn.closest(".recognition-drawer");
-      if (panel) {
-        recognitionAcceptSuggestions(panel);
-        recognitionDismissSuggestions(panel);
-      }
+      if (chip && panel) recognitionAcceptChip(chip, panel);
+      if (chip) chip.remove();
       recognitionMarkDirty();
       return;
     }
-    var dismissBtn = e.target.closest("[data-recognition-dismiss-suggestions]");
+    var dismissBtn = e.target.closest("[data-recognition-dismiss-suggestion]");
     if (dismissBtn) {
-      var drawer = dismissBtn.closest(".recognition-drawer");
-      if (drawer) recognitionDismissSuggestions(drawer);
+      var suggested = dismissBtn.closest(".recognition-chip-suggested");
+      if (suggested) recognitionDismissChip(suggested, recognitionForm());
+      if (suggested) suggested.remove();
+      recognitionMarkDirty();
       return;
     }
   });
@@ -355,4 +358,60 @@
   document.addEventListener("DOMContentLoaded", function () {
     bindRecognition(document);
   });
+
+  // --- Async Gmail sync auto-refresh --------------------------------------
+  // A sync runs as a background job; the settings page offers no inline
+  // result until it finishes. When the user clicks "Sincronizar", we remember
+  // that a sync is pending (in sessionStorage) and, on the page that loads
+  // after the redirect, poll the sync_status endpoint. Once the connection is
+  // no longer "syncing" and a summary is available, we stop and refresh so
+  // the fresh imports / last_synced / suggestions appear without a manual reload.
+  var SYNC_POLL_KEY = "gmailSyncPending";
+  var SYNC_POLL_INTERVAL = 2000;
+  var SYNC_POLL_TIMEOUT = 5 * 60 * 1000; // give up after 5 minutes
+
+  function gmailSyncStatusPath() {
+    var btn = document.querySelector("[data-sync-status-path]");
+    return btn ? btn.getAttribute("data-sync-status-path") : null;
+  }
+
+  function startSyncPoller() {
+    var statusPath = gmailSyncStatusPath();
+    if (!statusPath) return;
+
+    var startedAt = Date.now();
+    var timer = setInterval(function () {
+      fetch(statusPath, { headers: { "Accept": "application/json" } })
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (state) {
+          if (!state) return; // transient error: keep polling
+
+          var done = !state.syncing && state.summary;
+          var timedOut = Date.now() - startedAt > SYNC_POLL_TIMEOUT;
+          if (!done && !timedOut) return;
+
+          clearInterval(timer);
+          try { sessionStorage.removeItem(SYNC_POLL_KEY); } catch (_) {}
+          if (window.Turbo) { window.Turbo.visit(window.location.href); }
+          else { window.location.reload(); }
+        })
+        .catch(function () { /* network blip: keep polling until timeout */ });
+    }, SYNC_POLL_INTERVAL);
+  }
+
+  document.addEventListener("submit", function (e) {
+    var btn = e.target.querySelector && e.target.querySelector("[data-sync-status-path]");
+    if (!btn) return;
+    try { sessionStorage.setItem(SYNC_POLL_KEY, "1"); } catch (_) {}
+    startSyncPoller();
+  });
+
+  // If we land here with a pending sync (e.g. a hard navigation that dropped
+  // the in-flight poller), resume polling.
+  var hasPendingSync = false;
+  try { hasPendingSync = sessionStorage.getItem(SYNC_POLL_KEY) === "1"; } catch (_) {}
+  if (hasPendingSync && gmailSyncStatusPath()) {
+    startSyncPoller();
+    try { sessionStorage.removeItem(SYNC_POLL_KEY); } catch (_) {}
+  }
 })();

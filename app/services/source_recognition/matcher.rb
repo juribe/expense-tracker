@@ -22,14 +22,27 @@ module SourceRecognition
   #     => MoneySource            when exactly one source wins
   #     => [MoneySource, ...]     when the top score is tied (ambiguous)
   #     => nil                    when nothing matches
+  #
+  # Only CONFIRMED identifiers participate: persisted suggestions
+  # (status "suggested") are awaiting user review and must never drive
+  # automatic matching.
   class Matcher
     WEIGHTS = { "sender" => 3, "domain" => 3, "subject" => 2, "header" => 2, "keyword" => 1 }.freeze
     LAST_FOUR_WEIGHT = 4
     MASK_PREFIX = /[*•#]+\s*/.freeze
     TERMINATION_PHRASE = /terminad[ao]s?\s+en|termina(?:n|do)?\s+en\s+los?\s+d[ií]gitos|termina\s+en|ending\s+in/.freeze
 
-    def self.call(user:, message:)
-      new(user: user, message: message).call
+    class << self
+      def call(user:, message:)
+        new(user: user, message: message).call
+      end
+
+      # True when the body shows the value as an ANCHORED last-four reference
+      # (masked prefix, tail of a long digit run, or "terminada en" phrase).
+      # Used by the discovery service to propose source last-four keywords.
+      def last_four_in_body?(body, value)
+        new(user: nil, message: { body_text: body }).send(:anchored_last_four?, value)
+      end
     end
 
     def initialize(user:, message:)
@@ -64,7 +77,9 @@ module SourceRecognition
     end
 
     def score_for(source)
-      source.recognition_identifiers.sum { |id| identifier_score(id, source) }
+      source.recognition_identifiers
+            .reject(&:suggested?)
+            .sum { |id| identifier_score(id, source) }
     end
 
     def identifier_score(id, source)

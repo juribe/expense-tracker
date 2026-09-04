@@ -6,16 +6,19 @@ module SourceRecognition
   # recognition page can pre-fill configuration without requiring manual typing.
   #
   # Rules:
-  #   1. From the source's own name/bank (first-time configuration).
-  #   2. From sibling sources of the SAME institution: reuse their senders,
+  #   1. Values DISCOVERED during Gmail syncs are persisted as suggestions
+  #      (status "suggested", origin "gmail") and surface here with
+  #      provenance :gmail, ordered by observations.
+  #   2. From the source's own name/bank (first-time configuration).
+  #   3. From sibling sources of the SAME institution: reuse their senders,
   #      domains and subject/header patterns (with provenance). Product-specific
   #      keywords on a sibling are never copied — only the shared institution
   #      token is suggested as a keyword.
-  #   3. Values already configured on the current source are excluded.
+  #   4. Values already CONFIRMED on the current source are excluded.
   #
   # Output shape:
   #   {
-  #     keywords: [ { value:, source: }, ... ],   # source ∈ :name | :institution | sibling name
+  #     keywords: [ { value:, source:, count: }, ... ],  # source ∈ :gmail | :name | :institution | :last_four | sibling name
   #     senders:  [ { value:, source: }, ... ],
   #     subjects: [ { value:, source: }, ... ]
   #   }
@@ -41,9 +44,9 @@ module SourceRecognition
 
     def call
       {
-        keywords: keyword_suggestions,
-        senders: sender_suggestions,
-        subjects: subject_suggestions
+        keywords: merge_persisted(%w[keyword], keyword_suggestions),
+        senders: merge_persisted(%w[sender domain], sender_suggestions),
+        subjects: merge_persisted(%w[subject header], subject_suggestions)
       }
     end
 
@@ -51,8 +54,27 @@ module SourceRecognition
 
     attr_reader :source
 
+    # Values discovered during Gmail syncs (persisted, status "suggested")
+    # surface as suggestions with :gmail provenance, most-observed first.
+    def persisted_suggestions(kinds)
+      source.recognition_identifiers
+            .select { |id| id.suggested? && id.kind.in?(kinds) }
+            .sort_by { |id| -id.observation_count }
+            .map { |id| { value: id.value, source: :gmail, count: id.observation_count } }
+    end
+
+    # Persisted Gmail suggestions take precedence over computed ones; the
+    # combined list is deduped case-insensitively.
+    def merge_persisted(kinds, computed)
+      (persisted_suggestions(kinds) + computed)
+        .uniq { |s| s[:value].to_s.downcase }
+    end
+
+    # Only CONFIRMED values block suggestions: persisted suggestions must
+    # keep surfacing until the user accepts or dismisses them.
     def existing_values
       @existing_values ||= source.recognition_identifiers
+                                 .reject(&:suggested?)
                                  .group_by(&:kind)
                                  .transform_values { |ids| ids.map(&:value).to_set }
     end

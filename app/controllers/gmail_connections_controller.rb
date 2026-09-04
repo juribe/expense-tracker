@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GmailConnectionsController < ApplicationController
-  before_action :set_connection, only: %i[update destroy sync]
+  before_action :set_connection, only: %i[update destroy sync sync_status]
 
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
@@ -26,7 +26,11 @@ class GmailConnectionsController < ApplicationController
                          alert: t("gmail.oauth_missing")
     end
 
-    unless current_user.money_sources.any?(&:recognition_configured?)
+    # Recognition configuration is NOT required before connecting Gmail: the
+    # first sync exists precisely to discover suggested senders/subjects/
+    # keywords from the mailbox. Sources are needed so discovery has
+    # something to attach the suggestions to.
+    unless current_user.money_sources.exists?
       return redirect_to money_sources_recognition_path,
                          alert: t("money_sources.recognition.gmail_blocked")
     end
@@ -67,14 +71,25 @@ class GmailConnectionsController < ApplicationController
     @connection.destroy!
     redirect_to gmail_connection_path, notice: t("gmail_messages.disconnected", email: email)
   end
+  # Kicks off the Gmail synchronization in the background. Enqueues a job
+  # instead of running Gmail::SyncService synchronously, because a full sync
+  # (fetch + AI extraction + recognition discovery for up to 25 messages) can
+  # take a while — the request should return immediately and let the user keep
+  # browsing. Results appear once the job finishes (refresh the page).
   def sync
-    summary = Gmail::SyncService.call(@connection)
-    message = if summary[:error]
-                t("gmail_messages.sync_failed", message: summary[:error])
-    else
-                t("gmail_messages.sync_finished", created: summary[:created], pending: summary[:needs_review], failed: summary[:failed])
-    end
-    redirect_to gmail_connection_path, notice: message
+    GmailSyncJob.perform_later(connection_id: @connection.id)
+    redirect_to gmail_connection_path, notice: t("gmail_messages.sync_started")
+  end
+
+  # JSON endpoint polled by the Gmail settings page while a sync is running.
+  # Returns { syncing: bool, summary: {...} } so the front-end can auto-refresh.
+  def sync_status
+    summary = @connection.last_sync_summary
+    render json: {
+      syncing: @connection.syncing.present?,
+      summary: summary,
+      last_synced_at: @connection.last_synced_at&.iso8601
+    }
   end
 
   # Approves a low-confidence transaction extracted from an email.

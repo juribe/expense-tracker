@@ -11,3 +11,8 @@ end
 INCOME_DEFAULTS.each do |name|
   Category.find_or_create_by!(name: name, is_default: true, category_type: "income")
 end
+
+# Financial email catalog: Colombian institutions, global financial keywords
+# and subject patterns (idempotent upserts).
+require_relative "seed_data/financial_catalog_seeder"
+FinancialCatalogSeeder.run

@@ -84,5 +84,35 @@ module Ai
       assert_not result[:ok?]
       assert_match(/not configured/, result[:error])
     end
+
+    test "perform_request retries a 429 then returns a 200" do
+      fake = Struct.new(:code)
+      calls = []
+      response_sequence = [ fake.new("429"), fake.new("429"), fake.new("200") ]
+
+      result = extractor.send(:retry_with_backoff) do
+        calls << response_sequence.shift
+        calls.last
+      end
+
+      assert_equal "200", result.code
+      assert_equal 3, calls.size
+    end
+
+    test "perform_request gives up on persistent 429 after retrying" do
+      fake = Struct.new(:code)
+      calls = []
+      response_sequence = [ fake.new("429"), fake.new("429"), fake.new("429") ]
+
+      error = assert_raises(Ai::TransactionExtractor::ExtractionError) do
+        extractor.send(:retry_with_backoff) do
+          calls << response_sequence.shift
+          calls.last
+        end
+      end
+
+      assert_match(/AI HTTP 429/, error.message)
+      assert_equal 3, calls.size
+    end
   end
 end

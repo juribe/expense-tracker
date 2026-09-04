@@ -1,0 +1,31 @@
+# Generic subject patterns that signal a financial notification email.
+# They are fuzzy signals (a subject CONTAINING the pattern counts), never
+# exact-match requirements. Subject patterns carry a medium signal weight.
+subject_patterns:
+  - transacción
+  - transaccion
+  - compra
+  - consumo
+  - pago
+  - transferencia
+  - retiro
+  - movimiento
+  - alerta
+  - operación
+  - operacion
+  - compra aprobada
+  - transacción aprobada
+  - transaccion aprobada
+  - pago aprobado
+  - transferencia realizada
+  - movimiento de cuenta
+  - nuevo movimiento
+  - confirmación
+  - confirmacion
+  - notificación
+  - notificacion
+  - extracto
+  - extracto bancario
+  - estado de cuenta
+  - cuota
+  - vencimiento

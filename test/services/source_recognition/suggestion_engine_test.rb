@@ -202,5 +202,57 @@ module SourceRecognition
       source.reload
       assert_not source.recognition_configured?
     end
+
+    test "surfaces Gmail-discovered suggestions with gmail provenance" do
+      source = create_source(name: "Davibank Nómina", bank: "davibank")
+      source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+        kind: "sender", value: "notificaciones@davibank.com", status: "suggested", origin: "gmail", observation_count: 4
+      )
+      source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+        kind: "subject", value: "Transacción aprobada", status: "suggested", origin: "gmail", observation_count: 2
+      )
+
+      result = call(source)
+
+      senders = result[:senders]
+      assert_equal 2, senders.length
+      gmail_sender = senders.find { |s| s[:source] == :gmail }
+      assert_equal "notificaciones@davibank.com", gmail_sender[:value]
+      assert_equal 4, gmail_sender[:count]
+      assert_equal "Transacción aprobada", result[:subjects].first[:value]
+    end
+
+    test "persisted gmail suggestions are not duplicated by computed ones" do
+      sibling = create_source(name: "Davibank Clásica", bank: "davibank")
+      sibling.ensure_recognition.replace_identifiers(sender: ["notificaciones@davibank.com"])
+
+      source = create_source(name: "Davibank Nómina", bank: "davibank")
+      source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+        kind: "sender", value: "notificaciones@davibank.com", status: "suggested", origin: "gmail"
+      )
+
+      senders = call(source)[:senders]
+
+      assert_equal 1, senders.length
+      assert_equal :gmail, senders.first[:source]
+    end
+
+    test "confirmed values are excluded but suggested ones keep surfacing" do
+      source = create_source(name: "Davibank Nómina", bank: "davibank")
+      sibling = create_source(name: "Davibank Clásica", bank: "davibank")
+      sibling.ensure_recognition.replace_identifiers(sender: ["a@davibank.com", "b@davibank.com"])
+
+      source.ensure_recognition.replace_identifiers(sender: ["a@davibank.com"])
+      source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+        kind: "sender", value: "c@davibank.com", status: "suggested", origin: "gmail"
+      )
+
+      result = call(source)
+      senders = result[:senders].map { |s| s[:value] }
+
+      assert_includes senders, "b@davibank.com"
+      assert_includes senders, "c@davibank.com"
+      assert_not_includes senders, "a@davibank.com"
+    end
   end
 end

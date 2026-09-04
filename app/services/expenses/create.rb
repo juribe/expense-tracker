@@ -46,9 +46,15 @@ module Expenses
 
     private
 
+    # Upper bound matching the `numeric(10,2)` expenses.amount column
+    # (precision 10, scale 2 => max 99,999,999.99) so a huge/garbled amount
+    # fails validation instead of raising PG::NumericValueOutOfRange.
+    MAX_AMOUNT = BigDecimal("99_999_999.99")
+
     def parse_amount!
       value = @amount.is_a?(Numeric) ? BigDecimal(@amount.to_s) : BigDecimal(@amount.to_s.gsub(/[^0-9.\-]/, ""))
       raise Invalid, "amount must be greater than zero" unless value.positive?
+      raise Invalid, "amount is too large" if value > MAX_AMOUNT
 
       value
     rescue ArgumentError, TypeError

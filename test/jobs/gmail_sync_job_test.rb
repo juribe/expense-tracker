@@ -60,6 +60,34 @@ class GmailSyncJobTest < ActiveJob::TestCase
     end
   end
 
+  test "tracks syncing state and stores the summary when complete" do
+    summary = { fetched: 1, created: 1, failed: 0 }
+    stub_method(Gmail::SyncService, :call, summary) do
+      GmailSyncJob.perform_now(connection_id: @active.id)
+    end
+
+    @active.reload
+    assert_nil @active.syncing
+    assert_equal "1", @active.last_sync_summary.fetch("fetched").to_s
+    assert_equal "1", @active.last_sync_summary.fetch("created").to_s
+  end
+
+  test "clears syncing and records an error summary when the sync fails" do
+    service_stub = lambda do |_connection|
+      raise StandardError, "network down"
+    end
+
+    silence_logger do
+      stub_method(Gmail::SyncService, :call, service_stub) do
+        GmailSyncJob.perform_now(connection_id: @active.id)
+      end
+    end
+
+    @active.reload
+    assert_nil @active.syncing
+    assert @active.last_sync_summary["error"].present?
+  end
+
   private
 
   def silence_logger

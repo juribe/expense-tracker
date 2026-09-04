@@ -2,9 +2,11 @@
   "Reconocimiento de fuentes" — real implementation.
   Lists all Money Sources with their recognition status. Clicking Edit opens a
   right-side drawer (table stays visible behind) to configure keywords /
-  senders+domains / subject+header patterns as removable chips. First-time and
-  same-institution sources get explicit (non-persisted) suggestions the user
-  can accept.
+  senders+domains / subject+header patterns as removable chips. Inside each
+  section the drawer distinguishes CONFIRMED chips from SUGGESTED ones
+  (computed from the source name / same-institution siblings, or discovered
+  by Gmail syncs and persisted as suggestions). The user accepts or ignores
+  each suggestion; nothing is confirmed silently.
 %>
 <%
   kind_badges = {
@@ -16,11 +18,15 @@
     "wallet" => { label: t("kinds.wallet"), class: "recognition-badge-account" }
   }
 
-  keywords = @editing&.recognition_identifiers&.select(&:keyword?)&.sort_by(&:position) || []
-  senders  = @editing&.recognition_identifiers&.select { |id| id.sender? || id.domain? }&.sort_by(&:position) || []
-  subjects = @editing&.recognition_identifiers&.select { |id| id.subject? || id.header? }&.sort_by(&:position) || []
-  suggestion_keys = @suggestions&.keys || []
-  has_suggestions = @suggestions.present? && suggestion_keys.any? { |k| @suggestions[k].present? }
+  keywords = @editing&.recognition_identifiers&.select { |id| id.keyword? && id.confirmed? }&.sort_by(&:position) || []
+  senders  = @editing&.recognition_identifiers&.select { |id| (id.sender? || id.domain?) && id.confirmed? }&.sort_by(&:position) || []
+  subjects = @editing&.recognition_identifiers&.select { |id| (id.subject? || id.header?) && id.confirmed? }&.sort_by(&:position) || []
+  suggestions = @suggestions || {}
+  section_suggestions = {
+    "keywords" => Array(suggestions[:keywords]),
+    "senders"  => Array(suggestions[:senders]),
+    "subjects" => Array(suggestions[:subjects])
+  }
 %>
 
 <header class="recognition-header">
@@ -69,6 +75,12 @@
                 <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i><%= t("money_sources.recognition.status_unconfigured") %>
               </span>
             <% end %>
+            <% suggestion_count = source.recognition_identifiers.count(&:suggested?) %>
+            <% if suggestion_count.positive? %>
+              <span class="recognition-status-hint" data-testid="recognition-suggestion-count">
+                <i class="bi bi-lightbulb" aria-hidden="true"></i><%= t("money_sources.recognition.status_suggestions", count: suggestion_count) %>
+              </span>
+            <% end %>
           </td>
           <td class="text-end">
             <div class="recognition-row-actions d-print-none">
@@ -108,66 +120,6 @@
       </div>
 
       <div class="recognition-drawer-body">
-        <% if has_suggestions %>
-          <div class="recognition-suggestions">
-            <div class="recognition-suggestions-head">
-              <div class="recognition-suggestions-title">
-                <h3><i class="bi bi-magic" aria-hidden="true"></i><%= t("money_sources.recognition.suggestions_title") %></h3>
-                <p><%= t("money_sources.recognition.suggestions_desc") %></p>
-              </div>
-              <button type="button" class="recognition-chip-remove recognition-suggestions-dismiss" data-recognition-dismiss-suggestions title="<%= t("money_sources.recognition.dismiss_suggestions") %>" aria-label="<%= t("money_sources.recognition.dismiss_suggestions") %>">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-            <div class="recognition-suggestions-body">
-              <% if @suggestions[:senders].present? %>
-                <div class="recognition-suggestion-group">
-                  <div class="recognition-suggestion-label"><%= t("money_sources.recognition.section_senders") %></div>
-                  <div class="recognition-suggestion-chips">
-                    <% @suggestions[:senders].each do |s| %>
-                      <span class="recognition-chip recognition-chip-suggested" data-suggested-for="senders" data-suggested-value="<%= s[:value] %>">
-                        <%= s[:value] %>
-                        <span class="recognition-chip-provenance"><%= suggestion_provenance(s) %></span>
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-              <% if @suggestions[:subjects].present? %>
-                <div class="recognition-suggestion-group">
-                  <div class="recognition-suggestion-label"><%= t("money_sources.recognition.section_subjects") %></div>
-                  <div class="recognition-suggestion-chips">
-                    <% @suggestions[:subjects].each do |s| %>
-                      <span class="recognition-chip recognition-chip-suggested" data-suggested-for="subjects" data-suggested-value="<%= s[:value] %>">
-                        <%= s[:value] %>
-                        <span class="recognition-chip-provenance"><%= suggestion_provenance(s) %></span>
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-              <% if @suggestions[:keywords].present? %>
-                <div class="recognition-suggestion-group">
-                  <div class="recognition-suggestion-label"><%= t("money_sources.recognition.section_identification") %></div>
-                  <div class="recognition-suggestion-chips">
-                    <% @suggestions[:keywords].each do |s| %>
-                      <span class="recognition-chip recognition-chip-suggested" data-suggested-for="keywords" data-suggested-value="<%= s[:value] %>">
-                        <%= s[:value] %>
-                        <span class="recognition-chip-provenance"><%= suggestion_provenance(s) %></span>
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-            <div class="recognition-suggestions-actions">
-              <button type="button" class="btn btn-sm btn-primary" data-recognition-accept-suggestions>
-                <i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_suggestions") %>
-              </button>
-            </div>
-          </div>
-        <% end %>
-
         <div class="recognition-edit-grid">
           <%# A. Identificación %>
           <div class="recognition-section">
@@ -186,6 +138,9 @@
               </div>
             <% end %>
             <div class="recognition-chips" data-recognition-chips="keywords">
+              <% if section_suggestions["keywords"].present? %>
+                <div class="recognition-chips-label"><%= t("money_sources.recognition.confirmed_label") %></div>
+              <% end %>
               <% keywords.each do |id| %>
                 <span class="recognition-chip" data-testid="recognition-chip">
                   <%= id.value %>
@@ -195,6 +150,7 @@
               <% end %>
               <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="keywords"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add") %></button>
             </div>
+            <%= render "recognition_suggested", section: "keywords", suggestions: section_suggestions["keywords"] %>
             <div class="recognition-section-foot">
               <div class="recognition-section-example"><%= t("money_sources.recognition.identification_example") %></div>
               <div class="recognition-section-count" data-recognition-count><%= t("money_sources.recognition.keywords_count", count: keywords.length) %></div>
@@ -209,6 +165,9 @@
             </div>
             <p class="recognition-section-desc"><%= t("money_sources.recognition.section_senders_desc") %></p>
             <div class="recognition-chips" data-recognition-chips="senders">
+              <% if section_suggestions["senders"].present? %>
+                <div class="recognition-chips-label"><%= t("money_sources.recognition.confirmed_label") %></div>
+              <% end %>
               <% senders.each do |id| %>
                 <span class="recognition-chip" data-testid="recognition-chip">
                   <%= id.value %>
@@ -218,6 +177,7 @@
               <% end %>
               <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="senders"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_sender") %></button>
             </div>
+            <%= render "recognition_suggested", section: "senders", suggestions: section_suggestions["senders"] %>
             <div class="recognition-section-foot">
               <div class="recognition-section-example"><%= t("money_sources.recognition.senders_example") %></div>
               <div class="recognition-section-count" data-recognition-count><%= t("money_sources.recognition.senders_count", count: senders.length) %></div>
@@ -232,6 +192,9 @@
             </div>
             <p class="recognition-section-desc"><%= t("money_sources.recognition.section_subjects_desc") %></p>
             <div class="recognition-chips" data-recognition-chips="subjects">
+              <% if section_suggestions["subjects"].present? %>
+                <div class="recognition-chips-label"><%= t("money_sources.recognition.confirmed_label") %></div>
+              <% end %>
               <% subjects.each do |id| %>
                 <span class="recognition-chip" data-testid="recognition-chip">
                   <%= id.value %>
@@ -241,6 +204,7 @@
               <% end %>
               <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="subjects"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_pattern") %></button>
             </div>
+            <%= render "recognition_suggested", section: "subjects", suggestions: section_suggestions["subjects"] %>
             <div class="recognition-section-foot">
               <div class="recognition-section-example"><%= t("money_sources.recognition.subjects_example") %></div>
               <div class="recognition-section-count" data-recognition-count><%= t("money_sources.recognition.patterns_count", count: subjects.length) %></div>

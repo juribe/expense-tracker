@@ -67,4 +67,13 @@ class EmailTransactionDetectorTest < ActiveSupport::TestCase
     assert_not result.transactional?
     assert_equal "failed transaction", result.reason
   end
+
+  test "handles a binary (ASCII-8BIT) encoded body without raising" do
+    subject = "Compra aprobada".dup.force_encoding(Encoding::ASCII_8BIT)
+    body = "Compra realizada por $48.500 en RESTAURANTE XYZ con tu tarjeta Clásica".dup.force_encoding(Encoding::ASCII_8BIT)
+
+    result = detection(subject, body)
+
+    assert result.transactional?
+  end
 end

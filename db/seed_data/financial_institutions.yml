@@ -1,0 +1,194 @@
+# Colombian financial institutions catalog.
+#
+# Fields:
+#   canonical_name - stable unique identifier of the institution.
+#   aliases        - candidate matching values (NOT guaranteed to be in use).
+#   domains        - verified official domains (candidate signals, not proof
+#                    that an email is a transaction notification).
+#   keywords       - well-known product/brand words that point to the
+#                    institution. Only verified, widely-known values belong
+#                    here; leave empty when unsure.
+#   active         - disabled entries are ignored by matching.
+#
+# The seeder (db/seed_data/financial_catalog_seeder.rb) upserts by
+# canonical_name and is idempotent.
+institutions:
+  - canonical_name: Bancolombia
+    aliases: [bancolombia, banco de colombia]
+    domains: [bancolombia.com, grupobancolombia.com]
+    keywords: [nequi]
+    active: true
+
+  - canonical_name: Davivienda
+    aliases: [davivienda, banco davivienda]
+    domains: [davivienda.com]
+    keywords: [daviplata]
+    active: true
+
+  - canonical_name: DAVIbank
+    aliases: [davibank, banco davibank]
+    domains: [davibank.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco de Bogotá
+    aliases: [banco de bogota, banco de bogotá, bogota]
+    domains: [bancodebogota.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco de Occidente
+    aliases: [banco de occidente, occidente]
+    domains: [bancodeoccidente.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Popular
+    aliases: [banco popular, popular]
+    domains: [bancopopular.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Caja Social
+    aliases: [banco caja social, caja social, bcs]
+    domains: [bancocajasocial.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco AV Villas
+    aliases: [av villas, avvillas, banco av villas]
+    domains: [avvillas.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: BBVA Colombia
+    aliases: [bbva, bbva colombia]
+    domains: [bbva.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Scotiabank Colpatria
+    aliases: [scotiabank, colpatria, scotiabank colpatria]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Agrario
+    aliases: [banco agrario, banagrario, agrario]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Falabella
+    aliases: [banco falabella, falabella, cmr]
+    domains: [bancofalabella.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Pichincha
+    aliases: [banco pichincha, pichincha]
+    domains: [pichincha.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Finandina
+    aliases: [banco finandina, finandina]
+    domains: [bancofinandina.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Santander
+    aliases: [banco santander, santander, santander colombia]
+    domains: [santander.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Serfinanza
+    aliases: [banco serfinanza, serfinanza]
+    domains: [serfinanza.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Lulo Bank
+    aliases: [lulo, lulo bank, lulobank]
+    domains: [lulobank.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Nu Colombia
+    aliases: [nu, nu colombia, nubank]
+    domains: [nu.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Itaú
+    aliases: [itau, itaú, banco itau, banco itaú]
+    domains: [itau.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco GNB Sudameris
+    aliases: [gnb, gnb sudameris, sudameris]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Mundo Mujer
+    aliases: [mundo mujer, banco mundo mujer]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco W
+    aliases: [banco w, bancow]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Ban100
+    aliases: [ban100, bancien]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Bancamía
+    aliases: [bancamia, bancamía]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Bancoomeva
+    aliases: [bancoomeva, banco coomeva]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Cooperativo Coopcentral
+    aliases: [coopcentral, banco coopcentral]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco BTG Pactual
+    aliases: [btg, btg pactual]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: MiBanco
+    aliases: [mibanco, mi banco]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Unión
+    aliases: [banco union, banco unión]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Contactar
+    aliases: [banco contactar, contactar]
+    domains: []
+    keywords: []
+    active: true

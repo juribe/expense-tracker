@@ -55,6 +55,71 @@ class MoneySourceRecognitionTest < ActiveSupport::TestCase
     assert_empty source.recognition.recognition_identifiers
   end
 
+  test "replace_identifiers does not touch persisted suggestions" do
+    source = create_source
+    recognition = source.ensure_recognition.tap(&:save!)
+    suggestion = recognition.recognition_identifiers.create!(
+      kind: "sender", value: "descubierto@davibank.com", status: "suggested", origin: "gmail"
+    )
+
+    recognition.replace_identifiers(keyword: ["davi"])
+    recognition.reload
+
+    assert suggestion.reload.persisted?
+    assert suggestion.suggested?
+    assert source.recognition_identifiers.where(kind: "keyword", status: "confirmed").exists?
+  end
+
+  test "accepting a suggestion promotes it to confirmed without duplicating it" do
+    source = create_source
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.recognition_identifiers.create!(
+      kind: "sender", value: "descubierto@davibank.com", status: "suggested", origin: "gmail", observation_count: 3
+    )
+
+    recognition.replace_identifiers(sender: ["descubierto@davibank.com"])
+
+    identifiers = source.recognition_identifiers.where(kind: "sender")
+    assert_equal 1, identifiers.count
+    assert identifiers.first.confirmed?
+    assert_equal "user", identifiers.first.origin
+  end
+
+  test "dismiss_suggestions! removes only the dismissed suggested values" do
+    source = create_source
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.recognition_identifiers.create!(kind: "sender", value: "a@davibank.com", status: "suggested", origin: "gmail")
+    recognition.recognition_identifiers.create!(kind: "domain", value: "davibank.com", status: "suggested", origin: "gmail")
+    recognition.replace_identifiers(keyword: ["davi"])
+
+    recognition.dismiss_suggestions!("senders" => ["a@davibank.com"])
+
+    assert_nil recognition.recognition_identifiers.find_by(kind: "sender", value: "a@davibank.com")
+    assert recognition.recognition_identifiers.exists?(kind: "domain", value: "davibank.com")
+    assert recognition.recognition_identifiers.exists?(kind: "keyword", value: "davi")
+  end
+
+  test "configured? requires a confirmed identifier" do
+    source = create_source
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.recognition_identifiers.create!(
+      kind: "sender", value: "descubierto@davibank.com", status: "suggested", origin: "gmail"
+    )
+
+    assert_not recognition.configured?
+    assert_not source.recognition_configured?
+  end
+
+  test "new identifiers default to confirmed/user status" do
+    source = create_source
+    recognition = source.ensure_recognition.tap(&:save!)
+    identifier = recognition.recognition_identifiers.create!(kind: "keyword", value: "davi")
+
+    assert identifier.confirmed?
+    assert_equal "user", identifier.origin
+    assert_equal 1, identifier.observation_count
+  end
+
   test "destroying recognition destroys its identifiers but keeps the source" do
     source = create_source
     source.ensure_recognition.replace_identifiers(keyword: ["davi"])
@@ -70,14 +135,14 @@ class MoneySourceRecognitionTest < ActiveSupport::TestCase
 
   test "identifier kind must be one of KINDS" do
     source = create_source
-    recognition = source.ensure_recognition
+    recognition = source.ensure_recognition.tap(&:save!)
     recognition.recognition_identifiers.build(kind: "bogus", value: "x")
     assert_not recognition.valid?
   end
 
   test "identifier value is unique per kind within a recognition" do
     source = create_source
-    recognition = source.ensure_recognition
+    recognition = source.ensure_recognition.tap(&:save!)
     recognition.replace_identifiers(keyword: ["davi"])
     recognition.recognition_identifiers.build(kind: "keyword", value: "davi")
     assert_not recognition.valid?

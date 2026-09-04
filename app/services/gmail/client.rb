@@ -113,7 +113,8 @@ module Gmail
     end
 
     def decode_body(data)
-      Base64.urlsafe_decode64(data)
+      bytes = Base64.urlsafe_decode64(data)
+      bytes.force_encoding(Encoding::UTF_8).scrub
     rescue ArgumentError
       ""
     end

@@ -1,0 +1,27 @@
+<%#
+  Suggested (discovered/computed, NOT yet confirmed) recognition values for
+  one drawer section. Locals: section ("keywords" | "senders" | "subjects"),
+  suggestions (array of { value:, source: }).
+%>
+<% if suggestions.present? %>
+  <div class="recognition-suggested-block" data-testid="recognition-suggested-block">
+    <div class="recognition-suggested-label">
+      <i class="bi bi-magic" aria-hidden="true"></i><%= t("money_sources.recognition.suggested_label") %>
+    </div>
+    <div class="recognition-suggestion-chips">
+      <% suggestions.each do |s| %>
+        <span class="recognition-chip recognition-chip-suggested" data-testid="recognition-suggested-chip"
+              data-suggested-for="<%= section %>" data-suggested-value="<%= s[:value] %>">
+          <%= s[:value] %>
+          <span class="recognition-chip-provenance"><%= suggestion_provenance(s) %></span>
+          <button type="button" class="recognition-chip-accept" data-recognition-accept-suggestion
+                  title="<%= t("money_sources.recognition.add_suggestion") %>"
+                  aria-label="<%= t("money_sources.recognition.add_suggestion") %>"><i class="bi bi-plus-lg"></i></button>
+          <button type="button" class="recognition-chip-remove" data-recognition-dismiss-suggestion
+                  title="<%= t("money_sources.recognition.dismiss_suggestion") %>"
+                  aria-label="<%= t("money_sources.recognition.dismiss_suggestion") %>"><i class="bi bi-x"></i></button>
+        </span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

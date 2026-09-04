@@ -123,8 +123,42 @@ module Gmail
       end
 
       summary = sync(failing_class)
-      assert_equal({ created: 0, failed: 0, fetched: 0, ignored: 0, needs_review: 0, skipped: 0 }, summary.except(:error))
+      assert_equal({ created: 0, failed: 0, fetched: 0, ignored: 0, needs_review: 0, skipped: 0, suggestions: 0 },
+                   summary.except(:error))
       assert_equal "invalid credentials", summary[:error]
+    end
+
+    test "first sync runs recognition discovery and reports the suggestions created" do
+      require Rails.root.join("db/seed_data/financial_catalog_seeder")
+      FinancialCatalogSeeder.run
+      source = @user.money_sources.create!(name: "Davibank Clásica", kind: "account",
+                                           starting_balance: 0, bank: "Davibank", identifier: "5678")
+
+      message = purchase_message("davi")
+      message[:from] = "Davibank <notificaciones@davibank.com>"
+      message[:subject] = "Transacción aprobada"
+      message[:body_text] = "DAVIbank te notifica: transacción con tu tarjeta Clasica terminada en 5678."
+
+      summary = sync(FakeClient.configure(stubs: { "davi" => message }))
+
+      # sender + domain + subject + keywords (davibank, clasica, 5678)
+      assert_equal 6, summary[:suggestions]
+      source.reload
+      assert_empty source.recognition_identifiers.confirmed
+      assert source.recognition_identifiers.suggested.exists?(kind: "sender", value: "notificaciones@davibank.com")
+      assert source.recognition_identifiers.suggested.exists?(kind: "keyword", value: "5678")
+    end
+
+    test "discovery failures never abort the sync" do
+      @user.money_sources.create!(name: "Davibank Clásica", kind: "account", starting_balance: 0, bank: "Davibank")
+      failing_discovery = Object.new
+      failing_discovery.define_singleton_method(:process) { |*| raise StandardError, "discovery boom" }
+      stub_method(SourceRecognition::DiscoveryService, :new, ->(*) { failing_discovery }) do
+        summary = sync(FakeClient.configure(stubs: { "a" => purchase_message("a") }))
+
+        assert_equal 1, summary[:created]
+        assert_equal 0, summary[:suggestions]
+      end
     end
   end
 end

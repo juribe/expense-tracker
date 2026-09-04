@@ -95,13 +95,36 @@ module Ai
         ]
       }.to_json
 
-      response = http.request(request)
-      raise ExtractionError, "AI HTTP #{response.code}" unless response.code.to_i == 200
+      response = perform_request(http, request)
 
       content = JSON.parse(response.body).dig("choices", 0, "message", "content")
       JSON.parse(content)
     rescue JSON::ParserError, TypeError, KeyError => e
       raise ExtractionError, "invalid AI response (#{e.message})"
+    end
+
+    # Retries rate-limited (HTTP 429) responses with a short backoff so a
+    # transient provider throttle does not burn a message's failed attempt.
+    # Other HTTP errors fail immediately. Accepts a callable so the HTTP layer
+    # can be stubbed in tests.
+    def perform_request(http, request)
+      retry_with_backoff { http.request(request) }
+    end
+
+    def retry_with_backoff
+      attempts = 0
+      loop do
+        response = yield
+        return response if response.code.to_i == 200
+
+        if response.code.to_i == 429 && attempts < 2
+          attempts += 1
+          sleep(attempts)
+          next
+        end
+
+        raise ExtractionError, "AI HTTP #{response.code}"
+      end
     end
 
     def email_content(subject, body)

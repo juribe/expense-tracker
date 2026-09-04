@@ -50,6 +50,12 @@ class MoneySourcesController < ApplicationController
   end
 
   # PATCH /money_sources/recognition/:money_source_id
+  #
+  # The form submits the CONFIRMED chips per section. Persisted suggestions
+  # the user accepted are promoted to confirmed (replace_identifiers handles
+  # that without duplicates); suggestions explicitly dismissed with their ×
+  # button arrive in `dismissed` and are deleted. Untouched suggestions are
+  # preserved for a later review.
   def update_recognition
     source = current_user.money_sources.find(params[:money_source_id])
     senders, domains = classify_senders(Array(params[:senders]))
@@ -62,13 +68,22 @@ class MoneySourcesController < ApplicationController
       header: headers
     }
 
-    if values.values.all? { |v| Array(v).compact_blank.empty? }
-      source.recognition&.destroy
-      return redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.deleted")
-    end
+    all_empty = values.values.all? { |v| Array(v).compact_blank.empty? }
+    recognition = all_empty ? source.recognition : source.ensure_recognition
 
-    recognition = source.ensure_recognition
-    recognition.replace_identifiers(**values)
+    if recognition
+      ActiveRecord::Base.transaction do
+        recognition.replace_identifiers(**values)
+        recognition.dismiss_suggestions!(dismissed_suggestions)
+        # Nothing at all left (confirmed or suggested) → drop the record so
+        # the source flips to "Sin configurar".
+        recognition.reload.destroy if recognition.recognition_identifiers.empty?
+      end
+
+      # Feed the now-confirmed values back into the Gmail search config so the
+      # next sync queries the confirmed bank senders/domains/subjects.
+      SourceRecognition::ApplyToSearchConfig.call(user: current_user)
+    end
 
     redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved")
   end
@@ -126,6 +141,13 @@ class MoneySourcesController < ApplicationController
     when "loan" then money_sources_loans_path
     else money_sources_cash_path
     end
+  end
+
+  # `dismissed` arrives as { "keywords" => [...], "senders" => [...],
+  # "subjects" => [...] } from JS-added hidden inputs on the recognition form.
+  def dismissed_suggestions
+    raw = params[:dismissed]
+    raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : {}
   end
 
   # The senders section mixes real addresses (sender) and bare domains

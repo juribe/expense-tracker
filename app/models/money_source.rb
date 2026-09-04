@@ -135,9 +135,11 @@ class MoneySource < ApplicationRecord
     parts.join(" · ")
   end
 
-  # Whether minimum recognition configuration exists (≥ 1 identifier of any kind).
+  # Whether minimum recognition configuration exists: at least one CONFIRMED
+  # identifier of any kind. Persisted suggestions alone do not count — the
+  # user must review and accept them first.
   def recognition_configured?
-    recognition_identifiers.any?
+    recognition_identifiers.confirmed.any?
   end
 
   # The source's last four digits, used as a recognition signal. Re-derived
