@@ -546,7 +546,8 @@
       form.innerHTML =
       '<input type="hidden" name="_method" value="delete">' +
       '<input type="hidden" name="authenticity_token" value="' +
-      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
+      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">' +
+      '<input type="hidden" name="ids" value="' + form.querySelector("#deleteIds").value + '">';
       bootstrap.Modal.getInstance("#deleteModal").hide();
       bootstrap.Offcanvas.getInstance("#detailDrawer") && bootstrap.Offcanvas.getInstance("#detailDrawer").hide();
       form.requestSubmit();

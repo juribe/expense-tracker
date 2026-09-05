@@ -1,15 +1,15 @@
 {
   "app/assets/javascripts/application.js": {
-    "mtime": 1788624305.1351917,
-    "seen": 1788624355.4584708,
-    "ast_hash": "2703435a17f9b692132effab0904dfd3",
+    "mtime": 1788627188.530037,
+    "seen": 1788627273.624964,
+    "ast_hash": "9310103f54931c201fe581a5bd5e436e",
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1787170959.1367722,
-    "seen": 1788619682.038284,
-    "ast_hash": "99c95c18c45b1d244b8af2b9c89e50bd",
-    "semantic_hash": "99c95c18c45b1d244b8af2b9c89e50bd"
+    "mtime": 1788627794.4162283,
+    "seen": 1788627826.927556,
+    "ast_hash": "b01861ec111be5a8e40d1de195928050",
+    "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
     "mtime": 1788561516.7405534,
@@ -42,10 +42,10 @@
     "semantic_hash": "12bc17b153a99db09a7b31d3c711c0f1"
   },
   "app/controllers/gmail_connections_controller.rb": {
-    "mtime": 1788561516.7413247,
-    "seen": 1788619682.038291,
-    "ast_hash": "168c01848afd711347c57fdc9f834c76",
-    "semantic_hash": "168c01848afd711347c57fdc9f834c76"
+    "mtime": 1788627179.088079,
+    "seen": 1788627273.624968,
+    "ast_hash": "d992525f321c6f7db31158a45c3f4e34",
+    "semantic_hash": ""
   },
   "app/controllers/imports_controller.rb": {
     "mtime": 1788561516.7414982,
@@ -138,10 +138,10 @@
     "semantic_hash": "bdecd79f2c18f1519c7d39f08ba41ea9"
   },
   "app/jobs/gmail_sync_job.rb": {
-    "mtime": 1788561516.7430947,
-    "seen": 1788619682.038296,
-    "ast_hash": "1f59010605361edf0a433faabb17adc3",
-    "semantic_hash": "1f59010605361edf0a433faabb17adc3"
+    "mtime": 1788627153.826454,
+    "seen": 1788627273.6249752,
+    "ast_hash": "3f7b372935d89509baefb129cad5514e",
+    "semantic_hash": ""
   },
   "app/mailers/application_mailer.rb": {
     "mtime": 1787157919.361337,
@@ -204,10 +204,10 @@
     "semantic_hash": "843da63d09510236e4e59c876646b1ba"
   },
   "app/models/gmail_connection.rb": {
-    "mtime": 1787504325.498239,
-    "seen": 1788619682.0382988,
-    "ast_hash": "422dddd49c0568adddd04bab8402eac6",
-    "semantic_hash": "422dddd49c0568adddd04bab8402eac6"
+    "mtime": 1788627134.5995858,
+    "seen": 1788627273.62498,
+    "ast_hash": "ec76f491612a9d5f510e04cdd3eb7be2",
+    "semantic_hash": ""
   },
   "app/models/income.rb": {
     "mtime": 1787354157.4434445,
@@ -402,10 +402,10 @@
     "semantic_hash": "6fece41f1884b64806161b3f30ead035"
   },
   "app/services/source_recognition/discovery_service.rb": {
-    "mtime": 1788561516.7470994,
-    "seen": 1788619682.038309,
-    "ast_hash": "c54a19eca9b01fffb0a3114623259ccb",
-    "semantic_hash": "c54a19eca9b01fffb0a3114623259ccb"
+    "mtime": 1788626384.5021272,
+    "seen": 1788626681.760136,
+    "ast_hash": "42852e14d38e47c21e65cc459ba79008",
+    "semantic_hash": ""
   },
   "app/services/source_recognition/financial_email_filter.rb": {
     "mtime": 1788561516.7472126,
@@ -420,10 +420,10 @@
     "semantic_hash": "228750f6d1542abed9ad44d1715b566e"
   },
   "app/services/source_recognition/suggestion_engine.rb": {
-    "mtime": 1788561516.747442,
-    "seen": 1788619682.0383098,
-    "ast_hash": "8e0eac02b09be92ecc8d9df49b88360b",
-    "semantic_hash": "8e0eac02b09be92ecc8d9df49b88360b"
+    "mtime": 1788629638.2639654,
+    "seen": 1788629678.682893,
+    "ast_hash": "c31834cf1de737575a38cad517183c9e",
+    "semantic_hash": ""
   },
   "app/services/source_recognition/text_normalizer.rb": {
     "mtime": 1788561516.7474918,
@@ -576,10 +576,10 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1788561516.7593224,
-    "seen": 1788619682.0383182,
-    "ast_hash": "c9b0c48247339c1fffc4531ef6d7e211",
-    "semantic_hash": "c9b0c48247339c1fffc4531ef6d7e211"
+    "mtime": 1788626399.9468517,
+    "seen": 1788626681.760148,
+    "ast_hash": "ef032c38768dd9b3777843a4840c7219",
+    "semantic_hash": ""
   },
   "db/migrate/20260819140000_create_categories.rb": {
     "mtime": 1787172914.5737398,
@@ -846,10 +846,10 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1788561773.9922943,
-    "seen": 1788619682.0383308,
-    "ast_hash": "239ba1e75dfbe4dbbad26980972aa84d",
-    "semantic_hash": "239ba1e75dfbe4dbbad26980972aa84d"
+    "mtime": 1788626625.2193863,
+    "seen": 1788626681.7601678,
+    "ast_hash": "08ba88c2a2adf986d33c74f5cb219865",
+    "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
     "mtime": 1788561516.7611492,
@@ -1038,10 +1038,10 @@
     "semantic_hash": "de3b0a40b64c46f0979a41ee4c357be8"
   },
   "test/controllers/gmail_connections_controller_test.rb": {
-    "mtime": 1788561516.7686632,
-    "seen": 1788619682.03834,
-    "ast_hash": "6bad8cb5a51ed9bfa77a71ee50b2c725",
-    "semantic_hash": "6bad8cb5a51ed9bfa77a71ee50b2c725"
+    "mtime": 1788627805.6280863,
+    "seen": 1788627826.9276319,
+    "ast_hash": "dfd9c0a1ce74203b746ab0b13691f48e",
+    "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
     "mtime": 1788561516.768735,
@@ -1104,10 +1104,10 @@
     "semantic_hash": "1103a68c3444790597a69073003a6357"
   },
   "test/models/gmail_connection_test.rb": {
-    "mtime": 1787504325.503595,
-    "seen": 1788619682.038343,
-    "ast_hash": "922446d41df528cd9c4f687c4edf7e32",
-    "semantic_hash": "922446d41df528cd9c4f687c4edf7e32"
+    "mtime": 1788627230.819647,
+    "seen": 1788627273.625047,
+    "ast_hash": "df0006cc0b25f069c651e78ddab6a580",
+    "semantic_hash": ""
   },
   "test/models/money_source_recognition_test.rb": {
     "mtime": 1788561516.7698183,
@@ -1224,10 +1224,10 @@
     "semantic_hash": "cc194765bdc5a7a62dc58bb70d64a299"
   },
   "test/services/source_recognition/discovery_service_test.rb": {
-    "mtime": 1788561516.771804,
-    "seen": 1788619682.0383492,
-    "ast_hash": "fb7df052821b054ae48b2504efafc7ea",
-    "semantic_hash": "fb7df052821b054ae48b2504efafc7ea"
+    "mtime": 1788626549.9497755,
+    "seen": 1788626681.760195,
+    "ast_hash": "4b67c8e8a9ab500764308427da34812d",
+    "semantic_hash": ""
   },
   "test/services/source_recognition/financial_email_filter_test.rb": {
     "mtime": 1788561516.7719092,
@@ -1242,10 +1242,10 @@
     "semantic_hash": "3aa0cd63c7742675ee42976925c0bec2"
   },
   "test/services/source_recognition/suggestion_engine_test.rb": {
-    "mtime": 1788561516.772102,
-    "seen": 1788619682.03835,
-    "ast_hash": "a421e1b993f7cc2ba2bbbed9edd5f9ef",
-    "semantic_hash": "a421e1b993f7cc2ba2bbbed9edd5f9ef"
+    "mtime": 1788629672.3752124,
+    "seen": 1788629678.682956,
+    "ast_hash": "a7abd6bf223f72968e63cd59bb133d17",
+    "semantic_hash": ""
   },
   "test/services/statement_duplicate_detector_test.rb": {
     "mtime": 1788561516.7721627,
@@ -1308,10 +1308,10 @@
     "semantic_hash": "99fdf3e45e1c8e06c77fc64ffb99949c"
   },
   "config/locales/es.yml": {
-    "mtime": 1788561516.759064,
-    "seen": 1788619682.038353,
-    "ast_hash": "ee8760a65dfcc932ac33bbb318e8ca4b",
-    "semantic_hash": "ee8760a65dfcc932ac33bbb318e8ca4b"
+    "mtime": 1788627198.730638,
+    "seen": 1788627273.625062,
+    "ast_hash": "f22db7c98fd43fca63e685c7516aaaf1",
+    "semantic_hash": ""
   },
   "config/queue.yml": {
     "mtime": 1788561516.7591274,
@@ -1683,6 +1683,42 @@
     "mtime": 1787196062.933976,
     "seen": 1788624355.458575,
     "ast_hash": "5bd1964731e6d0a3849fa2d37f2134f1",
+    "semantic_hash": ""
+  },
+  "app/jobs/gmail_setup_sync_job.rb": {
+    "mtime": 1788627157.7019155,
+    "seen": 1788627273.6249752,
+    "ast_hash": "91f2cbe4063396ac7efe026515b1774f",
+    "semantic_hash": ""
+  },
+  "app/services/gmail/setup_scan_service.rb": {
+    "mtime": 1788626345.3576288,
+    "seen": 1788626681.7601311,
+    "ast_hash": "c361c1e5a2b787cc6364f10080d94ee6",
+    "semantic_hash": ""
+  },
+  "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb": {
+    "mtime": 1788626311.2745354,
+    "seen": 1788626681.760167,
+    "ast_hash": "434daab92514a247ca66206e052b6fba",
+    "semantic_hash": ""
+  },
+  "test/jobs/gmail_setup_sync_job_test.rb": {
+    "mtime": 1788627219.9109828,
+    "seen": 1788627273.6250439,
+    "ast_hash": "c346c88a69307dd7500b26c34faff7fb",
+    "semantic_hash": ""
+  },
+  "test/services/gmail/setup_scan_service_test.rb": {
+    "mtime": 1788626587.171954,
+    "seen": 1788626681.760192,
+    "ast_hash": "a8eacedc67aadbc09adacf3d0a42c9a2",
+    "semantic_hash": ""
+  },
+  "designs/design_gmail_setup_sync.md": {
+    "mtime": 1788626305.6216078,
+    "seen": 1788626681.76021,
+    "ast_hash": "a91f56a29a9cbd230149a8541fc47c28",
     "semantic_hash": ""
   }
 }

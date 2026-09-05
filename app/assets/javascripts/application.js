@@ -422,4 +422,11 @@
     startSyncPoller();
     try { sessionStorage.removeItem(SYNC_POLL_KEY); } catch (_) {}
   }
+
+  // Page rendered while a sync is running (re-synced via the running badge):
+  // poll until it finishes and refresh so the buttons re-enable and the
+  // results show up without a manual reload.
+  if (document.querySelector("[data-sync-in-progress]")) {
+    startSyncPoller();
+  }
 })();

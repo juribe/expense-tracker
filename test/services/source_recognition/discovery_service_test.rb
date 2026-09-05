@@ -120,6 +120,18 @@ module SourceRecognition
       assert_equal [ "Transacción aprobada" ], values_of(suggested(@clasica, "subject"))
     end
 
+    test "subjects are suggested as amount-free templates" do
+      @service.process(davibank_email(subject: "Transacción aprobada por $50.000 en Tienda X"))
+
+      assert_equal [ "Transacción aprobada por" ], values_of(suggested(@clasica, "subject"))
+    end
+
+    test "subjects that become too short after cutting amounts are skipped" do
+      @service.process(davibank_email(subject: "Extracto $50.000"))
+
+      assert_empty suggested(@clasica, "subject")
+    end
+
     test "marketing emails are not analyzed" do
       result = @service.process(
         davibank_email(subject: "Conoce nuestra nueva tarjeta",

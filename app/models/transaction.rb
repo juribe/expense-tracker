@@ -7,6 +7,7 @@ class Transaction < ApplicationRecord
   belongs_to :category
   belongs_to :recurring_template, optional: true
   belongs_to :money_source, optional: true
+  has_many :processed_emails, foreign_key: :expense_id, dependent: :destroy
 
   validates :amount, presence: true, numericality: { other_than: 0 }
   validates :date, presence: true

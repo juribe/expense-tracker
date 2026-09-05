@@ -26,6 +26,9 @@ class GmailSyncJob < ApplicationJob
   # connection for the UI to poll: sets `syncing` beforehand and clears it
   # (and stores the summary) when done, even on failure.
   def sync_one(connection)
+    # Another sync (normal or setup) already claimed this connection.
+    return if connection.sync_running?
+
     connection.update!(syncing: Time.current)
 
     summary = Gmail::SyncService.call(connection)

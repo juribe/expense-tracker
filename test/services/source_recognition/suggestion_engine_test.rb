@@ -67,6 +67,14 @@ module SourceRecognition
       assert_empty call(source)[:keywords].select { |s| s[:source] == :last_four }
     end
 
+    test "name keywords survive accented characters without mid-word splits" do
+      source = create_source(name: "Davibank Crédito Vehículo", bank: "Davibank")
+      keywords = call(source)[:keywords].map { |s| s[:value] }
+
+      assert_includes keywords, "vehiculo"
+      assert_empty keywords.select { |v| %w[cre dito vehi culo].include?(v) }
+    end
+
     test "blank bank produces no sibling-based suggestions" do
       source = create_source(name: "Dinero en mano", bank: nil)
       result = call(source)

@@ -99,7 +99,7 @@ module SourceRecognition
       created += suggest!(source, :domain, domain)
 
       if subject_usable?(message, filter_result)
-        created += suggest!(source, :subject, clean_subject(message[:subject]))
+        created += suggest!(source, :subject, subject_template(message[:subject]))
       end
 
       # Identification keywords are PRODUCT-specific: only suggest tokens
@@ -127,6 +127,29 @@ module SourceRecognition
     # templates collapse to a single value.
     def clean_subject(subject)
       subject.to_s.gsub(/\A\s*((re|fwd?|fw)\s*:\s*)+/i, "").gsub(/\s+/, " ").strip
+    end
+
+    # Amounts, dates and card references inside a subject are per-email noise
+    # ("Compraste por $50.000 en X", "Resumen 12/08/2026", "tarjeta *5678"):
+    # they never repeat, so a FULL subject line is useless as a recognition
+    # value. The suggested value is therefore a TEMPLATE: everything before
+    # the first amount-like run. Subjects without amounts are kept whole when
+    # they look like a short recurring headline (≤ 8 words).
+    AMOUNT_RUN = /\$\s*\d[\d.,]*|\d[\d.,]{3,}|[*•#]+\s*\d{4}/.freeze
+    TEMPLATE_MIN_WORDS = 2
+    TEMPLATE_MAX_WORDS = 8
+
+    def subject_template(subject)
+      cleaned = clean_subject(subject)
+      return nil if cleaned.blank?
+
+      cut_at = cleaned.index(AMOUNT_RUN)
+      template = cut_at ? cleaned[0, cut_at] : cleaned
+      template = template.gsub(/\s+/, " ").strip
+      return nil if template.scan(/\S+/).length < TEMPLATE_MIN_WORDS
+      return nil if cut_at.nil? && template.scan(/\S+/).length > TEMPLATE_MAX_WORDS
+
+      template
     end
 
     # Deterministic keyword candidates for a source:

@@ -37,7 +37,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
   test "start_auth redirects to google when oauth is configured" do
     source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
-    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    source.ensure_recognition.replace_identifiers(keyword: [ "davi" ])
 
     with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
       post start_gmail_auth_path
@@ -74,7 +74,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
   test "start_auth allows gmail when a source is recognition-configured" do
     source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
-    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    source.ensure_recognition.replace_identifiers(keyword: [ "davi" ])
 
     with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
       post start_gmail_auth_path
@@ -103,7 +103,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
   test "callback connects the gmail account and stores tokens" do
     source = @user.money_sources.create!(name: "Davibank", kind: "account", starting_balance: 0, bank: "davibank")
-    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    source.ensure_recognition.replace_identifiers(keyword: [ "davi" ])
 
     with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
       post start_gmail_auth_path
@@ -146,6 +146,70 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [], connection.search_config_hash[:subject_keywords]
   end
 
+  test "setup_sync enqueues the setup scan job" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    with_active_job_adapter(:test) do
+      assert_enqueued_with(job: GmailSetupSyncJob) do
+        post setup_sync_gmail_connection_path
+      end
+    end
+
+    assert_redirected_to gmail_connection_path
+  end
+
+  test "setup renders the prefilled suggestions form" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+    GmailConnection.first.update!(setup_suggestions: {
+      "scanned" => 10, "passed" => 2,
+      "senders" => [ { "value" => "notificaciones@davibank.com", "count" => 2 } ],
+      "domains" => [ { "value" => "davibank.com", "count" => 2 } ],
+      "subject_keywords" => [ { "value" => "transacción", "count" => 1 } ]
+    })
+
+    get setup_gmail_connection_path
+
+    assert_response :success
+    assert_match(/notifications|notificaciones@davibank\.com/, response.body)
+    assert_select "input[name='next'][value='recognition']"
+  end
+
+  test "setup page has no nested forms (their CSRF token corrupts the outer form)" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+    GmailConnection.first.update!(setup_suggestions: {
+      "scanned" => 10, "passed" => 2, "senders" => [ { "value" => "a@b.com", "count" => 1 } ]
+    })
+
+    get setup_gmail_connection_path
+
+    assert_response :success
+    # The rescan button_to must live OUTSIDE the PATCH form: browsers drop a
+    # nested <form> tag but keep its hidden authenticity_token, which then
+    # fails verification for the outer form's action.
+    assert_select "form form", count: 0
+  end
+
+  test "setup redirects back when there are no suggestions yet" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    get setup_gmail_connection_path
+
+    assert_redirected_to gmail_connection_path
+    assert_match(/escaneo/i, flash[:alert])
+  end
+
+  test "saving setup criteria with next=recognition continues to step 2" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    patch gmail_connection_path, params: {
+      next: "recognition",
+      search_config: { senders: "notifications@bank.com", domains: "", subject_keywords: "pago" }
+    }
+
+    assert_redirected_to money_sources_recognition_path
+    assert_equal [ "notifications@bank.com" ], @user.gmail_connections.last.search_config_hash[:senders]
+  end
+
   test "disconnect removes the connection but keeps processed email history" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
     ProcessedEmail.create!(user: @user, provider: "gmail", message_id: "m1", status: "processed")
@@ -168,6 +232,57 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to gmail_connection_path
     assert_match(/segundo plano/, flash[:notice])
+  end
+
+  test "sync refuses to enqueue while another sync is running" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com", syncing: Time.current)
+
+    with_active_job_adapter(:test) do
+      assert_no_enqueued_jobs only: [ GmailSyncJob, GmailSetupSyncJob ] do
+        post sync_gmail_connection_path
+        post setup_sync_gmail_connection_path
+      end
+    end
+
+    assert_redirected_to gmail_connection_path
+    assert_equal I18n.t("gmail_messages.sync_in_progress"), flash[:alert]
+  end
+
+  test "setup_sync refuses to enqueue while another sync is running" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com", syncing: Time.current)
+
+    with_active_job_adapter(:test) do
+      assert_no_enqueued_jobs only: GmailSetupSyncJob do
+        post setup_sync_gmail_connection_path
+      end
+    end
+
+    assert_redirected_to gmail_connection_path
+    assert_equal I18n.t("gmail_messages.sync_in_progress"), flash[:alert]
+  end
+
+  test "a stale syncing flag does not block a new sync" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                            syncing: GmailConnection::STALE_SYNC_TIMEOUT.ago - 1.minute)
+
+    with_active_job_adapter(:test) do
+      assert_enqueued_with(job: GmailSyncJob) do
+        post sync_gmail_connection_path
+      end
+    end
+
+    assert_redirected_to gmail_connection_path
+  end
+
+  test "index disables sync buttons and shows the loader while a sync runs" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com", syncing: Time.current)
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "button[disabled]", count: 2
+    assert_select "[data-sync-in-progress]"
+    assert_select "[data-testid='sync-running-badge']"
   end
 
   test "sync_status reports a running sync" do

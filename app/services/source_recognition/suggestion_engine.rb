@@ -118,8 +118,12 @@ module SourceRecognition
     end
 
     # Tokens from the source's own name/bank, lowercased, accent-stripped.
+    # Strips combining marks explicitly: NFKD turns "é" into "e" + U+0301 and
+    # combining marks are NOT \p{Alnum}, so a plain "[^\p{Alnum}\s]" gsub
+    # would replace them with spaces and cut "Crédito" into "cre" + "dito".
     def name_keywords
       tokens = (source.name.to_s + " " + source.bank.to_s).unicode_normalize(:nfkd)
+               .gsub(/\p{Mn}/, "")
                .gsub(/[^\p{Alnum}\s]/i, " ")
                .downcase
                .split(/\s+/)

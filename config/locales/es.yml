@@ -1050,6 +1050,25 @@ es:
     no_description: "(sin descripción)"
     no_imports: "Aún no se han importado gastos desde Gmail."
     how_it_works: "Cómo funciona"
+    setup_sync: "Sincronización inicial"
+    setup_sync_confirm: "Esto buscará en tu correo (solo lectura) correos de notificaciones bancarias para sugerir la configuración. No importa gastos. ¿Continuar?"
+    setup:
+      title: "Configuración desde tu correo"
+      back: "Volver a Gmail"
+      criteria_title: "Criterios sugeridos para tu cuenta"
+      criteria_help: "Escaneamos %{scanned} correos y encontramos %{passed} notificaciones financieras. Confirma o edita estos criterios; con ellos la sincronización sabrá exactamente qué correos leer."
+      senders_hint:
+        one: "%{count} remitente sugerido a partir de tus correos bancarios."
+        other: "%{count} remitentes sugeridos a partir de tus correos bancarios."
+      keywords_hint: "Palabras clave de asunto detectadas en tus correos bancarios (puedes agregar más)."
+      apply: "Guardar y revisar fuentes"
+      rescan: "Volver a escanear"
+      rescan_confirm: "¿Volver a escanear el correo? Reemplazará las sugerencias actuales."
+      step1_title: "Paso 1 de 2 — Configuración de Gmail"
+      step1_help: "Al guardar continuarás al paso 2: confirmar las sugerencias para reconocer tus fuentes de dinero."
+      review_title: "Configuración lista para revisar"
+      review_help: "La sincronización inicial encontró remitentes y palabras clave de tu banco. Confírmalos para que la importación sea precisa."
+      review_cta: "Revisar sugerencias"
 
   auth:
     log_in: "Iniciar sesión"
@@ -1113,6 +1132,9 @@ es:
     sync_failed: "La sincronización falló: %{message}"
     sync_finished: "Sincronización terminada: %{created} creados, %{pending} pendientes de revisión, %{failed} fallidos."
     sync_started: "Sincronización iniciada en segundo plano. Los resultados aparecerán cuando termine (recarga la página)."
+    sync_in_progress: "Ya hay una sincronización en curso. Espera a que termine antes de iniciar otra."
+    setup_sync_started: "Escaneo inicial iniciado en segundo plano. Las sugerencias aparecerán cuando termine (recarga la página)."
+    setup_no_suggestions: "El escaneo no encontró correos financieros todavía. Ejecuta la Sincronización inicial de nuevo."
     sync_discoveries:
       one: "Encontramos %{count} sugerencia para reconocer tus fuentes: revísala en Reconocimiento de fuentes."
       other: "Encontramos %{count} sugerencias para reconocer tus fuentes: revísalas en Reconocimiento de fuentes."

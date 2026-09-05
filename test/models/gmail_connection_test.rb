@@ -75,4 +75,15 @@ class GmailConnectionTest < ActiveSupport::TestCase
     assert_equal [ "bank.com" ], config[:domains]
     assert_equal [], config[:subject_keywords]
   end
+
+  test "sync_running? is true only for a recent syncing stamp" do
+    @connection.syncing = nil
+    assert_not @connection.sync_running?
+
+    @connection.syncing = Time.current
+    assert @connection.sync_running?
+
+    @connection.syncing = GmailConnection::STALE_SYNC_TIMEOUT.ago - 1.minute
+    assert_not @connection.sync_running?
+  end
 end

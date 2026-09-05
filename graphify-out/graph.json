@@ -235,6 +235,19 @@
       "source_location": "L1"
     },
     {
+      "id": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob",
+      "label": "GmailSetupSyncJob",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": "gmailsetupsyncjob",
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L8"
+    },
+    {
       "id": "app_jobs_gmail_sync_job_gmailsyncjob",
       "label": "GmailSyncJob",
       "_callable": true,
@@ -324,6 +337,19 @@
       "norm_label": "gmail::oauthclient::error",
       "source_file": "app/services/gmail/oauth_client.rb",
       "source_location": "L25"
+    },
+    {
+      "id": "app_controllers_dashboard_controller_dashboardcontroller",
+      "label": "DashboardController",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": "dashboardcontroller",
+      "source_file": "app/controllers/dashboard_controller.rb",
+      "source_location": "L1"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller",
@@ -430,30 +456,56 @@
       "source_location": "L16"
     },
     {
-      "id": "test_services_money_sources_match_test_moneysources",
-      "label": "MoneySources",
+      "id": "test_services_gmail_sync_service_test_gmail",
+      "label": "Gmail",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 10,
       "community_name": "Gmail::ExpenseImporter",
       "file_type": "code",
-      "norm_label": "moneysources",
-      "source_file": "test/services/money_sources/match_test.rb",
-      "source_location": "L5"
+      "norm_label": "gmail",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L6"
     },
     {
-      "id": "test_services_money_sources_match_test_moneysources_matchtest",
-      "label": "MoneySources::MatchTest",
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest",
+      "label": "Gmail::SyncServiceTest",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 10,
       "community_name": "Gmail::ExpenseImporter",
       "file_type": "code",
-      "norm_label": "moneysources::matchtest",
-      "source_file": "test/services/money_sources/match_test.rb",
-      "source_location": "L6"
+      "norm_label": "gmail::syncservicetest",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L7"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient",
+      "label": "Gmail::SyncServiceTest::FakeClient",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": "gmail::syncservicetest::fakeclient",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L15"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeextractor",
+      "label": "Gmail::SyncServiceTest::FakeExtractor",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": "gmail::syncservicetest::fakeextractor",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L46"
     },
     {
       "id": "db_migrate_20260821000500_create_recurring_templates_createrecurringtemplates",
@@ -1184,32 +1236,6 @@
       "source_location": "L5"
     },
     {
-      "id": "app_services_recurring_template_processor_recurringtemplateprocessor",
-      "label": "RecurringTemplateProcessor",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "recurringtemplateprocessor",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L18"
-    },
-    {
-      "id": "app_services_recurring_template_processor_recurringtemplateprocessor_result",
-      "label": "RecurringTemplateProcessor::Result",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "recurringtemplateprocessor::result",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L19"
-    },
-    {
       "id": "app_models_transaction_transaction",
       "label": "Transaction",
       "_callable": true,
@@ -1221,6 +1247,19 @@
       "norm_label": "transaction",
       "source_file": "app/models/transaction.rb",
       "source_location": "L3"
+    },
+    {
+      "id": "app_services_recurring_template_processor_recurringtemplateprocessor_result",
+      "label": "RecurringTemplateProcessor::Result",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "recurringtemplateprocessor::result",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L19"
     },
     {
       "id": "app_controllers_money_sources_controller_moneysourcescontroller",
@@ -1247,6 +1286,45 @@
       "norm_label": "moneyformat",
       "source_file": "app/services/money_format.rb",
       "source_location": "L12"
+    },
+    {
+      "id": "app_models_application_record_applicationrecord",
+      "label": "ApplicationRecord",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "applicationrecord",
+      "source_file": "app/models/application_record.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_models_financial_keyword_financialkeyword",
+      "label": "FinancialKeyword",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "financialkeyword",
+      "source_file": "app/models/financial_keyword.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "app_models_financial_subject_pattern_financialsubjectpattern",
+      "label": "FinancialSubjectPattern",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "financialsubjectpattern",
+      "source_file": "app/models/financial_subject_pattern.rb",
+      "source_location": "L6"
     },
     {
       "id": "app_services_gmail_query_builder_gmail",
@@ -1299,6 +1377,32 @@
       "norm_label": "gmail::querybuildertest",
       "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L6"
+    },
+    {
+      "id": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest",
+      "label": "GmailSetupSyncJobTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 191,
+      "community_name": "GmailSetupSyncJobTest",
+      "file_type": "code",
+      "norm_label": "gmailsetupsyncjobtest",
+      "source_file": "test/jobs/gmail_setup_sync_job_test.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections_addsetupsuggestionstogmailconnections",
+      "label": "AddSetupSuggestionsToGmailConnections",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 192,
+      "community_name": "AddSetupSuggestionsToGmailConnections",
+      "file_type": "code",
+      "norm_label": "addsetupsuggestionstogmailconnections",
+      "source_file": "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "source_location": "L7"
     },
     {
       "id": "app_services_expense_parser_expenseparser",
@@ -1392,19 +1496,6 @@
       "source_location": "L3"
     },
     {
-      "id": "app_controllers_categories_controller_categoriescontroller",
-      "label": "CategoriesController",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": "categoriescontroller",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L1"
-    },
-    {
       "id": "app_models_category_category",
       "label": "Category",
       "_callable": true,
@@ -1496,6 +1587,71 @@
       "source_location": "L12"
     },
     {
+      "id": "app_models_financial_institution_financialinstitution",
+      "label": "FinancialInstitution",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "financialinstitution",
+      "source_file": "app/models/financial_institution.rb",
+      "source_location": "L8"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail",
+      "label": "Gmail",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "gmail",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "label": "Gmail::SetupScanService",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "gmail::setupscanservice",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L19"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition",
+      "label": "SourceRecognition",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog",
+      "label": "SourceRecognition::Catalog",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition::catalog",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L9"
+    },
+    {
       "id": "app_services_source_recognition_discovery_service_sourcerecognition",
       "label": "SourceRecognition",
       "_callable": true,
@@ -1535,6 +1691,71 @@
       "source_location": "L23"
     },
     {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition",
+      "label": "SourceRecognition",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter",
+      "label": "SourceRecognition::FinancialEmailFilter",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition::financialemailfilter",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L22"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_result",
+      "label": "SourceRecognition::FinancialEmailFilter::Result",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition::financialemailfilter::result",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L23"
+    },
+    {
+      "id": "app_services_source_recognition_text_normalizer_sourcerecognition",
+      "label": "SourceRecognition",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition",
+      "source_file": "app/services/source_recognition/text_normalizer.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer",
+      "label": "SourceRecognition::TextNormalizer",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "sourcerecognition::textnormalizer",
+      "source_file": "app/services/source_recognition/text_normalizer.rb",
+      "source_location": "L10"
+    },
+    {
       "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller",
       "label": "RecurringTemplatesController",
       "_callable": true,
@@ -1546,6 +1767,19 @@
       "norm_label": "recurringtemplatescontroller",
       "source_file": "app/controllers/recurring_templates_controller.rb",
       "source_location": "L3"
+    },
+    {
+      "id": "app_services_recurring_template_processor_recurringtemplateprocessor",
+      "label": "RecurringTemplateProcessor",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "RecurringTemplatesController",
+      "file_type": "code",
+      "norm_label": "recurringtemplateprocessor",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L18"
     },
     {
       "id": "app_models_financial_setup_financialsetup",
@@ -1639,58 +1873,6 @@
       "source_location": "L21"
     },
     {
-      "id": "test_services_gmail_sync_service_test_gmail",
-      "label": "Gmail",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "gmail",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L6"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest",
-      "label": "Gmail::SyncServiceTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "gmail::syncservicetest",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L7"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient",
-      "label": "Gmail::SyncServiceTest::FakeClient",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "gmail::syncservicetest::fakeclient",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L15"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeextractor",
-      "label": "Gmail::SyncServiceTest::FakeExtractor",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "gmail::syncservicetest::fakeextractor",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L46"
-    },
-    {
       "id": "app_controllers_concerns_recurring_template_actions_recurringtemplateactions",
       "label": "RecurringTemplateActions",
       "_callable": true,
@@ -1704,56 +1886,43 @@
       "source_location": "L3"
     },
     {
-      "id": "app_models_financial_institution_financialinstitution",
-      "label": "FinancialInstitution",
+      "id": "test_services_gmail_setup_scan_service_test_gmail",
+      "label": "Gmail",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": "financialinstitution",
-      "source_file": "app/models/financial_institution.rb",
-      "source_location": "L8"
+      "norm_label": "gmail",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L6"
     },
     {
-      "id": "app_services_source_recognition_catalog_sourcerecognition",
-      "label": "SourceRecognition",
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest",
+      "label": "Gmail::SetupScanServiceTest",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": "sourcerecognition",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L3"
+      "norm_label": "gmail::setupscanservicetest",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L7"
     },
     {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog",
-      "label": "SourceRecognition::Catalog",
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "label": "Gmail::SetupScanServiceTest::FakeClient",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": "sourcerecognition::catalog",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L9"
-    },
-    {
-      "id": "app_controllers_dashboard_controller_dashboardcontroller",
-      "label": "DashboardController",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "IncomesController",
-      "file_type": "code",
-      "norm_label": "dashboardcontroller",
-      "source_file": "app/controllers/dashboard_controller.rb",
-      "source_location": "L1"
+      "norm_label": "gmail::setupscanservicetest::fakeclient",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L19"
     },
     {
       "id": "app_controllers_incomes_controller_incomescontroller",
@@ -1782,82 +1951,30 @@
       "source_location": "L3"
     },
     {
-      "id": "app_models_application_record_applicationrecord",
-      "label": "ApplicationRecord",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "applicationrecord",
-      "source_file": "app/models/application_record.rb",
-      "source_location": "L1"
-    },
-    {
       "id": "app_models_credit_account_creditaccount",
       "label": "CreditAccount",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "ApplicationRecord",
+      "community_name": "CreditAccount",
       "file_type": "code",
       "norm_label": "creditaccount",
       "source_file": "app/models/credit_account.rb",
       "source_location": "L11"
     },
     {
-      "id": "app_models_financial_subject_pattern_financialsubjectpattern",
-      "label": "FinancialSubjectPattern",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "financialsubjectpattern",
-      "source_file": "app/models/financial_subject_pattern.rb",
-      "source_location": "L6"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition",
-      "label": "SourceRecognition",
+      "id": "app_controllers_categories_controller_categoriescontroller",
+      "label": "CategoriesController",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": ".call",
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": "sourcerecognition",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter",
-      "label": "SourceRecognition::FinancialEmailFilter",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": "sourcerecognition::financialemailfilter",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L22"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_result",
-      "label": "SourceRecognition::FinancialEmailFilter::Result",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": "sourcerecognition::financialemailfilter::result",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L23"
+      "norm_label": "categoriescontroller",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L1"
     },
     {
       "id": "app_models_money_source_moneysource",
@@ -1910,6 +2027,32 @@
       "norm_label": "sanitizemoneysourceidentifierstolastfour",
       "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
       "source_location": "L1"
+    },
+    {
+      "id": "test_services_money_sources_match_test_moneysources",
+      "label": "MoneySources",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": "moneysources",
+      "source_file": "test/services/money_sources/match_test.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "test_services_money_sources_match_test_moneysources_matchtest",
+      "label": "MoneySources::MatchTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": "moneysources::matchtest",
+      "source_file": "test/services/money_sources/match_test.rb",
+      "source_location": "L6"
     },
     {
       "id": "app_controllers_application_controller_applicationcontroller",
@@ -2001,19 +2144,6 @@
       "norm_label": "expenseshelper",
       "source_file": "app/helpers/expenses_helper.rb",
       "source_location": "L1"
-    },
-    {
-      "id": "app_models_financial_keyword_financialkeyword",
-      "label": "FinancialKeyword",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "FinancialCatalogSeeder",
-      "file_type": "code",
-      "norm_label": "financialkeyword",
-      "source_file": "app/models/financial_keyword.rb",
-      "source_location": "L5"
     },
     {
       "id": "db_seed_data_financial_catalog_seeder_financialcatalogseeder",
@@ -2196,32 +2326,6 @@
       "norm_label": "gmail::expenseimportertest::fakeextractor",
       "source_file": "test/services/gmail/expense_importer_test.rb",
       "source_location": "L56"
-    },
-    {
-      "id": "app_services_source_recognition_text_normalizer_sourcerecognition",
-      "label": "SourceRecognition",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": "sourcerecognition",
-      "source_file": "app/services/source_recognition/text_normalizer.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer",
-      "label": "SourceRecognition::TextNormalizer",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": "sourcerecognition::textnormalizer",
-      "source_file": "app/services/source_recognition/text_normalizer.rb",
-      "source_location": "L10"
     },
     {
       "id": "db_migrate_20260903222300_migrate_tags_to_recognition_identifiers_migratetagstorecognitionidentifiers",
@@ -3039,7 +3143,7 @@
       "file_type": "code",
       "norm_label": ".approve()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L96"
+      "source_location": "L126"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_callback",
@@ -3051,7 +3155,7 @@
       "file_type": "code",
       "norm_label": ".callback()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L45"
+      "source_location": "L47"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_create_expenses_from_review",
@@ -3063,7 +3167,7 @@
       "file_type": "code",
       "norm_label": ".create_expenses_from_review()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L145"
+      "source_location": "L190"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_destroy",
@@ -3075,7 +3179,7 @@
       "file_type": "code",
       "norm_label": ".destroy()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L69"
+      "source_location": "L75"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_index",
@@ -3087,7 +3191,7 @@
       "file_type": "code",
       "norm_label": ".index()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L14"
+      "source_location": "L16"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_oauth_failed",
@@ -3099,7 +3203,7 @@
       "file_type": "code",
       "norm_label": ".oauth_failed()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L128"
+      "source_location": "L158"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_reject",
@@ -3111,7 +3215,7 @@
       "file_type": "code",
       "norm_label": ".reject()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L106"
+      "source_location": "L136"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_search_config_params",
@@ -3123,7 +3227,7 @@
       "file_type": "code",
       "norm_label": ".search_config_params()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L132"
+      "source_location": "L168"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_set_connection",
@@ -3135,7 +3239,31 @@
       "file_type": "code",
       "norm_label": ".set_connection()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L114"
+      "source_location": "L144"
+    },
+    {
+      "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_setup",
+      "label": ".setup()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": ".setup()",
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L116"
+    },
+    {
+      "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_setup_sync",
+      "label": ".setup_sync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": ".setup_sync()",
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L106"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_split_values",
@@ -3147,7 +3275,7 @@
       "file_type": "code",
       "norm_label": ".split_values()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L141"
+      "source_location": "L177"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_start_auth",
@@ -3159,7 +3287,7 @@
       "file_type": "code",
       "norm_label": ".start_auth()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L23"
+      "source_location": "L25"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync",
@@ -3171,7 +3299,19 @@
       "file_type": "code",
       "norm_label": ".sync()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L79"
+      "source_location": "L85"
+    },
+    {
+      "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync_already_running",
+      "label": ".sync_already_running()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": ".sync_already_running()",
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L164"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync_status",
@@ -3183,7 +3323,7 @@
       "file_type": "code",
       "norm_label": ".sync_status()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L86"
+      "source_location": "L94"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_update",
@@ -3195,7 +3335,7 @@
       "file_type": "code",
       "norm_label": ".update()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L64"
+      "source_location": "L66"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_valid_state_pred",
@@ -3207,7 +3347,31 @@
       "file_type": "code",
       "norm_label": ".valid_state?()",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L122"
+      "source_location": "L152"
+    },
+    {
+      "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_values_from",
+      "label": ".values_from()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": ".values_from()",
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L183"
+    },
+    {
+      "id": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob_perform",
+      "label": ".perform()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": ".perform()",
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L11"
     },
     {
       "id": "app_jobs_gmail_sync_job_gmailsyncjob_perform",
@@ -3303,7 +3467,7 @@
       "file_type": "code",
       "norm_label": ".fresh_access_token!()",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L27"
+      "source_location": "L30"
     },
     {
       "id": "app_models_gmail_connection_gmailconnection_refresh_access_token_bang",
@@ -3315,7 +3479,7 @@
       "file_type": "code",
       "norm_label": ".refresh_access_token!()",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L33"
+      "source_location": "L36"
     },
     {
       "id": "app_models_gmail_connection_gmailconnection_search_config_hash",
@@ -3327,7 +3491,19 @@
       "file_type": "code",
       "norm_label": ".search_config_hash()",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L45"
+      "source_location": "L55"
+    },
+    {
+      "id": "app_models_gmail_connection_gmailconnection_sync_running_pred",
+      "label": ".sync_running?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": ".sync_running?()",
+      "source_file": "app/models/gmail_connection.rb",
+      "source_location": "L50"
     },
     {
       "id": "app_models_gmail_connection_gmailconnection_token_expired_pred",
@@ -3339,7 +3515,19 @@
       "file_type": "code",
       "norm_label": ".token_expired?()",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L20"
+      "source_location": "L23"
+    },
+    {
+      "id": "app_controllers_dashboard_controller_dashboardcontroller_index",
+      "label": ".index()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": ".index()",
+      "source_file": "app/controllers/dashboard_controller.rb",
+      "source_location": "L4"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_apply_filters",
@@ -3702,6 +3890,30 @@
       "source_location": "L277"
     },
     {
+      "id": "app_models_expense_expense_dashboard_summary",
+      "label": ".dashboard_summary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": ".dashboard_summary()",
+      "source_file": "app/models/expense.rb",
+      "source_location": "L9"
+    },
+    {
+      "id": "app_models_income_income_dashboard_summary",
+      "label": ".dashboard_summary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": ".dashboard_summary()",
+      "source_file": "app/models/income.rb",
+      "source_location": "L7"
+    },
+    {
       "id": "app_models_processed_email_processedemail_failed_pred",
       "label": ".failed?()",
       "_callable": true,
@@ -3966,7 +4178,79 @@
       "source_location": "L104"
     },
     {
-      "id": "app_services_money_sources_match_moneysources_match_call",
+      "id": "test_services_gmail_sync_service_test_configure",
+      "label": "configure()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": "configure()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L19"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_fail_on",
+      "label": ".fail_on()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": ".fail_on()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L42"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_get_message",
+      "label": ".get_message()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": ".get_message()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L34"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_initialize",
+      "label": ".initialize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": ".initialize()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L26"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_list_messages",
+      "label": ".list_messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": ".list_messages()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L28"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_stubs",
+      "label": ".stubs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": ".stubs()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L40"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeextractor_call",
       "label": ".call()",
       "_callable": true,
       "_origin": "ast",
@@ -3974,32 +4258,44 @@
       "community_name": "Gmail::ExpenseImporter",
       "file_type": "code",
       "norm_label": ".call()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L17"
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L67"
     },
     {
-      "id": "test_services_money_sources_match_test_moneysources_matchtest_match",
-      "label": ".match()",
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_purchase_message",
+      "label": ".purchase_message()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
       "community_name": "Gmail::ExpenseImporter",
       "file_type": "code",
-      "norm_label": ".match()",
-      "source_file": "test/services/money_sources/match_test.rb",
-      "source_location": "L12"
+      "norm_label": ".purchase_message()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L72"
     },
     {
-      "id": "test_services_money_sources_match_test_moneysources_matchtest_source_with_keywords",
-      "label": ".source_with_keywords()",
+      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_sync",
+      "label": ".sync()",
       "_callable": true,
       "_origin": "ast",
       "community": 10,
       "community_name": "Gmail::ExpenseImporter",
       "file_type": "code",
-      "norm_label": ".source_with_keywords()",
-      "source_file": "test/services/money_sources/match_test.rb",
-      "source_location": "L16"
+      "norm_label": ".sync()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L82"
+    },
+    {
+      "id": "test_services_gmail_sync_service_test_list_messages",
+      "label": "list_messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": "list_messages()",
+      "source_file": "test/services/gmail/sync_service_test.rb",
+      "source_location": "L120"
     },
     {
       "id": "db_migrate_20260821000500_create_recurring_templates_createrecurringtemplates_change",
@@ -5583,7 +5879,7 @@
       "file_type": "code",
       "norm_label": ".bank_domain_suggestion()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L162"
+      "source_location": "L166"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_call",
@@ -5631,7 +5927,7 @@
       "file_type": "code",
       "norm_label": ".institution_token_eligible?()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L136"
+      "source_location": "L140"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_keyword_suggestions",
@@ -5679,7 +5975,7 @@
       "file_type": "code",
       "norm_label": ".name_keywords()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L121"
+      "source_location": "L124"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_new_value_pred",
@@ -5715,7 +6011,7 @@
       "file_type": "code",
       "norm_label": ".sender_suggestions()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L144"
+      "source_location": "L148"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_siblings",
@@ -5739,7 +6035,7 @@
       "file_type": "code",
       "norm_label": ".subject_suggestions()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L174"
+      "source_location": "L178"
     },
     {
       "id": "test_services_source_recognition_suggestion_engine_test_sourcerecognition_suggestionenginetest_call",
@@ -5814,90 +6110,6 @@
       "source_location": "L12"
     },
     {
-      "id": "app_controllers_concerns_recurring_template_actions_recurringtemplateactions_process_transaction",
-      "label": ".process_transaction()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": ".process_transaction()",
-      "source_file": "app/controllers/concerns/recurring_template_actions.rb",
-      "source_location": "L50"
-    },
-    {
-      "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_process_transaction",
-      "label": ".process_transaction()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": ".process_transaction()",
-      "source_file": "app/controllers/recurring_templates_controller.rb",
-      "source_location": "L52"
-    },
-    {
-      "id": "app_services_recurring_template_processor_call",
-      "label": "call()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "call()",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L22"
-    },
-    {
-      "id": "app_services_recurring_template_processor_coerce_date",
-      "label": "coerce_date()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "coerce_date()",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L69"
-    },
-    {
-      "id": "app_services_recurring_template_processor_failure",
-      "label": "failure()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "failure()",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L82"
-    },
-    {
-      "id": "app_services_recurring_template_processor_normalize_amount",
-      "label": "normalize_amount()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "normalize_amount()",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L60"
-    },
-    {
-      "id": "app_services_recurring_template_processor_period_range_for",
-      "label": "period_range_for()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "period_range_for()",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L78"
-    },
-    {
       "id": "app_models_transaction_transaction_normalize_amount",
       "label": ".normalize_amount()",
       "_callable": true,
@@ -5968,6 +6180,66 @@
       "norm_label": ".transaction_date()",
       "source_file": "app/models/transaction.rb",
       "source_location": "L55"
+    },
+    {
+      "id": "app_services_recurring_template_processor_call",
+      "label": "call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "call()",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L22"
+    },
+    {
+      "id": "app_services_recurring_template_processor_coerce_date",
+      "label": "coerce_date()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "coerce_date()",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L69"
+    },
+    {
+      "id": "app_services_recurring_template_processor_failure",
+      "label": "failure()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "failure()",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L82"
+    },
+    {
+      "id": "app_services_recurring_template_processor_normalize_amount",
+      "label": "normalize_amount()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "normalize_amount()",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L60"
+    },
+    {
+      "id": "app_services_recurring_template_processor_period_range_for",
+      "label": "period_range_for()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "period_range_for()",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L78"
     },
     {
       "id": "app_controllers_money_sources_controller_moneysourcescontroller_classify_senders",
@@ -6210,6 +6482,42 @@
       "source_location": "L12"
     },
     {
+      "id": "app_models_financial_keyword_financialkeyword_transactional_pred",
+      "label": ".transactional?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": ".transactional?()",
+      "source_file": "app/models/financial_keyword.rb",
+      "source_location": "L14"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_keywords",
+      "label": ".keywords()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": ".keywords()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L14"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_subject_patterns",
+      "label": ".subject_patterns()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": ".subject_patterns()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L16"
+    },
+    {
       "id": "app_services_gmail_query_builder_build",
       "label": "build()",
       "_callable": true,
@@ -6364,6 +6672,30 @@
       "norm_label": ".build()",
       "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L7"
+    },
+    {
+      "id": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest_silence_logger",
+      "label": ".silence_logger()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 191,
+      "community_name": "GmailSetupSyncJobTest",
+      "file_type": "code",
+      "norm_label": ".silence_logger()",
+      "source_file": "test/jobs/gmail_setup_sync_job_test.rb",
+      "source_location": "L74"
+    },
+    {
+      "id": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections_addsetupsuggestionstogmailconnections_change",
+      "label": ".change()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 192,
+      "community_name": "AddSetupSuggestionsToGmailConnections",
+      "file_type": "code",
+      "norm_label": ".change()",
+      "source_file": "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "source_location": "L8"
     },
     {
       "id": "app_services_expense_parser_call",
@@ -7014,126 +7346,6 @@
       "source_location": "L82"
     },
     {
-      "id": "app_controllers_categories_controller_categoriescontroller_category_params",
-      "label": ".category_params()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".category_params()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L89"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_create",
-      "label": ".create()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".create()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L29"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_destroy",
-      "label": ".destroy()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".destroy()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L63"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_edit",
-      "label": ".edit()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".edit()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L21"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_index",
-      "label": ".index()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".index()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L6"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_new",
-      "label": ".new()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".new()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L16"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_set_category",
-      "label": ".set_category()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".set_category()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L78"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_set_parent_categories",
-      "label": ".set_parent_categories()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".set_parent_categories()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L85"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_show",
-      "label": ".show()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".show()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L12"
-    },
-    {
-      "id": "app_controllers_categories_controller_categoriescontroller_update",
-      "label": ".update()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": ".update()",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L45"
-    },
-    {
       "id": "app_controllers_expenses_controller_expensescontroller_bulk_update",
       "label": ".bulk_update()",
       "_callable": true,
@@ -7602,6 +7814,234 @@
       "source_location": "L135"
     },
     {
+      "id": "app_models_financial_institution_financialinstitution_folded_aliases",
+      "label": ".folded_aliases()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".folded_aliases()",
+      "source_file": "app/models/financial_institution.rb",
+      "source_location": "L14"
+    },
+    {
+      "id": "app_models_financial_institution_financialinstitution_folded_domains",
+      "label": ".folded_domains()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".folded_domains()",
+      "source_file": "app/models/financial_institution.rb",
+      "source_location": "L18"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_call",
+      "label": "call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "call()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L26"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_aggregate_settings",
+      "label": ".aggregate_settings()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".aggregate_settings()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L92"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L37"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_client",
+      "label": ".client()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".client()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L59"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_discover_for",
+      "label": ".discover_for()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".discover_for()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L104"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_empty_result",
+      "label": ".empty_result()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".empty_result()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L119"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_fetch_messages",
+      "label": ".fetch_messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".fetch_messages()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L54"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_initialize",
+      "label": ".initialize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".initialize()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L31"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "label": ".scan_all()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".scan_all()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L63"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service_gmail_setupscanservice_top",
+      "label": ".top()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".top()",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L114"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_contains_word_pred",
+      "label": ".contains_word?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".contains_word?()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L55"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_domains_index",
+      "label": ".domains_index()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".domains_index()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L20"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_fold",
+      "label": ".fold()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".fold()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L59"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_institutions",
+      "label": ".institutions()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".institutions()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L12"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_match_domain",
+      "label": ".match_domain()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".match_domain()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L28"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_match_text",
+      "label": ".match_text()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".match_text()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L39"
+    },
+    {
+      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_matched_alias",
+      "label": ".matched_alias()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".matched_alias()",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L48"
+    },
+    {
       "id": "app_services_source_recognition_discovery_service_call",
       "label": "call()",
       "_callable": true,
@@ -7698,6 +8138,18 @@
       "source_location": "L81"
     },
     {
+      "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_keyword_candidates",
+      "label": ".keyword_candidates()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".keyword_candidates()",
+      "source_file": "app/services/source_recognition/discovery_service.rb",
+      "source_location": "L161"
+    },
+    {
       "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_next_position",
       "label": ".next_position()",
       "_callable": true,
@@ -7707,7 +8159,7 @@
       "file_type": "code",
       "norm_label": ".next_position()",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L198"
+      "source_location": "L221"
     },
     {
       "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_process",
@@ -7720,6 +8172,30 @@
       "norm_label": ".process()",
       "source_file": "app/services/source_recognition/discovery_service.rb",
       "source_location": "L36"
+    },
+    {
+      "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_product_tokens_in",
+      "label": ".product_tokens_in()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".product_tokens_in()",
+      "source_file": "app/services/source_recognition/discovery_service.rb",
+      "source_location": "L179"
+    },
+    {
+      "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_subject_template",
+      "label": ".subject_template()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".subject_template()",
+      "source_file": "app/services/source_recognition/discovery_service.rb",
+      "source_location": "L142"
     },
     {
       "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_subject_usable_pred",
@@ -7743,7 +8219,7 @@
       "file_type": "code",
       "norm_label": ".suggest!()",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L169"
+      "source_location": "L192"
     },
     {
       "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_suggest_for",
@@ -7756,6 +8232,150 @@
       "norm_label": ".suggest_for()",
       "source_file": "app/services/source_recognition/discovery_service.rb",
       "source_location": "L91"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_call",
+      "label": "call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "call()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L41"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_boundary_hits",
+      "label": ".boundary_hits()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".boundary_hits()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L110"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L53"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_from_domain",
+      "label": ".from_domain()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".from_domain()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L95"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_initialize",
+      "label": ".initialize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".initialize()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L46"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_marketing_pred",
+      "label": ".marketing?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".marketing?()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L91"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_matched_alias_any",
+      "label": ".matched_alias_any()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".matched_alias_any()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L100"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_reject",
+      "label": ".reject()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".reject()",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L86"
+    },
+    {
+      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer_boundary_regex",
+      "label": ".boundary_regex()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".boundary_regex()",
+      "source_file": "app/services/source_recognition/text_normalizer.rb",
+      "source_location": "L32"
+    },
+    {
+      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer_contains_word_pred",
+      "label": ".contains_word?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".contains_word?()",
+      "source_file": "app/services/source_recognition/text_normalizer.rb",
+      "source_location": "L27"
+    },
+    {
+      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer_fold",
+      "label": ".fold()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": ".fold()",
+      "source_file": "app/services/source_recognition/text_normalizer.rb",
+      "source_location": "L16"
+    },
+    {
+      "id": "app_controllers_concerns_recurring_template_actions_recurringtemplateactions_process_transaction",
+      "label": ".process_transaction()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "RecurringTemplatesController",
+      "file_type": "code",
+      "norm_label": ".process_transaction()",
+      "source_file": "app/controllers/concerns/recurring_template_actions.rb",
+      "source_location": "L50"
     },
     {
       "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_create",
@@ -7804,6 +8424,18 @@
       "norm_label": ".load_index_data()",
       "source_file": "app/controllers/recurring_templates_controller.rb",
       "source_location": "L90"
+    },
+    {
+      "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_process_transaction",
+      "label": ".process_transaction()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "RecurringTemplatesController",
+      "file_type": "code",
+      "norm_label": ".process_transaction()",
+      "source_file": "app/controllers/recurring_templates_controller.rb",
+      "source_location": "L52"
     },
     {
       "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_recurring_template_params",
@@ -8490,126 +9122,6 @@
       "source_location": "L122"
     },
     {
-      "id": "test_services_gmail_sync_service_test_configure",
-      "label": "configure()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "configure()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L19"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_fail_on",
-      "label": ".fail_on()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".fail_on()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L42"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_get_message",
-      "label": ".get_message()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".get_message()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L34"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_initialize",
-      "label": ".initialize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".initialize()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L26"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_list_messages",
-      "label": ".list_messages()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".list_messages()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L28"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeclient_stubs",
-      "label": ".stubs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".stubs()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L40"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_fakeextractor_call",
-      "label": ".call()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L67"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_purchase_message",
-      "label": ".purchase_message()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".purchase_message()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L72"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_gmail_syncservicetest_sync",
-      "label": ".sync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": ".sync()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L82"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_list_messages",
-      "label": "list_messages()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "list_messages()",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L120"
-    },
-    {
       "id": "app_controllers_concerns_recurring_template_actions_recurringtemplateactions_create",
       "label": ".create()",
       "_callable": true,
@@ -8754,124 +9266,100 @@
       "source_location": "L108"
     },
     {
-      "id": "app_models_financial_institution_financialinstitution_folded_aliases",
-      "label": ".folded_aliases()",
+      "id": "test_services_gmail_setup_scan_service_test_configure",
+      "label": "configure()",
       "_callable": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": ".folded_aliases()",
-      "source_file": "app/models/financial_institution.rb",
-      "source_location": "L14"
+      "norm_label": "configure()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L23"
     },
     {
-      "id": "app_models_financial_institution_financialinstitution_folded_domains",
-      "label": ".folded_domains()",
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_davibank_message",
+      "label": ".davibank_message()",
       "_callable": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": ".folded_domains()",
-      "source_file": "app/models/financial_institution.rb",
-      "source_location": "L18"
+      "norm_label": ".davibank_message()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L49"
     },
     {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_contains_word_pred",
-      "label": ".contains_word?()",
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_fail_on",
+      "label": ".fail_on()",
       "_callable": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": ".contains_word?()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L55"
+      "norm_label": ".fail_on()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L46"
     },
     {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_domains_index",
-      "label": ".domains_index()",
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_get_message",
+      "label": ".get_message()",
       "_callable": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": ".domains_index()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L20"
+      "norm_label": ".get_message()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L38"
     },
     {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_fold",
-      "label": ".fold()",
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_initialize",
+      "label": ".initialize()",
       "_callable": true,
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": ".fold()",
-      "source_file": "app/services/source_recognition/catalog.rb",
+      "norm_label": ".initialize()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L30"
+    },
+    {
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_list_messages",
+      "label": ".list_messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 33,
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
+      "file_type": "code",
+      "norm_label": ".list_messages()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L32"
+    },
+    {
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_stubs",
+      "label": ".stubs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 33,
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
+      "file_type": "code",
+      "norm_label": ".stubs()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L44"
+    },
+    {
+      "id": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_marketing_message",
+      "label": ".marketing_message()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 33,
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
+      "file_type": "code",
+      "norm_label": ".marketing_message()",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
       "source_location": "L59"
-    },
-    {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_institutions",
-      "label": ".institutions()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "SourceRecognition::Catalog",
-      "file_type": "code",
-      "norm_label": ".institutions()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L12"
-    },
-    {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_match_domain",
-      "label": ".match_domain()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "SourceRecognition::Catalog",
-      "file_type": "code",
-      "norm_label": ".match_domain()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L28"
-    },
-    {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_match_text",
-      "label": ".match_text()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "SourceRecognition::Catalog",
-      "file_type": "code",
-      "norm_label": ".match_text()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L39"
-    },
-    {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_matched_alias",
-      "label": ".matched_alias()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "SourceRecognition::Catalog",
-      "file_type": "code",
-      "norm_label": ".matched_alias()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L48"
-    },
-    {
-      "id": "app_controllers_dashboard_controller_dashboardcontroller_index",
-      "label": ".index()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "IncomesController",
-      "file_type": "code",
-      "norm_label": ".index()",
-      "source_file": "app/controllers/dashboard_controller.rb",
-      "source_location": "L4"
     },
     {
       "id": "app_controllers_incomes_controller_incomescontroller_create",
@@ -8922,36 +9410,12 @@
       "source_location": "L10"
     },
     {
-      "id": "app_models_expense_expense_dashboard_summary",
-      "label": ".dashboard_summary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "IncomesController",
-      "file_type": "code",
-      "norm_label": ".dashboard_summary()",
-      "source_file": "app/models/expense.rb",
-      "source_location": "L9"
-    },
-    {
-      "id": "app_models_income_income_dashboard_summary",
-      "label": ".dashboard_summary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "IncomesController",
-      "file_type": "code",
-      "norm_label": ".dashboard_summary()",
-      "source_file": "app/models/income.rb",
-      "source_location": "L7"
-    },
-    {
       "id": "app_models_credit_account_creditaccount_interest_rate_label",
       "label": ".interest_rate_label()",
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "ApplicationRecord",
+      "community_name": "CreditAccount",
       "file_type": "code",
       "norm_label": ".interest_rate_label()",
       "source_file": "app/models/credit_account.rb",
@@ -8963,7 +9427,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "ApplicationRecord",
+      "community_name": "CreditAccount",
       "file_type": "code",
       "norm_label": ".rate_number_label()",
       "source_file": "app/models/credit_account.rb",
@@ -8975,7 +9439,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "ApplicationRecord",
+      "community_name": "CreditAccount",
       "file_type": "code",
       "norm_label": ".rate_type_suffix()",
       "source_file": "app/models/credit_account.rb",
@@ -8987,119 +9451,131 @@
       "_callable": true,
       "_origin": "ast",
       "community": 36,
-      "community_name": "ApplicationRecord",
+      "community_name": "CreditAccount",
       "file_type": "code",
       "norm_label": ".valid_loan_date_range()",
       "source_file": "app/models/credit_account.rb",
       "source_location": "L47"
     },
     {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_subject_patterns",
-      "label": ".subject_patterns()",
+      "id": "app_controllers_categories_controller_categoriescontroller_category_params",
+      "label": ".category_params()",
       "_callable": true,
       "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
+      "community": 37,
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": ".subject_patterns()",
-      "source_file": "app/services/source_recognition/catalog.rb",
+      "norm_label": ".category_params()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L89"
+    },
+    {
+      "id": "app_controllers_categories_controller_categoriescontroller_create",
+      "label": ".create()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "CategoriesController",
+      "file_type": "code",
+      "norm_label": ".create()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L29"
+    },
+    {
+      "id": "app_controllers_categories_controller_categoriescontroller_destroy",
+      "label": ".destroy()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "CategoriesController",
+      "file_type": "code",
+      "norm_label": ".destroy()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L63"
+    },
+    {
+      "id": "app_controllers_categories_controller_categoriescontroller_edit",
+      "label": ".edit()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "CategoriesController",
+      "file_type": "code",
+      "norm_label": ".edit()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L21"
+    },
+    {
+      "id": "app_controllers_categories_controller_categoriescontroller_index",
+      "label": ".index()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "CategoriesController",
+      "file_type": "code",
+      "norm_label": ".index()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L6"
+    },
+    {
+      "id": "app_controllers_categories_controller_categoriescontroller_new",
+      "label": ".new()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 37,
+      "community_name": "CategoriesController",
+      "file_type": "code",
+      "norm_label": ".new()",
+      "source_file": "app/controllers/categories_controller.rb",
       "source_location": "L16"
     },
     {
-      "id": "app_services_source_recognition_financial_email_filter_call",
-      "label": "call()",
+      "id": "app_controllers_categories_controller_categoriescontroller_set_category",
+      "label": ".set_category()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": ".call",
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": "call()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L41"
+      "norm_label": ".set_category()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L78"
     },
     {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_boundary_hits",
-      "label": ".boundary_hits()",
+      "id": "app_controllers_categories_controller_categoriescontroller_set_parent_categories",
+      "label": ".set_parent_categories()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": ".call",
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": ".boundary_hits()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L110"
+      "norm_label": ".set_parent_categories()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L85"
     },
     {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_call",
-      "label": ".call()",
+      "id": "app_controllers_categories_controller_categoriescontroller_show",
+      "label": ".show()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": ".call",
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L53"
+      "norm_label": ".show()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L12"
     },
     {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_from_domain",
-      "label": ".from_domain()",
+      "id": "app_controllers_categories_controller_categoriescontroller_update",
+      "label": ".update()",
       "_callable": true,
       "_origin": "ast",
       "community": 37,
-      "community_name": ".call",
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": ".from_domain()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L95"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_initialize",
-      "label": ".initialize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".initialize()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L46"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_marketing_pred",
-      "label": ".marketing?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".marketing?()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L91"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_matched_alias_any",
-      "label": ".matched_alias_any()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".matched_alias_any()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L100"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_reject",
-      "label": ".reject()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 37,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".reject()",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
-      "source_location": "L86"
+      "norm_label": ".update()",
+      "source_file": "app/controllers/categories_controller.rb",
+      "source_location": "L45"
     },
     {
       "id": "app_models_money_source_moneysource_available_credit",
@@ -9378,6 +9854,18 @@
       "source_location": "L84"
     },
     {
+      "id": "app_services_money_sources_match_moneysources_match_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L17"
+    },
+    {
       "id": "app_services_money_sources_match_moneysources_match_candidate_sources",
       "label": ".candidate_sources()",
       "_callable": true,
@@ -9496,6 +9984,30 @@
       "norm_label": ".up()",
       "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
       "source_location": "L5"
+    },
+    {
+      "id": "test_services_money_sources_match_test_moneysources_matchtest_match",
+      "label": ".match()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": ".match()",
+      "source_file": "test/services/money_sources/match_test.rb",
+      "source_location": "L12"
+    },
+    {
+      "id": "test_services_money_sources_match_test_moneysources_matchtest_source_with_keywords",
+      "label": ".source_with_keywords()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": ".source_with_keywords()",
+      "source_file": "test/services/money_sources/match_test.rb",
+      "source_location": "L16"
     },
     {
       "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller_index_path",
@@ -9772,30 +10284,6 @@
       "norm_label": ".state_query()",
       "source_file": "app/helpers/expenses_helper.rb",
       "source_location": "L79"
-    },
-    {
-      "id": "app_models_financial_keyword_financialkeyword_transactional_pred",
-      "label": ".transactional?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "FinancialCatalogSeeder",
-      "file_type": "code",
-      "norm_label": ".transactional?()",
-      "source_file": "app/models/financial_keyword.rb",
-      "source_location": "L14"
-    },
-    {
-      "id": "app_services_source_recognition_catalog_sourcerecognition_catalog_keywords",
-      "label": ".keywords()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "FinancialCatalogSeeder",
-      "file_type": "code",
-      "norm_label": ".keywords()",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L14"
     },
     {
       "id": "db_seed_data_financial_catalog_seeder_financialcatalogseeder_run",
@@ -10372,66 +10860,6 @@
       "norm_label": ".transaction()",
       "source_file": "test/services/gmail/expense_importer_test.rb",
       "source_location": "L20"
-    },
-    {
-      "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_keyword_candidates",
-      "label": ".keyword_candidates()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": ".keyword_candidates()",
-      "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L138"
-    },
-    {
-      "id": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_product_tokens_in",
-      "label": ".product_tokens_in()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": ".product_tokens_in()",
-      "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L156"
-    },
-    {
-      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer_boundary_regex",
-      "label": ".boundary_regex()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": ".boundary_regex()",
-      "source_file": "app/services/source_recognition/text_normalizer.rb",
-      "source_location": "L32"
-    },
-    {
-      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer_contains_word_pred",
-      "label": ".contains_word?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": ".contains_word?()",
-      "source_file": "app/services/source_recognition/text_normalizer.rb",
-      "source_location": "L27"
-    },
-    {
-      "id": "app_services_source_recognition_text_normalizer_sourcerecognition_textnormalizer_fold",
-      "label": ".fold()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": ".fold()",
-      "source_file": "app/services/source_recognition/text_normalizer.rb",
-      "source_location": "L16"
     },
     {
       "id": "db_migrate_20260903222300_migrate_tags_to_recognition_identifiers_migratetagstorecognitionidentifiers_down",
@@ -12303,6 +12731,17 @@
       "source_location": ""
     },
     {
+      "id": "app_jobs_gmail_setup_sync_job",
+      "label": "gmail_setup_sync_job.rb",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "GmailConnectionsController",
+      "file_type": "code",
+      "norm_label": "gmail_setup_sync_job.rb",
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L1"
+    },
+    {
       "id": "app_jobs_gmail_sync_job",
       "label": "gmail_sync_job.rb",
       "_origin": "ast",
@@ -12356,6 +12795,17 @@
       "norm_label": "error",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "app_controllers_dashboard_controller",
+      "label": "dashboard_controller.rb",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": "dashboard_controller.rb",
+      "source_file": "app/controllers/dashboard_controller.rb",
+      "source_location": "L1"
     },
     {
       "id": "app_controllers_expenses_controller",
@@ -12413,18 +12863,18 @@
       "source_location": "L1"
     },
     {
-      "id": "test_services_money_sources_match_test",
-      "label": "match_test.rb",
+      "id": "test_services_gmail_sync_service_test",
+      "label": "sync_service_test.rb",
       "_origin": "ast",
       "community": 10,
       "community_name": "Gmail::ExpenseImporter",
       "file_type": "code",
-      "norm_label": "match_test.rb",
-      "source_file": "test/services/money_sources/match_test.rb",
+      "norm_label": "sync_service_test.rb",
+      "source_file": "test/services/gmail/sync_service_test.rb",
       "source_location": "L1"
     },
     {
-      "id": "test_services_money_sources_match_test_rb_testcase",
+      "id": "test_services_gmail_sync_service_test_rb_testcase",
       "label": "TestCase",
       "_origin": "ast",
       "community": 10,
@@ -13708,17 +14158,6 @@
       "source_location": ""
     },
     {
-      "id": "app_services_recurring_template_processor",
-      "label": "recurring_template_processor.rb",
-      "_origin": "ast",
-      "community": 178,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "recurring_template_processor.rb",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L1"
-    },
-    {
       "id": "app_models_transaction",
       "label": "transaction.rb",
       "_origin": "ast",
@@ -13727,6 +14166,17 @@
       "file_type": "code",
       "norm_label": "transaction.rb",
       "source_file": "app/models/transaction.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_recurring_template_processor",
+      "label": "recurring_template_processor.rb",
+      "_origin": "ast",
+      "community": 179,
+      "community_name": "Transaction",
+      "file_type": "code",
+      "norm_label": "recurring_template_processor.rb",
+      "source_file": "app/services/recurring_template_processor.rb",
       "source_location": "L1"
     },
     {
@@ -13798,6 +14248,50 @@
       "source_location": "L1"
     },
     {
+      "id": "app_models_application_record",
+      "label": "application_record.rb",
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "application_record.rb",
+      "source_file": "app/models/application_record.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_models_application_record_rb_base",
+      "label": "Base",
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "base",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_models_financial_keyword",
+      "label": "financial_keyword.rb",
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "financial_keyword.rb",
+      "source_file": "app/models/financial_keyword.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_models_financial_subject_pattern",
+      "label": "financial_subject_pattern.rb",
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "ApplicationRecord",
+      "file_type": "code",
+      "norm_label": "financial_subject_pattern.rb",
+      "source_file": "app/models/financial_subject_pattern.rb",
+      "source_location": "L1"
+    },
+    {
       "id": "app_services_gmail_query_builder",
       "label": "query_builder.rb",
       "_origin": "ast",
@@ -13829,6 +14323,39 @@
       "norm_label": "testcase",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "test_jobs_gmail_setup_sync_job_test",
+      "label": "gmail_setup_sync_job_test.rb",
+      "_origin": "ast",
+      "community": 191,
+      "community_name": "GmailSetupSyncJobTest",
+      "file_type": "code",
+      "norm_label": "gmail_setup_sync_job_test.rb",
+      "source_file": "test/jobs/gmail_setup_sync_job_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_jobs_gmail_setup_sync_job_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 191,
+      "community_name": "GmailSetupSyncJobTest",
+      "file_type": "code",
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections",
+      "label": "20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "_origin": "ast",
+      "community": 192,
+      "community_name": "AddSetupSuggestionsToGmailConnections",
+      "file_type": "code",
+      "norm_label": "20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "source_file": "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "source_location": "L1"
     },
     {
       "id": "app_services_expense_parser",
@@ -13908,17 +14435,6 @@
       "source_location": "L1"
     },
     {
-      "id": "app_controllers_categories_controller",
-      "label": "categories_controller.rb",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "Category",
-      "file_type": "code",
-      "norm_label": "categories_controller.rb",
-      "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L1"
-    },
-    {
       "id": "app_models_category",
       "label": "category.rb",
       "_origin": "ast",
@@ -13974,6 +14490,39 @@
       "source_location": ""
     },
     {
+      "id": "app_models_financial_institution",
+      "label": "financial_institution.rb",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "financial_institution.rb",
+      "source_file": "app/models/financial_institution.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_gmail_setup_scan_service",
+      "label": "setup_scan_service.rb",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "setup_scan_service.rb",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_source_recognition_catalog",
+      "label": "catalog.rb",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "catalog.rb",
+      "source_file": "app/services/source_recognition/catalog.rb",
+      "source_location": "L1"
+    },
+    {
       "id": "app_services_source_recognition_discovery_service",
       "label": "discovery_service.rb",
       "_origin": "ast",
@@ -13982,6 +14531,28 @@
       "file_type": "code",
       "norm_label": "discovery_service.rb",
       "source_file": "app/services/source_recognition/discovery_service.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_source_recognition_financial_email_filter",
+      "label": "financial_email_filter.rb",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "financial_email_filter.rb",
+      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_source_recognition_text_normalizer",
+      "label": "text_normalizer.rb",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "SourceRecognition::DiscoveryService",
+      "file_type": "code",
+      "norm_label": "text_normalizer.rb",
+      "source_file": "app/services/source_recognition/text_normalizer.rb",
       "source_location": "L1"
     },
     {
@@ -14436,28 +15007,6 @@
       "source_location": ""
     },
     {
-      "id": "test_services_gmail_sync_service_test",
-      "label": "sync_service_test.rb",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "sync_service_test.rb",
-      "source_file": "test/services/gmail/sync_service_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_gmail_sync_service_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Gmail::SyncServiceTest",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "app_controllers_concerns_recurring_template_actions",
       "label": "recurring_template_actions.rb",
       "_origin": "ast",
@@ -14469,37 +15018,26 @@
       "source_location": "L1"
     },
     {
-      "id": "app_models_financial_institution",
-      "label": "financial_institution.rb",
+      "id": "test_services_gmail_setup_scan_service_test",
+      "label": "setup_scan_service_test.rb",
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": "financial_institution.rb",
-      "source_file": "app/models/financial_institution.rb",
+      "norm_label": "setup_scan_service_test.rb",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
       "source_location": "L1"
     },
     {
-      "id": "app_services_source_recognition_catalog",
-      "label": "catalog.rb",
+      "id": "test_services_gmail_setup_scan_service_test_rb_testcase",
+      "label": "TestCase",
       "_origin": "ast",
       "community": 33,
-      "community_name": "SourceRecognition::Catalog",
+      "community_name": "Gmail::SetupScanServiceTest::FakeClient",
       "file_type": "code",
-      "norm_label": "catalog.rb",
-      "source_file": "app/services/source_recognition/catalog.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_controllers_dashboard_controller",
-      "label": "dashboard_controller.rb",
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "IncomesController",
-      "file_type": "code",
-      "norm_label": "dashboard_controller.rb",
-      "source_file": "app/controllers/dashboard_controller.rb",
-      "source_location": "L1"
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "app_controllers_incomes_controller",
@@ -14800,58 +15338,25 @@
       "source_location": "L29"
     },
     {
-      "id": "app_models_application_record",
-      "label": "application_record.rb",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "application_record.rb",
-      "source_file": "app/models/application_record.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_models_application_record_rb_base",
-      "label": "Base",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "base",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "app_models_credit_account",
       "label": "credit_account.rb",
       "_origin": "ast",
       "community": 36,
-      "community_name": "ApplicationRecord",
+      "community_name": "CreditAccount",
       "file_type": "code",
       "norm_label": "credit_account.rb",
       "source_file": "app/models/credit_account.rb",
       "source_location": "L1"
     },
     {
-      "id": "app_models_financial_subject_pattern",
-      "label": "financial_subject_pattern.rb",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "financial_subject_pattern.rb",
-      "source_file": "app/models/financial_subject_pattern.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_services_source_recognition_financial_email_filter",
-      "label": "financial_email_filter.rb",
+      "id": "app_controllers_categories_controller",
+      "label": "categories_controller.rb",
       "_origin": "ast",
       "community": 37,
-      "community_name": ".call",
+      "community_name": "CategoriesController",
       "file_type": "code",
-      "norm_label": "financial_email_filter.rb",
-      "source_file": "app/services/source_recognition/financial_email_filter.rb",
+      "norm_label": "categories_controller.rb",
+      "source_file": "app/controllers/categories_controller.rb",
       "source_location": "L1"
     },
     {
@@ -14886,6 +15391,28 @@
       "norm_label": "20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
       "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
       "source_location": "L1"
+    },
+    {
+      "id": "test_services_money_sources_match_test",
+      "label": "match_test.rb",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": "match_test.rb",
+      "source_file": "test/services/money_sources/match_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_money_sources_match_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "MoneySource",
+      "file_type": "code",
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "app_controllers_application_controller",
@@ -14973,17 +15500,6 @@
       "file_type": "code",
       "norm_label": "expenses_helper.rb",
       "source_file": "app/helpers/expenses_helper.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_models_financial_keyword",
-      "label": "financial_keyword.rb",
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "FinancialCatalogSeeder",
-      "file_type": "code",
-      "norm_label": "financial_keyword.rb",
-      "source_file": "app/models/financial_keyword.rb",
       "source_location": "L1"
     },
     {
@@ -15108,15 +15624,136 @@
       "source_location": ""
     },
     {
-      "id": "app_services_source_recognition_text_normalizer",
-      "label": "text_normalizer.rb",
+      "id": "designs_design_gmail_setup_sync",
+      "label": "design_gmail_setup_sync.md",
       "_origin": "ast",
       "community": 51,
-      "community_name": ".fold",
-      "file_type": "code",
-      "norm_label": "text_normalizer.rb",
-      "source_file": "app/services/source_recognition/text_normalizer.rb",
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "design_gmail_setup_sync.md",
+      "source_file": "designs/design_gmail_setup_sync.md",
       "source_location": "L1"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_1_gmail_setupscanservice",
+      "label": "1. `Gmail::SetupScanService`",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. `gmail::setupscanservice`",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L40"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_2_wrong_data_fixes_in_sourcerecognition_discoveryservice",
+      "label": "2. Wrong-data fixes in `SourceRecognition::DiscoveryService`",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. wrong-data fixes in `sourcerecognition::discoveryservice`",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L58"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_3_job_controller",
+      "label": "3. Job + controller",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. job + controller",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L65"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_4_ui",
+      "label": "4. UI",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. ui",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L76"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_design_gmail_setup_sync_first_sync_setup_accelerator",
+      "label": "Design: Gmail Setup Sync (first-sync setup accelerator)",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "design: gmail setup sync (first-sync setup accelerator)",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_goal",
+      "label": "Goal",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "goal",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L16"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_implementation",
+      "label": "Implementation",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "implementation",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L38"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_non_goals",
+      "label": "Non-goals",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "non-goals",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L29"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_problem",
+      "label": "Problem",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "problem",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L3"
+    },
+    {
+      "id": "designs_design_gmail_setup_sync_tests",
+      "label": "Tests",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "Implementation",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "tests",
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L83"
     },
     {
       "id": "db_migrate_20260903222300_migrate_tags_to_recognition_identifiers",
@@ -20390,7 +21027,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L98",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -20402,7 +21039,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -20414,7 +21051,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -20426,7 +21063,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L48",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -20438,7 +21075,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L150",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -20450,7 +21087,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L159",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -20462,7 +21099,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -20474,7 +21111,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L19",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -20486,7 +21123,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L135",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_setup_sync",
+      "target": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L109",
       "weight": 1.0
     },
     {
@@ -20498,7 +21147,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L142",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -20510,7 +21159,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L24",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -20522,7 +21171,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L80",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -21090,6 +21739,30 @@
       "weight": 1.0
     },
     {
+      "source": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob_perform",
+      "target": "app_models_gmail_connection_gmailconnection",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob_perform",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_call",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
       "source": "app_jobs_gmail_sync_job_gmailsyncjob_perform",
       "target": "app_models_gmail_connection_gmailconnection",
       "relation": "calls",
@@ -21122,7 +21795,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/jobs/gmail_sync_job.rb",
-      "source_location": "L31",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -21290,7 +21963,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L28",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -21302,7 +21975,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L30",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -21314,7 +21987,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L36",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -23346,6 +24019,102 @@
       "weight": 1.0
     },
     {
+      "source": "app_services_gmail_setup_scan_service_call",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_call",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_call",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_call",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_empty_result",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "target": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "target": "app_services_source_recognition_financial_email_filter_sourcerecognition_financialemailfilter_call",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_aggregate_settings",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_discover_for",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_top",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
       "source": "app_services_gmail_sync_service_call",
       "target": "app_services_gmail_sync_service_gmail_syncservice_call",
       "relation": "calls",
@@ -24026,7 +24795,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L139",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -24038,7 +24807,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L145",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -24050,7 +24819,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L148",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -24062,7 +24831,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L151",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -24122,7 +24891,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L157",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -24134,7 +24903,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L161",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_subject_template",
+      "target": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_clean_subject",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/source_recognition/discovery_service.rb",
+      "source_location": "L143",
       "weight": 1.0
     },
     {
@@ -24170,7 +24951,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L191",
+      "source_location": "L214",
       "weight": 1.0
     },
     {
@@ -24187,7 +24968,7 @@
     },
     {
       "source": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_suggest_for",
-      "target": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_clean_subject",
+      "target": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_subject_template",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -24542,7 +25323,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L167",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -24614,7 +25395,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L129",
+      "source_location": "L133",
       "weight": 1.0
     },
     {
@@ -24638,7 +25419,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L150",
+      "source_location": "L154",
       "weight": 1.0
     },
     {
@@ -24662,7 +25443,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L179",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -25071,6 +25852,30 @@
       "context": "call",
       "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_configure",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_stubs",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_configure",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_fail_on",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -26127,6 +26932,17 @@
       "weight": 1.0
     },
     {
+      "source": "app_jobs_gmail_setup_sync_job",
+      "target": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "app_jobs_gmail_sync_job",
       "target": "app_jobs_gmail_sync_job_gmailsyncjob",
       "relation": "contains",
@@ -27004,6 +27820,39 @@
       "confidence_score": 1.0,
       "source_file": "app/services/gmail/query_builder.rb",
       "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service",
+      "target": "app_services_gmail_setup_scan_service_call",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service",
+      "target": "app_services_gmail_setup_scan_service_gmail",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -28008,6 +28857,17 @@
       "weight": 1.0
     },
     {
+      "source": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections",
+      "target": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections_addsetupsuggestionstogmailconnections",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
       "source": "db_seed_data_financial_catalog_seeder",
       "target": "db_seed_data_financial_catalog_seeder_financialcatalogseeder",
       "relation": "contains",
@@ -28016,6 +28876,116 @@
       "confidence_score": 1.0,
       "source_file": "db/seed_data/financial_catalog_seeder.rb",
       "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync",
+      "target": "designs_design_gmail_setup_sync_design_gmail_setup_sync_first_sync_setup_accelerator",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_design_gmail_setup_sync_first_sync_setup_accelerator",
+      "target": "designs_design_gmail_setup_sync_goal",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_design_gmail_setup_sync_first_sync_setup_accelerator",
+      "target": "designs_design_gmail_setup_sync_non_goals",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_design_gmail_setup_sync_first_sync_setup_accelerator",
+      "target": "designs_design_gmail_setup_sync_problem",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_design_gmail_setup_sync_first_sync_setup_accelerator",
+      "target": "designs_design_gmail_setup_sync_implementation",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_implementation",
+      "target": "designs_design_gmail_setup_sync_1_gmail_setupscanservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_implementation",
+      "target": "designs_design_gmail_setup_sync_2_wrong_data_fixes_in_sourcerecognition_discoveryservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_implementation",
+      "target": "designs_design_gmail_setup_sync_3_job_controller",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_implementation",
+      "target": "designs_design_gmail_setup_sync_4_ui",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "designs_design_gmail_setup_sync_implementation",
+      "target": "designs_design_gmail_setup_sync_tests",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "designs/design_gmail_setup_sync.md",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -28943,6 +29913,17 @@
       "weight": 1.0
     },
     {
+      "source": "test_jobs_gmail_setup_sync_job_test",
+      "target": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/jobs/gmail_setup_sync_job_test.rb",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
       "source": "test_jobs_gmail_sync_job_test",
       "target": "test_jobs_gmail_sync_job_test_gmailsyncjobtest",
       "relation": "contains",
@@ -29248,6 +30229,50 @@
       "confidence_score": 1.0,
       "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test",
+      "target": "test_services_gmail_setup_scan_service_test_configure",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test",
+      "target": "test_services_gmail_setup_scan_service_test_gmail",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -29713,6 +30738,17 @@
       "weight": 1.0
     },
     {
+      "source": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob",
+      "target": "app_jobs_application_job_applicationjob",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "app_jobs_gmail_sync_job_gmailsyncjob",
       "target": "app_jobs_application_job_applicationjob",
       "relation": "inherits",
@@ -30164,6 +31200,17 @@
       "weight": 1.0
     },
     {
+      "source": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest",
+      "target": "test_jobs_gmail_setup_sync_job_test_rb_testcase",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/jobs/gmail_setup_sync_job_test.rb",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
       "source": "test_jobs_gmail_sync_job_test_gmailsyncjobtest",
       "target": "test_jobs_gmail_sync_job_test_rb_testcase",
       "relation": "inherits",
@@ -30381,6 +31428,17 @@
       "confidence_score": 1.0,
       "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest",
+      "target": "test_services_gmail_setup_scan_service_test_rb_testcase",
+      "relation": "inherits",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -31441,7 +32499,7 @@
     },
     {
       "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_reject",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_setup_sync",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -31452,145 +32510,13 @@
     },
     {
       "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_set_connection",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_setup",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L114",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_valid_state_pred",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L122",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_oauth_failed",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L128",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_search_config_params",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L132",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_index",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L14",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_split_values",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L141",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_create_expenses_from_review",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L145",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_start_auth",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L23",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_callback",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L45",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_update",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_destroy",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L69",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L79",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
-      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync_status",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L86",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -31601,7 +32527,183 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/gmail_connections_controller.rb",
-      "source_location": "L96",
+      "source_location": "L126",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_reject",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_set_connection",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_valid_state_pred",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_oauth_failed",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_index",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync_already_running",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_search_config_params",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L168",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_split_values",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_values_from",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_create_expenses_from_review",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L190",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_start_auth",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_callback",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_update",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_destroy",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_gmail_connections_controller_gmailconnectionscontroller",
+      "target": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_sync_status",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/gmail_connections_controller.rb",
+      "source_location": "L94",
       "weight": 1.0
     },
     {
@@ -32760,6 +33862,17 @@
       "weight": 1.0
     },
     {
+      "source": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob",
+      "target": "app_jobs_gmail_setup_sync_job_gmailsetupsyncjob_perform",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/jobs/gmail_setup_sync_job.rb",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
       "source": "app_jobs_gmail_sync_job_gmailsyncjob",
       "target": "app_jobs_gmail_sync_job_gmailsyncjob_polling_interval_minutes",
       "relation": "method",
@@ -33163,7 +34276,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L20",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -33174,7 +34287,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L27",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -33185,7 +34298,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L33",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "app_models_gmail_connection_gmailconnection",
+      "target": "app_models_gmail_connection_gmailconnection_sync_running_pred",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/models/gmail_connection.rb",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -33196,7 +34320,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/models/gmail_connection.rb",
-      "source_location": "L45",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -35455,6 +36579,105 @@
       "weight": 1.0
     },
     {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_discover_for",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_top",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_empty_result",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_initialize",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_call",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_fetch_messages",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_client",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_scan_all",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_gmail_setup_scan_service_gmail_setupscanservice",
+      "target": "app_services_gmail_setup_scan_service_gmail_setupscanservice_aggregate_settings",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/gmail/setup_scan_service.rb",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
       "source": "app_services_gmail_sync_service_gmail_syncservice",
       "target": "app_services_gmail_sync_service_gmail_syncservice_mark_failed",
       "relation": "method",
@@ -36138,13 +37361,24 @@
     },
     {
       "source": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice",
+      "target": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_subject_template",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/source_recognition/discovery_service.rb",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice",
       "target": "app_services_source_recognition_discovery_service_sourcerecognition_discoveryservice_keyword_candidates",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L138",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -36155,7 +37389,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L156",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -36166,7 +37400,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L169",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -36177,7 +37411,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/discovery_service.rb",
-      "source_location": "L198",
+      "source_location": "L221",
       "weight": 1.0
     },
     {
@@ -36518,7 +37752,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L121",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -36529,7 +37763,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L136",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -36540,7 +37774,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L144",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -36551,7 +37785,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L162",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -36562,7 +37796,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L174",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -37314,6 +38548,17 @@
       "weight": 1.0
     },
     {
+      "source": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections_addsetupsuggestionstogmailconnections",
+      "target": "db_migrate_20260905000000_add_setup_suggestions_to_gmail_connections_addsetupsuggestionstogmailconnections_change",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "db_seed_data_financial_catalog_seeder_financialcatalogseeder",
       "target": "db_seed_data_financial_catalog_seeder_financialcatalogseeder_run",
       "relation": "method",
@@ -37465,6 +38710,17 @@
       "confidence_score": 1.0,
       "source_file": "test/controllers/transfers_controller_test.rb",
       "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest",
+      "target": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest_silence_logger",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/jobs/gmail_setup_sync_job_test.rb",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
@@ -37729,6 +38985,83 @@
       "confidence_score": 1.0,
       "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_davibank_message",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_marketing_message",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_initialize",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_list_messages",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_get_message",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_stubs",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient",
+      "target": "test_services_gmail_setup_scan_service_test_gmail_setupscanservicetest_fakeclient_fail_on",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/services/gmail/setup_scan_service_test.rb",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -41145,5 +42478,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "df98ce5dc002b310ca49fd18231dea843500dff2"
+  "built_at_commit": "0cb2be0a0d44670ba6e4fb8e8f8273612aa11b27"
 }

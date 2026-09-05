@@ -6,6 +6,9 @@ class GmailConnection < ApplicationRecord
   include EncryptedSecret
 
   TOKEN_EXPIRY_GRACE = 30.seconds
+  # A crashed background job can leave `syncing` behind forever; after this
+  # long the sync is considered dead and a new one may start.
+  STALE_SYNC_TIMEOUT = 30.minutes
 
   belongs_to :user
 
@@ -39,6 +42,13 @@ class GmailConnection < ApplicationRecord
     self.refresh_token = tokens[:refresh_token] if tokens[:refresh_token].present?
     save!
     access_token
+  end
+
+  # True while a background sync (normal or setup) is believed to be running.
+  # Used to refuse starting another one (controller) and to skip duplicated
+  # jobs (jobs), so the client cannot pile up concurrent syncs.
+  def sync_running?
+    syncing.present? && syncing > STALE_SYNC_TIMEOUT.ago
   end
 
   # Normalized search criteria hash used by Gmail::QueryBuilder.

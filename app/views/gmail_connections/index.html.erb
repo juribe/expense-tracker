@@ -1,13 +1,28 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="h3 mb-0"><i class="bi bi-envelope-paper me-2"></i><%= t("gmail.title") %></h1>
   <% if @connection&.active? %>
+  <% syncing = @connection.sync_running? %>
+  <div class="d-flex gap-2 align-items-center" <%= tag.attributes(data: { sync_in_progress: true }) if syncing %>>
+    <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-outline-secondary",
+          disabled: syncing,
+          form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
+          data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}" } do %>
+      <i class="bi bi-magic me-1"></i><%= t("gmail.setup_sync") %>
+    <% end %>
     <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary",
+          disabled: syncing,
           form: { data: { turbo_confirm: t("gmail.fetch_confirm") } },
           data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
                   sync_status_path: gmail_sync_status_path } do %>
       <i class="bi bi-arrow-repeat me-1"></i><%= t("gmail.sync_now") %>
     <% end %>
-  <% end %>
+    <% if syncing %>
+      <span class="badge bg-info text-dark" data-testid="sync-running-badge">
+        <span class="spinner-border spinner-border-sm me-1"></span><%= t("gmail.syncing") %>
+      </span>
+    <% end %>
+  </div>
+<% end %>
 </div>
 
 <% unless @configured %>
@@ -20,6 +35,18 @@
 
 <div class="row g-4">
   <div class="col-lg-5">
+    <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.sync_running? %>
+      <div class="card mb-4 border-primary" data-testid="setup-suggestions-card">
+        <div class="card-body">
+          <h2 class="h5 card-title"><i class="bi bi-magic me-1"></i><%= t("gmail.setup.review_title") %></h2>
+          <p class="text-muted small mb-3"><%= t("gmail.setup.review_help") %></p>
+          <%= link_to setup_gmail_connection_path, class: "btn btn-primary btn-sm" do %>
+            <%= t("gmail.setup.review_cta") %> <i class="bi bi-arrow-right ms-1"></i>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
     <div class="card mb-4">
       <div class="card-body">
         <h2 class="h5 card-title"><i class="bi bi-link-45deg me-1"></i><%= t("gmail.connection") %></h2>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_04_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_05_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -123,6 +123,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_04_000002) do
     t.datetime "updated_at", null: false
     t.datetime "syncing"
     t.json "last_sync_summary"
+    t.json "setup_suggestions"
     t.index ["user_id", "email"], name: "index_gmail_connections_on_user_id_and_email", unique: true
     t.index ["user_id"], name: "index_gmail_connections_on_user_id"
   end
@@ -403,7 +404,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_04_000002) do
   add_foreign_key "money_source_recognitions", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
   add_foreign_key "money_sources", "users"
-  add_foreign_key "processed_emails", "transactions", column: "expense_id"
+  add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :cascade
   add_foreign_key "processed_emails", "users"
   add_foreign_key "recurring_templates", "categories"
   add_foreign_key "recurring_templates", "money_sources"

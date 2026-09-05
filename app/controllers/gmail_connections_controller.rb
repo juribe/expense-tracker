@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class GmailConnectionsController < ApplicationController
-  before_action :set_connection, only: %i[update destroy sync sync_status]
+  before_action :set_connection, only: %i[update destroy sync sync_status setup_sync setup]
+
+  helper_method :values_from
 
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
@@ -63,7 +65,11 @@ class GmailConnectionsController < ApplicationController
 
   def update
     @connection.update!(search_config: search_config_params)
-    redirect_to gmail_connection_path, notice: t("gmail_messages.criteria_updated")
+    if params[:next] == "recognition"
+      redirect_to money_sources_recognition_path, notice: t("gmail_messages.criteria_updated")
+    else
+      redirect_to gmail_connection_path, notice: t("gmail_messages.criteria_updated")
+    end
   end
 
   def destroy
@@ -77,6 +83,8 @@ class GmailConnectionsController < ApplicationController
   # take a while — the request should return immediately and let the user keep
   # browsing. Results appear once the job finishes (refresh the page).
   def sync
+    return sync_already_running if @connection.sync_running?
+
     GmailSyncJob.perform_later(connection_id: @connection.id)
     redirect_to gmail_connection_path, notice: t("gmail_messages.sync_started")
   end
@@ -90,6 +98,28 @@ class GmailConnectionsController < ApplicationController
       summary: summary,
       last_synced_at: @connection.last_synced_at&.iso8601
     }
+  end
+
+  # Step 0 of the setup wizard: kicks off the broad mailbox scan
+  # (Gmail::SetupScanService) in the background. The scan does NOT import
+  # expenses — it only discovers Gmail settings and money source suggestions.
+  def setup_sync
+    return sync_already_running if @connection.sync_running?
+
+    GmailSetupSyncJob.perform_later(connection_id: @connection.id)
+    redirect_to gmail_connection_path, notice: t("gmail_messages.setup_sync_started")
+  end
+
+  # Step 1 of the setup wizard: review the Gmail settings the scan suggested
+  # (senders / domains / subject keywords), edit if needed and confirm. Saving
+  # continues to step 2 (money source recognition suggestions).
+  def setup
+    @suggestions = @connection.setup_suggestions || {}
+    if @connection.sync_running?
+      redirect_to gmail_connection_path, notice: t("gmail_messages.setup_sync_started")
+    elsif @suggestions["senders"].blank? && @suggestions["subject_keywords"].blank?
+      redirect_to gmail_connection_path, alert: t("gmail_messages.setup_no_suggestions")
+    end
   end
 
   # Approves a low-confidence transaction extracted from an email.
@@ -129,6 +159,12 @@ class GmailConnectionsController < ApplicationController
     redirect_to gmail_connection_path, alert: message
   end
 
+  # A sync (normal or setup) is already running for this connection: refuse
+  # to enqueue another one so the client cannot stack concurrent syncs.
+  def sync_already_running
+    redirect_to gmail_connection_path, alert: t("gmail_messages.sync_in_progress")
+  end
+
   def search_config_params
     raw = params.fetch(:search_config, {}).permit(:senders, :domains, :subject_keywords)
     {
@@ -140,6 +176,15 @@ class GmailConnectionsController < ApplicationController
 
   def split_values(value)
     value.to_s.split(/[,\n]/).map(&:strip).reject(&:blank?).uniq
+  end
+
+  # Normalizes a setup_suggestions list into plain values (entries are
+  # { "value" => ..., "count" => ... } hashes straight from the json column).
+  def values_from(suggestions, key)
+    Array(suggestions[key]).filter_map do |entry|
+      value = entry.is_a?(Hash) ? entry["value"] : entry
+      value.to_s.strip.presence
+    end
   end
 
   def create_expenses_from_review(review)
