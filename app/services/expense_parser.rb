@@ -160,7 +160,7 @@ class ExpenseParser
 
     content = JSON.parse(response.body).dig("choices", 0, "message", "content")
     data = JSON.parse(content)
-    entries = data["expenses"]
+    entries = data.is_a?(Array) ? data : data["expenses"]
     raise AIError, "missing 'expenses' array" unless entries.is_a?(Array)
 
     entries.filter_map do |entry|

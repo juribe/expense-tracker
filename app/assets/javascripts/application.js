@@ -291,7 +291,15 @@
       delete e.submitter.dataset.turboConfirm;
       delete e.submitter.dataset.confirm;
     }
-    if (window.confirm(message)) form.requestSubmit(e.submitter || undefined);
+    if (window.confirm(message)) {
+      // Deferring avoids a Chrome quirk: requestSubmit() called reentrantly
+      // from a submit handler that called preventDefault() re-dispatches a
+      // submit event whose defaultPrevented flag is already true, so the
+      // form never actually submits.
+      setTimeout(function () {
+        form.requestSubmit(e.submitter || undefined);
+      }, 0);
+    }
   }, true);
 
   // Delegate: pick up any chips rendered on the page (also after form edits).

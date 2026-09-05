@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker — Models &amp; Services</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#1a2233; --panel2:#202a40; --border:#2c3850;
+    --text:#e6ecf5; --muted:#93a1bd; --accent:#4ea1ff;
+    --model:#6c5ce7; --model-bg:#241f4d;
+    --service:#0ea5e9; --service-bg:#0c2c44;
+    --value:#10b981; --value-bg:#0b3329;
+    --warn:#f59e0b; --red:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       line-height:1.55;}
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 20px 80px;}
+  header.hero{padding:28px 0 8px;border-bottom:1px solid var(--border);margin-bottom:28px;}
+  header.hero h1{margin:0 0 6px;font-size:26px;}
+  header.hero p{margin:0;color:var(--muted);}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:16px 0 8px;font-size:13px;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dot{width:12px;height:12px;border-radius:3px;display:inline-block;}
+  .dot.model{background:var(--model)}
+  .dot.service{background:var(--service)}
+  .dot.value{background:var(--value)}
+  h2{font-size:19px;margin:44px 0 8px;padding-left:12px;border-left:4px solid var(--accent);}
+  h3{font-size:15px;color:var(--accent);margin:26px 0 8px;}
+  p,li{font-size:14px;}
+  .muted{color:var(--muted);}
+  code{background:#0d1322;border:1px solid var(--border);border-radius:4px;
+       padding:1px 5px;font-size:12.5px;color:#a5f3fc;}
+  /* diagram node */
+  .node{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+        border-radius:8px;padding:8px 11px;border:1px solid transparent;white-space:nowrap;}
+  .node.model{background:var(--model-bg);border-color:#4c4199;color:#c9c2f5;}
+  .node.service{background:var(--service-bg);border-color:#1c6a9b;color:#9dd6f5;}
+  .node.value{background:var(--value-bg);border-color:#197a5b;color:#8fe0c3;}
+  .node small{color:var(--muted);font-weight:400;}
+  /* relationship diagrams: layered lists */
+  .diagram{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+           padding:18px;margin:10px 0 6px;overflow-x:auto;}
+  .rel{display:flex;flex-direction:column;gap:9px;min-width:760px;}
+  .rel > .node{width:fit-content;}
+  .edge{display:flex;align-items:center;gap:10px;}
+  .edge .label{font-size:10.5px;color:var(--muted);letter-spacing:.3px;min-width:150px;
+               text-align:center;background:var(--panel2);border:1px solid var(--border);
+               border-radius:5px;padding:2px 6px;}
+  .edge .line{flex:0 0 0;width:44px;height:1px;background:var(--muted);position:relative;}
+  .edge .line::after{content:"";position:absolute;right:-1px;top:-3px;
+      border:4px solid transparent;border-left-color:var(--muted);}
+  .row{display:flex;flex-wrap:wrap;gap:10px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;flex:1 1 240px;}
+  .card h4{margin:0 0 6px;font-size:14px;}
+  .card h4.model{color:#c9c2f5;} .card h4.service{color:#9dd6f5;} .card h4.value{color:#8fe0c3;}
+  .card p{margin:0;font-size:13px;color:var(--muted);}
+  .card ul{margin:6px 0 0;padding-left:18px;font-size:12.5px;}
+  .card li{margin:2px 0;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);
+        border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{background:var(--panel2);font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
+  tr:last-child td{border-bottom:none;}
+  td code{white-space:nowrap;}
+  .tag{font-size:10px;border-radius:4px;padding:1px 6px;font-weight:700;letter-spacing:.3px;}
+  .tag.model{background:#241f4d;color:#c9c2f5;} .tag.service{background:#0c2c44;color:#9dd6f5;}
+  .callout{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--warn);
+           border-radius:8px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--muted);}
+  .callout b{color:var(--text);}
+  a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Expense Tracker — Models &amp; Services</h1>
+  <p>Relationship map and responsibilities. Grounded in <code>app/models/</code> and <code>app/services/</code>.</p>
+  <div class="legend">
+    <span><i class="dot model"></i> Model</span>
+    <span><i class="dot service"></i> Service</span>
+    <span><i class="dot value"></i> Value object / Utility</span>
+  </div>
+</header>
+
+<!-- ============ MODELS ============ -->
+<h2>1. Models &amp; their relationships</h2>
+
+<h3>Ownership: everything hangs off User</h3>
+<div class="diagram"><div class="rel">
+  <span class="node model">User <small>(Devise auth)</small></span>
+  <div class="edge"><span class="line"></span><span class="label">has_many (all :destroy)</span></div>
+  <div class="row" style="min-width:760px">
+    <span class="node model">Expense</span>
+    <span class="node model">Income</span>
+    <span class="node model">Transaction</span>
+    <span class="node model">RecurringTemplate</span>
+    <span class="node model">GmailConnection</span>
+    <span class="node model">ProcessedEmail</span>
+    <span class="node model">MoneySource</span>
+    <span class="node model">Transfer</span>
+    <span class="node model">FinancialSetup</span>
+  </div>
+</div></div>
+
+<h3>Transaction hierarchy (single-table inheritance)</h3>
+<div class="diagram"><div class="rel">
+  <span class="node model">Transaction <small>STI base · kind column · signed amount</small></span>
+  <div class="edge"><span class="line"></span><span class="label">subclass</span></div>
+  <div class="row">
+    <span class="node model">Expense</span>
+    <span class="node model">Income</span>
+  </div>
+  <div class="row" style="margin-top:6px">
+    <span class="node model">Category</span>
+    <span class="node model">MoneySource</span>
+    <span class="node model">RecurringTemplate</span>
+    <span class="node model">User</span>
+  </div>
+</div></div>
+
+<h3>Money source cluster</h3>
+<div class="diagram"><div class="rel">
+  <span class="node model">MoneySource</span>
+  <div class="edge"><span class="line"></span><span class="label">has_one</span></div>
+  <div class="row">
+    <span class="node model">CreditAccount</span>
+    <span class="node model">MoneySourceRecognition</span>
+  </div>
+  <div class="edge" style="margin-top:4px"><span class="line"></span><span class="label">recognition has_many →</span></div>
+  <span class="node model">MoneySourceRecognitionIdentifier <small>keyword · sender · domain · subject · header</small></span>
+  <div class="edge" style="margin-top:4px"><span class="line"></span><span class="label">debt kinds → also drives (via has_one :credit_account)</span></div>
+  <div class="row">
+    <span class="node model">Transfer <small>from_source / to_source</small></span>
+  </div>
+</div></div>
+
+<h3>Full model association matrix</h3>
+<table>
+  <thead><tr><th>Model</th><th>belongs_to</th><th>has_many / has_one</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag model">model</span> User</td><td>—</td><td>incomes, expenses, transactions, recurring_templates, gmail_connections, processed_emails, money_sources, transfers, financial_setups</td><td>Devise-authenticated owner of all data.</td></tr>
+    <tr><td><span class="tag model">model</span> Transaction</td><td>user, category; optional: recurring_template, money_source</td><td>—</td><td>Single money-movement record; signed amount (expense = negative).</td></tr>
+    <tr><td><span class="tag model">model</span> Expense</td><td>(inherits Transaction)</td><td>—</td><td>STI subclass; <code>default_scope</code> expense; <code>dashboard_summary</code>.</td></tr>
+    <tr><td><span class="tag model">model</span> Income</td><td>(inherits Transaction)</td><td>—</td><td>STI subclass; <code>default_scope</code> income; <code>dashboard_summary</code>.</td></tr>
+    <tr><td><span class="tag model">model</span> Category</td><td>parent (self), user (opt.)</td><td>children, expenses, incomes, transactions, recurring_templates</td><td>Hierarchical; default vs. custom; per-user/type uniqueness.</td></tr>
+    <tr><td><span class="tag model">model</span> MoneySource</td><td>user, parent (opt.)</td><td>children, transactions, recurring_templates, outgoing/incoming_transfers; has_one credit_account, recognition</td><td>Account/card/loan; computed balance; debt math (used/available credit). Stores only last-4 of identifiers.</td></tr>
+    <tr><td><span class="tag model">model</span> CreditAccount</td><td>money_source</td><td>—</td><td>Credit/debt details: limits, interest, installments, card brand/last-four.</td></tr>
+    <tr><td><span class="tag model">model</span> MoneySourceRecognition</td><td>money_source</td><td>recognition_identifiers</td><td>Recognition config per source; manages promote/dismiss.</td></tr>
+    <tr><td><span class="tag model">model</span> MoneySourceRecognitionIdentifier</td><td>money_source_recognition</td><td>—</td><td>A matching signal; confirmed vs. suggested lifecycle.</td></tr>
+    <tr><td><span class="tag model">model</span> RecurringTemplate</td><td>user, category, money_source (opt.)</td><td>transactions</td><td>Monthly recurring income/expense config.</td></tr>
+    <tr><td><span class="tag model">model</span> Transfer</td><td>user, from_source, to_source</td><td>—</td><td>Money moved between two sources (must differ).</td></tr>
+    <tr><td><span class="tag model">model</span> GmailConnection</td><td>user</td><td>—</td><td>Connected Gmail (Google OAuth); encrypted tokens; auto-refresh.</td></tr>
+    <tr><td><span class="tag model">model</span> ProcessedEmail</td><td>user, expense (opt.)</td><td>—</td><td>Idempotency guard: each <code>[provider, message_id]</code> processed once.</td></tr>
+    <tr><td><span class="tag model">model</span> FinancialSetup</td><td>user</td><td>—</td><td>Wizard state: step, per-step choice, draft sources, import state (resumable).</td></tr>
+    <tr><td><span class="tag model">model</span> FinancialInstitution</td><td>—</td><td>—</td><td>Seeded Colombian institutions (aliases + domains) for email filter.</td></tr>
+    <tr><td><span class="tag model">model</span> FinancialKeyword</td><td>—</td><td>—</td><td>Seeded global financial keywords + signal weight.</td></tr>
+    <tr><td><span class="tag model">model</span> FinancialSubjectPattern</td><td>—</td><td>—</td><td>Seeded subject patterns signaling financial emails.</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ SERVICES ============ -->
+<h2>2. Services &amp; their relationships</h2>
+
+<h3>Gmail import path</h3>
+<div class="diagram"><div class="rel">
+  <span class="node service">Gmail::SyncService</span>
+  <div class="edge"><span class="line"></span><span class="label">uses</span></div>
+  <div class="row">
+    <span class="node service">Gmail::QueryBuilder</span>
+    <span class="node service">Gmail::Client</span>
+    <span class="node service">SourceRecognition::DiscoveryService</span>
+    <span class="node service">ProcessedEmail <small>(records outcome)</small></span>
+  </div>
+  <div class="edge" style="margin-top:4px"><span class="line"></span><span class="label">per message →</span></div>
+  <span class="node service">Gmail::ExpenseImporter</span>
+  <div class="edge"><span class="line"></span><span class="label">uses</span></div>
+  <div class="row">
+    <span class="node service">EmailTransactionDetector</span>
+    <span class="node service">Ai::TransactionExtractor</span>
+    <span class="node service">SourceRecognition::Matcher</span>
+    <span class="node service">MoneySources::Match</span>
+    <span class="node service">Expenses::Create</span>
+  </div>
+  <div class="edge"><span class="line"></span><span class="label">creates</span></div>
+  <span class="node model">Expense</span>
+</div></div>
+
+<h3>Statement / wizard import path</h3>
+<div class="diagram"><div class="rel">
+  <span class="node service">ImportPipeline</span>
+  <div class="edge"><span class="line"></span><span class="label">orchestrates</span></div>
+  <div class="row">
+    <span class="node service">Ai::StatementExtractor</span>
+    <span class="node value">ParsedStatement</span>
+  </div>
+  <div class="edge" style="margin-top:4px"><span class="line"></span><span class="label">consumed by</span></div>
+  <div class="row">
+    <span class="node service">FinancialSetups::Completer</span>
+    <span class="node service">StatementDuplicateDetector</span>
+    <span class="node service">FinancialSetupWizard</span>
+    <span class="node service">FinancialSetups::StepPresenter</span>
+  </div>
+  <div class="edge"><span class="line"></span><span class="label">creates</span></div>
+  <div class="row">
+    <span class="node model">MoneySource</span>
+    <span class="node model">CreditAccount</span>
+    <span class="node model">RecurringTemplate</span>
+  </div>
+</div></div>
+
+<h3>Expense creation path</h3>
+<div class="diagram"><div class="rel">
+  <div class="row">
+    <span class="node service">ExpenseParser <small>(text/voice)</small></span>
+    <span class="node service">Expenses::Create <small>(any source)</small></span>
+    <span class="node service">RecurringTemplateProcessor / Importer</small></span>
+  </div>
+  <div class="edge"><span class="line"></span><span class="label">all output</span></div>
+  <span class="node model">Expense / Transaction</span>
+</div></div>
+
+<h3>Source recognition feedback loop</h3>
+<div class="diagram"><div class="rel">
+  <div class="row">
+    <span class="node service">FinancialEmailFilter</span>
+    <span class="node service">SourceRecognition::Catalog</span>
+    <span class="node value">TextNormalizer</span>
+  </div>
+  <div class="edge"><span class="line"></span><span class="label">→ DiscoveryService proposes</span></div>
+  <span class="node model">MoneySourceRecognitionIdentifier <small>(suggested)</small></span>
+  <div class="edge"><span class="line"></span><span class="label">user confirms → ApplyToSearchConfig narrows Gmail sync query → Matcher auto-resolves future sources</span></div>
+  <div class="row">
+    <span class="node service">SourceRecognition::ApplyToSearchConfig</span>
+    <span class="node service">SourceRecognition::Matcher</span>
+  </div>
+</div></div>
+
+<h3>Full service index</h3>
+<table>
+  <thead><tr><th>Service</th><th>Kind</th><th>Responsibility</th><th>Uses / creates</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag service">service</span> ExpenseParser</td><td>Feature</td><td>Natural-language → unsaved expenses (AI or Colombian heuristic).</td><td><code>ParsedExpense</code>, <code>Category</code>, <code>MoneySource</code></td></tr>
+    <tr><td><span class="tag value">vo</span> ParsedExpense</td><td>Value object</td><td>One parsed expense; validates before persistence.</td><td>—</td></tr>
+    <tr><td><span class="tag service">service</span> Expenses::Create</td><td>Feature</td><td>Single entry point to create an Expense from any source.</td><td>creates <code>Expense</code></td></tr>
+    <tr><td><span class="tag service">service</span> ImportPipeline</td><td>Orchestrator</td><td>Statement upload: validate → text extract → AI extract (no writes).</td><td><code>Ai::StatementExtractor</code>, <code>ParsedStatement</code></td></tr>
+    <tr><td><span class="tag service">service</span> Ai::StatementExtractor</td><td>AI</td><td>LLM extracts sources + transactions from statement text (privacy-safe).</td><td>→ <code>ParsedStatement</code> fields</td></tr>
+    <tr><td><span class="tag service">service</span> Ai::TransactionExtractor</td><td>AI</td><td>LLM extracts transactions from an email; decides ignore.</td><td>—</td></tr>
+    <tr><td><span class="tag value">vo</span> ParsedStatement</td><td>Value object</td><td>One extracted source row from an import (never writes).</td><td>—</td></tr>
+    <tr><td><span class="tag service">service</span> StatementDuplicateDetector</td><td>Feature</td><td>Surface duplicate MoneySource during import review.</td><td>matches <code>MoneySource</code></td></tr>
+    <tr><td><span class="tag service">service</span> RecurringTemplateImporter</td><td>Feature</td><td>Bulk-import recurring templates from CSV.</td><td>creates <code>RecurringTemplate</code></td></tr>
+    <tr><td><span class="tag service">service</span> RecurringTemplateProcessor</td><td>Feature</td><td>Recurring config → one-time Transaction (once per period, transactional).</td><td>creates <code>Transaction</code> (via <code>RecurringTemplate</code>)</td></tr>
+    <tr><td><span class="tag service">service</span> ExpenseDashboardService</td><td>Query</td><td>Dashboard: scoped expenses, total_spent, categories_breakdown.</td><td>reads <code>Expense</code></td></tr>
+    <tr><td><span class="tag service">service</span> EmailTransactionDetector</td><td>Filter</td><td>Cheap no-AI pre-filter: transactional / non-transactional / special.</td><td>—</td></tr>
+    <tr><td><span class="tag service">service</span> FinancialSetupWizard</td><td>Config</td><td>Single source of truth for ordered wizard steps + choices.</td><td>—</td></tr>
+    <tr><td><span class="tag service">service</span> FinancialSetups::Completer</td><td>Orchestrator</td><td>Creates real records from finished wizard drafts (one transaction).</td><td><code>Wizard</code>, <code>ParsedStatement</code>, <code>DuplicateDetector</code> → <code>MoneySource</code>/<code>CreditAccount</code>/<code>RecurringTemplate</code></td></tr>
+    <tr><td><span class="tag service">service</span> FinancialSetups::StepPresenter</td><td>View helper</td><td>Per-step "Added" summary; dedup manual + import rows; display amount/label.</td><td>reads <code>FinancialSetup</code></td></tr>
+    <tr><td><span class="tag service">service</span> MoneySources::Match</td><td>Feature</td><td>Match a transaction to a MoneySource (tag/name, last-4, bank; recognition-aware).</td><td>reads <code>MoneySource</code>, <code>CreditAccount</code></td></tr>
+    <tr><td><span class="tag service">service</span> Gmail::Client</td><td>API client</td><td>Gmail API: list + fetch one normalized message.</td><td>—</td></tr>
+    <tr><td><span class="tag service">service</span> Gmail::OauthClient</td><td>API client</td><td>Google OAuth2: auth URL, code exchange, refresh, userinfo.</td><td>—</td></tr>
+    <tr><td><span class="tag service">service</span> Gmail::QueryBuilder</td><td>Utility</td><td>Build Gmail search query (senders/domains, subject keywords, lookback).</td><td>reads <code>GmailConnection#search_config</code></td></tr>
+    <tr><td><span class="tag service">service</span> Gmail::ExpenseImporter</td><td>Orchestrator</td><td>One email: dedup → detect → extract → resolve source → create / review.</td><td>Detector, <code>Ai::TransactionExtractor</code>, <code>Matcher</code>, <code>MoneySources::Match</code>, <code>Expenses::Create</code>, <code>ProcessedEmail</code></td></tr>
+    <tr><td><span class="tag service">service</span> Gmail::SyncService</td><td>Orchestrator</td><td>Sync one connection: query, fetch ≤25 messages, import each, discover suggestions.</td><td><code>QueryBuilder</code>, <code>Client</code>, <code>ExpenseImporter</code>, <code>DiscoveryService</code></td></tr>
+    <tr><td><span class="tag service">service</span> SourceRecognition::Catalog</td><td>Read model</td><td>Read-only access to seeded financial catalog + domain index.</td><td>reads <code>FinancialInstitution</code>, <code>FinancialKeyword</code>, <code>FinancialSubjectPattern</code></td></tr>
+    <tr><td><span class="tag service">service</span> SourceRecognition::FinancialEmailFilter</td><td>Filter</td><td>Cheap deterministic first-stage score; rejects marketing; needs transactional signal.</td><td><code>Catalog</code>, <code>TextNormalizer</code></td></tr>
+    <tr><td><span class="tag service">service</span> SourceRecognition::Matcher</td><td>Feature</td><td>Match an email vs. confirmed identifiers → source / ambiguous / nil.</td><td>reads <code>MoneySource</code> identifiers</td></tr>
+    <tr><td><span class="tag service">service</span> SourceRecognition::DiscoveryService</td><td>Feature</td><td>Gmail-based suggestion discovery (persists <b>suggested</b> identifiers).</td><td><code>Filter</code>, <code>Matcher</code>, <code>Catalog</code>; writes <code>MoneySourceRecognitionIdentifier</code></td></tr>
+    <tr><td><span class="tag service">service</span> SourceRecognition::SuggestionEngine</td><td>Feature</td><td>Computes non-persisted suggestions to pre-fill recognition page.</td><td>reads <code>MoneySource</code> + siblings</td></tr>
+    <tr><td><span class="tag service">service</span> SourceRecognition::ApplyToSearchConfig</td><td>Feature</td><td>Feed confirmed values back into Gmail search_config (sync accelerator).</td><td>writes <code>GmailConnection#search_config</code></td></tr>
+    <tr><td><span class="tag value">util</span> SourceRecognition::TextNormalizer</td><td>Utility</td><td>Accent-insensitive, word-boundary text folding.</td><td>—</td></tr>
+    <tr><td><span class="tag value">util</span> MoneyFormat</td><td>Utility</td><td>Normalize money strings (Colombian display ↔ machine format).</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ FLOWS ============ -->
+<h2>3. Data-flow story</h2>
+<div class="callout">
+  <b>1. Manual / text / voice</b> → <code>ExpenseParser</code> → <code>ParsedExpense</code> → <code>Expenses::Create</code> → <code>Expense</code><br>
+  <b>2. Gmail import</b> → <code>Gmail::SyncService</code> → fetch via <code>Client</code>/<code>QueryBuilder</code> → <code>EmailTransactionDetector</code> → <code>Ai::TransactionExtractor</code> → <code>Gmail::ExpenseImporter</code> resolves source → <code>Expenses::Create</code> → <code>Expense</code> + <code>ProcessedEmail</code> (idempotency)<br>
+  <b>3. Statement upload</b> → <code>ImportPipeline</code> → <code>Ai::StatementExtractor</code> → <code>ParsedStatement</code> → reviewed &amp; deduped via <code>StatementDuplicateDetector</code> → committed by <code>FinancialSetups::Completer</code> → <code>MoneySource</code> / <code>CreditAccount</code> / <code>RecurringTemplate</code><br>
+  <b>4. Recurring payments</b> → <code>RecurringTemplateProcessor</code> (period-guarded) or CSV via <code>RecurringTemplateImporter</code><br>
+  <b>5. Source recognition loop</b> → Gmail sync discovers <b>suggestions</b> → user confirms → <code>ApplyToSearchConfig</code> narrows Gmail queries → <code>Matcher</code> auto-resolves future sources.
+</div>
+
+</div>
+</body>
+</html>

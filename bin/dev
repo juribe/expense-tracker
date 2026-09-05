@@ -1,2 +1,6 @@
 #!/usr/bin/env ruby
-exec "./bin/rails", "server", *ARGV
+
+require "rubygems"
+require "bundler/setup"
+
+exec "foreman start -f Procfile.dev"
