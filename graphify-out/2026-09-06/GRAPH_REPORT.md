@@ -1,16 +1,16 @@
-# Graph Report - presupuesto-por-categora  (2026-09-06)
+# Graph Report - expense_tracker  (2026-09-05)
 
 ## Corpus Check
-- 271 files · ~138,367 words
+- 245 files · ~121,760 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1783 nodes · 2216 edges · 205 communities (66 shown, 112 thin omitted)
+- 1608 nodes · 1996 edges · 199 communities (61 shown, 111 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2a6ad176`
+- Built from commit: `414dc6f4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,7 +24,7 @@
 - Category Management UI/UX Spec
 - Ai::StatementExtractor
 - FinancialSetupsController
-- ParsedStatement
+- ImportPipeline
 - Gmail::ExpenseImporter
 - application.js
 - Ai::TransactionExtractor
@@ -58,7 +58,7 @@
 - ApplicationController
 - RecurringTemplateImporter
 - ExpensesHelper
-- Budget
+- FinancialCatalogSeeder
 - Credit Cards and Loans
 - Support Monthly Income and Payments
 - financial_setup_wizard.rb
@@ -105,7 +105,7 @@
 - MoneySourceTest
 - Application Brand Icon
 - ApplicationMailer
-- Alertas de gasto — UI/UX Design Specification
+- completer.rb
 - CreateCategories
 - CreateExpenses
 - CreateUsers
@@ -156,15 +156,15 @@
 - docker-entrypoint
 - Devise English Translations
 - English Application Translations
-- @playwright/test
-- Presupuesto por categoría — UI/UX Design Specification
-- ImportPipeline
-- RecurringTemplatesController
-- recurring_template_processor.rb
-- AlertsController
-- BudgetsHelper
-- alerts.spec.js
-- budgets.spec.js
+- page-ai_powered_expense_entry-working.spec.js
+- page-bulk_update_expense_category_and_money_source-working.spec.js
+- page-clickup_task_support_monthly_income_and_payments-working.spec.js
+- page-clickup_task_support_monthly_recurring_expenses-working.spec.js
+- page-default_and_custom_categories-working.spec.js
+- page-implement_gmail_expense_import-working.spec.js
+- page-migrate_database_to_postgresql-working.spec.js
+- page-money_sources_accounts_cards_wallets_with_balances_-working.spec.js
+- page-solid_queue_enable-working.spec.js
 - Transfer
 - MoneySourceRecognition
 - Transaction
@@ -181,30 +181,24 @@
 - money_source_tags.spec.js
 - GmailSetupSyncJobTest
 - AddSetupSuggestionsToGmailConnections
-- AlertsHelper
-- CreateSpendingAlerts
+- credit_cards_and_loans.spec.js
+- FinancialKeyword
 - opencode.json
 - ai_money_source_detection.spec.js
-- CreateAlertPreferences
+- expense-bulk-selection.spec.js
 - CascadeDeleteProcessedEmailsOnExpense
-- CreateBudgets
-- AlertSettingsControllerTest
-- AlertsControllerTest
-- BudgetsControllerTest
-- AlertPreferenceTest
-- SpendingAlertTest
 
 ## God Nodes (most connected - your core abstractions)
 1. `ExpensesController` - 34 edges
-2. `Category` - 33 edges
-3. `FinancialSetupsController` - 32 edges
+2. `FinancialSetupsController` - 32 edges
+3. `Category` - 32 edges
 4. `ExpenseParser` - 32 edges
 5. `MoneySource` - 29 edges
 6. `Ai::StatementExtractor` - 28 edges
 7. `ApplicationHelper` - 25 edges
-8. `@playwright/test` - 25 edges
-9. `Ai::TransactionExtractor` - 22 edges
-10. `GmailConnectionsController` - 21 edges
+8. `Ai::TransactionExtractor` - 22 edges
+9. `GmailConnectionsController` - 21 edges
+10. `MoneySourcesController` - 20 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Source Recognition (Gmail-based Email Matching)` --references--> `Colombian Financial Institutions Catalog`  [INFERRED]
@@ -237,26 +231,22 @@
 - **Public Static Web Assets** — public_400_html, public_404_html, public_406_unsupported_browser_html, public_422_html, public_500_html, public_robots_txt, public_icon_png, public_icon_svg [INFERRED 0.85]
 - **Application Icon in Multiple Formats** — public_icon_png, public_icon_svg, app_brand_icon [INFERRED 0.90]
 
-## Communities (205 total, 112 thin omitted)
-
-### Community 1 - "ExpensesController"
-Cohesion: 0.05
-Nodes (8): ExpensesController, Expense, BudgetsFlowTest, IntegrationTest, BudgetTest, TestCase, CategorySpendTest, TestCase
+## Communities (199 total, 111 thin omitted)
 
 ### Community 2 - "ExpenseParser"
 Cohesion: 0.07
 Nodes (8): call(), ExpenseParser, ExpenseParser::AIError, ExpenseParser::Resolution, StandardError, ParsedExpense, ExpenseParserTest, TestCase
 
 ### Community 3 - "auth.js"
-Cohesion: 0.14
-Nodes (12): { signUp, signIn }, { test, expect }, { signUp }, { test, expect }, { signUp, createCategory }, { test, expect }, { signUp, createCategory }, { test, expect } (+4 more)
+Cohesion: 0.25
+Nodes (8): { signUp, signIn }, { test, expect }, { signUp, createCategory }, { test, expect }, { expect }, signIn(), signUp(), uniqueEmail()
 
 ### Community 4 - "MoneySource"
 Cohesion: 0.06
 Nodes (7): MoneySource, MoneySources, MoneySources::Match, SanitizeMoneySourceIdentifiersToLastFour, MoneySources, MoneySources::MatchTest, TestCase
 
 ### Community 5 - "Gmail::ExpenseImporterTest"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (9): EmailTransactionDetector, EmailTransactionDetector::Result, EmailTransactionDetectorTest, TestCase, Gmail, Gmail::ExpenseImporterTest, Gmail::ExpenseImporterTest::FakeDetector, Gmail::ExpenseImporterTest::FakeExtractor (+1 more)
 
 ### Community 6 - "Category Management UI/UX Spec"
@@ -267,9 +257,9 @@ Nodes (38): Add Expense Form Design Spec, Bootstrap 5 Components, Category Dropd
 Cohesion: 0.10
 Nodes (8): Ai, Ai::StatementExtractor, Ai::StatementExtractor::ExtractionError, parse(), StandardError, Ai, Ai::StatementExtractorTest, TestCase
 
-### Community 9 - "ParsedStatement"
-Cohesion: 0.12
-Nodes (6): ImportPipeline::Result, ParsedStatement, FinancialSetupsControllerTest, IntegrationTest, TestCase, StatementDuplicateDetectorTest
+### Community 9 - "ImportPipeline"
+Cohesion: 0.09
+Nodes (7): ImportPipeline, ImportPipeline::Result, ParsedStatement, FinancialSetupsControllerTest, IntegrationTest, TestCase, StatementDuplicateDetectorTest
 
 ### Community 10 - "Gmail::ExpenseImporter"
 Cohesion: 0.06
@@ -311,17 +301,17 @@ Nodes (18): Category Data Model, Expense Data Model, Dashboard Example, Category
 Cohesion: 0.15
 Nodes (7): Expenses, Expenses::Create, Expenses::Create::Invalid, StandardError, Expenses, Expenses::CreateTest, TestCase
 
-### Community 24 - "FinancialSetups::Completer"
-Cohesion: 0.19
-Nodes (3): FinancialSetups, FinancialSetups::Completer, FinancialSetups::Completer::Result
-
 ### Community 25 - "SourceRecognition::DiscoveryService"
-Cohesion: 0.05
-Nodes (16): FinancialInstitution, FinancialKeyword, FinancialSubjectPattern, SourceRecognition, SourceRecognition::Catalog, call(), SourceRecognition, SourceRecognition::DiscoveryService (+8 more)
+Cohesion: 0.07
+Nodes (13): FinancialInstitution, SourceRecognition, SourceRecognition::Catalog, call(), SourceRecognition, SourceRecognition::DiscoveryService, SourceRecognition::DiscoveryService::Result, call() (+5 more)
 
 ### Community 26 - "Source Recognition (Gmail-based Email Matching)"
 Cohesion: 0.13
 Nodes (17): ActionCable Configuration, PostgreSQL Database Configuration, Gmail Integration I18n Keys (English), Solid Queue Configuration, Recurring Tasks Configuration, ActiveStorage Configuration, Colombian Financial Institutions Catalog, Financial Email Keywords Dictionary (+9 more)
+
+### Community 27 - "RecurringTemplateActions"
+Cohesion: 0.05
+Nodes (11): RecurringTemplateActions, MonthlyExpensesController, MonthlyIncomesController, RecurringTemplatesController, call(), coerce_date(), failure(), normalize_amount() (+3 more)
 
 ### Community 30 - "Gmail::Client"
 Cohesion: 0.19
@@ -344,7 +334,7 @@ Cohesion: 0.09
 Nodes (22): 1. Models & their relationships, 2. Services & their relationships, 3. Key cross-cutting relationships, 4. Data-flow story, Association map, Category, CreditAccount, Detailed relationships (+14 more)
 
 ### Community 37 - "createCategory"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (7): { signUp, createCategory }, { test, expect }, { signUp, createCategory }, { test, expect }, createCategory(), { signUp, createCategory }, { test, expect }
 
 ### Community 38 - "Expense Model"
@@ -356,12 +346,8 @@ Cohesion: 0.17
 Nodes (12): Money Source Form, Hybrid Financial Setup Wizard, Setup Complete State, Duplicate Card Handling, Extraction Review Step, Statement File Upload, Final Review Step, Manual Account Entry (+4 more)
 
 ### Community 40 - "ApplicationController"
-Cohesion: 0.12
-Nodes (5): AlertSettingsController, ApplicationController, Base, MonthlyIncomesController, MonthlyReportsController
-
-### Community 43 - "Budget"
-Cohesion: 0.06
-Nodes (7): BudgetsController, Budget, SpendingAlert, CategorySpend, SpendingAlertService, TestCase, SpendingAlertServiceTest
+Cohesion: 0.18
+Nodes (4): ApplicationController, Base, ImportsController, MonthlyReportsController
 
 ### Community 44 - "Credit Cards and Loans"
 Cohesion: 0.18
@@ -400,8 +386,8 @@ Cohesion: 0.25
 Nodes (8): Category Form Design and Implementation, Category Create Edit Form, Category Management Design, Add Category Modal, Add Group Modal, Category Group List, Category List, Delete Group Confirmation Modal
 
 ### Community 54 - "package.json"
-Cohesion: 0.29
-Nodes (6): devDependencies, @playwright/test, name, private, scripts, test:e2e
+Cohesion: 0.25
+Nodes (7): devDependencies, @playwright/test, name, private, scripts, test:e2e, @playwright/test
 
 ### Community 57 - "Bulk Update Expense Category and Money Source"
 Cohesion: 0.29
@@ -455,37 +441,21 @@ Nodes (3): Application, ExpenseTracker, ExpenseTracker::Application
 Cohesion: 1.00
 Nodes (3): Application Brand Icon, Application Icon (PNG Raster), Application Icon (SVG Vector)
 
-### Community 90 - "Alertas de gasto — UI/UX Design Specification"
-Cohesion: 0.08
-Nodes (24): 0. Findings from the current app (decisions made from architecture), 10. Testing checklist (mapped from the task), 11. Routes reference, 12. Implementation order (recommended), 1. Goal and scope, 2.1 `spending_alerts` table, 2.2 `alert_preferences` table (has_one on User), 2.3 Constants (single definition, in the service/model) (+16 more)
-
 ### Community 124 - "Category Management"
 Cohesion: 0.67
 Nodes (3): Category Form (Create/Edit), Category Management, Category Deletion: Reassign or Archive
-
-### Community 142 - "@playwright/test"
-Cohesion: 0.11
-Nodes (10): { test, expect }, { test, expect }, { test, expect }, { test, expect }, { test, expect }, { test, expect }, { test, expect }, { test, expect } (+2 more)
-
-### Community 143 - "Presupuesto por categoría — UI/UX Design Specification"
-Cohesion: 0.11
-Nodes (17): 10. Testing checklist (mapped from the task), 1. Goal, 2. Where it fits, 3. Domain surface (UI relies on, never reimplements), 4.1 Page header (reuse existing pattern), 4.2 Month navigation (matches dashboard `?month=` UX), 4.3 Summary strip (optional, restrained), 4.4 Budget cards (+9 more)
-
-### Community 146 - "recurring_template_processor.rb"
-Cohesion: 0.29
-Nodes (7): call(), coerce_date(), failure(), normalize_amount(), period_range_for(), RecurringTemplateProcessor, RecurringTemplateProcessor::Result
 
 ### Community 177 - "Transfer"
 Cohesion: 0.18
 Nodes (5): Transfer, IntegrationTest, TransfersControllerTest, TestCase, TransferTest
 
 ### Community 182 - "ai_entry_turbo.spec.js"
-Cohesion: 0.22
+Cohesion: 0.25
 Nodes (4): FakeRecognition, PARSE_RESPONSE, { signUp }, { test, expect }
 
 ### Community 183 - "ApplicationRecord"
-Cohesion: 0.40
-Nodes (3): AlertPreference, ApplicationRecord, Base
+Cohesion: 0.33
+Nodes (3): ApplicationRecord, Base, FinancialSubjectPattern
 
 ### Community 185 - "ApplicationJob"
 Cohesion: 0.29
@@ -503,25 +473,29 @@ Nodes (5): choose(), { signUp }, skipCash(), skipSteps(), { test, expect }
 Cohesion: 0.60
 Nodes (3): EncryptedSecret, encrypts_secret(), secret_encryptor()
 
+### Community 195 - "opencode.json"
+Cohesion: 0.50
+Nodes (3): plugin, $schema, .opencode/plugins/graphify.js
+
 ## Knowledge Gaps
-- **219 isolated node(s):** `$schema`, `plugin`, `FinancialSetupWizard::Step`, `FinancialSetups::Completer::Result`, `RecurringTemplateProcessor::Result` (+214 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 889 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **112 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **180 isolated node(s):** `$schema`, `.opencode/plugins/graphify.js`, `FinancialSetupWizard::Step`, `FinancialSetups::Completer::Result`, `RecurringTemplateProcessor::Result` (+175 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 784 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **111 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ApplicationRecord` connect `ApplicationRecord` to `MoneySourceRecognitionIdentifier`, `CreditAccount`, `MoneySource`, `Gmail::ExpenseImporter`, `Budget`, `RecurringTemplate`, `Transfer`, `MoneySourceRecognition`, `Transaction`, `QaValidateDashboardReportsController`, `Category`, `SourceRecognition::DiscoveryService`, `GmailConnection`, `FinancialSetup`?**
-  _High betweenness centrality (0.131) - this node is a cross-community bridge._
-- **Why does `ApplicationController` connect `ApplicationController` to `GmailConnectionsController`, `ExpensesController`, `IncomesController`, `FinancialSetupsController`, `RecurringTemplateImporter`, `Budget`, `TransfersController`, `RecurringTemplatesController`, `MoneySourcesController`, `AlertsController`, `QaValidateDashboardReportsController`, `Category`, `RecurringTemplateActions`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
-- **Why does `Category` connect `Category` to `ExpensesController`, `IncomesController`, `ExpenseParser`, `FinancialSetupsController`, `RecurringTemplateImporter`, `Budget`, `RecurringTemplatesController`, `Expenses::Create`, `ApplicationRecord`, `RecurringTemplateActions`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
-- **What connects `$schema`, `plugin`, `FinancialSetupWizard::Step` to the rest of the system?**
-  _219 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `ApplicationRecord` connect `ApplicationRecord` to `MoneySourceRecognitionIdentifier`, `FinancialKeyword`, `CreditAccount`, `MoneySource`, `Gmail::ExpenseImporter`, `RecurringTemplate`, `Transfer`, `MoneySourceRecognition`, `Transaction`, `QaValidateDashboardReportsController`, `Category`, `SourceRecognition::DiscoveryService`, `GmailConnection`, `FinancialSetup`?**
+  _High betweenness centrality (0.137) - this node is a cross-community bridge._
+- **Why does `Category` connect `Category` to `ExpensesController`, `IncomesController`, `ExpenseParser`, `FinancialSetupsController`, `ApplicationController`, `RecurringTemplateImporter`, `Expenses::Create`, `ApplicationRecord`, `RecurringTemplateActions`?**
+  _High betweenness centrality (0.111) - this node is a cross-community bridge._
+- **Why does `ApplicationController` connect `ApplicationController` to `GmailConnectionsController`, `ExpensesController`, `IncomesController`, `FinancialSetupsController`, `TransfersController`, `MoneySourcesController`, `QaValidateDashboardReportsController`, `Category`, `RecurringTemplateActions`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **What connects `$schema`, `.opencode/plugins/graphify.js`, `FinancialSetupWizard::Step` to the rest of the system?**
+  _180 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ExpensesController` be split into smaller, more focused modules?**
-  _Cohesion score 0.0545790934320074 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09359605911330049 - nodes in this community are weakly interconnected._
 - **Should `ExpenseParser` be split into smaller, more focused modules?**
   _Cohesion score 0.07020408163265306 - nodes in this community are weakly interconnected._
-- **Should `auth.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.14035087719298245 - nodes in this community are weakly interconnected._
+- **Should `MoneySource` be split into smaller, more focused modules?**
+  _Cohesion score 0.05603864734299517 - nodes in this community are weakly interconnected._
