@@ -24,7 +24,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_000003) do
     t.index ["user_id"], name: "index_alert_preferences_on_user_id", unique: true
   end
 
-
   create_table "budgets", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "category_id", null: false
