@@ -1,0 +1,49 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0"><i class="bi bi-bell me-2"></i><%= t("alerts.settings_title", default: "Configuración de alertas") %></h1>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">
+    <i class="bi bi-bell me-2"></i><%= t("alerts.settings_title", default: "Configuración de alertas") %>
+  </div>
+  <div class="card-body">
+    <%= form_with(model: @preferences, url: alert_settings_path, method: :patch, local: true) do |form| %>
+      <div class="small text-muted fw-semibold text-uppercase mb-2">
+        <%= t("alerts.group_budget", default: "Presupuesto") %>
+      </div>
+
+      <div class="form-check form-switch py-3 border-bottom">
+        <%= form.check_box :budget_threshold_enabled, class: "form-check-input" %>
+        <%= form.label :budget_threshold_enabled, t("alerts.budget_threshold_label", default: "Notificarme al usar el 80% de mi presupuesto"), class: "form-check-label" %>
+        <div class="small text-muted"><%= t("alerts.budget_threshold_help", default: "Una alerta cuando un gasto se acerque al límite mensual de la categoría.") %></div>
+      </div>
+
+      <div class="form-check form-switch py-3 border-bottom">
+        <%= form.check_box :budget_exceeded_enabled, class: "form-check-input" %>
+        <%= form.label :budget_exceeded_enabled, t("alerts.budget_exceeded_label", default: "Notificarme cuando supere mi presupuesto"), class: "form-check-label" %>
+        <div class="small text-muted"><%= t("alerts.budget_exceeded_help", default: "Una alerta cuando el gasto de la categoría pase el límite mensual.") %></div>
+      </div>
+
+      <div class="small text-muted fw-semibold text-uppercase mt-4 mb-2">
+        <%= t("alerts.group_spending", default: "Cambios en el gasto") %>
+      </div>
+
+      <div class="form-check form-switch py-3">
+        <%= form.check_box :spending_increase_enabled, class: "form-check-input" %>
+        <%= form.label :spending_increase_enabled, t("alerts.spending_increase_label", default: "Notificarme cuando el gasto sea notablemente mayor que el mes pasado"), class: "form-check-label" %>
+        <div class="small text-muted"><%= t("alerts.spending_increase_help", default: "Una alerta cuando el gasto mensual suba al menos 35% frente al mes anterior.") %></div>
+      </div>
+
+      <div class="small text-muted mb-3">
+        <i class="bi bi-info-circle me-1"></i><%= t("alerts.dedup_note", default: "Recibirás cada alerta solo una vez por mes y por categoría.") %>
+      </div>
+
+      <div class="d-flex gap-2">
+        <%= form.button type: :submit, class: "btn btn-primary" do %>
+          <i class="bi bi-check-lg me-1"></i><%= t("alerts.save", default: "Guardar") %>
+        <% end %>
+        <%= link_to t("alerts.cancel", default: "Cancelar"), alerts_path, class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -2,7 +2,7 @@
 
 # Budget
 # Monthly spending target for an expense category, computed against the user's
-# actual expenses for the selected month.
+# actual expenses for the selected month via the shared CategorySpend service.
 #
 # Associations: belongs_to :user, belongs_to :category
 # Methods: spent_for(month), remaining_for(month), percentage_for(month),
@@ -29,11 +29,7 @@ class Budget < ApplicationRecord
 
   def spent_for(month)
     @spent_for ||= {}
-    @spent_for[month] ||= Expense.for_user(user)
-                                 .in_category(category_id)
-                                 .in_month(month)
-                                 .sum(:amount)
-                                 .abs
+    @spent_for[month] ||= CategorySpend.call(user: user, category: category, month: month)
   end
 
   def remaining_for(month)

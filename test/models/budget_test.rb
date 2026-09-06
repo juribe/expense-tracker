@@ -40,6 +40,12 @@ class BudgetTest < ActiveSupport::TestCase
     assert_includes budget.errors[:category_id], I18n.t("errors.messages.blank")
   end
 
+  test "user is required" do
+    budget = Budget.new(category: @category, monthly_amount: 100_000)
+    assert_not budget.valid?
+    assert budget.errors[:user].any?
+  end
+
   test "period defaults to monthly" do
     assert_equal "monthly", create_budget.period
   end

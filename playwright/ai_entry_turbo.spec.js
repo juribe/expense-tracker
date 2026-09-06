@@ -27,6 +27,15 @@ async function mockParseEndpoint(page) {
   });
 }
 
+// Sidebar links carry a CSS icon glyph, so their accessible name is
+// "<icon> Gastos" and role-based exact matching is unreliable. Navigate with
+// DOM locators and wait for a unique element of the destination instead of
+// the URL alone (Turbo updates the URL before the new page renders).
+async function visitViaSidebar(page, linkLabel, targetLocator) {
+  await page.locator('.sidebar-link', { hasText: new RegExp(`^\\s*${linkLabel}\\s*$`) }).first().click();
+  await expect(targetLocator).toBeVisible();
+}
+
 test.describe("AI powered expense entry survives Turbo navigation", () => {
   test("detect-expenses button still works after navigating away and back", async ({ page }) => {
     await signUp(page);
@@ -35,12 +44,10 @@ test.describe("AI powered expense entry survives Turbo navigation", () => {
     await expect(page.getByTestId('ai-text-input')).toBeVisible();
 
     // Turbo Drive visit away from /expenses...
-    await page.getByRole('link', { name: 'Panel' }).click();
-    await expect(page).toHaveURL(/dashboard/);
+    await visitViaSidebar(page, 'Panel', page.getByRole('heading', { name: 'Saldo neto' }));
 
-    // ...and back through the navbar link (client-side Turbo visit, no reload).
-    await page.getByRole('link', { name: 'Gastos', exact: true }).click();
-    await expect(page).toHaveURL(/\/expenses/);
+    // ...and back through the sidebar link (client-side Turbo visit, no reload).
+    await visitViaSidebar(page, 'Gastos', page.getByTestId('ai-entry-card'));
 
     // Regression: the inline script used to bail out on a one-shot window
     // flag, leaving these buttons dead after any Turbo navigation.
@@ -83,5 +90,6 @@ test.describe("AI powered expense entry survives Turbo navigation", () => {
     await page.getByTestId('ai-mic-button').click();
     await expect(page.getByTestId('ai-text-input')).toHaveValue('50 mil en almuerzo');
     await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
+    await expect(page.getByTestId('ai-row')).toHaveCount(1);
   });
 });
