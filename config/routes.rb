@@ -78,6 +78,13 @@ Rails.application.routes.draw do
     post ":id/reject", to: "gmail_connections#reject", as: :reject_gmail_review
   end
 
+  # Spending alerts (notification center) and their settings
+  resources :alerts, only: [ :index, :update ] do
+    patch :mark_all_read, on: :collection
+  end
+  get "settings/alerts", to: "alert_settings#show", as: :alert_settings
+  patch "settings/alerts", to: "alert_settings#update"
+
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'

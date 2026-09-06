@@ -13,4 +13,13 @@ class User < ApplicationRecord
   has_many :money_sources, dependent: :destroy
   has_many :transfers, dependent: :destroy
   has_many :financial_setups, dependent: :destroy
+  has_many :budgets, dependent: :destroy
+  has_many :spending_alerts, dependent: :destroy
+  has_one :alert_preference, dependent: :destroy
+
+  # Persisted alert toggles, auto-built with defaults on first access so the
+  # alert engine and settings page never deal with a nil row.
+  def alert_prefs
+    alert_preference || create_alert_preference!
+  end
 end

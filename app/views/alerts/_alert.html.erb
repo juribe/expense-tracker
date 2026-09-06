@@ -1,0 +1,26 @@
+<%= content_tag :div, id: dom_id(alert), class: "card shadow-sm mb-2#{alert.read? ? '' : ' bg-light'}" do %>
+  <%= link_to expenses_path(category_id: alert.category_id, start_date: "#{alert.month}-01"),
+              class: "card-body p-3 d-flex align-items-start gap-3 text-decoration-none text-body",
+              data: { turbo_method: :patch, turbo_action: :replace } do %>
+    <span class="d-inline-flex align-items-center justify-content-center rounded-pill p-3 <%= alert_chip_text_class(alert) %>">
+      <i class="bi <%= alert_icon(alert) %>"></i>
+    </span>
+    <div class="flex-grow-1">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fw-bold"><%= alert.category.name %></span>
+        <span class="badge bg-secondary bg-opacity-10 text-secondary"><%= alert_level_label(alert) %></span>
+        <% unless alert.read? %>
+          <i class="bi bi-circle-fill text-primary small ms-auto" aria-hidden="true"></i>
+          <span class="visually-hidden"><%= t("alerts.unread", default: "No leída") %></span>
+        <% end %>
+      </div>
+      <div class="text-muted small"><%= alert_message(alert) %></div>
+      <div class="text-muted small mt-1">
+        <span><%= time_ago_in_words(alert.created_at) %></span>
+        <% if alert.budget? && alert.budget_amount.present? %>
+          <span class="ms-2"><%= t("alerts.usage", pct: alert.pct, budget: number_to_currency(alert.budget_amount)) %></span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

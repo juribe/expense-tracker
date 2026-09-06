@@ -10,9 +10,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_05_010000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_06_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "alert_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.boolean "budget_threshold_enabled", default: true, null: false
+    t.boolean "budget_exceeded_enabled", default: true, null: false
+    t.boolean "spending_increase_enabled", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_alert_preferences_on_user_id", unique: true
+  end
+
+  create_table "budgets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "category_id", null: false
+    t.decimal "monthly_amount", precision: 14, scale: 2, null: false
+    t.string "period", default: "monthly", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_budgets_on_category_id"
+    t.index ["user_id", "category_id"], name: "index_budgets_on_user_id_and_category_id", unique: true
+    t.index ["user_id"], name: "index_budgets_on_user_id"
+  end
 
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
@@ -341,6 +364,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_05_010000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "spending_alerts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "category_id", null: false
+    t.string "kind", null: false
+    t.string "month", null: false
+    t.integer "pct", null: false
+    t.decimal "amount", precision: 14, scale: 2, null: false
+    t.decimal "previous_amount", precision: 14, scale: 2
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_spending_alerts_on_category_id"
+    t.index ["user_id", "kind", "category_id", "month"], name: "index_spending_alerts_on_kind_category_month", unique: true
+    t.index ["user_id", "read_at"], name: "index_spending_alerts_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_spending_alerts_on_user_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "category_id", null: false
@@ -392,6 +432,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_05_010000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "alert_preferences", "users"
+  add_foreign_key "budgets", "categories"
+  add_foreign_key "budgets", "users"
   add_foreign_key "categories", "users"
   add_foreign_key "credit_accounts", "money_sources"
   add_foreign_key "expenses", "categories"
@@ -415,6 +458,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_05_010000) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "spending_alerts", "categories"
+  add_foreign_key "spending_alerts", "users"
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "money_sources"
   add_foreign_key "transactions", "recurring_templates"

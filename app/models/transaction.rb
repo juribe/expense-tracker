@@ -25,6 +25,25 @@ class Transaction < ApplicationRecord
   before_validation :normalize_amount
   before_validation :normalize_signed_amount
 
+  # Spending alerts fire only for expenses, after the write commits, so the
+  # engine sees a stable spend value and re-evaluates on every write path
+  # (manual, bulk, gmail, recurring). Transfers are a separate model and never
+  # reach this hook, so they are excluded structurally.
+  after_commit on: [ :create ], if: :expense? do
+    SpendingAlertService.call(user: user, category: category, month: date)
+  end
+
+  after_commit on: [ :update ], if: :expense? do
+    SpendingAlertService.call(user: user, category: category, month: date)
+    if saved_change_to_date?
+      SpendingAlertService.call(user: user, category: category, month: date_before_last_save)
+    end
+  end
+
+  after_commit on: [ :destroy ], if: :expense? do
+    SpendingAlertService.call(user: user, category: category, month: date)
+  end
+
   private
 
   def normalize_kind
@@ -55,6 +74,10 @@ class Transaction < ApplicationRecord
 
   def transaction_date
     date
+  end
+
+  def expense?
+    kind == "expense"
   end
 
   def signed_amount
