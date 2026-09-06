@@ -1,0 +1,81 @@
+<div class="container py-4" style="max-width: 640px;">
+  <%= form_with(model: budget, local: true, html: { novalidate: false }) do |form| %>
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-bullseye me-2"></i><%= budget.new_record? ? t("budgets.form.create_title") : t("budgets.form.edit_title") %>
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <div class="alert alert-danger <%= budget.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
+          <h6 class="alert-heading">
+            <i class="bi bi-exclamation-circle me-1"></i><%= t("budgets.form_errors") %>
+          </h6>
+          <ul class="mb-0" id="error-summary-list">
+            <% budget.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="mb-3">
+              <%= form.label :category_id, class: "form-label" %>
+              <%= form.collection_select :category_id, @categories, :id, :name,
+                    { prompt: t("budgets.form.select_category"), disabled: !budget.new_record? },
+                    class: "form-select #{field_class(budget, :category_id)}",
+                    aria_describedby: "categoryHelp" %>
+              <%= form.hidden_field :category_id unless budget.new_record? %>
+              <div id="categoryHelp" class="form-text"><%= t("budgets.form.category_help") %></div>
+              <% if budget.errors[:category_id].any? %>
+                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(budget, :category_id) %></div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="mb-3">
+              <%= form.label :monthly_amount, class: "form-label" do %>
+                <%= Budget.human_attribute_name(:monthly_amount) %> <span class="text-danger">*</span>
+              <% end %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= form.text_field :monthly_amount,
+                                     value: money_field_value(budget.monthly_amount),
+                                     class: "form-control #{field_class(budget, :monthly_amount)}",
+                                     inputmode: "decimal",
+                                     autocomplete: "off",
+                                     data: { money_input: true },
+                                     required: true %>
+              </div>
+              <% if budget.errors[:monthly_amount].any? %>
+                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(budget, :monthly_amount) %></div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="mb-3">
+              <%= form.label :period, class: "form-label" %>
+              <div>
+                <%= form.hidden_field :period, value: "monthly" %>
+                <span class="badge bg-light text-dark border">
+                  <i class="bi bi-calendar-month me-1"></i><%= t("budgets.form.monthly_period") %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
+        <%= link_to budgets_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
+        <% end %>
+        <%= form.submit budget.new_record? ? t("budgets.form.submit_create") : t("budgets.form.submit_update"), class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

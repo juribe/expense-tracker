@@ -4,6 +4,7 @@ es:
       default: "%d/%m/%Y"
       short: "%d de %b"
       long: "%d de %B de %Y"
+      month_year: "%B %Y"
     day_names: [Domingo, Lunes, Martes, Miércoles, Jueves, Viernes, Sábado]
     abbr_day_names: [Dom, Lun, Mar, Mié, Jue, Vie, Sáb]
     month_names: [~, Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre]
@@ -445,6 +446,7 @@ es:
     recurring_expenses: "Gastos Recurrentes"
     reports: "Informes"
     reports_title: "Reportes"
+    budgets: "Presupuestos"
     settings: "Configuración"
     setup_wizard: "Configuración Inicial"
     categories: "Categorías"
@@ -693,6 +695,53 @@ es:
       updated: "La fuente de dinero se actualizó correctamente."
       deleted: "La fuente de dinero se eliminó correctamente."
 
+  budgets:
+    title: "Presupuestos"
+    new: "Nuevo presupuesto"
+    budget: "Presupuesto"
+    spent: "Gastado"
+    remaining: "Disponible"
+    exceeded: "Excedido"
+    usage: "Uso"
+    inactive: "Inactivo"
+    percentage_value: "%{pct}"
+    current_month_badge: "Presupuesto del mes actual"
+    back_to_current_month: "Volver al mes actual"
+    month_previous_aria: "Mes anterior"
+    month_next_aria: "Mes siguiente"
+    progress_aria: "Uso del presupuesto de %{name}"
+    edit_aria: "Editar presupuesto de %{name}"
+    delete_aria: "Eliminar presupuesto de %{name}"
+    dashboard_title: "Presupuestos"
+    dashboard_view_all: "Ver todos"
+    invalid_month: "El mes no es válido; se muestra el mes actual."
+    not_found: "Presupuesto no encontrado."
+    form_errors: "Por favor corrige los siguientes errores:"
+    empty_title: "Aún no tienes presupuestos"
+    empty_body: "Crea un presupuesto mensual por categoría para controlar tus gastos."
+    summary:
+      one: "%{count} presupuesto · %{near_limit} cerca del límite · %{over_budget} superados"
+      other: "%{count} presupuestos · %{near_limit} cerca del límite · %{over_budget} superados"
+    status:
+      on_track: "En camino"
+      near_limit: "Cerca del límite"
+      over_budget: "Superado"
+    form:
+      create_title: "Nuevo presupuesto"
+      edit_title: "Editar presupuesto"
+      select_category: "Selecciona una categoría"
+      category_help: "Presupuesta únicamente categorías de gasto."
+      monthly_period: "Mensual"
+      submit_create: "Crear Presupuesto"
+      submit_update: "Actualizar Presupuesto"
+    flashes:
+      created: "El presupuesto se creó correctamente."
+      updated: "El presupuesto se actualizó correctamente."
+      destroyed: "El presupuesto se eliminó correctamente."
+    validation:
+      expense_type: "solo se puede asignar a categorías de gasto"
+      invalid_category: "no está disponible"
+
   transfers:
     index:
       title: "Transferencias"
@@ -913,6 +962,12 @@ es:
         kind: "Tipo"
         category_id: "Categoría"
         money_source_id: "Fuente de dinero"
+      budget:
+        category_id: "Categoría"
+        monthly_amount: "Monto mensual"
+        period: "Periodo"
+        active: "Activa"
+        user_id: "Usuario"
 
   incomes:
     flashes:

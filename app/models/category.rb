@@ -9,6 +9,7 @@ class Category < ApplicationRecord
   has_many :incomes, dependent: :destroy
   has_many :transactions, dependent: :destroy
   has_many :recurring_templates, dependent: :destroy
+  has_many :budgets, dependent: :destroy
 
   before_validation :generate_slug, if: -> { slug.blank? || name_changed? }
 

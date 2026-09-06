@@ -1,0 +1,57 @@
+<% data = budget_progress_data(budget, month) %>
+<% status = data[:status] %>
+<% pct = data[:percentage] %>
+<div class="card h-100 shadow-sm">
+  <div class="card-body d-flex flex-column">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
+      <div class="d-flex align-items-center gap-2">
+        <% unless budget.active %>
+          <span class="badge bg-secondary"><%= t("budgets.inactive") %></span>
+        <% end %>
+        <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= budget.category.name %>">
+          <%= link_to edit_budget_path(budget), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("budgets.edit_aria", name: budget.category.name) } do %>
+            <i class="bi bi-pencil"></i>
+          <% end %>
+          <%= button_to budget_path(budget), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("budgets.delete_aria", name: budget.category.name) }, data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
+            <i class="bi bi-trash"></i>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3 text-center">
+      <div class="col-4">
+        <div class="small text-muted"><%= t("budgets.budget") %></div>
+        <div class="fw-bold budget-amount"><%= number_to_currency(budget.monthly_amount) %></div>
+      </div>
+      <div class="col-4">
+        <div class="small text-muted"><%= t("budgets.spent") %></div>
+        <div class="fw-bold text-danger budget-amount"><%= number_to_currency(data[:spent]) %></div>
+      </div>
+      <div class="col-4">
+        <div class="small text-muted">
+          <%= status == :over_budget ? t("budgets.exceeded") : t("budgets.remaining") %>
+        </div>
+        <div class="fw-bold <%= status == :over_budget ? 'text-danger' : 'text-success' %> budget-amount">
+          <%= number_to_currency(status == :over_budget ? data[:spent] - budget.monthly_amount : budget.remaining_for(month)) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="budget-progress mb-3">
+      <div class="progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= pct.round %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar <%= budget_status_class(status) %>" style="width: <%= [ pct, 100 ].min %>%"></div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-auto">
+      <span class="badge <%= budget_status_class(status) %>">
+        <i class="bi <%= budget_status_icon(status) %> me-1"></i><%= budget_status_label(status) %>
+      </span>
+      <span class="small text-muted fw-semibold">
+        <%= t("budgets.usage") %> <span class="fw-bold"><%= t("budgets.percentage_value", pct: number_to_percentage(pct, precision: 0)) %></span>
+      </span>
+    </div>
+  </div>
+</div>

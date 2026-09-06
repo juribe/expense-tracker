@@ -558,6 +558,16 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 575.98px) { .cc-metrics { grid-template-columns: 1fr; } }
 
 /* -------------------------------------------------
+ * Budget Card (Budgets / Presupuestos)
+ * ------------------------------------------------- */
+.budget-progress { display: flex; flex-direction: column; gap: .4rem; }
+.budget-progress .progress { height: 8px; border-radius: 999px; background: var(--loan-track); overflow: hidden; }
+.budget-progress .progress-bar { border-radius: 999px; }
+.budget-amount { font-variant-numeric: tabular-nums; }
+.budget-mini .progress { height: 6px; border-radius: 999px; background: var(--loan-track); overflow: hidden; }
+.budget-mini .progress-bar { border-radius: 999px; }
+
+/* -------------------------------------------------
  * Source Recognition (prototype)
  * ------------------------------------------------- */
 .recognition-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
