@@ -1,0 +1,65 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h1 class="mb-0"><i class="bi bi-bell me-2"></i><%= t("alerts.title", default: "Alertas") %></h1>
+  <% if @unread_count.positive? %>
+    <%= button_to mark_all_read_alerts_path, method: :patch, class: "btn btn-outline-primary", form: { class: "mb-0" } do %>
+      <i class="bi bi-check2-all me-1"></i><%= t("alerts.mark_all_read", default: "Marcar leídas") %>
+    <% end %>
+  <% end %>
+</div>
+
+<% total_count = current_user.spending_alerts.count %>
+<% unread_count = current_user.spending_alerts.unread.count %>
+<% budget_count = current_user.spending_alerts.budget.count %>
+<% spending_count = current_user.spending_alerts.spending.count %>
+
+<ul class="nav nav-pills gap-2 mb-4">
+  <% pills = [
+       [ "all", t("alerts.filters.all", default: "Todas"), total_count, alerts_path ],
+       [ "unread", t("alerts.filters.unread", default: "No leídas"), unread_count, alerts_path(filter: "unread") ],
+       [ "budget", t("alerts.filters.budget", default: "Presupuesto"), budget_count, alerts_path(filter: "budget") ],
+       [ "spending", t("alerts.filters.spending", default: "Gasto"), spending_count, alerts_path(filter: "spending") ]
+     ] %>
+  <% pills.each do |key, label, count, path| %>
+    <% active = @filter == key || (@filter.blank? && key == "all") %>
+    <li class="nav-item">
+      <%= link_to path, class: "nav-link btn-sm #{'bg-primary text-white' if active}" do %>
+        <%= label %>
+        <% if active %>
+          <span class="badge bg-white text-primary"><%= count %></span>
+        <% else %>
+          <span class="badge bg-secondary bg-opacity-10 text-secondary"><%= count %></span>
+        <% end %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+
+<% if @alerts.empty? && @filter.blank? %>
+  <div class="card shadow-sm text-center py-5">
+    <div class="card-body">
+      <i class="bi bi-bell-slash display-4 text-muted"></i>
+      <h2 class="h4 mt-3"><%= t("alerts.empty_title", default: "Estás al día") %></h2>
+      <p class="text-muted mb-4">
+        <%= t("alerts.empty_text", default: "Te avisaremos cuando un gasto se acerque a tu presupuesto o suba de forma inusual.") %>
+      </p>
+      <%= link_to alert_settings_path, class: "btn btn-outline-primary" do %>
+        <i class="bi bi-gear me-1"></i><%= t("alerts.configure", default: "Configurar alertas") %>
+      <% end %>
+    </div>
+  </div>
+<% elsif @alerts.empty? %>
+  <div class="text-muted py-4 text-center">
+    <%= t("alerts.empty_filter", default: "Sin alertas en este filtro.") %>
+  </div>
+<% else %>
+  <% @alerts.group_by(&:month).each do |month, alerts| %>
+    <div class="text-muted small fw-semibold text-uppercase border-bottom pb-1 mb-3">
+      <% if month == Time.zone.today.strftime("%Y-%m") %>
+        <%= t("alerts.this_month", default: "Este mes") %>
+      <% else %>
+        <%= l(Date.new(*month.split("-").map(&:to_i)), format: :month_year) %>
+      <% end %>
+    </div>
+    <%= render partial: "alerts/alert", collection: alerts, as: :alert %>
+  <% end %>
+<% end %>

@@ -4,7 +4,13 @@
 # RESTful for SpendingAlert: lists the user's notification center (grouped by
 # month, filterable), marks a single alert read (Turbo) and marks all read.
 class AlertsController < ApplicationController
+  include ActionView::RecordIdentifier
+
   before_action :authenticate_user!
+  # Cross-user ids are a 404, not the global 500 error page.
+  rescue_from ActiveRecord::RecordNotFound do
+    head :not_found
+  end
 
   def index
     @filter = params[:filter].to_s

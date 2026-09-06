@@ -34,4 +34,12 @@ class SpendingAlert < ApplicationRecord
 
     user.budgets.find_by(category_id: category_id)&.monthly_amount
   end
+
+  def read?
+    read_at.present?
+  end
+
+  def unread?
+    read_at.blank?
+  end
 end
