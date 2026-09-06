@@ -18,6 +18,12 @@ class MoneySourceTest < ActiveSupport::TestCase
     assert source.valid?
   end
 
+  test "several sources without identifier are allowed" do
+    create_source(name: "Savings")
+    create_source(name: "Checking")
+    assert_equal 2, @user.money_sources.count
+  end
+
   test "name is required" do
     source = MoneySource.new(user: @user, kind: "account")
     assert_not source.valid?

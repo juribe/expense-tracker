@@ -172,7 +172,9 @@ class MoneySource < ApplicationRecord
   # SECURITY: never store a full account / card / loan number. Only the last
   # four digits are saved, regardless of what the form, import, or API provides.
   def normalize_identifier_to_last_four
-    return if identifier.blank?
+    # Store NULL (not "") when no identifier was given, so the unique index on
+    # (user_id, identifier) allows several sources without one.
+    self.identifier = nil if identifier.blank?
     return if kind == "cash" || kind == "wallet"
 
     digits = identifier.to_s.gsub(/\D/, "")
