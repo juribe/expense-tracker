@@ -26,15 +26,25 @@ test.describe('AI expense detection selects the money source', () => {
     await expect(sourceSelect.locator('option:checked')).toHaveText('Nequi');
   });
 
-  test('pre-selects the source matched by a tag in the detected expense row', async ({ page }) => {
+  test('pre-selects the source matched by a keyword in the detected expense row', async ({ page }) => {
     await signUp(page);
     await page.goto('/money_sources/new');
     await page.locator('#money_source_name').fill('Visa');
     await page.locator('#money_source_kind').selectOption('credit_card');
     await page.locator('#money_source_active').check();
-    await page.locator('#tags .tag-row input').first().fill('tarjeta clásica');
     await page.locator('form input[type="submit"]').click();
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
+
+    await page.goto('/money_sources/recognition');
+    const row = page.locator('[data-testid="recognition-row"]', { hasText: 'Visa' });
+    await row.locator('[data-testid="edit-recognition"]').click();
+    await expect(page.getByTestId('recognition-edit-panel')).toBeVisible();
+    await page.locator('[data-recognition-chips="keywords"] [data-recognition-add]').click();
+    const keywordInput = page.locator('[data-recognition-inline-add="keywords"]');
+    await keywordInput.fill('tarjeta clásica');
+    await keywordInput.press('Enter');
+    await page.getByTestId('recognition-save').click();
+    await expect(page.getByText('Configuración de reconocimiento guardada.')).toBeVisible();
 
     await page.goto('/expenses');
     await page.getByTestId('ai-text-input').fill('Pag 50 mil en el restaurante con la tarjeta clásica');

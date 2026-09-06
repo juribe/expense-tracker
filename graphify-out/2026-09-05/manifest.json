@@ -420,10 +420,10 @@
     "semantic_hash": "228750f6d1542abed9ad44d1715b566e"
   },
   "app/services/source_recognition/suggestion_engine.rb": {
-    "mtime": 1788561516.747442,
-    "seen": 1788619682.0383098,
-    "ast_hash": "8e0eac02b09be92ecc8d9df49b88360b",
-    "semantic_hash": "8e0eac02b09be92ecc8d9df49b88360b"
+    "mtime": 1788629638.2639654,
+    "seen": 1788629678.682893,
+    "ast_hash": "c31834cf1de737575a38cad517183c9e",
+    "semantic_hash": ""
   },
   "app/services/source_recognition/text_normalizer.rb": {
     "mtime": 1788561516.7474918,
@@ -1242,10 +1242,10 @@
     "semantic_hash": "3aa0cd63c7742675ee42976925c0bec2"
   },
   "test/services/source_recognition/suggestion_engine_test.rb": {
-    "mtime": 1788561516.772102,
-    "seen": 1788619682.03835,
-    "ast_hash": "a421e1b993f7cc2ba2bbbed9edd5f9ef",
-    "semantic_hash": "a421e1b993f7cc2ba2bbbed9edd5f9ef"
+    "mtime": 1788629672.3752124,
+    "seen": 1788629678.682956,
+    "ast_hash": "a7abd6bf223f72968e63cd59bb133d17",
+    "semantic_hash": ""
   },
   "test/services/statement_duplicate_detector_test.rb": {
     "mtime": 1788561516.7721627,

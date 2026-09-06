@@ -44,6 +44,7 @@ test.describe('category pages are working', () => {
     await createCategory(page, name, 'Movies, concerts, etc.');
 
     await page.goto('/categories');
+    page.on('dialog', (dialog) => dialog.accept());
     await page.locator(`button[aria-label="Eliminar ${name}"]`).click();
 
     await expect(page.getByText('La categoría se eliminó correctamente.')).toBeVisible();

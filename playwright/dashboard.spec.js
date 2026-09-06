@@ -18,7 +18,7 @@ test.describe('dashboard is working', () => {
     await createCategory(page, category);
 
     await page.goto('/dashboard');
-    await page.locator('#expense_amount').fill('50.00');
+    await page.locator('#expense_amount').fill('50');
     await page.locator('#expense_category_id').selectOption({ label: category });
     await page.locator('#expense_description').fill('Grocery Store');
     await page.getByRole('button', { name: 'Agregar Gasto' }).click();

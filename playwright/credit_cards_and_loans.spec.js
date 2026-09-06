@@ -7,7 +7,11 @@ test.describe('Credit cards and loans as money sources', () => {
   });
 
   function cardContaining(page, name) {
-    return page.locator('.card', { hasText: name }).first();
+    return page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
+  }
+
+  function loanContaining(page, name) {
+    return page.locator('[data-testid="loan-card"]', { hasText: name }).first();
   }
 
   test('user can create a credit card with credit-specific fields and see debt display', async ({ page }) => {
@@ -26,17 +30,20 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.locator('#money_source_active').check();
     await page.locator('form input[type="submit"]').click();
 
-    await expect(page).toHaveURL(/\/money_sources$/);
+    await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
-    await expect(page.getByText('Crédito y Deuda')).toBeVisible();
     const card = cardContaining(page, name);
-    await expect(card.getByText('Crédito disponible')).toBeVisible();
-    await expect(card.getByText('de $20.000.000')).toBeVisible();
-    await expect(card.getByText('Usado $0')).toBeVisible();
+    await expect(card.getByRole('heading', { name })).toBeVisible();
+    await expect(card.getByText('Deuda actual')).toBeVisible();
+    await expect(card.getByText('$0')).toBeVisible();
+    await expect(card.getByText('Cupo aprobado')).toBeVisible();
+    await expect(card.getByText('$20.000.000', { exact: true }).first()).toBeVisible();
+    await expect(card.getByText('Disponible')).toBeVisible();
+    await expect(card.getByText('Tasa')).toBeVisible();
     await expect(card.getByText('24.50% EA')).toBeVisible();
-    await expect(card.getByText('Facturación: 15')).toBeVisible();
-    await expect(card.getByText('Vence: 30')).toBeVisible();
+    await expect(card.getByText('Corte')).toBeVisible();
+    await expect(card.getByText('Pago')).toBeVisible();
     await expect(card.getByText('visa · 1234')).toBeVisible();
   });
 
@@ -83,17 +90,19 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.locator('#money_source_active').check();
     await page.locator('form input[type="submit"]').click();
 
-    await expect(page).toHaveURL(/\/money_sources$/);
+    await expect(page).toHaveURL(/\/money_sources\/loans$/);
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
-    await expect(page.getByText('Crédito y Deuda')).toBeVisible();
-    const card = cardContaining(page, name);
+    const card = loanContaining(page, name);
+    await expect(card.getByRole('heading', { name })).toBeVisible();
     await expect(card.getByText('Saldo pendiente')).toBeVisible();
-    await expect(card.getByText('$114.000.000', { exact: true })).toBeVisible();
-    await expect(card.getByText('Original $114.000.000')).toBeVisible();
+    await expect(card.getByText('$114.000.000', { exact: true }).first()).toBeVisible();
+    await expect(card.getByText('Original')).toBeVisible();
+    await expect(card.getByText('Tasa EA')).toBeVisible();
     await expect(card.getByText('21.27% EA')).toBeVisible();
-    await expect(card.getByText('$1.800.000/Mensual')).toBeVisible();
-    await expect(card.getByText('72 de 72 cuotas restantes')).toBeVisible();
+    await expect(card.getByText('Cuota mensual')).toBeVisible();
+    await expect(card.getByText('$1.800.000', { exact: true }).first()).toBeVisible();
+    await expect(card.getByText('72 de 72')).toBeVisible();
   });
 
   test('account money source hides credit/debt-specific fields in the form', async ({ page }) => {

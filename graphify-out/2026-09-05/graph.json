@@ -5879,7 +5879,7 @@
       "file_type": "code",
       "norm_label": ".bank_domain_suggestion()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L162"
+      "source_location": "L166"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_call",
@@ -5927,7 +5927,7 @@
       "file_type": "code",
       "norm_label": ".institution_token_eligible?()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L136"
+      "source_location": "L140"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_keyword_suggestions",
@@ -5975,7 +5975,7 @@
       "file_type": "code",
       "norm_label": ".name_keywords()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L121"
+      "source_location": "L124"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_new_value_pred",
@@ -6011,7 +6011,7 @@
       "file_type": "code",
       "norm_label": ".sender_suggestions()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L144"
+      "source_location": "L148"
     },
     {
       "id": "app_services_source_recognition_suggestion_engine_sourcerecognition_suggestionengine_siblings",
@@ -6035,7 +6035,7 @@
       "file_type": "code",
       "norm_label": ".subject_suggestions()",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L174"
+      "source_location": "L178"
     },
     {
       "id": "test_services_source_recognition_suggestion_engine_test_sourcerecognition_suggestionenginetest_call",
@@ -25323,7 +25323,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L167",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -25395,7 +25395,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L129",
+      "source_location": "L133",
       "weight": 1.0
     },
     {
@@ -25419,7 +25419,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L150",
+      "source_location": "L154",
       "weight": 1.0
     },
     {
@@ -25443,7 +25443,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L179",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -37752,7 +37752,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L121",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -37763,7 +37763,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L136",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -37774,7 +37774,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L144",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -37785,7 +37785,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L162",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -37796,7 +37796,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/source_recognition/suggestion_engine.rb",
-      "source_location": "L174",
+      "source_location": "L178",
       "weight": 1.0
     },
     {

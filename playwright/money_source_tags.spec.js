@@ -1,140 +1,164 @@
 const { test, expect } = require('@playwright/test');
 const { signUp } = require('./helpers/auth');
 
-test.describe('MoneySource tags', () => {
+test.describe('MoneySource recognition keywords', () => {
   test.beforeEach(async ({ page }) => {
     await signUp(page);
   });
 
-  async function createMoneySource(page, name, tags = []) {
+  async function createMoneySource(page, name, kind = 'credit_card') {
     await page.goto('/money_sources/new');
     await page.locator('#money_source_name').fill(name);
-    await page.locator('#money_source_kind').selectOption('credit_card');
+    await page.locator('#money_source_kind').selectOption(kind);
     await page.locator('#money_source_active').check();
-
-    for (let i = 0; i < tags.length; i++) {
-      if (i > 0) {
-        await page.locator('#addTag').click();
-      }
-      await page.locator('#tags .tag-row input').nth(i).fill(tags[i]);
-    }
-
     await page.locator('form input[type="submit"]').click();
-    await expect(page).toHaveURL(/\/money_sources$/);
+    const url = kind === 'credit_card' ? /\/money_sources\/credit_cards$/ : /\/money_sources\/loans$/;
+    await expect(page).toHaveURL(url);
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
   }
 
-  async function editHrefFor(page, name) {
-    const card = page.locator('.card', { hasText: name }).first();
-    return card.locator('a[href$="/edit"]').getAttribute('href');
+  async function showHrefFor(page, name) {
+    await page.goto('/money_sources/credit_cards');
+    const card = page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
+    return card.locator('a[href^="/money_sources/"]').first().getAttribute('href');
   }
 
-  test('user can create a money source with tags and sees them as badges', async ({ page }) => {
-    const name = `Tarjeta Baloto-${Date.now()}`;
-    await createMoneySource(page, name, ['tarjeta clásica', '1234']);
+  async function addKeywords(page, sourceName, keywords) {
+    await page.goto('/money_sources/recognition');
+    const row = page.locator('[data-testid="recognition-row"]', { hasText: sourceName });
+    await row.locator('[data-testid="edit-recognition"]').click();
+    await expect(page.getByTestId('recognition-edit-panel')).toBeVisible();
 
+    for (const keyword of keywords) {
+      await page.locator('[data-recognition-chips="keywords"] [data-recognition-add]').click();
+      const input = page.locator('[data-recognition-inline-add="keywords"]');
+      await input.fill(keyword);
+      await input.press('Enter');
+    }
+
+    await page.getByTestId('recognition-save').click();
+    await expect(page.getByText('Configuración de reconocimiento guardada.')).toBeVisible();
+  }
+
+  test('user can configure recognition keywords and sees them as badges on the money source', async ({ page }) => {
+    const name = `Tarjeta Baloto-${Date.now()}`;
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['tarjeta clásica', '1234']);
+
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
+
+    await expect(page.getByRole('heading', { name })).toBeVisible();
     await expect(page.getByText('tarjeta clásica', { exact: true })).toBeVisible();
     await expect(page.getByText('1234', { exact: true })).toBeVisible();
   });
 
-  test('tags are normalized (trimmed + lowercase) before display', async ({ page }) => {
+  test('keywords are trimmed before display', async ({ page }) => {
     const name = `Ahorros Leo-${Date.now()}`;
-    await createMoneySource(page, name, ['  Tarjeta Clásica  ']);
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['  Tarjeta Clásica  ']);
 
-    await expect(page.getByText('tarjeta clásica', { exact: true })).toBeVisible();
-    await expect(page.getByText('Tarjeta Clásica', { exact: true })).toHaveCount(0);
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
+
+    await expect(page.getByText('Tarjeta Clásica', { exact: true })).toBeVisible();
+    await expect(page.locator('.card', { hasText: 'Reconocimiento' }).locator('.badge')).toHaveText('Tarjeta Clásica');
   });
 
-  test('money source show page displays its tags', async ({ page }) => {
+  test('money source show page displays its recognition keywords', async ({ page }) => {
     const name = `Billetera Móvil-${Date.now()}`;
-    await createMoneySource(page, name, ['tarjeta clásica', '9999']);
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['tarjeta clásica', '9999']);
 
-    const editHref = await editHrefFor(page, name);
-    await page.goto(editHref.replace(/\/edit$/, ''));
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
 
     await expect(page.getByRole('heading', { name })).toBeVisible();
-    await expect(page.getByText('Etiquetas de coincidencia')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Reconocimiento' })).toBeVisible();
     await expect(page.getByText('tarjeta clásica', { exact: true })).toBeVisible();
     await expect(page.getByText('9999', { exact: true })).toBeVisible();
   });
 
-  test('user can add a tag to an existing money source', async ({ page }) => {
+  test('user can add an extra keyword to an existing money source', async ({ page }) => {
     const name = `TDC Falabella-${Date.now()}`;
-    await createMoneySource(page, name, ['1111']);
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['1111']);
+    await addKeywords(page, name, ['2222']);
 
-    const editHref = await editHrefFor(page, name);
-    await page.goto(editHref);
-
-    await page.locator('#addTag').click();
-    await page.locator('#tags .tag-row input').nth(1).fill('2222');
-    await page.locator('form input[type="submit"]').click();
-
-    await expect(page.getByText('La fuente de dinero se actualizó correctamente.')).toBeVisible();
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
     await expect(page.getByText('1111', { exact: true })).toBeVisible();
     await expect(page.getByText('2222', { exact: true })).toBeVisible();
   });
 
-  test('user can remove a tag from a money source', async ({ page }) => {
+  test('user can remove a keyword from a money source', async ({ page }) => {
     const name = `TDC Avianca-${Date.now()}`;
-    await createMoneySource(page, name, ['1111', '2222']);
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['1111', '2222']);
 
-    const editHref = await editHrefFor(page, name);
-    await page.goto(editHref);
-    await expect(page.locator('#tags .tag-row')).toHaveCount(2);
+    await page.goto('/money_sources/recognition');
+    const row = page.locator('[data-testid="recognition-row"]', { hasText: name });
+    await row.locator('[data-testid="edit-recognition"]').click();
+    await expect(page.getByTestId('recognition-edit-panel')).toBeVisible();
 
-    await page.locator('#tags .tag-row').first().locator('.remove-tag').click();
-    await expect(page.locator('#tags .tag-row')).toHaveCount(1);
-    await page.locator('form input[type="submit"]').click();
+    const section = page.locator('[data-recognition-chips="keywords"]');
+    await expect(section.locator('.recognition-chip')).toHaveCount(2);
+    await section.locator('.recognition-chip', { hasText: '1111' }).first().locator('[data-recognition-remove]').click();
+    await expect(section.locator('.recognition-chip')).toHaveCount(1);
+    await page.getByTestId('recognition-save').click();
+    await expect(page.getByText('Configuración de reconocimiento guardada.')).toBeVisible();
 
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
     await expect(page.getByText('2222', { exact: true })).toBeVisible();
     await expect(page.getByText('1111', { exact: true })).toHaveCount(0);
   });
 
-  test('submitting the same normalized tag twice on create is rejected', async ({ page }) => {
+  test('submitting the same keyword twice collapses into a single keyword', async ({ page }) => {
     const name = `Cuenta Nu-${Date.now()}`;
-    await page.goto('/money_sources/new');
-    await page.locator('#money_source_name').fill(name);
-    await page.locator('#money_source_kind').selectOption('credit_card');
-    await page.locator('#money_source_active').check();
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['1111', '1111']);
 
-    await page.locator('#tags .tag-row input').first().fill('Tarjeta Clásica');
-    await page.locator('#addTag').click();
-    await page.locator('#tags .tag-row input').nth(1).fill('tarjeta clásica');
-    await page.locator('form input[type="submit"]').click();
-
-    await expect(page.getByRole('heading', { name: 'Nueva Fuente de Dinero' })).toBeVisible();
-    await expect(page.getByText(/impidió guardar la fuente de dinero/)).toBeVisible();
-  });
-
-  test('duplicate normalized tags entered on edit collapse into a single tag', async ({ page }) => {
-    const name = `Cuenta Nu-${Date.now()}`;
-    await createMoneySource(page, name, ['1111']);
-
-    const editHref = await editHrefFor(page, name);
-    await page.goto(editHref);
-
-    await page.locator('#addTag').click();
-    await page.locator('#tags .tag-row input').nth(1).fill('1111');
-    await page.locator('form input[type="submit"]').click();
-
-    await expect(page.getByText('La fuente de dinero se actualizó correctamente.')).toBeVisible();
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
     await expect(page.getByText('1111', { exact: true })).toHaveCount(1);
   });
 
-  test('money source without tags shows no tag badges', async ({ page }) => {
+  test('keywords that differ in case are kept as distinct values', async ({ page }) => {
+    const name = `Cuenta Nu-${Date.now()}`;
+    await createMoneySource(page, name);
+    await addKeywords(page, name, ['Tarjeta Clásica', 'tarjeta clásica']);
+
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
+    await expect(page.getByText('Tarjeta Clásica', { exact: true })).toBeVisible();
+    await expect(page.getByText('tarjeta clásica', { exact: true })).toBeVisible();
+    await expect(page.locator('.card', { hasText: 'Reconocimiento' }).locator('.badge')).toHaveCount(2);
+  });
+
+  test('money source without keywords shows no keyword badges', async ({ page }) => {
     const name = `Caja Menor-${Date.now()}`;
     await createMoneySource(page, name);
 
-    const card = page.locator('.card', { hasText: name }).first();
-    await expect(card.locator('.badge')).toHaveCount(0);
+    const showHref = await showHrefFor(page, name);
+    await page.goto(showHref);
+
+    const recognitionCard = page.locator('.card', { hasText: 'Reconocimiento' });
+    await expect(recognitionCard.locator('.badge')).toHaveCount(0);
+    await expect(recognitionCard.getByText('Sin configurar')).toBeVisible();
   });
 
-  test('the same tag is allowed on different money sources', async ({ page }) => {
+  test('the same keyword is allowed on different money sources', async ({ page }) => {
     const first = `Daviplata A-${Date.now()}`;
     const second = `Daviplata B-${Date.now()}`;
-    await createMoneySource(page, first, ['daviplata']);
-    await createMoneySource(page, second, ['daviplata']);
+    await createMoneySource(page, first);
+    await createMoneySource(page, second);
+    await addKeywords(page, first, ['daviplata']);
+    await addKeywords(page, second, ['daviplata']);
 
-    await expect(page.getByText('daviplata', { exact: true })).toHaveCount(2);
+    await page.goto(await showHrefFor(page, first));
+    await expect(page.getByText('daviplata', { exact: true })).toHaveCount(1);
+    await page.goto(await showHrefFor(page, second));
+    await expect(page.getByText('daviplata', { exact: true })).toHaveCount(1);
   });
 });
