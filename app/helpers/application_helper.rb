@@ -2,6 +2,8 @@ module ApplicationHelper
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
 
   def category_badge(category)
+    return tag.span(t("common.uncategorized", default: "Sin categoría"), class: "badge bg-light text-dark border") if category.nil?
+
     color = CATEGORY_COLORS[(category.id || 0) % CATEGORY_COLORS.length]
     tag.span(category.name, class: "badge bg-#{color}")
   end

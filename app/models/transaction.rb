@@ -4,7 +4,7 @@ class Transaction < ApplicationRecord
   self.inheritance_column = :_type_disabled
 
   belongs_to :user
-  belongs_to :category
+  belongs_to :category, optional: true
   belongs_to :recurring_template, optional: true
   belongs_to :money_source, optional: true
   has_many :processed_emails, foreign_key: :expense_id, dependent: :destroy
