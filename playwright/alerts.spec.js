@@ -106,10 +106,12 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await page.goto('/alerts');
     const card = page.locator('.card', { hasText: category });
     await expect(card.getByText('Marcar leída')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Alertas' })).toBeVisible();
 
     await card.getByRole('button', { name: 'Marcar leída' }).click();
 
     await expect(card.getByText('Marcar leída')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Alertas' })).toBeVisible();
     await expect(page.locator('.sidebar-link', { hasText: 'Alertas' }).locator('.badge')).toHaveCount(0);
   });
 

@@ -787,6 +787,7 @@ es:
     view_expenses: "Ver gastos"
     mark_all_read: "Marcar leídas"
     marked_all_read: "Alertas marcadas como leídas"
+    marked_read: "Alerta marcada como leída"
     usage: "%{pct}% de %{budget}"
     this_month: "Este mes"
     empty_title: "Estás al día"

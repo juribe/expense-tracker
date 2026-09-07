@@ -18,11 +18,15 @@ class AlertsController < ApplicationController
     @unread_count = current_user.spending_alerts.unread.count
   end
 
-  # PATCH /alerts/:id — marks a single alert as read via Turbo.
+  # PATCH /alerts/:id — marks a single alert as read. With Turbo the row is
+  # replaced in place; plain browsers fall back to a full redirect.
   def update
     alert = current_user.spending_alerts.find(params[:id])
     alert.update!(read_at: Time.current)
-    render turbo_stream: turbo_stream.replace(dom_id(alert), alert_row(alert))
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.replace(dom_id(alert), alert_row(alert)) }
+      format.html { redirect_to alerts_path, notice: t("alerts.marked_read", default: "Alerta marcada como leída") }
+    end
   end
 
   # PATCH /alerts/mark_all_read

@@ -81,6 +81,17 @@ class AlertsControllerTest < ActionDispatch::IntegrationTest
     assert @threshold_alert.reload.read?
   end
 
+  test "PATCH /alerts/:id from a plain browser redirects to the center" do
+    assert_not @threshold_alert.read?
+    patch alert_path(@threshold_alert)
+
+    assert_redirected_to alerts_path
+    assert @threshold_alert.reload.read?
+    follow_redirect!
+    assert_response :success
+    assert_select "h1", /Alertas/
+  end
+
   test "PATCH /alerts/:id of another user is not found" do
     other_user = User.create!(name: "Other", email: "alerts_other_#{SecureRandom.hex(4)}@example.com", password: "password123")
     other_category = Category.create!(name: "Ajena_#{SecureRandom.hex(4)}", category_type: "expense", user: other_user)
