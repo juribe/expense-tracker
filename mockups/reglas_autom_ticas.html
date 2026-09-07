@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reglas automáticas — Expense Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bs-primary: #5D87FF;
+      --bs-primary-rgb: 93, 135, 255;
+      --bs-secondary: #49BEFF;
+      --bs-secondary-rgb: 73, 190, 255;
+      --bs-success: #13DEB9;
+      --bs-success-rgb: 19, 222, 185;
+      --bs-warning: #FFAE1F;
+      --bs-warning-rgb: 255, 174, 31;
+      --bs-danger: #FA896B;
+      --bs-danger-rgb: 250, 137, 107;
+      --bs-info: #539BFF;
+      --bs-info-rgb: 83, 155, 255;
+
+      --bs-gray-100: #F6F9FC;
+      --bs-gray-200: #EAEFF4;
+      --bs-gray-300: #DFE5EF;
+      --bs-gray-400: #7C8FAC;
+      --bs-gray-500: #5A6A85;
+      --bs-gray-600: #2A3547;
+
+      --bs-body-bg: #F6F9FC;
+      --bs-body-color: #5A6A85;
+      --bs-heading-color: #2A3547;
+      --bs-link-color: #5D87FF;
+      --bs-link-hover-color: #4A6FE0;
+      --bs-border-color: #EBF1F6;
+
+      --bs-border-radius: 0.75rem;
+      --bs-border-radius-sm: 0.375rem;
+      --bs-border-radius-lg: 1rem;
+
+      --bs-box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
+      --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+      --bs-font-sans-serif: "Plus Jakarta Sans", sans-serif;
+
+      --sidebar-background: #1E1E2D;
+      --sidebar-foreground: #A4ABC5;
+      --sidebar-primary: #763EBD;
+      --sidebar-accent: #252636;
+      --sidebar-border: #2E3039;
+
+      --loan-accent: #5D87FF;
+      --loan-accent-rgb: 93, 135, 255;
+      --loan-accent-soft: rgba(93, 135, 255, 0.12);
+      --loan-card-bg: #FFFFFF;
+      --loan-card-border: #EAF0F6;
+      --loan-card-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.06);
+      --loan-muted: #7C8FAC;
+      --loan-strong: #2A3547;
+      --loan-track: #EEF2F7;
+    }
+
+    body {
+      background: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      font-family: var(--bs-font-sans-serif);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4, h5, h6 { color: var(--bs-heading-color); }
+    .summary-value { font-size: 2rem; }
+
+    .card {
+      border: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: var(--bs-border-radius);
+    }
+
+    .card-debt { border-left: 4px solid var(--bs-danger); }
+
+    .btn { border-radius: var(--bs-border-radius-sm); }
+
+    .form-control, .form-select {
+      border-radius: var(--bs-border-radius-sm);
+      border-color: var(--bs-border-color);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--bs-primary);
+      box-shadow: 0 0 0 0.25rem rgba(93, 135, 255, 0.25);
+    }
+    .alert { border-radius: var(--bs-border-radius); }
+    .table { --bs-table-bg: transparent; }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 250px;
+      background: var(--sidebar-background);
+      border-right: 1px solid var(--sidebar-border);
+      display: flex; flex-direction: column; z-index: 1040; overflow-y: auto;
+    }
+    .sidebar-header { padding: 1.25rem 1rem; border-bottom: 1px solid var(--sidebar-border); }
+    .sidebar-brand {
+      display: flex; align-items: center; text-decoration: none; color: #FFFFFF;
+      font-weight: 700; font-size: 1.1rem;
+    }
+    .sidebar-brand i { font-size: 1.4rem; color: var(--sidebar-primary); margin-right: 0.5rem; }
+    .sidebar-nav { flex: 1; padding: 0.5rem 0; }
+    .sidebar-section { padding: 0.125rem 0; }
+    .sidebar-section-title {
+      padding: 0.625rem 1.25rem 0.25rem; font-size: 0.65rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em; color: var(--sidebar-foreground); opacity: 0.5;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; padding: 0.45rem 1.25rem; text-decoration: none;
+      color: var(--sidebar-foreground); font-size: 0.875rem; transition: all 0.15s ease;
+    }
+    .sidebar-link:hover { background: var(--sidebar-accent); color: #FFFFFF; }
+    .sidebar-link.active { background: rgba(118, 62, 189, 0.15); color: var(--sidebar-primary); font-weight: 500; }
+    .sidebar-link i { width: 1.25rem; margin-right: 0.75rem; font-size: 1rem; text-align: center; flex-shrink: 0; }
+    .sidebar-settings { border-top: 1px solid var(--sidebar-border); margin-top: 0.5rem; }
+    .sidebar-settings .sidebar-section-title { color: var(--sidebar-foreground); opacity: 0.4; }
+    .sidebar-footer { border-top: 1px solid var(--sidebar-border); padding: 0.75rem 1rem; }
+    .sidebar-user { display: flex; align-items: center; font-size: 0.8rem; color: var(--sidebar-foreground); margin-bottom: 0.375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.25rem; }
+    .sidebar-user i { margin-right: 0.5rem; font-size: 1.1rem; flex-shrink: 0; color: var(--sidebar-primary); }
+    .main-content { margin-left: 250px; }
+    .mobile-topbar { display: none; align-items: center; padding: 0.625rem 1rem; background: var(--sidebar-background); border-bottom: 1px solid var(--sidebar-border); }
+    .mobile-topbar .btn-link { text-decoration: none; color: #FFFFFF; padding: 0; margin-right: 0.75rem; }
+    .mobile-topbar span { color: #FFFFFF; }
+    @media (max-width: 991.98px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .mobile-topbar { display: flex; }
+    }
+
+    /* Rules-specific */
+    .rule-card { transition: box-shadow .18s ease; }
+    .rule-card:hover { box-shadow: 0 6px 24px rgba(16,24,40,.10); }
+    .rule-card.disabled-rule { opacity: .72; }
+    .rule-cond-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: .625rem; font-size: .95rem; flex-shrink: 0;
+    }
+    .rule-arrow { color: var(--bs-primary); }
+    .suggestion-row { border: 1px solid var(--loan-card-border); border-radius: .75rem; }
+    .suggestion-validated { border-left: 4px solid var(--bs-success); }
+    .suggestion-correction { border-left: 4px solid var(--loan-accent); }
+    @media (prefers-reduced-motion: reduce) { .rule-card { transition: none; } }
+  </style>
+</head>
+<body>
+  <!-- Sidebar (matches shared/_sidebar) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="sidebar-brand" href="#">
+        <i class="bi bi-wallet2"></i>
+        <span>Expense Tracker</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Overview</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-bell"></i><span>Alerts</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Transactions</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-credit-card"></i><span>Expenses</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-wallet2"></i><span>Incomes</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Recurring</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-arrow-repeat"></i><span>Recurring incomes</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-arrow-clockwise"></i><span>Recurring expenses</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reports</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-graph-up"></i><span>Reports</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-bullseye"></i><span>Budgets</span></a>
+      </div>
+      <div class="sidebar-section sidebar-settings">
+        <div class="sidebar-section-title">Settings</div>
+        <a class="sidebar-link" href="#"><i class="bi bi-tags"></i><span>Categories</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-cash-stack"></i><span>Cash</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-credit-card-2-front"></i><span>Credit cards</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-cash-coin"></i><span>Loans</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-envelope-at"></i><span>Gmail</span></a>
+        <a class="sidebar-link" href="#"><i class="bi bi-envelope-paper-heart"></i><span>Source recognition</span></a>
+        <a class="sidebar-link active" href="#"><i class="bi bi-magic"></i><span>Rules</span></a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user"><i class="bi bi-person-circle"></i><span>ana@example.com</span></div>
+      <a class="sidebar-link" href="#"><i class="bi bi-box-arrow-right"></i><span>Sign out</span></a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="mobile-topbar">
+      <button class="btn btn-link" aria-label="Toggle sidebar"><i class="bi bi-list fs-4"></i></button>
+      <span class="fw-bold">Expense Tracker</span>
+    </div>
+
+    <div class="container py-4">
+
+      <!-- Flash (success example) -->
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Rule created successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Page header -->
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h1 class="mb-0"><i class="bi bi-magic me-2"></i>Rules</h1>
+        <div class="d-flex gap-2">
+          <a href="#suggestions" class="btn btn-outline-secondary">
+            <i class="bi bi-lightbulb me-1"></i>Suggestions <span class="badge bg-primary rounded-pill ms-1">3</span>
+          </a>
+          <a href="#rule-builder" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>New rule
+          </a>
+        </div>
+      </div>
+      <p class="text-muted small mb-4">
+        Rules automatically categorize your transactions when they are added or synced.
+        You can change anything afterwards.
+      </p>
+
+      <!-- ============ SUGGESTED RULES ============ -->
+      <div class="card shadow-sm mb-4" id="suggestions">
+        <div class="card-header bg-white d-flex align-items-center gap-2 border-bottom-0 pt-3">
+          <i class="bi bi-lightbulb text-primary"></i>
+          <h5 class="mb-0">Suggested rules</h5>
+          <span class="ms-auto text-muted small">Based on your transaction history</span>
+        </div>
+        <div class="card-body pt-0 d-flex flex-column gap-3">
+
+          <!-- Validated suggestion -->
+          <div class="suggestion-row suggestion-validated p-3">
+            <div class="d-flex align-items-start gap-3 flex-wrap">
+              <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <div class="rule-cond-icon" style="background: rgba(123,97,224,.12); color:#7B61E0;"><i class="bi bi-shop"></i></div>
+                <div>
+                  <div class="fw-bold text-capitalize">Smartfit</div>
+                  <div class="text-muted small"><i class="bi bi-check-circle text-success me-1"></i>17 transactions already in <span class="badge bg-success">Fitness</span></div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm"><i class="bi bi-magic me-1"></i>Create rule</button>
+                <button class="btn btn-outline-secondary btn-sm" aria-label="Dismiss suggestion"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Validated suggestion -->
+          <div class="suggestion-row suggestion-validated p-3">
+            <div class="d-flex align-items-start gap-3 flex-wrap">
+              <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <div class="rule-cond-icon" style="background: rgba(19,222,185,.12); color:#0FA3A3;"><i class="bi bi-layout-text-window-reverse"></i></div>
+                <div>
+                  <div class="fw-bold text-capitalize">Netflix</div>
+                  <div class="text-muted small"><i class="bi bi-check-circle text-success me-1"></i>12 transactions already in <span class="badge bg-primary">Entertainment</span></div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm"><i class="bi bi-magic me-1"></i>Create rule</button>
+                <button class="btn btn-outline-secondary btn-sm" aria-label="Dismiss suggestion"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Correction-based suggestion -->
+          <div class="suggestion-row suggestion-correction p-3">
+            <div class="d-flex align-items-start gap-3 flex-wrap">
+              <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <div class="rule-cond-icon" style="background: rgba(93,135,255,.12); color:#5D87FF;"><i class="bi bi-tag"></i></div>
+                <div>
+                  <div class="fw-bold text-capitalize">Uber</div>
+                  <div class="text-muted small"><i class="bi bi-pencil me-1"></i>You corrected 4 recent transactions to <span class="badge bg-secondary">Transportation</span>. Always do this?</div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm"><i class="bi bi-magic me-1"></i>Create rule</button>
+                <button class="btn btn-outline-secondary btn-sm">Not now</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============ YOUR RULES ============ -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-stack me-2 text-primary"></i>Your rules</h5>
+        <span class="text-muted small">4 enabled of 5</span>
+      </div>
+
+      <div class="row g-3">
+
+        <!-- Rule 1: SMARTFIT -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 rule-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="card-title mb-1">Smartfit</h5>
+                  <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Enabled</span>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" checked aria-label="Enable/disable rule Smartfit">
+                </div>
+              </div>
+              <div class="small text-muted mb-1"><i class="bi bi-shop rule-cond-icon me-1" style="background: rgba(123,97,224,.12); color:#7B61E0;"></i>When the merchant contains</div>
+              <code class="fw-bold d-block mb-3 px-1">SMARTFIT</code>
+              <hr>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Category <span class="mx-1">→</span> <span class="badge bg-success">Fitness</span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="#rule-builder" aria-label="Edit rule Smartfit"><i class="bi bi-pencil"></i></a>
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="Delete rule Smartfit"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule 2: UBER -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 rule-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="card-title mb-1">Uber</h5>
+                  <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Enabled</span>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" checked aria-label="Enable/disable rule Uber">
+                </div>
+              </div>
+              <div class="small text-muted mb-1"><i class="bi bi-shop rule-cond-icon me-1" style="background: rgba(123,97,224,.12); color:#7B61E0;"></i>When the merchant contains</div>
+              <code class="fw-bold d-block mb-3 px-1">UBER</code>
+              <hr>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Category <span class="mx-1">→</span> <span class="badge bg-secondary">Transportation</span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="#rule-builder" aria-label="Edit rule Uber"><i class="bi bi-pencil"></i></a>
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="Delete rule Uber"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule 3: NETFLIX (disabled) with two actions -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 rule-card shadow-sm disabled-rule">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="card-title mb-1">Netflix</h5>
+                  <span class="badge bg-secondary"><i class="bi bi-slash-circle me-1"></i>Disabled</span>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" aria-label="Enable/disable rule Netflix">
+                </div>
+              </div>
+              <div class="small text-muted mb-1"><i class="bi bi-shop rule-cond-icon me-1" style="background: rgba(123,97,224,.12); color:#7B61E0;"></i>When the merchant contains</div>
+              <code class="fw-bold d-block mb-3 px-1">NETFLIX</code>
+              <hr>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Category <span class="mx-1">→</span> <span class="badge bg-primary">Entertainment</span>
+              </div>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Tag <span class="mx-1">→</span> <span class="badge bg-light text-dark border"><i class="bi bi-tag me-1"></i>Subscriptions</span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="#rule-builder" aria-label="Edit rule Netflix"><i class="bi bi-pencil"></i></a>
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="Delete rule Netflix"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule 4: DDD (money source condition) -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 rule-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="card-title mb-1">Salary transfers</h5>
+                  <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Enabled</span>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" checked aria-label="Enable/disable rule Salary transfers">
+                </div>
+              </div>
+              <div class="small text-muted mb-1"><i class="bi bi-cash-coin rule-cond-icon me-1" style="background: rgba(232,145,45,.12); color:#E8912D;"></i>When the money source is</div>
+              <code class="fw-bold d-block mb-3 px-1">Nubank *4521</code>
+              <hr>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Category <span class="mx-1">→</span> <span class="badge bg-info">Salary</span>
+              </div>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Money source <span class="mx-1">→</span> <span class="badge bg-light text-dark border"><i class="bi bi-bank me-1"></i>Main Checking</span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="#rule-builder" aria-label="Edit rule Salary transfers"><i class="bi bi-pencil"></i></a>
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="Delete rule Salary transfers"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule 5: Generic description (amount condition) -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 rule-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="card-title mb-1">Large transfers</h5>
+                  <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Enabled</span>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" checked aria-label="Enable/disable rule Large transfers">
+                </div>
+              </div>
+              <div class="small text-muted mb-1"><i class="bi bi-file-text rule-cond-icon me-1" style="background: rgba(83,155,255,.12); color:#539BFF;"></i>When the description contains</div>
+              <code class="fw-bold d-block mb-3 px-1">TRANSFERENCIA</code>
+              <div class="small text-muted mb-3"><i class="bi bi-arrow-right rule-arrow me-1"></i>and the amount is greater than <span class="fw-bold">$200,000</span></div>
+              <hr>
+              <div class="mb-1 small">
+                <i class="bi bi-arrow-right rule-arrow me-1"></i>Category <span class="mx-1">→</span> <span class="badge bg-warning text-dark">Transfers</span>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="#rule-builder" aria-label="Edit rule Large transfers"><i class="bi bi-pencil"></i></a>
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-label="Delete rule Large transfers"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ RULE BUILDER (mockup) ============ -->
+  <div class="container py-4 mt-1 border-top" id="rule-builder" style="margin-left:250px; max-width:calc(100% - 250px);">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <h2 class="mb-0"><i class="bi bi-magic me-2"></i>New rule</h2>
+      <a href="#" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    </div>
+
+    <div class="card shadow-sm col-md-8 mx-auto">
+      <div class="card-body p-4">
+        <form>
+
+          <!-- WHEN -->
+          <label class="fw-semibold d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-arrow-right-circle text-primary"></i> When
+          </label>
+
+          <div class="row g-2 align-items-end mb-2">
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Condition</label>
+              <select class="form-select" aria-label="Condition">
+                <option selected>Merchant contains</option>
+                <option>Description contains</option>
+                <option>Money source is</option>
+                <option>Amount greater than</option>
+                <option>Amount less than</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-8">
+              <label class="form-label small text-muted">Value</label>
+              <input type="text" class="form-control" value="SMARTFIT" placeholder="e.g. SMARTFIT">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-2">
+            <div class="col-12 col-md-4">
+              <select class="form-select" aria-label="Condition">
+                <option>Merchant contains</option>
+                <option>Description contains</option>
+                <option selected>Amount greater than</option>
+                <option>Amount less than</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-8">
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" value="200000" aria-label="Amount value">
+              </div>
+            </div>
+          </div>
+          <div class="text-end mb-3">
+            <button type="button" class="btn btn-link p-0 text-primary"><i class="bi bi-plus-circle me-1"></i>Add condition</button>
+          </div>
+
+          <!-- THEN -->
+          <label class="fw-semibold d-flex align-items-center gap-2 mt-4 mb-3">
+            <i class="bi bi-arrow-right-circle text-primary"></i> Then
+          </label>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label small text-muted">Action</label>
+              <select class="form-select" aria-label="Action">
+                <option selected>Category</option>
+                <option>Tag</option>
+                <option>Money source</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small text-muted">Set to</label>
+              <select class="form-select" aria-label="Action value">
+                <option selected>Fitness</option>
+                <option>Transportation</option>
+                <option>Entertainment</option>
+                <option>Food</option>
+                <option>Transfers</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-2 d-md-flex justify-content-end">
+              <button type="button" class="btn btn-outline-secondary btn-sm" aria-label="Remove action"><i class="bi bi-x-circle"></i></button>
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mb-3">
+            <div class="col-12 col-md-4">
+              <select class="form-select" aria-label="Action">
+                <option>Category</option>
+                <option selected>Tag</option>
+                <option>Money source</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <input type="text" class="form-control" value="Subscriptions" placeholder="e.g. Subscriptions">
+            </div>
+            <div class="col-12 col-md-2 d-md-flex justify-content-end">
+              <button type="button" class="btn btn-outline-secondary btn-sm" aria-label="Remove action"><i class="bi bi-x-circle"></i></button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <button type="button" class="btn btn-link p-0 text-primary"><i class="bi bi-plus-circle me-1"></i>Add action</button>
+          </div>
+
+          <!-- Name + advanced (progressive disclosure) -->
+          <div class="mb-3">
+            <label class="form-label">Name <span class="text-muted">(optional)</span></label>
+            <input type="text" class="form-control" placeholder="e.g. Gym memberships">
+          </div>
+
+          <details class="mb-3 small text-muted border rounded p-3" style="border-color:var(--loan-card-border)!important;">
+            <summary><i class="bi bi-sliders me-1"></i>Precedence (optional)</summary>
+            <p class="mb-2 mt-2">When multiple rules match, the most specific one wins. Adjust only if needed.</p>
+            <label class="form-label small">Priority</label>
+            <input type="number" class="form-control" value="0" style="max-width:120px;">
+          </details>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" checked id="enabledSwitch">
+            <label class="form-check-label" for="enabledSwitch">Enabled</label>
+          </div>
+
+        </form>
+      </div>
+      <div class="card-footer bg-transparent d-flex justify-content-end gap-2 px-4 py-3">
+        <a href="#" class="btn btn-outline-secondary">Cancel</a>
+        <a href="#" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Save rule</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete rule</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Delete this rule? Transactions already categorized will not be changed.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var toggle = document.getElementById('sidebarToggle');
+      var sidebar = document.getElementById('sidebar');
+      var backdrop = document.getElementById('sidebarBackdrop');
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+      }
+      if (toggle) { toggle.addEventListener('click', toggleSidebar); }
+    });
+  </script>
+</body>
+</html>
