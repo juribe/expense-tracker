@@ -31,6 +31,11 @@ Rails.application.routes.draw do
   resources :incomes
   resources :categories
   resources :budgets
+  resources :transaction_rules do
+    member do
+      patch :toggle_active
+    end
+  end
   get "money_sources/cash",         to: "money_sources#index", as: :money_sources_cash, defaults: { type: "cash" }
   get "money_sources/credit_cards", to: "money_sources#index", as: :money_sources_credit_cards, defaults: { type: "credit_cards" }
   get "money_sources/loans",        to: "money_sources#index", as: :money_sources_loans, defaults: { type: "loans" }

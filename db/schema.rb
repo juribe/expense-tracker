@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_06_000003) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_07_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -381,6 +381,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_000003) do
     t.index ["user_id"], name: "index_spending_alerts_on_user_id"
   end
 
+  create_table "transaction_rules", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.boolean "enabled", default: true, null: false
+    t.integer "priority", default: 0, null: false
+    t.string "merchant_contains"
+    t.string "description_contains"
+    t.bigint "money_source_condition_id"
+    t.decimal "amount_gt", precision: 14, scale: 2
+    t.decimal "amount_lt", precision: 14, scale: 2
+    t.bigint "category_id"
+    t.bigint "action_money_source_id"
+    t.string "tag"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_transaction_rules_on_category_id"
+    t.index ["priority"], name: "index_transaction_rules_on_priority", order: :desc
+    t.index ["user_id"], name: "index_transaction_rules_on_user_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "category_id", null: false
@@ -394,6 +414,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_000003) do
     t.datetime "updated_at", null: false
     t.string "gmail_message_id"
     t.integer "money_source_id"
+    t.jsonb "applied_rule_ids", default: [], null: false
+    t.bigint "rule_id"
+    t.jsonb "tags", default: [], null: false
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
     t.index ["gmail_message_id"], name: "index_transactions_on_gmail_message_id"
@@ -460,6 +483,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_06_000003) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spending_alerts", "categories"
   add_foreign_key "spending_alerts", "users"
+  add_foreign_key "transaction_rules", "categories"
+  add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"
+  add_foreign_key "transaction_rules", "money_sources", column: "money_source_condition_id"
+  add_foreign_key "transaction_rules", "users"
   add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "money_sources"
   add_foreign_key "transactions", "recurring_templates"

@@ -1,0 +1,163 @@
+<div class="container py-4" style="max-width: 720px;">
+  <%= form_with(model: rule, local: true, html: { novalidate: false }) do |form| %>
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-magic me-2"></i><%= rule.new_record? ? t("transaction_rules.new") : t("transaction_rules.edit") %>
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <div class="alert alert-danger <%= rule.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
+          <h6 class="alert-heading">
+            <i class="bi bi-exclamation-circle me-1"></i><%= t("transaction_rules.form_errors") %>
+          </h6>
+          <ul class="mb-0" id="error-summary-list">
+            <% rule.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-arrow-right-circle me-1"></i><%= t("transaction_rules.when") %>
+          </label>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+              <label for="condition_field" class="form-label"><%= t("transaction_rules.condition_select") %></label>
+              <%= select_tag :condition_field,
+                    options_for_select(condition_options, selected_condition_field(rule)),
+                    class: "form-select",
+                    id: "condition_field",
+                    data: { condition_field: true } %>
+            </div>
+            <div class="col-12 col-md-8">
+              <label for="condition_value" class="form-label"><%= t("transaction_rules.condition_select") %></label>
+
+              <div data-condition-input="merchant_contains">
+                <%= form.text_field :merchant_contains, class: "form-control", placeholder: "SMARTFIT" %>
+              </div>
+              <div data-condition-input="description_contains" class="d-none">
+                <%= form.text_field :description_contains, class: "form-control", placeholder: "Rent" %>
+              </div>
+              <div data-condition-input="money_source_condition" class="d-none">
+                <%= form.collection_select :money_source_condition_id, @money_sources, :id, :display_name,
+                      { include_blank: t("transaction_rules.select_money_source") },
+                      class: "form-select" %>
+              </div>
+              <div data-condition-input="amount_gt" class="d-none">
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= form.text_field :amount_gt, class: "form-control", inputmode: "decimal", autocomplete: "off" %>
+                </div>
+              </div>
+              <div data-condition-input="amount_lt" class="d-none">
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= form.text_field :amount_lt, class: "form-control", inputmode: "decimal", autocomplete: "off" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-arrow-right-circle me-1"></i><%= t("transaction_rules.then") %>
+          </label>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+              <label for="action_field" class="form-label"><%= t("transaction_rules.action_select") %></label>
+              <%= select_tag :action_field,
+                    options_for_select(action_options, selected_action_field(rule)),
+                    class: "form-select",
+                    id: "action_field",
+                    data: { action_field: true } %>
+            </div>
+            <div class="col-12 col-md-8">
+              <label for="action_value" class="form-label"><%= t("transaction_rules.action_select") %></label>
+
+              <div data-action-input="category">
+                <%= form.collection_select :category_id, @categories, :id, :name,
+                      { include_blank: t("transaction_rules.select_category") },
+                      class: "form-select" %>
+              </div>
+              <div data-action-input="tag" class="d-none">
+                <%= form.text_field :tag, class: "form-control", placeholder: "Subscriptions" %>
+              </div>
+              <div data-action-input="money_source" class="d-none">
+                <%= form.collection_select :action_money_source_id, @money_sources, :id, :display_name,
+                      { include_blank: t("transaction_rules.select_money_source") },
+                      class: "form-select" %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <%= form.label :name, t("transaction_rules.name"), class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", placeholder: t("transaction_rules.name_placeholder") %>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <%= form.label :priority, "#{t("transaction_rules.priority")}", class: "form-label" %>
+              <%= form.number_field :priority, class: "form-control", value: rule.priority || 0, min: 0 %>
+              <div class="form-text" id="priorityHelp"><%= t("transaction_rules.priority_help") %></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-check form-switch">
+          <%= form.check_box :enabled, class: "form-check-input", role: "switch", checked: rule.enabled? != false %>
+          <%= form.label :enabled, t("transaction_rules.enabled"), class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
+        <%= link_to transaction_rules_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
+        <% end %>
+        <%= form.submit rule.new_record? ? t("transaction_rules.submit_create") : t("transaction_rules.submit_update"), class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var conditionField = document.getElementById('condition_field');
+    var actionField = document.getElementById('action_field');
+    var conditionInputs = document.querySelectorAll('[data-condition-input]');
+    var actionInputs = document.querySelectorAll('[data-action-input]');
+
+    function syncCondition() {
+      if (!conditionField) return;
+      var active = conditionField.value;
+      conditionInputs.forEach(function(el) {
+        var on = el.getAttribute('data-condition-input') === active;
+        el.classList.toggle('d-none', !on);
+      });
+    }
+
+    function syncAction() {
+      if (!actionField) return;
+      var active = actionField.value;
+      actionInputs.forEach(function(el) {
+        var on = el.getAttribute('data-action-input') === active;
+        el.classList.toggle('d-none', !on);
+      });
+    }
+
+    if (conditionField) conditionField.addEventListener('change', syncCondition);
+    if (actionField) actionField.addEventListener('change', syncAction);
+    syncCondition();
+    syncAction();
+  });
+</script>

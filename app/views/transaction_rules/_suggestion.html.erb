@@ -1,0 +1,27 @@
+<div class="d-flex justify-content-between align-items-start gap-2 border rounded p-3 mb-3 <%= suggestion[:kind] == :correction ? 'bg-light' : '' %>">
+  <div>
+    <div class="fw-semibold">
+      <% if suggestion[:kind] == :correction %>
+        <%= t("transaction_rules.suggested_correction", merchant: suggestion[:merchant].titleize, category: suggestion[:category].name) %>
+      <% else %>
+        <i class="bi bi-shop me-1"></i><%= suggestion[:merchant].titleize %> <span class="text-muted">→</span> <%= category_badge(suggestion[:category]) %>
+      <% end %>
+    </div>
+    <div class="small text-muted mt-1">
+      <% if suggestion[:kind] == :correction %>
+        <%= t("transaction_rules.suggested_correction_hint", count: suggestion[:count]) %>
+      <% else %>
+        <%= pluralize(suggestion[:count], "transaction") %> in <%= suggestion[:category].name %>
+      <% end %>
+    </div>
+  </div>
+  <div class="d-flex gap-2 flex-shrink-0">
+    <%= link_to new_transaction_rule_path(
+          suggestion: suggestion[:kind],
+          value: suggestion[:merchant],
+          category_id: suggestion[:category].id
+        ), class: "btn btn-sm btn-primary" do %>
+      <i class="bi bi-plus-lg me-1"></i><%= t("transaction_rules.create_rule") %>
+    <% end %>
+  </div>
+</div>

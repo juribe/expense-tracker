@@ -24,6 +24,7 @@ class Transaction < ApplicationRecord
   before_validation :normalize_source
   before_validation :normalize_amount
   before_validation :normalize_signed_amount
+  before_validation :apply_automatic_rules, on: :create
 
   # Spending alerts fire only for expenses, after the write commits, so the
   # engine sees a stable spend value and re-evaluates on every write path
@@ -82,5 +83,30 @@ class Transaction < ApplicationRecord
 
   def signed_amount
     amount
+  end
+
+  def tags
+    self[:tags] || []
+  end
+
+  def add_tag(tag_name)
+    return if tag_name.blank?
+    return if tags.include?(tag_name)
+
+    self[:tags] = tags + [ tag_name ]
+  end
+
+  private
+
+  # Applies the user's automatic rules once, at creation time only. Rules fill
+  # gaps (blank category, unset money source, missing tag) and never overwrite
+  # explicit values. Gated behind a cheap existence check so rule-free manual
+  # entries pay almost nothing.
+  def apply_automatic_rules
+    return unless new_record?
+    return if applied_rule_ids.any?
+    return unless TransactionRule.active.for_user(user).exists?
+
+    TransactionRules::Applicator.new(user).apply(self)
   end
 end
