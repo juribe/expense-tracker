@@ -3,33 +3,52 @@
   // decimal separator. A number never has more than one comma — only the
   // first comma typed starts the decimals; extra commas are ignored.
 
+  // Splits a money string into integer and decimal parts regardless of the
+  // separator used. es-CO types "1.234,56" (comma decimal, dotted thousands);
+  // many users type "1234.56" or "5.50" with a dot decimal. A comma always
+  // wins as the decimal separator; without a comma a trailing dot group of
+  // 1-2 digits is treated as a decimal separator, otherwise dots group
+  // thousands ("1.234" stays one thousand two hundred thirty-four).
+  function decimalParts(value) {
+    var raw = String(value == null ? "" : value).trim();
+    var commaIndex = raw.indexOf(",");
+    if (commaIndex !== -1) {
+      var integer = raw.slice(0, commaIndex).replace(/[^\d]/g, "");
+      var decimal = raw.slice(commaIndex + 1).replace(/[^\d]/g, "");
+      return { integer: integer, decimal: decimal };
+    }
+
+    var lastDot = raw.lastIndexOf(".");
+    if (lastDot !== -1) {
+      var tail = raw.slice(lastDot + 1);
+      var integer = raw.slice(0, lastDot).replace(/[^\d]/g, "");
+      if (/^\d{1,2}$/.test(tail) && raw.slice(0, lastDot).match(/^\d+$/)) {
+        return { integer: integer, decimal: tail };
+      }
+    }
+
+    return { integer: raw.replace(/\./g, "").replace(/[^\d]/g, ""), decimal: "" };
+  }
+
   function sanitizeValue(value) {
     // Machine format for form submission: drop the thousands dots, turn the
-    // single decimal comma into a dot so server-side decimal casting parses.
-    var raw = String(value == null ? "" : value).replace(/\./g, "").trim();
-    var commaIndex = raw.indexOf(",");
-    if (commaIndex === -1) return raw;
-
-    var integerPart = raw.slice(0, commaIndex);
-    var decimalPart = raw.slice(commaIndex + 1).replace(/,/g, "");
-    return integerPart + "." + decimalPart;
+    // decimal separator (comma or dot) into a dot so server-side decimal
+    // casting parses.
+    var parts = decimalParts(value);
+    if (!parts.decimal) return parts.integer || "";
+    return (parts.integer || "0") + "." + parts.decimal;
   }
 
   function formatValue(value, finalize) {
-    var raw = String(value == null ? "" : value).replace(/\./g, "").trim();
-    if (!raw) return "";
+    var parts = decimalParts(value);
+    var integerPart = parts.integer || "";
+    var decimalPart = parts.decimal || "";
+    if (!integerPart && !decimalPart) return "";
 
-    var commaIndex = raw.indexOf(",");
-    var hasComma = commaIndex !== -1;
-    var integerPart = (hasComma ? raw.slice(0, commaIndex) : raw).replace(/[^\d]/g, "");
-    var decimalPart = hasComma
-      ? raw.slice(commaIndex + 1).replace(/,/g, "").replace(/[^\d]/g, "").slice(0, 2)
-      : "";
+    integerPart = String(parseInt(integerPart, 10) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    if (!decimalPart) return integerPart;
+    decimalPart = decimalPart.replace(/[^\d]/g, "").slice(0, 2);
 
-    if (!integerPart) integerPart = "0";
-    integerPart = String(parseInt(integerPart, 10)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-    if (!hasComma) return integerPart;
     // Keep the comma while typing so decimals can be entered; on blur drop a
     // trailing comma with no digits after it.
     if (finalize) {

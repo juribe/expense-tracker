@@ -1,0 +1,57 @@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 d-print-none">
+  <h1><i class="bi bi-magic me-2"></i><%= t("transaction_rules.header_title") %></h1>
+  <div class="d-flex gap-2">
+    <% if @suggestions.any? %>
+      <a class="btn btn-outline-secondary" href="#suggested-rules">
+        <i class="bi bi-lightbulb me-1"></i><%= t("transaction_rules.suggestions_title") %> (<%= @suggestions.size %>)
+      </a>
+    <% end %>
+    <%= link_to new_transaction_rule_path, class: "btn btn-primary" do %>
+      <i class="bi bi-plus-lg me-1"></i><%= t("transaction_rules.new") %>
+    <% end %>
+  </div>
+</div>
+
+<p class="text-muted small mb-4"><%= t("transaction_rules.helper_text") %></p>
+
+<% if @suggestions.any? %>
+  <section id="suggested-rules" class="mb-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">
+          <i class="bi bi-lightbulb me-2"></i><%= t("transaction_rules.suggestions_title") %>
+        </h5>
+      </div>
+      <div class="card-body text-body-secondary">
+        <% @suggestions.each do |suggestion| %>
+          <%= render "transaction_rules/suggestion", suggestion: suggestion %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<% if @rules.any? %>
+  <p class="text-muted small mb-4">
+    <%= t("transaction_rules.summary_line", count: @enabled_count, enabled: @enabled_count, total: @rules.size) %>
+  </p>
+
+  <div class="row g-3">
+    <% @rules.each do |rule| %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <%= render "transaction_rules/rule_card", rule: rule %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="p-5 text-center">
+      <i class="bi bi-magic display-4 text-muted mb-3 d-block"></i>
+      <h4 class="mb-2"><%= t("transaction_rules.no_rules_title") %></h4>
+      <p class="text-muted"><%= t("transaction_rules.no_rules_body") %></p>
+      <%= link_to new_transaction_rule_path, class: "btn btn-primary mt-3" do %>
+        <i class="bi bi-plus-lg me-1"></i><%= t("transaction_rules.create_first_rule") %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

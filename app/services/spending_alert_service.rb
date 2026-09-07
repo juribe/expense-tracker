@@ -27,6 +27,7 @@ class SpendingAlertService
 
   def call
     return if past_month?
+    return if @category.nil?
 
     spent = CategorySpend.call(user: @user, category: @category, month: @month)
     expected = expected_kinds(spent)

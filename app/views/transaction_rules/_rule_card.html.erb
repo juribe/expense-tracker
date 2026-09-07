@@ -1,0 +1,43 @@
+<div class="card h-100 shadow-sm <%= rule.enabled? ? '' : 'opacity-75' %>">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <div>
+        <h5 class="card-title mb-1"><%= rule.title %></h5>
+        <span class="badge <%= rule.enabled? ? 'bg-success' : 'bg-secondary' %>">
+          <%= rule.enabled? ? t("transaction_rules.enabled_badge") : t("transaction_rules.disabled_badge") %>
+        </span>
+      </div>
+      <div class="form-check form-switch">
+        <%= form_with model: rule, url: toggle_active_transaction_rule_path(rule), method: :patch, local: true do |form| %>
+          <%= form.check_box :enabled, class: "form-check-input", role: "switch", checked: rule.enabled?, onchange: "this.form.submit()", aria: { label: t("transaction_rules.toggle_aria", name: rule.title) } %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <span class="badge bg-light text-dark border me-1"><i class="bi bi-shop me-1"></i><%= rule_condition_text(rule) %></span>
+      <code class="fw-bold"><%= rule_condition_value(rule) %></code>
+    </div>
+
+    <% if rule_action_lines(rule).any? %>
+      <div class="small">
+        <% rule_action_lines(rule).each do |action| %>
+          <div class="mb-1">
+            <i class="bi bi-arrow-right text-primary me-1"></i><%= action %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
+    <div class="btn-group btn-group-sm" role="group" aria-label="<%= rule.title %>">
+      <%= link_to edit_transaction_rule_path(rule), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("transaction_rules.edit_aria", name: rule.title) } do %>
+        <i class="bi bi-pencil"></i><span class="d-none d-md-inline ms-1"><%= t("transaction_rules.edit") %></span>
+      <% end %>
+      <%= button_to transaction_rule_path(rule), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("transaction_rules.delete_aria", name: rule.title) }, data: { confirm: t("transaction_rules.delete_confirm") }, form: { style: "display: inline-block" } do %>
+        <i class="bi bi-trash"></i><span class="d-none d-md-inline ms-1"><%= t("transaction_rules.delete") %></span>
+      <% end %>
+    </div>
+  </div>
+</div>

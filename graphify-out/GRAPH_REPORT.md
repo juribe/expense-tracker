@@ -1,16 +1,16 @@
-# Graph Report - expense-tracker  (2026-09-07)
+# Graph Report - reglas-automticas  (2026-09-07)
 
 ## Corpus Check
-- 271 files · ~138,825 words
+- 286 files · ~143,838 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1783 nodes · 2216 edges · 205 communities (66 shown, 112 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.85)
+- 1872 nodes · 2321 edges · 220 communities (60 shown, 133 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8ef68c4f`
+- Built from commit: `11c5ff13`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,11 +20,11 @@
 - ExpenseParser
 - auth.js
 - MoneySource
-- Gmail::ExpenseImporterTest
+- MoneySourceRecognitionIdentifier
 - Category Management UI/UX Spec
 - Ai::StatementExtractor
 - FinancialSetupsController
-- ParsedStatement
+- ImportPipeline
 - Gmail::ExpenseImporter
 - application.js
 - Ai::TransactionExtractor
@@ -46,19 +46,19 @@
 - FinancialSetup
 - FinancialSetups::StepPresenter
 - Gmail::Client
-- Gmail::SetupScanService
-- MoneySourceRecognitionIdentifier
+- BudgetsController
+- CategoriesController
 - Gmail::SetupScanServiceTest::FakeClient
 - IncomesController
 - Detailed relationships
 - CreditAccount
-- createCategory
+- expense-bulk-selection.spec.js
 - Expense Model
 - Hybrid Financial Setup Wizard
 - ApplicationController
 - RecurringTemplateImporter
 - ExpensesHelper
-- Budget
+- SpendingAlertService
 - Credit Cards and Loans
 - Support Monthly Income and Payments
 - financial_setup_wizard.rb
@@ -158,7 +158,7 @@
 - English Application Translations
 - @playwright/test
 - Presupuesto por categoría — UI/UX Design Specification
-- ImportPipeline
+- TransactionRulesController
 - RecurringTemplatesController
 - recurring_template_processor.rb
 - AlertsController
@@ -166,25 +166,25 @@
 - alerts.spec.js
 - budgets.spec.js
 - Transfer
-- MoneySourceRecognition
-- Transaction
+- Budget
+- TransactionRule
 - graphify.js
 - AGENTS.md
 - ai_entry_turbo.spec.js
 - ApplicationRecord
-- GmailSyncJob
-- ApplicationJob
-- Gmail::OauthClient
-- GmailConnection
+- Transaction
+- TransactionRules::SuggestionService
+- TransactionRulesHelper
+- SpendingAlert
 - financial_setup_wizard.spec.js
-- EncryptedSecret
+- TransactionRules::Applicator
 - money_source_tags.spec.js
 - GmailSetupSyncJobTest
 - AddSetupSuggestionsToGmailConnections
 - AlertsHelper
 - CreateSpendingAlerts
 - opencode.json
-- ai_money_source_detection.spec.js
+- FinancialCatalogSeeder
 - CreateAlertPreferences
 - CascadeDeleteProcessedEmailsOnExpense
 - CreateBudgets
@@ -193,16 +193,31 @@
 - BudgetsControllerTest
 - AlertPreferenceTest
 - SpendingAlertTest
+- SpendingAlertServiceTest
+- AlertSettingsController
+- DashboardController
+- MonthlyReportsController
+- credit_cards_and_loans.spec.js
+- BudgetTest
+- TransactionRuleTest
+- transaction_rules_extended.spec.js
+- FinancialKeyword
+- TransactionRulesControllerTest
+- TransactionRulesFlowTest
+- CreateTransactionRules
+- AddAppliedRuleIdsToTransactions
+- AddTagsToTransactions
+- AllowNullCategoryOnTransactions
 
 ## God Nodes (most connected - your core abstractions)
-1. `ExpensesController` - 34 edges
-2. `Category` - 33 edges
+1. `Category` - 36 edges
+2. `ExpensesController` - 34 edges
 3. `FinancialSetupsController` - 32 edges
 4. `ExpenseParser` - 32 edges
 5. `MoneySource` - 29 edges
 6. `Ai::StatementExtractor` - 28 edges
-7. `ApplicationHelper` - 25 edges
-8. `@playwright/test` - 25 edges
+7. `@playwright/test` - 27 edges
+8. `ApplicationHelper` - 25 edges
 9. `Ai::TransactionExtractor` - 22 edges
 10. `GmailConnectionsController` - 21 edges
 
@@ -237,27 +252,31 @@
 - **Public Static Web Assets** — public_400_html, public_404_html, public_406_unsupported_browser_html, public_422_html, public_500_html, public_robots_txt, public_icon_png, public_icon_svg [INFERRED 0.85]
 - **Application Icon in Multiple Formats** — public_icon_png, public_icon_svg, app_brand_icon [INFERRED 0.90]
 
-## Communities (205 total, 112 thin omitted)
+## Communities (220 total, 133 thin omitted)
+
+### Community 0 - "GmailConnectionsController"
+Cohesion: 0.05
+Nodes (15): GmailConnectionsController, ApplicationJob, Base, GmailSetupSyncJob, GmailSyncJob, EncryptedSecret, encrypts_secret(), secret_encryptor() (+7 more)
 
 ### Community 1 - "ExpensesController"
 Cohesion: 0.05
-Nodes (8): ExpensesController, Expense, BudgetsFlowTest, IntegrationTest, BudgetTest, TestCase, CategorySpendTest, TestCase
+Nodes (9): ExpensesController, Expense, BudgetsFlowTest, IntegrationTest, CategorySpendTest, TestCase, TestCase, TransactionRules (+1 more)
 
 ### Community 2 - "ExpenseParser"
 Cohesion: 0.07
 Nodes (8): call(), ExpenseParser, ExpenseParser::AIError, ExpenseParser::Resolution, StandardError, ParsedExpense, ExpenseParserTest, TestCase
 
 ### Community 3 - "auth.js"
-Cohesion: 0.14
-Nodes (12): { signUp, signIn }, { test, expect }, { signUp }, { test, expect }, { signUp, createCategory }, { test, expect }, { signUp, createCategory }, { test, expect } (+4 more)
+Cohesion: 0.11
+Nodes (19): { signUp }, { test, expect }, { signUp, signIn }, { test, expect }, { signUp, createCategory }, { test, expect }, { signUp, createCategory }, { test, expect } (+11 more)
 
 ### Community 4 - "MoneySource"
 Cohesion: 0.06
 Nodes (7): MoneySource, MoneySources, MoneySources::Match, SanitizeMoneySourceIdentifiersToLastFour, MoneySources, MoneySources::MatchTest, TestCase
 
-### Community 5 - "Gmail::ExpenseImporterTest"
-Cohesion: 0.10
-Nodes (9): EmailTransactionDetector, EmailTransactionDetector::Result, EmailTransactionDetectorTest, TestCase, Gmail, Gmail::ExpenseImporterTest, Gmail::ExpenseImporterTest::FakeDetector, Gmail::ExpenseImporterTest::FakeExtractor (+1 more)
+### Community 5 - "MoneySourceRecognitionIdentifier"
+Cohesion: 0.06
+Nodes (11): MoneySourceRecognitionIdentifier, MoneySourceRecognition, EmailTransactionDetector, EmailTransactionDetector::Result, EmailTransactionDetectorTest, TestCase, Gmail, Gmail::ExpenseImporterTest (+3 more)
 
 ### Community 6 - "Category Management UI/UX Spec"
 Cohesion: 0.06
@@ -267,9 +286,9 @@ Nodes (38): Add Expense Form Design Spec, Bootstrap 5 Components, Category Dropd
 Cohesion: 0.10
 Nodes (8): Ai, Ai::StatementExtractor, Ai::StatementExtractor::ExtractionError, parse(), StandardError, Ai, Ai::StatementExtractorTest, TestCase
 
-### Community 9 - "ParsedStatement"
-Cohesion: 0.12
-Nodes (6): ImportPipeline::Result, ParsedStatement, FinancialSetupsControllerTest, IntegrationTest, TestCase, StatementDuplicateDetectorTest
+### Community 9 - "ImportPipeline"
+Cohesion: 0.09
+Nodes (7): ImportPipeline, ImportPipeline::Result, ParsedStatement, FinancialSetupsControllerTest, IntegrationTest, TestCase, StatementDuplicateDetectorTest
 
 ### Community 10 - "Gmail::ExpenseImporter"
 Cohesion: 0.06
@@ -277,7 +296,7 @@ Nodes (13): ProcessedEmail, Gmail, Gmail::ExpenseImporter, Gmail::ExpenseImporte
 
 ### Community 11 - "application.js"
 Cohesion: 0.12
-Nodes (25): bindAvailableCredit(), bindForm(), bindInput(), bindRecognition(), formatCurrencyNumber(), formatInput(), formatValue(), gmailSyncStatusPath() (+17 more)
+Nodes (26): bindAvailableCredit(), bindForm(), bindInput(), bindRecognition(), decimalParts(), formatCurrencyNumber(), formatInput(), formatValue() (+18 more)
 
 ### Community 12 - "Ai::TransactionExtractor"
 Cohesion: 0.11
@@ -312,12 +331,12 @@ Cohesion: 0.15
 Nodes (7): Expenses, Expenses::Create, Expenses::Create::Invalid, StandardError, Expenses, Expenses::CreateTest, TestCase
 
 ### Community 24 - "FinancialSetups::Completer"
-Cohesion: 0.19
+Cohesion: 0.17
 Nodes (3): FinancialSetups, FinancialSetups::Completer, FinancialSetups::Completer::Result
 
 ### Community 25 - "SourceRecognition::DiscoveryService"
 Cohesion: 0.05
-Nodes (16): FinancialInstitution, FinancialKeyword, FinancialSubjectPattern, SourceRecognition, SourceRecognition::Catalog, call(), SourceRecognition, SourceRecognition::DiscoveryService (+8 more)
+Nodes (16): FinancialInstitution, call(), Gmail, Gmail::SetupScanService, SourceRecognition, SourceRecognition::Catalog, call(), SourceRecognition (+8 more)
 
 ### Community 26 - "Source Recognition (Gmail-based Email Matching)"
 Cohesion: 0.13
@@ -327,25 +346,13 @@ Nodes (17): ActionCable Configuration, PostgreSQL Database Configuration, Gmail 
 Cohesion: 0.19
 Nodes (4): Gmail, Gmail::Client, Gmail::Client::Error, StandardError
 
-### Community 31 - "Gmail::SetupScanService"
-Cohesion: 0.23
-Nodes (3): call(), Gmail, Gmail::SetupScanService
-
 ### Community 33 - "Gmail::SetupScanServiceTest::FakeClient"
 Cohesion: 0.18
 Nodes (5): configure(), Gmail, Gmail::SetupScanServiceTest, Gmail::SetupScanServiceTest::FakeClient, TestCase
 
-### Community 34 - "IncomesController"
-Cohesion: 0.18
-Nodes (3): DashboardController, IncomesController, Income
-
 ### Community 35 - "Detailed relationships"
 Cohesion: 0.09
 Nodes (22): 1. Models & their relationships, 2. Services & their relationships, 3. Key cross-cutting relationships, 4. Data-flow story, Association map, Category, CreditAccount, Detailed relationships (+14 more)
-
-### Community 37 - "createCategory"
-Cohesion: 0.18
-Nodes (7): { signUp, createCategory }, { test, expect }, { signUp, createCategory }, { test, expect }, createCategory(), { signUp, createCategory }, { test, expect }
 
 ### Community 38 - "Expense Model"
 Cohesion: 0.24
@@ -356,12 +363,8 @@ Cohesion: 0.17
 Nodes (12): Money Source Form, Hybrid Financial Setup Wizard, Setup Complete State, Duplicate Card Handling, Extraction Review Step, Statement File Upload, Final Review Step, Manual Account Entry (+4 more)
 
 ### Community 40 - "ApplicationController"
-Cohesion: 0.12
-Nodes (5): AlertSettingsController, ApplicationController, Base, MonthlyIncomesController, MonthlyReportsController
-
-### Community 43 - "Budget"
-Cohesion: 0.06
-Nodes (7): BudgetsController, Budget, SpendingAlert, CategorySpend, SpendingAlertService, TestCase, SpendingAlertServiceTest
+Cohesion: 0.18
+Nodes (4): ApplicationController, Base, MonthlyExpensesController, MonthlyIncomesController
 
 ### Community 44 - "Credit Cards and Loans"
 Cohesion: 0.18
@@ -484,44 +487,32 @@ Cohesion: 0.22
 Nodes (4): FakeRecognition, PARSE_RESPONSE, { signUp }, { test, expect }
 
 ### Community 183 - "ApplicationRecord"
-Cohesion: 0.40
-Nodes (3): AlertPreference, ApplicationRecord, Base
-
-### Community 185 - "ApplicationJob"
-Cohesion: 0.29
-Nodes (3): ApplicationJob, Base, GmailSetupSyncJob
-
-### Community 186 - "Gmail::OauthClient"
-Cohesion: 0.29
-Nodes (6): Gmail, Gmail::OauthClient, Gmail::OauthClient::ConfigurationError, Gmail::OauthClient::Error, StandardError, Error
+Cohesion: 0.25
+Nodes (4): AlertPreference, ApplicationRecord, Base, FinancialSubjectPattern
 
 ### Community 188 - "financial_setup_wizard.spec.js"
 Cohesion: 0.38
 Nodes (5): choose(), { signUp }, skipCash(), skipSteps(), { test, expect }
 
-### Community 189 - "EncryptedSecret"
-Cohesion: 0.60
-Nodes (3): EncryptedSecret, encrypts_secret(), secret_encryptor()
-
 ## Knowledge Gaps
-- **219 isolated node(s):** `$schema`, `plugin`, `FinancialSetupWizard::Step`, `FinancialSetups::Completer::Result`, `RecurringTemplateProcessor::Result` (+214 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 889 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **112 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **223 isolated node(s):** `$schema`, `plugin`, `FinancialSetupWizard::Step`, `FinancialSetups::Completer::Result`, `RecurringTemplateProcessor::Result` (+218 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 939 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **133 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ApplicationRecord` connect `ApplicationRecord` to `MoneySourceRecognitionIdentifier`, `CreditAccount`, `MoneySource`, `Gmail::ExpenseImporter`, `Budget`, `RecurringTemplate`, `Transfer`, `MoneySourceRecognition`, `Transaction`, `QaValidateDashboardReportsController`, `Category`, `SourceRecognition::DiscoveryService`, `GmailConnection`, `FinancialSetup`?**
-  _High betweenness centrality (0.131) - this node is a cross-community bridge._
-- **Why does `ApplicationController` connect `ApplicationController` to `GmailConnectionsController`, `ExpensesController`, `IncomesController`, `FinancialSetupsController`, `RecurringTemplateImporter`, `Budget`, `TransfersController`, `RecurringTemplatesController`, `MoneySourcesController`, `AlertsController`, `QaValidateDashboardReportsController`, `Category`, `RecurringTemplateActions`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
-- **Why does `Category` connect `Category` to `ExpensesController`, `IncomesController`, `ExpenseParser`, `FinancialSetupsController`, `RecurringTemplateImporter`, `Budget`, `RecurringTemplatesController`, `Expenses::Create`, `ApplicationRecord`, `RecurringTemplateActions`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `ApplicationRecord` connect `ApplicationRecord` to `GmailConnectionsController`, `CreditAccount`, `MoneySource`, `MoneySourceRecognitionIdentifier`, `Gmail::ExpenseImporter`, `RecurringTemplate`, `Transfer`, `Budget`, `TransactionRule`, `QaValidateDashboardReportsController`, `FinancialKeyword`, `Category`, `Transaction`, `SourceRecognition::DiscoveryService`, `SpendingAlert`, `FinancialSetup`?**
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._
+- **Why does `ApplicationController` connect `ApplicationController` to `CategoriesController`, `ExpensesController`, `GmailConnectionsController`, `IncomesController`, `FinancialSetupsController`, `RecurringTemplateImporter`, `AlertSettingsController`, `DashboardController`, `MonthlyReportsController`, `RecurringTemplatesController`, `MoneySourcesController`, `AlertsController`, `QaValidateDashboardReportsController`, `TransactionRulesController`, `TransfersController`, `BudgetsController`?**
+  _High betweenness centrality (0.092) - this node is a cross-community bridge._
+- **Why does `Category` connect `Category` to `CategoriesController`, `ExpensesController`, `IncomesController`, `ExpenseParser`, `FinancialSetupsController`, `RecurringTemplateImporter`, `TransactionRulesController`, `RecurringTemplatesController`, `Expenses::Create`, `ApplicationRecord`, `FinancialSetups::Completer`, `TransactionRules::SuggestionService`, `RecurringTemplateActions`, `BudgetsController`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `FinancialSetupWizard::Step` to the rest of the system?**
-  _219 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _223 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `GmailConnectionsController` be split into smaller, more focused modules?**
+  _Cohesion score 0.05333333333333334 - nodes in this community are weakly interconnected._
 - **Should `ExpensesController` be split into smaller, more focused modules?**
   _Cohesion score 0.0545790934320074 - nodes in this community are weakly interconnected._
 - **Should `ExpenseParser` be split into smaller, more focused modules?**
   _Cohesion score 0.07020408163265306 - nodes in this community are weakly interconnected._
-- **Should `auth.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.14035087719298245 - nodes in this community are weakly interconnected._
