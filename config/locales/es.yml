@@ -20,6 +20,43 @@ es:
     am: "am"
     pm: "pm"
 
+  datetime:
+    distance_in_words:
+      half_a_minute: "medio minuto"
+      less_than_x_seconds:
+        one: "menos de 1 segundo"
+        other: "menos de %{count} segundos"
+      x_seconds:
+        one: "1 segundo"
+        other: "%{count} segundos"
+      less_than_x_minutes:
+        one: "menos de 1 minuto"
+        other: "menos de %{count} minutos"
+      x_minutes:
+        one: "1 minuto"
+        other: "%{count} minutos"
+      about_x_hours:
+        one: "alrededor de 1 hora"
+        other: "alrededor de %{count} horas"
+      x_days:
+        one: "1 día"
+        other: "%{count} días"
+      about_x_months:
+        one: "alrededor de 1 mes"
+        other: "alrededor de %{count} meses"
+      x_months:
+        one: "1 mes"
+        other: "%{count} meses"
+      about_x_years:
+        one: "alrededor de 1 año"
+        other: "alrededor de %{count} años"
+      over_x_years:
+        one: "más de 1 año"
+        other: "más de %{count} años"
+      almost_x_years:
+        one: "casi 1 año"
+        other: "casi %{count} años"
+
   number:
     format:
       separator: ","
@@ -742,6 +779,31 @@ es:
     validation:
       expense_type: "solo se puede asignar a categorías de gasto"
       invalid_category: "no está disponible"
+
+  alerts:
+    title: "Alertas"
+    unread: "No leída"
+    mark_read: "Marcar leída"
+    view_expenses: "Ver gastos"
+    mark_all_read: "Marcar leídas"
+    marked_all_read: "Alertas marcadas como leídas"
+    usage: "%{pct}% de %{budget}"
+    this_month: "Este mes"
+    empty_title: "Estás al día"
+    empty_text: "Te avisaremos cuando un gasto se acerque a tu presupuesto o suba de forma inusual."
+    empty_filter: "Sin alertas en este filtro."
+    configure: "Configurar alertas"
+    filters:
+      all: "Todas"
+      unread: "No leídas"
+      budget: "Presupuesto"
+      spending: "Gasto"
+    level_near_limit: "Cerca del límite"
+    level_over_budget: "Sobre el presupuesto"
+    level_spending_increase: "Aumento de gasto"
+    message_threshold: "%{category} usó el %{pct}% de tu presupuesto mensual de %{budget}."
+    message_exceeded: "%{category} superó tu presupuesto mensual por %{amount}."
+    message_increase: "%{category} gastó %{amount} este mes, %{pct}% más que el mes pasado (%{previous})."
 
   transfers:
     index:
