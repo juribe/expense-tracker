@@ -5974,7 +5974,7 @@
       "file_type": "code",
       "norm_label": ".alert_row()",
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L50"
+      "source_location": "L46"
     },
     {
       "id": "app_controllers_alerts_controller_alertscontroller_filtered_alerts",
@@ -5986,7 +5986,7 @@
       "file_type": "code",
       "norm_label": ".filtered_alerts()",
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L40"
+      "source_location": "L36"
     },
     {
       "id": "app_controllers_alerts_controller_alertscontroller_index",
@@ -6010,7 +6010,7 @@
       "file_type": "code",
       "norm_label": ".mark_all_read()",
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L33"
+      "source_location": "L29"
     },
     {
       "id": "app_controllers_alerts_controller_alertscontroller_update",
@@ -6022,7 +6022,7 @@
       "file_type": "code",
       "norm_label": ".update()",
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L23"
+      "source_location": "L22"
     },
     {
       "id": "app_helpers_budgets_helper_budgetshelper_budget_progress_data",
@@ -22413,7 +22413,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L27",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -35745,7 +35745,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L23",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -35756,7 +35756,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L33",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -35767,7 +35767,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L40",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -35778,7 +35778,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/alerts_controller.rb",
-      "source_location": "L50",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -47346,5 +47346,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "8ef68c4ff38433aa70b609831483157ec8e93cba"
+  "built_at_commit": "2a6ad17649c80193cc4af3dbc9590485d0c0edd5"
 }
