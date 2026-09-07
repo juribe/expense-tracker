@@ -93,4 +93,40 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await page.goto('/alerts');
     await expect(page.locator('.nav-pills .nav-link', { hasText: 'No leídas' }).locator('.badge')).toHaveText('1');
   });
+
+  test('marking a single alert read removes the unread state and the button', async ({ page }) => {
+    await signUp(page);
+    const category = `Restaurantes-${Date.now()}`;
+    await createCategory(page, category);
+    await enableSpendingIncreaseAlerts(page);
+
+    await createExpense(page, { amount: 100, date: previousMonthDate(), category, description: 'Almuerzo mes pasado' });
+    await createExpense(page, { amount: 200, date: todayDate(), category, description: 'Almuerzo este mes' });
+
+    await page.goto('/alerts');
+    const card = page.locator('.card', { hasText: category });
+    await expect(card.getByText('Marcar leída')).toBeVisible();
+
+    await card.getByRole('button', { name: 'Marcar leída' }).click();
+
+    await expect(card.getByText('Marcar leída')).toHaveCount(0);
+    await expect(page.locator('.sidebar-link', { hasText: 'Alertas' }).locator('.badge')).toHaveCount(0);
+  });
+
+  test('view expenses link opens the filtered expenses for the alert', async ({ page }) => {
+    await signUp(page);
+    const category = `Restaurantes-${Date.now()}`;
+    await createCategory(page, category);
+    await enableSpendingIncreaseAlerts(page);
+
+    await createExpense(page, { amount: 100, date: previousMonthDate(), category, description: 'Almuerzo mes pasado' });
+    await createExpense(page, { amount: 200, date: todayDate(), category, description: 'Almuerzo este mes' });
+
+    await page.goto('/alerts');
+    const card = page.locator('.card', { hasText: category });
+    await card.getByRole('link', { name: 'Ver gastos' }).click();
+
+    await expect(page).toHaveURL(/\/expenses/);
+    await expect(page.getByText('Almuerzo este mes').first()).toBeVisible();
+  });
 });
