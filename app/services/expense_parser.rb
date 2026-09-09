@@ -96,6 +96,7 @@ class ExpenseParser
     expenses = entries.filter_map do |entry|
       expense = build_expense(entry)
       assign_money_source(expense)
+      apply_matching_rule_category(expense)
       if expense.valid?
         expense
       else
@@ -356,7 +357,22 @@ class ExpenseParser
     end
   end
 
-  # ------------------------------------------------------------------ category
+  # ----------------------------------------------------------------- category
+
+  # The preview must reflect what will actually be saved: when a transaction
+  # rule matches the detected expense, its category replaces the parser's
+  # suggestion, so no "new category will be created" warning is shown.
+  def apply_matching_rule_category(expense)
+    probe = Expense.new(user: @user, description: expense.description.presence,
+                        amount: expense.amount, money_source_id: expense.money_source_id)
+    rule = TransactionRules::Applicator.new(@user).matching_category_rule(probe)
+    return if rule.nil?
+
+    expense.category_id = rule.category_id
+    expense.category_name = rule.category.name
+    expense.create_category = false
+    expense.warnings = expense.warnings.grep_v(/\ANo matching category found/)
+  end
 
   # Resolves a category for the expense, preferring existing categories.
   def resolve_category(description, context)

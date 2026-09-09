@@ -378,7 +378,8 @@ class ExpensesController < ApplicationController
 
       source = input.respond_to?(:to_unsafe_h) ? input.to_unsafe_h : input
       ActionController::Parameters.new(source).permit(
-        :amount, :description, :date, :transaction_date, :category_id, :new_category_name, :confidence, :money_source_id
+        :amount, :description, :date, :transaction_date, :category_id, :new_category_name,
+        :category_edited, :confidence, :money_source_id
       ).to_h
     end
   end
@@ -395,15 +396,17 @@ class ExpensesController < ApplicationController
       money_source = current_user.money_sources.find(input[:money_source_id])
     end
 
-    Expense.new(
+    expense = Expense.new(
       user: current_user,
-      category: resolve_confirmed_category!(input),
+      category: resolve_confirmed_category!(input, amount),
       amount: amount,
       description: input[:description].to_s.presence,
       date: date,
       source: "ai",
       money_source: money_source
     )
+    expense.category_locked_by_user = input[:category_edited].present?
+    expense
   end
 
   def parse_confirmed_date(value)
@@ -414,19 +417,31 @@ class ExpensesController < ApplicationController
     raise ArgumentError, t("expenses.invalid_date")
   end
 
-  def resolve_confirmed_category!(input)
+  def resolve_confirmed_category!(input, amount = nil)
     category_id = input[:category_id]
     new_name = input[:new_category_name].to_s.strip
 
     if category_id.present?
       Category.find(category_id)
     elsif new_name.present?
-      Category.find_by(name: new_name) ||
-        Category.where("lower(name) = ?", new_name.downcase).first ||
-        Category.create!(name: new_name, user: current_user, is_default: false)
+      existing = Category.find_by(name: new_name) ||
+                 Category.where("lower(name) = ?", new_name.downcase).first
+      return existing if existing
+      return nil if rule_will_set_category?(input, amount)
+
+      Category.create!(name: new_name, user: current_user, is_default: false)
     else
       raise ArgumentError, t("expenses.category_required")
     end
+  end
+
+  # The suggested category name comes from the parser's guess. When a rule
+  # matches the detected description, the rule's category wins and the
+  # suggested one must not be created.
+  def rule_will_set_category?(input, amount)
+    probe = Expense.new(user: current_user, amount: amount.to_d,
+                        description: input[:description].to_s.presence)
+    TransactionRules::Applicator.new(current_user).matching_category_rule(probe).present?
   end
 
   def row_error(expense, index)

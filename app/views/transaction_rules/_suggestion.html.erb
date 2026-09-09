@@ -23,5 +23,9 @@
         ), class: "btn btn-sm btn-primary" do %>
       <i class="bi bi-plus-lg me-1"></i><%= t("transaction_rules.create_rule") %>
     <% end %>
+    <%= button_to dismiss_suggestion_transaction_rules_path(merchant: suggestion[:merchant]),
+          method: :post, class: "btn btn-sm btn-outline-secondary" do %>
+      <i class="bi bi-x-lg me-1"></i><%= t("transaction_rules.dismiss") %>
+    <% end %>
   </div>
 </div>

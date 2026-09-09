@@ -32,6 +32,9 @@ Rails.application.routes.draw do
   resources :categories
   resources :budgets
   resources :transaction_rules do
+    collection do
+      post :dismiss_suggestion
+    end
     member do
       patch :toggle_active
     end

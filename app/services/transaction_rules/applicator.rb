@@ -12,16 +12,34 @@ module TransactionRules
       @user = user
     end
 
-    def apply(transaction)
-      return transaction if transaction.nil?
-      return transaction unless @user.is_a?(User)
+  # prefer_rules: for AI-entry expenses the parser's category is a guess, so
+  # the first matching rule (by specificity) that sets a category wins and
+  # later matching rules never clobber it.
+  def apply(transaction, prefer_rules: false)
+    return transaction if transaction.nil?
+    return transaction unless @user.is_a?(User)
 
-      rules = TransactionRule.active.for_user(@user).ordered_by_specificity.to_a
-      rules.each do |rule|
-        rule.apply_to(transaction) if rule.matches?(transaction)
-      end
+    rules = TransactionRule.active.for_user(@user).ordered_by_specificity.to_a
+    category_decided = false
+    rules.each do |rule|
+      next unless rule.matches?(transaction)
+
+      rule.apply_to(transaction, prefer_rules: prefer_rules && !category_decided)
+      category_decided ||= transaction.rule_id == rule.id
+    end
 
       transaction
+    end
+
+    # Returns the most specific active rule whose category action matches the
+    # transaction, or nil. Used to skip creating parser-suggested categories
+    # that a rule will replace anyway.
+    def matching_category_rule(transaction)
+      return if transaction.nil?
+      return unless @user.is_a?(User)
+
+      TransactionRule.active.for_user(@user).ordered_by_specificity
+                      .find { |rule| rule.category_id.present? && rule.matches?(transaction) }
     end
   end
 end

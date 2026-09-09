@@ -23,4 +23,18 @@ class User < ApplicationRecord
   def alert_prefs
     alert_preference || create_alert_preference!
   end
+
+  # Transaction-rule suggestions the user dismissed, indexed by normalized
+  # merchant text so the suggestion panels hide them without re-asking.
+  def dismiss_rule_suggestion!(merchant)
+    normalized = merchant.to_s.strip.downcase
+    return if normalized.blank?
+    return if rule_suggestion_dismissed?(normalized)
+
+    update!(dismissed_rule_suggestions: dismissed_rule_suggestions + [ normalized ])
+  end
+
+  def rule_suggestion_dismissed?(merchant)
+    dismissed_rule_suggestions.include?(merchant.to_s.strip.downcase)
+  end
 end

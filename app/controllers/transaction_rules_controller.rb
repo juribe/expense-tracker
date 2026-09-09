@@ -4,6 +4,20 @@
 # RESTful for TransactionRule, plus a member `patch :toggle_active`.
 # Rules are always scoped to current_user.
 class TransactionRulesController < ApplicationController
+  CONDITION_FIELDS = {
+    "merchant_contains" => "merchant_contains",
+    "description_contains" => "description_contains",
+    "money_source_condition" => "money_source_condition_id",
+    "amount_gt" => "amount_gt",
+    "amount_lt" => "amount_lt"
+  }.freeze
+
+  ACTION_FIELDS = {
+    "category" => "category_id",
+    "tag" => "tag",
+    "money_source" => "action_money_source_id"
+  }.freeze
+
   before_action :set_rule, only: [ :edit, :update, :destroy, :toggle_active ]
   before_action :set_form_data, only: [ :new, :create, :edit, :update ]
 
@@ -49,6 +63,11 @@ class TransactionRulesController < ApplicationController
     redirect_to transaction_rules_path, notice: t("transaction_rules.flashes.#{@rule.enabled? ? 'enabled' : 'disabled'}")
   end
 
+  def dismiss_suggestion
+    current_user.dismiss_rule_suggestion!(params[:merchant])
+    redirect_to transaction_rules_path, notice: t("transaction_rules.flashes.suggestion_dismissed")
+  end
+
   private
 
   def set_rule
@@ -64,12 +83,32 @@ class TransactionRulesController < ApplicationController
   end
 
   def rule_params
-    params.require(:transaction_rule).permit(
+    permitted = params.expect(transaction_rule: [
       :name, :enabled, :priority,
       :merchant_contains, :description_contains,
       :money_source_condition_id, :amount_gt, :amount_lt,
       :category_id, :action_money_source_id, :tag
-    )
+    ])
+    keep_only_selected_fields(permitted, CONDITION_FIELDS, params[:condition_field])
+    keep_only_selected_fields(permitted, ACTION_FIELDS, params[:action_field])
+    normalize_blank_fields(permitted)
+    permitted
+  end
+
+  # The form renders every condition/action input and hides the unselected
+  # ones with CSS, so hidden inputs submit stale values. Drop any field that
+  # is not the type picked in the condition/action selects.
+  def keep_only_selected_fields(permitted, mapping, selected_key)
+    selected = mapping[selected_key]
+    return if selected.blank?
+
+    (mapping.values - [ selected ]).each { |field| permitted[field] = nil }
+  end
+
+  def normalize_blank_fields(permitted)
+    (CONDITION_FIELDS.values + ACTION_FIELDS.values).each do |field|
+      permitted[field] = nil if permitted[field].is_a?(String) && permitted[field].blank?
+    end
   end
 
   def prefill_from_suggestion

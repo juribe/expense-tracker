@@ -236,7 +236,13 @@ function initializeAiEntry() {
     description.setAttribute("aria-label", <%= raw(t("common.description").to_json) %>);
     grid.appendChild(labeledField(<%= raw(t("common.description").to_json) %>, description, "col-md-4"));
 
-    grid.appendChild(labeledField(<%= raw(t("common.category").to_json) %>, buildSelect(expense), "col-md-3"));
+    var categorySelect = buildSelect(expense);
+    grid.appendChild(labeledField(<%= raw(t("common.category").to_json) %>, categorySelect, "col-md-3"));
+    // Only a user change marks the category as explicit; the parser's guess
+    // stays overridable by transaction rules at save time.
+    categorySelect.addEventListener("change", function () {
+      row.setAttribute("data-category-edited", "true");
+    });
 
     var amount = document.createElement("input");
     amount.type = "number";
@@ -320,6 +326,7 @@ function initializeAiEntry() {
         transaction_date: row.querySelector(".ai-field-date").value,
         category_id: isNewCategory ? "" : category,
         new_category_name: isNewCategory ? category.slice(4) : "",
+        category_edited: row.getAttribute("data-category-edited") === "true",
         money_source_id: row.querySelector(".ai-field-source") ? row.querySelector(".ai-field-source").value : ""
       };
       if (!amountValue || Number(amountValue) <= 0 || (!isNewCategory && !category)) {

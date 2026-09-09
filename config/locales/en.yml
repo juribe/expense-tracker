@@ -458,6 +458,7 @@ en:
       destroyed: "Rule deleted successfully."
       enabled: "Rule enabled."
       disabled: "Rule disabled."
+      suggestion_dismissed: "Suggestion dismissed."
     not_found: "Rule not found."
     validation:
       at_least_one_condition: "Add at least one condition."

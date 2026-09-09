@@ -111,6 +111,101 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
     assert rule.reload.enabled?
   end
 
+  test "POST /transaction_rules/dismiss_suggestion persists the merchant dismissal" do
+    post dismiss_suggestion_transaction_rules_path, params: { merchant: "smartfit bogotá" }
+    assert_redirected_to transaction_rules_path
+    assert_equal I18n.t("transaction_rules.flashes.suggestion_dismissed"), flash[:notice]
+    assert_includes @user.reload.dismissed_rule_suggestions, "smartfit bogotá"
+  end
+
+  test "POST /transaction_rules/dismiss_suggestion normalizes and deduplicates merchants" do
+    post dismiss_suggestion_transaction_rules_path, params: { merchant: "Smartfit Bogotá" }
+    post dismiss_suggestion_transaction_rules_path, params: { merchant: "SMARTFIT BOGOTÁ" }
+    assert_equal [ "smartfit bogotá" ], @user.reload.dismissed_rule_suggestions
+  end
+
+  test "POST /transaction_rules/dismiss_suggestion with a blank merchant does not add a dismissal" do
+    post dismiss_suggestion_transaction_rules_path, params: { merchant: "  " }
+    assert_redirected_to transaction_rules_path
+    assert_empty @user.reload.dismissed_rule_suggestions
+  end
+
+  test "index hides suggestions whose merchant has been dismissed" do
+    5.times do
+      Expense.create!(user: @user, category: @category, amount: 50_000, date: Date.current,
+                      description: "smartfit bogotá")
+    end
+    @user.update!(dismissed_rule_suggestions: [ "smartfit bogotá" ])
+
+    get transaction_rules_path
+    assert_response :success
+    assert_select "section#suggested-rules", count: 0
+  end
+
+  test "PATCH /transaction_rules/:id clears the old condition when changing condition type" do
+    rule = create_rule
+    patch transaction_rule_path(rule), params: {
+      condition_field: "description_contains",
+      transaction_rule: { description_contains: "renta", category_id: @category.id }
+    }
+    assert_redirected_to transaction_rules_path
+    rule = rule.reload
+    assert_equal "renta", rule.description_contains
+    assert_nil rule.merchant_contains
+  end
+
+  test "PATCH /transaction_rules/:id keeps the condition when the type is unchanged" do
+    rule = create_rule
+    patch transaction_rule_path(rule), params: {
+      condition_field: "merchant_contains",
+      transaction_rule: { merchant_contains: "SMARTFIT PLUS", category_id: @category.id }
+    }
+    assert_redirected_to transaction_rules_path
+    rule = rule.reload
+    assert_equal "SMARTFIT PLUS", rule.merchant_contains
+    assert_nil rule.description_contains
+  end
+
+  test "PATCH /transaction_rules/:id clears the old action when changing action type" do
+    rule = create_rule
+    patch transaction_rule_path(rule), params: {
+      condition_field: "merchant_contains",
+      action_field: "tag",
+      transaction_rule: { merchant_contains: "SMARTFIT", tag: "Fitness", category_id: nil }
+    }
+    assert_redirected_to transaction_rules_path
+    rule = rule.reload
+    assert_equal "Fitness", rule.tag
+    assert_nil rule.category_id
+  end
+
+  test "PATCH /transaction_rules/:id keeps the action when the type is unchanged" do
+    rule = create_rule
+    patch transaction_rule_path(rule), params: {
+      condition_field: "merchant_contains",
+      action_field: "category",
+      transaction_rule: { merchant_contains: "SMARTFIT", category_id: @other_category.id }
+    }
+    assert_redirected_to transaction_rules_path
+    rule = rule.reload
+    assert_equal @other_category.id, rule.category_id
+    assert_nil rule.tag
+  end
+
+  test "POST /transaction_rules clears unselected condition and action fields" do
+    post transaction_rules_path, params: {
+      condition_field: "amount_gt",
+      action_field: "tag",
+      transaction_rule: { amount_gt: "10000", tag: "Big", category_id: @category.id }
+    }
+    assert_redirected_to transaction_rules_path
+    rule = TransactionRule.last
+    assert_equal "10000".to_d, rule.amount_gt
+    assert_equal "Big", rule.tag
+    assert_nil rule.category_id
+    assert_nil rule.merchant_contains
+  end
+
   test "cannot edit another user's rule" do
     other_user = User.create!(name: "Other", email: "rules_other@example.com", password: "password123")
     other_rule = TransactionRule.create!(user: other_user, merchant_contains: "OTHER", category_id: @category.id)

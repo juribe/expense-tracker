@@ -47,5 +47,34 @@ module TransactionRules
       end
       assert_empty SuggestionService.new(@user).suggestions
     end
+
+    test "hides a pattern when a rule already covers the merchant" do
+      9.times { create_expense(description: "smartfit bogotá", category: @fitness) }
+      TransactionRule.create!(user: @user, merchant_contains: "smartfit", category_id: @fitness.id)
+
+      refute(SuggestionService.new(@user).suggestions.any? { |s| s[:merchant] == "smartfit bogotá" })
+    end
+
+    test "hides a suggestion matching an existing rule regardless of case" do
+      5.times { create_expense(description: "netflix", category: @entertainment) }
+      TransactionRule.create!(user: @user, merchant_contains: "NETFLIX", category_id: @entertainment.id)
+
+      assert_empty SuggestionService.new(@user).suggestions
+    end
+
+    test "hides suggestions the user dismissed" do
+      5.times { create_expense(description: "netflix", category: @entertainment) }
+      @user.update!(dismissed_rule_suggestions: [ "netflix" ])
+
+      refute(SuggestionService.new(@user).suggestions.any? { |s| s[:merchant] == "netflix" })
+    end
+
+    test "keeps a suggestion visible when only its category already has a rule" do
+      9.times { create_expense(description: "smartfit bogotá", category: @fitness) }
+      TransactionRule.create!(user: @user, merchant_contains: "otro", category_id: @fitness.id)
+
+      suggestions = SuggestionService.new(@user).suggestions
+      assert suggestions.any? { |s| s[:merchant] == "smartfit bogotá" }
+    end
   end
 end

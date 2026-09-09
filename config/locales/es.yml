@@ -878,6 +878,7 @@ es:
       destroyed: "La regla se eliminó correctamente."
       enabled: "La regla se habilitó."
       disabled: "La regla se deshabilitó."
+      suggestion_dismissed: "Sugerencia descartada."
     not_found: "Regla no encontrada."
     validation:
       at_least_one_condition: "Añade al menos una condición."

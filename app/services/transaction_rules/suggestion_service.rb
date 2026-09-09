@@ -23,10 +23,22 @@ module TransactionRules
     end
 
     def suggestions
-      pattern_suggestions + correction_suggestions
+      (pattern_suggestions + correction_suggestions)
+        .reject { |s| rule_covers_merchant?(s[:merchant]) || @user.rule_suggestion_dismissed?(s[:merchant]) }
     end
 
     private
+
+    def rule_covers_merchant?(merchant)
+      merchant_rules.any? { |needle| merchant.downcase.include?(needle) }
+    end
+
+    def merchant_rules
+      @merchant_rules ||= TransactionRule.for_user(@user)
+                                         .where.not(merchant_contains: [ nil, "" ])
+                                         .pluck(:merchant_contains)
+                                         .map(&:downcase)
+    end
 
     def pattern_suggestions
       grouped = expense_merchants

@@ -5,7 +5,7 @@
 # they are created or imported.
 #
 # Associations: belongs_to :user (required), category & money sources (optional)
-# Methods: matches?(transaction), condition_label, action_label, title
+# Methods: matches?(transaction), apply_to(transaction, prefer_rules:), title
 #
 # Example: TransactionRule.active.for_user(user)
 class TransactionRule < ApplicationRecord
@@ -51,13 +51,15 @@ class TransactionRule < ApplicationRecord
       amount_matches?(transaction)
   end
 
-  def apply_to(transaction)
+  # prefer_rules: for AI-entry expenses the parser's category is a guess, not
+  # an explicit user choice — a matching rule's category takes precedence.
+  def apply_to(transaction, prefer_rules: false)
     return if transaction.nil?
     return if transaction.applied_rule_ids.include?(id)
 
     changed = false
 
-    if category_id.present? && transaction.category_id.blank?
+    if should_apply_category?(transaction, prefer_rules)
       transaction.category_id = category_id
       transaction.rule_id = id
       changed = true
@@ -81,6 +83,13 @@ class TransactionRule < ApplicationRecord
   end
 
   private
+
+  def should_apply_category?(transaction, prefer_rules)
+    return false if category_id.blank?
+    return true if transaction.category_id.blank?
+
+    prefer_rules && transaction.rule_id != id
+  end
 
   def merchant_matches?(transaction)
     return true if merchant_contains.blank?

@@ -3,6 +3,10 @@
 class Transaction < ApplicationRecord
   self.inheritance_column = :_type_disabled
 
+  # Set by the AI-entry confirm flow when the user explicitly picked a
+  # category; rules then never override it.
+  attr_accessor :category_locked_by_user
+
   belongs_to :user
   belongs_to :category, optional: true
   belongs_to :recurring_template, optional: true
@@ -100,13 +104,14 @@ class Transaction < ApplicationRecord
 
   # Applies the user's automatic rules once, at creation time only. Rules fill
   # gaps (blank category, unset money source, missing tag) and never overwrite
-  # explicit values. Gated behind a cheap existence check so rule-free manual
-  # entries pay almost nothing.
+  # explicit values. AI-entry expenses are the exception: the parser's category
+  # is a guess, so a matching rule takes precedence. Gated behind a cheap
+  # existence check so rule-free manual entries pay almost nothing.
   def apply_automatic_rules
     return unless new_record?
     return if applied_rule_ids.any?
     return unless TransactionRule.active.for_user(user).exists?
 
-    TransactionRules::Applicator.new(user).apply(self)
+    TransactionRules::Applicator.new(user).apply(self, prefer_rules: source == "ai" && !category_locked_by_user)
   end
 end

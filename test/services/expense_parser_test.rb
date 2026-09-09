@@ -238,4 +238,40 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_equal @groceries.id, result[:expenses][0][:category_id]
     assert result[:errors].any?
   end
+
+  test "uses a matching rule's category instead of suggesting a new one" do
+    apps = Category.create!(name: "Apps", is_default: true, category_type: "expense")
+    TransactionRule.create!(user: @user, merchant_contains: nil,
+                            description_contains: "didi", category_id: apps.id)
+
+    result = parse("me gaste 50mil en didi los pague con la tc infinite")
+    expense = result[:expenses].first
+
+    assert_equal apps.id, expense[:category_id]
+    assert_equal apps.name, expense[:category_name]
+    assert_equal false, expense[:create_category]
+    assert_empty expense[:warnings].grep(/No matching category found/)
+  end
+
+  test "a matching rule overrides the parser's resolved category" do
+    apps = Category.create!(name: "Apps", is_default: true, category_type: "expense")
+    TransactionRule.create!(user: @user, merchant_contains: nil,
+                            description_contains: "didi", category_id: apps.id)
+
+    result = parse("50 mil en didi en un restaurante")
+    expense = result[:expenses].first
+
+    assert_equal apps.id, expense[:category_id]
+    assert_equal apps.name, expense[:category_name]
+    assert_equal false, expense[:create_category]
+  end
+
+  test "keeps the parser suggestion when no rule matches" do
+    result = parse("gasté 30 mil en la veterinaria del perro")
+    expense = result[:expenses].first
+
+    assert_nil expense[:category_id]
+    assert expense[:create_category]
+    assert_equal "Pet Care", expense[:category_name]
+  end
 end

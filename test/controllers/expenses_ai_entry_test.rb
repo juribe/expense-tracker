@@ -134,6 +134,44 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     assert_equal pet_care.id, expense.category_id
   end
 
+  test "POST /expenses/bulk_create skips the suggested category when a rule matches" do
+    TransactionRule.create!(user: @user, merchant_contains: nil,
+                            description_contains: "didi", category_id: @restaurants.id)
+
+    assert_no_difference -> { Category.count } do
+      post bulk_create_expenses_path(format: :json), params: {
+        expenses: [
+          { amount: "50000", description: "Didi viaje", transaction_date: Date.current.iso8601,
+            new_category_name: "Didi Tarjeta Visa Infinite" }
+        ]
+      }
+    end
+
+    assert_response :created
+    assert_nil Category.find_by(name: "Didi Tarjeta Visa Infinite")
+    expense = @user.expenses.sole
+    assert_equal @restaurants.id, expense.category_id
+    assert_includes expense.applied_rule_ids, TransactionRule.last.id
+  end
+
+  test "POST /expenses/bulk_create keeps the category the user explicitly picked" do
+    parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    TransactionRule.create!(user: @user, merchant_contains: nil,
+                            description_contains: "didi", category_id: @restaurants.id)
+
+    post bulk_create_expenses_path(format: :json), params: {
+      expenses: [
+        { amount: "50000", description: "Didi viaje", transaction_date: Date.current.iso8601,
+          category_id: parking.id, category_edited: true }
+      ]
+    }
+
+    assert_response :created
+    expense = @user.expenses.sole
+    assert_equal parking.id, expense.category_id
+    assert_empty expense.applied_rule_ids
+  end
+
   test "POST /expenses/bulk_create rolls everything back when a row is invalid" do
     parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
 

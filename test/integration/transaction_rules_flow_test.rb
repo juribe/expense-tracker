@@ -105,6 +105,50 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     assert_equal @entertainment.id, expense.reload.category_id
   end
 
+  test "index shows a Dismiss button next to each suggestion" do
+    5.times do
+      Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
+                      description: "smartfit bogotá")
+    end
+
+    get transaction_rules_path
+    assert_response :success
+    assert_select "section#suggested-rules form[action*=?]",
+                  dismiss_suggestion_transaction_rules_path, minimum: 1
+    assert_select "section#suggested-rules button", text: /Descartar/, minimum: 1
+  end
+
+  test "dismissing a suggestion removes it from the index" do
+    5.times do
+      Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
+                      description: "smartfit bogotá")
+    end
+
+    post dismiss_suggestion_transaction_rules_path, params: { merchant: "smartfit bogotá" }
+    assert_redirected_to transaction_rules_path
+
+    get transaction_rules_path
+    assert_response :success
+    assert_select "section#suggested-rules", count: 0
+  end
+
+  test "creating a rule from a suggestion makes the suggestion disappear" do
+    5.times do
+      Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
+                      description: "smartfit bogotá")
+    end
+
+    post transaction_rules_path, params: {
+      transaction_rule: { merchant_contains: "smartfit bogotá", category_id: @fitness.id }
+    }
+    assert_redirected_to transaction_rules_path
+
+    get transaction_rules_path
+    assert_response :success
+    assert_select "section#suggested-rules", count: 0
+    assert_select ".card-title", text: /smartfit bogotá/
+  end
+
   test "index shows the rules navigation in the sidebar" do
     get transaction_rules_path
     assert_response :success

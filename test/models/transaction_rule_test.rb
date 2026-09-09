@@ -212,4 +212,62 @@ class TransactionRuleTest < ActiveSupport::TestCase
     expense.update!(description: "SMARTFIT again")
     assert_equal [ rule.id ], expense.applied_rule_ids
   end
+
+  # --- AI entry: parser categories are guesses, rules take precedence ---
+
+  test "prefer_rules overrides the parser's category guess" do
+    rule = create_rule(merchant_contains: nil, description_contains: "didi")
+    transaction = Expense.new(user: @user, description: "Didi viaje", amount: 50_000,
+                              date: Date.current, category: @transport)
+    rule.apply_to(transaction, prefer_rules: true)
+    assert_equal @fitness.id, transaction.category_id
+    assert_equal rule.id, transaction.rule_id
+    assert_includes transaction.applied_rule_ids, rule.id
+  end
+
+  test "prefer_rules keeps the category when no matching rule sets one" do
+    rule = create_rule(merchant_contains: nil, description_contains: "didi", category_id: nil, tag: "Transport")
+    transaction = Expense.new(user: @user, description: "Didi viaje", amount: 50_000,
+                              date: Date.current, category: @transport)
+    rule.apply_to(transaction, prefer_rules: true)
+    assert_equal @transport.id, transaction.category_id
+    assert_nil transaction.rule_id
+    assert_includes transaction.tags, "Transport"
+  end
+
+  test "prefer_rules lets the most specific matching rule win" do
+    generic = create_rule(merchant_contains: nil, description_contains: "viaje", priority: 1)
+    specific = create_rule(merchant_contains: "UBER", priority: 5)
+    transaction = Expense.new(user: @user, description: "UBER viaje", amount: 50_000,
+                              date: Date.current, category: @entertainment)
+
+    TransactionRules::Applicator.new(@user).apply(transaction, prefer_rules: true)
+    assert_equal @fitness.id, transaction.category_id
+    assert_equal specific.id, transaction.rule_id
+  end
+
+  test "applicator keeps an ai-source parser category when no rule matches" do
+    rule = create_rule(merchant_contains: nil, description_contains: "smartfit")
+    expense = Expense.create!(user: @user, description: "Didi viaje", amount: 50_000,
+                              date: Date.current, source: "ai", category: @transport)
+    assert_equal @transport.id, expense.category_id
+    assert_empty expense.applied_rule_ids
+  end
+
+  test "ai-source expenses use the rule category over the parser guess" do
+    rule = create_rule(merchant_contains: nil, description_contains: "didi")
+    expense = Expense.create!(user: @user, description: "Didi viaje tarjeta visa",
+                              amount: 50_000, date: Date.current, source: "ai",
+                              category: @transport)
+    assert_equal @fitness.id, expense.category_id
+    assert_includes expense.applied_rule_ids, rule.id
+  end
+
+  test "manual-source expenses keep the explicitly chosen category" do
+    rule = create_rule(merchant_contains: nil, description_contains: "didi")
+    expense = Expense.create!(user: @user, description: "Didi viaje", amount: 50_000,
+                              date: Date.current, source: "manual", category: @transport)
+    assert_equal @transport.id, expense.category_id
+    assert_empty expense.applied_rule_ids
+  end
 end
