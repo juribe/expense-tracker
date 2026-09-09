@@ -2148,9 +2148,9 @@
     "semantic_hash": ""
   },
   "app/services/ocr/local_reader.rb": {
-    "mtime": 1788973715.3433666,
-    "seen": 1788974057.542911,
-    "ast_hash": "7308c9c78c9f26e9ecb0a79b17571f0b",
+    "mtime": 1788983895.899089,
+    "seen": 1788984051.980704,
+    "ast_hash": "119ea53839497cd6c44ca68b65d977bd",
     "semantic_hash": ""
   },
   "test/services/ocr/local_reader_test.rb": {

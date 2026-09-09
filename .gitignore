@@ -41,3 +41,6 @@
 
 # Git worktrees
 /.worktrees/
+
+# Local Python venv for faster-whisper (see docs/speech_to_text.md)
+/whisper-env/

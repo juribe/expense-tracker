@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Internal testing page for the expense ingestion pipeline. It processes
-# inputs (text / image / text+image) into an ExpenseCandidate WITHOUT creating
-# a real expense; persistence only happens when the user explicitly confirms
-# through +create+.
+# inputs (text / image / text+image / audio) into an ExpenseCandidate WITHOUT
+# creating a real expense; persistence only happens when the user explicitly
+# confirms through +create+.
 #
 # Every processing execution is recorded as an ExpensePlaygroundRun (without
 # raw image payloads) so the history survives sessions and future evaluation
@@ -86,9 +86,9 @@ class ExpensePlaygroundController < ApplicationController
   end
 
   # Raw channel params. Adapters turn these into an ExpensePlayground::Input;
-  # image payloads are used in-memory only and never persisted.
+  # image and audio payloads are used in-memory only and never persisted.
   def input_params
-    params.permit(:text, :image_data, metadata: {})
+    params.permit(:text, :image_data, :audio_data, :filename, metadata: {})
   end
 
   def expected_params

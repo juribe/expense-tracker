@@ -33,8 +33,8 @@ module ExpensePlayground
 
       private
 
-      def build_input(text: nil, image_data: nil, metadata: {})
-        Input.new(type: self.class::TYPE, text: text, image_data: image_data, metadata: metadata)
+      def build_input(text: nil, image_data: nil, audio_data: nil, metadata: {})
+        Input.new(type: self.class::TYPE, text: text, image_data: image_data, audio_data: audio_data, metadata: metadata)
       end
     end
 
@@ -59,6 +59,17 @@ module ExpensePlayground
 
       def call(params)
         build_input(text: params[:text], image_data: params[:image_data], metadata: params[:metadata] || {})
+      end
+    end
+
+    # Audio notes become text through SpeechToText before reaching the
+    # pipeline, so this adapter only carries the payload + its label.
+    class AudioAdapter < Base
+      TYPE = "audio"
+
+      def call(params)
+        metadata = (params[:metadata] || {}).merge(filename: params[:filename].to_s)
+        build_input(text: params[:text], audio_data: params[:audio_data], metadata: metadata)
       end
     end
 
@@ -102,3 +113,4 @@ end
 ExpensePlayground::Adapters::Registry.register("text", ExpensePlayground::Adapters::TextAdapter)
 ExpensePlayground::Adapters::Registry.register("image", ExpensePlayground::Adapters::ImageAdapter)
 ExpensePlayground::Adapters::Registry.register("text_image", ExpensePlayground::Adapters::TextImageAdapter)
+ExpensePlayground::Adapters::Registry.register("audio", ExpensePlayground::Adapters::AudioAdapter)

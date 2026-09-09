@@ -22,6 +22,9 @@
             <button type="button" class="btn btn-outline-primary" data-pg-tab="text_image" data-testid="tab-text-image">
               <i class="bi bi-files me-1" aria-hidden="true"></i><%= t("playground.tab_text_image") %>
             </button>
+            <button type="button" class="btn btn-outline-primary" data-pg-tab="audio" data-testid="tab-audio">
+              <i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.tab_audio") %>
+            </button>
           </div>
 
           <form id="pgForm" data-turbo="false"
@@ -76,6 +79,27 @@
 
             <div id="pgTextImageHint" class="alert alert-info py-2 small d-none" data-testid="text-image-hint">
               <i class="bi bi-info-circle me-1" aria-hidden="true"></i><%= t("playground.text_image_hint") %>
+            </div>
+
+            <!-- audio input (audio tab) -->
+            <div id="pgAudioPanel" class="mb-3 d-none" data-testid="panel-audio">
+              <div id="pgAudioDropzone" class="pg-dropzone text-center" role="button" tabindex="0"
+                   aria-label="<%= t('playground.audio_upload_label') %>" data-testid="playground-audio-dropzone">
+                <i class="bi bi-mic fs-3 d-block mb-1" aria-hidden="true"></i>
+                <span id="pgAudioDropzoneLabel"><%= t("playground.audio_upload_label") %></span>
+                <div class="small text-muted"><%= t("playground.audio_upload_hint") %></div>
+              </div>
+              <input type="file" id="pgAudioInput" class="d-none" accept="audio/*" data-testid="playground-audio-input">
+              <div id="pgAudioPreviewWrap" class="mt-2 d-none">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="small fw-semibold text-truncate" id="pgAudioName" data-testid="playground-audio-name"></span>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="pgRemoveAudio" data-testid="playground-remove-audio">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
+                  </button>
+                </div>
+                <audio id="pgAudioPreview" controls class="w-100" data-testid="playground-audio-preview"></audio>
+                <div class="small text-muted mt-1" id="pgAudioMeta" data-testid="playground-audio-meta"></div>
+              </div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100" id="pgProcessButton" data-testid="playground-process-button">
@@ -144,6 +168,30 @@
 
           <div id="pgResultErrors" class="alert alert-danger d-none" role="alert" data-testid="playground-result-errors"></div>
           <div id="pgResultWarnings" class="alert alert-warning d-none" role="alert" data-testid="playground-result-warnings"></div>
+
+          <!-- transcript (audio inputs only) -->
+          <div id="pgTranscript" class="border rounded p-2 bg-light mb-3 d-none" data-testid="playground-transcript">
+            <div class="small fw-semibold text-muted mb-1">
+              <i class="bi bi-chat-square-text me-1" aria-hidden="true"></i><%= t("playground.transcript_title") %>
+            </div>
+            <div id="pgTranscriptText" data-testid="playground-transcript-text"></div>
+          </div>
+
+          <!-- speech-to-text metadata (audio inputs only) -->
+          <div id="pgSttMeta" class="d-none mb-3" data-testid="playground-stt-meta">
+            <hr class="mt-2 mb-2">
+            <h3 class="h6 mb-2"><i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.stt_title") %></h3>
+            <dl class="row mb-0">
+              <dt class="col-5 small text-muted"><%= t("playground.provider") %></dt>
+              <dd class="col-7" id="pgSttProvider" data-testid="stt-provider"></dd>
+              <dt class="col-5 small text-muted"><%= t("playground.model") %></dt>
+              <dd class="col-7" id="pgSttModel" data-testid="stt-model"></dd>
+              <dt class="col-5 small text-muted"><%= t("playground.language") %></dt>
+              <dd class="col-7" id="pgSttLanguage" data-testid="stt-language"></dd>
+              <dt class="col-5 small text-muted"><%= t("playground.duration") %></dt>
+              <dd class="col-7" id="pgSttDuration" data-testid="stt-duration"></dd>
+            </dl>
+          </div>
 
           <dl class="row mb-0" data-testid="detected-expense">
             <dt class="col-5 small text-muted"><%= t("playground.amount") %></dt>
@@ -299,7 +347,11 @@ function initializePlayground() {
     tabText: <%= raw(t("playground.tab_text").to_json) %>,
     tabImage: <%= raw(t("playground.tab_image").to_json) %>,
     tabTextImage: <%= raw(t("playground.tab_text_image").to_json) %>,
+    tabAudio: <%= raw(t("playground.tab_audio").to_json) %>,
+    changeAudio: <%= raw(t("playground.audio_upload_change").to_json) %>,
+    audioSeconds: <%= raw(t("playground.audio_seconds").to_json) %>,
     stepInput: <%= raw(t("playground.step_input").to_json) %>,
+    stepStt: <%= raw(t("playground.step_stt").to_json) %>,
     stepOcr: <%= raw(t("playground.step_ocr").to_json) %>,
     stepExtraction: <%= raw(t("playground.step_extraction").to_json) %>,
     stepNormalization: <%= raw(t("playground.step_normalization").to_json) %>,
@@ -315,8 +367,9 @@ function initializePlayground() {
 
   var HISTORY_KEY = "expense_playground_history_v1";
   var MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+  var MAX_AUDIO_BYTES = 15 * 1024 * 1024;
 
-  var state = { type: "text", imageData: null, imageName: null, lastResult: null, lastSteps: null };
+  var state = { type: "text", imageData: null, imageName: null, audioData: null, audioName: null, lastResult: null, lastSteps: null };
 
   var form = $("#pgForm");
   if (!form || form.dataset.pgInitialized === "true") return;
@@ -325,6 +378,8 @@ function initializePlayground() {
   var textarea = $("#pgText");
   var dropzone = $("#pgDropzone");
   var fileInput = $("#pgFileInput");
+  var audioDropzone = $("#pgAudioDropzone");
+  var audioInput = $("#pgAudioInput");
   var processButton = $("#pgProcessButton");
 
   function csrfToken() {
@@ -363,10 +418,13 @@ function initializePlayground() {
     });
     var showText = type === "text" || type === "text_image";
     var showImage = type === "image" || type === "text_image";
+    var showAudio = type === "audio";
     $("#pgTextPanel").classList.toggle("d-none", !showText);
     $("#pgImagePanel").classList.toggle("d-none", !showImage);
+    $("#pgAudioPanel").classList.toggle("d-none", !showAudio);
     $("#pgTextImageHint").classList.toggle("d-none", type !== "text_image");
     if (type === "image") textarea.value = "";
+    if (showAudio) textarea.value = "";
   }
 
   document.querySelectorAll("[data-pg-tab]").forEach(function (button) {
@@ -434,6 +492,73 @@ function initializePlayground() {
   });
   $("#pgRemoveImage").addEventListener("click", clearImage);
 
+  // ----------------------------------------------------------------- audio
+
+  function audioExtension(name) {
+    var match = (name || "").toLowerCase().match(/\.([a-z0-9]+)$/);
+    return match ? match[1] : "";
+  }
+
+  function showAudio(dataUrl, name, file) {
+    state.audioData = dataUrl;
+    state.audioName = name;
+    $("#pgAudioPreview").src = dataUrl;
+    $("#pgAudioName").textContent = name || "";
+    $("#pgAudioPreviewWrap").classList.remove("d-none");
+    $("#pgAudioDropzoneLabel").textContent = T.changeAudio || "";
+    audioDropzone.classList.add("pg-dropzone-filled");
+    var player = $("#pgAudioPreview");
+    player.onloadedmetadata = function () {
+      var seconds = player.duration;
+      $("#pgAudioMeta").textContent = isFinite(seconds) && seconds > 0
+        ? (T.audioSeconds || "%{seconds} s").replace("%{seconds}", seconds.toFixed(1))
+        : "";
+    };
+  }
+
+  function clearAudio() {
+    state.audioData = null;
+    state.audioName = null;
+    audioInput.value = "";
+    $("#pgAudioPreview").removeAttribute("src");
+    $("#pgAudioPreviewWrap").classList.add("d-none");
+    $("#pgAudioMeta").textContent = "";
+    $("#pgAudioDropzoneLabel").textContent = <%= raw(t("playground.audio_upload_label").to_json) %>;
+    audioDropzone.classList.remove("pg-dropzone-filled");
+  }
+
+  function acceptAudio(file) {
+    if (!file) return;
+    var type = file.type || "";
+    if (!/^audio\//.test(type) && [ "ogg", "opus", "m4a", "mp3", "wav", "webm" ].indexOf(audioExtension(file.name)) === -1) {
+      showError("Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM.");
+      return;
+    }
+    if (file.size > MAX_AUDIO_BYTES) {
+      showError("Audio is too large (max 15 MB).");
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () { showAudio(reader.result, file.name, file); };
+    reader.readAsDataURL(file);
+  }
+
+  audioDropzone.addEventListener("click", function () { audioInput.click(); });
+  audioDropzone.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); audioInput.click(); }
+  });
+  audioInput.addEventListener("change", function () { acceptAudio(audioInput.files[0]); });
+  ["dragover", "dragenter"].forEach(function (event) {
+    audioDropzone.addEventListener(event, function (e) { e.preventDefault(); audioDropzone.classList.add("pg-dropzone-over"); });
+  });
+  ["dragleave", "drop"].forEach(function (event) {
+    audioDropzone.addEventListener(event, function (e) { e.preventDefault(); audioDropzone.classList.remove("pg-dropzone-over"); });
+  });
+  audioDropzone.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files.length) acceptAudio(e.dataTransfer.files[0]);
+  });
+  $("#pgRemoveAudio").addEventListener("click", clearAudio);
+
   // -------------------------------------------------------------- processing
 
   function setLoading(button, spinner, icon, label, busy, busyText, idleText) {
@@ -452,14 +577,15 @@ function initializePlayground() {
   }
 
   function currentTypeLabel() {
-    return { text: T.tabText, image: T.tabImage, text_image: T.tabTextImage }[state.type] || state.type;
+    return { text: T.tabText, image: T.tabImage, text_image: T.tabTextImage, audio: T.tabAudio }[state.type] || state.type;
   }
 
   function processInput() {
     var type = state.type;
-    var text = type === "image" ? "" : textarea.value.trim();
-    if (type !== "image" && !text) { textarea.focus(); return; }
-    if (type !== "text" && !state.imageData) { dropzone.focus(); return; }
+    var text = type === "image" || type === "audio" ? "" : textarea.value.trim();
+    if ((type === "text" || type === "text_image") && !text) { textarea.focus(); return; }
+    if (type !== "text" && !state.imageData && (type !== "audio" || !state.audioData)) { dropzone.focus(); return; }
+    if (type === "audio" && !state.audioData) { audioDropzone.focus(); return; }
 
     setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
       true, T.processing, T.process);
@@ -472,7 +598,10 @@ function initializePlayground() {
         type: type,
         text: text,
         image_data: type === "text" ? null : state.imageData,
-        input_label: type === "image" ? (state.imageName || "image") : text,
+        audio_data: type === "audio" ? state.audioData : null,
+        filename: type === "audio" ? (state.audioName || "audio") : null,
+        input_label: type === "image" ? (state.imageName || "image")
+          : type === "audio" ? (state.audioName || "audio") : text,
         expected: collectExpected()
       })
     }).then(function (response) {
@@ -491,6 +620,7 @@ function initializePlayground() {
   function handleProcessResult(ok, data) {
     state.lastResult = data;
     state.lastSteps = data.steps;
+    renderSttSummary(data.steps);
     renderSteps(data);
     renderEvaluation(data.evaluation);
     $("#pgDebug").classList.remove("d-none");
@@ -517,7 +647,8 @@ function initializePlayground() {
       id: data.run_id,
       ts: Date.now(),
       type: state.type,
-      label: state.type === "image" ? (state.imageName || "image") : textarea.value.trim(),
+      label: state.type === "image" ? (state.imageName || "image")
+        : state.type === "audio" ? (state.audioName || "audio") : textarea.value.trim(),
       candidate: data.candidate,
       steps: data.steps,
       ok: ok,
@@ -570,6 +701,27 @@ function initializePlayground() {
       body.appendChild(row);
     });
     wrap.classList.remove("d-none");
+  }
+
+  // ----------------------------------------------------- transcript / stt meta
+
+  function renderSttSummary(steps) {
+    var stt = steps && steps.stt;
+    var hasTranscript = stt && stt.applicable && stt.text;
+    var wrap = $("#pgTranscript");
+    wrap.classList.toggle("d-none", !hasTranscript);
+    if (hasTranscript) $("#pgTranscriptText").textContent = stt.text;
+
+    var meta = $("#pgSttMeta");
+    var hasMeta = stt && stt.applicable && (stt.provider || stt.error);
+    meta.classList.toggle("d-none", !hasMeta);
+    if (!hasMeta) return;
+    $("#pgSttProvider").textContent = stt.provider ? stt.provider.charAt(0).toUpperCase() + stt.provider.slice(1) : "—";
+    $("#pgSttModel").textContent = stt.model || "—";
+    $("#pgSttLanguage").textContent = stt.language || "—";
+    $("#pgSttDuration").textContent = stt.duration != null
+      ? (T.audioSeconds || "%{seconds} s").replace("%{seconds}", Number(stt.duration).toFixed(1))
+      : "—";
   }
 
   // ----------------------------------------------------------------- result
@@ -767,6 +919,25 @@ function initializePlayground() {
     container.appendChild(ocr);
     container.appendChild(arrow());
 
+    var stt = stepSection(T.stepStt);
+    if (steps.stt && steps.stt.applicable) {
+      if (steps.stt.error) {
+        stt.appendChild(pre(steps.stt.error));
+      } else {
+        var sttEl = document.createElement("div");
+        sttEl.innerHTML =
+          debugRow("provider:", steps.stt.provider || "—") + debugRow("model:", steps.stt.model || "—") +
+          debugRow("language:", steps.stt.language || "—") +
+          debugRow("duration:", steps.stt.duration == null ? "—" : steps.stt.duration);
+        stt.appendChild(sttEl);
+        stt.appendChild(pre(steps.stt.text || ""));
+      }
+    } else {
+      stt.appendChild(pre(T.ocrNotApplicable));
+    }
+    container.appendChild(stt);
+    container.appendChild(arrow());
+
     var extraction = stepSection(T.stepExtraction);
     var raw = steps.extraction && steps.extraction.raw;
     extraction.appendChild(pre(steps.extraction && steps.extraction.engine ? T.engineLabel + ": " + steps.extraction.engine : ""));
@@ -870,6 +1041,7 @@ function initializePlayground() {
     state.lastSteps = entry.steps;
     state.lastResult = entry;
     $("#pgDebug").classList.remove("d-none");
+    renderSttSummary(entry.steps);
     renderSteps({ steps: entry.steps, engine: null, duration_ms: null, ok: entry.ok });
     if (entry.candidate) {
       $("#pgResultErrors").classList.add("d-none");

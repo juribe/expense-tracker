@@ -13210,7 +13210,7 @@
       "file_type": "code",
       "norm_label": ".available?()",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L46"
+      "source_location": "L48"
     },
     {
       "id": "app_services_ocr_local_reader_ocr_localreader_call",
@@ -13222,7 +13222,7 @@
       "file_type": "code",
       "norm_label": ".call()",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L26"
+      "source_location": "L28"
     },
     {
       "id": "app_services_ocr_local_reader_ocr_localreader_decoded",
@@ -13234,7 +13234,7 @@
       "file_type": "code",
       "norm_label": ".decoded()",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L66"
+      "source_location": "L68"
     },
     {
       "id": "app_services_ocr_local_reader_ocr_localreader_extension",
@@ -13246,7 +13246,7 @@
       "file_type": "code",
       "norm_label": ".extension()",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L74"
+      "source_location": "L76"
     },
     {
       "id": "app_services_ocr_local_reader_ocr_localreader_initialize",
@@ -13258,7 +13258,7 @@
       "file_type": "code",
       "norm_label": ".initialize()",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L30"
+      "source_location": "L32"
     },
     {
       "id": "app_services_ocr_local_reader_ocr_localreader_read_text",
@@ -13270,7 +13270,7 @@
       "file_type": "code",
       "norm_label": ".read_text()",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L56"
+      "source_location": "L58"
     },
     {
       "id": "test_services_expense_playground_money_source_detection_test_expenseplayground_moneysourcedetectiontest_stub_vision",
@@ -31616,7 +31616,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L35",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -31628,7 +31628,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -49707,7 +49707,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -49718,7 +49718,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L34",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -49729,7 +49729,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L50",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -49740,7 +49740,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L56",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -49751,7 +49751,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L66",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -49762,7 +49762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ocr/local_reader.rb",
-      "source_location": "L74",
+      "source_location": "L76",
       "weight": 1.0
     },
     {

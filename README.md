@@ -72,3 +72,15 @@ a worker with:
 ```sh
 bin/rails solid_queue:start
 ```
+
+### Local Speech-to-Text (faster-whisper)
+
+Audio notes in the Expense Playground are transcribed LOCALLY with
+[faster-whisper](https://github.com/SYSTRAN/faster-whisper) and FFmpeg — the
+audio never leaves the machine. Setup and configuration are documented in
+[docs/speech_to_text.md](docs/speech_to_text.md); quick verification:
+
+```sh
+ffmpeg -version
+whisper-env/bin/python -c "from faster_whisper import WhisperModel; print('faster-whisper OK')"
+```

@@ -3,18 +3,23 @@
 module ExpensePlayground
   # Orchestrates the full ingestion pipeline for any normalized Input:
   #
-  #   Input → OCR (local Tesseract; vision model as fallback when
-  #           applicable) → AI Extraction → Normalization → Validation →
-  #   ExpenseCandidate
+  #   Input → Speech-to-Text (audio only) → OCR (local Tesseract; vision model
+  #           as fallback when applicable) → AI Extraction → Normalization →
+  #   Validation → ExpenseCandidate
+  #
+  # Audio is just another way of producing text: its transcript reuses the
+  # same ExpenseParser as typed text, and there is no separate audio
+  # extraction path.
   #
   # It NEVER persists anything. The Playground (and future channels such as
   # WhatsApp/voice/email) receives a Result with the candidate plus every
   # pipeline stage recorded for debugging.
   #
   #   result = ExpensePlayground::ProcessingService.call(user: user, input: input)
-  #   result.ok?           # => true
-  #   result.candidate     # => ExpenseCandidate
-  #   result.steps[:ocr]   # => { applicable: false } | { applicable: true, text: ..., engine: ... }
+  #   result.ok?             # => true
+  #   result.candidate       # => ExpenseCandidate
+  #   result.steps[:stt]     # => { applicable: false } | { provider: ..., text: ... }
+  #   result.steps[:ocr]     # => { applicable: false } | { applicable: true, text: ..., engine: ... }
   class ProcessingService
     class << self
       def call(user:, input:)
@@ -46,7 +51,8 @@ module ExpensePlayground
       end
 
       ocr = run_ocr
-      extracted, engine = run_extraction(ocr)
+      transcript = run_speech_to_text
+      extracted, engine = run_extraction(ocr, transcript)
       return build_result(nil, engine, started) if extracted.nil?
 
       candidate = normalize(extracted)
@@ -63,8 +69,66 @@ module ExpensePlayground
       @steps[:input] = {
         type: @input.type,
         text: @input.text,
-        image: @input.image? ? "(image attached, #{@input.image_mime_type})" : nil
+        image: @input.image? ? "(image attached, #{@input.image_mime_type})" : nil,
+        audio: @input.audio? ? "(audio attached, #{@input.audio_extension}, #{@input.filename})" : nil
       }
+    end
+
+    # Speech-to-Text is only applicable when audio is part of the input. It
+    # runs LOCALLY (provider from configuration, Whisper by default) and the
+    # audio never leaves the machine. Failures become friendly pipeline
+    # errors; they never abort with a provider stack trace.
+    def run_speech_to_text
+      unless @input.audio?
+        @steps[:stt] = { applicable: false }
+        return nil
+      end
+
+      result = SpeechToText.transcribe(audio_data: @input.audio_data, filename: @input.filename)
+      @steps[:stt] = {
+        applicable: true,
+        provider: result.provider,
+        model: result.model,
+        language: result.language,
+        language_probability: result.language_probability,
+        duration: result.duration,
+        text: result.text
+      }
+      if result.empty_transcript?
+        @errors << "Speech-to-text produced an empty transcript. The audio may be silent or too short."
+        return nil
+      end
+      result.text
+    rescue SpeechToText::Error => e
+      @steps[:stt] = { applicable: true, provider: SpeechToText.provider_name, error: e.message }
+      @errors << e.message
+      nil
+    end
+
+    def run_extraction(ocr_text, transcript)
+      if @input.audio?
+        extract_from_transcript(transcript)
+      elsif @input.image?
+        ocr_text.present? ? extract_from_ocr_text(ocr_text) : extract_from_image
+      else
+        extract_from_text
+      end
+    end
+
+    # Voice-note pipeline: the transcript is parsed together with the user's
+    # optional note (explicit intent such as "pagado con nequi") through the
+    # same ExpenseParser used for plain text inputs.
+    def extract_from_transcript(transcript)
+      if transcript.blank?
+        @errors << "Could not extract an expense because no transcript was generated." if @errors.empty?
+        return [ nil, nil ]
+      end
+
+      parse_into_entry(
+        [ @input.text, transcript ].reject(&:blank?).join("\n"),
+        context: "This text was transcribed from a voice note by local speech-to-text. " \
+                 "Extract the expense exactly as spoken."
+      )
     end
 
     # OCR is only applicable when an image is part of the input. It runs
@@ -84,14 +148,6 @@ module ExpensePlayground
       else
         @steps[:ocr] = { applicable: true, pending: true }
         nil
-      end
-    end
-
-    def run_extraction(ocr_text)
-      if @input.image?
-        ocr_text.present? ? extract_from_ocr_text(ocr_text) : extract_from_image
-      else
-        extract_from_text
       end
     end
 
