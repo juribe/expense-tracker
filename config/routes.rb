@@ -13,12 +13,6 @@ Rails.application.routes.draw do
     get "users/sign_out", to: "devise/sessions#destroy", as: :user_session_sign_out_get
   end
 
-  # QA Validation routes
-  get 'qa/validate', to: 'qa_validate_dashboard_reports#index'
-  get 'qa/validate/dashboard', to: 'qa_validate_dashboard_reports#dashboard'
-  get 'qa/validate/reports', to: 'qa_validate_dashboard_reports#reports'
-  get 'qa/validate/run_all', to: 'qa_validate_dashboard_reports#run_all'
-
   # Resources
   resources :expenses do
     collection do
