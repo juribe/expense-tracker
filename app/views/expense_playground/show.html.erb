@@ -1,0 +1,918 @@
+<div class="container py-4" data-testid="playground-page">
+  <div class="d-flex align-items-center mb-4">
+    <i class="bi bi-controller display-6 me-3" aria-hidden="true"></i>
+    <div>
+      <h1 class="h3 mb-0" data-testid="playground-title"><%= t("playground.title") %></h1>
+      <p class="text-muted mb-0"><%= t("playground.subtitle") %></p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- ------------------------------------------------------- input column -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm" data-testid="playground-input-card">
+        <div class="card-body">
+          <div class="btn-group w-100 mb-3" role="group" aria-label="<%= t('playground.title') %>" data-testid="playground-tabs">
+            <button type="button" class="btn btn-outline-primary active" data-pg-tab="text" data-testid="tab-text">
+              <i class="bi bi-fonts me-1" aria-hidden="true"></i><%= t("playground.tab_text") %>
+            </button>
+            <button type="button" class="btn btn-outline-primary" data-pg-tab="image" data-testid="tab-image">
+              <i class="bi bi-image me-1" aria-hidden="true"></i><%= t("playground.tab_image") %>
+            </button>
+            <button type="button" class="btn btn-outline-primary" data-pg-tab="text_image" data-testid="tab-text-image">
+              <i class="bi bi-files me-1" aria-hidden="true"></i><%= t("playground.tab_text_image") %>
+            </button>
+          </div>
+
+          <form id="pgForm" data-turbo="false"
+                data-process-url="<%= expense_playground_process_path(format: :json) %>"
+                data-create-url="<%= expense_playground_create_path(format: :json) %>"
+                data-history-url="<%= expense_playground_history_path(format: :json) %>">
+            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+            <!-- text input (text / text+image tabs) -->
+            <div id="pgTextPanel" class="mb-3" data-testid="panel-text">
+              <label class="form-label small fw-semibold" for="pgText"><%= t("playground.text_label") %></label>
+              <textarea id="pgText" name="text" class="form-control" rows="4"
+                        placeholder="<%= t('playground.text_placeholder') %>"
+                        data-testid="playground-text-input"></textarea>
+
+              <div class="mt-2">
+                <div class="small fw-semibold text-muted mb-1"><%= t("playground.examples_title") %></div>
+                <div class="d-flex flex-wrap gap-1" data-testid="playground-examples">
+                  <% [
+                    "Me gasté 50mil en almuerzos",
+                    "Compré gasolina por 120.000",
+                    "Netflix 29.900",
+                    "Almuerzo con el equipo 85 mil"
+                  ].each do |example| %>
+                    <button type="button" class="btn btn-sm btn-outline-secondary pg-example" data-example="<%= example %>">
+                      "<%= example %>"
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <!-- image input (image / text+image tabs) -->
+            <div id="pgImagePanel" class="mb-3 d-none" data-testid="panel-image">
+              <div id="pgDropzone" class="pg-dropzone text-center" role="button" tabindex="0"
+                   aria-label="<%= t('playground.upload_label') %>" data-testid="playground-dropzone">
+                <i class="bi bi-cloud-arrow-up fs-3 d-block mb-1" aria-hidden="true"></i>
+                <span id="pgDropzoneLabel"><%= t("playground.upload_label") %></span>
+                <div class="small text-muted"><%= t("playground.upload_hint") %></div>
+              </div>
+              <input type="file" id="pgFileInput" class="d-none" accept="image/jpeg,image/png,image/webp,image/gif" data-testid="playground-file-input">
+              <div id="pgImagePreviewWrap" class="mt-2 d-none">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="small fw-semibold text-truncate" id="pgImageName"></span>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="pgRemoveImage" data-testid="playground-remove-image">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
+                  </button>
+                </div>
+                <img id="pgImagePreview" class="img-fluid rounded border pg-image-preview" alt="Receipt preview" data-testid="playground-image-preview">
+              </div>
+            </div>
+
+            <div id="pgTextImageHint" class="alert alert-info py-2 small d-none" data-testid="text-image-hint">
+              <i class="bi bi-info-circle me-1" aria-hidden="true"></i><%= t("playground.text_image_hint") %>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="pgProcessButton" data-testid="playground-process-button">
+              <span class="spinner-border spinner-border-sm d-none me-1" id="pgProcessSpinner" aria-hidden="true"></span>
+              <i class="bi bi-lightning-charge me-1 pg-process-icon" aria-hidden="true"></i>
+              <span id="pgProcessLabel"><%= t("playground.process") %></span>
+            </button>
+
+            <!-- expected result / evaluation harness (optional) -->
+            <div class="mt-3">
+              <button class="btn btn-sm btn-link text-decoration-none px-0 small text-muted" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#pgExpectedCollapse"
+                      aria-expanded="false" aria-controls="pgExpectedCollapse" data-testid="playground-expected-toggle">
+                <i class="bi bi-bullseye me-1" aria-hidden="true"></i><%= t("playground.expected_title") %>
+              </button>
+              <div id="pgExpectedCollapse" class="collapse">
+                <div class="border rounded p-2 bg-light">
+                  <p class="small text-muted mb-2"><%= t("playground.expected_hint") %></p>
+                  <div class="row g-2" data-testid="playground-expected-form">
+                    <div class="col-6">
+                      <label class="form-label small mb-1" for="pgExpectedAmount"><%= t("playground.expected_amount") %></label>
+                      <input type="text" class="form-control form-control-sm" id="pgExpectedAmount" placeholder="50000" data-testid="expected-amount">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small mb-1" for="pgExpectedCategory"><%= t("playground.expected_category") %></label>
+                      <input type="text" class="form-control form-control-sm" id="pgExpectedCategory" placeholder="food" data-testid="expected-category">
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small mb-1" for="pgExpectedDescription"><%= t("playground.expected_description") %></label>
+                      <input type="text" class="form-control form-control-sm" id="pgExpectedDescription" placeholder="almuerzos" data-testid="expected-description">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small mb-1" for="pgExpectedDate"><%= t("playground.expected_date") %></label>
+                      <input type="date" class="form-control form-control-sm" id="pgExpectedDate" data-testid="expected-date">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small mb-1" for="pgExpectedSource"><%= t("playground.expected_source") %></label>
+                      <input type="text" class="form-control form-control-sm" id="pgExpectedSource" list="pgSourceList" placeholder="nequi" data-testid="expected-source">
+                      <datalist id="pgSourceList">
+                        <% (@money_sources || []).each do |source| %>
+                          <option value="<%= source.name %>"></option>
+                        <% end %>
+                      </datalist>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------ result column -->
+    <div class="col-lg-6">
+      <div id="pgResultEmpty" class="card shadow-sm" data-testid="playground-empty">
+        <div class="card-body text-center text-muted py-5">
+          <i class="bi bi-inbox fs-2 d-block mb-2" aria-hidden="true"></i>
+          <%= t("playground.no_result") %>
+        </div>
+      </div>
+
+      <div id="pgResult" class="card shadow-sm d-none" data-testid="playground-result">
+        <div class="card-body">
+          <h2 class="h5 mb-3"><i class="bi bi-receipt me-2" aria-hidden="true"></i><%= t("playground.result_title") %></h2>
+
+          <div id="pgResultErrors" class="alert alert-danger d-none" role="alert" data-testid="playground-result-errors"></div>
+          <div id="pgResultWarnings" class="alert alert-warning d-none" role="alert" data-testid="playground-result-warnings"></div>
+
+          <dl class="row mb-0" data-testid="detected-expense">
+            <dt class="col-5 small text-muted"><%= t("playground.amount") %></dt>
+            <dd class="col-7 fw-semibold" id="pgSumAmount" data-testid="detected-amount"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.category") %></dt>
+            <dd class="col-7" id="pgSumCategory" data-testid="detected-category"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.description") %></dt>
+            <dd class="col-7" id="pgSumDescription" data-testid="detected-description"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.date") %></dt>
+            <dd class="col-7" id="pgSumDate" data-testid="detected-date"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.source") %></dt>
+            <dd class="col-7" id="pgSumSource" data-testid="detected-source"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.merchant") %></dt>
+            <dd class="col-7" id="pgSumMerchant" data-testid="detected-merchant"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.confidence") %></dt>
+            <dd class="col-7" id="pgSumConfidence" data-testid="detected-confidence"></dd>
+          </dl>
+
+          <div id="pgEvaluation" class="mt-3 d-none" data-testid="playground-evaluation">
+            <hr class="mt-2 mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h3 class="h6 mb-0"><i class="bi bi-bullseye me-1" aria-hidden="true"></i><%= t("playground.evaluation_title") %></h3>
+              <span class="badge bg-success" id="pgEvaluationScore" data-testid="evaluation-score"></span>
+            </div>
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th class="small text-muted"><%= t("playground.evaluation_field") %></th>
+                  <th class="small text-muted"><%= t("playground.evaluation_expected") %></th>
+                  <th class="small text-muted"><%= t("playground.evaluation_detected") %></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="pgEvaluationBody"></tbody>
+            </table>
+          </div>
+
+          <hr>
+          <h3 class="h6 mb-2"><%= t("playground.edit_title") %></h3>
+          <p class="small text-muted"><%= t("playground.edit_result_hint") %></p>
+
+          <div class="row g-2" data-testid="playground-edit-form">
+            <div class="col-6">
+              <label class="form-label small mb-1" for="pgEditAmount"><%= t("playground.amount") %></label>
+              <input type="number" min="0" step="any" class="form-control form-control-sm" id="pgEditAmount" data-testid="edit-amount">
+            </div>
+            <div class="col-6">
+              <label class="form-label small mb-1" for="pgEditCurrency"><%= t("playground.currency") %></label>
+              <input type="text" class="form-control form-control-sm" id="pgEditCurrency" data-testid="edit-currency">
+            </div>
+            <div class="col-12">
+              <label class="form-label small mb-1" for="pgEditCategory"><%= t("playground.category") %></label>
+              <select class="form-select form-select-sm" id="pgEditCategory" data-testid="edit-category"></select>
+            </div>
+            <div class="col-12">
+              <label class="form-label small mb-1" for="pgEditDescription"><%= t("playground.description") %></label>
+              <input type="text" class="form-control form-control-sm" id="pgEditDescription" data-testid="edit-description">
+            </div>
+            <div class="col-12">
+              <label class="form-label small mb-1" for="pgEditSource"><%= t("playground.source") %></label>
+              <select class="form-select form-select-sm" id="pgEditSource" data-testid="edit-source"></select>
+            </div>
+            <div class="col-6">
+              <label class="form-label small mb-1" for="pgEditMerchant"><%= t("playground.merchant") %></label>
+              <input type="text" class="form-control form-control-sm" id="pgEditMerchant" data-testid="edit-merchant">
+            </div>
+            <div class="col-6">
+              <label class="form-label small mb-1" for="pgEditDate"><%= t("playground.date") %></label>
+              <input type="date" class="form-control form-control-sm" id="pgEditDate" data-testid="edit-date">
+            </div>
+          </div>
+
+          <div id="pgSuccess" class="alert alert-success mt-3 d-none" role="alert" data-testid="playground-success">
+            <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
+            <span id="pgSuccessText"></span>
+            <a href="<%= expenses_path %>" class="alert-link ms-1"><%= t("playground.view_expenses") %></a>
+          </div>
+
+          <button type="button" class="btn btn-success w-100 mt-3" id="pgCreateButton" data-testid="playground-create-button">
+            <span class="spinner-border spinner-border-sm d-none me-1" id="pgCreateSpinner" aria-hidden="true"></span>
+            <i class="bi bi-plus-circle me-1 pg-create-icon" aria-hidden="true"></i>
+            <span id="pgCreateLabel"><%= t("playground.create_expense") %></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ------------------------------------------------------ debug / pipeline -->
+  <div id="pgDebug" class="card shadow-sm mt-4 d-none" data-testid="playground-debug">
+    <div class="card-header bg-transparent" id="pgDebugHeader">
+      <button class="btn btn-sm btn-link text-decoration-none px-0 fw-semibold" type="button"
+              data-bs-toggle="collapse" data-bs-target="#pgDebugCollapse"
+              aria-expanded="true" aria-controls="pgDebugCollapse" data-testid="playground-debug-toggle">
+        <i class="bi bi-bug me-1" aria-hidden="true"></i><%= t("playground.processing_details") %>
+        <span class="text-muted small ms-2" id="pgDebugMeta"></span>
+      </button>
+    </div>
+    <div id="pgDebugCollapse" class="collapse show" aria-labelledby="pgDebugHeader">
+      <div class="card-body" id="pgSteps" data-testid="playground-steps"></div>
+    </div>
+  </div>
+
+  <!-- -------------------------------------------------------------- history -->
+  <div class="card shadow-sm mt-4" data-testid="playground-history">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+      <h2 class="h6 mb-0"><i class="bi bi-clock-history me-2" aria-hidden="true"></i><%= t("playground.history_title") %></h2>
+      <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="pgClearHistory" data-testid="playground-clear-history">
+        <%= t("playground.history_clear") %>
+      </button>
+    </div>
+    <div class="card-body py-2">
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="small text-muted"><%= t("playground.col_date") %></th>
+              <th class="small text-muted"><%= t("playground.col_input") %></th>
+              <th class="small text-muted"><%= t("playground.col_type") %></th>
+              <th class="small text-muted"><%= t("playground.col_result") %></th>
+              <th class="small text-muted text-end"><%= t("playground.col_confidence") %></th>
+            </tr>
+          </thead>
+          <tbody id="pgHistoryBody" data-testid="playground-history-body"></tbody>
+        </table>
+      </div>
+      <p class="text-muted small mb-0 d-none" id="pgHistoryEmpty" data-testid="playground-history-empty">
+        <%= t("playground.history_empty") %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+function initializePlayground() {
+  var $ = function (sel) { return document.querySelector(sel); };
+
+  var CATEGORIES = <%= raw (@categories || []).map { |c| { id: c.id, name: c.name } }.to_json %>;
+  var MONEY_SOURCES = <%= raw (@money_sources || []).map { |s| { id: s.id, name: s.name, display_name: s.display_name } }.to_json %>;
+
+  var T = {
+    process: <%= raw(t("playground.process").to_json) %>,
+    processing: <%= raw(t("playground.processing").to_json) %>,
+    createExpense: <%= raw(t("playground.create_expense").to_json) %>,
+    creating: <%= raw(t("playground.creating").to_json) %>,
+    expenseCreated: <%= raw(t("playground.expense_created").to_json) %>,
+    ocrNotApplicable: <%= raw(t("playground.ocr_not_applicable").to_json) %>,
+    candidateReady: <%= raw(t("playground.candidate_ready").to_json) %>,
+    candidateInvalid: <%= raw(t("playground.candidate_invalid").to_json) %>,
+    engineLabel: <%= raw(t("playground.engine_label").to_json) %>,
+    durationLabel: <%= raw(t("playground.duration_label").to_json) %>,
+    changeImage: <%= raw(t("playground.upload_change").to_json) %>,
+    tabText: <%= raw(t("playground.tab_text").to_json) %>,
+    tabImage: <%= raw(t("playground.tab_image").to_json) %>,
+    tabTextImage: <%= raw(t("playground.tab_text_image").to_json) %>,
+    stepInput: <%= raw(t("playground.step_input").to_json) %>,
+    stepOcr: <%= raw(t("playground.step_ocr").to_json) %>,
+    stepExtraction: <%= raw(t("playground.step_extraction").to_json) %>,
+    stepNormalization: <%= raw(t("playground.step_normalization").to_json) %>,
+    stepValidation: <%= raw(t("playground.step_validation").to_json) %>,
+    stepCandidate: <%= raw(t("playground.step_candidate").to_json) %>,
+    errorsTitle: <%= raw(t("playground.errors_title").to_json) %>,
+    warningsTitle: <%= raw(t("playground.warnings_title").to_json) %>,
+    noMerchant: "—",
+    noSource: "—",
+    evaluationCorrect: <%= raw(t("playground.evaluation_correct").to_json) %>,
+    historyLoadFailed: <%= raw(t("playground.history_delete_failed").to_json) %>
+  };
+
+  var HISTORY_KEY = "expense_playground_history_v1";
+  var MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+
+  var state = { type: "text", imageData: null, imageName: null, lastResult: null, lastSteps: null };
+
+  var form = $("#pgForm");
+  if (!form || form.dataset.pgInitialized === "true") return;
+  form.dataset.pgInitialized = "true";
+
+  var textarea = $("#pgText");
+  var dropzone = $("#pgDropzone");
+  var fileInput = $("#pgFileInput");
+  var processButton = $("#pgProcessButton");
+
+  function csrfToken() {
+    return (document.querySelector('meta[name="csrf-token"]') || {}).content || "";
+  }
+
+  function money(value) {
+    var n = Number(value);
+    if (!isFinite(n)) n = 0;
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  function formatConfidence(value) {
+    if (value == null) return "—";
+    return Math.round(Number(value) * 100) + "%";
+  }
+
+  function formatDate(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  function escapeHtml(text) {
+    var div = document.createElement("div");
+    div.textContent = text == null ? "" : String(text);
+    return div.innerHTML;
+  }
+
+  // ----------------------------------------------------------------- tabs
+
+  function setTab(type) {
+    state.type = type;
+    document.querySelectorAll("[data-pg-tab]").forEach(function (button) {
+      button.classList.toggle("active", button.dataset.pgTab === type);
+    });
+    var showText = type === "text" || type === "text_image";
+    var showImage = type === "image" || type === "text_image";
+    $("#pgTextPanel").classList.toggle("d-none", !showText);
+    $("#pgImagePanel").classList.toggle("d-none", !showImage);
+    $("#pgTextImageHint").classList.toggle("d-none", type !== "text_image");
+    if (type === "image") textarea.value = "";
+  }
+
+  document.querySelectorAll("[data-pg-tab]").forEach(function (button) {
+    button.addEventListener("click", function () { setTab(button.dataset.pgTab); });
+  });
+
+  // -------------------------------------------------------------- examples
+
+  document.querySelectorAll(".pg-example").forEach(function (button) {
+    button.addEventListener("click", function () {
+      textarea.value = button.dataset.example;
+      textarea.focus();
+    });
+  });
+
+  // ----------------------------------------------------------------- image
+
+  function showImage(dataUrl, name) {
+    state.imageData = dataUrl;
+    state.imageName = name;
+    $("#pgImagePreview").src = dataUrl;
+    $("#pgImageName").textContent = name || "";
+    $("#pgImagePreviewWrap").classList.remove("d-none");
+    $("#pgDropzoneLabel").textContent = T.changeImage || "";
+    dropzone.classList.add("pg-dropzone-filled");
+  }
+
+  function clearImage() {
+    state.imageData = null;
+    state.imageName = null;
+    fileInput.value = "";
+    $("#pgImagePreviewWrap").classList.add("d-none");
+    $("#pgDropzoneLabel").textContent = <%= raw(t("playground.upload_label").to_json) %>;
+    dropzone.classList.remove("pg-dropzone-filled");
+  }
+
+  function acceptFile(file) {
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
+      showError("Unsupported image format. Use JPEG, PNG, WebP or GIF.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      showError("Image is too large (max 6 MB).");
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () { showImage(reader.result, file.name); };
+    reader.readAsDataURL(file);
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  dropzone.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); fileInput.click(); }
+  });
+  fileInput.addEventListener("change", function () { acceptFile(fileInput.files[0]); });
+  ["dragover", "dragenter"].forEach(function (event) {
+    dropzone.addEventListener(event, function (e) { e.preventDefault(); dropzone.classList.add("pg-dropzone-over"); });
+  });
+  ["dragleave", "drop"].forEach(function (event) {
+    dropzone.addEventListener(event, function (e) { e.preventDefault(); dropzone.classList.remove("pg-dropzone-over"); });
+  });
+  dropzone.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files.length) acceptFile(e.dataTransfer.files[0]);
+  });
+  $("#pgRemoveImage").addEventListener("click", clearImage);
+
+  // -------------------------------------------------------------- processing
+
+  function setLoading(button, spinner, icon, label, busy, busyText, idleText) {
+    button.disabled = busy;
+    spinner.classList.toggle("d-none", !busy);
+    icon.classList.toggle("d-none", busy);
+    label.textContent = busy ? busyText : idleText;
+  }
+
+  function showError(message) {
+    var error = $("#pgResultErrors");
+    error.textContent = message;
+    error.classList.remove("d-none");
+    $("#pgResult").classList.remove("d-none");
+    $("#pgResultEmpty").classList.add("d-none");
+  }
+
+  function currentTypeLabel() {
+    return { text: T.tabText, image: T.tabImage, text_image: T.tabTextImage }[state.type] || state.type;
+  }
+
+  function processInput() {
+    var type = state.type;
+    var text = type === "image" ? "" : textarea.value.trim();
+    if (type !== "image" && !text) { textarea.focus(); return; }
+    if (type !== "text" && !state.imageData) { dropzone.focus(); return; }
+
+    setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
+      true, T.processing, T.process);
+    $("#pgSuccess").classList.add("d-none");
+
+    fetch(form.dataset.processUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+      body: JSON.stringify({
+        type: type,
+        text: text,
+        image_data: type === "text" ? null : state.imageData,
+        input_label: type === "image" ? (state.imageName || "image") : text,
+        expected: collectExpected()
+      })
+    }).then(function (response) {
+      return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+    }).then(function (result) {
+      setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
+        false, T.processing, T.process);
+      handleProcessResult(result.ok, result.data);
+    }).catch(function () {
+      setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
+        false, T.processing, T.process);
+      showError("Processing failed. Please try again.");
+    });
+  }
+
+  function handleProcessResult(ok, data) {
+    state.lastResult = data;
+    state.lastSteps = data.steps;
+    renderSteps(data);
+    renderEvaluation(data.evaluation);
+    $("#pgDebug").classList.remove("d-none");
+
+    var errors = (data.errors || []).join(" ");
+    if (!data.candidate) {
+      showError(errors || "Could not extract an expense from this input.");
+      return;
+    }
+    if (errors) showError(errors); else $("#pgResultErrors").classList.add("d-none");
+    if (data.warnings && data.warnings.length) {
+      var warnings = $("#pgResultWarnings");
+      warnings.innerHTML = "<strong>" + escapeHtml(T.warningsTitle) + ":</strong> " + escapeHtml(data.warnings.join(" "));
+      warnings.classList.remove("d-none");
+    } else {
+      $("#pgResultWarnings").classList.add("d-none");
+    }
+
+    renderCandidate(data.candidate);
+    $("#pgResultEmpty").classList.add("d-none");
+    $("#pgResult").classList.remove("d-none");
+
+    addHistoryEntry({
+      id: data.run_id,
+      ts: Date.now(),
+      type: state.type,
+      label: state.type === "image" ? (state.imageName || "image") : textarea.value.trim(),
+      candidate: data.candidate,
+      steps: data.steps,
+      ok: ok,
+      confidence: data.candidate.confidence
+    });
+  }
+
+  // ------------------------------------------------------------- evaluation
+
+  function collectExpected() {
+    var expected = {};
+    var amount = $("#pgExpectedAmount").value.trim();
+    var category = $("#pgExpectedCategory").value.trim();
+    var description = $("#pgExpectedDescription").value.trim();
+    var date = $("#pgExpectedDate").value;
+    var source = $("#pgExpectedSource").value.trim();
+    if (amount) expected.amount = amount;
+    if (category) expected.category = category;
+    if (description) expected.description = description;
+    if (date) expected.date = date;
+    if (source) expected.source = source;
+    return Object.keys(expected).length ? expected : null;
+  }
+
+  function renderEvaluation(evaluation) {
+    var wrap = $("#pgEvaluation");
+    if (!evaluation || !evaluation.checks || !evaluation.checks.length) {
+      wrap.classList.add("d-none");
+      return;
+    }
+
+    var score = $("#pgEvaluationScore");
+    score.textContent = T.evaluationCorrect
+      .replace("%{passed}", evaluation.passed)
+      .replace("%{total}", evaluation.total);
+    score.classList.toggle("bg-success", evaluation.ok);
+    score.classList.toggle("bg-danger", !evaluation.ok);
+
+    var body = $("#pgEvaluationBody");
+    body.textContent = "";
+    evaluation.checks.forEach(function (check) {
+      var row = document.createElement("tr");
+      row.setAttribute("data-testid", "evaluation-check");
+      row.innerHTML =
+        '<td class="small fw-semibold">' + escapeHtml(check.field) + "</td>" +
+        '<td class="small">' + escapeHtml(check.expected) + "</td>" +
+        '<td class="small">' + escapeHtml(check.actual || "—") + "</td>" +
+        '<td class="small ' + (check.passed ? "text-success" : "text-danger") + '">' +
+        (check.passed ? "✓" : "✗") + "</td>";
+      body.appendChild(row);
+    });
+    wrap.classList.remove("d-none");
+  }
+
+  // ----------------------------------------------------------------- result
+
+  function categoryOption(value, label, selected) {
+    var opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = label;
+    opt.selected = !!selected;
+    return opt;
+  }
+
+  function fillCategorySelect(categoryId, categoryName) {
+    var select = $("#pgEditCategory");
+    select.textContent = "";
+    var matched = null;
+    if (categoryId) {
+      matched = CATEGORIES.filter(function (c) { return Number(c.id) === Number(categoryId); })[0];
+    }
+    CATEGORIES.forEach(function (category) {
+      select.appendChild(categoryOption(category.id, category.name, !!(matched && Number(matched.id) === Number(category.id))));
+    });
+    if (!matched && categoryName) {
+      select.appendChild(categoryOption("new:" + categoryName, categoryName, true));
+    }
+  }
+
+  function fillSourceSelect(sourceId, sourceName) {
+    var select = $("#pgEditSource");
+    select.textContent = "";
+    var matched = null;
+    if (sourceId) {
+      matched = MONEY_SOURCES.filter(function (source) { return Number(source.id) === Number(sourceId); })[0];
+    }
+    select.appendChild(categoryOption("", T.noSource, !matched && !sourceName));
+    MONEY_SOURCES.forEach(function (source) {
+      select.appendChild(categoryOption(source.id, source.display_name, !!(matched && Number(matched.id) === Number(source.id))));
+    });
+    if (!matched && sourceName) {
+      var unknown = categoryOption("", sourceName, true);
+      unknown.disabled = true;
+      select.appendChild(unknown);
+    }
+  }
+
+  function sourceLabel(candidate) {
+    if (candidate.money_source_name) return candidate.money_source_name;
+    var matched = candidate.money_source_id
+      ? MONEY_SOURCES.filter(function (source) { return Number(source.id) === Number(candidate.money_source_id); })[0]
+      : null;
+    return matched ? matched.name : T.noSource;
+  }
+
+  function renderCandidate(candidate) {
+    $("#pgSumAmount").textContent = money(candidate.amount) + " " + (candidate.currency || "COP");
+    $("#pgSumCategory").textContent = candidate.category_name || "—";
+    $("#pgSumDescription").textContent = candidate.description || "—";
+    $("#pgSumDate").textContent = formatDate(candidate.date);
+    $("#pgSumSource").textContent = sourceLabel(candidate);
+    $("#pgSumMerchant").textContent = candidate.merchant || T.noMerchant;
+    $("#pgSumConfidence").textContent = formatConfidence(candidate.confidence);
+
+    $("#pgEditAmount").value = candidate.amount != null ? candidate.amount : "";
+    $("#pgEditCurrency").value = candidate.currency || "COP";
+    fillCategorySelect(candidate.category_id, candidate.category_name);
+    fillSourceSelect(candidate.money_source_id, candidate.money_source_name);
+    $("#pgEditDescription").value = candidate.description || "";
+    $("#pgEditMerchant").value = candidate.merchant || "";
+    $("#pgEditDate").value = candidate.date || new Date().toISOString().slice(0, 10);
+  }
+
+  function collectCandidate() {
+    var category = $("#pgEditCategory").value;
+    var isNewCategory = category.indexOf("new:") === 0;
+    var lastCandidate = state.lastResult && state.lastResult.candidate ? state.lastResult.candidate : {};
+    var selectedSource = $("#pgEditSource").selectedOptions[0] || {};
+    return {
+      amount: $("#pgEditAmount").value,
+      currency: $("#pgEditCurrency").value,
+      category_id: isNewCategory ? "" : category,
+      category_name: isNewCategory ? category.slice(4) : ($("#pgEditCategory").selectedOptions[0] || {}).textContent || "",
+      description: $("#pgEditDescription").value,
+      merchant: $("#pgEditMerchant").value,
+      date: $("#pgEditDate").value,
+      source: "playground",
+      confidence: lastCandidate.confidence || null,
+      money_source_id: $("#pgEditSource").value || null,
+      money_source_name: $("#pgEditSource").value ? (selectedSource.textContent || null) : (lastCandidate.money_source_name || null)
+    };
+  }
+
+  function createExpense() {
+    var candidate = collectCandidate();
+    if (!candidate.amount || Number(candidate.amount) <= 0) {
+      $("#pgEditAmount").focus();
+      return;
+    }
+    if (!candidate.category_id && !candidate.category_name) {
+      $("#pgEditCategory").focus();
+      return;
+    }
+
+    setLoading($("#pgCreateButton"), $("#pgCreateSpinner"), $(".pg-create-icon"), $("#pgCreateLabel"),
+      true, T.creating, T.createExpense);
+
+    fetch(form.dataset.createUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+      body: JSON.stringify({
+        candidate: candidate,
+        run_id: state.lastResult ? state.lastResult.run_id : null
+      })
+    }).then(function (response) {
+      return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+    }).then(function (result) {
+      setLoading($("#pgCreateButton"), $("#pgCreateSpinner"), $(".pg-create-icon"), $("#pgCreateLabel"),
+        false, T.creating, T.createExpense);
+      var success = $("#pgSuccess");
+      if (result.ok) {
+        $("#pgSuccessText").textContent = result.data.message || T.expenseCreated;
+        success.classList.remove("d-none");
+        $("#pgResultErrors").classList.add("d-none");
+      } else {
+        showError((result.data.errors || []).join(" ") || "The expense could not be created.");
+      }
+    }).catch(function () {
+      setLoading($("#pgCreateButton"), $("#pgCreateSpinner"), $(".pg-create-icon"), $("#pgCreateLabel"),
+        false, T.creating, T.createExpense);
+      showError("The expense could not be created. Please try again.");
+    });
+  }
+
+  $("#pgCreateButton").addEventListener("click", createExpense);
+
+  // ----------------------------------------------------------------- steps
+
+  function pre(text) {
+    var el = document.createElement("pre");
+    el.className = "pg-pre mb-0";
+    el.innerHTML = escapeHtml(text);
+    return el;
+  }
+
+  function jsonPre(value) {
+    try {
+      return pre(JSON.stringify(value, null, 2));
+    } catch (e) {
+      return pre(String(value));
+    }
+  }
+
+  function debugRow(label, value) {
+    return '<div class="d-flex"><span class="pg-debug-key">' + escapeHtml(label) +
+      '</span><span class="ms-2">' + escapeHtml(value) + "</span></div>";
+  }
+
+  function arrow() {
+    var el = document.createElement("div");
+    el.className = "pg-arrow text-center";
+    el.innerHTML = "&darr;";
+    return el;
+  }
+
+  function stepSection(title) {
+    var el = document.createElement("div");
+    el.className = "pg-step";
+    var heading = document.createElement("div");
+    heading.className = "pg-step-title";
+    heading.textContent = title;
+    el.appendChild(heading);
+    return el;
+  }
+
+  function renderSteps(data) {
+    var steps = data.steps || {};
+    var container = $("#pgSteps");
+    container.textContent = "";
+
+    $("#pgDebugMeta").textContent = (data.engine ? T.engineLabel + ": " + data.engine : "") +
+      (data.duration_ms != null ? (data.engine ? " · " : "") + T.durationLabel + ": " + data.duration_ms + " ms" : "");
+
+    var input = stepSection(T.stepInput);
+    var inputEl = steps.input || {};
+    input.appendChild(pre((inputEl.type || "") + (inputEl.text ? "\n\n" + inputEl.text : "") +
+      (inputEl.image ? "\n\n" + inputEl.image : "")));
+    container.appendChild(input);
+    container.appendChild(arrow());
+
+    var ocr = stepSection(T.stepOcr);
+    if (steps.ocr && steps.ocr.applicable) {
+      ocr.appendChild(pre(steps.ocr.text || ""));
+    } else {
+      ocr.appendChild(pre(T.ocrNotApplicable));
+    }
+    container.appendChild(ocr);
+    container.appendChild(arrow());
+
+    var extraction = stepSection(T.stepExtraction);
+    var raw = steps.extraction && steps.extraction.raw;
+    extraction.appendChild(pre(steps.extraction && steps.extraction.engine ? T.engineLabel + ": " + steps.extraction.engine : ""));
+    if (raw != null) extraction.appendChild(jsonPre(raw));
+    container.appendChild(extraction);
+    container.appendChild(arrow());
+
+    var normalization = stepSection(T.stepNormalization);
+    var norm = steps.normalization || {};
+    if (norm.amount != null) {
+      var normEl = document.createElement("div");
+      normEl.innerHTML = debugRow("amount:", norm.amount) + debugRow("currency:", norm.currency) +
+        debugRow("category_id:", norm.category_id == null ? "—" : norm.category_id) +
+        debugRow("category_name:", norm.category_name || "—") +
+        debugRow("date:", norm.date || "—") +
+        debugRow("money_source_id:", norm.money_source_id == null ? "—" : norm.money_source_id) +
+        debugRow("money_source_name:", norm.money_source_name || "—");
+      normalization.appendChild(normEl);
+    }
+    container.appendChild(normalization);
+    container.appendChild(arrow());
+
+    var validation = stepSection(T.stepValidation);
+    var valid = steps.validation || {};
+    var checkHtml = "";
+    (valid.checks || []).forEach(function (check) {
+      checkHtml += '<div class="' + (check.passed ? "text-success" : "text-danger") + '">' +
+        (check.passed ? "✓" : "✗") + " " + escapeHtml(check.label) + "</div>";
+    });
+    (valid.errors || []).forEach(function (error) {
+      checkHtml += '<div class="text-danger">' + escapeHtml(error) + "</div>";
+    });
+    validation.innerHTML += checkHtml || "<em>—</em>";
+    container.appendChild(validation);
+    container.appendChild(arrow());
+
+    var candidateStep = stepSection(T.stepCandidate);
+    var ok = data.ok && data.candidate;
+    var candidateText = ok ? T.candidateReady : T.candidateInvalid;
+    candidateStep.innerHTML += '<div class="' + (ok ? "text-success" : "text-danger") + ' fw-semibold">' +
+      escapeHtml(candidateText) + "</div>";
+    container.appendChild(candidateStep);
+  }
+
+  // ---------------------------------------------------------------- history
+  // Runs are persisted server-side (ExpensePlaygroundRun). localStorage is
+  // only a same-session fallback when the history request fails.
+
+  function readLocalHistory() {
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function writeLocalHistory(entries) {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(entries.slice(0, 10)));
+    } catch (e) { /* storage unavailable: history is best-effort */ }
+  }
+
+  function addHistoryEntry(entry) {
+    var entries = readLocalHistory();
+    entries.unshift(entry);
+    writeLocalHistory(entries);
+    renderHistory(entries);
+  }
+
+  function historyResultLabel(entry) {
+    var c = entry.candidate || {};
+    return (c.amount != null ? money(c.amount) : "—") + " " + (c.category_name || "");
+  }
+
+  function renderHistory(entries) {
+    entries = entries || [];
+    var body = $("#pgHistoryBody");
+    body.textContent = "";
+    $("#pgHistoryEmpty").classList.toggle("d-none", entries.length > 0);
+    $("#pgClearHistory").classList.toggle("d-none", entries.length === 0);
+
+    entries.forEach(function (entry, index) {
+      var row = document.createElement("tr");
+      row.className = "pg-history-row";
+      row.setAttribute("data-testid", "playground-history-row");
+      var result = entry.ok ? escapeHtml(historyResultLabel(entry)) : '<span class="text-danger">failed</span>';
+      if (entry.expense_id) result += ' <i class="bi bi-check2-circle text-success" title="expense created"></i>';
+      row.innerHTML =
+        '<td class="small">' + escapeHtml(new Date(entry.ts).toLocaleDateString()) + "</td>" +
+        '<td class="small text-truncate" style="max-width:220px">"' + escapeHtml(entry.label || "") + '"</td>' +
+        '<td class="small">' + escapeHtml(entry.type) + "</td>" +
+        '<td class="small">' + result + "</td>" +
+        '<td class="small text-end">' + escapeHtml(formatConfidence(entry.confidence)) + "</td>";
+      row.addEventListener("click", function () { restoreHistoryEntry(entries[index]); });
+      body.appendChild(row);
+    });
+  }
+
+  function restoreHistoryEntry(entry) {
+    state.lastSteps = entry.steps;
+    state.lastResult = entry;
+    $("#pgDebug").classList.remove("d-none");
+    renderSteps({ steps: entry.steps, engine: null, duration_ms: null, ok: entry.ok });
+    if (entry.candidate) {
+      $("#pgResultErrors").classList.add("d-none");
+      $("#pgResultWarnings").classList.add("d-none");
+      renderCandidate(entry.candidate);
+      $("#pgResultEmpty").classList.add("d-none");
+      $("#pgResult").classList.remove("d-none");
+    }
+  }
+
+  function loadHistory() {
+    fetch(form.dataset.historyUrl, {
+      headers: { "Accept": "application/json", "X-CSRF-Token": csrfToken() }
+    }).then(function (response) {
+      if (!response.ok) throw new Error("history");
+      return response.json();
+    }).then(function (data) {
+      renderHistory((data.runs || []).map(function (run) {
+        run.label = run.label || "";
+        return run;
+      }));
+    }).catch(function () {
+      renderHistory(readLocalHistory());
+    });
+  }
+
+  $("#pgClearHistory").addEventListener("click", function () {
+    writeLocalHistory([]);
+    renderHistory([]);
+  });
+
+  // ------------------------------------------------------------------- init
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    processInput();
+  });
+
+  renderHistory([]);
+  loadHistory();
+}
+
+document.addEventListener("turbo:load", initializePlayground);
+document.addEventListener("DOMContentLoaded", initializePlayground);
+if (document.readyState !== "loading") initializePlayground();
+</script>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_07_000005) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_09_133342) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_07_000005) do
     t.datetime "updated_at", null: false
     t.integer "installments_paid"
     t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
+  end
+
+  create_table "expense_playground_runs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "input_type", limit: 20, null: false
+    t.string "input_label", limit: 200
+    t.string "engine", limit: 30
+    t.integer "duration_ms"
+    t.string "status", limit: 20, default: "ok", null: false
+    t.jsonb "candidate", default: {}, null: false
+    t.jsonb "steps", default: {}, null: false
+    t.jsonb "error_messages", default: [], null: false, array: true
+    t.jsonb "warnings", default: [], null: false, array: true
+    t.integer "expense_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_expense_playground_runs_on_created_at"
+    t.index ["expense_id"], name: "index_expense_playground_runs_on_expense_id"
+    t.index ["user_id"], name: "index_expense_playground_runs_on_user_id"
   end
 
   create_table "expenses", force: :cascade do |t|
@@ -461,6 +480,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_07_000005) do
   add_foreign_key "budgets", "users"
   add_foreign_key "categories", "users"
   add_foreign_key "credit_accounts", "money_sources"
+  add_foreign_key "expense_playground_runs", "users"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
   add_foreign_key "financial_setups", "users"

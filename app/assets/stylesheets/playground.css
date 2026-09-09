@@ -1,0 +1,78 @@
+/* -------------------------------------------------
+ * Expense Playground (internal testing page)
+ * ------------------------------------------------- */
+
+.pg-dropzone {
+  border: 2px dashed var(--bs-gray-400, #ced4da);
+  border-radius: 0.5rem;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  color: var(--bs-gray-600, #495057);
+}
+
+.pg-dropzone:hover,
+.pg-dropzone:focus-visible {
+  border-color: var(--bs-primary, #5d87ff);
+  outline: none;
+}
+
+.pg-dropzone-over {
+  border-color: var(--bs-primary, #5d87ff);
+  background-color: rgba(93, 135, 255, 0.08);
+}
+
+.pg-dropzone-filled {
+  border-style: solid;
+  padding: 0.75rem;
+}
+
+.pg-image-preview {
+  max-height: 220px;
+  width: auto;
+}
+
+.pg-pre {
+  background: var(--bs-gray-100, #f6f9fc);
+  border: 1px solid var(--bs-gray-200, #eaeff4);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.pg-step-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--bs-gray-500, #5a6a85);
+  margin-bottom: 0.35rem;
+}
+
+.pg-step {
+  margin-bottom: 0.35rem;
+}
+
+.pg-arrow {
+  color: var(--bs-gray-400, #7c8fac);
+  font-size: 1rem;
+  line-height: 1;
+  margin: 0.35rem 0;
+}
+
+.pg-debug-key {
+  min-width: 8.5rem;
+  font-weight: 600;
+  color: var(--bs-gray-500, #5a6a85);
+}
+
+.pg-history-row {
+  cursor: pointer;
+}
+
+.pg-example {
+  white-space: nowrap;
+}

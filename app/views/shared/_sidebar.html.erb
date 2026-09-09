@@ -95,6 +95,10 @@
         <i class="bi bi-envelope-paper-heart"></i>
         <span><%= t("nav.source_recognition") %></span>
       <% end %>
+      <%= link_to expense_playground_path, class: "sidebar-link #{active_class('expense_playground')}" do %>
+        <i class="bi bi-controller"></i>
+        <span><%= t("nav.playground") %></span>
+      <% end %>
     </div>
   </nav>
 

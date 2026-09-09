@@ -220,6 +220,42 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_equal 50_000.0, result[:expenses][0][:amount]
   end
 
+  test "retries rate-limited (429) AI responses with backoff" do
+    parser = ExpenseParser.new(text: "50 mil en almuerzo", user: @user, today: TODAY)
+    responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("200") ]
+    fake_http = FakeHttp.new(responses)
+    slept = []
+    parser.define_singleton_method(:sleep) { |seconds| slept << seconds }
+
+    response = parser.send(:perform_request, fake_http, nil)
+
+    assert_equal "200", response.code
+    assert_equal [ 1, 2 ], slept
+    assert_equal 3, fake_http.request_count
+  end
+
+  test "gives up after two 429 retries and reports the rate limit" do
+    parser = ExpenseParser.new(text: "50 mil en almuerzo", user: @user, today: TODAY)
+    fake_http = FakeHttp.new([ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429") ])
+    parser.define_singleton_method(:sleep) { |_seconds| nil }
+
+    error = assert_raise(ExpenseParser::AIError) { parser.send(:perform_request, fake_http, nil) }
+
+    assert_equal "HTTP 429", error.message
+    assert_equal 3, fake_http.request_count
+  end
+
+  test "non-429 AI errors fail immediately without retries" do
+    parser = ExpenseParser.new(text: "50 mil en almuerzo", user: @user, today: TODAY)
+    fake_http = FakeHttp.new([ FakeResponse.new("500") ])
+    parser.define_singleton_method(:sleep) { |_seconds| nil }
+
+    error = assert_raise(ExpenseParser::AIError) { parser.send(:perform_request, fake_http, nil) }
+
+    assert_equal "HTTP 500", error.message
+    assert_equal 1, fake_http.request_count
+  end
+
   test "drops invalid AI entries instead of persisting bad data" do
     parser_class = Class.new(ExpenseParser) do
       define_method(:parse_with_ai) do
@@ -273,5 +309,25 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_nil expense[:category_id]
     assert expense[:create_category]
     assert_equal "Pet Care", expense[:category_name]
+  end
+
+  # Minimal doubles for the AI HTTP retry logic.
+  FakeResponse = Struct.new(:code)
+
+  class FakeHttp
+    attr_reader :request_count
+
+    def initialize(responses)
+      @responses = responses
+      @request_count = 0
+    end
+
+    def request(_request)
+      @request_count += 1
+      response = @responses.shift
+      raise "no stubbed response left" unless response
+
+      response
+    end
   end
 end

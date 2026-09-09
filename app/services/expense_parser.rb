@@ -9,6 +9,7 @@ require "uri"
 # structured expense data WITHOUT persisting anything.
 #
 #   ExpenseParser.call(text: "Me gasté 50 mil en restaurante y 20 mil en parqueadero", user: current_user)
+#   ExpenseParser.call(text: ocr_text, user: current_user, context: "OCR'd payment receipt; prefer the TOTAL line")
 #
 # Returns:
 #   {
@@ -76,18 +77,18 @@ class ExpenseParser
   Resolution = Struct.new(:category, :suggested_name, :confidence)
 
   class << self
-    def call(text:, user:, today: Date.current)
-      new(text: text, user: user, today: today).call
+    def call(text:, user:, today: Date.current, context: nil)
+      new(text: text, user: user, today: today, context: context).call
     end
   end
 
-  def initialize(text:, user:, today:)
+  def initialize(text:, user:, today:, context: nil)
     @text = text.to_s.strip
     @user = user
     @today = today
+    @context = context.to_s.presence
     @categories = Category.for_user(user).order(:name).to_a
-    @money_sources = MoneySource.active.where(user: user)
-                                .includes(recognition: :recognition_identifiers).to_a
+    @money_source_detector = MoneySources::Detector.new(user: user)
     @notes = []
   end
 
@@ -156,8 +157,7 @@ class ExpenseParser
       ]
     }.to_json
 
-    response = http.request(request)
-    raise AIError, "HTTP #{response.code}" unless response.code.to_i == 200
+    response = perform_request(http, request)
 
     content = JSON.parse(response.body).dig("choices", 0, "message", "content")
     data = JSON.parse(content)
@@ -175,12 +175,32 @@ class ExpenseParser
     raise AIError, e.message
   end
 
+  # Retries rate-limited (HTTP 429) responses with a short backoff; other
+  # HTTP errors fail immediately (mirrors Ai::ImageExpenseExtractor).
+  def perform_request(http, request)
+    attempts = 0
+    loop do
+      response = http.request(request)
+      return response if response.code.to_i == 200
+
+      if response.code.to_i == 429 && attempts < 2
+        attempts += 1
+        sleep(attempts)
+        next
+      end
+
+      raise AIError, "HTTP #{response.code}"
+    end
+  end
+
   def ai_system_prompt
     categories_list = @categories.map(&:name).join(", ")
+    context_block = @context ? "\nContext: #{@context}\n" : ""
     <<~PROMPT
       You extract expense records from natural language (Spanish/Colombian usage).
       Current date: #{@today.iso8601}. Currency: #{DEFAULT_CURRENCY}.
       User's existing categories: [#{categories_list}].
+      #{context_block}
       Rules:
       - One input may contain multiple expenses; return one entry per expense.
       - Interpret Colombian amounts: "50 mil"/"50 lucas"/"50k" = 50000, "50.000 pesos" = 50000, "medio millon" = 500000.
@@ -443,35 +463,11 @@ class ExpenseParser
   def assign_money_source(expense)
     return if expense.money_source_id.present?
 
-    source = detect_money_source(@text)
+    source = @money_source_detector.call(@text)
     return unless source
 
     expense.money_source_id = source.id
     expense.money_source_name = source.name
-  end
-
-  # Finds the user's active MoneySource that best matches the message by name,
-  # bank or recognition keyword. Returns nil when nothing clearly matches.
-  def detect_money_source(text)
-    return nil if text.blank?
-
-    clean = normalize_text(text)
-    @money_sources.each do |source|
-      next unless source_matches?(source, clean)
-
-      return source
-    end
-    nil
-  end
-
-  def source_matches?(source, clean)
-    values = [ source.name, source.bank ]
-    values.concat(source.recognition_identifiers.select(&:keyword?).map(&:value))
-    values.compact.map { |value| normalize_text(value) }.any? do |value|
-      next false if value.blank?
-
-      clean.match?(/\b#{Regexp.escape(value)}\b/)
-    end
   end
 
   def serialize(expense)

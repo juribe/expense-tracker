@@ -88,6 +88,12 @@ Rails.application.routes.draw do
   get "settings/alerts", to: "alert_settings#show", as: :alert_settings
   patch "settings/alerts", to: "alert_settings#update"
 
+  # Expense ingestion playground (internal testing / debugging page)
+  get "expense-playground", to: "expense_playground#show", as: :expense_playground
+  post "expense-playground/process", to: "expense_playground#run", as: :expense_playground_process
+  post "expense-playground/create", to: "expense_playground#create", as: :expense_playground_create
+  get "expense-playground/history", to: "expense_playground#history", as: :expense_playground_history
+
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'
