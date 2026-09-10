@@ -1,11 +1,11 @@
 # Graph Report - expense-playground-able-to-import-files  (2026-09-10)
 
 ## Corpus Check
-- 333 files · ~169,548 words
+- 334 files · ~169,925 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2300 nodes · 2910 edges · 261 communities (87 shown, 147 thin omitted)
+- 2305 nodes · 2914 edges · 270 communities (89 shown, 154 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
@@ -234,7 +234,7 @@
 - GmailConnection
 - Ocr
 - Expenses::CreateTest
-- MonthlyIncomesController
+- Expense
 - ExpensePlaygroundRun
 - ExpensePlayground::EvaluationTest
 - Expenses
@@ -242,13 +242,22 @@
 - CreateActivityClassifications
 - ActivityClassificationTest
 - SpendingAlertServiceTest
+- MoneySources::Match
+- MoneySources::Detector
 - processing_service.rb
 - whisper_transcribe.py
 - speech_to_text_test.rb
 - whisper.rb
 - ExpenseCandidateTest
+- .call
 - SpeechToText
 - ExpensePlaygroundAudioControllerTest
+- AlertSettingsController
+- SanitizeMoneySourceIdentifiersToLastFour
+- ExpensePlayground::FileProcessorTest
+- TransactionRules::SuggestionServiceTest
+- TransactionRulesControllerTest
+- TransactionRulesFlowTest
 
 ## God Nodes (most connected - your core abstractions)
 1. `Category` - 43 edges
@@ -293,11 +302,7 @@
 - **Public Static Web Assets** — public_400_html, public_404_html, public_406_unsupported_browser_html, public_422_html, public_500_html, public_robots_txt, public_icon_png, public_icon_svg [INFERRED 0.85]
 - **Application Icon in Multiple Formats** — public_icon_png, public_icon_svg, app_brand_icon [INFERRED 0.90]
 
-## Communities (261 total, 147 thin omitted)
-
-### Community 1 - "ExpensesController"
-Cohesion: 0.05
-Nodes (9): ExpensesController, Expense, BudgetsFlowTest, IntegrationTest, CategorySpendTest, TestCase, TestCase, TransactionRules (+1 more)
+## Communities (270 total, 154 thin omitted)
 
 ### Community 2 - "ExpenseParser"
 Cohesion: 0.06
@@ -306,10 +311,6 @@ Nodes (10): call(), ExpenseParser, ExpenseParser::AIError, ExpenseParser::Resolu
 ### Community 3 - "auth.js"
 Cohesion: 0.12
 Nodes (14): { signUp }, { test, expect }, { signUp, signIn }, { test, expect }, { signUp, createCategory }, { test, expect }, { signUp, createCategory }, { test, expect } (+6 more)
-
-### Community 4 - "MoneySource"
-Cohesion: 0.06
-Nodes (6): MoneySource, MoneySources, MoneySources::Detector, MoneySources, MoneySources::Match, SanitizeMoneySourceIdentifiersToLastFour
 
 ### Community 5 - "Gmail::ExpenseImporterTest"
 Cohesion: 0.10
@@ -328,8 +329,8 @@ Cohesion: 0.09
 Nodes (7): ImportPipeline, ImportPipeline::Result, ParsedStatement, FinancialSetupsControllerTest, IntegrationTest, TestCase, StatementDuplicateDetectorTest
 
 ### Community 10 - "Gmail::ExpenseImporter"
-Cohesion: 0.05
-Nodes (16): ProcessedEmail, Gmail, Gmail::ExpenseImporter, Gmail::ExpenseImporter::Result, call(), Gmail, Gmail::SyncService, configure() (+8 more)
+Cohesion: 0.06
+Nodes (13): ProcessedEmail, Gmail, Gmail::ExpenseImporter, Gmail::ExpenseImporter::Result, call(), Gmail, Gmail::SyncService, configure() (+5 more)
 
 ### Community 11 - "application.js"
 Cohesion: 0.12
@@ -408,8 +409,8 @@ Cohesion: 0.17
 Nodes (12): Money Source Form, Hybrid Financial Setup Wizard, Setup Complete State, Duplicate Card Handling, Extraction Review Step, Statement File Upload, Final Review Step, Manual Account Entry (+4 more)
 
 ### Community 40 - "ApplicationController"
-Cohesion: 0.17
-Nodes (4): AlertSettingsController, ApplicationController, Base, MonthlyExpensesController
+Cohesion: 0.18
+Nodes (4): ApplicationController, Base, MonthlyExpensesController, MonthlyIncomesController
 
 ### Community 44 - "Credit Cards and Loans"
 Cohesion: 0.18
@@ -536,8 +537,8 @@ Cohesion: 0.18
 Nodes (5): Transfer, IntegrationTest, TransfersControllerTest, TestCase, TransferTest
 
 ### Community 179 - "TransactionRule"
-Cohesion: 0.07
-Nodes (9): TransactionRule, TransactionRules, TransactionRules::Applicator, IntegrationTest, TransactionRulesControllerTest, IntegrationTest, TransactionRulesFlowTest, TestCase (+1 more)
+Cohesion: 0.13
+Nodes (3): TransactionRule, TransactionRules, TransactionRules::Applicator
 
 ### Community 182 - "ai_entry_turbo.spec.js"
 Cohesion: 0.22
@@ -615,6 +616,10 @@ Nodes (3): Ocr, Ocr::LocalReaderTest, TestCase
 Cohesion: 0.40
 Nodes (3): Expenses, Expenses::CreateTest, TestCase
 
+### Community 246 - "Expense"
+Cohesion: 0.12
+Nodes (7): Expense, BudgetsFlowTest, IntegrationTest, TestCase, TransactionRuleTest, CategorySpendTest, TestCase
+
 ### Community 248 - "ExpensePlayground::EvaluationTest"
 Cohesion: 0.40
 Nodes (3): ExpensePlayground, ExpensePlayground::EvaluationTest, TestCase
@@ -639,28 +644,40 @@ Nodes (4): fail(), main(), parse_args(), Local Speech-to-Text with faster-whispe
 Cohesion: 0.40
 Nodes (3): TestCase, SpeechToText::FutureTestProvider, SpeechToTextTest
 
+### Community 261 - ".call"
+Cohesion: 0.29
+Nodes (3): MoneySources, MoneySources::MatchTest, TestCase
+
 ### Community 262 - "SpeechToText"
 Cohesion: 0.50
 Nodes (3): TestCase, SpeechToText, SpeechToText::AudioPreprocessorTest
 
+### Community 266 - "ExpensePlayground::FileProcessorTest"
+Cohesion: 0.40
+Nodes (3): ExpensePlayground, ExpensePlayground::FileProcessorTest, TestCase
+
+### Community 267 - "TransactionRules::SuggestionServiceTest"
+Cohesion: 0.40
+Nodes (3): TestCase, TransactionRules, TransactionRules::SuggestionServiceTest
+
 ## Knowledge Gaps
 - **259 isolated node(s):** `$schema`, `plugin`, `ExpensePlayground::FileProcessor::Result`, `FinancialSetupWizard::Step`, `FinancialSetups::Completer::Result` (+254 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1100 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **147 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1103 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **154 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `ApplicationRecord` connect `ApplicationRecord` to `SourceRecognition::Catalog`, `FinancialCatalogSeeder`, `CreditAccount`, `MoneySource`, `SpendingAlert`, `Gmail::ExpenseImporter`, `MoneySourceRecognition`, `Budget`, `RecurringTemplate`, `ExpensePlayground::FileProcessor`, `MoneySourceRecognitionIdentifier`, `GmailConnection`, `TransactionRule`, `Transfer`, `Category`, `ExpensePlaygroundRun`, `Transaction`, `FinancialSetup`?**
-  _High betweenness centrality (0.148) - this node is a cross-community bridge._
-- **Why does `Category` connect `Category` to `ExpensePlayground::ProcessingService`, `ExpensesController`, `IncomesController`, `TransactionRules::SuggestionService`, `MoneySource`, `FinancialSetupsController`, `RecurringTemplateImporter`, `TransactionRulesController`, `RecurringTemplatesController`, `BudgetsController`, `ExpensePlayground::FileProcessor`, `.call`, `ExpensePlaygroundController`, `ApplicationRecord`, `RecurringTemplateActions`, `CategoriesController`?**
-  _High betweenness centrality (0.123) - this node is a cross-community bridge._
-- **Why does `ApplicationController` connect `ApplicationController` to `GmailConnectionsController`, `ExpensesController`, `IncomesController`, `FinancialSetupsController`, `RecurringTemplateImporter`, `MonthlyReportsController`, `RecurringTemplatesController`, `BudgetsController`, `AlertsController`, `MoneySourcesController`, `TransactionRulesController`, `MonthlyIncomesController`, `ExpensePlaygroundController`, `TransfersController`, `CategoriesController`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+  _High betweenness centrality (0.149) - this node is a cross-community bridge._
+- **Why does `Category` connect `Category` to `ExpensePlayground::ProcessingService`, `ExpensesController`, `IncomesController`, `MoneySources::Detector`, `TransactionRules::SuggestionService`, `FinancialSetupsController`, `RecurringTemplateImporter`, `TransactionRulesController`, `RecurringTemplatesController`, `BudgetsController`, `ExpensePlayground::FileProcessor`, `.call`, `ExpensePlaygroundController`, `ApplicationRecord`, `RecurringTemplateActions`, `CategoriesController`?**
+  _High betweenness centrality (0.125) - this node is a cross-community bridge._
+- **Why does `ApplicationController` connect `ApplicationController` to `GmailConnectionsController`, `ExpensesController`, `IncomesController`, `AlertSettingsController`, `FinancialSetupsController`, `RecurringTemplateImporter`, `MonthlyReportsController`, `RecurringTemplatesController`, `BudgetsController`, `AlertsController`, `MoneySourcesController`, `TransactionRulesController`, `TransfersController`, `ExpensePlaygroundController`, `CategoriesController`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `ExpensePlayground::FileProcessor::Result` to the rest of the system?**
   _259 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ExpensesController` be split into smaller, more focused modules?**
-  _Cohesion score 0.052244897959183675 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08021390374331551 - nodes in this community are weakly interconnected._
 - **Should `ExpenseParser` be split into smaller, more focused modules?**
   _Cohesion score 0.06313497822931785 - nodes in this community are weakly interconnected._
 - **Should `auth.js` be split into smaller, more focused modules?**

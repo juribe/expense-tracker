@@ -840,8 +840,8 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1789049721.2289987,
-    "seen": 1789051270.182049,
+    "mtime": 1789051392.6815968,
+    "seen": 1789055616.099104,
     "ast_hash": "f0a664d84959b6b37137cefa1f8651eb",
     "semantic_hash": ""
   },
@@ -2232,9 +2232,9 @@
     "semantic_hash": ""
   },
   "app/services/expense_playground/file_processor.rb": {
-    "mtime": 1789047234.2219453,
-    "seen": 1789047862.9855502,
-    "ast_hash": "a24ef2e732c7a2ed8b8495be6660f17a",
+    "mtime": 1789055476.7489104,
+    "seen": 1789055616.0989199,
+    "ast_hash": "1463101b1fa75b47ad3289888278cbd2",
     "semantic_hash": ""
   },
   "app/models/activity_classification.rb": {
@@ -2277,6 +2277,12 @@
     "mtime": 1789047828.9038444,
     "seen": 1789047862.985885,
     "ast_hash": "efc8347c65ee20944fcfb7d14f9ad152",
+    "semantic_hash": ""
+  },
+  "test/services/expense_playground/file_processor_test.rb": {
+    "mtime": 1789055600.8940156,
+    "seen": 1789055616.099236,
+    "ast_hash": "c76564a2dadd4f98032e7fe95f697aa6",
     "semantic_hash": ""
   }
 }
