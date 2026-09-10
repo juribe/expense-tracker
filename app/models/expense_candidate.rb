@@ -13,6 +13,8 @@ class ExpenseCandidate
   ATTRIBUTES = %i[
     amount currency category_id category_name description merchant
     date source confidence money_source_id money_source_name
+    classification_source money_source_source suggested_category_id
+    suggested_category_name duplicate
   ].freeze
 
   attr_accessor(*ATTRIBUTES)
@@ -42,7 +44,12 @@ class ExpenseCandidate
       source: hash[:source],
       confidence: hash[:confidence],
       money_source_id: hash[:money_source_id].presence&.to_i,
-      money_source_name: hash[:money_source_name].presence
+      money_source_name: hash[:money_source_name].presence,
+      classification_source: hash[:classification_source].presence,
+      money_source_source: hash[:money_source_source].presence,
+      suggested_category_id: hash[:suggested_category_id].presence&.to_i,
+      suggested_category_name: hash[:suggested_category_name].presence,
+      duplicate: hash[:duplicate]
     )
   end
 

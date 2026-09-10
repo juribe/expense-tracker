@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_09_133342) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_10_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "activity_classifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "normalized_name", null: false
+    t.string "original_name"
+    t.bigint "category_id"
+    t.string "subcategory"
+    t.decimal "confidence", precision: 4, scale: 3
+    t.string "source", default: "ai", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_activity_classifications_on_category_id"
+    t.index ["user_id", "normalized_name"], name: "index_activity_classifications_on_user_id_and_normalized_name", unique: true
+  end
 
   create_table "alert_preferences", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -475,6 +489,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_09_133342) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "activity_classifications", "categories"
+  add_foreign_key "activity_classifications", "users"
   add_foreign_key "alert_preferences", "users"
   add_foreign_key "budgets", "categories"
   add_foreign_key "budgets", "users"

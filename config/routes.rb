@@ -91,6 +91,8 @@ Rails.application.routes.draw do
   # Expense ingestion playground (internal testing / debugging page)
   get "expense-playground", to: "expense_playground#show", as: :expense_playground
   post "expense-playground/process", to: "expense_playground#run", as: :expense_playground_process
+  post "expense-playground/process_file", to: "expense_playground#process_file", as: :expense_playground_process_file
+  post "expense-playground/batch_create", to: "expense_playground#batch_create", as: :expense_playground_batch_create
   post "expense-playground/create", to: "expense_playground#create", as: :expense_playground_create
   get "expense-playground/history", to: "expense_playground#history", as: :expense_playground_history
 

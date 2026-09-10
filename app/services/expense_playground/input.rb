@@ -10,7 +10,7 @@ module ExpensePlayground
   #   ExpensePlayground::Input.new(type: :image, image_data: "data:image/jpeg;base64,...")
   #   ExpensePlayground::Input.new(type: :audio, audio_data: "data:audio/ogg;base64,...")
   class Input
-    TYPES = %w[text image text_image audio].freeze
+    TYPES = %w[text image text_image audio file].freeze
     IMAGE_MIME_TYPES = %w[image/jpeg image/png image/webp image/gif].freeze
     MAX_IMAGE_BYTES = 6.megabytes
 
@@ -23,13 +23,22 @@ module ExpensePlayground
     SUPPORTED_AUDIO_EXTENSIONS = %w[ogg opus m4a mp3 wav webm].freeze
     MAX_AUDIO_BYTES = 15.megabytes
 
-    attr_reader :type, :text, :image_data, :audio_data, :metadata
+    FILE_MIME_TYPES = %w[
+      application/pdf text/csv
+      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      application/vnd.ms-excel
+    ].freeze
+    SUPPORTED_FILE_EXTENSIONS = %w[pdf csv xlsx xls].freeze
+    MAX_FILE_BYTES = 20.megabytes
 
-    def initialize(type:, text: nil, image_data: nil, audio_data: nil, metadata: {})
+    attr_reader :type, :text, :image_data, :audio_data, :file_data, :metadata
+
+    def initialize(type:, text: nil, image_data: nil, audio_data: nil, file_data: nil, metadata: {})
       @type = type.to_s.presence_in(TYPES)
       @text = text.to_s.strip.presence
       @image_data = image_data.to_s.presence
       @audio_data = audio_data.to_s.presence
+      @file_data = file_data.to_s.presence
       @metadata = metadata || {}
     end
 
@@ -43,8 +52,10 @@ module ExpensePlayground
       errors << "No text was provided." if text.blank? && needs_text?
       errors << "No image was provided." if image_data.blank? && needs_image?
       errors << "No audio was provided." if audio_data.blank? && needs_audio?
+      errors << "No file was provided." if file_data.blank? && needs_file?
       errors.concat(image_errors) if image_data.present?
       errors.concat(audio_errors) if audio_data.present?
+      errors.concat(file_errors) if file_data.present?
       errors
     end
 
@@ -54,6 +65,10 @@ module ExpensePlayground
 
     def audio?
       audio_data.present?
+    end
+
+    def file?
+      file_data.present?
     end
 
     def image_mime_type
@@ -86,6 +101,35 @@ module ExpensePlayground
       metadata[:filename].to_s
     end
 
+    def file_mime_type
+      match = file_data.to_s.match(/\Adata:([^;]+);base64,/)
+      return nil unless match
+
+      match[1].presence_in(FILE_MIME_TYPES)
+    end
+
+    def file_extension
+      mime = file_data.to_s.match(/\Adata:([^;]+);base64,/)&.[](1)
+      case mime
+      when "application/pdf" then "pdf"
+      when "text/csv" then "csv"
+      when "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" then "xlsx"
+      when "application/vnd.ms-excel" then "xls"
+      else
+        File.extname(filename).delete(".").downcase.presence
+      end
+    end
+
+    def file_base64
+      file_data.to_s.sub(/\Adata:[^;]+;base64,/, "")
+    end
+
+    def file_binary
+      Base64.decode64(file_base64)
+    rescue ArgumentError
+      nil
+    end
+
     private
 
     def needs_text?
@@ -98,6 +142,10 @@ module ExpensePlayground
 
     def needs_audio?
       type == "audio"
+    end
+
+    def needs_file?
+      type == "file"
     end
 
     def image_errors
@@ -130,6 +178,23 @@ module ExpensePlayground
       Base64.decode64(image_base64).bytesize
     rescue ArgumentError
       MAX_IMAGE_BYTES + 1
+    end
+
+    def file_errors
+      errors = []
+      ext = file_extension
+      if ext.blank? || !ext.in?(SUPPORTED_FILE_EXTENSIONS)
+        errors << "Unsupported file format. Use PDF, CSV, or Excel."
+      elsif decoded_file_size > MAX_FILE_BYTES
+        errors << "File is too large (max #{MAX_FILE_BYTES / 1.megabyte} MB)."
+      end
+      errors
+    end
+
+    def decoded_file_size
+      Base64.decode64(file_base64).bytesize
+    rescue ArgumentError
+      MAX_FILE_BYTES + 1
     end
   end
 end
