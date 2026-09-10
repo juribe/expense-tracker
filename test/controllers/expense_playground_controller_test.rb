@@ -284,4 +284,124 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     post expense_playground_create_path, params: { candidate: { amount: "1000" } }
     assert_response :redirect
   end
+
+  test "GET /expense-playground renders the file upload tab" do
+    get expense_playground_path
+    assert_response :success
+    assert_match "tab-file", response.body
+    assert_match "playground-file-dropzone", response.body
+    assert_match "playground-pdf-password", response.body
+  end
+
+  test "POST /expense-playground/process_file rejects an unsupported file type" do
+    post expense_playground_process_file_path(format: :json),
+         params: { file_data: "data:text/plain;base64,", filename: "notes.txt", password: nil }
+
+    assert_response :unprocessable_entity
+    data = JSON.parse(response.body)
+    assert_not data["ok"]
+    assert data["errors"].any?
+  end
+
+  test "POST /expense-playground/process_file extracts transactions from a CSV deterministically" do
+    csv = "Fecha,Descripcion,Valor\n2026-09-09,DIDI FOOD,45000\n2026-09-08,UBER,22000\n"
+    file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+    post expense_playground_process_file_path(format: :json),
+         params: { file_data: file_data, filename: "stmt.csv", password: nil }
+
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert data["ok"]
+    assert_equal "deterministic", data["steps"]["engine"]
+    assert_equal 2, data["candidates"].length
+    assert_equal "DIDI FOOD", data["candidates"].first["description"]
+    assert_equal 45_000.0, data["candidates"].first["amount"].to_f
+  end
+
+  test "POST /expense-playground/batch_create creates every reviewed candidate and reports failures" do
+    assert_difference -> { Expense.count }, 2 do
+      assert_no_difference -> { Category.count } do
+        post expense_playground_batch_create_path(format: :json), params: {
+          candidates: [
+            { amount: "45000", category_id: @restaurants.id, description: "DIDI FOOD", date: Date.current.iso8601 },
+            { amount: "183450", category_id: @restaurants.id, description: "EXITO", date: Date.current.iso8601 },
+            { amount: "", category_id: @restaurants.id, description: "BAD ROW", date: Date.current.iso8601 }
+          ]
+        }
+      end
+    end
+
+    assert_response :unprocessable_entity
+    data = JSON.parse(response.body)
+    assert_equal 2, data["created"].length
+    assert_equal 1, data["errors"].length
+    assert_equal "playground_file", Expense.last.source
+  end
+
+  test "POST /expense-playground/process_file flags duplicates within the batch" do
+    csv = "Fecha,Descripcion,Valor\n2026-09-09,DIDI FOOD,45000\n2026-09-09,DIDI FOOD,45000\n2026-09-08,UBER,22000\n"
+    file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+    post expense_playground_process_file_path(format: :json),
+         params: { file_data: file_data, filename: "stmt.csv", password: nil }
+
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert_equal [ 1 ], data["duplicates"]
+    assert_equal false, data["candidates"][0]["duplicate"]
+    assert_equal true, data["candidates"][1]["duplicate"]
+    assert_equal false, data["candidates"][2]["duplicate"]
+  end
+
+  test "POST /expense-playground/process_file reports enrichment sources for auditability" do
+    csv = "Fecha,Descripcion,Valor\n2026-09-09,DIDI FOOD,45000\n"
+    file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+    post expense_playground_process_file_path(format: :json),
+         params: { file_data: file_data, filename: "stmt.csv", password: nil }
+
+    assert_response :success
+    candidate = JSON.parse(response.body)["candidates"].first
+    assert_equal "fallback", candidate["classification_source"]
+    assert_equal "missing", candidate["money_source_source"]
+  end
+
+  test "POST /expense-playground/process_file reuses a stored classification instead of guessing" do
+    food = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: food, source: "ai")
+
+    csv = "Fecha,Descripcion,Valor\n2026-09-09,DIDI FOOD,45000\n"
+    file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+    post expense_playground_process_file_path(format: :json),
+         params: { file_data: file_data, filename: "stmt.csv", password: nil }
+
+    assert_response :success
+    candidate = JSON.parse(response.body)["candidates"].first
+    assert_equal "cached_ai", candidate["classification_source"]
+    assert_equal "Comida", candidate["category_name"]
+  end
+
+  test "POST /expense-playground/batch_create records a user category correction as knowledge" do
+    assert_difference -> { ActivityClassification.count }, 1 do
+      post expense_playground_batch_create_path(format: :json), params: {
+        candidates: [
+          {
+            amount: "45000",
+            category_id: @restaurants.id,
+            description: "DIDI FOOD",
+            date: Date.current.iso8601,
+            classification_source: "ai",
+            suggested_category_name: "Comida y restaurantes"
+          }
+        ]
+      }
+    end
+
+    assert_response :success
+    classification = ActivityClassification.lookup(user: @user, name: "DIDI FOOD")
+    assert_equal "user", classification.source
+    assert_equal @restaurants, classification.category
+  end
 end
