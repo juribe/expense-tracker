@@ -73,6 +73,18 @@ module ExpensePlayground
       end
     end
 
+    # File adapter for PDF, CSV, and Excel uploads. The file payload is a
+    # base64 data URI (consistent with image/audio handling). The pipeline
+    # extracts text and runs AI extraction on it.
+    class FileAdapter < Base
+      TYPE = "file"
+
+      def call(params)
+        metadata = (params[:metadata] || {}).merge(filename: params[:filename].to_s, password: params[:password].to_s)
+        build_input(file_data: params[:file_data], metadata: metadata)
+      end
+    end
+
     # Maps an input type to its adapter. Unknown types produce an Input with a
     # nil type, which fails Input validation with "Unknown input type".
     module Registry
@@ -114,3 +126,4 @@ ExpensePlayground::Adapters::Registry.register("text", ExpensePlayground::Adapte
 ExpensePlayground::Adapters::Registry.register("image", ExpensePlayground::Adapters::ImageAdapter)
 ExpensePlayground::Adapters::Registry.register("text_image", ExpensePlayground::Adapters::TextImageAdapter)
 ExpensePlayground::Adapters::Registry.register("audio", ExpensePlayground::Adapters::AudioAdapter)
+ExpensePlayground::Adapters::Registry.register("file", ExpensePlayground::Adapters::FileAdapter)

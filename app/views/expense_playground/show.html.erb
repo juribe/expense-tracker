@@ -25,10 +25,15 @@
             <button type="button" class="btn btn-outline-primary" data-pg-tab="audio" data-testid="tab-audio">
               <i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.tab_audio") %>
             </button>
+            <button type="button" class="btn btn-outline-primary" data-pg-tab="file" data-testid="tab-file">
+              <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i><%= t("playground.tab_file") %>
+            </button>
           </div>
 
           <form id="pgForm" data-turbo="false"
                 data-process-url="<%= expense_playground_process_path(format: :json) %>"
+                data-process-file-url="<%= expense_playground_process_file_path(format: :json) %>"
+                data-batch-create-url="<%= expense_playground_batch_create_path(format: :json) %>"
                 data-create-url="<%= expense_playground_create_path(format: :json) %>"
                 data-history-url="<%= expense_playground_history_path(format: :json) %>">
             <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
@@ -99,6 +104,33 @@
                 </div>
                 <audio id="pgAudioPreview" controls class="w-100" data-testid="playground-audio-preview"></audio>
                 <div class="small text-muted mt-1" id="pgAudioMeta" data-testid="playground-audio-meta"></div>
+              </div>
+            </div>
+
+            <!-- file input (file tab: PDF / CSV / Excel statements) -->
+            <div id="pgFilePanel" class="mb-3 d-none" data-testid="panel-file">
+              <div id="pgFileDropzone" class="pg-dropzone text-center" role="button" tabindex="0"
+                   aria-label="<%= t('playground.file_upload_label') %>" data-testid="playground-file-dropzone">
+                <i class="bi bi-file-earmark-arrow-up fs-3 d-block mb-1" aria-hidden="true"></i>
+                <span id="pgFileDropzoneLabel"><%= t("playground.file_upload_label") %></span>
+                <div class="small text-muted"><%= t("playground.file_upload_hint") %></div>
+              </div>
+              <input type="file" id="pgStatementFileInput" class="d-none" accept=".pdf,.csv,.xlsx,.xls,application/pdf,text/csv" data-testid="playground-statement-file-input">
+              <div id="pgFilePreviewWrap" class="mt-2 d-none">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="small fw-semibold text-truncate" id="pgFileName" data-testid="playground-file-name"></span>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="pgRemoveFile" data-testid="playground-remove-file">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
+                  </button>
+                </div>
+              </div>
+
+              <div id="pgPdfPasswordWrap" class="mt-2 d-none">
+                <label class="form-label small fw-semibold" for="pgPdfPassword"><%= t("playground.pdf_password_label") %></label>
+                <input type="password" id="pgPdfPassword" name="password" class="form-control form-control-sm"
+                       placeholder="<%= t('playground.pdf_password_placeholder') %>" autocomplete="off"
+                       data-testid="playground-pdf-password">
+                <div class="form-text small text-muted"><%= t("playground.pdf_password_hint") %></div>
               </div>
             </div>
 
@@ -277,6 +309,49 @@
           </button>
         </div>
       </div>
+
+      <!-- file import result: extracted transactions preview -->
+      <div id="pgFileResult" class="card shadow-sm d-none" data-testid="playground-file-result">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h5 mb-0"><i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>
+              <%= t("playground.file_result_title") %></h2>
+            <span class="badge bg-primary" id="pgFileCount" data-testid="playground-file-count"></span>
+          </div>
+
+          <div id="pgFileSources" class="mb-2 d-none" data-testid="playground-file-sources"></div>
+          <div id="pgFileErrors" class="alert alert-danger d-none" role="alert" data-testid="playground-file-errors"></div>
+
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-3">
+              <thead>
+                <tr>
+                  <th class="small text-muted"><%= t("playground.date") %></th>
+                  <th class="small text-muted"><%= t("playground.description") %></th>
+                  <th class="small text-muted text-end"><%= t("playground.amount") %></th>
+                  <th class="small text-muted"><%= t("playground.category") %></th>
+                  <th class="small text-muted"><%= t("playground.source") %></th>
+                  <th class="small text-muted"><%= t("playground.confidence") %></th>
+                  <th class="small text-muted"><%= t("playground.status") %></th>
+                </tr>
+              </thead>
+              <tbody id="pgFileRows" data-testid="playground-file-rows"></tbody>
+            </table>
+          </div>
+
+          <p class="small text-muted mb-3"><%= t("playground.file_edit_hint") %></p>
+          <div id="pgFileCreateSuccess" class="alert alert-success d-none" role="alert" data-testid="playground-file-success">
+            <span id="pgFileCreateSuccessText"></span>
+            <a href="<%= expenses_path %>" class="alert-link ms-1"><%= t("playground.view_expenses") %></a>
+          </div>
+
+          <button type="button" class="btn btn-success d-none" id="pgFileCreateButton" data-testid="playground-file-create-button">
+            <span class="spinner-border spinner-border-sm d-none me-1" id="pgFileCreateSpinner" aria-hidden="true"></span>
+            <i class="bi bi-check2-circle me-1 pg-file-create-icon" aria-hidden="true"></i>
+            <span id="pgFileCreateLabel"><%= t("playground.file_create_all") %></span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -348,6 +423,21 @@ function initializePlayground() {
     tabImage: <%= raw(t("playground.tab_image").to_json) %>,
     tabTextImage: <%= raw(t("playground.tab_text_image").to_json) %>,
     tabAudio: <%= raw(t("playground.tab_audio").to_json) %>,
+    tabFile: <%= raw(t("playground.tab_file").to_json) %>,
+    changeFile: <%= raw(t("playground.file_upload_change").to_json) %>,
+    fileUnsupported: <%= raw(t("playground.file_unsupported").to_json) %>,
+    fileTooLarge: <%= raw(t("playground.file_too_large").to_json) %>,
+    fileNoTransactions: <%= raw(t("playground.file_no_transactions").to_json) %>,
+    fileCreateAll: <%= raw(t("playground.file_create_all").to_json) %>,
+    fileCreating: <%= raw(t("playground.file_creating").to_json) %>,
+    fileCreated: <%= raw(t("playground.file_created").to_json) %>,
+    fileErrorsTitle: <%= raw(t("playground.file_errors_title").to_json) %>,
+    fileProcessingFailed: <%= raw(t("playground.file_processing_failed").to_json) %>,
+    duplicateLabel: <%= raw(t("playground.duplicate_label").to_json) %>,
+    duplicateHint: <%= raw(t("playground.duplicate_hint").to_json) %>,
+    readyLabel: <%= raw(t("playground.ready_label").to_json) %>,
+    classificationSourceLabel: <%= raw(t("playground.classification_source_label").to_json) %>,
+    moneySourceSourceLabel: <%= raw(t("playground.money_source_source_label").to_json) %>,
     changeAudio: <%= raw(t("playground.audio_upload_change").to_json) %>,
     audioSeconds: <%= raw(t("playground.audio_seconds").to_json) %>,
     stepInput: <%= raw(t("playground.step_input").to_json) %>,
@@ -368,8 +458,9 @@ function initializePlayground() {
   var HISTORY_KEY = "expense_playground_history_v1";
   var MAX_IMAGE_BYTES = 6 * 1024 * 1024;
   var MAX_AUDIO_BYTES = 15 * 1024 * 1024;
+  var MAX_FILE_BYTES = 20 * 1024 * 1024;
 
-  var state = { type: "text", imageData: null, imageName: null, audioData: null, audioName: null, lastResult: null, lastSteps: null };
+  var state = { type: "text", imageData: null, imageName: null, audioData: null, audioName: null, fileData: null, fileName: null, lastResult: null, lastSteps: null };
 
   var form = $("#pgForm");
   if (!form || form.dataset.pgInitialized === "true") return;
@@ -377,7 +468,7 @@ function initializePlayground() {
 
   var textarea = $("#pgText");
   var dropzone = $("#pgDropzone");
-  var fileInput = $("#pgFileInput");
+  var imageFileInput = $("#pgFileInput");
   var audioDropzone = $("#pgAudioDropzone");
   var audioInput = $("#pgAudioInput");
   var processButton = $("#pgProcessButton");
@@ -419,12 +510,15 @@ function initializePlayground() {
     var showText = type === "text" || type === "text_image";
     var showImage = type === "image" || type === "text_image";
     var showAudio = type === "audio";
+    var showFile = type === "file";
     $("#pgTextPanel").classList.toggle("d-none", !showText);
     $("#pgImagePanel").classList.toggle("d-none", !showImage);
     $("#pgAudioPanel").classList.toggle("d-none", !showAudio);
+    $("#pgFilePanel").classList.toggle("d-none", !showFile);
     $("#pgTextImageHint").classList.toggle("d-none", type !== "text_image");
     if (type === "image") textarea.value = "";
     if (showAudio) textarea.value = "";
+    if (showFile) textarea.value = "";
   }
 
   document.querySelectorAll("[data-pg-tab]").forEach(function (button) {
@@ -455,7 +549,7 @@ function initializePlayground() {
   function clearImage() {
     state.imageData = null;
     state.imageName = null;
-    fileInput.value = "";
+    imageFileInput.value = "";
     $("#pgImagePreviewWrap").classList.add("d-none");
     $("#pgDropzoneLabel").textContent = <%= raw(t("playground.upload_label").to_json) %>;
     dropzone.classList.remove("pg-dropzone-filled");
@@ -476,11 +570,11 @@ function initializePlayground() {
     reader.readAsDataURL(file);
   }
 
-  dropzone.addEventListener("click", function () { fileInput.click(); });
+  dropzone.addEventListener("click", function () { imageFileInput.click(); });
   dropzone.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); fileInput.click(); }
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); imageFileInput.click(); }
   });
-  fileInput.addEventListener("change", function () { acceptFile(fileInput.files[0]); });
+  imageFileInput.addEventListener("change", function () { acceptFile(imageFileInput.files[0]); });
   ["dragover", "dragenter"].forEach(function (event) {
     dropzone.addEventListener(event, function (e) { e.preventDefault(); dropzone.classList.add("pg-dropzone-over"); });
   });
@@ -559,6 +653,71 @@ function initializePlayground() {
   });
   $("#pgRemoveAudio").addEventListener("click", clearAudio);
 
+  // ------------------------------------------------------------------- file
+
+  function fileExtension(name) {
+    var match = (name || "").toLowerCase().match(/\.([a-z0-9]+)$/);
+    return match ? match[1] : "";
+  }
+
+  function showFileData(name) {
+    $("#pgFileName").textContent = name || "";
+    $("#pgFilePreviewWrap").classList.remove("d-none");
+    $("#pgFileDropzoneLabel").textContent = T.changeFile || "";
+    var ext = fileExtension(name);
+    $("#pgPdfPasswordWrap").classList.toggle("d-none", ext !== "pdf");
+  }
+
+  function clearFile() {
+    state.fileData = null;
+    state.fileName = null;
+    fileInput.value = "";
+    $("#pgFileName").textContent = "";
+    $("#pgFilePreviewWrap").classList.add("d-none");
+    $("#pgPdfPasswordWrap").classList.add("d-none");
+    $("#pgPdfPassword").value = "";
+    $("#pgFileDropzoneLabel").textContent = <%= raw(t("playground.file_upload_label").to_json) %>;
+  }
+
+  function acceptStatementFile(file) {
+    if (!file) return;
+    var ext = fileExtension(file.name);
+    if (ext !== "pdf" && ext !== "csv" && ext !== "xlsx" && ext !== "xls") {
+      showError(T.fileUnsupported || "Unsupported file format. Use PDF, CSV, or Excel.");
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      showError((T.fileTooLarge || "File is too large (max 20 MB)."));
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      state.fileData = reader.result;
+      state.fileName = file.name;
+      showFileData(file.name);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  var fileDropzone = $("#pgFileDropzone");
+  var fileInput = $("#pgStatementFileInput");
+
+  fileDropzone.addEventListener("click", function () { fileInput.click(); });
+  fileDropzone.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); fileInput.click(); }
+  });
+  fileInput.addEventListener("change", function () { acceptStatementFile(fileInput.files[0]); });
+  ["dragover", "dragenter"].forEach(function (event) {
+    fileDropzone.addEventListener(event, function (e) { e.preventDefault(); fileDropzone.classList.add("pg-dropzone-over"); });
+  });
+  ["dragleave", "drop"].forEach(function (event) {
+    fileDropzone.addEventListener(event, function (e) { e.preventDefault(); fileDropzone.classList.remove("pg-dropzone-over"); });
+  });
+  fileDropzone.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files.length) acceptStatementFile(e.dataTransfer.files[0]);
+  });
+  $("#pgRemoveFile").addEventListener("click", clearFile);
+
   // -------------------------------------------------------------- processing
 
   function setLoading(button, spinner, icon, label, busy, busyText, idleText) {
@@ -577,11 +736,154 @@ function initializePlayground() {
   }
 
   function currentTypeLabel() {
-    return { text: T.tabText, image: T.tabImage, text_image: T.tabTextImage, audio: T.tabAudio }[state.type] || state.type;
+    return { text: T.tabText, image: T.tabImage, text_image: T.tabTextImage, audio: T.tabAudio, file: T.tabFile }[state.type] || state.type;
   }
+
+  function processFileInput() {
+    if (!state.fileData) { fileDropzone.focus(); return; }
+
+    setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
+      true, T.processing, T.process);
+
+    fetch(form.dataset.processFileUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+      body: JSON.stringify({
+        file_data: state.fileData,
+        filename: state.fileName || "upload",
+        password: $("#pgPdfPassword").value || null,
+        input_label: state.fileName || "file"
+      })
+    }).then(function (response) {
+      return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+    }).then(function (result) {
+      setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
+        false, T.processing, T.process);
+      handleFileResult(result.ok, result.data);
+    }).catch(function () {
+      setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
+        false, T.processing, T.process);
+      showError(T.fileProcessingFailed || "File processing failed. Please try again.");
+    });
+  }
+
+  function renderFileCandidates(candidates) {
+    var rows = $("#pgFileRows");
+    rows.textContent = "";
+
+    candidates.forEach(function (candidate, index) {
+      var row = document.createElement("tr");
+      row.setAttribute("data-testid", "file-candidate-row");
+      var date = candidate.date || "";
+      var amount = money(candidate.amount);
+      var confidence = formatConfidence(candidate.confidence);
+      var status = "";
+      if (candidate.duplicate) {
+        status = '<span class="badge bg-warning text-dark" data-testid="file-candidate-duplicate" title="' +
+          escapeHtml(T.duplicateHint || "Possible duplicate: same date, amount and money source.") + '">' +
+          '<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>' +
+          escapeHtml(T.duplicateLabel || "Possible duplicate") + "</span>";
+      } else {
+        status = '<span class="badge bg-success" data-testid="file-candidate-ready">' +
+          escapeHtml(T.readyLabel || "Ready") + "</span>";
+      }
+      row.innerHTML =
+        '<td class="small">' + escapeHtml(date ? new Date(date + "T00:00:00").toLocaleDateString() : "—") + "</td>" +
+        '<td class="small">' + escapeHtml(candidate.description || "—") +
+        (candidate.classification_source ? '<div class="small text-muted">' + escapeHtml(T.classificationSourceLabel || "Classification") +
+          ": " + escapeHtml(candidate.classification_source) + "</div>" : "") +
+        (candidate.money_source_source ? '<div class="small text-muted">' + escapeHtml(T.moneySourceSourceLabel || "Money source") +
+          ": " + escapeHtml(candidate.money_source_source) + "</div>" : "") +
+        "</td>" +
+        '<td class="small text-end fw-semibold">' + escapeHtml(amount) + " " + escapeHtml(candidate.currency || "COP") + "</td>" +
+        '<td class="small">' + escapeHtml(candidate.category_name || "—") + "</td>" +
+        '<td class="small">' + escapeHtml(candidate.money_source_name || "—") + "</td>" +
+        '<td class="small">' + escapeHtml(confidence) + "</td>" +
+        '<td class="small">' + status + "</td>";
+      rows.appendChild(row);
+    });
+  }
+
+  function handleFileResult(ok, data) {
+    $("#pgFileResult").classList.remove("d-none");
+    $("#pgResultEmpty").classList.add("d-none");
+
+    var errors = (data.errors || []);
+    var errorBox = $("#pgFileErrors");
+    if (errors.length) {
+      errorBox.textContent = (T.fileErrorsTitle || "Errors") + ": " + errors.join(" ");
+      errorBox.classList.remove("d-none");
+    } else {
+      errorBox.classList.add("d-none");
+    }
+
+    var sources = data.sources || [];
+    var sourceBox = $("#pgFileSources");
+    if (sources.length) {
+      var names = sources.map(function (s) { return s.display_name || s.name || "source"; });
+      sourceBox.innerHTML = '<div class="alert alert-info py-2 small mb-0" data-testid="playground-file-sources-list">' +
+        '<i class="bi bi-wallet2 me-1" aria-hidden="true"></i><strong>' + escapeHtml(T.tabFile || "File") + ":</strong> " +
+        escapeHtml(names.join(", ")) + "</div>";
+      sourceBox.classList.remove("d-none");
+    } else {
+      sourceBox.classList.add("d-none");
+    }
+
+    var candidates = data.candidates || [];
+    state.lastFileCandidates = candidates;
+    $("#pgFileCount").textContent = candidates.length + (candidates.length === 1 ? " transaction" : " transactions");
+    renderFileCandidates(candidates);
+
+    var hasUsable = candidates.length > 0;
+    $("#pgFileCreateButton").classList.toggle("d-none", !hasUsable);
+    if (!hasUsable && errors.length === 0) showError(T.fileNoTransactions || "No transactions could be extracted from this file.");
+  }
+
+  function fileCandidatesFromPreview() {
+    return state.lastFileCandidates || [];
+  }
+
+  function createAllExpenses() {
+    var candidates = fileCandidatesFromPreview();
+    if (!candidates.length) return;
+
+    setLoading($("#pgFileCreateButton"), $("#pgFileCreateSpinner"), $(".pg-file-create-icon"), $("#pgFileCreateLabel"),
+      true, T.fileCreating, T.fileCreateAll);
+
+    fetch(form.dataset.batchCreateUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+      body: JSON.stringify({ candidates: candidates })
+    }).then(function (response) {
+      return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+    }).then(function (result) {
+      setLoading($("#pgFileCreateButton"), $("#pgFileCreateSpinner"), $(".pg-file-create-icon"), $("#pgFileCreateLabel"),
+        false, T.fileCreating, T.fileCreateAll);
+      var success = $("#pgFileCreateSuccess");
+      if (result.ok) {
+        $("#pgFileCreateSuccessText").textContent = (T.fileCreated || "Expenses created successfully.")
+          .replace("%{count}", (result.data.created || []).length);
+        success.classList.remove("d-none");
+        $("#pgFileCreateButton").classList.add("d-none");
+      } else {
+        var errs = (result.data.errors || []);
+        var msg = errs.length ? errs.map(function (e) {
+          return (e.index != null ? "Row " + e.index + ": " : "") + (Array.isArray(e.errors) ? e.errors.join(" ") : "");
+        }).join("; ") : "Some expenses could not be created.";
+        showError(msg);
+      }
+    }).catch(function () {
+      setLoading($("#pgFileCreateButton"), $("#pgFileCreateSpinner"), $(".pg-file-create-icon"), $("#pgFileCreateLabel"),
+        false, T.fileCreating, T.fileCreateAll);
+      showError("The expenses could not be created. Please try again.");
+    });
+  }
+
+  $("#pgFileCreateButton").addEventListener("click", createAllExpenses);
 
   function processInput() {
     var type = state.type;
+    if (type === "file") { processFileInput(); return; }
     var text = type === "image" || type === "audio" ? "" : textarea.value.trim();
     if ((type === "text" || type === "text_image") && !text) { textarea.focus(); return; }
     if (type !== "text" && !state.imageData && (type !== "audio" || !state.audioData)) { dropzone.focus(); return; }

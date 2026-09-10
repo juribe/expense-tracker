@@ -94,6 +94,7 @@ module Ai
       fake_response = Struct.new(:code, :body).new("200", body)
 
       extractor = Ai::ImageExpenseExtractor.new(image_data: "data:image/jpeg;base64,Zm9v")
+      extractor.define_singleton_method(:api_key) { "test-key" }
       stub_method(extractor, :perform_request, ->(_http, _request) { fake_response }) do
         @result = extractor.call
       end

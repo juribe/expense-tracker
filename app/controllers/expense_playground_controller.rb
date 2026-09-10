@@ -45,6 +45,67 @@ class ExpensePlaygroundController < ApplicationController
     render json: { runs: runs.map(&:to_history_entry) }
   end
 
+  # POST /expense-playground/process_file
+  # Extracts transactions from an uploaded statement file (PDF/CSV/Excel).
+  # Returns the candidates for preview without persisting anything. For
+  # password-protected PDFs the caller supplies the password, which is used
+  # only to unlock the document and is never persisted.
+  def process_file
+    result = ExpensePlayground::FileProcessor.call(
+      user: current_user,
+      file_data: params[:file_data],
+      filename: params[:filename],
+      password: params[:password]
+    )
+
+    render json: {
+      ok: result.ok?,
+      candidates: result.candidates.map(&:as_json),
+      sources: result.sources.map(&:to_h),
+      duplicates: result.duplicates,
+      errors: result.errors,
+      warnings: result.warnings,
+      steps: result.step_results
+    }, status: result.ok? ? :ok : :unprocessable_entity
+  end
+
+  # POST /expense-playground/batch_create
+  # Creates expenses from reviewed candidates. Every candidate goes through
+  # Expenses::Create so validations and rules are not bypassed; failures are
+  # collected per row and never silently drop valid transactions.
+  def batch_create
+    candidates = Array(params[:candidates] || params[:candidate])
+
+    created = []
+    errors = []
+
+    candidates.each do |candidate_params|
+      candidate = build_batch_candidate(candidate_params)
+      unless candidate.valid?
+        errors << { index: created.size + errors.size + 1, errors: candidate.errors }
+        next
+      end
+
+      expense = Expenses::Create.call(
+        user: current_user,
+        amount: candidate.amount,
+        description: candidate.description.presence || candidate.merchant.presence || candidate.category_name,
+        category: candidate_category(candidate),
+        occurred_at: candidate.date,
+        source: "playground_file",
+        money_source: candidate_money_source(candidate)
+      )
+      record_classification!(candidate, expense.category)
+      created << { expense_id: expense.id, path: expense_path(expense) }
+    rescue Expenses::Create::Invalid => e
+      errors << { index: created.size + errors.size + 1, errors: [ e.message ] }
+    rescue ActiveRecord::RecordNotFound
+      errors << { index: created.size + errors.size + 1, errors: [ "The selected category or money source no longer exists." ] }
+    end
+
+    render json: { ok: errors.empty?, created: created, errors: errors }, status: errors.empty? ? :ok : :unprocessable_entity
+  end
+
   # POST /expense-playground/create
   # Explicitly persists a reviewed candidate through the app's single expense
   # creation entry point (validations and rules are NOT bypassed).
@@ -86,9 +147,9 @@ class ExpensePlaygroundController < ApplicationController
   end
 
   # Raw channel params. Adapters turn these into an ExpensePlayground::Input;
-  # image and audio payloads are used in-memory only and never persisted.
+  # image, audio and file payloads are used in-memory only and never persisted.
   def input_params
-    params.permit(:text, :image_data, :audio_data, :filename, metadata: {})
+    params.permit(:text, :image_data, :audio_data, :file_data, :filename, :password, metadata: {})
   end
 
   def expected_params
@@ -104,6 +165,14 @@ class ExpensePlaygroundController < ApplicationController
       amount currency category_id category_name description merchant
       date source confidence money_source_id money_source_name
     ])[:candidate] || {}
+  end
+
+  # Builds an ExpenseCandidate from a row of the file-import preview. Follows
+  # ExpenseCandidate.from_h but tolerates both hash and string keys so the
+  # batch endpoint accepts the same JSON the front-end sends back.
+  def build_batch_candidate(row)
+    attrs = row.respond_to?(:to_unsafe_h) ? row.to_unsafe_h : row.to_h
+    ExpenseCandidate.from_h(attrs)
   end
 
   # Best-effort audit of pipeline executions: a persistence failure must never
@@ -128,6 +197,29 @@ class ExpensePlaygroundController < ApplicationController
     end
   rescue StandardError => e
     Rails.logger.warn("[expense_playground] run linking failed: #{e.class}: #{e.message}")
+  end
+
+  # Persists classification knowledge after a file import row is created so
+  # repeated activities reuse it in future imports. A category the user
+  # changed (vs. what the enrichment suggested) is stored as a user override;
+  # unchanged AI/rule classifications are stored for future reuse.
+  def record_classification!(candidate, category)
+    description = candidate.description.to_s.presence || candidate.merchant.to_s.presence
+    return if description.blank? || category.blank?
+
+    suggested = candidate.suggested_category_name.to_s.presence
+    source =
+      if suggested.present? && !suggested.casecmp?(category.name)
+        "user"
+      elsif %w[ai rule].include?(candidate.classification_source.to_s)
+        candidate.classification_source
+      else
+        return
+      end
+
+    ActivityClassification.record!(user: current_user, name: description, category: category, source: source)
+  rescue StandardError => e
+    Rails.logger.warn("[expense_playground] classification recording failed: #{e.class}: #{e.message}")
   end
 
   # Categories must be scoped to the current user; Expenses::Create accepts
