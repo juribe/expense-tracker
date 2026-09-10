@@ -62,7 +62,7 @@ module ExpensePlayground
       @step_results[:duration_ms] = duration_ms
       @step_results[:engine] = engine
 
-      enrich_candidates(candidates, engine)
+      enrich_candidates(candidates, engine, sources)
 
       Result.new(
         ok?: true,
@@ -91,7 +91,10 @@ module ExpensePlayground
       end
 
       extraction = run_extraction(text)
-      return [ [], [], :ai ] unless extraction[:ok?]
+      unless extraction[:ok?]
+        @errors << extraction[:error].presence || I18n.t("wizard.upload.extract_failed")
+        return [ [], [], :ai ]
+      end
 
       candidates = build_candidates(extraction.dig(:data, :transactions) || [])
       sources = build_sources(extraction.dig(:data, :sources) || [])
@@ -129,9 +132,22 @@ module ExpensePlayground
       end
     end
 
+    # Uploaded binaries are raw byte strings. Modern bank exports are UTF-8;
+    # legacy latin-1 ones would make every accented character invalid in a
+    # UTF-8 view, so fall back to Windows-1252 when the bytes are not valid
+    # UTF-8. Never call String#encode straight from ASCII-8BIT: it treats
+    # multi-byte UTF-8 sequences as invalid and silently strips accents.
+    def decode_to_utf8(binary)
+      utf8 = binary.dup.force_encoding(Encoding::UTF_8)
+      return utf8.scrub("") if utf8.valid_encoding?
+
+      binary.dup.force_encoding(Encoding::WINDOWS_1252)
+            .encode(Encoding::UTF_8, invalid: :replace, undef: :replace)
+    end
+
     def extract_csv(binary)
       require "stringio"
-      csv_io = StringIO.new(binary.encode("UTF-8", invalid: :replace, undef: :replace, replace: ""))
+      csv_io = StringIO.new(decode_to_utf8(binary))
       rows = CSV.parse(csv_io, headers: true)
       return nil if rows.empty?
 
@@ -253,7 +269,7 @@ module ExpensePlayground
         amount = parse_amount(amount_source)
         next if amount.nil?
 
-        description = cell_text(row[desc_idx])
+        description = cell_text(desc_idx && row[desc_idx])
         next if description.blank?
 
         candidate = ExpenseCandidate.new(
@@ -263,7 +279,7 @@ module ExpensePlayground
           category_name: "Others",
           description: description,
           merchant: nil,
-          date: parse_date(cell_text(row[date_idx])),
+          date: parse_date(cell_text(date_idx && row[date_idx])),
           source: "playground_file",
           confidence: 0.9,
           money_source_id: nil,
@@ -279,7 +295,7 @@ module ExpensePlayground
     def extract_tabular_rows(binary, ext)
       if ext == "csv"
         require "stringio"
-        text = binary.encode("UTF-8", invalid: :replace, undef: :replace, replace: "").delete("\r")
+        text = decode_to_utf8(binary).delete("\r")
         table = CSV.parse(text, headers: true)
         return [ table.map { |row| row.fields }, table.headers.compact.map(&:to_s) ]
       end
@@ -319,6 +335,7 @@ module ExpensePlayground
       transactions.filter_map do |tx|
         next unless tx.is_a?(Hash)
 
+        tx = tx.transform_keys(&:to_s)
         description = tx["description"].to_s.strip
         amount = parse_amount(tx["amount"])
         next if description.blank? || amount.nil?
@@ -328,7 +345,7 @@ module ExpensePlayground
         category = resolve_category(categories, category_name)
 
         ExpenseCandidate.new(
-          amount: amount,
+          amount: amount.abs,
           currency: ExpenseCandidate::DEFAULT_CURRENCY,
           category_id: category&.id,
           category_name: category&.name || category_name,
@@ -359,7 +376,7 @@ module ExpensePlayground
 
     def parse_amount(value)
       numeric = value.is_a?(Numeric) ? value.to_f : parse_amount_text(value.to_s)
-      return nil unless numeric.is_a?(Numeric) && numeric.finite? && numeric.positive?
+      return nil unless numeric.is_a?(Numeric) && numeric.finite? && numeric != 0.0
 
       BigDecimal(numeric.to_s)
     rescue ArgumentError, TypeError
@@ -403,27 +420,30 @@ module ExpensePlayground
     # Applies the reuse-aware enrichment layer to the extracted candidates:
     # classification reuse, money source reuse within this import, and
     # duplicate-flagging against existing transactions and the batch itself.
-    def enrich_candidates(candidates, engine)
+    def enrich_candidates(candidates, engine, sources = [])
       classify_activities(candidates, engine)
-      resolve_money_sources(candidates)
+      resolve_money_sources(candidates, sources)
       flags = DuplicateDetector.new(user: @user).flag(candidates)
       @duplicates = candidates.each_index.select { |index| flags[index] }
       candidates
     end
 
     # Classification priority: cached user overwrite → cached AI/rule → rule →
-    # whatever the base candidate already carries (AI extractor result). Each
-    # unique activity is resolved once and reused for the rest of the batch.
+    # batch AI classification (deterministic imports only) → whatever the base
+    # candidate already carries (statement extractor result). Each unique
+    # activity is resolved once and reused for the rest of the batch.
     def classify_activities(candidates, engine)
       results = {}
+      fallbacks = {}
       candidates.each do |candidate|
         activity = candidate.description.to_s
         next if activity.blank?
 
-        result = results[ActivityClassification.normalize_name(activity) || activity] ||=
-                 Expenses::ActivityClassifier.call(user: @user, activity: activity)
+        key = ActivityClassification.normalize_name(activity) || activity
+        result = results[key] ||= Expenses::ActivityClassifier.call(user: @user, activity: activity)
 
         if result[:source] == "fallback"
+          fallbacks[key] = activity
           candidate.classification_source = engine == :ai ? "ai" : "fallback"
           candidate.suggested_category_id = candidate.category_id
           candidate.suggested_category_name = candidate.category_name
@@ -438,30 +458,72 @@ module ExpensePlayground
         candidate.category_id = result[:category].id
         candidate.category_name = result[:category].name
       end
+
+      ai_classify_fallbacks(candidates, fallbacks, engine)
     end
 
-    # Money Source resolution priority reuses a source once it has been
-    # resolved for the same normalized activity within this import, avoiding a
-    # second detector pass for every repeated activity.
-    def resolve_money_sources(candidates)
+    # Deterministic extraction (CSV/Excel) skips AI parsing, so without
+    # classification reuse every row would land as "Others". Batch-classify
+    # the activities with no stored/rule mapping in a single request.
+    def ai_classify_fallbacks(candidates, fallbacks, engine)
+      return if engine == :ai || fallbacks.empty? || ENV["MISTRAL_API_KEY"].blank?
+
+      categories = Category.for_user(@user).where(category_type: "expense").order(:name)
+      response = Ai::CategoryClassifier.new.call(activities: fallbacks.values.uniq,
+                                                 categories: categories.map(&:name))
+      return unless response[:ok?]
+
+      assignments = response[:data] || {}
+      candidates.each do |candidate|
+        activity = candidate.description.to_s
+        key = ActivityClassification.normalize_name(activity) || activity
+        next unless fallbacks.key?(key)
+
+        category_name = assignments[key].to_s.presence
+        next unless category_name
+
+        category = categories.find { |item| item.name.casecmp?(category_name) }
+        next unless category
+
+        candidate.category_id = category.id
+        candidate.category_name = category.name
+        candidate.suggested_category_id = category.id
+        candidate.suggested_category_name = category.name
+        candidate.classification_source = "ai"
+      end
+    end
+
+    # Money Source resolution priority: keyword detection over the transaction
+    # description (reused across equal activities within the import) wins; the
+    # statement-level source (verified by its account/card number) is assigned
+    # to everything else so a statement import never lands unlinked.
+    def resolve_money_sources(candidates, sources = [])
+      statement_source = statement_money_source(sources)
       detector = MoneySources::Detector.new(user: @user)
       resolved = {}
       candidates.each do |candidate|
         activity = candidate.description.to_s
-        key = activity.presence
-        found = resolved[key]
-        if found || resolved.key?(key)
-          candidate.money_source_id = found&.id
-          candidate.money_source_name = found&.name
-          candidate.money_source_source = found ? "reused_in_import" : "missing"
-          next
+        key = ActivityClassification.normalize_name(activity) || activity.presence
+        found = detected_from_cache = nil
+        if resolved.key?(key)
+          found = resolved[key]
+          detected_from_cache = found.present?
+        else
+          found = detect_money_source(detector, activity)
+          resolved[key] = found
         end
 
-        source = detect_money_source(detector, activity)
-        resolved[key] = source
-        candidate.money_source_id = source&.id
-        candidate.money_source_name = source&.name
-        candidate.money_source_source = source ? "detected" : "missing"
+        if found
+          candidate.money_source_id = found.id
+          candidate.money_source_name = found.name
+          candidate.money_source_source = detected_from_cache ? "reused_in_import" : "detected"
+        elsif statement_source
+          candidate.money_source_id = statement_source.id
+          candidate.money_source_name = statement_source.name
+          candidate.money_source_source = "statement"
+        else
+          candidate.money_source_source = "missing"
+        end
       end
     end
 
@@ -469,6 +531,36 @@ module ExpensePlayground
       detector.call(text)
     rescue StandardError
       nil
+    end
+
+    # Matches the statement's extracted source against the user's own sources
+    # (verified by the account/card last four, else by a unique bank+kind
+    # match), so every candidate inherits the owning source even when no
+    # transaction description mentions a keyword.
+    def statement_money_source(sources)
+      Array(sources).filter_map do |statement|
+        by_statement_identifier(statement) || by_statement_bank_and_kind(statement)
+      end.first
+    end
+
+    def by_statement_identifier(statement)
+      digits = (statement.identifier.presence || statement.card_last_four.presence).to_s.gsub(/\D/, "")
+      last4 = digits[-4..]
+      return nil unless last4&.length == 4
+
+      match = MoneySources::Match.call(user: @user, card_last_four: last4)
+      match if match.is_a?(MoneySource)
+    end
+
+    def by_statement_bank_and_kind(statement)
+      bank = statement.bank.to_s.strip
+      kind = statement.kind.to_s
+      return nil if bank.blank? || kind.blank?
+
+      matches = @user.money_sources.active.select do |source|
+        source.kind == kind && normalize_name(source.bank) == normalize_name(bank)
+      end
+      matches.one? ? matches.first : nil
     end
 
     def failure(message)

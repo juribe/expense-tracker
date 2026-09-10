@@ -21,7 +21,7 @@ module Ai
     STATEMENT_HEAD_CHARS = 8_000
     STATEMENT_TAIL_CHARS = 4_000
 
-    ACCOUNT_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?cuenta|cuenta\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|account\s*(?:number|no\.?|\#)/i
+    ACCOUNT_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?cuenta|cuenta\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|cuenta\s+(?:de\s+)?(?:ahorros?|corriente|n[oó]mina|maestra|electr[oó]nica)\s*(?:no\.?|nro\.?|n[oº°]|\#)?|account\s*(?:number|no\.?|\#)|(?:savings|checking)\s+account/i
     CARD_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?tarjeta|card\s*(?:number|no\.?|\#)/i
     LOAN_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?(?:cr[eé]dito|pr[eé]stamo|contrato)|contrato\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|loan\s*(?:number|no\.?|\#)/i
     LABELED_NUMBER = /([*\d][\d\s\-*.]{4,32}[\d*])/
@@ -114,7 +114,10 @@ module Ai
         sleep(2**attempts)
       end
 
-      raise ExtractionError, "AI HTTP #{response.code}" unless response&.code.to_i == 200
+      code = response&.code.to_i
+      unless code == 200
+        raise ExtractionError, code.zero? ? "AI request failed (no response after retries)" : "AI HTTP #{code}"
+      end
 
       content = JSON.parse(response.body).dig("choices", 0, "message", "content")
       raise ExtractionError, "AI response content is empty" if content.blank?
