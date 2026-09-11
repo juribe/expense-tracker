@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require "json"
-require "net/http"
-require "uri"
-
 module Ai
   # Extracts financial sources and transactions from a statement document using
   # an LLM with strict JSON output (same Mistral endpoint as TransactionExtractor).
@@ -20,6 +16,12 @@ module Ai
     STATEMENT_CHAR_LIMIT = 12_000
     STATEMENT_HEAD_CHARS = 8_000
     STATEMENT_TAIL_CHARS = 4_000
+
+    # The system prompt lives in the extraction task; kept here as a class
+    # method so both the task and this service share one definition.
+    def self.system_prompt
+      new.send(:system_prompt)
+    end
 
     ACCOUNT_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?cuenta|cuenta\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|cuenta\s+(?:de\s+)?(?:ahorros?|corriente|n[oó]mina|maestra|electr[oó]nica)\s*(?:no\.?|nro\.?|n[oº°]|\#)?|account\s*(?:number|no\.?|\#)|(?:savings|checking)\s+account/i
     CARD_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?tarjeta|card\s*(?:number|no\.?|\#)/i
@@ -56,81 +58,16 @@ module Ai
     end
 
     def call(text:, today: Date.current)
-      if api_key.blank?
-        return failure("AI extraction is not configured (missing MISTRAL_API_KEY).")
-      end
+      result = Ai::Router.call(task: :statement_extraction, input: text)
+      return failure(result.error || "AI extraction failed.") unless result.ok?
 
-      data = self.class.parse(request_extraction(text), text: text)
-      { ok?: true, data: data, error: nil }
-    rescue ExtractionError => e
-      failure(e.message)
-    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
-      failure("AI request failed (#{e.message})")
+      { ok?: true, data: result.data, error: nil }
     end
 
     private
 
     def failure(message)
       { ok?: false, data: nil, error: message }
-    end
-
-    def api_key
-      ENV["MISTRAL_API_KEY"].presence
-    end
-
-    def request_extraction(text)
-      uri = URI(ENV.fetch("MISTRAL_BASE_URL", "https://api.mistral.ai/v1/chat/completions"))
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-      http.open_timeout = 10
-      http.read_timeout = 40
-
-      request = Net::HTTP::Post.new(uri.request_uri)
-      request["Content-Type"] = "application/json"
-      request["Authorization"] = "Bearer #{api_key}"
-      request.body = {
-        model: ENV.fetch("MISTRAL_MODEL", "mistral-small-latest"),
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system_prompt },
-          { role: "user", content: "Statement contents:\n\n#{statement_window(text)}" }
-        ]
-      }.to_json
-
-      response = nil
-      attempts = 0
-      loop do
-        attempts += 1
-        begin
-          response = http.request(request)
-        rescue Net::OpenTimeout, Net::ReadTimeout
-          response = nil
-        end
-
-        break if attempts > 2
-        break if response.nil? == false && response.code.to_i < 500
-
-        sleep(2**attempts)
-      end
-
-      code = response&.code.to_i
-      unless code == 200
-        raise ExtractionError, code.zero? ? "AI request failed (no response after retries)" : "AI HTTP #{code}"
-      end
-
-      content = JSON.parse(response.body).dig("choices", 0, "message", "content")
-      raise ExtractionError, "AI response content is empty" if content.blank?
-      JSON.parse(content)
-    rescue JSON::ParserError, TypeError, KeyError => e
-      raise ExtractionError, "invalid AI response (#{e.message})"
-    end
-
-    def statement_window(text)
-      str = text.to_s
-      return str if str.length <= STATEMENT_CHAR_LIMIT
-
-      "#{str[0, STATEMENT_HEAD_CHARS]}\n\n[...]\n\n#{str[-STATEMENT_TAIL_CHARS, STATEMENT_TAIL_CHARS]}"
     end
 
     def system_prompt

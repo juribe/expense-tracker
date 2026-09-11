@@ -253,12 +253,17 @@ module ExpensePlayground
 
     # Best-effort deterministic parser for tabular statements. Column headers
     # are matched through flexible aliases so common bank exports (spanish and
-    # english) parse without any AI call.
+    # english) parse without any AI call; unknown layouts are resolved through
+    # the known-format registry (or a single structure-mapping AI call) and
+    # then every row is still processed deterministically.
     def build_deterministic_candidates(binary, ext)
       rows, headers = extract_tabular_rows(binary, ext)
       return [] if rows.empty? || headers.empty?
 
-      date_idx, desc_idx, amount_idx, expense_only_idx = index_columns(headers)
+      indices = structure_indices(headers, rows)
+      return [] if indices.nil?
+
+      date_idx, desc_idx, amount_idx, expense_only_idx = indices
 
       categories = Category.for_user(@user).order(:name).to_a
 
@@ -300,7 +305,72 @@ module ExpensePlayground
         return [ table.map { |row| row.fields }, table.headers.compact.map(&:to_s) ]
       end
 
+      extract_xlsx_tabular_rows(binary) if %w[xlsx xls].include?(ext) && defined?(Roo::Spreadsheet)
+    end
+
+    # Rows from the first sheet of an Excel file: header row first (the first
+    # row with at least two non-empty cells), data rows after it.
+    def extract_xlsx_tabular_rows(binary)
+      require "tempfile"
+      tmp = Tempfile.new([ "upload", ".xlsx" ])
+      tmp.binmode
+      tmp.write(binary)
+      tmp.rewind
+
+      sheet = Roo::Spreadsheet.open(tmp.path).sheet(0)
+      return [ [], [] ] unless sheet
+
+      rows = []
+      sheet.each_row_streaming(Array: true) { |row| rows << row.map { |cell| cell.to_s.strip } }
+      header_idx = rows.index { |row| row.count(&:present?) >= 2 }
+      return [ [], [] ] unless header_idx
+
+      [ rows[(header_idx + 1)..].reject { |row| row.all?(&:blank?) }, rows[header_idx] ]
+    rescue StandardError => e
+      Rails.logger.warn("[FileProcessor] xlsx tabular read skipped: #{e.class}: #{e.message}")
       [ [], [] ]
+    ensure
+      tmp&.close!
+    end
+
+    # Column positions for the transaction fields. Heuristic alias matching
+    # runs first; when it cannot resolve the layout, the format registry /
+    # structure-mapping AI supplies the mapping (cached per header fingerprint).
+    def structure_indices(headers, rows)
+      date_idx, desc_idx, amount_idx, expense_idx = index_columns(headers)
+      return [ date_idx, desc_idx, amount_idx, expense_idx ] if date_idx && desc_idx && amount_idx
+
+      mapped = ai_structure_indices(headers, rows)
+      return mapped if mapped
+
+      nil
+    end
+
+    def ai_structure_indices(headers, rows)
+      return nil unless ai_available?
+
+      result = Ai::SpreadsheetMapper.call(user: @user, headers: headers, sample_rows: rows.first(5))
+      return nil unless result[:ok?]
+
+      mapping = result[:mapping] || {}
+      date_idx = header_index(headers, mapping["date_column"])
+      desc_idx = header_index(headers, mapping["description_column"])
+      amount_idx = header_index(headers, mapping["debit_column"]) ||
+                   header_index(headers, mapping["amount_column"]) ||
+                   header_index(headers, mapping["credit_column"])
+      return nil unless date_idx && desc_idx && amount_idx
+
+      [ date_idx, desc_idx, amount_idx, header_index(headers, mapping["debit_column"]) ]
+    end
+
+    def header_index(headers, name)
+      return nil if name.blank?
+
+      headers.index { |header| header.to_s.strip.casecmp?(name.strip) }
+    end
+
+    def ai_available?
+      ENV["MISTRAL_API_KEY"].present? || Ai.configuration.cheap_enabled?
     end
 
     def index_columns(headers)
@@ -464,13 +534,16 @@ module ExpensePlayground
 
     # Deterministic extraction (CSV/Excel) skips AI parsing, so without
     # classification reuse every row would land as "Others". Batch-classify
-    # the activities with no stored/rule mapping in a single request.
+    # the activities with no stored/rule mapping in a single request (cheap
+    # tier first when configured); learned classifications are persisted by
+    # the classifier so the next import needs no AI at all.
     def ai_classify_fallbacks(candidates, fallbacks, engine)
-      return if engine == :ai || fallbacks.empty? || ENV["MISTRAL_API_KEY"].blank?
+      return if engine == :ai || fallbacks.empty? || !ai_available?
 
       categories = Category.for_user(@user).where(category_type: "expense").order(:name)
       response = Ai::CategoryClassifier.new.call(activities: fallbacks.values.uniq,
-                                                 categories: categories.map(&:name))
+                                                 categories: categories.map(&:name),
+                                                 user: @user)
       return unless response[:ok?]
 
       assignments = response[:data] || {}

@@ -178,24 +178,26 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_equal source.id, result[:expenses][1][:money_source_id]
   end
 
+  def ai_result(entries:, ok: true, error: nil)
+    Ai::Router::Result.new(ok?: ok, data: entries, confidence: 0.95, strategy: "cheap_ai", error: error)
+  end
+
   test "uses AI results when the provider succeeds" do
-    parser_class = Class.new(ExpenseParser) do
-      define_method(:parse_with_ai) do
-        [
-          {
-            "amount" => 120_000,
-            "category" => "Pet Care",
-            "description" => "Veterinaria",
-            "transaction_date" => "2026-08-20",
-            "confidence" => 0.98,
-            "create_category" => true
-          }
-        ]
+    result = nil
+    router_result = ai_result(entries: [
+      {
+        "amount" => 120_000, "category" => "Pet Care", "description" => "Veterinaria",
+        "transaction_date" => "2026-08-20", "confidence" => 0.98, "create_category" => true
+      }
+    ])
+
+    stub_method(Ai::Router, :call, ->(**_kwargs) { router_result }) do
+      with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+        # No amount mentioned, so the deterministic pass finds nothing and the
+        # message goes through the AI router.
+        result = ExpenseParser.call(text: "pagué la veterinaria", user: @user, today: TODAY)
       end
     end
-    ENV["MISTRAL_API_KEY"] = "test-key"
-
-    result = parser_class.call(text: "gasté 120 mil en veterinaria", user: @user, today: TODAY)
 
     assert_equal "ai", result[:engine]
     expense = result[:expenses].first
@@ -205,69 +207,33 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert expense[:create_category]
   end
 
-  test "falls back to heuristics when the AI call fails" do
-    parser_class = Class.new(ExpenseParser) do
-      define_method(:parse_with_ai) do
-        raise ExpenseParser::AIError, "boom"
+  test "falls back to heuristics when the AI routing fails" do
+    failed = ai_result(entries: nil, ok: false, error: "AI HTTP 500")
+
+    result = nil
+    stub_method(Ai::Router, :call, ->(**_kwargs) { failed }) do
+      with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+        result = ExpenseParser.call(text: "50 mil en membresia misteriosa", user: @user, today: TODAY)
       end
     end
-    ENV["MISTRAL_API_KEY"] = "test-key"
-
-    result = parser_class.call(text: "50 mil en almuerzo", user: @user, today: TODAY)
 
     assert_equal "heuristic", result[:engine]
     assert result[:errors].any? { |message| message.include?("AI parsing failed") }
     assert_equal 50_000.0, result[:expenses][0][:amount]
   end
 
-  test "retries rate-limited (429) AI responses with backoff" do
-    parser = ExpenseParser.new(text: "50 mil en almuerzo", user: @user, today: TODAY)
-    responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("200") ]
-    fake_http = FakeHttp.new(responses)
-    slept = []
-    parser.define_singleton_method(:sleep) { |seconds| slept << seconds }
-
-    response = parser.send(:perform_request, fake_http, nil)
-
-    assert_equal "200", response.code
-    assert_equal [ 1, 2 ], slept
-    assert_equal 3, fake_http.request_count
-  end
-
-  test "gives up after two 429 retries and reports the rate limit" do
-    parser = ExpenseParser.new(text: "50 mil en almuerzo", user: @user, today: TODAY)
-    fake_http = FakeHttp.new([ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429") ])
-    parser.define_singleton_method(:sleep) { |_seconds| nil }
-
-    error = assert_raise(ExpenseParser::AIError) { parser.send(:perform_request, fake_http, nil) }
-
-    assert_equal "HTTP 429", error.message
-    assert_equal 3, fake_http.request_count
-  end
-
-  test "non-429 AI errors fail immediately without retries" do
-    parser = ExpenseParser.new(text: "50 mil en almuerzo", user: @user, today: TODAY)
-    fake_http = FakeHttp.new([ FakeResponse.new("500") ])
-    parser.define_singleton_method(:sleep) { |_seconds| nil }
-
-    error = assert_raise(ExpenseParser::AIError) { parser.send(:perform_request, fake_http, nil) }
-
-    assert_equal "HTTP 500", error.message
-    assert_equal 1, fake_http.request_count
-  end
-
   test "drops invalid AI entries instead of persisting bad data" do
-    parser_class = Class.new(ExpenseParser) do
-      define_method(:parse_with_ai) do
-        [
-          { "amount" => -5, "category" => "Others", "description" => "Bad", "transaction_date" => "2026-08-22" },
-          { "amount" => 9_999, "category" => "Groceries", "description" => "Mercado", "transaction_date" => "2026-08-21" }
-        ]
+    router_result = ai_result(entries: [
+      { "amount" => -5, "category" => "Others", "description" => "Bad", "transaction_date" => "2026-08-22" },
+      { "amount" => 9_999, "category" => "Groceries", "description" => "Mercado", "transaction_date" => "2026-08-21" }
+    ])
+
+    result = nil
+    stub_method(Ai::Router, :call, ->(**_kwargs) { router_result }) do
+      with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+        result = ExpenseParser.call(text: "test", user: @user, today: TODAY)
       end
     end
-    ENV["MISTRAL_API_KEY"] = "test-key"
-
-    result = parser_class.call(text: "test", user: @user, today: TODAY)
 
     assert_equal 1, result[:expenses].length
     assert_equal 9_999.0, result[:expenses][0][:amount]
@@ -309,25 +275,5 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_nil expense[:category_id]
     assert expense[:create_category]
     assert_equal "Pet Care", expense[:category_name]
-  end
-
-  # Minimal doubles for the AI HTTP retry logic.
-  FakeResponse = Struct.new(:code)
-
-  class FakeHttp
-    attr_reader :request_count
-
-    def initialize(responses)
-      @responses = responses
-      @request_count = 0
-    end
-
-    def request(_request)
-      @request_count += 1
-      response = @responses.shift
-      raise "no stubbed response left" unless response
-
-      response
-    end
   end
 end

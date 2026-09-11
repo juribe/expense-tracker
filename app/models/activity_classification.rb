@@ -10,8 +10,10 @@
 #
 # Example: ActivityClassification.record!(user: user, name: "DIDI FOOD", category: food, source: "ai")
 class ActivityClassification < ApplicationRecord
-  SOURCES = %w[ai user rule].freeze
-  PRECEDENCE = { "user" => 0, "ai" => 1, "rule" => 2 }.freeze
+  # "cheap_ai"/"strong_ai" identify which model tier produced the knowledge;
+  # "ai" is kept for records created before tiers existed.
+  SOURCES = %w[ai cheap_ai strong_ai user rule].freeze
+  PRECEDENCE = { "user" => 0, "cheap_ai" => 1, "strong_ai" => 1, "ai" => 1, "rule" => 2 }.freeze
 
   belongs_to :user
   belongs_to :category, optional: true
@@ -64,7 +66,7 @@ class ActivityClassification < ApplicationRecord
     return nil if normalized.blank?
 
     for_user(user).where(normalized_name: normalized)
-                  .order(Arel.sql("CASE source WHEN 'user' THEN 0 WHEN 'ai' THEN 1 ELSE 2 END"))
+                  .order(Arel.sql("CASE source WHEN 'user' THEN 0 WHEN 'rule' THEN 2 ELSE 1 END"))
                   .first
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_10_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_10_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,6 +26,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_10_000001) do
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_activity_classifications_on_category_id"
     t.index ["user_id", "normalized_name"], name: "index_activity_classifications_on_user_id_and_normalized_name", unique: true
+  end
+
+  create_table "ai_requests", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "task", null: false
+    t.string "strategy", null: false
+    t.string "provider"
+    t.string "model"
+    t.string "status", default: "ok", null: false
+    t.integer "input_tokens"
+    t.integer "output_tokens"
+    t.integer "latency_ms"
+    t.decimal "confidence", precision: 4, scale: 3
+    t.boolean "escalated", default: false, null: false
+    t.string "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_ai_requests_on_created_at"
+    t.index ["strategy"], name: "index_ai_requests_on_strategy"
+    t.index ["task"], name: "index_ai_requests_on_task"
+    t.index ["user_id"], name: "index_ai_requests_on_user_id"
   end
 
   create_table "alert_preferences", force: :cascade do |t|
@@ -414,6 +435,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_10_000001) do
     t.index ["user_id"], name: "index_spending_alerts_on_user_id"
   end
 
+  create_table "spreadsheet_format_mappings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "fingerprint", null: false
+    t.string "bank"
+    t.jsonb "headers", default: [], null: false
+    t.jsonb "mapping", default: {}, null: false
+    t.decimal "confidence", precision: 4, scale: 3
+    t.string "source", default: "ai", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "fingerprint"], name: "index_spreadsheet_format_mappings_on_user_id_and_fingerprint", unique: true
+    t.index ["user_id"], name: "index_spreadsheet_format_mappings_on_user_id"
+  end
+
   create_table "transaction_rules", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "name"
@@ -491,6 +526,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_10_000001) do
 
   add_foreign_key "activity_classifications", "categories"
   add_foreign_key "activity_classifications", "users"
+  add_foreign_key "ai_requests", "users"
   add_foreign_key "alert_preferences", "users"
   add_foreign_key "budgets", "categories"
   add_foreign_key "budgets", "users"
@@ -520,6 +556,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_10_000001) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spending_alerts", "categories"
   add_foreign_key "spending_alerts", "users"
+  add_foreign_key "spreadsheet_format_mappings", "users"
   add_foreign_key "transaction_rules", "categories"
   add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"
   add_foreign_key "transaction_rules", "money_sources", column: "money_source_condition_id"

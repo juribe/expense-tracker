@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 require "json"
-require "net/http"
-require "uri"
 
 module Ai
-  # Extracts an expense from a receipt / payment image using Mistral's vision
-  # model. The first pass reads the visible text (OCR), the model then returns
-  # structured expense fields with strict JSON output.
+  # Extracts an expense from a receipt / payment image using the strong-tier
+  # provider's vision model. The first pass reads the visible text (OCR), the
+  # model then returns structured expense fields with strict JSON output.
   #
   #   result = Ai::ImageExpenseExtractor.new.call(image_data:, context_text: nil, today: Date.current)
   #     => { ok?: true,
@@ -17,6 +15,7 @@ module Ai
     class ExtractionError < StandardError; end
 
     DEFAULT_CURRENCY = "COP"
+    TASK = "image_extraction"
 
     def self.call(**kwargs)
       new(**kwargs).call
@@ -29,14 +28,26 @@ module Ai
     end
 
     def call
-      return failure("AI extraction is not configured (missing MISTRAL_API_KEY).") if api_key.blank?
-
-      data = parse_response(request_extraction)
+      started = monotonic
+      provider = Ai::Providers.strong
+      return failure("AI extraction is not configured (missing MISTRAL_API_KEY).") unless provider.configured?
+      response = provider.chat(
+        messages: [
+          { role: "system", content: system_prompt },
+          { role: "user", content: user_content }
+        ],
+        model: Ai.configuration.vision_model,
+        timeout: 45
+      )
+      data = parse_response(JSON.parse(response.content))
+      record(provider, response: response, latency_ms: latency_since(started))
       { ok?: true, data: data, error: nil }
-    rescue ExtractionError => e
+    rescue ExtractionError, Ai::Provider::Error => e
+      record(provider, error: e.message, latency_ms: latency_since(started))
       failure(e.message)
-    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
-      failure("AI request failed (#{e.message})")
+    rescue JSON::ParserError, TypeError, KeyError => e
+      record(provider, error: "invalid AI response (#{e.message})", latency_ms: latency_since(started))
+      failure("invalid AI response (#{e.message})")
     end
 
     private
@@ -45,58 +56,21 @@ module Ai
       { ok?: false, data: nil, error: message }
     end
 
-    def api_key
-      ENV["MISTRAL_API_KEY"].presence
+    def record(provider, response: nil, error: nil, latency_ms: nil)
+      Ai::Recorder.write(
+        task: TASK, user: nil, strategy: "strong_ai", provider: provider,
+        status: error ? "error" : "ok", confidence: nil, escalated: false,
+        error: error, input_tokens: response&.input_tokens,
+        output_tokens: response&.output_tokens, latency_ms: latency_ms
+      )
     end
 
-    def request_extraction
-      uri = URI(ENV.fetch("MISTRAL_BASE_URL", "https://api.mistral.ai/v1/chat/completions"))
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-      http.open_timeout = 10
-      http.read_timeout = 45
-
-      request = Net::HTTP::Post.new(uri.request_uri)
-      request["Content-Type"] = "application/json"
-      request["Authorization"] = "Bearer #{api_key}"
-      request.body = {
-        model: ENV.fetch("MISTRAL_VISION_MODEL", "pixtral-12b-24091063"),
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system_prompt },
-          { role: "user", content: user_content }
-        ]
-      }.to_json
-
-      response = perform_request(http, request)
-
-      content = JSON.parse(response.body).dig("choices", 0, "message", "content")
-      JSON.parse(content)
-    rescue JSON::ParserError, TypeError, KeyError => e
-      raise ExtractionError, "invalid AI response (#{e.message})"
+    def monotonic
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
 
-    # Retries rate-limited (HTTP 429) responses with a short backoff; other
-    # HTTP errors fail immediately. Accepts a callable so tests can stub HTTP.
-    def perform_request(http, request)
-      retry_with_backoff { http.request(request) }
-    end
-
-    def retry_with_backoff
-      attempts = 0
-      loop do
-        response = yield
-        return response if response.code.to_i == 200
-
-        if response.code.to_i == 429 && attempts < 2
-          attempts += 1
-          sleep(attempts)
-          next
-        end
-
-        raise ExtractionError, "AI HTTP #{response.code}"
-      end
+    def latency_since(started)
+      ((monotonic - started) * 1000).round
     end
 
     def user_content

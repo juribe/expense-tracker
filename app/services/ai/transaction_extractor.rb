@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require "json"
-require "net/http"
-require "uri"
-
 module Ai
   # Extracts structured financial transactions from an email using an LLM with
   # strict JSON output (same Mistral endpoint used by ExpenseParser).
@@ -27,6 +23,11 @@ module Ai
       # Raises ExtractionError when the payload is unusable.
       def parse(raw, today: Date.current)
         new.parse_payload(raw, today)
+      end
+
+      # Shared prompt definition, used by the routing task.
+      def system_prompt
+        new.send(:system_prompt)
       end
     end
 
@@ -53,86 +54,18 @@ module Ai
     end
 
     def call(subject:, body:, today: Date.current)
-      if api_key.blank?
-        return failure("AI extraction is not configured (missing MISTRAL_API_KEY).")
-      end
+      result = Ai::Router.call(task: :transaction_extraction,
+                               input: { subject: subject, body: body },
+                               context: { today: today })
+      return failure(result.error || "AI extraction failed.") unless result.ok?
 
-      data = self.class.parse(request_extraction(subject, body), today: today)
-      { ok?: true, data: data, error: nil }
-    rescue ExtractionError => e
-      failure(e.message)
-    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
-      failure("AI request failed (#{e.message})")
+      { ok?: true, data: result.data, error: nil }
     end
 
     private
 
     def failure(message)
       { ok?: false, data: nil, error: message }
-    end
-
-    def api_key
-      ENV["MISTRAL_API_KEY"].presence
-    end
-
-    def request_extraction(subject, body)
-      uri = URI(ENV.fetch("MISTRAL_BASE_URL", "https://api.mistral.ai/v1/chat/completions"))
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-      http.open_timeout = 10
-      http.read_timeout = 25
-
-      request = Net::HTTP::Post.new(uri.request_uri)
-      request["Content-Type"] = "application/json"
-      request["Authorization"] = "Bearer #{api_key}"
-      request.body = {
-        model: ENV.fetch("MISTRAL_MODEL", "mistral-small-latest"),
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system_prompt },
-          { role: "user", content: email_content(subject, body) }
-        ]
-      }.to_json
-
-      response = perform_request(http, request)
-
-      content = JSON.parse(response.body).dig("choices", 0, "message", "content")
-      JSON.parse(content)
-    rescue JSON::ParserError, TypeError, KeyError => e
-      raise ExtractionError, "invalid AI response (#{e.message})"
-    end
-
-    # Retries rate-limited (HTTP 429) responses with a short backoff so a
-    # transient provider throttle does not burn a message's failed attempt.
-    # Other HTTP errors fail immediately. Accepts a callable so the HTTP layer
-    # can be stubbed in tests.
-    def perform_request(http, request)
-      retry_with_backoff { http.request(request) }
-    end
-
-    def retry_with_backoff
-      attempts = 0
-      loop do
-        response = yield
-        return response if response.code.to_i == 200
-
-        if response.code.to_i == 429 && attempts < 2
-          attempts += 1
-          sleep(attempts)
-          next
-        end
-
-        raise ExtractionError, "AI HTTP #{response.code}"
-      end
-    end
-
-    def email_content(subject, body)
-      <<~CONTENT
-        Email subject: #{subject.to_s[0, 200]}
-        Email body:
-        #{body.to_s[0, 6000]}
-      CONTENT
     end
 
     def system_prompt

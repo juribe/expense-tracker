@@ -85,34 +85,28 @@ module Ai
       assert_match(/not configured/, result[:error])
     end
 
-    test "perform_request retries a 429 then returns a 200" do
-      fake = Struct.new(:code)
-      calls = []
-      response_sequence = [ fake.new("429"), fake.new("429"), fake.new("200") ]
+    test "call returns parsed transactions through the routing layer" do
+      payload = {
+        transactions: [ { type: "expense", amount: 48_500, merchant: "Restaurante XYZ",
+                          occurred_at: "2026-08-23T14:30:00", confidence: 0.98 } ],
+        should_ignore: false, reason: nil
+      }.to_json
+      strong = FakeAiProvider.new(responses: [ payload ])
 
-      result = extractor.send(:retry_with_backoff) do
-        calls << response_sequence.shift
-        calls.last
-      end
-
-      assert_equal "200", result.code
-      assert_equal 3, calls.size
-    end
-
-    test "perform_request gives up on persistent 429 after retrying" do
-      fake = Struct.new(:code)
-      calls = []
-      response_sequence = [ fake.new("429"), fake.new("429"), fake.new("429") ]
-
-      error = assert_raises(Ai::TransactionExtractor::ExtractionError) do
-        extractor.send(:retry_with_backoff) do
-          calls << response_sequence.shift
-          calls.last
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+          result = extractor.call(subject: "Compra", body: "Te notificamos una compra por $48.500")
         end
       end
 
-      assert_match(/AI HTTP 429/, error.message)
-      assert_equal 3, calls.size
+      assert result[:ok?], result[:error].inspect
+      assert_equal "Restaurante XYZ", result.dig(:data, :transactions, 0, :merchant)
+      assert_equal BigDecimal(48_500.to_s), result.dig(:data, :transactions, 0, :amount)
+
+      row = AiRequest.where(task: "transaction_extraction").last
+      assert_equal "strong_ai", row.strategy
+      assert_equal "ok", row.status
     end
   end
 end

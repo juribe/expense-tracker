@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require "json"
-require "net/http"
-require "uri"
-
 module Ai
   # Batch classifier: maps a list of activity/merchant descriptions to one of
   # the user's categories in a single request, so deterministic file imports
@@ -41,87 +37,54 @@ module Ai
       end
     end
 
-    def call(activities:, categories:)
-      return { ok?: true, data: {}, error: nil } if activities.empty? || categories.empty?
+    # Routes the batch through the cheap tier first (the stored-knowledge
+    # cache is consulted even before that when a user is given) and escalates
+    # to the strong tier on low confidence or failure. AI classifications are
+    # persisted to ActivityClassification so future imports reuse them.
+    #
+    # Returns { ok?:, data: { normalized_activity => category_name },
+    #           strategy: "cache"|"cheap_ai"|"strong_ai"|nil, error: }
+    def call(activities:, categories:, user: nil)
+      return { ok?: true, data: {}, strategy: nil, error: nil } if activities.empty? || categories.empty?
 
-      if api_key.blank?
-        return failure("AI classification is not configured (missing MISTRAL_API_KEY).")
-      end
+      result = Ai::Router.call(
+        task: :category_classification,
+        input: { activities: activities, categories: categories },
+        context: { user: user }
+      )
+      return failure(result.error || "AI classification failed") unless result.ok?
 
-      { ok?: true, data: self.class.parse(request_classification(activities, categories), activities: activities, categories: categories), error: nil }
-    rescue ExtractionError => e
-      failure(e.message)
-    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
-      failure("AI request failed (#{e.message})")
+      data = flatten_assignments(result.data)
+      record_classifications(data, user: user, source: result.strategy)
+      { ok?: true, data: data, strategy: result.strategy, error: nil }
     end
 
     private
 
-    def failure(message)
-      { ok?: false, data: {}, error: message }
+    def flatten_assignments(data)
+      (data || {}).each_with_object({}) do |(key, value), map|
+        category = value.is_a?(Hash) ? value["category"] : value
+        map[key] = category if category.present?
+      end
     end
 
-    def api_key
-      ENV["MISTRAL_API_KEY"].presence
+    def record_classifications(data, user:, source:)
+      return if user.nil? || data.empty?
+      return unless %w[cheap_ai strong_ai].include?(source.to_s)
+
+      data.each do |key, category_name|
+        ActivityClassification.record!(user: user, name: key, category: category_name, source: source)
+      rescue ActiveRecord::RecordInvalid, ArgumentError
+        nil
+      end
+    end
+
+    def failure(message)
+      { ok?: false, data: {}, strategy: nil, error: message }
     end
 
     def activity_key(activity)
       ActivityClassification.normalize_name(activity) || activity.to_s
-    end
-
-    def request_classification(activities, categories)
-      uri = URI(ENV.fetch("MISTRAL_BASE_URL", "https://api.mistral.ai/v1/chat/completions"))
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-      http.open_timeout = 10
-      http.read_timeout = 40
-
-      request = Net::HTTP::Post.new(uri.request_uri)
-      request["Content-Type"] = "application/json"
-      request["Authorization"] = "Bearer #{api_key}"
-      request.body = {
-        model: ENV.fetch("MISTRAL_MODEL", "mistral-small-latest"),
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system_prompt },
-          { role: "user", content: user_content(activities, categories) }
-        ]
-      }.to_json
-
-      response = http.request(request)
-      unless response.code.to_i == 200
-        raise ExtractionError, "AI classification failed (HTTP #{response.code})"
-      end
-
-      content = JSON.parse(response.body).dig("choices", 0, "message", "content")
-      raise ExtractionError, "AI response content is empty" if content.blank?
-      JSON.parse(content)
-    rescue JSON::ParserError, TypeError, KeyError => e
-      raise ExtractionError, "invalid AI response (#{e.message})"
-    end
-
-    def user_content(activities, categories)
-      <<~PROMPT
-        Categories (use one of them verbatim): #{categories.join(", ")}
-
-        Activities to classify:
-        #{activities.each_with_index.map { |activity, index| "#{index + 1}. #{activity}" }.join("\n")}
-      PROMPT
-    end
-
-    def system_prompt
-      <<~PROMPT
-        You classify merchant/activity names from bank transactions into ONE of the provided
-        expense categories.
-        Rules:
-        - Use exactly one category name from the given list, spelled exactly as provided.
-        - Use null (not a string) when no category fits.
-        - Return one assignment per activity, keeping the activity text exactly as received.
-        Respond with ONLY JSON of the shape:
-        {"assignments":[{"activity":"DIDI FOOD","category":"Restaurants"},
-          {"activity":"ACME INSURANCE","category":null}]}
-      PROMPT
     end
   end
 end

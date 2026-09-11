@@ -134,7 +134,7 @@ module ExpensePlayground
 
       calls = 0
       fake_classifier = Class.new do
-        define_method(:call) { |activities:, categories:|
+        define_method(:call) { |activities:, categories:, **|
           calls += 1
           { ok?: true, data: { "compra pos oxxo rio alto" => "Compras" }, error: nil }
         }
@@ -160,7 +160,7 @@ module ExpensePlayground
 
       classified_activities = nil
       fake_classifier = Class.new do
-        define_method(:call) { |activities:, categories:|
+        define_method(:call) { |activities:, categories:, **|
           classified_activities = activities
           { ok?: true, data: {}, error: nil }
         }
@@ -259,11 +259,14 @@ module ExpensePlayground
         end
       end.new
 
-      stub_method(Ai::StatementExtractor, :new, ->(*) { fake_extractor }) do
-        result = FileProcessor.call(user: @user, file_data: file_data, filename: "stmt.csv")
+      # No AI keys: the structure-mapping tier stays out of the way.
+      with_env({ "MISTRAL_API_KEY" => nil }) do
+        stub_method(Ai::StatementExtractor, :new, ->(*) { fake_extractor }) do
+          result = FileProcessor.call(user: @user, file_data: file_data, filename: "stmt.csv")
 
-        assert_not result.ok?
-        assert_includes result.errors.first, "AI request failed (boom)"
+          assert_not result.ok?
+          assert_includes result.errors.first, "AI request failed (boom)"
+        end
       end
     end
 
@@ -271,6 +274,99 @@ module ExpensePlayground
       result = FileProcessor.call(user: @user, file_data: "data:text/plain;base64,cGxhaW4=", filename: "notes.txt")
 
       assert_not result.ok?
+    end
+
+    # ---------------------------------------------------- structure mapping
+
+    UNKNOWN_CSV_HEADERS = "Stamp,Label,Spent,Brought,Running"
+
+    def unknown_format_csv
+      csv = "#{UNKNOWN_CSV_HEADERS}\n2026-09-01,DIDI FOOD,45000,,1250000\n2026-09-02,UBER TRIP,22000,,1228000\n"
+      "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+    end
+
+    def unknown_format_mapping_payload
+      {
+        mapping: {
+          date_column: "Stamp", description_column: "Label", amount_column: nil,
+          debit_column: "Spent", credit_column: "Brought", balance_column: "Running"
+        },
+        confidence: 0.96
+      }.to_json
+    end
+
+    def stub_classifier
+      fake = Class.new do
+        define_method(:call) { |**_kwargs| { ok?: true, data: {}, error: nil } }
+      end.new
+      stub_method(Ai::CategoryClassifier, :new, ->(*) { fake }) { yield }
+    end
+
+    test "an unknown spreadsheet format is mapped once by the structure AI" do
+      strong = FakeAiProvider.new(responses: [ unknown_format_mapping_payload ])
+      result = nil
+
+      stub_classifier do
+        stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+          result = FileProcessor.call(user: @user, file_data: unknown_format_csv, filename: "odd.csv")
+        end
+      end
+
+      assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
+      assert_equal 2, result.candidates.size
+      assert_equal "DIDI FOOD", result.candidates.first.description
+      assert_equal BigDecimal("45000"), result.candidates.first.amount
+      assert_equal Date.new(2026, 9, 1), result.candidates.first.date
+      assert_equal 1, strong.calls.count
+
+      stored = SpreadsheetFormatMapping.for_user(@user).find_by(
+        fingerprint: SpreadsheetFormatMapping.fingerprint(UNKNOWN_CSV_HEADERS.split(","))
+      )
+      assert_not_nil stored
+    end
+
+    test "a known spreadsheet format reuses the mapping without any AI structure call" do
+      headers = UNKNOWN_CSV_HEADERS.split(",")
+      SpreadsheetFormatMapping.record!(
+        user: @user, headers: headers,
+        mapping: { "date_column" => "Stamp", "description_column" => "Label",
+                   "amount_column" => nil, "debit_column" => "Spent",
+                   "credit_column" => "Brought", "balance_column" => "Running" },
+        source: "strong_ai"
+      )
+
+      strong = FakeAiProvider.new(responses: [])
+      result = nil
+      stub_classifier do
+        stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+          result = FileProcessor.call(user: @user, file_data: unknown_format_csv, filename: "odd.csv")
+        end
+      end
+
+      assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
+      assert_equal 2, result.candidates.size
+      assert_equal 0, strong.calls.count
+    end
+
+    test "structure mapping failures fall back to the full-text AI extraction" do
+      strong = FakeAiProvider.new(responses: [ Ai::Provider::Error.new("AI HTTP 500") ])
+      fake_extractor = Class.new do
+        define_method(:call) do |text:, today: Date.current|
+          { ok?: true, data: { sources: [], transactions: [
+            { date: "2026-09-01", description: "DIDI FOOD", amount: 45_000, type: "expense", confidence: 0.9 }
+          ] }, error: nil }
+        end
+      end.new
+
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        stub_method(Ai::StatementExtractor, :new, ->(*) { fake_extractor }) do
+          result = FileProcessor.call(user: @user, file_data: unknown_format_csv, filename: "odd.csv")
+        end
+      end
+
+      assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
+      assert_equal "DIDI FOOD", result.candidates.first.description
     end
   end
 end

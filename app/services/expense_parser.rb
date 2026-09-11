@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require "json"
-require "net/http"
 require "set"
-require "uri"
 
 # Converts natural-language input (text or a voice transcription) into
 # structured expense data WITHOUT persisting anything.
@@ -21,11 +18,13 @@ require "uri"
 #     errors: ["..."]
 #   }
 #
-# When a Mistral API key is configured the text is interpreted by an LLM using
-# strict JSON output. Otherwise - or whenever the AI call fails - a
-# deterministic rule-based parser handles common Colombian expressions such as
-# "50 mil", "50 lucas", "50.000 pesos", "50k" and "medio millón", plus relative
-# dates like "hoy", "ayer", "anteayer" and weekdays ("el lunes").
+# Resolution order: a deterministic parser handles common Colombian
+# expressions first ("50 mil", "50 lucas", "50.000 pesos", "50k",
+# "medio millón") plus relative dates ("hoy", "ayer", "anteayer", "el lunes").
+# When the heuristic pass resolves everything confidently, no AI call happens.
+# Otherwise the message goes through Ai::Router (cheap model first, strong
+# model on low confidence or failure). If every AI tier fails, the heuristic
+# result is returned with a note.
 class ExpenseParser
   DEFAULT_CURRENCY = "COP"
   LOW_CONFIDENCE_THRESHOLD = 0.75
@@ -72,8 +71,6 @@ class ExpenseParser
     a tambien solo fueron era son es
   ].to_set.freeze
 
-  class AIError < StandardError; end
-
   Resolution = Struct.new(:category, :suggested_name, :confidence)
 
   class << self
@@ -118,104 +115,67 @@ class ExpenseParser
 
   # ------------------------------------------------------------------ provider
 
+  # Resolution order: deterministic heuristic → AI routing (cheap model first,
+  # strong model on low confidence or failure) → heuristic fallback. When the
+  # heuristic pass resolves every expense confidently, no AI call happens.
   def run_provider
-    if ai_api_key.present?
-      begin
-        entries = parse_with_ai
-        return [ entries.map { |e| normalize_ai_entry(e) }, "ai" ] if entries.is_a?(Array) && entries.any?
-
-        @notes << "AI returned no usable expenses."
-      rescue ExpenseParser::AIError => e
-        @notes << "AI parsing failed, used rule-based fallback (#{e.message})."
-      end
+    heuristic = parse_heuristically
+    if deterministic_confident?(heuristic)
+      record_deterministic_resolution(heuristic)
+      return [ heuristic, "heuristic" ]
     end
-    [ parse_heuristically, "heuristic" ]
+
+    entries = parse_with_routing
+    return [ entries, "ai" ] if entries.present?
+
+    [ heuristic, "heuristic" ]
   end
 
-  def ai_api_key
-    ENV["MISTRAL_API_KEY"].presence
-  end
+  def parse_with_routing
+    return nil unless ai_configured?
 
-  # Calls the Mistral chat completions endpoint with JSON output.
-  def parse_with_ai
-    uri = URI(ENV.fetch("MISTRAL_BASE_URL", "https://api.mistral.ai/v1/chat/completions"))
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == "https"
-    http.open_timeout = 10
-    http.read_timeout = 25
-
-    request = Net::HTTP::Post.new(uri.request_uri)
-    request["Content-Type"] = "application/json"
-    request["Authorization"] = "Bearer #{ai_api_key}"
-    request.body = {
-      model: ENV.fetch("MISTRAL_MODEL", "mistral-small-latest"),
-      temperature: 0,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: ai_system_prompt },
-        { role: "user", content: @text }
-      ]
-    }.to_json
-
-    response = perform_request(http, request)
-
-    content = JSON.parse(response.body).dig("choices", 0, "message", "content")
-    data = JSON.parse(content)
-    entries = data.is_a?(Array) ? data : data["expenses"]
-    raise AIError, "missing 'expenses' array" unless entries.is_a?(Array)
-
-    entries.filter_map do |entry|
-      next unless entry.is_a?(Hash)
-
-      entry.symbolize_keys
+    result = Ai::Router.call(
+      task: :expense_extraction,
+      input: @text,
+      context: { user: @user, today: @today, categories: @categories, context: @context }
+    )
+    unless result.ok?
+      @notes << "AI parsing failed, used rule-based fallback (#{result.error})."
+      return nil
     end
-  rescue JSON::ParserError, TypeError, KeyError => e
-    raise AIError, "invalid response (#{e.message})"
-  rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
-    raise AIError, e.message
+
+    entries = result.data.map { |entry| normalize_ai_entry(entry) }
+    entries.presence
   end
 
-  # Retries rate-limited (HTTP 429) responses with a short backoff; other
-  # HTTP errors fail immediately (mirrors Ai::ImageExpenseExtractor).
-  def perform_request(http, request)
-    attempts = 0
-    loop do
-      response = http.request(request)
-      return response if response.code.to_i == 200
+  # Heuristic entries with every confidence component at or above the
+  # deterministic threshold are trusted without an AI call.
+  def deterministic_confident?(entries)
+    return false if entries.empty?
 
-      if response.code.to_i == 429 && attempts < 2
-        attempts += 1
-        sleep(attempts)
-        next
-      end
-
-      raise AIError, "HTTP #{response.code}"
-    end
+    threshold = Ai.configuration.deterministic_threshold
+    entries.all? { |expense| expense.confidence.to_f >= threshold && expense.warnings.blank? }
   end
 
-  def ai_system_prompt
-    categories_list = @categories.map(&:name).join(", ")
-    context_block = @context ? "\nContext: #{@context}\n" : ""
-    <<~PROMPT
-      You extract expense records from natural language (Spanish/Colombian usage).
-      Current date: #{@today.iso8601}. Currency: #{DEFAULT_CURRENCY}.
-      User's existing categories: [#{categories_list}].
-      #{context_block}
-      Rules:
-      - One input may contain multiple expenses; return one entry per expense.
-      - Interpret Colombian amounts: "50 mil"/"50 lucas"/"50k" = 50000, "50.000 pesos" = 50000, "medio millon" = 500000.
-      - Resolve relative dates ("hoy", "ayer", "anteayer", "el lunes") to an ISO date (YYYY-MM-DD).
-      - Use one of the user's existing categories when it fits; otherwise set "create_category": true and suggest a short English category name.
-      - Include a confidence between 0 and 1.
-      Respond with ONLY JSON of the shape:
-      {"expenses":[{"amount":50000,"category":"Restaurants","description":"Restaurante","transaction_date":"#{@today.iso8601}","confidence":0.95,"create_category":false}]}
-    PROMPT
+  def record_deterministic_resolution(entries)
+    # Only worth recording when an AI call would otherwise have happened.
+    return unless ai_configured?
+
+    Ai::Recorder.write(task: "expense_extraction", user: @user, strategy: "deterministic",
+                       provider: nil, status: "ok", escalated: false, error: nil,
+                       confidence: entries.map(&:confidence).compact.min,
+                       input_tokens: nil, output_tokens: nil, latency_ms: nil)
   end
 
-  # Maps a raw AI hash into the internal entry shape used by build_expense:
+  def ai_configured?
+    ENV["MISTRAL_API_KEY"].present? || Ai.configuration.cheap_enabled?
+  end
+
+  # Maps a raw AI hash (from the router) into the internal entry shape used
+  # by build_expense:
   #   { amount:, description:, transaction_date:, category_name:, create_category:, confidence: }
   def normalize_ai_entry(entry)
-    entry = entry.symbolize_keys
+    entry = entry.with_indifferent_access
     {
       amount: entry[:amount],
       description: entry[:description].presence,

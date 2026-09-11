@@ -84,55 +84,41 @@ module Ai
       assert_match(/not configured/, result[:error])
     end
 
-    test "call succeeds with a stubbed HTTP response" do
-      body = {
-        choices: [ { message: { content: {
-          ocr_text: "TOTAL 50.000",
-          expenses: [ { amount: 50_000, merchant: "Restaurante", category: "restaurants", confidence: 0.95 } ]
-        }.to_json } } ]
+    test "call succeeds through the strong-tier provider and records usage" do
+      payload = {
+        ocr_text: "TOTAL 50.000",
+        expenses: [ { amount: 50_000, merchant: "Restaurante", category: "restaurants", confidence: 0.95 } ]
       }.to_json
-      fake_response = Struct.new(:code, :body).new("200", body)
+      strong = FakeAiProvider.new(responses: [ { content: payload, input_tokens: 30, output_tokens: 12 } ])
 
-      extractor = Ai::ImageExpenseExtractor.new(image_data: "data:image/jpeg;base64,Zm9v")
-      extractor.define_singleton_method(:api_key) { "test-key" }
-      stub_method(extractor, :perform_request, ->(_http, _request) { fake_response }) do
-        @result = extractor.call
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+          result = extractor.call
+        end
       end
-      result = @result
 
       assert result[:ok?], result[:error].inspect
       assert_equal "TOTAL 50.000", result.dig(:data, :ocr_text)
       assert_equal BigDecimal(50_000.to_s), result.dig(:data, :expenses, 0, :amount)
+
+      row = AiRequest.where(task: "image_extraction").last
+      assert_equal "strong_ai", row.strategy
+      assert_equal "ok", row.status
+      assert_equal 30, row.input_tokens
     end
 
-    test "perform_request retries a 429 then returns a 200" do
-      fake = Struct.new(:code)
-      calls = []
-      sequence = [ fake.new("429"), fake.new("429"), fake.new("200") ]
+    test "call fails cleanly when the provider rejects the request" do
+      strong = FakeAiProvider.new(responses: [ Ai::Provider::Error.new("AI HTTP 500") ])
 
-      result = extractor.send(:retry_with_backoff) do
-        calls << sequence.shift
-        calls.last
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) { result = extractor.call }
       end
 
-      assert_equal "200", result.code
-      assert_equal 3, calls.size
-    end
-
-    test "perform_request gives up on persistent 429 after retrying" do
-      fake = Struct.new(:code)
-      calls = []
-      sequence = [ fake.new("429"), fake.new("429"), fake.new("429") ]
-
-      error = assert_raises(Ai::ImageExpenseExtractor::ExtractionError) do
-        extractor.send(:retry_with_backoff) do
-          calls << sequence.shift
-          calls.last
-        end
-      end
-
-      assert_match(/AI HTTP 429/, error.message)
-      assert_equal 3, calls.size
+      refute result[:ok?]
+      assert_match(/AI HTTP 500/, result[:error])
+      assert_equal "error", AiRequest.where(task: "image_extraction").last.status
     end
   end
 end
