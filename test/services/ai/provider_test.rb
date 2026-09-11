@@ -103,5 +103,17 @@ module Ai
       assert_equal "AI HTTP 500", error.message
       assert_equal 1, fake_http.request_count
     end
+
+    test "a 429 caused by an exhausted budget fails fast without retries" do
+      p = provider
+      body = { error: { message: "Budget has been exceeded!", type: "budget_exceeded" } }.to_json
+      fake_http = FakeHttp.new([ FakeResponse.new("429", body) ])
+      p.define_singleton_method(:sleep) { |_seconds| nil }
+
+      error = assert_raises(Ai::Provider::Error) { p.send(:perform_request, [ fake_http, nil ]) }
+
+      assert_equal "AI HTTP 429", error.message
+      assert_equal 1, fake_http.request_count
+    end
   end
 end

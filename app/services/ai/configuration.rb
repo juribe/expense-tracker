@@ -5,23 +5,23 @@ module Ai
   # Values are read from ENV lazily on every access so tests (and deploy
   # changes) never require resetting memoized state.
   #
-  #   AI_STRONG_PROVIDER             provider name for the strong tier (default: "mistral")
+  # Vendor endpoints and API-key conventions live in the provider clients
+  # (Ai::Providers::*); this class only carries tier selection and thresholds:
+  #
+  #   AI_STRONG_PROVIDER             client name for the strong tier (default: "mistral")
   #   AI_STRONG_MODEL                strong model (default: MISTRAL_MODEL or "mistral-small-latest")
-  #   AI_CHEAP_PROVIDER              provider name for the cheap tier; cheap tier is
-  #                                  disabled when unset
-  #   AI_CHEAP_MODEL                 cheap/strong-cheap model (e.g. "ministral-3b-latest")
-  #   AI_CHEAP_BASE_URL              chat-completions endpoint for the cheap tier
-  #   AI_CHEAP_API_KEY               API key for the cheap tier (falls back to the
-  #                                  strong key when the provider is "mistral")
-  #   AI_CHEAP_CONFIDENCE_THRESHOLD  minimum confidence required to accept a cheap
-  #                                  tier result without escalating (default: 0.90)
-  #   AI_DETERMINISTIC_THRESHOLD     minimum confidence required to accept a fully
-  #                                  deterministic resolution without any AI call
+  #   AI_CHEAP_PROVIDER              client name for the cheap tier ("mistral", "flexai", ...)
+  #   AI_CHEAP_MODEL                 cheap-tier model; the cheap tier is disabled when unset
+  #   AI_CHEAP_API_KEY               API key override (falls back to the client's own env)
+  #   AI_CHEAP_BASE_URL              endpoint override (falls back to the client's default)
+  #   AI_CHEAP_CONFIDENCE_THRESHOLD  minimum confidence to accept a cheap result
+  #                                  without escalating to the strong tier (default: 0.90)
+  #   AI_DETERMINISTIC_THRESHOLD     minimum confidence to accept a fully deterministic
+  #                                  resolution without any AI call
   #                                  (default: AI_CHEAP_CONFIDENCE_THRESHOLD)
   class Configuration
-    DEFAULT_STRONG_MODEL = "mistral-small-latest"
     DEFAULT_STRONG_PROVIDER = "mistral"
-    MISTRAL_DEFAULT_BASE_URL = "https://api.mistral.ai/v1/chat/completions"
+    DEFAULT_STRONG_MODEL = "mistral-small-latest"
     DEFAULT_CHEAP_CONFIDENCE_THRESHOLD = 0.90
 
     def strong_provider
@@ -30,14 +30,6 @@ module Ai
 
     def strong_model
       ENV["AI_STRONG_MODEL"].presence || ENV["MISTRAL_MODEL"].presence || DEFAULT_STRONG_MODEL
-    end
-
-    def strong_api_key
-      ENV["MISTRAL_API_KEY"].presence
-    end
-
-    def strong_base_url
-      ENV["MISTRAL_BASE_URL"].presence || MISTRAL_DEFAULT_BASE_URL
     end
 
     # Vision-capable model on the strong tier, used for receipt/image input.
@@ -53,20 +45,26 @@ module Ai
       ENV["AI_CHEAP_MODEL"].presence
     end
 
-    def cheap_base_url
-      ENV["AI_CHEAP_BASE_URL"].presence ||
-        (cheap_provider == "mistral" ? MISTRAL_DEFAULT_BASE_URL : nil)
-    end
-
     def cheap_api_key
-      ENV["AI_CHEAP_API_KEY"].presence ||
-        (cheap_provider == "mistral" ? strong_api_key : nil)
+      ENV["AI_CHEAP_API_KEY"].presence
     end
 
-    # The cheap tier only runs when explicitly configured with a model, an
-    # endpoint and a key; otherwise every task goes straight to the strong tier.
+    def cheap_base_url
+      ENV["AI_CHEAP_BASE_URL"].presence
+    end
+
+    # The cheap tier only runs when a model is set and the client it resolves
+    # to is properly configured (key + endpoint come from the client defaults
+    # or the explicit overrides above).
     def cheap_enabled?
-      cheap_model.present? && cheap_base_url.present? && cheap_api_key.present?
+      provider = cheap_provider
+      return false if cheap_model.blank? || provider.blank?
+
+      client = Providers.build(provider: provider, model: cheap_model,
+                               api_key: cheap_api_key, base_url: cheap_base_url)
+      client.configured?
+    rescue ArgumentError
+      false
     end
 
     def cheap_confidence_threshold

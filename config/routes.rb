@@ -95,6 +95,7 @@ Rails.application.routes.draw do
   post "expense-playground/batch_create", to: "expense_playground#batch_create", as: :expense_playground_batch_create
   post "expense-playground/create", to: "expense_playground#create", as: :expense_playground_create
   get "expense-playground/history", to: "expense_playground#history", as: :expense_playground_history
+  get "expense-playground/ai_summary", to: "expense_playground#ai_summary", as: :expense_playground_ai_summary
 
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'

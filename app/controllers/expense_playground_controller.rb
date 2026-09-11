@@ -45,6 +45,32 @@ class ExpensePlaygroundController < ApplicationController
     render json: { runs: runs.map(&:to_history_entry) }
   end
 
+  # GET /expense-playground/ai_summary
+  # AI routing observability for the current user: tier usage over the last
+  # week plus the most recent resolutions, so it is visible which tier
+  # (deterministic / cache / cheap / strong) answered each request.
+  def ai_summary
+    scope = AiRequest.where(user: current_user).where("created_at > ?", 7.days.ago)
+
+    render json: {
+      summary: Ai::Metrics.summary(scope),
+      cheap_tier_enabled: Ai.configuration.cheap_enabled?,
+      recent: scope.recent_first.limit(10).map do |r|
+        {
+          task: r.task,
+          strategy: r.strategy,
+          provider: r.provider,
+          model: r.model,
+          status: r.status,
+          confidence: r.confidence&.to_f,
+          escalated: r.escalated,
+          latency_ms: r.latency_ms,
+          created_at: r.created_at.iso8601
+        }
+      end
+    }
+  end
+
   # POST /expense-playground/process_file
   # Extracts transactions from an uploaded statement file (PDF/CSV/Excel).
   # Returns the candidates for preview without persisting anything. For

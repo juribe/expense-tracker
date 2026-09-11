@@ -28,6 +28,31 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     assert_match "Expense Playground", response.body
   end
 
+  test "GET /expense-playground/ai_summary reports which tier answered each request" do
+    AiRequest.create!(user: @user, task: "expense_extraction", strategy: "cheap_ai",
+                      provider: "openrouter", model: "mistralai/mistral-nemo", status: "ok",
+                      confidence: 0.95, input_tokens: 300, output_tokens: 60, latency_ms: 1200)
+    AiRequest.create!(user: @user, task: "expense_extraction", strategy: "strong_ai",
+                      provider: "mistral", model: "mistral-small-latest", status: "ok",
+                      confidence: 0.99, escalated: true)
+
+    get expense_playground_ai_summary_path(format: :json)
+
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert_equal false, data["cheap_tier_enabled"]
+    assert_equal 1, data.dig("summary", "cheap_ai_requests")
+    assert_equal 1, data.dig("summary", "strong_ai_requests")
+    recent = data["recent"]
+    assert_equal 2, recent.length
+    cheap = recent.find { |row| row["strategy"] == "cheap_ai" }
+    assert_equal "openrouter", cheap["provider"]
+    assert_equal "mistralai/mistral-nemo", cheap["model"]
+    assert_equal 0.95, cheap["confidence"]
+    strong = recent.find { |row| row["strategy"] == "strong_ai" }
+    assert_equal true, strong["escalated"]
+  end
+
   test "POST /expense-playground/process returns a candidate without persisting any expense" do
     assert_no_difference -> { Expense.count } do
       assert_no_difference -> { Category.count } do

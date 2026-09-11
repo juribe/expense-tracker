@@ -182,6 +182,7 @@ module ExpensePlayground
 
       @steps[:extraction] = {
         engine: result[:engine],
+        ai_strategy: result[:ai_strategy],
         raw: result[:expenses],
         detected_count: result[:expenses].length
       }

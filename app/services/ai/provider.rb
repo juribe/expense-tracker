@@ -57,6 +57,12 @@ module Ai
 
     private
 
+    # Vendor-specific headers (e.g. OpenRouter's attribution headers). Only
+    # present when the client defines them.
+    def extra_headers
+      {}
+    end
+
     def build_request(messages, temperature, json, model_override, timeout)
       uri = URI(@base_url)
       http = Net::HTTP.new(uri.host, uri.port)
@@ -67,6 +73,7 @@ module Ai
       request = Net::HTTP::Post.new(uri.request_uri)
       request["Content-Type"] = "application/json"
       request["Authorization"] = "Bearer #{@api_key}"
+      extra_headers.each { |key, value| request[key] = value }
       body = {
         model: model_override || @model,
         temperature: temperature,
@@ -84,13 +91,16 @@ module Ai
       retry_with_backoff { http.request(request) }
     end
 
+    # Retries transient rate limits (HTTP 429) with a short backoff. A 429
+    # reporting an exhausted budget or quota is not transient: fail fast so
+    # the router can fall back to the strong tier immediately.
     def retry_with_backoff
       attempts = 0
       loop do
         response = yield
         return response if response.code.to_i == 200
 
-        if response.code.to_i == 429 && attempts < 2
+        if response.code.to_i == 429 && attempts < 2 && retryable_throttle?(response)
           attempts += 1
           sleep(attempts)
           next
@@ -98,6 +108,10 @@ module Ai
 
         raise Error, "AI HTTP #{response.code}"
       end
+    end
+
+    def retryable_throttle?(response)
+      !response.body.to_s.match?(/budget|quota|insufficient/i)
     end
   end
 end

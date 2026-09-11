@@ -90,7 +90,7 @@ class ExpenseParser
   end
 
   def call
-    entries, engine = run_provider
+    entries, engine, ai_strategy = run_provider
     expenses = entries.filter_map do |entry|
       expense = build_expense(entry)
       assign_money_source(expense)
@@ -105,6 +105,7 @@ class ExpenseParser
 
     {
       engine: engine,
+      ai_strategy: ai_strategy,
       transcription: @text,
       expenses: expenses.map { |expense| serialize(expense) },
       errors: @notes.uniq
@@ -122,17 +123,17 @@ class ExpenseParser
     heuristic = parse_heuristically
     if deterministic_confident?(heuristic)
       record_deterministic_resolution(heuristic)
-      return [ heuristic, "heuristic" ]
+      return [ heuristic, "heuristic", "deterministic" ]
     end
 
-    entries = parse_with_routing
-    return [ entries, "ai" ] if entries.present?
+    entries, strategy = parse_with_routing
+    return [ entries, "ai", strategy ] if entries.present?
 
-    [ heuristic, "heuristic" ]
+    [ heuristic, "heuristic", nil ]
   end
 
   def parse_with_routing
-    return nil unless ai_configured?
+    return nil, nil unless ai_configured?
 
     result = Ai::Router.call(
       task: :expense_extraction,
@@ -141,11 +142,11 @@ class ExpenseParser
     )
     unless result.ok?
       @notes << "AI parsing failed, used rule-based fallback (#{result.error})."
-      return nil
+      return nil, nil
     end
 
     entries = result.data.map { |entry| normalize_ai_entry(entry) }
-    entries.presence
+    entries.present? ? [ entries, result.strategy ] : [ nil, nil ]
   end
 
   # Heuristic entries with every confidence component at or above the

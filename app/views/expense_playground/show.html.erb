@@ -35,7 +35,8 @@
                 data-process-file-url="<%= expense_playground_process_file_path(format: :json) %>"
                 data-batch-create-url="<%= expense_playground_batch_create_path(format: :json) %>"
                 data-create-url="<%= expense_playground_create_path(format: :json) %>"
-                data-history-url="<%= expense_playground_history_path(format: :json) %>">
+                data-history-url="<%= expense_playground_history_path(format: :json) %>"
+                data-ai-summary-url="<%= expense_playground_ai_summary_path(format: :json) %>">
             <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
 
             <!-- text input (text / text+image tabs) -->
@@ -370,6 +371,26 @@
     </div>
   </div>
 
+  <!-- ---------------------------------------------------------- AI routing -->
+  <div class="card shadow-sm mt-4" data-testid="playground-ai-summary">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+      <h2 class="h6 mb-0"><i class="bi bi-cpu me-2" aria-hidden="true"></i><%= t("playground.ai_summary_title") %></h2>
+      <span class="small text-muted" id="pgAiCheapTier" data-testid="playground-ai-cheap-tier"></span>
+    </div>
+    <div class="card-body py-2">
+      <p class="text-muted small mb-2"><%= t("playground.ai_summary_subtitle") %></p>
+      <div class="d-flex flex-wrap gap-2 mb-2" id="pgAiChips" data-testid="playground-ai-chips"></div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <tbody id="pgAiBody" data-testid="playground-ai-body"></tbody>
+        </table>
+      </div>
+      <p class="text-muted small mb-0 d-none" id="pgAiEmpty" data-testid="playground-ai-empty">
+        <%= t("playground.ai_summary_empty") %>
+      </p>
+    </div>
+  </div>
+
   <!-- -------------------------------------------------------------- history -->
   <div class="card shadow-sm mt-4" data-testid="playground-history">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
@@ -452,7 +473,23 @@ function initializePlayground() {
     noMerchant: "—",
     noSource: "—",
     evaluationCorrect: <%= raw(t("playground.evaluation_correct").to_json) %>,
-    historyLoadFailed: <%= raw(t("playground.history_delete_failed").to_json) %>
+    historyLoadFailed: <%= raw(t("playground.history_delete_failed").to_json) %>,
+    aiSummaryEmpty: <%= raw(t("playground.ai_summary_empty").to_json) %>,
+    aiStrategyDeterministic: <%= raw(t("playground.ai_strategy_deterministic").to_json) %>,
+    aiStrategyCache: <%= raw(t("playground.ai_strategy_cache").to_json) %>,
+    aiStrategyCheap: <%= raw(t("playground.ai_strategy_cheap_ai").to_json) %>,
+    aiStrategyStrong: <%= raw(t("playground.ai_strategy_strong_ai").to_json) %>,
+    aiSummaryCheap: <%= raw(t("playground.ai_summary_cheap").to_json) %>,
+    aiSummaryStrong: <%= raw(t("playground.ai_summary_strong").to_json) %>,
+    aiSummaryDeterministic: <%= raw(t("playground.ai_summary_deterministic").to_json) %>,
+    aiSummaryCache: <%= raw(t("playground.ai_summary_cache").to_json) %>,
+    aiSummaryFallback: <%= raw(t("playground.ai_summary_fallback").to_json) %>,
+    aiSummaryConfidence: <%= raw(t("playground.ai_summary_confidence").to_json) %>,
+    aiSummaryTokens: <%= raw(t("playground.ai_summary_tokens").to_json) %>,
+    aiSummaryCheapTier: <%= raw(t("playground.ai_summary_cheap_tier").to_json) %>,
+    aiSummaryEnabled: <%= raw(t("playground.ai_summary_enabled").to_json) %>,
+    aiSummaryDisabled: <%= raw(t("playground.ai_summary_disabled").to_json) %>,
+    aiSummaryEscalated: <%= raw(t("playground.ai_summary_escalated").to_json) %>
   };
 
   var HISTORY_KEY = "expense_playground_history_v1";
@@ -837,6 +874,7 @@ function initializePlayground() {
     var hasUsable = candidates.length > 0;
     $("#pgFileCreateButton").classList.toggle("d-none", !hasUsable);
     if (!hasUsable && errors.length === 0) showError(T.fileNoTransactions || "No transactions could be extracted from this file.");
+    loadAiSummary();
   }
 
   function fileCandidatesFromPreview() {
@@ -925,6 +963,7 @@ function initializePlayground() {
     renderSttSummary(data.steps);
     renderSteps(data);
     renderEvaluation(data.evaluation);
+    loadAiSummary();
     $("#pgDebug").classList.remove("d-none");
 
     var errors = (data.errors || []).join(" ");
@@ -1242,7 +1281,11 @@ function initializePlayground() {
 
     var extraction = stepSection(T.stepExtraction);
     var raw = steps.extraction && steps.extraction.raw;
-    extraction.appendChild(pre(steps.extraction && steps.extraction.engine ? T.engineLabel + ": " + steps.extraction.engine : ""));
+    var engineText = steps.extraction && steps.extraction.engine ? T.engineLabel + ": " + steps.extraction.engine : "";
+    if (steps.extraction && steps.extraction.ai_strategy) {
+      engineText += (engineText ? " · " : "") + strategyLabel(steps.extraction.ai_strategy);
+    }
+    extraction.appendChild(pre(engineText));
     if (raw != null) extraction.appendChild(jsonPre(raw));
     container.appendChild(extraction);
     container.appendChild(arrow());
@@ -1354,6 +1397,84 @@ function initializePlayground() {
     }
   }
 
+  // ---------------------------------------------------------- AI summary
+
+  var STRATEGY_BADGES = {
+    "deterministic": "text-bg-secondary",
+    "cache": "text-bg-info",
+    "cheap_ai": "text-bg-success",
+    "strong_ai": "text-bg-warning"
+  };
+
+  function strategyLabel(strategy) {
+    switch (strategy) {
+    case "deterministic": return T.aiStrategyDeterministic;
+    case "cache": return T.aiStrategyCache;
+    case "cheap_ai": return T.aiStrategyCheap;
+    case "strong_ai": return T.aiStrategyStrong;
+    default: return strategy || "—";
+    }
+  }
+
+  function strategyBadge(strategy) {
+    return '<span class="badge ' + (STRATEGY_BADGES[strategy] || "text-bg-light") + '">' +
+      escapeHtml(strategyLabel(strategy)) + "</span>";
+  }
+
+  function renderAiSummary(data) {
+    var summary = data.summary || {};
+    var chips = $("#pgAiChips");
+    chips.innerHTML = "";
+
+    function chip(label, value) {
+      var el = document.createElement("span");
+      el.className = "badge text-bg-light";
+      el.textContent = label + ": " + value;
+      chips.appendChild(el);
+    }
+
+    chip(T.aiSummaryDeterministic, summary.deterministic_requests || 0);
+    chip(T.aiSummaryCache, summary.cache_hits || 0);
+    chip(T.aiSummaryCheap, summary.cheap_ai_requests || 0);
+    chip(T.aiSummaryStrong, summary.strong_ai_requests || 0);
+    chip(T.aiSummaryFallback, Math.round((summary.ai_fallback_rate || 0) * 100) + "%");
+    if (summary.average_confidence != null) chip(T.aiSummaryConfidence, summary.average_confidence);
+    chip(T.aiSummaryTokens, (summary.input_tokens || 0) + " / " + (summary.output_tokens || 0));
+
+    $("#pgAiCheapTier").textContent = T.aiSummaryCheapTier + ": " +
+      (data.cheap_tier_enabled ? T.aiSummaryEnabled : T.aiSummaryDisabled);
+
+    var rows = (data.recent || []).map(function (r) {
+      var tr = document.createElement("tr");
+      var status = r.status === "ok" ? "" : (' <span class="badge text-bg-danger">' + escapeHtml(r.status) + "</span>");
+      var escalated = r.escalated ? (' <span class="badge text-bg-warning">' + escapeHtml(T.aiSummaryEscalated) + "</span>") : "";
+      var model = [ r.provider, r.model ].filter(Boolean).join("/");
+      var conf = r.confidence == null ? "—" : Number(r.confidence).toFixed(2);
+      var latency = r.latency_ms == null ? "—" : r.latency_ms + " ms";
+      tr.innerHTML =
+        "<td>" + strategyBadge(r.strategy) + status + escalated + "</td>" +
+        '<td class="small">' + escapeHtml(r.task) + "</td>" +
+        '<td class="small text-muted">' + escapeHtml(model || "—") + "</td>" +
+        '<td class="small text-muted">' + escapeHtml(conf) + "</td>" +
+        '<td class="small text-muted text-end">' + escapeHtml(latency) + "</td>";
+      return tr;
+    });
+
+    var body = $("#pgAiBody");
+    body.textContent = "";
+    rows.forEach(function (row) { body.appendChild(row); });
+    $("#pgAiEmpty").classList.toggle("d-none", rows.length > 0);
+  }
+
+  function loadAiSummary() {
+    fetch(form.dataset.aiSummaryUrl, {
+      headers: { "Accept": "application/json", "X-CSRF-Token": csrfToken() }
+    }).then(function (response) {
+      if (!response.ok) throw new Error("ai_summary");
+      return response.json();
+    }).then(renderAiSummary).catch(function () { /* summary panel stays empty */ });
+  }
+
   function loadHistory() {
     fetch(form.dataset.historyUrl, {
       headers: { "Accept": "application/json", "X-CSRF-Token": csrfToken() }
@@ -1384,6 +1505,7 @@ function initializePlayground() {
 
   renderHistory([]);
   loadHistory();
+  loadAiSummary();
 }
 
 document.addEventListener("turbo:load", initializePlayground);

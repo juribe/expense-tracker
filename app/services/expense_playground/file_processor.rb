@@ -347,8 +347,6 @@ module ExpensePlayground
     end
 
     def ai_structure_indices(headers, rows)
-      return nil unless ai_available?
-
       result = Ai::SpreadsheetMapper.call(user: @user, headers: headers, sample_rows: rows.first(5))
       return nil unless result[:ok?]
 
@@ -367,10 +365,6 @@ module ExpensePlayground
       return nil if name.blank?
 
       headers.index { |header| header.to_s.strip.casecmp?(name.strip) }
-    end
-
-    def ai_available?
-      ENV["MISTRAL_API_KEY"].present? || Ai.configuration.cheap_enabled?
     end
 
     def index_columns(headers)
@@ -538,7 +532,7 @@ module ExpensePlayground
     # tier first when configured); learned classifications are persisted by
     # the classifier so the next import needs no AI at all.
     def ai_classify_fallbacks(candidates, fallbacks, engine)
-      return if engine == :ai || fallbacks.empty? || !ai_available?
+      return if engine == :ai || fallbacks.empty?
 
       categories = Category.for_user(@user).where(category_type: "expense").order(:name)
       response = Ai::CategoryClassifier.new.call(activities: fallbacks.values.uniq,
