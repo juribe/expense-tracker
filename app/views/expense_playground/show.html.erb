@@ -41,7 +41,7 @@
                 data-create-url="<%= expense_playground_create_path(format: :json) %>"
                 data-history-url="<%= expense_playground_history_path(format: :json) %>"
                 data-ai-summary-url="<%= expense_playground_ai_summary_path(format: :json) %>"
-                data-evaluations-url="<%= expense_playground_evaluations_path(format: :json) %>">
+                data-evaluations-url="<%= expense_playground_evaluations_path %>">
             <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
 
             <!-- text input (text / text+image tabs) -->
@@ -1701,7 +1701,9 @@ function initializePlayground() {
     var fa = $("#pgEvalFieldAccuracy");
     fa.textContent = "";
     var fieldAccuracy = m("field_accuracy") || {};
-    var compared = metrics.fields && metrics.fields.compared;
+    var compared = Object.keys(metrics.fields || {}).reduce(function (sum, field) {
+      return sum + (Number(metrics.fields[field].compared) || 0);
+    }, 0);
     EVAL_FIELDS.forEach(function (field, idx) {
       var acc = Number(fieldAccuracy[field]);
       var pct = isNaN(acc) ? 0 : Math.round(acc * 100);
@@ -1831,7 +1833,7 @@ function initializePlayground() {
     body.textContent = "";
     cases.forEach(function (c) {
       var failedFields = (c.field_results || [])
-        .filter(function (fr) { return fr.passed === false; })
+        .filter(function (fr) { return fr.compared === true && fr.matched === false; })
         .map(function (fr) { return fr.field; });
       var fieldBadges = failedFields.map(function (f) {
         return '<span class="badge bg-danger">' + escapeHtml(f) + "</span>";
