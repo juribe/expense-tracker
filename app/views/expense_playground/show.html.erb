@@ -40,7 +40,8 @@
                 data-batch-create-url="<%= expense_playground_batch_create_path(format: :json) %>"
                 data-create-url="<%= expense_playground_create_path(format: :json) %>"
                 data-history-url="<%= expense_playground_history_path(format: :json) %>"
-                data-ai-summary-url="<%= expense_playground_ai_summary_path(format: :json) %>">
+                data-ai-summary-url="<%= expense_playground_ai_summary_path(format: :json) %>"
+                data-evaluations-url="<%= expense_playground_evaluations_path(format: :json) %>">
             <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
 
             <!-- text input (text / text+image tabs) -->
@@ -367,130 +368,126 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <h5 class="mb-1"><i class="bi bi-bar-chart-line me-2"></i>AI Evaluation</h5>
-            <p class="text-muted small mb-3">Carga un dataset y evalúa el rendimiento de diferentes modelos.</p>
+            <p class="text-muted small mb-3">Sube un dataset CSV y evalúa el pipeline completo con un proveedor/modelo concreto.</p>
 
-            <div class="mb-3">
-              <div class="small fw-semibold mb-2">1. Dataset</div>
-              <div class="border rounded p-3 d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-file-earmark-text me-2 text-muted"></i>
-                  <div>
-                    <div class="fw-semibold small">gastos_v2.csv</div>
-                    <div class="text-muted small">1,000 casos · 2 columnas (message, expected_json)</div>
-                  </div>
-                  <i class="bi bi-check-circle-fill text-success ms-2"></i>
-                </div>
-                <button class="btn btn-sm btn-outline-secondary">Cambiar</button>
+            <form id="pgEvalForm">
+              <div class="mb-3">
+                <div class="small fw-semibold mb-2">1. Dataset (CSV: message, expected_json)</div>
+                <input type="file" id="pgEvalDatasetFile" accept=".csv,text/csv" class="form-control form-control-sm"
+                       data-testid="evaluation-dataset-file">
+                <div class="small text-muted mt-1"><span id="pgEvalDatasetMeta"></span>A una fila por caso; se validan las filas, se rechaza cualquier vacío.</div>
               </div>
-              <div class="alert alert-success py-2 small mt-2 mb-0">Dataset válido<br><span class="text-muted">1,000 filas cargadas correctamente.</span></div>
-            </div>
-
-            <div class="mb-3">
-              <div class="small fw-semibold mb-2">2. Modelo</div>
-              <div class="border rounded p-2">
-                <div class="d-flex align-items-center">
-                  <span class="badge bg-primary rounded-circle me-2">↑</span>
-                  <div>
-                    <div class="fw-semibold small">upstage/solar-pro4</div>
-                    <div class="text-muted small">Solar Pro 4</div>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="mb-3">
+                    <div class="small fw-semibold mb-2">2. Proveedor</div>
+                    <select id="pgEvalProvider" class="form-select form-select-sm" data-testid="evaluation-provider">
+                      <option value="openrouter">OpenRouter</option>
+                      <option value="mistral">Mistral</option>
+                      <option value="flex">Flex</option>
+                      <option value="groq">Groq</option>
+                    </select>
                   </div>
-                  <i class="bi bi-chevron-down ms-auto"></i>
                 </div>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <div class="small fw-semibold mb-2">3. Prompt</div>
-              <div class="border rounded p-2">
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-file-earmark-text me-2 text-muted"></i>
-                  <div>
-                    <div class="fw-semibold small">expense_extraction_v3</div>
-                    <div class="text-muted small">Versión 3 · Extracción de gastos</div>
+                <div class="col-6">
+                  <div class="mb-3">
+                    <div class="small fw-semibold mb-2">3. Modelo</div>
+                    <input type="text" id="pgEvalModel" class="form-control form-control-sm" placeholder="ej. upstage/solar-pro4"
+                           value="upstage/solar-pro4" data-testid="evaluation-model">
                   </div>
-                  <i class="bi bi-chevron-down ms-auto"></i>
                 </div>
               </div>
-              <div class="form-text small mt-2"><i class="bi bi-gear me-1"></i>Opciones avanzadas (opcional)</div>
-            </div>
+              <div class="mb-3">
+                <div class="small fw-semibold mb-2">4. Nombre de archivo (opcional)</div>
+                <input type="text" id="pgEvalFilename" class="form-control form-control-sm" placeholder="gastos.csv"
+                       value="gastos.csv" data-testid="evaluation-filename">
+              </div>
 
-            <button class="btn btn-primary w-100"><i class="bi bi-play-fill me-1"></i>Ejecutar Evaluación</button>
-            <div class="alert alert-info py-2 small mt-2 mb-0"><i class="bi bi-info-circle me-1"></i>La evaluación se ejecutará en segundo plano.<br><span class="text-muted">Puedes cerrar esta página y volver más tarde.</span></div>
+              <button type="submit" class="btn btn-primary w-100" id="pgEvalStartBtn" data-testid="evaluation-start">
+                <i class="bi bi-play-fill me-1"></i>Ejecutar Evaluación
+              </button>
+              <div class="alert alert-danger py-2 small mt-2 mb-0 d-none" id="pgEvalError"></div>
+            </form>
+            <div class="alert alert-info py-2 small mt-2 mb-0"><i class="bi bi-info-circle me-1"></i>La evaluación corre en segundo plano<br><span class="text-muted">Puedes cerrar esta página y volver más tarde.</span></div>
+
+            <div class="mt-3">
+              <div class="small fw-semibold mb-2"><i class="bi bi-clock-history me-1"></i>Historial</div>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead><tr><th class="small text-muted">Dataset</th><th class="small text-muted">Modelo</th><th class="small text-muted">Estado</th><th class="small text-muted text-end">Extras</th></tr></thead>
+                  <tbody id="pgEvalHistoryBody" data-testid="evaluation-history-body"></tbody>
+                </table>
+                <p class="small text-muted mb-0 d-none" id="pgEvalHistoryEmpty">Aún no hay evaluaciones.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="col-lg-7">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm d-none" id="pgEvalResults">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Resultados de la Evaluación <span class="badge bg-success-subtle text-success ms-2">Completada</span></h5>
-              <div class="text-end small text-muted">Iniciada: 11 sep 2026, 10:24<br>Duración: 18m 32s</div>
+              <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Resultados de la Evaluación
+                <span class="badge bg-warning-subtle text-warning ms-2" id="pgEvalRunStatus">En progreso</span></h5>
+              <div class="text-end small text-muted" id="pgEvalRunMeta"></div>
             </div>
-            <div class="text-muted small mb-3">gastos_v2.csv · upstage/solar-pro4 · expense_extraction_v3</div>
+            <div class="progress mb-3" style="height: 8px;">
+              <div class="progress-bar" id="pgEvalRunProgress" role="progressbar" style="width:0%"></div>
+            </div>
+            <div class="text-muted small mb-3" id="pgEvalRunCaption"></div>
 
             <div class="row g-2 mb-3">
-              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Total de casos</div><div class="h5 mb-0">1,000</div></div></div>
-              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Casos exitosos</div><div class="h5 mb-0 text-success">942</div><div class="small text-muted">94.2%</div></div></div>
-              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Casos fallidos</div><div class="h5 mb-0 text-danger">58</div><div class="small text-muted">5.8%</div></div></div>
-              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">JSON válido</div><div class="h5 mb-0">998</div><div class="small text-muted">99.8%</div></div></div>
-              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Costo estimado</div><div class="h5 mb-0">$0.18</div></div></div>
-              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Latencia promedio</div><div class="h5 mb-0">1.2s</div></div></div>
+              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Total de casos</div><div class="h5 mb-0" id="pgEvalTotal">—</div></div></div>
+              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Casos exitosos</div><div class="h5 mb-0 text-success" id="pgEvalPassed">—</div></div></div>
+              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Casos fallidos</div><div class="h5 mb-0 text-danger" id="pgEvalFailed">—</div></div></div>
+              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">JSON válido</div><div class="h5 mb-0" id="pgEvalJsonValid">—</div></div></div>
+              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Costo</div><div class="h5 mb-0" id="pgEvalCost">—</div></div></div>
+              <div class="col-6 col-md-4 col-lg-2"><div class="border rounded p-2"><div class="small text-muted">Latencia promedio</div><div class="h5 mb-0" id="pgEvalLatency">—</div></div></div>
             </div>
 
             <div class="row g-3">
               <div class="col-md-6">
                 <div class="border rounded p-3">
                   <div class="small fw-semibold mb-2">Precisión por campo</div>
-                  <div class="small">Intent <div class="progress"><div class="progress-bar" style="width:98.1%"></div></div> 98.1% 981 / 1,000</div>
-                  <div class="small mt-2">Amount <div class="progress"><div class="progress-bar" style="width:99.7%"></div></div> 99.7% 997 / 1,000</div>
-                  <div class="small mt-2">Date <div class="progress"><div class="progress-bar" style="width:96.2%"></div></div> 96.2% 962 / 1,000</div>
-                  <div class="small mt-2">Activity <div class="progress"><div class="progress-bar" style="width:95.8%"></div></div> 95.8% 958 / 1,000</div>
-                  <div class="small mt-2">Category <div class="progress"><div class="progress-bar" style="width:94.8%"></div></div> 94.8% 948 / 1,000</div>
-                  <div class="small mt-2">Subcategory <div class="progress"><div class="progress-bar" style="width:90.1%"></div></div> 90.1% 901 / 1,000</div>
-                  <div class="small mt-2">Money Source <div class="progress"><div class="progress-bar" style="width:91.3%"></div></div> 91.3% 913 / 1,000</div>
-                  <div class="small mt-2">Currency <div class="progress"><div class="progress-bar" style="width:99.4%"></div></div> 99.4% 994 / 1,000</div>
-                  <div class="small mt-3 fw-semibold">Full Record (todos los campos) <div class="progress"><div class="progress-bar" style="width:94.2%"></div></div> 94.2% 942 / 1,000</div>
+                  <div id="pgEvalFieldAccuracy" class="small"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="border rounded p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="small fw-semibold"><i class="bi bi-balance me-1"></i>Comparar Modelos</div>
-                    <button class="btn btn-sm btn-outline-primary">+ Añadir modelo</button>
+                  <div class="small fw-semibold mb-2"><i class="bi bi-balance me-1"></i>Comparar Modelos</div>
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead><tr><th>Modelo</th><th>Accuracy</th><th>JSON válido</th><th>Latencia</th><th>Costo</th></tr></thead>
+                      <tbody id="pgEvalCompareBody"></tbody>
+                    </table>
                   </div>
-                  <table class="table table-sm">
-                    <thead><tr><th>Modelo</th><th>Accuracy</th><th>JSON válido</th><th>Latencia</th><th>Costo</th></tr></thead>
-                    <tbody>
-                      <tr class="table-active"><td>Solar Pro 4</td><td>94.2%</td><td>99.8%</td><td>1.2s</td><td>$0.18</td></tr>
-                      <tr><td>GPT-OSS 20B</td><td>93.1%</td><td>99.5%</td><td>1.1s</td><td>$0.16</td></tr>
-                      <tr><td>Mistral Small</td><td>95.8%</td><td>100%</td><td>1.4s</td><td>$0.42</td></tr>
-                      <tr><td>Kimi K3</td><td>96.7%</td><td>99.9%</td><td>1.8s</td><td>$2.14</td></tr>
-                      <tr><td>Laguna XS 2.1</td><td>92.8%</td><td>99.4%</td><td>0.9s</td><td>$0.08</td></tr>
-                    </tbody>
-                  </table>
-                  <a class="small text-primary">Ver comparación detallada →</a>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="card shadow-sm mt-3">
+        <div class="card shadow-sm mt-3 d-none" id="pgEvalFailedWrap">
           <div class="card-body">
-            <ul class="nav nav-tabs mb-3">
-              <li class="nav-item"><a class="nav-link active text-danger">Casos fallidos (58)</a></li>
-              <li class="nav-item"><a class="nav-link">Todos los casos (1,000)</a></li>
-              <li class="nav-item"><a class="nav-link">Análisis por campo</a></li>
-            </ul>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="small fw-semibold"><i class="bi bi-exclamation-triangle text-danger me-1"></i>Casos fallidos <span class="badge bg-danger" id="pgEvalFailedCount">0</span></div>
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" style="width:auto" id="pgEvalFailedStatus" data-testid="evaluation-failed-status">
+                  <option value="failed">Fallidos</option>
+                  <option value="error">Error</option>
+                  <option value="passed">Exitosos</option>
+                </select>
+                <input type="search" class="form-control form-control-sm" style="width:auto" placeholder="Buscar por mensaje…" id="pgEvalFailedQuery" data-testid="evaluation-failed-query">
+                <button class="btn btn-sm btn-outline-secondary" id="pgEvalFailedRefresh">Filtrar</button>
+              </div>
+            </div>
             <div class="table-responsive">
-              <table class="table table-sm">
-                <thead><tr><th>#</th><th>Mensaje</th><th>Esperado</th><th>Actual</th><th>Campos fallidos</th><th>Latencia</th><th>Tokens</th><th>Costo</th><th>Acciones</th></tr></thead>
-                <tbody>
-                  <tr><td>23</td><td>ayer gasté 80 lucas</td><td>{"amount":80000,"date":"2026-09-10",...}</td><td>{"amount":80000,"date":null,"category":"food",...}</td><td><span class="badge bg-danger">date</span> <span class="badge bg-danger">category</span></td><td>1.1s</td><td>420</td><td>$0.0008</td><td><button class="btn btn-sm btn-outline-primary">Ver</button></td></tr>
-                  <tr><td>47</td><td>almuerzo con los pelaos 27 mil</td><td>{"amount":27000,"category":"food",...}</td><td>{"amount":27000,"category":"restaurant",...}</td><td><span class="badge bg-danger">category</span></td><td>0.9s</td><td>385</td><td>$0.0007</td><td><button class="btn btn-sm btn-outline-primary">Ver</button></td></tr>
-                </tbody>
+              <table class="table table-sm align-middle">
+                <thead><tr><th>#</th><th>Mensaje</th><th>Esperado</th><th>Actual</th><th>Campos fallidos</th><th>Latencia</th><th>Tokens</th><th>Costo</th></tr></thead>
+                <tbody id="pgEvalFailedBody" data-testid="evaluation-failed-body"></tbody>
               </table>
+              <p class="small text-muted mb-0 d-none" id="pgEvalFailedEmpty">Sin casos que coincidan.</p>
             </div>
           </div>
         </div>
@@ -1647,6 +1644,267 @@ function initializePlayground() {
     renderHistory([]);
   });
 
+  // ------------------------------------------------------------- evaluation
+
+  var EVAL_FIELDS = ["intent", "amount", "date", "activity", "category", "subcategory", "money_source", "currency"];
+  var evalPollTimer = null;
+  var evalCurrentId = null;
+
+  function evalPatch(url, options) {
+    options = options || {};
+    options.headers = Object.assign({ "Accept": "application/json", "X-CSRF-Token": csrfToken() }, options.headers || {});
+    options.credentials = "same-origin";
+    return fetch(url, options).then(function (response) {
+      return response.json().then(function (data) {
+        if (typeof data === "object" && data !== null && data.ok === false) throw new Error((data.errors || []).join(" "));
+        return data;
+      });
+    });
+  }
+
+  function setEvalStatusBadge(status) {
+    var badge = $("#pgEvalRunStatus");
+    var map = {
+      pending: ["bg-warning-subtle text-warning", "Pendiente"],
+      running: ["bg-info-subtle text-info", "En progreso"],
+      completed: ["bg-success-subtle text-success", "Completada"],
+      failed: ["bg-danger-subtle text-danger", "Fallida"]
+    };
+    var entry = map[status] || ["bg-secondary-subtle text-secondary", status];
+    badge.className = "badge " + entry[0] + " ms-2";
+    badge.textContent = entry[1];
+  }
+
+  function renderEvaluationRun(data) {
+    var run = data.run;
+    var metrics = run.metrics || {};
+    var m = function (key) { return metrics[key]; };
+    evalCurrentId = run.id;
+
+    $("#pgEvalResults").classList.remove("d-none");
+    setEvalStatusBadge(run.status);
+    $("#pgEvalRunProgress").style.width = Math.round(Number(run.progress) * 100) + "%";
+    $("#pgEvalRunMeta").textContent =
+      (run.started_at ? "Iniciada: " + new Date(run.started_at).toLocaleString() + " · " : "") +
+      (run.completed_at ? "Completada: " + new Date(run.completed_at).toLocaleString() : "");
+    $("#pgEvalRunCaption").textContent =
+      [run.dataset_name, [run.provider, run.model].filter(Boolean).join("/") || run.model,
+       run.prompt_version].filter(Boolean).join(" · ");
+
+    $("#pgEvalTotal").textContent = run.total_cases;
+    $("#pgEvalPassed").textContent = m("passed_cases") != null ? m("passed_cases") : "—";
+    $("#pgEvalFailed").textContent = m("failed_cases") != null ? m("failed_cases") : "—";
+    $("#pgEvalJsonValid").textContent = m("json_validity") != null ? Math.round(Number(m("json_validity")) * 100) + "%" : "—";
+    $("#pgEvalCost").textContent = m("total_cost") != null ? money(m("total_cost")) : "—";
+    $("#pgEvalLatency").textContent = m("average_latency") != null ? Number(m("average_latency")).toFixed(2) + "s" : "—";
+
+    var fa = $("#pgEvalFieldAccuracy");
+    fa.textContent = "";
+    var fieldAccuracy = m("field_accuracy") || {};
+    var compared = metrics.fields && metrics.fields.compared;
+    EVAL_FIELDS.forEach(function (field, idx) {
+      var acc = Number(fieldAccuracy[field]);
+      var pct = isNaN(acc) ? 0 : Math.round(acc * 100);
+      var line = document.createElement("div");
+      line.className = (idx ? "mt-2 " : "") + "d-flex justify-content-between align-items-center gap-2";
+      line.innerHTML =
+        '<span class="text-capitalize text-muted">' + field + "</span>" +
+        '<div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width:' + pct + '%"></div></div>' +
+        '<span class="text-muted">' + (compared && compared > 0 ? String(pct) + "%" : "—") + "</span>";
+      fa.appendChild(line);
+    });
+    var frAcc = Number(m("full_record_accuracy"));
+    var frPct = isNaN(frAcc) ? 0 : Math.round(frAcc * 100);
+    var fr = document.createElement("div");
+    fr.className = "mt-3 fw-semibold";
+    fr.innerHTML = "Full Record (todos los campos) " +
+      '<div class="progress" style="height:6px"><div class="progress-bar" style="width:' + frPct + '%"></div></div>' +
+      '<span class="fw-normal text-muted">' + (compared && compared > 0 ? String(frPct) + "%" : "—") + "</span>";
+    fa.appendChild(fr);
+
+    renderEvaluateCompare(run.dataset_name);
+    loadFailedCases(run.id);
+
+    if (run.status === "running" || run.status === "pending") {
+      evalPollTimer = setTimeout(function () { pollEvaluation(run.id); }, 2000);
+    } else {
+      evalPollTimer = null;
+    }
+  }
+
+  function pollEvaluation(id) {
+    evalPatch(form.dataset.evaluationsUrl + "/" + id).then(renderEvaluationRun).catch(function () {
+      evalPollTimer = setTimeout(function () { pollEvaluation(id); }, 3000);
+    });
+  }
+
+  function startEvaluation(dataset, filename) {
+    var btn = $("#pgEvalStartBtn");
+    var provider = $("#pgEvalProvider").value;
+    var model = $("#pgEvalModel").value.trim();
+    var error = $("#pgEvalError");
+    error.classList.add("d-none");
+
+    if (!model) {
+      error.textContent = "Indica un modelo.";
+      error.classList.remove("d-none");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Iniciando…';
+
+    evalPatch(form.dataset.evaluationsUrl + "/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dataset: dataset, filename: filename, provider: provider, model: model })
+    }).then(function (data) {
+      if (evalPollTimer) { clearTimeout(evalPollTimer); evalPollTimer = null; }
+      $("#pgEvalResults").classList.remove("d-none");
+      loadEvaluationHistory();
+      pollEvaluation(data.run.id);
+    }).catch(function (err) {
+      error.textContent = err.message || "No se pudo iniciar la evaluación.";
+      error.classList.remove("d-none");
+    }).finally(function () {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Ejecutar Evaluación';
+    });
+  }
+
+  function renderEvaluateCompare(datasetName) {
+    fetch(form.dataset.evaluationsUrl + (datasetName ? "?dataset=" + encodeURIComponent(datasetName) : ""), {
+      headers: { "Accept": "application/json", "X-CSRF-Token": csrfToken() }
+    }).then(function (response) { return response.json(); }).then(function (data) {
+      var runs = (data.runs || []).filter(function (r) { return r.status === "completed"; });
+      var body = $("#pgEvalCompareBody");
+      body.textContent = "";
+      runs.forEach(function (r) {
+        var mets = r.metrics || {};
+        var acc = Number(mets.full_record_accuracy != null ? mets.full_record_accuracy : mets.accuracy);
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + escapeHtml(r.model || "—") + "</td>" +
+          "<td>" + escapeHtml(isNaN(acc) ? "—" : Math.round(acc * 100) + "%") + "</td>" +
+          "<td>" + escapeHtml(mets.json_validity != null ? Math.round(Number(mets.json_validity) * 100) + "%" : "—") + "</td>" +
+          "<td>" + escapeHtml(mets.average_latency != null ? Number(mets.average_latency).toFixed(1) + "s" : "—") + "</td>" +
+          "<td>" + escapeHtml(mets.total_cost != null ? money(mets.total_cost) : "—") + "</td>";
+        body.appendChild(tr);
+      });
+    }).catch(function () { /* compare stays empty */ });
+  }
+
+  function loadEvaluationHistory() {
+    evalPatch(form.dataset.evaluationsUrl).then(function (data) {
+      var runs = data.runs || [];
+      var body = $("#pgEvalHistoryBody");
+      body.textContent = "";
+      runs.forEach(function (r) {
+        var statusMap = {
+          pending: ["bg-warning-subtle text-warning", "Pendiente"],
+          running: ["bg-info-subtle text-info", "En progreso"],
+          completed: ["bg-success-subtle text-success", "Completada"],
+          failed: ["bg-danger-subtle text-danger", "Fallida"]
+        };
+        var st = statusMap[r.status] || ["bg-secondary-subtle text-secondary", r.status];
+        var mets = r.metrics || {};
+        var acc = Number(mets.full_record_accuracy != null ? mets.full_record_accuracy : mets.accuracy);
+        var tr = document.createElement("tr");
+        tr.setAttribute("data-testid", "evaluation-history-row");
+        tr.innerHTML =
+          "<td class=\"small\">" + escapeHtml(r.dataset_name || "—") + "</td>" +
+          "<td class=\"small text-muted\">" + escapeHtml(r.model || "—") + "</td>" +
+          '<td><span class="badge ' + st[0] + '">' + st[1] + "</span></td>" +
+          "<td class=\"small text-muted text-end\">" +
+          (isNaN(acc) ? "" : Math.round(acc * 100) + "%") +
+          (r.status === "running" ? " " + Math.round(Number(r.progress) * 100) + "%" : "") +
+          "</td>";
+        body.appendChild(tr);
+      });
+      $("#pgEvalHistoryEmpty").classList.toggle("d-none", runs.length > 0);
+    }).catch(function () { /* history stays empty */ });
+  }
+
+  function renderFailedCases(data) {
+    var cases = data.cases || [];
+    var body = $("#pgEvalFailedBody");
+    body.textContent = "";
+    cases.forEach(function (c) {
+      var failedFields = (c.field_results || [])
+        .filter(function (fr) { return fr.passed === false; })
+        .map(function (fr) { return fr.field; });
+      var fieldBadges = failedFields.map(function (f) {
+        return '<span class="badge bg-danger">' + escapeHtml(f) + "</span>";
+      }).join(" ");
+      var tr = document.createElement("tr");
+      tr.setAttribute("data-testid", "evaluation-failed-case");
+      tr.innerHTML =
+        "<td>" + c.row_number + "</td>" +
+        "<td class=\"small\">" + escapeHtml(c.message) + "</td>" +
+        "<td class=\"small\">" + escapeHtml(c.expected_json || "—") + "</td>" +
+        "<td class=\"small\">" + escapeHtml((c.actual_json || c.error || "—").slice(0, 80)) + "</td>" +
+        "<td>" + (fieldBadges || '<span class="badge bg-secondary">' + escapeHtml(c.status || "") + "</span>") + "</td>" +
+        "<td class=\"small\">" + (c.latency_ms != null ? Number(c.latency_ms).toFixed(0) + "ms" : "—") + "</td>" +
+        "<td class=\"small\">" + (c.input_tokens != null ? c.input_tokens + "/" + c.output_tokens : "—") + "</td>" +
+        "<td class=\"small\">" + (c.cost != null ? money(c.cost) : "—") + "</td>";
+      body.appendChild(tr);
+    });
+    $("#pgEvalFailedCount").textContent = data.total != null ? data.total : cases.length;
+    $("#pgEvalFailedWrap").classList.remove("d-none");
+    $("#pgEvalFailedEmpty").classList.toggle("d-none", cases.length > 0);
+  }
+
+  function loadFailedCases(id) {
+    var params = new URLSearchParams();
+    var status = $("#pgEvalFailedStatus").value;
+    var q = $("#pgEvalFailedQuery").value.trim();
+    if (status && status !== "all") params.set("status", status);
+    if (q) params.set("q", q);
+    evalPatch(form.dataset.evaluationsUrl + "/" + id + "/cases" + (params.toString() ? "?" + params.toString() : ""))
+      .then(renderFailedCases)
+      .catch(function () { /* failed list stays empty */ });
+  }
+
+  $("#pgEvalForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var file = $("#pgEvalDatasetFile").files[0];
+    var error = $("#pgEvalError");
+    error.classList.add("d-none");
+    if (!file) {
+      error.textContent = "Selecciona un archivo CSV.";
+      error.classList.remove("d-none");
+      return;
+    }
+    var reader = new FileReader();
+    reader.onerror = function () {
+      error.textContent = "No se pudo leer el archivo.";
+      error.classList.remove("d-none");
+    };
+    reader.onload = function () {
+      var filename = $("#pgEvalFilename").value.trim() || file.name;
+      startEvaluation(reader.result, filename);
+    };
+    reader.readAsText(file);
+  });
+
+  $("#pgEvalFailedRefresh").addEventListener("click", function () {
+    if (evalCurrentId) loadFailedCases(evalCurrentId);
+  });
+  $("#pgEvalFailedQuery").addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && evalCurrentId) loadFailedCases(evalCurrentId);
+  });
+  $("#pgEvalFailedStatus").addEventListener("change", function () {
+    if (evalCurrentId) loadFailedCases(evalCurrentId);
+  });
+
+  $("#pgEvalDatasetFile").addEventListener("change", function () {
+    var file = this.files && this.files[0];
+    var meta = $("#pgEvalDatasetMeta");
+    if (!file) { meta.textContent = ""; return; }
+    if (file.name) $("#pgEvalFilename").value = file.name;
+    meta.textContent = file.name + " (" + file.size + " bytes) · ";
+  });
+
   // ------------------------------------------------------------------- init
 
   form.addEventListener("submit", function (event) {
@@ -1657,6 +1915,7 @@ function initializePlayground() {
   renderHistory([]);
   loadHistory();
   loadAiSummary();
+  loadEvaluationHistory();
 }
 
 document.addEventListener("turbo:load", initializePlayground);

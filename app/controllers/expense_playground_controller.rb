@@ -75,6 +75,7 @@ class ExpensePlaygroundController < ApplicationController
   # Recent AI evaluations for the current user (recent first).
   def evaluations
     runs = current_user.evaluation_runs.recent_first.limit(10)
+    runs = runs.where(dataset_name: params[:dataset]) if params[:dataset].present?
 
     render json: { runs: runs.map(&:to_evaluation_entry) }
   end
