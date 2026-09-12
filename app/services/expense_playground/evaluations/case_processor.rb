@@ -36,31 +36,38 @@ module ExpensePlayground
         execution = Ai::Execution.new(provider: @run.provider, model: @run.model, force_ai: true)
         input = ExpensePlayground::Input.new(type: "text", text: @case_record.message)
 
-        ExpensePlayground::ProcessingService.call(
+        result = ExpensePlayground::ProcessingService.call(
           user: @run.user,
           input: input,
           execution: execution
-        ).then do |processing|
-          persist(
-            processing,
-            latency_ms: ((monotonic - started) * 1000).round,
-            usage: usage_since(requests_before)
-          )
-        end
+        )
+        persist(
+          result,
+          latency_ms: ((monotonic - started) * 1000).round,
+          usage: usage_since(requests_before)
+        )
       end
 
       private
 
       def persist(processing, latency_ms:, usage:)
+        if usage[:failed]
+          # The existing pipeline falls back to the deterministic parser when
+          # the provider fails, so the message can still produce an expense.
+          # An evaluation must not count that as a truthful model result: the
+          # model under test failed, so the case is worth an explicit retry.
+          message = usage[:error].presence || "The AI provider failed during evaluation."
+          update_case(status: "error", error: message, latency_ms: latency_ms,
+                      field_results: [], actual_json: nil, usage: usage)
+          return :error
+        end
+
         if processing.ok?
           build_result(processing, latency_ms, usage)
         else
           message = processing.errors.join(" ").presence || "The pipeline could not produce an expense."
-          @case_record.update!(
-            status: "error", error: message, latency_ms: latency_ms, actual_json: nil,
-            input_tokens: usage[:input_tokens], output_tokens: usage[:output_tokens],
-            cost: usage[:cost], input_cost: usage[:input_cost], output_cost: usage[:output_cost]
-          )
+          update_case(status: "error", error: message, latency_ms: latency_ms,
+                      field_results: [], actual_json: nil, usage: usage)
           :error
         end
       end
@@ -69,19 +76,34 @@ module ExpensePlayground
         built = ResultBuilder.call(candidate: processing.candidate)
         comparison = Comparator.call(expected: @case_record.expected_json, actual: built[:json])
 
-        @case_record.update!(
+        update_case(
+          status: comparison[:full_match] ? "passed" : "failed",
+          error: nil,
+          latency_ms: latency_ms,
           actual_json: built[:json],
           json_valid: built[:valid],
           field_results: comparison[:fields].map do |field, result|
             { field: field.to_s, compared: result[:compared], matched: result[:matched] }
           end,
-          status: comparison[:full_match] ? "passed" : "failed",
-          latency_ms: latency_ms,
-          error: nil,
-          input_tokens: usage[:input_tokens], output_tokens: usage[:output_tokens],
-          cost: usage[:cost], input_cost: usage[:input_cost], output_cost: usage[:output_cost]
+          usage: usage
         )
         comparison[:full_match] ? :passed : :failed
+      end
+
+      def update_case(status:, error:, latency_ms:, actual_json:, usage:, field_results: [], json_valid: false)
+        @case_record.update!(
+          status: status,
+          error: error,
+          latency_ms: latency_ms,
+          actual_json: actual_json,
+          field_results: field_results,
+          json_valid: json_valid,
+          input_tokens: usage[:input_tokens],
+          output_tokens: usage[:output_tokens],
+          cost: usage[:cost],
+          input_cost: usage[:input_cost],
+          output_cost: usage[:output_cost]
+        )
       end
 
       def latest_override_request_id
@@ -90,6 +112,7 @@ module ExpensePlayground
 
       def usage_since(request_id)
         requests = AiRequest.where(user_id: @run.user_id, strategy: "override").where("id > ?", request_id.to_i)
+        failed = requests.where(status: "error").first
         input_tokens = requests.sum(:input_tokens).to_i
         output_tokens = requests.sum(:output_tokens).to_i
         costs = Ai::Pricing.split_cost(
@@ -101,7 +124,9 @@ module ExpensePlayground
           output_tokens: output_tokens,
           input_cost: costs[:input],
           output_cost: costs[:output],
-          cost: costs[:input] + costs[:output]
+          cost: costs[:input] + costs[:output],
+          failed: failed.present?,
+          error: failed&.error
         }
       end
 

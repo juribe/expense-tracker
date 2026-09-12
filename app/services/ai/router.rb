@@ -110,12 +110,12 @@ module Ai
 
       parsed = @task.parse(response.content, @input, @context)
 
-      record(provider: provider, strategy: "override", status: "ok", confidence: parsed[:confidence],
+      record(provider, strategy: "override", status: "ok", confidence: parsed[:confidence],
              latency_ms: latency_ms, usage: response, escalated: false)
       Result.new(ok?: true, data: parsed[:data], confidence: parsed[:confidence],
                  strategy: "strong_ai", error: nil)
     rescue Provider::Error, Tasks::Base::InvalidResponse => e
-      record(provider: provider, strategy: "override", status: "error", error: e.message,
+      record(provider, strategy: "override", status: "error", error: e.message,
              latency_ms: ((monotonic - started) * 1000).round, escalated: false)
       Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: e.message)
     end
