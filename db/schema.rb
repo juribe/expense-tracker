@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_10_000003) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_12_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,6 +112,46 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_10_000003) do
     t.datetime "updated_at", null: false
     t.integer "installments_paid"
     t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
+  end
+
+  create_table "evaluation_cases", force: :cascade do |t|
+    t.bigint "evaluation_run_id", null: false
+    t.integer "row_number", null: false
+    t.text "message", null: false
+    t.jsonb "expected_json", default: {}, null: false
+    t.jsonb "actual_json"
+    t.jsonb "field_results", default: [], null: false
+    t.string "status", default: "pending", null: false
+    t.boolean "json_valid", default: false, null: false
+    t.integer "latency_ms"
+    t.integer "input_tokens"
+    t.integer "output_tokens"
+    t.decimal "cost", precision: 12, scale: 6
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "attempts", default: 0, null: false
+    t.index ["evaluation_run_id", "row_number"], name: "index_evaluation_cases_on_evaluation_run_id_and_row_number", unique: true
+    t.index ["evaluation_run_id", "status"], name: "index_evaluation_cases_on_evaluation_run_id_and_status"
+    t.index ["evaluation_run_id"], name: "index_evaluation_cases_on_evaluation_run_id"
+  end
+
+  create_table "evaluation_runs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "dataset_name"
+    t.string "dataset_version"
+    t.string "provider"
+    t.string "model"
+    t.string "prompt_version"
+    t.string "status", default: "pending", null: false
+    t.integer "total_cases", default: 0, null: false
+    t.jsonb "metrics", default: {}, null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_evaluation_runs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_evaluation_runs_on_user_id"
   end
 
   create_table "expense_playground_runs", force: :cascade do |t|
@@ -532,6 +572,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_10_000003) do
   add_foreign_key "budgets", "users"
   add_foreign_key "categories", "users"
   add_foreign_key "credit_accounts", "money_sources"
+  add_foreign_key "evaluation_cases", "evaluation_runs"
+  add_foreign_key "evaluation_runs", "users"
   add_foreign_key "expense_playground_runs", "users"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"

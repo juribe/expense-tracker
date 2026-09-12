@@ -50,11 +50,13 @@ module Ai
     end
 
     def call
-      cached = @task.cache_lookup(@input, @context)
-      if cached
-        record(strategy: "cache", confidence: cached[:confidence])
-        return Result.new(ok?: true, data: cached[:data], confidence: cached[:confidence],
-                          strategy: "cache", error: nil)
+      unless force_ai?
+        cached = @task.cache_lookup(@input, @context)
+        if cached
+          record(strategy: "cache", confidence: cached[:confidence])
+          return Result.new(ok?: true, data: cached[:data], confidence: cached[:confidence],
+                            strategy: "cache", error: nil)
+        end
       end
 
       run_tiers
@@ -72,6 +74,9 @@ module Ai
     end
 
     def run_tiers
+      execution = @context[:execution]
+      return run_override(execution) if execution&.override?
+
       escalated = false
       last_error = "AI is not configured"
 
@@ -87,6 +92,37 @@ module Ai
       end
 
       Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: last_error)
+    end
+
+    # An evaluation override replaces the cheap/strong tier cascade with the
+    # single provider/model under test. The SAME task prompt and response
+    # parsing are used; only the endpoint changes.
+    def run_override(execution)
+      provider = Providers.build(provider: execution.provider, model: execution.model)
+      unless provider&.configured?
+        return Result.new(ok?: false, data: nil, confidence: nil, strategy: nil,
+                          error: "AI provider #{execution.provider} is not configured")
+      end
+
+      started = monotonic
+      response = provider.chat(messages: @task.messages(@input, @context), timeout: @task.timeout)
+      latency_ms = ((monotonic - started) * 1000).round
+
+      parsed = @task.parse(response.content, @input, @context)
+
+      record(provider: provider, strategy: "override", status: "ok", confidence: parsed[:confidence],
+             latency_ms: latency_ms, usage: response, escalated: false)
+      Result.new(ok?: true, data: parsed[:data], confidence: parsed[:confidence],
+                 strategy: "strong_ai", error: nil)
+    rescue Provider::Error, Tasks::Base::InvalidResponse => e
+      record(provider: provider, strategy: "override", status: "error", error: e.message,
+             latency_ms: ((monotonic - started) * 1000).round, escalated: false)
+      Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: e.message)
+    end
+
+    def force_ai?
+      execution = @context[:execution]
+      execution&.force_ai?
     end
 
     # Returns [Result, nil] on acceptance or [nil, nil] when the cheap tier is

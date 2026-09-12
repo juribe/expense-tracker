@@ -74,16 +74,17 @@ class ExpenseParser
   Resolution = Struct.new(:category, :suggested_name, :confidence)
 
   class << self
-    def call(text:, user:, today: Date.current, context: nil)
-      new(text: text, user: user, today: today, context: context).call
+    def call(text:, user:, today: Date.current, context: nil, execution: nil)
+      new(text: text, user: user, today: today, context: context, execution: execution).call
     end
   end
 
-  def initialize(text:, user:, today:, context: nil)
+  def initialize(text:, user:, today:, context: nil, execution: nil)
     @text = text.to_s.strip
     @user = user
     @today = today
     @context = context.to_s.presence
+    @execution = execution
     @categories = Category.for_user(user).order(:name).to_a
     @money_source_detector = MoneySources::Detector.new(user: user)
     @notes = []
@@ -121,6 +122,14 @@ class ExpenseParser
   # heuristic pass resolves every expense confidently, no AI call happens.
   def run_provider
     heuristic = parse_heuristically
+
+    if force_ai?
+      entries, strategy = parse_with_routing
+      return [ entries, "ai", strategy ] if entries.present?
+
+      return [ heuristic, "heuristic", nil ]
+    end
+
     if deterministic_confident?(heuristic)
       record_deterministic_resolution(heuristic)
       return [ heuristic, "heuristic", "deterministic" ]
@@ -138,7 +147,7 @@ class ExpenseParser
     result = Ai::Router.call(
       task: :expense_extraction,
       input: @text,
-      context: { user: @user, today: @today, categories: @categories, context: @context }
+      context: { user: @user, today: @today, categories: @categories, context: @context, execution: @execution }
     )
     unless result.ok?
       @notes << "AI parsing failed, used rule-based fallback (#{result.error})."
@@ -169,7 +178,22 @@ class ExpenseParser
   end
 
   def ai_configured?
+    return configured_override? if @execution&.override?
+
     ENV["MISTRAL_API_KEY"].present? || Ai.configuration.cheap_enabled?
+  end
+
+  def force_ai?
+    @execution&.force_ai? || false
+  end
+
+  # An evaluation override is usable when the requested vendor client builds
+  # and carries a key/endpoint; e.g. OpenRouter reads OPENROUTER_API_KEY.
+  def configured_override?
+    provider = Ai::Providers.build(provider: @execution.provider, model: @execution.model)
+    provider&.configured?
+  rescue ArgumentError
+    false
   end
 
   # Maps a raw AI hash (from the router) into the internal entry shape used

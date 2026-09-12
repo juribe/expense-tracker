@@ -22,8 +22,8 @@ module ExpensePlayground
   #   result.steps[:ocr]     # => { applicable: false } | { applicable: true, text: ..., engine: ... }
   class ProcessingService
     class << self
-      def call(user:, input:)
-        new(user: user, input: input).call
+      def call(user:, input:, execution: nil)
+        new(user: user, input: input, execution: execution).call
       end
     end
 
@@ -33,9 +33,10 @@ module ExpensePlayground
       end
     end
 
-    def initialize(user:, input:)
+    def initialize(user:, input:, execution: nil)
       @user = user
       @input = input
+      @execution = execution
       @steps = {}
       @errors = []
       @warnings = []
@@ -168,7 +169,7 @@ module ExpensePlayground
     end
 
     def parse_into_entry(text, context: nil)
-      result = ExpenseParser.call(text: text, user: @user, context: context)
+      result = ExpenseParser.call(text: text, user: @user, context: context, execution: @execution)
       entry = result[:expenses].first
       @warnings.concat(Array(result[:errors]))
       if entry.nil?

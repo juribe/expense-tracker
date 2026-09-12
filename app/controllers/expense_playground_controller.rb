@@ -71,6 +71,81 @@ class ExpensePlaygroundController < ApplicationController
     }
   end
 
+  # GET /expense-playground/evaluations
+  # Recent AI evaluations for the current user (recent first).
+  def evaluations
+    runs = current_user.evaluation_runs.recent_first.limit(10)
+
+    render json: { runs: runs.map(&:to_evaluation_entry) }
+  end
+
+  # POST /expense-playground/evaluations/start
+  # Starts an evaluation: validates the dataset, persists the run + cases and
+  # enqueues a background job per case. The endpoint is idempotent by
+  # dataset+provider/model, so re-submitting the same dataset returns the
+  # existing run instead of double-processing it.
+  def start_evaluation
+    runner = ExpensePlayground::Evaluations::Runner.start(
+      user: current_user,
+      content: params[:dataset],
+      filename: params[:filename],
+      provider: params[:provider],
+      model: params[:model]
+    )
+
+    if runner.invalid
+      render json: { ok: false, errors: runner.errors }, status: :unprocessable_entity
+    else
+      render json: { ok: true, replayed: runner.replayed, run: runner.run&.to_evaluation_entry }, status: :created
+    end
+  end
+
+  # GET /expense-playground/evaluations/:id
+  # A single evaluation: summary + the first page of cases.
+  def evaluation
+    run = current_user.evaluation_runs.find(params[:id])
+
+    render json: {
+      run: run.to_evaluation_entry,
+      cases: run.evaluation_cases.recent_first.limit(100).map { |c| case_entry(c) }
+    }
+  end
+
+  # GET /expense-playground/evaluations/:id/cases
+  # Paginated, filterable case list for the progress view.
+  def evaluation_cases
+    run = current_user.evaluation_runs.find(params[:id])
+    scope = run.evaluation_cases.recent_first
+    scope = scope.by_status(params[:status]) if params[:status].present?
+    scope = scope.by_message(params[:q]) if params[:q].present?
+
+    render json: {
+      cases: scope.limit(200).map { |c| case_entry(c) },
+      total: run.evaluation_cases.count,
+      counts: run.evaluation_cases.group(:status).count
+    }
+  end
+
+  # POST /expense-playground/evaluations/:id/retry
+  # Re-runs the terminal cases of an evaluation. Pass all=true to re-run
+  # passed cases too. Terminal cases are reset to pending and re-enqueued.
+  def retry_evaluation
+    run = current_user.evaluation_runs.find(params[:id])
+    scope = params[:all] == "true" ? %w[passed failed error] : %w[failed error]
+    reset_cases = run.evaluation_cases.where(status: scope)
+
+    reset_cases.each do |case_record|
+      case_record.update!(status: "pending", error: nil)
+      ExpensePlaygroundEvaluationCaseJob.perform_later(case_record.id)
+    end
+
+    if reset_cases.exists?
+      run.update!(status: "running", completed_at: nil, started_at: Time.current)
+    end
+
+    render json: { ok: true, rerun_count: reset_cases.size }
+  end
+
   # POST /expense-playground/process_file
   # Extracts transactions from an uploaded statement file (PDF/CSV/Excel).
   # Returns the candidates for preview without persisting anything. For
@@ -170,6 +245,26 @@ class ExpensePlaygroundController < ApplicationController
   def set_categories
     @categories = Category.for_user(current_user)
     @money_sources = current_user.money_sources.active.order(:name)
+  end
+
+  # Serializes a single evaluation case for the progress/case views.
+  def case_entry(case_record)
+    {
+      id: case_record.id,
+      row_number: case_record.row_number,
+      status: case_record.status,
+      message: case_record.message,
+      expected_json: case_record.expected_json,
+      actual_json: case_record.actual_json,
+      field_results: case_record.field_results,
+      json_valid: case_record.json_valid,
+      latency_ms: case_record.latency_ms,
+      input_tokens: case_record.input_tokens,
+      output_tokens: case_record.output_tokens,
+      cost: case_record.cost&.to_f,
+      error: case_record.error,
+      attempts: case_record.attempts
+    }
   end
 
   # Raw channel params. Adapters turn these into an ExpensePlayground::Input;

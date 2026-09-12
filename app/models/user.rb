@@ -17,6 +17,7 @@ class User < ApplicationRecord
   has_many :spending_alerts, dependent: :destroy
   has_many :transaction_rules, dependent: :destroy
   has_many :expense_playground_runs, dependent: :destroy
+  has_many :evaluation_runs, dependent: :destroy
   has_many :activity_classifications, dependent: :destroy
   has_one :alert_preference, dependent: :destroy
 
