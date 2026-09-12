@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_12_000003) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_13_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -131,6 +131,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_12_000003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "attempts", default: 0, null: false
+    t.decimal "input_cost", precision: 12, scale: 6
+    t.decimal "output_cost", precision: 12, scale: 6
     t.index ["evaluation_run_id", "row_number"], name: "index_evaluation_cases_on_evaluation_run_id_and_row_number", unique: true
     t.index ["evaluation_run_id", "status"], name: "index_evaluation_cases_on_evaluation_run_id_and_status"
     t.index ["evaluation_run_id"], name: "index_evaluation_cases_on_evaluation_run_id"

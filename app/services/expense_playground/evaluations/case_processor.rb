@@ -7,6 +7,13 @@ module ExpensePlayground
     # provider/model carried by the run, which temporarily overrides the AI
     # configuration used downstream (no separate/direct-LLM path is involved).
     #
+    # The provider/model carried by the run, which temporarily overrides the AI
+    # configuration used downstream (no separate/direct-LLM path is involved).
+    #
+    # Token usage and cost are captured from the AiRequest rows the override
+    # writes during processing, so metrics can report latency, tokens and cost
+    # per case and per run.
+    #
     # The status written back to the case row is one of:
     #   passed  the pipeline produced a valid result and every required field
     #           present in expected_json matched
@@ -23,33 +30,42 @@ module ExpensePlayground
       end
 
       def call
-        started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        started = monotonic
+        requests_before = latest_override_request_id
+
         execution = Ai::Execution.new(provider: @run.provider, model: @run.model, force_ai: true)
         input = ExpensePlayground::Input.new(type: "text", text: @case_record.message)
 
-        processing = ExpensePlayground::ProcessingService.call(
+        ExpensePlayground::ProcessingService.call(
           user: @run.user,
           input: input,
           execution: execution
-        )
-        latency_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
-
-        persist(processing, latency_ms)
+        ).then do |processing|
+          persist(
+            processing,
+            latency_ms: ((monotonic - started) * 1000).round,
+            usage: usage_since(requests_before)
+          )
+        end
       end
 
       private
 
-      def persist(processing, latency_ms)
+      def persist(processing, latency_ms:, usage:)
         if processing.ok?
-          build_result(processing, latency_ms)
+          build_result(processing, latency_ms, usage)
         else
           message = processing.errors.join(" ").presence || "The pipeline could not produce an expense."
-          @case_record.update!(status: "error", error: message, latency_ms: latency_ms, actual_json: nil)
+          @case_record.update!(
+            status: "error", error: message, latency_ms: latency_ms, actual_json: nil,
+            input_tokens: usage[:input_tokens], output_tokens: usage[:output_tokens],
+            cost: usage[:cost], input_cost: usage[:input_cost], output_cost: usage[:output_cost]
+          )
           :error
         end
       end
 
-      def build_result(processing, latency_ms)
+      def build_result(processing, latency_ms, usage)
         built = ResultBuilder.call(candidate: processing.candidate)
         comparison = Comparator.call(expected: @case_record.expected_json, actual: built[:json])
 
@@ -61,9 +77,36 @@ module ExpensePlayground
           end,
           status: comparison[:full_match] ? "passed" : "failed",
           latency_ms: latency_ms,
-          error: nil
+          error: nil,
+          input_tokens: usage[:input_tokens], output_tokens: usage[:output_tokens],
+          cost: usage[:cost], input_cost: usage[:input_cost], output_cost: usage[:output_cost]
         )
         comparison[:full_match] ? :passed : :failed
+      end
+
+      def latest_override_request_id
+        AiRequest.where(user_id: @run.user_id, strategy: "override").maximum(:id)
+      end
+
+      def usage_since(request_id)
+        requests = AiRequest.where(user_id: @run.user_id, strategy: "override").where("id > ?", request_id.to_i)
+        input_tokens = requests.sum(:input_tokens).to_i
+        output_tokens = requests.sum(:output_tokens).to_i
+        costs = Ai::Pricing.split_cost(
+          input_tokens: input_tokens, output_tokens: output_tokens,
+          provider: @run.provider, model: @run.model
+        )
+        {
+          input_tokens: input_tokens,
+          output_tokens: output_tokens,
+          input_cost: costs[:input],
+          output_cost: costs[:output],
+          cost: costs[:input] + costs[:output]
+        }
+      end
+
+      def monotonic
+        Process.clock_gettime(Process::CLOCK_MONOTONIC)
       end
     end
   end

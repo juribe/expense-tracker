@@ -4,7 +4,7 @@
 # resolution, or a cheap/strong model attempt. Powers the Ai::Metrics usage
 # and fallback reporting.
 class AiRequest < ApplicationRecord
-  STRATEGIES = %w[deterministic cache cheap_ai strong_ai].freeze
+  STRATEGIES = %w[deterministic cache cheap_ai strong_ai override].freeze
   STATUSES = %w[ok low_confidence error].freeze
 
   belongs_to :user, optional: true

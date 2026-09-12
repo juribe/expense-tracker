@@ -22,6 +22,17 @@ module Ai
       ((input / 1_000_000.0) * price[:input]) + ((output / 1_000_000.0) * price[:output])
     end
 
+    # Same as #cost but returns the input/output parts separately (USD).
+    def split_cost(input_tokens:, output_tokens:, provider: nil, model: nil)
+      input = input_tokens.to_i
+      output = output_tokens.to_i
+      price = per_million(provider: provider, model: model)
+      {
+        input: ((input / 1_000_000.0) * price[:input]).round(8),
+        output: ((output / 1_000_000.0) * price[:output]).round(8)
+      }
+    end
+
     def per_million(provider: nil, model: nil)
       overrides[price_key(provider, model)] || {
         input: configured("AI_PRICE_INPUT_PER_MILLION", DEFAULT_INPUT_PER_MILLION),

@@ -40,7 +40,7 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
     assert_equal "running", run.status
     assert_equal "openrouter", run.provider
     assert_equal "upstage/solar-pro4", run.model
-    assert_equal 1, run.evaluation_cases.recent_first.count
+    assert_equal 2, run.evaluation_cases.recent_first.count
     assert_equal [ 2, 3 ], run.evaluation_cases.recent_first.pluck(:row_number)
   end
 
@@ -98,7 +98,10 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
   test "enqueues one background job per case" do
     with_active_job_adapter(:test) do
       assert_enqueued_with(job: ExpensePlaygroundEvaluationCaseJob) do
-        start
+        ExpensePlayground::Evaluations::Runner.start(
+          user: @user, content: dataset, filename: "gastos.csv",
+          provider: "openrouter", model: "upstage/solar-pro4"
+        )
       end
       assert_equal 2, enqueued_jobs.size
     end
