@@ -23,6 +23,18 @@ module ActiveSupport
 
     fixtures :all
 
+    module SlowTestTiming
+      def run
+        t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        super
+      ensure
+        dt = Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0
+        File.open("/tmp/slow_tests.#{Process.pid}.log", "a") { |f| f.puts "#{dt.round(2).to_s.rjust(8)}s #{self.class}##{self.name}" } if dt > 1.0
+      end
+    end
+
+    prepend SlowTestTiming if ENV["SLOW_PROBE"] == "1"
+
     def sign_in_as(user)
       post user_session_path, params: { user: { email: user.email, password: "password123" } }
     end
