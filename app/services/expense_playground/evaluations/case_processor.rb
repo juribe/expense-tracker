@@ -30,6 +30,11 @@ module ExpensePlayground
       end
 
       def call
+        # A provider/model that does not resolve to a configured vendor client
+        # must fail loudly, never silently fall back to the deterministic
+        # parser: the evaluation is supposed to measure the selected model.
+        return fail_unusable_override unless usable_override?
+
         started = monotonic
         requests_before = latest_override_request_id
 
@@ -49,6 +54,26 @@ module ExpensePlayground
       end
 
       private
+
+      def usable_override?
+        provider = Ai::Providers.build(provider: @run.provider, model: @run.model)
+        provider.present? && provider.configured?
+      rescue ArgumentError
+        false
+      end
+
+      def fail_unusable_override
+        message = "The selected AI provider/model is not configured " \
+                  "(provider=#{@run.provider}, model=#{@run.model})."
+        update_case(status: "error", error: message, latency_ms: 0,
+                    field_results: [], actual_json: nil,
+                    usage: empty_usage)
+        :error
+      end
+
+      def empty_usage
+        { input_tokens: 0, output_tokens: 0, input_cost: 0.0, output_cost: 0.0, cost: 0.0 }
+      end
 
       def persist(processing, latency_ms:, usage:)
         if usage[:failed]

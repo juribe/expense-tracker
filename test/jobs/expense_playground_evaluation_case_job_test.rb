@@ -137,6 +137,25 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
     end
   end
 
+  test "an unknown or unconfigured provider fails the case without calling any AI" do
+    case_record = case_row
+    stub_method(Ai::Providers, :build, ->(*) { raise ArgumentError, "no client" }) do
+      with_active_job_adapter(:test) do
+        3.times do
+          ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
+          enqueued_jobs.clear
+        end
+      end
+    end
+
+    case_record.reload
+    assert_equal "error", case_record.status
+    assert_equal 2, case_record.attempts
+    assert_includes case_record.error, "not configured"
+    assert case_record.actual_json.nil?
+    assert_equal "completed", @run.reload.status
+  end
+
   test "is idempotent: re-running a passed case never overwrites it" do
     case_record = case_row(expected_json: { "amount" => 20_000, "activity" => "almuerzo" })
     stub_provider(FakeAiProvider.new(responses: [ ok_response, ok_response(description: "cafe") ])) do
