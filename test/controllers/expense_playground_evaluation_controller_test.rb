@@ -95,16 +95,36 @@ class ExpensePlaygroundEvaluationControllerTest < ActionDispatch::IntegrationTes
     assert_equal 2, data["cases"].length
   end
 
+  $hangwd_occurrences = 0
+  tp = TracePoint.new(:call) do |t|
+    next unless t.defined_class == ExpensePlaygroundEvaluationControllerTest
+    next unless t.method_id.to_s.start_with?("test_GET_evaluation_cases")
+    $hangwd_occurrences += 1
+    if $hangwd_occurrences <= 3
+      puts "> HANGWD RECURSION ENTRY ##{$hangwd_occurrences}"
+      puts Thread.current.backtrace.first(30).map { |f| "    #{f}" }.join("\n")
+    end
+  end
+  tp.enable
   test "GET evaluation_cases supports status and message filters" do
+    $hangwd_occurrences += 1
+    puts "> HANGWD START ##{$hangwd_occurrences}"
+    if $hangwd_occurrences <= 3
+      puts "> HANGWD BT\n" + caller.map { |f| "    #{f}" }.join("\n")
+    end
     with_active_job_adapter(:test) do
       run = ExpensePlayground::Evaluations::Runner.start(
         user: @user, content: dataset_csv, filename: "gastos.csv",
         provider: "openrouter", model: "upstage/solar-pro4"
       ).run
+      puts "> HANGWD after start, run=#{run&.id}"
       run.evaluation_cases.first.update!(status: "failed")
+      #puts "> HANGWD after update"
     end
+    puts "> HANGWD block done, run id=#{run&.id}"
 
     get expense_playground_evaluation_cases_path(run, format: :json, status: "failed")
+    puts "> HANGWD after GET status-filtered"
     failed = JSON.parse(response.body)
     assert_equal 1, failed["total"]
     assert_equal 1, failed["cases"].length
