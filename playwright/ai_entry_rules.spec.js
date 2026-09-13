@@ -30,7 +30,12 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
+    // Save is async (fetch -> window.location). Because the page is already on
+    // /expenses, the URL assertion alone would pass before the reload happens,
+    // racing the rows below under slow test runs. Waiting for the modal to
+    // disappear is a deterministic signal that the save committed.
     await page.getByTestId('ai-save-all').click();
+    await expect(page.getByTestId('ai-preview-modal')).not.toBeVisible({ timeout: 15000 });
     await expect(page).toHaveURL(/\/expenses$/);
   }
 
@@ -99,6 +104,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     const row = page.getByTestId('ai-row');
     await row.locator('.ai-field-category').selectOption({ label: otherCategory });
     await page.getByTestId('ai-save-all').click();
+    await expect(page.getByTestId('ai-preview-modal')).not.toBeVisible({ timeout: 15000 });
     await expect(page).toHaveURL(/\/expenses$/);
 
     const savedRow = page.locator('#expenseTable tr', { hasText: 'Didi viaje' });
