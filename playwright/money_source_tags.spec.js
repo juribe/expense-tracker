@@ -18,7 +18,11 @@ test.describe('MoneySource recognition keywords', () => {
   }
 
   async function showHrefFor(page, name) {
-    await page.goto('/money_sources/credit_cards');
+    // Navigate via the sidebar link (Turbo-driven) instead of a raw goto right
+    // after the recognition form's Turbo submit, which can race the in-flight
+    // navigation and abort with "maybe frame was detached?".
+    await page.locator('a[href="/money_sources/credit_cards"]').first().click();
+    await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
     const card = page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
     return card.locator('a[href^="/money_sources/"]').first().getAttribute('href');
   }
