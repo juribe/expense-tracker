@@ -235,7 +235,7 @@ module ExpensePlayground
     # Maps the extracted entry into the canonical ExpenseCandidate structure,
     # resolving the category against the user's real categories.
     def normalize(entry)
-      category = resolve_category(entry[:category_name], entry[:category_id])
+      category = resolve_category(entry[:category_name], entry[:category_id], activity: entry[:description].presence || entry[:merchant])
       candidate = ExpenseCandidate.new(
         amount: entry[:amount],
         currency: entry[:currency].presence || ExpenseCandidate::DEFAULT_CURRENCY,
@@ -261,6 +261,14 @@ module ExpensePlayground
         date: candidate.date&.iso8601,
         money_source_id: candidate.money_source_id,
         money_source_name: entry[:money_source_name],
+        matching: if @category_resolution&.matched?
+                    {
+                      input: entry[:category_name],
+                      matched_by: @category_resolution.matched_by,
+                      mapped_to: candidate.category_name,
+                      similarity: @category_resolution.similarity
+                    }
+                  end,
         warnings: @warnings
       }
       candidate
@@ -277,17 +285,26 @@ module ExpensePlayground
 
     # -------------------------------------------------------------- categories
 
-    def resolve_category(category_name, category_id)
-      return Category.for_user(@user).find_by(id: category_id) if category_id.present?
-
-      name = normalize_name(category_name)
-      return nil if name.blank?
-
-      Category.for_user(@user).find { |category| normalize_name(category.name) == name }
-    end
-
-    def normalize_name(text)
-      text.to_s.downcase.tr("áéíóúü", "aeiouu").squish
+    # Category resolution is centralized in Categories::ClosestResolver:
+    # exact normalized name, learned activity mappings (ActivityClassification),
+    # English -> Spanish aliases, curated variants and a similarity fold, so a
+    # category name that is "very close" to an existing one never creates a
+    # near-duplicate. ProcessingService NEVER persists, so similarity folds are
+    # resolved but not recorded as knowledge here.
+    def resolve_category(category_name, category_id, activity: nil)
+      categories = Category.for_user(@user)
+      @category_resolution = nil
+      if category_id.present?
+        categories.find_by(id: category_id)
+      elsif category_name.present?
+        @category_resolution = Categories::ClosestResolver.call(
+          user: @user,
+          name: category_name,
+          activity: activity,
+          record: false
+        )
+        @category_resolution.category
+      end
     end
 
     def parse_date(value)

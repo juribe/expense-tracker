@@ -1,0 +1,110 @@
+# frozen_string_literal: true
+
+require "test_helper"
+
+class CategoriesClosestResolverTest < ActiveSupport::TestCase
+  def setup
+    @user = User.create!(name: "Resolver User",
+                         email: "resolver-#{SecureRandom.hex(6)}@example.com",
+                         password: "password123")
+    @comida = Category.create!(name: "Comida y restaurantes", user: @user, is_default: false)
+    @vivienda = Category.create!(name: "Vivienda", user: @user, is_default: false)
+    @otras = Category.create!(name: "Otros", user: @user, is_default: false)
+    @entretenimiento = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
+  end
+
+  def resolve(name, activity: nil, record: false)
+    Categories::ClosestResolver.call(user: @user, name: name, activity: activity, record: record)
+  end
+
+  test "matches an existing category by exact normalized name" do
+    result = resolve("COMIDA Y Restaurantes")
+
+    assert_equal @comida, result.category
+    assert_equal :exact, result.matched_by
+  end
+
+  test "folds English seed names into their Spanish equivalent" do
+    result = resolve("Restaurants")
+
+    assert_equal @comida, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds curated variants into the canonical category" do
+    result = resolve("Restaurante (Rappi)")
+
+    assert_equal @comida, result.category
+    assert_equal :variant, result.matched_by
+  end
+
+  test "folds near-duplicate names by token similarity without creating categories" do
+    assert_no_difference "Category.count" do
+      result = resolve("Comida rappi")
+      assert_equal @comida, result.category
+      assert_equal :similar, result.matched_by
+    end
+  end
+
+  test "a genuinely-new name resolves to nil instead of creating a category" do
+    assert_no_difference "Category.count" do
+      result = resolve("Suscripciones Digitales")
+      assert_nil result.category
+      assert_not result.matched?
+    end
+  end
+
+  test "learned classifications win over similarity for the same activity" do
+    entertainment = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
+    ActivityClassification.record!(user: @user, name: "Pago de Netflix", category: entertainment, source: "user")
+
+    result = resolve("Rappi", activity: "Pago de Netflix")
+
+    assert_equal entertainment, result.category
+    assert_equal :learned, result.matched_by
+  end
+
+  test "record: true persists similarity folds as rule knowledge" do
+    resolve("Comida restaurante", activity: "Pedimos por Rappi hoy", record: true)
+
+    learned = ActivityClassification.lookup(user: @user, name: "Pedimos por Rappi hoy")
+    assert_equal @comida.id, learned.category_id
+    assert_equal "rule", learned.source
+  end
+
+  test "record: false never persists similarity folds" do
+    assert_no_difference "ActivityClassification.count" do
+      resolve("Comida restaurante", activity: "Pedimos por Rappi hoy", record: false)
+    end
+  end
+
+  test "a curated brand activity beats a generic wrong AI category name" do
+    result = resolve("Servicios públicos", activity: "Netflix")
+
+    assert_equal @entretenimiento, result.category
+    assert_equal :variant, result.matched_by
+  end
+
+  test "curated brand activity folds resolve regardless of the extracted category name" do
+    [ "Suscripción Netflix", "Pago de Netflix", "Netflix mensual" ].each do |activity|
+      result = resolve("Servicios públicos", activity: activity)
+      assert_equal @entretenimiento, result.category, "activity #{activity.inspect} should fold to Entretenimiento"
+    end
+  end
+
+  test "an explicit user mapping always wins over the curated brand fold" do
+    ActivityClassification.record!(user: @user, name: "Netflix", category: @comida, source: "user")
+
+    result = resolve("Servicios públicos", activity: "Netflix")
+
+    assert_equal @comida, result.category
+    assert_equal :learned, result.matched_by
+  end
+
+  test "blank names resolve to nothing" do
+    result = resolve("  ")
+
+    assert_not result.matched?
+    assert_nil result.matched_by
+  end
+end

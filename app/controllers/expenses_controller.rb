@@ -424,8 +424,13 @@ class ExpensesController < ApplicationController
     if category_id.present?
       Category.find(category_id)
     elsif new_name.present?
-      existing = Category.find_by(name: new_name) ||
-                 Category.where("lower(name) = ?", new_name.downcase).first
+      # Fold "very close" names into an existing category before ever creating
+      # a near-duplicate; similarity folds are recorded as rule knowledge.
+      existing = Categories::ClosestResolver.call(
+        user: current_user,
+        name: new_name,
+        activity: input[:description]
+      ).category
       return existing if existing
       return nil if rule_will_set_category?(input, amount)
 

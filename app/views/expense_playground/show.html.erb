@@ -481,6 +481,10 @@
                 <button class="btn btn-sm btn-outline-secondary" id="pgEvalFailedRefresh">Filtrar</button>
               </div>
             </div>
+            <p class="small text-muted d-none" id="pgEvalFailedHint">
+              Haz clic en una fila para revisar esperado vs. recibido y decidir la categoría. El mapeo quedará guardado como conocimiento.
+            </p>
+            <div class="small d-flex flex-wrap gap-2 mb-2" id="pgEvalFailedSummary"></div>
             <div class="table-responsive">
               <table class="table table-sm align-middle">
                 <thead><tr><th>#</th><th>Mensaje</th><th>Esperado</th><th>Actual</th><th>Campos fallidos</th><th>Latencia</th><th>Tokens</th><th>Costo</th></tr></thead>
@@ -1812,6 +1816,12 @@ function initializePlayground() {
         var acc = Number(mets.full_record_accuracy != null ? mets.full_record_accuracy : mets.accuracy);
         var tr = document.createElement("tr");
         tr.setAttribute("data-testid", "evaluation-history-row");
+        tr.style.cursor = "pointer";
+        tr.addEventListener("click", function () {
+          if (evalPollTimer) { clearTimeout(evalPollTimer); evalPollTimer = null; }
+          $("#pgEvalResults").classList.remove("d-none");
+          pollEvaluation(r.id);
+        });
         tr.innerHTML =
           "<td class=\"small\">" + escapeHtml(r.dataset_name || "—") + "</td>" +
           "<td class=\"small text-muted\">" + escapeHtml(r.model || "—") + "</td>" +
@@ -1826,34 +1836,161 @@ function initializePlayground() {
     }).catch(function () { /* history stays empty */ });
   }
 
+  function prettyValue(value) {
+    if (value == null || value === "") return "—";
+    if (typeof value === "object") {
+      try { return JSON.stringify(value); } catch (e) { return String(value); }
+    }
+    return String(value);
+  }
+
+  function fieldDetailRow(fr, c) {
+    var actual = prettyValue(fr.actual);
+    if (fr.field === "category" && c.suggested_category &&
+        actual.toLowerCase().indexOf(c.suggested_category.toLowerCase()) === -1) {
+      actual += ' <span class="badge bg-warning text-dark">→ ' + escapeHtml(c.suggested_category) + "</span>";
+    }
+    return "<tr>" +
+      "<td class=\"small fw-semibold\">" + escapeHtml(fr.field) + "</td>" +
+      "<td class=\"small\"><span class=\"badge bg-success-subtle text-success\">" + escapeHtml(prettyValue(fr.expected)) + "</span></td>" +
+      "<td class=\"small\"><span class=\"badge bg-danger-subtle text-danger\">" + actual + "</span></td>" +
+      "</tr>";
+  }
+
+  function mappingControls(c) {
+    if (c.mapped) return '<span class="badge bg-success">✓ Mapeado a categoría existente</span>';
+    var options = CATEGORIES.map(function (cat) {
+      return '<option value="' + cat.id + '">' + escapeHtml(cat.name) + "</option>";
+    }).join("");
+    return '<div class="d-flex flex-wrap align-items-center gap-2">' +
+      '<button type="button" class="btn btn-sm btn-outline-success btn-map" data-map-action="accept_received">Aceptar asignación</button>' +
+      '<span class="text-muted">o</span>' +
+      '<select class="form-select form-select-sm pg-exist" style="width:auto" title="Usar categoría existente">' +
+      '<option value="">Usar categoría existente…</option>' + options + "</select>" +
+      '<button type="button" class="btn btn-sm btn-outline-primary btn-map" data-map-action="use_existing">Usar</button>' +
+      '<span class="text-muted">o</span>' +
+      '<input type="text" class="form-control form-control-sm pg-new" style="width:auto" placeholder="Nueva categoría…">' +
+      '<button type="button" class="btn btn-sm btn-outline-dark btn-map" data-map-action="create">Crear</button>' +
+      "</div>";
+  }
+
   function renderFailedCases(data) {
     var cases = data.cases || [];
     var body = $("#pgEvalFailedBody");
     body.textContent = "";
+    var summary = $("#pgEvalFailedSummary");
+    summary.textContent = "";
+    var folds = {};
     cases.forEach(function (c) {
+      if (c.suggested_category) {
+        var received = (c.actual_json && c.actual_json.category) || "?";
+        folds[received] = folds[received] || { target: c.suggested_category, n: 0 };
+        folds[received].n += 1;
+      }
       var failedFields = (c.field_results || [])
         .filter(function (fr) { return fr.compared === true && fr.matched === false; })
         .map(function (fr) { return fr.field; });
       var fieldBadges = failedFields.map(function (f) {
         return '<span class="badge bg-danger">' + escapeHtml(f) + "</span>";
       }).join(" ");
+      var detailRows = (c.field_results || [])
+        .filter(function (fr) { return fr.compared === true && fr.matched === false; })
+        .map(function (fr) { return fieldDetailRow(fr, c); }).join("");
+      var detailHtml = '<div class="p-3 bg-light rounded">' +
+        '<table class="table table-sm align-middle mb-3"><thead>' +
+        "<tr><th>Campo</th><th>Esperado</th><th>Recibido</th></tr></thead><tbody>" +
+        (detailRows || '<tr><td colspan="3" class="small text-muted">Sin campos comparados que mostrar.</td></tr>') +
+        "</tbody></table>" +
+        '<div class="pg-map-cell">' + mappingControls(c) + "</div>" +
+        "</div>";
       var tr = document.createElement("tr");
       tr.setAttribute("data-testid", "evaluation-failed-case");
+      tr.setAttribute("data-case-id", c.id);
       tr.innerHTML =
-        "<td>" + c.row_number + "</td>" +
+        "<td>" +
+        '<button type="button" class="btn btn-sm btn-link p-0 text-decoration-none fw-semibold pg-toggle" title="Revisar esperado vs. recibido">' +
+        c.row_number + ' <i class="bi bi-chevron-down"></i></button>' +
+        "</td>" +
         "<td class=\"small\">" + escapeHtml(c.message) + "</td>" +
-        "<td class=\"small\">" + escapeHtml(c.expected_json || "—") + "</td>" +
-        "<td class=\"small\">" + escapeHtml((c.actual_json || c.error || "—").slice(0, 80)) + "</td>" +
+        "<td class=\"small\">" + escapeHtml(prettyValue(c.expected_json)) + "</td>" +
+        "<td class=\"small\">" + escapeHtml(prettyValue(c.actual_json || c.error)) + "</td>" +
         "<td>" + (fieldBadges || '<span class="badge bg-secondary">' + escapeHtml(c.status || "") + "</span>") + "</td>" +
         "<td class=\"small\">" + (c.latency_ms != null ? Number(c.latency_ms).toFixed(0) + "ms" : "—") + "</td>" +
         "<td class=\"small\">" + (c.input_tokens != null ? c.input_tokens + "/" + c.output_tokens : "—") + "</td>" +
         "<td class=\"small\">" + (c.cost != null ? money(c.cost) : "—") + "</td>";
       body.appendChild(tr);
+      if (detailRows) {
+        var detailTr = document.createElement("tr");
+        detailTr.className = "d-none pg-detail";
+        detailTr.innerHTML = '<td colspan="8">' + detailHtml + "</td>";
+        body.appendChild(detailTr);
+      }
     });
+
+    Object.keys(folds).forEach(function (received) {
+      var pill = document.createElement("span");
+      pill.className = "badge bg-warning text-dark text-wrap";
+      pill.textContent = folds[received].n + '× "' + received + '" → "' + folds[received].target + '"';
+      summary.appendChild(pill);
+    });
+    summary.classList.toggle("d-none", Object.keys(folds).length === 0);
+
     $("#pgEvalFailedCount").textContent = data.total != null ? data.total : cases.length;
     $("#pgEvalFailedWrap").classList.remove("d-none");
+    var hint = $("#pgEvalFailedHint");
+    hint.classList.toggle("d-none", cases.length === 0);
     $("#pgEvalFailedEmpty").classList.toggle("d-none", cases.length > 0);
   }
+
+  function mappingPayload(tr, action) {
+    var payload = { mapping_action: action };
+    if (action === "use_existing") {
+      var select = tr.querySelector(".pg-exist");
+      payload.category_id = select && select.value ? Number(select.value) : null;
+      if (!payload.category_id) throw new Error("Selecciona una categoría existente.");
+    } else if (action === "create") {
+      var input = tr.querySelector(".pg-new");
+      payload.new_category_name = (input && input.value || "").trim();
+      if (!payload.new_category_name) throw new Error("Escribe el nombre de la nueva categoría.");
+    }
+    return payload;
+  }
+
+  $("#pgEvalFailedWrap").addEventListener("click", function (event) {
+    var toggle = event.target.closest(".pg-toggle");
+    if (toggle) {
+      var detail = toggle.closest("tr").nextElementSibling;
+      if (detail) detail.classList.toggle("d-none");
+      return;
+    }
+    var btn = event.target.closest("[data-map-action]");
+    if (!btn) return;
+    var tr = btn.closest("[data-case-id]");
+    if (!tr) return;
+    var payload;
+    try {
+      payload = mappingPayload(tr, btn.getAttribute("data-map-action"));
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Guardando…";
+    evalPatch(form.dataset.evaluationsUrl + "/" + evalCurrentId + "/cases/" + tr.getAttribute("data-case-id") + "/mapping", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function () {
+      var cell = tr.querySelector(".pg-map-cell");
+      if (cell) cell.innerHTML = '<span class="badge bg-success">✓ Mapeado a categoría existente</span>';
+      tr.setAttribute("data-mapped", "true");
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = btn.getAttribute("data-map-action") === "accept_received" ? "Aceptar asignación"
+        : (btn.getAttribute("data-map-action") === "use_existing" ? "Usar" : "Crear");
+      alert("No se pudo guardar el mapeo.");
+    });
+  });
 
   function loadFailedCases(id) {
     var params = new URLSearchParams();

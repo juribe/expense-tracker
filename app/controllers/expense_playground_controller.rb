@@ -147,6 +147,35 @@ class ExpensePlaygroundController < ApplicationController
     render json: { ok: true, rerun_count: reset_cases.size }
   end
 
+  # POST /expense-playground/evaluations/:id/cases/:case_id/mapping
+  # Records a user decision about which category an evaluation case should map
+  # to, so the review of expected-vs-received is remembered (review log). The
+  # decision is stored as user classification knowledge for the case activity.
+  #
+  #   action = "accept_received"  use whatever the AI resolved to
+  #          | "use_existing"     map to Category (params[:category_id])
+  #          | "create"           create a new category (params[:new_category_name])
+  def map_evaluation_case
+    run = current_user.evaluation_runs.find(params[:id])
+    case_record = run.evaluation_cases.find(params[:case_id])
+
+    category = resolve_mapping_category!(case_record, params[:mapping_action].to_s)
+
+    activity = (case_record.actual_json || {})["activity"].presence || case_record.message
+    mapped = ActivityClassification.record!(
+      user: current_user,
+      name: activity,
+      category: category,
+      source: "user"
+    )
+
+    render json: { ok: true, mapped: mapped.present?, category: category.respond_to?(:name) ? category.name : category.to_s }
+  rescue ActiveRecord::RecordNotFound
+    render json: { ok: false, errors: [ "No encontrado" ] }, status: :not_found
+  rescue ArgumentError => e
+    render json: { ok: false, errors: [ e.message ] }, status: :unprocessable_entity
+  end
+
   # POST /expense-playground/process_file
   # Extracts transactions from an uploaded statement file (PDF/CSV/Excel).
   # Returns the candidates for preview without persisting anything. For
@@ -243,6 +272,30 @@ class ExpensePlaygroundController < ApplicationController
 
   private
 
+  # Resolves the category a user decision maps the case to. Never returns a
+  # near-duplicate: names that are very close to an existing category fold into
+  # it, and only genuinely-new names create a category.
+  def resolve_mapping_category!(case_record, action)
+    case action
+    when "use_existing"
+      Category.for_user(current_user).find(params[:category_id])
+    when "create"
+      name = params[:new_category_name].to_s.strip
+      raise ArgumentError, "category name required" if name.blank?
+
+      Categories::ClosestResolver.call(user: current_user, name: name).category ||
+        Category.create!(name: name, user: current_user, is_default: false)
+    when "accept_received"
+      received = (case_record.actual_json || {})["category"].to_s
+      raise ArgumentError, "received case has no category to accept" if received.blank?
+
+      Categories::ClosestResolver.call(user: current_user, name: received).category ||
+        Category.create!(name: received, user: current_user, is_default: false)
+    else
+      raise ArgumentError, "unknown mapping action #{action.inspect}"
+    end
+  end
+
   def set_categories
     @categories = Category.for_user(current_user)
     @money_sources = current_user.money_sources.active.order(:name)
@@ -264,8 +317,38 @@ class ExpensePlaygroundController < ApplicationController
       output_tokens: case_record.output_tokens,
       cost: case_record.cost&.to_f,
       error: case_record.error,
-      attempts: case_record.attempts
+      attempts: case_record.attempts,
+      mapped: classification_for_case(case_record),
+      suggested_category: case_suggestion(case_record)
     }
+  end
+
+  # Whether the case's activity already has a recorded user decision (review
+  # log), so the expected-vs-received table can show accepted mappings.
+  def classification_for_case(case_record)
+    activity = (case_record.actual_json || {})["activity"].presence || case_record.message
+    ActivityClassification.lookup(user: current_user, name: activity)&.source == "user"
+  end
+
+  # For the review summary: whether the received category is a near-duplicate
+  # of an existing one (folded by variant/similarity). English aliases and
+  # learned mappings are deliberate and do not need review.
+  def case_suggestion(case_record)
+    actual = case_record.actual_json
+    return nil if actual.blank?
+
+    received = actual["category"].to_s
+    return nil if received.blank?
+
+    activity = actual["activity"].presence || case_record.message
+    return nil if activity.blank?
+
+    resolved = Categories::ClosestResolver.call(user: current_user, name: received, activity: activity, record: false)
+    return nil unless resolved.matched_by.in?(%i[variant similar])
+
+    resolved.category&.name
+  rescue StandardError
+    nil
   end
 
   # Raw channel params. Adapters turn these into an ExpensePlayground::Input;

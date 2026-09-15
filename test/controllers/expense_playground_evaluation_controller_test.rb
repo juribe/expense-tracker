@@ -138,4 +138,115 @@ run = ExpensePlayground::Evaluations::Runner.start(
       assert_equal 1, enqueued_jobs.count { |j| j[:job] == ExpensePlaygroundEvaluationCaseJob }
     end
   end
+
+  def run_with_case(actual_json)
+    run = EvaluationRun.create!(
+      user: @user, dataset_name: "m.csv", dataset_version: "v1",
+      provider: "openrouter", model: "m", status: "completed", total_cases: 1
+    )
+    case_record = run.evaluation_cases.create!(
+      row_number: 1, message: "pedimos por rappi hoy",
+      expected_json: { "category" => "Comida y restaurantes" },
+      actual_json: actual_json, status: "failed"
+    )
+    [ run, case_record ]
+  end
+
+  test "POST mapping with accept_received records the user decision for the activity" do
+    category = Category.create!(name: "Comida y restaurantes", user: @user, is_default: false)
+    run, case_record = run_with_case("activity" => "Restaurante (Rappi)", "category" => "Comida y restaurantes")
+
+    post expense_playground_evaluation_mapping_path(run, case_record, format: :json),
+         params: { mapping_action: "accept_received" }
+
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert_equal true, data["ok"]
+    assert_equal true, data["mapped"]
+    assert_equal "Comida y restaurantes", data["category"]
+    learned = ActivityClassification.lookup(user: @user, name: "Restaurante (Rappi)")
+    assert_equal category.id, learned.category_id
+  end
+
+  test "POST mapping with use_existing binds the case activity to the chosen category" do
+    category = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
+    run, case_record = run_with_case("activity" => "Pago de Netflix", "category" => "Entretenimiento")
+
+    post expense_playground_evaluation_mapping_path(run, case_record, format: :json),
+         params: { mapping_action: "use_existing", category_id: category.id }
+
+    assert_response :success
+    learned = ActivityClassification.lookup(user: @user, name: "Pago de Netflix")
+    assert_equal category.id, learned.category_id
+  end
+
+  test "POST mapping with create folds near-duplicate names into an existing category" do
+    existing = Category.create!(name: "Comida y restaurantes", user: @user, is_default: false)
+    run, case_record = run_with_case("activity" => "Pedido Rappi", "category" => "Restaurante (Rappi)")
+
+    assert_no_difference "Category.count" do
+      post expense_playground_evaluation_mapping_path(run, case_record, format: :json),
+           params: { mapping_action: "create", new_category_name: "Restaurante (Rappi)" }
+    end
+
+    assert_response :success
+    assert_equal "Comida y restaurantes", JSON.parse(response.body)["category"]
+    assert_equal existing.id, ActivityClassification.lookup(user: @user, name: "Pedido Rappi").category_id
+  end
+
+  test "POST mapping with create makes a genuinely-new category" do
+    run, case_record = run_with_case("activity" => "Suscripcion Mensual", "category" => "Suscripciones")
+
+    assert_difference "Category.count" => 1 do
+      post expense_playground_evaluation_mapping_path(run, case_record, format: :json),
+           params: { mapping_action: "create", new_category_name: "Suscripciones" }
+    end
+
+    assert_response :success
+    assert_equal "Suscripciones", JSON.parse(response.body)["category"]
+  end
+
+  test "POST mapping requires an existing category when using use_existing" do
+    run, case_record = run_with_case("activity" => "Netflix", "category" => "Entretenimiento")
+
+    post expense_playground_evaluation_mapping_path(run, case_record, format: :json),
+         params: { mapping_action: "use_existing", category_id: 999_999 }
+
+    assert_response :not_found
+  end
+
+  test "POST mapping does not touch another user's run or case" do
+    stranger = User.create!(name: "Stranger", email: "pg-stranger-#{SecureRandom.hex(6)}@example.com", password: "password123")
+    other_run = EvaluationRun.create!(
+      user: stranger, dataset_name: "x.csv", dataset_version: "v1",
+      provider: "openrouter", model: "m", status: "completed", total_cases: 1
+    )
+    other_case = other_run.evaluation_cases.create!(
+      row_number: 1, message: "compra", expected_json: {}, actual_json: { "activity" => "Compra", "category" => "Compras" }, status: "failed"
+    )
+
+    post expense_playground_evaluation_mapping_path(other_run, other_case, format: :json),
+         params: { mapping_action: "accept_received" }
+
+    assert_response :not_found
+  end
+
+  test "cases list exposes mapped and suggested_category for the review table" do
+    existing = Category.create!(name: "Comida y restaurantes", user: @user, is_default: false)
+    run, case_record = run_with_case("activity" => "Pedido Rappi", "category" => "Restaurante (Rappi)")
+
+    get expense_playground_evaluation_cases_path(run, format: :json, status: "failed")
+
+    assert_response :success
+    entry = JSON.parse(response.body)["cases"].first
+    assert_equal false, entry["mapped"]
+    assert_equal "Comida y restaurantes", entry["suggested_category"]
+
+    post expense_playground_evaluation_mapping_path(run, case_record, format: :json),
+         params: { mapping_action: "accept_received" }
+    get expense_playground_evaluation_cases_path(run, format: :json, status: "failed")
+
+    assert_equal true, JSON.parse(response.body)["cases"].first["mapped"]
+    assert_equal existing.id, existing.id
+  end
 end

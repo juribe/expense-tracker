@@ -68,16 +68,63 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
   end
 
   test "marks the case failed when the final result differs from expected" do
-    case_record = case_row(expected_json: { "amount" => 20_000, "activity" => "uber" })
+    case_record = case_row(expected_json: { "amount" => 30_000, "activity" => "uber" })
     stub_provider(FakeAiProvider.new(responses: [ ok_response ])) do
       ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
     end
 
     case_record.reload
     assert_equal "failed", case_record.status
-    activity_result = case_record.field_results.find { |r| r["field"] == "activity" }
-    assert_equal false, activity_result["matched"]
-    assert_equal "almuerzo", case_record.actual_json["activity"]
+    amount_result = case_record.field_results.find { |r| r["field"] == "amount" }
+    assert_equal false, amount_result["matched"]
+    assert_equal 20_000, case_record.actual_json["amount"]
+  end
+
+  test "a case that only differs in activity still passes" do
+    case_record = case_row(expected_json: { "amount" => 20_000, "category" => "Restaurants" })
+    stub_provider(FakeAiProvider.new(responses: [ ok_response ])) do
+      ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
+    end
+
+    case_record.reload
+    assert_equal "passed", case_record.status
+    assert_nil case_record.field_results.find { |r| r["field"] == "activity" }
+  end
+
+  test "judges category semantically: a near-duplicate label folded into the existing category passes" do
+    comida = Category.create!(name: "Comida y restaurantes", user: @user, is_default: false)
+    case_record = case_row(expected_json: {
+      "amount" => 20_000, "activity" => "Pedido Rappi", "category" => "Restaurante (Rappi)"
+    })
+    stub_provider(FakeAiProvider.new(responses: [
+      ok_response(description: "Pedido Rappi", category: "Restaurante (Rappi)")
+    ])) do
+      ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
+    end
+
+    case_record.reload
+    assert_equal "passed", case_record.status
+    assert_equal comida.name, case_record.actual_json["category"]
+    category_result = case_record.field_results.find { |r| r["field"] == "category" }
+    assert_equal true, category_result["matched"]
+  end
+
+  test "judges category semantically: genuinely-different categories still fail" do
+    Category.create!(name: "Viajes", user: @user, is_default: false)
+    Category.create!(name: "Vivienda", user: @user, is_default: false)
+    case_record = case_row(expected_json: {
+      "amount" => 20_000, "activity" => "Hotel", "category" => "Viajes"
+    })
+    stub_provider(FakeAiProvider.new(responses: [
+      ok_response(description: "Hotel", category: "Vivienda")
+    ])) do
+      ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
+    end
+
+    case_record.reload
+    assert_equal "failed", case_record.status
+    category_result = case_record.field_results.find { |r| r["field"] == "category" }
+    assert_equal false, category_result["matched"]
   end
 
   test "marks the case error when the final result is invalid JSON and never crashes the run" do

@@ -101,6 +101,7 @@ Rails.application.routes.draw do
   get "expense-playground/evaluations/:id", to: "expense_playground#evaluation", as: :expense_playground_evaluation
   get "expense-playground/evaluations/:id/cases", to: "expense_playground#evaluation_cases", as: :expense_playground_evaluation_cases
   post "expense-playground/evaluations/:id/retry", to: "expense_playground#retry_evaluation", as: :expense_playground_retry_evaluation
+  post "expense-playground/evaluations/:id/cases/:case_id/mapping", to: "expense_playground#map_evaluation_case", as: :expense_playground_evaluation_mapping
 
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'

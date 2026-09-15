@@ -79,7 +79,11 @@ module Expenses
       name = @category.to_s.strip
       raise Invalid, "category is required" if name.blank?
 
-      Category.for_user(@user).where("lower(name) = ?", name.downcase).first ||
+      # ClosestResolver folds "very close" names into an existing category, so
+      # creating an expense never spawns near-duplicate categories. Similarity
+      # folds are recorded as rule knowledge (the reviewable mapping log).
+      resolved = Categories::ClosestResolver.call(user: @user, name: name, activity: @description)
+      resolved.category ||
         Category.create!(name: name.split.map(&:capitalize).join(" "), user: @user, is_default: false)
     end
 

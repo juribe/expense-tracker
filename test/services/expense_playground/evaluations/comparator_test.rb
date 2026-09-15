@@ -84,4 +84,11 @@ class ExpensePlaygroundEvaluationsComparatorTest < ActiveSupport::TestCase
 
     assert result[:full_match]
   end
+
+  test "activity is free-text and never validated" do
+    result = call(expected: expected_json.merge("activity" => "Comida por Rappi"),
+                  actual: expected_json.merge("activity" => "Rappi - Comida"))
+    assert result[:full_match], "a completely different activity must not fail the case"
+    assert_nil result.dig(:fields, :activity), "activity must not appear as a compared field"
+  end
 end

@@ -13,11 +13,13 @@ module ExpensePlayground
     #   # => { valid: true, matched: true, full_match: true,
     #   #      fields: { amount: {compared: true, matched: true}, ... } }
     #
-    # Required fields compared when present: intent, amount, date, activity,
-    # category, subcategory, money_source, currency.
+    # Required fields compared when present: intent, amount, date, category,
+    # subcategory, money_source, currency. Activity is deliberately NOT
+    # compared: it is free-text that the AI rewrites every run, and grouping
+    # happens by category, so an activity mismatch must never fail a case.
     class Comparator
       REQUIRED_FIELDS = %i[
-        intent amount date activity category subcategory money_source currency
+        intent amount date category subcategory money_source currency
       ].freeze
 
       attr_reader :expected, :actual
@@ -73,7 +75,7 @@ module ExpensePlayground
         }
       end
 
-      def equal?(field, expected_value, actual_value)
+def equal?(field, expected_value, actual_value)
         expected_norm = normalize(field, expected_value)
         actual_norm = normalize(field, actual_value)
         !blank?(actual_norm) && expected_norm == actual_norm

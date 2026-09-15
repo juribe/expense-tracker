@@ -132,6 +132,25 @@ module ExpensePlayground
       end
     end
 
+    test "an English category name resolves to its Spanish equivalent when one exists" do
+      spanish = Category.create!(name: "Comida y restaurantes", is_default: true, category_type: "expense")
+      extractor_result = {
+        ok?: true,
+        data: {
+          ocr_text: "MENU",
+          expenses: [ { amount: 25_000, currency: "COP", merchant: nil,
+                        description: "Almuerzo", category_name: "restaurants", create_category: false,
+                        transaction_date: Date.current.iso8601, confidence: 0.8 } ]
+        },
+        error: nil
+      }
+      stub_vision_fallback(extractor_result) do
+        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        assert_equal spanish.id, result.candidate.category_id
+        assert_equal "Comida y restaurantes", result.candidate.category_name
+      end
+    end
+
     test "failed vision extraction surfaces a friendly error with pipeline details" do
       stub_vision_fallback({ ok?: false, data: nil, error: "AI HTTP 500" }) do
         result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))

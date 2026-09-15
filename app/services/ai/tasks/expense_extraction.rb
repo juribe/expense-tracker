@@ -60,10 +60,10 @@ module Ai
           - One input may contain multiple expenses; return one entry per expense.
           - Interpret Colombian amounts: "50 mil"/"50 lucas"/"50k" = 50000, "50.000 pesos" = 50000, "medio millon" = 500000.
           - Resolve relative dates ("hoy", "ayer", "anteayer", "el lunes") to an ISO date (YYYY-MM-DD).
-          - Use one of the user's existing categories when it fits; otherwise set "create_category": true and suggest a short English category name.
+          - Use one of the user's existing categories when it fits, always with its SPANISH label. When the closest existing category is very close in meaning (or only differs in wording), prefer it; otherwise set "create_category": true and suggest a short SPANISH category name.
           - Include a confidence between 0 and 1; reserve values below 0.9 for genuinely ambiguous inputs.
           Respond with ONLY JSON of the shape:
-          {"expenses":[{"amount":50000,"category":"Restaurants","description":"Restaurante","transaction_date":"#{today.to_date.iso8601}","confidence":0.95,"create_category":false}]}
+          {"expenses":[{"amount":50000,"category":"Comida y restaurantes","description":"Restaurante","transaction_date":"#{today.to_date.iso8601}","confidence":0.95,"create_category":false}]}
         PROMPT
       end
     end

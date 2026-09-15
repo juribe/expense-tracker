@@ -29,6 +29,11 @@ class ExpenseParser
   DEFAULT_CURRENCY = "COP"
   LOW_CONFIDENCE_THRESHOLD = 0.75
 
+  # Deterministic amount readings confident enough to override an AI value.
+  # "20 mil"/"20 lucas"/"850.000" read at >= 0.8; a bare word-number or an
+  # unformatted integer stays below and never overrides.
+  RECONCILE_CONFIDENCE_THRESHOLD = 0.8
+
   # Spanish keyword groups used to map free text to canonical categories.
   SYNONYM_GROUPS = [
     { canonical: "Restaurants", keywords: %w[restaurant restaurants restaurantes almuerzo comida cena desayuno lunch snack pizza hamburguesa cafe cafeteria bar] },
@@ -155,7 +160,34 @@ class ExpenseParser
     end
 
     entries = result.data.map { |entry| normalize_ai_entry(entry) }
+    entries = reconcile_amounts(entries)
     entries.present? ? [ entries, result.strategy ] : [ nil, nil ]
+  end
+
+  # The AI occasionally misexpands Colombian amounts ("20 mil" read as
+  # 2.000.000). When the message carries exactly one unambiguous amount
+  # expression, prefer the deterministic reading (which is how the heuristic
+  # parser reports the same text) over the AI value.
+  def reconcile_amounts(entries)
+    return entries if entries.length != 1
+
+    recovered, confidence = deterministic_amount
+    return entries if recovered.nil? || confidence < RECONCILE_CONFIDENCE_THRESHOLD
+
+    entry = entries.first
+    entry[:amount] = recovered
+    entry[:confidence] = [ entry[:confidence].to_f, confidence ].min
+    [ entry ]
+  end
+
+  # Deterministic amount recovered from the source text: nil unless exactly
+  # one amount expression is present and confidently interpretable.
+  def deterministic_amount
+    matches = scan_amounts(normalize_text(@text))
+    uniques = matches.map { |match| match[:raw] }.uniq
+    return [ nil, 0.0 ] unless uniques.length == 1
+
+    interpret_amount(uniques.first)
   end
 
   # Heuristic entries with every confidence component at or above the

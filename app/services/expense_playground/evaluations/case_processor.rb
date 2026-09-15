@@ -101,6 +101,19 @@ module ExpensePlayground
         built = ResultBuilder.call(candidate: processing.candidate)
         comparison = Comparator.call(expected: @case_record.expected_json, actual: built[:json])
 
+        # The pipeline folds near-duplicate category labels into the existing
+        # canonical category, so "Restaurante (Rappi)" and "Comida y
+        # restaurantes" are the same category even though the raw strings
+        # differ. Judge category semantically when both sides resolve to the
+        # same existing category through ClosestResolver.
+        category = comparison.dig(:fields, :category)
+        if category && category[:compared] && !category[:matched] &&
+           semantic_category_match?(@case_record.expected_json, built[:json])
+          category[:matched] = true
+          comparison[:full_match] =
+            comparison[:fields].values.all? { |field| field[:compared] ? field[:matched] : true }
+        end
+
         update_case(
           status: comparison[:full_match] ? "passed" : "failed",
           error: nil,
@@ -113,6 +126,18 @@ module ExpensePlayground
           usage: usage
         )
         comparison[:full_match] ? :passed : :failed
+      end
+
+      def semantic_category_match?(expected_json, actual_json)
+        expected_name = expected_json["category"].to_s
+        actual_name = actual_json["category"].to_s
+        return false if expected_name.blank? || actual_name.blank?
+
+        resolved_expected = Categories::ClosestResolver.call(user: @run.user, name: expected_name, record: false).category
+        resolved_actual = Categories::ClosestResolver.call(user: @run.user, name: actual_name, record: false).category
+        return false if resolved_expected.nil? || resolved_actual.nil?
+
+        resolved_expected.id == resolved_actual.id
       end
 
       def update_case(status:, error:, latency_ms:, actual_json:, usage:, field_results: [], json_valid: false)

@@ -116,6 +116,23 @@ class ExpenseParserAiRoutingTest < ActiveSupport::TestCase
     assert result[:errors].any? { |message| message.include?("AI parsing failed") }
   end
 
+  test "AI misexpanded amounts are corrected from the deterministic reading" do
+    cheap = FakeAiProvider.new(responses: [ { content: { expenses: entries(amount: 2_000_000) }.to_json,
+                                              input_tokens: 20, output_tokens: 8 } ])
+    strong = FakeAiProvider.new(responses: [])
+
+    result = nil
+    stub_method(Ai::Providers, :cheap, ->(*) { cheap }) do
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env(AI_ENV) { result = parse("20 mil en algo raro") }
+      end
+    end
+
+    assert_equal "ai", result[:engine]
+    assert_equal 20_000.0, result[:expenses].first[:amount]
+    assert_equal 1, cheap.calls.count
+  end
+
   test "a user correction overrides and replaces earlier AI knowledge" do
     category = @restaurants
     ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: category, source: "strong_ai")
