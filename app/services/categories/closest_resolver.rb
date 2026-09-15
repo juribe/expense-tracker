@@ -6,20 +6,21 @@ module Categories
   # NEW category that does not exist yet.
   #
   # Resolution order:
-  #   1. exact normalized name match (accent/case insensitive)
-  #   2. stored knowledge: ActivityClassification for the activity/description
+  #   1. stored knowledge: ActivityClassification for the activity/description
   #      (a user correction always wins, so repeated messages stop flip-flopping)
+  #   2. exact normalized name match (accent/case insensitive)
   #   3. English seed -> Spanish alias
-  #   4. curated variant map (near-identical renames of existing categories)
-  #   5. similarity (token Jaccard / containment) above a threshold
+  #   4. similarity (token Jaccard / containment) above a threshold
   #
-  # Steps 4-5 never create a near-duplicate category: the variant name is folded
-  # into the existing one. Every similarity fold is recorded back through
+  # There are NO unconditional classification rules: category names are never
+  # hard-mapped here. When the extracted category name is blank (AI said "null")
+  # the name stays unassigned UNLESS the user has explicit stored knowledge for
+  # the activity. Every similarity fold is recorded back through
   # ActivityClassification (source: "rule") when record: true, so the fold is
   # reviewable and queryable instead of being a silent one-off decision.
   #
   #   Categories::ClosestResolver.call(user: user, name: "Mantenimiento del apartamento")
-  #   # => #<struct Result category=#<Category...>, matched_by=:variant, similarity=1.0>
+  #   # => #<struct Result category=nil, matched_by=nil> when no category is close
   class ClosestResolver
     Result = Struct.new(:category, :matched_by, :similarity, keyword_init: true) do
       def matched?
@@ -29,6 +30,9 @@ module Categories
 
     # English seed names that exist in the category tree are folded into their
     # Spanish equivalents so a resolved category always uses the Spanish label.
+    # This is label normalization (not classification), so it is not an
+    # unconditional rule: it only rewrites the spelling of a name the model or
+    # the heuristic parser already chose.
     ALIASES = {
       "entertainment" => "Entretenimiento", "shopping" => "Compras",
       "restaurants" => "Comida y restaurantes", "groceries" => "Compras",
@@ -38,24 +42,6 @@ module Categories
       "parking" => "Transporte", "gasoline" => "Transporte", "fuel" => "Transporte",
       "pet care" => "Otros", "pets" => "Otros", "subscriptions" => "Otros",
       "subscription" => "Otros", "market" => "Compras"
-    }.freeze
-
-    # Curated "very close" variants -> canonical category name. AI labels you
-    # keep seeing that differ only in wording from an existing category go here,
-    # so the fold is deterministic and never spawns a duplicate category. Keys
-    # are matched against BOTH the extracted category name and the activity,
-    # so a strong brand signal ("netflix") always wins over a generic/wrong AI
-    # category while an explicit user mapping still takes precedence.
-    VARIANTS = {
-      "netflix" => "Entretenimiento",
-      "pago de netflix" => "Entretenimiento",
-      "gasto de netflix" => "Entretenimiento",
-      "pago netflix" => "Entretenimiento",
-      "suscripcion netflix" => "Entretenimiento",
-      "netflix mensual" => "Entretenimiento",
-      "restaurante (rappi)" => "Comida y restaurantes",
-      "restaurante rappi" => "Comida y restaurantes",
-      "mantenimiento del apartamento" => "Vivienda"
     }.freeze
 
     # Minimum shared-token coverage for the similarity fold.
@@ -75,10 +61,18 @@ module Categories
     end
 
     def resolve
-      return Result.new(category: nil, matched_by: nil) if name.blank?
-
       categories = Category.for_user(user).to_a
       return Result.new(category: nil, matched_by: nil) if categories.empty?
+
+      if name.blank?
+        # No extracted category name: the expense stays unassigned unless the
+        # user has explicit stored knowledge for the activity. Nothing is
+        # classified by an unconditional rule here.
+        return Result.new(category: nil, matched_by: nil) if activity.blank?
+
+        learned = learned_match
+        return learned || Result.new(category: nil, matched_by: nil)
+      end
 
       result =
         if ALIASES.key?(normalize(name))
@@ -86,14 +80,7 @@ module Categories
           # otherwise fall back to exact resolution (the English category itself).
           alias_match(categories) || exact_match(categories)
         else
-          # Explicit user knowledge for the activity wins first; then a strong
-          # curated brand/activity variant (Netflix -> Entretenimiento) beats an
-          # exact-but-generic AI category name; then exact/variant/similar.
-          learned_match ||
-            activity_variant_match(categories) ||
-            exact_match(categories) ||
-            variant_match(categories) ||
-            similar_match(categories)
+          learned_match || exact_match(categories) || similar_match(categories)
         end
       record_fold!(result) if result&.matched_by == :similar
       result || Result.new(category: nil, matched_by: nil)
@@ -123,34 +110,12 @@ module Categories
       return Result.new(category: hit, matched_by: :alias, similarity: 1.0) if hit
     end
 
-    def variant_match(categories)
-      target = VARIANTS[normalize(name)]
-      return nil if target.nil?
-
-      hit = categories.find { |category| normalize(category.name) == normalize(target) }
-      return Result.new(category: hit, matched_by: :variant, similarity: 1.0) if hit
-    end
-
-    # The extracted category name can be a generic one that happens to exist
-    # ("Servicios públicos") while the ACTIVITY is a known curated brand
-    # ("netflix"). Folding by activity corrects the AI here without ever
-    # consulting the (possibly wrong) category name.
-    def activity_variant_match(categories)
-      return nil if activity.blank?
-
-      target = VARIANTS[normalize(activity)]
-      return nil if target.nil?
-
-      hit = categories.find { |category| normalize(category.name) == normalize(target) }
-      return Result.new(category: hit, matched_by: :variant, similarity: 1.0) if hit
-    end
-
     def similar_match(categories)
-      tokens = word_tokens(normalize(name))
+      tokens = fold_tokens(name)
       return nil if tokens.empty?
 
       best = categories.each_with_object([]) do |category, acc|
-        candidate_tokens = word_tokens(normalize(category.name))
+        candidate_tokens = fold_tokens(category.name)
         next if candidate_tokens.empty?
 
         score = overlap_score(tokens, candidate_tokens)
@@ -165,13 +130,37 @@ module Categories
     end
 
     def overlap_score(tokens, candidate_tokens)
-      shared = tokens & candidate_tokens
+      shared = tokens.select { |token| candidate_tokens.any? { |candidate| token_close?(token, candidate) } }
       return 0.0 if shared.empty?
 
       union_size = (tokens | candidate_tokens).size
       jaccard = shared.size.to_f / union_size
       containment = shared.size.to_f / [ tokens.size, candidate_tokens.size ].min
       [ jaccard, containment ].max
+    end
+
+    # Two stemmed tokens count as the same word when equal or when one is a
+    # long prefix of the other (same length family): "restaurante" and
+    # "restaurant". Short tokens are excluded so filler/irrelevant words never
+    # trigger a fold.
+    def token_close?(a, b)
+      return true if a == b
+
+      [ a, b ].sort_by(&:length).then do |shorter, longer|
+        shorter.length >= 4 && longer.start_with?(shorter) && (longer.length - shorter.length) <= 3
+      end
+    end
+
+    # Tokens collapsed to a singular-ish stem ("restaurantes" -> "restaurant",
+    # "compras" -> "compra") so near-identical labels fold. This is spelling
+    # normalization, NOT an unconditional classification rule.
+    def fold_tokens(text)
+      normalize(text).to_s.split.filter_map do |token|
+        stem = token
+        stem = stem[0...-2] if stem.length > 2 && stem.end_with?("es")
+        stem = stem[0...-1] if stem.length > 1 && stem.end_with?("s")
+        stem.present? ? stem : token
+      end
     end
 
     def record_fold!(result)
@@ -189,10 +178,6 @@ module Categories
 
     def normalize(text)
       ActivityClassification.normalize_name(text)
-    end
-
-    def word_tokens(text)
-      text.to_s.split
     end
   end
 end

@@ -273,7 +273,7 @@ class ExpenseParser
     warnings = []
     warnings << "We are not sure about this expense amount. Detected: $#{value.to_i}" if amount_confidence < LOW_CONFIDENCE_THRESHOLD
     warnings << "We assumed the date is #{date.iso8601}. Please confirm." if date_confidence < LOW_CONFIDENCE_THRESHOLD
-    warnings << "No matching category found. A new \"#{resolution.suggested_name}\" category will be created." if resolution.category.nil?
+    warnings << "We could not determine a category for this expense. You can assign it when you confirm." if resolution.category.nil?
 
     confidence = [ amount_confidence, date_confidence, resolution.confidence ].min.round(2)
 
@@ -283,7 +283,7 @@ class ExpenseParser
       transaction_date: date,
       category_id: resolution.category&.id,
       category_name: resolution.category&.name || resolution.suggested_name,
-      create_category: resolution.category.nil?,
+      create_category: false,
       confidence: confidence,
       warnings: warnings
     )
@@ -408,34 +408,36 @@ class ExpenseParser
     expense.category_id = rule.category_id
     expense.category_name = rule.category.name
     expense.create_category = false
-    expense.warnings = expense.warnings.grep_v(/\ANo matching category found/)
+    expense.warnings = expense.warnings.grep_v(/\A(?:No matching category found|We could not determine a category)/)
   end
 
-  # Resolves a category for the expense, preferring existing categories.
-  def resolve_category(description, context)
-    haystack = "#{context} #{description}".squish
+# Resolves a category for the expense, preferring existing categories.
+    # Whenever the text cannot be confidently tied to one of the user's
+    # categories the resolution is nil (unassigned): nothing is forced into a
+    # made-up name or "Otros". The user assigns the category when confirming.
+    def resolve_category(description, context)
+      haystack = "#{context} #{description}".squish
 
-    group = best_matching_group(haystack)
-    if group
-      existing = find_existing_category(group)
-      return Resolution.new(existing, nil, 0.95) if existing
+      group = best_matching_group(haystack)
+      if group
+        existing = find_existing_category(group)
+        return Resolution.new(existing, nil, 0.95) if existing
 
-      return Resolution.new(nil, group[:canonical], 0.6)
+        return Resolution.new(nil, nil, 0.6)
+      end
+
+      direct = @categories.find do |category|
+        name = normalize_text(category.name)
+        description = normalize_text(description.to_s)
+        next false if description.blank?
+
+        name == description ||
+          (name.length >= 5 && description.length >= 5 && name[0, 5] == description[0, 5])
+      end
+      return Resolution.new(direct, nil, 0.9) if direct
+
+      Resolution.new(nil, nil, 0.4)
     end
-
-    direct = @categories.find do |category|
-      name = normalize_text(category.name)
-      description = normalize_text(description.to_s)
-      next false if description.blank?
-
-      name == description ||
-        (name.length >= 5 && description.length >= 5 && name[0, 5] == description[0, 5])
-    end
-    return Resolution.new(direct, nil, 0.9) if direct
-
-    fallback = description.presence && titleize_words(clean_description(description))
-    Resolution.new(nil, fallback.presence || "Others", 0.4)
-  end
 
   def best_matching_group(haystack)
     best = nil

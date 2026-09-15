@@ -614,6 +614,8 @@ function initializePlayground() {
     warningsTitle: <%= raw(t("playground.warnings_title").to_json) %>,
     noMerchant: "—",
     noSource: "—",
+    noCategory: "Sin categoría",
+    selectCategory: "Selecciona una categoría…",
     evaluationCorrect: <%= raw(t("playground.evaluation_correct").to_json) %>,
     historyLoadFailed: <%= raw(t("playground.history_delete_failed").to_json) %>,
     aiSummaryEmpty: <%= raw(t("playground.ai_summary_empty").to_json) %>,
@@ -984,7 +986,7 @@ function initializePlayground() {
           ": " + escapeHtml(candidate.money_source_source) + "</div>" : "") +
         "</td>" +
         '<td class="small text-end fw-semibold">' + escapeHtml(amount) + " " + escapeHtml(candidate.currency || "COP") + "</td>" +
-        '<td class="small">' + escapeHtml(candidate.category_name || "—") + "</td>" +
+        '<td class="small">' + escapeHtml(candidate.category_name || T.noCategory) + "</td>" +
         '<td class="small">' + escapeHtml(candidate.money_source_name || "—") + "</td>" +
         '<td class="small">' + escapeHtml(confidence) + "</td>" +
         '<td class="small">' + status + "</td>";
@@ -1233,6 +1235,10 @@ function initializePlayground() {
     if (categoryId) {
       matched = CATEGORIES.filter(function (c) { return Number(c.id) === Number(categoryId); })[0];
     }
+    if (!matched && !categoryName) {
+      // Unassigned candidate: require an explicit choice before confirming.
+      select.appendChild(categoryOption("", T.selectCategory, true));
+    }
     CATEGORIES.forEach(function (category) {
       select.appendChild(categoryOption(category.id, category.name, !!(matched && Number(matched.id) === Number(category.id))));
     });
@@ -1269,7 +1275,7 @@ function initializePlayground() {
 
   function renderCandidate(candidate) {
     $("#pgSumAmount").textContent = money(candidate.amount) + " " + (candidate.currency || "COP");
-    $("#pgSumCategory").textContent = candidate.category_name || "—";
+    $("#pgSumCategory").textContent = candidate.category_name || T.noCategory;
     $("#pgSumDescription").textContent = candidate.description || "—";
     $("#pgSumDate").textContent = formatDate(candidate.date);
     $("#pgSumSource").textContent = sourceLabel(candidate);
@@ -1294,7 +1300,7 @@ function initializePlayground() {
       amount: $("#pgEditAmount").value,
       currency: $("#pgEditCurrency").value,
       category_id: isNewCategory ? "" : category,
-      category_name: isNewCategory ? category.slice(4) : ($("#pgEditCategory").selectedOptions[0] || {}).textContent || "",
+      category_name: isNewCategory ? category.slice(4) : (category ? ($("#pgEditCategory").selectedOptions[0] || {}).textContent || "" : ""),
       description: $("#pgEditDescription").value,
       merchant: $("#pgEditMerchant").value,
       date: $("#pgEditDate").value,

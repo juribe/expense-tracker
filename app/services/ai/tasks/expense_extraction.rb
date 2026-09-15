@@ -60,7 +60,16 @@ module Ai
           - One input may contain multiple expenses; return one entry per expense.
           - Interpret Colombian amounts: "50 mil"/"50 lucas"/"50k" = 50000, "50.000 pesos" = 50000, "medio millon" = 500000.
           - Resolve relative dates ("hoy", "ayer", "anteayer", "el lunes") to an ISO date (YYYY-MM-DD).
-          - Use one of the user's existing categories when it fits, always with its SPANISH label. When the closest existing category is very close in meaning (or only differs in wording), prefer it; otherwise set "create_category": true and suggest a short SPANISH category name.
+          - Category: use one of the user's existing categories (SPANISH label) when it clearly fits; when the closest existing category differs only in wording, prefer it; otherwise set "create_category": true and suggest a short SPANISH category name.
+          - UNASSIGNED CATEGORY: return "category": null instead of guessing when (a) the message does not contain enough information to determine the category, (b) several categories are plausible and there is no context to choose between them, (c) the product/service is ambiguous, or (d) choosing would require assuming context the user never provided. Do NOT force these cases into "Otros". Set "create_category": false alongside null.
+          - "Otros" is ONLY for expenses that are known but fit none of the specific categories. "Otros" is NEVER an automatic fallback for uncertain classifications.
+          - Do not invent context: never decide that an expense is personal, business-related or freelance work unless the message says so. Example: "I paid 65000 for Canva Pro" -> "category": null (could be Compras, Negocio or Trabajo independiente); "...for my business" -> "Negocio"; "...for my freelance work" -> "Trabajo independiente".
+          - Application business rules (take priority over generic real-world meaning):
+            * In this app Didi means food/delivery: "Didi" and "Didi Food" -> "Comida y restaurantes", never "Transporte".
+            * Rappi -> "Comida y restaurantes" when the context indicates food.
+            * Netflix, Spotify and Disney+ are entertainment: -> "Entretenimiento", never "Servicios públicos".
+            * "Servicios públicos" is reserved for actual utilities: water, electricity, gas, internet, telephone/mobile phone service. Never classify digital services or subscriptions as "Servicios públicos".
+          - Subcategory "d1" exists under "Comida y restaurantes". When the expense belongs to d1, always use "category": "Comida y restaurantes" (never "d1" as the main category).
           - Include a confidence between 0 and 1; reserve values below 0.9 for genuinely ambiguous inputs.
           Respond with ONLY JSON of the shape:
           {"expenses":[{"amount":50000,"category":"Comida y restaurantes","description":"Restaurante","transaction_date":"#{today.to_date.iso8601}","confidence":0.95,"create_category":false}]}

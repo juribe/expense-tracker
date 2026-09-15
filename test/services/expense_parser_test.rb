@@ -67,21 +67,22 @@ class ExpenseParserTest < ActiveSupport::TestCase
     refute parking[:create_category]
   end
 
-  test "suggests a new category when none matches" do
+  test "leaves the category unassigned when no category matches" do
     result = parse("Gasté 30 mil en la veterinaria del perro")
 
     expense = result[:expenses].first
     assert_nil expense[:category_id]
-    assert expense[:create_category]
-    assert_equal "Pet Care", expense[:category_name]
+    assert_nil expense[:category_name]
+    refute expense[:create_category]
+    assert expense[:warnings].any? { |warning| warning.include?("category") }
   end
 
   test "flags unknown categories as low confidence with a warning" do
     result = parse("gasté 10 mil en xilofono")
 
     expense = result[:expenses].first
-    assert expense[:create_category]
-    assert_equal "Xilofono", expense[:category_name]
+    refute expense[:create_category]
+    assert_nil expense[:category_name]
     assert_operator expense[:confidence], :<, ExpenseParser::LOW_CONFIDENCE_THRESHOLD
     assert expense[:low_confidence]
     assert expense[:warnings].any?
@@ -268,12 +269,12 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_equal false, expense[:create_category]
   end
 
-  test "keeps the parser suggestion when no rule matches" do
+  test "leaves the category unassigned when no rule matches" do
     result = parse("gasté 30 mil en la veterinaria del perro")
     expense = result[:expenses].first
 
     assert_nil expense[:category_id]
-    assert expense[:create_category]
-    assert_equal "Pet Care", expense[:category_name]
+    assert_nil expense[:category_name]
+    refute expense[:create_category]
   end
 end

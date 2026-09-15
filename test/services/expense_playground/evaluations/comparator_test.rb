@@ -85,6 +85,22 @@ class ExpensePlaygroundEvaluationsComparatorTest < ActiveSupport::TestCase
     assert result[:full_match]
   end
 
+  test "an explicitly-null expected category requires the actual category to be null" do
+    expected = expected_json.merge("category" => nil)
+
+    match = call(expected: expected, actual: expected_json.merge("category" => nil))
+    assert match[:full_match]
+    assert_equal true, match.dig(:fields, :category, :compared)
+    assert_not_equal false, match.dig(:fields, :category, :matched)
+
+    assert_not call(expected: expected, actual: expected_json)["full_match"]
+    assert_not_equal true, call(expected: expected, actual: expected_json).dig(:fields, :category, :matched)
+
+    forced = call(expected: expected, actual: expected_json.merge("category" => "Otros"))
+    assert_not forced[:full_match], "forcing an uncertain category into Otros must fail"
+    assert_equal false, forced.dig(:fields, :category, :matched)
+  end
+
   test "activity is free-text and never validated" do
     result = call(expected: expected_json.merge("activity" => "Comida por Rappi"),
                   actual: expected_json.merge("activity" => "Rappi - Comida"))

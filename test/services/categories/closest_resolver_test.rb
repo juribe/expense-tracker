@@ -31,11 +31,12 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal :alias, result.matched_by
   end
 
-  test "folds curated variants into the canonical category" do
-    result = resolve("Restaurante (Rappi)")
-
-    assert_equal @comida, result.category
-    assert_equal :variant, result.matched_by
+  test "folds near-identical labels by token similarity without creating categories" do
+    assert_no_difference "Category.count" do
+      result = resolve("Restaurante (Rappi)")
+      assert_equal @comida, result.category
+      assert_equal :similar, result.matched_by
+    end
   end
 
   test "folds near-duplicate names by token similarity without creating categories" do
@@ -78,21 +79,16 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     end
   end
 
-  test "a curated brand activity beats a generic wrong AI category name" do
+  test "no unconditional brand rules: a generic existing category wins over the activity" do
+    servicios = Category.create!(name: "Servicios públicos", user: @user, is_default: false)
+
     result = resolve("Servicios públicos", activity: "Netflix")
 
-    assert_equal @entretenimiento, result.category
-    assert_equal :variant, result.matched_by
+    assert_equal servicios, result.category
+    assert_equal :exact, result.matched_by
   end
 
-  test "curated brand activity folds resolve regardless of the extracted category name" do
-    [ "Suscripción Netflix", "Pago de Netflix", "Netflix mensual" ].each do |activity|
-      result = resolve("Servicios públicos", activity: activity)
-      assert_equal @entretenimiento, result.category, "activity #{activity.inspect} should fold to Entretenimiento"
-    end
-  end
-
-  test "an explicit user mapping always wins over the curated brand fold" do
+  test "an explicit user mapping wins over the extracted category name for the same activity" do
     ActivityClassification.record!(user: @user, name: "Netflix", category: @comida, source: "user")
 
     result = resolve("Servicios públicos", activity: "Netflix")
@@ -101,10 +97,26 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal :learned, result.matched_by
   end
 
-  test "blank names resolve to nothing" do
+  test "blank names without activity resolve to nothing" do
     result = resolve("  ")
 
     assert_not result.matched?
     assert_nil result.matched_by
+  end
+
+  test "blank names with unknown activity stay unassigned (no unconditional fallback)" do
+    result = resolve("", activity: "Canva Pro")
+
+    assert_not result.matched?
+    assert_nil result.matched_by
+  end
+
+  test "blank names resolve through the user's stored knowledge when available" do
+    ActivityClassification.record!(user: @user, name: "Canva Pro", category: @entretenimiento, source: "user")
+
+    result = resolve("", activity: "Canva Pro")
+
+    assert_equal @entretenimiento, result.category
+    assert_equal :learned, result.matched_by
   end
 end

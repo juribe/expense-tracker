@@ -245,6 +245,11 @@ class ExpensePlaygroundController < ApplicationController
 
     return render json: { ok: false, errors: candidate.errors }, status: :unprocessable_entity unless candidate.valid?
 
+    if candidate.category_id.blank? && candidate.category_name.blank?
+      return render json: { ok: false, errors: [ "Assign a category to this expense before confirming." ] },
+                    status: :unprocessable_entity
+    end
+
     expense = Expenses::Create.call(
       user: current_user,
       amount: candidate.amount,

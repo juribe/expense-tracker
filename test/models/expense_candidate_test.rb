@@ -42,10 +42,9 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     assert ExpenseCandidate.new(amount: BigDecimal("100000000"), category_name: "Food", date: Date.current).invalid?
   end
 
-  test "is invalid without a category id or name" do
+  test "is valid without a category (unassigned candidates are confirmed by the user)" do
     candidate = ExpenseCandidate.new(amount: 100, date: Date.current)
-    assert candidate.invalid?
-    assert candidate.errors.any? { |message| message.include?("category") }
+    assert candidate.valid?
   end
 
   test "is invalid without a date" do
@@ -64,7 +63,7 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     empty = ExpenseCandidate.new
     failed = empty.checks.index_by { |check| check[:label] }
     assert_not failed["Amount present"][:passed]
-    assert_not failed["Category mapped"][:passed]
+    assert_not failed["Category assigned"][:passed]
     assert_not failed["Valid date"][:passed]
   end
 

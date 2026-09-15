@@ -249,8 +249,12 @@ module ExpensePlayground
         money_source_id: entry[:money_source_id].presence&.to_i,
         money_source_name: entry[:money_source_name].presence
       )
-      if category.nil? && @warnings.grep(/No matching category/).empty?
-        @warnings << "No matching category found. A new \"#{candidate.category_name}\" category will be created."
+      if category.nil?
+        if candidate.category_name.present?
+          @warnings << "We could not match the category \"#{candidate.category_name}\". You can create it or pick an existing one when you confirm."
+        elsif @warnings.grep(/category for this expense/i).empty?
+          @warnings << "We could not determine a category for this expense. You can assign it when you confirm."
+        end
       end
 
       @steps[:normalization] = {
@@ -287,19 +291,23 @@ module ExpensePlayground
 
     # Category resolution is centralized in Categories::ClosestResolver:
     # exact normalized name, learned activity mappings (ActivityClassification),
-    # English -> Spanish aliases, curated variants and a similarity fold, so a
-    # category name that is "very close" to an existing one never creates a
-    # near-duplicate. ProcessingService NEVER persists, so similarity folds are
-    # resolved but not recorded as knowledge here.
+    # English -> Spanish aliases and a similarity fold, so a category name that
+    # is "very close" to an existing one never creates a near-duplicate. There
+    # are no unconditional rules and an absent category stays unassigned.
+    # ProcessingService NEVER persists, so similarity folds are resolved but
+    # not recorded as knowledge here.
     def resolve_category(category_name, category_id, activity: nil)
       categories = Category.for_user(@user)
       @category_resolution = nil
       if category_id.present?
         categories.find_by(id: category_id)
-      elsif category_name.present?
+      elsif category_name.present? || activity.present?
+        # An absent extracted name stays unassigned unless a deterministic rule
+        # or the user's stored knowledge classifies the activity. ClosestResolver
+        # applies NO unconditional rules; user knowledge wins when present.
         @category_resolution = Categories::ClosestResolver.call(
           user: @user,
-          name: category_name,
+          name: category_name.to_s,
           activity: activity,
           record: false
         )

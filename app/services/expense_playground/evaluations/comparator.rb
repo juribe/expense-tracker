@@ -64,12 +64,23 @@ module ExpensePlayground
 
       def compare(field)
         expected_value = expected[field.to_s] || expected[field]
-        return { compared: false, matched: false, expected: expected_value, actual: nil } if blank?(expected_value)
+        # Category is compared even when explicitly null: that encodes "could
+        # not be determined" and the pipeline must also leave it unassigned (a
+        # forced category, including "Otros", fails the case). Every other
+        # field is skipped when absent/blank in the expected document.
+        present = !blank?(expected_value) ||
+                  (field == :category && (expected.key?(field.to_s) || expected.key?(field)))
+        return { compared: false, matched: false, expected: expected_value, actual: nil } unless present
 
         actual_value = actual[field.to_s] || actual[field]
+        matched = if field == :category && blank?(expected_value)
+                    blank?(actual_value)
+                  else
+                    equal?(field, expected_value, actual_value)
+                  end
         {
           compared: true,
-          matched: equal?(field, expected_value, actual_value),
+          matched: matched,
           expected: expected_value,
           actual: actual_value
         }

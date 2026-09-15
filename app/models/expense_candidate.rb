@@ -57,7 +57,6 @@ class ExpenseCandidate
     errors.clear
     validate_amount
     validate_currency
-    validate_category
     validate_date
     errors.empty?
   end
@@ -71,7 +70,7 @@ class ExpenseCandidate
     [
       { label: "Amount present", passed: positive_amount? },
       { label: "Currency detected", passed: currency.present? },
-      { label: "Category mapped", passed: category_id.present? || category_name.present? },
+      { label: "Category assigned", passed: category_id.present? || category_name.present? },
       { label: "Valid date", passed: date.present? }
     ]
   end
@@ -134,12 +133,6 @@ class ExpenseCandidate
 
   def validate_currency
     errors << "Currency is missing." if currency.blank?
-  end
-
-  def validate_category
-    return if category_id.present? || category_name.present?
-
-    errors << "No category could be mapped."
   end
 
   def validate_date
