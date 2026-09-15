@@ -911,6 +911,19 @@
       "source_location": "L3"
     },
     {
+      "id": "app_services_recurring_template_processor_recurringtemplateprocessor",
+      "label": "RecurringTemplateProcessor",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "RecurringTemplatesController",
+      "file_type": "code",
+      "norm_label": "recurringtemplateprocessor",
+      "source_file": "app/services/recurring_template_processor.rb",
+      "source_location": "L18"
+    },
+    {
       "id": "app_models_budget_budget",
       "label": "Budget",
       "_callable": true,
@@ -1520,32 +1533,6 @@
       "norm_label": "gmail::querybuilder",
       "source_file": "app/services/gmail/query_builder.rb",
       "source_location": "L11"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test_gmail",
-      "label": "Gmail",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "gmail",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L5"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest",
-      "label": "Gmail::QueryBuilderTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "gmail::querybuildertest",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L6"
     },
     {
       "id": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest",
@@ -2367,6 +2354,19 @@
       "source_location": "L5"
     },
     {
+      "id": "test_models_transaction_rule_test_transactionruletest",
+      "label": "TransactionRuleTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 226,
+      "community_name": "Expense",
+      "file_type": "code",
+      "norm_label": "transactionruletest",
+      "source_file": "test/models/transaction_rule_test.rb",
+      "source_location": "L5"
+    },
+    {
       "id": "test_services_category_spend_test_categoryspendtest",
       "label": "CategorySpendTest",
       "_callable": true,
@@ -2936,7 +2936,7 @@
       "file_type": "code",
       "norm_label": "expenseplayground::evaluations::comparator",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L18"
+      "source_location": "L20"
     },
     {
       "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest",
@@ -3093,19 +3093,6 @@
       "norm_label": "activityclassificationtest",
       "source_file": "test/models/activity_classification_test.rb",
       "source_location": "L5"
-    },
-    {
-      "id": "app_services_recurring_template_processor_recurringtemplateprocessor",
-      "label": "RecurringTemplateProcessor",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 253,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": "recurringtemplateprocessor",
-      "source_file": "app/services/recurring_template_processor.rb",
-      "source_location": "L18"
     },
     {
       "id": "app_services_recurring_template_processor_recurringtemplateprocessor_result",
@@ -3823,6 +3810,19 @@
       "source_location": "L1"
     },
     {
+      "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller",
+      "label": "MonthlyExpensesController",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 274,
+      "community_name": "ApplicationController",
+      "file_type": "code",
+      "norm_label": "monthlyexpensescontroller",
+      "source_file": "app/controllers/monthly_expenses_controller.rb",
+      "source_location": "L3"
+    },
+    {
       "id": "app_controllers_monthly_reports_controller_monthlyreportscontroller",
       "label": "MonthlyReportsController",
       "_callable": true,
@@ -4265,30 +4265,56 @@
       "source_location": "L6"
     },
     {
-      "id": "test_models_transaction_rule_test_transactionruletest",
-      "label": "TransactionRuleTest",
+      "id": "app_services_money_sources_match_moneysources",
+      "label": "MoneySources",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 292,
-      "community_name": "TransactionRuleTest",
+      "community_name": "MoneySources::Match",
       "file_type": "code",
-      "norm_label": "transactionruletest",
-      "source_file": "test/models/transaction_rule_test.rb",
-      "source_location": "L5"
+      "norm_label": "moneysources",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L3"
     },
     {
-      "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller",
-      "label": "MonthlyExpensesController",
+      "id": "app_services_money_sources_match_moneysources_match",
+      "label": "MoneySources::Match",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 292,
+      "community_name": "MoneySources::Match",
+      "file_type": "code",
+      "norm_label": "moneysources::match",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L16"
+    },
+    {
+      "id": "app_services_money_sources_detector_moneysources",
+      "label": "MoneySources",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 293,
-      "community_name": "MonthlyExpensesController",
+      "community_name": "MoneySources::Detector",
       "file_type": "code",
-      "norm_label": "monthlyexpensescontroller",
-      "source_file": "app/controllers/monthly_expenses_controller.rb",
+      "norm_label": "moneysources",
+      "source_file": "app/services/money_sources/detector.rb",
       "source_location": "L3"
+    },
+    {
+      "id": "app_services_money_sources_detector_moneysources_detector",
+      "label": "MoneySources::Detector",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 293,
+      "community_name": "MoneySources::Detector",
+      "file_type": "code",
+      "norm_label": "moneysources::detector",
+      "source_file": "app/services/money_sources/detector.rb",
+      "source_location": "L13"
     },
     {
       "id": "test_jobs_expense_playground_evaluation_case_job_test_expenseplaygroundevaluationcasejobtest",
@@ -4510,6 +4536,45 @@
       "norm_label": "ai::execution",
       "source_file": "app/services/ai/execution.rb",
       "source_location": "L11"
+    },
+    {
+      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour",
+      "label": "SanitizeMoneySourceIdentifiersToLastFour",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 303,
+      "community_name": "SanitizeMoneySourceIdentifiersToLastFour",
+      "file_type": "code",
+      "norm_label": "sanitizemoneysourceidentifierstolastfour",
+      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_gmail_query_builder_test_gmail",
+      "label": "Gmail",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 304,
+      "community_name": "Gmail::QueryBuilderTest",
+      "file_type": "code",
+      "norm_label": "gmail",
+      "source_file": "test/services/gmail/query_builder_test.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest",
+      "label": "Gmail::QueryBuilderTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 304,
+      "community_name": "Gmail::QueryBuilderTest",
+      "file_type": "code",
+      "norm_label": "gmail::querybuildertest",
+      "source_file": "test/services/gmail/query_builder_test.rb",
+      "source_location": "L6"
     },
     {
       "id": "db_migrate_20260912000001_create_evaluation_runs_createevaluationruns",
@@ -4874,71 +4939,6 @@
       "norm_label": "moneysource",
       "source_file": "app/models/money_source.rb",
       "source_location": "L13"
-    },
-    {
-      "id": "app_services_money_sources_detector_moneysources",
-      "label": "MoneySources",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "moneysources",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_money_sources_detector_moneysources_detector",
-      "label": "MoneySources::Detector",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "moneysources::detector",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L13"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources",
-      "label": "MoneySources",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "moneysources",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match",
-      "label": "MoneySources::Match",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "moneysources::match",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L16"
-    },
-    {
-      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour",
-      "label": "SanitizeMoneySourceIdentifiersToLastFour",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "sanitizemoneysourceidentifierstolastfour",
-      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
-      "source_location": "L1"
     },
     {
       "id": "app_models_evaluation_run_evaluationrun",
@@ -6513,6 +6513,18 @@
       "source_location": "L255"
     },
     {
+      "id": "app_controllers_expenses_controller_expensescontroller_index",
+      "label": ".index()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": ".index()",
+      "source_file": "app/controllers/expenses_controller.rb",
+      "source_location": "L21"
+    },
+    {
       "id": "app_controllers_expenses_controller_expensescontroller_money_value",
       "label": ".money_value()",
       "_callable": true,
@@ -6583,6 +6595,18 @@
       "norm_label": ".redirect_params()",
       "source_file": "app/controllers/expenses_controller.rb",
       "source_location": "L259"
+    },
+    {
+      "id": "app_controllers_expenses_controller_expensescontroller_render_csv",
+      "label": ".render_csv()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ExpensesController",
+      "file_type": "code",
+      "norm_label": ".render_csv()",
+      "source_file": "app/controllers/expenses_controller.rb",
+      "source_location": "L338"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_resolve_confirmed_category_bang",
@@ -8205,6 +8229,18 @@
       "source_location": "L48"
     },
     {
+      "id": "app_controllers_concerns_recurring_template_actions_recurringtemplateactions_process_transaction",
+      "label": ".process_transaction()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "RecurringTemplatesController",
+      "file_type": "code",
+      "norm_label": ".process_transaction()",
+      "source_file": "app/controllers/concerns/recurring_template_actions.rb",
+      "source_location": "L50"
+    },
+    {
       "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_create",
       "label": ".create()",
       "_callable": true,
@@ -8251,6 +8287,18 @@
       "norm_label": ".load_index_data()",
       "source_file": "app/controllers/recurring_templates_controller.rb",
       "source_location": "L90"
+    },
+    {
+      "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_process_transaction",
+      "label": ".process_transaction()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "RecurringTemplatesController",
+      "file_type": "code",
+      "norm_label": ".process_transaction()",
+      "source_file": "app/controllers/recurring_templates_controller.rb",
+      "source_location": "L52"
     },
     {
       "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_recurring_template_params",
@@ -9055,6 +9103,18 @@
       "norm_label": ".match()",
       "source_file": "test/services/source_recognition/matcher_test.rb",
       "source_location": "L35"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_process_file",
+      "label": ".process_file()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "ExpensePlayground::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".process_file()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L184"
     },
     {
       "id": "app_models_activity_classification_activityclassification_normalize_name",
@@ -11505,18 +11565,6 @@
       "source_location": "L48"
     },
     {
-      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest_build",
-      "label": ".build()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": ".build()",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L7"
-    },
-    {
       "id": "playwright_money_source_tags_spec_addkeywords",
       "label": "addKeywords()",
       "_callable": true,
@@ -12585,30 +12633,6 @@
       "source_location": "L20"
     },
     {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_case_suggestion",
-      "label": ".case_suggestion()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 211,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".case_suggestion()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L336"
-    },
-    {
-      "id": "app_services_categories_closest_resolver_categories_closestresolver_call",
-      "label": ".call()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 211,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "app/services/categories/closest_resolver.rb",
-      "source_location": "L57"
-    },
-    {
       "id": "app_services_expenses_create_expenses_create_call",
       "label": ".call()",
       "_callable": true,
@@ -13653,6 +13677,18 @@
       "source_location": "L102"
     },
     {
+      "id": "app_services_financial_setups_completer_financialsetups_completer_payment_category",
+      "label": ".payment_category()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "Category",
+      "file_type": "code",
+      "norm_label": ".payment_category()",
+      "source_file": "app/services/financial_setups/completer.rb",
+      "source_location": "L194"
+    },
+    {
       "id": "playwright_expense_playground_evaluation_spec_filtercases",
       "label": "filterCases()",
       "_callable": true,
@@ -13833,6 +13869,18 @@
       "source_location": "L141"
     },
     {
+      "id": "app_services_gmail_expense_importer_gmail_expenseimporter_resolve_money_source",
+      "label": ".resolve_money_source()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 222,
+      "community_name": "Gmail::ExpenseImporter",
+      "file_type": "code",
+      "norm_label": ".resolve_money_source()",
+      "source_file": "app/services/gmail/expense_importer.rb",
+      "source_location": "L124"
+    },
+    {
       "id": "app_services_gmail_expense_importer_gmail_expenseimporter_skipped",
       "label": ".skipped()",
       "_callable": true,
@@ -13843,18 +13891,6 @@
       "norm_label": ".skipped()",
       "source_file": "app/services/gmail/expense_importer.rb",
       "source_location": "L157"
-    },
-    {
-      "id": "app_services_gmail_sync_service_gmail_syncservice_importer",
-      "label": ".importer()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 222,
-      "community_name": "Gmail::ExpenseImporter",
-      "file_type": "code",
-      "norm_label": ".importer()",
-      "source_file": "app/services/gmail/sync_service.rb",
-      "source_location": "L116"
     },
     {
       "id": "app_services_gmail_sync_service_call",
@@ -13939,6 +13975,18 @@
       "norm_label": ".import_one()",
       "source_file": "app/services/gmail/sync_service.rb",
       "source_location": "L73"
+    },
+    {
+      "id": "app_services_gmail_sync_service_gmail_syncservice_importer",
+      "label": ".importer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 223,
+      "community_name": "Gmail::SyncService",
+      "file_type": "code",
+      "norm_label": ".importer()",
+      "source_file": "app/services/gmail/sync_service.rb",
+      "source_location": "L116"
     },
     {
       "id": "app_services_gmail_sync_service_gmail_syncservice_initialize",
@@ -14037,30 +14085,6 @@
       "source_location": "L316"
     },
     {
-      "id": "app_controllers_expenses_controller_expensescontroller_index",
-      "label": ".index()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 226,
-      "community_name": "Expense",
-      "file_type": "code",
-      "norm_label": ".index()",
-      "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L21"
-    },
-    {
-      "id": "app_controllers_expenses_controller_expensescontroller_render_csv",
-      "label": ".render_csv()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 226,
-      "community_name": "Expense",
-      "file_type": "code",
-      "norm_label": ".render_csv()",
-      "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L338"
-    },
-    {
       "id": "test_integration_budgets_flow_test_budgetsflowtest_create_expense",
       "label": ".create_expense()",
       "_callable": true,
@@ -14071,6 +14095,30 @@
       "norm_label": ".create_expense()",
       "source_file": "test/integration/budgets_flow_test.rb",
       "source_location": "L20"
+    },
+    {
+      "id": "test_models_transaction_rule_test_transactionruletest_create_expense",
+      "label": ".create_expense()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 226,
+      "community_name": "Expense",
+      "file_type": "code",
+      "norm_label": ".create_expense()",
+      "source_file": "test/models/transaction_rule_test.rb",
+      "source_location": "L19"
+    },
+    {
+      "id": "test_models_transaction_rule_test_transactionruletest_create_rule",
+      "label": ".create_rule()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 226,
+      "community_name": "Expense",
+      "file_type": "code",
+      "norm_label": ".create_rule()",
+      "source_file": "test/models/transaction_rule_test.rb",
+      "source_location": "L13"
     },
     {
       "id": "test_services_category_spend_test_categoryspendtest_create_expense",
@@ -14205,42 +14253,6 @@
       "source_location": "L114"
     },
     {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_batch_create",
-      "label": ".batch_create()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".batch_create()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L207"
-    },
-    {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_candidate_category",
-      "label": ".candidate_category()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".candidate_category()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L432"
-    },
-    {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_candidate_money_source",
-      "label": ".candidate_money_source()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".candidate_money_source()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L440"
-    },
-    {
       "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_candidate_params",
       "label": ".candidate_params()",
       "_callable": true,
@@ -14265,16 +14277,16 @@
       "source_location": "L305"
     },
     {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_create",
-      "label": ".create()",
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_case_suggestion",
+      "label": ".case_suggestion()",
       "_callable": true,
       "_origin": "ast",
       "community": 23,
       "community_name": "ExpensePlaygroundController",
       "file_type": "code",
-      "norm_label": ".create()",
+      "norm_label": ".case_suggestion()",
       "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L243"
+      "source_location": "L336"
     },
     {
       "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_evaluation",
@@ -14349,18 +14361,6 @@
       "source_location": "L356"
     },
     {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_link_run_to_expense",
-      "label": ".link_run_to_expense()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".link_run_to_expense()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L397"
-    },
-    {
       "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_map_evaluation_case",
       "label": ".map_evaluation_case()",
       "_callable": true,
@@ -14383,30 +14383,6 @@
       "norm_label": ".persist_run()",
       "source_file": "app/controllers/expense_playground_controller.rb",
       "source_location": "L385"
-    },
-    {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_process_file",
-      "label": ".process_file()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".process_file()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L184"
-    },
-    {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_record_classification_bang",
-      "label": ".record_classification!()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".record_classification!()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L411"
     },
     {
       "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_render_invalid_input",
@@ -14877,6 +14853,18 @@
       "source_location": "L107"
     },
     {
+      "id": "app_services_categories_closest_resolver_categories_closestresolver_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 234,
+      "community_name": "Categories::ClosestResolver",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "app/services/categories/closest_resolver.rb",
+      "source_location": "L57"
+    },
+    {
       "id": "app_services_categories_closest_resolver_categories_closestresolver_exact_match",
       "label": ".exact_match()",
       "_callable": true,
@@ -15333,18 +15321,6 @@
       "source_location": "L15"
     },
     {
-      "id": "app_services_financial_setups_completer_financialsetups_completer_payment_category",
-      "label": ".payment_category()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "FinancialSetups::Completer",
-      "file_type": "code",
-      "norm_label": ".payment_category()",
-      "source_file": "app/services/financial_setups/completer.rb",
-      "source_location": "L194"
-    },
-    {
       "id": "app_services_financial_setups_completer_financialsetups_completer_starting_balance_for",
       "label": ".starting_balance_for()",
       "_callable": true,
@@ -15489,30 +15465,6 @@
       "source_location": "L18"
     },
     {
-      "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_equal_pred",
-      "label": ".activity_equal?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 247,
-      "community_name": "ExpensePlayground::Evaluations::Comparator",
-      "file_type": "code",
-      "norm_label": ".activity_equal?()",
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L88"
-    },
-    {
-      "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_tokens",
-      "label": ".activity_tokens()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 247,
-      "community_name": "ExpensePlayground::Evaluations::Comparator",
-      "file_type": "code",
-      "norm_label": ".activity_tokens()",
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L108"
-    },
-    {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_amount_to_decimal",
       "label": ".amount_to_decimal()",
       "_callable": true,
@@ -15522,7 +15474,7 @@
       "file_type": "code",
       "norm_label": ".amount_to_decimal()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L128"
+      "source_location": "L100"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_blank_pred",
@@ -15534,7 +15486,7 @@
       "file_type": "code",
       "norm_label": ".blank?()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L163"
+      "source_location": "L135"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_call",
@@ -15546,7 +15498,7 @@
       "file_type": "code",
       "norm_label": ".call()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L25"
+      "source_location": "L27"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_comparable_pred",
@@ -15558,7 +15510,7 @@
       "file_type": "code",
       "norm_label": ".comparable?()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L55"
+      "source_location": "L57"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_compare",
@@ -15570,7 +15522,7 @@
       "file_type": "code",
       "norm_label": ".compare()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L63"
+      "source_location": "L65"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_compared_fields",
@@ -15582,7 +15534,7 @@
       "file_type": "code",
       "norm_label": ".compared_fields()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L59"
+      "source_location": "L61"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_date_to_iso",
@@ -15594,7 +15546,7 @@
       "file_type": "code",
       "norm_label": ".date_to_iso()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L150"
+      "source_location": "L122"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_equal_pred",
@@ -15606,7 +15558,7 @@
       "file_type": "code",
       "norm_label": ".equal?()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L76"
+      "source_location": "L78"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_initialize",
@@ -15618,7 +15570,7 @@
       "file_type": "code",
       "norm_label": ".initialize()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L29"
+      "source_location": "L31"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_normalize",
@@ -15630,7 +15582,7 @@
       "file_type": "code",
       "norm_label": ".normalize()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L115"
+      "source_location": "L87"
     },
     {
       "id": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_text_normalize",
@@ -15642,7 +15594,7 @@
       "file_type": "code",
       "norm_label": ".text_normalize()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L159"
+      "source_location": "L131"
     },
     {
       "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest_call",
@@ -15991,30 +15943,6 @@
       "norm_label": ".change()",
       "source_file": "db/migrate/20260910000001_create_activity_classifications.rb",
       "source_location": "L7"
-    },
-    {
-      "id": "app_controllers_concerns_recurring_template_actions_recurringtemplateactions_process_transaction",
-      "label": ".process_transaction()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 253,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": ".process_transaction()",
-      "source_file": "app/controllers/concerns/recurring_template_actions.rb",
-      "source_location": "L50"
-    },
-    {
-      "id": "app_controllers_recurring_templates_controller_recurringtemplatescontroller_process_transaction",
-      "label": ".process_transaction()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 253,
-      "community_name": "recurring_template_processor.rb",
-      "file_type": "code",
-      "norm_label": ".process_transaction()",
-      "source_file": "app/controllers/recurring_templates_controller.rb",
-      "source_location": "L52"
     },
     {
       "id": "app_services_recurring_template_processor_call",
@@ -17781,6 +17709,30 @@
       "source_location": "L12"
     },
     {
+      "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller_index_path",
+      "label": ".index_path()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 274,
+      "community_name": "ApplicationController",
+      "file_type": "code",
+      "norm_label": ".index_path()",
+      "source_file": "app/controllers/monthly_expenses_controller.rb",
+      "source_location": "L9"
+    },
+    {
+      "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller_template_kind",
+      "label": ".template_kind()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 274,
+      "community_name": "ApplicationController",
+      "file_type": "code",
+      "norm_label": ".template_kind()",
+      "source_file": "app/controllers/monthly_expenses_controller.rb",
+      "source_location": "L13"
+    },
+    {
       "id": "app_controllers_monthly_reports_controller_monthlyreportscontroller_index",
       "label": ".index()",
       "_callable": true,
@@ -18585,18 +18537,6 @@
       "source_location": "L15"
     },
     {
-      "id": "app_services_gmail_expense_importer_gmail_expenseimporter_resolve_money_source",
-      "label": ".resolve_money_source()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 291,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".resolve_money_source()",
-      "source_file": "app/services/gmail/expense_importer.rb",
-      "source_location": "L124"
-    },
-    {
       "id": "app_services_money_sources_match_moneysources_match_call",
       "label": ".call()",
       "_callable": true,
@@ -18633,52 +18573,148 @@
       "source_location": "L16"
     },
     {
-      "id": "test_models_transaction_rule_test_transactionruletest_create_expense",
-      "label": ".create_expense()",
+      "id": "app_services_money_sources_match_moneysources_match_candidate_sources",
+      "label": ".candidate_sources()",
       "_callable": true,
       "_origin": "ast",
       "community": 292,
-      "community_name": "TransactionRuleTest",
+      "community_name": "MoneySources::Match",
       "file_type": "code",
-      "norm_label": ".create_expense()",
-      "source_file": "test/models/transaction_rule_test.rb",
-      "source_location": "L19"
+      "norm_label": ".candidate_sources()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L40"
     },
     {
-      "id": "test_models_transaction_rule_test_transactionruletest_create_rule",
-      "label": ".create_rule()",
+      "id": "app_services_money_sources_match_moneysources_match_candidate_sources_scope",
+      "label": ".candidate_sources_scope()",
       "_callable": true,
       "_origin": "ast",
       "community": 292,
-      "community_name": "TransactionRuleTest",
+      "community_name": "MoneySources::Match",
       "file_type": "code",
-      "norm_label": ".create_rule()",
-      "source_file": "test/models/transaction_rule_test.rb",
-      "source_location": "L13"
+      "norm_label": ".candidate_sources_scope()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L48"
     },
     {
-      "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller_index_path",
-      "label": ".index_path()",
+      "id": "app_services_money_sources_match_moneysources_match_initialize",
+      "label": ".initialize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 292,
+      "community_name": "MoneySources::Match",
+      "file_type": "code",
+      "norm_label": ".initialize()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L21"
+    },
+    {
+      "id": "app_services_money_sources_match_moneysources_match_last_four",
+      "label": ".last_four()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 292,
+      "community_name": "MoneySources::Match",
+      "file_type": "code",
+      "norm_label": ".last_four()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L70"
+    },
+    {
+      "id": "app_services_money_sources_match_moneysources_match_lookup_values",
+      "label": ".lookup_values()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 292,
+      "community_name": "MoneySources::Match",
+      "file_type": "code",
+      "norm_label": ".lookup_values()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L52"
+    },
+    {
+      "id": "app_services_money_sources_match_moneysources_match_normalize",
+      "label": ".normalize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 292,
+      "community_name": "MoneySources::Match",
+      "file_type": "code",
+      "norm_label": ".normalize()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L75"
+    },
+    {
+      "id": "app_services_money_sources_match_moneysources_match_source_matches_value_pred",
+      "label": ".source_matches_value?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 292,
+      "community_name": "MoneySources::Match",
+      "file_type": "code",
+      "norm_label": ".source_matches_value?()",
+      "source_file": "app/services/money_sources/match.rb",
+      "source_location": "L60"
+    },
+    {
+      "id": "app_services_expense_parser_expenseparser_initialize",
+      "label": ".initialize()",
       "_callable": true,
       "_origin": "ast",
       "community": 293,
-      "community_name": "MonthlyExpensesController",
+      "community_name": "MoneySources::Detector",
       "file_type": "code",
-      "norm_label": ".index_path()",
-      "source_file": "app/controllers/monthly_expenses_controller.rb",
-      "source_location": "L9"
+      "norm_label": ".initialize()",
+      "source_file": "app/services/expense_parser.rb",
+      "source_location": "L87"
     },
     {
-      "id": "app_controllers_monthly_expenses_controller_monthlyexpensescontroller_template_kind",
-      "label": ".template_kind()",
+      "id": "app_services_money_sources_detector_moneysources_detector_call",
+      "label": ".call()",
       "_callable": true,
       "_origin": "ast",
       "community": 293,
-      "community_name": "MonthlyExpensesController",
+      "community_name": "MoneySources::Detector",
       "file_type": "code",
-      "norm_label": ".template_kind()",
-      "source_file": "app/controllers/monthly_expenses_controller.rb",
-      "source_location": "L13"
+      "norm_label": ".call()",
+      "source_file": "app/services/money_sources/detector.rb",
+      "source_location": "L16"
+    },
+    {
+      "id": "app_services_money_sources_detector_moneysources_detector_initialize",
+      "label": ".initialize()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 293,
+      "community_name": "MoneySources::Detector",
+      "file_type": "code",
+      "norm_label": ".initialize()",
+      "source_file": "app/services/money_sources/detector.rb",
+      "source_location": "L20"
+    },
+    {
+      "id": "app_services_money_sources_detector_moneysources_detector_matches_pred",
+      "label": ".matches?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 293,
+      "community_name": "MoneySources::Detector",
+      "file_type": "code",
+      "norm_label": ".matches?()",
+      "source_file": "app/services/money_sources/detector.rb",
+      "source_location": "L34"
+    },
+    {
+      "id": "app_services_money_sources_detector_moneysources_detector_normalize_text",
+      "label": ".normalize_text()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 293,
+      "community_name": "MoneySources::Detector",
+      "file_type": "code",
+      "norm_label": ".normalize_text()",
+      "source_file": "app/services/money_sources/detector.rb",
+      "source_location": "L44"
     },
     {
       "id": "test_jobs_expense_playground_evaluation_case_job_test_expenseplaygroundevaluationcasejobtest_case_row",
@@ -19135,6 +19171,126 @@
       "norm_label": ".override?()",
       "source_file": "app/services/ai/execution.rb",
       "source_location": "L20"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_batch_create",
+      "label": ".batch_create()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 302,
+      "community_name": ".batch_create",
+      "file_type": "code",
+      "norm_label": ".batch_create()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L207"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_candidate_category",
+      "label": ".candidate_category()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 302,
+      "community_name": ".batch_create",
+      "file_type": "code",
+      "norm_label": ".candidate_category()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L432"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_candidate_money_source",
+      "label": ".candidate_money_source()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 302,
+      "community_name": ".batch_create",
+      "file_type": "code",
+      "norm_label": ".candidate_money_source()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L440"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_create",
+      "label": ".create()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 302,
+      "community_name": ".batch_create",
+      "file_type": "code",
+      "norm_label": ".create()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L243"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_link_run_to_expense",
+      "label": ".link_run_to_expense()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 302,
+      "community_name": ".batch_create",
+      "file_type": "code",
+      "norm_label": ".link_run_to_expense()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L397"
+    },
+    {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_record_classification_bang",
+      "label": ".record_classification!()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 302,
+      "community_name": ".batch_create",
+      "file_type": "code",
+      "norm_label": ".record_classification!()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L411"
+    },
+    {
+      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour_collision_pred",
+      "label": ".collision?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 303,
+      "community_name": "SanitizeMoneySourceIdentifiersToLastFour",
+      "file_type": "code",
+      "norm_label": ".collision?()",
+      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "source_location": "L21"
+    },
+    {
+      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour_down",
+      "label": ".down()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 303,
+      "community_name": "SanitizeMoneySourceIdentifiersToLastFour",
+      "file_type": "code",
+      "norm_label": ".down()",
+      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "source_location": "L27"
+    },
+    {
+      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour_up",
+      "label": ".up()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 303,
+      "community_name": "SanitizeMoneySourceIdentifiersToLastFour",
+      "file_type": "code",
+      "norm_label": ".up()",
+      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest_build",
+      "label": ".build()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 304,
+      "community_name": "Gmail::QueryBuilderTest",
+      "file_type": "code",
+      "norm_label": ".build()",
+      "source_file": "test/services/gmail/query_builder_test.rb",
+      "source_location": "L7"
     },
     {
       "id": "db_migrate_20260912000001_create_evaluation_runs_createevaluationruns_change",
@@ -20179,186 +20335,6 @@
       "norm_label": ".used_credit()",
       "source_file": "app/models/money_source.rb",
       "source_location": "L77"
-    },
-    {
-      "id": "app_services_expense_parser_expenseparser_initialize",
-      "label": ".initialize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".initialize()",
-      "source_file": "app/services/expense_parser.rb",
-      "source_location": "L87"
-    },
-    {
-      "id": "app_services_money_sources_detector_moneysources_detector_call",
-      "label": ".call()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L16"
-    },
-    {
-      "id": "app_services_money_sources_detector_moneysources_detector_initialize",
-      "label": ".initialize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".initialize()",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L20"
-    },
-    {
-      "id": "app_services_money_sources_detector_moneysources_detector_matches_pred",
-      "label": ".matches?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".matches?()",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L34"
-    },
-    {
-      "id": "app_services_money_sources_detector_moneysources_detector_normalize_text",
-      "label": ".normalize_text()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".normalize_text()",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L44"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_candidate_sources",
-      "label": ".candidate_sources()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".candidate_sources()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L40"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_candidate_sources_scope",
-      "label": ".candidate_sources_scope()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".candidate_sources_scope()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L48"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_initialize",
-      "label": ".initialize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".initialize()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L21"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_last_four",
-      "label": ".last_four()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".last_four()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L70"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_lookup_values",
-      "label": ".lookup_values()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".lookup_values()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L52"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_normalize",
-      "label": ".normalize()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".normalize()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L75"
-    },
-    {
-      "id": "app_services_money_sources_match_moneysources_match_source_matches_value_pred",
-      "label": ".source_matches_value?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".source_matches_value?()",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L60"
-    },
-    {
-      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour_collision_pred",
-      "label": ".collision?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".collision?()",
-      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
-      "source_location": "L21"
-    },
-    {
-      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour_down",
-      "label": ".down()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".down()",
-      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
-      "source_location": "L27"
-    },
-    {
-      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four_sanitizemoneysourceidentifierstolastfour_up",
-      "label": ".up()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": ".up()",
-      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
-      "source_location": "L5"
     },
     {
       "id": "app_models_evaluation_run_evaluationrun_completed_pred",
@@ -25459,28 +25435,6 @@
       "source_location": "L1"
     },
     {
-      "id": "test_services_gmail_query_builder_test",
-      "label": "query_builder_test.rb",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "query_builder_test.rb",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "playwright_money_source_tags_spec",
       "label": "money_source_tags.spec.js",
       "_origin": "ast",
@@ -26531,6 +26485,28 @@
       "community_name": "Expense",
       "file_type": "code",
       "norm_label": "integrationtest",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "test_models_transaction_rule_test",
+      "label": "transaction_rule_test.rb",
+      "_origin": "ast",
+      "community": 226,
+      "community_name": "Expense",
+      "file_type": "code",
+      "norm_label": "transaction_rule_test.rb",
+      "source_file": "test/models/transaction_rule_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_models_transaction_rule_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 226,
+      "community_name": "Expense",
+      "file_type": "code",
+      "norm_label": "testcase",
       "source_file": "",
       "source_location": ""
     },
@@ -27766,6 +27742,17 @@
       "source_location": ""
     },
     {
+      "id": "app_controllers_monthly_expenses_controller",
+      "label": "monthly_expenses_controller.rb",
+      "_origin": "ast",
+      "community": 274,
+      "community_name": "ApplicationController",
+      "file_type": "code",
+      "norm_label": "monthly_expenses_controller.rb",
+      "source_file": "app/controllers/monthly_expenses_controller.rb",
+      "source_location": "L1"
+    },
+    {
       "id": "app_controllers_monthly_reports_controller",
       "label": "monthly_reports_controller.rb",
       "_origin": "ast",
@@ -28118,36 +28105,25 @@
       "source_location": ""
     },
     {
-      "id": "test_models_transaction_rule_test",
-      "label": "transaction_rule_test.rb",
+      "id": "app_services_money_sources_match",
+      "label": "match.rb",
       "_origin": "ast",
       "community": 292,
-      "community_name": "TransactionRuleTest",
+      "community_name": "MoneySources::Match",
       "file_type": "code",
-      "norm_label": "transaction_rule_test.rb",
-      "source_file": "test/models/transaction_rule_test.rb",
+      "norm_label": "match.rb",
+      "source_file": "app/services/money_sources/match.rb",
       "source_location": "L1"
     },
     {
-      "id": "test_models_transaction_rule_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 292,
-      "community_name": "TransactionRuleTest",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "app_controllers_monthly_expenses_controller",
-      "label": "monthly_expenses_controller.rb",
+      "id": "app_services_money_sources_detector",
+      "label": "detector.rb",
       "_origin": "ast",
       "community": 293,
-      "community_name": "MonthlyExpensesController",
+      "community_name": "MoneySources::Detector",
       "file_type": "code",
-      "norm_label": "monthly_expenses_controller.rb",
-      "source_file": "app/controllers/monthly_expenses_controller.rb",
+      "norm_label": "detector.rb",
+      "source_file": "app/services/money_sources/detector.rb",
       "source_location": "L1"
     },
     {
@@ -28534,6 +28510,39 @@
       "norm_label": "execution.rb",
       "source_file": "app/services/ai/execution.rb",
       "source_location": "L1"
+    },
+    {
+      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four",
+      "label": "20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "_origin": "ast",
+      "community": 303,
+      "community_name": "SanitizeMoneySourceIdentifiersToLastFour",
+      "file_type": "code",
+      "norm_label": "20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_gmail_query_builder_test",
+      "label": "query_builder_test.rb",
+      "_origin": "ast",
+      "community": 304,
+      "community_name": "Gmail::QueryBuilderTest",
+      "file_type": "code",
+      "norm_label": "query_builder_test.rb",
+      "source_file": "test/services/gmail/query_builder_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_gmail_query_builder_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 304,
+      "community_name": "Gmail::QueryBuilderTest",
+      "file_type": "code",
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "db_migrate_20260912000001_create_evaluation_runs",
@@ -29282,39 +29291,6 @@
       "file_type": "code",
       "norm_label": "money_source.rb",
       "source_file": "app/models/money_source.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_services_money_sources_detector",
-      "label": "detector.rb",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "detector.rb",
-      "source_file": "app/services/money_sources/detector.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "app_services_money_sources_match",
-      "label": "match.rb",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "match.rb",
-      "source_file": "app/services/money_sources/match.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "db_migrate_20260902000000_sanitize_money_source_identifiers_to_last_four",
-      "label": "20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "MoneySource",
-      "file_type": "code",
-      "norm_label": "20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
-      "source_file": "db/migrate/20260902000000_sanitize_money_source_identifiers_to_last_four.rb",
       "source_location": "L1"
     },
     {
@@ -39966,42 +39942,6 @@
       "weight": 1.0
     },
     {
-      "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_equal_pred",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_normalize",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L89",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_equal_pred",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_blank_pred",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L91",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_equal_pred",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_tokens",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L94",
-      "weight": 1.0
-    },
-    {
       "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_amount_to_decimal",
       "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_blank_pred",
       "relation": "calls",
@@ -40010,7 +39950,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L132",
+      "source_location": "L104",
       "weight": 1.0
     },
     {
@@ -40022,7 +39962,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L35",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -40034,7 +39974,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L38",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -40046,7 +39986,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L43",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -40058,7 +39998,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L65",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -40070,7 +40010,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L70",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -40082,19 +40022,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L151",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_equal_pred",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_equal_pred",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L77",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -40130,7 +40058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L118",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -40142,7 +40070,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L120",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -40154,7 +40082,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L124",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -48730,7 +48658,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L18",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -64553,35 +64481,13 @@
     },
     {
       "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_tokens",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L108",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_normalize",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L115",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator",
       "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_amount_to_decimal",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L128",
+      "source_location": "L100",
       "weight": 1.0
     },
     {
@@ -64592,7 +64498,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L150",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -64603,7 +64509,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L159",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
@@ -64614,7 +64520,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L163",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -64625,7 +64531,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L29",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -64636,7 +64542,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L34",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -64647,7 +64553,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L55",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
@@ -64658,7 +64564,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -64669,7 +64575,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L63",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -64680,18 +64586,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L76",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
       "source": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator",
-      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_activity_equal_pred",
+      "target": "app_services_expense_playground_evaluations_comparator_expenseplayground_evaluations_comparator_normalize",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
-      "source_location": "L88",
+      "source_location": "L87",
       "weight": 1.0
     },
     {

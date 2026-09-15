@@ -2622,15 +2622,15 @@
     "semantic_hash": ""
   },
   "app/services/categories/closest_resolver.rb": {
-    "mtime": 1789425597.8107712,
-    "seen": 1789425990.091607,
-    "ast_hash": "171377e4efd18cb106f039bea2b2080e",
+    "mtime": 1789430878.4263527,
+    "seen": 1789431228.4376042,
+    "ast_hash": "25f65347f280b495db2406ff9ffa166b",
     "semantic_hash": ""
   },
   "test/services/categories/closest_resolver_test.rb": {
-    "mtime": 1789425134.3106155,
-    "seen": 1789425990.0919948,
-    "ast_hash": "991e970d6e089eea235373c76af11eba",
+    "mtime": 1789430895.5100486,
+    "seen": 1789431228.437985,
+    "ast_hash": "578090dfc32118dced917a7049567237",
     "semantic_hash": ""
   }
 }
