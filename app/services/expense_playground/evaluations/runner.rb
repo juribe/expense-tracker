@@ -6,25 +6,27 @@ module ExpensePlayground
     # case per (valid) row, then enqueues a background job PER CASE so 1,000+
     # rows never block an HTTP request.
     #
-    #   Runner.start(user:, content:, filename:, provider:, model:)
+    #   Runner.start(user:, content:, filename:, provider:, model:, force_new: false)
     #   # => { run:, invalid?, errors:, replayed?: }
     #
     # The endpoint is idempotent: re-submitting the same dataset with the same
-    # provider/model returns the existing run instead of re-processing it.
+    # provider/model returns the existing run instead of re-processing it. Pass
+    # force_new: true to bypass the identity check and start a fresh run.
     class Runner
       PROMPT_VERSION = "expense-extraction-v1"
 
-      def self.start(user:, content:, filename:, provider:, model:)
-        new(user: user, content: content, filename: filename, provider: provider, model: model).start
+      def self.start(user:, content:, filename:, provider:, model:, force_new: false)
+        new(user: user, content: content, filename: filename, provider: provider, model: model, force_new: force_new).start
       end
 
       attr_reader :run, :errors, :invalid, :replayed
 
-      def initialize(user:, content:, filename:, provider:, model:)
+      def initialize(user:, content:, filename:, provider:, model:, force_new: false)
         @user = user
         @provider = provider.to_s.strip
         @model = model.to_s.strip
         @dataset = Dataset.build(content: content, filename: filename)
+        @force_new = force_new == true || force_new.in?(%w[1 true yes on])
         @errors = []
         @invalid = false
         @replayed = false
@@ -35,7 +37,7 @@ module ExpensePlayground
         guard_parameters!
         return self if invalid
 
-        replay_existing_run
+        replay_existing_run unless @force_new
         return self if run.present?
 
         create_run
@@ -69,6 +71,7 @@ module ExpensePlayground
 
       # Re-submitting the exact same dataset+params reuses the original run so
       # evaluations are idempotent and double-chargeable runs do not happen.
+      # Skipped when force_new: true so renamed/copied files can always start.
       def replay_existing_run
         return if invalid
 

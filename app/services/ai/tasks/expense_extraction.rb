@@ -61,18 +61,20 @@ module Ai
           - Interpret Colombian amounts: "50 mil"/"50 lucas"/"50k" = 50000, "50.000 pesos" = 50000, "medio millon" = 500000.
           - Resolve relative dates ("hoy", "ayer", "anteayer", "el lunes") to an ISO date (YYYY-MM-DD).
           - Category: use one of the user's existing categories (SPANISH label) when it clearly fits; when the closest existing category differs only in wording, prefer it; otherwise set "create_category": true and suggest a short SPANISH category name.
-          - UNASSIGNED CATEGORY: return "category": null instead of guessing when (a) the message does not contain enough information to determine the category, (b) several categories are plausible and there is no context to choose between them, (c) the product/service is ambiguous, or (d) choosing would require assuming context the user never provided. Do NOT force these cases into "Otros". Set "create_category": false alongside null.
+          - UNASSIGNED CATEGORY: return "category": null (with "create_category": false) ONLY when the message gives no basis to determine or propose ANY category (truly empty/gibberish input). When a product or service IS identifiable but fits none of the user's categories, you MUST propose a new category with "create_category": true and a short Spanish name. Do NOT force ambiguous cases into "Otros".
           - "Otros" is ONLY for expenses that are known but fit none of the specific categories. "Otros" is NEVER an automatic fallback for uncertain classifications.
-          - Do not invent context: never decide that an expense is personal, business-related or freelance work unless the message says so. Example: "I paid 65000 for Canva Pro" -> "category": null (could be Compras, Negocio or Trabajo independiente); "...for my business" -> "Negocio"; "...for my freelance work" -> "Trabajo independiente".
+          - Do not invent context: never decide that an expense is personal, business-related or freelance work unless the message says so. Example: "I paid 65000 for Canva Pro" -> propose "Suscripciones" with "create_category": true (Canva is a digital subscription); "...for my business" -> "Negocio"; "...for my freelance work" -> "Trabajo independiente".
           - Application business rules (take priority over generic real-world meaning):
-            * In this app Didi means food/delivery: "Didi" and "Didi Food" -> "Comida y restaurantes", never "Transporte".
-            * Rappi -> "Comida y restaurantes" when the context indicates food.
+            * Dining, restaurants and food delivery (Didi, Didi Food, Rappi, domicilios, eating out) -> "Restaurante", which is a subcategory of "Comida"; never "Transporte" for Didi.
             * Netflix, Spotify and Disney+ are entertainment: -> "Entretenimiento", never "Servicios públicos".
+            * Microsoft 365, Canva, ChatGPT, Adobe, Google One, iCloud, Dropbox and all other digital SaaS subscriptions -> propose "Suscripciones" (create_category: true) or another fitting category. NEVER classify any of these as "Servicios públicos".
             * "Servicios públicos" is reserved for actual utilities: water, electricity, gas, internet, telephone/mobile phone service. Never classify digital services or subscriptions as "Servicios públicos".
-          - Subcategory "d1" exists under "Comida y restaurantes". When the expense belongs to d1, always use "category": "Comida y restaurantes" (never "d1" as the main category).
+            * House maintenance/upkeep, repairs, rent, and condominium/management fees are "Vivienda". "Servicios públicos" is NEVER used for them.
+            * Parking (parqueadero, estacionamiento, parqueo, parking) -> "Transporte", never "Vivienda".
+          - Subcategory "d1" exists under "Comida". When the expense belongs to d1, always use "category": "Comida" (never "d1" as the main category).
           - Include a confidence between 0 and 1; reserve values below 0.9 for genuinely ambiguous inputs.
           Respond with ONLY JSON of the shape:
-          {"expenses":[{"amount":50000,"category":"Comida y restaurantes","description":"Restaurante","transaction_date":"#{today.to_date.iso8601}","confidence":0.95,"create_category":false}]}
+          {"expenses":[{"amount":50000,"category":"Restaurante","description":"Restaurante","transaction_date":"#{today.to_date.iso8601}","confidence":0.95,"create_category":false}]}
         PROMPT
       end
     end

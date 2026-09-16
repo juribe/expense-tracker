@@ -248,7 +248,7 @@ es:
     debt_payments: "Pagos de créditos"
     defaults:
       expense:
-        - "Comida y restaurantes"
+        - "Comida"
         - "Transporte"
         - "Vivienda"
         - "Servicios públicos"

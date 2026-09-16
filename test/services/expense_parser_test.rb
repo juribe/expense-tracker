@@ -67,25 +67,25 @@ class ExpenseParserTest < ActiveSupport::TestCase
     refute parking[:create_category]
   end
 
-  test "leaves the category unassigned when no category matches" do
+  test "suggests a canonical category when a keyword group matches but no category exists" do
     result = parse("Gasté 30 mil en la veterinaria del perro")
 
     expense = result[:expenses].first
     assert_nil expense[:category_id]
-    assert_nil expense[:category_name]
-    refute expense[:create_category]
-    assert expense[:warnings].any? { |warning| warning.include?("category") }
+    assert_equal "Pet Care", expense[:category_name]
+    assert expense[:create_category]
+    assert expense[:warnings].any? { |warning| warning.include?("No matching category found") }
   end
 
-  test "flags unknown categories as low confidence with a warning" do
+  test "flags unknown categories as low confidence with a suggestion" do
     result = parse("gasté 10 mil en xilofono")
 
     expense = result[:expenses].first
-    refute expense[:create_category]
-    assert_nil expense[:category_name]
+    assert expense[:create_category]
+    assert_equal "Xilofono", expense[:category_name]
     assert_operator expense[:confidence], :<, ExpenseParser::LOW_CONFIDENCE_THRESHOLD
     assert expense[:low_confidence]
-    assert expense[:warnings].any?
+    assert expense[:warnings].any? { |warning| warning.include?("No matching category found") }
   end
 
   test "detects relative dates: hoy" do
@@ -269,12 +269,12 @@ class ExpenseParserTest < ActiveSupport::TestCase
     assert_equal false, expense[:create_category]
   end
 
-  test "leaves the category unassigned when no rule matches" do
+  test "leaves the category unassigned when no rule matches and no keyword group applies" do
     result = parse("gasté 30 mil en la veterinaria del perro")
     expense = result[:expenses].first
 
     assert_nil expense[:category_id]
-    assert_nil expense[:category_name]
-    refute expense[:create_category]
+    assert_equal "Pet Care", expense[:category_name]
+    assert expense[:create_category]
   end
 end

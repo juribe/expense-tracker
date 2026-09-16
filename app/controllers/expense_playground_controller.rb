@@ -80,19 +80,21 @@ class ExpensePlaygroundController < ApplicationController
     render json: { runs: runs.map(&:to_evaluation_entry) }
   end
 
-  # POST /expense-playground/evaluations/start
-  # Starts an evaluation: validates the dataset, persists the run + cases and
-  # enqueues a background job per case. The endpoint is idempotent by
-  # dataset+provider/model, so re-submitting the same dataset returns the
-  # existing run instead of double-processing it.
-  def start_evaluation
-    runner = ExpensePlayground::Evaluations::Runner.start(
-      user: current_user,
-      content: params[:dataset],
-      filename: params[:filename],
-      provider: params[:provider],
-      model: params[:model]
-    )
+# POST /expense-playground/evaluations/start
+    # Starts an evaluation: validates the dataset, persists the run + cases and
+    # enqueues a background job per case. The endpoint is idempotent by
+    # dataset+provider/model, so re-submitting the same dataset returns the
+    # existing run instead of double-processing it. Pass force_new: true to
+    # always start a fresh run (e.g. after renaming/copying a dataset file).
+    def start_evaluation
+      runner = ExpensePlayground::Evaluations::Runner.start(
+        user: current_user,
+        content: params[:dataset],
+        filename: params[:filename],
+        provider: params[:provider],
+        model: params[:model],
+        force_new: params[:force_new]
+      )
 
     if runner.invalid
       render json: { ok: false, errors: runner.errors }, status: :unprocessable_entity

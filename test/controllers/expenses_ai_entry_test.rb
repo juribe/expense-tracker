@@ -45,17 +45,17 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     assert first.key?("confidence")
   end
 
-  test "POST /expenses/parse leaves an unknown category unassigned for the user to assign" do
+  test "POST /expenses/parse suggests a new category without creating anything during preview" do
     post parse_expenses_path(format: :json), params: { text: "gasté 30 mil en la veterinaria del perro" }
 
     assert_response :success
     expense = JSON.parse(response.body)["expenses"].first
 
     assert_nil expense["category_id"]
-    assert_equal false, expense["create_category"]
-    assert_nil expense["category_name"]
+    assert_equal true, expense["create_category"]
+    assert_equal "Pet Care", expense["category_name"]
 
-    # Nothing is forced or created for an unassigned expense.
+    # Parsing never creates categories: the suggestion is only shown on confirm.
     assert_equal 1, Category.count
   end
 

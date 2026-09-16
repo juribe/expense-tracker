@@ -132,8 +132,9 @@ module ExpensePlayground
       end
     end
 
-    test "an English category name resolves to its Spanish equivalent when one exists" do
-      spanish = Category.create!(name: "Comida y restaurantes", is_default: true, category_type: "expense")
+    test "an English category name resolves to the Restaurante subcategory when one exists" do
+      comida = Category.create!(name: "Comida", is_default: true, category_type: "expense")
+      restaurante = Category.create!(name: "Restaurante", parent: comida, is_default: true, category_type: "expense")
       extractor_result = {
         ok?: true,
         data: {
@@ -146,8 +147,8 @@ module ExpensePlayground
       }
       stub_vision_fallback(extractor_result) do
         result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
-        assert_equal spanish.id, result.candidate.category_id
-        assert_equal "Comida y restaurantes", result.candidate.category_name
+        assert_equal restaurante.id, result.candidate.category_id
+        assert_equal "Restaurante", result.candidate.category_name
       end
     end
 
@@ -224,6 +225,89 @@ module ExpensePlayground
             process(Input.new(type: :text, text: "Compré gasolina por 120.000"))
           end
         end
+      end
+    end
+
+    test "parking activities always resolve to Transporte, never to the AI's Vivienda label" do
+      transporte = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+      vivienda = Category.create!(name: "Vivienda", is_default: true, category_type: "expense")
+      extractor_result = {
+        ok?: true,
+        data: {
+          ocr_text: "PAGO PARQUEADERO",
+          expenses: [ { amount: 850_000, currency: "COP", merchant: nil,
+                        description: "gasté en parqueadero", category_name: "Vivienda",
+                        create_category: false, transaction_date: Date.current.iso8601, confidence: 0.9 } ]
+        },
+        error: nil
+      }
+      stub_vision_fallback(extractor_result) do
+        candidate = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v")).candidate
+        assert_equal transporte.id, candidate.category_id
+        assert_equal "Transporte", candidate.category_name
+        refute_equal vivienda.id, candidate.category_id
+      end
+    end
+
+    test "digital subscriptions never resolve to Servicios públicos and suggest Suscripciones" do
+      servicios = Category.create!(name: "Servicios públicos", is_default: true, category_type: "expense")
+      extractor_result = {
+        ok?: true,
+        data: {
+          ocr_text: "PAGO MENSUAL",
+          expenses: [ { amount: 250_000, currency: "COP", merchant: nil,
+                        description: "pagué 250 lucas de Microsoft 365", category_name: "Servicios públicos",
+                        create_category: false, transaction_date: Date.current.iso8601, confidence: 0.9 } ]
+        },
+        error: nil
+      }
+      stub_vision_fallback(extractor_result) do
+        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        candidate = result.candidate
+        assert_nil candidate.category_id
+        assert_equal "Suscripciones", candidate.category_name
+        assert_equal "Suscripciones", candidate.suggested_category_name
+        assert result.warnings.any? { |w| w.include?("Suscripciones") }
+        refute_equal servicios.id, candidate.category_id
+      end
+    end
+
+    test "streaming services suggest Entretenimiento when category is blank" do
+      Category.create!(name: "Entretenimiento", is_default: true, category_type: "expense")
+      extractor_result = {
+        ok?: true,
+        data: {
+          ocr_text: "NETFLIX",
+          expenses: [ { amount: 29_900, currency: "COP", merchant: nil,
+                        description: "Netflix 29.900", category_name: nil,
+                        create_category: false, transaction_date: Date.current.iso8601, confidence: 0.9 } ]
+        },
+        error: nil
+      }
+      stub_vision_fallback(extractor_result) do
+        candidate = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v")).candidate
+        assert_nil candidate.category_id
+        assert_equal "Entretenimiento", candidate.category_name
+        assert_equal "Entretenimiento", candidate.suggested_category_name
+      end
+    end
+
+    test "a blank category with an unknown activity falls back to a cleaned suggestion" do
+      extractor_result = {
+        ok?: true,
+        data: {
+          ocr_text: "TIQUETES",
+          expenses: [ { amount: 65_000, currency: "COP", merchant: nil,
+                        description: "compré tiquetes por 65 lucas", category_name: nil,
+                        create_category: false, transaction_date: Date.current.iso8601, confidence: 0.9 } ]
+        },
+        error: nil
+      }
+      stub_vision_fallback(extractor_result) do
+        candidate = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v")).candidate
+        assert_nil candidate.category_id
+        assert_equal "Tiquetes", candidate.category_name
+        assert_equal "Tiquetes", candidate.suggested_category_name
       end
     end
   end

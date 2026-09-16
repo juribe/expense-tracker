@@ -8,19 +8,24 @@ module Categories
   # Resolution order:
   #   1. stored knowledge: ActivityClassification for the activity/description
   #      (a user correction always wins, so repeated messages stop flip-flopping)
-  #   2. exact normalized name match (accent/case insensitive)
-  #   3. English seed -> Spanish alias
-  #   4. similarity (token Jaccard / containment) above a threshold
+  #   2. unconditional parking rule: parkeadero/estacionamiento/parking ->
+  #      "Transporte" when the user has it
+  #   3. the single unconditional housing rule: house maintenance/upkeep/rent and
+  #      condominium fees (excluding utilities) go to "Vivienda" when the user has it
+  #   4. exact normalized name match (accent/case insensitive)
+  #   5. English seed -> Spanish alias
+  #   6. similarity (token Jaccard / containment) above a threshold
   #
-  # There are NO unconditional classification rules: category names are never
-  # hard-mapped here. When the extracted category name is blank (AI said "null")
-  # the name stays unassigned UNLESS the user has explicit stored knowledge for
-  # the activity. Every similarity fold is recorded back through
-  # ActivityClassification (source: "rule") when record: true, so the fold is
-  # reviewable and queryable instead of being a silent one-off decision.
+  # There are NO other unconditional classification rules: category names are
+  # never hard-mapped here. When the extracted category name is blank (AI said
+  # "null") the name stays unassigned UNLESS the user has explicit stored
+  # knowledge for the activity or the parking/housing rule applies. Every
+  # similarity fold is recorded back through ActivityClassification (source: "rule") when
+  # record: true, so the fold is reviewable and queryable instead of being a
+  # silent one-off decision.
   #
   #   Categories::ClosestResolver.call(user: user, name: "Mantenimiento del apartamento")
-  #   # => #<struct Result category=nil, matched_by=nil> when no category is close
+  #   # => #<struct Result category=Vivienda, matched_by=:housing> when the user has Vivienda
   class ClosestResolver
     Result = Struct.new(:category, :matched_by, :similarity, keyword_init: true) do
       def matched?
@@ -35,17 +40,29 @@ module Categories
     # the heuristic parser already chose.
     ALIASES = {
       "entertainment" => "Entretenimiento", "shopping" => "Compras",
-      "restaurants" => "Comida y restaurantes", "groceries" => "Compras",
+      "restaurants" => [ "Restaurante", "Comida" ], "groceries" => "Compras",
+      "comida y restaurantes" => [ "Comida" ],
       "health" => "Salud", "transportation" => "Transporte", "travel" => "Viajes",
       "utilities" => "Servicios públicos", "others" => "Otros", "other" => "Otros",
       "housing" => "Vivienda", "education" => "Educación", "clothing" => "Compras",
       "parking" => "Transporte", "gasoline" => "Transporte", "fuel" => "Transporte",
+      "parqueadero" => "Transporte", "estacionamiento" => "Transporte",
       "pet care" => "Otros", "pets" => "Otros", "subscriptions" => "Otros",
       "subscription" => "Otros", "market" => "Compras"
     }.freeze
 
     # Minimum shared-token coverage for the similarity fold.
     SIMILARITY_THRESHOLD = 0.5
+
+    # House-related words grouped by role. Rent/management fees and house
+    # maintenance/upkeep are classified as "Vivienda" (the one unconditional
+    # rule); utilities are explicitly excluded so "internet del apartamento"
+    # still lands in "Servicios públicos".
+    HOUSE_FEES = %w[arriendo alquiler administracion predial condominio].freeze
+    HOUSE_UPKEEP = %w[mantenimiento reparacion arreglo remodelacion].freeze
+    HOUSE_PLACES = %w[apartamento edificio casa hogar vivienda].freeze
+    UTILITY_TERMS = %w[agua luz gas internet telefono celular datos energia electricidad].freeze
+    PARKING_TERMS = %w[parking parqueadero parqueo estacionamiento].freeze
 
     def self.call(user:, name:, activity: nil, record: true)
       new(user: user, name: name, activity: activity, record: record).resolve
@@ -66,21 +83,30 @@ module Categories
 
       if name.blank?
         # No extracted category name: the expense stays unassigned unless the
-        # user has explicit stored knowledge for the activity. Nothing is
-        # classified by an unconditional rule here.
+        # user has explicit stored knowledge for the activity or the
+        # parking/housing rule applies. Nothing else is classified by an
+        # unconditional rule.
         return Result.new(category: nil, matched_by: nil) if activity.blank?
 
         learned = learned_match
-        return learned || Result.new(category: nil, matched_by: nil)
+        return learned if learned
+
+        return parking_match(categories, activity) ||
+               housing_match(categories, activity) ||
+               Result.new(category: nil, matched_by: nil)
       end
 
       result =
         if ALIASES.key?(normalize(name))
           # English seed input: fold into the Spanish equivalent when it exists;
           # otherwise fall back to exact resolution (the English category itself).
-          alias_match(categories) || exact_match(categories)
+          learned_match || parking_match(categories, "#{name} #{activity}") ||
+            housing_match(categories, "#{name} #{activity}") ||
+            alias_match(categories) || exact_match(categories)
         else
-          learned_match || exact_match(categories) || similar_match(categories)
+          learned_match || parking_match(categories, "#{name} #{activity}") ||
+            housing_match(categories, "#{name} #{activity}") ||
+            exact_match(categories) || similar_match(categories)
         end
       record_fold!(result) if result&.matched_by == :similar
       result || Result.new(category: nil, matched_by: nil)
@@ -90,7 +116,7 @@ module Categories
 
     def exact_match(categories)
       hit = categories.find { |category| normalize(category.name) == normalize(name) }
-      return Result.new(category: hit, matched_by: :exact, similarity: 1.0) if hit
+      Result.new(category: hit, matched_by: :exact, similarity: 1.0) if hit
     end
 
     def learned_match
@@ -103,11 +129,46 @@ module Categories
     end
 
     def alias_match(categories)
-      target = ALIASES[normalize(name)]
-      return nil if target.nil?
+      Array(ALIASES[normalize(name)]).each do |target|
+        hit = categories.find { |category| normalize(category.name) == normalize(target) }
+        return Result.new(category: hit, matched_by: :alias, similarity: 1.0) if hit
+      end
+      nil
+    end
 
-      hit = categories.find { |category| normalize(category.name) == normalize(target) }
-      return Result.new(category: hit, matched_by: :alias, similarity: 1.0) if hit
+    # The single unconditional rule: house rent/management fees, or house
+    # maintenance/upkeep (needs a house place word), classify as "Vivienda".
+    # Utilities are excluded, so a service bill still resolves exactly.
+    def housing_match(categories, text)
+      return nil if text.blank?
+
+      housing = categories.find { |category| normalize(category.name) == normalize("Vivienda") }
+      return nil unless housing
+
+      tokens = fold_tokens(text)
+      return nil if tokens.empty? || (tokens & UTILITY_TERMS).any?
+
+      fees = tokens & HOUSE_FEES
+      upkeep = tokens & HOUSE_UPKEEP
+      places = tokens & HOUSE_PLACES
+      return nil unless fees.any? || (places.any? && upkeep.any?)
+
+      Result.new(category: housing, matched_by: :housing, similarity: 1.0)
+    end
+
+    # Unconditional parking rule: parking lot fees (parqueadero, parking,
+    # estacionamiento) classify as "Transporte" when the user has that
+    # category, mirroring the housing rule above.
+    def parking_match(categories, text)
+      return nil if text.blank?
+
+      transporte = categories.find { |category| normalize(category.name) == normalize("Transporte") }
+      return nil unless transporte
+
+      tokens = fold_tokens(text)
+      return nil if tokens.empty?
+
+      Result.new(category: transporte, matched_by: :parking, similarity: 1.0) if (tokens & PARKING_TERMS).any?
     end
 
     def similar_match(categories)

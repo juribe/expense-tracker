@@ -401,6 +401,10 @@
                 <input type="text" id="pgEvalFilename" class="form-control form-control-sm" placeholder="gastos.csv"
                        value="gastos.csv" data-testid="evaluation-filename">
               </div>
+              <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="pgEvalForceNew" data-testid="evaluation-force-new">
+                <label class="form-check-label small" for="pgEvalForceNew">Forzar nueva ejecución (ignorar ejecuciones previas con el mismo archivo)</label>
+              </div>
 
               <button type="submit" class="btn btn-primary w-100" id="pgEvalStartBtn" data-testid="evaluation-start">
                 <i class="bi bi-play-fill me-1"></i>Ejecutar Evaluación
@@ -1753,6 +1757,7 @@ function initializePlayground() {
     var btn = $("#pgEvalStartBtn");
     var provider = $("#pgEvalProvider").value;
     var model = $("#pgEvalModel").value.trim();
+    var forceNew = $("#pgEvalForceNew").checked;
     var error = $("#pgEvalError");
     error.classList.add("d-none");
 
@@ -1768,7 +1773,7 @@ function initializePlayground() {
     evalPatch(form.dataset.evaluationsUrl + "/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dataset: dataset, filename: filename, provider: provider, model: model })
+      body: JSON.stringify({ dataset: dataset, filename: filename, provider: provider, model: model, force_new: forceNew })
     }).then(function (data) {
       if (evalPollTimer) { clearTimeout(evalPollTimer); evalPollTimer = null; }
       $("#pgEvalResults").classList.remove("d-none");

@@ -54,6 +54,34 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
     assert_equal 1, EvaluationRun.where(user: @user).count
   end
 
+  test "force_new starts a fresh run even for the same dataset+params" do
+    first = start
+    second = with_active_job_adapter(:test) do
+      ExpensePlayground::Evaluations::Runner.start(
+        user: @user, content: dataset, filename: "gastos_v2.csv",
+        provider: "openrouter", model: "upstage/solar-pro4", force_new: true
+      )
+    end
+
+    assert_equal false, second.replayed
+    assert_not_equal first.run.id, second.run.id
+    assert_equal "gastos_v2.csv", second.run.dataset_name
+    assert_equal 2, EvaluationRun.where(user: @user).count
+  end
+
+  test "force_new accepts string truthy values from JSON params" do
+    first = start
+    second = with_active_job_adapter(:test) do
+      ExpensePlayground::Evaluations::Runner.start(
+        user: @user, content: dataset, filename: "gastos.csv",
+        provider: "openrouter", model: "upstage/solar-pro4", force_new: "1"
+      )
+    end
+
+    assert_equal false, second.replayed
+    assert_not_equal first.run.id, second.run.id
+  end
+
   test "different provider or model creates a new run" do
     first = start
     second = start.then do

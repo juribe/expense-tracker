@@ -44,7 +44,7 @@ class ExpenseParser
     { canonical: "Entertainment", keywords: %w[entretenimiento entertainment cine pelicula fiesta concierto juegos] },
     { canonical: "Health", keywords: %w[salud health farmacia medicina doctor medico hospital clinica] },
     { canonical: "Education", keywords: %w[educacion education universidad colegio libros matricula curso] },
-    { canonical: "Housing", keywords: %w[housing hogar casa arriendo renta alquiler servicios luz agua internet] },
+    { canonical: "Housing", keywords: %w[housing hogar casa arriendo renta alquiler servicios luz agua internet vivienda apartamento mantenimiento administracion predial] },
     { canonical: "Pet Care", keywords: %w[pets mascotas mascota perro gato veterinaria veterinario] },
     { canonical: "Clothing", keywords: %w[clothing ropa zapatos camisa vestido] },
     { canonical: "Travel", keywords: %w[travel viaje hotel avion vuelo equipaje] },
@@ -273,7 +273,11 @@ class ExpenseParser
     warnings = []
     warnings << "We are not sure about this expense amount. Detected: $#{value.to_i}" if amount_confidence < LOW_CONFIDENCE_THRESHOLD
     warnings << "We assumed the date is #{date.iso8601}. Please confirm." if date_confidence < LOW_CONFIDENCE_THRESHOLD
-    warnings << "We could not determine a category for this expense. You can assign it when you confirm." if resolution.category.nil?
+    if resolution.category.nil? && resolution.suggested_name.present?
+      warnings << "No matching category found. A new \"#{resolution.suggested_name}\" category will be created."
+    elsif resolution.category.nil?
+      warnings << "We could not determine a category for this expense. You can assign it when you confirm."
+    end
 
     confidence = [ amount_confidence, date_confidence, resolution.confidence ].min.round(2)
 
@@ -283,7 +287,7 @@ class ExpenseParser
       transaction_date: date,
       category_id: resolution.category&.id,
       category_name: resolution.category&.name || resolution.suggested_name,
-      create_category: false,
+      create_category: resolution.category.nil? && resolution.suggested_name.present?,
       confidence: confidence,
       warnings: warnings
     )
@@ -411,32 +415,34 @@ class ExpenseParser
     expense.warnings = expense.warnings.grep_v(/\A(?:No matching category found|We could not determine a category)/)
   end
 
-# Resolves a category for the expense, preferring existing categories.
-    # Whenever the text cannot be confidently tied to one of the user's
-    # categories the resolution is nil (unassigned): nothing is forced into a
-    # made-up name or "Otros". The user assigns the category when confirming.
+    # Resolves a category for the expense, preferring existing categories. When
+    # the text cannot be confidently tied to one of the user's categories a
+    # suggested_name is proposed (the canonical group's label or the cleaned
+    # description) so the user can create a new category in one tap. Only a
+    # completely undecipherable expense stays unassigned with no suggestion:
+    # nothing is ever forced into a made-up name or "Otros".
     def resolve_category(description, context)
       haystack = "#{context} #{description}".squish
 
       group = best_matching_group(haystack)
       if group
-        existing = find_existing_category(group)
+        existing = find_existing_category(group, haystack)
         return Resolution.new(existing, nil, 0.95) if existing
 
-        return Resolution.new(nil, nil, 0.6)
+        return Resolution.new(nil, group[:canonical], 0.6)
       end
 
       direct = @categories.find do |category|
         name = normalize_text(category.name)
-        description = normalize_text(description.to_s)
-        next false if description.blank?
+        normalized = normalize_text(description.to_s)
+        next false if normalized.blank?
 
-        name == description ||
-          (name.length >= 5 && description.length >= 5 && name[0, 5] == description[0, 5])
+        name == normalized ||
+          (name.length >= 5 && normalized.length >= 5 && name[0, 5] == normalized[0, 5])
       end
       return Resolution.new(direct, nil, 0.9) if direct
 
-      Resolution.new(nil, nil, 0.4)
+      Resolution.new(nil, description.presence, 0.4)
     end
 
   def best_matching_group(haystack)
@@ -462,16 +468,34 @@ class ExpenseParser
     /\b#{Regexp.escape(stem)}(?:e?s)?\b/
   end
 
-  def find_existing_category(group)
-    @categories.find { |category| normalize_text(category.name) == normalize_text(group[:canonical]) } ||
-      @categories.find do |category|
-        name = normalize_text(category.name)
-        group[:keywords].any? do |word|
-          next false if word.length < 5
+  # Maps the canonical group label to a user category by exact name, then by
+  # the keyword that actually matched the message. The canonical label and its
+  # Spanish alias (from the resolver, e.g. "Housing" -> "Vivienda") are tried
+  # first; only the specific matched keyword is checked against category names,
+  # so "arriendo" never matches "Servicios públicos" through the generic
+  # "servicios" keyword.
+  def find_existing_category(group, haystack)
+    names = [ group[:canonical] ]
+    names.concat(Array(Categories::ClosestResolver::ALIASES[group[:canonical].downcase]))
 
-          name.include?(word) || name.match?(keyword_pattern(word))
-        end
-      end
+    names.each do |name|
+      hit = @categories.find { |category| normalize_text(category.name) == normalize_text(name) }
+      return hit if hit
+    end
+
+    keyword = best_matching_keyword(haystack, group)
+    return nil if keyword.nil? || keyword.length < 5
+
+    @categories.find do |category|
+      name = normalize_text(category.name)
+      name.include?(keyword) || name.match?(keyword_pattern(keyword))
+    end
+  end
+
+  def best_matching_keyword(haystack, group)
+    group[:keywords]
+      .select { |word| haystack.match?(keyword_pattern(word)) }
+      .max_by(&:length)
   end
 
   # -------------------------------------------------------------------- shared

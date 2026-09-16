@@ -70,6 +70,24 @@ class ExpensePlaygroundEvaluationControllerTest < ActionDispatch::IntegrationTes
     assert_equal true, second["replayed"]
   end
 
+  test "POST start_evaluation with force_new starts a fresh run for the same dataset" do
+    first = nil
+    second = nil
+    with_active_job_adapter(:test) do
+      post expense_playground_start_evaluation_path(format: :json), params: start_params
+      first = JSON.parse(response.body)["run"]["id"]
+
+      post expense_playground_start_evaluation_path(format: :json),
+           params: start_params.merge(force_new: true, filename: "gastos_v2.csv")
+      second = JSON.parse(response.body)
+    end
+
+    assert_equal 2, EvaluationRun.count
+    assert_not_equal first, second["run"]["id"]
+    assert_equal false, second["replayed"]
+    assert_equal "gastos_v2.csv", second["run"]["dataset_name"]
+  end
+
   test "POST start_evaluation rejects a dataset with invalid rows" do
     post expense_playground_start_evaluation_path(format: :json),
          params: start_params.merge(dataset: "message,expected_json\n,{}")

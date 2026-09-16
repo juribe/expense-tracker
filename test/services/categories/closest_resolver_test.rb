@@ -7,10 +7,13 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     @user = User.create!(name: "Resolver User",
                          email: "resolver-#{SecureRandom.hex(6)}@example.com",
                          password: "password123")
-    @comida = Category.create!(name: "Comida y restaurantes", user: @user, is_default: false)
+    @comida = Category.create!(name: "Comida", user: @user, is_default: false)
+    @restaurante = Category.create!(name: "Restaurante", parent: @comida, user: @user, is_default: false)
     @vivienda = Category.create!(name: "Vivienda", user: @user, is_default: false)
+    @servicios = Category.create!(name: "Servicios públicos", user: @user, is_default: false)
     @otras = Category.create!(name: "Otros", user: @user, is_default: false)
     @entretenimiento = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
+    @transporte = Category.create!(name: "Transporte", user: @user, is_default: false)
   end
 
   def resolve(name, activity: nil, record: false)
@@ -18,14 +21,28 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
   end
 
   test "matches an existing category by exact normalized name" do
-    result = resolve("COMIDA Y Restaurantes")
+    result = resolve("COMIDA")
 
     assert_equal @comida, result.category
     assert_equal :exact, result.matched_by
   end
 
-  test "folds English seed names into their Spanish equivalent" do
+  test "matches a subcategory by exact normalized name" do
+    result = resolve("Restaurante")
+
+    assert_equal @restaurante, result.category
+    assert_equal :exact, result.matched_by
+  end
+
+  test "folds English seed names into the Restaurante subcategory when it exists" do
     result = resolve("Restaurants")
+
+    assert_equal @restaurante, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds the legacy 'Comida y restaurantes' label into the Comida parent" do
+    result = resolve("Comida y restaurantes")
 
     assert_equal @comida, result.category
     assert_equal :alias, result.matched_by
@@ -34,7 +51,7 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
   test "folds near-identical labels by token similarity without creating categories" do
     assert_no_difference "Category.count" do
       result = resolve("Restaurante (Rappi)")
-      assert_equal @comida, result.category
+      assert_equal @restaurante, result.category
       assert_equal :similar, result.matched_by
     end
   end
@@ -69,7 +86,7 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     resolve("Comida restaurante", activity: "Pedimos por Rappi hoy", record: true)
 
     learned = ActivityClassification.lookup(user: @user, name: "Pedimos por Rappi hoy")
-    assert_equal @comida.id, learned.category_id
+    assert_equal @restaurante.id, learned.category_id
     assert_equal "rule", learned.source
   end
 
@@ -80,11 +97,9 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
   end
 
   test "no unconditional brand rules: a generic existing category wins over the activity" do
-    servicios = Category.create!(name: "Servicios públicos", user: @user, is_default: false)
-
     result = resolve("Servicios públicos", activity: "Netflix")
 
-    assert_equal servicios, result.category
+    assert_equal @servicios, result.category
     assert_equal :exact, result.matched_by
   end
 
@@ -97,15 +112,62 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal :learned, result.matched_by
   end
 
-  test "blank names without activity resolve to nothing" do
-    result = resolve("  ")
+  test "house maintenance/upkeep classifies as Vivienda even when the name suggests a utility" do
+    result = resolve("Servicios públicos", activity: "Mantenimiento del apartamento")
+
+    assert_equal @vivienda, result.category
+    assert_equal :housing, result.matched_by
+  end
+
+  test "parking in the activity classifies as Transporte" do
+    assert_equal @transporte, resolve("", activity: "gasté 5 mil en parqueadero").category
+    assert_equal @transporte, resolve("", activity: "parqueo").category
+    assert_equal @transporte, resolve("", activity: "estacionamiento").category
+    assert_equal @transporte, resolve("", activity: "parking").category
+  end
+
+  test "parking aliases fold into Transporte when the name is a parking variant" do
+    assert_equal @transporte, resolve("Parqueadero").category
+    assert_equal @transporte, resolve("estacionamiento").category
+  end
+
+  test "parking terms never classify as Vivienda even when a house place word appears" do
+    result = resolve("", activity: "parqueadero del edificio")
+
+    assert_equal @transporte, result.category
+    assert_equal :parking, result.matched_by
+  end
+
+  test "rent and condominium fees classify as Vivienda" do
+    result = resolve("", activity: "arriendo del apartamento")
+    assert_equal @vivienda, result.category
+    assert_equal :housing, result.matched_by
+
+    result = resolve("", activity: "cuota de administración del edificio")
+    assert_equal @vivienda, result.category
+    assert_equal :housing, result.matched_by
+  end
+
+  test "blank names with unknown activity stay unassigned (no unconditional fallback)" do
+    result = resolve("", activity: "Canva Pro")
 
     assert_not result.matched?
     assert_nil result.matched_by
   end
 
-  test "blank names with unknown activity stay unassigned (no unconditional fallback)" do
-    result = resolve("", activity: "Canva Pro")
+  test "utilities never classify as Vivienda even when a house place word is present" do
+    result = resolve("Servicios públicos", activity: "internet del apartamento")
+
+    assert_equal @servicios, result.category
+    assert_equal :exact, result.matched_by
+
+    result = resolve("Servicios públicos", activity: "pagué la luz de la casa")
+    assert_equal @servicios, result.category
+    assert_equal :exact, result.matched_by
+  end
+
+  test "household purchases (appliances/furniture) do not classify as Vivienda" do
+    result = resolve("", activity: "compré un electrodoméstico")
 
     assert_not result.matched?
     assert_nil result.matched_by
@@ -118,5 +180,12 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
 
     assert_equal @entretenimiento, result.category
     assert_equal :learned, result.matched_by
+  end
+
+  test "blank names without activity resolve to nothing" do
+    result = resolve("  ")
+
+    assert_not result.matched?
+    assert_nil result.matched_by
   end
 end
