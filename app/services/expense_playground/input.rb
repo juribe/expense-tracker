@@ -1,29 +1,25 @@
 # frozen_string_literal: true
 
 module ExpensePlayground
-  # Normalized ingestion input. Every source (text, image, audio, and future
-  # WhatsApp/email/PDF channels) is converted into this structure before
-  # reaching the processing pipeline, so extraction never depends on the
-  # transport layer or the UI.
+  # Canonical ingestion input consumed by the processing pipeline. It is
+  # produced by +from_params+, which dispatches to the matching typed input
+  # (ExpensePlayground::Inputs::*) and converts it through +to_input+, so
+  # every channel (text, image, audio, file, future WhatsApp/email) normalizes
+  # into this same structure.
   #
-  #   ExpensePlayground::Input.new(type: :text, text: "Me gasté 50mil")
+  # Input holds NO per-type validation: each Inputs::* class owns its own
+  # validity rules (see Inputs::Base), and valid?/errors simply delegate to the
+  # typed input that matches this type. Unknown types fail with "Unknown input
+  # type.".
+  #
+  #   ExpensePlayground::Input.from_params("text", { text: "Me gasté 50mil" })
   #   ExpensePlayground::Input.new(type: :image, image_data: "data:image/jpeg;base64,...")
-  #   ExpensePlayground::Input.new(type: :audio, audio_data: "data:audio/ogg;base64,...")
   class Input
     TYPES = %w[text image text_image audio file].freeze
 
-    # Which channel params each input type accepts. Channel params are the
-    # only keys read by +from_params+; everything else is dropped. filename
-    # and password flow into metadata instead of the payload.
-    PERMITTED_KEYS = {
-      "text" => %i[text].freeze,
-      "image" => %i[image_data].freeze,
-      "text_image" => %i[text image_data].freeze,
-      "audio" => %i[text audio_data filename].freeze,
-      "file" => %i[file_data filename password].freeze
-    }.freeze
+    # Decoding whitelists used to normalize payload data URIs. Whether a value
+    # is actually *valid* for the channel is decided by the typed inputs' rules.
     IMAGE_MIME_TYPES = %w[image/jpeg image/png image/webp image/gif].freeze
-    MAX_IMAGE_BYTES = 6.megabytes
 
     AUDIO_MIME_EXTENSIONS = {
       "audio/ogg" => "ogg", "application/ogg" => "ogg", "audio/opus" => "opus",
@@ -31,28 +27,21 @@ module ExpensePlayground
       "audio/mp3" => "mp3", "audio/wav" => "wav", "audio/x-wav" => "wav",
       "audio/wave" => "wav", "audio/webm" => "webm"
     }.freeze
-    SUPPORTED_AUDIO_EXTENSIONS = %w[ogg opus m4a mp3 wav webm].freeze
-    MAX_AUDIO_BYTES = 15.megabytes
 
     FILE_MIME_TYPES = %w[
       application/pdf text/csv
       application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
       application/vnd.ms-excel
     ].freeze
-    SUPPORTED_FILE_EXTENSIONS = %w[pdf csv xlsx xls].freeze
-    MAX_FILE_BYTES = 20.megabytes
 
+    # Factory: dispatches channel params to the typed input declared for the
+    # type. Unknown types produce an Input with a nil type, which fails
+    # validation with "Unknown input type.".
     def self.from_params(type, params)
-      hash = params.is_a?(Hash) ? params : (params.respond_to?(:to_unsafe_h) ? params.to_unsafe_h : params.to_h)
-      hash = hash.deep_symbolize_keys
-      keys = PERMITTED_KEYS[type.to_s]
-      return new(type: type.to_s, metadata: {}) unless keys
+      typed = Inputs.for_type(type)
+      return new(type: type.to_s, metadata: {}) unless typed
 
-      new(
-        type: type.to_s,
-        **hash.slice(*keys & %i[text image_data audio_data file_data]),
-        metadata: (hash[:metadata] || {}).merge(hash.slice(*keys & %i[filename password]).compact)
-      )
+      typed.to_input(params)
     end
 
     attr_reader :type, :text, :image_data, :audio_data, :file_data, :metadata
@@ -70,17 +59,14 @@ module ExpensePlayground
       errors.empty?
     end
 
+    # Validation rules live in the typed inputs (Inputs::Base#validate); this
+    # only looks the type up and returns the unknown-type error when there is
+    # no typed input for it.
     def errors
-      errors = []
-      errors << "Unknown input type." if type.nil?
-      errors << "No text was provided." if text.blank? && needs_text?
-      errors << "No image was provided." if image_data.blank? && needs_image?
-      errors << "No audio was provided." if audio_data.blank? && needs_audio?
-      errors << "No file was provided." if file_data.blank? && needs_file?
-      errors.concat(image_errors) if image_data.present?
-      errors.concat(audio_errors) if audio_data.present?
-      errors.concat(file_errors) if file_data.present?
-      errors
+      typed = Inputs.for_type(type)
+      return [ "Unknown input type." ] unless typed
+
+      typed.validate(self)
     end
 
     def image?
@@ -152,73 +138,6 @@ module ExpensePlayground
       Base64.decode64(file_base64)
     rescue ArgumentError
       nil
-    end
-
-    private
-
-    def needs_text?
-      type.nil? || %w[text text_image].include?(type)
-    end
-
-    def needs_image?
-      type.nil? || %w[image text_image].include?(type)
-    end
-
-    def needs_audio?
-      type == "audio"
-    end
-
-    def needs_file?
-      type == "file"
-    end
-
-    def image_errors
-      errors = []
-      if image_mime_type.nil?
-        errors << "Unsupported image format. Use JPEG, PNG, WebP or GIF."
-      elsif decoded_size > MAX_IMAGE_BYTES
-        errors << "Image is too large (max #{MAX_IMAGE_BYTES / 1.megabyte} MB)."
-      end
-      errors
-    end
-
-    def audio_errors
-      errors = []
-      if audio_extension.in?(SUPPORTED_AUDIO_EXTENSIONS)
-        errors << "Audio is too large (max #{MAX_AUDIO_BYTES / 1.megabyte} MB)." if decoded_audio_size > MAX_AUDIO_BYTES
-      else
-        errors << "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM."
-      end
-      errors
-    end
-
-    def decoded_audio_size
-      Base64.decode64(audio_base64).bytesize
-    rescue ArgumentError
-      MAX_AUDIO_BYTES + 1
-    end
-
-    def decoded_size
-      Base64.decode64(image_base64).bytesize
-    rescue ArgumentError
-      MAX_IMAGE_BYTES + 1
-    end
-
-    def file_errors
-      errors = []
-      ext = file_extension
-      if ext.blank? || !ext.in?(SUPPORTED_FILE_EXTENSIONS)
-        errors << "Unsupported file format. Use PDF, CSV, or Excel."
-      elsif decoded_file_size > MAX_FILE_BYTES
-        errors << "File is too large (max #{MAX_FILE_BYTES / 1.megabyte} MB)."
-      end
-      errors
-    end
-
-    def decoded_file_size
-      Base64.decode64(file_base64).bytesize
-    rescue ArgumentError
-      MAX_FILE_BYTES + 1
     end
   end
 end

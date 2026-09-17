@@ -62,8 +62,8 @@ module ExpensePlayground
       assert_equal({ chat_id: 42 }, input.metadata)
     end
 
-    test "permitted key map covers every built-in input type" do
-      Input::PERMITTED_KEYS.each_key do |type|
+    test "input registry covers every built-in input type" do
+      Inputs.types.each do |type|
         assert_includes Input::TYPES, type
       end
     end
