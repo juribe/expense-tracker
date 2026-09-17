@@ -37,10 +37,10 @@ module ExpensePlayground
     def call
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-      binary = input.file_binary
+      binary = Inputs::File.binary(@file_data)
       return failure("Could not decode file data.") if binary.nil?
 
-      ext = input.file_extension
+      ext = Inputs::File.extension(@file_data, @filename)
       return failure(I18n.t("wizard.upload.unsupported_type")) unless ext.in?(SUPPORTED_EXTENSIONS)
 
       text = extract_text(binary, ext)
@@ -99,12 +99,6 @@ module ExpensePlayground
       candidates = build_candidates(extraction.dig(:data, :transactions) || [])
       sources = build_sources(extraction.dig(:data, :sources) || [])
       [ candidates, sources, :ai ]
-    end
-
-    def input
-      @input ||= ExpensePlayground::Input.from_params(
-        "file", file_data: @file_data, filename: @filename, password: @password
-      )
     end
 
     def extract_text(binary, ext)

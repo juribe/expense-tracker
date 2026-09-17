@@ -26,7 +26,7 @@ module ExpensePlayground
       })
       assert input.valid?
       assert_equal "image", input.type
-      assert_equal "image/jpeg", input.image_mime_type
+      assert_equal "image/jpeg", Inputs::Image.mime_type(input.image_data)
       assert_equal({ chat_id: 12, sender: "Maria" }, input.metadata)
     end
 
@@ -82,6 +82,17 @@ module ExpensePlayground
       input = Inputs::File.to_input({ "file_data" => "data:text/plain;base64,cGxhaW4=", "filename" => "notes.txt" })
       assert_not input.valid?
       assert_includes input.errors, "Unsupported file format. Use PDF, CSV, or Excel."
+    end
+
+    test "typed inputs own their information methods" do
+      assert_equal "image/png", Inputs::Image.mime_type("data:image/png;base64,Zm9v")
+      assert_equal "Zm9v", Inputs::Image.base64("data:image/png;base64,Zm9v")
+      assert_equal "ogg", Inputs::Audio.extension("data:audio/ogg;base64,b3B1cw==", "note.ogg")
+      assert_equal "ogg", Inputs::Audio.extension("", "note.ogg")
+      assert_equal "wav", Inputs::File.extension("", "note.wav")
+      assert_equal "pdf", Inputs::File.extension("data:application/pdf;base64,Zm9v", "")
+      assert_equal "Zm9v", Inputs::File.base64("data:application/pdf;base64,Zm9v")
+      assert_equal "foo", Inputs::File.binary("data:application/pdf;base64,Zm9v")
     end
 
     test "channel subclasses inherit the canonical type's validation rules" do

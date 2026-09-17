@@ -94,8 +94,8 @@ module ExpensePlayground
       @steps[:input] = {
         type: @input.type,
         text: @input.text,
-        image: @input.image? ? "(image attached, #{@input.image_mime_type})" : nil,
-        audio: @input.audio? ? "(audio attached, #{@input.audio_extension}, #{@input.filename})" : nil
+        image: @input.image? || @input.text_image? ? "(image attached, #{Inputs::Image.mime_type(@input.image_data)})" : nil,
+        audio: @input.audio? ? "(audio attached, #{Inputs::Audio.extension(@input.audio_data, @input.filename)}, #{@input.filename})" : nil
       }
     end
 
@@ -133,7 +133,7 @@ module ExpensePlayground
     def run_extraction(ocr_text, transcript)
       if @input.audio?
         extract_from_transcript(transcript)
-      elsif @input.image?
+      elsif @input.image? || @input.text_image?
         ocr_text.present? ? extract_from_ocr_text(ocr_text) : extract_from_image
       else
         extract_from_text
@@ -161,7 +161,7 @@ module ExpensePlayground
     # Tesseract is unavailable or reads nothing, the vision model becomes
     # the fallback and performs OCR + extraction in one call.
     def run_ocr
-      unless @input.image?
+      unless @input.image? || @input.text_image?
         @steps[:ocr] = { applicable: false }
         return nil
       end

@@ -75,9 +75,9 @@ module ExpensePlayground
         actual_value = actual[field.to_s] || actual[field]
         matched = if field == :category && blank?(expected_value)
                     blank?(actual_value)
-                  else
+        else
                     equal?(field, expected_value, actual_value)
-                  end
+        end
         {
           compared: true,
           matched: matched,

@@ -4,8 +4,9 @@ module ExpensePlayground
   module Inputs
     # Image-only channel (photo of a receipt, screenshots, chat attachments).
     # Reusable across transports: the same class converts a WhatsApp photo or
-    # an upload field into the canonical Input. Image format/size rules are
-    # extended from Rules::Image, so this class fully owns its validity.
+    # an upload field into the canonical Input. The class owns the image
+    # information methods (mime_type/base64) through Rules::Image and its
+    # validation rules.
     class Image < Base
       extend Rules::Image
 

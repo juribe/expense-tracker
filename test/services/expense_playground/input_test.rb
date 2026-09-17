@@ -15,7 +15,7 @@ module ExpensePlayground
       input = Input.from_params("image", { "image_data" => "data:image/png;base64,Zm9v" })
       assert input.valid?
       assert_equal "image", input.type
-      assert_equal "image/png", input.image_mime_type
+      assert_equal "image/png", Inputs::Image.mime_type(input.image_data)
     end
 
     test "from_params builds a text + image input" do
@@ -24,7 +24,8 @@ module ExpensePlayground
       })
       assert input.valid?
       assert_equal "text_image", input.type
-      assert input.image?
+      assert input.text_image?
+      assert input.image? || input.text_image?
     end
 
     test "from_params builds an audio input with its filename in metadata" do
@@ -44,7 +45,7 @@ module ExpensePlayground
       assert input.valid?
       assert_equal "file", input.type
       assert input.file?
-      assert_equal "pdf", input.file_extension
+      assert_equal "pdf", Inputs::File.extension(input.file_data, input.filename)
       assert_equal "secret", input.metadata[:password]
     end
 
@@ -66,6 +67,14 @@ module ExpensePlayground
       Inputs.types.each do |type|
         assert_includes Input::TYPES, type
       end
+    end
+
+    test "each registered type has a generated predicate" do
+      %w[text image text_image audio file].each do |type|
+        assert_respond_to Input.new(type:), "#{type}?"
+      end
+      assert Input.new(type: "text").text?
+      assert_not Input.new(type: "text").audio?
     end
   end
 end
