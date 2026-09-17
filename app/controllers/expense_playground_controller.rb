@@ -17,11 +17,11 @@ class ExpensePlaygroundController < ApplicationController
   # Runs the pipeline and returns the ExpenseCandidate + every pipeline stage
   # for debugging. Never writes an Expense.
   def run
-    input = ExpensePlayground::Input.from_params(params[:type], input_params)
+    input = Expenses::Input.from_params(params[:type], input_params)
 
     return render_invalid_input(input) unless input.valid?
 
-    result = ExpenseProcessing::Processor.call(user: current_user, input: input)
+    result = Expenses::Processor.call(user: current_user, input: input)
     run_record = persist_run(input, result)
 
     render json: {
@@ -184,7 +184,7 @@ class ExpensePlaygroundController < ApplicationController
   # password-protected PDFs the caller supplies the password, which is used
   # only to unlock the document and is never persisted.
   def process_file
-    result = ExpenseProcessing::FileProcessor.call(
+    result = Expenses::FileProcessor.call(
       user: current_user,
       file_data: params[:file_data],
       filename: params[:filename],
@@ -358,7 +358,7 @@ class ExpensePlaygroundController < ApplicationController
     nil
   end
 
-  # Raw channel params. ExpensePlayground::Input.from_params reads only the
+  # Raw channel params. Expenses::Input.from_params reads only the
   # keys each type declares; image, audio and file payloads are used in-memory
   # only and never persisted.
   def input_params
