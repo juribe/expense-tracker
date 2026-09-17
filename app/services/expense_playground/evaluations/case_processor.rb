@@ -39,7 +39,7 @@ module ExpensePlayground
         requests_before = latest_override_request_id
 
         execution = Ai::Execution.new(provider: @run.provider, model: @run.model, force_ai: true)
-        input = ExpensePlayground::Input.new(type: "text", text: @case_record.message)
+        input = ExpensePlayground::Input.from_params("text", text: @case_record.message)
 
         result = ExpensePlayground::ProcessingService.call(
           user: @run.user,

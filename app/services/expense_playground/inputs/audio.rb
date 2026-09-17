@@ -4,11 +4,11 @@ module ExpensePlayground
   module Inputs
     # Audio channel. The transcript travels in `text` after speech-to-text;
     # the original filename is kept in metadata for diagnostics. The class
-    # owns the audio information methods (extension/mime_type/base64) and its
+    # un-structures its payload into text + audio_data readers and owns the
+    # audio information methods (extension/mime_type/base64) and its
     # validation rules.
     class Audio < Base
       extend Rules::Audio
-      extend DataUri
 
       TYPE = "audio"
       PAYLOAD_KEYS = %i[text audio_data].freeze
@@ -21,6 +21,14 @@ module ExpensePlayground
         "audio/mp3" => "mp3", "audio/wav" => "wav", "audio/x-wav" => "wav",
         "audio/wave" => "wav", "audio/webm" => "webm"
       }.freeze
+
+      def text
+        payload[:text]
+      end
+
+      def audio_data
+        payload[:audio_data]
+      end
 
       def self.mime_type(audio_data)
         DataUri.mime_type(audio_data)

@@ -20,7 +20,7 @@ module ExpensePlayground
 
     test "text input produces a normalized candidate without persisting anything" do
       assert_no_difference -> { Expense.count } do
-        result = process(Input.new(type: :text, text: "Me gasté 50mil en almuerzos"))
+        result = process(Input.from_params("text", text: "Me gasté 50mil en almuerzos"))
         assert result.ok?
         assert_equal "heuristic", result.engine # AI key is unset, so the parser falls back
 
@@ -35,7 +35,7 @@ module ExpensePlayground
     end
 
     test "text pipeline records every stage for the debug view" do
-      result = process(Input.new(type: :text, text: "Netflix 29.900"))
+      result = process(Input.from_params("text", text: "Netflix 29.900"))
 
       assert_equal "text", result.steps[:input][:type]
       assert_equal false, result.steps[:ocr][:applicable]
@@ -48,7 +48,7 @@ module ExpensePlayground
     end
 
     test "text input with no detectable amount reports a clear error" do
-      result = process(Input.new(type: :text, text: "hola que tal"))
+      result = process(Input.from_params("text", text: "hola que tal"))
 
       assert_not result.ok?
       assert_nil result.candidate
@@ -78,7 +78,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
         assert result.ok?
         assert_equal "vision", result.engine
 
@@ -107,7 +107,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
         assert result.candidate.category_id.nil?
         assert_equal "mascotas", result.candidate.category_name
         assert result.warnings.any? { |warning| warning.include?("mascotas") }
@@ -126,7 +126,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
         assert_equal @restaurants.id, result.candidate.category_id
         assert_equal "Restaurants", result.candidate.category_name
       end
@@ -146,7 +146,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
         assert_equal restaurante.id, result.candidate.category_id
         assert_equal "Restaurante", result.candidate.category_name
       end
@@ -154,7 +154,7 @@ module ExpensePlayground
 
     test "failed vision extraction surfaces a friendly error with pipeline details" do
       stub_vision_fallback({ ok?: false, data: nil, error: "AI HTTP 500" }) do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
 
         assert_not result.ok?
         assert_nil result.candidate
@@ -165,7 +165,7 @@ module ExpensePlayground
 
     test "local OCR text is parsed like a text input without sending the image" do
       stub_method(Ocr::LocalReader, :call, "Almuerzo con el equipo 85 mil") do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
         assert result.ok?
         assert_equal "tesseract", result.steps[:ocr][:engine]
         assert_equal "heuristic", result.engine
@@ -175,7 +175,7 @@ module ExpensePlayground
 
     test "text + image input parses the note together with the local OCR text" do
       stub_method(Ocr::LocalReader, :call, "TOTAL 87.500") do
-        result = process(Input.new(type: :text_image, text: "pagado con nequi",
+        result = process(Input.from_params("text_image", text: "pagado con nequi",
                                    image_data: "data:image/jpeg;base64,Zm9v"))
         assert result.ok?
         assert_equal "tesseract", result.steps[:ocr][:engine]
@@ -195,8 +195,8 @@ module ExpensePlayground
                                              confidence: 0.8 } ] },
             error: nil }
         }) do
-          result = process(Input.new(type: :text_image, text: "Este fue el recibo del almuerzo",
-                                     image_data: "data:image/jpeg;base64,Zm9v"))
+result = process(Input.from_params("text_image", text: "Este fue el recibo del almuerzo",
+                                   image_data: "data:image/jpeg;base64,Zm9v"))
           assert result.ok?
           assert_equal "Este fue el recibo del almuerzo", seen[:context_text]
           assert_equal @restaurants.id, result.candidate.category_id
@@ -205,13 +205,13 @@ module ExpensePlayground
     end
 
     test "invalid inputs never reach extraction" do
-      result = process(Input.new(type: :text, text: ""))
+      result = process(Input.from_params("text", text: ""))
       assert_not result.ok?
       assert_nil result.candidate
       assert result.steps[:input].present?
       assert result.errors.any?
 
-      result = process(Input.new(type: :image, image_data: "data:text/html;base64,PGI+"))
+      result = process(Input.from_params("image", image_data: "data:text/html;base64,PGI+"))
       assert_not result.ok?
       assert result.errors.any? { |error| error.include?("Unsupported image format") }
     end
@@ -221,8 +221,8 @@ module ExpensePlayground
         stub_method(Ai::ImageExpenseExtractor, :call,
           ->(**_kwargs) { { ok?: false, data: nil, error: "AI HTTP 500" } }) do
           assert_no_difference -> { Expense.count } do
-            process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
-            process(Input.new(type: :text, text: "Compré gasolina por 120.000"))
+            process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
+            process(Input.from_params("text", text: "Compré gasolina por 120.000"))
           end
         end
       end
@@ -242,7 +242,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        candidate = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v")).candidate
+        candidate = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
         assert_equal transporte.id, candidate.category_id
         assert_equal "Transporte", candidate.category_name
         refute_equal vivienda.id, candidate.category_id
@@ -262,7 +262,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        result = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v"))
+        result = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v"))
         candidate = result.candidate
         assert_nil candidate.category_id
         assert_equal "Suscripciones", candidate.category_name
@@ -285,7 +285,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        candidate = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v")).candidate
+        candidate = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
         assert_nil candidate.category_id
         assert_equal "Entretenimiento", candidate.category_name
         assert_equal "Entretenimiento", candidate.suggested_category_name
@@ -304,7 +304,7 @@ module ExpensePlayground
         error: nil
       }
       stub_vision_fallback(extractor_result) do
-        candidate = process(Input.new(type: :image, image_data: "data:image/jpeg;base64,Zm9v")).candidate
+        candidate = process(Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
         assert_nil candidate.category_id
         assert_equal "Tiquetes", candidate.category_name
         assert_equal "Tiquetes", candidate.suggested_category_name

@@ -3,19 +3,24 @@
 module ExpensePlayground
   # Canonical ingestion input consumed by the processing pipeline. It is
   # produced by +from_params+, which dispatches to the matching typed input
-  # (ExpensePlayground::Inputs::*) and converts it through +to_input+, so
-  # every channel (text, image, audio, file, future WhatsApp/email) normalizes
-  # into this same structure.
+  # (ExpensePlayground::Inputs::*), so every channel (text, image, audio,
+  # file, future WhatsApp/email) normalizes into this same structure.
   #
-  # Input is a plain data container + factory: it holds the normalized payload
-  # and metadata and delegates every type-specific concern to the matching
-  # typed class. Validity rules live in the typed inputs (Inputs::Base#validate)
+  # Input is a plain data envelope: it holds ONE payload (the hash of
+  # type-specific fields, un-structured by the typed input that produced it)
+  # plus metadata, and delegates every type-specific concern to that typed
+  # class. Validity rules live in the typed inputs (Inputs::Base#validate)
   # and information methods (image mime type, audio extension, file data, ...)
   # live in the typed classes themselves; Input only adds one predicate per
   # registered TYPE (audio?, image?, text_image?, ...).
   #
+  # The typed input that produces an instance destructures the payload into
+  # its own readers (ExpensePlayground::Inputs::TextImage#text, ...); the
+  # pipeline only has to read the single +payload+ where the field is not
+  # guaranteed by the type.
+  #
   #   ExpensePlayground::Input.from_params("text", { text: "Me gasté 50mil" })
-  #   ExpensePlayground::Input.new(type: :image, image_data: "data:image/jpeg;base64,...")
+  #   ExpensePlayground::Input.new(type: "text", payload: { text: "Me gasté 50mil" })
   class Input
     TYPES = %w[text image text_image audio file].freeze
 
@@ -24,19 +29,16 @@ module ExpensePlayground
     # validation with "Unknown input type.".
     def self.from_params(type, params)
       typed = Inputs.for_type(type)
-      return new(type: type.to_s, metadata: {}) unless typed
+      return new(type: type.to_s) unless typed
 
       typed.to_input(params)
     end
 
-    attr_reader :type, :text, :image_data, :audio_data, :file_data, :metadata
+    attr_reader :type, :payload, :metadata
 
-    def initialize(type:, text: nil, image_data: nil, audio_data: nil, file_data: nil, metadata: {})
+    def initialize(type:, payload: {}, metadata: {})
       @type = type.to_s.presence_in(TYPES)
-      @text = text.to_s.strip.presence
-      @image_data = image_data.to_s.presence
-      @audio_data = audio_data.to_s.presence
-      @file_data = file_data.to_s.presence
+      @payload = payload || {}
       @metadata = metadata || {}
     end
 

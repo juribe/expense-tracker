@@ -93,7 +93,7 @@ module ExpensePlayground
     def record_input
       @steps[:input] = {
         type: @input.type,
-        text: @input.text,
+        text: @input.payload[:text],
         image: @input.image? || @input.text_image? ? "(image attached, #{Inputs::Image.mime_type(@input.image_data)})" : nil,
         audio: @input.audio? ? "(audio attached, #{Inputs::Audio.extension(@input.audio_data, @input.filename)}, #{@input.filename})" : nil
       }
@@ -186,7 +186,7 @@ module ExpensePlayground
     # the AI prefer the TOTAL line over individual item amounts.
     def extract_from_ocr_text(ocr_text)
       parse_into_entry(
-        [ @input.text, ocr_text ].reject(&:blank?).join("\n"),
+        [ @input.payload[:text], ocr_text ].reject(&:blank?).join("\n"),
         context: "This text was OCR'd locally from a payment receipt. When several amounts " \
                  "appear (items, subtotal, total), extract ONE expense using the TOTAL amount."
       )
@@ -217,7 +217,7 @@ module ExpensePlayground
     def extract_from_image
       result = Ai::ImageExpenseExtractor.call(
         image_data: @input.image_data,
-        context_text: @input.text
+        context_text: @input.payload[:text]
       )
 
       unless result[:ok?]
@@ -249,7 +249,7 @@ module ExpensePlayground
       return if entry.nil? || entry[:money_source_id].present?
 
       detector = MoneySources::Detector.new(user: @user)
-      source = detector.call(@input.text) || detector.call(ocr_text)
+      source = detector.call(@input.payload[:text]) || detector.call(ocr_text)
       return unless source
 
       entry[:money_source_id] = source.id
@@ -359,7 +359,7 @@ module ExpensePlayground
     # raw user text is included so the guards see "Microsoft 365"/"parqueadero"
     # even when the model slimmed the description down.
     def apply_business_guards(resolved, category_name, activity, categories)
-      text = [ category_name, activity, @input&.text ].compact.join(" ").to_s.downcase
+      text = [ category_name, activity, @input&.payload&.dig(:text) ].compact.join(" ").to_s.downcase
       return resolved if text.blank?
 
       transporte = categories.find { |category| ActivityClassification.normalize_name(category.name) == "transporte" }

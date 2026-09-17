@@ -80,7 +80,7 @@ class ExpensePlaygroundController < ApplicationController
     render json: { runs: runs.map(&:to_evaluation_entry) }
   end
 
-# POST /expense-playground/evaluations/start
+    # POST /expense-playground/evaluations/start
     # Starts an evaluation: validates the dataset, persists the run + cases and
     # enqueues a background job per case. The endpoint is idempotent by
     # dataset+provider/model, so re-submitting the same dataset returns the

@@ -3,17 +3,21 @@
 module ExpensePlayground
   module Inputs
     # File channel (PDF, CSV, Excel statements/uploads). The payload is a
-    # base64 data URI; filename and password flow into metadata. The class owns
-    # the general file-data methods (mime_type/extension/base64/binary) and its
-    # validation rules.
+    # base64 data URI; filename and password flow into metadata. The class
+    # un-structures its payload into a file_data reader and owns the general
+    # file-data methods (mime_type/extension/base64/binary) and its validation
+    # rules.
     class File < Base
       extend Rules::File
-      extend DataUri
 
       TYPE = "file"
       PAYLOAD_KEYS = %i[file_data].freeze
       META_KEYS = %i[filename password].freeze
       REQUIRED_FIELDS = { file_data: "file" }.freeze
+
+      def file_data
+        payload[:file_data]
+      end
 
       def self.mime_type(file_data)
         DataUri.mime_type(file_data)

@@ -14,7 +14,7 @@ module ExpensePlayground
 
     test "text to_input produces a canonical text input" do
       input = Inputs::Text.to_input({ "text" => "50 mil" })
-      assert_instance_of Input, input
+      assert_kind_of Input, input
       assert_equal "text", input.type
       assert_equal "50 mil", input.text
     end
@@ -106,8 +106,24 @@ module ExpensePlayground
       assert_includes input.errors, "Unsupported image format. Use JPEG, PNG, WebP or GIF."
     end
 
+    test "each typed input holds one payload and destructures it into its own readers" do
+      image = Input.from_params("image", image_data: "data:image/png;base64,Zm9v", text: "ignored")
+      assert_not_respond_to image, :text
+      assert_equal({ image_data: "data:image/png;base64,Zm9v" }, image.payload)
+
+      text_image = Input.from_params("text_image", text: "recibo", image_data: "data:image/png;base64,Zm9v")
+      assert_equal({ text: "recibo", image_data: "data:image/png;base64,Zm9v" }, text_image.payload)
+      assert_equal "recibo", text_image.text
+      assert_equal "data:image/png;base64,Zm9v", text_image.image_data
+
+      audio = Inputs::Audio.to_input({ text: "cine", audio_data: "data:audio/ogg;base64,b3B1cw==" })
+      assert_equal({ text: "cine", audio_data: "data:audio/ogg;base64,b3B1cw==" }, audio.payload)
+      assert_equal "cine", audio.text
+      assert_equal "data:audio/ogg;base64,b3B1cw==", audio.audio_data
+    end
+
     test "the factory dispatches to typed inputs and rejects unknown types" do
-      assert_instance_of Input, Input.from_params("image", { image_data: "data:image/png;base64,Zm9v" })
+      assert_kind_of Input, Input.from_params("image", { image_data: "data:image/png;base64,Zm9v" })
       assert_nil Inputs.for_type("whatsapp")
     end
 
