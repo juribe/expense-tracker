@@ -2,7 +2,7 @@
 
 require "csv"
 
-module ExpensePlayground
+module ExpenseProcessing
   # Processes uploaded files (PDF, CSV, Excel) through the import pipeline.
   # Extracts text from the file, runs AI extraction, and returns structured
   # candidates for preview and batch creation.
@@ -37,10 +37,10 @@ module ExpensePlayground
     def call
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-      binary = Inputs::File.binary(@file_data)
+      binary = ExpensePlayground::Inputs::File.binary(@file_data)
       return failure("Could not decode file data.") if binary.nil?
 
-      ext = Inputs::File.extension(@file_data, @filename)
+      ext = ExpensePlayground::Inputs::File.extension(@file_data, @filename)
       return failure(I18n.t("wizard.upload.unsupported_type")) unless ext.in?(SUPPORTED_EXTENSIONS)
 
       text = extract_text(binary, ext)
@@ -467,7 +467,7 @@ module ExpensePlayground
     def enrich_candidates(candidates, engine, sources = [])
       classify_activities(candidates, engine)
       resolve_money_sources(candidates, sources)
-      flags = DuplicateDetector.new(user: @user).flag(candidates)
+      flags = ExpensePlayground::DuplicateDetector.new(user: @user).flag(candidates)
       @duplicates = candidates.each_index.select { |index| flags[index] }
       candidates
     end

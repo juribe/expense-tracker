@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-module ExpensePlayground
+module ExpenseProcessing
   class FileProcessorTest < ActiveSupport::TestCase
     setup do
       @user = User.create!(name: "File Processor User", email: "file-processor@example.com", password: "password123")

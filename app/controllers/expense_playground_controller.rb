@@ -21,7 +21,7 @@ class ExpensePlaygroundController < ApplicationController
 
     return render_invalid_input(input) unless input.valid?
 
-    result = ExpensePlayground::ProcessingService.call(user: current_user, input: input)
+    result = ExpenseProcessing::Processor.call(user: current_user, input: input)
     run_record = persist_run(input, result)
 
     render json: {
@@ -184,7 +184,7 @@ class ExpensePlaygroundController < ApplicationController
   # password-protected PDFs the caller supplies the password, which is used
   # only to unlock the document and is never persisted.
   def process_file
-    result = ExpensePlayground::FileProcessor.call(
+    result = ExpenseProcessing::FileProcessor.call(
       user: current_user,
       file_data: params[:file_data],
       filename: params[:filename],

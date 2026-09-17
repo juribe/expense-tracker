@@ -5,7 +5,7 @@ require "test_helper"
 class ExpensePlaygroundRunTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Run User", email: "run@example.com", password: "password123")
-    @result = ExpensePlayground::ProcessingService::Result.new(
+    @result = ExpenseProcessing::Result.new(
       candidate: ExpenseCandidate.new(amount: 50_000, category_name: "Food", date: Date.current,
         source: "playground", confidence: 0.9),
       steps: { input: { type: "text", text: "50 mil" }, ocr: { applicable: false } },
@@ -28,7 +28,7 @@ class ExpensePlaygroundRunTest < ActiveSupport::TestCase
   end
 
   test "records a failed run" do
-    failed = ExpensePlayground::ProcessingService::Result.new(
+    failed = ExpenseProcessing::Result.new(
       candidate: nil, steps: { input: { type: "text" } }, errors: [ "boom" ],
       warnings: [], duration_ms: 3, engine: "heuristic"
     )

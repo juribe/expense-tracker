@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-module ExpensePlayground
+module ExpenseProcessing
   # Regression tests for money source detection in the playground pipeline:
   # text inputs detect through ExpenseParser, image inputs through the local
   # OCR text (parsed by ExpenseParser) or the user note in the vision
@@ -28,7 +28,7 @@ module ExpensePlayground
     end
 
     test "text pipeline detects money source by name" do
-      result = ProcessingService.call(user: @user, input: Input.from_params("text", text: "Me gasté 50 mil en almuerzo desde nequi"))
+      result = Processor.call(user: @user, input: ExpensePlayground::Input.from_params("text", text: "Me gasté 50 mil en almuerzo desde nequi"))
 
       assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
       assert_equal @nequi.id, result.candidate.money_source_id
@@ -41,7 +41,7 @@ module ExpensePlayground
         stub_vision([ { amount: 25_000, currency: "COP", merchant: "Cafe", description: "Almuerzo",
                         category_name: "Restaurants", create_category: false,
                         transaction_date: Date.current.iso8601, confidence: 0.8 } ]) do
-          result = ProcessingService.call(user: @user, input: Input.from_params(
+          result = Processor.call(user: @user, input: ExpensePlayground::Input.from_params(
             "text_image", image_data: "data:image/jpeg;base64,Zm9v", text: "pagué con bancolombia"
           ))
 
@@ -54,7 +54,7 @@ module ExpensePlayground
 
     test "image pipeline detects money source in the local OCR text through the parser" do
       stub_method(Ocr::LocalReader, :call, "TOTAL 30.000\nPAGO POR NEQUI") do
-        result = ProcessingService.call(user: @user, input: Input.from_params(
+        result = Processor.call(user: @user, input: ExpensePlayground::Input.from_params(
           "image", image_data: "data:image/jpeg;base64,Zm9v"
         ))
 
@@ -70,7 +70,7 @@ module ExpensePlayground
         stub_vision([ { amount: 30_000, currency: "COP", merchant: "Tienda", description: "Compra",
                         category_name: "Groceries", create_category: false,
                         transaction_date: Date.current.iso8601, confidence: 0.8 } ]) do
-          result = ProcessingService.call(user: @user, input: Input.from_params(
+          result = Processor.call(user: @user, input: ExpensePlayground::Input.from_params(
             "image", image_data: "data:image/jpeg;base64,Zm9v"
           ))
 

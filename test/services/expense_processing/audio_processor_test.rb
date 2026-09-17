@@ -2,11 +2,11 @@
 
 require "test_helper"
 
-module ExpensePlayground
+module ExpenseProcessing
   # Audio inputs are just another way of producing text: the transcript flows
   # through the SAME ExpenseParser → normalization → validation pipeline used
   # for typed text. SpeechToText is stubbed — no Whisper execution here.
-  class ProcessingServiceAudioTest < ActiveSupport::TestCase
+  class AudioProcessorTest < ActiveSupport::TestCase
     AUDIO_DATA = "data:audio/ogg;base64,#{Base64.strict_encode64('OGGDATABYTES')}"
 
     setup do
@@ -32,13 +32,13 @@ module ExpensePlayground
     end
 
     def process(input)
-      ProcessingService.call(user: @user, input: input)
+      Processor.call(user: @user, input: input)
     end
 
     test "audio input is transcribed and extracted through the normal text pipeline" do
       assert_no_difference -> { Expense.count } do
         stub_transcription do
-result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
+result = process(ExpensePlayground::Input.from_params("audio", audio_data: AUDIO_DATA,
                                    metadata: { filename: "note.ogg" }))
 
           assert result.ok?
@@ -56,7 +56,7 @@ result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
 
     test "the transcript and provider metadata are recorded in the stt step" do
       stub_transcription do
-        result = process(Input.from_params("audio", audio_data: AUDIO_DATA, metadata: { filename: "note.ogg" }))
+        result = process(ExpensePlayground::Input.from_params("audio", audio_data: AUDIO_DATA, metadata: { filename: "note.ogg" }))
 
         stt = result.steps[:stt]
         assert stt[:applicable]
@@ -74,7 +74,7 @@ result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
     test "audio processing never creates a real expense" do
       stub_transcription do
         assert_no_difference -> { Expense.count } do
-          result = process(Input.from_params("audio", audio_data: AUDIO_DATA))
+          result = process(ExpensePlayground::Input.from_params("audio", audio_data: AUDIO_DATA))
           assert result.ok?
         end
       end
@@ -82,7 +82,7 @@ result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
 
     test "an empty transcript surfaces a friendly error and no candidate" do
       stub_transcription(text: "") do
-        result = process(Input.from_params("audio", audio_data: AUDIO_DATA))
+        result = process(ExpensePlayground::Input.from_params("audio", audio_data: AUDIO_DATA))
 
         assert_not result.ok?
         assert_nil result.candidate
@@ -93,7 +93,7 @@ result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
     test "speech-to-text failures become pipeline errors, not crashes" do
       stub_method(SpeechToText, :transcribe,
         ->(**_kwargs) { raise SpeechToText::TranscriptionError, "Speech-to-text failed. Whisper could not transcribe this audio." }) do
-        result = process(Input.from_params("audio", audio_data: AUDIO_DATA))
+        result = process(ExpensePlayground::Input.from_params("audio", audio_data: AUDIO_DATA))
 
         assert_not result.ok?
         assert_nil result.candidate
@@ -104,7 +104,7 @@ result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
     end
 
     test "unsupported audio input is rejected before speech-to-text runs" do
-      result = process(Input.from_params("audio", audio_data: "data:video/mp4;base64,AAAA", metadata: { filename: "clip.mp4" }))
+      result = process(ExpensePlayground::Input.from_params("audio", audio_data: "data:video/mp4;base64,AAAA", metadata: { filename: "clip.mp4" }))
 
       assert_not result.ok?
       assert_nil result.candidate
@@ -112,7 +112,7 @@ result = process(Input.from_params("audio", audio_data: AUDIO_DATA,
     end
 
     test "non-audio inputs keep the speech-to-text step marked as not applicable" do
-      result = process(Input.from_params("text", text: "Me gasté 50mil en almuerzos"))
+      result = process(ExpensePlayground::Input.from_params("text", text: "Me gasté 50mil en almuerzos"))
 
       assert result.ok?
       assert_equal false, result.steps[:stt][:applicable]

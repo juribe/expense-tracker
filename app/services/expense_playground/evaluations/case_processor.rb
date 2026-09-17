@@ -41,7 +41,7 @@ module ExpensePlayground
         execution = Ai::Execution.new(provider: @run.provider, model: @run.model, force_ai: true)
         input = ExpensePlayground::Input.from_params("text", text: @case_record.message)
 
-        result = ExpensePlayground::ProcessingService.call(
+        result = ExpenseProcessing::Processor.call(
           user: @run.user,
           input: input,
           execution: execution
