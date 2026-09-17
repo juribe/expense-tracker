@@ -2058,9 +2058,9 @@
     "semantic_hash": ""
   },
   "app/services/expense_playground/processing_service.rb": {
-    "mtime": 1789434243.3579395,
-    "seen": 1789435494.1972501,
-    "ast_hash": "51bbd5b39abc1ffdfc2c3bc62c49b53d",
+    "mtime": 1789564714.2401195,
+    "seen": 1789566641.569673,
+    "ast_hash": "967015e45176c6d2b7679cd931f521b2",
     "semantic_hash": ""
   },
   "test/controllers/expense_playground_controller_test.rb": {
@@ -2082,9 +2082,9 @@
     "semantic_hash": ""
   },
   "test/services/expense_playground/processing_service_test.rb": {
-    "mtime": 1789525590.7736533,
-    "seen": 1789527190.919762,
-    "ast_hash": "97969e9462492604ad12fcfeded4ad80",
+    "mtime": 1789564881.9865692,
+    "seen": 1789566641.5706902,
+    "ast_hash": "5a4fe71c1ccf9a585945fb1be3096e3a",
     "semantic_hash": ""
   },
   "app/models/expense_playground_run.rb": {
@@ -2376,9 +2376,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/tasks/expense_extraction.rb": {
-    "mtime": 1789525143.9472425,
-    "seen": 1789527190.918599,
-    "ast_hash": "4a43ae7fb193b5b9f1889511ecbd04a5",
+    "mtime": 1789563873.4376352,
+    "seen": 1789566641.5695791,
+    "ast_hash": "2cdd2ae6e8a2dbda54872910fd61de9c",
     "semantic_hash": ""
   },
   "app/services/ai/tasks/spreadsheet_mapping.rb": {
@@ -2622,15 +2622,15 @@
     "semantic_hash": ""
   },
   "app/services/categories/closest_resolver.rb": {
-    "mtime": 1789527268.0412135,
-    "seen": 1789556717.603392,
-    "ast_hash": "c99fba37a3f1b308ef3add92fa6f6c3a",
+    "mtime": 1789564663.9657712,
+    "seen": 1789566641.569603,
+    "ast_hash": "ac4e9696107e506a44e976e88ddd2c9c",
     "semantic_hash": ""
   },
   "test/services/categories/closest_resolver_test.rb": {
-    "mtime": 1789527268.0147073,
-    "seen": 1789556717.604467,
-    "ast_hash": "529048fd44931cb6c37a0801977b9b49",
+    "mtime": 1789564827.835692,
+    "seen": 1789566641.570621,
+    "ast_hash": "9901bd13f5b795c7d3dda6fceb9cb8f3",
     "semantic_hash": ""
   },
   "db/migrate/20260915000001_split_comida_y_restaurantes_categories.rb": {

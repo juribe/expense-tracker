@@ -2,7 +2,7 @@
 
 module ExpensePlayground
   # Normalized ingestion input. Every source (text, image, audio, and future
-  # WhatsApp/email/PDF adapters) is converted into this structure before
+  # WhatsApp/email/PDF channels) is converted into this structure before
   # reaching the processing pipeline, so extraction never depends on the
   # transport layer or the UI.
   #
@@ -11,6 +11,17 @@ module ExpensePlayground
   #   ExpensePlayground::Input.new(type: :audio, audio_data: "data:audio/ogg;base64,...")
   class Input
     TYPES = %w[text image text_image audio file].freeze
+
+    # Which channel params each input type accepts. Channel params are the
+    # only keys read by +from_params+; everything else is dropped. filename
+    # and password flow into metadata instead of the payload.
+    PERMITTED_KEYS = {
+      "text" => %i[text].freeze,
+      "image" => %i[image_data].freeze,
+      "text_image" => %i[text image_data].freeze,
+      "audio" => %i[text audio_data filename].freeze,
+      "file" => %i[file_data filename password].freeze
+    }.freeze
     IMAGE_MIME_TYPES = %w[image/jpeg image/png image/webp image/gif].freeze
     MAX_IMAGE_BYTES = 6.megabytes
 
@@ -30,6 +41,19 @@ module ExpensePlayground
     ].freeze
     SUPPORTED_FILE_EXTENSIONS = %w[pdf csv xlsx xls].freeze
     MAX_FILE_BYTES = 20.megabytes
+
+    def self.from_params(type, params)
+      hash = params.is_a?(Hash) ? params : (params.respond_to?(:to_unsafe_h) ? params.to_unsafe_h : params.to_h)
+      hash = hash.deep_symbolize_keys
+      keys = PERMITTED_KEYS[type.to_s]
+      return new(type: type.to_s, metadata: {}) unless keys
+
+      new(
+        type: type.to_s,
+        **hash.slice(*keys & %i[text image_data audio_data file_data]),
+        metadata: (hash[:metadata] || {}).merge(hash.slice(*keys & %i[filename password]).compact)
+      )
+    end
 
     attr_reader :type, :text, :image_data, :audio_data, :file_data, :metadata
 

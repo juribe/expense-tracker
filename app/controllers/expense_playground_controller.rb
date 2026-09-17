@@ -17,7 +17,7 @@ class ExpensePlaygroundController < ApplicationController
   # Runs the pipeline and returns the ExpenseCandidate + every pipeline stage
   # for debugging. Never writes an Expense.
   def run
-    input = ExpensePlayground::Adapters::Registry.build(params[:type], input_params)
+    input = ExpensePlayground::Input.from_params(params[:type], input_params)
 
     return render_invalid_input(input) unless input.valid?
 
@@ -358,8 +358,9 @@ class ExpensePlaygroundController < ApplicationController
     nil
   end
 
-  # Raw channel params. Adapters turn these into an ExpensePlayground::Input;
-  # image, audio and file payloads are used in-memory only and never persisted.
+  # Raw channel params. ExpensePlayground::Input.from_params reads only the
+  # keys each type declares; image, audio and file payloads are used in-memory
+  # only and never persisted.
   def input_params
     params.permit(:text, :image_data, :audio_data, :file_data, :filename, :password, metadata: {})
   end

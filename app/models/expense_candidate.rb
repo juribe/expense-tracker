@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # A parsed expense that has NOT been persisted. Every ingestion method (text,
-# image, and future WhatsApp/voice/email/PDF adapters) normalizes into this
+# image, and future WhatsApp/voice/email/PDF channels) normalizes into this
 # same structure. The Playground shows it for review; an expense is only
 # created when the user explicitly confirms through Expenses::Create.
 class ExpenseCandidate

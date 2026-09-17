@@ -37,10 +37,10 @@ module ExpensePlayground
     def call
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
-      binary = decode_file_data
+      binary = input.file_binary
       return failure("Could not decode file data.") if binary.nil?
 
-      ext = detect_extension
+      ext = input.file_extension
       return failure(I18n.t("wizard.upload.unsupported_type")) unless ext.in?(SUPPORTED_EXTENSIONS)
 
       text = extract_text(binary, ext)
@@ -101,24 +101,10 @@ module ExpensePlayground
       [ candidates, sources, :ai ]
     end
 
-    def decode_file_data
-      base64 = @file_data.to_s.sub(/\Adata:[^;]+;base64,/, "")
-      Base64.decode64(base64)
-    rescue ArgumentError
-      nil
-    end
-
-    def detect_extension
-      ext = File.extname(@filename).delete(".").downcase
-      return ext if ext.present? && ext.in?(SUPPORTED_EXTENSIONS)
-
-      mime_ext = @file_data.to_s.match(/\Adata:([^;]+);base64,/)&.[](1)
-      case mime_ext
-      when "application/pdf" then "pdf"
-      when "text/csv" then "csv"
-      when "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" then "xlsx"
-      when "application/vnd.ms-excel" then "xls"
-      end
+    def input
+      @input ||= ExpensePlayground::Input.from_params(
+        "file", file_data: @file_data, filename: @filename, password: @password
+      )
     end
 
     def extract_text(binary, ext)
