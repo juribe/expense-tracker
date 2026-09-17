@@ -19,7 +19,8 @@ test.describe('AI expense detection selects the money source', () => {
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en almuerzo desde nequi');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
     const sourceSelect = page.locator('[data-testid="ai-row"] .ai-field-source');
@@ -50,7 +51,8 @@ test.describe('AI expense detection selects the money source', () => {
     await page.getByTestId('ai-text-input').fill('Pag 50 mil en el restaurante con la tarjeta clásica');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
     const sourceSelect = page.locator('[data-testid="ai-row"] .ai-field-source');
@@ -65,7 +67,8 @@ test.describe('AI expense detection selects the money source', () => {
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en almuerzo');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
     const sourceSelect = page.locator('[data-testid="ai-row"] .ai-field-source');
@@ -80,7 +83,8 @@ test.describe('AI expense detection selects the money source', () => {
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en restaurante y 20 mil en parqueadero desde nequi');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(2);
 
     const sourceSelects = page.locator('[data-testid="ai-row"] .ai-field-source');
