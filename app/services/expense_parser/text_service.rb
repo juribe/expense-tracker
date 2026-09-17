@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module ExpenseParserServices
-  # Handles text normalization and cleaning
+class ExpenseParser
   class TextService
     DATE_WORDS = %w[lunes martes miercoles jueves viernes sabado domingo hoy ayer anteayer el esta este].to_set.freeze
 

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module ExpenseParserServices
-  # Handles amount detection and interpretation from text
+class ExpenseParser
   class AmountService
     NUMBER_WORDS = {
       "un" => 1, "una" => 1, "uno" => 1,

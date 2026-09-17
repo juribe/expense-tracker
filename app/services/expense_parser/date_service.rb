@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module ExpenseParserServices
-  # Handles date detection and interpretation from text
+class ExpenseParser
   class DateService
     WEEKDAYS = {
       "lunes" => 1, "martes" => 2, "miercoles" => 3, "jueves" => 4,

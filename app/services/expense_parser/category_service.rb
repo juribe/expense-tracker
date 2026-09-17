@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module ExpenseParserServices
-  # Handles category resolution from text
+class ExpenseParser
   class CategoryService
     SYNONYM_GROUPS = [
       { canonical: "Restaurants", keywords: %w[restaurant restaurants restaurantes almuerzo comida cena desayuno lunch snack pizza hamburguesa cafe cafeteria bar] },
