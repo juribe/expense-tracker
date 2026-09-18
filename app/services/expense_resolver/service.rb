@@ -1,14 +1,15 @@
-class ExpenseProcessor
+module ExpenseResolver
+ class Service
     attr_accessor :text, :user, :expenses
 
     def initialize(text:, user:)
-        @text = text
-        @user = user
-        @expenses = []
+      @text = text
+      @user = user
+      @expenses = []
     end
 
     def self.call(text:, user:)
-        new(text: text, user: user).process
+      new(text: text, user: user).process
     end
 
     def process
@@ -18,11 +19,15 @@ class ExpenseProcessor
        return ServiceResult.error("missing user") if invalid_user?
 
        # IA checks expenses
-       parser_result = NaturalLanguageExpenseParser.call(text: text, user: user, categories: categories_names)
+       parser_result = NaturalLanguageParser.call(text: text, user: user, categories: categories_names)
        return parser_result if parser_result.failure?
 
        parser_result.result.each do |expense|
-         expenses << ExpenseCandidateProcessor.call(expense: expense, user: user)
+         expenses << CandidateDetector.call(expense: expense,
+                                            user: user,
+                                            categories: categories,
+                                            money_source_detector: money_source_detector
+                                          )
        end
        # If all checks pass, return a success result
        ServiceResult.success(expenses)
@@ -46,4 +51,9 @@ class ExpenseProcessor
                                 .order(:name)
                                 .to_a
     end
+
+    def money_source_detector
+      @money_source_detector ||= MoneySources::Detector.new(user: user)
+    end
+ end
 end

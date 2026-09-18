@@ -13,12 +13,12 @@ module MoneySources
   class Detector
     ACCENT_MAP = { "á" => "a", "é" => "e", "í" => "i", "ó" => "o", "ú" => "u", "ü" => "u" }.freeze
 
-    def self.call(user:, text:)
-      new(user: user).call(text)
+    def self.call(user:, text:, sources: nil)
+      new(user: user, sources: sources).call(text)
     end
 
-    def initialize(user:)
-      @sources = MoneySource.active.where(user: user)
+    def initialize(user:, sources: nil)
+      @sources = sources || MoneySource.active.where(user: user)
                             .includes(recognition: :recognition_identifiers).to_a
     end
 

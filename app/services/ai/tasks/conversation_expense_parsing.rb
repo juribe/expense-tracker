@@ -26,28 +26,21 @@ module Ai
 
       def parse(content, _input, _context)
         payload = parse_json(content)
+        p(payload)
         entries = payload.is_a?(Array) ? payload : payload["expenses"]
         raise InvalidResponse, "missing 'expenses' array" unless entries.is_a?(Array) && entries.any?
 
-        entries = entries.filter_map do |entry|
-          next unless entry.is_a?(Hash)
-
-          entry.transform_keys(&:to_s).transform_values { |v| v.is_a?(String) ? v.strip : v }
+        expenses = entries.filter_map do |entry|
+          ParsedExpense.build_expense(entry) if entry.is_a?(Hash)
         end
-        raise InvalidResponse, "no usable expense entries" if entries.empty?
+        raise InvalidResponse, "no usable expense entries" if expenses.empty?
 
-        confidences = entries.map { |entry| confidence_of(entry) }
-        entries.each { |entry| entry.delete("confidence") }
-
-        { data: entries, confidence: confidences.min }
+        {
+          data: expenses
+        }
       end
 
       private
-
-      def confidence_of(entry)
-        value = entry["confidence"]
-        value.is_a?(Numeric) ? Float(value).clamp(0.0, 1.0) : 0.5
-      end
 
       def system_prompt(context)
         today = (context[:today] || Date.current).to_date.iso8601
