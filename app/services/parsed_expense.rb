@@ -4,6 +4,7 @@
 # Performs validation so invalid entries never reach persistence.
 class ParsedExpense
   MAX_AMOUNT = BigDecimal("99999999.99")
+  LOW_CONFIDENCE_THRESHOLD = 0.75
 
   ATTRIBUTES = %i[
     amount description transaction_date category_id category_name
@@ -37,7 +38,7 @@ class ParsedExpense
   end
 
   def low_confidence?
-    confidence.to_f < ExpenseParser::LOW_CONFIDENCE_THRESHOLD
+    confidence.to_f < LOW_CONFIDENCE_THRESHOLD
   end
 
   def future_date?

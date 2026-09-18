@@ -83,7 +83,7 @@ class ExpenseParserTest < ActiveSupport::TestCase
     expense = result[:expenses].first
     assert expense[:create_category]
     assert_equal "Xilofono", expense[:category_name]
-    assert_operator expense[:confidence], :<, ExpenseParser::LOW_CONFIDENCE_THRESHOLD
+    assert_operator expense[:confidence], :<, ParsedExpense::LOW_CONFIDENCE_THRESHOLD
     assert expense[:low_confidence]
     assert expense[:warnings].any? { |warning| warning.include?("No matching category found") }
   end
