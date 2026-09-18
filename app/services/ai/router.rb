@@ -23,6 +23,7 @@ module Ai
     end
 
     TASKS = {
+      conversation_expense_parsing: "Ai::Tasks::ConversationExpenseParsing",
       expense_extraction: "Ai::Tasks::ExpenseExtraction",
       category_classification: "Ai::Tasks::CategoryClassification",
       statement_extraction: "Ai::Tasks::StatementExtraction",

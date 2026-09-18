@@ -26,6 +26,7 @@ class Category < ApplicationRecord
 
   scope :active, -> { where(active: true) }
   scope :roots, -> { where(parent_id: nil) }
+  scope :expenses, -> { where(category_type: "expense") }
   scope :defaults, -> { where(is_default: true) }
   scope :custom_for_user, ->(user) { where(user_id: user.id, is_default: false) }
   scope :for_user, ->(user) { defaults.or(where(user_id: user.id)) }
