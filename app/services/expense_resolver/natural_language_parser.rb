@@ -30,7 +30,7 @@ module ExpenseResolver
       # puts "xxxxxxxxxxxxxxxxxxxxxx************************************"
       return ServiceResult.error([ router_result.error.presence || "AI parsing failed." ]) unless router_result.ok?
 
-      recording&.add_step(:step_extraction, router_result.data)
+      recording&.add_step(:extraction, router_result.data)
       ServiceResult.success(router_result.data)
     end
   end
