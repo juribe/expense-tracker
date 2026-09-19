@@ -1,17 +1,22 @@
+
 # frozen_string_literal: true
 
 module Ai
   module Tasks
-    # Single-AI-call natural-language expense parsing. The complete free-text
-    # input goes to the model once; it returns every distinct expense with
-    # original text, amount, date, description, category and an optional money
-    # source hint. No separate splitting or categorization calls.
+    # Parse one or more expenses from natural-language text in a single AI call.
     #
     #   input:   "Ayer compré mercado por 180 mil en Éxito, después pagué 50 mil de gasolina"
     #   context: { user:, today: Date, categories: [Category, ...] }
-    #   data:    [ { original_text:, amount:, date:, description:, category:,
-    #                money_source_hint: }, ... ]
-    #   confidence: model-provided, the lowest per-expense confidence in the set.
+    #   data:    [
+    #     {
+    #       original_text:,
+    #       amount:,
+    #       date:,
+    #       description:,
+    #       category:
+    #     },
+    #     ...
+    #   ]
     class ConversationExpenseParsing < Base
       def timeout
         25
@@ -24,15 +29,28 @@ module Ai
         ]
       end
 
-      def parse(content, _input, _context)
+      def parse(content, input, context)
         payload = parse_json(content)
-        p(payload)
         entries = payload.is_a?(Array) ? payload : payload["expenses"]
+
         raise InvalidResponse, "missing 'expenses' array" unless entries.is_a?(Array) && entries.any?
 
+        # Confidence is never taken from the model: every entry is re-scored
+        # from deterministic signals against the original user input.
+        categories = Array(context[:categories])
+        today = (context[:today] || Date.current).to_date
         expenses = entries.filter_map do |entry|
-          ParsedExpense.build_expense(entry) if entry.is_a?(Hash)
+          next unless entry.is_a?(Hash)
+
+          score = Expenses::ConfidenceCalculator.call(
+            expense: ParsedExpense.build_expense(entry),
+            input: input,
+            categories: categories,
+            today: today
+          ).score
+          ParsedExpense.build_expense(entry.merge("confidence" => score))
         end
+
         raise InvalidResponse, "no usable expense entries" if expenses.empty?
 
         {
@@ -45,67 +63,52 @@ module Ai
 
       def system_prompt(context)
         today = (context[:today] || Date.current).to_date.iso8601
-        categories = Array(context[:categories]).map { |category|
+
+        categories = Array(context[:categories]).map do |category|
           category.respond_to?(:name) ? category.name : category.to_s
-        }.join(", ")
+        end.join(", ")
+
         hint = context[:context].presence
-        context_block = hint ? "\nContext: #{hint}\n" : ""
+        context_block = hint ? "\nAdditional context: #{hint}\n" : ""
+
         <<~PROMPT
-          Eres un asistente especializado en registrar gastos a partir de texto en lenguaje natural.
+          Extract expenses from the user's natural-language message.
+          The message may contain one or multiple expenses. Return each distinct
+          transaction as a separate expense object.
 
-          El usuario puede describir uno o varios gastos en un mismo texto.
-          Debes identificar cada gasto individual y devolverlos como objetos separados.
           #{context_block}
-          Para cada gasto debes extraer:
 
-          - original_text: conserva la parte del texto original del usuario que corresponde a este gasto.
-            No inventes un resumen ni cambies innecesariamente las palabras del usuario.
-          - amount: monto normalizado en pesos colombianos (COP).
-            Ejemplos:
-            "50 mil" = 50000
-            "50 lucas" = 50000
-            "50k" = 50000
-            "50 barras" = 50000
-            "50.000 pesos" = 50000
-          - date: resuelve fechas relativas como "hoy", "ayer", "anteayer",
-            "el lunes" o "hace 3 días" utilizando la fecha actual proporcionada.
-            Formato: YYYY-MM-DD.
-          - description: descripción breve y natural de qué fue el gasto.
-          - category: exactamente una de las categorías proporcionadas.
-          - money_source_hint: texto que ayude a identificar el medio de pago mencionado
-            por el usuario, por ejemplo "la clásica", "la Visa",
-            "tarjeta terminada en 1234" o "cuenta Bancolombia".
-            Debe ser null si no se menciona.
-          - confidence: qué tan seguro estás de que el gasto se extrajo correctamente,
-            un número entre 0 y 1 (más alto = más seguro).
-            Usa valores bajos cuando parte de la información sea ambigua o haya
-            que suponerla.
+          Today: #{today}
+          Currency: COP
+          Available categories: [#{categories}]
 
-          Reglas:
+          For each expense return:
 
-          - Fecha actual: #{today}
-          - Moneda: COP
-          - Categorías permitidas: [#{categories}]
-          - Categoría: intenta primero asignar el gasto a una de las categorías proporcionadas.
-          - Si ninguna de las categorías proporcionadas representa razonablemente el gasto,
-            puedes sugerir una nueva categoría.
-          - Las categorías sugeridas deben ser claras, generales y reutilizables.
-          - No crees una categoría nueva simplemente porque el gasto podría pertenecer
-            a una categoría existente.
-          - No crees categorías demasiado específicas para un merchant o producto.
-          - Si existe una categoría razonablemente adecuada, úsala en lugar de sugerir una nueva.
-          - No inventes información.
-          - No crees entidades de merchant ni IDs.
-          - money_source_hint es solamente una pista textual; nunca es un ID de la base de datos.
-          - Si varios productos pertenecen a una misma compra, deben formar un solo gasto,
-            salvo que el usuario indique claramente que son pagos o transacciones diferentes.
-          - Si el texto contiene varios gastos, devuelve todos.
-          - Si el texto describe un solo gasto, devuelve un solo objeto.
-          - Si no puedes determinar una fecha con suficiente certeza, usa null.
-          - original_text debe permitir al usuario reconocer exactamente qué parte de su texto
-            fue interpretada como ese gasto.
+          - original_text: the exact portion of the user's message that describes
+            this expense. Preserve the original wording. This field is used by
+            downstream processing, so do not invent or rewrite it.
+          - amount: integer amount in COP. Examples: "50 mil" = 50000,
+            "50 lucas" = 50000, "50k" = 50000.
+          - date: YYYY-MM-DD. Resolve relative dates using Today. Use null when
+            the date cannot be determined reliably.
+          - description: short, natural description of the expense.
+          - category: use the most appropriate available category. Only suggest
+            a new general category when none of the available categories fits.
 
-          Devuelve ÚNICAMENTE JSON válido con esta estructura:
+          Rules:
+
+          - Return every distinct expense in the message.
+          - Separate transactions even when they use the same payment method.
+          - Keep items from the same purchase as one expense unless the user
+            clearly describes separate transactions.
+          - Do not invent missing information.
+          - Do not create merchant IDs, database IDs, or other entities.
+          - A payment method mentioned once may apply to multiple expenses;
+            do not create a separate expense for it.
+          - original_text must come directly from the user's message.
+          - Return only valid JSON. No markdown or explanations.
+
+          Output:
 
           {
             "expenses": [
@@ -114,9 +117,7 @@ module Ai
                 "amount": 50000,
                 "date": "2026-09-16",
                 "description": "gasolina",
-                "category": "Transporte",
-                "money_source_hint": null,
-                "confidence": 0.9
+                "category": "Transporte"
               }
             ]
           }
