@@ -204,6 +204,10 @@
           <h2 class="h5 mb-0"><i class="bi bi-receipt me-2" aria-hidden="true"></i><%= t("playground.result_title") %></h2>
           <div class="d-flex align-items-center gap-2">
             <span class="badge bg-primary d-none" id="pgResultCount" data-testid="playground-result-count"></span>
+            <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="pgResultToggle"
+                    aria-label="toggle expenses" data-testid="playground-result-toggle">
+              <i class="bi bi-arrows-expand" aria-hidden="true" id="pgResultToggleIcon"></i>
+            </button>
             <button type="button" class="btn btn-success btn-sm d-none" id="pgCreateAllButton" data-testid="playground-create-all-button">
               <span class="spinner-border spinner-border-sm d-none me-1" id="pgCreateAllSpinner" aria-hidden="true"></span>
               <i class="bi bi-plus-circle me-1 pg-create-all-icon" aria-hidden="true"></i>
@@ -1050,19 +1054,26 @@ function initializePlayground() {
     return matched ? matched.name : T.noSource;
   }
 
-  // One editable card per detected candidate. Cards are built from a shared
-  // skeleton and scoped queries (`.pg-*` classes) instead of fixed ids so the
-  // same UI renders any number of expenses.
-  function cardSkeleton() {
+  // One editable accordion item per detected candidate. Items are built from
+  // a shared skeleton and scoped queries (`.pg-*` classes) instead of fixed
+  // ids so the same UI renders any number of expenses.
+  function cardSkeleton(index, open) {
     var card = document.createElement("div");
-    card.className = "card shadow-sm mb-3 pg-expense-card";
+    card.className = "accordion-item pg-expense-card";
     card.setAttribute("data-testid", "expense-card");
+    var collapseId = "pgResultCardCollapse" + index;
     card.innerHTML =
-      '<div class="card-body">' +
-      '<div class="d-flex justify-content-between align-items-center mb-2">' +
-      '<h3 class="h6 mb-0"><i class="bi bi-receipt me-1" aria-hidden="true"></i><span class="pg-card-title"></span></h3>' +
-      '<span class="badge bg-secondary pg-card-confidence" data-testid="card-confidence"></span>' +
-      "</div>" +
+      '<h2 class="accordion-header" id="pgResultCardHeading' + index + '">' +
+      '<button class="accordion-button' + (open ? "" : " collapsed") + '" type="button"' +
+      ' data-bs-toggle="collapse" data-bs-target="#' + collapseId + '"' +
+      ' aria-expanded="' + (open ? "true" : "false") + '" aria-controls="' + collapseId + '"' +
+      ' data-testid="playground-expense-card-toggle">' +
+      '<span class="pg-card-title"></span>' +
+      '<span class="badge bg-secondary pg-card-confidence ms-2" data-testid="card-confidence"></span>' +
+      "</button></h2>" +
+      '<div id="' + collapseId + '" class="accordion-collapse collapse' + (open ? " show" : "") + '"' +
+      ' aria-labelledby="pgResultCardHeading' + index + '">' +
+      '<div class="accordion-body">' +
       '<dl class="row mb-0" data-testid="detected-expense">' +
       '<dt class="col-5 small text-muted">' + escapeHtml(T.amountLabel) + '</dt>' +
       '<dd class="col-7 fw-semibold pg-sum-amount" data-testid="detected-amount"></dd>' +
@@ -1119,7 +1130,7 @@ function initializePlayground() {
       '<i class="bi bi-plus-circle me-1 pg-create-icon" aria-hidden="true"></i>' +
       '<span class="pg-create-label">' + escapeHtml(T.createExpense) + "</span>" +
       "</button>" +
-      "</div>";
+      "</div></div>";
     return card;
   }
 
@@ -1155,7 +1166,9 @@ function initializePlayground() {
   }
 
   function fillCard(card, candidate, index) {
-    card.querySelector(".pg-card-title").textContent = (T.expenseN || "Expense %{n}").replace("%{n}", index + 1);
+    var description = candidate.description || candidate.merchant;
+    card.querySelector(".pg-card-title").textContent =
+      (T.expenseN || "Expense %{n}").replace("%{n}", index + 1) + ": " + (description || "—");
     card.querySelector(".pg-sum-amount").textContent = money(candidate.amount) + " " + (candidate.currency || "COP");
     card.querySelector(".pg-sum-category").textContent = candidate.category_name || T.noCategory;
     card.querySelector(".pg-sum-description").textContent = candidate.description || "—";
@@ -1176,10 +1189,11 @@ function initializePlayground() {
   function renderCards(candidates, evaluations) {
     var container = $("#pgCards");
     container.textContent = "";
+    container.className = "accordion";
     state.cards = [];
 
     (candidates || []).forEach(function (candidate, index) {
-      var card = cardSkeleton();
+      var card = cardSkeleton(index, index === 0);
       fillCard(card, candidate, index);
       if (evaluations && evaluations[index]) renderCardEvaluation(card, evaluations[index]);
       card.querySelector(".pg-create-button").addEventListener("click", function () { createCardExpense(index); });
@@ -1191,6 +1205,7 @@ function initializePlayground() {
     var badge = $("#pgResultCount");
     badge.textContent = String(count);
     badge.classList.toggle("d-none", count <= 1);
+    wireAccordionToggle(container, $("#pgResultToggle"), $("#pgResultToggleIcon"));
     updateCreateAllButton();
   }
 
@@ -1477,9 +1492,8 @@ function initializePlayground() {
     body.appendChild(candidateStep);
   }
 
-  function refreshStepsToggleIcon(container) {
+  function refreshAccordionToggleIcon(container, icon) {
     var accordions = container.querySelectorAll(".accordion-collapse");
-    var icon = $("#pgStepsToggleIcon");
     if (!icon) return;
     var allOpen = accordions.length > 0 && Array.prototype.every.call(accordions, function (el) {
       return el.classList.contains("show");
@@ -1488,8 +1502,7 @@ function initializePlayground() {
     icon.classList.toggle("bi-arrows-expand", !allOpen);
   }
 
-  function wireStepsToggle(container) {
-    var toggle = $("#pgStepsToggle");
+  function wireAccordionToggle(container, toggle, icon) {
     var accordions = container.querySelectorAll(".accordion-collapse");
     toggle.classList.toggle("d-none", accordions.length === 0);
     toggle.onclick = function () {
@@ -1503,9 +1516,9 @@ function initializePlayground() {
           el.classList.toggle("show", expand);
         }
       });
-      refreshStepsToggleIcon(container);
+      refreshAccordionToggleIcon(container, icon);
     };
-    refreshStepsToggleIcon(container);
+    refreshAccordionToggleIcon(container, icon);
   }
 
   function renderSteps(data) {
@@ -1535,7 +1548,7 @@ function initializePlayground() {
       accordion.appendChild(item);
     }
     container.appendChild(accordion);
-    wireStepsToggle(container);
+    wireAccordionToggle(container, $("#pgStepsToggle"), $("#pgStepsToggleIcon"));
   }
 
   // ---------------------------------------------------------------- history
