@@ -44,6 +44,29 @@ module Ai
       assert_equal 0.0, metrics[:ai_fallback_rate]
       assert_equal 0.0, metrics[:ai_cache_hit_rate]
       assert_nil metrics[:average_confidence]
+      assert_nil metrics[:average_latency_ms]
+      assert_nil metrics[:p95_latency_ms]
+      assert_nil metrics[:average_tokens_per_second]
+      assert_empty metrics[:latency_by_model]
+    end
+
+    test "summarizes AI call performance: latency, p95, tokens per second, slowest model" do
+      AiRequest.create!(user: @user, task: "expense_extraction", strategy: "cheap_ai", status: "ok",
+                        provider: "openrouter", model: "mistral-nemo", input_tokens: 300,
+                        output_tokens: 60, latency_ms: 1000)
+      AiRequest.create!(user: @user, task: "expense_extraction", strategy: "strong_ai", status: "ok",
+                        provider: "mistral", model: "mistral-small", input_tokens: 400,
+                        output_tokens: 40, latency_ms: 3000, escalated: true)
+
+      metrics = Ai::Metrics.summary(AiRequest.where(user: @user))
+
+      assert_equal 2000.0, metrics[:average_latency_ms]
+      assert_equal 2900, metrics[:p95_latency_ms]
+      # (60 tok / 1 s + 40 tok / 3 s) / 2
+      assert_equal 36.67, metrics[:average_tokens_per_second]
+      assert_equal({ "mistral-nemo" => 1000.0, "mistral-small" => 3000.0 }, metrics[:latency_by_model])
+      assert_equal "mistral-small", metrics[:slowest_model]
+      assert_equal 3000.0, metrics[:slowest_model_latency_ms]
     end
   end
 end

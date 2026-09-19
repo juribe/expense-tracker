@@ -81,6 +81,9 @@ module Ai
       assert_equal 10, row.input_tokens
       assert_equal 5, row.output_tokens
       refute row.escalated
+      # The exact prompt and raw model output are recorded for observability.
+      assert_equal [ { "role" => "user", "content" => "msg" } ], row.prompt
+      assert_equal({ "value" => "cheap", "confidence" => 0.95 }.to_json, row.output)
     end
 
     test "low-confidence cheap result escalates to the strong model" do
@@ -102,6 +105,8 @@ module Ai
       cheap_row = AiRequest.where(strategy: "cheap_ai").last
       assert_equal "low_confidence", cheap_row.status
       assert_in_delta 0.61, cheap_row.confidence, 0.001
+      assert_equal [ { "role" => "user", "content" => "msg" } ], cheap_row.prompt
+      assert_equal({ "value" => "shaky", "confidence" => 0.61 }.to_json, cheap_row.output)
 
       strong_row = AiRequest.where(strategy: "strong_ai").last
       assert_equal "ok", strong_row.status
@@ -135,6 +140,9 @@ module Ai
 
       assert_equal "error", AiRequest.where(strategy: "cheap_ai").last.status
       assert_match(/timeout/, AiRequest.where(strategy: "cheap_ai").last.error)
+      failed_row = AiRequest.where(strategy: "cheap_ai").last
+      assert_equal [ { "role" => "user", "content" => "msg" } ], failed_row.prompt
+      assert_nil failed_row.output
     end
 
     test "skips the cheap tier entirely when it is not configured" do

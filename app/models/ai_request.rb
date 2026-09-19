@@ -16,4 +16,11 @@ class AiRequest < ApplicationRecord
   scope :recent_first, -> { order(created_at: :desc) }
   scope :ai_calls, -> { where(strategy: %w[cheap_ai strong_ai]) }
   scope :cache_hits, -> { where(strategy: "cache") }
+
+  # Throughput of this single call; nil when tokens or latency are missing.
+  def tokens_per_second
+    return nil if output_tokens.to_i <= 0 || latency_ms.to_i <= 0
+
+    (output_tokens / (latency_ms / 1000.0)).round(2)
+  end
 end

@@ -44,6 +44,13 @@
   overflow: auto;
 }
 
+/* Prompt / output blocks inside the AI routing per-call detail */
+.pg-ai-io {
+  max-height: 180px;
+  background: #fff;
+  font-size: 0.72rem;
+}
+
 .pg-step-title {
   font-size: 0.72rem;
   font-weight: 700;

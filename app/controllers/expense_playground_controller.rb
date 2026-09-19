@@ -57,8 +57,18 @@ class ExpensePlaygroundController < ApplicationController
   def ai_summary
     scope = AiRequest.where(user: current_user).where("created_at > ?", 7.days.ago)
 
+    summary = Ai::Metrics.summary(scope)
+
     render json: {
-      summary: Ai::Metrics.summary(scope),
+      summary: summary,
+      performance: {
+        average_latency_ms: summary[:average_latency_ms],
+        p95_latency_ms: summary[:p95_latency_ms],
+        average_tokens_per_second: summary[:average_tokens_per_second],
+        latency_by_model: summary[:latency_by_model],
+        slowest_model: summary[:slowest_model],
+        slowest_model_latency_ms: summary[:slowest_model_latency_ms]
+      },
       cheap_tier_enabled: Ai.configuration.cheap_enabled?,
       recent: scope.recent_first.limit(10).map do |r|
         {
@@ -70,6 +80,11 @@ class ExpensePlaygroundController < ApplicationController
           confidence: r.confidence&.to_f,
           escalated: r.escalated,
           latency_ms: r.latency_ms,
+          input_tokens: r.input_tokens,
+          output_tokens: r.output_tokens,
+          tokens_per_second: r.tokens_per_second,
+          prompt: r.prompt,
+          output: r.output,
           created_at: r.created_at.iso8601
         }
       end

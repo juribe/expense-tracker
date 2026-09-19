@@ -106,18 +106,21 @@ module Ai
       end
 
       started = monotonic
-      response = provider.chat(messages: @task.messages(@input, @context), timeout: @task.timeout)
+      prompt = @task.messages(@input, @context)
+      response = provider.chat(messages: prompt, timeout: @task.timeout)
       latency_ms = ((monotonic - started) * 1000).round
 
       parsed = @task.parse(response.content, @input, @context)
 
       record(provider, strategy: "override", status: "ok", confidence: parsed[:confidence],
-             latency_ms: latency_ms, usage: response, escalated: false)
+             latency_ms: latency_ms, usage: response, escalated: false,
+             prompt: prompt, output: response.content)
       Result.new(ok?: true, data: parsed[:data], confidence: parsed[:confidence],
                  strategy: "strong_ai", error: nil)
     rescue Provider::Error, Tasks::Base::InvalidResponse => e
       record(provider, strategy: "override", status: "error", error: e.message,
-             latency_ms: ((monotonic - started) * 1000).round, escalated: false)
+             latency_ms: ((monotonic - started) * 1000).round, escalated: false,
+             prompt: prompt, output: nil)
       Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: e.message)
     end
 
@@ -129,26 +132,29 @@ module Ai
     # Returns [Result, nil] on acceptance or [nil, nil] when the cheap tier is
     # rejected for low confidence and [nil, message] on provider failures.
     def attempt(tier, provider, escalated)
+      prompt = @task.messages(@input, @context)
       started = monotonic
-      response = provider.chat(messages: @task.messages(@input, @context),
-                               timeout: @task.timeout)
+      response = provider.chat(messages: prompt, timeout: @task.timeout)
       latency_ms = ((monotonic - started) * 1000).round
 
       parsed = @task.parse(response.content, @input, @context)
 
       if tier.to_sym == Providers::TIER_CHEAP && low_confidence?(parsed[:confidence])
         record(tier, provider, status: "low_confidence", confidence: parsed[:confidence],
-               latency_ms: latency_ms, usage: response, escalated: escalated)
+               latency_ms: latency_ms, usage: response, escalated: escalated,
+               prompt: prompt, output: response.content)
         return [ nil, nil ]
       end
 
       record(tier, provider, status: "ok", confidence: parsed[:confidence],
-             latency_ms: latency_ms, usage: response, escalated: escalated)
+             latency_ms: latency_ms, usage: response, escalated: escalated,
+             prompt: prompt, output: response.content)
       [ Result.new(ok?: true, data: parsed[:data], confidence: parsed[:confidence],
                    strategy: "#{tier}_ai", error: nil), nil ]
     rescue Provider::Error, Tasks::Base::InvalidResponse => e
       record(tier, provider, status: "error", error: e.message,
-             latency_ms: ((monotonic - started) * 1000).round, escalated: escalated)
+             latency_ms: ((monotonic - started) * 1000).round, escalated: escalated,
+             prompt: prompt, output: nil)
       [ nil, e.message ]
     end
 
@@ -159,7 +165,8 @@ module Ai
     end
 
     def record(tier = nil, provider = nil, status: "ok", confidence: nil, error: nil,
-               latency_ms: nil, usage: nil, escalated: false, strategy: nil)
+               latency_ms: nil, usage: nil, escalated: false, strategy: nil,
+               prompt: nil, output: nil)
       Recorder.write(
         task: @task_name,
         user: @user,
@@ -171,7 +178,9 @@ module Ai
         input_tokens: usage&.input_tokens,
         output_tokens: usage&.output_tokens,
         latency_ms: latency_ms,
-        escalated: escalated
+        escalated: escalated,
+        prompt: prompt,
+        output: output
       )
     end
 

@@ -34,7 +34,7 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
                       confidence: 0.95, input_tokens: 300, output_tokens: 60, latency_ms: 1200)
     AiRequest.create!(user: @user, task: "expense_extraction", strategy: "strong_ai",
                       provider: "mistral", model: "mistral-small-latest", status: "ok",
-                      confidence: 0.99, escalated: true)
+                      confidence: 0.99, escalated: true, latency_ms: 3000)
 
     get expense_playground_ai_summary_path(format: :json)
 
@@ -51,6 +51,24 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0.95, cheap["confidence"]
     strong = recent.find { |row| row["strategy"] == "strong_ai" }
     assert_equal true, strong["escalated"]
+
+    # Performance aggregates and per-call tokens/throughput are exposed.
+    performance = data["performance"]
+    assert_equal 2100.0, performance["average_latency_ms"]
+    assert_equal %w[mistral-small-latest mistralai/mistral-nemo], performance["latency_by_model"].keys.sort
+    assert_equal "mistral-small-latest", performance["slowest_model"]
+    assert_in_delta (60 / 1.2).round(2), cheap["tokens_per_second"], 0.01
+    assert_equal 300, cheap["input_tokens"]
+    assert_equal 60, cheap["output_tokens"]
+  end
+
+  test "GET /expense-playground renders the AI observability blocks" do
+    get expense_playground_path
+    assert_response :success
+    assert_match "playground-ai-analysis", response.body
+    assert_match "playground-ai-call-detail", response.body
+    assert_match "playground-steps-toggle", response.body
+    assert_match "playground-result-toggle", response.body
   end
 
   test "POST /expense-playground/process returns a candidate without persisting any expense" do

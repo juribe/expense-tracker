@@ -317,6 +317,7 @@
     <div class="card-body py-2">
       <p class="text-muted small mb-2"><%= t("playground.ai_summary_subtitle") %></p>
       <div class="d-flex flex-wrap gap-2 mb-2" id="pgAiChips" data-testid="playground-ai-chips"></div>
+      <p class="text-muted small mb-2 d-none" id="pgAiAnalysis" data-testid="playground-ai-analysis"></p>
       <div class="table-responsive">
         <table class="table table-sm table-hover align-middle mb-0">
           <tbody id="pgAiBody" data-testid="playground-ai-body"></tbody>
@@ -444,7 +445,22 @@ function initializePlayground() {
     aiSummaryCheapTier: <%= raw(t("playground.ai_summary_cheap_tier").to_json) %>,
     aiSummaryEnabled: <%= raw(t("playground.ai_summary_enabled").to_json) %>,
     aiSummaryDisabled: <%= raw(t("playground.ai_summary_disabled").to_json) %>,
-    aiSummaryEscalated: <%= raw(t("playground.ai_summary_escalated").to_json) %>
+    aiSummaryEscalated: <%= raw(t("playground.ai_summary_escalated").to_json) %>,
+    aiAvgLatency: <%= raw(t("playground.ai_summary_avg_latency").to_json) %>,
+    aiP95Latency: <%= raw(t("playground.ai_summary_p95_latency").to_json) %>,
+    aiTokensPerSecond: <%= raw(t("playground.ai_summary_tokens_per_second").to_json) %>,
+    aiCallTotalTime: <%= raw(t("playground.ai_call_total_time").to_json) %>,
+    aiGenerationTime: <%= raw(t("playground.ai_generation_time").to_json) %>,
+    aiProviderModel: <%= raw(t("playground.ai_provider_model").to_json) %>,
+    aiCallPrompt: <%= raw(t("playground.ai_call_prompt").to_json) %>,
+    aiCallOutput: <%= raw(t("playground.ai_call_output").to_json) %>,
+    aiAnalysisOk: <%= raw(t("playground.ai_summary_analysis_ok").to_json) %>,
+    aiAnalysisSlow: <%= raw(t("playground.ai_summary_analysis_slow").to_json) %>,
+    aiAnalysisBad: <%= raw(t("playground.ai_summary_analysis_bad").to_json) %>,
+    aiAnalysisEscalation: <%= raw(t("playground.ai_summary_analysis_escalation").to_json) %>,
+    aiAnalysisGeneration: <%= raw(t("playground.ai_summary_analysis_generation").to_json) %>,
+    aiAnalysisSlowestModel: <%= raw(t("playground.ai_summary_analysis_slowest_model").to_json) %>,
+    aiAnalysisErrors: <%= raw(t("playground.ai_summary_analysis_errors").to_json) %>
   };
 
   var HISTORY_KEY = "expense_playground_history_v1";
@@ -1648,8 +1664,35 @@ function initializePlayground() {
       escapeHtml(strategyLabel(strategy)) + "</span>";
   }
 
+  function analyzeAiPerformance(data) {
+    var perf = data.performance || {};
+    var summary = data.summary || {};
+    var parts = [];
+    var avg = perf.average_latency_ms;
+    if (avg != null) {
+      var verdict = avg < 5000 ? T.aiAnalysisOk : (avg < 12000 ? T.aiAnalysisSlow : T.aiAnalysisBad);
+      parts.push(verdict.replace("%{avg}", Math.round(avg)));
+    }
+    if (perf.average_tokens_per_second != null && perf.average_tokens_per_second < 30) {
+      parts.push(T.aiAnalysisGeneration.replace("%{tps}", perf.average_tokens_per_second));
+    }
+    if (summary.ai_fallback_rate != null && summary.ai_fallback_rate > 0.3) {
+      parts.push(T.aiAnalysisEscalation.replace("%{rate}", Math.round(summary.ai_fallback_rate * 100)));
+    }
+    if (perf.slowest_model && perf.slowest_model_latency_ms != null) {
+      parts.push(T.aiAnalysisSlowestModel
+        .replace("%{model}", perf.slowest_model)
+        .replace("%{latency}", Math.round(perf.slowest_model_latency_ms)));
+    }
+    if (summary.failed_requests > 0) {
+      parts.push(T.aiAnalysisErrors.replace("%{count}", summary.failed_requests));
+    }
+    return parts.slice(0, 2).join(" ");
+  }
+
   function renderAiSummary(data) {
     var summary = data.summary || {};
+    var perf = data.performance || {};
     var chips = $("#pgAiChips");
     chips.innerHTML = "";
 
@@ -1667,29 +1710,76 @@ function initializePlayground() {
     chip(T.aiSummaryFallback, Math.round((summary.ai_fallback_rate || 0) * 100) + "%");
     if (summary.average_confidence != null) chip(T.aiSummaryConfidence, summary.average_confidence);
     chip(T.aiSummaryTokens, (summary.input_tokens || 0) + " / " + (summary.output_tokens || 0));
+    if (perf.average_latency_ms != null) chip(T.aiAvgLatency, Math.round(perf.average_latency_ms) + " ms");
+    if (perf.p95_latency_ms != null) chip(T.aiP95Latency, perf.p95_latency_ms + " ms");
+    if (perf.average_tokens_per_second != null) chip(T.aiTokensPerSecond, perf.average_tokens_per_second);
+    Object.keys(perf.latency_by_model || {}).forEach(function (model) {
+      chip(model, Math.round(perf.latency_by_model[model]) + " ms");
+    });
+
+    var analysis = $("#pgAiAnalysis");
+    var analysisText = analyzeAiPerformance(data);
+    analysis.textContent = analysisText;
+    analysis.classList.toggle("d-none", !analysisText);
 
     $("#pgAiCheapTier").textContent = T.aiSummaryCheapTier + ": " +
       (data.cheap_tier_enabled ? T.aiSummaryEnabled : T.aiSummaryDisabled);
 
     var rows = (data.recent || []).map(function (r) {
       var tr = document.createElement("tr");
+      tr.className = "pg-ai-row";
+      tr.setAttribute("data-testid", "playground-ai-row");
       var status = r.status === "ok" ? "" : (' <span class="badge text-bg-danger">' + escapeHtml(r.status) + "</span>");
       var escalated = r.escalated ? (' <span class="badge text-bg-warning">' + escapeHtml(T.aiSummaryEscalated) + "</span>") : "";
       var model = [ r.provider, r.model ].filter(Boolean).join("/");
       var conf = r.confidence == null ? "—" : Number(r.confidence).toFixed(2);
       var latency = r.latency_ms == null ? "—" : r.latency_ms + " ms";
+      var tokens = (r.input_tokens == null && r.output_tokens == null)
+        ? "—" : (r.input_tokens || 0) + " / " + (r.output_tokens || 0);
+      var tps = r.tokens_per_second == null ? "—" : r.tokens_per_second;
       tr.innerHTML =
         "<td>" + strategyBadge(r.strategy) + status + escalated + "</td>" +
         '<td class="small">' + escapeHtml(r.task) + "</td>" +
         '<td class="small text-muted">' + escapeHtml(model || "—") + "</td>" +
         '<td class="small text-muted">' + escapeHtml(conf) + "</td>" +
+        '<td class="small text-muted">' + escapeHtml(tokens) + "</td>" +
+        '<td class="small text-muted">' + escapeHtml(tps) + "</td>" +
         '<td class="small text-muted text-end">' + escapeHtml(latency) + "</td>";
-      return tr;
+
+      // Per-call performance detail, shown when the row is clicked.
+      var detail = document.createElement("tr");
+      detail.className = "d-none pg-ai-detail";
+      detail.setAttribute("data-testid", "playground-ai-call-detail");
+      detail.innerHTML =
+        '<td colspan="7">' +
+        '<div class="border rounded p-2 bg-light">' +
+        '<div class="small fw-semibold text-muted mb-1">' + escapeHtml(r.task) + " · " + escapeHtml(new Date(r.created_at).toLocaleString()) + "</div>" +
+        debugRow(T.aiCallTotalTime + ":", latency) +
+        debugRow(T.aiSummaryTokens + ":", tokens) +
+        debugRow(T.aiTokensPerSecond + ":", tps) +
+        debugRow("TTFT:", "—") +
+        debugRow(T.aiGenerationTime + ":", "—") +
+        debugRow(T.aiProviderModel + ":", model || "—") +
+        (r.prompt && r.prompt.length
+          ? '<div class="small fw-semibold text-muted mt-2 mb-1">' + escapeHtml(T.aiCallPrompt) + "</div>" +
+            '<pre class="pg-pre mb-0 pg-ai-io">' + escapeHtml(
+              r.prompt.map(function (message) { return "[" + message.role + "] " + message.content; }).join("\n\n")
+            ) + "</pre>"
+          : "") +
+        (r.output
+          ? '<div class="small fw-semibold text-muted mt-2 mb-1">' + escapeHtml(T.aiCallOutput) + "</div>" +
+            '<pre class="pg-pre mb-0 pg-ai-io">' + escapeHtml(r.output) + "</pre>"
+          : "") +
+        "</div></td>";
+
+      tr.addEventListener("click", function () { detail.classList.toggle("d-none"); });
+
+      return [ tr, detail ];
     });
 
     var body = $("#pgAiBody");
     body.textContent = "";
-    rows.forEach(function (row) { body.appendChild(row); });
+    rows.forEach(function (pair) { pair.forEach(function (row) { body.appendChild(row); }); });
     $("#pgAiEmpty").classList.toggle("d-none", rows.length > 0);
   }
 
