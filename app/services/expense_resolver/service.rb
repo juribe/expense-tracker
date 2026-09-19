@@ -1,17 +1,17 @@
 module ExpenseResolver
  class Service
-    attr_accessor :text, :user, :expenses, :context, :execution
+    attr_accessor :text, :user, :expenses, :context, :recording
 
-    def initialize(text:, user:, context: nil, execution: nil)
+    def initialize(text:, user:, context: nil, recording: nil)
       @text = text
       @user = user
       @expenses = []
       @context = context
-      @execution = execution
+      @recording = recording
     end
 
-    def self.call(text:, user:, context: nil, execution: nil)
-      new(text: text, user: user, context: context, execution: execution).process
+    def self.call(text:, user:, context: nil, recording: nil)
+      new(text: text, user: user, context: context, recording: recording).process
     end
 
     def process
@@ -21,8 +21,9 @@ module ExpenseResolver
        return ServiceResult.error("missing user") if invalid_user?
 
        # IA checks expenses
-       parser_result = NaturalLanguageParser.call(text: text, user: user, categories: categories_names)
+       parser_result = NaturalLanguageParser.call(text: text, user: user, categories: categories_names, context: context, recording: recording)
        return parser_result if parser_result.failure?
+
 
        parser_result.result.each do |expense|
          expenses << CandidateDetector.call(expense: expense,

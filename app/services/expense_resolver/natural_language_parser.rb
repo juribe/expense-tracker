@@ -2,17 +2,19 @@
 
 module ExpenseResolver
   class NaturalLanguageParser
-    attr_accessor :text, :current_date, :user, :categories
+    attr_accessor :text, :current_date, :user, :categories, :context, :recording
 
-    def self.call(text:, current_date: Date.current, user: nil, categories: nil)
-      new(text: text, current_date: current_date, user: user, categories: categories).call
+    def self.call(text:, current_date: Date.current, user: nil, categories: nil, context: nil, recording: nil)
+      new(text: text, current_date: current_date, user: user, categories: categories, context: context, recording: recording).call
     end
 
-    def initialize(text:, current_date:, user: nil, categories: nil)
+    def initialize(text:, current_date:, user: nil, categories: nil, context: nil, recording: nil)
       @text = text.to_s.strip
       @current_date = current_date.to_date
       @user = user
       @categories = categories
+      @context = context
+      @recording = recording
     end
 
     def call
@@ -21,13 +23,14 @@ module ExpenseResolver
       router_result = Ai::Router.call(
         task: :conversation_expense_parsing,
         input: text,
-        context: { user: user, today: current_date, categories: categories }
+        context: { user: user, today: current_date, categories: categories, context: context, execution: recording&.execution }
       )
       # puts "xxxxxxxxxxxxxxxxxxxxxx************************************"
       # p(router_result)
       # puts "xxxxxxxxxxxxxxxxxxxxxx************************************"
       return ServiceResult.error([ router_result.error.presence || "AI parsing failed." ]) unless router_result.ok?
 
+      recording&.add_step(:step_extraction, router_result.data)
       ServiceResult.success(router_result.data)
     end
   end

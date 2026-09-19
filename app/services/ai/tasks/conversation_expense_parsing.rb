@@ -36,7 +36,8 @@ module Ai
         raise InvalidResponse, "no usable expense entries" if expenses.empty?
 
         {
-          data: expenses
+          data: expenses,
+          confidence: expenses.map(&:confidence).max || 0.0
         }
       end
 
