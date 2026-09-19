@@ -47,13 +47,14 @@ module Ai
         categories = Array(context[:categories]).map { |category|
           category.respond_to?(:name) ? category.name : category.to_s
         }.join(", ")
-
+        hint = context[:context].presence
+        context_block = hint ? "\nContext: #{hint}\n" : ""
         <<~PROMPT
           Eres un asistente especializado en registrar gastos a partir de texto en lenguaje natural.
 
           El usuario puede describir uno o varios gastos en un mismo texto.
           Debes identificar cada gasto individual y devolverlos como objetos separados.
-
+          #{context_block}
           Para cada gasto debes extraer:
 
           - original_text: conserva la parte del texto original del usuario que corresponde a este gasto.

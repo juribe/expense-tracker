@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
                   alert: t("errors.csrf_retry", default: "Tu sesión cambió. Inténtalo de nuevo.")
   end
 
-  rescue_from StandardError do |exception|
-    render json: { status: 'error', message: exception.message }, status: :internal_server_error
-  end
+  # rescue_from StandardError do |exception|
+  #   render json: { status: 'error', message: exception.message }, status: :internal_server_error
+  # end
 end

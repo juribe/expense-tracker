@@ -1,15 +1,17 @@
 module ExpenseResolver
  class Service
-    attr_accessor :text, :user, :expenses
+    attr_accessor :text, :user, :expenses, :context, :execution
 
-    def initialize(text:, user:)
+    def initialize(text:, user:, context: nil, execution: nil)
       @text = text
       @user = user
       @expenses = []
+      @context = context
+      @execution = execution
     end
 
-    def self.call(text:, user:)
-      new(text: text, user: user).process
+    def self.call(text:, user:, context: nil, execution: nil)
+      new(text: text, user: user, context: context, execution: execution).process
     end
 
     def process

@@ -22,6 +22,7 @@ class ExpensePlaygroundController < ApplicationController
     return render_invalid_input(input) unless input.valid?
 
     result = Expenses::Processor.call(user: current_user, input: input)
+    puts "[expense_playground] run result: ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidate=#{result.candidate&.as_json} errors=#{result.errors} warnings=#{result.warnings}"
     run_record = persist_run(input, result)
 
     render json: {

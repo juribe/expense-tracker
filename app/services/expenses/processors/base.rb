@@ -7,13 +7,10 @@ module Expenses
     # Text, so they must all write into the SAME steps/errors/warnings
     # accumulated by the orchestrator.
     class Base
-      def initialize(user:, input:, execution: nil, steps: {}, errors: [], warnings: [])
+      def initialize(user:, input:, recording: nil)
         @user = user
         @input = input
-        @execution = execution
-        @steps = steps
-        @errors = errors
-        @warnings = warnings
+        @recording = recording
       end
 
       # The user's optional note (explicit intent such as "pagado con nequi").
@@ -25,8 +22,7 @@ module Expenses
       private
 
       def text_processor
-        Text.new(user: @user, input: @input, execution: @execution,
-                 steps: @steps, errors: @errors, warnings: @warnings)
+        Text.new(user: @user, input: @input, recording: @recording)
       end
     end
   end
