@@ -7,5 +7,11 @@ module Expenses
     def ok?
       candidates.present? && candidates.all?(&:valid?) && errors.empty?
     end
+
+    # First detected expense; nil when nothing was extracted. Kept for the
+    # single-candidate API (history persistence, run response, evaluations).
+    def candidate
+      candidates&.first
+    end
   end
 end

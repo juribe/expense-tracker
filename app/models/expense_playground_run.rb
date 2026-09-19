@@ -30,6 +30,7 @@ class ExpensePlaygroundRun < ApplicationRecord
       duration_ms: result.duration_ms,
       status: result.ok? ? "ok" : "failed",
       candidate: result.candidate&.as_json || {},
+      candidates: result.candidates&.map(&:as_json) || [],
       steps: result.steps,
       error_messages: result.errors,
       warnings: result.warnings
@@ -48,6 +49,7 @@ class ExpensePlaygroundRun < ApplicationRecord
       type: input_type,
       label: input_label,
       candidate: candidate,
+      candidates: candidates,
       steps: steps,
       ok: ok?,
       confidence: candidate["confidence"],

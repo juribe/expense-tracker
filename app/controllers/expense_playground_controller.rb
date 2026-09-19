@@ -25,16 +25,20 @@ class ExpensePlaygroundController < ApplicationController
     puts "[expense_playground] run result: ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{result.candidates&.as_json} errors=#{result.errors} warnings=#{result.warnings}"
     run_record = persist_run(input, result)
 
+    candidates = result.candidates || []
+
     render json: {
       ok: result.ok?,
       run_id: run_record&.id,
       engine: result.engine,
       duration_ms: result.duration_ms,
-      candidate: result.candidates&.first&.as_json,
+      candidate: candidates.first&.as_json,
+      candidates: candidates.map(&:as_json),
       errors: result.errors,
       warnings: result.warnings,
       steps: result.steps,
-      evaluation: result.candidates&.first && expected_params.present? ? run_evaluation(result.candidates&.first) : nil
+      evaluation: expected_params.present? && candidates.any? ? run_evaluation(candidates.first) : nil,
+      evaluations: expected_params.present? ? candidates.map { |candidate| run_evaluation(candidate) } : nil
     }, status: result.ok? ? :ok : :unprocessable_entity
   end
 
@@ -119,7 +123,7 @@ class ExpensePlaygroundController < ApplicationController
         description: candidate.description.presence || candidate.merchant.presence || candidate.category_name,
         category: candidate_category(candidate),
         occurred_at: candidate.date,
-        source: "playground_file",
+        source: candidate.source.presence || "playground_file",
         money_source: candidate_money_source(candidate)
       )
       record_classification!(candidate, expense.category)
@@ -214,7 +218,9 @@ class ExpensePlaygroundController < ApplicationController
   end
 
   def run_evaluation(candidate)
-    ExpensePlayground::Evaluation.call(candidate: candidate, expected: expected_params)
+    evaluation = ExpensePlayground::Evaluation.call(candidate: candidate, expected: expected_params)
+    # `ok` mirrors `ok?` for the front-end (which reads a plain boolean).
+    evaluation.merge(ok: evaluation[:ok?])
   end
 
   def candidate_params

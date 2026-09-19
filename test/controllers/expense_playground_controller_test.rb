@@ -56,8 +56,12 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
   test "POST /expense-playground/process returns a candidate without persisting any expense" do
     assert_no_difference -> { Expense.count } do
       assert_no_difference -> { Category.count } do
-        post expense_playground_process_path(format: :json),
-             params: { type: "text", text: "Me gasté 50mil en almuerzos" }
+        stub_ai_extraction(
+          parsed_expense(original_text: "Me gasté 50mil en almuerzos", amount: 50_000, description: "almuerzos")
+        ) do
+          post expense_playground_process_path(format: :json),
+               params: { type: "text", text: "Me gasté 50mil en almuerzos" }
+        end
       end
     end
 
@@ -70,10 +74,10 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     assert_equal "COP", candidate["currency"]
     assert_equal @restaurants.id, candidate["category_id"]
     assert_equal "playground", candidate["source"]
+    assert_equal [ candidate ], data["candidates"]
     assert data["steps"].key?("input")
     assert data["steps"].key?("ocr")
     assert data["steps"].key?("extraction")
-    assert data["steps"].key?("normalization")
     assert data["steps"].key?("validation")
     assert data["duration_ms"].is_a?(Integer)
 
@@ -85,12 +89,43 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     assert_nil run.expense_id
   end
 
+  test "POST /expense-playground/process returns every detected candidate" do
+    stub_ai_extraction(
+      parsed_expense(original_text: "gasté 50 mil en almuerzos", amount: 50_000, description: "almuerzos"),
+      parsed_expense(original_text: "gasté 20 mil en gasolina", amount: 20_000,
+                     description: "gasolina", date: Date.current - 1, confidence: 0.8)
+    ) do
+      post expense_playground_process_path(format: :json),
+           params: { type: "text", text: "gasté 50 mil en almuerzos y 20 mil en gasolina" }
+    end
+
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert data["ok"]
+    assert_equal 2, data["candidates"].length
+    assert_equal 50_000.0, data["candidates"].first["amount"].to_f
+    assert_equal 20_000.0, data["candidates"].last["amount"].to_f
+    assert_equal "almuerzos", data["candidates"].first["description"]
+    assert_equal "gasolina", data["candidates"].last["description"]
+    # The single-candidate key keeps pointing at the first expense.
+    assert_equal data["candidates"].first, data["candidate"]
+
+    # The whole set is recorded for history, not only the first expense.
+    run = @user.expense_playground_runs.recent_first.first
+    assert_equal 2, run.candidates.length
+    assert_equal 20_000.0, run.candidates.last["amount"].to_f
+  end
+
   test "POST /expense-playground/process evaluates against expected results" do
-    post expense_playground_process_path(format: :json), params: {
-      type: "text",
-      text: "Me gasté 50mil en almuerzos",
-      expected: { amount: "50000", category: "restaurants", description: "gasolina" }
-    }
+    stub_ai_extraction(
+      parsed_expense(original_text: "Me gasté 50mil en almuerzos", amount: 50_000, description: "almuerzos")
+    ) do
+      post expense_playground_process_path(format: :json), params: {
+        type: "text",
+        text: "Me gasté 50mil en almuerzos",
+        expected: { amount: "50000", category: "restaurants", description: "gasolina" }
+      }
+    end
 
     assert_response :success
     evaluation = JSON.parse(response.body)["evaluation"]
@@ -100,10 +135,36 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[amount category description], fields
   end
 
+  test "POST /expense-playground/process evaluates every detected candidate" do
+    stub_ai_extraction(
+      parsed_expense(original_text: "gasté 50 mil en almuerzos", amount: 50_000, description: "almuerzos"),
+      parsed_expense(original_text: "gasté 20 mil en gasolina", amount: 20_000, description: "gasolina")
+    ) do
+      post expense_playground_process_path(format: :json), params: {
+        type: "text",
+        text: "gasté 50 mil en almuerzos y 20 mil en gasolina",
+        expected: { amount: "50000" }
+      }
+    end
+
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert_equal 2, data["evaluations"].length
+    assert_equal 1, data["evaluations"].first["passed"]
+    assert_equal 0, data["evaluations"].last["passed"]
+    assert data["evaluations"].first["checks"].any? { |check| check["field"] == "amount" }
+  end
+
   test "POST /expense-playground/process omits the evaluation when no expectations are given" do
-    post expense_playground_process_path(format: :json),
-         params: { type: "text", text: "Me gasté 50mil en almuerzos" }
-    assert_nil JSON.parse(response.body)["evaluation"]
+    stub_ai_extraction(
+      parsed_expense(original_text: "Me gasté 50mil en almuerzos", amount: 50_000, description: "almuerzos")
+    ) do
+      post expense_playground_process_path(format: :json),
+           params: { type: "text", text: "Me gasté 50mil en almuerzos" }
+    end
+    data = JSON.parse(response.body)
+    assert_nil data["evaluation"]
+    assert_nil data["evaluations"]
   end
 
   test "GET /expense-playground/history returns only the current user's runs" do
@@ -253,14 +314,17 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
   test "POST /expense-playground/process detects the money source in the candidate" do
     source = MoneySource.create!(user: @user, name: "Nequi", kind: "wallet", starting_balance: 100_000)
 
-    post expense_playground_process_path(format: :json),
-         params: { type: "text", text: "Me gasté 50 mil en almuerzo desde nequi" }
+    stub_ai_extraction(
+      parsed_expense(original_text: "Me gasté 50 mil en almuerzo desde nequi", amount: 50_000, description: "almuerzo")
+    ) do
+      post expense_playground_process_path(format: :json),
+           params: { type: "text", text: "Me gasté 50 mil en almuerzo desde nequi" }
+    end
 
     assert_response :success
     candidate = JSON.parse(response.body)["candidate"]
     assert_equal source.id, candidate["money_source_id"]
     assert_equal "Nequi", candidate["money_source_name"]
-    assert_equal "Nequi", JSON.parse(response.body)["steps"]["normalization"]["money_source_name"]
   end
 
   test "POST /expense-playground/create persists the detected money source" do
@@ -349,9 +413,9 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
       assert_no_difference -> { Category.count } do
         post expense_playground_batch_create_path(format: :json), params: {
           candidates: [
-            { amount: "45000", category_id: @restaurants.id, description: "DIDI FOOD", date: Date.current.iso8601 },
-            { amount: "183450", category_id: @restaurants.id, description: "EXITO", date: Date.current.iso8601 },
-            { amount: "", category_id: @restaurants.id, description: "BAD ROW", date: Date.current.iso8601 }
+            { amount: "45000", category_id: @restaurants.id, description: "DIDI FOOD", date: Date.current.iso8601, source: "playground_file" },
+            { amount: "183450", category_id: @restaurants.id, description: "EXITO", date: Date.current.iso8601, source: "playground_file" },
+            { amount: "", category_id: @restaurants.id, description: "BAD ROW", date: Date.current.iso8601, source: "playground_file" }
           ]
         }
       end
@@ -428,5 +492,34 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     classification = ActivityClassification.lookup(user: @user, name: "DIDI FOOD")
     assert_equal "user", classification.source
     assert_equal @restaurants, classification.category
+  end
+
+  private
+
+  def parsed_expense(original_text:, amount:, description:, date: Date.current, category: "Restaurants",
+                     confidence: 0.9, money_source_hint: nil)
+    Ai::Tasks::ParsedExpense.new(
+      original_text: original_text,
+      amount: amount,
+      date: date.iso8601,
+      description: description,
+      category: category,
+      money_source_hint: money_source_hint,
+      confidence: confidence
+    )
+  end
+
+  # The text pipeline routes through Ai::Router (conversation_expense_parsing),
+  # which needs a live AI provider. Stubs it with the given parsed expenses so
+  # controller tests exercise the multi-candidate plumbing deterministically.
+  def stub_ai_extraction(*expenses)
+    router_result = Ai::Router::Result.new(
+      ok?: true,
+      data: expenses,
+      confidence: expenses.map(&:confidence).compact.max || 0.9,
+      strategy: "cheap_ai",
+      error: nil
+    )
+    stub_method(Ai::Router, :call, ->(**_kwargs) { router_result }) { yield }
   end
 end

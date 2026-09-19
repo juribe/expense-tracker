@@ -6,8 +6,8 @@ class ExpensePlaygroundRunTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Run User", email: "run@example.com", password: "password123")
     @result = Expenses::Result.new(
-      candidate: ExpenseCandidate.new(amount: 50_000, category_name: "Food", date: Date.current,
-        source: "playground", confidence: 0.9),
+      candidates: [ ExpenseCandidate.new(amount: 50_000, category_name: "Food", date: Date.current,
+        source: "playground", confidence: 0.9) ],
       steps: { input: { type: "text", text: "50 mil" }, ocr: { applicable: false } },
       errors: [],
       warnings: [],
@@ -24,12 +24,13 @@ class ExpensePlaygroundRunTest < ActiveSupport::TestCase
     assert_equal "heuristic", run.engine
     assert_equal 12, run.duration_ms
     assert_equal BigDecimal(50_000.to_s), BigDecimal(run.candidate["amount"].to_s)
+    assert_equal 1, run.candidates.length
     assert_nil run.expense_id
   end
 
   test "records a failed run" do
     failed = Expenses::Result.new(
-      candidate: nil, steps: { input: { type: "text" } }, errors: [ "boom" ],
+      candidates: nil, steps: { input: { type: "text" } }, errors: [ "boom" ],
       warnings: [], duration_ms: 3, engine: "heuristic"
     )
 

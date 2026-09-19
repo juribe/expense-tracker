@@ -1419,6 +1419,8 @@ es:
     process: "Procesar Gasto"
     processing: "Procesando…"
     result_title: "Gasto Detectado"
+    expense_n: "Gasto %{n}"
+    create_all: "Crear todos los gastos"
     no_result: "Procesa una entrada para ver el gasto detectado."
     amount: "Monto"
     currency: "Moneda"

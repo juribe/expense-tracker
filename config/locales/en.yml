@@ -545,6 +545,8 @@ en:
     process: "Process Expense"
     processing: "Processing…"
     result_title: "Detected Expense"
+    expense_n: "Expense %{n}"
+    create_all: "Create all expenses"
     no_result: "Process an input to see the detected expense."
     amount: "Amount"
     currency: "Currency"

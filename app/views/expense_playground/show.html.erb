@@ -196,120 +196,48 @@
         </div>
       </div>
 
-      <div id="pgResult" class="card shadow-sm d-none" data-testid="playground-result">
-        <div class="card-body">
-          <h2 class="h5 mb-3"><i class="bi bi-receipt me-2" aria-hidden="true"></i><%= t("playground.result_title") %></h2>
+      <div id="pgResultErrors" class="alert alert-danger d-none" role="alert" data-testid="playground-result-errors"></div>
+      <div id="pgResultWarnings" class="alert alert-warning d-none" role="alert" data-testid="playground-result-warnings"></div>
 
-          <div id="pgResultErrors" class="alert alert-danger d-none" role="alert" data-testid="playground-result-errors"></div>
-          <div id="pgResultWarnings" class="alert alert-warning d-none" role="alert" data-testid="playground-result-warnings"></div>
-
-          <!-- transcript (audio inputs only) -->
-          <div id="pgTranscript" class="border rounded p-2 bg-light mb-3 d-none" data-testid="playground-transcript">
-            <div class="small fw-semibold text-muted mb-1">
-              <i class="bi bi-chat-square-text me-1" aria-hidden="true"></i><%= t("playground.transcript_title") %>
-            </div>
-            <div id="pgTranscriptText" data-testid="playground-transcript-text"></div>
+      <div id="pgResult" class="d-none" data-testid="playground-result">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h5 mb-0"><i class="bi bi-receipt me-2" aria-hidden="true"></i><%= t("playground.result_title") %></h2>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary d-none" id="pgResultCount" data-testid="playground-result-count"></span>
+            <button type="button" class="btn btn-success btn-sm d-none" id="pgCreateAllButton" data-testid="playground-create-all-button">
+              <span class="spinner-border spinner-border-sm d-none me-1" id="pgCreateAllSpinner" aria-hidden="true"></span>
+              <i class="bi bi-plus-circle me-1 pg-create-all-icon" aria-hidden="true"></i>
+              <span id="pgCreateAllLabel"><%= t("playground.create_all") %></span>
+            </button>
           </div>
-
-          <!-- speech-to-text metadata (audio inputs only) -->
-          <div id="pgSttMeta" class="d-none mb-3" data-testid="playground-stt-meta">
-            <hr class="mt-2 mb-2">
-            <h3 class="h6 mb-2"><i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.stt_title") %></h3>
-            <dl class="row mb-0">
-              <dt class="col-5 small text-muted"><%= t("playground.provider") %></dt>
-              <dd class="col-7" id="pgSttProvider" data-testid="stt-provider"></dd>
-              <dt class="col-5 small text-muted"><%= t("playground.model") %></dt>
-              <dd class="col-7" id="pgSttModel" data-testid="stt-model"></dd>
-              <dt class="col-5 small text-muted"><%= t("playground.language") %></dt>
-              <dd class="col-7" id="pgSttLanguage" data-testid="stt-language"></dd>
-              <dt class="col-5 small text-muted"><%= t("playground.duration") %></dt>
-              <dd class="col-7" id="pgSttDuration" data-testid="stt-duration"></dd>
-            </dl>
-          </div>
-
-          <dl class="row mb-0" data-testid="detected-expense">
-            <dt class="col-5 small text-muted"><%= t("playground.amount") %></dt>
-            <dd class="col-7 fw-semibold" id="pgSumAmount" data-testid="detected-amount"></dd>
-            <dt class="col-5 small text-muted"><%= t("playground.category") %></dt>
-            <dd class="col-7" id="pgSumCategory" data-testid="detected-category"></dd>
-            <dt class="col-5 small text-muted"><%= t("playground.description") %></dt>
-            <dd class="col-7" id="pgSumDescription" data-testid="detected-description"></dd>
-            <dt class="col-5 small text-muted"><%= t("playground.date") %></dt>
-            <dd class="col-7" id="pgSumDate" data-testid="detected-date"></dd>
-            <dt class="col-5 small text-muted"><%= t("playground.source") %></dt>
-            <dd class="col-7" id="pgSumSource" data-testid="detected-source"></dd>
-            <dt class="col-5 small text-muted"><%= t("playground.merchant") %></dt>
-            <dd class="col-7" id="pgSumMerchant" data-testid="detected-merchant"></dd>
-            <dt class="col-5 small text-muted"><%= t("playground.confidence") %></dt>
-            <dd class="col-7" id="pgSumConfidence" data-testid="detected-confidence"></dd>
-          </dl>
-
-          <div id="pgEvaluation" class="mt-3 d-none" data-testid="playground-evaluation">
-            <hr class="mt-2 mb-2">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <h3 class="h6 mb-0"><i class="bi bi-bullseye me-1" aria-hidden="true"></i><%= t("playground.evaluation_title") %></h3>
-              <span class="badge bg-success" id="pgEvaluationScore" data-testid="evaluation-score"></span>
-            </div>
-            <table class="table table-sm mb-0">
-              <thead>
-                <tr>
-                  <th class="small text-muted"><%= t("playground.evaluation_field") %></th>
-                  <th class="small text-muted"><%= t("playground.evaluation_expected") %></th>
-                  <th class="small text-muted"><%= t("playground.evaluation_detected") %></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="pgEvaluationBody"></tbody>
-            </table>
-          </div>
-
-          <hr>
-          <h3 class="h6 mb-2"><%= t("playground.edit_title") %></h3>
-          <p class="small text-muted"><%= t("playground.edit_result_hint") %></p>
-
-          <div class="row g-2" data-testid="playground-edit-form">
-            <div class="col-6">
-              <label class="form-label small mb-1" for="pgEditAmount"><%= t("playground.amount") %></label>
-              <input type="number" min="0" step="any" class="form-control form-control-sm" id="pgEditAmount" data-testid="edit-amount">
-            </div>
-            <div class="col-6">
-              <label class="form-label small mb-1" for="pgEditCurrency"><%= t("playground.currency") %></label>
-              <input type="text" class="form-control form-control-sm" id="pgEditCurrency" data-testid="edit-currency">
-            </div>
-            <div class="col-12">
-              <label class="form-label small mb-1" for="pgEditCategory"><%= t("playground.category") %></label>
-              <select class="form-select form-select-sm" id="pgEditCategory" data-testid="edit-category"></select>
-            </div>
-            <div class="col-12">
-              <label class="form-label small mb-1" for="pgEditDescription"><%= t("playground.description") %></label>
-              <input type="text" class="form-control form-control-sm" id="pgEditDescription" data-testid="edit-description">
-            </div>
-            <div class="col-12">
-              <label class="form-label small mb-1" for="pgEditSource"><%= t("playground.source") %></label>
-              <select class="form-select form-select-sm" id="pgEditSource" data-testid="edit-source"></select>
-            </div>
-            <div class="col-6">
-              <label class="form-label small mb-1" for="pgEditMerchant"><%= t("playground.merchant") %></label>
-              <input type="text" class="form-control form-control-sm" id="pgEditMerchant" data-testid="edit-merchant">
-            </div>
-            <div class="col-6">
-              <label class="form-label small mb-1" for="pgEditDate"><%= t("playground.date") %></label>
-              <input type="date" class="form-control form-control-sm" id="pgEditDate" data-testid="edit-date">
-            </div>
-          </div>
-
-          <div id="pgSuccess" class="alert alert-success mt-3 d-none" role="alert" data-testid="playground-success">
-            <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
-            <span id="pgSuccessText"></span>
-            <a href="<%= expenses_path %>" class="alert-link ms-1"><%= t("playground.view_expenses") %></a>
-          </div>
-
-          <button type="button" class="btn btn-success w-100 mt-3" id="pgCreateButton" data-testid="playground-create-button">
-            <span class="spinner-border spinner-border-sm d-none me-1" id="pgCreateSpinner" aria-hidden="true"></span>
-            <i class="bi bi-plus-circle me-1 pg-create-icon" aria-hidden="true"></i>
-            <span id="pgCreateLabel"><%= t("playground.create_expense") %></span>
-          </button>
         </div>
+
+        <!-- transcript (audio inputs only) -->
+        <div id="pgTranscript" class="border rounded p-2 bg-light mb-3 d-none" data-testid="playground-transcript">
+          <div class="small fw-semibold text-muted mb-1">
+            <i class="bi bi-chat-square-text me-1" aria-hidden="true"></i><%= t("playground.transcript_title") %>
+          </div>
+          <div id="pgTranscriptText" data-testid="playground-transcript-text"></div>
+        </div>
+
+        <!-- speech-to-text metadata (audio inputs only) -->
+        <div id="pgSttMeta" class="d-none mb-3" data-testid="playground-stt-meta">
+          <hr class="mt-2 mb-2">
+          <h3 class="h6 mb-2"><i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.stt_title") %></h3>
+          <dl class="row mb-0">
+            <dt class="col-5 small text-muted"><%= t("playground.provider") %></dt>
+            <dd class="col-7" id="pgSttProvider" data-testid="stt-provider"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.model") %></dt>
+            <dd class="col-7" id="pgSttModel" data-testid="stt-model"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.language") %></dt>
+            <dd class="col-7" id="pgSttLanguage" data-testid="stt-language"></dd>
+            <dt class="col-5 small text-muted"><%= t("playground.duration") %></dt>
+            <dd class="col-7" id="pgSttDuration" data-testid="stt-duration"></dd>
+          </dl>
+        </div>
+
+        <!-- one card per detected expense, rendered by the playground script -->
+        <div id="pgCards" data-testid="playground-cards"></div>
       </div>
 
       <!-- file import result: extracted transactions preview -->
@@ -435,6 +363,23 @@ function initializePlayground() {
     createExpense: <%= raw(t("playground.create_expense").to_json) %>,
     creating: <%= raw(t("playground.creating").to_json) %>,
     expenseCreated: <%= raw(t("playground.expense_created").to_json) %>,
+    expenseN: <%= raw(t("playground.expense_n").to_json) %>,
+    createAll: <%= raw(t("playground.create_all").to_json) %>,
+    viewExpenses: <%= raw(t("playground.view_expenses").to_json) %>,
+    editTitle: <%= raw(t("playground.edit_title").to_json) %>,
+    editHint: <%= raw(t("playground.edit_result_hint").to_json) %>,
+    amountLabel: <%= raw(t("playground.amount").to_json) %>,
+    currencyLabel: <%= raw(t("playground.currency").to_json) %>,
+    categoryLabel: <%= raw(t("playground.category").to_json) %>,
+    descriptionLabel: <%= raw(t("playground.description").to_json) %>,
+    merchantLabel: <%= raw(t("playground.merchant").to_json) %>,
+    dateLabel: <%= raw(t("playground.date").to_json) %>,
+    sourceLabel: <%= raw(t("playground.source").to_json) %>,
+    confidenceLabel: <%= raw(t("playground.confidence").to_json) %>,
+    evaluationTitle: <%= raw(t("playground.evaluation_title").to_json) %>,
+    evaluationField: <%= raw(t("playground.evaluation_field").to_json) %>,
+    evaluationExpected: <%= raw(t("playground.evaluation_expected").to_json) %>,
+    evaluationDetected: <%= raw(t("playground.evaluation_detected").to_json) %>,
     ocrNotApplicable: <%= raw(t("playground.ocr_not_applicable").to_json) %>,
     candidateReady: <%= raw(t("playground.candidate_ready").to_json) %>,
     candidateInvalid: <%= raw(t("playground.candidate_invalid").to_json) %>,
@@ -500,7 +445,7 @@ function initializePlayground() {
   var MAX_AUDIO_BYTES = 15 * 1024 * 1024;
   var MAX_FILE_BYTES = 20 * 1024 * 1024;
 
-  var state = { type: "text", imageData: null, imageName: null, audioData: null, audioName: null, fileData: null, fileName: null, lastResult: null, lastSteps: null };
+  var state = { type: "text", imageData: null, imageName: null, audioData: null, audioName: null, fileData: null, fileName: null, lastResult: null, lastSteps: null, candidates: [], cards: [] };
 
   var form = $("#pgForm");
   if (!form || form.dataset.pgInitialized === "true") return;
@@ -934,7 +879,9 @@ function initializePlayground() {
 
     setLoading(processButton, $("#pgProcessSpinner"), $(".pg-process-icon"), $("#pgProcessLabel"),
       true, T.processing, T.process);
-    $("#pgSuccess").classList.add("d-none");
+    state.cards.forEach(function (entry) {
+      entry.root.querySelector(".pg-card-success").classList.add("d-none");
+    });
 
     fetch(form.dataset.processUrl, {
       method: "POST",
@@ -965,14 +912,16 @@ function initializePlayground() {
   function handleProcessResult(ok, data) {
     state.lastResult = data;
     state.lastSteps = data.steps;
+    state.candidates = data.candidates && data.candidates.length
+      ? data.candidates
+      : (data.candidate ? [data.candidate] : []);
     renderSttSummary(data.steps);
     renderSteps(data);
-    renderEvaluation(data.evaluation);
     loadAiSummary();
     $("#pgDebug").classList.remove("d-none");
 
     var errors = (data.errors || []).join(" ");
-    if (!data.candidate) {
+    if (!state.candidates.length) {
       showError(errors || "Could not extract an expense from this input.");
       return;
     }
@@ -985,7 +934,11 @@ function initializePlayground() {
       $("#pgResultWarnings").classList.add("d-none");
     }
 
-    renderCandidate(data.candidate);
+    // Evaluations arrive one per candidate, in the same order as `candidates`.
+    var evaluations = data.evaluations && data.evaluations.length
+      ? data.evaluations
+      : (data.evaluation ? [data.evaluation] : null);
+    renderCards(state.candidates, evaluations);
     $("#pgResultEmpty").classList.add("d-none");
     $("#pgResult").classList.remove("d-none");
 
@@ -995,10 +948,11 @@ function initializePlayground() {
       type: state.type,
       label: state.type === "image" ? (state.imageName || "image")
         : state.type === "audio" ? (state.audioName || "audio") : textarea.value.trim(),
-      candidate: data.candidate,
+      candidate: state.candidates[0],
+      candidates: state.candidates,
       steps: data.steps,
       ok: ok,
-      confidence: data.candidate.confidence
+      confidence: state.candidates[0].confidence
     });
   }
 
@@ -1017,36 +971,6 @@ function initializePlayground() {
     if (date) expected.date = date;
     if (source) expected.source = source;
     return Object.keys(expected).length ? expected : null;
-  }
-
-  function renderEvaluation(evaluation) {
-    var wrap = $("#pgEvaluation");
-    if (!evaluation || !evaluation.checks || !evaluation.checks.length) {
-      wrap.classList.add("d-none");
-      return;
-    }
-
-    var score = $("#pgEvaluationScore");
-    score.textContent = T.evaluationCorrect
-      .replace("%{passed}", evaluation.passed)
-      .replace("%{total}", evaluation.total);
-    score.classList.toggle("bg-success", evaluation.ok);
-    score.classList.toggle("bg-danger", !evaluation.ok);
-
-    var body = $("#pgEvaluationBody");
-    body.textContent = "";
-    evaluation.checks.forEach(function (check) {
-      var row = document.createElement("tr");
-      row.setAttribute("data-testid", "evaluation-check");
-      row.innerHTML =
-        '<td class="small fw-semibold">' + escapeHtml(check.field) + "</td>" +
-        '<td class="small">' + escapeHtml(check.expected) + "</td>" +
-        '<td class="small">' + escapeHtml(check.actual || "—") + "</td>" +
-        '<td class="small ' + (check.passed ? "text-success" : "text-danger") + '">' +
-        (check.passed ? "✓" : "✗") + "</td>";
-      body.appendChild(row);
-    });
-    wrap.classList.remove("d-none");
   }
 
   // ----------------------------------------------------- transcript / stt meta
@@ -1080,8 +1004,7 @@ function initializePlayground() {
     return opt;
   }
 
-  function fillCategorySelect(categoryId, categoryName) {
-    var select = $("#pgEditCategory");
+  function fillCategorySelect(select, categoryId, categoryName) {
     select.textContent = "";
     var matched = null;
     if (categoryId) {
@@ -1099,8 +1022,7 @@ function initializePlayground() {
     }
   }
 
-  function fillSourceSelect(sourceId, sourceName) {
-    var select = $("#pgEditSource");
+  function fillSourceSelect(select, sourceId, sourceName) {
     select.textContent = "";
     var matched = null;
     if (sourceId) {
@@ -1125,56 +1047,214 @@ function initializePlayground() {
     return matched ? matched.name : T.noSource;
   }
 
-  function renderCandidate(candidate) {
-    $("#pgSumAmount").textContent = money(candidate.amount) + " " + (candidate.currency || "COP");
-    $("#pgSumCategory").textContent = candidate.category_name || T.noCategory;
-    $("#pgSumDescription").textContent = candidate.description || "—";
-    $("#pgSumDate").textContent = formatDate(candidate.date);
-    $("#pgSumSource").textContent = sourceLabel(candidate);
-    $("#pgSumMerchant").textContent = candidate.merchant || T.noMerchant;
-    $("#pgSumConfidence").textContent = formatConfidence(candidate.confidence);
-
-    $("#pgEditAmount").value = candidate.amount != null ? candidate.amount : "";
-    $("#pgEditCurrency").value = candidate.currency || "COP";
-    fillCategorySelect(candidate.category_id, candidate.category_name);
-    fillSourceSelect(candidate.money_source_id, candidate.money_source_name);
-    $("#pgEditDescription").value = candidate.description || "";
-    $("#pgEditMerchant").value = candidate.merchant || "";
-    $("#pgEditDate").value = candidate.date || new Date().toISOString().slice(0, 10);
+  // One editable card per detected candidate. Cards are built from a shared
+  // skeleton and scoped queries (`.pg-*` classes) instead of fixed ids so the
+  // same UI renders any number of expenses.
+  function cardSkeleton() {
+    var card = document.createElement("div");
+    card.className = "card shadow-sm mb-3 pg-expense-card";
+    card.setAttribute("data-testid", "expense-card");
+    card.innerHTML =
+      '<div class="card-body">' +
+      '<div class="d-flex justify-content-between align-items-center mb-2">' +
+      '<h3 class="h6 mb-0"><i class="bi bi-receipt me-1" aria-hidden="true"></i><span class="pg-card-title"></span></h3>' +
+      '<span class="badge bg-secondary pg-card-confidence" data-testid="card-confidence"></span>' +
+      "</div>" +
+      '<dl class="row mb-0" data-testid="detected-expense">' +
+      '<dt class="col-5 small text-muted">' + escapeHtml(T.amountLabel) + '</dt>' +
+      '<dd class="col-7 fw-semibold pg-sum-amount" data-testid="detected-amount"></dd>' +
+      '<dt class="col-5 small text-muted">' + escapeHtml(T.categoryLabel) + '</dt>' +
+      '<dd class="col-7 pg-sum-category" data-testid="detected-category"></dd>' +
+      '<dt class="col-5 small text-muted">' + escapeHtml(T.descriptionLabel) + '</dt>' +
+      '<dd class="col-7 pg-sum-description" data-testid="detected-description"></dd>' +
+      '<dt class="col-5 small text-muted">' + escapeHtml(T.dateLabel) + '</dt>' +
+      '<dd class="col-7 pg-sum-date" data-testid="detected-date"></dd>' +
+      '<dt class="col-5 small text-muted">' + escapeHtml(T.sourceLabel) + '</dt>' +
+      '<dd class="col-7 pg-sum-source" data-testid="detected-source"></dd>' +
+      '<dt class="col-5 small text-muted">' + escapeHtml(T.merchantLabel) + '</dt>' +
+      '<dd class="col-7 pg-sum-merchant" data-testid="detected-merchant"></dd>' +
+      "</dl>" +
+      '<div class="pg-card-evaluation mt-3 d-none" data-testid="playground-evaluation">' +
+      '<hr class="mt-2 mb-2">' +
+      '<div class="d-flex justify-content-between align-items-center mb-1">' +
+      '<h3 class="h6 mb-0"><i class="bi bi-bullseye me-1" aria-hidden="true"></i>' + escapeHtml(T.evaluationTitle) + '</h3>' +
+      '<span class="badge bg-success pg-evaluation-score" data-testid="evaluation-score"></span>' +
+      "</div>" +
+      '<table class="table table-sm mb-0"><thead><tr>' +
+      '<th class="small text-muted">' + escapeHtml(T.evaluationField) + "</th>" +
+      '<th class="small text-muted">' + escapeHtml(T.evaluationExpected) + "</th>" +
+      '<th class="small text-muted">' + escapeHtml(T.evaluationDetected) + "</th>" +
+      "<th></th>" +
+      "</tr></thead><tbody class=\"pg-evaluation-body\"></tbody></table>" +
+      "</div>" +
+      "<hr>" +
+      '<h3 class="h6 mb-2">' + escapeHtml(T.editTitle) + "</h3>" +
+      '<p class="small text-muted">' + escapeHtml(T.editHint) + "</p>" +
+      '<div class="row g-2" data-testid="playground-edit-form">' +
+      '<div class="col-6"><label class="form-label small mb-1">' + escapeHtml(T.amountLabel) + "</label>" +
+      '<input type="number" min="0" step="any" class="form-control form-control-sm pg-edit-amount" data-testid="edit-amount"></div>' +
+      '<div class="col-6"><label class="form-label small mb-1">' + escapeHtml(T.currencyLabel) + "</label>" +
+      '<input type="text" class="form-control form-control-sm pg-edit-currency" data-testid="edit-currency"></div>' +
+      '<div class="col-12"><label class="form-label small mb-1">' + escapeHtml(T.categoryLabel) + "</label>" +
+      '<select class="form-select form-select-sm pg-edit-category" data-testid="edit-category"></select></div>' +
+      '<div class="col-12"><label class="form-label small mb-1">' + escapeHtml(T.descriptionLabel) + "</label>" +
+      '<input type="text" class="form-control form-control-sm pg-edit-description" data-testid="edit-description"></div>' +
+      '<div class="col-12"><label class="form-label small mb-1">' + escapeHtml(T.sourceLabel) + "</label>" +
+      '<select class="form-select form-select-sm pg-edit-source" data-testid="edit-source"></select></div>' +
+      '<div class="col-6"><label class="form-label small mb-1">' + escapeHtml(T.merchantLabel) + "</label>" +
+      '<input type="text" class="form-control form-control-sm pg-edit-merchant" data-testid="edit-merchant"></div>' +
+      '<div class="col-6"><label class="form-label small mb-1">' + escapeHtml(T.dateLabel) + "</label>" +
+      '<input type="date" class="form-control form-control-sm pg-edit-date" data-testid="edit-date"></div>' +
+      "</div>" +
+      '<div class="alert alert-success mt-3 d-none pg-card-success" role="alert" data-testid="playground-success">' +
+      '<i class="bi bi-check-circle me-1" aria-hidden="true"></i>' +
+      '<span class="pg-card-success-text"></span>' +
+      '<a href="<%= expenses_path %>" class="alert-link ms-1">' + escapeHtml(T.viewExpenses) + "</a>" +
+      "</div>" +
+      '<button type="button" class="btn btn-success w-100 mt-3 pg-create-button" data-testid="playground-create-button">' +
+      '<span class="spinner-border spinner-border-sm d-none me-1 pg-create-spinner" aria-hidden="true"></span>' +
+      '<i class="bi bi-plus-circle me-1 pg-create-icon" aria-hidden="true"></i>' +
+      '<span class="pg-create-label">' + escapeHtml(T.createExpense) + "</span>" +
+      "</button>" +
+      "</div>";
+    return card;
   }
 
-  function collectCandidate() {
-    var category = $("#pgEditCategory").value;
-    var isNewCategory = category.indexOf("new:") === 0;
-    var lastCandidate = state.lastResult && state.lastResult.candidate ? state.lastResult.candidate : {};
-    var selectedSource = $("#pgEditSource").selectedOptions[0] || {};
+  function renderCardEvaluation(card, evaluation) {
+    var wrap = card.querySelector(".pg-card-evaluation");
+    if (!evaluation || !evaluation.checks || !evaluation.checks.length) {
+      wrap.classList.add("d-none");
+      return;
+    }
+
+    var score = wrap.querySelector(".pg-evaluation-score");
+    var evaluationOk = typeof evaluation.ok === "boolean" ? evaluation.ok : evaluation["ok?"];
+    score.textContent = T.evaluationCorrect
+      .replace("%{passed}", evaluation.passed)
+      .replace("%{total}", evaluation.total);
+    score.classList.toggle("bg-success", !!evaluationOk);
+    score.classList.toggle("bg-danger", !evaluationOk);
+
+    var body = wrap.querySelector(".pg-evaluation-body");
+    body.textContent = "";
+    evaluation.checks.forEach(function (check) {
+      var row = document.createElement("tr");
+      row.setAttribute("data-testid", "evaluation-check");
+      row.innerHTML =
+        '<td class="small fw-semibold">' + escapeHtml(check.field) + "</td>" +
+        '<td class="small">' + escapeHtml(check.expected) + "</td>" +
+        '<td class="small">' + escapeHtml(check.actual || "—") + "</td>" +
+        '<td class="small ' + (check.passed ? "text-success" : "text-danger") + '">' +
+        (check.passed ? "✓" : "✗") + "</td>";
+      body.appendChild(row);
+    });
+    wrap.classList.remove("d-none");
+  }
+
+  function fillCard(card, candidate, index) {
+    card.querySelector(".pg-card-title").textContent = (T.expenseN || "Expense %{n}").replace("%{n}", index + 1);
+    card.querySelector(".pg-sum-amount").textContent = money(candidate.amount) + " " + (candidate.currency || "COP");
+    card.querySelector(".pg-sum-category").textContent = candidate.category_name || T.noCategory;
+    card.querySelector(".pg-sum-description").textContent = candidate.description || "—";
+    card.querySelector(".pg-sum-date").textContent = formatDate(candidate.date);
+    card.querySelector(".pg-sum-source").textContent = sourceLabel(candidate);
+    card.querySelector(".pg-sum-merchant").textContent = candidate.merchant || T.noMerchant;
+    card.querySelector(".pg-card-confidence").textContent = formatConfidence(candidate.confidence);
+
+    card.querySelector(".pg-edit-amount").value = candidate.amount != null ? candidate.amount : "";
+    card.querySelector(".pg-edit-currency").value = candidate.currency || "COP";
+    fillCategorySelect(card.querySelector(".pg-edit-category"), candidate.category_id, candidate.category_name);
+    fillSourceSelect(card.querySelector(".pg-edit-source"), candidate.money_source_id, candidate.money_source_name);
+    card.querySelector(".pg-edit-description").value = candidate.description || "";
+    card.querySelector(".pg-edit-merchant").value = candidate.merchant || "";
+    card.querySelector(".pg-edit-date").value = candidate.date || new Date().toISOString().slice(0, 10);
+  }
+
+  function renderCards(candidates, evaluations) {
+    var container = $("#pgCards");
+    container.textContent = "";
+    state.cards = [];
+
+    (candidates || []).forEach(function (candidate, index) {
+      var card = cardSkeleton();
+      fillCard(card, candidate, index);
+      if (evaluations && evaluations[index]) renderCardEvaluation(card, evaluations[index]);
+      card.querySelector(".pg-create-button").addEventListener("click", function () { createCardExpense(index); });
+      container.appendChild(card);
+      state.cards.push({ root: card, candidate: candidate, created: false });
+    });
+
+    var count = state.cards.length;
+    var badge = $("#pgResultCount");
+    badge.textContent = String(count);
+    badge.classList.toggle("d-none", count <= 1);
+    updateCreateAllButton();
+  }
+
+  function collectCardCandidate(index) {
+    var entry = state.cards[index] || {};
+    var card = entry.root;
+    var categorySelect = card.querySelector(".pg-edit-category");
+    var sourceSelect = card.querySelector(".pg-edit-source");
+    var isNewCategory = categorySelect.value.indexOf("new:") === 0;
+    var lastCandidate = entry.candidate || {};
+    var selectedSource = sourceSelect.selectedOptions[0] || {};
     return {
-      amount: $("#pgEditAmount").value,
-      currency: $("#pgEditCurrency").value,
-      category_id: isNewCategory ? "" : category,
-      category_name: isNewCategory ? category.slice(4) : (category ? ($("#pgEditCategory").selectedOptions[0] || {}).textContent || "" : ""),
-      description: $("#pgEditDescription").value,
-      merchant: $("#pgEditMerchant").value,
-      date: $("#pgEditDate").value,
+      amount: card.querySelector(".pg-edit-amount").value,
+      currency: card.querySelector(".pg-edit-currency").value,
+      category_id: isNewCategory ? "" : categorySelect.value,
+      category_name: isNewCategory ? categorySelect.value.slice(4) : (categorySelect.value ? (categorySelect.selectedOptions[0] || {}).textContent || "" : ""),
+      description: card.querySelector(".pg-edit-description").value,
+      merchant: card.querySelector(".pg-edit-merchant").value,
+      date: card.querySelector(".pg-edit-date").value,
       source: "playground",
       confidence: lastCandidate.confidence || null,
-      money_source_id: $("#pgEditSource").value || null,
-      money_source_name: $("#pgEditSource").value ? (selectedSource.textContent || null) : (lastCandidate.money_source_name || null)
+      money_source_id: sourceSelect.value || null,
+      money_source_name: sourceSelect.value ? (selectedSource.textContent || null) : (lastCandidate.money_source_name || null)
     };
   }
 
-  function createExpense() {
-    var candidate = collectCandidate();
+  function pendingCardIndexes() {
+    return state.cards
+      .map(function (entry, index) { return entry.created ? null : index; })
+      .filter(function (index) { return index != null; });
+  }
+
+  function markCardCreated(index, message) {
+    var entry = state.cards[index];
+    entry.created = true;
+    var card = entry.root;
+    card.querySelector(".pg-card-success-text").textContent = message;
+    card.querySelector(".pg-card-success").classList.remove("d-none");
+    card.querySelector(".pg-create-button").classList.add("d-none");
+    card.querySelector(".pg-create-button").disabled = true;
+  }
+
+  function updateCreateAllButton() {
+    var button = $("#pgCreateAllButton");
+    var pending = pendingCardIndexes();
+    button.classList.toggle("d-none", state.cards.length <= 1 || pending.length === 0);
+  }
+
+  function currentRunId() {
+    return state.lastResult ? (state.lastResult.run_id || state.lastResult.id) : null;
+  }
+
+  function createCardExpense(index) {
+    var entry = state.cards[index];
+    var card = entry.root;
+    var candidate = collectCardCandidate(index);
     if (!candidate.amount || Number(candidate.amount) <= 0) {
-      $("#pgEditAmount").focus();
+      card.querySelector(".pg-edit-amount").focus();
       return;
     }
     if (!candidate.category_id && !candidate.category_name) {
-      $("#pgEditCategory").focus();
+      card.querySelector(".pg-edit-category").focus();
       return;
     }
 
-    setLoading($("#pgCreateButton"), $("#pgCreateSpinner"), $(".pg-create-icon"), $("#pgCreateLabel"),
+    setLoading(card.querySelector(".pg-create-button"), card.querySelector(".pg-create-spinner"),
+      card.querySelector(".pg-create-icon"), card.querySelector(".pg-create-label"),
       true, T.creating, T.createExpense);
 
     fetch(form.dataset.createUrl, {
@@ -1182,29 +1262,67 @@ function initializePlayground() {
       headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
       body: JSON.stringify({
         candidate: candidate,
-        run_id: state.lastResult ? state.lastResult.run_id : null
+        run_id: currentRunId()
       })
     }).then(function (response) {
       return response.json().then(function (data) { return { ok: response.ok, data: data }; });
     }).then(function (result) {
-      setLoading($("#pgCreateButton"), $("#pgCreateSpinner"), $(".pg-create-icon"), $("#pgCreateLabel"),
+      setLoading(card.querySelector(".pg-create-button"), card.querySelector(".pg-create-spinner"),
+        card.querySelector(".pg-create-icon"), card.querySelector(".pg-create-label"),
         false, T.creating, T.createExpense);
-      var success = $("#pgSuccess");
       if (result.ok) {
-        $("#pgSuccessText").textContent = result.data.message || T.expenseCreated;
-        success.classList.remove("d-none");
-        $("#pgResultErrors").classList.add("d-none");
+        markCardCreated(index, result.data.message || T.expenseCreated);
       } else {
         showError((result.data.errors || []).join(" ") || "The expense could not be created.");
       }
     }).catch(function () {
-      setLoading($("#pgCreateButton"), $("#pgCreateSpinner"), $(".pg-create-icon"), $("#pgCreateLabel"),
+      setLoading(card.querySelector(".pg-create-button"), card.querySelector(".pg-create-spinner"),
+        card.querySelector(".pg-create-icon"), card.querySelector(".pg-create-label"),
         false, T.creating, T.createExpense);
       showError("The expense could not be created. Please try again.");
     });
   }
 
-  $("#pgCreateButton").addEventListener("click", createExpense);
+  function createAllDetected() {
+    var indexes = pendingCardIndexes();
+    if (!indexes.length) return;
+
+    var candidates = indexes.map(collectCardCandidate);
+    setLoading($("#pgCreateAllButton"), $("#pgCreateAllSpinner"),
+      $("#pgCreateAllButton .pg-create-all-icon"), $("#pgCreateAllLabel"),
+      true, T.fileCreating, T.createAll);
+
+    fetch(form.dataset.batchCreateUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+      body: JSON.stringify({ candidates: candidates })
+    }).then(function (response) {
+      return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+    }).then(function (result) {
+      setLoading($("#pgCreateAllButton"), $("#pgCreateAllSpinner"),
+        $("#pgCreateAllButton .pg-create-all-icon"), $("#pgCreateAllLabel"),
+        false, T.fileCreating, T.createAll);
+      if (result.ok) {
+        var count = (result.data.created || []).length;
+        var message = (T.fileCreated || "Expenses created successfully.").replace("%{count}", count);
+        indexes.forEach(function (index) { markCardCreated(index, message); });
+      } else {
+        var errs = (result.data.errors || []);
+        var msg = errs.length ? errs.map(function (e) {
+          return (e.index != null ? "Row " + e.index + ": " : "") + (Array.isArray(e.errors) ? e.errors.join(" ") : "");
+        }).join("; ") : "Some expenses could not be created.";
+        showError(msg);
+      }
+      updateCreateAllButton();
+    }).catch(function () {
+      setLoading($("#pgCreateAllButton"), $("#pgCreateAllSpinner"),
+        $("#pgCreateAllButton .pg-create-all-icon"), $("#pgCreateAllLabel"),
+        false, T.fileCreating, T.createAll);
+      showError("The expenses could not be created. Please try again.");
+    });
+  }
+
+  $("#pgCreateAllButton").addEventListener("click", createAllDetected);
 
   // ----------------------------------------------------------------- steps
 
@@ -1316,13 +1434,17 @@ function initializePlayground() {
 
     var validation = stepSection(T.stepValidation);
     var valid = steps.validation || {};
+    // The text pipeline records one validation entry per candidate.
+    var validationEntries = Array.isArray(valid) ? valid : [ valid ];
     var checkHtml = "";
-    (valid.checks || []).forEach(function (check) {
-      checkHtml += '<div class="' + (check.passed ? "text-success" : "text-danger") + '">' +
-        (check.passed ? "✓" : "✗") + " " + escapeHtml(check.label) + "</div>";
-    });
-    (valid.errors || []).forEach(function (error) {
-      checkHtml += '<div class="text-danger">' + escapeHtml(error) + "</div>";
+    validationEntries.forEach(function (entry) {
+      (entry.checks || []).forEach(function (check) {
+        checkHtml += '<div class="' + (check.passed ? "text-success" : "text-danger") + '">' +
+          (check.passed ? "✓" : "✗") + " " + escapeHtml(check.label) + "</div>";
+      });
+      (entry.errors || []).forEach(function (error) {
+        checkHtml += '<div class="text-danger">' + escapeHtml(error) + "</div>";
+      });
     });
     validation.innerHTML += checkHtml || "<em>—</em>";
     container.appendChild(validation);
@@ -1394,13 +1516,16 @@ function initializePlayground() {
   function restoreHistoryEntry(entry) {
     state.lastSteps = entry.steps;
     state.lastResult = entry;
+    state.candidates = entry.candidates && entry.candidates.length
+      ? entry.candidates
+      : (entry.candidate ? [entry.candidate] : []);
     $("#pgDebug").classList.remove("d-none");
     renderSttSummary(entry.steps);
     renderSteps({ steps: entry.steps, engine: null, duration_ms: null, ok: entry.ok });
-    if (entry.candidate) {
+    if (state.candidates.length) {
       $("#pgResultErrors").classList.add("d-none");
       $("#pgResultWarnings").classList.add("d-none");
-      renderCandidate(entry.candidate);
+      renderCards(state.candidates, null);
       $("#pgResultEmpty").classList.add("d-none");
       $("#pgResult").classList.remove("d-none");
     }
