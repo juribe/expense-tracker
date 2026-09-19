@@ -43,10 +43,10 @@ module Expenses
       def run_ocr
         text = Ocr::LocalReader.call(image_data: @input.image_data)
         if text.present?
-          @steps[:ocr] = { applicable: true, engine: "tesseract", text: text }
+          @recording&.add_step(:ocr, { applicable: true, engine: "tesseract", text: text })
           text
         else
-          @steps[:ocr] = { applicable: true, pending: true }
+          @recording&.add_step(:ocr, { applicable: true, pending: true })
           nil
         end
       end
@@ -58,18 +58,18 @@ module Expenses
         )
 
         unless result[:ok?]
-          @errors << "Expense extraction failed. The extraction service returned an invalid response. (#{result[:error]})"
-          @steps[:extraction] = { engine: "vision", raw: nil, errors: [ result[:error] ] }
+          @recording&.add_errors([ "Expense extraction failed. The extraction service returned an invalid response. (#{result[:error]})" ])
+          @recording&.add_step(:extraction, { engine: "vision", raw: nil, errors: [ result[:error] ] })
           return [ nil, "vision" ]
         end
 
         ocr_text = result.dig(:data, :ocr_text)
         entries = result.dig(:data, :expenses)
-        @steps[:ocr] = { applicable: true, engine: "mistral-vision", text: ocr_text }
-        @steps[:extraction] = { engine: "vision", raw: result.dig(:data, :expenses), detected_count: entries.length }
+        @recording&.add_step(:ocr, { applicable: true, engine: "mistral-vision", text: ocr_text })
+        @recording&.add_step(:extraction, { engine: "vision", raw: result.dig(:data, :expenses), detected_count: entries.length })
 
         if entries.empty?
-          @errors << "Could not extract an expense from this input. Reason: no expense could be detected in the image."
+          @recording&.add_errors([ "Could not extract an expense from this input. Reason: no expense could be detected in the image." ])
           return [ nil, "vision" ]
         end
 

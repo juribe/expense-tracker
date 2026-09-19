@@ -16,7 +16,9 @@ module Expenses
       def call
         transcript = run_speech_to_text
         if transcript.blank?
-          @errors << "Could not extract an expense because no transcript was generated." if @errors.empty?
+          if @recording&.errors.to_a.empty?
+            @recording&.add_errors([ "Could not extract an expense because no transcript was generated." ])
+          end
           return [ nil, nil ]
         end
 
@@ -33,7 +35,7 @@ module Expenses
       # friendly pipeline errors; they never abort with a provider stack trace.
       def run_speech_to_text
         result = SpeechToText.transcribe(audio_data: @input.audio_data, filename: @input.filename)
-        @steps[:stt] = {
+        @recording&.add_step(:stt, {
           applicable: true,
           provider: result.provider,
           model: result.model,
@@ -41,15 +43,15 @@ module Expenses
           language_probability: result.language_probability,
           duration: result.duration,
           text: result.text
-        }
+        })
         if result.empty_transcript?
-          @errors << "Speech-to-text produced an empty transcript. The audio may be silent or too short."
+          @recording&.add_errors([ "Speech-to-text produced an empty transcript. The audio may be silent or too short." ])
           return nil
         end
         result.text
       rescue SpeechToText::Error => e
-        @steps[:stt] = { applicable: true, provider: SpeechToText.provider_name, error: e.message }
-        @errors << e.message
+        @recording&.add_step(:stt, { applicable: true, provider: SpeechToText.provider_name, error: e.message })
+        @recording&.add_errors([ e.message ])
         nil
       end
     end

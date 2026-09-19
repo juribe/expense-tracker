@@ -287,12 +287,16 @@
 
   <!-- ------------------------------------------------------ debug / pipeline -->
   <div id="pgDebug" class="card shadow-sm mt-4 d-none" data-testid="playground-debug">
-    <div class="card-header bg-transparent" id="pgDebugHeader">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center" id="pgDebugHeader">
       <button class="btn btn-sm btn-link text-decoration-none px-0 fw-semibold" type="button"
               data-bs-toggle="collapse" data-bs-target="#pgDebugCollapse"
               aria-expanded="true" aria-controls="pgDebugCollapse" data-testid="playground-debug-toggle">
         <i class="bi bi-bug me-1" aria-hidden="true"></i><%= t("playground.processing_details") %>
         <span class="text-muted small ms-2" id="pgDebugMeta"></span>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="pgStepsToggle"
+              aria-label="toggle expenses" data-testid="playground-steps-toggle">
+        <i class="bi bi-arrows-expand" aria-hidden="true" id="pgStepsToggleIcon"></i>
       </button>
     </div>
     <div id="pgDebugCollapse" class="collapse show" aria-labelledby="pgDebugHeader">
@@ -411,7 +415,6 @@ function initializePlayground() {
     stepStt: <%= raw(t("playground.step_stt").to_json) %>,
     stepOcr: <%= raw(t("playground.step_ocr").to_json) %>,
     stepExtraction: <%= raw(t("playground.step_extraction").to_json) %>,
-    stepNormalization: <%= raw(t("playground.step_normalization").to_json) %>,
     stepValidation: <%= raw(t("playground.step_validation").to_json) %>,
     stepCandidate: <%= raw(t("playground.step_candidate").to_json) %>,
     errorsTitle: <%= raw(t("playground.errors_title").to_json) %>,
@@ -1363,20 +1366,40 @@ function initializePlayground() {
     return el;
   }
 
-  function renderSteps(data) {
-    var steps = data.steps || {};
-    var container = $("#pgSteps");
-    container.textContent = "";
+  function candidateAccordionTitle(candidate, index) {
+    var description = candidate && (candidate.description || candidate.merchant);
+    return (T.expenseN || "Expense %{n}").replace("%{n}", index + 1) + ": " + (description || "—");
+  }
 
-    $("#pgDebugMeta").textContent = (data.engine ? T.engineLabel + ": " + data.engine : "") +
-      (data.duration_ms != null ? (data.engine ? " · " : "") + T.durationLabel + ": " + data.duration_ms + " ms" : "");
+  function candidateAccordionItem(index, candidate, open) {
+    var collapseId = "pgExpenseCollapse" + index;
+    var item = document.createElement("div");
+    item.className = "accordion-item";
+    item.setAttribute("data-testid", "playground-expense-accordion");
+    item.innerHTML =
+      '<h2 class="accordion-header" id="pgExpenseHeading' + index + '">' +
+      '<button class="accordion-button' + (open ? "" : " collapsed") + '" type="button"' +
+      ' data-bs-toggle="collapse" data-bs-target="#' + collapseId + '"' +
+      ' aria-expanded="' + (open ? "true" : "false") + '" aria-controls="' + collapseId + '"' +
+      ' data-testid="playground-expense-accordion-toggle">' +
+      escapeHtml(candidateAccordionTitle(candidate, index)) +
+      "</button></h2>" +
+      '<div id="' + collapseId + '" class="accordion-collapse collapse' + (open ? " show" : "") + '"' +
+      ' aria-labelledby="pgExpenseHeading' + index + '">' +
+      '<div class="accordion-body" data-testid="playground-expense-accordion-body"></div>' +
+      "</div>";
+    return item;
+  }
 
+  // Steps that belong to the whole run (input / ocr / stt), repeated inside
+  // every gasto accordion as decided for the pipeline debug panel.
+  function appendSharedSteps(body, steps) {
     var input = stepSection(T.stepInput);
     var inputEl = steps.input || {};
     input.appendChild(pre((inputEl.type || "") + (inputEl.text ? "\n\n" + inputEl.text : "") +
       (inputEl.image ? "\n\n" + inputEl.image : "")));
-    container.appendChild(input);
-    container.appendChild(arrow());
+    body.appendChild(input);
+    body.appendChild(arrow());
 
     var ocr = stepSection(T.stepOcr);
     if (steps.ocr && steps.ocr.applicable) {
@@ -1384,8 +1407,8 @@ function initializePlayground() {
     } else {
       ocr.appendChild(pre(T.ocrNotApplicable));
     }
-    container.appendChild(ocr);
-    container.appendChild(arrow());
+    body.appendChild(ocr);
+    body.appendChild(arrow());
 
     var stt = stepSection(T.stepStt);
     if (steps.stt && steps.stt.applicable) {
@@ -1403,59 +1426,116 @@ function initializePlayground() {
     } else {
       stt.appendChild(pre(T.ocrNotApplicable));
     }
-    container.appendChild(stt);
-    container.appendChild(arrow());
+    body.appendChild(stt);
+    body.appendChild(arrow());
+  }
 
+  // Per-expense steps: extraction entry N, validation entry N and the
+  // candidate verdict for that gasto. No normalization (not recorded anymore).
+  function appendExpenseSteps(body, steps, index) {
     var extraction = stepSection(T.stepExtraction);
-    var raw = steps.extraction && steps.extraction.raw;
-    var engineText = steps.extraction && steps.extraction.engine ? T.engineLabel + ": " + steps.extraction.engine : "";
-    if (steps.extraction && steps.extraction.ai_strategy) {
-      engineText += (engineText ? " · " : "") + strategyLabel(steps.extraction.ai_strategy);
+    var extractionStep = steps.extraction;
+    // The text pipeline records the extraction entries array directly; the
+    // vision path still wraps them in an { engine, raw } hash.
+    var entries = Array.isArray(extractionStep) ? extractionStep : (extractionStep && extractionStep.raw);
+    var engineText = extractionStep && extractionStep.engine ? T.engineLabel + ": " + extractionStep.engine : "";
+    if (extractionStep && extractionStep.ai_strategy) {
+      engineText += (engineText ? " · " : "") + strategyLabel(extractionStep.ai_strategy);
     }
-    extraction.appendChild(pre(engineText));
-    if (raw != null) extraction.appendChild(jsonPre(raw));
-    container.appendChild(extraction);
-    container.appendChild(arrow());
-
-    var normalization = stepSection(T.stepNormalization);
-    var norm = steps.normalization || {};
-    if (norm.amount != null) {
-      var normEl = document.createElement("div");
-      normEl.innerHTML = debugRow("amount:", norm.amount) + debugRow("currency:", norm.currency) +
-        debugRow("category_id:", norm.category_id == null ? "—" : norm.category_id) +
-        debugRow("category_name:", norm.category_name || "—") +
-        debugRow("date:", norm.date || "—") +
-        debugRow("money_source_id:", norm.money_source_id == null ? "—" : norm.money_source_id) +
-        debugRow("money_source_name:", norm.money_source_name || "—");
-      normalization.appendChild(normEl);
+    if (engineText) extraction.appendChild(pre(engineText));
+    var entry = Array.isArray(entries) ? entries[index] : entries;
+    if (entry != null) {
+      extraction.appendChild(jsonPre(entry));
+    } else {
+      extraction.appendChild(pre(T.ocrNotApplicable));
     }
-    container.appendChild(normalization);
-    container.appendChild(arrow());
+    body.appendChild(extraction);
+    body.appendChild(arrow());
 
     var validation = stepSection(T.stepValidation);
-    var valid = steps.validation || {};
-    // The text pipeline records one validation entry per candidate.
-    var validationEntries = Array.isArray(valid) ? valid : [ valid ];
+    var validationStep = steps.validation;
+    var validationEntry = Array.isArray(validationStep) ? validationStep[index] : validationStep;
     var checkHtml = "";
-    validationEntries.forEach(function (entry) {
-      (entry.checks || []).forEach(function (check) {
+    if (validationEntry) {
+      (validationEntry.checks || []).forEach(function (check) {
         checkHtml += '<div class="' + (check.passed ? "text-success" : "text-danger") + '">' +
           (check.passed ? "✓" : "✗") + " " + escapeHtml(check.label) + "</div>";
       });
-      (entry.errors || []).forEach(function (error) {
+      (validationEntry.errors || []).forEach(function (error) {
         checkHtml += '<div class="text-danger">' + escapeHtml(error) + "</div>";
       });
-    });
+    }
     validation.innerHTML += checkHtml || "<em>—</em>";
-    container.appendChild(validation);
-    container.appendChild(arrow());
+    body.appendChild(validation);
+    body.appendChild(arrow());
 
     var candidateStep = stepSection(T.stepCandidate);
-    var ok = data.ok && data.candidate;
-    var candidateText = ok ? T.candidateReady : T.candidateInvalid;
-    candidateStep.innerHTML += '<div class="' + (ok ? "text-success" : "text-danger") + ' fw-semibold">' +
+    var valid = !!(validationEntry && validationEntry.valid);
+    var candidateText = valid ? T.candidateReady : T.candidateInvalid;
+    candidateStep.innerHTML += '<div class="' + (valid ? "text-success" : "text-danger") + ' fw-semibold">' +
       escapeHtml(candidateText) + "</div>";
-    container.appendChild(candidateStep);
+    body.appendChild(candidateStep);
+  }
+
+  function refreshStepsToggleIcon(container) {
+    var accordions = container.querySelectorAll(".accordion-collapse");
+    var icon = $("#pgStepsToggleIcon");
+    if (!icon) return;
+    var allOpen = accordions.length > 0 && Array.prototype.every.call(accordions, function (el) {
+      return el.classList.contains("show");
+    });
+    icon.classList.toggle("bi-arrows-collapse", allOpen);
+    icon.classList.toggle("bi-arrows-expand", !allOpen);
+  }
+
+  function wireStepsToggle(container) {
+    var toggle = $("#pgStepsToggle");
+    var accordions = container.querySelectorAll(".accordion-collapse");
+    toggle.classList.toggle("d-none", accordions.length === 0);
+    toggle.onclick = function () {
+      var expand = !Array.prototype.every.call(accordions, function (el) {
+        return el.classList.contains("show");
+      });
+      accordions.forEach(function (el) {
+        if (window.bootstrap && window.bootstrap.Collapse) {
+          bootstrap.Collapse.getOrCreateInstance(el)[expand ? "show" : "hide"]();
+        } else {
+          el.classList.toggle("show", expand);
+        }
+      });
+      refreshStepsToggleIcon(container);
+    };
+    refreshStepsToggleIcon(container);
+  }
+
+  function renderSteps(data) {
+    var steps = data.steps || {};
+    var candidates = data.candidates && data.candidates.length
+      ? data.candidates
+      : (data.candidate ? [data.candidate] : []);
+    var container = $("#pgSteps");
+    container.textContent = "";
+
+    $("#pgDebugMeta").textContent = (data.engine ? T.engineLabel + ": " + data.engine : "") +
+      (data.duration_ms != null ? (data.engine ? " · " : "") + T.durationLabel + ": " + data.duration_ms + " ms" : "");
+
+    var accordion = document.createElement("div");
+    accordion.className = "accordion";
+    // Failed runs detect no expenses: still show the shared pipeline stages
+    // in one accordion so the debug panel is never empty.
+    var count = candidates.length || 1;
+    for (var index = 0; index < count; index++) {
+      var candidate = candidates[index] || null;
+      var item = candidateAccordionItem(index, candidate, index === 0);
+      var body = item.querySelector(".accordion-body");
+      appendSharedSteps(body, steps);
+      if (candidates.length) {
+        appendExpenseSteps(body, steps, index);
+      }
+      accordion.appendChild(item);
+    }
+    container.appendChild(accordion);
+    wireStepsToggle(container);
   }
 
   // ---------------------------------------------------------------- history
@@ -1521,7 +1601,7 @@ function initializePlayground() {
       : (entry.candidate ? [entry.candidate] : []);
     $("#pgDebug").classList.remove("d-none");
     renderSttSummary(entry.steps);
-    renderSteps({ steps: entry.steps, engine: null, duration_ms: null, ok: entry.ok });
+    renderSteps({ steps: entry.steps, engine: null, duration_ms: null, ok: entry.ok, candidates: state.candidates });
     if (state.candidates.length) {
       $("#pgResultErrors").classList.add("d-none");
       $("#pgResultWarnings").classList.add("d-none");
