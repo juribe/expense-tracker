@@ -6,15 +6,24 @@ module Expenses
     class Recording
       attr_accessor :execution, :steps, :errors, :warnings
 
-      def initialize(execution:, steps: {}, errors: [], warnings: [])
+      def initialize(execution: nil, steps: {}, errors: [], warnings: [])
         @execution = execution
         @steps = steps
         @errors = errors
         @warnings = warnings
       end
 
-      # def call
-      #   return unless @execution
+      def add_errors(errors)
+        @errors.concat(errors)
+      end
+
+      def add_warnings(warnings)
+        @warnings.concat(warnings)
+      end
+
+      def add_step(name, data)
+        @steps[name] = data
+      end
 
       #   @execution.update!(
       #     status: :recorded,

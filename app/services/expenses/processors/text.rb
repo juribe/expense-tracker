@@ -4,7 +4,7 @@ module Expenses
   module Processors
     class Text < Base
       def call(text = nil, context: nil)
-        result = ExpenseResolver::Service.call(text: text, user: @user, context: context, execution: @execution)
+        result = ExpenseResolver::Service.call(text: text || note, user: @user, context: context, execution: @execution)
         if result.failure?
           log_error(result.errors)
           return [ nil, "IA" ]
@@ -17,7 +17,7 @@ module Expenses
 
       def log_error(errors)
         Rails.logger.error("ExpenseResolver::Service failed with errors: #{errors.inspect}")
-        @recording.errors.concat(errors) if @recording
+        @recording&.add_errors(errors)
       end
 
       def validate_all(candidates)
@@ -28,7 +28,7 @@ module Expenses
       end
 
       def validate(candidate)
-        @steps[:validation] << {
+        @recording.steps[:validation] << {
           candidate: candidate,
           valid: candidate.valid?,
           checks: candidate.checks,
