@@ -16915,7 +16915,7 @@
       "file_type": "code",
       "norm_label": ".start()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L18"
+      "source_location": "L16"
     },
     {
       "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_create_run",
@@ -20251,7 +20251,7 @@
       "file_type": "code",
       "norm_label": ".case_entry()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L101"
+      "source_location": "L99"
     },
     {
       "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_case_suggestion",
@@ -20263,7 +20263,7 @@
       "file_type": "code",
       "norm_label": ".case_suggestion()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L127"
+      "source_location": "L125"
     },
     {
       "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_cases",
@@ -20275,7 +20275,7 @@
       "file_type": "code",
       "norm_label": ".cases()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L46"
+      "source_location": "L44"
     },
     {
       "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_classification_for_case",
@@ -20287,7 +20287,7 @@
       "file_type": "code",
       "norm_label": ".classification_for_case()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L122"
+      "source_location": "L120"
     },
     {
       "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_index",
@@ -20311,7 +20311,7 @@
       "file_type": "code",
       "norm_label": ".map_case()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L78"
+      "source_location": "L76"
     },
     {
       "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_resolve_mapping_category_bang",
@@ -20323,7 +20323,7 @@
       "file_type": "code",
       "norm_label": ".resolve_mapping_category!()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L145"
+      "source_location": "L143"
     },
     {
       "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_show",
@@ -20335,7 +20335,7 @@
       "file_type": "code",
       "norm_label": ".show()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L36"
+      "source_location": "L34"
     },
     {
       "id": "app_services_parsed_expense_parsedexpense_future_date_pred",
@@ -21007,7 +21007,7 @@
       "file_type": "code",
       "norm_label": ".retry()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L60"
+      "source_location": "L58"
     },
     {
       "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob_perform",
@@ -37397,7 +37397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L117",
+      "source_location": "L115",
       "weight": 1.0
     },
     {
@@ -37409,7 +37409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L118",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -37421,7 +37421,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L137",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -37433,7 +37433,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L53",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -37445,7 +37445,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L124",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -37457,7 +37457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L82",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -37469,7 +37469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L85",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -37481,7 +37481,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L148",
+      "source_location": "L146",
       "weight": 1.0
     },
     {
@@ -37493,7 +37493,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L153",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -37505,7 +37505,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L67",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -37517,7 +37517,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L41",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -37529,7 +37529,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L19",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -61849,24 +61849,13 @@
     },
     {
       "source": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller",
-      "target": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_case_entry",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L101",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller",
       "target": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_classification_for_case",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L122",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -61877,7 +61866,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L127",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -61888,7 +61877,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L145",
+      "source_location": "L143",
       "weight": 1.0
     },
     {
@@ -61899,7 +61888,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L18",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -61910,7 +61899,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L36",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -61921,7 +61910,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L46",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -61932,7 +61921,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L60",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -61943,7 +61932,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L78",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -61955,6 +61944,17 @@
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_evaluations_controller.rb",
       "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller",
+      "target": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_case_entry",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/expense_evaluations_controller.rb",
+      "source_location": "L99",
       "weight": 1.0
     },
     {

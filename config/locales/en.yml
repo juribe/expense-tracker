@@ -228,6 +228,32 @@ en:
     money_sources_loans: "Loans"
     source_recognition: "Source Recognition"
     playground: "Playground"
+    evaluations: "Evaluations"
+
+  evaluations:
+    subtitle: "Upload a CSV dataset and evaluate the full pipeline with a specific provider/model."
+    force_new: "Force new run (ignore previous runs with the same file)"
+    async_hint: "The evaluation runs in the background.<br><span class=\"text-muted\">You can close this page and come back later.</span>"
+    history: "History"
+    no_history: "No evaluations yet."
+    results: "Evaluation Results"
+    in_progress: "In progress"
+    total_cases: "Total cases"
+    passed: "Passed cases"
+    failed: "Failed cases"
+    json_valid: "JSON valid"
+    cost: "Cost"
+    avg_latency: "Avg latency"
+    field_accuracy: "Field accuracy"
+    compare_models: "Compare Models"
+    failed_cases: "Failed cases"
+    failed_status: "Failed"
+    error_status: "Error"
+    passed_status: "Passed"
+    search_placeholder: "Search by message…"
+    filter: "Filter"
+    case_hint: "Click a row to review expected vs. received and decide the category. Mapping will be saved as knowledge."
+    no_matching: "No matching cases."
 
   money_sources:
     index:

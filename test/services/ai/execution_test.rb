@@ -4,7 +4,7 @@ require "test_helper"
 
 class AiExecutionTest < ActiveSupport::TestCase
   test "an execution with provider and model is an override" do
-    execution = Ai::Execution.new(provider: "openrouter", model: "upstage/solar-pro4")
+    execution = Ai::Execution.new(provider: "openrouter", model: "mistral/mistral-small-latest")
     assert execution.override?
     assert execution.force_ai?
   end

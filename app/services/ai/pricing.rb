@@ -8,7 +8,7 @@ module Ai
   #
   #   AI_PRICE_INPUT_PER_MILLION      0.15
   #   AI_PRICE_OUTPUT_PER_MILLION     0.60
-  #   AI_MODEL_PRICES_JSON            {"openrouter/upstage/solar-pro4":{"input":0.2,"output":0.8}}
+  #   AI_MODEL_PRICES_JSON            {"openrouter/mistral/mistral-small-latest":{"input":0.2,"output":0.8}}
   module Pricing
     DEFAULT_INPUT_PER_MILLION = 0.0
     DEFAULT_OUTPUT_PER_MILLION = 0.0

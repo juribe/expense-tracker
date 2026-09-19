@@ -96,12 +96,12 @@ Rails.application.routes.draw do
   post "expense-playground/create", to: "expense_playground#create", as: :expense_playground_create
   get "expense-playground/history", to: "expense_playground#history", as: :expense_playground_history
   get "expense-playground/ai_summary", to: "expense_playground#ai_summary", as: :expense_playground_ai_summary
-  get "expense-playground/evaluations", to: "expense_playground#evaluations", as: :expense_playground_evaluations
-  post "expense-playground/evaluations/start", to: "expense_playground#start_evaluation", as: :expense_playground_start_evaluation
-  get "expense-playground/evaluations/:id", to: "expense_playground#evaluation", as: :expense_playground_evaluation
-  get "expense-playground/evaluations/:id/cases", to: "expense_playground#evaluation_cases", as: :expense_playground_evaluation_cases
-  post "expense-playground/evaluations/:id/retry", to: "expense_playground#retry_evaluation", as: :expense_playground_retry_evaluation
-  post "expense-playground/evaluations/:id/cases/:case_id/mapping", to: "expense_playground#map_evaluation_case", as: :expense_playground_evaluation_mapping
+  get "expense-evaluations", to: "expense_evaluations#index", as: :expense_evaluations
+  post "expense-evaluations/start", to: "expense_evaluations#start", as: :expense_evaluations_start
+  get "expense-evaluations/:id", to: "expense_evaluations#show", as: :expense_evaluation
+  get "expense-evaluations/:id/cases", to: "expense_evaluations#cases", as: :expense_evaluation_cases
+  post "expense-evaluations/:id/retry", to: "expense_evaluations#retry", as: :expense_evaluation_retry
+  post "expense-evaluations/:id/cases/:case_id/map", to: "expense_evaluations#map_case", as: :expense_evaluation_map_case
 
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'

@@ -99,6 +99,10 @@
         <i class="bi bi-controller"></i>
         <span><%= t("nav.playground") %></span>
       <% end %>
+      <%= link_to expense_evaluations_path, class: "sidebar-link #{active_class('expense_evaluations')}" do %>
+        <i class="bi bi-check2-circle"></i>
+        <span><%= t("nav.evaluations") %></span>
+      <% end %>
     </div>
   </nav>
 

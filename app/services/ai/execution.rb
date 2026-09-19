@@ -7,7 +7,7 @@ module Ai
   # exercised on every dataset row (the deterministic and cache short-circuits
   # are skipped).
   #
-  #   Ai::Execution.new(provider: "openrouter", model: "upstage/solar-pro4", force_ai: true)
+  #   Ai::Execution.new(provider: "openrouter", model: "mistral/mistral-small-latest", force_ai: true)
   class Execution
     attr_reader :provider, :model
 

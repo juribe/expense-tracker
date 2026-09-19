@@ -25,7 +25,7 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
     with_active_job_adapter(:test) do
       ExpensePlayground::Evaluations::Runner.start(
         user: @user, content: dataset, filename: "gastos.csv",
-        provider: "openrouter", model: "upstage/solar-pro4"
+        provider: "openrouter", model: "mistral/mistral-small-latest"
       )
     end
   end
@@ -39,7 +39,7 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
     assert_equal 2, run.total_cases
     assert_equal "running", run.status
     assert_equal "openrouter", run.provider
-    assert_equal "upstage/solar-pro4", run.model
+    assert_equal "mistral/mistral-small-latest", run.model
     assert_equal 2, run.evaluation_cases.recent_first.count
     assert_equal [ 2, 3 ], run.evaluation_cases.recent_first.pluck(:row_number)
   end
@@ -59,7 +59,7 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
     second = with_active_job_adapter(:test) do
       ExpensePlayground::Evaluations::Runner.start(
         user: @user, content: dataset, filename: "gastos_v2.csv",
-        provider: "openrouter", model: "upstage/solar-pro4", force_new: true
+        provider: "openrouter", model: "mistral/mistral-small-latest", force_new: true
       )
     end
 
@@ -74,7 +74,7 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
     second = with_active_job_adapter(:test) do
       ExpensePlayground::Evaluations::Runner.start(
         user: @user, content: dataset, filename: "gastos.csv",
-        provider: "openrouter", model: "upstage/solar-pro4", force_new: "1"
+        provider: "openrouter", model: "mistral/mistral-small-latest", force_new: "1"
       )
     end
 
@@ -128,7 +128,7 @@ class ExpensePlaygroundEvaluationsRunnerTest < ActiveSupport::TestCase
       assert_enqueued_with(job: ExpensePlaygroundEvaluationCaseJob) do
         ExpensePlayground::Evaluations::Runner.start(
           user: @user, content: dataset, filename: "gastos.csv",
-          provider: "openrouter", model: "upstage/solar-pro4"
+          provider: "openrouter", model: "mistral/mistral-small-latest"
         )
       end
       assert_equal 2, enqueued_jobs.size

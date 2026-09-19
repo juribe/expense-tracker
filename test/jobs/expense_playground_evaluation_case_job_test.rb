@@ -14,7 +14,7 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
     @user = User.create!(email: "case-eval@example.com", password: "password123")
     @run = EvaluationRun.create!(
       user: @user, dataset_name: "gastos.csv", dataset_version: "abc123",
-      provider: "openrouter", model: "upstage/solar-pro4",
+      provider: "openrouter", model: "mistral/mistral-small-latest",
       prompt_version: "expense-extraction-v1",
       status: "running", total_cases: 1
     )
