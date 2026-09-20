@@ -2,21 +2,23 @@
 
 module ExpenseResolver
   class CandidateDetector
-    attr_accessor :expense, :user, :categories, :money_source_detector
+    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text
 
-    def self.call(expense:, user:, categories: nil, money_source_detector: nil)
-      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector).call
+    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil)
+      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text).call
     end
 
-    def initialize(expense:, user:, categories: nil, money_source_detector: nil)
+    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil)
       self.expense = expense
       self.user = user
       self.categories = categories
       self.money_source_detector = money_source_detector
+      self.classification_source = classification_source
+      self.text = text
     end
 
     def call
-      ExpenseCandidate.new(
+      candidate = ExpenseCandidate.new(
         amount: amount_result.amount,
         currency: ExpenseCandidate::DEFAULT_CURRENCY,
         category_id: category_result.category&.id,
@@ -24,12 +26,13 @@ module ExpenseResolver
         description: description_result.description,
         date: date_result.date,
         source: "playground",
-        classification_source: "ai",
+        classification_source: classification_source,
         suggested_category_name: category_result.suggested_category_name,
         confidence: expense.confidence,
         money_source_name: money_source_result.money_source_name,
         money_source_id: money_source_result.money_source&.id
       )
+      apply_matching_rule_category(candidate)
     end
 
     def amount_result
@@ -59,8 +62,26 @@ module ExpenseResolver
       @money_source_result ||= MoneySourceResult.call(
         expense: expense,
         user: user,
-        money_source_detector: money_source_detector
+        money_source_detector: money_source_detector,
+        text: text
       )
+    end
+
+    # The preview must reflect what will actually be saved: when a transaction
+    # rule matches the detected expense, its category replaces the resolver's
+    # suggestion, so no "new category will be created" path is shown.
+    def apply_matching_rule_category(candidate)
+      probe = Expense.new(user: user,
+                          description: candidate.description.presence,
+                          amount: candidate.amount,
+                          money_source_id: candidate.money_source_id)
+      rule = TransactionRules::Applicator.new(user).matching_category_rule(probe)
+      return candidate if rule.nil?
+
+      candidate.category_id = rule.category_id
+      candidate.category_name = rule.category.name
+      candidate.suggested_category_name = nil
+      candidate
     end
   end
 end

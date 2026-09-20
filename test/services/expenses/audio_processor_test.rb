@@ -4,7 +4,7 @@ require "test_helper"
 
 module Expenses
   # Audio inputs are just another way of producing text: the transcript flows
-  # through the SAME ExpenseParser → normalization → validation pipeline used
+  # through the SAME ExpenseResolver → normalization → validation pipeline used
   # for typed text. SpeechToText is stubbed — no Whisper execution here.
   class AudioProcessorTest < ActiveSupport::TestCase
     AUDIO_DATA = "data:audio/ogg;base64,#{Base64.strict_encode64('OGGDATABYTES')}"

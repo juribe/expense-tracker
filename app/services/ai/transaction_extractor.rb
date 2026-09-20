@@ -2,7 +2,7 @@
 
 module Ai
   # Extracts structured financial transactions from an email using an LLM with
-  # strict JSON output (same Mistral endpoint used by ExpenseParser).
+  # strict JSON output (same Mistral endpoint used by the expense resolver).
   #
   #   result = Ai::TransactionExtractor.new.call(subject:, body:, today: Date.current)
   #     => { ok?: true,

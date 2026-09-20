@@ -1,5 +1,5 @@
 module ExpenseResolver
- class Service
+  class Service
     attr_accessor :text, :user, :expenses, :context, :recording
 
     def initialize(text:, user:, context: nil, recording: nil)
@@ -15,33 +15,42 @@ module ExpenseResolver
     end
 
     def process
-       # steps
-       # basic validations
-       return ServiceResult.error("missing text") if invalid_text?
-       return ServiceResult.error("missing user") if invalid_user?
+      # basic validations
+      return ServiceResult.error("missing text") if invalid_text?
+      return ServiceResult.error("missing user") if invalid_user?
 
-       # IA checks expenses
-       parser_result = NaturalLanguageParser.call(text: text, user: user, categories: categories_names, context: context, recording: recording)
-       return parser_result if parser_result.failure?
+      resolution = HeuristicResolver.call(text: text, user: user, categories: categories, recording: recording)
+      if resolution.resolved?
+        entries = resolution.entries
+        self.engine = "heuristic"
+      else
+        # IA checks expenses
+        parser_result = NaturalLanguageParser.call(text: text, user: user, categories: categories_names, context: context, recording: recording)
+        return parser_result if parser_result.failure?
 
+        entries = parser_result.result
+        self.engine = "ai"
+      end
 
-       parser_result.result.each do |expense|
-         expenses << CandidateDetector.call(expense: expense,
-                                            user: user,
-                                            categories: categories,
-                                            money_source_detector: money_source_detector
-                                          )
-       end
-       # If all checks pass, return a success result
-       ServiceResult.success(expenses)
+      entries.each do |expense|
+        expenses << CandidateDetector.call(expense: expense,
+                                          user: user,
+                                          categories: categories,
+                                          money_source_detector: money_source_detector,
+                                          classification_source: classification_source,
+                                          text: text
+                                        )
+      end
+      # If all checks pass, return a success result
+      ServiceResult.success(expenses)
     end
 
     def invalid_text?
-        text.nil? || text.strip.empty?
+      text.nil? || text.strip.empty?
     end
 
     def invalid_user?
-        user.nil?
+      user.nil?
     end
 
     def categories_names
@@ -49,14 +58,22 @@ module ExpenseResolver
     end
 
     def categories
-        @categories ||= Category.for_user(user)
-                                .expenses
-                                .order(:name)
-                                .to_a
+      @categories ||= Category.for_user(user)
+                              .expenses
+                              .order(:name)
+                              .to_a
     end
 
     def money_source_detector
       @money_source_detector ||= MoneySources::Detector.new(user: user)
     end
- end
+
+    private
+
+    attr_accessor :engine
+
+    def classification_source
+      engine == "heuristic" ? "heuristic" : "ai"
+    end
+  end
 end

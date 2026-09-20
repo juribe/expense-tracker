@@ -28,15 +28,42 @@ module Expenses
           entry, engine = extract_from_image
           return [ nil, engine ] if entry.nil?
 
-          candidate = text_processor.normalize(entry)
+          candidate = build_vision_candidate(entry)
           text_processor.validate(candidate)
-          [ candidate, engine ]
+          [ [ candidate ], engine ]
         end
       end
 
-      private
+    private
 
-      # OCR is only applicable when an image is part of the input. It runs
+    # Maps a vision-extracted entry into the shared ExpenseCandidate shape,
+    # resolving the category name against the user's categories with the
+    # resolver's category service.
+    def build_vision_candidate(entry)
+      resolution = ExpenseResolver::Categories::Service.resolve_category(
+        entry[:description].presence || entry[:merchant].presence,
+        @input.payload[:text].to_s,
+        Category.for_user(@user).expenses.order(:name).to_a
+      )
+
+      ExpenseCandidate.new(
+        amount: entry[:amount],
+        currency: entry[:currency].presence || ExpenseCandidate::DEFAULT_CURRENCY,
+        category_id: resolution.category&.id,
+        category_name: resolution.category&.name || entry[:category_name].presence || resolution.suggested_name,
+        description: entry[:description].presence || entry[:merchant].presence,
+        merchant: entry[:merchant],
+        date: ExpenseResolver::Dates::Service.parse_iso_date(entry[:transaction_date]),
+        source: "playground",
+        classification_source: "vision",
+        suggested_category_name: resolution.category ? nil : resolution.suggested_name,
+        confidence: entry[:confidence],
+        money_source_id: entry[:money_source_id].presence&.to_i,
+        money_source_name: entry[:money_source_name].presence
+      )
+    end
+
+    # OCR is only applicable when an image is part of the input. It runs
       # LOCALLY with Tesseract (the image never leaves the machine); when
       # Tesseract is unavailable or reads nothing, the vision model becomes
       # the fallback and performs OCR + extraction in one call.

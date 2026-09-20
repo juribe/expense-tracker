@@ -52,10 +52,11 @@ class ServiceResultTest < ActiveSupport::TestCase
 
   test "ServiceResult.success builds a successful result" do
     expense = Expense.new
+    result = ServiceResult.success(expense)
 
-    assert_same expense, ServiceResult.success(expense).result
-    assert ServiceResult.success.success?
-    assert_equal [], ServiceResult.success.errors
+    assert_same expense, result.result
+    assert result.success?
+    assert_equal [], result.errors
   end
 
   test "ServiceResult.error builds a failed result from a string" do

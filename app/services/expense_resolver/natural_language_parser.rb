@@ -25,9 +25,6 @@ module ExpenseResolver
         input: text,
         context: { user: user, today: current_date, categories: categories, context: context, execution: recording&.execution }
       )
-      # puts "xxxxxxxxxxxxxxxxxxxxxx************************************"
-      # p(router_result)
-      # puts "xxxxxxxxxxxxxxxxxxxxxx************************************"
       return ServiceResult.error([ router_result.error.presence || "AI parsing failed." ]) unless router_result.ok?
 
       recording&.add_step(:extraction, router_result.data)

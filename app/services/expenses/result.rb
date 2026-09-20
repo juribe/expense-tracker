@@ -5,7 +5,7 @@ module Expenses
   # (text/image/audio) and the file pipeline.
   Result = Struct.new(:candidates, :steps, :errors, :warnings, :duration_ms, :engine, keyword_init: true) do
     def ok?
-      candidates.present? && candidates.all?(&:valid?) && errors.empty?
+      candidates.present? && candidates.all?(&:valid?) && errors.to_a.empty?
     end
 
     # First detected expense; nil when nothing was extracted. Kept for the

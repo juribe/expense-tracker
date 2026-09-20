@@ -27,12 +27,12 @@ module ExpenseResolver
     end
 
     def heuristic_date
-      result = ExpenseParser::DateService.detect_date(expense.original_text, today: today)
+      result = ExpenseResolver::Dates::Service.detect_date(expense.original_text, today: today)
       result&.first
     end
 
     def ai_date
-      ExpenseParser::DateService.parse_iso_date(expense.date)
+      ExpenseResolver::Dates::Service.parse_iso_date(expense.date)
     end
   end
 end

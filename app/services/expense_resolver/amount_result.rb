@@ -44,8 +44,8 @@ module ExpenseResolver
     def best_heuristic
       @best_heuristic ||= begin
         best = nil
-        ExpenseParser::AmountService.scan_amounts(text).each do |scan|
-          value, confidence = ExpenseParser::AmountService.interpret_amount(scan[:raw])
+        ExpenseResolver::Amounts::Service.scan_amounts(text).each do |scan|
+          value, confidence = ExpenseResolver::Amounts::Service.interpret_amount(scan[:raw])
           next unless value&.positive?
 
           best = { value: value, confidence: confidence, raw: scan[:raw] } if best.nil? || confidence > best[:confidence]
@@ -76,7 +76,7 @@ module ExpenseResolver
     end
 
     def string_amount(value)
-      parsed, = ExpenseParser::AmountService.interpret_amount(value)
+      parsed, = ExpenseResolver::Amounts::Service.interpret_amount(value)
       parsed&.positive? ? parsed : nil
     end
   end

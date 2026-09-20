@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 module Ai
@@ -35,27 +34,31 @@ module Ai
 
         raise InvalidResponse, "missing 'expenses' array" unless entries.is_a?(Array) && entries.any?
 
-        # Confidence is never taken from the model: every entry is re-scored
-        # from deterministic signals against the original user input.
         categories = Array(context[:categories])
         today = (context[:today] || Date.current).to_date
+
         expenses = entries.filter_map do |entry|
           next unless entry.is_a?(Hash)
 
+          expense = ParsedExpense.build_expense(entry)
+
           score = Expenses::ConfidenceCalculator.call(
-            expense: ParsedExpense.build_expense(entry),
+            expense: expense,
             input: input,
             categories: categories,
             today: today
           ).score
-          ParsedExpense.build_expense(entry.merge("confidence" => score))
+
+          ParsedExpense.build_expense(
+            entry.merge("confidence" => score)
+          )
         end
 
         raise InvalidResponse, "no usable expense entries" if expenses.empty?
 
         {
           data: expenses,
-          confidence: expenses.map(&:confidence).max || 0.0
+          confidence: expenses.map(&:confidence).min || 0.0
         }
       end
 
@@ -72,9 +75,8 @@ module Ai
         context_block = hint ? "\nAdditional context: #{hint}\n" : ""
 
         <<~PROMPT
-          Extract expenses from the user's natural-language message.
-          The message may contain one or multiple expenses. Return each distinct
-          transaction as a separate expense object.
+          Extract every distinct expense from the user's natural-language message.
+          Return each transaction as a separate expense object.
 
           #{context_block}
 
@@ -84,29 +86,38 @@ module Ai
 
           For each expense return:
 
-          - original_text: the exact portion of the user's message that describes
-            this expense. Preserve the original wording. This field is used by
-            downstream processing, so do not invent or rewrite it.
+          - original_text: the complete portion of the user's original message
+            belonging to this expense. Preserve the original words exactly when
+            possible. Include all relevant information such as description,
+            amount, merchant, date and payment method. Do not summarize, translate,
+            rewrite or omit information from this portion of the message.
           - amount: integer amount in COP. Examples: "50 mil" = 50000,
             "50 lucas" = 50000, "50k" = 50000.
-          - date: YYYY-MM-DD. Resolve relative dates using Today. Use null when
-            the date cannot be determined reliably.
-          - description: short, natural description of the expense.
-          - category: use the most appropriate available category. Only suggest
-            a new general category when none of the available categories fits.
+          - date: YYYY-MM-DD. Resolve dates mentioned by the user using Today.
+            If no date is mentioned, use Today.
+            Only use another date when the message clearly indicates that the expense
+            happened on a different day.
+          - description: short description of the expense in the same language
+            used by the user. Do not translate or invent information.
+          - category: the most appropriate category from Available categories.
+            Only suggest a new general category when none of the available
+            categories reasonably fits.
 
           Rules:
 
-          - Return every distinct expense in the message.
+          - Return every distinct transaction.
+          - Keep all information belonging to a transaction in its original_text.
           - Separate transactions even when they use the same payment method.
-          - Keep items from the same purchase as one expense unless the user
-            clearly describes separate transactions.
+          - Keep multiple items as one expense when they belong to the same purchase.
+          - A payment method mentioned once may apply to multiple expenses.
+          - Do not create a separate expense for a payment method.
           - Do not invent missing information.
-          - Do not create merchant IDs, database IDs, or other entities.
-          - A payment method mentioned once may apply to multiple expenses;
-            do not create a separate expense for it.
-          - original_text must come directly from the user's message.
+          - Do not create IDs or database entities.
+          - original_text must come from the user's message.
           - Return only valid JSON. No markdown or explanations.
+          - If the user does not provide a date, assume the expense happened Today.
+          - Do not use null for date unless the user explicitly provides an ambiguous
+            date that cannot reasonably be resolved.
 
           Output:
 

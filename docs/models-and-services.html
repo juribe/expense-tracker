@@ -215,7 +215,7 @@
 <h3>Expense creation path</h3>
 <div class="diagram"><div class="rel">
   <div class="row">
-    <span class="node service">ExpenseParser <small>(text/voice)</small></span>
+    <span class="node service">ExpenseResolver <small>(text/voice)</small></span>
     <span class="node service">Expenses::Create <small>(any source)</small></span>
     <span class="node service">RecurringTemplateProcessor / Importer</small></span>
   </div>
@@ -243,7 +243,7 @@
 <table>
   <thead><tr><th>Service</th><th>Kind</th><th>Responsibility</th><th>Uses / creates</th></tr></thead>
   <tbody>
-    <tr><td><span class="tag service">service</span> ExpenseParser</td><td>Feature</td><td>Natural-language → unsaved expenses (AI or Colombian heuristic).</td><td><code>ParsedExpense</code>, <code>Category</code>, <code>MoneySource</code></td></tr>
+    <tr><td><span class="tag service">service</span> ExpenseResolver</td><td>Feature</td><td>Natural-language → unsaved expenses (AI or Colombian heuristic).</td><td><code>ParsedExpense</code>, <code>Category</code>, <code>MoneySource</code></td></tr>
     <tr><td><span class="tag value">vo</span> ParsedExpense</td><td>Value object</td><td>One parsed expense; validates before persistence.</td><td>—</td></tr>
     <tr><td><span class="tag service">service</span> Expenses::Create</td><td>Feature</td><td>Single entry point to create an Expense from any source.</td><td>creates <code>Expense</code></td></tr>
     <tr><td><span class="tag service">service</span> ImportPipeline</td><td>Orchestrator</td><td>Statement upload: validate → text extract → AI extract (no writes).</td><td><code>Ai::StatementExtractor</code>, <code>ParsedStatement</code></td></tr>
@@ -278,7 +278,7 @@
 <!-- ============ FLOWS ============ -->
 <h2>3. Data-flow story</h2>
 <div class="callout">
-  <b>1. Manual / text / voice</b> → <code>ExpenseParser</code> → <code>ParsedExpense</code> → <code>Expenses::Create</code> → <code>Expense</code><br>
+  <b>1. Manual / text / voice</b> → <code>ExpenseResolver</code> → <code>ParsedExpense</code> → <code>Expenses::Create</code> → <code>Expense</code><br>
   <b>2. Gmail import</b> → <code>Gmail::SyncService</code> → fetch via <code>Client</code>/<code>QueryBuilder</code> → <code>EmailTransactionDetector</code> → <code>Ai::TransactionExtractor</code> → <code>Gmail::ExpenseImporter</code> resolves source → <code>Expenses::Create</code> → <code>Expense</code> + <code>ProcessedEmail</code> (idempotency)<br>
   <b>3. Statement upload</b> → <code>ImportPipeline</code> → <code>Ai::StatementExtractor</code> → <code>ParsedStatement</code> → reviewed &amp; deduped via <code>StatementDuplicateDetector</code> → committed by <code>FinancialSetups::Completer</code> → <code>MoneySource</code> / <code>CreditAccount</code> / <code>RecurringTemplate</code><br>
   <b>4. Recurring payments</b> → <code>RecurringTemplateProcessor</code> (period-guarded) or CSV via <code>RecurringTemplateImporter</code><br>

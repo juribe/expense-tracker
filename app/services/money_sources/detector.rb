@@ -8,7 +8,7 @@ module MoneySources
   #
   #   MoneySources::Detector.call(user: user, text: "gasté 50 mil desde nequi")
   #
-  # Used by ExpenseParser (text/voice input) and the playground pipeline
+  # Used by ExpenseResolver (text/voice input) and the playground pipeline
   # (image/OCR input), so all channels detect sources the same way.
   class Detector
     ACCENT_MAP = { "á" => "a", "é" => "e", "í" => "i", "ó" => "o", "ú" => "u", "ü" => "u" }.freeze

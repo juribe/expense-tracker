@@ -8,7 +8,7 @@ class ParsedExpense
 
   ATTRIBUTES = %i[
     amount description transaction_date category_id category_name
-    create_category confidence warnings source_hint
+    create_category confidence warnings source_hint original_text
     money_source_id money_source_name
   ].freeze
 

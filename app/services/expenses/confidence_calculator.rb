@@ -118,7 +118,7 @@ module Expenses
       return 0.0 unless expense_date
 
       resolved = verifiable_texts.any? do |text|
-        detected, = ExpenseParser::DateService.detect_date(text, today: @today)
+        detected, = ExpenseResolver::Dates::Service.detect_date(text, today: @today)
         detected == expense_date
       end
       if resolved
@@ -185,8 +185,8 @@ module Expenses
       verifiable_texts.any? do |text|
         next false if text.strip.blank?
 
-        ExpenseParser::AmountService.scan_amounts(text).any? do |scan|
-          value, = ExpenseParser::AmountService.interpret_amount(scan[:raw])
+        ExpenseResolver::Amounts::Service.scan_amounts(text).any? do |scan|
+          value, = ExpenseResolver::Amounts::Service.interpret_amount(scan[:raw])
           value && (value.to_d - target).abs <= BigDecimal("0.01")
         end
       end
@@ -197,7 +197,7 @@ module Expenses
     end
 
     def expense_date
-      @expense_date ||= ExpenseParser::DateService.parse_iso_date(@expense.date)
+      @expense_date ||= ExpenseResolver::Dates::Service.parse_iso_date(@expense.date)
     end
 
     def normalize(text)

@@ -28,6 +28,9 @@ module Expenses
       end
 
       def validate(candidate)
+        return unless @recording
+
+        @recording.steps[:validation] ||= []
         @recording.steps[:validation] << {
           candidate: candidate,
           valid: candidate.valid?,

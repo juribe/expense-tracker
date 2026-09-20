@@ -3,7 +3,7 @@
 require "test_helper"
 
 # Runs one evaluation case through the REAL existing Expense Playground
-# pipeline (ExpenseParser → Ai::Router override → normalization → validation →
+# pipeline (ExpenseResolver → Ai::Router override → normalization → validation →
 # ResultBuilder → Comparator) exactly as the background job does, with the AI
 # response stubbed. This is the core "the evaluation reuses the same pipeline"
 # guarantee: the only injected piece is the provider/model under test.

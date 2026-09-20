@@ -132,7 +132,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 
 | Service | What it does |
 |---|---|
-| **ExpenseParser** | Turns natural-language (text/voice) into **unsaved** expenses. AI (Mistral) when key set, else deterministic Colombian-amount heuristic parser. Returns `{engine, expenses[], errors}`. Uses `ParsedExpense`. |
+| **ExpenseResolver** | Turns natural-language (text/voice) into **unsaved** expenses. AI (Mistral) when key set, else deterministic Colombian-amount heuristic parser. Returns `{engine, expenses[], errors}`. Uses `ParsedExpense`. |
 | **ParsedExpense** | Value object for one parsed expense; validates before persistence. |
 | **Expenses::Create** | **Single entry point** for creating an `Expense` from any source (manual / text / voice / gmail / ai). Normalizes amount, resolves category, raises `Invalid` on failure. |
 | **ImportPipeline** | Orchestrates statement upload: validate → detect format → extract text (PDF/CSV/XLSX) → AI extraction → build `ParsedStatement` sources + transactions. Never writes records. |
@@ -168,7 +168,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 
 | From | Relation | To |
 |---|---|---|
-| `ExpenseParser` | uses | `ParsedExpense`, `Category`, `MoneySource` (+ recognition identifiers) |
+| `ExpenseResolver` | uses | `ParsedExpense`, `Category`, `MoneySource` (+ recognition identifiers) |
 | `Expenses::Create` | creates | `Expense` (via `Category`) |
 | `ImportPipeline` | orchestrates | `Ai::StatementExtractor`, `ParsedStatement` |
 | `Ai::StatementExtractor` | normalizes into | `ParsedStatement` fields |
@@ -188,7 +188,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 
 ## 4. Data-flow story
 
-1. **Manual / text / voice entry** → `ExpenseParser` → `ParsedExpense` → `Expenses::Create` → `Expense`.
+1. **Manual / text / voice entry** → `ExpenseResolver` → `ParsedExpense` → `Expenses::Create` → `Expense`.
 2. **Gmail import** → `Gmail::SyncService` → fetch via `Gmail::Client`/`QueryBuilder` → `EmailTransactionDetector` filter → `Ai::TransactionExtractor` → `Gmail::ExpenseImporter` resolves source → `Expenses::Create` → `Expense` + `ProcessedEmail` (idempotency).
 3. **Statement upload** → `ImportPipeline` → `Ai::StatementExtractor` → `ParsedStatement` — reviewed, deduped via `StatementDuplicateDetector`, committed by `FinancialSetups::Completer` → `MoneySource` / `CreditAccount` / `RecurringTemplate`.
 4. **Recurring payments** → `RecurringTemplateProcessor` (period-guarded) or CSV via `RecurringTemplateImporter`.

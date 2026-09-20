@@ -67,6 +67,12 @@ module Ai
       false
     end
 
+    # Whether any AI tier is usable: the strong tier via the default Mistral
+    # client (direct env key) or the cheap tier (model + client configured).
+    def configured?
+      ENV["MISTRAL_API_KEY"].present? || cheap_enabled?
+    end
+
     def cheap_confidence_threshold
       Float(ENV["AI_CHEAP_CONFIDENCE_THRESHOLD"].presence || DEFAULT_CHEAP_CONFIDENCE_THRESHOLD)
     rescue ArgumentError, TypeError
