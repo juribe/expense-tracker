@@ -22,7 +22,7 @@ module ExpenseResolver
     end
 
     def call
-      resolved = category_in_database
+      resolved = category_resolver.resolve_category(raw_category, safe_category_id, activity: activity)
       return Result.new(nil, nil, raw_category) if resolved.nil?
 
       Result.new(resolved, resolved.name, nil)
@@ -30,16 +30,27 @@ module ExpenseResolver
 
     private
 
+    # Category resolution is centralized in Categories::HeuristicResolver:
+    # exact normalized name, learned activity mappings, English->Spanish
+    # aliases, the parking/housing guards and a similarity fold.
+    def category_resolver
+      @category_resolver ||= ::Categories::HeuristicResolver.new(
+        user: user,
+        name: raw_category,
+        activity: activity
+      )
+    end
+
+    def activity
+      expense.respond_to?(:description) ? expense.description.presence : nil
+    end
+
+    def safe_category_id
+      expense.respond_to?(:category_id) ? expense.category_id : nil
+    end
+
     def raw_category
       expense.category.to_s.strip.presence
-    end
-
-    def category_in_database(name = raw_category)
-      categories.find { |record| record.name == name }
-    end
-
-    def category_names
-      categories.map(&:name)
     end
   end
 end

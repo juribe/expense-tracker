@@ -23,12 +23,19 @@ module ExpenseResolver
       router_result = Ai::Router.call(
         task: :conversation_expense_parsing,
         input: text,
-        context: { user: user, today: current_date, categories: categories, context: context, execution: recording&.execution }
+        context: { user: user, today: current_date, categories: categories_names, context: context, execution: recording&.execution }
       )
       return ServiceResult.error([ router_result.error.presence || "AI parsing failed." ]) unless router_result.ok?
 
       recording&.add_step(:extraction, router_result.data)
       ServiceResult.success(router_result.data)
+    end
+
+    # Explicitly passed categories win; otherwise the user's expense
+    # categories are used so the model can only pick from real ones.
+    def categories_names
+      @categories_names ||= Array(categories).presence ||
+                            (user ? Category.for_user(user).expenses.order(:name).map(&:name) : [])
     end
   end
 end

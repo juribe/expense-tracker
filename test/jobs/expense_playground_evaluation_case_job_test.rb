@@ -39,7 +39,7 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
             "amount" => amount,
             "category" => category,
             "description" => description,
-            "transaction_date" => Date.current.iso8601,
+            "date" => Date.current.iso8601,
             "confidence" => 0.99,
             "create_category" => false
           }
@@ -81,6 +81,7 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
   end
 
   test "a case that only differs in activity still passes" do
+    Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     case_record = case_row(expected_json: { "amount" => 20_000, "category" => "Restaurants" })
     stub_provider(FakeAiProvider.new(responses: [ ok_response ])) do
       ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)

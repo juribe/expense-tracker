@@ -84,4 +84,74 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert ExpenseResolver::Service.call(text: "", user: @user).failure?
     assert ExpenseResolver::Service.call(text: "gasté 50 mil", user: nil).failure?
   end
+
+  # === Ported from the old ExpenseParser suite ==============================
+
+  test "detects the money source and applies it to every detected expense" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    source = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante y 20 mil en parqueadero desde nequi",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ source.id, source.id ], result.result.map(&:money_source_id)
+    assert_equal [ "Nequi", "Nequi" ], result.result.map(&:money_source_name)
+  end
+
+  test "ignores inactive money sources when detecting" do
+    @user.money_sources.create!(name: "Vieja tarjeta", kind: "credit_card", active: false)
+
+    result = ExpenseResolver::Service.call(text: "gasté 50 mil en almuerzo con la vieja tarjeta", user: @user)
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+  end
+
+  test "AI misexpanded amounts are corrected from the deterministic reading" do
+    result = nil
+    stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+      ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
+        original_text: "20 mil en algo raro",
+        amount: 2_000_000, date: Date.current, description: "algo raro",
+        category: "Restaurants", money_source_hint: nil, confidence: 0.9
+      ) ])
+    }) do
+      result = ExpenseResolver::Service.call(text: "20 mil en algo raro", user: @user)
+    end
+
+    assert result.success?
+    assert_equal 20_000, result.result.first.amount
+    assert_equal "ai", result.result.first.classification_source
+  end
+
+  test "a matching rule overrides the resolver's category suggestion" do
+    apps = Category.create!(name: "Apps", is_default: true, category_type: "expense")
+    TransactionRule.create!(user: @user, merchant_contains: nil,
+                            description_contains: "didi", category_id: apps.id)
+
+    result = ExpenseResolver::Service.call(text: "50 mil en didi en un restaurante", user: @user)
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal apps.id, candidate.category_id
+    assert_equal apps.name, candidate.category_name
+    assert_nil candidate.suggested_category_name
+  end
+
+  test "a user correction overrides earlier AI knowledge" do
+    restaurants = Category.find_by!(name: "Restaurants")
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: restaurants, source: "strong_ai")
+
+    other = Category.create!(name: "Food Delivery", is_default: true, category_type: "expense")
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: other, source: "user")
+
+    assert_equal other.id, ActivityClassification.lookup(user: @user, name: "DIDI FOOD").category_id
+
+    # An AI source must never overwrite the user correction.
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: restaurants, source: "cheap_ai")
+    assert_equal other.id, ActivityClassification.lookup(user: @user, name: "DIDI FOOD").category_id
+  end
 end

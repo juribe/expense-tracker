@@ -4,15 +4,16 @@ module Expenses
   module Processors
     class Text < Base
       def call(text = nil, context: nil)
-        result = ExpenseResolver::Service.call(text: text || note, user: @user, context: context, recording: @recording)
+        service = ExpenseResolver::Service.new(text: text || note, user: @user, context: context, recording: @recording)
+        result = service.process
         if result.failure?
           log_error(result.errors)
-          return [ nil, "IA" ]
+          return [ nil, nil ]
         end
 
         candidates = result.result
         validate_all(candidates)
-        [ candidates, "IA" ]
+        [ candidates, service.engine ]
       end
 
       def log_error(errors)

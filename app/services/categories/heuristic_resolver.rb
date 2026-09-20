@@ -28,7 +28,7 @@ module Categories
       ).call
     end
 
-    attr_reader :user, :name, :activity
+    attr_reader :user, :name, :activity, :category_resolution, :rejected_category_name
 
     def initialize(user:, name:, activity: nil, record: true)
       @user = user

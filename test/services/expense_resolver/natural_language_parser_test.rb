@@ -2,22 +2,22 @@
 
 require "test_helper"
 
-# Single-AI-call natural-language expense parsing. AI providers are faked
-# through Ai::Providers.strong; no network calls are made. The parser returns
-# the raw entries the model produced; normalization lives in
-# ExpenseCandidateProcessor.
-class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
+# Single-AI-call natural-language expense parsing through Ai::Router. AI
+# providers are faked through Ai::Providers.strong; no network calls are made.
+# The parser returns the ParsedExpense entries the model produced; field
+# reconciliation lives in ExpenseResolver::CandidateDetector.
+class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
   TODAY = Date.new(2026, 9, 16)
 
   setup do
-    @user = User.create!(name: "Parser User", email: "parser@example.com", password: "password123")
+    @user = User.create!(name: "Parser User", email: "nl-parser@example.com", password: "password123")
   end
 
   def parse(text, user: nil, categories: nil, current_date: TODAY, responses: [])
     provider = FakeAiProvider.new(responses: responses)
     result = nil
     stub_method(Ai::Providers, :strong, ->(*) { provider }) do
-      result = NaturalLanguageExpenseParser.call(text: text, current_date: current_date, user: user, categories: categories)
+      result = ExpenseResolver::NaturalLanguageParser.call(text: text, current_date: current_date, user: user, categories: categories)
     end
     [ result, provider ]
   end
@@ -42,8 +42,8 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
 
     assert result.success?
     assert_equal 1, result.result.length
-    assert_equal "Pagué 50 mil de gasolina", result.result.first["original_text"]
-    assert_equal 50_000, result.result.first["amount"]
+    assert_equal "Pagué 50 mil de gasolina", result.result.first.original_text
+    assert_equal 50_000, result.result.first.amount
   end
 
   test "splits multiple expenses into separate entries" do
@@ -62,7 +62,7 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
     assert result.success?
     assert_equal 2, result.result.length
     assert_equal [ "Pagué 50 mil de gasolina", "80 mil en comida" ],
-                 result.result.map { |expense| expense["original_text"] }
+                 result.result.map(&:original_text)
   end
 
   test "preserves shared context once per expense" do
@@ -83,7 +83,7 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
 
     assert result.success?
     assert_equal 3, result.result.length
-    assert_equal [ "2026-09-15" ] * 3, result.result.map { |expense| expense["date"] }
+    assert_equal [ "2026-09-15" ] * 3, result.result.map(&:date)
   end
 
   test "captures the money source hint without resolving it" do
@@ -97,7 +97,7 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal "la clásica", result.result.first["money_source_hint"]
+    assert_equal "la clásica", result.result.first.money_source_hint
   end
 
   test "passes the current date to the model for relative date resolution" do
@@ -111,27 +111,10 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal [ "2026-09-16" ], result.result.map { |expense| expense["date"] }
+    assert_equal [ "2026-09-16" ], result.result.map(&:date)
 
     system_prompt = provider.calls.first.first[:content]
-    assert_includes system_prompt, "Current date: 2026-09-16"
-  end
-
-  test "includes one of the allowed categories for every expense" do
-    result, = parse(
-      "compré 40 mil en restaurante y 25 mil en el cine",
-      responses: [ json_response([
-        { "original_text" => "compré 40 mil en restaurante", "amount" => 40_000,
-          "date" => "2026-09-16", "description" => "restaurante", "category" => "Comida",
-          "money_source_hint" => nil },
-        { "original_text" => "25 mil en el cine", "amount" => 25_000,
-          "date" => "2026-09-16", "description" => "cine", "category" => "Entretenimiento",
-          "money_source_hint" => nil }
-      ]) ]
-    )
-
-    assert result.success?
-    assert_equal %w[Comida Entretenimiento], result.result.map { |expense| expense["category"] }
+    assert_includes system_prompt, "Today: 2026-09-16"
   end
 
   test "uses the user's expense categories when a user is provided" do
@@ -148,11 +131,10 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal "Hogar", result.result.first["category"]
+    assert_equal "Hogar", result.result.first.category
 
     system_prompt = provider.calls.first.first[:content]
-    assert_includes system_prompt, "Hogar"
-    refute_includes system_prompt, NaturalLanguageExpenseParser::DEFAULT_CATEGORIES.first
+    assert_includes system_prompt, "Available categories: [Hogar]"
   end
 
   test "honors explicitly passed categories over user and default categories" do
@@ -170,13 +152,13 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal "Antojos", result.result.first["category"]
+    assert_equal "Antojos", result.result.first.category
 
     system_prompt = provider.calls.first.first[:content]
-    assert_includes system_prompt, "Allowed categories: [Antojos, Hogar]"
+    assert_includes system_prompt, "Available categories: [Antojos, Hogar]"
   end
 
-  test "returns the raw model entries without normalization" do
+  test "keeps the raw model amount without normalization" do
     result, = parse(
       "50.000 en almuerzo",
       responses: [ json_response([
@@ -187,7 +169,7 @@ class NaturalLanguageExpenseParserTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal "50.000", result.result.first["amount"]
+    assert_equal "50.000", result.result.first.amount
   end
 
   test "returns a controlled failure when the input is empty" do

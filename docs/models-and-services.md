@@ -132,7 +132,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 
 | Service | What it does |
 |---|---|
-| **ExpenseResolver** | Turns natural-language (text/voice) into **unsaved** expenses. AI (Mistral) when key set, else deterministic Colombian-amount heuristic parser. Returns `{engine, expenses[], errors}`. Uses `ParsedExpense`. |
+| **ExpenseResolver::Service** | Turns natural-language (text/voice) into **unsaved** `ExpenseCandidate`s: deterministic heuristic pass first, AI (via `Ai::Router`, cheap → strong) when the heuristic pass isn't confident. Uses the themed field services `expense_resolver/amounts/`, `dates/`, `text/`, `categories/` (+ `ConfidenceGate`) and maps every entry through `CandidateDetector`. |
 | **ParsedExpense** | Value object for one parsed expense; validates before persistence. |
 | **Expenses::Create** | **Single entry point** for creating an `Expense` from any source (manual / text / voice / gmail / ai). Normalizes amount, resolves category, raises `Invalid` on failure. |
 | **ImportPipeline** | Orchestrates statement upload: validate → detect format → extract text (PDF/CSV/XLSX) → AI extraction → build `ParsedStatement` sources + transactions. Never writes records. |

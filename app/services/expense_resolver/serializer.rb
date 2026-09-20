@@ -18,7 +18,7 @@ module ExpenseResolver
         description: candidate.description,
         transaction_date: candidate.date&.iso8601,
         category_id: candidate.category_id,
-        category_name: candidate.category_name,
+        category_name: candidate.category_name || candidate.suggested_category_name,
         create_category: candidate.suggested_category_name.present?,
         confidence: candidate.confidence,
         low_confidence: candidate.confidence.to_f < ParsedExpense::LOW_CONFIDENCE_THRESHOLD,

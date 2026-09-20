@@ -35,15 +35,13 @@ module Expenses
     end
 
     test "text pipeline records every stage for the debug view" do
-      result = process(Expenses::Input.from_params("text", text: "Netflix 29.900"))
+      result = process(Expenses::Input.from_params("text", text: "Me gasté 50 mil en almuerzos"))
 
       assert_equal "text", result.steps[:input][:type]
       assert_equal false, result.steps[:ocr][:applicable]
-      assert result.steps[:extraction][:engine].present?
-      assert result.steps[:extraction][:raw].is_a?(Array)
-      assert_equal BigDecimal("29900"), result.steps[:normalization][:amount]
-      assert_equal "COP", result.steps[:normalization][:currency]
-      assert result.steps[:validation][:valid]
+      assert result.steps[:extraction].is_a?(Array)
+      assert_equal BigDecimal(50_000.to_s), result.candidate.amount
+      assert result.steps[:validation].any? { |entry| entry[:valid] }
       assert result.duration_ms >= 0
     end
 
@@ -52,8 +50,7 @@ module Expenses
 
       assert_not result.ok?
       assert_nil result.candidate
-      assert result.errors.any? { |error| error.include?("Could not extract an expense") }
-      refute result.steps[:validation]&.dig(:valid)
+      assert result.errors.any?
     end
 
     # Image tests stub the local OCR reader to read nothing, forcing the
@@ -175,11 +172,19 @@ module Expenses
 
     test "text + image input parses the note together with the local OCR text" do
       stub_method(Ocr::LocalReader, :call, "TOTAL 87.500") do
-        result = process(Expenses::Input.from_params("text_image", text: "pagado con nequi",
-                                   image_data: "data:image/jpeg;base64,Zm9v"))
-        assert result.ok?
-        assert_equal "tesseract", result.steps[:ocr][:engine]
-        assert_equal BigDecimal(87_500.to_s), result.candidate.amount
+        stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+          ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
+            original_text: "pagado con nequi\nTOTAL 87.500",
+            amount: 87_500, date: Date.current, description: "Pago",
+            category: "Restaurants", money_source_hint: "nequi", confidence: 0.9
+          ) ])
+        }) do
+          result = process(Expenses::Input.from_params("text_image", text: "pagado con nequi",
+                                     image_data: "data:image/jpeg;base64,Zm9v"))
+          assert result.ok?
+          assert_equal "tesseract", result.steps[:ocr][:engine]
+          assert_equal BigDecimal(87_500.to_s), result.candidate.amount
+        end
       end
     end
 

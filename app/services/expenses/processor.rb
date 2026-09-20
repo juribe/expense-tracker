@@ -3,15 +3,15 @@
 module Expenses
    class Processor
     class << self
-      def call(user:, input:, recording: nil)
-        new(user: user, input: input, recording: recording).call
+      def call(user:, input:, recording: nil, execution: nil)
+        new(user: user, input: input, recording: recording, execution: execution).call
       end
     end
 
-    def initialize(user:, input:, recording: nil)
+    def initialize(user:, input:, recording: nil, execution: nil)
       @user = user
       @input = input
-      @recording = recording
+      @recording = recording || Expenses::Processors::Recording.new(execution: execution)
     end
 
     def call

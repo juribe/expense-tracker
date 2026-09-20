@@ -10,6 +10,8 @@ module ExpenseResolver
 
       # Returns [Date, confidence] when an explicit date expression is found.
       def self.detect_date(text, today: Date.current)
+        return nil if text.blank?
+
         if text.match?(/\bhoy\b/)
           [ today, 0.95 ]
         elsif text.match?(/\banteayer\b/)

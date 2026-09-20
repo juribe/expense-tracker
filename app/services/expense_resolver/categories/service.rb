@@ -22,7 +22,10 @@ module ExpenseResolver
       Resolution = Struct.new(:category, :suggested_name, :confidence)
 
       def self.resolve_category(description, context, categories)
-        haystack = "#{context} #{description}".squish
+        # Keyword matching is accent- and case-insensitive: descriptions are
+        # titleized before reaching this point ("Almuerzo" must still match
+        # the "almuerzo" keyword).
+        haystack = Text::Service.normalize_text("#{context} #{description}")
 
         group = best_matching_group(haystack)
         if group
@@ -67,9 +70,11 @@ module ExpenseResolver
       end
 
       # Tolerates plural/singular variants ("restaurante"/"restaurantes").
+      # The alternation must include the bare singular "e" ("restaurant" ->
+      # "restaurante"), which "e?s" alone cannot match.
       def self.keyword_pattern(word)
         stem = word.sub(/es\z/, "").sub(/s\z/, "")
-        /\b#{Regexp.escape(stem)}(?:e?s)?\b/
+        /\b#{Regexp.escape(stem)}(?:es|s|e)?\b/
       end
 
       # Maps the canonical group label to a user category by exact name, then by

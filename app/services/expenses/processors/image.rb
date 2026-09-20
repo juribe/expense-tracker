@@ -36,27 +36,49 @@ module Expenses
 
     private
 
-    # Maps a vision-extracted entry into the shared ExpenseCandidate shape,
-    # resolving the category name against the user's categories with the
-    # resolver's category service.
+    # Maps a vision-extracted entry into the shared ExpenseCandidate shape.
+    # Category resolution goes through Categories::HeuristicResolver (aliases,
+    # learned activity mappings, parking/housing guards) and unmatched names
+    # are kept or replaced by a cleaned suggestion, mirroring the preview
+    # behavior of every other channel.
     def build_vision_candidate(entry)
-      resolution = ExpenseResolver::Categories::Service.resolve_category(
-        entry[:description].presence || entry[:merchant].presence,
-        @input.payload[:text].to_s,
-        Category.for_user(@user).expenses.order(:name).to_a
+      activity = entry[:description].presence || entry[:merchant].presence
+      resolver = Categories::HeuristicResolver.new(
+        user: @user,
+        name: entry[:category_name].presence,
+        activity: activity
       )
+      category = resolver.resolve_category(
+        entry[:category_name].presence,
+        entry[:category_id].presence&.to_i,
+        activity: activity
+      )
+      extracted_name = resolver.rejected_category_name ? nil : entry[:category_name].presence
+
+      warnings = []
+      if category.nil?
+        if extracted_name.present?
+          warnings << "We could not match the category \"#{extracted_name}\". You can create it or pick an existing one when you confirm."
+        elsif (suggested = resolver.suggest_category_name(activity))
+          warnings << "No matching category found. Suggesting the new category \"#{suggested}\"; confirm to create it or pick an existing one."
+        else
+          warnings << "We could not determine a category for this expense. You can assign it when you confirm."
+        end
+      end
+      suggested_name = category ? nil : (suggested if extracted_name.blank?)
+      @recording&.add_warnings(warnings)
 
       ExpenseCandidate.new(
         amount: entry[:amount],
         currency: entry[:currency].presence || ExpenseCandidate::DEFAULT_CURRENCY,
-        category_id: resolution.category&.id,
-        category_name: resolution.category&.name || entry[:category_name].presence || resolution.suggested_name,
+        category_id: category&.id,
+        category_name: category&.name || suggested_name.presence || extracted_name,
         description: entry[:description].presence || entry[:merchant].presence,
         merchant: entry[:merchant],
         date: ExpenseResolver::Dates::Service.parse_iso_date(entry[:transaction_date]),
         source: "playground",
         classification_source: "vision",
-        suggested_category_name: resolution.category ? nil : resolution.suggested_name,
+        suggested_category_name: suggested_name,
         confidence: entry[:confidence],
         money_source_id: entry[:money_source_id].presence&.to_i,
         money_source_name: entry[:money_source_name].presence

@@ -1,6 +1,7 @@
 module ExpenseResolver
   class Service
     attr_accessor :text, :user, :expenses, :context, :recording
+    attr_reader :engine
 
     def initialize(text:, user:, context: nil, recording: nil)
       @text = text
@@ -19,17 +20,21 @@ module ExpenseResolver
       return ServiceResult.error("missing text") if invalid_text?
       return ServiceResult.error("missing user") if invalid_user?
 
-      resolution = HeuristicResolver.call(text: text, user: user, categories: categories, recording: recording)
-      if resolution.resolved?
-        entries = resolution.entries
-        self.engine = "heuristic"
-      else
+      resolution = nil
+      unless force_ai?
+        resolution = HeuristicResolver.call(text: text, user: user, categories: categories, recording: recording)
+      end
+
+      if resolution.nil? || !resolution.resolved?
         # IA checks expenses
         parser_result = NaturalLanguageParser.call(text: text, user: user, categories: categories_names, context: context, recording: recording)
         return parser_result if parser_result.failure?
 
         entries = parser_result.result
         self.engine = "ai"
+      else
+        entries = resolution.entries
+        self.engine = "heuristic"
       end
 
       entries.each do |expense|
@@ -70,10 +75,16 @@ module ExpenseResolver
 
     private
 
-    attr_accessor :engine
+    attr_writer :engine
 
     def classification_source
       engine == "heuristic" ? "heuristic" : "ai"
+    end
+
+    # An evaluation run carries a force_ai execution: the deterministic pass is
+    # skipped so the measured model exercises every dataset row.
+    def force_ai?
+      recording&.execution&.force_ai? || false
     end
   end
 end

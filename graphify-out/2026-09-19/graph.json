@@ -989,6 +989,32 @@
       "source_location": "L29"
     },
     {
+      "id": "test_services_source_recognition_matcher_test_sourcerecognition",
+      "label": "SourceRecognition",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": "sourcerecognition",
+      "source_file": "test/services/source_recognition/matcher_test.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest",
+      "label": "SourceRecognition::MatcherTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": "sourcerecognition::matchertest",
+      "source_file": "test/services/source_recognition/matcher_test.rb",
+      "source_location": "L6"
+    },
+    {
       "id": "app_models_spreadsheet_format_mapping_spreadsheetformatmapping",
       "label": "SpreadsheetFormatMapping",
       "_callable": true,
@@ -1392,19 +1418,6 @@
       "source_location": "L14"
     },
     {
-      "id": "app_services_ai_image_expense_extractor_ai_imageexpenseextractor_extractionerror",
-      "label": "Ai::ImageExpenseExtractor::ExtractionError",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 189,
-      "community_name": "Ai::ImageExpenseExtractor",
-      "file_type": "code",
-      "norm_label": "ai::imageexpenseextractor::extractionerror",
-      "source_file": "app/services/ai/image_expense_extractor.rb",
-      "source_location": "L15"
-    },
-    {
       "id": "app_services_gmail_query_builder_gmail",
       "label": "Gmail",
       "_callable": true,
@@ -1429,32 +1442,6 @@
       "norm_label": "gmail::querybuilder",
       "source_file": "app/services/gmail/query_builder.rb",
       "source_location": "L11"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test_gmail",
-      "label": "Gmail",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "gmail",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L5"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest",
-      "label": "Gmail::QueryBuilderTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "gmail::querybuildertest",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L6"
     },
     {
       "id": "test_jobs_gmail_setup_sync_job_test_gmailsetupsyncjobtest",
@@ -1717,6 +1704,19 @@
       "source_location": "L11"
     },
     {
+      "id": "app_services_expenses_file_processor_expenses",
+      "label": "Expenses",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": "expenses",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L5"
+    },
+    {
       "id": "app_services_expenses_file_processor_expenses_fileprocessor",
       "label": "Expenses::FileProcessor",
       "_callable": true,
@@ -1728,6 +1728,19 @@
       "norm_label": "expenses::fileprocessor",
       "source_file": "app/services/expenses/file_processor.rb",
       "source_location": "L14"
+    },
+    {
+      "id": "app_services_expenses_file_processor_expenses_fileprocessor_result",
+      "label": "Expenses::FileProcessor::Result",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": "expenses::fileprocessor::result",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L17"
     },
     {
       "id": "app_models_spending_alert_spendingalert",
@@ -1769,56 +1782,30 @@
       "source_location": "L8"
     },
     {
-      "id": "app_services_ai_tasks_base_ai",
-      "label": "Ai",
+      "id": "app_services_ai_router_ai_router_result",
+      "label": "Ai::Router::Result",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": "ai",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L3"
+      "norm_label": "ai::router::result",
+      "source_file": "app/services/ai/router.rb",
+      "source_location": "L19"
     },
     {
-      "id": "app_services_ai_tasks_base_ai_tasks",
-      "label": "Ai::Tasks",
+      "id": "test_services_expense_parser_test_expenseparsertest",
+      "label": "ExpenseParserTest",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": "ai::tasks",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L4"
-    },
-    {
-      "id": "app_services_ai_tasks_base_ai_tasks_base",
-      "label": "Ai::Tasks::Base",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 210,
-      "community_name": "Ai::Tasks::Base",
-      "file_type": "code",
-      "norm_label": "ai::tasks::base",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L15"
-    },
-    {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_invalidresponse",
-      "label": "Ai::Tasks::Base::InvalidResponse",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 210,
-      "community_name": "Ai::Tasks::Base",
-      "file_type": "code",
-      "norm_label": "ai::tasks::base::invalidresponse",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L16"
+      "norm_label": "expenseparsertest",
+      "source_file": "test/services/expense_parser_test.rb",
+      "source_location": "L5"
     },
     {
       "id": "app_services_expenses_create_expenses",
@@ -1925,43 +1912,17 @@
       "source_location": "L17"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction_ai",
-      "label": "Ai",
+      "id": "test_services_expense_playground_evaluations_dataset_test_expenseplaygroundevaluationsdatasettest",
+      "label": "ExpensePlaygroundEvaluationsDatasetTest",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": "ai",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks",
-      "label": "Ai::Tasks",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
-      "file_type": "code",
-      "norm_label": "ai::tasks",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L4"
-    },
-    {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction",
-      "label": "Ai::Tasks::ExpenseExtraction",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
-      "file_type": "code",
-      "norm_label": "ai::tasks::expenseextraction",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L14"
+      "norm_label": "expenseplaygroundevaluationsdatasettest",
+      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
+      "source_location": "L6"
     },
     {
       "id": "db_migrate_20260907000001_create_transaction_rules_createtransactionrules",
@@ -2549,43 +2510,17 @@
       "source_location": "L5"
     },
     {
-      "id": "app_services_ai_router_ai_router_result",
-      "label": "Ai::Router::Result",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": "ai::router::result",
-      "source_file": "app/services/ai/router.rb",
-      "source_location": "L19"
-    },
-    {
       "id": "test_controllers_expense_playground_audio_controller_test_expenseplaygroundaudiocontrollertest",
       "label": "ExpensePlaygroundAudioControllerTest",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 241,
-      "community_name": "Ai::Router::Result",
+      "community_name": "ExpensePlaygroundAudioControllerTest",
       "file_type": "code",
       "norm_label": "expenseplaygroundaudiocontrollertest",
       "source_file": "test/controllers/expense_playground_audio_controller_test.rb",
       "source_location": "L9"
-    },
-    {
-      "id": "test_controllers_expense_playground_controller_test_expenseplaygroundcontrollertest",
-      "label": "ExpensePlaygroundControllerTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": "expenseplaygroundcontrollertest",
-      "source_file": "test/controllers/expense_playground_controller_test.rb",
-      "source_location": "L5"
     },
     {
       "id": "app_services_gmail_oauth_client_gmail",
@@ -2755,6 +2690,19 @@
       "norm_label": "expenseplayground::evaluations::comparator",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
       "source_location": "L20"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest",
+      "label": "ExpensePlaygroundEvaluationsComparatorTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 247,
+      "community_name": "ExpensePlayground::Evaluations::Comparator",
+      "file_type": "code",
+      "norm_label": "expenseplaygroundevaluationscomparatortest",
+      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
+      "source_location": "L5"
     },
     {
       "id": "app_services_expense_resolver_candidate_detector_expenseresolver",
@@ -2991,19 +2939,6 @@
       "source_location": "L38"
     },
     {
-      "id": "test_services_expense_parser_test_expenseparsertest",
-      "label": "ExpenseParserTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 256,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": "expenseparsertest",
-      "source_file": "test/services/expense_parser_test.rb",
-      "source_location": "L5"
-    },
-    {
       "id": "test_services_speech_to_text_test_speechtotext_futuretestprovider",
       "label": "SpeechToText::FutureTestProvider",
       "_callable": true,
@@ -3030,13 +2965,65 @@
       "source_location": "L8"
     },
     {
+      "id": "app_services_ai_tasks_base_ai",
+      "label": "Ai",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks",
+      "label": "Ai::Tasks",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L4"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base",
+      "label": "Ai::Tasks::Base",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks::base",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L15"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_invalidresponse",
+      "label": "Ai::Tasks::Base::InvalidResponse",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks::base::invalidresponse",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L16"
+    },
+    {
       "id": "app_services_ai_tasks_conversation_expense_parsing_ai",
       "label": "Ai",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "ai",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
@@ -3049,7 +3036,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "ai::tasks",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
@@ -3062,11 +3049,89 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "ai::tasks::conversationexpenseparsing",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
       "source_location": "L20"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai",
+      "label": "Ai",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks",
+      "label": "Ai::Tasks",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L4"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction",
+      "label": "Ai::Tasks::ExpenseExtraction",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks::expenseextraction",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L14"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai",
+      "label": "Ai",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks",
+      "label": "Ai::Tasks",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L4"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping",
+      "label": "Ai::Tasks::SpreadsheetMapping",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "ai::tasks::spreadsheetmapping",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L15"
     },
     {
       "id": "test_services_ai_tasks_conversation_expense_parsing_test_ai_tasks_conversationexpenseparsingtest",
@@ -3075,7 +3140,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "ai::tasks::conversationexpenseparsingtest",
       "source_file": "test/services/ai/tasks/conversation_expense_parsing_test.rb",
@@ -3199,43 +3264,17 @@
       "source_location": "L18"
     },
     {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai",
-      "label": "Ai",
+      "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob",
+      "label": "ExpensePlaygroundEvaluationCaseJob",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
+      "community_name": "ExpensePlaygroundEvaluationCaseJob",
       "file_type": "code",
-      "norm_label": "ai",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks",
-      "label": "Ai::Tasks",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
-      "file_type": "code",
-      "norm_label": "ai::tasks",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L4"
-    },
-    {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping",
-      "label": "Ai::Tasks::SpreadsheetMapping",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
-      "file_type": "code",
-      "norm_label": "ai::tasks::spreadsheetmapping",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L15"
+      "norm_label": "expenseplaygroundevaluationcasejob",
+      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
+      "source_location": "L11"
     },
     {
       "id": "app_services_ai_providers_open_router_ai",
@@ -3275,6 +3314,32 @@
       "norm_label": "ai::providers::openrouter",
       "source_file": "app/services/ai/providers/open_router.rb",
       "source_location": "L13"
+    },
+    {
+      "id": "app_services_expense_playground_evaluations_metrics_expenseplayground",
+      "label": "ExpensePlayground",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 266,
+      "community_name": "ExpensePlayground::Evaluations::Metrics",
+      "file_type": "code",
+      "norm_label": "expenseplayground",
+      "source_file": "app/services/expense_playground/evaluations/metrics.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_expense_playground_evaluations_metrics_expenseplayground_evaluations",
+      "label": "ExpensePlayground::Evaluations",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 266,
+      "community_name": "ExpensePlayground::Evaluations::Metrics",
+      "file_type": "code",
+      "norm_label": "expenseplayground::evaluations",
+      "source_file": "app/services/expense_playground/evaluations/metrics.rb",
+      "source_location": "L4"
     },
     {
       "id": "app_services_expense_playground_evaluations_metrics_expenseplayground_evaluations_metrics",
@@ -3485,30 +3550,17 @@
       "source_location": "L4"
     },
     {
-      "id": "app_services_expenses_file_processor_expenses",
-      "label": "Expenses",
+      "id": "app_models_expense_playground_run_expenseplaygroundrun",
+      "label": "ExpensePlaygroundRun",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 271,
-      "community_name": ".call",
+      "community_name": "ExpensePlaygroundRun",
       "file_type": "code",
-      "norm_label": "expenses",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L5"
-    },
-    {
-      "id": "app_services_expenses_file_processor_expenses_fileprocessor_result",
-      "label": "Expenses::FileProcessor::Result",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 271,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": "expenses::fileprocessor::result",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L17"
+      "norm_label": "expenseplaygroundrun",
+      "source_file": "app/models/expense_playground_run.rb",
+      "source_location": "L10"
     },
     {
       "id": "app_services_expenses_inputs_rules_audio_expenses",
@@ -3680,19 +3732,6 @@
       "source_location": "L20"
     },
     {
-      "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob",
-      "label": "ExpensePlaygroundEvaluationCaseJob",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 278,
-      "community_name": "EvaluationCase",
-      "file_type": "code",
-      "norm_label": "expenseplaygroundevaluationcasejob",
-      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
-      "source_location": "L11"
-    },
-    {
       "id": "app_models_evaluation_case_evaluationcase",
       "label": "EvaluationCase",
       "_callable": true,
@@ -3716,6 +3755,19 @@
       "file_type": "code",
       "norm_label": "evaluationruntest",
       "source_file": "test/models/evaluation_run_test.rb",
+      "source_location": "L5"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_metrics_test_expenseplaygroundevaluationsmetricstest",
+      "label": "ExpensePlaygroundEvaluationsMetricsTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 278,
+      "community_name": "EvaluationCase",
+      "file_type": "code",
+      "norm_label": "expenseplaygroundevaluationsmetricstest",
+      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
       "source_location": "L5"
     },
     {
@@ -4902,19 +4954,6 @@
       "source_location": "L8"
     },
     {
-      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver",
-      "label": "ExpenseResolver",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": ".configuration",
-      "file_type": "code",
-      "norm_label": "expenseresolver",
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L3"
-    },
-    {
       "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver",
       "label": "ExpenseResolver::HeuristicResolver",
       "_callable": true,
@@ -4926,19 +4965,6 @@
       "norm_label": "expenseresolver::heuristicresolver",
       "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
       "source_location": "L13"
-    },
-    {
-      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_resolution",
-      "label": "ExpenseResolver::HeuristicResolver::Resolution",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": ".configuration",
-      "file_type": "code",
-      "norm_label": "expenseresolver::heuristicresolver::resolution",
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L14"
     },
     {
       "id": "test_services_expenses_processor_test_expenses",
@@ -5058,43 +5084,30 @@
       "source_location": "L10"
     },
     {
-      "id": "app_services_email_transaction_detector_emailtransactiondetector",
-      "label": "EmailTransactionDetector",
+      "id": "test_services_gmail_query_builder_test_gmail",
+      "label": "Gmail",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
+      "community_name": "Gmail::QueryBuilderTest",
       "file_type": "code",
-      "norm_label": "emailtransactiondetector",
-      "source_file": "app/services/email_transaction_detector.rb",
-      "source_location": "L9"
-    },
-    {
-      "id": "app_services_email_transaction_detector_emailtransactiondetector_result",
-      "label": "EmailTransactionDetector::Result",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
-      "file_type": "code",
-      "norm_label": "emailtransactiondetector::result",
-      "source_file": "app/services/email_transaction_detector.rb",
-      "source_location": "L10"
-    },
-    {
-      "id": "test_services_email_transaction_detector_test_emailtransactiondetectortest",
-      "label": "EmailTransactionDetectorTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
-      "file_type": "code",
-      "norm_label": "emailtransactiondetectortest",
-      "source_file": "test/services/email_transaction_detector_test.rb",
+      "norm_label": "gmail",
+      "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L5"
+    },
+    {
+      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest",
+      "label": "Gmail::QueryBuilderTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 325,
+      "community_name": "Gmail::QueryBuilderTest",
+      "file_type": "code",
+      "norm_label": "gmail::querybuildertest",
+      "source_file": "test/services/gmail/query_builder_test.rb",
+      "source_location": "L6"
     },
     {
       "id": "test_services_ai_image_expense_extractor_test_ai",
@@ -5422,17 +5435,30 @@
       "source_location": "L5"
     },
     {
-      "id": "test_services_expense_playground_evaluations_metrics_test_expenseplaygroundevaluationsmetricstest",
-      "label": "ExpensePlaygroundEvaluationsMetricsTest",
+      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver",
+      "label": "ExpenseResolver",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 337,
-      "community_name": "ExpensePlaygroundEvaluationsMetricsTest",
+      "community_name": "expense_resolver/heuristic_resolver.rb",
       "file_type": "code",
-      "norm_label": "expenseplaygroundevaluationsmetricstest",
-      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
-      "source_location": "L5"
+      "norm_label": "expenseresolver",
+      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
+      "source_location": "L3"
+    },
+    {
+      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_resolution",
+      "label": "ExpenseResolver::HeuristicResolver::Resolution",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 337,
+      "community_name": "expense_resolver/heuristic_resolver.rb",
+      "file_type": "code",
+      "norm_label": "expenseresolver::heuristicresolver::resolution",
+      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
+      "source_location": "L14"
     },
     {
       "id": "test_services_financial_setups_step_presenter_test_financialsetups",
@@ -5539,6 +5565,19 @@
       "source_location": "L4"
     },
     {
+      "id": "test_controllers_expense_playground_controller_test_expenseplaygroundcontrollertest",
+      "label": "ExpensePlaygroundControllerTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 341,
+      "community_name": "ExpensePlaygroundControllerTest",
+      "file_type": "code",
+      "norm_label": "expenseplaygroundcontrollertest",
+      "source_file": "test/controllers/expense_playground_controller_test.rb",
+      "source_location": "L5"
+    },
+    {
       "id": "app_services_expenses_processors_recording_expenses",
       "label": "Expenses",
       "_callable": true,
@@ -5643,30 +5682,17 @@
       "source_location": "L3"
     },
     {
-      "id": "app_services_expense_playground_evaluations_metrics_expenseplayground",
-      "label": "ExpensePlayground",
+      "id": "app_services_ai_image_expense_extractor_ai_imageexpenseextractor_extractionerror",
+      "label": "Ai::ImageExpenseExtractor::ExtractionError",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 346,
-      "community_name": "ExpensePlayground",
+      "community_name": "Ai::ImageExpenseExtractor::ExtractionError",
       "file_type": "code",
-      "norm_label": "expenseplayground",
-      "source_file": "app/services/expense_playground/evaluations/metrics.rb",
-      "source_location": "L3"
-    },
-    {
-      "id": "app_services_expense_playground_evaluations_metrics_expenseplayground_evaluations",
-      "label": "ExpensePlayground::Evaluations",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 346,
-      "community_name": "ExpensePlayground",
-      "file_type": "code",
-      "norm_label": "expenseplayground::evaluations",
-      "source_file": "app/services/expense_playground/evaluations/metrics.rb",
-      "source_location": "L4"
+      "norm_label": "ai::imageexpenseextractor::extractionerror",
+      "source_file": "app/services/ai/image_expense_extractor.rb",
+      "source_location": "L15"
     },
     {
       "id": "app_services_ai_tasks_parsed_expense_ai",
@@ -5851,32 +5877,6 @@
       "source_location": "L5"
     },
     {
-      "id": "test_services_source_recognition_matcher_test_sourcerecognition",
-      "label": "SourceRecognition",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": "sourcerecognition",
-      "source_file": "test/services/source_recognition/matcher_test.rb",
-      "source_location": "L5"
-    },
-    {
-      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest",
-      "label": "SourceRecognition::MatcherTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": "sourcerecognition::matchertest",
-      "source_file": "test/services/source_recognition/matcher_test.rb",
-      "source_location": "L6"
-    },
-    {
       "id": "test_test_helper_activesupport",
       "label": "ActiveSupport",
       "_callable": true,
@@ -6007,19 +6007,6 @@
       "source_location": "L1"
     },
     {
-      "id": "app_models_expense_playground_run_expenseplaygroundrun",
-      "label": "ExpensePlaygroundRun",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "expenseplaygroundrun",
-      "source_file": "app/models/expense_playground_run.rb",
-      "source_location": "L10"
-    },
-    {
       "id": "app_services_gmail_expense_importer_gmail",
       "label": "Gmail",
       "_callable": true,
@@ -6122,19 +6109,6 @@
       "norm_label": "expenseparserairoutingtest",
       "source_file": "test/services/expense_parser_ai_routing_test.rb",
       "source_location": "L8"
-    },
-    {
-      "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest",
-      "label": "ExpensePlaygroundEvaluationsComparatorTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 374,
-      "community_name": "ExpensePlaygroundEvaluationsComparatorTest",
-      "file_type": "code",
-      "norm_label": "expenseplaygroundevaluationscomparatortest",
-      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
-      "source_location": "L5"
     },
     {
       "id": "app_services_expense_resolver_natural_language_parser_expenseresolver",
@@ -6488,17 +6462,43 @@
       "source_location": "L28"
     },
     {
-      "id": "test_services_expense_playground_evaluations_dataset_test_expenseplaygroundevaluationsdatasettest",
-      "label": "ExpensePlaygroundEvaluationsDatasetTest",
+      "id": "app_services_email_transaction_detector_emailtransactiondetector",
+      "label": "EmailTransactionDetector",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
       "file_type": "code",
-      "norm_label": "expenseplaygroundevaluationsdatasettest",
-      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
-      "source_location": "L6"
+      "norm_label": "emailtransactiondetector",
+      "source_file": "app/services/email_transaction_detector.rb",
+      "source_location": "L9"
+    },
+    {
+      "id": "app_services_email_transaction_detector_emailtransactiondetector_result",
+      "label": "EmailTransactionDetector::Result",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
+      "file_type": "code",
+      "norm_label": "emailtransactiondetector::result",
+      "source_file": "app/services/email_transaction_detector.rb",
+      "source_location": "L10"
+    },
+    {
+      "id": "test_services_email_transaction_detector_test_emailtransactiondetectortest",
+      "label": "EmailTransactionDetectorTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
+      "file_type": "code",
+      "norm_label": "emailtransactiondetectortest",
+      "source_file": "test/services/email_transaction_detector_test.rb",
+      "source_location": "L5"
     },
     {
       "id": "test_services_gmail_expense_importer_test_gmail",
@@ -10490,6 +10490,42 @@
       "source_location": "L73"
     },
     {
+      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest_create_configured_source",
+      "label": ".create_configured_source()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": ".create_configured_source()",
+      "source_file": "test/services/source_recognition/matcher_test.rb",
+      "source_location": "L15"
+    },
+    {
+      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest_email_message",
+      "label": ".email_message()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": ".email_message()",
+      "source_file": "test/services/source_recognition/matcher_test.rb",
+      "source_location": "L25"
+    },
+    {
+      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest_match",
+      "label": ".match()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": ".match()",
+      "source_file": "test/services/source_recognition/matcher_test.rb",
+      "source_location": "L35"
+    },
+    {
       "id": "app_models_spreadsheet_format_mapping_spreadsheetformatmapping_fingerprint",
       "label": ".fingerprint()",
       "_callable": true,
@@ -11375,7 +11411,7 @@
       "file_type": "code",
       "norm_label": ".cheap_confidence_threshold()",
       "source_file": "app/services/ai/configuration.rb",
-      "source_location": "L70"
+      "source_location": "L76"
     },
     {
       "id": "app_services_ai_configuration_ai_configuration_cheap_enabled_pred",
@@ -11414,6 +11450,18 @@
       "source_location": "L40"
     },
     {
+      "id": "app_services_ai_configuration_ai_configuration_configured_pred",
+      "label": ".configured?()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 183,
+      "community_name": "Ai::Configuration",
+      "file_type": "code",
+      "norm_label": ".configured?()",
+      "source_file": "app/services/ai/configuration.rb",
+      "source_location": "L72"
+    },
+    {
       "id": "app_services_ai_configuration_ai_configuration_deterministic_threshold",
       "label": ".deterministic_threshold()",
       "_callable": true,
@@ -11423,7 +11471,7 @@
       "file_type": "code",
       "norm_label": ".deterministic_threshold()",
       "source_file": "app/services/ai/configuration.rb",
-      "source_location": "L76"
+      "source_location": "L82"
     },
     {
       "id": "app_services_ai_configuration_ai_configuration_strong_model",
@@ -12278,18 +12326,6 @@
       "source_location": "L48"
     },
     {
-      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest_build",
-      "label": ".build()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": ".build()",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L7"
-    },
-    {
       "id": "playwright_money_source_tags_spec_addkeywords",
       "label": "addKeywords()",
       "_callable": true,
@@ -12782,18 +12818,6 @@
       "source_location": "L31"
     },
     {
-      "id": "test_services_expenses_audio_processor_test_expenses_audioprocessortest_process",
-      "label": ".process()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 205,
-      "community_name": "SpeechToText::Result",
-      "file_type": "code",
-      "norm_label": ".process()",
-      "source_file": "test/services/expenses/audio_processor_test.rb",
-      "source_location": "L34"
-    },
-    {
       "id": "test_services_expenses_audio_processor_test_expenses_audioprocessortest_stub_transcription",
       "label": ".stub_transcription()",
       "_callable": true,
@@ -12950,6 +12974,30 @@
       "source_location": "L120"
     },
     {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_process_file",
+      "label": ".process_file()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".process_file()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L99"
+    },
+    {
+      "id": "app_services_expenses_file_processor_call",
+      "label": "call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": "call()",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L21"
+    },
+    {
       "id": "app_services_expenses_file_processor_expenses_fileprocessor_ai_structure_indices",
       "label": ".ai_structure_indices()",
       "_callable": true,
@@ -13010,6 +13058,18 @@
       "source_location": "L593"
     },
     {
+      "id": "app_services_expenses_file_processor_expenses_fileprocessor_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L37"
+    },
+    {
       "id": "app_services_expenses_file_processor_expenses_fileprocessor_cell_text",
       "label": ".cell_text()",
       "_callable": true,
@@ -13032,6 +13092,30 @@
       "norm_label": ".decode_to_utf8()",
       "source_file": "app/services/expenses/file_processor.rb",
       "source_location": "L120"
+    },
+    {
+      "id": "app_services_expenses_file_processor_expenses_fileprocessor_detect_money_source",
+      "label": ".detect_money_source()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".detect_money_source()",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L577"
+    },
+    {
+      "id": "app_services_expenses_file_processor_expenses_fileprocessor_enrich_candidates",
+      "label": ".enrich_candidates()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".enrich_candidates()",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L467"
     },
     {
       "id": "app_services_expenses_file_processor_expenses_fileprocessor_extract_csv",
@@ -13128,6 +13212,18 @@
       "norm_label": ".extract_xlsx_tabular_rows()",
       "source_file": "app/services/expenses/file_processor.rb",
       "source_location": "L293"
+    },
+    {
+      "id": "app_services_expenses_file_processor_expenses_fileprocessor_failure",
+      "label": ".failure()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".failure()",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L613"
     },
     {
       "id": "app_services_expenses_file_processor_expenses_fileprocessor_header_index",
@@ -13236,6 +13332,18 @@
       "norm_label": ".resolve_category()",
       "source_file": "app/services/expenses/file_processor.rb",
       "source_location": "L411"
+    },
+    {
+      "id": "app_services_expenses_file_processor_expenses_fileprocessor_resolve_money_sources",
+      "label": ".resolve_money_sources()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": ".resolve_money_sources()",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L547"
     },
     {
       "id": "app_services_expenses_file_processor_expenses_fileprocessor_run_candidates",
@@ -13466,64 +13574,40 @@
       "source_location": "L20"
     },
     {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_cache_lookup",
-      "label": ".cache_lookup()",
+      "id": "test_controllers_expense_playground_audio_controller_test_expenseplaygroundaudiocontrollertest_stub_ai_extraction",
+      "label": ".stub_ai_extraction()",
       "_callable": true,
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": ".cache_lookup()",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L29"
+      "norm_label": ".stub_ai_extraction()",
+      "source_file": "test/controllers/expense_playground_audio_controller_test.rb",
+      "source_location": "L137"
     },
     {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_messages",
-      "label": ".messages()",
+      "id": "test_controllers_expense_playground_controller_test_expenseplaygroundcontrollertest_stub_ai_extraction",
+      "label": ".stub_ai_extraction()",
       "_callable": true,
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": ".messages()",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L33"
+      "norm_label": ".stub_ai_extraction()",
+      "source_file": "test/controllers/expense_playground_controller_test.rb",
+      "source_location": "L533"
     },
     {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_parse",
-      "label": ".parse()",
+      "id": "test_services_expense_parser_test_expenseparsertest_ai_result",
+      "label": ".ai_result()",
       "_callable": true,
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": ".parse()",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L39"
-    },
-    {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_tiers",
-      "label": ".tiers()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 210,
-      "community_name": "Ai::Tasks::Base",
-      "file_type": "code",
-      "norm_label": ".tiers()",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L21"
-    },
-    {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_timeout",
-      "label": ".timeout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 210,
-      "community_name": "Ai::Tasks::Base",
-      "file_type": "code",
-      "norm_label": ".timeout()",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L25"
+      "norm_label": ".ai_result()",
+      "source_file": "test/services/expense_parser_test.rb",
+      "source_location": "L182"
     },
     {
       "id": "app_services_expenses_create_expenses_create_call",
@@ -13826,64 +13910,52 @@
       "source_location": "L38"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_confidence_of",
-      "label": ".confidence_of()",
+      "id": "app_services_expense_playground_evaluations_dataset_expenseplayground_evaluations_dataset_build",
+      "label": ".build()",
       "_callable": true,
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": ".confidence_of()",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L44"
+      "norm_label": ".build()",
+      "source_file": "app/services/expense_playground/evaluations/dataset.rb",
+      "source_location": "L34"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_messages",
-      "label": ".messages()",
+      "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_initialize",
+      "label": ".initialize()",
       "_callable": true,
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": ".messages()",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L19"
+      "norm_label": ".initialize()",
+      "source_file": "app/services/expense_playground/evaluations/runner.rb",
+      "source_location": "L24"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_parse",
-      "label": ".parse()",
+      "id": "test_services_expense_playground_evaluations_dataset_test_expenseplaygroundevaluationsdatasettest_csv_for",
+      "label": ".csv_for()",
       "_callable": true,
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": ".parse()",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L26"
+      "norm_label": ".csv_for()",
+      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
+      "source_location": "L7"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_system_prompt",
-      "label": ".system_prompt()",
+      "id": "test_services_expense_playground_evaluations_dataset_test_expenseplaygroundevaluationsdatasettest_valid_dataset",
+      "label": ".valid_dataset()",
       "_callable": true,
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": ".system_prompt()",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L49"
-    },
-    {
-      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_timeout",
-      "label": ".timeout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
-      "file_type": "code",
-      "norm_label": ".timeout()",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
-      "source_location": "L15"
+      "norm_label": ".valid_dataset()",
+      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
+      "source_location": "L13"
     },
     {
       "id": "db_migrate_20260907000001_create_transaction_rules_createtransactionrules_change",
@@ -14966,18 +15038,6 @@
       "source_location": "L319"
     },
     {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_resolve_mapping_category_bang",
-      "label": ".resolve_mapping_category!()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "ExpensePlaygroundController",
-      "file_type": "code",
-      "norm_label": ".resolve_mapping_category!()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L198"
-    },
-    {
       "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_run",
       "label": ".run()",
       "_callable": true,
@@ -15192,6 +15252,30 @@
       "norm_label": ".processor_attrs()",
       "source_file": "app/services/expenses/processor.rb",
       "source_location": "L55"
+    },
+    {
+      "id": "app_services_expenses_processor_expenses_processor_processor_for",
+      "label": ".processor_for()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 231,
+      "community_name": "Expenses::Processor",
+      "file_type": "code",
+      "norm_label": ".processor_for()",
+      "source_file": "app/services/expenses/processor.rb",
+      "source_location": "L47"
+    },
+    {
+      "id": "test_services_expenses_audio_processor_test_expenses_audioprocessortest_process",
+      "label": ".process()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 231,
+      "community_name": "Expenses::Processor",
+      "file_type": "code",
+      "norm_label": ".process()",
+      "source_file": "test/services/expenses/audio_processor_test.rb",
+      "source_location": "L34"
     },
     {
       "id": "app_controllers_imports_controller_importscontroller_create",
@@ -15907,47 +15991,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 241,
-      "community_name": "Ai::Router::Result",
+      "community_name": "ExpensePlaygroundAudioControllerTest",
       "file_type": "code",
       "norm_label": ".parsed_expense()",
       "source_file": "test/controllers/expense_playground_audio_controller_test.rb",
       "source_location": "L124"
-    },
-    {
-      "id": "test_controllers_expense_playground_audio_controller_test_expenseplaygroundaudiocontrollertest_stub_ai_extraction",
-      "label": ".stub_ai_extraction()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": ".stub_ai_extraction()",
-      "source_file": "test/controllers/expense_playground_audio_controller_test.rb",
-      "source_location": "L137"
-    },
-    {
-      "id": "test_controllers_expense_playground_controller_test_expenseplaygroundcontrollertest_parsed_expense",
-      "label": ".parsed_expense()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": ".parsed_expense()",
-      "source_file": "test/controllers/expense_playground_controller_test.rb",
-      "source_location": "L517"
-    },
-    {
-      "id": "test_controllers_expense_playground_controller_test_expenseplaygroundcontrollertest_stub_ai_extraction",
-      "label": ".stub_ai_extraction()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": ".stub_ai_extraction()",
-      "source_file": "test/controllers/expense_playground_controller_test.rb",
-      "source_location": "L533"
     },
     {
       "id": "app_controllers_gmail_connections_controller_gmailconnectionscontroller_start_auth",
@@ -16308,6 +16356,30 @@
       "norm_label": ".text_normalize()",
       "source_file": "app/services/expense_playground/evaluations/comparator.rb",
       "source_location": "L142"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 247,
+      "community_name": "ExpensePlayground::Evaluations::Comparator",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
+      "source_location": "L6"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest_expected_json",
+      "label": ".expected_json()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 247,
+      "community_name": "ExpensePlayground::Evaluations::Comparator",
+      "file_type": "code",
+      "norm_label": ".expected_json()",
+      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
+      "source_location": "L10"
     },
     {
       "id": "app_services_expense_resolver_candidate_detector_expenseresolver_candidatedetector_call",
@@ -16922,18 +16994,6 @@
       "source_location": "L18"
     },
     {
-      "id": "test_services_expense_parser_test_expenseparsertest_ai_result",
-      "label": ".ai_result()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 256,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".ai_result()",
-      "source_file": "test/services/expense_parser_test.rb",
-      "source_location": "L182"
-    },
-    {
       "id": "test_services_expense_parser_test_expenseparsertest_parse",
       "label": ".parse()",
       "_callable": true,
@@ -16994,16 +17054,100 @@
       "source_location": "L59"
     },
     {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_cache_lookup",
+      "label": ".cache_lookup()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".cache_lookup()",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L29"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_messages",
+      "label": ".messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".messages()",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L33"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_parse",
+      "label": ".parse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".parse()",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L39"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_parse_json",
+      "label": ".parse_json()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".parse_json()",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L51"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_tiers",
+      "label": ".tiers()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".tiers()",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L21"
+    },
+    {
+      "id": "app_services_ai_tasks_base_ai_tasks_base_timeout",
+      "label": ".timeout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".timeout()",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L25"
+    },
+    {
       "id": "app_services_ai_tasks_conversation_expense_parsing_ai_tasks_conversationexpenseparsing_messages",
       "label": ".messages()",
       "_callable": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": ".messages()",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
       "source_location": "L25"
+    },
+    {
+      "id": "app_services_ai_tasks_conversation_expense_parsing_ai_tasks_conversationexpenseparsing_parse",
+      "label": ".parse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".parse()",
+      "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
+      "source_location": "L32"
     },
     {
       "id": "app_services_ai_tasks_conversation_expense_parsing_ai_tasks_conversationexpenseparsing_system_prompt",
@@ -17011,7 +17155,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": ".system_prompt()",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
@@ -17023,11 +17167,143 @@
       "_callable": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": ".timeout()",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
       "source_location": "L21"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_confidence_of",
+      "label": ".confidence_of()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".confidence_of()",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L44"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_messages",
+      "label": ".messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".messages()",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L19"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_parse",
+      "label": ".parse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".parse()",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L26"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_system_prompt",
+      "label": ".system_prompt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".system_prompt()",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L49"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_ai_tasks_expenseextraction_timeout",
+      "label": ".timeout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".timeout()",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L15"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_messages",
+      "label": ".messages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".messages()",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L28"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_parse",
+      "label": ".parse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".parse()",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L35"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_structure_document",
+      "label": ".structure_document()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".structure_document()",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L59"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_system_prompt",
+      "label": ".system_prompt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".system_prompt()",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L72"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_tiers",
+      "label": ".tiers()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".tiers()",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L20"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_timeout",
+      "label": ".timeout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": ".timeout()",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L24"
     },
     {
       "id": "test_services_ai_tasks_conversation_expense_parsing_test_ai_tasks_conversationexpenseparsingtest_task",
@@ -17035,7 +17311,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": ".task()",
       "source_file": "test/services/ai/tasks/conversation_expense_parsing_test.rb",
@@ -17052,18 +17328,6 @@
       "norm_label": ".start()",
       "source_file": "app/controllers/expense_evaluations_controller.rb",
       "source_location": "L18"
-    },
-    {
-      "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_create_run",
-      "label": ".create_run()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 260,
-      "community_name": "ExpensePlayground::Evaluations::Runner",
-      "file_type": "code",
-      "norm_label": ".create_run()",
-      "source_file": "app/services/expense_playground/evaluations/runner.rb",
-      "source_location": "L90"
     },
     {
       "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_guard_parameters_bang",
@@ -17474,64 +17738,52 @@
       "source_location": "L195"
     },
     {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_messages",
-      "label": ".messages()",
+      "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_retry",
+      "label": ".retry()",
       "_callable": true,
       "_origin": "ast",
       "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
+      "community_name": "ExpensePlaygroundEvaluationCaseJob",
       "file_type": "code",
-      "norm_label": ".messages()",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L28"
+      "norm_label": ".retry()",
+      "source_file": "app/controllers/expense_evaluations_controller.rb",
+      "source_location": "L60"
     },
     {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_structure_document",
-      "label": ".structure_document()",
+      "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob_perform",
+      "label": ".perform()",
       "_callable": true,
       "_origin": "ast",
       "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
+      "community_name": "ExpensePlaygroundEvaluationCaseJob",
       "file_type": "code",
-      "norm_label": ".structure_document()",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L59"
+      "norm_label": ".perform()",
+      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
+      "source_location": "L21"
     },
     {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_system_prompt",
-      "label": ".system_prompt()",
+      "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob_retry_case_pred",
+      "label": ".retry_case?()",
       "_callable": true,
       "_origin": "ast",
       "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
+      "community_name": "ExpensePlaygroundEvaluationCaseJob",
       "file_type": "code",
-      "norm_label": ".system_prompt()",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L72"
+      "norm_label": ".retry_case?()",
+      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
+      "source_location": "L49"
     },
     {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_tiers",
-      "label": ".tiers()",
+      "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_enqueue_cases",
+      "label": ".enqueue_cases()",
       "_callable": true,
       "_origin": "ast",
       "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
+      "community_name": "ExpensePlaygroundEvaluationCaseJob",
       "file_type": "code",
-      "norm_label": ".tiers()",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L20"
-    },
-    {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_timeout",
-      "label": ".timeout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
-      "file_type": "code",
-      "norm_label": ".timeout()",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L24"
+      "norm_label": ".enqueue_cases()",
+      "source_file": "app/services/expense_playground/evaluations/runner.rb",
+      "source_location": "L124"
     },
     {
       "id": "app_services_ai_providers_open_router_ai_providers_openrouter_extra_headers",
@@ -17798,16 +18050,16 @@
       "source_location": "L58"
     },
     {
-      "id": "app_services_expense_playground_evaluations_case_processor_expenseplayground_evaluations_caseprocessor_usage_since",
-      "label": ".usage_since()",
+      "id": "app_services_expenses_input_expenses_input_from_params",
+      "label": ".from_params()",
       "_callable": true,
       "_origin": "ast",
       "community": 267,
       "community_name": "ExpensePlayground::Evaluations::CaseProcessor",
       "file_type": "code",
-      "norm_label": ".usage_since()",
-      "source_file": "app/services/expense_playground/evaluations/case_processor.rb",
-      "source_location": "L163"
+      "norm_label": ".from_params()",
+      "source_file": "app/services/expenses/input.rb",
+      "source_location": "L30"
     },
     {
       "id": "app_services_ai_providers_flex_ai_ai_providers_flexai_initialize",
@@ -18086,88 +18338,40 @@
       "source_location": "L26"
     },
     {
-      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_process_file",
-      "label": ".process_file()",
+      "id": "app_models_expense_playground_run_expenseplaygroundrun_ok_pred",
+      "label": ".ok?()",
       "_callable": true,
       "_origin": "ast",
       "community": 271,
-      "community_name": ".call",
+      "community_name": "ExpensePlaygroundRun",
       "file_type": "code",
-      "norm_label": ".process_file()",
-      "source_file": "app/controllers/expense_playground_controller.rb",
-      "source_location": "L99"
+      "norm_label": ".ok?()",
+      "source_file": "app/models/expense_playground_run.rb",
+      "source_location": "L40"
     },
     {
-      "id": "app_services_expenses_file_processor_call",
-      "label": "call()",
+      "id": "app_models_expense_playground_run_expenseplaygroundrun_record_bang",
+      "label": ".record!()",
       "_callable": true,
       "_origin": "ast",
       "community": 271,
-      "community_name": ".call",
+      "community_name": "ExpensePlaygroundRun",
       "file_type": "code",
-      "norm_label": "call()",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L21"
+      "norm_label": ".record!()",
+      "source_file": "app/models/expense_playground_run.rb",
+      "source_location": "L24"
     },
     {
-      "id": "app_services_expenses_file_processor_expenses_fileprocessor_call",
-      "label": ".call()",
+      "id": "app_models_expense_playground_run_expenseplaygroundrun_to_history_entry",
+      "label": ".to_history_entry()",
       "_callable": true,
       "_origin": "ast",
       "community": 271,
-      "community_name": ".call",
+      "community_name": "ExpensePlaygroundRun",
       "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L37"
-    },
-    {
-      "id": "app_services_expenses_file_processor_expenses_fileprocessor_detect_money_source",
-      "label": ".detect_money_source()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 271,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".detect_money_source()",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L577"
-    },
-    {
-      "id": "app_services_expenses_file_processor_expenses_fileprocessor_enrich_candidates",
-      "label": ".enrich_candidates()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 271,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".enrich_candidates()",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L467"
-    },
-    {
-      "id": "app_services_expenses_file_processor_expenses_fileprocessor_failure",
-      "label": ".failure()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 271,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".failure()",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L613"
-    },
-    {
-      "id": "app_services_expenses_file_processor_expenses_fileprocessor_resolve_money_sources",
-      "label": ".resolve_money_sources()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 271,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": ".resolve_money_sources()",
-      "source_file": "app/services/expenses/file_processor.rb",
-      "source_location": "L547"
+      "norm_label": ".to_history_entry()",
+      "source_file": "app/models/expense_playground_run.rb",
+      "source_location": "L45"
     },
     {
       "id": "app_services_expenses_inputs_audio_expenses_inputs_audio_channel_errors",
@@ -18494,42 +18698,6 @@
       "source_location": "L36"
     },
     {
-      "id": "app_controllers_expense_evaluations_controller_expenseevaluationscontroller_retry",
-      "label": ".retry()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 278,
-      "community_name": "EvaluationCase",
-      "file_type": "code",
-      "norm_label": ".retry()",
-      "source_file": "app/controllers/expense_evaluations_controller.rb",
-      "source_location": "L60"
-    },
-    {
-      "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob_perform",
-      "label": ".perform()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 278,
-      "community_name": "EvaluationCase",
-      "file_type": "code",
-      "norm_label": ".perform()",
-      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
-      "source_location": "L21"
-    },
-    {
-      "id": "app_jobs_expense_playground_evaluation_case_job_expenseplaygroundevaluationcasejob_retry_case_pred",
-      "label": ".retry_case?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 278,
-      "community_name": "EvaluationCase",
-      "file_type": "code",
-      "norm_label": ".retry_case?()",
-      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
-      "source_location": "L49"
-    },
-    {
       "id": "app_models_evaluation_case_evaluationcase_evaluated_json_valid_pred",
       "label": ".evaluated_json_valid?()",
       "_callable": true,
@@ -18566,16 +18734,16 @@
       "source_location": "L27"
     },
     {
-      "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_enqueue_cases",
-      "label": ".enqueue_cases()",
+      "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_create_run",
+      "label": ".create_run()",
       "_callable": true,
       "_origin": "ast",
       "community": 278,
       "community_name": "EvaluationCase",
       "file_type": "code",
-      "norm_label": ".enqueue_cases()",
+      "norm_label": ".create_run()",
       "source_file": "app/services/expense_playground/evaluations/runner.rb",
-      "source_location": "L124"
+      "source_location": "L90"
     },
     {
       "id": "test_models_evaluation_run_test_evaluationruntest_case_row",
@@ -18588,6 +18756,30 @@
       "norm_label": ".case_row()",
       "source_file": "test/models/evaluation_run_test.rb",
       "source_location": "L15"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_metrics_test_expenseplaygroundevaluationsmetricstest_case_row",
+      "label": ".case_row()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 278,
+      "community_name": "EvaluationCase",
+      "file_type": "code",
+      "norm_label": ".case_row()",
+      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
+      "source_location": "L13"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_metrics_test_expenseplaygroundevaluationsmetricstest_field",
+      "label": ".field()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 278,
+      "community_name": "EvaluationCase",
+      "file_type": "code",
+      "norm_label": ".field()",
+      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
+      "source_location": "L25"
     },
     {
       "id": "app_services_ai_pricing_ai_pricing_configured",
@@ -18936,18 +19128,6 @@
       "norm_label": ".file_errors()",
       "source_file": "app/services/expenses/inputs/rules/file.rb",
       "source_location": "L13"
-    },
-    {
-      "id": "app_services_expenses_processor_expenses_processor_processor_for",
-      "label": ".processor_for()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 282,
-      "community_name": "Expenses::Processors::Audio",
-      "file_type": "code",
-      "norm_label": ".processor_for()",
-      "source_file": "app/services/expenses/processor.rb",
-      "source_location": "L47"
     },
     {
       "id": "app_services_expenses_processors_audio_expenses_processors_audio_call",
@@ -19382,18 +19562,6 @@
       "source_location": "L65"
     },
     {
-      "id": "app_services_expenses_input_expenses_input_from_params",
-      "label": ".from_params()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 290,
-      "community_name": "Expenses::Input",
-      "file_type": "code",
-      "norm_label": ".from_params()",
-      "source_file": "app/services/expenses/input.rb",
-      "source_location": "L30"
-    },
-    {
       "id": "app_services_expenses_input_expenses_input_initialize",
       "label": ".initialize()",
       "_callable": true,
@@ -19656,6 +19824,18 @@
       "norm_label": ".latest_override_request_id()",
       "source_file": "app/services/expense_playground/evaluations/case_processor.rb",
       "source_location": "L159"
+    },
+    {
+      "id": "app_services_expense_playground_evaluations_case_processor_expenseplayground_evaluations_caseprocessor_usage_since",
+      "label": ".usage_since()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 295,
+      "community_name": "AiRequest",
+      "file_type": "code",
+      "norm_label": ".usage_since()",
+      "source_file": "app/services/expense_playground/evaluations/case_processor.rb",
+      "source_location": "L163"
     },
     {
       "id": "test_services_ai_metrics_test_ai_metricstest_request_bang",
@@ -20174,18 +20354,6 @@
       "source_location": "L131"
     },
     {
-      "id": "app_services_categories_closest_resolver_categories_closestresolver_call",
-      "label": ".call()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "Categories::ClosestResolver",
-      "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "app/services/categories/closest_resolver.rb",
-      "source_location": "L67"
-    },
-    {
       "id": "app_services_categories_closest_resolver_categories_closestresolver_exact_match",
       "label": ".exact_match()",
       "_callable": true,
@@ -20654,6 +20822,30 @@
       "source_location": "L36"
     },
     {
+      "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_resolve_mapping_category_bang",
+      "label": ".resolve_mapping_category!()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 317,
+      "community_name": "ExpenseEvaluationsController",
+      "file_type": "code",
+      "norm_label": ".resolve_mapping_category!()",
+      "source_file": "app/controllers/expense_playground_controller.rb",
+      "source_location": "L198"
+    },
+    {
+      "id": "app_services_categories_closest_resolver_categories_closestresolver_call",
+      "label": ".call()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 317,
+      "community_name": "ExpenseEvaluationsController",
+      "file_type": "code",
+      "norm_label": ".call()",
+      "source_file": "app/services/categories/closest_resolver.rb",
+      "source_location": "L67"
+    },
+    {
       "id": "app_services_parsed_expense_parsedexpense_future_date_pred",
       "label": ".future_date?()",
       "_callable": true,
@@ -20810,18 +21002,6 @@
       "source_location": "L11"
     },
     {
-      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_ai_configured_pred",
-      "label": ".ai_configured?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": ".configuration",
-      "file_type": "code",
-      "norm_label": ".ai_configured?()",
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L51"
-    },
-    {
       "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_call",
       "label": ".call()",
       "_callable": true,
@@ -20856,18 +21036,6 @@
       "norm_label": ".record_deterministic_resolution()",
       "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
       "source_location": "L42"
-    },
-    {
-      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_resolution_resolved_pred",
-      "label": ".resolved?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 32,
-      "community_name": ".configuration",
-      "file_type": "code",
-      "norm_label": ".resolved?()",
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L15"
     },
     {
       "id": "test_services_expenses_processor_test_expenses_processortest_process",
@@ -21026,40 +21194,16 @@
       "source_location": "L24"
     },
     {
-      "id": "app_services_email_transaction_detector_emailtransactiondetector_call",
-      "label": ".call()",
+      "id": "test_services_gmail_query_builder_test_gmail_querybuildertest_build",
+      "label": ".build()",
       "_callable": true,
       "_origin": "ast",
       "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
+      "community_name": "Gmail::QueryBuilderTest",
       "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "app/services/email_transaction_detector.rb",
-      "source_location": "L26"
-    },
-    {
-      "id": "test_services_email_transaction_detector_test_emailtransactiondetectortest_detection",
-      "label": ".detection()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
-      "file_type": "code",
-      "norm_label": ".detection()",
-      "source_file": "test/services/email_transaction_detector_test.rb",
-      "source_location": "L10"
-    },
-    {
-      "id": "test_services_email_transaction_detector_test_emailtransactiondetectortest_detector",
-      "label": ".detector()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
-      "file_type": "code",
-      "norm_label": ".detector()",
-      "source_file": "test/services/email_transaction_detector_test.rb",
-      "source_location": "L6"
+      "norm_label": ".build()",
+      "source_file": "test/services/gmail/query_builder_test.rb",
+      "source_location": "L7"
     },
     {
       "id": "test_services_ai_image_expense_extractor_test_ai_imageexpenseextractortest_extractor",
@@ -21494,28 +21638,16 @@
       "source_location": "L11"
     },
     {
-      "id": "test_services_expense_playground_evaluations_metrics_test_expenseplaygroundevaluationsmetricstest_case_row",
-      "label": ".case_row()",
+      "id": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_resolution_resolved_pred",
+      "label": ".resolved?()",
       "_callable": true,
       "_origin": "ast",
       "community": 337,
-      "community_name": "ExpensePlaygroundEvaluationsMetricsTest",
+      "community_name": "expense_resolver/heuristic_resolver.rb",
       "file_type": "code",
-      "norm_label": ".case_row()",
-      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
-      "source_location": "L13"
-    },
-    {
-      "id": "test_services_expense_playground_evaluations_metrics_test_expenseplaygroundevaluationsmetricstest_field",
-      "label": ".field()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 337,
-      "community_name": "ExpensePlaygroundEvaluationsMetricsTest",
-      "file_type": "code",
-      "norm_label": ".field()",
-      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
-      "source_location": "L25"
+      "norm_label": ".resolved?()",
+      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
+      "source_location": "L15"
     },
     {
       "id": "test_services_financial_setups_step_presenter_test_financialsetups_steppresentertest_presenter",
@@ -21686,52 +21818,16 @@
       "source_location": "L44"
     },
     {
-      "id": "app_services_ai_tasks_base_ai_tasks_base_parse_json",
-      "label": ".parse_json()",
+      "id": "test_controllers_expense_playground_controller_test_expenseplaygroundcontrollertest_parsed_expense",
+      "label": ".parsed_expense()",
       "_callable": true,
       "_origin": "ast",
       "community": 341,
-      "community_name": ".parse_json",
+      "community_name": "ExpensePlaygroundControllerTest",
       "file_type": "code",
-      "norm_label": ".parse_json()",
-      "source_file": "app/services/ai/tasks/base.rb",
-      "source_location": "L51"
-    },
-    {
-      "id": "app_services_ai_tasks_conversation_expense_parsing_ai_tasks_conversationexpenseparsing_parse",
-      "label": ".parse()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 341,
-      "community_name": ".parse_json",
-      "file_type": "code",
-      "norm_label": ".parse()",
-      "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
-      "source_location": "L32"
-    },
-    {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_ai_tasks_spreadsheetmapping_parse",
-      "label": ".parse()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 341,
-      "community_name": ".parse_json",
-      "file_type": "code",
-      "norm_label": ".parse()",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
-      "source_location": "L35"
-    },
-    {
-      "id": "test_services_ai_router_test_ai_routertest_faketask_parse",
-      "label": ".parse()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 341,
-      "community_name": ".parse_json",
-      "file_type": "code",
-      "norm_label": ".parse()",
-      "source_file": "test/services/ai/router_test.rb",
-      "source_location": "L21"
+      "norm_label": ".parsed_expense()",
+      "source_file": "test/controllers/expense_playground_controller_test.rb",
+      "source_location": "L517"
     },
     {
       "id": "app_services_expenses_processors_recording_expenses_processors_recording_add_errors",
@@ -22202,42 +22298,6 @@
       "source_location": "L14"
     },
     {
-      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest_create_configured_source",
-      "label": ".create_configured_source()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": ".create_configured_source()",
-      "source_file": "test/services/source_recognition/matcher_test.rb",
-      "source_location": "L15"
-    },
-    {
-      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest_email_message",
-      "label": ".email_message()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": ".email_message()",
-      "source_file": "test/services/source_recognition/matcher_test.rb",
-      "source_location": "L25"
-    },
-    {
-      "id": "test_services_source_recognition_matcher_test_sourcerecognition_matchertest_match",
-      "label": ".match()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": ".match()",
-      "source_file": "test/services/source_recognition/matcher_test.rb",
-      "source_location": "L35"
-    },
-    {
       "id": "test_test_helper_activesupport_testcase_sign_in_as",
       "label": ".sign_in_as()",
       "_callable": true,
@@ -22382,42 +22442,6 @@
       "source_location": "L7"
     },
     {
-      "id": "app_models_expense_playground_run_expenseplaygroundrun_ok_pred",
-      "label": ".ok?()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": ".ok?()",
-      "source_file": "app/models/expense_playground_run.rb",
-      "source_location": "L40"
-    },
-    {
-      "id": "app_models_expense_playground_run_expenseplaygroundrun_record_bang",
-      "label": ".record!()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": ".record!()",
-      "source_file": "app/models/expense_playground_run.rb",
-      "source_location": "L24"
-    },
-    {
-      "id": "app_models_expense_playground_run_expenseplaygroundrun_to_history_entry",
-      "label": ".to_history_entry()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": ".to_history_entry()",
-      "source_file": "app/models/expense_playground_run.rb",
-      "source_location": "L45"
-    },
-    {
       "id": "test_services_expenses_confidence_calculator_test_expenses_confidencecalculatortest_calculate",
       "label": ".calculate()",
       "_callable": true,
@@ -22560,30 +22584,6 @@
       "norm_label": ".routing_result()",
       "source_file": "test/services/expense_parser_ai_routing_test.rb",
       "source_location": "L29"
-    },
-    {
-      "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest_call",
-      "label": ".call()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 374,
-      "community_name": "ExpensePlaygroundEvaluationsComparatorTest",
-      "file_type": "code",
-      "norm_label": ".call()",
-      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
-      "source_location": "L6"
-    },
-    {
-      "id": "test_services_expense_playground_evaluations_comparator_test_expenseplaygroundevaluationscomparatortest_expected_json",
-      "label": ".expected_json()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 374,
-      "community_name": "ExpensePlaygroundEvaluationsComparatorTest",
-      "file_type": "code",
-      "norm_label": ".expected_json()",
-      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
-      "source_location": "L10"
     },
     {
       "id": "app_services_expense_resolver_natural_language_parser_expenseresolver_naturallanguageparser_initialize",
@@ -23606,18 +23606,6 @@
       "source_location": "L55"
     },
     {
-      "id": "app_services_expense_playground_evaluations_dataset_expenseplayground_evaluations_dataset_build",
-      "label": ".build()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
-      "file_type": "code",
-      "norm_label": ".build()",
-      "source_file": "app/services/expense_playground/evaluations/dataset.rb",
-      "source_location": "L34"
-    },
-    {
       "id": "app_services_expense_playground_evaluations_dataset_expenseplayground_evaluations_dataset_build_row",
       "label": ".build_row()",
       "_callable": true,
@@ -23714,40 +23702,40 @@
       "source_location": "L56"
     },
     {
-      "id": "app_services_expense_playground_evaluations_runner_expenseplayground_evaluations_runner_initialize",
-      "label": ".initialize()",
+      "id": "app_services_email_transaction_detector_emailtransactiondetector_call",
+      "label": ".call()",
       "_callable": true,
       "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
       "file_type": "code",
-      "norm_label": ".initialize()",
-      "source_file": "app/services/expense_playground/evaluations/runner.rb",
-      "source_location": "L24"
+      "norm_label": ".call()",
+      "source_file": "app/services/email_transaction_detector.rb",
+      "source_location": "L26"
     },
     {
-      "id": "test_services_expense_playground_evaluations_dataset_test_expenseplaygroundevaluationsdatasettest_csv_for",
-      "label": ".csv_for()",
+      "id": "test_services_email_transaction_detector_test_emailtransactiondetectortest_detection",
+      "label": ".detection()",
       "_callable": true,
       "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
       "file_type": "code",
-      "norm_label": ".csv_for()",
-      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
-      "source_location": "L7"
+      "norm_label": ".detection()",
+      "source_file": "test/services/email_transaction_detector_test.rb",
+      "source_location": "L10"
     },
     {
-      "id": "test_services_expense_playground_evaluations_dataset_test_expenseplaygroundevaluationsdatasettest_valid_dataset",
-      "label": ".valid_dataset()",
+      "id": "test_services_email_transaction_detector_test_emailtransactiondetectortest_detector",
+      "label": ".detector()",
       "_callable": true,
       "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
       "file_type": "code",
-      "norm_label": ".valid_dataset()",
-      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
-      "source_location": "L13"
+      "norm_label": ".detector()",
+      "source_file": "test/services/email_transaction_detector_test.rb",
+      "source_location": "L6"
     },
     {
       "id": "test_services_gmail_expense_importer_test_gmail_expenseimportertest_detector_result",
@@ -24276,6 +24264,18 @@
       "norm_label": ".messages()",
       "source_file": "test/services/ai/router_test.rb",
       "source_location": "L17"
+    },
+    {
+      "id": "test_services_ai_router_test_ai_routertest_faketask_parse",
+      "label": ".parse()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "Ai::RouterTest::FakeTask",
+      "file_type": "code",
+      "norm_label": ".parse()",
+      "source_file": "test/services/ai/router_test.rb",
+      "source_location": "L21"
     },
     {
       "id": "test_services_ai_router_test_ai_routertest_ok_response",
@@ -27625,6 +27625,28 @@
       "source_location": "L1"
     },
     {
+      "id": "test_services_source_recognition_matcher_test",
+      "label": "matcher_test.rb",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": "matcher_test.rb",
+      "source_file": "test/services/source_recognition/matcher_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_source_recognition_matcher_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "SourceRecognition::Matcher",
+      "file_type": "code",
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "config_environment",
       "label": "environment.rb",
       "_origin": "ast",
@@ -28177,17 +28199,6 @@
       "source_location": "L1"
     },
     {
-      "id": "app_services_ai_image_expense_extractor_rb_standarderror",
-      "label": "StandardError",
-      "_origin": "ast",
-      "community": 189,
-      "community_name": "Ai::ImageExpenseExtractor",
-      "file_type": "code",
-      "norm_label": "standarderror",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "app_services_gmail_query_builder",
       "label": "query_builder.rb",
       "_origin": "ast",
@@ -28197,28 +28208,6 @@
       "norm_label": "query_builder.rb",
       "source_file": "app/services/gmail/query_builder.rb",
       "source_location": "L1"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test",
-      "label": "query_builder_test.rb",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "query_builder_test.rb",
-      "source_file": "test/services/gmail/query_builder_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_gmail_query_builder_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "Gmail::QueryBuilder",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "playwright_money_source_tags_spec",
@@ -28802,6 +28791,17 @@
       "source_location": "L1"
     },
     {
+      "id": "app_services_expenses_file_processor",
+      "label": "file_processor.rb",
+      "_origin": "ast",
+      "community": 207,
+      "community_name": "Expenses::FileProcessor",
+      "file_type": "code",
+      "norm_label": "file_processor.rb",
+      "source_file": "app/services/expenses/file_processor.rb",
+      "source_location": "L1"
+    },
+    {
       "id": "app_models_spending_alert",
       "label": "spending_alert.rb",
       "_origin": "ast",
@@ -28846,24 +28846,24 @@
       "source_location": "L1"
     },
     {
-      "id": "app_services_ai_tasks_base",
-      "label": "tasks/base.rb",
+      "id": "test_services_expense_parser_test",
+      "label": "expense_parser_test.rb",
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": "tasks/base.rb",
-      "source_file": "app/services/ai/tasks/base.rb",
+      "norm_label": "expense_parser_test.rb",
+      "source_file": "test/services/expense_parser_test.rb",
       "source_location": "L1"
     },
     {
-      "id": "app_services_ai_tasks_base_rb_standarderror",
-      "label": "StandardError",
+      "id": "test_services_expense_parser_test_rb_testcase",
+      "label": "TestCase",
       "_origin": "ast",
       "community": 210,
-      "community_name": "Ai::Tasks::Base",
+      "community_name": "Ai::Router::Result",
       "file_type": "code",
-      "norm_label": "standarderror",
+      "norm_label": "testcase",
       "source_file": "",
       "source_location": ""
     },
@@ -28956,24 +28956,24 @@
       "source_location": "L1"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction",
-      "label": "expense_extraction.rb",
+      "id": "test_services_expense_playground_evaluations_dataset_test",
+      "label": "dataset_test.rb",
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": "expense_extraction.rb",
-      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "norm_label": "dataset_test.rb",
+      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
       "source_location": "L1"
     },
     {
-      "id": "app_services_ai_tasks_expense_extraction_rb_base",
-      "label": "Base",
+      "id": "test_services_expense_playground_evaluations_dataset_test_rb_testcase",
+      "label": "TestCase",
       "_origin": "ast",
       "community": 215,
-      "community_name": "Ai::Tasks::ExpenseExtraction",
+      "community_name": "ExpensePlaygroundEvaluationsDatasetTest",
       "file_type": "code",
-      "norm_label": "base",
+      "norm_label": "testcase",
       "source_file": "",
       "source_location": ""
     },
@@ -29532,7 +29532,7 @@
       "label": "expense_playground_audio_controller_test.rb",
       "_origin": "ast",
       "community": 241,
-      "community_name": "Ai::Router::Result",
+      "community_name": "ExpensePlaygroundAudioControllerTest",
       "file_type": "code",
       "norm_label": "expense_playground_audio_controller_test.rb",
       "source_file": "test/controllers/expense_playground_audio_controller_test.rb",
@@ -29543,29 +29543,7 @@
       "label": "IntegrationTest",
       "_origin": "ast",
       "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": "integrationtest",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "test_controllers_expense_playground_controller_test",
-      "label": "expense_playground_controller_test.rb",
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
-      "file_type": "code",
-      "norm_label": "expense_playground_controller_test.rb",
-      "source_file": "test/controllers/expense_playground_controller_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_controllers_expense_playground_controller_test_rb_integrationtest",
-      "label": "IntegrationTest",
-      "_origin": "ast",
-      "community": 241,
-      "community_name": "Ai::Router::Result",
+      "community_name": "ExpensePlaygroundAudioControllerTest",
       "file_type": "code",
       "norm_label": "integrationtest",
       "source_file": "",
@@ -29687,6 +29665,28 @@
       "_origin": "ast",
       "community": 246,
       "community_name": "Expense",
+      "file_type": "code",
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_comparator_test",
+      "label": "comparator_test.rb",
+      "_origin": "ast",
+      "community": 247,
+      "community_name": "ExpensePlayground::Evaluations::Comparator",
+      "file_type": "code",
+      "norm_label": "comparator_test.rb",
+      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_comparator_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 247,
+      "community_name": "ExpensePlayground::Evaluations::Comparator",
       "file_type": "code",
       "norm_label": "testcase",
       "source_file": "",
@@ -29836,28 +29836,6 @@
       "source_location": "L1"
     },
     {
-      "id": "test_services_expense_parser_test",
-      "label": "expense_parser_test.rb",
-      "_origin": "ast",
-      "community": 256,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": "expense_parser_test.rb",
-      "source_file": "test/services/expense_parser_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_expense_parser_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 256,
-      "community_name": ".call",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "script_whisper_transcribe",
       "label": "whisper_transcribe.py",
       "_origin": "ast",
@@ -29891,11 +29869,33 @@
       "source_location": ""
     },
     {
+      "id": "app_services_ai_tasks_base",
+      "label": "tasks/base.rb",
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "tasks/base.rb",
+      "source_file": "app/services/ai/tasks/base.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_ai_tasks_base_rb_standarderror",
+      "label": "StandardError",
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "standarderror",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "app_services_ai_tasks_conversation_expense_parsing",
       "label": "conversation_expense_parsing.rb",
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "conversation_expense_parsing.rb",
       "source_file": "app/services/ai/tasks/conversation_expense_parsing.rb",
@@ -29906,7 +29906,51 @@
       "label": "Base",
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "base",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction",
+      "label": "expense_extraction.rb",
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "expense_extraction.rb",
+      "source_file": "app/services/ai/tasks/expense_extraction.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_ai_tasks_expense_extraction_rb_base",
+      "label": "Base",
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "base",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping",
+      "label": "spreadsheet_mapping.rb",
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
+      "file_type": "code",
+      "norm_label": "spreadsheet_mapping.rb",
+      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_services_ai_tasks_spreadsheet_mapping_rb_base",
+      "label": "Base",
+      "_origin": "ast",
+      "community": 259,
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "base",
       "source_file": "",
@@ -29917,7 +29961,7 @@
       "label": "conversation_expense_parsing_test.rb",
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "conversation_expense_parsing_test.rb",
       "source_file": "test/services/ai/tasks/conversation_expense_parsing_test.rb",
@@ -29928,7 +29972,7 @@
       "label": "TestCase",
       "_origin": "ast",
       "community": 259,
-      "community_name": "Ai::Tasks::ConversationExpenseParsing",
+      "community_name": "Ai::Tasks::Base",
       "file_type": "code",
       "norm_label": "testcase",
       "source_file": "",
@@ -30110,26 +30154,15 @@
       "source_location": ""
     },
     {
-      "id": "app_services_ai_tasks_spreadsheet_mapping",
-      "label": "spreadsheet_mapping.rb",
+      "id": "app_jobs_expense_playground_evaluation_case_job",
+      "label": "expense_playground_evaluation_case_job.rb",
       "_origin": "ast",
       "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
+      "community_name": "ExpensePlaygroundEvaluationCaseJob",
       "file_type": "code",
-      "norm_label": "spreadsheet_mapping.rb",
-      "source_file": "app/services/ai/tasks/spreadsheet_mapping.rb",
+      "norm_label": "expense_playground_evaluation_case_job.rb",
+      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
       "source_location": "L1"
-    },
-    {
-      "id": "app_services_ai_tasks_spreadsheet_mapping_rb_base",
-      "label": "Base",
-      "_origin": "ast",
-      "community": 264,
-      "community_name": "Ai::Tasks::SpreadsheetMapping",
-      "file_type": "code",
-      "norm_label": "base",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "app_services_ai_providers_open_router",
@@ -30152,6 +30185,17 @@
       "norm_label": "provider",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "app_services_expense_playground_evaluations_metrics",
+      "label": "evaluations/metrics.rb",
+      "_origin": "ast",
+      "community": 266,
+      "community_name": "ExpensePlayground::Evaluations::Metrics",
+      "file_type": "code",
+      "norm_label": "evaluations/metrics.rb",
+      "source_file": "app/services/expense_playground/evaluations/metrics.rb",
+      "source_location": "L1"
     },
     {
       "id": "app_services_expense_playground_evaluations_case_processor",
@@ -30253,14 +30297,14 @@
       "source_location": "L1"
     },
     {
-      "id": "app_services_expenses_file_processor",
-      "label": "file_processor.rb",
+      "id": "app_models_expense_playground_run",
+      "label": "expense_playground_run.rb",
       "_origin": "ast",
       "community": 271,
-      "community_name": ".call",
+      "community_name": "ExpensePlaygroundRun",
       "file_type": "code",
-      "norm_label": "file_processor.rb",
-      "source_file": "app/services/expenses/file_processor.rb",
+      "norm_label": "expense_playground_run.rb",
+      "source_file": "app/models/expense_playground_run.rb",
       "source_location": "L1"
     },
     {
@@ -30363,17 +30407,6 @@
       "source_location": ""
     },
     {
-      "id": "app_jobs_expense_playground_evaluation_case_job",
-      "label": "expense_playground_evaluation_case_job.rb",
-      "_origin": "ast",
-      "community": 278,
-      "community_name": "EvaluationCase",
-      "file_type": "code",
-      "norm_label": "expense_playground_evaluation_case_job.rb",
-      "source_file": "app/jobs/expense_playground_evaluation_case_job.rb",
-      "source_location": "L1"
-    },
-    {
       "id": "app_models_evaluation_case",
       "label": "evaluation_case.rb",
       "_origin": "ast",
@@ -30397,6 +30430,28 @@
     },
     {
       "id": "test_models_evaluation_run_test_rb_testcase",
+      "label": "TestCase",
+      "_origin": "ast",
+      "community": 278,
+      "community_name": "EvaluationCase",
+      "file_type": "code",
+      "norm_label": "testcase",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_metrics_test",
+      "label": "evaluations/metrics_test.rb",
+      "_origin": "ast",
+      "community": 278,
+      "community_name": "EvaluationCase",
+      "file_type": "code",
+      "norm_label": "evaluations/metrics_test.rb",
+      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_expense_playground_evaluations_metrics_test_rb_testcase",
       "label": "TestCase",
       "_origin": "ast",
       "community": 278,
@@ -31320,17 +31375,6 @@
       "source_location": "L1"
     },
     {
-      "id": "app_services_expense_resolver_heuristic_resolver",
-      "label": "expense_resolver/heuristic_resolver.rb",
-      "_origin": "ast",
-      "community": 32,
-      "community_name": ".configuration",
-      "file_type": "code",
-      "norm_label": "expense_resolver/heuristic_resolver.rb",
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L1"
-    },
-    {
       "id": "test_services_expenses_processor_test",
       "label": "processor_test.rb",
       "_origin": "ast",
@@ -31408,33 +31452,22 @@
       "source_location": ""
     },
     {
-      "id": "app_services_email_transaction_detector",
-      "label": "email_transaction_detector.rb",
+      "id": "test_services_gmail_query_builder_test",
+      "label": "query_builder_test.rb",
       "_origin": "ast",
       "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
+      "community_name": "Gmail::QueryBuilderTest",
       "file_type": "code",
-      "norm_label": "email_transaction_detector.rb",
-      "source_file": "app/services/email_transaction_detector.rb",
+      "norm_label": "query_builder_test.rb",
+      "source_file": "test/services/gmail/query_builder_test.rb",
       "source_location": "L1"
     },
     {
-      "id": "test_services_email_transaction_detector_test",
-      "label": "email_transaction_detector_test.rb",
-      "_origin": "ast",
-      "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
-      "file_type": "code",
-      "norm_label": "email_transaction_detector_test.rb",
-      "source_file": "test/services/email_transaction_detector_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_email_transaction_detector_test_rb_testcase",
+      "id": "test_services_gmail_query_builder_test_rb_testcase",
       "label": "TestCase",
       "_origin": "ast",
       "community": 325,
-      "community_name": "EmailTransactionDetectorTest",
+      "community_name": "Gmail::QueryBuilderTest",
       "file_type": "code",
       "norm_label": "testcase",
       "source_file": "",
@@ -31672,26 +31705,15 @@
       "source_location": ""
     },
     {
-      "id": "test_services_expense_playground_evaluations_metrics_test",
-      "label": "evaluations/metrics_test.rb",
+      "id": "app_services_expense_resolver_heuristic_resolver",
+      "label": "expense_resolver/heuristic_resolver.rb",
       "_origin": "ast",
       "community": 337,
-      "community_name": "ExpensePlaygroundEvaluationsMetricsTest",
+      "community_name": "expense_resolver/heuristic_resolver.rb",
       "file_type": "code",
-      "norm_label": "evaluations/metrics_test.rb",
-      "source_file": "test/services/expense_playground/evaluations/metrics_test.rb",
+      "norm_label": "expense_resolver/heuristic_resolver.rb",
+      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
       "source_location": "L1"
-    },
-    {
-      "id": "test_services_expense_playground_evaluations_metrics_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 337,
-      "community_name": "ExpensePlaygroundEvaluationsMetricsTest",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "test_services_financial_setups_step_presenter_test",
@@ -31782,6 +31804,28 @@
       "source_location": "L1"
     },
     {
+      "id": "test_controllers_expense_playground_controller_test",
+      "label": "expense_playground_controller_test.rb",
+      "_origin": "ast",
+      "community": 341,
+      "community_name": "ExpensePlaygroundControllerTest",
+      "file_type": "code",
+      "norm_label": "expense_playground_controller_test.rb",
+      "source_file": "test/controllers/expense_playground_controller_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_controllers_expense_playground_controller_test_rb_integrationtest",
+      "label": "IntegrationTest",
+      "_origin": "ast",
+      "community": 341,
+      "community_name": "ExpensePlaygroundControllerTest",
+      "file_type": "code",
+      "norm_label": "integrationtest",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "app_services_expenses_processors_recording",
       "label": "recording.rb",
       "_origin": "ast",
@@ -31826,15 +31870,15 @@
       "source_location": "L1"
     },
     {
-      "id": "app_services_expense_playground_evaluations_metrics",
-      "label": "evaluations/metrics.rb",
+      "id": "app_services_ai_image_expense_extractor_rb_standarderror",
+      "label": "StandardError",
       "_origin": "ast",
       "community": 346,
-      "community_name": "ExpensePlayground",
+      "community_name": "Ai::ImageExpenseExtractor::ExtractionError",
       "file_type": "code",
-      "norm_label": "evaluations/metrics.rb",
-      "source_file": "app/services/expense_playground/evaluations/metrics.rb",
-      "source_location": "L1"
+      "norm_label": "standarderror",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "app_services_ai_tasks_parsed_expense",
@@ -32234,28 +32278,6 @@
       "source_location": "L1"
     },
     {
-      "id": "test_services_source_recognition_matcher_test",
-      "label": "matcher_test.rb",
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": "matcher_test.rb",
-      "source_file": "test/services/source_recognition/matcher_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_source_recognition_matcher_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 353,
-      "community_name": "SourceRecognition::MatcherTest",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "test_test_helper",
       "label": "test_helper.rb",
       "_origin": "ast",
@@ -32419,17 +32441,6 @@
       "norm_label": "base",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "app_models_expense_playground_run",
-      "label": "expense_playground_run.rb",
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "ApplicationRecord",
-      "file_type": "code",
-      "norm_label": "expense_playground_run.rb",
-      "source_file": "app/models/expense_playground_run.rb",
-      "source_location": "L1"
     },
     {
       "id": "app_services_gmail_expense_importer",
@@ -32850,28 +32861,6 @@
       "source_location": ""
     },
     {
-      "id": "test_services_expense_playground_evaluations_comparator_test",
-      "label": "comparator_test.rb",
-      "_origin": "ast",
-      "community": 374,
-      "community_name": "ExpensePlaygroundEvaluationsComparatorTest",
-      "file_type": "code",
-      "norm_label": "comparator_test.rb",
-      "source_file": "test/services/expense_playground/evaluations/comparator_test.rb",
-      "source_location": "L1"
-    },
-    {
-      "id": "test_services_expense_playground_evaluations_comparator_test_rb_testcase",
-      "label": "TestCase",
-      "_origin": "ast",
-      "community": 374,
-      "community_name": "ExpensePlaygroundEvaluationsComparatorTest",
-      "file_type": "code",
-      "norm_label": "testcase",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "app_services_expense_resolver_natural_language_parser",
       "label": "natural_language_parser.rb",
       "_origin": "ast",
@@ -33081,22 +33070,33 @@
       "source_location": ""
     },
     {
-      "id": "test_services_expense_playground_evaluations_dataset_test",
-      "label": "dataset_test.rb",
+      "id": "app_services_email_transaction_detector",
+      "label": "email_transaction_detector.rb",
       "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
       "file_type": "code",
-      "norm_label": "dataset_test.rb",
-      "source_file": "test/services/expense_playground/evaluations/dataset_test.rb",
+      "norm_label": "email_transaction_detector.rb",
+      "source_file": "app/services/email_transaction_detector.rb",
       "source_location": "L1"
     },
     {
-      "id": "test_services_expense_playground_evaluations_dataset_test_rb_testcase",
+      "id": "test_services_email_transaction_detector_test",
+      "label": "email_transaction_detector_test.rb",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
+      "file_type": "code",
+      "norm_label": "email_transaction_detector_test.rb",
+      "source_file": "test/services/email_transaction_detector_test.rb",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_services_email_transaction_detector_test_rb_testcase",
       "label": "TestCase",
       "_origin": "ast",
-      "community": 48,
-      "community_name": "ExpensePlayground::Evaluations::Dataset",
+      "community": 5,
+      "community_name": "Gmail::ExpenseImporterTest",
       "file_type": "code",
       "norm_label": "testcase",
       "source_file": "",
@@ -41197,6 +41197,18 @@
       "weight": 1.0
     },
     {
+      "source": "app_services_ai_configuration_ai_configuration_cheap_enabled_pred",
+      "target": "app_services_ai_configuration_ai_configuration_configured_pred",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/ai/configuration.rb",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
       "source": "app_services_ai_execution_ai_execution_force_ai_pred",
       "target": "app_services_ai_execution_ai_execution_override_pred",
       "relation": "calls",
@@ -44485,18 +44497,6 @@
       "weight": 1.0
     },
     {
-      "source": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_ai_configured_pred",
-      "target": "app_services_ai_ai_configuration",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L52",
-      "weight": 1.0
-    },
-    {
       "source": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_call",
       "target": "app_services_expense_resolver_heuristic_parser_expenseresolver_heuristicparser_call",
       "relation": "calls",
@@ -44534,7 +44534,7 @@
     },
     {
       "source": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_record_deterministic_resolution",
-      "target": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_ai_configured_pred",
+      "target": "app_services_ai_ai_configuration",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -68130,13 +68130,24 @@
     },
     {
       "source": "app_services_ai_configuration_ai_configuration",
+      "target": "app_services_ai_configuration_ai_configuration_configured_pred",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/ai/configuration.rb",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_ai_configuration_ai_configuration",
       "target": "app_services_ai_configuration_ai_configuration_cheap_confidence_threshold",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ai/configuration.rb",
-      "source_location": "L70",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -68147,7 +68158,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/ai/configuration.rb",
-      "source_location": "L76",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -71646,17 +71657,6 @@
       "confidence_score": 1.0,
       "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
       "source_location": "L42",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver",
-      "target": "app_services_expense_resolver_heuristic_resolver_expenseresolver_heuristicresolver_ai_configured_pred",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/services/expense_resolver/heuristic_resolver.rb",
-      "source_location": "L51",
       "weight": 1.0
     },
     {
