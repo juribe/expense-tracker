@@ -19,6 +19,13 @@ module Expenses
         @input.payload[:text]
       end
 
+      # Channels that produce their own text (transcript, OCR) combine it with
+      # the user's note before parsing; the note carries explicit intent and
+      # is skipped when blank.
+      def combined_text(channel_text)
+        [ note, channel_text ].reject(&:blank?).join("\n")
+      end
+
       private
 
       def text_processor

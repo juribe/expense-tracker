@@ -20,6 +20,11 @@ module ExpenseResolver
     end
 
     def call
+      # Channel processors may have already detected the source (e.g. the
+      # image pipeline from the user's note or the receipt's OCR text); in
+      # that case the pre-set id wins and no detection runs.
+      return preset_result if preset_money_source?
+
       money_source = money_source_detector.call(source_text)
       return Result.new(nil, expense.money_source_hint) if money_source.nil?
 
@@ -27,6 +32,15 @@ module ExpenseResolver
     end
 
     private
+
+    def preset_money_source?
+      expense.respond_to?(:money_source_id) && expense.money_source_id.present?
+    end
+
+    def preset_result
+      source = user&.money_sources&.find_by(id: expense.money_source_id)
+      Result.new(source, source&.name || expense.money_source_name)
+    end
 
     # A single mention of a source in the message usually applies to every
     # detected expense (e.g. "gasté 50 mil en restaurante y 20 mil en

@@ -40,10 +40,8 @@ module Ai
         expenses = entries.filter_map do |entry|
           next unless entry.is_a?(Hash)
 
-          expense = ParsedExpense.build_expense(entry)
-
           score = Expenses::ConfidenceCalculator.call(
-            expense: expense,
+            expense: ParsedExpense.build_expense(entry),
             input: input,
             categories: categories,
             today: today

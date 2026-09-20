@@ -14,7 +14,7 @@ class ExpenseCandidate
     amount currency category_id category_name description merchant
     date source confidence money_source_id money_source_name
     classification_source money_source_source suggested_category_id
-    suggested_category_name duplicate
+    suggested_category_name duplicate warnings
   ].freeze
 
   attr_accessor(*ATTRIBUTES)
@@ -28,6 +28,7 @@ class ExpenseCandidate
     self.currency = currency.presence || DEFAULT_CURRENCY
     self.source = source.presence || "playground"
     self.confidence = normalize_confidence(confidence)
+    self.warnings = Array(warnings)
   end
 
   # Rebuilds a candidate from JSON params (e.g. the create endpoint).
@@ -49,7 +50,8 @@ class ExpenseCandidate
       money_source_source: hash[:money_source_source].presence,
       suggested_category_id: hash[:suggested_category_id].presence&.to_i,
       suggested_category_name: hash[:suggested_category_name].presence,
-      duplicate: hash[:duplicate]
+      duplicate: hash[:duplicate],
+      warnings: Array(hash[:warnings])
     )
   end
 

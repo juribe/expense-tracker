@@ -2,37 +2,42 @@
 
 module ExpenseResolver
   class CandidateDetector
-    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text
+    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text, :recording
 
-    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil)
-      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text).call
+    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil)
+      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text, recording: recording).call
     end
 
-    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil)
+    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil)
       self.expense = expense
       self.user = user
       self.categories = categories
       self.money_source_detector = money_source_detector
       self.classification_source = classification_source
       self.text = text
+      self.recording = recording
     end
 
     def call
       candidate = ExpenseCandidate.new(
         amount: amount_result.amount,
-        currency: ExpenseCandidate::DEFAULT_CURRENCY,
+        currency: expense.currency.presence || ExpenseCandidate::DEFAULT_CURRENCY,
         category_id: category_result.category&.id,
         category_name: category_result.category_name,
         description: description_result.description,
+        merchant: expense.respond_to?(:merchant) ? expense.merchant : nil,
         date: date_result.date,
         source: "playground",
         classification_source: classification_source,
         suggested_category_name: category_result.suggested_category_name,
         confidence: expense.confidence,
         money_source_name: money_source_result.money_source_name,
-        money_source_id: money_source_result.money_source&.id
+        money_source_id: money_source_result.money_source&.id,
+        warnings: category_result.warnings
       )
-      apply_matching_rule_category(candidate)
+      candidate = apply_matching_rule_category(candidate)
+      record_category_warnings(candidate)
+      candidate
     end
 
     def amount_result
@@ -81,7 +86,20 @@ module ExpenseResolver
       candidate.category_id = rule.category_id
       candidate.category_name = rule.category.name
       candidate.suggested_category_name = nil
+      candidate.warnings = []
       candidate
+    end
+
+    private
+
+    # The decision warnings live on the candidate for every consumer (e.g. the
+    # parse endpoint serializer); when a recording is present the pipeline
+    # debug view gets them too.
+    def record_category_warnings(candidate)
+      return unless recording
+      return if candidate.warnings.blank?
+
+      recording.add_warnings(candidate.warnings)
     end
   end
 end

@@ -106,6 +106,6 @@ class ExpenseResolverHeuristicParserTest < ActiveSupport::TestCase
 
     entry = entries.first
     assert_equal "Pet Care", entry.category
-    assert_operator entry.confidence, :<, ParsedExpense::LOW_CONFIDENCE_THRESHOLD
+    assert_operator entry.confidence, :<, Ai::Tasks::ParsedExpense::LOW_CONFIDENCE_THRESHOLD
   end
 end

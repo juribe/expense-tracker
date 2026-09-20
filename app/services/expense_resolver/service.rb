@@ -39,12 +39,13 @@ module ExpenseResolver
 
       entries.each do |expense|
         expenses << CandidateDetector.call(expense: expense,
-                                          user: user,
-                                          categories: categories,
-                                          money_source_detector: money_source_detector,
-                                          classification_source: classification_source,
-                                          text: text
-                                        )
+                                           user: user,
+                                           categories: categories,
+                                           money_source_detector: money_source_detector,
+                                           classification_source: classification_source,
+                                           text: text,
+                                           recording: recording
+                                         )
       end
       # If all checks pass, return a success result
       ServiceResult.success(expenses)

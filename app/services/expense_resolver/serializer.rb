@@ -21,7 +21,7 @@ module ExpenseResolver
         category_name: candidate.category_name || candidate.suggested_category_name,
         create_category: candidate.suggested_category_name.present?,
         confidence: candidate.confidence,
-        low_confidence: candidate.confidence.to_f < ParsedExpense::LOW_CONFIDENCE_THRESHOLD,
+        low_confidence: candidate.confidence.to_f < Ai::Tasks::ParsedExpense::LOW_CONFIDENCE_THRESHOLD,
         warnings: warnings(candidate),
         money_source_id: candidate.money_source_id,
         money_source_name: candidate.money_source_name
@@ -29,9 +29,7 @@ module ExpenseResolver
     end
 
     def self.warnings(candidate)
-      return [] unless candidate.suggested_category_name.present?
-
-      [ "No matching category found. A new \"#{candidate.suggested_category_name}\" category will be created." ]
+      candidate.warnings.to_a
     end
   end
 end

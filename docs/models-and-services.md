@@ -133,7 +133,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 | Service | What it does |
 |---|---|
 | **ExpenseResolver::Service** | Turns natural-language (text/voice) into **unsaved** `ExpenseCandidate`s: deterministic heuristic pass first, AI (via `Ai::Router`, cheap → strong) when the heuristic pass isn't confident. Uses the themed field services `expense_resolver/amounts/`, `dates/`, `text/`, `categories/` (+ `ConfidenceGate`) and maps every entry through `CandidateDetector`. |
-| **ParsedExpense** | Value object for one parsed expense; validates before persistence. |
+| **Ai::Tasks::ParsedExpense** | Value object for one parsed expense (heuristic or AI origin); thin holder consumed by `CandidateDetector`. |
 | **Expenses::Create** | **Single entry point** for creating an `Expense` from any source (manual / text / voice / gmail / ai). Normalizes amount, resolves category, raises `Invalid` on failure. |
 | **ImportPipeline** | Orchestrates statement upload: validate → detect format → extract text (PDF/CSV/XLSX) → AI extraction → build `ParsedStatement` sources + transactions. Never writes records. |
 | **Ai::StatementExtractor** | LLM (Mistral) that extracts financial **sources + transactions** from statement text with strict JSON output; enforces privacy (only last-4 of identifiers). |
@@ -168,7 +168,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 
 | From | Relation | To |
 |---|---|---|
-| `ExpenseResolver` | uses | `ParsedExpense`, `Category`, `MoneySource` (+ recognition identifiers) |
+| `ExpenseResolver` | uses | `Ai::Tasks::ParsedExpense`, `Category`, `MoneySource` (+ recognition identifiers) |
 | `Expenses::Create` | creates | `Expense` (via `Category`) |
 | `ImportPipeline` | orchestrates | `Ai::StatementExtractor`, `ParsedStatement` |
 | `Ai::StatementExtractor` | normalizes into | `ParsedStatement` fields |
@@ -188,7 +188,7 @@ Persisted onboarding-wizard state (current step, per-step choice, draft sources,
 
 ## 4. Data-flow story
 
-1. **Manual / text / voice entry** → `ExpenseResolver` → `ParsedExpense` → `Expenses::Create` → `Expense`.
+1. **Manual / text / voice entry** → `ExpenseResolver` → `Ai::Tasks::ParsedExpense` → `Expenses::Create` → `Expense`.
 2. **Gmail import** → `Gmail::SyncService` → fetch via `Gmail::Client`/`QueryBuilder` → `EmailTransactionDetector` filter → `Ai::TransactionExtractor` → `Gmail::ExpenseImporter` resolves source → `Expenses::Create` → `Expense` + `ProcessedEmail` (idempotency).
 3. **Statement upload** → `ImportPipeline` → `Ai::StatementExtractor` → `ParsedStatement` — reviewed, deduped via `StatementDuplicateDetector`, committed by `FinancialSetups::Completer` → `MoneySource` / `CreditAccount` / `RecurringTemplate`.
 4. **Recurring payments** → `RecurringTemplateProcessor` (period-guarded) or CSV via `RecurringTemplateImporter`.

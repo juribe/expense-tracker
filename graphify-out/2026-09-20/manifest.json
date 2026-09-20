@@ -2646,9 +2646,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/processors/audio.rb": {
-    "mtime": 1789927923.340187,
-    "seen": 1789927956.581074,
-    "ast_hash": "6f0539f8525f172c00a54116e6845e12",
+    "mtime": 1789924202.490958,
+    "seen": 1789925327.319946,
+    "ast_hash": "c7d81388b049e1ed8527788d41e94232",
     "semantic_hash": ""
   },
   "app/services/expenses/processors/base.rb": {
@@ -2925,12 +2925,6 @@
     "mtime": 1789926279.7713456,
     "seen": 1789927207.290056,
     "ast_hash": "47925d99f4e9058bf80564924cb31275",
-    "semantic_hash": ""
-  },
-  "app/services/expenses/processors/audio/transcription.rb": {
-    "mtime": 1789927916.1014538,
-    "seen": 1789927956.581077,
-    "ast_hash": "e326a0e3dff0d997aa81b3d906d000bd",
     "semantic_hash": ""
   }
 }

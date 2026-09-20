@@ -2,7 +2,7 @@
 
 module ExpenseResolver
   class CategoryResult
-    Result = Struct.new(:category, :category_name, :suggested_category_name) do
+    Result = Struct.new(:category, :category_name, :suggested_category_name, :warnings, keyword_init: true) do
       def suggestion?
         suggested_category_name.present?
       end
@@ -22,24 +22,24 @@ module ExpenseResolver
     end
 
     def call
-      resolved = category_resolver.resolve_category(raw_category, safe_category_id, activity: activity)
-      return Result.new(nil, nil, raw_category) if resolved.nil?
+      # The decision is centralized in Categories::Decision (resolution +
+      # naming + warnings), so every channel produces the same outcome.
+      decision = ::Categories::Decision.call(
+        user: user,
+        name: raw_category,
+        activity: activity,
+        category_id: safe_category_id
+      )
 
-      Result.new(resolved, resolved.name, nil)
+      Result.new(
+        category: decision.category,
+        category_name: decision.category_name,
+        suggested_category_name: decision.suggested_category_name,
+        warnings: decision.warnings
+      )
     end
 
     private
-
-    # Category resolution is centralized in Categories::HeuristicResolver:
-    # exact normalized name, learned activity mappings, English->Spanish
-    # aliases, the parking/housing guards and a similarity fold.
-    def category_resolver
-      @category_resolver ||= ::Categories::HeuristicResolver.new(
-        user: user,
-        name: raw_category,
-        activity: activity
-      )
-    end
 
     def activity
       expense.respond_to?(:description) ? expense.description.presence : nil

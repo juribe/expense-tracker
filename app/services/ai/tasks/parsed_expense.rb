@@ -3,6 +3,12 @@
 module Ai
   module Tasks
     class ParsedExpense
+      LOW_CONFIDENCE_THRESHOLD = 0.75
+
+      # Shared entry shape for every extraction origin (conversation parsing,
+      # heuristic pass, vision/image extraction). Core fields come from the AI
+      # task payloads; merchant/currency/money_source_* are populated by
+      # channel processors (e.g. the image pipeline) before normalization.
       ATTRIBUTES = %i[
         original_text
         amount
@@ -11,6 +17,10 @@ module Ai
         category
         money_source_hint
         confidence
+        merchant
+        currency
+        money_source_id
+        money_source_name
       ].freeze
 
       attr_reader(*ATTRIBUTES)
