@@ -23,7 +23,8 @@ class Expenses::Processors::Image
     def call
       result = Ai::ImageExpenseExtractor.call(
         image_data: @input.image_data,
-        context_text: @note
+        context_text: @note,
+        user: @user
       )
 
       unless result[:ok?]

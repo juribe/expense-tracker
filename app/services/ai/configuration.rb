@@ -33,8 +33,10 @@ module Ai
     end
 
     # Vision-capable model on the strong tier, used for receipt/image input.
+    # The old default (pixtral-12b-24091063) was retired by Mistral; the
+    # strong default is vision-capable and keeps one model in play.
     def vision_model
-      ENV["MISTRAL_VISION_MODEL"].presence || ENV["AI_VISION_MODEL"].presence || "pixtral-12b-24091063"
+      ENV["MISTRAL_VISION_MODEL"].presence || ENV["AI_VISION_MODEL"].presence || DEFAULT_STRONG_MODEL
     end
 
     def cheap_provider

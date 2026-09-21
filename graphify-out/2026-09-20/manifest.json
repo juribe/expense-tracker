@@ -828,8 +828,8 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1789922891.119993,
-    "seen": 1789925327.320124,
+    "mtime": 1789928352.4544222,
+    "seen": 1789949943.922503,
     "ast_hash": "2c266745544f0e5f1833961610578b77",
     "semantic_hash": ""
   },
@@ -2028,9 +2028,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/image_expense_extractor.rb": {
-    "mtime": 1789079941.712492,
-    "seen": 1789925327.319849,
-    "ast_hash": "eb9367fd63e13ba882e714528d171131",
+    "mtime": 1789951964.9738872,
+    "seen": 1789952128.956086,
+    "ast_hash": "bc3fa2a83f0bb28650b481434156ebb0",
     "semantic_hash": ""
   },
   "test/controllers/expense_playground_controller_test.rb": {
@@ -2046,9 +2046,9 @@
     "semantic_hash": ""
   },
   "test/services/ai/image_expense_extractor_test.rb": {
-    "mtime": 1789081528.1671646,
-    "seen": 1789925327.320241,
-    "ast_hash": "3cd4820752c45eb1ee1c6833b4581686",
+    "mtime": 1789952007.2482338,
+    "seen": 1789952128.956546,
+    "ast_hash": "16b2211da8133f43b22889ecd34a8309",
     "semantic_hash": ""
   },
   "app/models/expense_playground_run.rb": {
@@ -2250,9 +2250,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/configuration.rb": {
-    "mtime": 1789922891.1079614,
-    "seen": 1789925327.3198469,
-    "ast_hash": "0154ad0d3bdc2d815e14cf4ed82127a3",
+    "mtime": 1789949766.847955,
+    "seen": 1789949943.9221828,
+    "ast_hash": "31ee6efd6fce4a2f6bd967a26e7cd8d0",
     "semantic_hash": ""
   },
   "app/services/ai/metrics.rb": {
@@ -2262,9 +2262,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/provider.rb": {
-    "mtime": 1789086139.19203,
-    "seen": 1789925327.319854,
-    "ast_hash": "ca829fee2ee232adde8e730fb05eddf8",
+    "mtime": 1789950996.153373,
+    "seen": 1789951138.4596941,
+    "ast_hash": "db52a46f69d55304d16d608e3c1809b8",
     "semantic_hash": ""
   },
   "app/services/ai/providers.rb": {
@@ -2346,9 +2346,9 @@
     "semantic_hash": ""
   },
   "test/services/ai/provider_test.rb": {
-    "mtime": 1789085647.0360262,
-    "seen": 1789925327.320244,
-    "ast_hash": "0e2f494db1e97a922c009d6fe823ce25",
+    "mtime": 1789951062.2143147,
+    "seen": 1789951138.460161,
+    "ast_hash": "6e672ead33308d4fbdd8ca644e8b9649",
     "semantic_hash": ""
   },
   "test/services/ai/router_test.rb": {
@@ -2646,9 +2646,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/processors/audio.rb": {
-    "mtime": 1789924202.490958,
-    "seen": 1789925327.319946,
-    "ast_hash": "c7d81388b049e1ed8527788d41e94232",
+    "mtime": 1789927923.340187,
+    "seen": 1789927956.581074,
+    "ast_hash": "6f0539f8525f172c00a54116e6845e12",
     "semantic_hash": ""
   },
   "app/services/expenses/processors/base.rb": {
@@ -2658,9 +2658,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/processors/image.rb": {
-    "mtime": 1789927177.442686,
-    "seen": 1789927207.2896378,
-    "ast_hash": "74948e61ac364df2fc0a49ef4dfed108",
+    "mtime": 1789952072.047813,
+    "seen": 1789952128.9562051,
+    "ast_hash": "cd7c46b2f3c7e14d673cc3370f364597",
     "semantic_hash": ""
   },
   "app/services/expenses/processors/text.rb": {
@@ -2925,6 +2925,12 @@
     "mtime": 1789926279.7713456,
     "seen": 1789927207.290056,
     "ast_hash": "47925d99f4e9058bf80564924cb31275",
+    "semantic_hash": ""
+  },
+  "app/services/expenses/processors/audio/transcription.rb": {
+    "mtime": 1789927916.1014538,
+    "seen": 1789927956.581077,
+    "ast_hash": "e326a0e3dff0d997aa81b3d906d000bd",
     "semantic_hash": ""
   }
 }

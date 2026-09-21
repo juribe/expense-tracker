@@ -34,10 +34,10 @@ module Ai
     # messages follow the OpenAI chat-completions shape
     # ([ { role:, content: } ]); content may also be the multi-modal array form
     # used by vision models. Returns a Response. Raises Error on failure.
-    def chat(messages:, temperature: 0.0, json: true, model: nil, timeout: 25)
+    def chat(messages:, temperature: 0.0, json: true, model: nil, timeout: 25, max_tokens: nil)
       raise Error, "AI provider #{name} is not configured" unless configured?
 
-      response = perform_request(build_request(messages, temperature, json, model, timeout))
+      response = perform_request(build_request(messages, temperature, json, model, timeout, max_tokens))
 
       payload = JSON.parse(response.body)
       content = payload.dig("choices", 0, "message", "content")
@@ -63,7 +63,7 @@ module Ai
       {}
     end
 
-    def build_request(messages, temperature, json, model_override, timeout)
+    def build_request(messages, temperature, json, model_override, timeout, max_tokens)
       uri = URI(@base_url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == "https"
@@ -80,6 +80,7 @@ module Ai
         messages: messages
       }
       body[:response_format] = { type: "json_object" } if json
+      body[:max_tokens] = max_tokens if max_tokens
       request.body = body.to_json
 
       [ http, request ]
@@ -106,8 +107,22 @@ module Ai
           next
         end
 
-        raise Error, "AI HTTP #{response.code}"
+        detail = api_error_message(response)
+        raise Error, "AI HTTP #{response.code}#{detail ? " (#{detail})" : ""}"
       end
+    end
+
+    # HTTP errors carry a vendor body ({ "message": ... } for Mistral, etc.);
+    # without it a bare "AI HTTP 400" hides the real reason (bad model, bad
+    # payload, ...).
+    def api_error_message(response)
+      parsed = JSON.parse(response.body)
+      message = (parsed["message"] || parsed.dig("error", "message")).to_s.strip.presence
+      return message if message
+
+      response.body.to_s[0, 200].presence
+    rescue JSON::ParserError, TypeError
+      response.body.to_s[0, 200].presence
     end
 
     def retryable_throttle?(response)

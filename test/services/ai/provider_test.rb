@@ -45,6 +45,19 @@ module Ai
       assert_equal "test-model", response.model
     end
 
+    test "chat includes max_tokens in the request body when provided" do
+      captured = nil
+      p = provider
+      p.define_singleton_method(:perform_request) do |(http, request)|
+        captured = JSON.parse(request.body)
+        FakeResponse.new("200", { choices: [ { message: { content: "{}" } } ] }.to_json)
+      end
+
+      p.chat(messages: [ { role: "user", content: "hi" } ], max_tokens: 4096)
+
+      assert_equal 4096, captured["max_tokens"]
+    end
+
     test "chat raises when the content is empty" do
       body = { choices: [ { message: { content: "" } } ] }.to_json
       p = provider
@@ -112,7 +125,7 @@ module Ai
 
       error = assert_raises(Ai::Provider::Error) { p.send(:perform_request, [ fake_http, nil ]) }
 
-      assert_equal "AI HTTP 429", error.message
+      assert_equal "AI HTTP 429 (Budget has been exceeded!)", error.message
       assert_equal 1, fake_http.request_count
     end
   end

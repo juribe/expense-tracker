@@ -85,6 +85,7 @@ module Ai
     end
 
     test "call succeeds through the strong-tier provider and records usage" do
+      user = User.create!(name: "Vision User", email: "vision@example.com", password: "password123")
       payload = {
         ocr_text: "TOTAL 50.000",
         expenses: [ { amount: 50_000, merchant: "Restaurante", category: "restaurants", confidence: 0.95 } ]
@@ -94,7 +95,11 @@ module Ai
       result = nil
       stub_method(Ai::Providers, :strong, ->(*) { strong }) do
         with_env({ "MISTRAL_API_KEY" => "test-key" }) do
-          result = extractor.call
+          result = Ai::ImageExpenseExtractor.new(
+            image_data: "data:image/jpeg;base64,Zm9v",
+            context_text: "almuerzo",
+            user: user
+          ).call
         end
       end
 
@@ -106,6 +111,14 @@ module Ai
       assert_equal "strong_ai", row.strategy
       assert_equal "ok", row.status
       assert_equal 30, row.input_tokens
+      # observability parity with the text pipeline: attributed to the user,
+      # with the prompt recorded — but never the base64 image payload
+      assert_equal user.id, row.user_id
+      assert_in_delta 0.95, row.confidence, 0.001
+      assert row.prompt.present?
+      assert_match(/image attached/, row.prompt.to_s)
+      assert_not row.prompt.to_s.include?("Zm9v")
+      assert row.output.present?
     end
 
     test "call fails cleanly when the provider rejects the request" do
@@ -119,6 +132,44 @@ module Ai
       refute result[:ok?]
       assert_match(/AI HTTP 500/, result[:error])
       assert_equal "error", AiRequest.where(task: "image_extraction").last.status
+    end
+
+    test "a truncated JSON payload is retried once with a corrective instruction and succeeds" do
+      payload = { ocr_text: "TOTAL 50.000", expenses: [ { amount: 50_000, merchant: "Restaurante" } ] }.to_json
+      strong = FakeAiProvider.new(responses: [ "{", { content: payload, input_tokens: 30, output_tokens: 12 } ])
+
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) { result = extractor.call }
+      end
+
+      assert result[:ok?], result[:error].inspect
+      assert_equal 2, strong.calls.length
+      assert_equal "ok", AiRequest.where(task: "image_extraction").last.status
+
+      # the retry must change the prompt: temperature 0 would otherwise
+      # reproduce the same broken output verbatim
+      first_text = strong.calls.first.last[:content].first[:text]
+      retry_text = strong.calls.last.last[:content].first[:text]
+      assert_nil first_text
+      assert_match(/previous response was invalid/, retry_text)
+    end
+
+    test "retries are exhausted into a clean parse failure with the raw output recorded" do
+      strong = FakeAiProvider.new(responses: [ "{", "{ broken" ])
+
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) { result = extractor.call }
+      end
+
+      refute result[:ok?]
+      assert_match(/invalid AI response/, result[:error])
+      assert_equal 2, strong.calls.length
+
+      row = AiRequest.where(task: "image_extraction").last
+      assert_equal "error", row.status
+      assert_equal "{ broken", row.output
     end
   end
 end

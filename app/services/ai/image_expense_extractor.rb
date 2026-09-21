@@ -16,14 +16,28 @@ module Ai
 
     DEFAULT_CURRENCY = "COP"
     TASK = "image_extraction"
+    # One retry covers the model occasionally stopping mid-generation
+    # (finish_reason "error"), which cuts the JSON payload mid-string, or
+    # drifting away from the required JSON shape. The retry re-sends the
+    # request with a corrective instruction (temperature 0 would otherwise
+    # reproduce the same broken output verbatim).
+    MAX_ATTEMPTS = 2
+    # Generous explicit cap so no provider default can truncate a receipt's
+    # verbatim ocr_text.
+    MAX_TOKENS = 4096
+    CORRECTIVE_SUFFIX =
+      "Your previous response was invalid: it was truncated or did not follow the required shape. " \
+      "Respond again with ONLY a JSON object with EXACTLY two top-level keys, \"ocr_text\" and \"expenses\". " \
+      "Transcribe the visible text ONCE and never add other top-level keys."
 
     def self.call(**kwargs)
       new(**kwargs).call
     end
 
-    def initialize(image_data:, context_text: nil, today: Date.current)
+    def initialize(image_data:, context_text: nil, user: nil, today: Date.current)
       @image_data = image_data
       @context_text = context_text
+      @user = user
       @today = today
     end
 
@@ -31,23 +45,38 @@ module Ai
       started = monotonic
       provider = Ai::Providers.strong
       return failure("AI extraction is not configured (missing MISTRAL_API_KEY).") unless provider.configured?
-      response = provider.chat(
-        messages: [
-          { role: "system", content: system_prompt },
-          { role: "user", content: user_content }
-        ],
-        model: Ai.configuration.vision_model,
-        timeout: 45
-      )
-      data = parse_response(JSON.parse(response.content))
-      record(provider, response: response, latency_ms: latency_since(started))
-      { ok?: true, data: data, error: nil }
-    rescue ExtractionError, Ai::Provider::Error => e
+
+      response = nil
+      data = nil
+      parse_error = nil
+      MAX_ATTEMPTS.times do |attempt|
+        response = provider.chat(
+          messages: chat_messages(corrective: attempt.positive?),
+          model: Ai.configuration.vision_model,
+          timeout: 45,
+          max_tokens: MAX_TOKENS
+        )
+        begin
+          data = parse_response(JSON.parse(response.content))
+          parse_error = nil
+          break
+        rescue JSON::ParserError, TypeError, KeyError, ExtractionError => e
+          parse_error = e
+          data = nil
+        end
+      end
+
+      if data
+        record(provider, response: response, data: data, latency_ms: latency_since(started))
+        { ok?: true, data: data, error: nil }
+      else
+        message = parse_error ? "invalid AI response (#{parse_error.message})" : "invalid AI response (empty content)"
+        record(provider, response: response, error: message, latency_ms: latency_since(started))
+        failure(message)
+      end
+    rescue Ai::Provider::Error => e
       record(provider, error: e.message, latency_ms: latency_since(started))
       failure(e.message)
-    rescue JSON::ParserError, TypeError, KeyError => e
-      record(provider, error: "invalid AI response (#{e.message})", latency_ms: latency_since(started))
-      failure("invalid AI response (#{e.message})")
     end
 
     private
@@ -56,13 +85,36 @@ module Ai
       { ok?: false, data: nil, error: message }
     end
 
-    def record(provider, response: nil, error: nil, latency_ms: nil)
+    def record(provider, response: nil, data: nil, error: nil, latency_ms: nil)
       Ai::Recorder.write(
-        task: TASK, user: nil, strategy: "strong_ai", provider: provider,
-        status: error ? "error" : "ok", confidence: nil, escalated: false,
+        task: TASK, user: @user, strategy: "strong_ai", provider: provider,
+        status: error ? "error" : "ok",
+        confidence: data ? overall_confidence(data) : nil,
+        escalated: false,
         error: error, input_tokens: response&.input_tokens,
-        output_tokens: response&.output_tokens, latency_ms: latency_ms
+        output_tokens: response&.output_tokens, latency_ms: latency_ms,
+        prompt: recordable_prompt,
+        output: response&.content
       )
+    end
+
+    def overall_confidence(data)
+      data[:expenses].filter_map { |entry| entry[:confidence] }.min
+    end
+
+    # The multimodal payload (base64 image) is never stored: the recorded
+    # prompt keeps the system instructions and a size note for the image.
+    def recordable_prompt
+      [
+        { role: "system", content: system_prompt },
+        { role: "user", content: user_prompt_summary }
+      ]
+    end
+
+    def user_prompt_summary
+      summary = +"(image attached, #{(@image_data.to_s.length / 1024)} KB base64)"
+      summary << " + user note: #{@context_text.to_s[0, 300]}" if @context_text.present?
+      summary
     end
 
     def monotonic
@@ -73,9 +125,20 @@ module Ai
       ((monotonic - started) * 1000).round
     end
 
-    def user_content
+    def chat_messages(corrective: false)
+      [
+        { role: "system", content: system_prompt },
+        { role: "user", content: user_content(corrective) }
+      ]
+    end
+
+    def user_content(corrective)
+      text = +""
+      text << context_text_block if @context_text.present?
+      text << CORRECTIVE_SUFFIX if corrective
+
       content = []
-      content << { type: "text", text: context_text_block } if @context_text.present?
+      content << { type: "text", text: text } if text.present?
       content << { type: "image_url", image_url: @image_data }
       content
     end
@@ -89,19 +152,24 @@ module Ai
 
     def system_prompt
       <<~PROMPT
-        You read receipt / payment images and extract the expense they represent.
-        First transcribe ALL visible text of the image into "ocr_text" (line by line, verbatim).
-        Then extract ONE expense from the image (or from the user's context when the image alone is ambiguous).
+        You read receipt / payment screenshots and extract the money movement they represent (a purchase, a transfer, a payment confirmation, ...).
+
+        Respond with ONLY a JSON object with EXACTLY two top-level keys:
+        {"ocr_text":"...","expenses":[...]}
+
+        - "ocr_text": ALL visible text of the image, transcribed ONCE, line by line, verbatim. Never repeat lines or sections, and never add other top-level keys to the JSON.
+        - "expenses": ONE expense extracted from the image (or from the user's context when the image alone is ambiguous), or an empty array when nothing can be extracted.
+          Each expense: {"amount":87500,"currency":"COP","merchant":"Supermercado Éxito",
+          "description":"Compra supermercado","category":"groceries","transaction_date":"#{@today.iso8601}",
+          "confidence":0.9}
+
         Rules:
         - Interpret Colombian amounts: "87.500" = 87500, "8,500" = 8500.
-        - Prefer the TOTAL line when a receipt shows items plus a total.
+        - Prefer the TOTAL line when a receipt shows items plus a total; for transfer / payment confirmations use the transferred amount.
+        - A money-transfer or payment-confirmation screen (e.g. Nequi, Bancolombia) IS an expense.
         - Resolve the date to an ISO date (YYYY-MM-DD); when no date is visible use #{@today.iso8601}.
         - Category must be a short english hint such as: groceries, restaurants, transportation, shopping, utilities, health, entertainment.
-        Respond with ONLY JSON of the shape:
-        {"ocr_text":"...","expenses":[{"amount":87500,"currency":"COP","merchant":"Supermercado Éxito",
-          "description":"Compra supermercado","category":"groceries","transaction_date":"#{@today.iso8601}",
-          "confidence":0.9}]}
-        When no expense can be extracted respond with {"ocr_text":"...","expenses":[]}.
+        - Output only valid JSON: no markdown, no explanations, no extra keys.
       PROMPT
     end
 

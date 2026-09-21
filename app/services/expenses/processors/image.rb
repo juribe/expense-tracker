@@ -19,7 +19,7 @@ module Expenses
       # Returns [candidate, engine]; candidate is nil when OCR/extraction
       # failed.
       def call
-        ocr_text = run_ocr
+        ocr_text = force_vision? ? nil : run_ocr
         if ocr_text.present?
           return text_processor.call(
             combined_text(ocr_text),
@@ -34,6 +34,12 @@ module Expenses
       end
 
       private
+
+      # Debug escape hatch to exercise the vision path with images Tesseract
+      # can read: EXPENSES_FORCE_VISION=1 skips local OCR entirely.
+      def force_vision?
+        ENV["EXPENSES_FORCE_VISION"].present?
+      end
 
       # OCR is only applicable when an image is part of the input. It runs
       # LOCALLY with Tesseract (the image never leaves the machine); when

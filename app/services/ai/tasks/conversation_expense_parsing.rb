@@ -98,8 +98,13 @@ module Ai
           - description: short description of the expense in the same language
             used by the user. Do not translate or invent information.
           - category: the most appropriate category from Available categories.
-            Only suggest a new general category when none of the available
-            categories reasonably fits.
+            Only assign a category when there is enough information in the user's
+            message to reasonably determine what the expense was for.
+            If the purpose of the expense cannot be determined from the message,
+            return null.
+            Never infer a debt, loan, credit payment, purchase, service, gift,
+            food, transportation, or any other purpose solely from the recipient,
+            merchant, payment method, or transfer type.
 
           Rules:
 
@@ -116,6 +121,11 @@ module Ai
           - If the user does not provide a date, assume the expense happened Today.
           - Do not use null for date unless the user explicitly provides an ambiguous
             date that cannot reasonably be resolved.
+          - A bank transfer, BRE transfer, or transfer to a person does not indicate
+            the purpose of the expense by itself. For example, "BRE a Juan Pérez"
+            could be a debt payment, food purchase, service, gift, or something else.
+            If the purpose is not stated or strongly supported by the message,
+            category must be null.
 
           Output:
 
