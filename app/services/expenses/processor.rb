@@ -3,15 +3,16 @@
 module Expenses
    class Processor
     class << self
-      def call(user:, input:, recording: nil, execution: nil)
-        new(user: user, input: input, recording: recording, execution: execution).call
+      def call(user:, input:, recording: nil, execution: nil, source: nil)
+        new(user: user, input: input, recording: recording, execution: execution, source: source).call
       end
     end
 
-    def initialize(user:, input:, recording: nil, execution: nil)
+    def initialize(user:, input:, recording: nil, execution: nil, source: nil)
       @user = user
       @input = input
       @recording = recording || Expenses::Processors::Recording.new(execution: execution)
+      @source = source
     end
 
     def call
@@ -29,6 +30,7 @@ module Expenses
       @recording&.add_step(:stt, { applicable: false })
 
       candidates, engine = processor_for.call
+      candidates = Array(candidates).map { |c| persist_candidate(c, engine: engine) }
 
       build_result(candidates, engine, started)
     end
@@ -66,6 +68,41 @@ module Expenses
         duration_ms: duration_ms,
         engine: engine
       )
+    end
+
+    def persist_candidate(candidate, engine:)
+      return candidate if candidate.is_a?(ExpenseCandidate) && candidate.persisted?
+
+      persisted = ExpenseCandidate.create!(
+        user: @user,
+        amount: candidate.amount,
+        date: candidate.date,
+        description: candidate.description.presence || candidate.merchant,
+        category_id: candidate.category_id,
+        money_source_id: candidate.money_source_id,
+        source: @source || @input.type || "text",
+        confidence: candidate.confidence,
+        original_input: @input.payload[:text],
+        original_text: candidate.respond_to?(:original_text) ? candidate.original_text : nil,
+        metadata: {
+          engine: engine,
+          classification_source: candidate.classification_source,
+          category_name: candidate.category_name,
+          money_source_name: candidate.money_source_name,
+          warnings: candidate.warnings
+        }.compact
+      )
+      # Copy transient attributes for pipeline consumers.
+      persisted.currency = candidate.currency if candidate.respond_to?(:currency)
+      persisted.merchant = candidate.merchant if candidate.respond_to?(:merchant)
+      persisted.category_name = candidate.category_name if candidate.respond_to?(:category_name)
+      persisted.money_source_name = candidate.money_source_name if candidate.respond_to?(:money_source_name)
+      persisted.classification_source = candidate.classification_source if candidate.respond_to?(:classification_source)
+      persisted.suggested_category_name = candidate.suggested_category_name if candidate.respond_to?(:suggested_category_name)
+      persisted.warnings = candidate.warnings if candidate.respond_to?(:warnings)
+      persisted
+    rescue ActiveRecord::RecordInvalid
+      candidate
     end
    end
 end

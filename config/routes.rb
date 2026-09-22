@@ -22,6 +22,12 @@ Rails.application.routes.draw do
       post :bulk_create
     end
   end
+  resources :expense_candidates, only: [ :index, :show, :update ] do
+    member do
+      post :confirm
+      post :discard
+    end
+  end
   resources :incomes
   resources :categories
   resources :budgets

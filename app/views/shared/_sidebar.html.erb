@@ -21,6 +21,14 @@
           <span class="badge bg-primary rounded-pill ms-auto"><%= current_user.spending_alerts.unread.count %></span>
         <% end %>
       <% end %>
+      <%= link_to expense_candidates_path, class: "sidebar-link #{active_class('expense_candidates')}" do %>
+        <i class="bi bi-inbox"></i>
+        <span><%= t("nav.candidates", default: "Candidates") %></span>
+        <% pending_count = current_user.expense_candidates.needs_review.count %>
+        <% if pending_count.positive? %>
+          <span class="badge bg-warning text-dark rounded-pill ms-auto"><%= pending_count %></span>
+        <% end %>
+      <% end %>
       <% unless financial_setup_completed? %>
         <%= link_to financial_setup_path, class: "sidebar-link #{active_class('financial_setups')}" do %>
           <i class="bi bi-magic"></i>

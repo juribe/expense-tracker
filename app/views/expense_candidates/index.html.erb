@@ -1,0 +1,105 @@
+<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+  <h1><i class="bi bi-inbox me-2"></i><%= t("expense_candidates.title", default: "Expense Candidates") %></h1>
+  <div class="d-flex gap-2">
+    <%= link_to expenses_path, class: "btn btn-outline-primary" do %>
+      <i class="bi bi-arrow-left me-1"></i><%= t("common.back_to_expenses", default: "Back to Expenses") %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Status filter tabs -->
+<ul class="nav nav-pills mb-4">
+  <li class="nav-item">
+    <%= link_to expense_candidates_path, class: "nav-link #{'active' if params[:status].blank?}" do %>
+      <%= t("expense_candidates.all", default: "All") %>
+      <span class="badge bg-secondary ms-1"><%= current_user.expense_candidates.count %></span>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to expense_candidates_path(status: "needs_review"), class: "nav-link #{'active' if params[:status] == 'needs_review'}" do %>
+      <i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.needs_review", default: "Needs Review") %>
+      <span class="badge bg-warning text-dark ms-1"><%= current_user.expense_candidates.needs_review.count %></span>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to expense_candidates_path(status: "ready"), class: "nav-link #{'active' if params[:status] == 'ready'}" do %>
+      <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.ready", default: "Ready") %>
+      <span class="badge bg-success ms-1"><%= current_user.expense_candidates.ready.count %></span>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to expense_candidates_path(status: "confirmed"), class: "nav-link #{'active' if params[:status] == 'confirmed'}" do %>
+      <i class="bi bi-check2-circle me-1"></i><%= t("expense_candidates.confirmed", default: "Confirmed") %>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to expense_candidates_path(status: "discarded"), class: "nav-link #{'active' if params[:status] == 'discarded'}" do %>
+      <i class="bi bi-trash me-1"></i><%= t("expense_candidates.discarded", default: "Discarded") %>
+    <% end %>
+  </li>
+</ul>
+
+<% if @candidates.any? %>
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0" data-testid="candidates-table">
+        <thead class="table-light">
+          <tr>
+            <th scope="col"><%= t("common.source", default: "Source") %></th>
+            <th scope="col"><%= t("common.description") %></th>
+            <th scope="col" class="text-end"><%= t("common.amount") %></th>
+            <th scope="col"><%= t("common.date") %></th>
+            <th scope="col"><%= t("common.category") %></th>
+            <th scope="col"><%= t("common.status", default: "Status") %></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @candidates.each do |candidate| %>
+            <tr data-testid="candidate-row">
+              <td>
+                <span class="badge bg-light text-dark">
+                  <i class="bi bi-<%= source_icon(candidate.source) %> me-1"></i>
+                  <%= candidate.source.titleize %>
+                </span>
+              </td>
+              <td><%= candidate.description.presence || candidate.original_text&.truncate(50) || "—" %></td>
+              <td class="text-end fw-bold text-danger">
+                <% if candidate.amount %>
+                  $<%= number_with_precision(candidate.amount.abs, precision: 0, delimiter: ",") %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td><%= candidate.date ? l(candidate.date, format: :long) : "—" %></td>
+              <td>
+                <% if candidate.category %>
+                  <%= category_badge(candidate.category) %>
+                <% else %>
+                  <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Missing") %></span>
+                <% end %>
+              </td>
+              <td><%= status_badge(candidate.status) %></td>
+              <td class="text-end">
+                <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
+                  <i class="bi bi-eye me-1"></i><%= t("common.review", default: "Review") %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="card-body text-center p-5">
+      <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+      <h4 class="mb-2"><%= t("expense_candidates.empty_title", default: "No candidates") %></h4>
+      <p class="text-muted"><%= t("expense_candidates.empty_hint", default: "AI-parsed expenses that need your review will appear here.") %></p>
+      <%= link_to expenses_path, class: "btn btn-primary mt-3" do %>
+        <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

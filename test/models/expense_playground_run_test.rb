@@ -5,9 +5,10 @@ require "test_helper"
 class ExpensePlaygroundRunTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Run User", email: "run@example.com", password: "password123")
+    @candidate = ExpenseCandidate.new(user: @user, amount: 50_000, category_name: "Food", date: Date.current,
+      source: "playground", confidence: 0.9)
     @result = Expenses::Result.new(
-      candidates: [ ExpenseCandidate.new(amount: 50_000, category_name: "Food", date: Date.current,
-        source: "playground", confidence: 0.9) ],
+      candidates: [ @candidate ],
       steps: { input: { type: "text", text: "50 mil" }, ocr: { applicable: false } },
       errors: [],
       warnings: [],

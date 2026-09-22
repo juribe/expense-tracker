@@ -21,7 +21,7 @@ class ExpensePlaygroundController < ApplicationController
 
     return render_invalid_input(input) unless input.valid?
 
-    result = Expenses::Processor.call(user: current_user, input: input, recording: Expenses::Processors::Recording.new)
+    result = Expenses::Processor.call(user: current_user, input: input, recording: Expenses::Processors::Recording.new, source: "playground")
     puts "[expense_playground] run result: ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{result.candidates&.as_json} errors=#{result.errors} warnings=#{result.warnings}"
     run_record = persist_run(input, result)
 
@@ -156,7 +156,7 @@ class ExpensePlaygroundController < ApplicationController
   # Explicitly persists a reviewed candidate through the app's single expense
   # creation entry point (validations and rules are NOT bypassed).
   def create
-    candidate = ExpenseCandidate.from_h(candidate_params)
+    candidate = ExpenseCandidate.from_h(candidate_params, user: current_user)
 
     return render json: { ok: false, errors: candidate.errors }, status: :unprocessable_entity unless candidate.valid?
 
@@ -250,7 +250,7 @@ class ExpensePlaygroundController < ApplicationController
   # batch endpoint accepts the same JSON the front-end sends back.
   def build_batch_candidate(row)
     attrs = row.respond_to?(:to_unsafe_h) ? row.to_unsafe_h : row.to_h
-    ExpenseCandidate.from_h(attrs)
+    ExpenseCandidate.from_h(attrs, user: current_user)
   end
 
   # Best-effort audit of pipeline executions: a persistence failure must never

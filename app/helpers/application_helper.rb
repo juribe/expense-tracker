@@ -48,6 +48,31 @@ module ApplicationHelper
     end
   end
 
+  def source_icon(source)
+    case source
+    when "text" then "chat-left-text"
+    when "whatsapp" then "whatsapp"
+    when "email" then "envelope"
+    when "image" then "image"
+    when "ocr" then "upc-scan"
+    when "gmail" then "envelope-check"
+    else "file-earmark"
+    end
+  end
+
+  CANDIDATE_STATUS_CLASSES = {
+    "needs_review" => "bg-warning text-dark",
+    "ready" => "bg-success",
+    "confirmed" => "bg-primary",
+    "discarded" => "bg-secondary"
+  }.freeze
+
+  def status_badge(status)
+    css_class = CANDIDATE_STATUS_CLASSES[status] || "bg-secondary"
+    label = status.to_s.titleize
+    tag.span(label, class: "badge #{css_class}")
+  end
+
   # Returns the progress-bar color class for a utilization / repayment percent.
   def credit_utilization_class(pct)
     pct = pct.to_f

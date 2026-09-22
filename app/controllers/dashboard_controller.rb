@@ -8,6 +8,7 @@ class DashboardController < ApplicationController
     @net_balance = @income_summary[:total_amount] + @expense_summary[:total_amount]
     @summary = @expense_summary
     @budgets = current_user.budgets.includes(:category)
+    @pending_candidates = current_user.expense_candidates.pending.includes(:category, :money_source).limit(10)
   rescue ArgumentError
     flash.now[:alert] = I18n.t("dashboard.invalid_month", default: "El mes no es válido; se muestra el mes actual.")
     @month = Time.zone.today
@@ -16,5 +17,6 @@ class DashboardController < ApplicationController
     @net_balance = @income_summary[:total_amount] + @expense_summary[:total_amount]
     @summary = @expense_summary
     @budgets = current_user.budgets.includes(:category)
+    @pending_candidates = current_user.expense_candidates.pending.includes(:category, :money_source).limit(10)
   end
 end

@@ -38,20 +38,34 @@ module Expenses
       assert_equal({ score: 1.0, reasons: result.reasons }, result.to_h)
     end
 
-    test "medium confidence: valid amount but unverifiable text and unknown category" do
+    test "nil category does not penalize the score" do
+      result = calculate(
+        expense(original_text: nil, amount: 30_000, date: @today,
+                description: "cena", category: nil),
+        input: "pagué 30 mil en cena"
+      )
+
+      # amount (0.30) + amount found in the input (0.15) + date present (0.10)
+      # + description (0.15); category is nil so 0.0 (no penalty).
+      # original_text is missing and date is not derivable from the text.
+      assert_equal 0.70, result.score
+      assert result.reasons.any? { |reason| reason.include?("category missing") }
+      assert result.reasons.none? { |reason| reason.include?("half credit") }
+    end
+
+    test "incorrect category guess receives no credit" do
       result = calculate(
         expense(original_text: nil, amount: 30_000, date: @today,
                 description: "cena", category: "Voladores"),
         input: "pagué 30 mil en cena"
       )
 
-      # amount (0.30) + amount found in the input (0.15) + date present (0.10)
-      # + description (0.15) + unknown category half credit (0.05); the
-      # original_text is missing and the date is not derivable from the text.
-      assert_equal 0.75, result.score
-      assert result.score >= 0.5 && result.score <= 0.9
-      assert result.reasons.any? { |reason| reason.include?("inferred") }
-      assert result.reasons.any? { |reason| reason.include?("half credit") }
+      # amount (0.30) + amount in text (0.15) + date present (0.10)
+      # + description (0.15); category "Voladores" is not in available
+      # categories, so 0.0 (no half credit for unverifiable guesses).
+      assert_equal 0.70, result.score
+      assert result.reasons.any? { |reason| reason.include?("not among the available categories") }
+      assert result.reasons.none? { |reason| reason.include?("half credit") }
     end
 
     test "medium confidence when the amount was inferred instead of extracted" do

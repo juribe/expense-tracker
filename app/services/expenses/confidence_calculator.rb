@@ -33,9 +33,6 @@ module Expenses
     }.freeze
 
     FUTURE_DATE_PENALTY = 0.10
-    # An unmatched category name is still useful (the user can create it), so
-    # an extracted-but-unknown label earns half its weight instead of zero.
-    UNKNOWN_CATEGORY_CREDIT = 0.05
 
     def self.call(expense:, input:, categories: [], today: Date.current)
       new(expense: expense, input: input, categories: categories, today: today).call
@@ -152,8 +149,8 @@ module Expenses
         reasons << "category \"#{name}\" is one of the available categories (+#{WEIGHTS[:category]})"
         WEIGHTS[:category]
       else
-        reasons << "category \"#{name}\" is not among the available categories (half credit)"
-        UNKNOWN_CATEGORY_CREDIT
+        reasons << "category \"#{name}\" is not among the available categories (+0.00 of #{WEIGHTS[:category]})"
+        0.0
       end
     end
 

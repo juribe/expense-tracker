@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_19_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_21_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -156,6 +156,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_19_000002) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "created_at"], name: "index_evaluation_runs_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_evaluation_runs_on_user_id"
+  end
+
+  create_table "expense_candidates", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.decimal "amount", precision: 10, scale: 2
+    t.date "date"
+    t.string "description"
+    t.bigint "category_id"
+    t.bigint "money_source_id"
+    t.string "status", default: "needs_review", null: false
+    t.string "source", default: "text", null: false
+    t.float "confidence"
+    t.jsonb "missing_fields", default: [], null: false
+    t.text "original_input"
+    t.text "original_text"
+    t.bigint "expense_id"
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "confirmed_at"
+    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_expense_candidates_on_category_id"
+    t.index ["expense_id"], name: "index_expense_candidates_on_expense_id"
+    t.index ["money_source_id"], name: "index_expense_candidates_on_money_source_id"
+    t.index ["user_id", "created_at"], name: "index_expense_candidates_on_user_id_and_created_at"
+    t.index ["user_id", "status"], name: "index_expense_candidates_on_user_id_and_status"
+    t.index ["user_id"], name: "index_expense_candidates_on_user_id"
   end
 
   create_table "expense_playground_runs", force: :cascade do |t|
@@ -579,6 +606,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_19_000002) do
   add_foreign_key "credit_accounts", "money_sources"
   add_foreign_key "evaluation_cases", "evaluation_runs"
   add_foreign_key "evaluation_runs", "users"
+  add_foreign_key "expense_candidates", "categories"
+  add_foreign_key "expense_candidates", "money_sources"
+  add_foreign_key "expense_candidates", "transactions", column: "expense_id"
+  add_foreign_key "expense_candidates", "users"
   add_foreign_key "expense_playground_runs", "users"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"

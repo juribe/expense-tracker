@@ -19,6 +19,7 @@ class User < ApplicationRecord
   has_many :expense_playground_runs, dependent: :destroy
   has_many :evaluation_runs, dependent: :destroy
   has_many :activity_classifications, dependent: :destroy
+  has_many :expense_candidates, dependent: :destroy
   has_one :alert_preference, dependent: :destroy
 
   # Persisted alert toggles, auto-built with defaults on first access so the

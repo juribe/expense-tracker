@@ -20,7 +20,7 @@ require_relative "support/fake_ai_provider"
 
 module ActiveSupport
   class TestCase
-    parallelize(workers: :number_of_processors)
+    parallelize(workers: :number_of_processors) unless ENV["DISABLE_PARALLEL_TESTS"] == "1"
 
     fixtures :all
 

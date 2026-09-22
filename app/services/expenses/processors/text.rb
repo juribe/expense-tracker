@@ -34,9 +34,9 @@ module Expenses
         @recording.steps[:validation] ||= []
         @recording.steps[:validation] << {
           candidate: candidate,
-          valid: candidate.valid?,
+          valid: candidate.valid_for_pipeline?,
           checks: candidate.checks,
-          errors: candidate.errors
+          errors: candidate.respond_to?(:errors) ? Array(candidate.errors) : []
         }
       end
     end
