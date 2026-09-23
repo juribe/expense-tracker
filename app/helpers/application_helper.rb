@@ -67,9 +67,16 @@ module ApplicationHelper
     "discarded" => "bg-secondary"
   }.freeze
 
+  CANDIDATE_STATUS_LABELS = {
+    "needs_review" => "Revisión pendiente",
+    "ready" => "Listo",
+    "confirmed" => "Confirmado",
+    "discarded" => "Descartado"
+  }.freeze
+
   def status_badge(status)
     css_class = CANDIDATE_STATUS_CLASSES[status] || "bg-secondary"
-    label = status.to_s.titleize
+    label = CANDIDATE_STATUS_LABELS[status] || status.to_s.titleize
     tag.span(label, class: "badge #{css_class}")
   end
 

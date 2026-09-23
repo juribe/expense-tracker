@@ -1,8 +1,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-inbox me-2"></i><%= t("expense_candidates.review", default: "Review Candidate") %></h1>
+  <h1><i class="bi bi-inbox me-2"></i><%= t("expense_candidates.review", default: "Revisar Candidato") %></h1>
   <div class="d-flex gap-2">
     <%= link_to expense_candidates_path, class: "btn btn-outline-secondary" do %>
-      <i class="bi bi-arrow-left me-1"></i><%= t("common.back", default: "Back") %>
+      <i class="bi bi-arrow-left me-1"></i><%= t("common.back", default: "Volver") %>
     <% end %>
   </div>
 </div>
@@ -11,7 +11,7 @@
   <div class="col-12 col-lg-8">
     <div class="card shadow-sm">
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i><%= t("expense_candidates.edit_fields", default: "Edit Fields") %></h5>
+        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i><%= t("expense_candidates.edit_fields", default: "Editar Campos") %></h5>
         <%= status_badge(@candidate.status) %>
       </div>
       <div class="card-body">
@@ -57,10 +57,10 @@
               <div class="mb-3">
                 <%= f.label :category_id, t("common.category"), class: "form-label" %>
                 <% if @candidate.category_id.nil? %>
-                  <span class="badge bg-warning text-dark mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Missing") %></span>
+                  <span class="badge bg-warning text-dark mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
                 <% end %>
                 <%= f.collection_select :category_id, @categories, :id, :name,
-                                        { include_blank: t("expense_candidates.select_category", default: "Select category...") },
+                                        { include_blank: t("expense_candidates.select_category", default: "Seleccionar categoría...") },
                                         class: "form-select" %>
               </div>
             </div>
@@ -68,21 +68,21 @@
             <!-- Money Source -->
             <div class="col-12 col-md-6">
               <div class="mb-3">
-                <%= f.label :money_source_id, t("common.money_source", default: "Money Source"), class: "form-label" %>
+                <%= f.label :money_source_id, t("common.money_source", default: "Fuente de Dinero"), class: "form-label" %>
                 <% if @candidate.money_source_id.nil? %>
-                  <span class="badge bg-warning text-dark mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Missing") %></span>
+                  <span class="badge bg-warning text-dark mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
                 <% end %>
                 <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
-                                        { include_blank: t("expense_candidates.select_source", default: "Select money source...") },
+                                        { include_blank: t("expense_candidates.select_source", default: "Seleccionar fuente de dinero...") },
                                         class: "form-select" %>
               </div>
             </div>
           </div>
 
           <div class="d-flex gap-2 mt-3">
-            <%= f.submit t("expense_candidates.save_changes", default: "Save Changes"), class: "btn btn-primary" %>
+            <%= f.submit t("expense_candidates.save_changes", default: "Guardar Cambios"), class: "btn btn-primary" %>
             <%= link_to expense_candidate_path(@candidate), class: "btn btn-outline-secondary" do %>
-              <i class="bi bi-arrow-counterclockwise me-1"></i><%= t("common.reset", default: "Reset") %>
+              <i class="bi bi-arrow-counterclockwise me-1"></i><%= t("common.reset", default: "Restablecer") %>
             <% end %>
           </div>
         <% end %>
@@ -93,7 +93,7 @@
     <% if @candidate.original_input.present? %>
       <div class="card shadow-sm mt-3">
         <div class="card-header bg-white">
-          <h6 class="mb-0"><i class="bi bi-chat-left-text me-2"></i><%= t("expense_candidates.original_input", default: "Original Input") %></h6>
+          <h6 class="mb-0"><i class="bi bi-chat-left-text me-2"></i><%= t("expense_candidates.original_input", default: "Entrada Original") %></h6>
         </div>
         <div class="card-body">
           <blockquote class="blockquote mb-0">
@@ -102,7 +102,7 @@
           <% if @candidate.original_text.present? && @candidate.original_text != @candidate.original_input %>
             <hr>
             <small class="text-muted">
-              <strong><%= t("expense_candidates.extracted_text", default: "Extracted text:") %></strong>
+              <strong><%= t("expense_candidates.extracted_text", default: "Texto extraído:") %></strong>
               "<%= @candidate.original_text %>"
             </small>
           <% end %>
@@ -117,7 +117,7 @@
     <% if @candidate.confidence %>
       <div class="card shadow-sm mb-3">
         <div class="card-header bg-white">
-          <h6 class="mb-0"><i class="bi bi-speedometer me-2"></i><%= t("expense_candidates.confidence", default: "Confidence") %></h6>
+          <h6 class="mb-0"><i class="bi bi-speedometer me-2"></i><%= t("expense_candidates.confidence", default: "Confianza") %></h6>
         </div>
         <div class="card-body">
           <div class="d-flex align-items-center">
@@ -135,7 +135,7 @@
     <% if @candidate.missing_fields.any? %>
       <div class="card shadow-sm mb-3 border-warning">
         <div class="card-header bg-warning bg-opacity-10 text-warning">
-          <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i><%= t("expense_candidates.missing_fields_title", default: "Missing Fields") %></h6>
+          <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i><%= t("expense_candidates.missing_fields_title", default: "Campos Faltantes") %></h6>
         </div>
         <div class="card-body">
           <ul class="list-unstyled mb-0">
@@ -153,20 +153,20 @@
     <!-- Actions -->
     <div class="card shadow-sm mb-3">
       <div class="card-header bg-white">
-        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i><%= t("common.actions", default: "Actions") %></h6>
+        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i><%= t("common.actions", default: "Acciones") %></h6>
       </div>
       <div class="card-body">
         <% if @candidate.missing_fields.empty? && !@candidate.confirmed? %>
           <%= button_to confirm_expense_candidate_path(@candidate),
                         method: :post,
                         class: "btn btn-success w-100 mb-2",
-                        data: { confirm: t("expense_candidates.confirm_confirm", default: "Create the final expense from this candidate?") } do %>
-            <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.save_expense", default: "Save Expense") %>
+                        data: { confirm: t("expense_candidates.confirm_confirm", default: "¿Crear el gasto final desde este candidato?") } do %>
+            <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.save_expense", default: "Guardar Gasto") %>
           <% end %>
         <% elsif @candidate.missing_fields.any? %>
           <div class="alert alert-warning mb-2 py-2">
             <i class="bi bi-info-circle me-1"></i>
-            <%= t("expense_candidates.complete_fields_first", default: "Complete all missing fields before saving.") %>
+            <%= t("expense_candidates.complete_fields_first", default: "Completa todos los campos faltantes antes de guardar.") %>
           </div>
         <% end %>
 
@@ -174,20 +174,20 @@
           <%= button_to discard_expense_candidate_path(@candidate),
                         method: :post,
                         class: "btn btn-outline-danger w-100",
-                        data: { confirm: t("expense_candidates.discard_confirm", default: "Discard this candidate?") } do %>
-            <i class="bi bi-trash me-1"></i><%= t("expense_candidates.discard", default: "Discard") %>
+                        data: { confirm: t("expense_candidates.discard_confirm", default: "¿Descartar este candidato?") } do %>
+            <i class="bi bi-trash me-1"></i><%= t("expense_candidates.discard", default: "Descartar") %>
           <% end %>
         <% end %>
 
         <% if @candidate.confirmed? %>
           <div class="alert alert-success mb-0 py-2">
             <i class="bi bi-check-circle me-1"></i>
-            <%= t("expense_candidates.already_confirmed_message", default: "This candidate was confirmed.") %>
+            <%= t("expense_candidates.already_confirmed_message", default: "Este candidato ya fue confirmado.") %>
           </div>
         <% elsif @candidate.discarded? %>
           <div class="alert alert-secondary mb-0 py-2">
             <i class="bi bi-trash me-1"></i>
-            <%= t("expense_candidates.already_discarded_message", default: "This candidate was discarded.") %>
+            <%= t("expense_candidates.already_discarded_message", default: "Este candidato fue descartado.") %>
           </div>
         <% end %>
       </div>
@@ -196,26 +196,26 @@
     <!-- Metadata -->
     <div class="card shadow-sm">
       <div class="card-header bg-white">
-        <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i><%= t("common.details", default: "Details") %></h6>
+        <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i><%= t("common.details", default: "Detalles") %></h6>
       </div>
       <div class="card-body">
         <dl class="mb-0">
           <dt class="small text-muted"><%= t("common.source") %></dt>
           <dd class="mb-2"><span class="badge bg-light text-dark"><i class="bi bi-<%= source_icon(@candidate.source) %> me-1"></i><%= @candidate.source.titleize %></span></dd>
 
-          <dt class="small text-muted"><%= t("common.created_at", default: "Created") %></dt>
+          <dt class="small text-muted"><%= t("common.created_at", default: "Creado") %></dt>
           <dd class="mb-2"><%= l(@candidate.created_at, format: :long) if @candidate.created_at %></dd>
 
           <% if @candidate.confirmed_at %>
-            <dt class="small text-muted"><%= t("common.confirmed_at", default: "Confirmed") %></dt>
+            <dt class="small text-muted"><%= t("common.confirmed_at", default: "Confirmado") %></dt>
             <dd class="mb-2"><%= l(@candidate.confirmed_at, format: :long) %></dd>
           <% end %>
 
           <% if @candidate.expense %>
-            <dt class="small text-muted"><%= t("expense_candidates.linked_expense", default: "Linked Expense") %></dt>
+            <dt class="small text-muted"><%= t("expense_candidates.linked_expense", default: "Gasto Vinculado") %></dt>
             <dd class="mb-0">
               <%= link_to expense_path(@candidate.expense), class: "text-decoration-none" do %>
-                <i class="bi bi-link-45deg me-1"></i><%= t("expense_candidates.view_expense", default: "View Expense") %>
+                <i class="bi bi-link-45deg me-1"></i><%= t("expense_candidates.view_expense", default: "Ver Gasto") %>
               <% end %>
             </dd>
           <% end %>

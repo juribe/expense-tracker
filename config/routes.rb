@@ -27,6 +27,10 @@ Rails.application.routes.draw do
       post :confirm
       post :discard
     end
+    collection do
+      patch :bulk_update
+      post :bulk_confirm
+    end
   end
   resources :incomes
   resources :categories
