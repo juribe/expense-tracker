@@ -13,8 +13,9 @@ module Expenses
     #      ExpenseCandidate built through CandidateDetector, so every channel
     #      ends up with the same candidate mapping and category decision.
     class Image < Base
-      RECEIPT_CONTEXT = "This text was OCR'd locally from a payment receipt. When several amounts " \
-                        "appear (items, subtotal, total), extract ONE expense using the TOTAL amount."
+      RECEIPT_CONTEXT = "Este texto fue obtenido mediante OCR local de un comprobante de pago. " \
+                  "Cuando aparezcan varios valores (productos, subtotal, total), " \
+                  "extrae UN solo gasto usando el valor TOTAL."
 
       # Returns [candidate, engine]; candidate is nil when OCR/extraction
       # failed.

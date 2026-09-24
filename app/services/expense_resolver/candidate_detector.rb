@@ -19,6 +19,9 @@ module ExpenseResolver
     end
 
     def call
+      suggested = category_result.suggested_category_name.presence ||
+                  (expense.respond_to?(:category_suggestion) ? expense.category_suggestion : nil)
+
       candidate = ExpenseCandidate.new(
         amount: amount_result.amount,
         currency: expense.currency.presence || ExpenseCandidate::DEFAULT_CURRENCY,
@@ -29,7 +32,7 @@ module ExpenseResolver
         date: date_result.date,
         source: "playground",
         classification_source: classification_source,
-        suggested_category_name: category_result.suggested_category_name,
+        suggested_category_name: suggested,
         confidence: expense.confidence,
         money_source_name: money_source_result.money_source_name,
         money_source_id: money_source_result.money_source&.id,
@@ -86,6 +89,7 @@ module ExpenseResolver
       candidate.category_id = rule.category_id
       candidate.category_name = rule.category.name
       candidate.suggested_category_name = nil
+      candidate.category_suggestion = nil if candidate.respond_to?(:category_suggestion=)
       candidate.warnings = []
       candidate
     end

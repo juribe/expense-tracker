@@ -2,7 +2,7 @@
 
 class ExpenseCandidatesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_candidate, only: [ :show, :update, :confirm, :discard ]
+  before_action :set_candidate, only: [ :show, :update, :confirm, :discard, :accept_suggestion ]
   before_action :set_categories, only: [ :show, :index, :bulk_update, :bulk_confirm ]
   before_action :set_money_sources, only: [ :show, :index, :bulk_update, :bulk_confirm ]
 
@@ -11,7 +11,8 @@ class ExpenseCandidatesController < ApplicationController
   def index
     @candidates = current_user.expense_candidates.includes(:category, :money_source)
     @status = params[:status].presence || "needs_review"
-    @candidates = @candidates.where(status: @status) unless @status == "all"
+    @status = "needs_review" unless %w[needs_review discarded].include?(@status)
+    @candidates = @candidates.where(status: @status)
     @candidates = @candidates.order(created_at: :desc)
   end
 
@@ -41,13 +42,36 @@ class ExpenseCandidatesController < ApplicationController
 
     @candidate.confirm!
     redirect_to expense_candidates_path, notice: t("expense_candidates.confirmed", default: "Candidato confirmado.")
-  rescue ActiveRecord::RecordInvalid => e
+  rescue ActiveRecord::RecordInvalid, Expenses::Create::Invalid => e
     redirect_to expense_candidate_path(@candidate), alert: e.message
   end
 
   def discard
     @candidate.discard!
     redirect_to expense_candidates_path, notice: t("expense_candidates.discarded", default: "Candidato descartado.")
+  end
+
+  # POST /expense_candidates/:id/accept_suggestion
+  def accept_suggestion
+    name = @candidate.category_suggestion.to_s.strip
+    if name.blank?
+      redirect_to expense_candidate_path(@candidate),
+                  alert: t("expense_candidates.no_suggestion", default: "No hay sugerencia de categoría.")
+      return
+    end
+
+    resolved = Categories::ClosestResolver.call(user: current_user, name: name)
+    category = resolved.category ||
+               Category.create!(name: name.split.map(&:capitalize).join(" "), user: current_user, is_default: false)
+    @candidate.update!(category_id: category.id, category_suggestion: nil)
+    @candidate.recalculate_missing_fields!
+    @candidate.recalculate_status!
+
+    redirect_to expense_candidate_path(@candidate),
+                notice: t("expense_candidates.suggestion_accepted",
+                          default: "Categoría \"#{category.name}\" asignada.")
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to expense_candidate_path(@candidate), alert: e.message
   end
 
   # PATCH /expense_candidates/bulk_update

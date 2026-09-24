@@ -83,7 +83,7 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "PATCH /expense_candidates/:id recalculates status" do
-    candidate = create_candidate(category_id: nil, money_source_id: nil, status: "needs_review")
+    candidate = create_candidate(category_id: nil, money_source_id: nil, description: "Test", status: "needs_review")
 
     patch expense_candidate_path(candidate), params: {
       expense_candidate: { category_id: @category.id, money_source_id: @money_source.id }
@@ -135,6 +135,64 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     candidate.reload
     assert_equal "discarded", candidate.status
     assert_not_nil candidate.discarded_at
+  end
+
+  # --- ACCEPT SUGGESTION ---
+
+  test "POST /expense_candidates/:id/accept_suggestion creates category from suggestion" do
+    candidate = create_candidate(category_id: nil, money_source_id: @money_source.id, description: "Test")
+    candidate.update_column(:category_suggestion, "Mascotas")
+
+    assert_difference -> { Category.count }, 1 do
+      post accept_suggestion_expense_candidate_path(candidate)
+    end
+    assert_redirected_to expense_candidate_path(candidate)
+
+    candidate.reload
+    assert_nil candidate.category_suggestion
+    assert_not_nil candidate.category_id
+    assert_equal "ready", candidate.status
+  end
+
+  test "POST /expense_candidates/:id/accept_suggestion reuses existing category" do
+    existing = Category.create!(name: "Mascotas", is_default: false, category_type: "expense", user: @user)
+    candidate = create_candidate(category_id: nil, money_source_id: @money_source.id, description: "Test")
+    candidate.update_column(:category_suggestion, "Mascotas")
+
+    assert_no_difference -> { Category.count } do
+      post accept_suggestion_expense_candidate_path(candidate)
+    end
+    assert_redirected_to expense_candidate_path(candidate)
+    assert_equal existing.id, candidate.reload.category_id
+  end
+
+  test "POST /expense_candidates/:id/accept_suggestion with blank suggestion redirects with alert" do
+    candidate = create_candidate(category_id: nil)
+    candidate.update_column(:category_suggestion, nil)
+
+    post accept_suggestion_expense_candidate_path(candidate)
+    assert_redirected_to expense_candidate_path(candidate)
+    follow_redirect!
+    assert flash[:alert].present?
+  end
+
+  # --- INDEX tabs ---
+
+  test "GET /expense_candidates defaults to needs_review" do
+    create_candidate(status: "needs_review")
+    get expense_candidates_path
+    assert_response :success
+  end
+
+  test "GET /expense_candidates with invalid status falls back to needs_review" do
+    get expense_candidates_path(status: "invalid")
+    assert_response :success
+  end
+
+  test "GET /expense_candidates with discarded status shows discarded" do
+    create_candidate(status: "discarded")
+    get expense_candidates_path(status: "discarded")
+    assert_response :success
   end
 
   # --- User isolation ---

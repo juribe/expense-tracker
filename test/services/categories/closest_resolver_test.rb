@@ -9,7 +9,7 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
                          password: "password123")
     @comida = Category.create!(name: "Comida", user: @user, is_default: false)
     @restaurante = Category.create!(name: "Restaurante", parent: @comida, user: @user, is_default: false)
-    @vivienda = Category.create!(name: "Vivienda", user: @user, is_default: false)
+    @hogar = Category.create!(name: "Hogar", user: @user, is_default: false)
     @servicios = Category.create!(name: "Servicios públicos", user: @user, is_default: false)
     @otras = Category.create!(name: "Otros", user: @user, is_default: false)
     @entretenimiento = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
@@ -112,10 +112,10 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal :learned, result.matched_by
   end
 
-  test "house maintenance/upkeep classifies as Vivienda even when the name suggests a utility" do
+  test "house maintenance/upkeep classifies as Hogar even when the name suggests a utility" do
     result = resolve("Servicios públicos", activity: "Mantenimiento del apartamento")
 
-    assert_equal @vivienda, result.category
+    assert_equal @hogar, result.category
     assert_equal :housing, result.matched_by
   end
 
@@ -131,20 +131,20 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal @transporte, resolve("estacionamiento").category
   end
 
-  test "parking terms never classify as Vivienda even when a house place word appears" do
+  test "parking terms never classify as Hogar even when a house place word appears" do
     result = resolve("", activity: "parqueadero del edificio")
 
     assert_equal @transporte, result.category
     assert_equal :parking, result.matched_by
   end
 
-  test "rent and condominium fees classify as Vivienda" do
+  test "rent and condominium fees classify as Hogar" do
     result = resolve("", activity: "arriendo del apartamento")
-    assert_equal @vivienda, result.category
+    assert_equal @hogar, result.category
     assert_equal :housing, result.matched_by
 
     result = resolve("", activity: "cuota de administración del edificio")
-    assert_equal @vivienda, result.category
+    assert_equal @hogar, result.category
     assert_equal :housing, result.matched_by
   end
 
@@ -155,7 +155,7 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_nil result.matched_by
   end
 
-  test "utilities never classify as Vivienda even when a house place word is present" do
+  test "utilities never classify as Hogar even when a house place word is present" do
     result = resolve("Servicios públicos", activity: "internet del apartamento")
 
     assert_equal @servicios, result.category
@@ -166,7 +166,7 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal :exact, result.matched_by
   end
 
-  test "household purchases (appliances/furniture) do not classify as Vivienda" do
+  test "household purchases (appliances/furniture) do not classify as Hogar" do
     result = resolve("", activity: "compré un electrodoméstico")
 
     assert_not result.matched?

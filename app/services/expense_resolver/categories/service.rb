@@ -79,7 +79,7 @@ module ExpenseResolver
 
       # Maps the canonical group label to a user category by exact name, then by
       # the keyword that actually matched the message. The canonical label and its
-      # Spanish alias (from the resolver, e.g. "Housing" -> "Vivienda") are tried
+      # Spanish alias (from the resolver, e.g. "Housing" -> "Hogar") are tried
       # first; only the specific matched keyword is checked against category names,
       # so "arriendo" never matches "Servicios públicos" through the generic
       # "servicios" keyword.

@@ -233,15 +233,15 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
       end
     end
 
-    test "parking activities always resolve to Transporte, never to the AI's Vivienda label" do
+    test "parking activities always resolve to Transporte, never to the AI's Hogar label" do
       transporte = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
-      vivienda = Category.create!(name: "Vivienda", is_default: true, category_type: "expense")
+      hogar = Category.create!(name: "Hogar", is_default: true, category_type: "expense")
       extractor_result = {
         ok?: true,
         data: {
           ocr_text: "PAGO PARQUEADERO",
           expenses: [ { amount: 850_000, currency: "COP", merchant: nil,
-                        description: "gasté en parqueadero", category_name: "Vivienda",
+                        description: "gasté en parqueadero", category_name: "Hogar",
                         create_category: false, transaction_date: Date.current.iso8601, confidence: 0.9 } ]
         },
         error: nil
@@ -250,7 +250,7 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
         candidate = process(Expenses::Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
         assert_equal transporte.id, candidate.category_id
         assert_equal "Transporte", candidate.category_name
-        refute_equal vivienda.id, candidate.category_id
+        refute_equal hogar.id, candidate.category_id
       end
     end
 

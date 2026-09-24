@@ -63,11 +63,11 @@ module Categories
       assert result.warnings.any? { |warning| warning.include?("could not determine") }
     end
 
-    test "parking activities override the AI's Vivienda label" do
+    test "parking activities override the AI's Hogar label" do
       transporte = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
-      Category.create!(name: "Vivienda", is_default: true, category_type: "expense")
+      Category.create!(name: "Hogar", is_default: true, category_type: "expense")
 
-      result = Decision.call(user: @user, name: "Vivienda", activity: "gasté en parqueadero")
+      result = Decision.call(user: @user, name: "Hogar", activity: "gasté en parqueadero")
 
       assert_equal transporte, result.category
       assert_empty result.warnings

@@ -15,6 +15,7 @@ module Ai
         date
         description
         category
+        category_suggestion
         money_source_hint
         confidence
         merchant

@@ -112,12 +112,12 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
 
   test "judges category semantically: genuinely-different categories still fail" do
     Category.create!(name: "Viajes", user: @user, is_default: false)
-    Category.create!(name: "Vivienda", user: @user, is_default: false)
+    Category.create!(name: "Hogar", user: @user, is_default: false)
     case_record = case_row(expected_json: {
       "amount" => 20_000, "activity" => "Hotel", "category" => "Viajes"
     })
     stub_provider(FakeAiProvider.new(responses: [
-      ok_response(description: "Hotel", category: "Vivienda")
+      ok_response(description: "Hotel", category: "Hogar")
     ])) do
       ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
     end

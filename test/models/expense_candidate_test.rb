@@ -71,7 +71,7 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
 
   test "defaults missing_fields to computed value" do
     candidate = ExpenseCandidate.new
-    assert_equal %w[amount date category_id money_source_id], candidate.missing_fields
+    assert_equal %w[amount date description category_id money_source_id], candidate.missing_fields
   end
 
   test "defaults metadata to empty hash" do
@@ -106,7 +106,8 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
       category_id: @category.id,
       money_source_id: @money_source.id,
       amount: 50_000,
-      date: Date.current
+      date: Date.current,
+      description: "Test"
     )
     assert_equal [], candidate.missing_fields
   end
@@ -145,15 +146,18 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
 
   # --- Scopes ---
 
-  test "pending scope returns needs_review and ready" do
+  test "pending scope returns only needs_review" do
     needs_review = build_candidate(status: "needs_review").tap(&:save!)
-    ready = build_candidate(status: "ready").tap(&:save!)
+    ready = build_candidate(
+      category_id: @category.id, money_source_id: @money_source.id,
+      description: "Test", status: "ready"
+    ).tap(&:save!)
     confirmed = build_candidate(status: "confirmed").tap(&:save!)
     discarded = build_candidate(status: "discarded").tap(&:save!)
 
     pending = ExpenseCandidate.pending
     assert_includes pending, needs_review
-    assert_includes pending, ready
+    assert_not_includes pending, ready
     assert_not_includes pending, confirmed
     assert_not_includes pending, discarded
   end
@@ -167,7 +171,10 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
   end
 
   test "ready scope filters correctly" do
-    ready = build_candidate(status: "ready").tap(&:save!)
+    ready = build_candidate(
+      category_id: @category.id, money_source_id: @money_source.id,
+      description: "Test", status: "ready"
+    ).tap(&:save!)
     needs_review = build_candidate(status: "needs_review").tap(&:save!)
 
     assert_includes ExpenseCandidate.ready, ready
@@ -211,7 +218,7 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     assert_equal @money_source, expense.money_source
     assert_equal Date.current, expense.date
     assert_equal "Transferencia a Juan", expense.description
-    assert_equal "ai", expense.source
+    assert_equal "text", expense.source
   end
 
   test "confirm! raises when required fields are missing" do
@@ -278,6 +285,7 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     candidate = build_candidate(
       category_id: nil,
       money_source_id: nil,
+      description: "Test",
       status: "needs_review"
     )
     candidate.save!
@@ -292,6 +300,7 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     candidate = build_candidate(
       category_id: @category.id,
       money_source_id: @money_source.id,
+      description: "Test",
       status: "ready"
     )
     candidate.save!
@@ -387,12 +396,246 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     candidate = build_candidate(
       category_id: nil,
       money_source_id: nil,
+      description: nil,
       amount: 50_000,
       date: Date.current
     )
 
     assert_includes candidate.missing_fields, "category_id"
     assert_includes candidate.missing_fields, "money_source_id"
-    assert_equal 2, candidate.missing_fields.length
+    assert_includes candidate.missing_fields, "description"
+    assert_equal 3, candidate.missing_fields.length
+  end
+
+  # --- Missing fields: description ---
+
+  test "missing_fields includes description when nil" do
+    candidate = build_candidate(description: nil)
+    assert_includes candidate.missing_fields, "description"
+  end
+
+  test "missing_fields includes description when blank string" do
+    candidate = build_candidate(description: "")
+    assert_includes candidate.missing_fields, "description"
+  end
+
+  test "missing_fields excludes description when present" do
+    candidate = build_candidate(description: "Gasolina")
+    assert_not_includes candidate.missing_fields, "description"
+  end
+
+  # --- Checks: all 5 required fields ---
+
+  test "checks includes Amount, Date, Description, Category, Money source" do
+    candidate = build_candidate(
+      amount: 50_000, date: Date.current, description: "Test",
+      category_id: @category.id, money_source_id: @money_source.id
+    )
+    labels = candidate.checks.map { |c| c[:label] }
+
+    assert labels.any? { |l| l.include?("Amount") }
+    assert labels.any? { |l| l.downcase.include?("date") }
+    assert labels.any? { |l| l.include?("Description") }
+    assert labels.any? { |l| l.include?("Category") }
+    assert labels.any? { |l| l.include?("Money") }
+  end
+
+  test "checks passes money source when money_source_id present" do
+    candidate = build_candidate(money_source_id: @money_source.id)
+    money_check = candidate.checks.find { |c| c[:label].include?("Money") }
+    assert money_check[:passed]
+  end
+
+  test "checks passes money source when money_source_name present" do
+    candidate = build_candidate(money_source_id: nil, money_source_name: "Davibank")
+    money_check = candidate.checks.find { |c| c[:label].include?("Money") }
+    assert money_check[:passed]
+  end
+
+  test "checks fails money source when both nil" do
+    candidate = build_candidate(money_source_id: nil, money_source_name: nil)
+    money_check = candidate.checks.find { |c| c[:label].include?("Money") }
+    assert_not money_check[:passed]
+  end
+
+  test "checks passes description when present" do
+    candidate = build_candidate(description: "Gasolina")
+    desc_check = candidate.checks.find { |c| c[:label].include?("Description") }
+    assert desc_check[:passed]
+  end
+
+  test "checks fails description when nil" do
+    candidate = build_candidate(description: nil)
+    desc_check = candidate.checks.find { |c| c[:label].include?("Description") }
+    assert_not desc_check[:passed]
+  end
+
+  # --- confirm! via Expenses::Create ---
+
+  test "confirm! creates Expense via Expenses::Create with correct attributes" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "Mercado",
+      source: "text"
+    )
+    candidate.save!
+
+    assert_difference -> { Expense.count }, 1 do
+      candidate.confirm!
+    end
+
+    assert_equal "confirmed", candidate.status
+    assert_not_nil candidate.expense_id
+    assert_not_nil candidate.confirmed_at
+
+    expense = candidate.expense
+    assert_equal @user, expense.user
+    assert_equal @category, expense.category
+    assert_equal @money_source, expense.money_source
+    assert_equal Date.current, expense.date
+    assert_equal "Mercado", expense.description
+    assert_equal "text", expense.source
+  end
+
+  test "confirm! is idempotent via Expenses::Create" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "Test"
+    )
+    candidate.save!
+
+    candidate.confirm!
+    first_expense_id = candidate.expense_id
+
+    assert_no_difference -> { Expense.count } do
+      candidate.confirm!
+    end
+    assert_equal first_expense_id, candidate.expense_id
+  end
+
+  test "confirm! raises when amount missing" do
+    candidate = build_candidate(amount: nil, category_id: nil, money_source_id: nil)
+    candidate.save!
+
+    assert_raises(ActiveRecord::RecordInvalid) { candidate.confirm! }
+    assert_equal "needs_review", candidate.reload.status
+    assert_nil candidate.expense_id
+  end
+
+  test "confirm! raises when date missing" do
+    candidate = build_candidate(date: nil, category_id: nil, money_source_id: nil)
+    candidate.save!
+
+    assert_raises(ActiveRecord::RecordInvalid) { candidate.confirm! }
+    assert_equal "needs_review", candidate.reload.status
+  end
+
+  test "confirm! on discarded candidate raises" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "Test"
+    )
+    candidate.save!
+    candidate.discard!
+
+    assert_raises(ActiveRecord::RecordInvalid) { candidate.confirm! }
+  end
+
+  test "confirm! with category_suggestion creates category and uses it" do
+    candidate = build_candidate(
+      category_id: nil,
+      money_source_id: @money_source.id,
+      amount: 80_000,
+      date: Date.current,
+      description: "Comida para mascota",
+      category_suggestion: "Mascotas"
+    )
+    candidate.save!
+
+    assert_difference -> { Expense.count }, 1 do
+      assert_difference -> { Category.count }, 1 do
+        candidate.confirm!
+      end
+    end
+
+    expense = candidate.expense
+    assert_equal "Mascotas", expense.category.name
+    assert_nil candidate.reload.category_suggestion
+  end
+
+  test "confirm! with category_suggestion reuses existing category with same name" do
+    existing = Category.create!(name: "Mascotas", is_default: false, category_type: "expense", user: @user)
+    candidate = build_candidate(
+      category_id: nil,
+      money_source_id: @money_source.id,
+      amount: 80_000,
+      date: Date.current,
+      description: "Comida para mascota",
+      category_suggestion: "Mascotas"
+    )
+    candidate.save!
+
+    assert_no_difference -> { Category.count } do
+      assert_difference -> { Expense.count }, 1 do
+        candidate.confirm!
+      end
+    end
+
+    assert_equal existing.id, candidate.expense.category_id
+  end
+
+  # --- category_suggestion persistence ---
+
+  test "category_suggestion persists in the database" do
+    candidate = build_candidate(category_suggestion: "Mascotas")
+    candidate.save!
+    assert_equal "Mascotas", candidate.reload.category_suggestion
+  end
+
+  test "suggested_category_name returns category_suggestion value" do
+    candidate = build_candidate(category_suggestion: "Mascotas")
+    candidate.save!
+    assert_equal "Mascotas", candidate.reload.suggested_category_name
+  end
+
+  test "from_h accepts category_suggestion" do
+    hash = { amount: 50_000, date: Date.current, source: "text", category_suggestion: "Mascotas" }
+    candidate = ExpenseCandidate.from_h(hash, user: @user)
+    assert_equal "Mascotas", candidate.category_suggestion
+  end
+
+  test "confirm! clears category_suggestion on confirm" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "Test",
+      category_suggestion: "Mascotas"
+    )
+    candidate.save!
+    candidate.confirm!
+    assert_nil candidate.reload.category_suggestion
+  end
+
+  # --- sync_missing_fields callback ---
+
+  test "sync_missing_fields triggers on money_source_id change" do
+    candidate = build_candidate(money_source_id: nil, category_id: nil)
+    candidate.save!
+    assert_includes candidate.missing_fields, "money_source_id"
+
+    candidate.update!(money_source_id: @money_source.id)
+    candidate.reload
+    assert_not_includes candidate.missing_fields, "money_source_id"
   end
 end

@@ -84,6 +84,7 @@ module Expenses
         confidence: candidate.confidence,
         original_input: @input.payload[:text],
         original_text: candidate.respond_to?(:original_text) ? candidate.original_text : nil,
+        category_suggestion: candidate.respond_to?(:suggested_category_name) ? candidate.suggested_category_name : nil,
         metadata: {
           engine: engine,
           classification_source: candidate.classification_source,

@@ -11,7 +11,7 @@ module Categories
   #   2. unconditional parking rule: parkeadero/estacionamiento/parking ->
   #      "Transporte" when the user has it
   #   3. the single unconditional housing rule: house maintenance/upkeep/rent and
-  #      condominium fees (excluding utilities) go to "Vivienda" when the user has it
+   #      condominium fees (excluding utilities) go to "Hogar" when the user has it
   #   4. exact normalized name match (accent/case insensitive)
   #   5. English seed -> Spanish alias
   #   6. similarity (token Jaccard / containment) above a threshold
@@ -25,7 +25,7 @@ module Categories
   # silent one-off decision.
   #
   #   Categories::ClosestResolver.call(user: user, name: "Mantenimiento del apartamento")
-  #   # => #<struct Result category=Vivienda, matched_by=:housing> when the user has Vivienda
+   #   # => #<struct Result category=Hogar, matched_by=:housing> when the user has Hogar
   class ClosestResolver
     Result = Struct.new(:category, :matched_by, :similarity, keyword_init: true) do
       def matched?
@@ -44,7 +44,7 @@ module Categories
       "comida y restaurantes" => [ "Comida" ],
       "health" => "Salud", "transportation" => "Transporte", "travel" => "Viajes",
       "utilities" => "Servicios públicos", "others" => "Otros", "other" => "Otros",
-      "housing" => "Vivienda", "education" => "Educación", "clothing" => "Compras",
+      "housing" => "Hogar", "education" => "Educación", "clothing" => "Compras",
       "parking" => "Transporte", "gasoline" => "Transporte", "fuel" => "Transporte",
       "parqueadero" => "Transporte", "estacionamiento" => "Transporte",
       "pet care" => "Otros", "pets" => "Otros", "subscriptions" => "Otros",
@@ -55,7 +55,7 @@ module Categories
     SIMILARITY_THRESHOLD = 0.5
 
     # House-related words grouped by role. Rent/management fees and house
-    # maintenance/upkeep are classified as "Vivienda" (the one unconditional
+    # maintenance/upkeep are classified as "Hogar" (the one unconditional
     # rule); utilities are explicitly excluded so "internet del apartamento"
     # still lands in "Servicios públicos".
     HOUSE_FEES = %w[arriendo alquiler administracion predial condominio].freeze
@@ -137,12 +137,12 @@ module Categories
     end
 
     # The single unconditional rule: house rent/management fees, or house
-    # maintenance/upkeep (needs a house place word), classify as "Vivienda".
+    # maintenance/upkeep (needs a house place word), classify as "Hogar".
     # Utilities are excluded, so a service bill still resolves exactly.
     def housing_match(categories, text)
       return nil if text.blank?
 
-      housing = categories.find { |category| normalize(category.name) == normalize("Vivienda") }
+      housing = categories.find { |category| normalize(category.name) == normalize("Hogar") }
       return nil unless housing
 
       tokens = fold_tokens(text)

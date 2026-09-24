@@ -11,30 +11,13 @@
 <ul class="nav nav-pills mb-4">
   <li class="nav-item">
     <%= link_to expense_candidates_path, class: "nav-link #{'active' if @status == 'needs_review'}" do %>
-      <i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.needs_review", default: "Revisión pendiente") %>
+      <i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.pending", default: "Pendientes") %>
       <span class="badge bg-warning text-dark ms-1"><%= current_user.expense_candidates.needs_review.count %></span>
-    <% end %>
-  </li>
-  <li class="nav-item">
-    <%= link_to expense_candidates_path(status: "ready"), class: "nav-link #{'active' if @status == 'ready'}" do %>
-      <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.ready", default: "Listo") %>
-      <span class="badge bg-success ms-1"><%= current_user.expense_candidates.ready.count %></span>
-    <% end %>
-  </li>
-  <li class="nav-item">
-    <%= link_to expense_candidates_path(status: "confirmed"), class: "nav-link #{'active' if @status == 'confirmed'}" do %>
-      <i class="bi bi-check2-circle me-1"></i><%= t("expense_candidates.confirmed", default: "Confirmado") %>
     <% end %>
   </li>
   <li class="nav-item">
     <%= link_to expense_candidates_path(status: "discarded"), class: "nav-link #{'active' if @status == 'discarded'}" do %>
       <i class="bi bi-trash me-1"></i><%= t("expense_candidates.discarded", default: "Descartado") %>
-    <% end %>
-  </li>
-  <li class="nav-item">
-    <%= link_to expense_candidates_path(status: "all"), class: "nav-link #{'active' if @status == 'all'}" do %>
-      <%= t("expense_candidates.all", default: "Todos") %>
-      <span class="badge bg-secondary ms-1"><%= current_user.expense_candidates.count %></span>
     <% end %>
   </li>
 </ul>
@@ -98,6 +81,8 @@
               <td>
                 <% if candidate.category %>
                   <%= category_badge(candidate.category) %>
+                <% elsif candidate.category_suggestion.present? %>
+                  <span class="badge bg-info text-dark"><i class="bi bi-lightbulb me-1"></i><%= t("expense_candidates.suggested", default: "Sugerida") %>: "<%= candidate.category_suggestion %>"</span>
                 <% else %>
                   <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
                 <% end %>

@@ -24,7 +24,9 @@ module ExpenseResolver
         low_confidence: candidate.confidence.to_f < Ai::Tasks::ParsedExpense::LOW_CONFIDENCE_THRESHOLD,
         warnings: warnings(candidate),
         money_source_id: candidate.money_source_id,
-        money_source_name: candidate.money_source_name
+        money_source_name: candidate.money_source_name,
+        status: candidate.status,
+        category_suggestion: candidate.category_suggestion
       }
     end
 

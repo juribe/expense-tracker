@@ -135,7 +135,7 @@ module ApplicationHelper
     key =
       if name.match?(/rotativo|revolving|sobregiro|credit.?card/)
         :revolving
-      elsif name.match?(/hipotec|mortgage|vivienda|house/)
+      elsif name.match?(/hipotec|mortgage|hogar|vivienda|house/)
         :mortgage
       elsif name.match?(/veh[ií]culo|vehicular|auto|car|moto/)
         :vehicle

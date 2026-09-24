@@ -69,8 +69,8 @@ module Ai
             * Netflix, Spotify and Disney+ are entertainment: -> "Entretenimiento", never "Servicios públicos".
             * Microsoft 365, Canva, ChatGPT, Adobe, Google One, iCloud, Dropbox and all other digital SaaS subscriptions -> propose "Suscripciones" (create_category: true) or another fitting category. NEVER classify any of these as "Servicios públicos".
             * "Servicios públicos" is reserved for actual utilities: water, electricity, gas, internet, telephone/mobile phone service. Never classify digital services or subscriptions as "Servicios públicos".
-            * House maintenance/upkeep, repairs, rent, and condominium/management fees are "Vivienda". "Servicios públicos" is NEVER used for them.
-            * Parking (parqueadero, estacionamiento, parqueo, parking) -> "Transporte", never "Vivienda".
+            * House maintenance/upkeep, repairs, rent, and condominium/management fees are "Hogar". "Servicios públicos" is NEVER used for them.
+            * Parking (parqueadero, estacionamiento, parqueo, parking) -> "Transporte", never "Hogar".
           - Subcategory "d1" exists under "Comida". When the expense belongs to d1, always use "category": "Comida" (never "d1" as the main category).
           - Include a confidence between 0 and 1; reserve values below 0.9 for genuinely ambiguous inputs.
           Respond with ONLY JSON of the shape:

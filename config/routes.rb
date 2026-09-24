@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     member do
       post :confirm
       post :discard
+      post :accept_suggestion
     end
     collection do
       patch :bulk_update

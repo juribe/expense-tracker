@@ -21,7 +21,7 @@ class ExpenseCandidate < ApplicationRecord
   # Transient attributes used by CandidateDetector and pipeline but not persisted.
   attr_accessor :currency, :merchant, :category_name, :money_source_name,
                 :classification_source, :suggested_category_id,
-                :suggested_category_name, :duplicate, :warnings,
+                :duplicate, :warnings,
                 :money_source_source
 
   belongs_to :user
@@ -29,12 +29,20 @@ class ExpenseCandidate < ApplicationRecord
   belongs_to :money_source, optional: true
   belongs_to :expense, optional: true
 
+  def suggested_category_name
+    @suggested_category_name || category_suggestion
+  end
+
+  def suggested_category_name=(value)
+    @suggested_category_name = value
+  end
+
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :source, presence: true
   validates :amount, numericality: { greater_than: 0 }, allow_nil: true
 
   scope :for_user, ->(user) { where(user: user) }
-  scope :pending, -> { where(status: %w[needs_review ready]) }
+  scope :pending, -> { needs_review }
   scope :needs_review, -> { where(status: "needs_review") }
   scope :ready, -> { where(status: "ready") }
   scope :confirmed, -> { where(status: "confirmed") }
@@ -64,6 +72,7 @@ class ExpenseCandidate < ApplicationRecord
       currency: hash[:currency],
       category_id: hash[:category_id].presence&.to_i,
       category_name: hash[:category_name].presence,
+      category_suggestion: hash[:category_suggestion].presence,
       description: hash[:description].presence,
       merchant: hash[:merchant].presence,
       date: parse_date(hash[:date]),
@@ -74,7 +83,6 @@ class ExpenseCandidate < ApplicationRecord
       classification_source: hash[:classification_source].presence,
       money_source_source: hash[:money_source_source].presence,
       suggested_category_id: hash[:suggested_category_id].presence&.to_i,
-      suggested_category_name: hash[:suggested_category_name].presence,
       duplicate: hash[:duplicate],
       warnings: Array(hash[:warnings])
     )
@@ -82,7 +90,7 @@ class ExpenseCandidate < ApplicationRecord
 
   before_validation :set_defaults, on: :create
   after_validation :set_initial_status, on: :create
-  after_save :sync_missing_fields, if: :saved_change_to_category_id?
+  after_save :sync_missing_fields, if: -> { saved_changes.keys.intersect?(%w[category_id money_source_id category_suggestion]) }
 
   def needs_review?
     status == "needs_review"
@@ -106,7 +114,9 @@ class ExpenseCandidate < ApplicationRecord
     [
       { label: "Amount present", passed: amount.is_a?(Numeric) && amount.positive? },
       { label: "Currency detected", passed: currency.present? },
+      { label: "Description present", passed: description.present? },
       { label: "Category assigned", passed: category_id.present? || category_name.present? },
+      { label: "Money source detected", passed: money_source_id.present? || money_source_name.present? },
       { label: "Valid date", passed: date.present? }
     ]
   end
@@ -121,6 +131,7 @@ class ExpenseCandidate < ApplicationRecord
     fields = []
     fields << "amount" if amount.nil?
     fields << "date" if date.nil?
+    fields << "description" if description.blank?
     fields << "category_id" if category_id.nil?
     fields << "money_source_id" if money_source_id.nil?
     fields
@@ -143,14 +154,17 @@ class ExpenseCandidate < ApplicationRecord
   # Create the final Expense from this candidate and mark as confirmed.
   # Raises ActiveRecord::RecordInvalid if required fields are missing.
   def confirm!
-    return if confirmed? && expense_id.present?
+    raise ActiveRecord::RecordInvalid, self if discarded?
+    return self if confirmed? && expense_id.present?
 
     ActiveRecord::Base.transaction do
       expense = create_expense_from_candidate!
       update!(
         status: "confirmed",
         expense_id: expense.id,
-        confirmed_at: Time.current
+        confirmed_at: Time.current,
+        category_id: expense.category_id,
+        category_suggestion: nil
       )
     end
   end
@@ -202,16 +216,26 @@ class ExpenseCandidate < ApplicationRecord
   end
 
   def create_expense_from_candidate!
-    raise ActiveRecord::RecordInvalid, self if missing_fields.intersect?(%w[amount date])
+    raise ActiveRecord::RecordInvalid, self if amount.nil? || date.nil?
 
-    Expense.create!(
+    Expenses::Create.call(
       user: user,
-      category: category,
-      amount: amount,
-      description: description.presence&.truncate(255),
-      date: date,
-      source: "ai",
+      amount: amount.abs,
+      description: description.presence || merchant.presence || category_name.presence || "Gasto sin descripción",
+      category: resolve_category,
+      occurred_at: date,
+      source: source.presence || "ai",
       money_source: money_source
     )
+  rescue Expenses::Create::Invalid => e
+    errors.add(:base, e.message)
+    raise ActiveRecord::RecordInvalid, self
+  end
+
+  def resolve_category
+    return category if category.present?
+    return category_name.presence if category_name.present?
+
+    category_suggestion.presence
   end
 end

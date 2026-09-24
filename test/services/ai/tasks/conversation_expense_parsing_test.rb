@@ -60,4 +60,43 @@ class Ai::Tasks::ConversationExpenseParsingTest < ActiveSupport::TestCase
   test "parse rejects a missing expenses array" do
     assert_raises(Ai::Tasks::Base::InvalidResponse) { task.parse("{ \"other\": [] }", "input", {}) }
   end
+
+  test "parse carries category_suggestion from AI entry" do
+    content = {
+      expenses: [
+        { "original_text" => "comida para perro", "amount" => 80_000, "category" => nil, "category_suggestion" => "Mascotas" }
+      ]
+    }.to_json
+
+    entry = task.parse(content, "input", {})[:data].first
+
+    assert_nil entry.category
+    assert_equal "Mascotas", entry.category_suggestion
+  end
+
+  test "parse with both category and category_suggestion uses category" do
+    content = {
+      expenses: [
+        { "original_text" => "gasolina", "amount" => 50_000, "category" => "Transporte", "category_suggestion" => "Mascotas" }
+      ]
+    }.to_json
+
+    entry = task.parse(content, "input", {})[:data].first
+
+    assert_equal "Transporte", entry.category
+    assert_equal "Mascotas", entry.category_suggestion
+  end
+
+  test "parse with both null returns nil category_suggestion" do
+    content = {
+      expenses: [
+        { "original_text" => "le transferí a Juan", "amount" => 50_000, "category" => nil, "category_suggestion" => nil }
+      ]
+    }.to_json
+
+    entry = task.parse(content, "input", {})[:data].first
+
+    assert_nil entry.category
+    assert_nil entry.category_suggestion
+  end
 end

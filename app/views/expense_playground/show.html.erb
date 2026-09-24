@@ -1103,6 +1103,10 @@ function initializePlayground() {
       '<dd class="col-7 pg-sum-source" data-testid="detected-source"></dd>' +
       '<dt class="col-5 small text-muted">' + escapeHtml(T.merchantLabel) + '</dt>' +
       '<dd class="col-7 pg-sum-merchant" data-testid="detected-merchant"></dd>' +
+      '<dt class="col-5 small text-muted">Status</dt>' +
+      '<dd class="col-7 pg-sum-status" data-testid="detected-status"></dd>' +
+      '<dt class="col-5 small text-muted">Category Suggestion</dt>' +
+      '<dd class="col-7 pg-sum-category-suggestion" data-testid="detected-category-suggestion"></dd>' +
       "</dl>" +
       '<div class="pg-card-evaluation mt-3 d-none" data-testid="playground-evaluation">' +
       '<hr class="mt-2 mb-2">' +
@@ -1191,6 +1195,8 @@ function initializePlayground() {
     card.querySelector(".pg-sum-date").textContent = formatDate(candidate.date);
     card.querySelector(".pg-sum-source").textContent = sourceLabel(candidate);
     card.querySelector(".pg-sum-merchant").textContent = candidate.merchant || T.noMerchant;
+    card.querySelector(".pg-sum-status").textContent = candidate.status || "—";
+    card.querySelector(".pg-sum-category-suggestion").textContent = candidate.category_suggestion || "—";
     card.querySelector(".pg-card-confidence").textContent = formatConfidence(candidate.confidence);
 
     card.querySelector(".pg-edit-amount").value = candidate.amount != null ? candidate.amount : "";
