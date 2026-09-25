@@ -37,8 +37,9 @@ module ExpenseResolver
         confidence: expense.confidence,
         money_source_name: money_source_result.money_source_name,
         money_source_id: money_source_result.money_source&.id,
-        warnings: category_result.warnings
+        warnings: category_result.warnings + money_source_warnings
       )
+      candidate.money_source_source = "suggested" if money_source_result.review
       candidate = apply_matching_rule_category(candidate)
       record_category_warnings(candidate)
       candidate
@@ -78,6 +79,15 @@ module ExpenseResolver
         money_source_detector: money_source_detector,
         text: text
       )
+    end
+
+    # A tied best score still selects a source but must be reviewed: the
+    # warning surfaces it in the parse UI next to the other decision notes.
+    def money_source_warnings
+      return [] unless money_source_result.review
+
+      name = money_source_result.money_source_name.presence || "the detected source"
+      [ "Money source \"#{name}\" suggested from a tight match — review it before confirming." ]
     end
 
     # The preview must reflect what will actually be saved: when a transaction

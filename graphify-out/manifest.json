@@ -2088,9 +2088,9 @@
     "semantic_hash": ""
   },
   "app/services/money_sources/detector.rb": {
-    "mtime": 1789922891.1145966,
-    "seen": 1789925327.319969,
-    "ast_hash": "912188f1750bdcb1535a007438db50d4",
+    "mtime": 1790377517.7110844,
+    "seen": 1790378183.767693,
+    "ast_hash": "0806c9eedefef1107c2e03418e06c154",
     "semantic_hash": ""
   },
   "app/services/ocr/local_reader.rb": {
@@ -2724,15 +2724,15 @@
     "semantic_hash": ""
   },
   "app/services/ai/tasks/conversation_expense_parsing.rb": {
-    "mtime": 1790357957.6514475,
-    "seen": 1790358228.4664,
-    "ast_hash": "7ff64456280a85e93a09d74eb1182703",
+    "mtime": 1790377561.7976859,
+    "seen": 1790378183.767566,
+    "ast_hash": "c69a7b0cd5b7d8adac76a377e2c0516b",
     "semantic_hash": ""
   },
   "test/services/ai/tasks/conversation_expense_parsing_test.rb": {
-    "mtime": 1790298535.9681208,
-    "seen": 1790298547.788623,
-    "ast_hash": "64658179a049a0f10f26508c1c183a67",
+    "mtime": 1790377826.553175,
+    "seen": 1790378183.768045,
+    "ast_hash": "ebbeb1076f979b5ff4c5b92d70b61ef5",
     "semantic_hash": ""
   },
   "app/controllers/expense_evaluations_controller.rb": {
@@ -2760,9 +2760,9 @@
     "semantic_hash": ""
   },
   "app/services/expense_resolver/candidate_detector.rb": {
-    "mtime": 1790354840.6388535,
-    "seen": 1790354852.729561,
-    "ast_hash": "bf0e145ba937754d0b40a31b72e0a340",
+    "mtime": 1790377626.596587,
+    "seen": 1790378183.767606,
+    "ast_hash": "12185be6455058dc258955aae8ff42c8",
     "semantic_hash": ""
   },
   "app/services/expense_resolver/category_result.rb": {
@@ -2784,15 +2784,15 @@
     "semantic_hash": ""
   },
   "app/services/expense_resolver/money_source_result.rb": {
-    "mtime": 1789924011.6908143,
-    "seen": 1789925327.319915,
-    "ast_hash": "e9b78a6025c4014e2e470832e808ed54",
+    "mtime": 1790377984.174228,
+    "seen": 1790378183.767622,
+    "ast_hash": "dcc199fd68237a8f41217fb33105ec89",
     "semantic_hash": ""
   },
   "app/services/expense_resolver/natural_language_parser.rb": {
-    "mtime": 1790298535.947574,
-    "seen": 1790298547.788206,
-    "ast_hash": "c2e2bf48887c1adb7125f17557e0f9e9",
+    "mtime": 1790377545.6443355,
+    "seen": 1790378183.767623,
+    "ast_hash": "ad162c5060ea61d10581549391e87a2d",
     "semantic_hash": ""
   },
   "app/services/expense_resolver/service.rb": {
@@ -2850,9 +2850,9 @@
     "semantic_hash": ""
   },
   "test/services/expense_resolver/service_test.rb": {
-    "mtime": 1790356889.1306822,
-    "seen": 1790357049.102587,
-    "ast_hash": "f9a131d6a4d8edbe3271fbc35c0d813c",
+    "mtime": 1790377990.5845325,
+    "seen": 1790378183.768072,
+    "ast_hash": "8a6b9342465c29a8a760c709a24c78dc",
     "semantic_hash": ""
   },
   "test/services/expenses/confidence_calculator_test.rb": {
@@ -3018,9 +3018,15 @@
     "semantic_hash": ""
   },
   "test/services/expense_resolver/heuristic_resolver_test.rb": {
-    "mtime": 1790373569.3245215,
-    "seen": 1790373743.52069,
-    "ast_hash": "330f7203429df42c64e168ee5d79d50d",
+    "mtime": 1790375397.909344,
+    "seen": 1790376001.340369,
+    "ast_hash": "fa8f514b32c803e131c561ed7d23052d",
+    "semantic_hash": ""
+  },
+  "test/services/money_sources/detector_test.rb": {
+    "mtime": 1790377802.9492009,
+    "seen": 1790378183.768109,
+    "ast_hash": "171d5fb4e06c4c5a48d20a9caa679454",
     "semantic_hash": ""
   }
 }

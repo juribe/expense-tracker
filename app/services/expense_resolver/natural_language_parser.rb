@@ -23,7 +23,7 @@ module ExpenseResolver
       router_result = Ai::Router.call(
         task: :conversation_expense_parsing,
         input: text,
-        context: { user: user, today: current_date, categories: categories_names, context: context, execution: recording&.execution }
+        context: { user: user, today: current_date, categories: categories_names, money_source_identifiers: money_source_identifiers, context: context, execution: recording&.execution }
       )
       return ServiceResult.error([ router_result.error.presence || "AI parsing failed." ]) unless router_result.ok?
 
@@ -73,6 +73,20 @@ module ExpenseResolver
     def categories_names
       @categories_names ||= Array(categories).presence ||
                             (user ? Category.for_user(user).expenses.order(:name).map(&:name) : [])
+    end
+
+    # Registered money-source vocabulary (names + confirmed keyword
+    # identifiers) so the split can tag each expense's source from the
+    # user's real sources instead of inventing one.
+    def money_source_identifiers
+      return [] unless user
+
+      @money_source_identifiers ||= user.money_sources.active.includes(recognition: :recognition_identifiers)
+                                        .flat_map { |source| [ source.name, source.recognition_identifiers.select(&:confirmed?).map(&:value) ] }
+                                        .flatten
+                                        .map(&:presence)
+                                        .compact
+                                        .uniq
     end
   end
 end

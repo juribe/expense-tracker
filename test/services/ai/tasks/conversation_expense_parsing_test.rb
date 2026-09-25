@@ -20,6 +20,38 @@ class Ai::Tasks::ConversationExpenseParsingTest < ActiveSupport::TestCase
     assert_equal "Pagué 50 mil en gasolina", messages.last[:content]
   end
 
+  test "lists registered money-source identifiers when the context provides them" do
+    messages = task.messages(
+      "Pagué 50 mil en gasolina",
+      today: Date.new(2026, 9, 16),
+      categories: [ "Transporte" ],
+      money_source_identifiers: [ "efectivo", "davibank", "" ]
+    )
+
+    content = messages.first[:content]
+    assert_includes content, "Fuentes de dinero registradas"
+    assert_includes content, "[efectivo, davibank]"
+    assert_includes content, "money_source_hint"
+  end
+
+  test "omits the registered-sources block without identifiers" do
+    messages = task.messages("Pagué 50 mil en gasolina", today: Date.new(2026, 9, 16), categories: [ "Transporte" ])
+
+    refute_includes messages.first[:content], "Fuentes de dinero registradas"
+  end
+
+  test "parse carries money_source_hint from the AI entry" do
+    content = {
+      expenses: [
+        { "original_text" => "gasolina", "amount" => 50_000, "money_source_hint" => "davibank" }
+      ]
+    }.to_json
+
+    entry = task.parse(content, "input", {})[:data].first
+
+    assert_equal "davibank", entry.money_source_hint
+  end
+
   test "parse returns ParsedExpense entries and a pipeline-derived confidence" do
     content = {
       expenses: [

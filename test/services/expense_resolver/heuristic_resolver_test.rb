@@ -35,41 +35,55 @@ class ExpenseResolverHeuristicResolverTest < ActiveSupport::TestCase
     end
   end
 
-  test "a weak category is filled by a small suggestion call and resolves deterministically" do
-    stub_category_suggestion({ "0" => "Spa" }) do |calls|
-      resolution = resolve("me gasté 95.000 en spa")
+  # The fill feature reads AI_DISABLE_CATEGORY_FILL from the environment; the
+  # tests below exercise it explicitly so they stay independent of .env.
+  def with_category_fill_enabled(&block)
+    with_env({ "AI_DISABLE_CATEGORY_FILL" => nil }, &block)
+  end
 
-      assert resolution.resolved?
-      entry = resolution.entries.first
-      assert_equal "Spa", entry.category_suggestion
-      assert_operator entry.confidence, :>=, 0.8
-      assert_equal [ :category_suggestion ], calls
+  test "a weak category is filled by a small suggestion call and resolves deterministically" do
+    with_category_fill_enabled do
+      stub_category_suggestion({ "0" => "Spa" }) do |calls|
+        resolution = resolve("me gasté 95.000 en spa")
+
+        assert resolution.resolved?
+        entry = resolution.entries.first
+        assert_equal "Spa", entry.category_suggestion
+        assert_operator entry.confidence, :>=, 0.8
+        assert_equal [ :category_suggestion ], calls
+      end
     end
   end
 
   test "stored knowledge fills the category with no AI call at all" do
-    spa = Category.create!(name: "Spa", is_default: true, category_type: "expense")
-    ActivityClassification.record!(user: @user, name: "Spa", category: spa, source: "user")
+    with_category_fill_enabled do
+      spa = Category.create!(name: "Spa", is_default: true, category_type: "expense")
+      ActivityClassification.record!(user: @user, name: "Spa", category: spa, source: "user")
 
-    stub_method(Ai::Router, :call, ->(**_kwargs) { raise "no AI expected" }) do
-      resolution = resolve("me gasté 95.000 en spa")
+      stub_method(Ai::Router, :call, ->(**_kwargs) { raise "no AI expected" }) do
+        resolution = resolve("me gasté 95.000 en spa")
 
-      assert resolution.resolved?
-      entry = resolution.entries.first
-      assert_equal "Spa", entry.category
-      assert_nil entry.category_suggestion
+        assert resolution.resolved?
+        entry = resolution.entries.first
+        assert_equal "Spa", entry.category
+        assert_nil entry.category_suggestion
+      end
     end
   end
 
   test "a below-threshold suggestion escalates to the full AI parse" do
-    stub_category_suggestion({ "0" => "Spa" }, confidence: 0.5) do
-      refute resolve("me gasté 95.000 en spa").resolved?
+    with_category_fill_enabled do
+      stub_category_suggestion({ "0" => "Spa" }, confidence: 0.5) do
+        refute resolve("me gasté 95.000 en spa").resolved?
+      end
     end
   end
 
   test "a failing suggestion call escalates to the full AI parse" do
-    stub_category_suggestion(nil, ok: false) do
-      refute resolve("me gasté 95.000 en spa").resolved?
+    with_category_fill_enabled do
+      stub_category_suggestion(nil, ok: false) do
+        refute resolve("me gasté 95.000 en spa").resolved?
+      end
     end
   end
 

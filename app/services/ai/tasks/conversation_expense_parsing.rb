@@ -75,11 +75,17 @@ module Ai
           #{hint}
         CONTEXT
 
+        identifiers = Array(context[:money_source_identifiers]).map(&:to_s).reject(&:blank?).uniq.join(", ")
+        sources_block = identifiers.present? ? <<~SOURCES : ""
+          Fuentes de dinero registradas (usa solo estos identificadores):
+          [#{identifiers}]
+        SOURCES
+
         <<~PROMPT
           Extrae cada gasto distinto del mensaje del usuario. Un objeto por transacción.
 
           #{context_block}
-
+          #{sources_block}
           Hoy: #{today}
           Moneda: COP
           Categorías disponibles: [#{categories}]
@@ -100,6 +106,9 @@ module Ai
             destinatario o método de pago no definen el propósito.
             Ejemplos: "gasolina" → "Transporte", "matrícula universitaria" →
             "Educación", "pago de ropa" → null.
+          - money_source_hint: método de pago o cuenta de ese gasto usando
+            solo un identificador de las fuentes registradas. Si ninguna
+            fuente registrada corresponde, null. Nunca inventes nombres.
 
           Reglas:
           - Varios artículos de una misma compra = un solo gasto. Transacciones
@@ -111,7 +120,8 @@ module Ai
           - Devuelve únicamente JSON válido, sin markdown ni explicaciones:
 
           {"expenses": [{"original_text": "...", "amount": 50000,
-            "date": "#{today}", "description": "gasolina", "category": "Transporte"}]}
+            "date": "#{today}", "description": "gasolina", "category": "Transporte",
+            "money_source_hint": null}]}
         PROMPT
       end
     end

@@ -112,6 +112,123 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal [ "Nequi", "Nequi" ], result.result.map(&:money_source_name)
   end
 
+  test "each expense keeps its own money source when the message names several" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    @user.money_sources.create!(name: "Infinite", kind: "credit_card").ensure_recognition
+      .replace_identifiers(keyword: [ "infinite" ])
+
+    result = ExpenseResolver::Service.call(
+      text: "pagué 80.000 del supermercado con tarjeta Infinite y 25.000 de gasolina en efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ "Infinite", "Efectivo" ], result.result.map(&:money_source_name)
+    refute_equal efectivo.id, result.result.first.money_source_id
+  end
+
+  test "an unregistered explicit payment mention is not inherited from the full text" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    result = ExpenseResolver::Service.call(
+      text: "pagué 80.000 del supermercado con tarjeta Infinite y 25.000 de gasolina en efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+    assert_nil result.result.first.money_source_name
+    assert_equal efectivo.id, result.result.last.money_source_id
+  end
+
+  test "a fragment naming a registered source wins over a later mention" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    nequi = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante con nequi y 20 mil en parqueadero con efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ nequi.id, efectivo.id ], result.result.map(&:money_source_id)
+  end
+
+  test "several distinct sources in the full text keep silent entries empty and flag tied slices" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    first_source = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante y 20 mil en parqueadero, la primera con nequi y la segunda con efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    # First entry names no source and the message mentions two: stays empty.
+    assert_nil result.result.first.money_source_id
+    # Second entry's slice mentions both sources: first wins, flagged for review.
+    assert_equal first_source.id, result.result.last.money_source_id
+    assert result.result.last.warnings.any? { |warning| warning.include?("tight match") }
+  end
+
+  test "a registered keyword beats bank-only matches of sibling sources" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+    2.times { @user.money_sources.create!(name: "Producto #{_1}", kind: "loan", bank: "Davibank") }
+
+    result = ExpenseResolver::Service.call(
+      text: "pagué 80.000 del supermercado de cuenta davibank y 25.000 de gasolina",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal davibank.id, result.result.first.money_source_id
+  end
+
+  test "a registered AI hint resolves the source directly" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado", amount: 80_000, date: Date.current,
+      description: "supermercado", category: "Groceries",
+      money_source_hint: "davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado")
+
+    assert result.success?
+    assert_equal davibank.id, result.result.first.money_source_id
+    assert_not_equal efectivo.id, result.result.first.money_source_id
+  end
+
+  test "an unregistered hint leaves the source empty instead of inheriting" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado", amount: 80_000, date: Date.current,
+      description: "supermercado", category: "Groceries",
+      money_source_hint: "tarjeta Infinite", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado")
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+    assert_nil result.result.first.money_source_name
+  end
+
   test "ignores inactive money sources when detecting" do
     @user.money_sources.create!(name: "Vieja tarjeta", kind: "credit_card", active: false)
 
