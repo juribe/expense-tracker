@@ -23,14 +23,35 @@ module ExpenseResolver
         end
       end
 
+      # Every distinct date a fragment resolves to (relative words + weekdays).
+      # Used to flag ambiguous fragments that mention several different dates.
+      def self.scan_dates(text, today: Date.current)
+        return [] if text.blank?
+
+        dates = []
+        dates << today if text.match?(/\bhoy\b/)
+        dates << today - 2 if text.match?(/\banteayer\b/)
+        dates << today - 1 if text.match?(/\bayer\b/)
+        text.scan(WEEKDAY_REGEX).flatten.each do |word|
+          dates << weekday_date(word, today)
+        end
+        dates.uniq
+      end
+
+      WEEKDAY_REGEX = /\b(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\b/
+
       def self.detect_weekday_date(text, today: Date.current)
-        match = text.match(/\b(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\b/)
+        match = text.match(WEEKDAY_REGEX)
         return nil unless match
 
-        target_wday = WEEKDAYS[match[1]]
+        [ weekday_date(match[1], today), 0.85 ]
+      end
+
+      def self.weekday_date(word, today)
+        target_wday = WEEKDAYS[word]
         days_back = (today.wday - target_wday - 7) % 7
         days_back = 7 if days_back.zero?
-        [ today - days_back, 0.85 ]
+        today - days_back
       end
 
       def self.parse_iso_date(value)

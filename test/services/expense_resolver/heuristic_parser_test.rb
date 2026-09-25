@@ -76,6 +76,26 @@ class ExpenseResolverHeuristicParserTest < ActiveSupport::TestCase
     assert_equal TODAY - 2, parse("anteayer gasté 5 mil en cafe").first.date
   end
 
+  test "reads small bare numbers as thousands in chat text" do
+    assert_equal 100_000, parse("me gasté 100 en gasolina").first.amount.to_i
+    assert_equal 20_000, parse("y otras 20 en parqueadero").first.amount.to_i
+  end
+
+  test "keeps bare numbers at 1000 or more literal" do
+    assert_equal 2_500, parse("gasté 2500 en transporte").first.amount.to_i
+  end
+
+  test "keeps explicit units and decimals literal even when small" do
+    assert_equal 500, parse("gasté 500 pesos en chicles").first.amount.to_i
+    assert_equal 50.5, parse("gasté 50.50 en algo").first.amount.to_f
+  end
+
+  test "interpret_amount stays exact by default for receipts and OCR" do
+    value, = ExpenseResolver::Amounts::Service.interpret_amount("100")
+
+    assert_equal 100, value.to_i
+  end
+
   test "resolves weekdays to the most recent past occurrence" do
     # 2026-09-16 is a Wednesday, so the most recent lunes is the 14th.
     assert_equal Date.new(2026, 9, 14), parse("El lunes gasté 50 mil en mercado").first.date
@@ -85,6 +105,31 @@ class ExpenseResolverHeuristicParserTest < ActiveSupport::TestCase
     entries = parse("Ayer gasté 100 mil en gasolina y hoy gaste 30 mil en almuerzo")
 
     assert_equal [ TODAY - 1, TODAY ], entries.map(&:date)
+  end
+
+  test "a leading date expression carries over to every following expense" do
+    entries = parse("Ayer gasté 45.000 en almuerzo, 18.000 en un taxi y 12.500 en café, todo con Davibank")
+
+    assert_equal [ TODAY - 1, TODAY - 1, TODAY - 1 ], entries.map(&:date)
+  end
+
+  test "a carried date resets when a new expression appears" do
+    entries = parse("El lunes gasté 50 mil en mercado y 20 mil en parqueadero, hoy compré 10 mil en pan")
+
+    assert_equal [ Date.new(2026, 9, 14), Date.new(2026, 9, 14), TODAY ], entries.map(&:date)
+  end
+
+  test "payment clauses never leak into the description" do
+    entries = parse("Ayer gasté 45.000 en almuerzo, 18.000 en un taxi y 12.500 en café, todo con Davibank")
+
+    assert_equal [ "Almuerzo", "Taxi", "Cafe" ], entries.map(&:description)
+  end
+
+  test "mid-message payment clauses are trimmed from descriptions too" do
+    entries = parse("gasté 45.000 en almuerzo pagado con visa y 18.000 en taxi")
+
+    assert_equal "Almuerzo", entries.first.description
+    assert_equal "Taxi", entries.last.description
   end
 
   test "defaults to today when no date expression is present" do

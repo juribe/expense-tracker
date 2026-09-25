@@ -71,15 +71,12 @@ module Ai
 
         hint = context[:context].presence
         context_block = hint ? <<~CONTEXT : ""
-          Contexto del procesamiento:
+          Contexto del procesamiento (usar para entender el propósito del gasto):
           #{hint}
-          Usa esta información para entender el propósito del gasto, incluso si
-          no aparece en el comprobante OCR.
         CONTEXT
 
         <<~PROMPT
-          Extrae cada gasto distinto del mensaje del usuario.
-          Devuelve cada transacción como un objeto de gasto separado.
+          Extrae cada gasto distinto del mensaje del usuario. Un objeto por transacción.
 
           #{context_block}
 
@@ -87,62 +84,34 @@ module Ai
           Moneda: COP
           Categorías disponibles: [#{categories}]
 
-          Para cada gasto devuelve:
-
-          - original_text: la parte completa del mensaje original del usuario
-            que pertenece a este gasto. Conserva las palabras originales cuando
-            sea posible. Incluye descripción, valor, comercio, fecha y método
-            de pago. No traduzcas, resumas ni inventes información.
-          - amount: valor entero en COP. Ejemplos: "50 mil" = 50000,
-            "50 lucas" = 50000, "50k" = 50000.
-          - date: YYYY-MM-DD. Resuelve las fechas usando Hoy.
-            Si no se menciona una fecha, usa Hoy.
-          - description: descripción corta del gasto en el mismo idioma usado
-            por el usuario. No traduzcas ni inventes información.
-          - category: usa una categoría de la lista solo si realmente corresponde
-            al propósito del gasto. Si ninguna categoría encaja claramente,
-            devuelve null. Nunca fuerces la categoría más parecida.
-
-          Una categoría puede representar un tipo o subtipo normal del gasto.
-          Ejemplos:
-          - "gasolina" → "Transporte"
-          - "arreglo de llantas" → "Transporte"
-          - "matrícula universitaria" → "Educación"
-          - "compré comida" → "Comida"
-          - "pago de ropa" → null
-          - "pago manicure" → null
-
-          El destinatario, comercio, método de pago o tipo de transferencia
-          no determina por sí solo el propósito del gasto.
+          Campos por gasto:
+          - original_text: fragmento exacto del mensaje original para ese gasto
+            (descripción, valor, comercio, fecha, método de pago). No traduzcas
+            ni resumas.
+          - amount: entero COP. "50 mil", "50 lucas" y "50k" = 50000.
+          - date: YYYY-MM-DD. Cada gasto usa la expresión de fecha más
+            cercana mencionada antes de él; una fecha como "ayer" aplica a
+            todos los gastos siguientes hasta que se mencione otra fecha.
+            Usa Hoy solo si el mensaje no menciona ninguna fecha; null solo
+            si es ambigua.
+          - description: corto, en el idioma del usuario. No traduzcas ni inventes.
+          - category: de la lista solo si corresponde claramente al propósito;
+            si no encaja, null. Nunca fuerces la más parecida. El comercio,
+            destinatario o método de pago no definen el propósito.
+            Ejemplos: "gasolina" → "Transporte", "matrícula universitaria" →
+            "Educación", "pago de ropa" → null.
 
           Reglas:
-          - Devuelve cada transacción distinta.
-          - Mantén varios artículos como un solo gasto cuando pertenezcan a
-            la misma compra.
-          - Separa las transacciones aunque usen el mismo método de pago.
-          - Un método de pago mencionado una vez puede aplicar a varios gastos.
-          - No crees un gasto separado para un método de pago.
-          - No inventes información faltante.
-          - No crees IDs ni entidades de base de datos.
-          - original_text debe provenir del mensaje del usuario.
-          - Devuelve únicamente JSON válido. Sin markdown ni explicaciones.
-          - Si no se proporciona una fecha, usa Hoy.
-          - No uses null para date salvo que la fecha proporcionada sea
-            ambigua y no pueda resolverse razonablemente.
+          - Varios artículos de una misma compra = un solo gasto. Transacciones
+            distintas se separan aunque compartan método de pago; un método
+            mencionado una vez puede aplicar a varios y nunca es un gasto propio.
+          - original_text debe cubrir solo ese gasto: si hay varios gastos,
+            nunca repitas el mensaje completo en cada objeto.
+          - No inventes información ni crees IDs o entidades de base de datos.
+          - Devuelve únicamente JSON válido, sin markdown ni explicaciones:
 
-          Salida:
-
-          {
-            "expenses": [
-              {
-                "original_text": "...",
-                "amount": 50000,
-                "date": "2026-09-16",
-                "description": "gasolina",
-                "category": "Transporte"
-              }
-            ]
-          }
+          {"expenses": [{"original_text": "...", "amount": 50000,
+            "date": "#{today}", "description": "gasolina", "category": "Transporte"}]}
         PROMPT
       end
     end

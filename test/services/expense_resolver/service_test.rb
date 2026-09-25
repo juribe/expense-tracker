@@ -32,6 +32,17 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  # Forces the AI path (bypassing the deterministic pass) and injects the
+  # entries the AI would have returned for the given text.
+  def with_forced_ai(entries:, text:)
+    unresolved = ExpenseResolver::HeuristicResolver::Resolution.new(nil)
+    stub_method(ExpenseResolver::HeuristicResolver, :call, ->(**_kwargs) { unresolved }) do
+      with_stubbed_ai(entries: entries) do
+        ExpenseResolver::Service.call(text: text, user: @user)
+      end
+    end
+  end
+
   test "a confidently resolvable message skips the AI call" do
     with_stubbed_ai(entries: ai_entries) do |calls|
       result = ExpenseResolver::Service.call(text: "gasté 50 mil en almuerzo", user: @user)
@@ -125,6 +136,103 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     assert_equal 20_000, result.result.first.amount
     assert_equal "ai", result.result.first.classification_source
+  end
+
+  test "the deterministic reading survives when a single fragment misattributes another expense's amount" do
+    # Fragment mentions two distinct amounts; the heuristic scan would grab
+    # the first one while the AI's own amount is the second.
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "compré una camisa de 140.000 y de paso pagué una deuda de 50.000",
+      amount: 50_000, date: Date.current, description: "camisa",
+      category: nil, category_suggestion: "Ropa", money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "compré una camisa de 140.000 y de paso pagué una deuda de 50.000"
+    )
+
+    assert result.success?
+    assert_equal 50_000, result.result.first.amount
+  end
+
+  test "multi-expense messages trust the AI amounts without heuristic re-scan" do
+    # Per-entry fragments are correct, but the heuristic scan of "y otras 20
+    # en parqueadero" would read bare "20" as 20 COP and override the AI.
+    entries = [
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "Hoy me gasté como 60 lucas comiendo con la familia",
+        amount: 60_000, date: Date.current, description: "comida con la familia",
+        category: "Restaurants", money_source_hint: nil, confidence: 0.9
+      ),
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "y otras 20 en parqueadero",
+        amount: 20_000, date: Date.current, description: "parqueadero",
+        category: "Parking", money_source_hint: nil, confidence: 0.9
+      )
+    ]
+
+    result = with_forced_ai(
+      entries: entries,
+      text: "Hoy me gasté como 60 lucas comiendo con la familia y otras 20 en parqueadero"
+    )
+
+    assert result.success?
+    assert_equal [ 60_000, 20_000 ], result.result.map(&:amount)
+  end
+
+  test "a low-confidence bare-number scan never overrides the AI amount" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "gasté 20 en parqueadero",
+      amount: 20_000, date: Date.current, description: "parqueadero",
+      category: "Parking", money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "gasté 20 en parqueadero")
+
+    assert result.success?
+    assert_equal 20_000, result.result.first.amount
+  end
+
+  test "the AI date wins when a fragment mentions several distinct dates" do
+    yesterday = Date.current - 1
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "ayer compré mercado por 100.000 y hoy pagué el arriendo de 800.000",
+      amount: 100_000, date: yesterday, description: "mercado",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "ayer compré mercado por 100.000 y hoy pagué el arriendo de 800.000"
+    )
+
+    assert result.success?
+    assert_equal yesterday, result.result.first.date
+  end
+
+  test "shared full-message fragments keep the AI amounts and dates for every expense" do
+    full_text = "Salí con mi esposa al centro comercial, primero almorzamos por 95.000 y después compré una camisa de 140.000 con la tarjeta."
+    yesterday = Date.current - 1
+    entries = [
+      Ai::Tasks::ParsedExpense.new(
+        original_text: full_text, amount: 95_000, date: yesterday,
+        description: "almuerzo", category: "Restaurants",
+        money_source_hint: nil, confidence: 0.9
+      ),
+      Ai::Tasks::ParsedExpense.new(
+        original_text: full_text, amount: 140_000, date: Date.current,
+        description: "camisa", category: nil, category_suggestion: "Ropa",
+        money_source_hint: nil, confidence: 0.9
+      )
+    ]
+
+    result = with_forced_ai(entries: entries, text: full_text)
+
+    assert result.success?
+    assert_equal [ 95_000, 140_000 ], result.result.map(&:amount)
+    assert_equal [ yesterday, Date.current ], result.result.map(&:date)
+    assert_equal "Ropa", result.result.last.suggested_category_name
   end
 
   test "an AI category suggestion names the candidate when no category matched" do

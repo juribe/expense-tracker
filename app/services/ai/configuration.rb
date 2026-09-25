@@ -22,6 +22,10 @@ module Ai
   #   AI_DISABLE_STRONG_TIER         when truthy (1/true/yes), no AI task reaches the
   #                                  strong tier: low-confidence cheap results are
   #                                  accepted as-is instead of escalating
+  #   AI_DISABLE_CATEGORY_FILL       when truthy (1/true/yes), the heuristic pass
+  #                                  never spends the small category-suggestion call:
+  #                                  category-weak messages escalate to the full
+  #                                  parse, whose second pass still handles categories
   class Configuration
     DEFAULT_STRONG_PROVIDER = "mistral"
     DEFAULT_STRONG_MODEL = "mistral-small-latest"
@@ -95,6 +99,12 @@ module Ai
     # escalated, and tasks without a cheap tier fail cleanly.
     def strong_tier_disabled?
       %w[1 true yes].include?(ENV["AI_DISABLE_STRONG_TIER"].to_s.downcase.strip)
+    end
+
+    # Opt-out for the heuristic pass's small category-fill escalation; the
+    # full parse's own category second pass remains available either way.
+    def category_fill_disabled?
+      %w[1 true yes].include?(ENV["AI_DISABLE_CATEGORY_FILL"].to_s.downcase.strip)
     end
   end
 end

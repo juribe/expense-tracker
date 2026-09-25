@@ -2,13 +2,13 @@
 
 module ExpenseResolver
   class CandidateDetector
-    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text, :recording
+    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text, :recording, :allow_text_heuristics
 
-    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil)
-      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text, recording: recording).call
+    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil, allow_text_heuristics: true)
+      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text, recording: recording, allow_text_heuristics: allow_text_heuristics).call
     end
 
-    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil)
+    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil, allow_text_heuristics: true)
       self.expense = expense
       self.user = user
       self.categories = categories
@@ -16,6 +16,7 @@ module ExpenseResolver
       self.classification_source = classification_source
       self.text = text
       self.recording = recording
+      self.allow_text_heuristics = allow_text_heuristics
     end
 
     def call
@@ -46,7 +47,8 @@ module ExpenseResolver
     def amount_result
       @amount_result ||= AmountResult.call(
         amount: expense.amount,
-        text: expense.original_text
+        text: expense.original_text,
+        allow_heuristic: allow_text_heuristics
       )
     end
 
@@ -63,7 +65,10 @@ module ExpenseResolver
     end
 
     def date_result
-      @date_result ||= DateResult.call(expense: expense)
+      @date_result ||= DateResult.call(
+        expense: expense,
+        allow_heuristic: allow_text_heuristics
+      )
     end
 
     def money_source_result

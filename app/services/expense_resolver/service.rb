@@ -44,7 +44,8 @@ module ExpenseResolver
                                            money_source_detector: money_source_detector,
                                            classification_source: classification_source,
                                            text: text,
-                                           recording: recording
+                                           recording: recording,
+                                           allow_text_heuristics: entries.size == 1
                                          )
       end
       # If all checks pass, return a success result

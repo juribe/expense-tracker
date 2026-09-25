@@ -13,12 +13,23 @@ module ExpenseResolver
 
       ACCENT_MAP = { "á" => "a", "é" => "e", "í" => "i", "ó" => "o", "ú" => "u", "ü" => "u" }.freeze
 
+      # Trailing payment clauses describe how the whole purchase was paid, not
+      # what was bought ("12.500 en cafe, todo con davibank"), so everything
+      # from the clause on is cut. Money-source detection reads the full text.
+      # Quantifier forms ("todo con") need a separator to avoid clipping
+      # phrases like "todo con queso"; participles ("pagado con") stand alone.
+      PAYMENT_CLAUSE_REGEX = /(?:[,;]\s*\b(?:todos?|ambas?|ambos?)|\b(?:pagad[oa]s?))\s+(?:con|desde|en|mediante|usando)\b/
+
       def self.normalize_text(text)
         text.to_s.downcase.gsub(/[áéíóúü]/, ACCENT_MAP).squish
       end
 
       def self.clean_description(text)
-        tokens = normalize_text(text).scan(/[a-zñ0-9]+/).reject do |token|
+        stripped = text.to_s
+        if (clause = stripped.match(PAYMENT_CLAUSE_REGEX))
+          stripped = stripped[0...clause.begin(0)]
+        end
+        tokens = normalize_text(stripped).scan(/[a-zñ0-9]+/).reject do |token|
           FILLER_WORDS.include?(token) || DATE_WORDS.include?(token) || token.match?(/\A\d+\z/) || %w[lunes martes miercoles jueves viernes sabado domingo].include?(token)
         end
         titleize_words(tokens.join(" ")).truncate(80)

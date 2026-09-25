@@ -183,7 +183,7 @@ module Expenses
         next false if text.strip.blank?
 
         ExpenseResolver::Amounts::Service.scan_amounts(text).any? do |scan|
-          value, = ExpenseResolver::Amounts::Service.interpret_amount(scan[:raw])
+          value, = ExpenseResolver::Amounts::Service.interpret_amount(scan[:raw], colloquial: true)
           value && (value.to_d - target).abs <= BigDecimal("0.01")
         end
       end

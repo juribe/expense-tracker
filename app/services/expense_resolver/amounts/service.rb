@@ -42,8 +42,13 @@ module ExpenseResolver
         results
       end
 
-      # Returns [BigDecimal value, confidence]
-      def self.interpret_amount(raw)
+      # Returns [BigDecimal value, confidence].
+      #
+      # colloquial: true applies the chat slang rule: a bare integer without a
+      # mil/lucas/k companion is read as thousands ("me gasté 100 en gasolina"
+      # = 100000) when it is too small to be a real COP spend. Receipts, bank
+      # statements and every image pipeline keep exact values (flag off).
+      def self.interpret_amount(raw, colloquial: false)
         text = raw.gsub(/\s+/, " ").strip
 
         if text.match?(/\A\d{1,3}(?:['.,]\s?\d{3})+\z/)
@@ -62,7 +67,13 @@ module ExpenseResolver
           cents = plain[2]
           value = plain[1].to_d
           value += cents.to_d / 100 if cents
-          return [ value, plain[3] ? 0.95 : 0.7 ]
+          unit = plain[3]
+
+          if colloquial && unit.nil? && cents.nil? && value.positive? && value < 1_000
+            return [ value * 1000, 0.7 ]
+          end
+
+          return [ value, unit ? 0.95 : 0.7 ]
         end
 
         [ text.scan(/\d+/).first.to_i, 0.5 ]
