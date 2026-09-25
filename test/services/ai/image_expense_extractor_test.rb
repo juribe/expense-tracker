@@ -117,8 +117,11 @@ module Ai
       assert_in_delta 0.95, row.confidence, 0.001
       assert row.prompt.present?
       assert_match(/image attached/, row.prompt.to_s)
+      assert_match(/comentario usuario acerca de la imagen: almuerzo/, row.prompt.to_s)
       assert_not row.prompt.to_s.include?("Zm9v")
       assert row.output.present?
+      sent_text = strong.calls.first.last[:content].first[:text]
+      assert_match(/comentario usuario acerca de la imagen: almuerzo/, sent_text)
     end
 
     test "call fails cleanly when the provider rejects the request" do

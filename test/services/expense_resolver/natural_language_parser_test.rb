@@ -114,7 +114,7 @@ class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
     assert_equal [ "2026-09-16" ], result.result.map(&:date)
 
     system_prompt = provider.calls.first.first[:content]
-    assert_includes system_prompt, "Today: 2026-09-16"
+    assert_includes system_prompt, "Hoy: 2026-09-16"
   end
 
   test "uses the user's expense categories when a user is provided" do
@@ -134,7 +134,7 @@ class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
     assert_equal "Hogar", result.result.first.category
 
     system_prompt = provider.calls.first.first[:content]
-    assert_includes system_prompt, "Available categories: [Hogar]"
+    assert_includes system_prompt, "Categorías disponibles: [Hogar]"
   end
 
   test "honors explicitly passed categories over user and default categories" do
@@ -155,7 +155,7 @@ class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
     assert_equal "Antojos", result.result.first.category
 
     system_prompt = provider.calls.first.first[:content]
-    assert_includes system_prompt, "Available categories: [Antojos, Hogar]"
+    assert_includes system_prompt, "Categorías disponibles: [Antojos, Hogar]"
   end
 
   test "keeps the raw model amount without normalization" do
@@ -177,6 +177,88 @@ class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
 
     assert result.failure?
     assert_equal [ "Text is empty." ], result.errors
+  end
+
+  test "skips the suggestion call when every expense already has a category" do
+    result, provider = parse(
+      "Pagué 50 mil de gasolina",
+      responses: [ json_response([ {
+        "original_text" => "Pagué 50 mil de gasolina", "amount" => 50_000,
+        "date" => "2026-09-16", "description" => "gasolina", "category" => "Transporte",
+        "money_source_hint" => nil
+      } ]) ]
+    )
+
+    assert result.success?
+    assert_equal 1, provider.calls.length
+  end
+
+  test "suggests categories only for expenses missing one and maps them back" do
+    result, provider = parse(
+      "Pagué 50 mil de gasolina y pagué ropa",
+      responses: [
+        json_response([
+          { "original_text" => "Pagué 50 mil de gasolina", "amount" => 50_000,
+            "date" => "2026-09-16", "description" => "gasolina", "category" => "Transporte",
+            "money_source_hint" => nil },
+          { "original_text" => "pagué ropa", "amount" => 80_000,
+            "date" => "2026-09-16", "description" => "ropa", "category" => nil,
+            "money_source_hint" => nil }
+        ]),
+        { content: [
+          { "index" => 0, "category_suggestion" => "Ropa", "confidence" => 0.95 }
+        ].to_json, input_tokens: 5, output_tokens: 3 }
+      ]
+    )
+
+    assert result.success?
+    assert_equal 2, provider.calls.length
+
+    entries = result.result
+    assert_nil entries.first.category_suggestion
+    assert_equal "Ropa", entries.last.category_suggestion
+
+    suggestion_system = provider.calls.last.first[:content]
+    assert_includes suggestion_system, "categoría general y reutilizable"
+    suggestion_user = provider.calls.last.last[:content]
+    assert_equal [ { "index" => 0, "description" => "ropa" } ].to_json, suggestion_user
+  end
+
+  test "keeps no suggestion when the purpose is unclear" do
+    result, = parse(
+      "le transferí a Juan",
+      responses: [
+        json_response([ {
+          "original_text" => "le transferí a Juan", "amount" => 50_000,
+          "date" => "2026-09-16", "description" => "transferencia a Juan", "category" => nil,
+          "money_source_hint" => nil
+        } ]),
+        { content: [
+          { "index" => 0, "category_suggestion" => nil, "confidence" => 0.2 }
+        ].to_json, input_tokens: 5, output_tokens: 3 }
+      ]
+    )
+
+    assert result.success?
+    assert_nil result.result.first.category_suggestion
+  end
+
+  test "still succeeds when the suggestion call fails" do
+    result, provider = parse(
+      "pagué ropa",
+      responses: [
+        json_response([ {
+          "original_text" => "pagué ropa", "amount" => 80_000,
+          "date" => "2026-09-16", "description" => "ropa", "category" => nil,
+          "money_source_hint" => nil
+        } ]),
+        Ai::Provider::Error.new("boom")
+      ]
+    )
+
+    assert result.success?
+    assert_equal 2, provider.calls.length
+    assert_nil result.result.first.category_suggestion
   end
 
   test "returns a controlled failure when the AI response is invalid" do

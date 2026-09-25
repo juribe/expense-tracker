@@ -6,7 +6,7 @@ module Categories
   # applies the one naming/warning policy for whatever did not match. To
   # change how categories are decided or presented, change only this class.
   #
-  #   Categories::Decision.call(user:, name:, activity:, category_id: nil)
+  #   Categories::Decision.call(user:, name:, activity:, category_id: nil, suggestion: nil)
   #     => Result(category, category_name, suggested_category_name, warnings)
   class Decision
     Result = Struct.new(:category, :category_name, :suggested_category_name, :warnings, keyword_init: true) do
@@ -15,15 +15,16 @@ module Categories
       end
     end
 
-    def self.call(user:, name:, activity: nil, category_id: nil)
-      new(user: user, name: name, activity: activity, category_id: category_id).call
+    def self.call(user:, name:, activity: nil, category_id: nil, suggestion: nil)
+      new(user: user, name: name, activity: activity, category_id: category_id, suggestion: suggestion).call
     end
 
-    def initialize(user:, name:, activity: nil, category_id: nil)
+    def initialize(user:, name:, activity: nil, category_id: nil, suggestion: nil)
       @user = user
       @name = name.presence
       @activity = activity
       @category_id = category_id
+      @suggestion = suggestion.presence
     end
 
     def call
@@ -39,7 +40,7 @@ module Categories
         warnings << "We could not match the category \"#{@name}\". You can create it or pick an existing one when you confirm."
         Result.new(category: nil, category_name: @name,
                    suggested_category_name: @name, warnings: warnings)
-      elsif (suggested = resolver.suggest_category_name(@activity)).present?
+      elsif (suggested = fallback_suggestion).present?
         warnings << "No matching category found. Suggesting the new category \"#{suggested}\"; confirm to create it or pick an existing one."
         Result.new(category: nil, category_name: suggested,
                    suggested_category_name: suggested, warnings: warnings)
@@ -54,6 +55,12 @@ module Categories
 
     def resolver
       @resolver ||= Categories::HeuristicResolver.new(user: @user, name: @name, activity: @activity)
+    end
+
+    # An externally supplied suggestion (e.g. the AI category-suggestion task)
+    # wins over the heuristic name derived from the activity text.
+    def fallback_suggestion
+      @suggestion || resolver.suggest_category_name(@activity)
     end
   end
 end

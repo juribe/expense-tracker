@@ -127,6 +127,30 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal "ai", result.result.first.classification_source
   end
 
+  test "an AI category suggestion names the candidate when no category matched" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "transferencia a Juan por concepto de videojuegos",
+      amount: 50_000,
+      date: Date.current,
+      description: "transferencia a Juan por concepto de videojuegos",
+      category: nil,
+      category_suggestion: "Videojuegos",
+      money_source_hint: nil,
+      confidence: 0.9
+    )
+
+    result = nil
+    with_stubbed_ai(entries: [ entry ]) do
+      result = ExpenseResolver::Service.call(text: "transferencia a Juan por concepto de videojuegos", user: @user)
+    end
+
+    assert result.success?
+    candidate = result.result.first
+    assert_nil candidate.category_id
+    assert_equal "Videojuegos", candidate.suggested_category_name
+    assert_equal "Videojuegos", candidate.category_name
+  end
+
   test "a matching rule overrides the resolver's category suggestion" do
     apps = Category.create!(name: "Apps", is_default: true, category_type: "expense")
     TransactionRule.create!(user: @user, merchant_contains: nil,

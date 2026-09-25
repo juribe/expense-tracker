@@ -25,6 +25,7 @@ module Ai
       ].freeze
 
       attr_reader(*ATTRIBUTES)
+      attr_writer :category_suggestion
 
       def initialize(**attributes)
         attributes.each do |key, value|

@@ -171,8 +171,10 @@ module Expenses
     end
 
     test "text + image input parses the note together with the local OCR text" do
+      seen = {}
       stub_method(Ocr::LocalReader, :call, "TOTAL 87.500") do
-        stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+        stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**kwargs) {
+          seen.merge!(kwargs)
           ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
             original_text: "pagado con nequi\nTOTAL 87.500",
             amount: 87_500, date: Date.current, description: "Pago",
@@ -186,6 +188,7 @@ module Expenses
           assert_equal BigDecimal(87_500.to_s), result.candidate.amount
         end
       end
+      assert_equal "comentario usuario acerca de la imagen: pagado con nequi\nTOTAL 87.500", seen[:text]
     end
 
     test "vision OCR still runs for text + image input and uses the text as context" do

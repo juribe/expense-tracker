@@ -12,8 +12,8 @@ class Ai::Tasks::ConversationExpenseParsingTest < ActiveSupport::TestCase
     messages = task.messages("Pagué 50 mil en gasolina", today: Date.new(2026, 9, 16), categories: categories)
 
     assert_equal "system", messages.first[:role]
-    assert_includes messages.first[:content], "Today: 2026-09-16"
-    assert_includes messages.first[:content], "Available categories: [Comida, Transporte]"
+    assert_includes messages.first[:content], "Hoy: 2026-09-16"
+    assert_includes messages.first[:content], "Categorías disponibles: [Comida, Transporte]"
     assert_includes messages.first[:content], "original_text"
 
     assert_equal "user", messages.last[:role]

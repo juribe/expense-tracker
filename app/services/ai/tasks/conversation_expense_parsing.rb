@@ -70,64 +70,67 @@ module Ai
         end.join(", ")
 
         hint = context[:context].presence
-        context_block = hint ? "\nAdditional context: #{hint}\n" : ""
+        context_block = hint ? <<~CONTEXT : ""
+          Contexto del procesamiento:
+          #{hint}
+          Usa esta información para entender el propósito del gasto, incluso si
+          no aparece en el comprobante OCR.
+        CONTEXT
 
         <<~PROMPT
-          Extract every distinct expense from the user's natural-language message.
-          Return each transaction as a separate expense object.
+          Extrae cada gasto distinto del mensaje del usuario.
+          Devuelve cada transacción como un objeto de gasto separado.
 
           #{context_block}
 
-          Today: #{today}
-          Currency: COP
-          Available categories: [#{categories}]
+          Hoy: #{today}
+          Moneda: COP
+          Categorías disponibles: [#{categories}]
 
-          For each expense return:
+          Para cada gasto devuelve:
 
-          - original_text: the complete portion of the user's original message
-            belonging to this expense. Preserve the original words exactly when
-            possible. Include all relevant information such as description,
-            amount, merchant, date and payment method. Do not summarize, translate,
-            rewrite or omit information from this portion of the message.
-          - amount: integer amount in COP. Examples: "50 mil" = 50000,
+          - original_text: la parte completa del mensaje original del usuario
+            que pertenece a este gasto. Conserva las palabras originales cuando
+            sea posible. Incluye descripción, valor, comercio, fecha y método
+            de pago. No traduzcas, resumas ni inventes información.
+          - amount: valor entero en COP. Ejemplos: "50 mil" = 50000,
             "50 lucas" = 50000, "50k" = 50000.
-          - date: YYYY-MM-DD. Resolve dates mentioned by the user using Today.
-            If no date is mentioned, use Today.
-            Only use another date when the message clearly indicates that the expense
-            happened on a different day.
-          - description: short description of the expense in the same language
-            used by the user. Do not translate or invent information.
-          - category: the most appropriate category from Available categories.
-            Only assign a category when there is enough information in the user's
-            message to reasonably determine what the expense was for.
-            If the purpose of the expense cannot be determined from the message,
-            return null.
-            Never infer a debt, loan, credit payment, purchase, service, gift,
-            food, transportation, or any other purpose solely from the recipient,
-            merchant, payment method, or transfer type.
+          - date: YYYY-MM-DD. Resuelve las fechas usando Hoy.
+            Si no se menciona una fecha, usa Hoy.
+          - description: descripción corta del gasto en el mismo idioma usado
+            por el usuario. No traduzcas ni inventes información.
+          - category: usa una categoría de la lista solo si realmente corresponde
+            al propósito del gasto. Si ninguna categoría encaja claramente,
+            devuelve null. Nunca fuerces la categoría más parecida.
 
-          Rules:
+          Una categoría puede representar un tipo o subtipo normal del gasto.
+          Ejemplos:
+          - "gasolina" → "Transporte"
+          - "arreglo de llantas" → "Transporte"
+          - "matrícula universitaria" → "Educación"
+          - "compré comida" → "Comida"
+          - "pago de ropa" → null
+          - "pago manicure" → null
 
-          - Return every distinct transaction.
-          - Keep all information belonging to a transaction in its original_text.
-          - Separate transactions even when they use the same payment method.
-          - Keep multiple items as one expense when they belong to the same purchase.
-          - A payment method mentioned once may apply to multiple expenses.
-          - Do not create a separate expense for a payment method.
-          - Do not invent missing information.
-          - Do not create IDs or database entities.
-          - original_text must come from the user's message.
-          - Return only valid JSON. No markdown or explanations.
-          - If the user does not provide a date, assume the expense happened Today.
-          - Do not use null for date unless the user explicitly provides an ambiguous
-            date that cannot reasonably be resolved.
-          - A bank transfer, BRE transfer, or transfer to a person does not indicate
-            the purpose of the expense by itself. For example, "BRE a Juan Pérez"
-            could be a debt payment, food purchase, service, gift, or something else.
-            If the purpose is not stated or strongly supported by the message,
-            category must be null.
+          El destinatario, comercio, método de pago o tipo de transferencia
+          no determina por sí solo el propósito del gasto.
 
-          Output:
+          Reglas:
+          - Devuelve cada transacción distinta.
+          - Mantén varios artículos como un solo gasto cuando pertenezcan a
+            la misma compra.
+          - Separa las transacciones aunque usen el mismo método de pago.
+          - Un método de pago mencionado una vez puede aplicar a varios gastos.
+          - No crees un gasto separado para un método de pago.
+          - No inventes información faltante.
+          - No crees IDs ni entidades de base de datos.
+          - original_text debe provenir del mensaje del usuario.
+          - Devuelve únicamente JSON válido. Sin markdown ni explicaciones.
+          - Si no se proporciona una fecha, usa Hoy.
+          - No uses null para date salvo que la fecha proporcionada sea
+            ambigua y no pueda resolverse razonablemente.
+
+          Salida:
 
           {
             "expenses": [

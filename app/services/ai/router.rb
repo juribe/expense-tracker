@@ -24,6 +24,7 @@ module Ai
 
     TASKS = {
       conversation_expense_parsing: "Ai::Tasks::ConversationExpenseParsing",
+      category_suggestion: "Ai::Tasks::CategorySuggestion",
       expense_extraction: "Ai::Tasks::ExpenseExtraction",
       category_classification: "Ai::Tasks::CategoryClassification",
       statement_extraction: "Ai::Tasks::StatementExtraction",
@@ -81,7 +82,7 @@ module Ai
       escalated = false
       last_error = "AI is not configured"
 
-      @task.tiers.each do |tier|
+      selected_tiers.each do |tier|
         provider = Providers.for(tier)
         next unless provider&.configured?
 
@@ -93,6 +94,14 @@ module Ai
       end
 
       Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: last_error)
+    end
+
+    # AI_DISABLE_STRONG_TIER removes the heavy model from the cascade for
+    # every task; explicit evaluation overrides are left untouched.
+    def selected_tiers
+      return @task.tiers unless Ai.configuration.strong_tier_disabled?
+
+      @task.tiers.reject { |tier| tier.to_sym == Providers::TIER_STRONG }
     end
 
     # An evaluation override replaces the cheap/strong tier cascade with the
@@ -120,7 +129,7 @@ module Ai
     rescue Provider::Error, Tasks::Base::InvalidResponse => e
       record(provider, strategy: "override", status: "error", error: e.message,
              latency_ms: ((monotonic - started) * 1000).round, escalated: false,
-             prompt: prompt, output: nil)
+             prompt: prompt, output: response&.content)
       Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: e.message)
     end
 
@@ -133,13 +142,14 @@ module Ai
     # rejected for low confidence and [nil, message] on provider failures.
     def attempt(tier, provider, escalated)
       prompt = @task.messages(@input, @context)
+      response = nil
       started = monotonic
       response = provider.chat(messages: prompt, timeout: @task.timeout)
       latency_ms = ((monotonic - started) * 1000).round
 
       parsed = @task.parse(response.content, @input, @context)
 
-      if tier.to_sym == Providers::TIER_CHEAP && low_confidence?(parsed[:confidence])
+      if tier.to_sym == Providers::TIER_CHEAP && low_confidence?(parsed[:confidence]) && !strong_tier_disabled?
         record(tier, provider, status: "low_confidence", confidence: parsed[:confidence],
                latency_ms: latency_ms, usage: response, escalated: escalated,
                prompt: prompt, output: response.content)
@@ -154,7 +164,7 @@ module Ai
     rescue Provider::Error, Tasks::Base::InvalidResponse => e
       record(tier, provider, status: "error", error: e.message,
              latency_ms: ((monotonic - started) * 1000).round, escalated: escalated,
-             prompt: prompt, output: nil)
+             prompt: prompt, output: response&.content)
       [ nil, e.message ]
     end
 
@@ -162,6 +172,10 @@ module Ai
       return true if confidence.nil? # cheap results without confidence cannot be trusted
 
       confidence < @task.confidence_threshold
+    end
+
+    def strong_tier_disabled?
+      Ai.configuration.strong_tier_disabled?
     end
 
     def record(tier = nil, provider = nil, status: "ok", confidence: nil, error: nil,

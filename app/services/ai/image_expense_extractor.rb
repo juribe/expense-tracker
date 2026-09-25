@@ -113,7 +113,7 @@ module Ai
 
     def user_prompt_summary
       summary = +"(image attached, #{(@image_data.to_s.length / 1024)} KB base64)"
-      summary << " + user note: #{@context_text.to_s[0, 300]}" if @context_text.present?
+      summary << " comentario usuario acerca de la imagen: #{@context_text.to_s[0, 300]}" if @context_text.present?
       summary
     end
 
@@ -144,10 +144,7 @@ module Ai
     end
 
     def context_text_block
-      <<~TEXT
-        Additional context provided by the user:
-        #{@context_text.to_s[0, 1000]}
-      TEXT
+      "comentario usuario acerca de la imagen: #{@context_text.to_s[0, 1000]}\n"
     end
 
     def system_prompt

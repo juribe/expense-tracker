@@ -63,6 +63,32 @@ module Categories
       assert result.warnings.any? { |warning| warning.include?("could not determine") }
     end
 
+    test "an external suggestion replaces the heuristic-derived name" do
+      result = Decision.call(
+        user: @user,
+        name: nil,
+        activity: "transferencia a Juan por concepto de videojuegos",
+        suggestion: "Videojuegos"
+      )
+
+      assert_nil result.category
+      assert_equal "Videojuegos", result.category_name
+      assert_equal "Videojuegos", result.suggested_category_name
+      assert result.warnings.any? { |warning| warning.include?("Videojuegos") }
+      assert result.warnings.none? { |warning| warning.include?("Transferencia") }
+    end
+
+    test "an external suggestion is ignored when a category resolves" do
+      transporte = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+
+      result = Decision.call(user: @user, name: "transporte", activity: "gasolina", suggestion: "Videojuegos")
+
+      assert_equal transporte, result.category
+      assert_equal "Transporte", result.category_name
+      assert_nil result.suggested_category_name
+      assert_empty result.warnings
+    end
+
     test "parking activities override the AI's Hogar label" do
       transporte = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
       Category.create!(name: "Hogar", is_default: true, category_type: "expense")

@@ -19,6 +19,9 @@ module Ai
   #   AI_DETERMINISTIC_THRESHOLD     minimum confidence to accept a fully deterministic
   #                                  resolution without any AI call
   #                                  (default: AI_CHEAP_CONFIDENCE_THRESHOLD)
+  #   AI_DISABLE_STRONG_TIER         when truthy (1/true/yes), no AI task reaches the
+  #                                  strong tier: low-confidence cheap results are
+  #                                  accepted as-is instead of escalating
   class Configuration
     DEFAULT_STRONG_PROVIDER = "mistral"
     DEFAULT_STRONG_MODEL = "mistral-small-latest"
@@ -85,6 +88,13 @@ module Ai
       Float(ENV["AI_DETERMINISTIC_THRESHOLD"].presence || cheap_confidence_threshold)
     rescue ArgumentError, TypeError
       cheap_confidence_threshold
+    end
+
+    # Cost guard: with the strong tier switched off, cheap results are the
+    # ceiling for every task — low-confidence ones are accepted rather than
+    # escalated, and tasks without a cheap tier fail cleanly.
+    def strong_tier_disabled?
+      %w[1 true yes].include?(ENV["AI_DISABLE_STRONG_TIER"].to_s.downcase.strip)
     end
   end
 end

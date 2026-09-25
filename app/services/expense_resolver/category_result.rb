@@ -28,7 +28,8 @@ module ExpenseResolver
         user: user,
         name: raw_category,
         activity: activity,
-        category_id: safe_category_id
+        category_id: safe_category_id,
+        suggestion: expense_suggestion
       )
 
       Result.new(
@@ -43,6 +44,10 @@ module ExpenseResolver
 
     def activity
       expense.respond_to?(:description) ? expense.description.presence : nil
+    end
+
+    def expense_suggestion
+      expense.respond_to?(:category_suggestion) ? expense.category_suggestion : nil
     end
 
     def safe_category_id

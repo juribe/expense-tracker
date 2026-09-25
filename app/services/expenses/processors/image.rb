@@ -36,6 +36,13 @@ module Expenses
 
       private
 
+      # The note carries explicit intent about the image ("pagado con nequi"),
+      # so it is labeled for the parser and the prompt record.
+      def combined_text(ocr_text)
+        note_part = note.present? ? "comentario usuario acerca de la imagen: #{note}" : nil
+        [ note_part, ocr_text ].reject(&:blank?).join("\n")
+      end
+
       # Debug escape hatch to exercise the vision path with images Tesseract
       # can read: EXPENSES_FORCE_VISION=1 skips local OCR entirely.
       def force_vision?
