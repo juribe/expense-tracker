@@ -112,10 +112,33 @@ module ExpenseResolver
     # A tied best score still selects a source but must be reviewed: the
     # warning surfaces it in the parse UI next to the other decision notes.
     def money_source_warnings
-      return [] unless money_source_result.review
+      warnings = []
+      if money_source_result.review
+        name = money_source_result.money_source_name.presence || "the detected source"
+        warnings << "Money source \"#{name}\" suggested from a tight match — review it before confirming."
+      end
 
-      name = money_source_result.money_source_name.presence || "the detected source"
-      [ "Money source \"#{name}\" suggested from a tight match — review it before confirming." ]
+      warnings + unsplit_transaction_warnings
+    end
+
+    # When the entry's own fragment names several distinct registered money
+    # sources, the model likely merged transactions that were paid differently
+    # (e.g. "zapatos con la tarjeta y camisa con la cuenta" in one expense).
+    # The source stays resolved; the split decision goes to the user.
+    def unsplit_transaction_warnings
+      detector = money_source_detector
+      slice = ExpenseResolver::Text::Service.cut_payment_clause(
+        ExpenseResolver::MoneySourceResult.slice_for(expense)
+      )
+
+      # Bank-level matches are shared by every product of the same bank and
+      # never signal a split; only explicit identifier mentions do.
+      identifier_sources = detector.scored_matches(slice)
+                                   .select { |_, score| score >= MoneySources::Detector::IDENTIFIER_POINTS }
+                                   .map(&:first).map(&:id).uniq
+      return [] unless identifier_sources.size > 1
+
+      [ "This entry may contain several transactions paid with different money sources — review the split." ]
     end
 
     # The preview must reflect what will actually be saved: when a transaction

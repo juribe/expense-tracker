@@ -11,6 +11,15 @@ module ExpenseResolver
       new(expense: expense, user: user, money_source_detector: money_source_detector, rules: rules, text: text).call
     end
 
+    # The expense's own side of its fragment: from its first amount onward,
+    # with trailing payment clauses removed (they belong to the message).
+    def self.slice_for(expense)
+      fragment = expense.original_text.to_s
+      first_amount = ExpenseResolver::Amounts::Service.scan_amounts(fragment).first
+      slice = first_amount ? fragment[first_amount[:start]..] : fragment
+      ExpenseResolver::Text::Service.cut_payment_clause(slice)
+    end
+
     def initialize(expense:, user:, money_source_detector: nil, rules: nil, text: nil)
       self.expense = expense
       self.user = user
@@ -62,11 +71,7 @@ module ExpenseResolver
       detector = money_source_detector
       hint = expense.respond_to?(:money_source_hint) ? expense.money_source_hint.to_s : ""
 
-      # The slice carries only the expense's own side of the fragment:
-      # trailing payment clauses belong to the message, not to this expense.
-      slice = ExpenseResolver::Text::Service.cut_payment_clause(
-        own_amount_slice(expense.original_text.to_s)
-      )
+      slice = self.class.slice_for(expense)
 
       if hint.present?
         source = detector.best_match(hint)&.first
@@ -100,11 +105,6 @@ module ExpenseResolver
     # The meaningful slice starts at the expense's own amount; anything before
     # it (previous expense's description tail and payment mention) is another
     # expense's business.
-    def own_amount_slice(fragment)
-      first_amount = ExpenseResolver::Amounts::Service.scan_amounts(fragment).first
-      first_amount ? fragment[first_amount[:start]..] : fragment
-    end
-
     def resolve_from_full_text(detector)
       full = text.presence
       return [ nil, false ] if full.blank?

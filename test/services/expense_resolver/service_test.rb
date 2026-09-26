@@ -348,14 +348,14 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
   test "a single relative expression in the message scopes phrase-less entries" do
     entry = Ai::Tasks::ParsedExpense.new(
       original_text: "pasé 500.000 de Davibank a Nequi", amount: 500_000,
-      date: "2026-09-25", description: "Transferencia a Nequi", category: nil,
+      date: Date.current.iso8601, description: "Transferencia a Nequi", category: nil,
       money_source_hint: nil, confidence: 0.9
     )
 
     result = with_forced_ai(entries: [ entry ], text: "Ayer salí con mi familia y pasé 500.000 de Davibank a Nequi")
 
     assert result.success?
-    assert_equal Date.new(2026, 9, 24), result.result.first.date
+    assert_equal Date.current - 1, result.result.first.date
   end
 
   test "explicit per-name source assignments attribute each expense correctly" do
@@ -403,6 +403,29 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
 
     assert result.success?
     assert_equal [ Date.new(2026, 9, 21), Date.new(2026, 9, 22) ], result.result.map(&:date)
+  end
+
+  test "a merged fragment naming several sources is flagged as a possible unsplit" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Zapatos 180.000 con la tarjeta Davibank y camisa 100.000 con la cuenta Davibank",
+      amount: 280_000, date: Date.current, description: "zapatos y camisa",
+      category: nil, money_source_hint: "tarjeta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Zapatos 180.000 con la tarjeta Davibank y camisa 100.000 con la cuenta Davibank"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "tarjeta davibank", candidate.money_source_name
+    assert candidate.warnings.any? { |warning| warning.include?("several transactions paid with different money sources") }
   end
 
   test "several distinct sources in the full text keep silent entries empty and flag tied slices" do

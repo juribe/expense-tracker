@@ -97,8 +97,9 @@ module Ai
 
           Campos por gasto:
           - original_text: fragmento exacto del mensaje original para ese gasto
-            (descripción, valor, comercio, fecha, método de pago). No traduzcas
-            ni resumas.
+            (descripción, valor, comercio, fecha, método de pago). Incluye la
+            expresión de fecha ('ayer', 'el lunes', 'hoy') cuando aplique a
+            ese gasto. No traduzcas ni resumas.
           - amount: entero COP. "50 mil", "50 lucas" y "50k" = 50000.
           - date: YYYY-MM-DD. Cada gasto usa la expresión de fecha más
             cercana mencionada antes de él; una fecha como "ayer" aplica a
@@ -120,6 +121,9 @@ module Ai
           - Varios artículos de una misma compra = un solo gasto. Transacciones
             distintas se separan aunque compartan método de pago; un método
             mencionado una vez puede aplicar a varios y nunca es un gasto propio.
+          - Frases de transferencia al final del mensaje ("pasé/transferí/moví
+            X de A a B") son transacciones separadas: extráelas también, aun
+            cuando vengan después de otros gastos.
           - original_text debe cubrir solo ese gasto: si hay varios gastos,
             nunca repitas el mensaje completo en cada objeto.
           - No inventes información ni crees IDs o entidades de base de datos.
