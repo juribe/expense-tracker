@@ -250,6 +250,64 @@ module Expenses
       assert_equal "COMPRA ÉXITO", result.candidates.first.description
     end
 
+    test "row descriptions are cleaned through the resolver layer with warnings attached" do
+      csv = "Fecha,Descripcion,Valor\n2026-09-09,PAGO A TRSF 1234567890 MERCADO,180000\n2026-09-10,COMPRA POS NETFLIX 8900,77000\n"
+      file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+      result = FileProcessor.call(user: @user, file_data: file_data, filename: "stmt.csv")
+
+      assert result.ok?
+      mercado = result.candidates.find { |candidate| candidate.description.include?("MERCADO") }
+      netflix = result.candidates.find { |candidate| candidate.description == "COMPRA POS NETFLIX" }
+      assert_equal "MERCADO", mercado.description
+      assert_equal BigDecimal("180000"), mercado.amount
+      assert_empty mercado.warnings
+      assert_equal BigDecimal("77000"), netflix.amount
+      assert netflix.warnings.any? { |warning| warning.include?("8900") }
+    end
+
+    test "repeated row names are resolved once per import and reuse the resolution" do
+      csv = "Fecha,Descripcion,Valor\n2026-09-09,COMPRA POS DAVIBANK 45000,45000\n2026-09-10,COMPRA POS DAVIBANK 45000,45000\n2026-09-11,COMPRA POS DAVIBANK 45000,45000\n"
+      file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+      cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+      cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+      tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+      tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+      parsed_entries = [ Ai::Tasks::ParsedExpense.new(
+        original_text: "COMPRA POS DAVIBANK 45000", amount: 45_000, date: Date.current,
+        description: "Compra Pos", category: nil, money_source_hint: nil, confidence: 0.9
+      ) ]
+      heuristic = ExpenseResolver::HeuristicResolver::Resolution.new(parsed_entries)
+
+      stub_method(ExpenseResolver::HeuristicResolver, :call, ->(**_kwargs) { heuristic }) do
+        result = FileProcessor.call(user: @user, file_data: file_data, filename: "repeat.csv")
+        assert result.ok?
+        assert_equal 3, result.candidates.length
+        # All rows carry the resolver-grade ambiguity warning...
+        result.candidates.each do |candidate|
+          assert candidate.warnings.any? { |warning| warning.downcase.include?("ambiguous") }
+        end
+        # ...and the money-source resolution was reused across the batch.
+        reused = result.candidates.map(&:money_source_source)
+        assert_equal [ "detected", "reused_in_import", "reused_in_import" ], reused
+      end
+    end
+
+    test "row confidence reflects missing details instead of a fixed value" do
+      csv = "Fecha,Descripcion,Valor\n2026-09-09,COMPRA POS MERCADO LOCAL 45000,45000\n2026-09-10,COMPRA POS NETFLIX 8900,77000\n"
+      file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"
+
+      result = FileProcessor.call(user: @user, file_data: file_data, filename: "conf.csv")
+
+      assert result.ok?
+      plain = result.candidates.find { |candidate| candidate.description.include?("MERCADO") }
+      flagged = result.candidates.find { |candidate| candidate.description == "COMPRA POS NETFLIX" }
+      assert_operator plain.confidence, :>, flagged.confidence,
+                     "a conflicted row must be less confident than a clean one"
+    end
+
     test "surfaces the AI extraction error when tabular parsing and AI both fail" do
       csv = "Etiqueta,Dato\nCOMPRA POS,XYZ\n"
       file_data = "data:text/csv;base64,#{Base64.strict_encode64(csv)}"

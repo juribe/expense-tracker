@@ -12,6 +12,8 @@ module ExpensePlayground
   #     => { checks: [ { field:, expected:, actual:, passed: } ],
   #          passed: 2, total: 2, ok?: true }
   class Evaluation
+    include Expenses::ValueParsing
+
     FIELDS = %i[amount category description merchant date source].freeze
 
     def self.call(candidate:, expected:)
@@ -71,14 +73,14 @@ module ExpensePlayground
         actual_amount.present? && expected_amount.present? &&
           (actual_amount - expected_amount).abs < BigDecimal("0.01")
       when :category
-        normalize(candidate&.category_name) == normalize(expected_value)
+        normalize_name(candidate&.category_name) == normalize_name(expected_value)
       when :description
-        normalized = normalize(candidate&.description)
-        expected = normalize(expected_value)
+        normalized = normalize_name(candidate&.description)
+        expected = normalize_name(expected_value)
         normalized.present? && (normalized.include?(expected) || expected.include?(normalized))
       when :merchant
-        actual = normalize(candidate&.merchant)
-        expected_merchant = normalize(expected_value)
+        actual = normalize_name(candidate&.merchant)
+        expected_merchant = normalize_name(expected_value)
         actual.present? && (actual.include?(expected_merchant) || expected_merchant.include?(actual))
       when :date
         candidate_date = candidate&.date
@@ -89,8 +91,8 @@ module ExpensePlayground
         end
         candidate_date.present? && expected_date.present? && candidate_date == expected_date
       when :source
-        actual = normalize(candidate&.money_source_name)
-        expected_source = normalize(expected_value)
+        actual = normalize_name(candidate&.money_source_name)
+        expected_source = normalize_name(expected_value)
         actual.present? && (actual.include?(expected_source) || expected_source.include?(actual))
       else
         false
@@ -110,10 +112,6 @@ module ExpensePlayground
       BigDecimal(text.delete(",")) * multiplier
     rescue ArgumentError, TypeError
       nil
-    end
-
-    def normalize(text)
-      text.to_s.downcase.tr("áéíóúü", "aeiouu").squish
     end
   end
 end

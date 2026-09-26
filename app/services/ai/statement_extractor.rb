@@ -9,6 +9,8 @@ module Ai
   #   result = Ai::StatementExtractor.new.call(text: "...", today: Date.current)
   #     => { ok?: true, data: { sources: [ { ... } ], transactions: [ { ... } ] }, error: nil }
   class StatementExtractor
+    include Expenses::ValueParsing
+
     DEFAULT_CURRENCY = "COP"
 
     class ExtractionError < StandardError; end
@@ -198,41 +200,9 @@ module Ai
       }
     end
 
+    # Zero amounts are valid here: balances, limits and rates can be 0.
     def parse_amount(value)
-      numeric =
-        case value
-        when Numeric
-          value.to_f
-        else
-          parse_amount_text(value.to_s)
-        end
-      return nil unless numeric.is_a?(Numeric) && numeric.finite?
-
-      BigDecimal(numeric.to_s)
-    rescue ArgumentError, TypeError
-      nil
-    end
-
-    # Colombian rule: "." is the thousands separator, "," the decimal one.
-    # Handles "5.420.000", "1234,92" and the mixed "67.429.112,92".
-    def parse_amount_text(text)
-      return 0.0 if text.blank?
-
-      cleaned = text.gsub(/[^0-9.,\-]/, "")
-      return 0.0 if cleaned.blank? || cleaned == "-"
-
-      if cleaned.match?(/\A-?\d{1,3}(?:\.\d{3})+,\d+\z/)
-        # "67.429.112,92" — dot thousands + comma decimals
-        cleaned.delete(".").tr(",", ".").to_f
-      elsif cleaned.match?(/\A-?\d{1,3}(?:\.\d{3})+\z/)
-        # "5.420.000" — dot thousands only
-        cleaned.delete(".").to_f
-      elsif cleaned.match?(/\A-?\d+,\d+\z/)
-        # "1234,92" — comma is the decimal separator
-        cleaned.tr(",", ".").to_f
-      else
-        cleaned.to_f
-      end
+      super(value, allow_zero: true)
     end
 
     # Integer counts (e.g. "48 cuotas", "Número de cuotas: 24").
@@ -250,13 +220,6 @@ module Ai
       else
         "expense"
       end
-    end
-
-    def normalize_confidence(value)
-      confidence = value.is_a?(Numeric) ? value : Float(value.to_s)
-      confidence.clamp(0.0, 1.0)
-    rescue ArgumentError, TypeError
-      0.5
     end
 
     def normalize_source_ids(kind, entry)
