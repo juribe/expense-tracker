@@ -52,6 +52,35 @@ module ExpenseResolver
         assert result.mismatch?
         assert_equal 24_000, result.expected_total.to_i
       end
+
+      test "flags a unit price kept instead of the quantity total" do
+        result = validate(8_500, "Tres cafés de 8.500 cada uno.")
+
+        assert result.mismatch?
+        assert_equal 25_500, result.expected_total.to_i
+      end
+
+      test "accepts the correct quantity total for a single group" do
+        refute validate(25_500, "Tres cafés de 8.500 cada uno.").mismatch?
+      end
+
+      test "reads quantities without cada uno as multiplier groups" do
+        refute validate(58_000, "Dos hamburguesas de 25.000 y una gaseosa de 8.000.").mismatch?
+
+        result = validate(33_000, "Dos hamburguesas de 25.000 y una gaseosa de 8.000.")
+
+        assert result.mismatch?
+        assert_equal 58_000, result.expected_total.to_i
+      end
+
+      test "reads 'a' as the price connector with feminine cada una" do
+        refute validate(140_000, "Cuatro personas comimos a 35.000 cada una.").mismatch?
+
+        result = validate(35_000, "Cuatro personas comimos a 35.000 cada una.")
+
+        assert result.mismatch?
+        assert_equal 140_000, result.expected_total.to_i
+      end
     end
   end
 end

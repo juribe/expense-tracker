@@ -63,9 +63,15 @@ module ExpenseResolver
     end
 
     # An AI-merged amount that disagrees with the itemized amounts in the
-    # entry's own text is flagged for review — never rewritten.
+    # entry's own text is flagged for review — never rewritten. When the
+    # fragment dropped the itemization entirely, the single-entry fallback
+    # reads the full message: a quantity the model lost ("tres cafés de
+    # 8.500") must not pass silently.
     def amount_sum_warnings
       validation = Amounts::SumValidator.call(amount: expense.amount, text: expense.original_text)
+      if !validation.itemized && text.present? && (entry_count.nil? || entry_count == 1)
+        validation = Amounts::SumValidator.call(amount: expense.amount, text: text)
+      end
       return [] unless validation.mismatch?
 
       model_amount = format_money(validation.model_amount)

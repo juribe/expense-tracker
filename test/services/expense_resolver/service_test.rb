@@ -793,4 +793,19 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal 200_000, first.amount
     assert first.warnings.any? { |warning| warning.include?("refund") }
   end
+
+  test "a quantity total missing from the fragment is flagged from the full message" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Tres cafés", amount: 8_500,
+      date: Date.current, description: "Tres cafés",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Tres cafés de 8.500 cada uno.")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal 8_500, candidate.amount
+    assert candidate.warnings.any? { |warning| warning.include?("itemized amounts") && warning.include?("25500") }
+  end
 end

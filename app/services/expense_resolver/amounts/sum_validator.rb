@@ -9,17 +9,19 @@ module ExpenseResolver
     # review warning — the model's amount is never rewritten here.
     class SumValidator
       # A "tres cafés de 8.500 cada uno"-style group: quantity (digit or
-      # number word), the amount, and "cada uno" confirming per-unit prices.
+      # number word), the amount, and an optional "cada uno(a)" confirming
+      # per-unit prices. Without "cada uno" the quantity still multiplies:
+      # "dos hamburguesas de 25.000" reads as 50.000, not 25.000.
       MULTIPLIER_REGEX = /
         (?<qty>\d+|(?:#{Service::NUMBER_WORD_ALTERNATION}))
-        \s+(?:[a-záéíóúñü]+\s+){0,3}?de\s+
+        \s+(?:[a-záéíóúñü]+\s+){0,3}?(?:de|a)\s+
         (?<amount>\d{1,3}(?:['.,]\s?\d{3})+|\d+(?:[.,]\d+)?)
-        \s+cada\s+uno
+        (?:\s+cada\s+(?:uno|una))?
       /xi.freeze
 
       MIN_ITEMIZED_AMOUNTS = 2
 
-      Result = Struct.new(:model_amount, :expected_total, keyword_init: true) do
+      Result = Struct.new(:model_amount, :expected_total, :itemized, keyword_init: true) do
         def mismatch?
           expected_total.present?
         end
@@ -35,15 +37,15 @@ module ExpenseResolver
       end
 
       def call
-        return Result.new unless itemized?
+        return Result.new(itemized: false) unless itemized?
 
         value = normalized_model_amount
-        return Result.new if value.nil?
+        return Result.new(itemized: true) if value.nil?
 
         matched = value == expected_total ||
                   contributions.any? { |contribution| value == contribution }
 
-        matched ? Result.new : Result.new(model_amount: value, expected_total: expected_total)
+        matched ? Result.new(itemized: true) : Result.new(model_amount: value, expected_total: expected_total, itemized: true)
       end
 
       private
@@ -108,8 +110,11 @@ module ExpenseResolver
         nil
       end
 
+      # Two or more distinct amounts are itemization; a single amount behind
+      # an explicit quantity ("tres cafés de 8.500") is equally unambiguous.
       def itemized?
-        Service.scan_amounts(@text).map { |scan| scan[:raw] }.uniq.size >= MIN_ITEMIZED_AMOUNTS
+        distinct_amounts = Service.scan_amounts(@text).map { |scan| scan[:raw] }.uniq.size
+        distinct_amounts >= MIN_ITEMIZED_AMOUNTS || multiplier_groups.any?
       end
     end
   end
