@@ -301,6 +301,63 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_empty result.result.first.warnings.grep(/itemized amounts/)
   end
 
+  test "the AI date is reconciled with the weekday expression of the full message" do
+    # The model's fragment dropped "El martes" but its date field guessed
+    # wrong: the deterministic weekday resolution of the full text wins.
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "compré zapatos por 180.000 con la tarjeta Davibank", amount: 180_000,
+      date: "2026-09-21", description: "zapatos", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "El martes compré zapatos por 180.000 con la tarjeta Davibank"
+    )
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 22), result.result.first.date
+  end
+
+  test "a fragment that keeps its own weekday expression is not overridden" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "el martes compré zapatos por 180.000", amount: 180_000,
+      date: "2026-09-21", description: "zapatos", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "el martes compré zapatos por 180.000")
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 22), result.result.first.date
+  end
+
+  test "a message with several date expressions keeps the AI dates" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "gasté 50.000 en comida", amount: 50_000,
+      date: "2026-09-25", description: "comida", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "ayer gasté 50.000 en comida y hoy gasté más")
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 25), result.result.first.date
+  end
+
+  test "a single relative expression in the message scopes phrase-less entries" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pasé 500.000 de Davibank a Nequi", amount: 500_000,
+      date: "2026-09-25", description: "Transferencia a Nequi", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Ayer salí con mi familia y pasé 500.000 de Davibank a Nequi")
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 24), result.result.first.date
+  end
+
   test "several distinct sources in the full text keep silent entries empty and flag tied slices" do
     Category.create!(name: "Parking", is_default: true, category_type: "expense")
     first_source = @user.money_sources.create!(name: "Efectivo", kind: "cash")
