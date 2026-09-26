@@ -159,6 +159,89 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal [ nequi.id, efectivo.id ], result.result.map(&:money_source_id)
   end
 
+  test "a suggestion naming an existing category links it instead of creating a duplicate" do
+    comida = Category.create!(name: "Comida", is_default: true, category_type: "expense")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000", amount: 47_500,
+      date: Date.current, description: "Tres cafés y un sándwich", category: nil,
+      category_suggestion: "Comida", money_source_hint: nil, confidence: 0.55
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal comida.id, candidate.category_id
+    assert_equal "Comida", candidate.category_name
+    assert_nil candidate.suggested_category_name
+    assert candidate.warnings.none? { |warning| warning.include?("Suggesting the new category") }
+  end
+
+  test "a model category naming an existing category resolves instead of suggesting" do
+    salud = Category.create!(name: "Salud", is_default: true, category_type: "expense")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "compré unas medicinas por 42.500 con Davibank", amount: 42_500,
+      date: Date.current, description: "medicinas", category: "Medicinas",
+      money_source_hint: nil, confidence: 0.8
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "compré unas medicinas por 42.500 con Davibank")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal salud.id, candidate.category_id
+    assert_equal "Salud", candidate.category_name
+    assert_nil candidate.suggested_category_name
+  end
+
+  test "a trailing quantified clause sources every expense of the message" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+
+    result = ExpenseResolver::Service.call(
+      text: "Ayer gasté 45.000 en almuerzo, 18.000 en un taxi y 12.500 en café, todo con Davibank.",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ davibank.id ] * 3, result.result.map(&:money_source_id)
+    # Clean data + weights resolve the clause decisively: no review flag.
+    result.result.each do |candidate|
+      assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+    end
+  end
+
+  test "a merged amount disagreeing with the itemized text is flagged for review" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000", amount: 47_000,
+      date: Date.current, description: "Tres cafés y un sándwich", category: nil,
+      money_source_hint: nil, confidence: 0.55
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000")
+
+    assert result.success?
+    candidate = result.result.first
+    assert candidate.warnings.any? { |warning| warning.include?("doesn't match the itemized amounts") }
+  end
+
+  test "a merged amount matching the itemized text raises no warning" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.", amount: 82_000,
+      date: Date.current, description: "Almuerzo", category: "Restaurants",
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.")
+
+    assert result.success?
+    assert_empty result.result.first.warnings.grep(/itemized amounts/)
+  end
+
   test "several distinct sources in the full text keep silent entries empty and flag tied slices" do
     Category.create!(name: "Parking", is_default: true, category_type: "expense")
     first_source = @user.money_sources.create!(name: "Efectivo", kind: "cash")

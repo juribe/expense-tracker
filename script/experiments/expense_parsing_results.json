@@ -1,0 +1,516 @@
+[
+  {
+    "case": 1,
+    "input": "Ayer gasté 45.000 en almuerzo, 18.000 en un taxi y 12.500 en café, todo con Davibank.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 1.57,
+    "engine": "heuristic",
+    "expenses": [
+      {
+        "description": "Almuerzo",
+        "amount": 45000,
+        "date": "2026-09-24",
+        "category_name": "Restaurante",
+        "category_id": 29,
+        "suggested_category_name": null,
+        "money_source_name": "Cuenta Davibank",
+        "money_source_id": 21,
+        "money_source_source": null,
+        "classification_source": "heuristic",
+        "confidence": 0.95,
+        "warnings": []
+      },
+      {
+        "description": "Taxi",
+        "amount": 18000,
+        "date": "2026-09-24",
+        "category_name": "Transporte",
+        "category_id": 2,
+        "suggested_category_name": null,
+        "money_source_name": "Cuenta Davibank",
+        "money_source_id": 21,
+        "money_source_source": null,
+        "classification_source": "heuristic",
+        "confidence": 0.95,
+        "warnings": []
+      },
+      {
+        "description": "Cafe",
+        "amount": 12500,
+        "date": "2026-09-24",
+        "category_name": "Restaurante",
+        "category_id": 29,
+        "suggested_category_name": null,
+        "money_source_name": "Cuenta Davibank",
+        "money_source_id": 21,
+        "money_source_source": null,
+        "classification_source": "heuristic",
+        "confidence": 0.95,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 2,
+    "input": "Pagué 80.000 del supermercado con tarjeta Infinite y 25.000 de gasolina en efectivo.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 4.94,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "supermercado",
+        "amount": 80000,
+        "date": "2026-09-25",
+        "category_name": "Supermercado",
+        "category_id": null,
+        "suggested_category_name": "Supermercado",
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Supermercado\"; confirm to create it or pick an existing one."
+        ]
+      },
+      {
+        "description": "gasolina",
+        "amount": 25000,
+        "date": "2026-09-25",
+        "category_name": "Transporte",
+        "category_id": 2,
+        "suggested_category_name": null,
+        "money_source_name": "efectivo",
+        "money_source_id": 20,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 3,
+    "input": "El lunes pagué 120.000 de internet y hoy compré 35.000 de comida.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 0.97,
+    "engine": "heuristic",
+    "expenses": [
+      {
+        "description": "Internet",
+        "amount": 120000,
+        "date": "2026-09-21",
+        "category_name": "Hogar",
+        "category_id": 3,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "heuristic",
+        "confidence": 0.85,
+        "warnings": []
+      },
+      {
+        "description": "Comida",
+        "amount": 35000,
+        "date": "2026-09-25",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "heuristic",
+        "confidence": 0.95,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 4,
+    "input": "Salí con mi esposa al centro comercial, primero almorzamos por 95.000 y después compré una camisa de 140.000 con la tarjeta.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 4.55,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "almorzamos",
+        "amount": 95000,
+        "date": "2026-09-25",
+        "category_name": "Restaurante",
+        "category_id": 29,
+        "suggested_category_name": null,
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      },
+      {
+        "description": "compré una camisa",
+        "amount": 140000,
+        "date": "2026-09-25",
+        "category_name": "Ropa",
+        "category_id": null,
+        "suggested_category_name": "Ropa",
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Ropa\"; confirm to create it or pick an existing one."
+        ]
+      }
+    ]
+  },
+  {
+    "case": 5,
+    "input": "Compré mercado por 180.000: 120.000 de comida y 60.000 de productos de limpieza.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 3.8,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "mercado",
+        "amount": 180000,
+        "date": "2026-09-25",
+        "category_name": "Supermercado",
+        "category_id": null,
+        "suggested_category_name": "Supermercado",
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Supermercado\"; confirm to create it or pick an existing one."
+        ]
+      }
+    ]
+  },
+  {
+    "case": 6,
+    "input": "Pasé 500.000 de Davibank a Nequi y después gasté 75.000 en Didi Food.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 4.06,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "Transferencia a Nequi",
+        "amount": 500000,
+        "date": "2026-09-25",
+        "category_name": "Transferencia Nequi",
+        "category_id": null,
+        "suggested_category_name": "Transferencia Nequi",
+        "money_source_name": "Cuenta Davibank",
+        "money_source_id": 21,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Transferencia Nequi\"; confirm to create it or pick an existing one."
+        ]
+      },
+      {
+        "description": "Didi Food",
+        "amount": 75000,
+        "date": "2026-09-25",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 7,
+    "input": "Didi 32.000",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 1.66,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "Didi",
+        "amount": 32000,
+        "date": "2026-09-25",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 8,
+    "input": "Netflix me cobró 38.900 de la tarjeta.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 2.34,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "Netflix",
+        "amount": 38900,
+        "date": "2026-09-25",
+        "category_name": "Entretenimiento",
+        "category_id": 6,
+        "suggested_category_name": null,
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 9,
+    "input": "Pagué 2.818.000 de la cuota del carro.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 2.88,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "cuota del carro",
+        "amount": 2818000,
+        "date": "2026-09-25",
+        "category_name": "Pagos de créditos",
+        "category_id": 17,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 10,
+    "input": "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 2.49,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "Almuerzo",
+        "amount": 82000,
+        "date": "2026-09-25",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.75,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 11,
+    "input": "Hoy me gasté como 60 lucas comiendo con la familia y otras 20 en parqueadero.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 3.21,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "comiendo con la familia",
+        "amount": 60000,
+        "date": "2026-09-25",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      },
+      {
+        "description": "parqueadero",
+        "amount": 20000,
+        "date": "2026-09-25",
+        "category_name": "Transporte",
+        "category_id": 2,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 12,
+    "input": "Compré zapatos por 180.000, bueno, fueron 160.000 al final, con Infinite.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 3.19,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "zapatos",
+        "amount": 160000,
+        "date": "2026-09-25",
+        "category_name": "Calzado",
+        "category_id": null,
+        "suggested_category_name": "Calzado",
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Calzado\"; confirm to create it or pick an existing one."
+        ]
+      }
+    ]
+  },
+  {
+    "case": 13,
+    "input": "Tres cafés de 8.500 cada uno y un sándwich de 22.000.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 3.39,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "Tres cafés de 8.500 cada uno y un sándwich de 22.000",
+        "amount": 50000,
+        "date": "2026-09-25",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.65,
+        "warnings": []
+      }
+    ]
+  },
+  {
+    "case": 14,
+    "input": "Compré una camisa por 120.000 y me devolvieron 30.000 porque tenía un descuento.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 3.64,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "camisa",
+        "amount": 120000,
+        "date": "2026-09-25",
+        "category_name": "Ropa",
+        "category_id": null,
+        "suggested_category_name": "Ropa",
+        "money_source_name": null,
+        "money_source_id": null,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Ropa\"; confirm to create it or pick an existing one."
+        ]
+      }
+    ]
+  },
+  {
+    "case": 15,
+    "input": "Ayer salí con mi esposa: pagué 85.000 del restaurante con Infinite, 18.000 del parqueadero en efectivo y después compré unas medicinas por 42.500 con Davibank. También pasé 200.000 de Davibank a Nequi para tener efectivo.",
+    "ok": true,
+    "error": null,
+    "latency_seconds": 8.66,
+    "engine": "ai",
+    "expenses": [
+      {
+        "description": "restaurante",
+        "amount": 85000,
+        "date": "2026-09-24",
+        "category_name": "Restaurante",
+        "category_id": 29,
+        "suggested_category_name": null,
+        "money_source_name": "Tarjeta Visa Infinite",
+        "money_source_id": 23,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      },
+      {
+        "description": "parqueadero",
+        "amount": 18000,
+        "date": "2026-09-24",
+        "category_name": "Transporte",
+        "category_id": 2,
+        "suggested_category_name": null,
+        "money_source_name": "efectivo",
+        "money_source_id": 20,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.9,
+        "warnings": []
+      },
+      {
+        "description": "medicinas",
+        "amount": 42500,
+        "date": "2026-09-24",
+        "category_name": "Salud",
+        "category_id": 5,
+        "suggested_category_name": null,
+        "money_source_name": "Cuenta Davibank",
+        "money_source_id": 21,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": []
+      },
+      {
+        "description": "transferencia a Nequi",
+        "amount": 200000,
+        "date": "2026-09-24",
+        "category_name": "Transferencia Nequi",
+        "category_id": null,
+        "suggested_category_name": "Transferencia Nequi",
+        "money_source_name": "Cuenta Davibank",
+        "money_source_id": 21,
+        "money_source_source": null,
+        "classification_source": "ai",
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Transferencia Nequi\"; confirm to create it or pick an existing one."
+        ]
+      }
+    ]
+  }
+]

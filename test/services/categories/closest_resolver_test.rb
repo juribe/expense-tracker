@@ -72,6 +72,22 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     end
   end
 
+  test "folds Spanish health synonyms into Salud when the category exists" do
+    salud = Category.create!(name: "Salud", user: @user, is_default: false)
+
+    assert_equal salud, resolve("Medicinas", activity: "compré unas medicinas").category
+    assert_equal salud, resolve("medicina").category
+    assert_equal salud, resolve("Medicamentos").category
+    assert_equal salud, resolve("farmacia").category
+    assert_equal salud, resolve("Drogueria").category
+  end
+
+  test "health synonyms stay unmatched when the user lacks the Salud category" do
+    result = resolve("Medicinas")
+
+    assert_not result.matched?
+  end
+
   test "learned classifications win over similarity for the same activity" do
     entertainment = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
     ActivityClassification.record!(user: @user, name: "Pago de Netflix", category: entertainment, source: "user")

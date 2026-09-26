@@ -85,6 +85,30 @@ class Ai::Tasks::ConversationExpenseParsingTest < ActiveSupport::TestCase
     assert_equal "Transporte", entry.category
   end
 
+  test "parse defaults a null model date to the context date" do
+    content = {
+      expenses: [
+        { "original_text" => "Didi 32.000", "amount" => 32_000, "date" => nil, "description" => "Didi" }
+      ]
+    }.to_json
+
+    entry = task.parse(content, "Didi 32.000", { today: Date.new(2026, 9, 25) })[:data].first
+
+    assert_equal Date.new(2026, 9, 25), ExpenseResolver::Dates::Service.parse_iso_date(entry.date)
+  end
+
+  test "parse keeps the model date when it is provided" do
+    content = {
+      expenses: [
+        { "original_text" => "ayer gasté 50 mil", "amount" => 50_000, "date" => "2026-09-24", "description" => "almuerzo" }
+      ]
+    }.to_json
+
+    entry = task.parse(content, "ayer gasté 50 mil", { today: Date.new(2026, 9, 25) })[:data].first
+
+    assert_equal Date.new(2026, 9, 24), ExpenseResolver::Dates::Service.parse_iso_date(entry.date)
+  end
+
   test "parse rejects non-JSON content" do
     assert_raises(Ai::Tasks::Base::InvalidResponse) { task.parse("not json", "input", {}) }
   end

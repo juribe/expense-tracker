@@ -37,23 +37,24 @@ module MoneySources
       scored_matches(text).map(&:first)
     end
 
-    # The strongest match: the source with the most matched values (name,
-    # bank, confirmed keywords); the first-loaded source wins ties.
+    # The strongest match: highest weighted score; the first-loaded source
+    # wins ties.
     def best_match(text)
-      scored_matches(text).max_by { |_, matched| matched.size }
+      scored_matches(text).max_by { |_, score| score }
     end
 
-    # [source, matched_values] pairs for every source with at least one
-    # matched value, in load order.
+    # [source, score] pairs for every source with a positive score, in load
+    # order. Explicit recognition signals (the source's name or a confirmed
+    # keyword identifier) weigh 2 points each; a bank mention weighs 1.
     def scored_matches(text)
       return [] if text.blank?
 
       clean = normalize_text(text)
       @sources.filter_map do |source|
-        matched = matched_values(source, clean)
-        next if matched.empty?
+        score = match_score(source, clean)
+        next if score.zero?
 
-        [ source, matched ]
+        [ source, score ]
       end
     end
 
@@ -72,14 +73,21 @@ module MoneySources
 
     private
 
-    # Values of the source (name, bank, confirmed keyword identifiers) that
-    # appear in the text; the count drives the ranking.
-    def matched_values(source, clean)
-      values = [ source.name, source.bank ]
-      values.concat(source.recognition_identifiers.select(&:keyword?).map(&:value))
-      values.compact.map { |value| normalize_text(value) }
-            .uniq
-            .select { |value| value.present? && clean.match?(/\b#{Regexp.escape(value)}\b/) }
+    # How strongly the text names this source: each matched identifier value
+    # (name or confirmed keyword) earns 2 points — the user explicitly taught
+    # the system that word — while a bank mention earns 1 (institutional
+    # context only, shared by every product of the same bank).
+    IDENTIFIER_POINTS = 2
+    BANK_POINTS = 1
+
+    def match_score(source, clean)
+      identifier_values = [ source.name, *source.recognition_identifiers.select(&:keyword?).map(&:value) ]
+      identifier_points = identifier_values.compact.map { |value| normalize_text(value) }
+                                           .uniq
+                                           .count { |value| value.present? && clean.match?(/\b#{Regexp.escape(value)}\b/) }
+      bank_points = source.bank.present? && clean.match?(/\b#{Regexp.escape(normalize_text(source.bank))}\b/) ? 1 : 0
+
+      identifier_points * IDENTIFIER_POINTS + bank_points * BANK_POINTS
     end
 
     def normalize_text(text)

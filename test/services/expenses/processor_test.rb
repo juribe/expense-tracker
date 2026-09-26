@@ -294,9 +294,10 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
       }
       stub_vision_fallback(extractor_result) do
         candidate = process(Expenses::Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
-        assert_nil candidate.category_id
         assert_equal "Entretenimiento", candidate.category_name
-        assert_equal "Entretenimiento", candidate.suggested_category_name
+        assert_equal Category.find_by!(name: "Entretenimiento", is_default: true).id, candidate.category_id
+        assert_nil candidate.suggested_category_name
+        assert_empty candidate.warnings
       end
     end
 

@@ -47,14 +47,25 @@ class MoneySourcesDetectorTest < ActiveSupport::TestCase
     refute MoneySources::Detector.payment_mention?("efectivamente hablando")
   end
 
-  test "scored_matches counts every matched value per source" do
+  test "scored_matches weighs identifiers over the bank" do
     davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
     davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
 
     matches = detector.scored_matches("500.000 de cuenta davibank a Nequi")
 
-    scored = matches.to_h { |source, matched| [ source.name, matched.size ] }
-    assert_equal 2, scored["Cuenta Davibank"] # name + bank + keyword overlap counts once per unique value
+    scored = matches.to_h { |source, score| [ source.name, score ] }
+    # name (2) + keyword "davibank" (2) + bank (1)
+    assert_equal 5, scored["Cuenta Davibank"]
+    # name and keyword "nequi" collapse to one matched value
+    assert_equal 2, scored["Nequi"]
+  end
+
+  test "a bank-only match scores below a keyword match" do
+    @user.money_sources.create!(name: "Cuenta de Ahorros", kind: "account", bank: "Davibank")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+
+    assert_equal davibank, detector.best_match("pagué en davibank")&.first
   end
 
   test "best_match prefers the source with more matched values" do

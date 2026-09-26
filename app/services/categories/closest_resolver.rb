@@ -48,7 +48,11 @@ module Categories
       "parking" => "Transporte", "gasoline" => "Transporte", "fuel" => "Transporte",
       "parqueadero" => "Transporte", "estacionamiento" => "Transporte",
       "pet care" => "Otros", "pets" => "Otros", "subscriptions" => "Otros",
-      "subscription" => "Otros", "market" => "Compras"
+      "subscription" => "Otros", "market" => "Compras",
+      # Spanish health synonyms (the model often answers these directly).
+      "medicinas" => "Salud", "medicina" => "Salud",
+      "medicamentos" => "Salud", "medicamento" => "Salud",
+      "farmacia" => "Salud", "drogueria" => "Salud"
     }.freeze
 
     # Minimum shared-token coverage for the similarity fold.

@@ -40,6 +40,11 @@ module Ai
         expenses = entries.filter_map do |entry|
           next unless entry.is_a?(Hash)
 
+          # The model's date compliance is non-deterministic (it sometimes
+          # answers null for dateless messages despite the prompt rule), so
+          # the pipeline defaults to the context date instead of trusting it.
+          entry = entry.merge("date" => today.iso8601) if entry["date"].blank?
+
           score = Expenses::ConfidenceCalculator.call(
             expense: ParsedExpense.build_expense(entry),
             input: input,

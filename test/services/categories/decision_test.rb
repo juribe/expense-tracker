@@ -43,15 +43,15 @@ module Categories
       assert result.warnings.any? { |warning| warning.include?("Suscripciones") }
     end
 
-    test "a blank name with a known streaming activity suggests Entretenimiento" do
-      Category.create!(name: "Entretenimiento", is_default: true, category_type: "expense")
+    test "a blank name with a known streaming activity resolves the suggested Entretenimiento" do
+      entretenimiento = Category.create!(name: "Entretenimiento", is_default: true, category_type: "expense")
 
       result = Decision.call(user: @user, name: nil, activity: "Netflix 29.900")
 
-      assert_nil result.category
+      assert_equal entretenimiento, result.category
       assert_equal "Entretenimiento", result.category_name
-      assert_equal "Entretenimiento", result.suggested_category_name
-      assert result.warnings.any? { |warning| warning.include?("Entretenimiento") }
+      assert_nil result.suggested_category_name
+      assert_empty result.warnings
     end
 
     test "a blank name with no scannable activity leaves everything empty" do
@@ -76,6 +76,17 @@ module Categories
       assert_equal "Videojuegos", result.suggested_category_name
       assert result.warnings.any? { |warning| warning.include?("Videojuegos") }
       assert result.warnings.none? { |warning| warning.include?("Transferencia") }
+    end
+
+    test "a suggestion naming an existing category resolves to it instead of creating a duplicate" do
+      comida = Category.create!(name: "Comida", is_default: true, category_type: "expense")
+
+      result = Decision.call(user: @user, name: nil, activity: "tres cafés y un sándwich", suggestion: "Comida")
+
+      assert_equal comida, result.category
+      assert_equal "Comida", result.category_name
+      assert_nil result.suggested_category_name
+      assert_empty result.warnings
     end
 
     test "an external suggestion is ignored when a category resolves" do

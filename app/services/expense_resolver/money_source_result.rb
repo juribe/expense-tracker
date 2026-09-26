@@ -55,7 +55,9 @@ module ExpenseResolver
     #      matches never inherits another expense's source.
     #   4. The full text supplies the source only when exactly one registered
     #      source matches anywhere ("...todo con Davibank"); with several
-    #      distinct sources in the message a silent entry stays empty.
+    #      distinct sources in the message a silent entry stays empty —
+    #      unless a trailing quantified clause ("...todo con X") names the
+    #      source explicitly, which applies to every expense in the message.
     def resolve_money_source
       detector = money_source_detector
       hint = expense.respond_to?(:money_source_hint) ? expense.money_source_hint.to_s : ""
@@ -78,8 +80,8 @@ module ExpenseResolver
     # The best score wins; when several sources tie at the top the first one
     # is still selected, but marked for review.
     def resolve_scored(matches)
-      best = matches.max_by { |_, matched| matched.size }
-      tie = matches.count { |_, matched| matched.size == best.last.size } > 1
+      best = matches.max_by { |_, score| score }
+      tie = matches.count { |_, score| score == best.last } > 1
 
       [ best.first, tie ]
     end
@@ -96,8 +98,26 @@ module ExpenseResolver
       full = text.presence
       return [ nil, false ] if full.blank?
 
+      # A trailing quantified clause ("...todo con Davibank", "...ambas con
+      # Nequi") says one payment method applies to every expense, so it
+      # resolves even when several sources match elsewhere in the message.
+      clause = trailing_payment_clause(full)
+      if clause
+        clause_matches = detector.scored_matches(clause)
+        return resolve_scored(clause_matches) if clause_matches.any?
+      end
+
       matches = detector.matching_sources(full)
       matches.one? ? [ matches.first, false ] : [ nil, false ]
+    end
+
+    # The quantified payment clause at the end of the message, or nil. The
+    # same pattern Text::Service cuts from descriptions — there it keeps the
+    # phrase out of descriptions, here it scopes it for source attribution.
+    def trailing_payment_clause(full)
+      clean = ExpenseResolver::Text::Service.normalize_text(full)
+      match = clean.match(ExpenseResolver::Text::Service::PAYMENT_CLAUSE_REGEX)
+      match ? clean[match.begin(0)..] : nil
     end
   end
 end

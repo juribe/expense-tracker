@@ -41,9 +41,16 @@ module Categories
         Result.new(category: nil, category_name: @name,
                    suggested_category_name: @name, warnings: warnings)
       elsif (suggested = fallback_suggestion).present?
-        warnings << "No matching category found. Suggesting the new category \"#{suggested}\"; confirm to create it or pick an existing one."
-        Result.new(category: nil, category_name: suggested,
-                   suggested_category_name: suggested, warnings: warnings)
+        if (reconciled = reconcile_suggestion(suggested))
+          # A suggestion that names a category the user already has resolves
+          # to it instead of asking to create a duplicate.
+          Result.new(category: reconciled, category_name: reconciled.name,
+                     suggested_category_name: nil, warnings: warnings)
+        else
+          warnings << "No matching category found. Suggesting the new category \"#{suggested}\"; confirm to create it or pick an existing one."
+          Result.new(category: nil, category_name: suggested,
+                     suggested_category_name: suggested, warnings: warnings)
+        end
       else
         warnings << "We could not determine a category for this expense. You can assign it when you confirm."
         Result.new(category: nil, category_name: nil,
@@ -61,6 +68,13 @@ module Categories
     # wins over the heuristic name derived from the activity text.
     def fallback_suggestion
       @suggestion || resolver.suggest_category_name(@activity)
+    end
+
+    # A suggestion is only "new" after the resolver fails to match it against
+    # the user's existing categories (exact, alias or similarity fold).
+    def reconcile_suggestion(suggested)
+      result = Categories::ClosestResolver.call(user: @user, name: suggested, activity: @activity)
+      result.matched? ? result.category : nil
     end
   end
 end
