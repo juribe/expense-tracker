@@ -20,6 +20,22 @@ class Ai::Tasks::ConversationExpenseParsingTest < ActiveSupport::TestCase
     assert_equal "Pagué 50 mil en gasolina", messages.last[:content]
   end
 
+  test "the prompt instructs corrections to yield one expense at the final value" do
+    messages = task.messages("Pagué 50 mil en gasolina", today: Date.new(2026, 9, 16), categories: [ "Transporte" ])
+
+    content = messages.first[:content]
+    assert_includes content, "es UN solo gasto con el valor final corregido"
+    assert_includes content, "El valor anterior no se extrae ni se duplica"
+  end
+
+  test "the prompt carries repeated-transfer and transfer-description rules" do
+    messages = task.messages("Pagué 50 mil en gasolina", today: Date.new(2026, 9, 16), categories: [ "Transporte" ])
+
+    content = messages.first[:content]
+    assert_includes content, "misma fuente y el mismo destino de la transferencia anterior"
+    assert_includes content, "origen y destino"
+  end
+
   test "lists registered money-source identifiers when the context provides them" do
     messages = task.messages(
       "Pagué 50 mil en gasolina",

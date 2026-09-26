@@ -358,6 +358,19 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal Date.current - 1, result.result.first.date
   end
 
+  test "a range expression in the message scopes phrase-less entries" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "gasté 25000 en taxi", amount: 25_000,
+      date: Date.current.iso8601, description: "Taxi", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "La semana pasada gasté 25000 en taxi")
+
+    assert result.success?
+    assert_equal Date.current - 7, result.result.first.date
+  end
+
   test "explicit per-name source assignments attribute each expense correctly" do
     Category.create!(name: "Parking", is_default: true, category_type: "expense")
     cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
@@ -707,5 +720,77 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     candidate = result.result.first
     assert_equal 200_000, candidate.amount
     assert candidate.warnings.any? { |warning| warning.include?("refund") }
+  end
+
+  test "a transfer destination account never grounds the resolved source silently" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Transferí 300.000 de Davibank a mi cuenta de ahorros",
+      amount: 300_000, date: Date.current, description: "Transferencia a cuenta de ahorros",
+      category: nil, money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Transferí 300.000 de Davibank a mi cuenta de ahorros"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert candidate.money_source_source == "suggested" ||
+           candidate.warnings.any? { |warning| warning.include?("tight match") },
+           "expected a review flag for a destination-grounded source"
+  end
+
+  test "an origin-side account mention still resolves without a flag" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Pasé 500.000 desde mi cuenta Davibank a Nequi",
+      amount: 500_000, date: Date.current, description: "Transferencia a Nequi",
+      category: nil, money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Pasé 500.000 desde mi cuenta Davibank a Nequi"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert_nil candidate.money_source_source
+    assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+  end
+
+  test "a refund dropped from the entry fragment is still caught from the full message" do
+    mercado = Ai::Tasks::ParsedExpense.new(
+      original_text: "mercado 200.000 con Davibank", amount: 200_000,
+      date: Date.current, description: "mercado",
+      category: nil, money_source_hint: "davibank", confidence: 0.9
+    )
+    almuerzo = Ai::Tasks::ParsedExpense.new(
+      original_text: "almuerzo 45.000 con la tarjeta Davibank", amount: 45_000,
+      date: Date.current, description: "almuerzo",
+      category: nil, money_source_hint: "tarjeta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ mercado, almuerzo ],
+      text: "Compré mercado por 200.000 con Davibank, pero me devolvieron 30.000 de unos productos. También pagué 45.000 de almuerzo con la tarjeta Davibank"
+    )
+
+    assert result.success?
+    first = result.result.first
+    assert_equal 200_000, first.amount
+    assert first.warnings.any? { |warning| warning.include?("refund") }
   end
 end

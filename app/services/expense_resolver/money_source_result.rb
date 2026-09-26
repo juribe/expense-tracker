@@ -80,8 +80,11 @@ module ExpenseResolver
 
         # The hint is authoritative only when the fragment actually names the
         # source; a hint over a bank-level-only fragment is the model's guess,
-        # so it is selected but flagged for review.
-        grounded = detector.grounded_in?(source, slice)
+        # so it is selected but flagged for review. In a transfer, the
+        # destination clause ("a mi cuenta de ahorros") describes where the
+        # money lands, not how it was paid: grounding is judged on the origin
+        # side only, so destination words can never silently ground a source.
+        grounded = detector.grounded_in?(source, origin_slice(slice))
         return [ source, !grounded ]
       end
 
@@ -91,6 +94,16 @@ module ExpenseResolver
       return [ nil, false ] if MoneySources::Detector.payment_mention?(slice)
 
       resolve_from_full_text(detector)
+    end
+
+    # In a transfer ("pasé X de Davibank a mi cuenta de ahorros"), words after
+    # the destination marker belong to the destination account. Tokens there
+    # must not ground a money source: only the origin side may.
+    DESTINATION_CLAUSE_REGEX = /\b(?:a|hacia)\s+(?:mi|mis|la|el|una|unas|otra|otro|otras|otros)\s+cuenta\b/i
+
+    def origin_slice(slice)
+      match = slice.match(DESTINATION_CLAUSE_REGEX)
+      match ? slice[0...match.begin(0)] : slice
     end
 
     # The best score wins; when several sources tie at the top the first one

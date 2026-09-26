@@ -51,6 +51,8 @@ module ExpenseResolver
     end
 
     def heuristic_date
+      return nil if invented_fragment_dates?
+
       result = ExpenseResolver::Dates::Service.detect_date(expense.original_text, today: today)
       result&.first
     end
@@ -77,7 +79,30 @@ module ExpenseResolver
     end
 
     def fragment_dates
-      @fragment_dates ||= ExpenseResolver::Dates::Service.scan_dates(expense.original_text, today: today)
+      @fragment_dates ||= begin
+        dates = ExpenseResolver::Dates::Service.scan_dates(expense.original_text, today: today)
+        invented_fragment_dates? ? [] : dates
+      end
+    end
+
+    # The model may inject relative words ("hoy") the user never wrote. When
+    # every date expression in the fragment is absent from the original
+    # message, the fragment's date reading is an invention and is ignored.
+    def invented_fragment_dates?
+      @invented_fragment_dates ||= begin
+        expressions = fragment_expressions
+        expressions.present? && full_text.present? &&
+          expressions.none? { |word| full_text.match?(word) }
+      end
+    end
+
+    DATE_EXPRESSION_REGEXPS = [
+      /\bhoy\b/i, /\banteayer\b/i, /\bayer\b/i, /la semana pasada/i, /el mes pasado/i,
+      Dates::Service::WEEKDAY_REGEX
+    ].freeze
+
+    def fragment_expressions
+      DATE_EXPRESSION_REGEXPS.select { |word| expense.original_text.to_s.match?(word) }
     end
   end
 end

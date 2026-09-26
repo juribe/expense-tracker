@@ -127,6 +127,15 @@ module Ai
           - Los gastos se registran por el valor pagado: no restes devoluciones,
             descuentos ni recargos del monto del gasto ("me devolvieron 30.000"
             no cambia el valor de la compra).
+          - Si el usuario corrige el valor ("bueno, fueron 160.000", "en
+            realidad fueron 110.000", "perdón, 65.000", "revisando el recibo
+            fueron 76.500"), es UN solo gasto con el valor final corregido.
+            El valor anterior no se extrae ni se duplica.
+          - En transferencias repetidas ("después pasé otros 100.000"), usa
+            la misma fuente y el mismo destino de la transferencia anterior
+            del mensaje.
+          - La descripción de una transferencia debe nombrar origen y destino
+            ("pasé 500.000 de Davibank a Nequi" → "Davibank a Nequi").
           - original_text debe cubrir solo ese gasto: si hay varios gastos,
             nunca repitas el mensaje completo en cada objeto.
           - No inventes información ni crees IDs o entidades de base de datos.

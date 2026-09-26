@@ -18,8 +18,14 @@ module ExpenseResolver
           [ today - 2, 0.85 ]
         elsif text.match?(/\bayer\b/)
           [ today - 1, 0.95 ]
+        elsif (weekday = detect_weekday_date(text, today: today))
+          weekday
+        elsif text.match?(/la semana pasada/i)
+          [ today - 7, 0.8 ]
+        elsif text.match?(/el mes pasado/i)
+          [ today.advance(months: -1), 0.7 ]
         else
-          detect_weekday_date(text, today: today)
+          nil
         end
       end
 
@@ -29,6 +35,8 @@ module ExpenseResolver
         return [] if text.blank?
 
         dates = []
+        dates << today - 7 if text.match?(/la semana pasada/i)
+        dates << today.advance(months: -1) if text.match?(/el mes pasado/i)
         dates << today if text.match?(/\bhoy\b/)
         dates << today - 2 if text.match?(/\banteayer\b/)
         dates << today - 1 if text.match?(/\bayer\b/)

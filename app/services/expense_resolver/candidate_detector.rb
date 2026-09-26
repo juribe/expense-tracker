@@ -89,15 +89,29 @@ module ExpenseResolver
         ExpenseResolver::MoneySourceResult.slice_for(expense)
       )
 
+      warning = refund_warning_for(slice)
+      return [ warning ] if warning
+
+      # The model sometimes drops the refund clause from the entry fragment:
+      # the deterministic reading of the full message keeps the guard from
+      # going blind. The mention may belong to another entry, so the wording
+      # stays the same non-negotiable review flag.
+      return [] if text.blank?
+
+      full_warning = refund_warning_for(text)
+      full_warning ? [ full_warning ] : []
+    end
+
+    def refund_warning_for(slice)
       match = REFUND_AMOUNT_REGEX.match(slice)
       if match
         value, = ExpenseResolver::Amounts::Service.interpret_amount(match[1], colloquial: false)
         if value && value != expense.amount
-          return [ "Text mentions a refund or adjustment of #{format_money(value)} — confirm the amount is the full purchase price before confirming." ]
+          return "Text mentions a refund or adjustment of #{format_money(value)} — confirm the amount is the full purchase price before confirming."
         end
       end
 
-      slice.match?(REFUND_PHRASE_REGEX) ? [ "Text mentions a refund or adjustment — confirm the amount is the full purchase price before confirming." ] : []
+      "Text mentions a refund or adjustment — confirm the amount is the full purchase price before confirming." if slice.match?(REFUND_PHRASE_REGEX)
     end
 
     def category_result
