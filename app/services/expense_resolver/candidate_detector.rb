@@ -2,13 +2,13 @@
 
 module ExpenseResolver
   class CandidateDetector
-    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text, :recording, :allow_text_heuristics
+    attr_accessor :expense, :user, :categories, :money_source_detector, :classification_source, :text, :recording, :allow_text_heuristics, :entry_position, :entry_count
 
-    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil, allow_text_heuristics: true)
-      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text, recording: recording, allow_text_heuristics: allow_text_heuristics).call
+    def self.call(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil, allow_text_heuristics: true, entry_position: nil, entry_count: nil)
+      new(expense: expense, user: user, categories: categories, money_source_detector: money_source_detector, classification_source: classification_source, text: text, recording: recording, allow_text_heuristics: allow_text_heuristics, entry_position: entry_position, entry_count: entry_count).call
     end
 
-    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil, allow_text_heuristics: true)
+    def initialize(expense:, user:, categories: nil, money_source_detector: nil, classification_source: "ai", text: nil, recording: nil, allow_text_heuristics: true, entry_position: nil, entry_count: nil)
       self.expense = expense
       self.user = user
       self.categories = categories
@@ -17,6 +17,8 @@ module ExpenseResolver
       self.text = text
       self.recording = recording
       self.allow_text_heuristics = allow_text_heuristics
+      self.entry_position = entry_position
+      self.entry_count = entry_count
     end
 
     def call
@@ -92,7 +94,9 @@ module ExpenseResolver
       @date_result ||= DateResult.call(
         expense: expense,
         allow_heuristic: allow_text_heuristics,
-        full_text: text
+        full_text: text,
+        entry_position: entry_position,
+        entry_count: entry_count
       )
     end
 

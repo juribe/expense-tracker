@@ -5,17 +5,20 @@ module ExpenseResolver
     Result = Struct.new(:date) do
     end
 
-    attr_accessor :expense, :today, :allow_heuristic, :full_text
+    attr_accessor :expense, :today, :allow_heuristic, :full_text, :entry_position, :entry_count
 
-    def self.call(expense:, today: Date.current, allow_heuristic: true, full_text: nil)
-      new(expense: expense, today: today, allow_heuristic: allow_heuristic, full_text: full_text).call
+    def self.call(expense:, today: Date.current, allow_heuristic: true, full_text: nil, entry_position: nil, entry_count: nil)
+      new(expense: expense, today: today, allow_heuristic: allow_heuristic,
+          full_text: full_text, entry_position: entry_position, entry_count: entry_count).call
     end
 
-    def initialize(expense:, today:, allow_heuristic: true, full_text: nil)
+    def initialize(expense:, today:, allow_heuristic: true, full_text: nil, entry_position: nil, entry_count: nil)
       self.expense = expense
       self.today = today
       self.allow_heuristic = allow_heuristic
       self.full_text = full_text
+      self.entry_position = entry_position
+      self.entry_count = entry_count
     end
 
     def call
@@ -57,9 +60,9 @@ module ExpenseResolver
     end
 
     # When the fragment dropped the date expression entirely, the model's date
-    # is its own (unreliable) reading of the full message. When the message
-    # resolves to exactly one distinct date, the deterministic resolution of
-    # that expression is authoritative over the AI date.
+    # is its own (unreliable) reading of the full message. Deterministic rules
+    # take over: one expression applies to every entry; several expressions
+    # map to entries by text order when the counts match.
     def full_text_date
       return nil if full_text.blank?
       return nil unless fragment_dates.empty?
@@ -67,7 +70,10 @@ module ExpenseResolver
       dates = ExpenseResolver::Dates::Service.scan_dates(
         ExpenseResolver::Text::Service.normalize_text(full_text), today: today
       )
-      dates.one? ? dates.first : nil
+      return dates.first if dates.one?
+      return nil if entry_position.nil? || entry_count.nil? || dates.size != entry_count
+
+      dates[entry_position]
     end
 
     def fragment_dates

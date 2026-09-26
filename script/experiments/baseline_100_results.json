@@ -4,7 +4,7 @@
     "input": "Almuerzo 45.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 1.04,
+    "latency_seconds": 1.08,
     "engine": "heuristic",
     "expenses": [
       {
@@ -28,7 +28,7 @@
     "input": "Compré comida por 38.500",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.58,
+    "latency_seconds": 0.6,
     "engine": "heuristic",
     "expenses": [
       {
@@ -76,7 +76,7 @@
     "input": "Café 8.500",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.27,
+    "latency_seconds": 0.26,
     "engine": "heuristic",
     "expenses": [
       {
@@ -100,7 +100,7 @@
     "input": "Restaurante 95.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.24,
+    "latency_seconds": 0.26,
     "engine": "heuristic",
     "expenses": [
       {
@@ -124,7 +124,7 @@
     "input": "Compré una camisa por 150.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.86,
+    "latency_seconds": 4.12,
     "engine": "ai",
     "expenses": [
       {
@@ -150,23 +150,23 @@
     "input": "Zapatos 220.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.33,
+    "latency_seconds": 4.4,
     "engine": "ai",
     "expenses": [
       {
         "description": "Zapatos",
         "amount": 220000,
         "date": "2026-09-25",
-        "category_name": "Ropa",
+        "category_name": "Calzado",
         "category_id": null,
-        "suggested_category_name": "Ropa",
+        "suggested_category_name": "Calzado",
         "money_source_name": null,
         "money_source_id": null,
         "money_source_source": null,
         "classification_source": "ai",
         "confidence": 0.8,
         "warnings": [
-          "No matching category found. Suggesting the new category \"Ropa\"; confirm to create it or pick an existing one."
+          "No matching category found. Suggesting the new category \"Calzado\"; confirm to create it or pick an existing one."
         ]
       }
     ]
@@ -176,7 +176,7 @@
     "input": "Parqueadero 15.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.29,
+    "latency_seconds": 0.31,
     "engine": "heuristic",
     "expenses": [
       {
@@ -200,7 +200,7 @@
     "input": "Mercado 280.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.19,
+    "latency_seconds": 3.48,
     "engine": "ai",
     "expenses": [
       {
@@ -468,7 +468,7 @@
     "input": "Camisa 120.000 y zapatos 180.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.76,
+    "latency_seconds": 4.48,
     "engine": "ai",
     "expenses": [
       {
@@ -494,7 +494,7 @@
     "input": "Internet 120.000, celular 55.000 y Netflix 38.900",
     "ok": true,
     "error": null,
-    "latency_seconds": 6.31,
+    "latency_seconds": 6.42,
     "engine": "ai",
     "expenses": [
       {
@@ -517,16 +517,16 @@
         "description": "celular",
         "amount": 55000,
         "date": "2026-09-25",
-        "category_name": "Telefonía",
+        "category_name": "Electrónica",
         "category_id": null,
-        "suggested_category_name": "Telefonía",
+        "suggested_category_name": "Electrónica",
         "money_source_name": null,
         "money_source_id": null,
         "money_source_source": null,
         "classification_source": "ai",
         "confidence": 0.8,
         "warnings": [
-          "No matching category found. Suggesting the new category \"Telefonía\"; confirm to create it or pick an existing one."
+          "No matching category found. Suggesting the new category \"Electrónica\"; confirm to create it or pick an existing one."
         ]
       },
       {
@@ -590,7 +590,7 @@
     "input": "Almuerzo 75.000 y postre 15.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.8,
+    "latency_seconds": 2.33,
     "engine": "ai",
     "expenses": [
       {
@@ -614,7 +614,7 @@
     "input": "Comida 40.000, transporte 20.000 y cine 30.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.27,
+    "latency_seconds": 0.3,
     "engine": "heuristic",
     "expenses": [
       {
@@ -666,7 +666,7 @@
     "input": "Almuerzo 45.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 1.95,
+    "latency_seconds": 2.84,
     "engine": "ai",
     "expenses": [
       {
@@ -692,7 +692,7 @@
     "input": "Compré comida por 60.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.18,
+    "latency_seconds": 2.89,
     "engine": "ai",
     "expenses": [
       {
@@ -718,7 +718,7 @@
     "input": "Gasolina 150.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.45,
+    "latency_seconds": 3.1,
     "engine": "ai",
     "expenses": [
       {
@@ -744,7 +744,7 @@
     "input": "Restaurante 95.000 pagado con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.06,
+    "latency_seconds": 0.19,
     "engine": "heuristic",
     "expenses": [
       {
@@ -770,7 +770,7 @@
     "input": "Compré zapatos por 220.000 usando Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 7.0,
+    "latency_seconds": 4.25,
     "engine": "ai",
     "expenses": [
       {
@@ -797,7 +797,7 @@
     "input": "Netflix 38.900 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 1.91,
+    "latency_seconds": 4.18,
     "engine": "ai",
     "expenses": [
       {
@@ -823,7 +823,7 @@
     "input": "Farmacia 75.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.63,
+    "latency_seconds": 3.13,
     "engine": "ai",
     "expenses": [
       {
@@ -849,7 +849,7 @@
     "input": "Mercado 200.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.79,
+    "latency_seconds": 3.45,
     "engine": "ai",
     "expenses": [
       {
@@ -876,7 +876,7 @@
     "input": "Taxi 25.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.76,
+    "latency_seconds": 1.87,
     "engine": "ai",
     "expenses": [
       {
@@ -902,7 +902,7 @@
     "input": "Pagué 100.000 de ropa con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.21,
+    "latency_seconds": 2.81,
     "engine": "ai",
     "expenses": [
       {
@@ -929,7 +929,7 @@
     "input": "Almuerzo 45.000 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.09,
+    "latency_seconds": 1.93,
     "engine": "ai",
     "expenses": [
       {
@@ -953,7 +953,7 @@
     "input": "Comida 60.000 desde mi cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.0,
+    "latency_seconds": 1.94,
     "engine": "ai",
     "expenses": [
       {
@@ -977,7 +977,7 @@
     "input": "Gasolina 150.000 con mi cuenta de Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.15,
+    "latency_seconds": 2.84,
     "engine": "ai",
     "expenses": [
       {
@@ -1025,7 +1025,7 @@
     "input": "Compré zapatos por 220.000 con la cuenta de Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.08,
+    "latency_seconds": 5.47,
     "engine": "ai",
     "expenses": [
       {
@@ -1049,57 +1049,31 @@
   {
     "case": 36,
     "input": "Netflix 38.900 desde mi cuenta Davibank",
-    "ok": true,
-    "error": null,
-    "latency_seconds": 3.01,
-    "engine": "ai",
-    "expenses": [
-      {
-        "description": "Netflix",
-        "amount": 38900,
-        "date": "2026-09-25",
-        "category_name": "Entretenimiento",
-        "category_id": 6,
-        "suggested_category_name": null,
-        "money_source_name": "cuenta davibank",
-        "money_source_id": 41,
-        "money_source_source": null,
-        "classification_source": "ai",
-        "confidence": 0.9,
-        "warnings": []
-      }
-    ]
+    "ok": false,
+    "error": [
+      "AI HTTP 429 (Provider returned error)"
+    ],
+    "latency_seconds": 5.62,
+    "engine": null,
+    "expenses": []
   },
   {
     "case": 37,
     "input": "Farmacia 75.000 con mi cuenta Davibank",
-    "ok": true,
-    "error": null,
-    "latency_seconds": 3.22,
-    "engine": "ai",
-    "expenses": [
-      {
-        "description": "Farmacia",
-        "amount": 75000,
-        "date": "2026-09-25",
-        "category_name": "Salud",
-        "category_id": 5,
-        "suggested_category_name": null,
-        "money_source_name": "cuenta davibank",
-        "money_source_id": 41,
-        "money_source_source": null,
-        "classification_source": "ai",
-        "confidence": 0.8,
-        "warnings": []
-      }
-    ]
+    "ok": false,
+    "error": [
+      "AI HTTP 429 (Provider returned error)"
+    ],
+    "latency_seconds": 4.71,
+    "engine": null,
+    "expenses": []
   },
   {
     "case": 38,
     "input": "Mercado 200.000 desde la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.17,
+    "latency_seconds": 8.85,
     "engine": "ai",
     "expenses": [
       {
@@ -1125,7 +1099,7 @@
     "input": "Taxi 25.000 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 1.89,
+    "latency_seconds": 2.51,
     "engine": "ai",
     "expenses": [
       {
@@ -1149,7 +1123,7 @@
     "input": "Pagué 100.000 de ropa desde mi cuenta de Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.88,
+    "latency_seconds": 3.52,
     "engine": "ai",
     "expenses": [
       {
@@ -1175,7 +1149,7 @@
     "input": "Almuerzo 45.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.53,
+    "latency_seconds": 2.65,
     "engine": "ai",
     "expenses": [
       {
@@ -1199,7 +1173,7 @@
     "input": "Comida 60.000 con mi tarjeta de crédito Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.38,
+    "latency_seconds": 2.36,
     "engine": "ai",
     "expenses": [
       {
@@ -1223,7 +1197,7 @@
     "input": "Gasolina 150.000 con la tarjeta de Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.12,
+    "latency_seconds": 2.96,
     "engine": "ai",
     "expenses": [
       {
@@ -1271,7 +1245,7 @@
     "input": "Compré zapatos por 220.000 con la tarjeta de crédito Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.4,
+    "latency_seconds": 3.78,
     "engine": "ai",
     "expenses": [
       {
@@ -1297,7 +1271,7 @@
     "input": "Netflix 38.900 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.67,
+    "latency_seconds": 2.1,
     "engine": "ai",
     "expenses": [
       {
@@ -1321,7 +1295,7 @@
     "input": "Farmacia 75.000 con mi tarjeta de crédito Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.77,
+    "latency_seconds": 3.12,
     "engine": "ai",
     "expenses": [
       {
@@ -1345,7 +1319,7 @@
     "input": "Mercado 200.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.39,
+    "latency_seconds": 3.26,
     "engine": "ai",
     "expenses": [
       {
@@ -1371,7 +1345,7 @@
     "input": "Taxi 25.000 con mi tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.66,
+    "latency_seconds": 2.7,
     "engine": "ai",
     "expenses": [
       {
@@ -1395,7 +1369,7 @@
     "input": "Pagué 100.000 de ropa con la tarjeta de crédito Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.94,
+    "latency_seconds": 3.11,
     "engine": "ai",
     "expenses": [
       {
@@ -1421,7 +1395,7 @@
     "input": "Almuerzo 50.000 con Davibank y gasolina 100.000 en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.17,
+    "latency_seconds": 4.46,
     "engine": "ai",
     "expenses": [
       {
@@ -1461,7 +1435,7 @@
     "input": "Supermercado 200.000 con Davibank y café 8.000 en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.74,
+    "latency_seconds": 4.8,
     "engine": "ai",
     "expenses": [
       {
@@ -1502,7 +1476,7 @@
     "input": "Restaurante 120.000 con Davibank y parqueadero 15.000 en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.63,
+    "latency_seconds": 4.0,
     "engine": "ai",
     "expenses": [
       {
@@ -1542,7 +1516,7 @@
     "input": "Compré zapatos por 180.000 con Davibank y una camisa por 100.000 con efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 6.1,
+    "latency_seconds": 4.79,
     "engine": "ai",
     "expenses": [
       {
@@ -1585,7 +1559,7 @@
     "input": "Netflix 38.900 con Davibank y Spotify 24.900 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.68,
+    "latency_seconds": 3.29,
     "engine": "ai",
     "expenses": [
       {
@@ -1595,13 +1569,13 @@
         "category_name": "Entretenimiento",
         "category_id": 6,
         "suggested_category_name": null,
-        "money_source_name": "cuenta davibank",
-        "money_source_id": 41,
+        "money_source_name": "tarjeta davibank",
+        "money_source_id": 42,
         "money_source_source": "suggested",
         "classification_source": "ai",
         "confidence": 0.9,
         "warnings": [
-          "Money source \"cuenta davibank\" suggested from a tight match — review it before confirming."
+          "Money source \"tarjeta davibank\" suggested from a tight match — review it before confirming."
         ]
       },
       {
@@ -1611,13 +1585,13 @@
         "category_name": "Entretenimiento",
         "category_id": 6,
         "suggested_category_name": null,
-        "money_source_name": "cuenta davibank",
-        "money_source_id": 41,
+        "money_source_name": "tarjeta davibank",
+        "money_source_id": 42,
         "money_source_source": "suggested",
         "classification_source": "ai",
         "confidence": 0.9,
         "warnings": [
-          "Money source \"cuenta davibank\" suggested from a tight match — review it before confirming."
+          "Money source \"tarjeta davibank\" suggested from a tight match — review it before confirming."
         ]
       }
     ]
@@ -1627,7 +1601,7 @@
     "input": "Café 8.000 en efectivo, almuerzo 55.000 con Davibank y taxi 20.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.04,
+    "latency_seconds": 0.06,
     "engine": "heuristic",
     "expenses": [
       {
@@ -1681,7 +1655,7 @@
     "input": "Comida 80.000 con Davibank y ropa 150.000 con tarjeta",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.26,
+    "latency_seconds": 4.14,
     "engine": "ai",
     "expenses": [
       {
@@ -1723,7 +1697,7 @@
     "input": "Farmacia 75.000 con Davibank y supermercado 220.000 en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.45,
+    "latency_seconds": 4.18,
     "engine": "ai",
     "expenses": [
       {
@@ -1765,7 +1739,7 @@
     "input": "Gasolina 150.000 con Davibank, almuerzo 45.000 con efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 7.19,
+    "latency_seconds": 3.4,
     "engine": "ai",
     "expenses": [
       {
@@ -1795,7 +1769,7 @@
         "money_source_id": 43,
         "money_source_source": null,
         "classification_source": "ai",
-        "confidence": 0.8,
+        "confidence": 0.9,
         "warnings": []
       }
     ]
@@ -1805,7 +1779,7 @@
     "input": "Pagué 100.000 de comida con Davibank y 50.000 de ropa con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.94,
+    "latency_seconds": 3.97,
     "engine": "ai",
     "expenses": [
       {
@@ -1848,7 +1822,7 @@
     "input": "Almuerzo 50.000 con la cuenta Davibank y gasolina 100.000 con efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.7,
+    "latency_seconds": 2.93,
     "engine": "ai",
     "expenses": [
       {
@@ -1886,7 +1860,7 @@
     "input": "Supermercado 200.000 con la tarjeta Davibank y café 8.000 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.64,
+    "latency_seconds": 6.55,
     "engine": "ai",
     "expenses": [
       {
@@ -1909,17 +1883,15 @@
         "description": "café",
         "amount": 8000,
         "date": "2026-09-25",
-        "category_name": "Alimentos y bebidas",
-        "category_id": null,
-        "suggested_category_name": "Alimentos y bebidas",
+        "category_name": "Comida",
+        "category_id": 1,
+        "suggested_category_name": null,
         "money_source_name": "cuenta davibank",
         "money_source_id": 41,
         "money_source_source": null,
         "classification_source": "ai",
         "confidence": 0.8,
-        "warnings": [
-          "No matching category found. Suggesting the new category \"Alimentos y bebidas\"; confirm to create it or pick an existing one."
-        ]
+        "warnings": []
       }
     ]
   },
@@ -1928,7 +1900,7 @@
     "input": "Restaurante 120.000 con la tarjeta de crédito Davibank y parqueadero 15.000 en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.95,
+    "latency_seconds": 2.9,
     "engine": "ai",
     "expenses": [
       {
@@ -1966,7 +1938,7 @@
     "input": "Zapatos 180.000 con la tarjeta Davibank y camisa 100.000 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.86,
+    "latency_seconds": 3.37,
     "engine": "ai",
     "expenses": [
       {
@@ -1992,7 +1964,7 @@
     "input": "Netflix 38.900 con la tarjeta Davibank y Spotify 24.900 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.54,
+    "latency_seconds": 2.91,
     "engine": "ai",
     "expenses": [
       {
@@ -2030,7 +2002,7 @@
     "input": "Café 8.000 en efectivo, almuerzo 55.000 con la cuenta Davibank y taxi 20.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.99,
+    "latency_seconds": 4.67,
     "engine": "ai",
     "expenses": [
       {
@@ -2080,49 +2052,20 @@
   {
     "case": 67,
     "input": "Comida 80.000 con la cuenta Davibank y ropa 150.000 con la tarjeta Davibank",
-    "ok": true,
-    "error": null,
-    "latency_seconds": 4.15,
-    "engine": "ai",
-    "expenses": [
-      {
-        "description": "Comida",
-        "amount": 80000,
-        "date": "2026-09-25",
-        "category_name": "Comida",
-        "category_id": 1,
-        "suggested_category_name": null,
-        "money_source_name": "cuenta davibank",
-        "money_source_id": 41,
-        "money_source_source": null,
-        "classification_source": "ai",
-        "confidence": 0.9,
-        "warnings": []
-      },
-      {
-        "description": "ropa",
-        "amount": 150000,
-        "date": "2026-09-25",
-        "category_name": "Ropa",
-        "category_id": null,
-        "suggested_category_name": "Ropa",
-        "money_source_name": "tarjeta davibank",
-        "money_source_id": 42,
-        "money_source_source": null,
-        "classification_source": "ai",
-        "confidence": 0.8,
-        "warnings": [
-          "No matching category found. Suggesting the new category \"Ropa\"; confirm to create it or pick an existing one."
-        ]
-      }
-    ]
+    "ok": false,
+    "error": [
+      "invalid AI response (unexpected end of input, expected closing \" at line 1 column 123)"
+    ],
+    "latency_seconds": 56.28,
+    "engine": null,
+    "expenses": []
   },
   {
     "case": 68,
     "input": "Farmacia 75.000 con la cuenta Davibank y supermercado 220.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.28,
+    "latency_seconds": 3.89,
     "engine": "ai",
     "expenses": [
       {
@@ -2162,7 +2105,7 @@
     "input": "Gasolina 150.000 con la tarjeta Davibank y almuerzo 45.000 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.4,
+    "latency_seconds": 2.38,
     "engine": "ai",
     "expenses": [
       {
@@ -2200,7 +2143,7 @@
     "input": "Comida 100.000 con la cuenta Davibank y ropa 50.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.88,
+    "latency_seconds": 4.37,
     "engine": "ai",
     "expenses": [
       {
@@ -2314,7 +2257,7 @@
     "input": "Hoy compré comida por 35.000 con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.09,
+    "latency_seconds": 2.06,
     "engine": "ai",
     "expenses": [
       {
@@ -2340,7 +2283,7 @@
     "input": "Hoy compré comida por 35.000 con la tarjeta de crédito Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.64,
+    "latency_seconds": 2.87,
     "engine": "ai",
     "expenses": [
       {
@@ -2364,7 +2307,7 @@
     "input": "El lunes pagué 120.000 de internet desde mi cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.05,
+    "latency_seconds": 0.06,
     "engine": "heuristic",
     "expenses": [
       {
@@ -2388,13 +2331,13 @@
     "input": "El martes compré zapatos por 180.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 11.19,
+    "latency_seconds": 3.18,
     "engine": "ai",
     "expenses": [
       {
         "description": "zapatos",
         "amount": 180000,
-        "date": "2026-09-21",
+        "date": "2026-09-22",
         "category_name": "Calzado",
         "category_id": null,
         "suggested_category_name": "Calzado",
@@ -2440,13 +2383,13 @@
     "input": "Ayer compré comida con Davibank por 50.000 y hoy gasolina por 100.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.02,
+    "latency_seconds": 3.33,
     "engine": "ai",
     "expenses": [
       {
         "description": "comida",
         "amount": 50000,
-        "date": "2026-09-24",
+        "date": "2026-09-25",
         "category_name": "Comida",
         "category_id": 1,
         "suggested_category_name": null,
@@ -2462,7 +2405,7 @@
       {
         "description": "gasolina",
         "amount": 100000,
-        "date": "2026-09-25",
+        "date": "2026-09-24",
         "category_name": "Transporte",
         "category_id": 2,
         "suggested_category_name": null,
@@ -2480,13 +2423,13 @@
     "input": "El lunes pagué 50.000 con la cuenta Davibank y el martes 80.000 con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 12.1,
+    "latency_seconds": 4.47,
     "engine": "ai",
     "expenses": [
       {
         "description": "pagué",
         "amount": 50000,
-        "date": "2026-09-23",
+        "date": "2026-09-21",
         "category_name": null,
         "category_id": null,
         "suggested_category_name": null,
@@ -2502,7 +2445,7 @@
       {
         "description": "pagué",
         "amount": 80000,
-        "date": "2026-09-24",
+        "date": "2026-09-22",
         "category_name": null,
         "category_id": null,
         "suggested_category_name": null,
@@ -2522,7 +2465,7 @@
     "input": "Pasé 500.000 de Davibank a Nequi",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.23,
+    "latency_seconds": 2.73,
     "engine": "ai",
     "expenses": [
       {
@@ -2549,7 +2492,7 @@
     "input": "Pasé 500.000 desde mi cuenta Davibank a Nequi",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.76,
+    "latency_seconds": 2.64,
     "engine": "ai",
     "expenses": [
       {
@@ -2575,7 +2518,7 @@
     "input": "Pasé 500.000 desde mi tarjeta Davibank a otra cuenta",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.98,
+    "latency_seconds": 2.66,
     "engine": "ai",
     "expenses": [
       {
@@ -2601,7 +2544,7 @@
     "input": "Transferí 300.000 de Davibank a mi cuenta de ahorros",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.23,
+    "latency_seconds": 3.18,
     "engine": "ai",
     "expenses": [
       {
@@ -2627,7 +2570,7 @@
     "input": "Moví 200.000 de Davibank a Nequi",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.62,
+    "latency_seconds": 2.71,
     "engine": "ai",
     "expenses": [
       {
@@ -2654,23 +2597,23 @@
     "input": "Recargué Nequi con 150.000 desde mi cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.41,
+    "latency_seconds": 2.68,
     "engine": "ai",
     "expenses": [
       {
         "description": "Recargué Nequi",
         "amount": 150000,
         "date": "2026-09-25",
-        "category_name": "Recargue Nequi",
+        "category_name": "Transferencias",
         "category_id": null,
-        "suggested_category_name": "Recargue Nequi",
+        "suggested_category_name": "Transferencias",
         "money_source_name": "cuenta davibank",
         "money_source_id": 41,
         "money_source_source": null,
         "classification_source": "ai",
         "confidence": 0.8,
         "warnings": [
-          "No matching category found. Suggesting the new category \"Recargue Nequi\"; confirm to create it or pick an existing one."
+          "No matching category found. Suggesting the new category \"Transferencias\"; confirm to create it or pick an existing one."
         ]
       }
     ]
@@ -2680,7 +2623,7 @@
     "input": "Le transferí 100.000 a mi esposa desde Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.04,
+    "latency_seconds": 2.39,
     "engine": "ai",
     "expenses": [
       {
@@ -2707,7 +2650,7 @@
     "input": "Pasé 80.000 de Davibank a Nequi y después gasté 30.000 en comida",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.74,
+    "latency_seconds": 3.7,
     "engine": "ai",
     "expenses": [
       {
@@ -2748,7 +2691,7 @@
     "input": "Transferí 500.000 desde mi cuenta Davibank y después pagué 70.000 de restaurante con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.05,
+    "latency_seconds": 3.3,
     "engine": "ai",
     "expenses": [
       {
@@ -2788,7 +2731,7 @@
     "input": "Pasé 300.000 de Davibank a Nequi, gasté 50.000 en comida y luego pasé otros 100.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.93,
+    "latency_seconds": 4.22,
     "engine": "ai",
     "expenses": [
       {
@@ -2845,7 +2788,7 @@
     "input": "Ayer salí con mi esposa: pagué 85.000 del restaurante con Davibank, 18.000 del parqueadero en efectivo y compré medicinas por 42.500 con la cuenta Davibank. También pasé 200.000 de Davibank a Nequi",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.33,
+    "latency_seconds": 3.64,
     "engine": "ai",
     "expenses": [
       {
@@ -2899,7 +2842,7 @@
     "input": "Hoy compré mercado por 180.000 con la tarjeta Davibank, pagué 35.000 de taxi en efectivo y almorcé por 65.000 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.44,
+    "latency_seconds": 4.64,
     "engine": "ai",
     "expenses": [
       {
@@ -2951,7 +2894,7 @@
     "input": "El sábado gasté 120.000 en restaurante, 20.000 de parqueadero y 15.000 en café. El restaurante lo pagué con la cuenta Davibank y lo demás en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.04,
+    "latency_seconds": 0.05,
     "engine": "heuristic",
     "expenses": [
       {
@@ -3003,7 +2946,7 @@
     "input": "Ayer pagué Netflix 38.900 con la tarjeta Davibank, Spotify 24.900 con Davibank y HBO 29.900 con la cuenta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 7.1,
+    "latency_seconds": 7.19,
     "engine": "ai",
     "expenses": [
       {
@@ -3062,13 +3005,13 @@
     "input": "El lunes pasé 500.000 de Davibank a Nequi, gasté 80.000 en supermercado con la cuenta Davibank y después 35.000 en Didi Food con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 6.65,
+    "latency_seconds": 9.02,
     "engine": "ai",
     "expenses": [
       {
         "description": "transferencia a Nequi",
         "amount": 500000,
-        "date": "2026-09-24",
+        "date": "2026-09-21",
         "category_name": "Transferencia Nequi",
         "category_id": null,
         "suggested_category_name": "Transferencia Nequi",
@@ -3085,7 +3028,7 @@
       {
         "description": "supermercado",
         "amount": 80000,
-        "date": "2026-09-24",
+        "date": "2026-09-21",
         "category_name": "Comida",
         "category_id": 1,
         "suggested_category_name": null,
@@ -3099,7 +3042,7 @@
       {
         "description": "Didi Food",
         "amount": 35000,
-        "date": "2026-09-24",
+        "date": "2026-09-21",
         "category_name": "Restaurante",
         "category_id": 29,
         "suggested_category_name": null,
@@ -3117,22 +3060,23 @@
     "input": "Compré tres cafés de 8.500, un almuerzo de 45.000 y después pagué 15.000 de parqueadero, todo con Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.32,
+    "latency_seconds": 5.98,
     "engine": "ai",
     "expenses": [
       {
         "description": "tres cafés",
         "amount": 25500,
         "date": "2026-09-25",
-        "category_name": "Comida",
-        "category_id": 1,
-        "suggested_category_name": null,
+        "category_name": "Bebidas",
+        "category_id": null,
+        "suggested_category_name": "Bebidas",
         "money_source_name": "tarjeta davibank",
         "money_source_id": 42,
         "money_source_source": "suggested",
         "classification_source": "ai",
-        "confidence": 0.75,
+        "confidence": 0.65,
         "warnings": [
+          "No matching category found. Suggesting the new category \"Bebidas\"; confirm to create it or pick an existing one.",
           "Money source \"tarjeta davibank\" suggested from a tight match — review it before confirming."
         ]
       },
@@ -3175,13 +3119,13 @@
     "input": "El viernes gasté 150.000 en ropa con la tarjeta Davibank, 80.000 en comida con la cuenta Davibank y 20.000 en taxi en efectivo",
     "ok": true,
     "error": null,
-    "latency_seconds": 5.66,
+    "latency_seconds": 4.89,
     "engine": "ai",
     "expenses": [
       {
         "description": "ropa",
         "amount": 150000,
-        "date": "2026-09-22",
+        "date": "2026-09-18",
         "category_name": "Ropa",
         "category_id": null,
         "suggested_category_name": "Ropa",
@@ -3197,7 +3141,7 @@
       {
         "description": "comida",
         "amount": 80000,
-        "date": "2026-09-22",
+        "date": "2026-09-18",
         "category_name": "Comida",
         "category_id": 1,
         "suggested_category_name": null,
@@ -3211,7 +3155,7 @@
       {
         "description": "taxi",
         "amount": 20000,
-        "date": "2026-09-22",
+        "date": "2026-09-18",
         "category_name": "Transporte",
         "category_id": 2,
         "suggested_category_name": null,
@@ -3229,7 +3173,7 @@
     "input": "Compré mercado por 200.000 con Davibank, pero me devolvieron 30.000 de unos productos. También pagué 45.000 de almuerzo con la tarjeta Davibank",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.77,
+    "latency_seconds": 3.55,
     "engine": "ai",
     "expenses": [
       {
@@ -3270,7 +3214,7 @@
     "input": "Ayer gasté 100.000 en comida con Davibank, bueno 90.000 porque nos hicieron descuento, y 25.000 de parqueadero con la cuenta Davibank. Hoy pasé 300.000 de Davibank a Nequi",
     "ok": true,
     "error": null,
-    "latency_seconds": 8.67,
+    "latency_seconds": 5.72,
     "engine": "ai",
     "expenses": [
       {
@@ -3280,13 +3224,13 @@
         "category_name": "Comida",
         "category_id": 1,
         "suggested_category_name": null,
-        "money_source_name": "tarjeta davibank",
-        "money_source_id": 42,
+        "money_source_name": "cuenta davibank",
+        "money_source_id": 41,
         "money_source_source": "suggested",
         "classification_source": "ai",
         "confidence": 0.9,
         "warnings": [
-          "Money source \"tarjeta davibank\" suggested from a tight match — review it before confirming."
+          "Money source \"cuenta davibank\" suggested from a tight match — review it before confirming."
         ]
       },
       {
@@ -3310,14 +3254,14 @@
         "category_name": "Transferencia Nequi",
         "category_id": null,
         "suggested_category_name": "Transferencia Nequi",
-        "money_source_name": "tarjeta davibank",
-        "money_source_id": 42,
+        "money_source_name": "cuenta davibank",
+        "money_source_id": 41,
         "money_source_source": "suggested",
         "classification_source": "ai",
         "confidence": 0.8,
         "warnings": [
           "No matching category found. Suggesting the new category \"Transferencia Nequi\"; confirm to create it or pick an existing one.",
-          "Money source \"tarjeta davibank\" suggested from a tight match — review it before confirming."
+          "Money source \"cuenta davibank\" suggested from a tight match — review it before confirming."
         ]
       }
     ]
@@ -3327,7 +3271,7 @@
     "input": "Ayer salí con mi familia: desayuno 45.000, tres almuerzos de 38.000 cada uno, dos cafés de 9.000 cada uno y parqueadero 18.000. El desayuno y los almuerzos los pagué con la cuenta Davibank, los cafés con efectivo y el parqueadero con la tarjeta Davibank. Además pasé 500.000 de Davibank a Nequi.",
     "ok": true,
     "error": null,
-    "latency_seconds": 11.51,
+    "latency_seconds": 9.0,
     "engine": "ai",
     "expenses": [
       {
@@ -3398,7 +3342,7 @@
       {
         "description": "transferencia a Nequi",
         "amount": 500000,
-        "date": "2026-09-25",
+        "date": "2026-09-24",
         "category_name": "Transferencia Nequi",
         "category_id": null,
         "suggested_category_name": "Transferencia Nequi",

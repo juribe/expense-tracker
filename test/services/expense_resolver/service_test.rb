@@ -358,6 +358,29 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 9, 24), result.result.first.date
   end
 
+  test "several date expressions map to phrase-less entries by text order" do
+    entries = [
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "pagué 50.000 con la cuenta Davibank", amount: 50_000,
+        date: "2026-09-23", description: "pagué", category: nil,
+        money_source_hint: nil, confidence: 0.9
+      ),
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "pagué 80.000 con la tarjeta Davibank", amount: 80_000,
+        date: "2026-09-24", description: "pagué", category: nil,
+        money_source_hint: nil, confidence: 0.9
+      )
+    ]
+
+    result = with_forced_ai(
+      entries: entries,
+      text: "El lunes pagué 50.000 con la cuenta Davibank y el martes 80.000 con la tarjeta Davibank"
+    )
+
+    assert result.success?
+    assert_equal [ Date.new(2026, 9, 21), Date.new(2026, 9, 22) ], result.result.map(&:date)
+  end
+
   test "several distinct sources in the full text keep silent entries empty and flag tied slices" do
     Category.create!(name: "Parking", is_default: true, category_type: "expense")
     first_source = @user.money_sources.create!(name: "Efectivo", kind: "cash")

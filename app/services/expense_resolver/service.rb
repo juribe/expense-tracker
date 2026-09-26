@@ -37,7 +37,7 @@ module ExpenseResolver
         self.engine = "heuristic"
       end
 
-      entries.each do |expense|
+      entries.each_with_index do |expense, entry_position|
         expenses << CandidateDetector.call(expense: expense,
                                            user: user,
                                            categories: categories,
@@ -45,7 +45,9 @@ module ExpenseResolver
                                            classification_source: classification_source,
                                            text: text,
                                            recording: recording,
-                                           allow_text_heuristics: entries.size == 1
+                                           allow_text_heuristics: entries.size == 1,
+                                           entry_position: entry_position,
+                                           entry_count: entries.size
                                          )
       end
       # If all checks pass, return a success result
