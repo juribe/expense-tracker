@@ -1,0 +1,208 @@
+{
+  "passed": 415,
+  "failed": 85,
+  "stage_counts": {
+    "date": 15,
+    "multiple_expense_split": 42,
+    "extraction": 34,
+    "ambiguity_resolution": 10,
+    "description": 18,
+    "money_source": 5
+  },
+  "patterns": {
+    "date": 15,
+    "multiple_expense_split": 42,
+    "extraction": 34,
+    "ambiguity_resolution": 10,
+    "description": 18,
+    "money_source": 5
+  },
+  "worst": [
+    [
+      309,
+      "La semana pasada gast\u00e9 25000 en taxi.",
+      [
+        "date"
+      ],
+      [
+        "c309: date 2026-09-26 not in [datetime.date(2026, 9, 13), datetime.date(2026, 9, 14), datetime.date(2026, 9, 15)]"
+      ]
+    ],
+    [
+      310,
+      "El mes pasado pagu\u00e9 15000 de parqueadero con Davibank.",
+      [
+        "date"
+      ],
+      [
+        "c310: date 2026-09-26 not in [datetime.date(2026, 7, 29), datetime.date(2026, 7, 30), datetime.date(2026, 7, 31)]"
+      ]
+    ],
+    [
+      319,
+      "La semana pasada gast\u00e9 150000 en ropa.",
+      [
+        "date"
+      ],
+      [
+        "c319: date 2026-09-26 not in [datetime.date(2026, 9, 13), datetime.date(2026, 9, 14), datetime.date(2026, 9, 15)]"
+      ]
+    ],
+    [
+      320,
+      "El mes pasado pagu\u00e9 75000 de farmacia con Davibank.",
+      [
+        "date"
+      ],
+      [
+        "c320: date 2026-09-26 not in [datetime.date(2026, 7, 29), datetime.date(2026, 7, 30), datetime.date(2026, 7, 31)]"
+      ]
+    ],
+    [
+      329,
+      "La semana pasada gast\u00e9 55000 en cena.",
+      [
+        "date"
+      ],
+      [
+        "c329: date 2026-09-26 not in [datetime.date(2026, 9, 13), datetime.date(2026, 9, 14), datetime.date(2026, 9, 15)]"
+      ]
+    ],
+    [
+      330,
+      "El mes pasado pagu\u00e9 8500 de caf\u00e9 con Davibank.",
+      [
+        "date"
+      ],
+      [
+        "c330: date 2026-09-26 not in [datetime.date(2026, 7, 29), datetime.date(2026, 7, 30), datetime.date(2026, 7, 31)]"
+      ]
+    ],
+    [
+      339,
+      "La semana pasada gast\u00e9 55000 en celular.",
+      [
+        "date"
+      ],
+      [
+        "c339: date 2026-09-26 not in [datetime.date(2026, 9, 13), datetime.date(2026, 9, 14), datetime.date(2026, 9, 15)]"
+      ]
+    ],
+    [
+      340,
+      "El mes pasado pagu\u00e9 38900 de Netflix con Davibank.",
+      [
+        "date"
+      ],
+      [
+        "c340: date 2026-09-26 not in [datetime.date(2026, 7, 29), datetime.date(2026, 7, 30), datetime.date(2026, 7, 31)]"
+      ]
+    ],
+    [
+      349,
+      "La semana pasada gast\u00e9 200000 en curso.",
+      [
+        "date"
+      ],
+      [
+        "c349: date 2026-09-26 not in [datetime.date(2026, 9, 13), datetime.date(2026, 9, 14), datetime.date(2026, 9, 15)]"
+      ]
+    ],
+    [
+      350,
+      "El mes pasado pagu\u00e9 60000 de libro con Davibank.",
+      [
+        "date"
+      ],
+      [
+        "c350: date 2026-09-26 not in [datetime.date(2026, 7, 29), datetime.date(2026, 7, 30), datetime.date(2026, 7, 31)]"
+      ]
+    ],
+    [
+      351,
+      "Compr\u00e9 zapatos por 180.000, bueno, fueron 160.000.",
+      [
+        "extraction",
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      353,
+      "Pagu\u00e9 120.000 de internet, en realidad fueron 110.000.",
+      [
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      354,
+      "Gast\u00e9 50.000 en comida, no, fueron 55.000.",
+      [
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      355,
+      "Compr\u00e9 una camisa por 200.000, aunque fueron 180.000 con descuento.",
+      [
+        "extraction",
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      359,
+      "Compr\u00e9 zapatos por 250.000 y despu\u00e9s me devolvieron 50.000.",
+      [
+        "ambiguity_resolution"
+      ],
+      [
+        "c359: refund not flagged"
+      ]
+    ],
+    [
+      360,
+      "Pagu\u00e9 80.000 de comida; revisando el recibo fueron 76.500.",
+      [
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      361,
+      "Compr\u00e9 zapatos por 180.000, bueno, fueron 160.000.",
+      [
+        "extraction",
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      363,
+      "Pagu\u00e9 120.000 de internet, en realidad fueron 110.000.",
+      [
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      364,
+      "Gast\u00e9 50.000 en comida, no, fueron 55.000.",
+      [
+        "multiple_expense_split"
+      ],
+      []
+    ],
+    [
+      365,
+      "Compr\u00e9 una camisa por 200.000, aunque fueron 180.000 con descuento.",
+      [
+        "extraction",
+        "multiple_expense_split"
+      ],
+      []
+    ]
+  ]
+}
