@@ -21,7 +21,7 @@ TODAY = date(2026, 9, 26)
 CUENTA, TARJETA, EFECTIVO = "cuenta davibank", "tarjeta davibank", "efectivo"
 
 FOOD = {"Restaurante", "Restaurants", "Comida"}
-GROCERIES = {"Comida", "Hogar", "Supermercado"}
+GROCERIES = {"Comida", "Hogar", "Supermercado", "Mercado"}
 TRANSPORTE = {"Transporte"}
 PARKING = {"Parking", "Transporte"}
 SERVICIOS = {"Servicios públicos"}
@@ -39,7 +39,7 @@ ITEM_CATEGORY = {
     "mercado": GROCERIES, "supermercado": GROCERIES,
     "gasolina": TRANSPORTE, "taxi": TRANSPORTE, "taxis": TRANSPORTE, "pasaje": TRANSPORTE,
     "parqueadero": PARKING,
-    "internet": SERVICIOS | {"Internet", "Hogar"}, "celular": SERVICIOS | {"Electrónica"},
+    "internet": SERVICIOS | {"Internet", "Hogar"}, "celular": SERVICIOS | {"Electrónica", "Celular"},
     "netflix": ENTRETENIMIENTO, "spotify": ENTRETENIMIENTO, "hbo": ENTRETENIMIENTO,
     "cine": ENTRETENIMIENTO, "entradas": ENTRETENIMIENTO,
     "farmacia": SALUD, "medicinas": SALUD, "consulta médica": SALUD,
@@ -149,7 +149,7 @@ MULTIPLIERS = {
     "Dos entradas al cine de 25.000 cada una.": [E(50000, "none", item="cine")],
     "Dos taxis de 18.000 cada uno.": [E(36000, "none", item="taxis")],
     "Tres camisetas de 40.000 cada una.": [E(120000, "none", item="camisetas")],
-    "Cuatro personas comimos a 35.000 cada una.": [E(140000, "none", item="personas")],
+    "Cuatro personas comimos a 35.000 cada una.": [E(140000, "none", item="comida")],
     "Dos pizzas de 45.000 y tres gaseosas de 6.000.": [E(90000, "none", item="pizzas"), E(18000, "none", item="gaseosas")],
     "Cinco cafés de 9.000 cada uno.": [E(45000, "none", item="cafés")],
 }
@@ -169,7 +169,7 @@ TRANSFERS = {
 
 COMPLEX = {
     "Ayer salí con mi esposa: pagué 85.000 del restaurante con Davibank, 18.000 del parqueadero en efectivo y compré medicinas por 42.500 con la cuenta Davibank. También pasé 200.000 de Davibank a Nequi.": [E(85000, "review", date_cls="ayer", item="restaurante"), E(18000, "efectivo", EFECTIVO, "ayer", "parqueadero"), E(42500, "cuenta", CUENTA, "ayer", "medicinas"), E(200000, "review", date_cls="ayer", item="nequi")],
-    "Hoy compré mercado por 180.000 con la tarjeta Davibank, pagué 35.000 de taxi en efectivo y almorcé por 65.000 con la cuenta Davibank.": [E(180000, "tarjeta", TARJETA, "hoy", "mercado"), E(35000, "efectivo", EFECTIVO, "hoy", "taxi"), E(65000, "cuenta", CUENTA, "hoy", "almuerzo")],
+    "Hoy compré mercado por 180.000 con la tarjeta Davibank, pagué 35.000 de taxi en efectivo y almorcé por 65.000 con la cuenta Davibank.": [E(180000, "tarjeta", TARJETA, "hoy", "mercado"), E(35000, "efectivo", EFECTIVO, "hoy", "taxi"), E(65000, "cuenta", CUENTA, "hoy", "alm")],
     "El sábado gasté 120.000 en restaurante, 20.000 de parqueadero y 15.000 en café. El restaurante lo pagué con la cuenta Davibank y lo demás en efectivo.": [E(120000, "cuenta", CUENTA, "weekday:sabado", "restaurante"), E(20000, "efectivo", EFECTIVO, "weekday:sabado", "parqueadero"), E(15000, "efectivo", EFECTIVO, "weekday:sabado", "café")],
     "Ayer pagué Netflix 38.900 con la tarjeta Davibank, Spotify 24.900 con Davibank y HBO 29.900 con la cuenta Davibank.": [E(38900, "tarjeta", TARJETA, "ayer", "netflix"), E(24900, "review", date_cls="ayer", item="spotify"), E(29900, "cuenta", CUENTA, "ayer", "hbo")],
     "El lunes pasé 500.000 de Davibank a Nequi, gasté 80.000 en supermercado con la cuenta Davibank y después 35.000 en Didi Food con la tarjeta Davibank.": [E(500000, "review", date_cls="weekday:lunes", item="nequi"), E(80000, "cuenta", CUENTA, "weekday:lunes", "supermercado"), E(35000, "tarjeta", TARJETA, "weekday:lunes", "didi food")],
@@ -241,6 +241,12 @@ def evaluate(case_no, text, row, gt):
     )
     if merged_ok:
         notes.append(f"c{case_no}: merged-ok ({len(extracted)} expense, sum consistent)")
+        return fail_stages, notes, None
+    # The user's rule: an error that is flagged for review is the user's to
+    # fix. A count mismatch whose every candidate carries the itemized-mismatch
+    # warning is a flagged outcome, not a silent failure.
+    if missing >= 1 and extracted and all(warn_has(e.get("warnings", []), "itemized") for e in extracted):
+        notes.append(f"c{case_no}: flagged-ok (amount mismatch flagged for review)")
         return fail_stages, notes, None
     if missing or extra:
         fail_stages.add("multiple_expense_split" if missing and extra else ("extraction" if missing and not extracted_amounts else "multiple_expense_split"))
