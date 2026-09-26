@@ -3,7 +3,7 @@
 require "test_helper"
 
 # Runs one evaluation case through the REAL existing Expense Playground
-# pipeline (ExpenseParser → Ai::Router override → normalization → validation →
+# pipeline (ExpenseResolver → Ai::Router override → normalization → validation →
 # ResultBuilder → Comparator) exactly as the background job does, with the AI
 # response stubbed. This is the core "the evaluation reuses the same pipeline"
 # guarantee: the only injected piece is the provider/model under test.
@@ -14,7 +14,7 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
     @user = User.create!(email: "case-eval@example.com", password: "password123")
     @run = EvaluationRun.create!(
       user: @user, dataset_name: "gastos.csv", dataset_version: "abc123",
-      provider: "openrouter", model: "upstage/solar-pro4",
+      provider: "openrouter", model: "mistral/mistral-small-latest",
       prompt_version: "expense-extraction-v1",
       status: "running", total_cases: 1
     )
@@ -39,7 +39,7 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
             "amount" => amount,
             "category" => category,
             "description" => description,
-            "transaction_date" => Date.current.iso8601,
+            "date" => Date.current.iso8601,
             "confidence" => 0.99,
             "create_category" => false
           }
@@ -81,6 +81,7 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
   end
 
   test "a case that only differs in activity still passes" do
+    Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     case_record = case_row(expected_json: { "amount" => 20_000, "category" => "Restaurants" })
     stub_provider(FakeAiProvider.new(responses: [ ok_response ])) do
       ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
@@ -111,12 +112,12 @@ class ExpensePlaygroundEvaluationCaseJobTest < ActiveSupport::TestCase
 
   test "judges category semantically: genuinely-different categories still fail" do
     Category.create!(name: "Viajes", user: @user, is_default: false)
-    Category.create!(name: "Vivienda", user: @user, is_default: false)
+    Category.create!(name: "Hogar", user: @user, is_default: false)
     case_record = case_row(expected_json: {
       "amount" => 20_000, "activity" => "Hotel", "category" => "Viajes"
     })
     stub_provider(FakeAiProvider.new(responses: [
-      ok_response(description: "Hotel", category: "Vivienda")
+      ok_response(description: "Hotel", category: "Hogar")
     ])) do
       ExpensePlaygroundEvaluationCaseJob.perform_now(case_record.id)
     end

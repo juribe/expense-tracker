@@ -7,13 +7,10 @@ module Expenses
     # Text, so they must all write into the SAME steps/errors/warnings
     # accumulated by the orchestrator.
     class Base
-      def initialize(user:, input:, execution: nil, steps: {}, errors: [], warnings: [])
+      def initialize(user:, input:, recording: nil)
         @user = user
         @input = input
-        @execution = execution
-        @steps = steps
-        @errors = errors
-        @warnings = warnings
+        @recording = recording
       end
 
       # The user's optional note (explicit intent such as "pagado con nequi").
@@ -22,11 +19,17 @@ module Expenses
         @input.payload[:text]
       end
 
+      # Channels that produce their own text (transcript, OCR) combine it with
+      # the user's note before parsing; the note carries explicit intent and
+      # is skipped when blank.
+      def combined_text(channel_text)
+        [ note, channel_text ].reject(&:blank?).join("\n")
+      end
+
       private
 
       def text_processor
-        Text.new(user: @user, input: @input, execution: @execution,
-                 steps: @steps, errors: @errors, warnings: @warnings)
+        Text.new(user: @user, input: @input, recording: @recording)
       end
     end
   end

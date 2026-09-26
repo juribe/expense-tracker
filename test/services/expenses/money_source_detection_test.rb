@@ -4,8 +4,8 @@ require "test_helper"
 
 module Expenses
   # Regression tests for money source detection in the playground pipeline:
-  # text inputs detect through ExpenseParser, image inputs through the local
-  # OCR text (parsed by ExpenseParser) or the user note in the vision
+  # text inputs detect through ExpenseResolver, image inputs through the local
+  # OCR text (parsed by ExpenseResolver) or the user note in the vision
   # fallback.
   class MoneySourceDetectionTest < ActiveSupport::TestCase
     setup do
@@ -32,8 +32,7 @@ module Expenses
 
       assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
       assert_equal @nequi.id, result.candidate.money_source_id
-      assert_equal @nequi.id, result.steps[:normalization][:money_source_id]
-      assert_equal "Nequi", result.steps[:normalization][:money_source_name]
+      assert_equal "Nequi", result.candidate.money_source_name
     end
 
     test "image pipeline detects money source from the user's note" do
@@ -47,21 +46,29 @@ module Expenses
 
           assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
           assert_equal @bancolombia.id, result.candidate.money_source_id
-          assert_equal "Ahorros", result.steps[:normalization][:money_source_name]
+          assert_equal "Ahorros", result.candidate.money_source_name
         end
       end
     end
 
     test "image pipeline detects money source in the local OCR text through the parser" do
       stub_method(Ocr::LocalReader, :call, "TOTAL 30.000\nPAGO POR NEQUI") do
-        result = Processor.call(user: @user, input: Expenses::Input.from_params(
-          "image", image_data: "data:image/jpeg;base64,Zm9v"
-        ))
+        stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+          ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
+            original_text: "TOTAL 30.000\nPAGO POR NEQUI",
+            amount: 30_000, date: Date.current, description: "Total",
+            category: "Restaurants", money_source_hint: nil, confidence: 0.9
+          ) ])
+        }) do
+          result = Processor.call(user: @user, input: Input.from_params(
+            "image", image_data: "data:image/jpeg;base64,Zm9v"
+          ))
 
-        assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
-        assert_equal BigDecimal(30_000.to_s), result.candidate.amount
-        assert_equal @nequi.id, result.candidate.money_source_id
-        assert_equal "Nequi", result.steps[:normalization][:money_source_name]
+          assert result.ok?, "expected ok, got errors: #{result.errors.inspect}"
+          assert_equal BigDecimal(30_000.to_s), result.candidate.amount
+          assert_equal @nequi.id, result.candidate.money_source_id
+          assert_equal "Nequi", result.candidate.money_source_name
+        end
       end
     end
 

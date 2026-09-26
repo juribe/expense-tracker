@@ -21,6 +21,14 @@
           <span class="badge bg-primary rounded-pill ms-auto"><%= current_user.spending_alerts.unread.count %></span>
         <% end %>
       <% end %>
+      <%= link_to expense_candidates_path, class: "sidebar-link #{active_class('expense_candidates')}" do %>
+        <i class="bi bi-inbox"></i>
+        <span><%= t("nav.candidates", default: "Candidates") %></span>
+        <% pending_count = current_user.expense_candidates.needs_review.count %>
+        <% if pending_count.positive? %>
+          <span class="badge bg-warning text-dark rounded-pill ms-auto"><%= pending_count %></span>
+        <% end %>
+      <% end %>
       <% unless financial_setup_completed? %>
         <%= link_to financial_setup_path, class: "sidebar-link #{active_class('financial_setups')}" do %>
           <i class="bi bi-magic"></i>
@@ -98,6 +106,10 @@
       <%= link_to expense_playground_path, class: "sidebar-link #{active_class('expense_playground')}" do %>
         <i class="bi bi-controller"></i>
         <span><%= t("nav.playground") %></span>
+      <% end %>
+      <%= link_to expense_evaluations_path, class: "sidebar-link #{active_class('expense_evaluations')}" do %>
+        <i class="bi bi-check2-circle"></i>
+        <span><%= t("nav.evaluations") %></span>
       <% end %>
     </div>
   </nav>

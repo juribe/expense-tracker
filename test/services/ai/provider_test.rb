@@ -45,6 +45,19 @@ module Ai
       assert_equal "test-model", response.model
     end
 
+    test "chat includes max_tokens in the request body when provided" do
+      captured = nil
+      p = provider
+      p.define_singleton_method(:perform_request) do |(http, request)|
+        captured = JSON.parse(request.body)
+        FakeResponse.new("200", { choices: [ { message: { content: "{}" } } ] }.to_json)
+      end
+
+      p.chat(messages: [ { role: "user", content: "hi" } ], max_tokens: 4096)
+
+      assert_equal 4096, captured["max_tokens"]
+    end
+
     test "chat raises when the content is empty" do
       body = { choices: [ { message: { content: "" } } ] }.to_json
       p = provider
@@ -69,7 +82,7 @@ module Ai
 
     test "retries rate-limited (429) responses with backoff" do
       p = provider
-      responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("200", "{}") ]
+      responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("200", "{}") ]
       fake_http = FakeHttp.new(responses)
       slept = []
       p.define_singleton_method(:sleep) { |seconds| slept << seconds }
@@ -77,20 +90,20 @@ module Ai
       response = p.send(:perform_request, [ fake_http, nil ])
 
       assert_equal "200", response.code
-      assert_equal [ 1, 2 ], slept
-      assert_equal 3, fake_http.request_count
+      assert_equal [ 2, 5, 10 ], slept
+      assert_equal 4, fake_http.request_count
     end
 
-    test "gives up after two 429 retries and reports the rate limit" do
+    test "gives up after three 429 retries and reports the rate limit" do
       p = provider
-      responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429") ]
+      responses = [ FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429"), FakeResponse.new("429") ]
       fake_http = FakeHttp.new(responses)
       p.define_singleton_method(:sleep) { |_seconds| nil }
 
       error = assert_raises(Ai::Provider::Error) { p.send(:perform_request, [ fake_http, nil ]) }
 
       assert_equal "AI HTTP 429", error.message
-      assert_equal 3, fake_http.request_count
+      assert_equal 4, fake_http.request_count
     end
 
     test "non-429 HTTP errors fail immediately without retries" do
@@ -112,7 +125,7 @@ module Ai
 
       error = assert_raises(Ai::Provider::Error) { p.send(:perform_request, [ fake_http, nil ]) }
 
-      assert_equal "AI HTTP 429", error.message
+      assert_equal "AI HTTP 429 (Budget has been exceeded!)", error.message
       assert_equal 1, fake_http.request_count
     end
   end

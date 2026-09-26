@@ -1,39 +1,18 @@
 # frozen_string_literal: true
 
 module Expenses
-  # The expense processor: orchestrates the full ingestion pipeline for any
-  # normalized input, shared by every entry point (playground, WhatsApp/email/
-  # voice channels, an API, ...).
-  #
-  #   input -> (route) channel processor -> ExpenseCandidate
-  #
-  # It routes to the matching channel processor (Text / Image / Audio), which
-  # composes the shared Text core when the channel merely produces text
-  # (speech-to-text, OCR). It ONLY records the :input step, the non-applicable
-  # ocr/stt steps and the timing; everything else is the processors' job.
-  #
-  # It NEVER persists anything. Every entry point receives a Result with the
-  # candidate plus every pipeline stage recorded for debugging.
-  #
-  #   result = Expenses::Processor.call(user: user, input: input)
-  #   result.ok?             # => true
-  #   result.candidate       # => ExpenseCandidate
-  #   result.steps[:stt]     # => { applicable: false } | { provider: ..., text: ... }
-  #   result.steps[:ocr]     # => { applicable: false } | { applicable: true, text: ..., engine: ... }
-  class Processor
+   class Processor
     class << self
-      def call(user:, input:, execution: nil)
-        new(user: user, input: input, execution: execution).call
+      def call(user:, input:, recording: nil, execution: nil, source: nil)
+        new(user: user, input: input, recording: recording, execution: execution, source: source).call
       end
     end
 
-    def initialize(user:, input:, execution: nil)
+    def initialize(user:, input:, recording: nil, execution: nil, source: nil)
       @user = user
       @input = input
-      @execution = execution
-      @steps = {}
-      @errors = []
-      @warnings = []
+      @recording = recording || Expenses::Processors::Recording.new(execution: execution)
+      @source = source
     end
 
     def call
@@ -41,29 +20,30 @@ module Expenses
 
       record_input
       unless @input.valid?
-        @errors.concat(@input.errors)
+        @recording&.add_errors(@input.errors)
         return build_result(nil, nil, started)
       end
 
       # Every channel starts with the non-applicable markers; the channel
       # processor overwrites the one it implements with real data.
-      @steps[:ocr] = { applicable: false }
-      @steps[:stt] = { applicable: false }
+      @recording&.add_step(:ocr, { applicable: false })
+      @recording&.add_step(:stt, { applicable: false })
 
-      candidate, engine = processor_for.call
+      candidates, engine = processor_for.call
+      candidates = Array(candidates).map { |c| persist_candidate(c, engine: engine) }
 
-      build_result(candidate, engine, started)
+      build_result(candidates, engine, started)
     end
 
     private
 
     def record_input
-      @steps[:input] = {
+      @recording&.add_step(:input, {
         type: @input.type,
         text: @input.payload[:text],
         image: @input.image? || @input.text_image? ? "(image attached, #{Expenses::Inputs::Image.mime_type(@input.image_data)})" : nil,
         audio: @input.audio? ? "(audio attached, #{Expenses::Inputs::Audio.extension(@input.audio_data, @input.filename)}, #{@input.filename})" : nil
-      }
+      })
     end
 
     def processor_for
@@ -75,19 +55,55 @@ module Expenses
     end
 
     def processor_attrs
-      { user: @user, input: @input, execution: @execution, steps: @steps, errors: @errors, warnings: @warnings }
+      { user: @user, input: @input, recording: @recording }
     end
 
-    def build_result(candidate, engine, started)
+    def build_result(candidates, engine, started)
       duration_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
       Result.new(
-        candidate: candidate,
-        steps: @steps,
-        errors: @errors.dup,
-        warnings: @warnings.dup,
+        candidates: candidates,
+        steps: @recording&.steps,
+        errors: @recording&.errors,
+        warnings: @recording&.warnings,
         duration_ms: duration_ms,
         engine: engine
       )
     end
-  end
+
+    def persist_candidate(candidate, engine:)
+      return candidate if candidate.is_a?(ExpenseCandidate) && candidate.persisted?
+
+      persisted = ExpenseCandidate.create!(
+        user: @user,
+        amount: candidate.amount,
+        date: candidate.date,
+        description: candidate.description.presence || candidate.merchant,
+        category_id: candidate.category_id,
+        money_source_id: candidate.money_source_id,
+        source: @source || @input.type || "text",
+        confidence: candidate.confidence,
+        original_input: @input.payload[:text],
+        original_text: candidate.respond_to?(:original_text) ? candidate.original_text : nil,
+        category_suggestion: candidate.respond_to?(:suggested_category_name) ? candidate.suggested_category_name : nil,
+        metadata: {
+          engine: engine,
+          classification_source: candidate.classification_source,
+          category_name: candidate.category_name,
+          money_source_name: candidate.money_source_name,
+          warnings: candidate.warnings
+        }.compact
+      )
+      # Copy transient attributes for pipeline consumers.
+      persisted.currency = candidate.currency if candidate.respond_to?(:currency)
+      persisted.merchant = candidate.merchant if candidate.respond_to?(:merchant)
+      persisted.category_name = candidate.category_name if candidate.respond_to?(:category_name)
+      persisted.money_source_name = candidate.money_source_name if candidate.respond_to?(:money_source_name)
+      persisted.classification_source = candidate.classification_source if candidate.respond_to?(:classification_source)
+      persisted.suggested_category_name = candidate.suggested_category_name if candidate.respond_to?(:suggested_category_name)
+      persisted.warnings = candidate.warnings if candidate.respond_to?(:warnings)
+      persisted
+    rescue ActiveRecord::RecordInvalid
+      candidate
+    end
+   end
 end

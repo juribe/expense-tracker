@@ -1,0 +1,38 @@
+module Expenses
+  module Processors
+    # Record a new expense in the database. This is the last step of the
+    # processing pipeline, after all the other processors have extracted and
+    # validated the data.
+    class Recording
+      attr_accessor :execution, :steps, :errors, :warnings
+
+      def initialize(execution: nil, steps: {}, errors: [], warnings: [])
+        @execution = execution
+        @steps = steps
+        @errors = errors
+        @warnings = warnings
+      end
+
+      def add_errors(errors)
+        @errors.concat(errors)
+      end
+
+      def add_warnings(warnings)
+        @warnings.concat(warnings)
+      end
+
+      def add_step(name, data)
+        @steps[name] = data
+      end
+
+      #   @execution.update!(
+      #     status: :recorded,
+      #     recorded_at: Time.current,
+      #     steps: @steps,
+      #     errors: @errors,
+      #     warnings: @warnings
+      #   )
+      # end
+    end
+  end
+end

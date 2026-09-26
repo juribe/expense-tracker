@@ -38,9 +38,13 @@ class ExpensePlaygroundAudioControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Expense.count } do
       assert_no_difference -> { Category.count } do
         stub_method(SpeechToText, :transcribe, transcript) do
-          post expense_playground_process_path(format: :json), params: {
-            type: "audio", audio_data: AUDIO_DATA, filename: "note.ogg", input_label: "note.ogg"
-          }
+          stub_ai_extraction(
+            parsed_expense(original_text: "Me gasté 50 mil en almuerzos", amount: 50_000, description: "almuerzos")
+          ) do
+            post expense_playground_process_path(format: :json), params: {
+              type: "audio", audio_data: AUDIO_DATA, filename: "note.ogg", input_label: "note.ogg"
+            }
+          end
         end
       end
     end
@@ -71,15 +75,23 @@ class ExpensePlaygroundAudioControllerTest < ActionDispatch::IntegrationTest
                                           provider: "whisper", model: "small")
 
     stub_method(SpeechToText, :transcribe, transcript) do
-      post expense_playground_process_path(format: :json),
-           params: { type: "audio", audio_data: AUDIO_DATA, filename: "note.ogg", input_label: "note.ogg" }
+      stub_ai_extraction(
+        parsed_expense(original_text: "Me gasté 50 mil en almuerzos", amount: 50_000, description: "almuerzos")
+      ) do
+        post expense_playground_process_path(format: :json),
+             params: { type: "audio", audio_data: AUDIO_DATA, filename: "note.ogg", input_label: "note.ogg" }
+      end
     end
     assert_response :success
     run_id = JSON.parse(response.body)["run_id"]
 
     assert_no_difference -> { Expense.count } do
-      post expense_playground_process_path(format: :json),
-           params: { type: "audio", audio_data: AUDIO_DATA, filename: "note.ogg" }
+      stub_ai_extraction(
+        parsed_expense(original_text: "Me gasté 50 mil en almuerzos", amount: 50_000, description: "almuerzos")
+      ) do
+        post expense_playground_process_path(format: :json),
+             params: { type: "audio", audio_data: AUDIO_DATA, filename: "note.ogg" }
+      end
     end
 
     assert_difference -> { Expense.count }, 1 do
@@ -105,5 +117,31 @@ class ExpensePlaygroundAudioControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     errors = JSON.parse(response.body)["errors"]
     assert errors.any? { |error| error.include?("Unsupported audio format") }
+  end
+
+  private
+
+  def parsed_expense(original_text:, amount:, description:, date: Date.current, category: "Restaurants",
+                     confidence: 0.9, money_source_hint: nil)
+    Ai::Tasks::ParsedExpense.new(
+      original_text: original_text,
+      amount: amount,
+      date: date.iso8601,
+      description: description,
+      category: category,
+      money_source_hint: money_source_hint,
+      confidence: confidence
+    )
+  end
+
+  def stub_ai_extraction(*expenses)
+    router_result = Ai::Router::Result.new(
+      ok?: true,
+      data: expenses,
+      confidence: expenses.map(&:confidence).compact.max || 0.9,
+      strategy: "cheap_ai",
+      error: nil
+    )
+    stub_method(Ai::Router, :call, ->(**_kwargs) { router_result }) { yield }
   end
 end

@@ -18,6 +18,9 @@ module Ai
 
     class Error < StandardError; end
 
+    # Growing waits for transient 429 throttles: 2s, 5s, 10s.
+    RETRY_BACKOFF_SECONDS = [ 2, 5, 10 ].freeze
+
     attr_reader :name, :model
 
     def initialize(name:, model:, api_key:, base_url:)
@@ -34,10 +37,10 @@ module Ai
     # messages follow the OpenAI chat-completions shape
     # ([ { role:, content: } ]); content may also be the multi-modal array form
     # used by vision models. Returns a Response. Raises Error on failure.
-    def chat(messages:, temperature: 0.0, json: true, model: nil, timeout: 25)
+    def chat(messages:, temperature: 0.0, json: true, model: nil, timeout: 25, max_tokens: nil)
       raise Error, "AI provider #{name} is not configured" unless configured?
 
-      response = perform_request(build_request(messages, temperature, json, model, timeout))
+      response = perform_request(build_request(messages, temperature, json, model, timeout, max_tokens))
 
       payload = JSON.parse(response.body)
       content = payload.dig("choices", 0, "message", "content")
@@ -63,7 +66,7 @@ module Ai
       {}
     end
 
-    def build_request(messages, temperature, json, model_override, timeout)
+    def build_request(messages, temperature, json, model_override, timeout, max_tokens)
       uri = URI(@base_url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == "https"
@@ -80,6 +83,7 @@ module Ai
         messages: messages
       }
       body[:response_format] = { type: "json_object" } if json
+      body[:max_tokens] = max_tokens if max_tokens
       request.body = body.to_json
 
       [ http, request ]
@@ -91,7 +95,9 @@ module Ai
       retry_with_backoff { http.request(request) }
     end
 
-    # Retries transient rate limits (HTTP 429) with a short backoff. A 429
+    # Retries transient rate limits (HTTP 429) with a growing backoff
+    # (2s, 5s, 10s): free-tier providers answer in per-minute bursts, so the
+    # short 1s/2s waits still landed inside the throttled window. A 429
     # reporting an exhausted budget or quota is not transient: fail fast so
     # the router can fall back to the strong tier immediately.
     def retry_with_backoff
@@ -100,14 +106,28 @@ module Ai
         response = yield
         return response if response.code.to_i == 200
 
-        if response.code.to_i == 429 && attempts < 2 && retryable_throttle?(response)
+        if response.code.to_i == 429 && attempts < 3 && retryable_throttle?(response)
           attempts += 1
-          sleep(attempts)
+          sleep(RETRY_BACKOFF_SECONDS[attempts - 1])
           next
         end
 
-        raise Error, "AI HTTP #{response.code}"
+        detail = api_error_message(response)
+        raise Error, "AI HTTP #{response.code}#{detail ? " (#{detail})" : ""}"
       end
+    end
+
+    # HTTP errors carry a vendor body ({ "message": ... } for Mistral, etc.);
+    # without it a bare "AI HTTP 400" hides the real reason (bad model, bad
+    # payload, ...).
+    def api_error_message(response)
+      parsed = JSON.parse(response.body)
+      message = (parsed["message"] || parsed.dig("error", "message")).to_s.strip.presence
+      return message if message
+
+      response.body.to_s[0, 200].presence
+    rescue JSON::ParserError, TypeError
+      response.body.to_s[0, 200].presence
     end
 
     def retryable_throttle?(response)

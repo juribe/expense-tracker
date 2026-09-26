@@ -1,0 +1,811 @@
+# frozen_string_literal: true
+
+require "test_helper"
+
+# ExpenseResolver::Service orchestration: a confident deterministic pass runs
+# without any AI call; low-confidence or unresolvable text is handed to the AI
+# (NaturalLanguageParser), and an AI failure surfaces as a controlled error
+# with no heuristic fallback.
+class ExpenseResolverServiceTest < ActiveSupport::TestCase
+  setup do
+    @user = User.create!(name: "Resolver User", email: "resolver@example.com", password: "password123")
+    Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+  end
+
+  def ai_entries
+    [ Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 30 mil en servicios",
+      amount: 30_000,
+      date: Date.current,
+      description: "servicios",
+      category: "Restaurants",
+      money_source_hint: nil,
+      confidence: 0.8
+    ) ]
+  end
+
+  def with_stubbed_ai(entries:, error: nil)
+    result = error ? ServiceResult.error(error) : ServiceResult.success(entries)
+    calls = []
+    stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**kwargs) { calls << kwargs; result }) do
+      yield calls
+    end
+  end
+
+  # Forces the AI path (bypassing the deterministic pass) and injects the
+  # entries the AI would have returned for the given text.
+  def with_forced_ai(entries:, text:)
+    unresolved = ExpenseResolver::HeuristicResolver::Resolution.new(nil)
+    stub_method(ExpenseResolver::HeuristicResolver, :call, ->(**_kwargs) { unresolved }) do
+      with_stubbed_ai(entries: entries) do
+        ExpenseResolver::Service.call(text: text, user: @user)
+      end
+    end
+  end
+
+  test "a confidently resolvable message skips the AI call" do
+    with_stubbed_ai(entries: ai_entries) do |calls|
+      result = ExpenseResolver::Service.call(text: "gasté 50 mil en almuerzo", user: @user)
+
+      assert result.success?
+      assert_equal 1, result.result.length
+      candidate = result.result.first
+      assert_equal 50_000, candidate.amount
+      assert_equal "Restaurants", candidate.category_name
+      assert_equal "heuristic", candidate.classification_source
+      assert_empty calls
+    end
+  end
+
+  test "the deterministic pass records an extraction step and a deterministic AiRequest" do
+    recording = Expenses::Processors::Recording.new
+    with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+      ExpenseResolver::Service.call(text: "gasté 50 mil en almuerzo", user: @user, recording: recording)
+    end
+
+    assert recording.steps[:extraction].present?
+    row = AiRequest.where(strategy: "deterministic").last
+    assert_not_nil row
+    assert_equal "expense_extraction", row.task
+    assert_equal @user.id, row.user_id
+  end
+
+  test "a low-confidence heuristic pass hands the text over to the AI" do
+    with_stubbed_ai(entries: ai_entries) do |calls|
+      result = ExpenseResolver::Service.call(text: "50 en almuerzo", user: @user)
+
+      assert result.success?
+      assert_equal 1, result.result.length
+      assert_equal 30_000, result.result.first.amount
+      assert_equal "ai", result.result.first.classification_source
+      assert_equal 1, calls.length
+    end
+  end
+
+  test "an AI failure returns a controlled error without heuristic fallback" do
+    with_stubbed_ai(entries: ai_entries, error: [ "AI parsing failed." ]) do
+      result = ExpenseResolver::Service.call(text: "pagué algo raro con plata", user: @user)
+
+      assert result.failure?
+      assert_equal [ "AI parsing failed." ], result.errors
+    end
+  end
+
+  test "basic validations still apply" do
+    assert ExpenseResolver::Service.call(text: "", user: @user).failure?
+    assert ExpenseResolver::Service.call(text: "gasté 50 mil", user: nil).failure?
+  end
+
+  # === Ported from the old ExpenseParser suite ==============================
+
+  test "detects the money source and applies it to every detected expense" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    source = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante y 20 mil en parqueadero desde nequi",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ source.id, source.id ], result.result.map(&:money_source_id)
+    assert_equal [ "Nequi", "Nequi" ], result.result.map(&:money_source_name)
+  end
+
+  test "each expense keeps its own money source when the message names several" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    @user.money_sources.create!(name: "Infinite", kind: "credit_card").ensure_recognition
+      .replace_identifiers(keyword: [ "infinite" ])
+
+    result = ExpenseResolver::Service.call(
+      text: "pagué 80.000 del supermercado con tarjeta Infinite y 25.000 de gasolina en efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ "Infinite", "Efectivo" ], result.result.map(&:money_source_name)
+    refute_equal efectivo.id, result.result.first.money_source_id
+  end
+
+  test "an unregistered explicit payment mention is not inherited from the full text" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    result = ExpenseResolver::Service.call(
+      text: "pagué 80.000 del supermercado con tarjeta Infinite y 25.000 de gasolina en efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+    assert_nil result.result.first.money_source_name
+  end
+
+  test "a suggestion naming an existing category links it instead of creating a duplicate" do
+    comida = Category.create!(name: "Comida", is_default: true, category_type: "expense")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000", amount: 47_500,
+      date: Date.current, description: "Tres cafés y un sándwich", category: nil,
+      category_suggestion: "Comida", money_source_hint: nil, confidence: 0.55
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal comida.id, candidate.category_id
+    assert_equal "Comida", candidate.category_name
+    assert_nil candidate.suggested_category_name
+    assert candidate.warnings.none? { |warning| warning.include?("Suggesting the new category") }
+  end
+
+  test "a fragment naming a registered source wins over a later mention" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    nequi = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante con nequi y 20 mil en parqueadero con efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ nequi.id, efectivo.id ], result.result.map(&:money_source_id)
+  end
+
+  test "an AI hint over an ambiguous fragment is flagged for review" do
+    # Fragment says only "Davibank": both sources are possible, so the hinted
+    # source is selected but marked as a suggestion needing review.
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado con Davibank", amount: 80_000,
+      date: Date.current, description: "supermercado", category: "Groceries",
+      money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado con Davibank")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert_equal "suggested", candidate.money_source_source
+    assert candidate.warnings.any? { |warning| warning.include?("tight match") }
+  end
+
+  test "an AI hint grounded in the fragment resolves without a flag" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+      .ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado con la cuenta de Davibank", amount: 80_000,
+      date: Date.current, description: "supermercado", category: "Groceries",
+      money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado con la cuenta de Davibank")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert_nil candidate.money_source_source
+    assert_empty candidate.warnings.grep(/tight match/)
+  end
+
+  test "a hint naming an unknown source is still dropped entirely" do
+    @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado", amount: 80_000,
+      date: Date.current, description: "supermercado", category: "Groceries",
+      money_source_hint: "tarjeta Infinite", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado")
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+    assert_nil result.result.first.money_source_name
+  end
+
+  test "a model category naming an existing category resolves instead of suggesting" do
+    salud = Category.create!(name: "Salud", is_default: true, category_type: "expense")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "compré unas medicinas por 42.500 con Davibank", amount: 42_500,
+      date: Date.current, description: "medicinas", category: "Medicinas",
+      money_source_hint: nil, confidence: 0.8
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "compré unas medicinas por 42.500 con Davibank")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal salud.id, candidate.category_id
+    assert_equal "Salud", candidate.category_name
+    assert_nil candidate.suggested_category_name
+  end
+
+  test "a trailing quantified clause sources every expense of the message" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+
+    result = ExpenseResolver::Service.call(
+      text: "Ayer gasté 45.000 en almuerzo, 18.000 en un taxi y 12.500 en café, todo con Davibank.",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ davibank.id ] * 3, result.result.map(&:money_source_id)
+    # Clean data + weights resolve the clause decisively: no review flag.
+    result.result.each do |candidate|
+      assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+    end
+  end
+
+  test "a merged amount disagreeing with the itemized text is flagged for review" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000", amount: 47_000,
+      date: Date.current, description: "Tres cafés y un sándwich", category: nil,
+      money_source_hint: nil, confidence: 0.55
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Tres cafés de 8.500 cada uno y un sándwich de 22.000")
+
+    assert result.success?
+    candidate = result.result.first
+    assert candidate.warnings.any? { |warning| warning.include?("doesn't match the itemized amounts") }
+  end
+
+  test "a merged amount matching the itemized text raises no warning" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.", amount: 82_000,
+      date: Date.current, description: "Almuerzo", category: "Restaurants",
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.")
+
+    assert result.success?
+    assert_empty result.result.first.warnings.grep(/itemized amounts/)
+  end
+
+  test "the AI date is reconciled with the weekday expression of the full message" do
+    # The model's fragment dropped "El martes" but its date field guessed
+    # wrong: the deterministic weekday resolution of the full text wins.
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "compré zapatos por 180.000 con la tarjeta Davibank", amount: 180_000,
+      date: "2026-09-21", description: "zapatos", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "El martes compré zapatos por 180.000 con la tarjeta Davibank"
+    )
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 22), result.result.first.date
+  end
+
+  test "a fragment that keeps its own weekday expression is not overridden" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "el martes compré zapatos por 180.000", amount: 180_000,
+      date: "2026-09-21", description: "zapatos", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "el martes compré zapatos por 180.000")
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 22), result.result.first.date
+  end
+
+  test "a message with several date expressions keeps the AI dates" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "gasté 50.000 en comida", amount: 50_000,
+      date: "2026-09-25", description: "comida", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "ayer gasté 50.000 en comida y hoy gasté más")
+
+    assert result.success?
+    assert_equal Date.new(2026, 9, 25), result.result.first.date
+  end
+
+  test "a single relative expression in the message scopes phrase-less entries" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pasé 500.000 de Davibank a Nequi", amount: 500_000,
+      date: Date.current.iso8601, description: "Transferencia a Nequi", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Ayer salí con mi familia y pasé 500.000 de Davibank a Nequi")
+
+    assert result.success?
+    assert_equal Date.current - 1, result.result.first.date
+  end
+
+  test "a range expression in the message scopes phrase-less entries" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "gasté 25000 en taxi", amount: 25_000,
+      date: Date.current.iso8601, description: "Taxi", category: nil,
+      money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "La semana pasada gasté 25000 en taxi")
+
+    assert result.success?
+    assert_equal Date.current - 7, result.result.first.date
+  end
+
+  test "explicit per-name source assignments attribute each expense correctly" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+      .ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+    efectivo = @user.money_sources.create!(name: "efectivo", kind: "cash")
+    efectivo.ensure_recognition.replace_identifiers(keyword: [ "efectivo", "dinero", "plata" ])
+
+    with_env({ "AI_DETERMINISTIC_THRESHOLD" => "0.80" }) do
+      result = ExpenseResolver::Service.call(
+        text: "El sábado gasté 120.000 en restaurante, 20.000 de parqueadero y 15.000 en café. El restaurante lo pagué con la cuenta Davibank y lo demás en efectivo",
+        user: @user
+      )
+
+      assert result.success?
+      expenses = result.result
+      assert_equal [ "cuenta davibank", "efectivo", "efectivo" ], expenses.map(&:money_source_name)
+      expenses.each do |candidate|
+        assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+      end
+    end
+  end
+
+  test "several date expressions map to phrase-less entries by text order" do
+    entries = [
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "pagué 50.000 con la cuenta Davibank", amount: 50_000,
+        date: "2026-09-23", description: "pagué", category: nil,
+        money_source_hint: nil, confidence: 0.9
+      ),
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "pagué 80.000 con la tarjeta Davibank", amount: 80_000,
+        date: "2026-09-24", description: "pagué", category: nil,
+        money_source_hint: nil, confidence: 0.9
+      )
+    ]
+
+    result = with_forced_ai(
+      entries: entries,
+      text: "El lunes pagué 50.000 con la cuenta Davibank y el martes 80.000 con la tarjeta Davibank"
+    )
+
+    assert result.success?
+    assert_equal [ Date.new(2026, 9, 21), Date.new(2026, 9, 22) ], result.result.map(&:date)
+  end
+
+  test "a merged fragment naming several sources is flagged as a possible unsplit" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Zapatos 180.000 con la tarjeta Davibank y camisa 100.000 con la cuenta Davibank",
+      amount: 280_000, date: Date.current, description: "zapatos y camisa",
+      category: nil, money_source_hint: "tarjeta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Zapatos 180.000 con la tarjeta Davibank y camisa 100.000 con la cuenta Davibank"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "tarjeta davibank", candidate.money_source_name
+    assert candidate.warnings.any? { |warning| warning.include?("several transactions paid with different money sources") }
+  end
+
+  test "several distinct sources in the full text keep silent entries empty and flag tied slices" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    first_source = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante y 20 mil en parqueadero, la primera con nequi y la segunda con efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    # First entry names no source and the message mentions two: stays empty.
+    assert_nil result.result.first.money_source_id
+    # Second entry's slice mentions both sources: first wins, flagged for review.
+    assert_equal first_source.id, result.result.last.money_source_id
+    assert result.result.last.warnings.any? { |warning| warning.include?("tight match") }
+  end
+
+  test "a registered keyword beats bank-only matches of sibling sources" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    Category.create!(name: "Gasoline", is_default: true, category_type: "expense")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+    2.times { @user.money_sources.create!(name: "Producto #{_1}", kind: "loan", bank: "Davibank") }
+
+    result = ExpenseResolver::Service.call(
+      text: "pagué 80.000 del supermercado de cuenta davibank y 25.000 de gasolina",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal davibank.id, result.result.first.money_source_id
+  end
+
+  test "a registered AI hint resolves the source directly" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado", amount: 80_000, date: Date.current,
+      description: "supermercado", category: "Groceries",
+      money_source_hint: "davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado")
+
+    assert result.success?
+    assert_equal davibank.id, result.result.first.money_source_id
+    assert_not_equal efectivo.id, result.result.first.money_source_id
+  end
+
+  test "an unregistered hint leaves the source empty instead of inheriting" do
+    Category.create!(name: "Groceries", is_default: true, category_type: "expense")
+    @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado", amount: 80_000, date: Date.current,
+      description: "supermercado", category: "Groceries",
+      money_source_hint: "tarjeta Infinite", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado")
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+    assert_nil result.result.first.money_source_name
+  end
+
+  test "ignores inactive money sources when detecting" do
+    @user.money_sources.create!(name: "Vieja tarjeta", kind: "credit_card", active: false)
+
+    result = ExpenseResolver::Service.call(text: "gasté 50 mil en almuerzo con la vieja tarjeta", user: @user)
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+  end
+
+  test "AI misexpanded amounts are corrected from the deterministic reading" do
+    result = nil
+    stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+      ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
+        original_text: "20 mil en algo raro",
+        amount: 2_000_000, date: Date.current, description: "algo raro",
+        category: "Restaurants", money_source_hint: nil, confidence: 0.9
+      ) ])
+    }) do
+      result = ExpenseResolver::Service.call(text: "20 mil en algo raro", user: @user)
+    end
+
+    assert result.success?
+    assert_equal 20_000, result.result.first.amount
+    assert_equal "ai", result.result.first.classification_source
+  end
+
+  test "the deterministic reading survives when a single fragment misattributes another expense's amount" do
+    # Fragment mentions two distinct amounts; the heuristic scan would grab
+    # the first one while the AI's own amount is the second.
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "compré una camisa de 140.000 y de paso pagué una deuda de 50.000",
+      amount: 50_000, date: Date.current, description: "camisa",
+      category: nil, category_suggestion: "Ropa", money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "compré una camisa de 140.000 y de paso pagué una deuda de 50.000"
+    )
+
+    assert result.success?
+    assert_equal 50_000, result.result.first.amount
+  end
+
+  test "multi-expense messages trust the AI amounts without heuristic re-scan" do
+    # Per-entry fragments are correct, but the heuristic scan of "y otras 20
+    # en parqueadero" would read bare "20" as 20 COP and override the AI.
+    entries = [
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "Hoy me gasté como 60 lucas comiendo con la familia",
+        amount: 60_000, date: Date.current, description: "comida con la familia",
+        category: "Restaurants", money_source_hint: nil, confidence: 0.9
+      ),
+      Ai::Tasks::ParsedExpense.new(
+        original_text: "y otras 20 en parqueadero",
+        amount: 20_000, date: Date.current, description: "parqueadero",
+        category: "Parking", money_source_hint: nil, confidence: 0.9
+      )
+    ]
+
+    result = with_forced_ai(
+      entries: entries,
+      text: "Hoy me gasté como 60 lucas comiendo con la familia y otras 20 en parqueadero"
+    )
+
+    assert result.success?
+    assert_equal [ 60_000, 20_000 ], result.result.map(&:amount)
+  end
+
+  test "a low-confidence bare-number scan never overrides the AI amount" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "gasté 20 en parqueadero",
+      amount: 20_000, date: Date.current, description: "parqueadero",
+      category: "Parking", money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "gasté 20 en parqueadero")
+
+    assert result.success?
+    assert_equal 20_000, result.result.first.amount
+  end
+
+  test "the AI date wins when a fragment mentions several distinct dates" do
+    yesterday = Date.current - 1
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "ayer compré mercado por 100.000 y hoy pagué el arriendo de 800.000",
+      amount: 100_000, date: yesterday, description: "mercado",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "ayer compré mercado por 100.000 y hoy pagué el arriendo de 800.000"
+    )
+
+    assert result.success?
+    assert_equal yesterday, result.result.first.date
+  end
+
+  test "shared full-message fragments keep the AI amounts and dates for every expense" do
+    full_text = "Salí con mi esposa al centro comercial, primero almorzamos por 95.000 y después compré una camisa de 140.000 con la tarjeta."
+    yesterday = Date.current - 1
+    entries = [
+      Ai::Tasks::ParsedExpense.new(
+        original_text: full_text, amount: 95_000, date: yesterday,
+        description: "almuerzo", category: "Restaurants",
+        money_source_hint: nil, confidence: 0.9
+      ),
+      Ai::Tasks::ParsedExpense.new(
+        original_text: full_text, amount: 140_000, date: Date.current,
+        description: "camisa", category: nil, category_suggestion: "Ropa",
+        money_source_hint: nil, confidence: 0.9
+      )
+    ]
+
+    result = with_forced_ai(entries: entries, text: full_text)
+
+    assert result.success?
+    assert_equal [ 95_000, 140_000 ], result.result.map(&:amount)
+    assert_equal [ yesterday, Date.current ], result.result.map(&:date)
+    assert_equal "Ropa", result.result.last.suggested_category_name
+  end
+
+  test "an AI category suggestion names the candidate when no category matched" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "transferencia a Juan por concepto de videojuegos",
+      amount: 50_000,
+      date: Date.current,
+      description: "transferencia a Juan por concepto de videojuegos",
+      category: nil,
+      category_suggestion: "Videojuegos",
+      money_source_hint: nil,
+      confidence: 0.9
+    )
+
+    result = nil
+    with_stubbed_ai(entries: [ entry ]) do
+      result = ExpenseResolver::Service.call(text: "transferencia a Juan por concepto de videojuegos", user: @user)
+    end
+
+    assert result.success?
+    candidate = result.result.first
+    assert_nil candidate.category_id
+    assert_equal "Videojuegos", candidate.suggested_category_name
+    assert_equal "Videojuegos", candidate.category_name
+  end
+
+  test "a matching rule overrides the resolver's category suggestion" do
+    apps = Category.create!(name: "Apps", is_default: true, category_type: "expense")
+    TransactionRule.create!(user: @user, merchant_contains: nil,
+                            description_contains: "didi", category_id: apps.id)
+
+    result = ExpenseResolver::Service.call(text: "50 mil en didi en un restaurante", user: @user)
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal apps.id, candidate.category_id
+    assert_equal apps.name, candidate.category_name
+    assert_nil candidate.suggested_category_name
+  end
+
+  test "a user correction overrides earlier AI knowledge" do
+    restaurants = Category.find_by!(name: "Restaurants")
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: restaurants, source: "strong_ai")
+
+    other = Category.create!(name: "Food Delivery", is_default: true, category_type: "expense")
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: other, source: "user")
+
+    assert_equal other.id, ActivityClassification.lookup(user: @user, name: "DIDI FOOD").category_id
+
+    # An AI source must never overwrite the user correction.
+    ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: restaurants, source: "cheap_ai")
+    assert_equal other.id, ActivityClassification.lookup(user: @user, name: "DIDI FOOD").category_id
+  end
+
+  test "a refund with its own amount keeps the full purchase price and flags review" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "camisa 120.000, me devolvieron 30.000 de unos productos",
+      amount: 120_000, date: Date.current, description: "camisa",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Compré una camisa por 120.000 y me devolvieron 30.000 porque tenía un descuento"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal 120_000, candidate.amount
+    assert candidate.warnings.any? { |warning| warning.include?("refund") && warning.include?("30000") }
+  end
+
+  test "a refund mention without its own amount still flags review" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "mercado 200.000, pero me devolvieron unos productos",
+      amount: 200_000, date: Date.current, description: "mercado",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Compré mercado por 200.000, pero me devolvieron unos productos"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal 200_000, candidate.amount
+    assert candidate.warnings.any? { |warning| warning.include?("refund") }
+  end
+
+  test "a transfer destination account never grounds the resolved source silently" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Transferí 300.000 de Davibank a mi cuenta de ahorros",
+      amount: 300_000, date: Date.current, description: "Transferencia a cuenta de ahorros",
+      category: nil, money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Transferí 300.000 de Davibank a mi cuenta de ahorros"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert candidate.money_source_source == "suggested" ||
+           candidate.warnings.any? { |warning| warning.include?("tight match") },
+           "expected a review flag for a destination-grounded source"
+  end
+
+  test "an origin-side account mention still resolves without a flag" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Pasé 500.000 desde mi cuenta Davibank a Nequi",
+      amount: 500_000, date: Date.current, description: "Transferencia a Nequi",
+      category: nil, money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Pasé 500.000 desde mi cuenta Davibank a Nequi"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert_nil candidate.money_source_source
+    assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+  end
+
+  test "a refund dropped from the entry fragment is still caught from the full message" do
+    mercado = Ai::Tasks::ParsedExpense.new(
+      original_text: "mercado 200.000 con Davibank", amount: 200_000,
+      date: Date.current, description: "mercado",
+      category: nil, money_source_hint: "davibank", confidence: 0.9
+    )
+    almuerzo = Ai::Tasks::ParsedExpense.new(
+      original_text: "almuerzo 45.000 con la tarjeta Davibank", amount: 45_000,
+      date: Date.current, description: "almuerzo",
+      category: nil, money_source_hint: "tarjeta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ mercado, almuerzo ],
+      text: "Compré mercado por 200.000 con Davibank, pero me devolvieron 30.000 de unos productos. También pagué 45.000 de almuerzo con la tarjeta Davibank"
+    )
+
+    assert result.success?
+    first = result.result.first
+    assert_equal 200_000, first.amount
+    assert first.warnings.any? { |warning| warning.include?("refund") }
+  end
+
+  test "a quantity total missing from the fragment is flagged from the full message" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "Tres cafés", amount: 8_500,
+      date: Date.current, description: "Tres cafés",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "Tres cafés de 8.500 cada uno.")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal 8_500, candidate.amount
+    assert candidate.warnings.any? { |warning| warning.include?("itemized amounts") && warning.include?("25500") }
+  end
+end

@@ -14,7 +14,7 @@ const { signUp } = require('./helpers/auth');
 test.describe('expense playground – AI evaluation', () => {
   const RUN_ID = 42;
   const DATASET = 'gastos.csv';
-  const MODEL = 'upstage/solar-pro4';
+  const MODEL = 'mistral/mistral-small-latest';
   const PROMPT_VERSION = 'expense-extraction-v1';
 
   const COMPLETED_METRICS = {
@@ -157,10 +157,10 @@ test.describe('expense playground – AI evaluation', () => {
     return list;
   }
 
-  // Mocks the whole /expense-playground/evaluations* namespace. store.shape:
+  // Mocks the whole /expense-evaluations* namespace. store.shape:
   //   { running, completed, history, latestPost, startErrors, completeAfterPolls }
   function mockEvaluationApi(page, store) {
-    page.route(/\/expense-playground\/evaluations/, (route) => {
+    page.route(/\/expense-evaluations(\S*)?/, (route) => {
       handleEvaluationRoute(route, store);
     });
   }
@@ -170,7 +170,7 @@ test.describe('expense playground – AI evaluation', () => {
     const url = new URL(req.url());
     const path = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
 
-    if (req.method() === 'POST' && path === '/expense-playground/evaluations/start') {
+    if (req.method() === 'POST' && path === '/expense-evaluations/start') {
       store.latestPost = req.postDataJSON();
       if (store.startErrors) {
         route.fulfill({ status: 422, contentType: 'application/json', body: JSON.stringify({ ok: false, errors: store.startErrors }) });
@@ -181,12 +181,12 @@ test.describe('expense playground – AI evaluation', () => {
       return;
     }
 
-    if (req.method() === 'GET' && path === '/expense-playground/evaluations') {
+    if (req.method() === 'GET' && path === '/expense-evaluations') {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ runs: store.history || [] }) });
       return;
     }
 
-    const casesMatch = path.match(/^\/expense-playground\/evaluations\/\d+\/cases$/);
+    const casesMatch = path.match(/^\/expense-evaluations\/\d+\/cases$/);
     if (req.method() === 'GET' && casesMatch) {
       const cases = filterCases(url.searchParams.get('status'), url.searchParams.get('q'));
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
@@ -197,13 +197,13 @@ test.describe('expense playground – AI evaluation', () => {
       return;
     }
 
-    const retryMatch = path.match(/^\/expense-playground\/evaluations\/\d+\/retry$/);
+    const retryMatch = path.match(/^\/expense-evaluations\/\d+\/retry$/);
     if (req.method() === 'POST' && retryMatch) {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, rerun_count: store.retryCount || 2 }) });
       return;
     }
 
-    const detailMatch = path.match(/^\/expense-playground\/evaluations\/\d+$/);
+    const detailMatch = path.match(/^\/expense-evaluations\/\d+$/);
     if (req.method() === 'GET' && detailMatch) {
       store.polls = (store.polls || 0) + 1;
       const payload = store.polls >= store.completeAfterPolls ? store.completed : store.running;
@@ -229,8 +229,7 @@ test.describe('expense playground – AI evaluation', () => {
   }
 
   async function openEvaluationTab(page) {
-    await page.goto('/expense-playground');
-    await page.getByTestId('tab-evaluation').click();
+    await page.goto('/expense-evaluations');
     await expect(page.getByTestId('playground-evaluation-panel')).toBeVisible();
   }
 
@@ -242,7 +241,7 @@ test.describe('expense playground – AI evaluation', () => {
     await expect(page.getByTestId('evaluation-dataset-file')).toBeVisible();
     await expect(page.getByTestId('evaluation-provider')).toHaveValue('openrouter');
     await expect(page.getByTestId('evaluation-provider')).toContainText('OpenRouter');
-    await expect(page.getByTestId('evaluation-model')).toHaveValue('upstage/solar-pro4');
+    await expect(page.getByTestId('evaluation-model')).toHaveValue('mistral/mistral-small-latest');
     await expect(page.getByTestId('evaluation-filename')).toHaveValue('gastos.csv');
     await expect(page.getByTestId('evaluation-start')).toBeVisible();
   });
@@ -318,7 +317,7 @@ test.describe('expense playground – AI evaluation', () => {
 
     const postsSeen = [];
     page.on('request', (r) => {
-      if (r.method() === 'POST' && r.url().includes('/expense-playground/evaluations/start')) postsSeen.push(r.url());
+      if (r.method() === 'POST' && r.url().includes('/expense-evaluations/start')) postsSeen.push(r.url());
     });
     await page.getByTestId('evaluation-start').click();
     expect(postsSeen.length).toBe(0);

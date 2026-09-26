@@ -12,7 +12,8 @@ module Ai
     # latency_ms; the block's return value is passed through unchanged.
     def record(task:, user: nil, strategy:, provider: nil, status: "ok",
                confidence: nil, escalated: false, error: nil,
-               input_tokens: nil, output_tokens: nil, latency_ms: nil)
+               input_tokens: nil, output_tokens: nil, latency_ms: nil,
+               prompt: nil, output: nil)
       result = nil
       if block_given?
         started = monotonic
@@ -24,13 +25,14 @@ module Ai
         task: task, user: user, strategy: strategy, provider: provider,
         status: status, confidence: confidence, escalated: escalated,
         error: error, input_tokens: input_tokens, output_tokens: output_tokens,
-        latency_ms: latency_ms
+        latency_ms: latency_ms, prompt: prompt, output: output
       )
       result
     end
 
     def write(task:, user:, strategy:, provider:, status:, confidence:, escalated:,
-              error:, input_tokens:, output_tokens:, latency_ms:)
+              error:, input_tokens:, output_tokens:, latency_ms:,
+              prompt: nil, output: nil)
       AiRequest.create!(
         user: user,
         task: task.to_s,
@@ -43,11 +45,23 @@ module Ai
         error: error,
         input_tokens: input_tokens,
         output_tokens: output_tokens,
-        latency_ms: latency_ms
+        latency_ms: latency_ms,
+        prompt: truncate_prompt(prompt),
+        output: output&.to_s&.truncate(20_000)
       )
     rescue StandardError => e
       Rails.logger.warn("[Ai::Recorder] failed to record AI usage: #{e.class}: #{e.message}")
       nil
+    end
+
+    # Keep observability rows bounded: each message content is truncated, and
+    # no raw image/multimodal payload is ever stored here.
+    def truncate_prompt(messages)
+      return nil if messages.nil?
+
+      messages.map do |message|
+        { role: message[:role], content: message[:content].to_s.truncate(10_000) }
+      end
     end
 
     def monotonic

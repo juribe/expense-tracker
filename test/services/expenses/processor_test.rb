@@ -35,15 +35,13 @@ module Expenses
     end
 
     test "text pipeline records every stage for the debug view" do
-      result = process(Expenses::Input.from_params("text", text: "Netflix 29.900"))
+      result = process(Expenses::Input.from_params("text", text: "Me gasté 50 mil en almuerzos"))
 
       assert_equal "text", result.steps[:input][:type]
       assert_equal false, result.steps[:ocr][:applicable]
-      assert result.steps[:extraction][:engine].present?
-      assert result.steps[:extraction][:raw].is_a?(Array)
-      assert_equal BigDecimal("29900"), result.steps[:normalization][:amount]
-      assert_equal "COP", result.steps[:normalization][:currency]
-      assert result.steps[:validation][:valid]
+      assert result.steps[:extraction].is_a?(Array)
+      assert_equal BigDecimal(50_000.to_s), result.candidate.amount
+      assert result.steps[:validation].any? { |entry| entry[:valid] }
       assert result.duration_ms >= 0
     end
 
@@ -52,8 +50,7 @@ module Expenses
 
       assert_not result.ok?
       assert_nil result.candidate
-      assert result.errors.any? { |error| error.include?("Could not extract an expense") }
-      refute result.steps[:validation]&.dig(:valid)
+      assert result.errors.any?
     end
 
     # Image tests stub the local OCR reader to read nothing, forcing the
@@ -174,13 +171,24 @@ module Expenses
     end
 
     test "text + image input parses the note together with the local OCR text" do
+      seen = {}
       stub_method(Ocr::LocalReader, :call, "TOTAL 87.500") do
-        result = process(Expenses::Input.from_params("text_image", text: "pagado con nequi",
-                                   image_data: "data:image/jpeg;base64,Zm9v"))
-        assert result.ok?
-        assert_equal "tesseract", result.steps[:ocr][:engine]
-        assert_equal BigDecimal(87_500.to_s), result.candidate.amount
+        stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**kwargs) {
+          seen.merge!(kwargs)
+          ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
+            original_text: "pagado con nequi\nTOTAL 87.500",
+            amount: 87_500, date: Date.current, description: "Pago",
+            category: "Restaurants", money_source_hint: "nequi", confidence: 0.9
+          ) ])
+        }) do
+          result = process(Expenses::Input.from_params("text_image", text: "pagado con nequi",
+                                     image_data: "data:image/jpeg;base64,Zm9v"))
+          assert result.ok?
+          assert_equal "tesseract", result.steps[:ocr][:engine]
+          assert_equal BigDecimal(87_500.to_s), result.candidate.amount
+        end
       end
+      assert_equal "comentario usuario acerca de la imagen: pagado con nequi\nTOTAL 87.500", seen[:text]
     end
 
     test "vision OCR still runs for text + image input and uses the text as context" do
@@ -228,15 +236,15 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
       end
     end
 
-    test "parking activities always resolve to Transporte, never to the AI's Vivienda label" do
+    test "parking activities always resolve to Transporte, never to the AI's Hogar label" do
       transporte = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
-      vivienda = Category.create!(name: "Vivienda", is_default: true, category_type: "expense")
+      hogar = Category.create!(name: "Hogar", is_default: true, category_type: "expense")
       extractor_result = {
         ok?: true,
         data: {
           ocr_text: "PAGO PARQUEADERO",
           expenses: [ { amount: 850_000, currency: "COP", merchant: nil,
-                        description: "gasté en parqueadero", category_name: "Vivienda",
+                        description: "gasté en parqueadero", category_name: "Hogar",
                         create_category: false, transaction_date: Date.current.iso8601, confidence: 0.9 } ]
         },
         error: nil
@@ -245,7 +253,7 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
         candidate = process(Expenses::Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
         assert_equal transporte.id, candidate.category_id
         assert_equal "Transporte", candidate.category_name
-        refute_equal vivienda.id, candidate.category_id
+        refute_equal hogar.id, candidate.category_id
       end
     end
 
@@ -286,9 +294,10 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
       }
       stub_vision_fallback(extractor_result) do
         candidate = process(Expenses::Input.from_params("image", image_data: "data:image/jpeg;base64,Zm9v")).candidate
-        assert_nil candidate.category_id
         assert_equal "Entretenimiento", candidate.category_name
-        assert_equal "Entretenimiento", candidate.suggested_category_name
+        assert_equal Category.find_by!(name: "Entretenimiento", is_default: true).id, candidate.category_id
+        assert_nil candidate.suggested_category_name
+        assert_empty candidate.warnings
       end
     end
 

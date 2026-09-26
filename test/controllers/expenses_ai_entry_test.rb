@@ -8,6 +8,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(name: "AI Entry User", email: "ai-entry@example.com", password: "password123")
     @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+    @parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
     sign_in @user
     @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
@@ -46,7 +47,15 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/parse suggests a new category without creating anything during preview" do
-    post parse_expenses_path(format: :json), params: { text: "gasté 30 mil en la veterinaria del perro" }
+    stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+      ServiceResult.success([ Ai::Tasks::ParsedExpense.new(
+        original_text: "gasté 30 mil en la veterinaria del perro",
+        amount: 30_000, date: Date.current, description: "Veterinaria del perro",
+        category: "Pet Care", money_source_hint: nil, confidence: 0.9
+      ) ])
+    }) do
+      post parse_expenses_path(format: :json), params: { text: "gasté 30 mil en la veterinaria del perro" }
+    end
 
     assert_response :success
     expense = JSON.parse(response.body)["expenses"].first
@@ -56,7 +65,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     assert_equal "Pet Care", expense["category_name"]
 
     # Parsing never creates categories: the suggestion is only shown on confirm.
-    assert_equal 1, Category.count
+    assert_equal 2, Category.count
   end
 
   test "POST /expenses/parse rejects blank text" do
@@ -75,12 +84,10 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/bulk_create saves several expenses in one action" do
-    parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
-
     post bulk_create_expenses_path(format: :json), params: {
       expenses: [
         { amount: "50000", description: "Restaurante", transaction_date: "2026-08-22", category_id: @restaurants.id },
-        { amount: "20000", description: "Parqueadero", date: "2026-08-21", category_id: parking.id }
+        { amount: "20000", description: "Parqueadero", date: "2026-08-21", category_id: @parking.id }
       ]
     }
 
@@ -155,31 +162,28 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/bulk_create keeps the category the user explicitly picked" do
-    parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
     TransactionRule.create!(user: @user, merchant_contains: nil,
                             description_contains: "didi", category_id: @restaurants.id)
 
     post bulk_create_expenses_path(format: :json), params: {
       expenses: [
         { amount: "50000", description: "Didi viaje", transaction_date: Date.current.iso8601,
-          category_id: parking.id, category_edited: true }
+          category_id: @parking.id, category_edited: true }
       ]
     }
 
     assert_response :created
     expense = @user.expenses.sole
-    assert_equal parking.id, expense.category_id
+    assert_equal @parking.id, expense.category_id
     assert_empty expense.applied_rule_ids
   end
 
   test "POST /expenses/bulk_create rolls everything back when a row is invalid" do
-    parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
-
     assert_no_changes -> { Expense.count } do
       post bulk_create_expenses_path(format: :json), params: {
         expenses: [
-          { amount: "1000", description: "Ok", transaction_date: "2026-08-22", category_id: parking.id },
-          { amount: "", description: "Bad", category_id: parking.id }
+          { amount: "1000", description: "Ok", transaction_date: "2026-08-22", category_id: @parking.id },
+          { amount: "", description: "Bad", category_id: @parking.id }
         ]
       }
     end

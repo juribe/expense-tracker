@@ -183,15 +183,16 @@ class ExpensesController < ApplicationController
       return respond_parse_error(t("expenses.ai_write_first"))
     end
 
-    result = ExpenseParser.call(text: text, user: current_user)
+    result = ExpenseResolver::Service.call(text: text, user: current_user)
 
     respond_to do |format|
       format.json do
-        if result[:expenses].any?
-          render json: result, status: :ok
+        expenses = result.success? ? ExpenseResolver::Serializer.call(result.result) : []
+        if expenses.any?
+          render json: { transcription: text, expenses: expenses, errors: [] }, status: :ok
         else
-          message = result[:errors].presence || t("expenses.ai_no_expenses_hint")
-          render json: { engine: result[:engine], transcription: result[:transcription], expenses: [], errors: Array(message) },
+          message = result.failure? ? result.errors : t("expenses.ai_no_expenses_hint")
+          render json: { transcription: text, expenses: [], errors: Array(message) },
                  status: :unprocessable_entity
         end
       end

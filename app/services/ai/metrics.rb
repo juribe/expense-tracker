@@ -13,6 +13,10 @@ module Ai
     module_function
 
     def summary(scope = AiRequest.all)
+      calls = scope.ai_calls
+      by_model = by_model_latencies(calls)
+      slowest = by_model.max_by { |_model, latency| latency }
+
       {
         total_requests: scope.count,
         deterministic_requests: scope.where(strategy: "deterministic").count,
@@ -27,7 +31,13 @@ module Ai
         output_tokens: scope.ai_calls.sum(:output_tokens),
         requests_by_task: scope.group(:task).count,
         requests_by_strategy: scope.group(:strategy).count,
-        requests_by_model: scope.where.not(model: nil).group(:model).count
+        requests_by_model: scope.where.not(model: nil).group(:model).count,
+        average_latency_ms: average_latency(calls),
+        p95_latency_ms: p95_latency(calls),
+        average_tokens_per_second: average_tokens_per_second(calls),
+        latency_by_model: by_model.transform_values { |value| value.round(1).to_f },
+        slowest_model: slowest&.first,
+        slowest_model_latency_ms: slowest&.last&.round(1)&.to_f
       }
     end
 
@@ -51,6 +61,32 @@ module Ai
     def average_confidence(scope)
       value = scope.where.not(confidence: nil).average(:confidence)
       value ? value.to_f.round(4) : nil
+    end
+
+    # ---- AI call performance (latency / throughput) ----
+
+    def average_latency(scope)
+      value = scope.where.not(latency_ms: nil).average(:latency_ms)
+      value&.round(1)&.to_f
+    end
+
+    def p95_latency(scope)
+      value = scope.where.not(latency_ms: nil)
+                    .pick(Arel.sql("PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY latency_ms)"))
+      value&.round
+    end
+
+    def average_tokens_per_second(scope)
+      rates = scope.where.not(output_tokens: nil).where.not(latency_ms: nil).filter_map do |row|
+        next if row.output_tokens.to_i <= 0 || row.latency_ms.to_i <= 0
+
+        row.output_tokens / (row.latency_ms / 1000.0)
+      end
+      rates.empty? ? nil : (rates.sum / rates.size).round(2)
+    end
+
+    def by_model_latencies(scope)
+      scope.where.not(model: nil).where.not(latency_ms: nil).group(:model).average(:latency_ms)
     end
   end
 end

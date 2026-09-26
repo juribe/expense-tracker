@@ -7,7 +7,7 @@ class EvaluationRunTest < ActiveSupport::TestCase
     @user = User.create!(email: "run-model-eval@example.com", password: "password123")
     @run = EvaluationRun.create!(
       user: @user, dataset_name: "gastos.csv", dataset_version: "abc123",
-      provider: "openrouter", model: "upstage/solar-pro4", prompt_version: "expense-extraction-v1",
+      provider: "openrouter", model: "mistral/mistral-small-latest", prompt_version: "expense-extraction-v1",
       status: "running", total_cases: 2
     )
   end

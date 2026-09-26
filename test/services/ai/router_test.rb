@@ -81,6 +81,9 @@ module Ai
       assert_equal 10, row.input_tokens
       assert_equal 5, row.output_tokens
       refute row.escalated
+      # The exact prompt and raw model output are recorded for observability.
+      assert_equal [ { "role" => "user", "content" => "msg" } ], row.prompt
+      assert_equal({ "value" => "cheap", "confidence" => 0.95 }.to_json, row.output)
     end
 
     test "low-confidence cheap result escalates to the strong model" do
@@ -88,7 +91,7 @@ module Ai
       strong = FakeAiProvider.new(responses: [ ok_response(value: "solid", confidence: 0.99) ])
 
       with_providers(cheap: cheap, strong: strong) do
-        result = with_env({ "AI_CHEAP_CONFIDENCE_THRESHOLD" => "0.90" }) do
+        result = with_env({ "AI_DISABLE_STRONG_TIER" => nil, "AI_CHEAP_CONFIDENCE_THRESHOLD" => "0.90" }) do
           Ai::Router.call(task: FakeTask.new, input: "msg")
         end
 
@@ -102,10 +105,43 @@ module Ai
       cheap_row = AiRequest.where(strategy: "cheap_ai").last
       assert_equal "low_confidence", cheap_row.status
       assert_in_delta 0.61, cheap_row.confidence, 0.001
+      assert_equal [ { "role" => "user", "content" => "msg" } ], cheap_row.prompt
+      assert_equal({ "value" => "shaky", "confidence" => 0.61 }.to_json, cheap_row.output)
 
       strong_row = AiRequest.where(strategy: "strong_ai").last
       assert_equal "ok", strong_row.status
       assert strong_row.escalated
+    end
+
+    test "the strong tier switch accepts a low-confidence cheap result" do
+      cheap = FakeAiProvider.new(responses: [ ok_response(value: "shaky", confidence: 0.61) ])
+      strong = FakeAiProvider.new(responses: [])
+
+      with_providers(cheap: cheap, strong: strong) do
+        result = with_env({ "AI_DISABLE_STRONG_TIER" => "true" }) do
+          Ai::Router.call(task: FakeTask.new, input: "msg")
+        end
+
+        assert result.ok?
+        assert_equal "shaky", result.data
+        assert_equal "cheap_ai", result.strategy
+        assert_equal 1, cheap.calls.count
+        assert_equal 0, strong.calls.count
+      end
+    end
+
+    test "the strong tier switch fails cleanly without a cheap provider" do
+      strong = FakeAiProvider.new(responses: [])
+
+      with_providers(cheap: nil, strong: strong) do
+        result = with_env({ "AI_DISABLE_STRONG_TIER" => "true" }) do
+          Ai::Router.call(task: FakeTask.new, input: "msg")
+        end
+
+        refute result.ok?
+        assert_equal "AI is not configured", result.error
+        assert_equal 0, strong.calls.count
+      end
     end
 
     test "invalid cheap output escalates to the strong model" do
@@ -113,13 +149,28 @@ module Ai
       strong = FakeAiProvider.new(responses: [ ok_response(value: "solid") ])
 
       with_providers(cheap: cheap, strong: strong) do
-        result = Ai::Router.call(task: FakeTask.new, input: "msg")
+        with_env({ "AI_DISABLE_STRONG_TIER" => nil }) do
+          result = Ai::Router.call(task: FakeTask.new, input: "msg")
 
-        assert result.ok?
-        assert_equal "strong_ai", result.strategy
+          assert result.ok?
+          assert_equal "strong_ai", result.strategy
+        end
       end
 
       assert_equal "error", AiRequest.where(strategy: "cheap_ai").last.status
+    end
+
+    test "records the raw model output when parsing fails" do
+      cheap = FakeAiProvider.new(responses: [ "not json at all" ])
+      strong = FakeAiProvider.new(responses: [ ok_response(value: "solid") ])
+
+      with_providers(cheap: cheap, strong: strong) do
+        with_env({ "AI_DISABLE_STRONG_TIER" => nil }) do
+          Ai::Router.call(task: FakeTask.new, input: "msg")
+        end
+      end
+
+      assert_equal "not json at all", AiRequest.where(strategy: "cheap_ai").last.output
     end
 
     test "cheap provider failure falls back to the strong model" do
@@ -127,25 +178,32 @@ module Ai
       strong = FakeAiProvider.new(responses: [ ok_response(value: "solid") ])
 
       with_providers(cheap: cheap, strong: strong) do
-        result = Ai::Router.call(task: FakeTask.new, input: "msg")
+        with_env({ "AI_DISABLE_STRONG_TIER" => nil }) do
+          result = Ai::Router.call(task: FakeTask.new, input: "msg")
 
-        assert result.ok?
-        assert_equal "strong_ai", result.strategy
+          assert result.ok?
+          assert_equal "strong_ai", result.strategy
+        end
       end
 
       assert_equal "error", AiRequest.where(strategy: "cheap_ai").last.status
       assert_match(/timeout/, AiRequest.where(strategy: "cheap_ai").last.error)
+      failed_row = AiRequest.where(strategy: "cheap_ai").last
+      assert_equal [ { "role" => "user", "content" => "msg" } ], failed_row.prompt
+      assert_nil failed_row.output
     end
 
     test "skips the cheap tier entirely when it is not configured" do
       strong = FakeAiProvider.new(responses: [ ok_response(value: "solid") ])
 
       with_providers(cheap: nil, strong: strong) do
-        result = Ai::Router.call(task: FakeTask.new, input: "msg")
+        with_env({ "AI_DISABLE_STRONG_TIER" => nil }) do
+          result = Ai::Router.call(task: FakeTask.new, input: "msg")
 
-        assert result.ok?
-        assert_equal "strong_ai", result.strategy
-        assert_equal 1, strong.calls.count
+          assert result.ok?
+          assert_equal "strong_ai", result.strategy
+          assert_equal 1, strong.calls.count
+        end
       end
     end
 
@@ -153,11 +211,13 @@ module Ai
       strong = FakeAiProvider.new(responses: [ Ai::Provider::Error.new("AI HTTP 500") ])
 
       with_providers(cheap: nil, strong: strong) do
-        result = Ai::Router.call(task: FakeTask.new, input: "msg")
+        with_env({ "AI_DISABLE_STRONG_TIER" => nil }) do
+          result = Ai::Router.call(task: FakeTask.new, input: "msg")
 
-        refute result.ok?
-        assert result.needs_clarification?
-        assert_match(/AI HTTP 500/, result.error)
+          refute result.ok?
+          assert result.needs_clarification?
+          assert_match(/AI HTTP 500/, result.error)
+        end
       end
     end
 

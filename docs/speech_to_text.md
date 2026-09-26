@@ -5,7 +5,7 @@ as typed text: there is no separate audio extraction path.
 
 ```
 Audio → audio preprocessing (FFmpeg) → Speech-to-Text → transcript
-      → ExpenseParser → normalization → validation → ExpenseCandidate → Playground preview
+      → ExpenseResolver → normalization → validation → ExpenseCandidate → Playground preview
 ```
 
 The Rails app depends only on the `SpeechToText` boundary, never on

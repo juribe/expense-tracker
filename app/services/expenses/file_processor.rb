@@ -258,6 +258,7 @@ module Expenses
         next if description.blank?
 
         candidate = ExpenseCandidate.new(
+          user: @user,
           amount: amount.abs,
           currency: ExpenseCandidate::DEFAULT_CURRENCY,
           category_id: nil,
@@ -389,6 +390,7 @@ module Expenses
         category = resolve_category(categories, category_name)
 
         ExpenseCandidate.new(
+          user: @user,
           amount: amount.abs,
           currency: ExpenseCandidate::DEFAULT_CURRENCY,
           category_id: category&.id,

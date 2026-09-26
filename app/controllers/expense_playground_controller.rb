@@ -21,19 +21,24 @@ class ExpensePlaygroundController < ApplicationController
 
     return render_invalid_input(input) unless input.valid?
 
-    result = Expenses::Processor.call(user: current_user, input: input)
+    result = Expenses::Processor.call(user: current_user, input: input, recording: Expenses::Processors::Recording.new, source: "playground")
+    puts "[expense_playground] run result: ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{result.candidates&.as_json} errors=#{result.errors} warnings=#{result.warnings}"
     run_record = persist_run(input, result)
+
+    candidates = result.candidates || []
 
     render json: {
       ok: result.ok?,
       run_id: run_record&.id,
       engine: result.engine,
       duration_ms: result.duration_ms,
-      candidate: result.candidate&.as_json,
+      candidate: candidates.first&.as_json,
+      candidates: candidates.map(&:as_json),
       errors: result.errors,
       warnings: result.warnings,
       steps: result.steps,
-      evaluation: result.candidate && expected_params.present? ? run_evaluation(result.candidate) : nil
+      evaluation: expected_params.present? && candidates.any? ? run_evaluation(candidates.first) : nil,
+      evaluations: expected_params.present? ? candidates.map { |candidate| run_evaluation(candidate) } : nil
     }, status: result.ok? ? :ok : :unprocessable_entity
   end
 
@@ -52,8 +57,18 @@ class ExpensePlaygroundController < ApplicationController
   def ai_summary
     scope = AiRequest.where(user: current_user).where("created_at > ?", 7.days.ago)
 
+    summary = Ai::Metrics.summary(scope)
+
     render json: {
-      summary: Ai::Metrics.summary(scope),
+      summary: summary,
+      performance: {
+        average_latency_ms: summary[:average_latency_ms],
+        p95_latency_ms: summary[:p95_latency_ms],
+        average_tokens_per_second: summary[:average_tokens_per_second],
+        latency_by_model: summary[:latency_by_model],
+        slowest_model: summary[:slowest_model],
+        slowest_model_latency_ms: summary[:slowest_model_latency_ms]
+      },
       cheap_tier_enabled: Ai.configuration.cheap_enabled?,
       recent: scope.recent_first.limit(10).map do |r|
         {
@@ -65,117 +80,15 @@ class ExpensePlaygroundController < ApplicationController
           confidence: r.confidence&.to_f,
           escalated: r.escalated,
           latency_ms: r.latency_ms,
+          input_tokens: r.input_tokens,
+          output_tokens: r.output_tokens,
+          tokens_per_second: r.tokens_per_second,
+          prompt: r.prompt,
+          output: r.output,
           created_at: r.created_at.iso8601
         }
       end
     }
-  end
-
-  # GET /expense-playground/evaluations
-  # Recent AI evaluations for the current user (recent first).
-  def evaluations
-    runs = current_user.evaluation_runs.recent_first.limit(10)
-    runs = runs.where(dataset_name: params[:dataset]) if params[:dataset].present?
-
-    render json: { runs: runs.map(&:to_evaluation_entry) }
-  end
-
-    # POST /expense-playground/evaluations/start
-    # Starts an evaluation: validates the dataset, persists the run + cases and
-    # enqueues a background job per case. The endpoint is idempotent by
-    # dataset+provider/model, so re-submitting the same dataset returns the
-    # existing run instead of double-processing it. Pass force_new: true to
-    # always start a fresh run (e.g. after renaming/copying a dataset file).
-    def start_evaluation
-      runner = ExpensePlayground::Evaluations::Runner.start(
-        user: current_user,
-        content: params[:dataset],
-        filename: params[:filename],
-        provider: params[:provider],
-        model: params[:model],
-        force_new: params[:force_new]
-      )
-
-    if runner.invalid
-      render json: { ok: false, errors: runner.errors }, status: :unprocessable_entity
-    else
-      render json: { ok: true, replayed: runner.replayed, run: runner.run&.to_evaluation_entry }, status: :created
-    end
-  end
-
-  # GET /expense-playground/evaluations/:id
-  # A single evaluation: summary + the first page of cases.
-  def evaluation
-    run = current_user.evaluation_runs.find(params[:id])
-
-    render json: {
-      run: run.to_evaluation_entry,
-      cases: run.evaluation_cases.recent_first.limit(100).map { |c| case_entry(c) }
-    }
-  end
-
-  # GET /expense-playground/evaluations/:id/cases
-  # Paginated, filterable case list for the progress view.
-  def evaluation_cases
-    run = current_user.evaluation_runs.find(params[:id])
-    scope = run.evaluation_cases.recent_first
-    scope = scope.by_status(params[:status]) if params[:status].present?
-    scope = scope.by_message(params[:q]) if params[:q].present?
-
-    render json: {
-      cases: scope.limit(200).map { |c| case_entry(c) },
-      total: run.evaluation_cases.count,
-      counts: run.evaluation_cases.group(:status).count
-    }
-  end
-
-  # POST /expense-playground/evaluations/:id/retry
-  # Re-runs the terminal cases of an evaluation. Pass all=true to re-run
-  # passed cases too. Terminal cases are reset to pending and re-enqueued.
-  def retry_evaluation
-    run = current_user.evaluation_runs.find(params[:id])
-    scope = params[:all] == "true" ? %w[passed failed error] : %w[failed error]
-    reset_cases = run.evaluation_cases.where(status: scope)
-
-    reset_cases.each do |case_record|
-      case_record.update!(status: "pending", error: nil)
-      ExpensePlaygroundEvaluationCaseJob.perform_later(case_record.id)
-    end
-
-    if reset_cases.exists?
-      run.update!(status: "running", completed_at: nil, started_at: Time.current)
-    end
-
-    render json: { ok: true, rerun_count: reset_cases.size }
-  end
-
-  # POST /expense-playground/evaluations/:id/cases/:case_id/mapping
-  # Records a user decision about which category an evaluation case should map
-  # to, so the review of expected-vs-received is remembered (review log). The
-  # decision is stored as user classification knowledge for the case activity.
-  #
-  #   action = "accept_received"  use whatever the AI resolved to
-  #          | "use_existing"     map to Category (params[:category_id])
-  #          | "create"           create a new category (params[:new_category_name])
-  def map_evaluation_case
-    run = current_user.evaluation_runs.find(params[:id])
-    case_record = run.evaluation_cases.find(params[:case_id])
-
-    category = resolve_mapping_category!(case_record, params[:mapping_action].to_s)
-
-    activity = (case_record.actual_json || {})["activity"].presence || case_record.message
-    mapped = ActivityClassification.record!(
-      user: current_user,
-      name: activity,
-      category: category,
-      source: "user"
-    )
-
-    render json: { ok: true, mapped: mapped.present?, category: category.respond_to?(:name) ? category.name : category.to_s }
-  rescue ActiveRecord::RecordNotFound
-    render json: { ok: false, errors: [ "No encontrado" ] }, status: :not_found
-  rescue ArgumentError => e
-    render json: { ok: false, errors: [ e.message ] }, status: :unprocessable_entity
   end
 
   # POST /expense-playground/process_file
@@ -225,7 +138,7 @@ class ExpensePlaygroundController < ApplicationController
         description: candidate.description.presence || candidate.merchant.presence || candidate.category_name,
         category: candidate_category(candidate),
         occurred_at: candidate.date,
-        source: "playground_file",
+        source: candidate.source.presence || "playground_file",
         money_source: candidate_money_source(candidate)
       )
       record_classification!(candidate, expense.category)
@@ -243,7 +156,7 @@ class ExpensePlaygroundController < ApplicationController
   # Explicitly persists a reviewed candidate through the app's single expense
   # creation entry point (validations and rules are NOT bypassed).
   def create
-    candidate = ExpenseCandidate.from_h(candidate_params)
+    candidate = ExpenseCandidate.from_h(candidate_params, user: current_user)
 
     return render json: { ok: false, errors: candidate.errors }, status: :unprocessable_entity unless candidate.valid?
 
@@ -308,56 +221,6 @@ class ExpensePlaygroundController < ApplicationController
     @money_sources = current_user.money_sources.active.order(:name)
   end
 
-  # Serializes a single evaluation case for the progress/case views.
-  def case_entry(case_record)
-    {
-      id: case_record.id,
-      row_number: case_record.row_number,
-      status: case_record.status,
-      message: case_record.message,
-      expected_json: case_record.expected_json,
-      actual_json: case_record.actual_json,
-      field_results: case_record.field_results,
-      json_valid: case_record.json_valid,
-      latency_ms: case_record.latency_ms,
-      input_tokens: case_record.input_tokens,
-      output_tokens: case_record.output_tokens,
-      cost: case_record.cost&.to_f,
-      error: case_record.error,
-      attempts: case_record.attempts,
-      mapped: classification_for_case(case_record),
-      suggested_category: case_suggestion(case_record)
-    }
-  end
-
-  # Whether the case's activity already has a recorded user decision (review
-  # log), so the expected-vs-received table can show accepted mappings.
-  def classification_for_case(case_record)
-    activity = (case_record.actual_json || {})["activity"].presence || case_record.message
-    ActivityClassification.lookup(user: current_user, name: activity)&.source == "user"
-  end
-
-  # For the review summary: whether the received category is a near-duplicate
-  # of an existing one (folded by variant/similarity). English aliases and
-  # learned mappings are deliberate and do not need review.
-  def case_suggestion(case_record)
-    actual = case_record.actual_json
-    return nil if actual.blank?
-
-    received = actual["category"].to_s
-    return nil if received.blank?
-
-    activity = actual["activity"].presence || case_record.message
-    return nil if activity.blank?
-
-    resolved = Categories::ClosestResolver.call(user: current_user, name: received, activity: activity, record: false)
-    return nil unless resolved.matched_by.in?(%i[variant similar])
-
-    resolved.category&.name
-  rescue StandardError
-    nil
-  end
-
   # Raw channel params. Expenses::Input.from_params reads only the
   # keys each type declares; image, audio and file payloads are used in-memory
   # only and never persisted.
@@ -370,7 +233,9 @@ class ExpensePlaygroundController < ApplicationController
   end
 
   def run_evaluation(candidate)
-    ExpensePlayground::Evaluation.call(candidate: candidate, expected: expected_params)
+    evaluation = ExpensePlayground::Evaluation.call(candidate: candidate, expected: expected_params)
+    # `ok` mirrors `ok?` for the front-end (which reads a plain boolean).
+    evaluation.merge(ok: evaluation[:ok?])
   end
 
   def candidate_params
@@ -385,7 +250,7 @@ class ExpensePlaygroundController < ApplicationController
   # batch endpoint accepts the same JSON the front-end sends back.
   def build_batch_candidate(row)
     attrs = row.respond_to?(:to_unsafe_h) ? row.to_unsafe_h : row.to_h
-    ExpenseCandidate.from_h(attrs)
+    ExpenseCandidate.from_h(attrs, user: current_user)
   end
 
   # Best-effort audit of pipeline executions: a persistence failure must never

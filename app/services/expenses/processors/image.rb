@@ -5,36 +5,49 @@ module Expenses
     # Image channel processor, serving both "image" and "text_image" inputs
     # (the only difference is whether the user's optional note is present).
     #
-    # Two paths:
+    # It only knows the two ways an image input can be handled:
     #   1. local OCR (Tesseract) reads text -> the note + OCR text go through
     #      the Text processor (receipt context).
-    #   2. Tesseract reads nothing -> a vision model performs OCR + extraction
-    #      in one call; the resulting entry is normalized by the Text processor
-    #      so every channel ends up with the same candidate mapping.
+    #   2. Tesseract reads nothing -> the vision way (VisionExtraction) calls
+    #      a vision model for OCR + extraction and returns a normalized
+    #      ExpenseCandidate built through CandidateDetector, so every channel
+    #      ends up with the same candidate mapping and category decision.
     class Image < Base
-      RECEIPT_CONTEXT = "This text was OCR'd locally from a payment receipt. When several amounts " \
-                        "appear (items, subtotal, total), extract ONE expense using the TOTAL amount."
+      RECEIPT_CONTEXT = "Este texto fue obtenido mediante OCR local de un comprobante de pago. " \
+                  "Cuando aparezcan varios valores (productos, subtotal, total), " \
+                  "extrae UN solo gasto usando el valor TOTAL."
 
       # Returns [candidate, engine]; candidate is nil when OCR/extraction
       # failed.
       def call
-        ocr_text = run_ocr
+        ocr_text = force_vision? ? nil : run_ocr
         if ocr_text.present?
-          text_processor.call(
-            [ note, ocr_text ].reject(&:blank?).join("\n"),
+          return text_processor.call(
+            combined_text(ocr_text),
             context: RECEIPT_CONTEXT
           )
-        else
-          entry, engine = extract_from_image
-          return [ nil, engine ] if entry.nil?
-
-          candidate = text_processor.normalize(entry)
-          text_processor.validate(candidate)
-          [ candidate, engine ]
         end
+
+        vision = VisionExtraction.call(user: @user, input: @input, note: note, recording: @recording)
+        return [ nil, vision.engine ] unless vision.ok?
+
+        [ [ vision.candidate ], vision.engine ]
       end
 
       private
+
+      # The note carries explicit intent about the image ("pagado con nequi"),
+      # so it is labeled for the parser and the prompt record.
+      def combined_text(ocr_text)
+        note_part = note.present? ? "comentario usuario acerca de la imagen: #{note}" : nil
+        [ note_part, ocr_text ].reject(&:blank?).join("\n")
+      end
+
+      # Debug escape hatch to exercise the vision path with images Tesseract
+      # can read: EXPENSES_FORCE_VISION=1 skips local OCR entirely.
+      def force_vision?
+        ENV["EXPENSES_FORCE_VISION"].present?
+      end
 
       # OCR is only applicable when an image is part of the input. It runs
       # LOCALLY with Tesseract (the image never leaves the machine); when
@@ -43,54 +56,12 @@ module Expenses
       def run_ocr
         text = Ocr::LocalReader.call(image_data: @input.image_data)
         if text.present?
-          @steps[:ocr] = { applicable: true, engine: "tesseract", text: text }
+          @recording&.add_step(:ocr, { applicable: true, engine: "tesseract", text: text })
           text
         else
-          @steps[:ocr] = { applicable: true, pending: true }
+          @recording&.add_step(:ocr, { applicable: true, pending: true })
           nil
         end
-      end
-
-      def extract_from_image
-        result = Ai::ImageExpenseExtractor.call(
-          image_data: @input.image_data,
-          context_text: note
-        )
-
-        unless result[:ok?]
-          @errors << "Expense extraction failed. The extraction service returned an invalid response. (#{result[:error]})"
-          @steps[:extraction] = { engine: "vision", raw: nil, errors: [ result[:error] ] }
-          return [ nil, "vision" ]
-        end
-
-        ocr_text = result.dig(:data, :ocr_text)
-        entries = result.dig(:data, :expenses)
-        @steps[:ocr] = { applicable: true, engine: "mistral-vision", text: ocr_text }
-        @steps[:extraction] = { engine: "vision", raw: result.dig(:data, :expenses), detected_count: entries.length }
-
-        if entries.empty?
-          @errors << "Could not extract an expense from this input. Reason: no expense could be detected in the image."
-          return [ nil, "vision" ]
-        end
-
-        entry = entries.first
-        assign_money_source_from_context(entry, ocr_text)
-        [ entry, "vision" ]
-      end
-
-      # The vision extractor returns no money source, so it is detected from
-      # the user's note first (explicit intent), then from the receipt's OCR
-      # text (e.g. a "Nequi" payment line). Nothing is forced when neither
-      # mentions a source.
-      def assign_money_source_from_context(entry, ocr_text)
-        return if entry.nil? || entry[:money_source_id].present?
-
-        detector = MoneySources::Detector.new(user: @user)
-        source = detector.call(note) || detector.call(ocr_text)
-        return unless source
-
-        entry[:money_source_id] = source.id
-        entry[:money_source_name] = source.name
       end
     end
   end

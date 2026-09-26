@@ -1,0 +1,42 @@
+{
+  "passed": 497,
+  "failed": 3,
+  "stage_counts": {
+    "date": 3
+  },
+  "patterns": {
+    "date": 3
+  },
+  "worst": [
+    [
+      457,
+      "El viernes gast\u00e9 150.000 en ropa con la tarjeta Davibank, 80.000 en comida con la cuenta Davibank y 20.000 en taxi en efectivo.",
+      [
+        "date"
+      ],
+      [
+        "c457: date 2026-09-24 not in [datetime.date(2026, 9, 25)]"
+      ]
+    ],
+    [
+      477,
+      "El viernes gast\u00e9 150.000 en ropa con la tarjeta Davibank, 80.000 en comida con la cuenta Davibank y 20.000 en taxi en efectivo.",
+      [
+        "date"
+      ],
+      [
+        "c477: date 2026-09-24 not in [datetime.date(2026, 9, 25)]"
+      ]
+    ],
+    [
+      497,
+      "El viernes gast\u00e9 150.000 en ropa con la tarjeta Davibank, 80.000 en comida con la cuenta Davibank y 20.000 en taxi en efectivo.",
+      [
+        "date"
+      ],
+      [
+        "c497: date 2026-09-24 not in [datetime.date(2026, 9, 25)]"
+      ]
+    ]
+  ]
+}
