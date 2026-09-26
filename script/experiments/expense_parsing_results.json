@@ -4,7 +4,7 @@
     "input": "Ayer gasté 45.000 en almuerzo, 18.000 en un taxi y 12.500 en café, todo con Davibank.",
     "ok": true,
     "error": null,
-    "latency_seconds": 1.57,
+    "latency_seconds": 1.71,
     "engine": "heuristic",
     "expenses": [
       {
@@ -16,10 +16,12 @@
         "suggested_category_name": null,
         "money_source_name": "Cuenta Davibank",
         "money_source_id": 21,
-        "money_source_source": null,
+        "money_source_source": "suggested",
         "classification_source": "heuristic",
         "confidence": 0.95,
-        "warnings": []
+        "warnings": [
+          "Money source \"Cuenta Davibank\" suggested from a tight match — review it before confirming."
+        ]
       },
       {
         "description": "Taxi",
@@ -30,10 +32,12 @@
         "suggested_category_name": null,
         "money_source_name": "Cuenta Davibank",
         "money_source_id": 21,
-        "money_source_source": null,
+        "money_source_source": "suggested",
         "classification_source": "heuristic",
         "confidence": 0.95,
-        "warnings": []
+        "warnings": [
+          "Money source \"Cuenta Davibank\" suggested from a tight match — review it before confirming."
+        ]
       },
       {
         "description": "Cafe",
@@ -44,10 +48,12 @@
         "suggested_category_name": null,
         "money_source_name": "Cuenta Davibank",
         "money_source_id": 21,
-        "money_source_source": null,
+        "money_source_source": "suggested",
         "classification_source": "heuristic",
         "confidence": 0.95,
-        "warnings": []
+        "warnings": [
+          "Money source \"Cuenta Davibank\" suggested from a tight match — review it before confirming."
+        ]
       }
     ]
   },
@@ -56,7 +62,7 @@
     "input": "Pagué 80.000 del supermercado con tarjeta Infinite y 25.000 de gasolina en efectivo.",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.94,
+    "latency_seconds": 6.39,
     "engine": "ai",
     "expenses": [
       {
@@ -96,7 +102,7 @@
     "input": "El lunes pagué 120.000 de internet y hoy compré 35.000 de comida.",
     "ok": true,
     "error": null,
-    "latency_seconds": 0.97,
+    "latency_seconds": 1.01,
     "engine": "heuristic",
     "expenses": [
       {
@@ -134,7 +140,7 @@
     "input": "Salí con mi esposa al centro comercial, primero almorzamos por 95.000 y después compré una camisa de 140.000 con la tarjeta.",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.55,
+    "latency_seconds": 5.14,
     "engine": "ai",
     "expenses": [
       {
@@ -174,7 +180,7 @@
     "input": "Compré mercado por 180.000: 120.000 de comida y 60.000 de productos de limpieza.",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.8,
+    "latency_seconds": 3.71,
     "engine": "ai",
     "expenses": [
       {
@@ -200,7 +206,7 @@
     "input": "Pasé 500.000 de Davibank a Nequi y después gasté 75.000 en Didi Food.",
     "ok": true,
     "error": null,
-    "latency_seconds": 4.06,
+    "latency_seconds": 3.62,
     "engine": "ai",
     "expenses": [
       {
@@ -240,7 +246,7 @@
     "input": "Didi 32.000",
     "ok": true,
     "error": null,
-    "latency_seconds": 1.66,
+    "latency_seconds": 1.65,
     "engine": "ai",
     "expenses": [
       {
@@ -264,22 +270,24 @@
     "input": "Netflix me cobró 38.900 de la tarjeta.",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.34,
+    "latency_seconds": 2.71,
     "engine": "ai",
     "expenses": [
       {
         "description": "Netflix",
         "amount": 38900,
         "date": "2026-09-25",
-        "category_name": "Entretenimiento",
-        "category_id": 6,
-        "suggested_category_name": null,
+        "category_name": "Streaming",
+        "category_id": null,
+        "suggested_category_name": "Streaming",
         "money_source_name": "Tarjeta Visa Infinite",
         "money_source_id": 23,
         "money_source_source": null,
         "classification_source": "ai",
-        "confidence": 0.9,
-        "warnings": []
+        "confidence": 0.8,
+        "warnings": [
+          "No matching category found. Suggesting the new category \"Streaming\"; confirm to create it or pick an existing one."
+        ]
       }
     ]
   },
@@ -288,7 +296,7 @@
     "input": "Pagué 2.818.000 de la cuota del carro.",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.88,
+    "latency_seconds": 2.26,
     "engine": "ai",
     "expenses": [
       {
@@ -312,7 +320,7 @@
     "input": "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.",
     "ok": true,
     "error": null,
-    "latency_seconds": 2.49,
+    "latency_seconds": 2.12,
     "engine": "ai",
     "expenses": [
       {
@@ -336,7 +344,7 @@
     "input": "Hoy me gasté como 60 lucas comiendo con la familia y otras 20 en parqueadero.",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.21,
+    "latency_seconds": 2.95,
     "engine": "ai",
     "expenses": [
       {
@@ -374,7 +382,7 @@
     "input": "Compré zapatos por 180.000, bueno, fueron 160.000 al final, con Infinite.",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.19,
+    "latency_seconds": 3.55,
     "engine": "ai",
     "expenses": [
       {
@@ -400,12 +408,12 @@
     "input": "Tres cafés de 8.500 cada uno y un sándwich de 22.000.",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.39,
+    "latency_seconds": 3.41,
     "engine": "ai",
     "expenses": [
       {
-        "description": "Tres cafés de 8.500 cada uno y un sándwich de 22.000",
-        "amount": 50000,
+        "description": "Tres cafés y un sándwich",
+        "amount": 47000,
         "date": "2026-09-25",
         "category_name": "Comida",
         "category_id": 1,
@@ -415,7 +423,9 @@
         "money_source_source": null,
         "classification_source": "ai",
         "confidence": 0.65,
-        "warnings": []
+        "warnings": [
+          "Amount $47000 doesn't match the itemized amounts in the text (expected $47500) — review it."
+        ]
       }
     ]
   },
@@ -424,7 +434,7 @@
     "input": "Compré una camisa por 120.000 y me devolvieron 30.000 porque tenía un descuento.",
     "ok": true,
     "error": null,
-    "latency_seconds": 3.64,
+    "latency_seconds": 2.51,
     "engine": "ai",
     "expenses": [
       {
@@ -450,7 +460,7 @@
     "input": "Ayer salí con mi esposa: pagué 85.000 del restaurante con Infinite, 18.000 del parqueadero en efectivo y después compré unas medicinas por 42.500 con Davibank. También pasé 200.000 de Davibank a Nequi para tener efectivo.",
     "ok": true,
     "error": null,
-    "latency_seconds": 8.66,
+    "latency_seconds": 6.83,
     "engine": "ai",
     "expenses": [
       {

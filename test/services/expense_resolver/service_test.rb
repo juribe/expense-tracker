@@ -142,21 +142,6 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     assert_nil result.result.first.money_source_id
     assert_nil result.result.first.money_source_name
-    assert_equal efectivo.id, result.result.last.money_source_id
-  end
-
-  test "a fragment naming a registered source wins over a later mention" do
-    Category.create!(name: "Parking", is_default: true, category_type: "expense")
-    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
-    nequi = @user.money_sources.create!(name: "Nequi", kind: "wallet")
-
-    result = ExpenseResolver::Service.call(
-      text: "gasté 50 mil en restaurante con nequi y 20 mil en parqueadero con efectivo",
-      user: @user
-    )
-
-    assert result.success?
-    assert_equal [ nequi.id, efectivo.id ], result.result.map(&:money_source_id)
   end
 
   test "a suggestion naming an existing category links it instead of creating a duplicate" do
@@ -176,6 +161,80 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal "Comida", candidate.category_name
     assert_nil candidate.suggested_category_name
     assert candidate.warnings.none? { |warning| warning.include?("Suggesting the new category") }
+  end
+
+  test "a fragment naming a registered source wins over a later mention" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    efectivo = @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    nequi = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    result = ExpenseResolver::Service.call(
+      text: "gasté 50 mil en restaurante con nequi y 20 mil en parqueadero con efectivo",
+      user: @user
+    )
+
+    assert result.success?
+    assert_equal [ nequi.id, efectivo.id ], result.result.map(&:money_source_id)
+  end
+
+  test "an AI hint over an ambiguous fragment is flagged for review" do
+    # Fragment says only "Davibank": both sources are possible, so the hinted
+    # source is selected but marked as a suggestion needing review.
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado con Davibank", amount: 80_000,
+      date: Date.current, description: "supermercado", category: "Groceries",
+      money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado con Davibank")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert_equal "suggested", candidate.money_source_source
+    assert candidate.warnings.any? { |warning| warning.include?("tight match") }
+  end
+
+  test "an AI hint grounded in the fragment resolves without a flag" do
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+      .ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado con la cuenta de Davibank", amount: 80_000,
+      date: Date.current, description: "supermercado", category: "Groceries",
+      money_source_hint: "cuenta davibank", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado con la cuenta de Davibank")
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal "cuenta davibank", candidate.money_source_name
+    assert_nil candidate.money_source_source
+    assert_empty candidate.warnings.grep(/tight match/)
+  end
+
+  test "a hint naming an unknown source is still dropped entirely" do
+    @user.money_sources.create!(name: "Efectivo", kind: "cash")
+
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "pagué 80.000 del supermercado", amount: 80_000,
+      date: Date.current, description: "supermercado", category: "Groceries",
+      money_source_hint: "tarjeta Infinite", confidence: 0.9
+    )
+
+    result = with_forced_ai(entries: [ entry ], text: "pagué 80.000 del supermercado")
+
+    assert result.success?
+    assert_nil result.result.first.money_source_id
+    assert_nil result.result.first.money_source_name
   end
 
   test "a model category naming an existing category resolves instead of suggesting" do

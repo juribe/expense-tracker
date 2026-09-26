@@ -31,6 +31,19 @@ module MoneySources
       best_match(text)&.first
     end
 
+    # True when the fragment actually names this source: every word of at
+    # least one of its identifier values (name or confirmed keyword) appears
+    # in the fragment's tokens, filler words notwithstanding ("con la cuenta
+    # de Davibank" grounds "cuenta davibank").
+    def grounded_in?(source, text)
+      fragment_tokens = normalize_text(text).split
+      return false if fragment_tokens.empty?
+
+      identifier_values = [ source.name, *source.recognition_identifiers.select(&:keyword?).map(&:value) ]
+      identifier_values.compact.map { |value| normalize_text(value).split }
+                       .any? { |value_tokens| value_tokens.present? && (value_tokens - fragment_tokens).empty? }
+    end
+
     # Every registered source whose identifiers match the text, in the same
     # order the sources were loaded.
     def matching_sources(text)

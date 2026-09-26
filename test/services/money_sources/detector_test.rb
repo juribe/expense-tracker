@@ -82,4 +82,36 @@ class MoneySourcesDetectorTest < ActiveSupport::TestCase
 
     assert_equal first, detector.best_match("pagué en davibank")&.first
   end
+
+  test "grounded_in? is true when the fragment names the identifier" do
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+
+    assert detector.grounded_in?(davibank, "45.000 con la cuenta de Davibank")
+    assert detector.grounded_in?(davibank, "45.000 con la cuenta davibank")
+  end
+
+  test "grounded_in? is false for a bank-level-only mention" do
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+
+    refute detector.grounded_in?(davibank, "45.000 con Davibank")
+  end
+
+  test "grounded_in? handles single-word and numeric identifiers" do
+    tarjeta = @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+    tarjeta.ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+
+    assert detector.grounded_in?(tarjeta, "45.000 con la tarjeta")
+    assert detector.grounded_in?(tarjeta, "45.000 con la tarjeta de crédito davibank")
+    refute detector.grounded_in?(tarjeta, "45.000 con Davibank")
+  end
+
+  test "grounded_in? is false without the source's words" do
+    davibank = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account", bank: "Davibank")
+    davibank.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+
+    refute detector.grounded_in?(davibank, "45.000 en almuerzo")
+    refute detector.grounded_in?(davibank, "")
+  end
 end

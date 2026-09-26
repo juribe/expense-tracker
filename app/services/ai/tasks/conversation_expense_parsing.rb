@@ -112,8 +112,9 @@ module Ai
             Ejemplos: "gasolina" → "Transporte", "matrícula universitaria" →
             "Educación", "pago de ropa" → null.
           - money_source_hint: método de pago o cuenta de ese gasto usando
-            solo un identificador de las fuentes registradas. Si ninguna
-            fuente registrada corresponde, null. Nunca inventes nombres.
+            solo un identificador de las fuentes registradas. Si el mensaje
+            no especifica cuenta ni tarjeta, null. Si ninguna fuente
+            registrada corresponde, null. Nunca inventes nombres.
 
           Reglas:
           - Varios artículos de una misma compra = un solo gasto. Transacciones

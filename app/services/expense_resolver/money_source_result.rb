@@ -62,12 +62,19 @@ module ExpenseResolver
       detector = money_source_detector
       hint = expense.respond_to?(:money_source_hint) ? expense.money_source_hint.to_s : ""
 
-      if hint.present?
-        matched = detector.best_match(hint)
-        return [ matched&.first, false ]
-      end
-
       slice = own_amount_slice(expense.original_text.to_s)
+
+      if hint.present?
+        source = detector.best_match(hint)&.first
+        # An unregistered hint names an unknown source: nothing is inherited.
+        return [ nil, false ] if source.nil?
+
+        # The hint is authoritative only when the fragment actually names the
+        # source; a hint over a bank-level-only fragment is the model's guess,
+        # so it is selected but flagged for review.
+        grounded = detector.grounded_in?(source, slice)
+        return [ source, !grounded ]
+      end
 
       slice_matches = detector.scored_matches(slice)
       return resolve_scored(slice_matches) if slice_matches.any?
