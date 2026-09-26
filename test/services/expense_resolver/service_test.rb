@@ -672,4 +672,40 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: restaurants, source: "cheap_ai")
     assert_equal other.id, ActivityClassification.lookup(user: @user, name: "DIDI FOOD").category_id
   end
+
+  test "a refund with its own amount keeps the full purchase price and flags review" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "camisa 120.000, me devolvieron 30.000 de unos productos",
+      amount: 120_000, date: Date.current, description: "camisa",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Compré una camisa por 120.000 y me devolvieron 30.000 porque tenía un descuento"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal 120_000, candidate.amount
+    assert candidate.warnings.any? { |warning| warning.include?("refund") && warning.include?("30000") }
+  end
+
+  test "a refund mention without its own amount still flags review" do
+    entry = Ai::Tasks::ParsedExpense.new(
+      original_text: "mercado 200.000, pero me devolvieron unos productos",
+      amount: 200_000, date: Date.current, description: "mercado",
+      category: nil, money_source_hint: nil, confidence: 0.9
+    )
+
+    result = with_forced_ai(
+      entries: [ entry ],
+      text: "Compré mercado por 200.000, pero me devolvieron unos productos"
+    )
+
+    assert result.success?
+    candidate = result.result.first
+    assert_equal 200_000, candidate.amount
+    assert candidate.warnings.any? { |warning| warning.include?("refund") }
+  end
 end

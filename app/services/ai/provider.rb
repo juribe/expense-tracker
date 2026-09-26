@@ -18,6 +18,9 @@ module Ai
 
     class Error < StandardError; end
 
+    # Growing waits for transient 429 throttles: 2s, 5s, 10s.
+    RETRY_BACKOFF_SECONDS = [ 2, 5, 10 ].freeze
+
     attr_reader :name, :model
 
     def initialize(name:, model:, api_key:, base_url:)
@@ -92,7 +95,9 @@ module Ai
       retry_with_backoff { http.request(request) }
     end
 
-    # Retries transient rate limits (HTTP 429) with a short backoff. A 429
+    # Retries transient rate limits (HTTP 429) with a growing backoff
+    # (2s, 5s, 10s): free-tier providers answer in per-minute bursts, so the
+    # short 1s/2s waits still landed inside the throttled window. A 429
     # reporting an exhausted budget or quota is not transient: fail fast so
     # the router can fall back to the strong tier immediately.
     def retry_with_backoff
@@ -101,9 +106,9 @@ module Ai
         response = yield
         return response if response.code.to_i == 200
 
-        if response.code.to_i == 429 && attempts < 2 && retryable_throttle?(response)
+        if response.code.to_i == 429 && attempts < 3 && retryable_throttle?(response)
           attempts += 1
-          sleep(attempts)
+          sleep(RETRY_BACKOFF_SECONDS[attempts - 1])
           next
         end
 

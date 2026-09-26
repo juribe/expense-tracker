@@ -124,6 +124,9 @@ module Ai
           - Frases de transferencia al final del mensaje ("pasé/transferí/moví
             X de A a B") son transacciones separadas: extráelas también, aun
             cuando vengan después de otros gastos.
+          - Los gastos se registran por el valor pagado: no restes devoluciones,
+            descuentos ni recargos del monto del gasto ("me devolvieron 30.000"
+            no cambia el valor de la compra).
           - original_text debe cubrir solo ese gasto: si hay varios gastos,
             nunca repitas el mensaje completo en cada objeto.
           - No inventes información ni crees IDs o entidades de base de datos.

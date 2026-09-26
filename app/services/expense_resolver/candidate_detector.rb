@@ -46,7 +46,7 @@ module ExpenseResolver
         confidence: expense.confidence,
         money_source_name: money_source_result.money_source_name,
         money_source_id: money_source_result.money_source&.id,
-        warnings: category_result.warnings + money_source_warnings + amount_sum_warnings
+        warnings: category_result.warnings + money_source_warnings + amount_sum_warnings + refund_warnings
       )
       candidate.money_source_source = "suggested" if money_source_result.review
       candidate = apply_matching_rule_category(candidate)
@@ -76,6 +76,28 @@ module ExpenseResolver
     def format_money(value)
       formatted = value.to_i == value ? value.to_i : value.to_f
       "$#{formatted.to_s.gsub(/\.0\z/, "")}"
+    end
+
+    # Refunds and adjustments ("me devolvieron 30.000", "tenía un descuento")
+    # must never be netted silently into the purchase amount: the expense
+    # stays at the full price and the mention goes to the user for review.
+    REFUND_PHRASE_REGEX = /\b(?:me\s+)?(?:devolv\p{L}*|devoluci\p{L}*|recarg\p{L}*|descuento|rebaja)\b/i
+    REFUND_AMOUNT_REGEX = /\b(?:me\s+)?(?:devolv\p{L}*|recarg\p{L}*|descuento\p{L}*|rebaja\p{L}*)\b[^0-9]{0,24}\$?\s*(\d[\d.,]*)/i
+
+    def refund_warnings
+      slice = ExpenseResolver::Text::Service.cut_payment_clause(
+        ExpenseResolver::MoneySourceResult.slice_for(expense)
+      )
+
+      match = REFUND_AMOUNT_REGEX.match(slice)
+      if match
+        value, = ExpenseResolver::Amounts::Service.interpret_amount(match[1], colloquial: false)
+        if value && value != expense.amount
+          return [ "Text mentions a refund or adjustment of #{format_money(value)} — confirm the amount is the full purchase price before confirming." ]
+        end
+      end
+
+      slice.match?(REFUND_PHRASE_REGEX) ? [ "Text mentions a refund or adjustment — confirm the amount is the full purchase price before confirming." ] : []
     end
 
     def category_result

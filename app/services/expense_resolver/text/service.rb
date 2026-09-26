@@ -11,6 +11,16 @@ module ExpenseResolver
         a tambien solo fueron era son es
       ].to_set.freeze
 
+      # Motion and meal verbs describe the trip, not the purchase ("almuerzo
+      # salí", "parqueadero salimos"). They are dropped wherever they appear
+      # so descriptions never end on them.
+      ACTION_WORDS = %w[
+        sali salimos fui fuimos lleve llevo pase puse pongo
+        almorce desayune cene almorzamos desayunamos cenamos
+        pagamos compramos
+        recargue recargaron devolvieron devolucion
+      ].to_set.freeze
+
       ACCENT_MAP = { "á" => "a", "é" => "e", "í" => "i", "ó" => "o", "ú" => "u", "ü" => "u" }.freeze
 
       # Trailing payment clauses describe how the purchase was paid, not what
@@ -45,7 +55,7 @@ module ExpenseResolver
       def self.clean_description(text)
         stripped = cut_payment_clause(text)
         tokens = normalize_text(stripped).scan(/[a-zñ0-9]+/).reject do |token|
-          FILLER_WORDS.include?(token) || DATE_WORDS.include?(token) || token.match?(/\A\d+\z/) || %w[lunes martes miercoles jueves viernes sabado domingo].include?(token)
+          FILLER_WORDS.include?(token) || ACTION_WORDS.include?(token) || DATE_WORDS.include?(token) || token.match?(/\A\d+\z/) || %w[lunes martes miercoles jueves viernes sabado domingo].include?(token)
         end
         titleize_words(tokens.join(" ")).truncate(80)
       end
