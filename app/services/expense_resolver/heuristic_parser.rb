@@ -35,8 +35,9 @@ module ExpenseResolver
       # A date expression scopes every expense that follows it until a new
       # one appears ("Ayer gasté 45.000 en almuerzo, 18.000 en un taxi").
       carried_date = nil
+      entries = []
 
-      matches.each_with_index.filter_map do |match, index|
+      matches.each_with_index do |match, index|
         previous_end = index.zero? ? 0 : matches[index - 1][:end]
         prefix = normalized[previous_end...match[:start]].to_s
         window_end = index == matches.length - 1 ? normalized.length : matches[index + 1][:start]
@@ -48,18 +49,49 @@ module ExpenseResolver
         carried_date = date_info if date_info
         date, date_confidence = date_info || carried_date || [ @today, 0.95 ]
 
-        build_entry(
-          raw_amount: match[:raw],
-          prefix: prefix,
-          window: window,
-          original_text: original_text,
-          date: date,
-          date_confidence: date_confidence
-        )
+        if correction_clause?(prefix) && entries.any?
+          entries[-1] = supersede_entry(entries.last, raw_amount: match[:raw], original_text: original_text)
+        else
+          entries << build_entry(
+            raw_amount: match[:raw],
+            prefix: prefix,
+            window: window,
+            original_text: original_text,
+            date: date,
+            date_confidence: date_confidence
+          )
+        end
       end
+      entries
     end
 
     private
+
+    # "en realidad fueron 110.000", "bueno 90.000", "perdón, 65.000",
+    # "revisando el recibo fueron 76.500" — a correction clause in the gap
+    # between two amounts supersedes the expense just parsed: the final value
+    # replaces it instead of splitting the same purchase into two entries.
+    CORRECTION_REGEX = /\b(?:bueno|perdon|aunque|no|en\s+realidad|revisando\s+el\s+recibo)\b/
+
+    def correction_clause?(prefix)
+      prefix.match?(CORRECTION_REGEX)
+    end
+
+    def supersede_entry(previous, raw_amount:, original_text:)
+      value, amount_confidence = Amounts::Service.interpret_amount(raw_amount, colloquial: true)
+      signals = (previous.signal_confidences || {}).merge(amount: amount_confidence.round(2))
+
+      Ai::Tasks::ParsedExpense.new(
+        original_text: original_text.strip.presence || previous.original_text,
+        amount: BigDecimal(value.to_s),
+        date: previous.date,
+        description: previous.description,
+        category: previous.category,
+        money_source_hint: nil,
+        confidence: [ previous.confidence, amount_confidence ].min.round(2),
+        signal_confidences: signals
+      )
+    end
 
     # Trims the segment at a date expression that opens the next expense.
     # The cut only happens when spending text follows the date word ("hoy

@@ -153,4 +153,36 @@ class ExpenseResolverHeuristicParserTest < ActiveSupport::TestCase
     assert_equal "Pet Care", entry.category
     assert_operator entry.confidence, :<, Ai::Tasks::ParsedExpense::LOW_CONFIDENCE_THRESHOLD
   end
+
+  test "a correction clause supersedes the earlier amount instead of splitting" do
+    entries = parse("Pagué 120.000 de internet, en realidad fueron 110.000.")
+
+    assert_equal 1, entries.size
+    assert_equal BigDecimal("110000"), entries.first.amount
+    assert_includes entries.first.description.downcase, "internet"
+  end
+
+  test "correction markers bueno, perdón and receipt reviews also supersede" do
+    {
+      "Compré zapatos por 180.000, bueno, fueron 160.000." => "160000",
+      "Almuerzo 70.000, perdón, 65.000." => "65000",
+      "Pagué 80.000 de comida; revisando el recibo fueron 76.500." => "76500",
+      "Gasté 50.000 en comida, no, fueron 55.000." => "55000"
+    }.each do |text, amount|
+      entries = parse(text)
+
+      assert_equal 1, entries.size, text
+      assert_equal BigDecimal(amount), entries.first.amount, text
+    end
+  end
+
+  test "a correction followed by a new expense keeps both entries" do
+    entries = parse("gasté 100.000 en comida con Davibank, bueno 90.000 porque nos hicieron descuento, y 25.000 de parqueadero con la cuenta Davibank")
+
+    assert_equal 2, entries.size
+    assert_equal BigDecimal("90000"), entries.first.amount
+    assert_includes entries.first.description.downcase, "comida"
+    assert_equal BigDecimal("25000"), entries.last.amount
+    assert_includes entries.last.description.downcase, "parqueadero"
+  end
 end

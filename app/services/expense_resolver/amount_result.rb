@@ -53,8 +53,18 @@ module ExpenseResolver
       return true if parsed_ai.nil?
       return true if heuristic[:value].to_d == parsed_ai.to_d
       return false if heuristic[:confidence] < HIGH_CONFIDENCE_SCAN
+      return false if corroborates_ai?(parsed_ai)
 
       distinct_values.one?
+    end
+
+    # A high-confidence scan wins only against a guessed AI amount. When the
+    # text's itemized/quantity reading equals the AI amount ("tres cafés de
+    # 8.500 cada uno" → 25.500), the text itself corroborates it: overriding
+    # with the first raw scan would destroy a correct multiplication.
+    def corroborates_ai?(parsed_ai)
+      validation = ExpenseResolver::Amounts::SumValidator.call(amount: parsed_ai, text: text)
+      validation.itemized && !validation.mismatch?
     end
 
     def distinct_values

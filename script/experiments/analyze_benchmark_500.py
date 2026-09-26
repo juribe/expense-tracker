@@ -44,7 +44,7 @@ ITEM_CATEGORY = {
     "cine": ENTRETENIMIENTO, "entradas": ENTRETENIMIENTO,
     "farmacia": SALUD, "medicinas": SALUD, "consulta médica": SALUD,
     "consulta": SALUD, "medica": SALUD,
-    "curso": EDUCACION, "libro": EDUCACION,
+    "curso": EDUCACION, "libro": EDUCACION | {"Libros"},
     "hotel": VIAJES, "vuelo": VIAJES,
     "camisa": OPEN, "zapatos": OPEN, "ropa": OPEN, "camisetas": OPEN,
 }
@@ -163,13 +163,13 @@ TRANSFERS = {
     "Recargué Nequi con 150.000 desde mi cuenta Davibank.": [E(150000, "cuenta", CUENTA, item="nequi")],
     "Le transferí 100.000 a mi esposa desde Davibank.": [E(100000, "review", item="esposa")],
     "Pasé 80.000 de Davibank a Nequi y después gasté 30.000 en comida.": [E(80000, "review", item="nequi"), E(30000, "none", item="comida")],
-    "Transferí 500.000 desde mi cuenta Davibank y después pagué 70.000 de restaurante con la tarjeta Davibank.": [E(500000, "cuenta", CUENTA, item="cuenta"), E(70000, "tarjeta", TARJETA, item="restaurante")],
+    "Transferí 500.000 desde mi cuenta Davibank y después pagué 70.000 de restaurante con la tarjeta Davibank.": [E(500000, "cuenta", CUENTA, item="davibank"), E(70000, "tarjeta", TARJETA, item="restaurante")],
     "Pasé 300.000 de Davibank a Nequi, gasté 50.000 en comida y luego pasé otros 100.000.": [E(300000, "review", item="nequi"), E(50000, "none", item="comida"), E(100000, "review", item="nequi")],
 }
 
 COMPLEX = {
     "Ayer salí con mi esposa: pagué 85.000 del restaurante con Davibank, 18.000 del parqueadero en efectivo y compré medicinas por 42.500 con la cuenta Davibank. También pasé 200.000 de Davibank a Nequi.": [E(85000, "review", date_cls="ayer", item="restaurante"), E(18000, "efectivo", EFECTIVO, "ayer", "parqueadero"), E(42500, "cuenta", CUENTA, "ayer", "medicinas"), E(200000, "review", date_cls="ayer", item="nequi")],
-    "Hoy compré mercado por 180.000 con la tarjeta Davibank, pagué 35.000 de taxi en efectivo y almorcé por 65.000 con la cuenta Davibank.": [E(180000, "tarjeta", TARJETA, "hoy", "mercado"), E(35000, "efectivo", EFECTIVO, "hoy", "taxi"), E(65000, "cuenta", CUENTA, "hoy", "almorcé")],
+    "Hoy compré mercado por 180.000 con la tarjeta Davibank, pagué 35.000 de taxi en efectivo y almorcé por 65.000 con la cuenta Davibank.": [E(180000, "tarjeta", TARJETA, "hoy", "mercado"), E(35000, "efectivo", EFECTIVO, "hoy", "taxi"), E(65000, "cuenta", CUENTA, "hoy", "almuerzo")],
     "El sábado gasté 120.000 en restaurante, 20.000 de parqueadero y 15.000 en café. El restaurante lo pagué con la cuenta Davibank y lo demás en efectivo.": [E(120000, "cuenta", CUENTA, "weekday:sabado", "restaurante"), E(20000, "efectivo", EFECTIVO, "weekday:sabado", "parqueadero"), E(15000, "efectivo", EFECTIVO, "weekday:sabado", "café")],
     "Ayer pagué Netflix 38.900 con la tarjeta Davibank, Spotify 24.900 con Davibank y HBO 29.900 con la cuenta Davibank.": [E(38900, "tarjeta", TARJETA, "ayer", "netflix"), E(24900, "review", date_cls="ayer", item="spotify"), E(29900, "cuenta", CUENTA, "ayer", "hbo")],
     "El lunes pasé 500.000 de Davibank a Nequi, gasté 80.000 en supermercado con la cuenta Davibank y después 35.000 en Didi Food con la tarjeta Davibank.": [E(500000, "review", date_cls="weekday:lunes", item="nequi"), E(80000, "cuenta", CUENTA, "weekday:lunes", "supermercado"), E(35000, "tarjeta", TARJETA, "weekday:lunes", "didi food")],
