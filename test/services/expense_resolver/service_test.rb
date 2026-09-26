@@ -358,6 +358,30 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 9, 24), result.result.first.date
   end
 
+  test "explicit per-name source assignments attribute each expense correctly" do
+    Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    cuenta = @user.money_sources.create!(name: "cuenta davibank", kind: "account", bank: "Davibank")
+    cuenta.ensure_recognition.replace_identifiers(keyword: [ "cuenta davibank" ])
+    @user.money_sources.create!(name: "tarjeta davibank", kind: "credit_card", bank: "Davibank")
+      .ensure_recognition.replace_identifiers(keyword: [ "tarjeta davibank", "tarjeta" ])
+    efectivo = @user.money_sources.create!(name: "efectivo", kind: "cash")
+    efectivo.ensure_recognition.replace_identifiers(keyword: [ "efectivo", "dinero", "plata" ])
+
+    with_env({ "AI_DETERMINISTIC_THRESHOLD" => "0.80" }) do
+      result = ExpenseResolver::Service.call(
+        text: "El sábado gasté 120.000 en restaurante, 20.000 de parqueadero y 15.000 en café. El restaurante lo pagué con la cuenta Davibank y lo demás en efectivo",
+        user: @user
+      )
+
+      assert result.success?
+      expenses = result.result
+      assert_equal [ "cuenta davibank", "efectivo", "efectivo" ], expenses.map(&:money_source_name)
+      expenses.each do |candidate|
+        assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+      end
+    end
+  end
+
   test "several date expressions map to phrase-less entries by text order" do
     entries = [
       Ai::Tasks::ParsedExpense.new(

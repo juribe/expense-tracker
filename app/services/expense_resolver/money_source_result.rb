@@ -62,7 +62,11 @@ module ExpenseResolver
       detector = money_source_detector
       hint = expense.respond_to?(:money_source_hint) ? expense.money_source_hint.to_s : ""
 
-      slice = own_amount_slice(expense.original_text.to_s)
+      # The slice carries only the expense's own side of the fragment:
+      # trailing payment clauses belong to the message, not to this expense.
+      slice = ExpenseResolver::Text::Service.cut_payment_clause(
+        own_amount_slice(expense.original_text.to_s)
+      )
 
       if hint.present?
         source = detector.best_match(hint)&.first
@@ -105,6 +109,15 @@ module ExpenseResolver
       full = text.presence
       return [ nil, false ] if full.blank?
 
+      # Explicit per-name assignments ("El restaurante lo pagué con la cuenta
+      # Davibank") are the most specific signal: they attribute a source to
+      # the expense whose description names it.
+      named = named_assignment_clause(full)
+      if named && description_matches_name?(named[:name])
+        named_matches = detector.scored_matches(named[:clause])
+        return resolve_scored(named_matches) if named_matches.any?
+      end
+
       # A trailing quantified clause ("...todo con Davibank", "...ambas con
       # Nequi") says one payment method applies to every expense, so it
       # resolves even when several sources match elsewhere in the message.
@@ -112,6 +125,14 @@ module ExpenseResolver
       if clause
         clause_matches = detector.scored_matches(clause)
         return resolve_scored(clause_matches) if clause_matches.any?
+      end
+
+      # A remainder clause ("...y lo demás en efectivo") covers the expenses
+      # that were not named explicitly.
+      remainder = remainder_clause(full)
+      if remainder
+        remainder_matches = detector.scored_matches(remainder)
+        return resolve_scored(remainder_matches) if remainder_matches.any?
       end
 
       matches = detector.matching_sources(full)
@@ -125,6 +146,36 @@ module ExpenseResolver
       clean = ExpenseResolver::Text::Service.normalize_text(full)
       match = clean.match(ExpenseResolver::Text::Service::PAYMENT_CLAUSE_REGEX)
       match ? clean[match.begin(0)..] : nil
+    end
+
+    # "El restaurante lo pagué con la cuenta Davibank": the name references
+    # an expense by its description word.
+    def named_assignment_clause(full)
+      clean = ExpenseResolver::Text::Service.normalize_text(full)
+      match = clean.match(/[,;.]?\s*(?:el|la|los|las)?\s*(?<name>\w[\wáéíóúñ]*)\s+lo\s+pag\p{L}*\s+con\s+(?<clause>[^,;.]+)/i)
+      return nil unless match
+
+      { name: match[:name], clause: match[:clause] }
+    end
+
+    # "…y lo demás en efectivo": the payment method for every expense that
+    # was not explicitly named.
+    def remainder_clause(full)
+      clean = ExpenseResolver::Text::Service.normalize_text(full)
+      match = clean.match(/\b(?:lo demas|los demas|el resto|todo lo demas)\s+(?:pago\s+)?(?:con|en|desde|mediante|usando)\s+(?<clause>[^,;.]+)/i)
+      match ? match[:clause] : nil
+    end
+
+    def description_tokens
+      @description_tokens ||= ExpenseResolver::Text::Service
+        .normalize_text(expense.description.to_s).split
+    end
+
+    # The named expense matches when one of its description tokens (4+ chars,
+    # to skip noise) is the referenced name.
+    def description_matches_name?(name)
+      name_tokens = ExpenseResolver::Text::Service.normalize_text(name).split
+      description_tokens.any? { |token| token.length >= 4 && name.include?(token) }
     end
   end
 end
