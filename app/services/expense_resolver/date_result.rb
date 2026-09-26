@@ -28,7 +28,10 @@ module ExpenseResolver
     private
 
     def date
-      heuristic = allow_heuristic ? heuristic_date : nil
+      # Fragment-level date evidence is safe in multi-entry messages too: the
+      # fragment's own single date expression is the user's words, and it must
+      # outrank the model's date arithmetic ("El viernes" is not a Thursday).
+      heuristic = allow_heuristic || fragment_dates.present? ? heuristic_date : nil
       return heuristic if heuristic && trusted?(heuristic)
 
       if fragment_dates.empty?

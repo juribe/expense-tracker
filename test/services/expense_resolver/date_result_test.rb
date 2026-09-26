@@ -34,5 +34,23 @@ module ExpenseResolver
 
       assert_equal Date.current, result.date
     end
+
+    test "a fragment's single date expression outranks the model date in multi-entry messages" do
+      entry = Ai::Tasks::ParsedExpense.new(
+        original_text: "El viernes gasté 150.000 en ropa", amount: 150_000,
+        date: (Date.current - 2).iso8601, description: "ropa", category: nil,
+        money_source_hint: nil, confidence: 0.9
+      )
+
+      result = DateResult.call(
+        expense: entry, allow_heuristic: false,
+        full_text: "El viernes gasté 150.000 en ropa, 80.000 en comida y 20.000 en taxi en efectivo",
+        entry_position: 0, entry_count: 3
+      )
+
+      friday = Date.current
+      friday -= 1 until friday.wday == 5 && friday < Date.current
+      assert_equal friday, result.date
+    end
   end
 end
