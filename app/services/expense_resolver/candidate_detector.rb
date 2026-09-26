@@ -91,7 +91,8 @@ module ExpenseResolver
     def date_result
       @date_result ||= DateResult.call(
         expense: expense,
-        allow_heuristic: allow_text_heuristics
+        allow_heuristic: allow_text_heuristics,
+        full_text: text
       )
     end
 

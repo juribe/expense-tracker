@@ -54,6 +54,7 @@ class ExpenseCandidate < ApplicationRecord
       "merchant" => merchant,
       "category_name" => category_name,
       "money_source_name" => money_source_name,
+      "money_source_source" => money_source_source,
       "classification_source" => classification_source,
       "suggested_category_name" => suggested_category_name,
       "suggested_category_id" => suggested_category_id,
@@ -83,6 +84,7 @@ class ExpenseCandidate < ApplicationRecord
       classification_source: hash[:classification_source].presence,
       money_source_source: hash[:money_source_source].presence,
       suggested_category_id: hash[:suggested_category_id].presence&.to_i,
+      suggested_category_name: hash[:suggested_category_name].presence,
       duplicate: hash[:duplicate],
       warnings: Array(hash[:warnings])
     )
@@ -109,14 +111,16 @@ class ExpenseCandidate < ApplicationRecord
   end
 
   # Compute which required fields are currently missing or nil.
-  # Individual checks rendered by the pipeline/debug view.
+  # Individual checks rendered by the pipeline/debug view. The money source
+  # check is informational: a message without any payment mention still
+  # yields a valid candidate (the user assigns the source before saving).
   def checks
     [
       { label: "Amount present", passed: amount.is_a?(Numeric) && amount.positive? },
       { label: "Currency detected", passed: currency.present? },
       { label: "Description present", passed: description.present? },
       { label: "Category assigned", passed: category_id.present? || category_name.present? },
-      { label: "Money source detected", passed: money_source_id.present? || money_source_name.present? },
+      { label: "Money source detected", passed: money_source_id.present? || money_source_name.present?, informational: true },
       { label: "Valid date", passed: date.present? }
     ]
   end
@@ -124,7 +128,7 @@ class ExpenseCandidate < ApplicationRecord
   # Lightweight validity check for pipeline processing. Does not require
   # a user (candidates are persisted later with user assignment).
   def valid_for_pipeline?
-    checks.all? { |check| check[:passed] }
+    checks.reject { |check| check[:informational] }.all? { |check| check[:passed] }
   end
 
   def missing_fields
