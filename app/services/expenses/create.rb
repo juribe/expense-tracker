@@ -84,7 +84,7 @@ module Expenses
       # folds are recorded as rule knowledge (the reviewable mapping log).
       resolved = Categories::ClosestResolver.call(user: @user, name: name, activity: @description)
       resolved.category ||
-        Category.create!(name: name.split.map(&:capitalize).join(" "), user: @user, is_default: false)
+        Category.create!(name: name.split.map(&:capitalize).join(" "), user: @user, is_default: false, category_type: "expense")
     end
 
     def normalize_description

@@ -494,6 +494,7 @@ es:
     money_sources_credit_cards: "Tarjetas de Crédito"
     money_sources_loans: "Préstamos"
     gmail: "Integración Gmail"
+    whatsapp: "WhatsApp"
     source_recognition: "Reconocimiento de fuentes"
     playground: "Playground"
     evaluations: "Evaluaciones"

@@ -435,7 +435,7 @@ class ExpensesController < ApplicationController
       return existing if existing
       return nil if rule_will_set_category?(input, amount)
 
-      Category.create!(name: new_name, user: current_user, is_default: false)
+      Category.create!(name: new_name, user: current_user, is_default: false, category_type: "expense")
     else
       raise ArgumentError, t("expenses.category_required")
     end

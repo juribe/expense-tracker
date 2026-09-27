@@ -1,8 +1,8 @@
 {
   "app/assets/javascripts/application.js": {
-    "mtime": 1788810596.3595676,
-    "seen": 1789925327.319752,
-    "ast_hash": "f3e878f17ccb5bd53b77053ede50b74b",
+    "mtime": 1790534869.7870262,
+    "seen": 1790534946.007212,
+    "ast_hash": "5a7bc859cbb65f2ab68336115982fc8f",
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expenses_controller.rb": {
-    "mtime": 1790454777.3441408,
-    "seen": 1790459641.393016,
-    "ast_hash": "e712800925c4b857486a15cc10144e0a",
+    "mtime": 1790548276.786325,
+    "seen": 1790548394.791701,
+    "ast_hash": "dec647b1112cdbeef3c11da3230bea2e",
     "semantic_hash": ""
   },
   "app/controllers/financial_setups_controller.rb": {
@@ -252,9 +252,9 @@
     "semantic_hash": "62973af706b50e601057596057afc141"
   },
   "app/models/user.rb": {
-    "mtime": 1790454777.3458726,
-    "seen": 1790459641.393118,
-    "ast_hash": "f78eddfa1affe99859222c65c21f999a",
+    "mtime": 1790530506.077274,
+    "seen": 1790531892.553529,
+    "ast_hash": "622f1cb0ee4d42ea594aa185eea9d7a2",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -282,9 +282,9 @@
     "semantic_hash": "13b4a2fcf24b12bd12d35db669f38f9f"
   },
   "app/services/expenses/create.rb": {
-    "mtime": 1789424643.4127903,
-    "seen": 1789925327.319925,
-    "ast_hash": "1cdd6482f0d372dc60cf4d2fd63f7325",
+    "mtime": 1790548265.192046,
+    "seen": 1790548394.791908,
+    "ast_hash": "7d120df4b7fb09ccc0f5c6e968ff5255",
     "semantic_hash": ""
   },
   "app/services/financial_setup_wizard.rb": {
@@ -498,10 +498,10 @@
     "semantic_hash": "57710249dabbe1ea548ccdd50da08335"
   },
   "config/environments/development.rb": {
-    "mtime": 1787839607.2698414,
-    "seen": 1789925327.3200178,
-    "ast_hash": "75091a0fd0625d1ac0929e6fd17efb05",
-    "semantic_hash": "75091a0fd0625d1ac0929e6fd17efb05"
+    "mtime": 1790528091.1821024,
+    "seen": 1790529379.192016,
+    "ast_hash": "455f7908efdb83bac535ee9e68d48fb3",
+    "semantic_hash": ""
   },
   "config/environments/production.rb": {
     "mtime": 1787964909.908291,
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1790454777.3662655,
-    "seen": 1790459641.393399,
-    "ast_hash": "b6b4fe2dae89ddb1f727da6b1f91d4c3",
+    "mtime": 1790534337.5798266,
+    "seen": 1790534476.049592,
+    "ast_hash": "2ca17e9cee7b5ee266f68a1dcac21a6b",
     "semantic_hash": ""
   },
   "db/migrate/20260819140000_create_categories.rb": {
@@ -828,9 +828,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1790454777.3675516,
-    "seen": 1790459641.393522,
-    "ast_hash": "dc05a3728d4af31a428c760354772fa9",
+    "mtime": 1790530586.2804291,
+    "seen": 1790531892.5539231,
+    "ast_hash": "31cee7dd4d8df126ecc0bd833cd2db26",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1790454777.3659544,
-    "seen": 1790459641.393835,
-    "ast_hash": "bb95ceff8c3bce43cc5ad64125cb9d41",
+    "mtime": 1790532953.7145522,
+    "seen": 1790532976.3702831,
+    "ast_hash": "02e51167b0d8862ce984ae7ee0fa6c52",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1626,9 +1626,9 @@
     "semantic_hash": "2add52a0cba32f1b7f42233d99f8226e"
   },
   ".opencode/opencode.json": {
-    "mtime": 1788705237.9116821,
-    "seen": 1789925327.319745,
-    "ast_hash": "e5f74d14a81702b55bdf53b33ec991d7",
+    "mtime": 1790526647.9432747,
+    "seen": 1790529379.191637,
+    "ast_hash": "d2b429e08e5c91684dd93d1cc5096381",
     "semantic_hash": ""
   },
   ".opencode/plugins/graphify.js": {
@@ -2016,9 +2016,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_playground_controller.rb": {
-    "mtime": 1790454777.3438487,
-    "seen": 1790459641.393014,
-    "ast_hash": "3325aea1fbd0b3cb590422a64da1156c",
+    "mtime": 1790548275.7193885,
+    "seen": 1790548394.7917,
+    "ast_hash": "c85b171b3c69c669100e82bd64a139ce",
     "semantic_hash": ""
   },
   "app/models/expense_candidate.rb": {
@@ -2736,9 +2736,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_evaluations_controller.rb": {
-    "mtime": 1790454777.3432708,
-    "seen": 1790459641.393012,
-    "ast_hash": "f361bc7b8573b32ee9100406cc517cb4",
+    "mtime": 1790548279.8306208,
+    "seen": 1790548394.791698,
+    "ast_hash": "ba4152b120712c62d1cc030e0ae694aa",
     "semantic_hash": ""
   },
   "app/services/ai/tasks/parsed_expense.rb": {
@@ -2934,9 +2934,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_candidates_controller.rb": {
-    "mtime": 1790454777.3431492,
-    "seen": 1790459641.39301,
-    "ast_hash": "09753302592bdbbbf6003560eb2df334",
+    "mtime": 1790548264.5847244,
+    "seen": 1790548394.791695,
+    "ast_hash": "87bd19d219c9a8512a22072fc6b9e0c0",
     "semantic_hash": ""
   },
   "db/migrate/20260921000001_create_expense_candidates.rb": {
@@ -2946,9 +2946,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expense_candidates_controller_test.rb": {
-    "mtime": 1790454777.5595205,
-    "seen": 1790459641.393619,
-    "ast_hash": "830c4c49e3c8889ad9f67a930c90c9c5",
+    "mtime": 1790548234.0364447,
+    "seen": 1790548394.7922812,
+    "ast_hash": "f213d4c06b0334dd35f94c06198c1411",
     "semantic_hash": ""
   },
   ".opencode/skills/expense-tracker-design/SKILL.md": {
@@ -3225,6 +3225,150 @@
     "mtime": 1790455174.9774692,
     "seen": 1790459641.393759,
     "ast_hash": "6fcad5f1b6d32e51892689dc678f0416",
+    "semantic_hash": ""
+  },
+  "app/controllers/webhooks/whatsapp_controller.rb": {
+    "mtime": 1790528769.6161473,
+    "seen": 1790529379.191691,
+    "ast_hash": "402aa1907dadf16ab935394a1cfd4f58",
+    "semantic_hash": ""
+  },
+  "app/jobs/whatsapp_webhook_job.rb": {
+    "mtime": 1790528773.6196055,
+    "seen": 1790529379.191711,
+    "ast_hash": "1d5c8f0eb41a34daa97f4556660884db",
+    "semantic_hash": ""
+  },
+  "app/poro/whatsapp_message_event.rb": {
+    "mtime": 1790528764.0314858,
+    "seen": 1790529379.1917639,
+    "ast_hash": "8bd0d4edd2b4743b3f731c5acf3d9881",
+    "semantic_hash": ""
+  },
+  "app/poro/whatsapp_payload.rb": {
+    "mtime": 1790528764.0310535,
+    "seen": 1790529379.191766,
+    "ast_hash": "8418e861bb1a6f64d86c67fb04751d9c",
+    "semantic_hash": ""
+  },
+  "app/services/web_hook_handler/whatsapp_service.rb": {
+    "mtime": 1790549456.3482556,
+    "seen": 1790549503.635534,
+    "ast_hash": "96b19b9ec1108c191665e5f0207a55ef",
+    "semantic_hash": ""
+  },
+  "db/migrate/20260927170547_add_whatsapp_number_to_users.rb": {
+    "mtime": 1790528751.5382087,
+    "seen": 1790529379.192144,
+    "ast_hash": "0b264fd2ebe2a7db2476ddc7d9422649",
+    "semantic_hash": ""
+  },
+  "test/controllers/webhooks/whatsapp_controller_test.rb": {
+    "mtime": 1790528400.3840523,
+    "seen": 1790529379.1922581,
+    "ast_hash": "7c4564271570af8c5d65280316631ab9",
+    "semantic_hash": ""
+  },
+  "test/services/web_hook_handler/whatsapp_service_test.rb": {
+    "mtime": 1790549419.0584247,
+    "seen": 1790549503.635984,
+    "ast_hash": "f4d8fba899adeeb31b38664af488340d",
+    "semantic_hash": ""
+  },
+  "app/controllers/whatsapp_settings_controller.rb": {
+    "mtime": 1790534852.2736528,
+    "seen": 1790534946.007262,
+    "ast_hash": "e00b2aab4944b7a543b2106416a529ae",
+    "semantic_hash": ""
+  },
+  "app/helpers/whatsapp_helper.rb": {
+    "mtime": 1790534379.7867792,
+    "seen": 1790534476.0492558,
+    "ast_hash": "109aaea10d488803a67b1d9a9d743401",
+    "semantic_hash": ""
+  },
+  "app/models/pending_whatsapp_connection.rb": {
+    "mtime": 1790530502.2835703,
+    "seen": 1790531892.5535161,
+    "ast_hash": "9223370261c2a007bde212a111a51802",
+    "semantic_hash": ""
+  },
+  "app/models/whatsapp_connection.rb": {
+    "mtime": 1790530496.4975662,
+    "seen": 1790531892.5535302,
+    "ast_hash": "ca1be27c3b7d5aae1ae943fcaaf18e59",
+    "semantic_hash": ""
+  },
+  "app/models/whatsapp_identity.rb": {
+    "mtime": 1790530492.8612387,
+    "seen": 1790531892.553532,
+    "ast_hash": "1182ba1022427aee656562011aec837d",
+    "semantic_hash": ""
+  },
+  "app/services/whatsapp/connect_service.rb": {
+    "mtime": 1790531872.9333582,
+    "seen": 1790531892.553765,
+    "ast_hash": "44ae14c70336fd1c9e38ca2e9ca704d1",
+    "semantic_hash": ""
+  },
+  "app/services/whatsapp/reply_sender.rb": {
+    "mtime": 1790536077.775107,
+    "seen": 1790536104.610962,
+    "ast_hash": "1462813894412f016eddb616f166e365",
+    "semantic_hash": ""
+  },
+  "db/migrate/20260927173443_create_whatsapp_linking_tables.rb": {
+    "mtime": 1790530488.3627856,
+    "seen": 1790531892.553919,
+    "ast_hash": "8878f81ed5464a99b43ae920fd99c16a",
+    "semantic_hash": ""
+  },
+  "test/controllers/whatsapp_settings_controller_test.rb": {
+    "mtime": 1790534903.9506261,
+    "seen": 1790534946.007863,
+    "ast_hash": "0031e19f7ffece29fee1a4b51aade745",
+    "semantic_hash": ""
+  },
+  "test/models/pending_whatsapp_connection_test.rb": {
+    "mtime": 1790530331.2113676,
+    "seen": 1790531892.554069,
+    "ast_hash": "599af54eee88b9a645cb4169ac156de6",
+    "semantic_hash": ""
+  },
+  "test/models/whatsapp_connection_test.rb": {
+    "mtime": 1790533682.2546277,
+    "seen": 1790533707.951376,
+    "ast_hash": "573fe361b925fba9c833fc2892469769",
+    "semantic_hash": ""
+  },
+  "test/models/whatsapp_identity_test.rb": {
+    "mtime": 1790530312.9763098,
+    "seen": 1790531892.554079,
+    "ast_hash": "29ae32e5d8b6629fd0c9c30b5c1ebd0a",
+    "semantic_hash": ""
+  },
+  "test/services/whatsapp/connect_service_test.rb": {
+    "mtime": 1790530613.9350612,
+    "seen": 1790531892.554194,
+    "ast_hash": "d19b01216e680422059d92d6315472d7",
+    "semantic_hash": ""
+  },
+  "app/services/whatsapp/media_fetcher.rb": {
+    "mtime": 1790548984.532686,
+    "seen": 1790549030.743901,
+    "ast_hash": "1f6ae01ccbb7456dc3292d82b18889d6",
+    "semantic_hash": ""
+  },
+  "test/services/whatsapp/media_fetcher_test.rb": {
+    "mtime": 1790548965.3054254,
+    "seen": 1790549030.744333,
+    "ast_hash": "0a44123597f934db80c276f605f085c2",
+    "semantic_hash": ""
+  },
+  "opencode.json": {
+    "mtime": 1790546993.6750102,
+    "seen": 1790547687.167222,
+    "ast_hash": "a07cb2a919f63524189e0a1fcc6cac24",
     "semantic_hash": ""
   }
 }

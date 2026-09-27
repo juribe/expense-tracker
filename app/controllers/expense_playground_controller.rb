@@ -204,13 +204,13 @@ class ExpensePlaygroundController < ApplicationController
       raise ArgumentError, "category name required" if name.blank?
 
       Categories::ClosestResolver.call(user: current_user, name: name).category ||
-        Category.create!(name: name, user: current_user, is_default: false)
+        Category.create!(name: name, user: current_user, is_default: false, category_type: "expense")
     when "accept_received"
       received = (case_record.actual_json || {})["category"].to_s
       raise ArgumentError, "received case has no category to accept" if received.blank?
 
       Categories::ClosestResolver.call(user: current_user, name: received).category ||
-        Category.create!(name: received, user: current_user, is_default: false)
+        Category.create!(name: received, user: current_user, is_default: false, category_type: "expense")
     else
       raise ArgumentError, "unknown mapping action #{action.inspect}"
     end

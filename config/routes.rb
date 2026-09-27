@@ -2,6 +2,18 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # WhatsApp Cloud API webhooks (public, signature-verified)
+  namespace :webhooks do
+    get "whatsapp", to: "whatsapp#verify"
+    post "whatsapp", to: "whatsapp#webhook"
+  end
+
+  # WhatsApp linking (Settings → WhatsApp)
+  get "settings/whatsapp", to: "whatsapp_settings#show", as: :whatsapp_settings
+  get "settings/whatsapp/status", to: "whatsapp_settings#status", as: :status_whatsapp_settings
+  delete "settings/whatsapp/pending", to: "whatsapp_settings#cancel", as: :cancel_whatsapp_settings
+  delete "settings/whatsapp", to: "whatsapp_settings#destroy", as: :disconnect_whatsapp_settings
+
   # Devise authentication
   devise_for :users, controllers: {
     registrations: 'users/registrations',

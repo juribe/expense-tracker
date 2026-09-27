@@ -22,6 +22,12 @@ class User < ApplicationRecord
   has_many :expense_candidates, dependent: :destroy
   has_one :alert_preference, dependent: :destroy
 
+  # WhatsApp linking: connections and pending tokens die with the account;
+  # identities only nullify their claim so the historical row survives.
+  has_many :whatsapp_connections, dependent: :destroy
+  has_many :pending_whatsapp_connections, dependent: :destroy
+  has_many :whatsapp_identities, foreign_key: :claimed_by_user_id, dependent: :nullify, inverse_of: :claimed_by_user
+
   # Persisted alert toggles, auto-built with defaults on first access so the
   # alert engine and settings page never deal with a nil row.
   def alert_prefs

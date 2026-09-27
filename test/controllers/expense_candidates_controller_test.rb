@@ -151,6 +151,7 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     candidate.reload
     assert_nil candidate.category_suggestion
     assert_not_nil candidate.category_id
+    assert_equal "expense", candidate.category.category_type
     assert_equal "ready", candidate.status
   end
 
