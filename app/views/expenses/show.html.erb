@@ -13,6 +13,8 @@
   </dd>
   <dt><%= t("common.category") %></dt>
   <dd><%= category_badge(@expense.category) %></dd>
+  <dt><%= t("expenses.source") %></dt>
+  <dd><%= money_source_badge(@expense.money_source) %></dd>
   <dt><%= t("common.created_at", default: "Creado") %></dt>
   <dd><%= l(@expense.created_at, format: :short) %></dd>
   <dt><%= t("common.updated_at", default: "Actualizado") %></dt>

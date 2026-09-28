@@ -1,0 +1,82 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0"><i class="bi bi-whatsapp me-2"></i>WhatsApp</h1>
+  <% if @connection %>
+    <span class="badge bg-success fs-6"><i class="bi bi-check-circle me-1"></i>Conectado</span>
+  <% else %>
+    <span class="badge bg-secondary fs-6">No conectado</span>
+  <% end %>
+</div>
+
+<div class="card shadow-sm" id="whatsapp-connect-card"
+     data-status-url="<%= status_whatsapp_settings_path %>"
+     data-cancel-url="<%= cancel_whatsapp_settings_path %>"
+     data-expired-url="<%= whatsapp_settings_path(expired: 1) %>"
+     data-clean-url="<%= whatsapp_settings_path %>">
+  <div class="card-header <%= @connection ? "bg-success" : "bg-secondary" %> text-white">
+    <i class="bi bi-whatsapp me-2"></i>Estado de la conexión
+  </div>
+  <div class="card-body">
+
+    <%# ── Connected ── %>
+    <div data-connect-state="connected" <%= 'hidden' unless @connection %>>
+      <p class="mb-1 small text-muted fw-semibold text-uppercase">Teléfono</p>
+      <p class="fs-5 mb-4"><%= @connection ? format_whatsapp_phone(@connection.whatsapp_identity.phone_number) : "" %></p>
+      <%= button_to whatsapp_settings_path, method: :delete, form: { data: { turbo_confirm: "¿Desconectar WhatsApp? No se borrarán tus gastos." } }, class: "btn btn-outline-danger" do %>
+        <i class="bi bi-x-circle me-1"></i>Desconectar WhatsApp
+      <% end %>
+    </div>
+
+    <%# ── Connecting… (client-only state: shown from the button click until the webhook confirms, the user cancels or the attempt expires) ── %>
+    <div data-connect-state="connecting" hidden>
+      <div class="text-center py-4">
+        <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
+        <h5 class="mb-1">Conectando tu WhatsApp</h5>
+        <p class="text-muted mb-3">Termina la conexión en WhatsApp.</p>
+        <p class="mb-4">
+          <span class="spinner-grow spinner-grow-sm text-muted me-2" role="status" aria-hidden="true"></span>
+          <span class="text-muted">Esperando confirmación… revisamos automáticamente cada 30 segundos.</span>
+        </p>
+        <p class="mb-4">
+          <%= link_to "#", target: "_blank", rel: "noopener", class: "btn btn-sm btn-outline-success d-none",
+                      data: { reopen_link: true } do %>
+            <i class="bi bi-whatsapp me-1"></i>Abrir WhatsApp de nuevo
+          <% end %>
+        </p>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-cancel-action>Cancelar</button>
+      </div>
+    </div>
+
+    <%# ── Not connected: primary token button ── %>
+    <div data-connect-state="idle" <%= 'hidden' if @connection %>>
+      <p class="text-muted mb-4">Conecta tu WhatsApp para registrar gastos enviando un mensaje desde tu celular.</p>
+      <div class="text-center">
+        <% if @connect_code %>
+          <%= link_to wa_connect_url(@connect_code), target: "_blank", rel: "noopener",
+                      class: "btn btn-success btn-lg fw-bold", style: "letter-spacing: 1px;",
+                      data: { connect_action: true } do %>
+            <i class="bi bi-whatsapp me-2"></i>CONNECT <%= @connect_code %>
+          <% end %>
+          <p class="small text-muted mt-3 mb-0 text-center">
+            <i class="bi bi-clock me-1"></i>Al abrir WhatsApp se enviará automáticamente el mensaje de conexión.
+          </p>
+        <% else %>
+          <p class="text-muted mb-0">Generando código de conexión…</p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Expired attempt notice ── %>
+    <% if params[:expired].present? %>
+      <div class="alert alert-warning mt-4 mb-0">
+        <i class="bi bi-hourglass-split me-1"></i><strong>Intento de conexión expirado.</strong>
+        No recibimos la confirmación de WhatsApp. Intenta de nuevo.
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-4 small">
+  <%= link_to alert_settings_path, class: "text-decoration-none" do %>
+    <i class="bi bi-gear me-1"></i>Configurar alertas
+  <% end %>
+</div>

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "whatsapp_business_tools": {
+      "type": "remote",
+      "url": "https://mcp.facebook.com/whatsapp_business_tools",
+      "enabled": true,
+      "oauth": {
+        "clientId": "{env:MCP_FACEBOOK_CLIENT_ID}",
+        "clientSecret": "{env:MCP_FACEBOOK_CLIENT_SECRET}",
+        "scope": "business_management whatsapp_business_management whatsapp_business_messaging"
+      }
+    }
+  }
+}

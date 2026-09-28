@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_27_232000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -186,6 +186,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
     t.index ["user_id"], name: "index_expense_candidates_on_user_id"
   end
 
+  create_table "expense_clarification_candidates", force: :cascade do |t|
+    t.bigint "expense_clarification_id", null: false
+    t.bigint "expense_candidate_id", null: false
+    t.jsonb "missing_fields", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_candidate_id"], name: "index_expense_clarification_candidates_on_expense_candidate_id"
+    t.index ["expense_clarification_id", "expense_candidate_id"], name: "index_clarification_candidates_unique", unique: true
+    t.index ["expense_clarification_id"], name: "idx_on_expense_clarification_id_cea0c05a63"
+  end
+
+  create_table "expense_clarifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "phone_number", null: false
+    t.string "status", default: "pending", null: false
+    t.text "question"
+    t.integer "questions_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "original_message"
+    t.index ["status"], name: "index_expense_clarifications_on_status"
+    t.index ["user_id"], name: "index_expense_clarifications_on_user_id"
+    t.index ["user_id"], name: "index_expense_clarifications_on_user_pending", unique: true, where: "((status)::text = 'pending'::text)"
+  end
+
   create_table "expense_playground_runs", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "input_type", limit: 20, null: false
@@ -330,6 +355,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
     t.index ["user_id"], name: "index_money_sources_on_user_id"
+  end
+
+  create_table "pending_whatsapp_connections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token_digest"], name: "index_pending_whatsapp_connections_on_token_digest"
+    t.index ["user_id"], name: "index_pending_whatsapp_connections_on_user_id"
   end
 
   create_table "processed_emails", force: :cascade do |t|
@@ -597,6 +633,35 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "whatsapp_connections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "whatsapp_identity_id", null: false
+    t.datetime "connected_at"
+    t.datetime "disconnected_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_whatsapp_connections_on_user_id"
+    t.index ["whatsapp_identity_id"], name: "index_whatsapp_connections_on_identity_active", unique: true, where: "(disconnected_at IS NULL)"
+  end
+
+  create_table "whatsapp_identities", force: :cascade do |t|
+    t.string "phone_number", null: false
+    t.bigint "claimed_by_user_id"
+    t.datetime "claimed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["claimed_by_user_id"], name: "index_whatsapp_identities_on_claimed_by_user_id"
+    t.index ["phone_number"], name: "index_whatsapp_identities_on_phone_number", unique: true
+  end
+
+  create_table "whatsapp_inbound_messages", force: :cascade do |t|
+    t.string "mid", null: false
+    t.datetime "processed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mid"], name: "index_whatsapp_inbound_messages_on_mid", unique: true
+  end
+
   add_foreign_key "activity_classifications", "categories"
   add_foreign_key "activity_classifications", "users"
   add_foreign_key "ai_requests", "users"
@@ -611,6 +676,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
   add_foreign_key "expense_candidates", "money_sources"
   add_foreign_key "expense_candidates", "transactions", column: "expense_id"
   add_foreign_key "expense_candidates", "users"
+  add_foreign_key "expense_clarification_candidates", "expense_candidates"
+  add_foreign_key "expense_clarification_candidates", "expense_clarifications"
+  add_foreign_key "expense_clarifications", "users"
   add_foreign_key "expense_playground_runs", "users"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
@@ -622,6 +690,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
   add_foreign_key "money_source_recognitions", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
   add_foreign_key "money_sources", "users"
+  add_foreign_key "pending_whatsapp_connections", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :cascade
   add_foreign_key "processed_emails", "users"
   add_foreign_key "recurring_templates", "categories"
@@ -647,4 +716,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_23_000001) do
   add_foreign_key "transfers", "money_sources", column: "from_source_id"
   add_foreign_key "transfers", "money_sources", column: "to_source_id"
   add_foreign_key "transfers", "users"
+  add_foreign_key "whatsapp_connections", "users"
+  add_foreign_key "whatsapp_connections", "whatsapp_identities"
+  add_foreign_key "whatsapp_identities", "users", column: "claimed_by_user_id"
 end

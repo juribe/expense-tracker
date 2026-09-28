@@ -15,6 +15,16 @@
         <%= status_badge(@candidate.status) %>
       </div>
       <div class="card-body">
+        <% if @candidate.category_id.nil? && @candidate.category_suggestion.present? %>
+          <div class="alert alert-info py-2 d-flex align-items-center flex-wrap gap-2">
+            <i class="bi bi-lightbulb me-1"></i>
+            <span><strong>Sugerida por IA:</strong> <%= @candidate.category_suggestion %></span>
+            <%= button_to t("expense_candidates.create_suggested", default: 'Crear "%s"' % @candidate.category_suggestion),
+                          accept_suggestion_expense_candidate_path(@candidate),
+                          method: :post, class: "btn btn-sm btn-outline-primary" %>
+            <small class="text-muted"><%= t("expense_candidates.suggestion_hint", default: "o elige una categoría existente abajo.") %></small>
+          </div>
+        <% end %>
         <%= form_with model: @candidate, url: expense_candidate_path(@candidate), method: :patch, local: true do |f| %>
           <div class="row g-3">
             <!-- Amount -->
@@ -57,14 +67,7 @@
               <div class="mb-3">
                 <%= f.label :category_id, t("common.category"), class: "form-label" %>
                 <% if @candidate.category_id.nil? && @candidate.category_suggestion.present? %>
-                  <div class="alert alert-info py-2">
-                    <i class="bi bi-lightbulb me-1"></i>
-                    <strong>Sugerida por IA:</strong> <%= @candidate.category_suggestion %>
-                    <%= button_to t("expense_candidates.create_suggested", default: 'Crear "%s"' % @candidate.category_suggestion),
-                                  accept_suggestion_expense_candidate_path(@candidate),
-                                  method: :post, class: "btn btn-sm btn-outline-primary ms-2" %>
-                    <small class="d-block text-muted mt-1"><%= t("expense_candidates.suggestion_hint", default: "o elige una categoría existente abajo.") %></small>
-                  </div>
+                  <small class="text-muted d-block mb-2"><%= t("expense_candidates.suggestion_hint_short", default: "Usa la sugerencia de IA mostrada arriba o elige una abajo.") %></small>
                 <% elsif @candidate.category_id.nil? %>
                   <span class="badge bg-warning text-dark mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
                 <% end %>

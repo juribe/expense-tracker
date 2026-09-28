@@ -24,6 +24,7 @@ module Ai
 
     TASKS = {
       conversation_expense_parsing: "Ai::Tasks::ConversationExpenseParsing",
+      clarification_resolution: "Ai::Tasks::ClarificationResolution",
       category_suggestion: "Ai::Tasks::CategorySuggestion",
       expense_extraction: "Ai::Tasks::ExpenseExtraction",
       category_classification: "Ai::Tasks::CategoryClassification",

@@ -12,6 +12,8 @@ module Ai
   #          data: { ocr_text: "SUPERMERCADO ÉXITO ...", expenses: [ {...} ] },
   #          error: nil }
   class ImageExpenseExtractor
+    include Expenses::ValueParsing
+
     class ExtractionError < StandardError; end
 
     DEFAULT_CURRENCY = "COP"
@@ -241,13 +243,6 @@ module Ai
     def normalize_currency(value)
       currency = value.to_s.strip.upcase
       currency.match?(/\A[A-Z]{3}\z/) ? currency : DEFAULT_CURRENCY
-    end
-
-    def normalize_confidence(value)
-      confidence = value.is_a?(Numeric) ? value : Float(value.to_s)
-      confidence.clamp(0.0, 1.0)
-    rescue ArgumentError, TypeError
-      0.5
     end
   end
 end

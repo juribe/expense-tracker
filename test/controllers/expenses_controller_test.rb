@@ -16,18 +16,31 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
-  def create_expense(amount:, date:, category: @category, description: "Lunch")
-    @user.expenses.create!(amount: amount, date: date, category: category, description: description)
+  def create_expense(amount:, date:, category: @category, description: "Lunch", **extra)
+    @user.expenses.create!({ amount: amount, date: date, category: category,
+                             description: description }.merge(extra))
   end
 
   test "GET /expenses renders the table with expenses" do
-    create_expense(amount: 12.50, date: Date.today)
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
+    create_expense(amount: 12.50, date: Date.today, money_source: source)
     get expenses_path
     assert_response :success
     assert_select "[data-testid=table]"
     assert_select "tr[data-testid=row]", count: 1
+    assert_select "tr[data-testid=row] td .badge", text: /Visa/
+    assert_select "tr[data-testid=row] td .bi-credit-card-2-front"
     assert_select "form[data-testid=filter-form]"
     assert_select "#resultsMeta", text: /1 gasto/
+  end
+
+  test "GET /expenses/:id shows the money source with its icon" do
+    source = create_source(name: "Nequi", kind: "wallet", bank: "Bancolombia")
+    expense = create_expense(amount: 20.00, date: Date.today, money_source: source)
+    get expense_path(expense)
+    assert_response :success
+    assert_select "dd .badge", text: /Nequi/
+    assert_select "dd .bi-wallet2"
   end
 
   test "GET /expenses renders the bulk update bar and modal" do

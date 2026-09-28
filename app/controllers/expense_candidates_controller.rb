@@ -62,7 +62,7 @@ class ExpenseCandidatesController < ApplicationController
 
     resolved = Categories::ClosestResolver.call(user: current_user, name: name)
     category = resolved.category ||
-               Category.create!(name: name.split.map(&:capitalize).join(" "), user: current_user, is_default: false)
+               Category.create!(name: name.split.map(&:capitalize).join(" "), user: current_user, is_default: false, category_type: "expense")
     @candidate.update!(category_id: category.id, category_suggestion: nil)
     @candidate.recalculate_missing_fields!
     @candidate.recalculate_status!
