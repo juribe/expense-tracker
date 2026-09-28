@@ -49,6 +49,7 @@ module Ai
         {
           data: {
             resolutions: entries,
+            new_category_name: payload.is_a?(Hash) ? payload["new_category_name"].presence : nil,
             new_expense_text: payload.is_a?(Hash) ? payload["new_expense_text"].presence : nil
           },
           confidence: 1.0
@@ -86,16 +87,25 @@ module Ai
 
           Devuelve JSON con esta forma:
           {"resolutions": [{"index": 1, "resolved": {...}}, {"index": 2, "unresolved": true}],
-           "new_expense_text": null}
+           "new_category_name": null, "new_expense_text": null}
 
           Reglas:
           - Un elemento por gasto al que la respuesta aporta información,
             con "index" igual al número del gasto.
+          - La pregunta puede pedir UN solo dato (ej. solo el medio de pago)
+            para un subconjunto de los gastos; el numerado de la pregunta es
+            el mismo que el de estos gastos pendientes. Responde solo lo
+            pedido por la pregunta; nunca rellenes datos no preguntados.
           - En "resolved" llena SOLO campos de la lista de faltantes de ese
             gasto: amount (entero COP, "50 mil" = 50000), date (YYYY-MM-DD,
             relativo a hoy), description (corto), category (solo de la lista;
             null si ninguna encaja), money_source_hint (solo de las fuentes
             registradas; null si no corresponde).
+          - Si el usuario claramente nombra una categoría que NO está en la
+            lista (ej. después de elegir "Otra (escribir)"), NO la fuerces a
+            la lista: devuelve "new_category_name" con el nombre literal que
+            escribió y omite "category" en las resoluciones. El sistema le
+            pedirá confirmación al usuario antes de crearla.
           - Referencias naturales: "el primero", "el segundo", "los dos
             últimos", "el resto", "todos con tarjeta", o el nombre del gasto
             ("gasolina efectivo"). Márcalos con el index correcto.

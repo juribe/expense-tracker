@@ -59,6 +59,29 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /expense_candidates offers only payment sources in the source dropdown" do
+    loan = MoneySource.create!(user: @user, name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+    create_candidate(status: "needs_review", description: "Test expense")
+
+    get expense_candidates_path
+    assert_response :success
+
+    assert_select "select#bulkSourceSelect option", text: /Davibank Ctrl/, count: 1
+    assert_select "select#bulkSourceSelect option", text: /Crédito Vehículo/, count: 0
+    refute_includes loan.reload.name, response.body  # sanity: loan name never offered
+  end
+
+  test "GET /expense_candidates/:id only offers payment sources in the detail form" do
+    loan = MoneySource.create!(user: @user, name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+    candidate = create_candidate(status: "needs_review", description: "Test expense", category_id: @category.id)
+
+    get expense_candidate_path(candidate)
+    assert_response :success
+
+    assert_select "select[name='expense_candidate[money_source_id]'] option", text: /Davibank Ctrl/, count: 1
+    assert_select "select[name='expense_candidate[money_source_id]'] option", text: /Crédito Vehículo/, count: 0
+  end
+
   test "GET /expense_candidates/:id rejects other users candidate" do
     other_user = User.create!(name: "Other", email: "other_show_#{SecureRandom.hex(4)}@example.com", password: "password123")
     other_candidate = ExpenseCandidate.create!(user: other_user, amount: 100, date: Date.current, source: "text")

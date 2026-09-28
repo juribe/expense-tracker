@@ -64,6 +64,7 @@ module FinancialSetups
       source = @user.money_sources.build(
         name: row["name"],
         kind: kind,
+        sub_kind: row["sub_kind"].presence,
         bank: row["bank"],
         starting_balance: starting_balance_for(kind, row),
         identifier: row["identifier"].presence
@@ -144,6 +145,7 @@ module FinancialSetups
       source = @user.money_sources.build(
         name: entry["name"] || entry["bank"],
         kind: kind,
+        sub_kind: (entry["sub_kind"] || entry[:sub_kind]).presence,
         bank: entry["bank"],
         starting_balance: starting_balance_for(kind, entry),
         identifier: entry["identifier"].presence

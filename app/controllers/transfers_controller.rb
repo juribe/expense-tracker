@@ -17,7 +17,7 @@ class TransfersController < ApplicationController
   # GET /transfers/new
   def new
     @transfer = current_user.transfers.build(date: Date.current)
-    @money_sources = current_user.money_sources.active.order(:kind, :name)
+    set_direction_sources
   end
 
   # POST /transfers
@@ -26,7 +26,7 @@ class TransfersController < ApplicationController
     if @transfer.save
       redirect_to transfers_path, notice: t("transfers.flashes.created")
     else
-      @money_sources = current_user.money_sources.active.order(:kind, :name)
+      set_direction_sources
       render :new, status: :unprocessable_entity
     end
   end
@@ -38,6 +38,21 @@ class TransfersController < ApplicationController
   end
 
   private
+
+  # Each end of the transfer offers only the sources the operation allows
+  # (see MoneySource capabilities):
+  #   from — pays out: payment sources, plus a revolving loan (which is the
+  #          only kind allowed to disburse money).
+  #   to   — receives: payment sources, plus credit cards and loans (a
+  #          transfer into a debt IS that debt's payment).
+  def set_direction_sources
+    @from_sources = current_user.money_sources.active
+                                .merge(MoneySource.payment_sources.or(MoneySource.funding_sources))
+                                .order(:kind, :name)
+    @to_sources = current_user.money_sources.active
+                               .merge(MoneySource.payment_sources.or(MoneySource.debt_payment_targets))
+                               .order(:kind, :name)
+  end
 
   def set_transfer
     @transfer = current_user.transfers.find(params[:id])

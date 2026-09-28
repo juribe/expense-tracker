@@ -85,6 +85,54 @@ es:
         restrict_dependent_destroy:
           has_one: "No se puede eliminar el registro porque existe un %{record} dependiente"
           has_many: "No se puede eliminar el registro porque existen %{record} dependientes"
+    attributes:
+      expense:
+        amount: "Valor"
+        description: "Descripción"
+        date: "Fecha"
+        category_id: "Categoría"
+        money_source_id: "Fuente de dinero"
+      income:
+        amount: "Valor"
+        description: "Descripción"
+        date: "Fecha"
+        category_id: "Categoría"
+        money_source_id: "Fuente de dinero"
+      category:
+        name: "Nombre"
+        category_type: "Tipo de categoría"
+        parent_id: "Categoría padre"
+        active: "Activa"
+        description: "Descripción"
+        slug: "Slug"
+        image: "Imagen"
+      money_source:
+        name: "Nombre"
+        kind: "Tipo"
+        bank: "Banco"
+        parent_id: "Vinculada a"
+        starting_balance: "Saldo inicial"
+        active: "Activa"
+      transfer:
+        from_source_id: "Origen"
+        to_source_id: "Destino"
+        amount: "Valor"
+        date: "Fecha"
+        note: "Nota"
+      recurring_template:
+        amount: "Valor"
+        description: "Descripción"
+        payment_day: "Día de pago"
+        active: "Activo"
+        kind: "Tipo"
+        category_id: "Categoría"
+        money_source_id: "Fuente de dinero"
+      budget:
+        category_id: "Categoría"
+        monthly_amount: "Monto mensual"
+        period: "Periodo"
+        active: "Activa"
+        user_id: "Usuario"
 
   errors:
     format: "%{attribute} %{message}"
@@ -198,6 +246,13 @@ es:
     wallet: "Monedero"
     loan: "Préstamo"
 
+  kinds_sub:
+    revolving: "Crédito rotativo"
+    personal: "Crédito libre inversión"
+    vehicle: "Crédito vehículo"
+    mortgage: "Crédito hipotecario"
+    education: "Crédito educativo"
+    business: "Crédito empresarial"
   categories:
     title: "Categorías"
     new: "Nueva categoría"
@@ -330,6 +385,7 @@ es:
       identifier_hint: "Ingresa solo los últimos 4 dígitos."
       contract_number: "Últimos 4 dígitos del contrato"
       contract_number_hint: "Ingresa solo los últimos 4 dígitos del número de contrato/préstamo."
+      loan_type: "Tipo de préstamo"
       interest_rate: "Tasa de interés"
       interest_rate_type: "Tipo de tasa de interés"
       outstanding_balance: "Saldo pendiente"
@@ -736,6 +792,8 @@ es:
       account_last4_hint: "Solo se guardan los últimos 4 dígitos del número de cuenta por privacidad."
       contract_number_last4: "Últimos 4 dígitos del contrato"
       contract_last4_hint: "Solo se guardan los últimos 4 dígitos del número de contrato/préstamo por privacidad."
+      loan_type: "Tipo de préstamo"
+      loan_type_hint: "Define para qué se puede usar: solo el rotativo permite disponer dinero; todos los préstamos reciben pagos de deuda."
       credit_limit: "Límite de crédito"
       interest_rate: "Tasa de interés"
       interest_rate_type: "Tipo de tasa"
@@ -1090,56 +1148,6 @@ es:
     category_required: "La categoría es obligatoria."
     row_error: "Gasto %{index}: %{details}."
     could_not_be_saved: "no se pudo guardar"
-
-  activerecord:
-    attributes:
-      expense:
-        amount: "Valor"
-        description: "Descripción"
-        date: "Fecha"
-        category_id: "Categoría"
-        money_source_id: "Fuente de dinero"
-      income:
-        amount: "Valor"
-        description: "Descripción"
-        date: "Fecha"
-        category_id: "Categoría"
-        money_source_id: "Fuente de dinero"
-      category:
-        name: "Nombre"
-        category_type: "Tipo de categoría"
-        parent_id: "Categoría padre"
-        active: "Activa"
-        description: "Descripción"
-        slug: "Slug"
-        image: "Imagen"
-      money_source:
-        name: "Nombre"
-        kind: "Tipo"
-        bank: "Banco"
-        parent_id: "Vinculada a"
-        starting_balance: "Saldo inicial"
-        active: "Activa"
-      transfer:
-        from_source_id: "Origen"
-        to_source_id: "Destino"
-        amount: "Valor"
-        date: "Fecha"
-        note: "Nota"
-      recurring_template:
-        amount: "Valor"
-        description: "Descripción"
-        payment_day: "Día de pago"
-        active: "Activo"
-        kind: "Tipo"
-        category_id: "Categoría"
-        money_source_id: "Fuente de dinero"
-      budget:
-        category_id: "Categoría"
-        monthly_amount: "Monto mensual"
-        period: "Periodo"
-        active: "Activa"
-        user_id: "Usuario"
 
   incomes:
     flashes:

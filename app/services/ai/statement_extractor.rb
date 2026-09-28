@@ -84,9 +84,18 @@ module Ai
         (1987759971 is WRONG). When in doubt, return the number exactly as the digits before the
         decimal separator, with the digits after it as decimals.
         kind must be one of: account, credit_card, loan.
+        sub_kind classifies the source within its kind:
+          - ACCOUNT: "savings" (ahorros), "checking" (corriente) when the document names it;
+            otherwise null.
+          - LOAN -- one of: "revolving" (crédito rotativo, línea de crédito rotativa, sobregiro),
+            "personal" (libre inversión, crédito de consumo, personal), "vehicle" (crédito
+            vehículo, vehicular), "mortgage" (crédito hipotecario, vivienda),
+            "education" (crédito educativo), "business" (crédito empresarial, pyme).
+            Null only when the document truly does not name the loan type.
 
         REVOLVING LINE OF CREDIT — a "crédito rotativo" / "línea de crédito rotativa" /
         revolving credit line is a LOAN, NEVER a credit card. Classify it as kind="loan"
+        with sub_kind="revolving"
         even when the document shows a card number, a "cupo", or revolving interest.
 
         IDENTIFIERS — follow the kind exactly:
@@ -139,7 +148,8 @@ module Ai
           "sub_kind":"savings","card_last_four":"5689","balance":5420000,
           "credit_limit":null,"outstanding_balance":null,"monthly_payment":null,
           "interest_rate":null,"interest_rate_type":null,"identifier":"5689"},
-         {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","principal_amount":8000000,
+         {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","sub_kind":"personal",
+          "principal_amount":8000000,
           "outstanding_balance":6000000,"monthly_payment":350000,"installment_count":36}],
          "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
           "type":"expense","category":"restaurants","confidence":0.98}]}
@@ -166,7 +176,7 @@ module Ai
         kind: kind,
         name: name.presence || bank,
         bank: bank,
-        sub_kind: entry["sub_kind"].to_s.strip.presence,
+        sub_kind: normalize_sub_kind(entry["sub_kind"].to_s.strip.presence),
         card_last_four: card_last_four,
         # Loans have no "balance" concept in our model (outstanding_balance is
         # what is owed); nil out whatever the AI returns there to avoid junk.
@@ -241,6 +251,14 @@ module Ai
         # four digits only, consistent with accounts and credit cards.
         [ normalize_card(raw_identifier), nil ]
       end
+    end
+
+    # Keeps only sub_kind values the MoneySource model accepts, so a stray
+    # extraction can never fail the source's inclusion validation.
+    def normalize_sub_kind(value)
+      return nil if value.blank?
+
+      value if MoneySource::SUB_KINDS.include?(value)
     end
 
     def apply_labeled_identifiers(sources, text)

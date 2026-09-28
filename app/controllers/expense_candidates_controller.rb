@@ -156,7 +156,9 @@ class ExpenseCandidatesController < ApplicationController
   end
 
   def set_money_sources
-    @money_sources = current_user.money_sources.active.order(:kind, :name)
+    # Only payment sources: loans never pay an expense (candidates are
+    # expenses waiting to be recorded).
+    @money_sources = current_user.money_sources.active.payment_sources.order(:kind, :name)
   end
 
   def candidate_params

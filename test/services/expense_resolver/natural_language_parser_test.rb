@@ -158,6 +158,33 @@ class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
     assert_includes system_prompt, "Categorías disponibles: [Antojos, Hogar]"
   end
 
+  test "the registered-sources block includes only payment sources (loans excluded)" do
+    @user.money_sources.create!(name: "Cuenta Davibank", kind: "account")
+    @user.money_sources.create!(name: "Tarjeta Davibank", kind: "credit_card")
+    @user.money_sources.create!(name: "Efectivo", kind: "cash")
+    @user.money_sources.create!(name: "Crédito Libre Inversión", kind: "loan", sub_kind: "personal")
+    @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+
+    result, provider = parse(
+      "pagué 30 mil en servicios",
+      user: @user,
+      responses: [ json_response([ {
+        "original_text" => "pagué 30 mil en servicios", "amount": 30_000,
+        "date" => "2026-09-16", "description" => "servicios", "category" => "Transporte",
+        "money_source_hint" => nil
+      } ]) ]
+    )
+
+    assert result.success?
+    system_prompt = provider.calls.first.first[:content]
+    assert_includes system_prompt, "Fuentes de dinero registradas"
+    assert_includes system_prompt, "Cuenta Davibank"
+    assert_includes system_prompt, "Tarjeta Davibank"
+    assert_includes system_prompt, "Efectivo"
+    assert_not_includes system_prompt, "Crédito Libre Inversión"
+    assert_not_includes system_prompt, "Crédito Vehículo"
+  end
+
   test "keeps the raw model amount without normalization" do
     result, = parse(
       "50.000 en almuerzo",

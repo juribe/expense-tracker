@@ -373,6 +373,17 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated Name", source.reload.name
   end
 
+  test "loan form keeps the subtype select and PATCH persists sub_kind" do
+    loan = create_source(name: "Libre Inversión", kind: "loan", sub_kind: "personal")
+    get edit_money_source_path(loan)
+    assert_response :success
+    assert_select "select[name='money_source[sub_kind]']"
+
+    patch money_source_path(loan), params: { money_source: { sub_kind: "vehicle" } }
+    assert_redirected_to money_sources_loans_path
+    assert_equal "vehicle", loan.reload.sub_kind
+  end
+
   test "DELETE /money_sources/:id destroys the money source" do
     source = create_source
     assert_difference "MoneySource.count", -1 do

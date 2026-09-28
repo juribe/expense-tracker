@@ -29,6 +29,15 @@
 
 en:
   hello: "Hello world"
+
+  kinds_sub:
+    revolving: "Revolving credit line"
+    personal: "Free-investment loan"
+    vehicle: "Vehicle loan"
+    mortgage: "Mortgage"
+    education: "Education loan"
+    business: "Business loan"
+
   wizard:
     steps_title: "Progress"
     reset:
@@ -92,6 +101,7 @@ en:
       identifier: "Account number"
       identifier_hint: "Enter only the last 4 digits of your account number."
       contract_number: "Contract number"
+      loan_type: "Loan type"
       interest_rate: "Interest rate"
       interest_rate_type: "Interest rate type"
       outstanding_balance: "Remaining balance"
@@ -415,6 +425,8 @@ en:
       account_last4_hint: "Only the last 4 digits of the account number are saved for privacy."
       contract_number_last4: "Last 4 digits of the contract"
       contract_last4_hint: "Only the last 4 digits of the contract/loan number are saved for privacy."
+      loan_type: "Loan type"
+      loan_type_hint: "Determines what the loan can be used for: only revolving lines disburse money; every loan receives debt payments."
       start_date: "Payment start date"
       end_date: "Payment end date"
 

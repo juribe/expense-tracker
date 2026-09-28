@@ -7,11 +7,19 @@
 # Associations: belongs_to :user/parent, has_many children/transactions/
 #   recurring_templates/outgoing_transfers/incoming_transfers, has_one :credit_account,
 #   has_one :recognition (Source Recognition identifiers)
-# Methods: balance, used_credit, available_credit, debt?, credit_card?, loan?
+# Methods: balance, used_credit, available_credit, debt?, credit_card?, loan?,
+#   payment_source?, funding_source?, debt_payment_target?
 #
 # Example: source.used_credit
 class MoneySource < ApplicationRecord
   KINDS = %w[account debit_card credit_card cash wallet loan].freeze
+  # Flavor within a kind, set by the wizard's loan step / statement import.
+  # For loans it drives the capabilities below (revolving disburses money,
+  # the rest are debts only); other kinds leave it nil.
+  SUB_KINDS = %w[revolving personal vehicle mortgage education business].freeze
+  # Kinds that can directly pay an expense. Credit cards pay AND receive
+  # debt payments (two independent roles).
+  PAYMENT_KINDS = %w[cash account debit_card wallet credit_card].freeze
 
   belongs_to :user
   belongs_to :parent, class_name: "MoneySource", optional: true
@@ -28,12 +36,20 @@ class MoneySource < ApplicationRecord
 
   validates :name, presence: true
   validates :kind, presence: true, inclusion: { in: KINDS }
+  validates :sub_kind, inclusion: { in: SUB_KINDS }, allow_blank: true
   validates :starting_balance, numericality: true
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
 
+  # Operation-specific source pools. Call sites chain .active so disabled
+  # sources never reach the LLM, the WhatsApp lists or the resolver.
+  scope :payment_sources, -> { where(kind: PAYMENT_KINDS) }
+  scope :funding_sources, -> { by_kind("loan").where(sub_kind: "revolving") }
+  scope :debt_payment_targets, -> { where(kind: %w[credit_card loan]) }
+
   before_validation :normalize_kind
+  before_validation :normalize_sub_kind
   before_validation :normalize_identifier_to_last_four
 
   def balance
@@ -62,6 +78,25 @@ class MoneySource < ApplicationRecord
 
   def debit_card?
     kind == "debit_card"
+  end
+
+  # Can this source pay an expense directly? Loans never pay — their money
+  # lives in the account where it was disbursed, so expenses belong there.
+  def payment_source?
+    PAYMENT_KINDS.include?(kind)
+  end
+
+  # Can money be disbursed/obtained from this source? Only revolving loans:
+  # a free-investment loan deposits into a savings account once, so the
+  # account — not the loan — is the reusable funding source.
+  def funding_source?
+    loan? && sub_kind == "revolving"
+  end
+
+  # Can this source receive debt payments? Credit cards (pay off the card
+  # balance) and every loan, regardless of subtype.
+  def debt_payment_target?
+    debt?
   end
 
   def debt?
@@ -167,6 +202,10 @@ class MoneySource < ApplicationRecord
 
   def normalize_kind
     self.kind = kind.to_s.downcase if kind.present?
+  end
+
+  def normalize_sub_kind
+    self.sub_kind = sub_kind.to_s.downcase.presence
   end
 
   # SECURITY: never store a full account / card / loan number. Only the last

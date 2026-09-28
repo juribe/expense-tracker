@@ -164,6 +164,17 @@ module ApplicationHelper
     LOAN_ACCENTS.fetch(key)
   end
 
+  # Loan subtype options for the wizard's loan step and the money-source
+  # form. Blank means "other/plain loan" (still a debt-payment target only).
+  def loan_sub_kind_options
+    [ [ t("money_sources.form.loan_kind.other", default: "Otro"), "" ] ] +
+      MoneySource::SUB_KINDS.map { |k| [ source_sub_kind_label(k), k ] }
+  end
+
+  def source_sub_kind_label(sub_kind)
+    t("kinds_sub.#{sub_kind}", default: sub_kind.titleize)
+  end
+
   # Best-effort next payment date for a loan card. Prefers a scheduled
   # recurring template (payment day); otherwise derives a date from the loan's
   # start date and payment frequency. Returns nil when it cannot be known, so

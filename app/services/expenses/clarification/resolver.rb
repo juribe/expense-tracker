@@ -42,6 +42,9 @@ module Expenses
           )
         end
         session.update!(question: Questions.deliver(session), questions_count: 1)
+        Rails.logger.info "[Clarification::Resolver] Session=#{session.id} started for user=#{user.id} " \
+                          "with #{incomplete.size} candidate(s): " \
+                          "#{incomplete.map { |c| "#{c.description} mf=#{c.missing_fields.inspect}" }.join(' | ')}"
         session
       end
 
@@ -54,6 +57,20 @@ module Expenses
         clarification.with_lock do
           return [ :stale, nil ] unless clarification.pending?
           return [ :stale, nil ] if clarification.all_candidates_resolved?
+
+          Rails.logger.info "[Clarification::Resolver] Reply for session=#{clarification.id}: " \
+                            "#{reply_text.to_s.strip[0, 80].inspect} " \
+                            "(pending=#{clarification.pending_candidates.count})"
+
+          # A pending category proposal short-circuits the LLM: a textual
+          # confirmation behaves exactly like the "Sí, crear" button tap;
+          # any other reply discards the proposal and is resolved normally.
+          if clarification.pending_category_name.present?
+            if confirms?(reply_text)
+              return [ apply_new_category(clarification), nil ]
+            end
+            discard_pending_category(clarification)
+          end
 
           result = Ai::Router.call(
             task: :clarification_resolution,
@@ -76,8 +93,23 @@ module Expenses
           end
 
           data = result.data
+          Rails.logger.info "[Clarification::Resolver] LLM result for session=#{clarification.id}: " \
+                            "resolutions=#{Array(data[:resolutions]).inspect[0, 200]} " \
+                            "new_category=#{data[:new_category_name].inspect} " \
+                            "new_expense=#{data[:new_expense_text].inspect}"
+
+          # The user clearly named a category that does not exist: propose it
+          # with Sí/No buttons instead of creating it right away. This turn
+          # does not consume the follow-up limit (same as the "other" tap).
+          if data[:new_category_name].present?
+            propose_category(clarification, data[:new_category_name])
+            return [ :category_proposed, nil ]
+          end
+
           new_expense_text = data[:new_expense_text].presence
           applied = apply_resolutions!(clarification, data[:resolutions] || [])
+          Rails.logger.info "[Clarification::Resolver] Applied #{applied} resolution(s) for " \
+                            "session=#{clarification.id}; pending=#{clarification.pending_candidates.count}"
 
           if clarification.all_candidates_resolved?
             complete_session!(clarification)
@@ -86,7 +118,7 @@ module Expenses
             outcome = follow_up(clarification)
           elsif new_expense_text.blank?
             outcome = follow_up(clarification, "No entendí cuál gasto estás aclarando. " +
-                                              Questions.build_text(clarification.pending_candidates))
+                                               Questions.build_text(clarification.pending_candidates))
           end
 
           [ outcome, new_expense_text ]
@@ -98,10 +130,10 @@ module Expenses
         [ :error, nil ]
       end
 
-      # Deterministic resolution of a tapped list row: "source:<id>",
-      # "category:<id>" or "other" (asks the user to write it instead; this
-      # navigation does not count against the follow-up limit). Only offered
-      # while a single candidate is pending.
+      # Deterministic resolution of a tapped list/button row:
+      # "source:<id>", "category:<id>", "other" (asks the user to write it
+      # instead; this navigation does not count against the follow-up limit)
+      # and the new-category confirmation taps "newcategory:yes"/"no".
       def handle_tap(clarification:, interactive_reply:)
         clarification.with_lock do
           return :stale unless clarification.pending?
@@ -111,10 +143,20 @@ module Expenses
 
           candidate = pending.first
           row_id = interactive_reply["id"].to_s
+          Rails.logger.info "[Clarification::Resolver] Tap for session=#{clarification.id}: #{row_id}"
 
           case row_id
+          when "newcategory:yes"
+            return :tap_ignored if clarification.pending_category_name.blank?
+
+            return apply_new_category(clarification)
+          when "newcategory:no"
+            return :tap_ignored if clarification.pending_category_name.blank?
+
+            discard_pending_category(clarification)
+            return follow_up(clarification)
           when /\Asource:(\d+)\z/
-            source = clarification.user.money_sources.active.find_by(id: ::Regexp.last_match(1))
+            source = clarification.user.money_sources.active.payment_sources.find_by(id: ::Regexp.last_match(1))
             return :tap_ignored unless source
 
             candidate.update!(money_source_id: source.id)
@@ -160,9 +202,66 @@ module Expenses
         end
       end
 
+      # Vocabulary the LLM may use to resolve money-source references.
+      # Only PAYMENT SOURCES: loans and the like are never valid answers
+      # for "what paid this expense".
       def money_source_identifiers(user)
-        user.money_sources.active.includes(recognition: :recognition_identifiers)
+        user.money_sources.active.payment_sources.includes(recognition: :recognition_identifiers)
             .flat_map { |source| [ source.name, source.recognition_identifiers.select(&:confirmed?).map(&:value) ] }
+      end
+
+      # A reply like "sí/ok/dale" confirms a pending category proposal.
+      def confirms?(reply_text)
+        reply_text.to_s.strip.match?(/\A(s[ií]|ok|claro|dale|va|correcto|confirmar|crear)\z/i)
+      end
+
+      # Stores the proposed name and asks the user for confirmation with
+      # deterministic Sí/No buttons (the proposal turn never consumes the
+      # follow-up limit).
+      def propose_category(clarification, name)
+        proposed = name.to_s.strip.split.map(&:capitalize).join(" ").presence || name.to_s.strip
+        clarification.update!(pending_category_name: proposed)
+        Rails.logger.info "[Clarification::Resolver] Proposing new category \"#{proposed}\" for " \
+                          "session=#{clarification.id}"
+        Whatsapp::ReplySender.send_buttons(
+          clarification.phone_number,
+          "No tengo la categoría \"#{proposed}\" 🆕 ¿La creo?",
+          [ { id: "newcategory:yes", title: "Sí, crear" }, { id: "newcategory:no", title: "No" } ]
+        )
+      end
+
+      def discard_pending_category(clarification)
+        Rails.logger.info "[Clarification::Resolver] Proposal \"#{clarification.pending_category_name}\" " \
+                          "discarded for session=#{clarification.id}"
+        clarification.update!(pending_category_name: nil)
+      end
+
+      # Confirms the pending proposal: resolves (or creates) the category,
+      # applies it to every pending candidate still missing one, and lets
+      # the normal flow continue.
+      def apply_new_category(clarification)
+        name = clarification.pending_category_name.to_s.strip
+        clarification.update!(pending_category_name: nil)
+        resolved = Categories::ClosestResolver.call(user: clarification.user, name: name)
+        category = resolved.category ||
+                   Category.create!(name: name.split.map(&:capitalize).join(" "),
+                                    user: clarification.user, is_default: false, category_type: "expense")
+        clarification.pending_candidates.select { |candidate| candidate.missing_fields.include?("category_id") }
+                     .each do |candidate|
+          candidate.update!(category_id: category.id)
+          candidate.recalculate_missing_fields!
+          candidate.recalculate_status!
+        end
+        Rails.logger.info "[Clarification::Resolver] Category \"#{category.name}\" applied for " \
+                          "session=#{clarification.id}; pending=#{clarification.pending_candidates.count}"
+        Whatsapp::ReplySender.send_to(clarification.phone_number,
+                                      "✅ Categoría \"#{category.name}\" creada y asignada.")
+        if clarification.all_candidates_resolved?
+          complete_session!(clarification)
+          :completed
+        else
+          follow_up(clarification)
+        end
       end
 
       # Applies each resolution entry to its candidate by question index.
@@ -181,11 +280,20 @@ module Expenses
           candidate = pending[index - 1]
           next if candidate.nil? || unresolved
 
-          if apply_updates!(candidate, resolved)
-            candidate.recalculate_missing_fields!
-            candidate.recalculate_status!
-            modified += 1
+          applied = apply_updates!(candidate, resolved)
+          unless applied
+            Rails.logger.info "[Clarification::Resolver] Resolution skipped for session=#{clarification.id} " \
+                              "index=#{index} candidate=#{candidate&.description.inspect} " \
+                              "resolved=#{resolved.inspect[0, 120]}"
+            next
           end
+
+          candidate.recalculate_missing_fields!
+          candidate.recalculate_status!
+          Rails.logger.info "[Clarification::Resolver] Resolution applied for session=#{clarification.id} " \
+                            "candidate=#{candidate.description.inspect} " \
+                            "missing_left=#{candidate.reload.missing_fields.inspect}"
+          modified += 1
         end
         modified
       end
@@ -245,35 +353,64 @@ module Expenses
       end
 
       # Converts every now-complete candidate immediately (idempotent via
-      # confirm!) and closes the session when nothing is left pending.
+      # confirm!) and closes the session when nothing is left pending. The
+      # confirmation reaches WhatsApp as ONE batched message (Meta bills per
+      # message) when several candidates complete; a single candidate keeps
+      # the one-line format.
       def complete_session!(clarification)
+        confirmed = []
         clarification.candidates.where(status: "ready", expense_id: nil).find_each do |candidate|
           candidate.confirm!
+          confirmed << candidate
+        end
+        Rails.logger.info "[Clarification::Resolver] Completing session=#{clarification.id} with " \
+                          "#{confirmed.size} confirmed candidate(s)"
+        if confirmed.size == 1
+          candidate = confirmed.first
           Whatsapp::ReplySender.send_to(
             clarification.phone_number,
             "✅ Gasto registrado: $#{format_amount(candidate.amount)} – #{candidate.description.presence || 'sin descripción'}"
+          )
+        elsif confirmed.size > 1
+          lines = confirmed.each_with_index.map do |candidate, index|
+            "#{index + 1}. #{candidate.description.presence || 'sin descripción'} — $#{format_amount(candidate.amount)}"
+          end
+          Whatsapp::ReplySender.send_to(
+            clarification.phone_number,
+            "✅ #{confirmed.size} gastos registrados:\n\n#{lines.join("\n")}"
           )
         end
         clarification.close!(:resolved) if clarification.all_candidates_resolved?
       end
 
-      # Sends the next grouped question and either keeps the session pending
+      # Sends the next round question and either keeps the session pending
       # or abandons it once the follow-up limit is reached (remaining
-      # candidates stay needs_review — no infinite loops).
+      # candidates stay needs_review — no infinite loops). The question goes
+      # through Questions.deliver so a round that leaves a single pending
+      # candidate uses its interactive list.
       def follow_up(clarification, custom_question = nil)
         if clarification.follow_ups_exhausted?
           abandon(clarification)
           return :abandoned
         end
 
-        question = custom_question || Questions.build_text(clarification.pending_candidates)
-        Whatsapp::ReplySender.send_to(clarification.phone_number, question)
+        if custom_question
+          question = custom_question
+          Whatsapp::ReplySender.send_to(clarification.phone_number, question)
+        else
+          question = Questions.deliver(clarification)
+        end
         clarification.update!(question: question, questions_count: clarification.questions_count + 1)
+        Rails.logger.info "[Clarification::Resolver] Follow-up sent for session=#{clarification.id} " \
+                          "question=#{clarification.questions_count} " \
+                          "pending=#{clarification.pending_candidates.map(&:description).inspect}"
         :follow_up
       end
 
       def abandon(clarification)
         clarification.close!(:abandoned)
+        Rails.logger.warn "[Clarification::Resolver] Session=#{clarification.id} abandoned " \
+                          "(follow-up limit reached); candidates stay needs_review"
         Whatsapp::ReplySender.send_to(
           clarification.phone_number,
           "Dejé la aclaración pendiente; los gastos quedaron guardados para revisión manual en el Expense Tracker."

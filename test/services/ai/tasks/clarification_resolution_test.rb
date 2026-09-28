@@ -62,6 +62,29 @@ module Ai
           @task.parse({ "nope" => true }.to_json, "reply", @context)
         end
       end
+
+      test "parse propagates new_category_name and drops list resolutions for it" do
+        parsed = @task.parse(
+          { "resolutions" => [
+            { "index" => 1, "resolved" => { "money_source_hint" => "davibank" } }
+          ],
+            "new_category_name" => "Animacion", "new_expense_text" => nil }.to_json,
+          "animacion", @context
+        )
+
+        assert_equal "Animacion", parsed[:data][:new_category_name]
+        assert_equal 1, parsed[:data][:resolutions].size
+      end
+
+      test "parse leaves new_category_name blank when absent" do
+        parsed = @task.parse(
+          { "resolutions" => [ { "index" => 1, "resolved" => { "category" => "Transporte" } } ],
+            "new_expense_text" => nil }.to_json,
+          "transporte", @context
+        )
+
+        assert_nil parsed[:data][:new_category_name].presence
+      end
     end
   end
 end

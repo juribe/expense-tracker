@@ -39,6 +39,30 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_select "select", minimum: 2
   end
 
+  test "GET /transfers/new offers each operation only its allowed sources" do
+    revolving = @user.money_sources.create!(name: "Rotativo", kind: "loan", sub_kind: "revolving")
+    personal = @user.money_sources.create!(name: "Libre Inversión", kind: "loan", sub_kind: "personal")
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+
+    get new_transfer_path
+    assert_response :success
+
+    # FROM: payment sources + revolving loans (disbursements only); loans
+    # other than revolving never send money. Credit cards CAN send money —
+    # they are payment sources.
+    assert_select "select[name='transfer[from_source_id]'] option", text: /Savings/, count: 1
+    assert_select "select[name='transfer[from_source_id]'] option", text: /Rotativo/, count: 1
+    assert_select "select[name='transfer[from_source_id]'] option", text: /Visa/, count: 1
+    assert_select "select[name='transfer[from_source_id]'] option", text: /Libre Inversión/, count: 0
+
+    # TO: payment sources + credit cards + loans (payments on debt).
+    assert_select "select[name='transfer[to_source_id]'] option", text: /Checking/, count: 1
+    assert_select "select[name='transfer[to_source_id]'] option", text: /Visa/, count: 1
+    assert_select "select[name='transfer[to_source_id]'] option", text: /Libre Inversión/, count: 1
+    assert_select "select[name='transfer[to_source_id]'] option", text: /Rotativo/, count: 1
+    assert personal.debt_payment_target?
+  end
+
   test "POST /transfers creates a transfer" do
     assert_difference "Transfer.count", 1 do
       post transfers_path, params: {

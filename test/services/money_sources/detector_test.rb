@@ -38,6 +38,30 @@ class MoneySourcesDetectorTest < ActiveSupport::TestCase
     assert MoneySources::Detector.payment_mention?("transferencia a Juan")
   end
 
+  # Setup creates one wallet and one cash book after this comment.
+  setup do
+    @loan = @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+    @loan.ensure_recognition.replace_identifiers(keyword: [ "crédito vehículo" ])
+  end
+
+  # Loans are never expense payment sources: the default candidate pool is
+  # the user's payment sources only, so "compré con mi crédito vehículo"
+  # cannot resolve to the loan.
+  test "default pool excludes loans so a mentioned loan never matches" do
+    assert_nil detector.call("pagué 50 mil con crédito vehículo")
+  end
+
+  test "default pool still matches payment sources" do
+    assert_equal @efectivo, detector.call("pagué 20 mil en efectivo")
+  end
+
+  test "an explicitly provided pool is honored (future funding/debt ops)" do
+    pool = MoneySource.active.where(user: @user).to_a
+    result = MoneySources::Detector.call(user: @user, text: "pagué 50 mil con crédito vehículo", sources: pool)
+
+    assert_equal @loan, result
+  end
+
   test "payment_mention? ignores non-payment uses" do
     refute MoneySources::Detector.payment_mention?("gasté 50 mil en almuerzo con amigos")
     refute MoneySources::Detector.payment_mention?("")

@@ -10,7 +10,7 @@ class IncomesController < ApplicationController
   def new
     @income = Income.new
     @categories = Category.for_user(current_user)
-    @money_sources = current_user.money_sources.active.order(:kind, :name)
+    @money_sources = money_in_sources
   end
 
   # POST /incomes or /incomes.json
@@ -22,12 +22,18 @@ class IncomesController < ApplicationController
       redirect_to incomes_path, notice: t("incomes.flashes.created")
     else
       @categories = Category.for_user(current_user)
-      @money_sources = current_user.money_sources.active.order(:kind, :name)
+      @money_sources = money_in_sources
       render :new, status: :unprocessable_entity
     end
   end
 
   private
+
+  # An income lands in a source you can hold/spend from (account, wallet,
+  # cash, debito card). Loans never receive an income.
+  def money_in_sources
+    current_user.money_sources.active.payment_sources.order(:kind, :name)
+  end
 
   def income_params
     params.require(:income).permit(:amount, :description, :date, :category_id, :money_source_id)

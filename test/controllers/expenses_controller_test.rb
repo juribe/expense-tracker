@@ -205,6 +205,30 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     @user.money_sources.create!({ name: name, kind: kind, starting_balance: 0 }.merge(opts))
   end
 
+  test "GET /expenses/new offers only payment sources in the source dropdown" do
+    card = create_source(name: "Visa", kind: "credit_card")
+    loan = create_source(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+
+    get new_expense_path
+    assert_response :success
+
+    assert_select "select[name='expense[money_source_id]'] option", text: /Visa/, count: 1
+    assert_select "select[name='expense[money_source_id]'] option", text: /Crédito Vehículo/, count: 0
+    refute_includes response.body, loan.reload.name
+  end
+
+  test "GET /expenses/:id/edit offers only payment sources in the source dropdown" do
+    expense = create_expense(amount: 10, date: Date.today)
+    card = create_source(name: "Visa", kind: "credit_card")
+    loan = create_source(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+
+    get edit_expense_path(expense)
+    assert_response :success
+
+    assert_select "select[name='expense[money_source_id]'] option", text: /Visa/, count: 1
+    assert_select "select[name='expense[money_source_id]'] option", text: /Crédito Vehículo/, count: 0
+  end
+
   test "PATCH /expenses/bulk_update changes category for selected expenses" do
     a = create_expense(amount: 1, date: Date.today, description: "A")
     b = create_expense(amount: 2, date: Date.today, description: "B")

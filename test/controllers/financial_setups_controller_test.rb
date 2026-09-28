@@ -203,6 +203,13 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
   # ----------------------------------------------------------- manual entry
 
+  test "GET manual renders the loan subtype select" do
+    get financial_setup_manual_screen_path(step: :loans)
+    assert_response :success
+    assert_select "select[name='sources[0][sub_kind]']"
+    assert_select "select[name='sources[0][sub_kind]'] option", count: MoneySource::SUB_KINDS.length + 1
+  end
+
   test "GET manual renders a blank draft row" do
     get financial_setup_manual_screen_path(step: :accounts)
     assert_response :success
@@ -253,6 +260,40 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to financial_setup_step_path(step: :credit_cards)
     assert_equal [ "Savings" ], @setup.reload.draft_sources("accounts").map { |row| row["name"] }
+  end
+
+  test "POST manual keeps the loan subtype in the draft row" do
+    setup_record
+    post financial_setup_manual_path, params: {
+      step: "loans",
+      sources: {
+        "0" => { name: "Crédito Vehículo", bank: "Santander", sub_kind: "vehicle",
+                 principal_amount: "1000000", outstanding_balance: "900000" }
+      }
+    }
+    assert_redirected_to financial_setup_step_path(step: :review)
+    row = @setup.reload.draft_sources("loans").first
+    assert_equal "vehicle", row["sub_kind"]
+  end
+
+  test "POST complete persists the loan subtype on the created source" do
+    setup_record
+    @setup.set_choice("loans", "manual")
+    @setup.current_step = 3
+    @setup.replace_draft_sources("loans", [
+      { "name" => "Crédito Libre Inversión", "bank" => "Bancolombia", "sub_kind" => "personal",
+        "principal_amount" => "8000000", "outstanding_balance" => "6000000" }
+    ])
+    @setup.save!
+
+    post financial_setup_complete_path
+
+    loan = @user.money_sources.find_by(name: "Crédito Libre Inversión")
+    assert_not_nil loan
+    assert_equal "personal", loan.sub_kind
+    assert loan.debt_payment_target?
+    assert_not loan.payment_source?
+    assert_not loan.funding_source?
   end
 
   # ----------------------------------------------------------- upload/import

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_27_232000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_28_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -206,6 +206,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_27_232000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "original_message"
+    t.string "pending_category_name"
     t.index ["status"], name: "index_expense_clarifications_on_status"
     t.index ["user_id"], name: "index_expense_clarifications_on_user_id"
     t.index ["user_id"], name: "index_expense_clarifications_on_user_pending", unique: true, where: "((status)::text = 'pending'::text)"
@@ -351,6 +352,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_27_232000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "identifier"
+    t.string "sub_kind"
+    t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"

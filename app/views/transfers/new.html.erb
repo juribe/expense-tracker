@@ -21,11 +21,11 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <%= f.label :from_source_id, t("transfers.new.from", default: "Desde"), class: "form-label" %>
-                <%= f.collection_select :from_source_id, @money_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
+                <%= f.collection_select :from_source_id, @from_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
               </div>
               <div class="col-md-6 mb-3">
                 <%= f.label :to_source_id, t("transfers.new.to", default: "Hacia"), class: "form-label" %>
-                <%= f.collection_select :to_source_id, @money_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
+                <%= f.collection_select :to_source_id, @to_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
               </div>
             </div>
 

@@ -84,7 +84,13 @@ class RecurringTemplatesController < ApplicationController
   end
 
   def set_money_sources
-    @money_sources = current_user.money_sources.active.order(:kind, :name)
+    # The index shows one template kind at a time. Income templates receive
+    # money into an account/wallet/cash — loans never take an income.
+    # Expense templates keep every source: a normal expense points at a
+    # payment source, while a debt-payment cuota points at the loan/card
+    # itself (debt_payment_target — see MoneySource).
+    sources = current_user.money_sources.active.order(:kind, :name)
+    @money_sources = params[:kind].to_s == "expense" ? sources : sources.payment_sources
   end
 
   def load_index_data

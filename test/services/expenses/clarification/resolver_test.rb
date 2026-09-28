@@ -25,8 +25,9 @@ module Expenses
         @phone = "573001112233"
       end
 
-      def stub_llm(data)
-        result = Ai::Router::Result.new(ok?: true, data: data, confidence: 1.0, strategy: "test", error: nil)
+      def stub_llm(data, new_category_name = nil)
+        payload = new_category_name ? data.merge(new_category_name: new_category_name) : data
+        result = Ai::Router::Result.new(ok?: true, data: payload, confidence: 1.0, strategy: "test", error: nil)
         stub_method(Ai::Router, :call, ->(**_kwargs) { result }) { yield }
       end
 
@@ -44,6 +45,14 @@ module Expenses
 
       def create_candidate(**attrs)
         @user.expense_candidates.create!({ source: "whatsapp", status: "needs_review" }.merge(attrs))
+      end
+
+      # Captures the kwargs passed to Ai::Router.call inside the block so
+      # tests can inspect the context lists the LLM actually sees.
+      def capture_llm_contexts
+        contexts = []
+        stub_method(Ai::Router, :call, ->(**kwargs) { contexts << kwargs }) { yield }
+        contexts
       end
 
       test "start_session! groups multiple incomplete candidates and asks one grouped question" do
@@ -158,7 +167,15 @@ module Expenses
         assert candidates.all? { |candidate| candidate.reload.status == "confirmed" }
         assert candidates.all? { |candidate| candidate.expense_id.present? }
         assert_equal 3, @user.expenses.where("description IN (?)", %w[Éxito Gasolina Restaurante]).count
-        assert replies.grep(/✅/).size == 3
+
+        # ONE confirmation message for the whole batch (Meta bills per message).
+        confirmations = replies.grep(/✅/)
+        assert_equal 1, confirmations.size
+        confirmation = confirmations.first
+        assert confirmation.include?("3 gastos registrados")
+        assert confirmation.include?("1. Éxito — $40.000")
+        assert confirmation.include?("2. Gasolina — $25.000")
+        assert confirmation.include?("3. Restaurante — $80.000")
       end
 
       test "a reply resolving only some candidates keeps the rest pending and asks again" do
@@ -227,16 +244,206 @@ module Expenses
         assert_equal "needs_review", exito.reload.status
       end
 
-      test "different missing fields produce a mixed grouped question" do
+      test "mixed missing fields are asked one round at a time starting with the largest group" do
         sin_categoria = create_candidate(amount: 40_000, date: Date.current, description: "Éxito")
         sin_fuente = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina",
                                       category: @transport)
         session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
                                                                    candidates: [ sin_categoria, sin_fuente ])
 
-        assert session.question.include?("falta la categoría")
-        assert session.question.include?("falta el medio de pago")
+        # Round 1: the largest group (both miss the money source); the
+        # category of Éxito is NOT asked yet.
+        assert session.question.include?("el medio de pago")
+        assert session.question.include?("1. Éxito — $40.000")
         assert session.question.include?("2. Gasolina — $25.000")
+        refute session.question.include?("categor")
+
+        # Round 2 follow-up: only Éxito still misses the category.
+        capture_replies do
+          stub_llm(resolutions: [ { "index" => 1, "resolved" => { "money_source_hint" => "davibank" } },
+                                   { "index" => 2, "resolved" => { "money_source_hint" => "efectivo" } } ],
+                   new_expense_text: nil) do
+            Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "davibank y efectivo")
+          end
+        end
+
+        assert session.reload.pending?
+        assert session.question.include?("¿En qué categoría encaja?")
+        assert session.question.include?("Éxito")
+        refute session.question.include?("Gasolina")
+        assert_equal 2, session.questions_count
+      end
+
+      test "a round that leaves a single pending candidate across the session uses the interactive list" do
+        sin_categoria = create_candidate(amount: 40_000, date: Date.current, description: "Éxito")
+        sin_fuente = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina",
+                                      category: @transport)
+        lists = []
+        session = nil
+        stub_method(Whatsapp::ReplySender, :send_to, ->(_phone, _text) { true }) do
+          stub_method(Whatsapp::ReplySender, :send_list,
+                      ->(_phone, header, rows, **_opts) { lists << [ header, rows ] }) do
+            session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                       candidates: [ sin_categoria, sin_fuente ])
+          end
+        end
+
+        # Round 1: both candidates miss the money source → grouped text, no list.
+        assert lists.empty?, "round 1 groups two candidates: no interactive list expected"
+
+        stub_method(Whatsapp::ReplySender, :send_to, ->(_phone, _text) { true }) do
+          stub_method(Whatsapp::ReplySender, :send_list,
+                      ->(_phone, header, rows, **_opts) { lists << [ header, rows ] }) do
+            stub_llm(resolutions: [ { "index" => 2, "resolved" => { "money_source_hint" => "nequi" } } ],
+                     new_expense_text: nil) do
+              Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "gasolina con nequi")
+            end
+          end
+        end
+
+        # Only Éxito remains pending session-wide: its category asked via list.
+        assert lists.any? { |(header, rows)| header == session.reload.question &&
+                                              rows.any? { |row| row[:id].start_with?("category:") } }
+      end
+
+      test "a large group of candidates missing only the money source asks one grouped payment question" do
+        candidates = %w[Éxito Gasolina Restaurante Farmacia Netflix].map do |description|
+          create_candidate(amount: 10_000, date: Date.current, description: description, category: @transport)
+        end
+        session = nil
+        replies = capture_replies do
+          session = Expenses::Clarification::Resolver.start_session!(
+            user: @user, phone_number: @phone, candidates: candidates,
+            original_message: "40 en Éxito, 25 en gasolina, 80 en restaurante, 15 en farmacia y 30 en Netflix"
+          )
+        end
+
+        question = replies.first
+        candidates.each_with_index do |candidate, index|
+          assert_includes question, "#{index + 1}. #{candidate.description} — $10.000"
+        end
+        assert_includes question, "el medio de pago"
+        assert_includes question, "¿Con qué fuente de dinero se pagó?"
+        refute_includes question, "categor"
+        assert session.reload.pending?
+      end
+
+      test "a clearly new category is proposed with buttons before creating it" do
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina", money_source: @nequi)
+        buttons = []
+        replies = nil
+        session = nil
+        stub_method(Whatsapp::ReplySender, :send_to, ->(_phone, text) { true }) do
+          stub_method(Whatsapp::ReplySender, :send_buttons,
+                      ->(_phone, text, btns, **_opts) { buttons << [ text, btns ]; true }) do
+            stub_method(Whatsapp::ReplySender, :send_list, ->(*_args, **_opts) { false }) do
+              session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                         candidates: [ gasolina ])
+
+              # Free-text reply naming a category that does not exist: the
+              # session proposes it with Sí/No buttons, creates NOTHING yet.
+              outcome = nil
+              replies = capture_replies do
+                stub_llm({ resolutions: [] }, "Animacion") do
+                  outcome = Expenses::Clarification::Resolver.handle_reply(clarification: session,
+                                                                           reply_text: "animacion")
+                end
+              end
+              assert_equal [ :category_proposed, nil ], outcome
+            end
+          end
+        end
+
+        assert_equal "Animacion", session.reload.pending_category_name
+        assert_nil gasolina.reload.category_id
+        assert_equal 1, session.questions_count, "the proposal turn does not consume follow-ups"
+        assert buttons.any? { |(text, btns)| text.include?("Animacion") &&
+                                              btns.map { |b| b[:id] } == [ "newcategory:yes", "newcategory:no" ] }
+        assert replies.empty?, "no extra text is sent besides the buttons: #{replies.inspect}"
+
+        # Tapping "Sí, crear" creates the category, applies it and completes.
+        replies = nil
+        outcome = nil
+        replies = capture_replies do
+          stub_method(Ai::Router, :call, ->(**_kwargs) { raise "LLM must not be called for taps" }) do
+            outcome = Expenses::Clarification::Resolver.handle_tap(
+              clarification: session, interactive_reply: { "id" => "newcategory:yes", "title" => "Sí, crear" }
+            )
+          end
+        end
+
+        assert_equal :completed, outcome
+        category = Category.find_by(name: "Animacion", user: @user)
+        assert_not_nil category
+        assert_equal category.id, gasolina.reload.category_id
+        assert_equal "confirmed", gasolina.status
+        assert session.reload.resolved?
+        assert_nil session.pending_category_name
+        assert replies.any? { |text| text.include?("Animacion") && text.include?("✅") }
+      end
+
+      test "tapping No discards the proposal and re-asks the normal round" do
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina", money_source: @nequi)
+        session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                   candidates: [ gasolina ])
+        session.update!(pending_category_name: "Animacion")
+
+        replies = nil
+        outcome = nil
+        replies = capture_replies do
+          stub_method(Ai::Router, :call, ->(**_kwargs) { raise "LLM must not be called for the No tap" }) do
+            outcome = Expenses::Clarification::Resolver.handle_tap(
+              clarification: session, interactive_reply: { "id" => "newcategory:no", "title" => "No" }
+            )
+          end
+        end
+
+        assert_equal :follow_up, outcome
+        assert_nil session.reload.pending_category_name
+        assert_nil Category.find_by(name: "Animacion", user: @user)
+        assert session.reload.pending?
+        assert session.question.include?("Gasolina")
+        assert_equal 2, session.questions_count
+      end
+
+      test "a text 'sí' confirms the pending proposal without the LLM" do
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina", money_source: @nequi)
+        session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                   candidates: [ gasolina ])
+        session.update!(pending_category_name: "Animacion")
+
+        outcome = nil
+        capture_replies do
+          stub_method(Ai::Router, :call, ->(**_kwargs) { raise "LLM must not be called for a text confirmation" }) do
+            outcome = Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "sí")
+          end
+        end
+
+        assert_equal [ :completed, nil ], outcome
+        category = Category.find_by(name: "Animacion", user: @user)
+        assert_equal category.id, gasolina.reload.category_id
+        assert_nil session.reload.pending_category_name
+      end
+
+      test "a non-confirmation reply discards the proposal and goes through the LLM" do
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina", money_source: @nequi)
+        session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                   candidates: [ gasolina ])
+        session.update!(pending_category_name: "Animacion")
+
+        outcome = nil
+        capture_replies do
+          stub_llm(resolutions: [ { "index" => 1, "resolved" => { "category" => "Transporte" } } ],
+                   new_expense_text: nil) do
+            outcome = Expenses::Clarification::Resolver.handle_reply(clarification: session,
+                                                                     reply_text: "no, mejor transporte")
+          end
+        end
+
+        assert_equal [ :completed, nil ], outcome
+        assert_nil session.reload.pending_category_name
+        assert_equal "Transporte", gasolina.reload.category.name
+        assert_nil Category.find_by(name: "Animacion", user: @user)
       end
 
       test "already resolved fields are never overwritten" do
@@ -358,6 +565,72 @@ module Expenses
         assert_equal "confirmed", gasolina.status
         assert session.reload.resolved?
         assert replies.any? { |text| text.include?("✅") }
+      end
+
+      test "the WhatsApp source list offers only payment sources (never loans)" do
+        card = @user.money_sources.create!(name: "Tarjeta Davibank", kind: "credit_card")
+        loan = @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina",
+                                    category: @transport)
+        lists = []
+        capture_replies do
+          stub_method(Whatsapp::ReplySender, :send_list,
+                      ->(_phone, header, rows, **_opts) { lists << [ header, rows ] }) do
+            session = Expenses::Clarification::Resolver.start_session!(
+              user: @user, phone_number: @phone, candidates: [ gasolina ]
+            )
+            assert_not_nil session
+          end
+        end
+
+        source_rows = lists.flat_map { |(_, rows)| rows }
+                           .select { |row| row[:id].start_with?("source:") }
+        offered_ids = source_rows.map { |row| row[:id].sub("source:", "").to_i }
+        assert_includes offered_ids, @davibank.id
+        assert_includes offered_ids, @nequi.id
+        assert_includes offered_ids, @efectivo.id
+        assert_includes offered_ids, card.id
+        assert_not_includes offered_ids, loan.id
+      end
+
+      test "a tapped non-payment source is ignored (backend guard)" do
+        loan = @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina",
+                                    category: @transport)
+        session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                   candidates: [ gasolina ])
+
+        outcome = stub_method(Ai::Router, :call, ->(**_kwargs) { raise "LLM must not be called for taps" }) do
+          Expenses::Clarification::Resolver.handle_tap(
+            clarification: session, interactive_reply: { "id" => "source:#{loan.id}", "title" => loan.name }
+          )
+        end
+
+        assert_equal :tap_ignored, outcome
+        assert_nil gasolina.reload.money_source_id
+      end
+
+      test "the LLM context offers only payment sources as money-source vocabulary" do
+        @user.money_sources.create!(name: "Tarjeta Davibank", kind: "credit_card")
+        @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
+        gasolina = create_candidate(amount: 25_000, date: Date.current, description: "Gasolina")
+        session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                   candidates: [ gasolina ])
+
+        contexts = capture_llm_contexts do
+          stub_method(Whatsapp::ReplySender, :send_to, ->(*_args) {}) do
+            stub_method(Whatsapp::ReplySender, :send_buttons, ->(*_args) {}) do
+              Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "tarjeta davibank")
+            end
+          end
+        end
+
+        identifiers = contexts.flat_map { |c| Array(c.dig(:context, :money_source_identifiers)) }
+        assert_includes identifiers, "Davibank"
+        assert_includes identifiers, "Tarjeta Davibank"
+        assert_includes identifiers, "Nequi"
+        assert_includes identifiers, "Efectivo"
+        assert_not_includes identifiers, "Crédito Vehículo"
       end
 
       test "a list delivery failure falls back to a plain text question" do

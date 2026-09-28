@@ -246,7 +246,9 @@ class ExpensesController < ApplicationController
   end
 
   def set_money_sources
-    @money_sources = current_user.money_sources.active.order(:kind, :name)
+    # Only payment sources: loans never pay an expense, their money lives in
+    # the account it was disbursed to (see MoneySource#payment_source?).
+    @money_sources = current_user.money_sources.active.payment_sources.order(:kind, :name)
   end
 
   def expense_params

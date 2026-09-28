@@ -119,6 +119,62 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     assert texts.none? { |(_, text)| text.include?("¿Con qué fuente de dinero se pagó?") }
   end
 
+  test "confirmations are sent BEFORE the clarification question" do
+    connect_user!
+    ready_candidate = @user.expense_candidates.create!(
+      amount: 50_000,
+      date: Date.current,
+      description: "almuerzo",
+      source: "whatsapp",
+      status: "ready",
+      category: restaurants_category
+    )
+    review_candidate = @user.expense_candidates.create!(
+      amount: 12_000,
+      date: Date.current,
+      description: "compra rara",
+      source: "whatsapp",
+      status: "needs_review",
+      missing_fields: [ :money_source_id ]
+    )
+    sent = []
+    stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { sent << text }) do
+      stub_method(Whatsapp::ReplySender, :send_list,
+                  ->(_phone, header, _rows, **_opts) { sent << header }) do
+        stub_method(Expenses::Processor, :call, ->(**_kwargs) {
+          Expenses::Result.new(candidates: [ ready_candidate, review_candidate ], errors: [], engine: "test")
+        }) do
+          WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "gasté 50 mil en almuerzo"))
+        end
+      end
+    end
+
+    confirmations = sent.each_index.select { |i| sent[i].include?("✅") }
+    questions = sent.each_index.select { |i| sent[i].include?("¿En qué categoría encaja?") }
+
+    assert_equal 1, confirmations.size, "confirmations: #{sent.inspect}"
+    assert_equal 1, questions.size, "questions: #{sent.inspect}"
+    assert_operator confirmations.first, :<, questions.first,
+                    "confirmation must arrive before the clarification question: #{sent.inspect}"
+  end
+
+  test "a re-sent interactive reply without a pending session gets a friendly reply" do
+    connect_user!
+    texts = []
+    lists = []
+    interactive = { type: "list_reply", list_reply: { id: "category:1", title: "Restaurants" } }
+    stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { texts << [ phone, text ] }) do
+      stub_method(Whatsapp::ReplySender, :send_list, ->(*_args, **_opts) { true }) do
+    WebHookHandler::WhatsappService.call(
+      raw_body: message_payload(type: "interactive", interactive: interactive)
+    )
+      end
+    end
+
+    assert texts.any? { |(_, text)| text.include?("no hay ninguna aclaración pendiente") }, texts.inspect
+    assert lists.empty?
+  end
+
   test "an incomplete candidate starts a clarification with an interactive source list" do
     connect_user!
     @user.money_sources.create!(name: "Davibank", kind: "account")

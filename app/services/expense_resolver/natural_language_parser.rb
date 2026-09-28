@@ -77,11 +77,13 @@ module ExpenseResolver
 
     # Registered money-source vocabulary (names + confirmed keyword
     # identifiers) so the split can tag each expense's source from the
-    # user's real sources instead of inventing one.
+    # user's real sources instead of inventing one. Only PAYMENT SOURCES
+    # are offered: the model may never resolve an expense to a loan.
     def money_source_identifiers
       return [] unless user
 
-      @money_source_identifiers ||= user.money_sources.active.includes(recognition: :recognition_identifiers)
+      @money_source_identifiers ||= user.money_sources.active.payment_sources
+                                        .includes(recognition: :recognition_identifiers)
                                         .flat_map { |source| [ source.name, source.recognition_identifiers.select(&:confirmed?).map(&:value) ] }
                                         .flatten
                                         .map(&:presence)

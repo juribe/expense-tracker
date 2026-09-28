@@ -23,12 +23,21 @@ module WebHookHandler
       payload = WhatsappPayload.new(@raw_body)
       return unless payload.object == "whatsapp_business_account"
 
-      payload.message_events.each do |event|
+      events = payload.message_events.to_a
+      Rails.logger.info "[WhatsappService] Webhook received: #{events.size} event(s)"
+      events.each do |event|
         # WhatsApp re-delivers webhooks on timeouts; claim by message id so
         # duplicates and concurrent jobs are idempotent.
-        next unless WhatsappInboundMessage.claim!(event.mid)
+        unless WhatsappInboundMessage.claim!(event.mid)
+          Rails.logger.info "[WhatsappService] Duplicate delivery ignored: #{event.mid}"
+          next
+        end
+
+        Rails.logger.info "[WhatsappService] Inbound event mid=#{event.mid} sender=#{event.sender_id} " \
+                          "type=#{event.message.type} text=#{event.text.to_s.strip[0, 80].inspect}"
 
         if connect_command?(event)
+          Rails.logger.info "[WhatsappService] CONNECT command from #{event.sender_id}"
           Whatsapp::ConnectService.call(event: event)
         else
           process_message(event)
@@ -61,6 +70,8 @@ module WebHookHandler
 
     def process_message(event)
       user = resolve_user(event.sender_id)
+      Rails.logger.info "[WhatsappService] User resolved: #{user ? "id=#{user.id}" : 'unconnected'} " \
+                        "(sender=#{event.sender_id})"
 
       unless user
         Rails.logger.info "[WhatsappService] Unconnected number #{event.sender_id}; sending connect instructions"
@@ -76,6 +87,7 @@ module WebHookHandler
       # parsed by the normal pipeline (which already returns ARRAYS) while
       # the pending session and its candidates stay untouched.
       if (session = user.expense_clarifications.pending.order(:updated_at).last)
+        Rails.logger.info "[WhatsappService] Pending clarification session=#{session.id}; routing reply there"
         outcome, new_expense_text = route_to_clarification(user, event, session)
         if outcome == :new_expense_fragment
           input = Expenses::Input.from_params("text", { text: new_expense_text })
@@ -96,6 +108,17 @@ module WebHookHandler
 
       input = build_input(event)
       unless input
+        # A re-sent interactive reply whose session already closed must not
+        # die in silence: tell the user nothing is pending anymore.
+        if event.message.type == "interactive"
+          Rails.logger.info "[WhatsappService] Interactive reply without pending session from #{event.sender_id}"
+          Whatsapp::ReplySender.send_to(
+            event.sender_id,
+            "Esta respuesta ya no aplica: no hay ninguna aclaración pendiente 🤔 " \
+            "Escríbeme tus gastos como texto, ej: \"gasté 50 mil en mercado\"."
+          )
+          return
+        end
         Rails.logger.info "[WhatsappService] Ignored unsupported message type #{event.message.type} " \
                           "from #{event.sender_id}"
         return
@@ -197,6 +220,8 @@ module WebHookHandler
         return
       end
 
+      Rails.logger.info "[WhatsappService] Pipeline starting for user=#{user.id} mid=#{event.mid} " \
+                        "input_type=#{input.type}"
       begin
         result = Expenses::Processor.call(user: user, input: input, source: "whatsapp")
       rescue StandardError => e
@@ -206,6 +231,9 @@ module WebHookHandler
       end
 
       candidates = result.candidates || []
+      Rails.logger.info "[WhatsappService] Pipeline finished user=#{user.id} mid=#{event.mid} " \
+                        "engine=#{result.engine.inspect} duration=#{result.duration_ms}ms " \
+                        "candidates=#{candidates.size} errors=#{result.errors.inspect}"
 
       auto_confirm!(candidates)
       reply_summary(user, event, candidates)
@@ -225,29 +253,35 @@ module WebHookHandler
     # into final Expenses immediately; anything uncertain stays for manual
     # review in the Expense Candidates panel.
     def auto_confirm!(candidates)
-      candidates.select(&:ready?).each(&:confirm!)
+      ready = candidates.select(&:ready?)
+      Rails.logger.info "[WhatsappService] Auto-confirming #{ready.size}/#{candidates.size} ready candidate(s)"
+      ready.each(&:confirm!)
     end
 
     def reply_summary(user, event, candidates)
       return if candidates.empty?
+
+      Rails.logger.info "[WhatsappService] Candidate summary for mid=#{event.mid}: " \
+                        "statuses=#{candidates.map(&:status).tally.inspect}"
 
       lines = candidates.select(&:confirmed?).map do |candidate|
         "✅ Gasto registrado: #{format_candidate_amount(candidate)} – #{candidate.description.presence || 'sin descripción'}"
       end
 
       incomplete = candidates.select { |c| c.status == "needs_review" && c.missing_fields.present? }
-      # Every incomplete candidate of the message joins ONE clarification
-      # session: the grouped question is sent directly instead of the plain
-      # review notice. When a session is already pending, fall back to the
-      # notice so nothing is lost.
-      if incomplete.any? && Expenses::Clarification::Resolver.start_session!(
-        user: user, phone_number: event.sender_id, candidates: incomplete,
-        original_message: event.text
-      )
-        return if lines.empty?
-
-        Whatsapp::ReplySender.send_to(event.sender_id, lines.join("\n"))
-        return
+      # Confirmations go FIRST (one batched message): the user sees what was
+      # already created, and only THEN the clarification question — the
+      # session's question is delivered by start_session! and lands last.
+      if incomplete.any?
+        Whatsapp::ReplySender.send_to(event.sender_id, lines.join("\n")) unless lines.empty?
+        if (session = Expenses::Clarification::Resolver.start_session!(
+          user: user, phone_number: event.sender_id, candidates: incomplete,
+          original_message: event.text
+        ))
+          Rails.logger.info "[WhatsappService] Clarification session=#{session.id} started with " \
+                            "#{incomplete.size} candidate(s) from mid=#{event.mid}"
+          return
+        end
       end
 
       candidates.select { |c| c.status == "needs_review" }.each do |candidate|
@@ -256,6 +290,7 @@ module WebHookHandler
       end
       return if lines.empty?
 
+      Rails.logger.info "[WhatsappService] Sending summary reply (#{lines.size} line(s)) for mid=#{event.mid}"
       Whatsapp::ReplySender.send_to(event.sender_id, lines.join("\n"))
     rescue StandardError => e
       # The candidates may already be saved: never leave the user guessing

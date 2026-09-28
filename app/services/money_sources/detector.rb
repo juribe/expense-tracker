@@ -22,9 +22,14 @@ module MoneySources
       new(user: user, sources: sources).call(text)
     end
 
+    # The candidate pool defaults to the user's PAYMENT SOURCES only: the
+    # detector is used to attribute expenses, and a loan ("compré con mi
+    # crédito vehículo") must never match as the paying source. Call sites
+    # may override the pool explicitly for other operations (funding,
+    # debt payment) once those flows land.
     def initialize(user:, sources: nil)
-      @sources = sources || MoneySource.active.where(user: user)
-                            .includes(recognition: :recognition_identifiers).to_a
+      @sources = sources || MoneySource.active.payment_sources
+                             .includes(recognition: :recognition_identifiers).to_a
     end
 
     def call(text)
