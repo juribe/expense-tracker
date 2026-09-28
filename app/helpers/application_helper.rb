@@ -8,6 +8,19 @@ module ApplicationHelper
     tag.span(category.name, class: "badge bg-#{color}")
   end
 
+  # Money source with its kind icon; em dash placeholder when unset so table
+  # cells never look broken.
+  def money_source_badge(source)
+    return tag.span("—", class: "text-muted") if source.nil?
+
+    tag.span(class: "badge bg-light text-dark border text-nowrap") do
+      safe_join([
+                  tag.i(nil, class: "bi bi-#{source_kind_icon(source.kind)} me-1"),
+                  source.display_name
+                ])
+    end
+  end
+
   def active_class(controller)
     controller_name == controller ? "active" : ""
   end

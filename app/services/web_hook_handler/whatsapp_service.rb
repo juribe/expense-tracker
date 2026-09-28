@@ -24,17 +24,36 @@ module WebHookHandler
       return unless payload.object == "whatsapp_business_account"
 
       payload.message_events.each do |event|
+        # WhatsApp re-delivers webhooks on timeouts; claim by message id so
+        # duplicates and concurrent jobs are idempotent.
+        next unless WhatsappInboundMessage.claim!(event.mid)
+
         if connect_command?(event)
           Whatsapp::ConnectService.call(event: event)
         else
           process_message(event)
         end
+      rescue StandardError => e
+        # Nothing may fail in silence: the user always learns that something
+        # went wrong (duplicate deliveries stay deduped by mid).
+        Rails.logger.error "[WhatsappService] Message #{event.mid} failed: #{e.class}: #{e.message}"
+        Rails.logger.error e.backtrace.first(10).join("\n")
+        notify_failure(event.sender_id)
       end
     rescue JSON::ParserError => e
       Rails.logger.error "[WhatsappService] Invalid payload: #{e.message}"
     end
 
     private
+
+    def notify_failure(phone_number)
+      Whatsapp::ReplySender.send_to(
+        phone_number,
+        "Ups, tuve un problema procesando tu mensaje. Inténtalo de nuevo 🙏"
+      )
+    rescue StandardError => e
+      Rails.logger.error "[WhatsappService] Failure notice could not be delivered: #{e.message}"
+    end
 
     def connect_command?(event)
       event.message? && event.text.to_s.match?(/\A\s*CONNECT\s+\S+/i)
@@ -52,6 +71,29 @@ module WebHookHandler
         return
       end
 
+      # A pending clarification consumes the message unless the resolver
+      # detected a brand-new expense fragment in the reply; that fragment is
+      # parsed by the normal pipeline (which already returns ARRAYS) while
+      # the pending session and its candidates stay untouched.
+      if (session = user.expense_clarifications.pending.order(:updated_at).last)
+        outcome, new_expense_text = route_to_clarification(user, event, session)
+        if outcome == :new_expense_fragment
+          input = Expenses::Input.from_params("text", { text: new_expense_text })
+          return run_pipeline(user, event, input)
+        end
+        return
+      end
+
+      # Gibberish never reaches the AI pipeline: filter first, no credits.
+      if event.message? && Whatsapp::GarbageFilter.garbage?(event.text.to_s)
+        Rails.logger.info "[WhatsappService] Gibberish message ignored from #{event.sender_id}"
+        Whatsapp::ReplySender.send_to(
+          event.sender_id,
+          "No entendí 🤔 Escríbelo como gasto, ej: \"gasté 50 mil en mercado\"."
+        )
+        return
+      end
+
       input = build_input(event)
       unless input
         Rails.logger.info "[WhatsappService] Ignored unsupported message type #{event.message.type} " \
@@ -60,6 +102,51 @@ module WebHookHandler
       end
 
       run_pipeline(user, event, input)
+    end
+
+    # Route a message to the user's pending clarification session:
+    # interactive taps resolve deterministically, "cancelar" cancels, free
+    # text goes to the LLM resolver (gibberish is filtered first — no credits
+    # wasted). Returns [outcome, new_expense_fragment]; the fragment is
+    # non-nil when the reply contained a new expense for the pipeline.
+    def route_to_clarification(user, event, session)
+      if event.message.type == "interactive" && event.interactive_reply
+        outcome = Expenses::Clarification::Resolver.handle_tap(
+          clarification: session, interactive_reply: event.interactive_reply
+        )
+        Rails.logger.info "[WhatsappService] Clarification tap for session #{session.id}: #{outcome}"
+        return [ :handled, nil ]
+      end
+
+      reply_text = event.text.to_s
+      if reply_text.match?(/\Acancela/i)
+        session.close!(:cancelled)
+        Whatsapp::ReplySender.send_to(
+          session.phone_number,
+          "Listo, cancelé la aclaración. Los gastos quedaron guardados para revisión manual en #{app_name}."
+        )
+        Rails.logger.info "[WhatsappService] Clarification cancelled for session #{session.id}"
+        return [ :handled, nil ]
+      end
+
+      if Whatsapp::GarbageFilter.garbage?(reply_text)
+        Rails.logger.info "[WhatsappService] Gibberish reply ignored for clarification #{session.id}"
+        Whatsapp::ReplySender.send_to(
+          session.phone_number,
+          "No entendí 🤔 #{session.question}"
+        )
+        return [ :handled, nil ]
+      end
+
+      outcome, new_expense_text = Expenses::Clarification::Resolver.handle_reply(clarification: session,
+                                                                                 reply_text: reply_text)
+      Rails.logger.info "[WhatsappService] Clarification reply for session #{session.id}: #{outcome} " \
+                        "(new_expense=#{new_expense_text.inspect})"
+      if new_expense_text.present?
+        [ :new_expense_fragment, new_expense_text ]
+      else
+        [ :handled, nil ]
+      end
     end
 
     # Unconnected / disconnected numbers resolve to nil here: the historical
@@ -110,11 +197,18 @@ module WebHookHandler
         return
       end
 
-      result = Expenses::Processor.call(user: user, input: input, source: "whatsapp")
+      begin
+        result = Expenses::Processor.call(user: user, input: input, source: "whatsapp")
+      rescue StandardError => e
+        Rails.logger.error "[WhatsappService] Pipeline failed for message #{event.mid}: #{e.class}: #{e.message}"
+        notify_failure(event.sender_id)
+        return
+      end
+
       candidates = result.candidates || []
 
       auto_confirm!(candidates)
-      reply_summary(event, candidates)
+      reply_summary(user, event, candidates)
 
       if candidates.any?
         Rails.logger.info "[WhatsappService] Created #{candidates.size} candidate(s) for " \
@@ -134,21 +228,40 @@ module WebHookHandler
       candidates.select(&:ready?).each(&:confirm!)
     end
 
-    def reply_summary(event, candidates)
+    def reply_summary(user, event, candidates)
       return if candidates.empty?
 
       lines = candidates.select(&:confirmed?).map do |candidate|
         "✅ Gasto registrado: #{format_candidate_amount(candidate)} – #{candidate.description.presence || 'sin descripción'}"
       end
-      lines += candidates.select { |c| c.status == "needs_review" }.map do |candidate|
+
+      incomplete = candidates.select { |c| c.status == "needs_review" && c.missing_fields.present? }
+      # Every incomplete candidate of the message joins ONE clarification
+      # session: the grouped question is sent directly instead of the plain
+      # review notice. When a session is already pending, fall back to the
+      # notice so nothing is lost.
+      if incomplete.any? && Expenses::Clarification::Resolver.start_session!(
+        user: user, phone_number: event.sender_id, candidates: incomplete,
+        original_message: event.text
+      )
+        return if lines.empty?
+
+        Whatsapp::ReplySender.send_to(event.sender_id, lines.join("\n"))
+        return
+      end
+
+      candidates.select { |c| c.status == "needs_review" }.each do |candidate|
         what = candidate.description.presence || event.text.to_s.strip.presence || "tu gasto"
-        "🟡 Registré \"#{what}\" para revisión en #{app_name}#{missing_note(candidate)}."
+        lines << "🟡 Registré \"#{what}\" para revisión en #{app_name}#{missing_note(candidate)}."
       end
       return if lines.empty?
 
       Whatsapp::ReplySender.send_to(event.sender_id, lines.join("\n"))
     rescue StandardError => e
-      Rails.logger.error "[WhatsappService] Reply failed: #{e.message}"
+      # The candidates may already be saved: never leave the user guessing
+      # about what happened to their message.
+      Rails.logger.error "[WhatsappService] Reply failed: #{e.class}: #{e.message}"
+      notify_failure(event.sender_id)
     end
 
     def format_candidate_amount(candidate)

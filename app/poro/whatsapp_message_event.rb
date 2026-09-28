@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WhatsappMessageEvent
   attr_reader :metadata, :contact, :message
 
@@ -26,6 +27,12 @@ class WhatsappMessageEvent
 
   def text
     message.text_body
+  end
+
+  # Tapped option of an interactive list/button message:
+  # { "id" => "source:23", "title" => "Davibank" } or nil.
+  def interactive_reply
+    message.interactive_reply
   end
 
   def caption

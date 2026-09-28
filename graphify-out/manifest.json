@@ -108,9 +108,9 @@
     "semantic_hash": "8035e71c031d78e90d6c1af220891a81"
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1790454777.344499,
-    "seen": 1790459641.393045,
-    "ast_hash": "ca8bbe0a8b8058718caac1160c27a3ff",
+    "mtime": 1790558748.1008677,
+    "seen": 1790559068.291357,
+    "ast_hash": "109f3ce96da4d7c8505385f661d3ce75",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -252,9 +252,9 @@
     "semantic_hash": "62973af706b50e601057596057afc141"
   },
   "app/models/user.rb": {
-    "mtime": 1790530506.077274,
-    "seen": 1790531892.553529,
-    "ast_hash": "622f1cb0ee4d42ea594aa185eea9d7a2",
+    "mtime": 1790551449.7833445,
+    "seen": 1790552618.074425,
+    "ast_hash": "11221198046fc5354bf096aef0674fe3",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -828,9 +828,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1790530586.2804291,
-    "seen": 1790531892.5539231,
-    "ast_hash": "31cee7dd4d8df126ecc0bd833cd2db26",
+    "mtime": 1790553086.6115913,
+    "seen": 1790554849.4852421,
+    "ast_hash": "c5b0875f851d759ce14783e1d0609539",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -1008,10 +1008,10 @@
     "semantic_hash": ""
   },
   "test/controllers/expenses_controller_test.rb": {
-    "mtime": 1787970761.4845376,
-    "seen": 1789925327.320193,
-    "ast_hash": "0fbd43120334bb966a8664bc89c6ba56",
-    "semantic_hash": "0fbd43120334bb966a8664bc89c6ba56"
+    "mtime": 1790558998.64086,
+    "seen": 1790559068.291926,
+    "ast_hash": "0b3de0edee88129d8d224e121a5c6c21",
+    "semantic_hash": ""
   },
   "test/controllers/financial_setups_controller_test.rb": {
     "mtime": 1788381453.4939077,
@@ -2280,9 +2280,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/router.rb": {
-    "mtime": 1790454777.3484526,
-    "seen": 1790459641.393143,
-    "ast_hash": "a1460cd5f9b68acd30a831cef347ffde",
+    "mtime": 1790551072.8185358,
+    "seen": 1790552618.074456,
+    "ast_hash": "fe244f9778a21a5b038226f9b024c376",
     "semantic_hash": ""
   },
   "app/services/ai/spreadsheet_mapper.rb": {
@@ -3240,21 +3240,21 @@
     "semantic_hash": ""
   },
   "app/poro/whatsapp_message_event.rb": {
-    "mtime": 1790528764.0314858,
-    "seen": 1790529379.1917639,
-    "ast_hash": "8bd0d4edd2b4743b3f731c5acf3d9881",
+    "mtime": 1790554787.1125927,
+    "seen": 1790554849.484847,
+    "ast_hash": "876709d7e0b832bcb6d59439abf1fc2d",
     "semantic_hash": ""
   },
   "app/poro/whatsapp_payload.rb": {
-    "mtime": 1790528764.0310535,
-    "seen": 1790529379.191766,
-    "ast_hash": "8418e861bb1a6f64d86c67fb04751d9c",
+    "mtime": 1790554806.4134533,
+    "seen": 1790554849.484849,
+    "ast_hash": "7f2b247cd29742e56cf9d4955318f21d",
     "semantic_hash": ""
   },
   "app/services/web_hook_handler/whatsapp_service.rb": {
-    "mtime": 1790549456.3482556,
-    "seen": 1790549503.635534,
-    "ast_hash": "96b19b9ec1108c191665e5f0207a55ef",
+    "mtime": 1790557713.9523804,
+    "seen": 1790557995.325647,
+    "ast_hash": "3f6270ead8f1275b143a853a57fd801b",
     "semantic_hash": ""
   },
   "db/migrate/20260927170547_add_whatsapp_number_to_users.rb": {
@@ -3270,9 +3270,9 @@
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
-    "mtime": 1790549419.0584247,
-    "seen": 1790549503.635984,
-    "ast_hash": "f4d8fba899adeeb31b38664af488340d",
+    "mtime": 1790557774.1028805,
+    "seen": 1790557995.326081,
+    "ast_hash": "1241a958f7f037e11651077ee267cf4e",
     "semantic_hash": ""
   },
   "app/controllers/whatsapp_settings_controller.rb": {
@@ -3312,9 +3312,9 @@
     "semantic_hash": ""
   },
   "app/services/whatsapp/reply_sender.rb": {
-    "mtime": 1790536077.775107,
-    "seen": 1790536104.610962,
-    "ast_hash": "1462813894412f016eddb616f166e365",
+    "mtime": 1790558255.784694,
+    "seen": 1790559068.2916732,
+    "ast_hash": "49a2abb6f86f5a0b3facf8f71fdd157b",
     "semantic_hash": ""
   },
   "db/migrate/20260927173443_create_whatsapp_linking_tables.rb": {
@@ -3369,6 +3369,90 @@
     "mtime": 1790546993.6750102,
     "seen": 1790547687.167222,
     "ast_hash": "a07cb2a919f63524189e0a1fcc6cac24",
+    "semantic_hash": ""
+  },
+  "app/models/expense_clarification.rb": {
+    "mtime": 1790553103.0355208,
+    "seen": 1790554849.4848058,
+    "ast_hash": "e239088b88f2d4788628043289fc5ba5",
+    "semantic_hash": ""
+  },
+  "app/models/whatsapp_inbound_message.rb": {
+    "mtime": 1790550900.0348654,
+    "seen": 1790552618.07443,
+    "ast_hash": "a9eb70500147a97def65f5e0e770b63e",
+    "semantic_hash": ""
+  },
+  "app/services/ai/tasks/clarification_resolution.rb": {
+    "mtime": 1790556337.5162215,
+    "seen": 1790556829.931873,
+    "ast_hash": "f566e89a59d56a16e57370f9cda05720",
+    "semantic_hash": ""
+  },
+  "app/services/expenses/clarification/questions.rb": {
+    "mtime": 1790557749.0902658,
+    "seen": 1790557995.325513,
+    "ast_hash": "71dafb4771e29af5769f560d8494f233",
+    "semantic_hash": ""
+  },
+  "app/services/expenses/clarification/resolver.rb": {
+    "mtime": 1790554088.7795546,
+    "seen": 1790554849.484951,
+    "ast_hash": "2abe00eb3de29ba870d6e2c148fc917b",
+    "semantic_hash": ""
+  },
+  "app/services/whatsapp/garbage_filter.rb": {
+    "mtime": 1790552383.7342567,
+    "seen": 1790552618.074659,
+    "ast_hash": "7bd6b0cf3e2f100ca7f175a75d7ed698",
+    "semantic_hash": ""
+  },
+  "db/migrate/20260927230000_create_expense_clarifications.rb": {
+    "mtime": 1790550842.176333,
+    "seen": 1790552618.074809,
+    "ast_hash": "66fa63f8db545d8222814702068803c9",
+    "semantic_hash": ""
+  },
+  "db/migrate/20260927230100_create_whatsapp_inbound_messages.rb": {
+    "mtime": 1790550851.3268087,
+    "seen": 1790552618.074811,
+    "ast_hash": "26646d4a90df11c09035f3e4d4f8e188",
+    "semantic_hash": ""
+  },
+  "test/services/expenses/clarification/resolver_test.rb": {
+    "mtime": 1790557812.3731284,
+    "seen": 1790557995.326028,
+    "ast_hash": "b9569953c581474cf76f4e3447776eff",
+    "semantic_hash": ""
+  },
+  "test/services/whatsapp/garbage_filter_test.rb": {
+    "mtime": 1790551012.1195395,
+    "seen": 1790552618.075077,
+    "ast_hash": "c06be1eea3b5ab35eeb8879c8d514c16",
+    "semantic_hash": ""
+  },
+  "app/models/expense_clarification_candidate.rb": {
+    "mtime": 1790553114.0153232,
+    "seen": 1790554849.484809,
+    "ast_hash": "8102966d63eb28115272a1697ab2fa64",
+    "semantic_hash": ""
+  },
+  "db/migrate/20260927232000_clarification_sessions_group_many_candidates.rb": {
+    "mtime": 1790553065.3663251,
+    "seen": 1790554849.485238,
+    "ast_hash": "7d8f04956a0b9e5861928c34edd45133",
+    "semantic_hash": ""
+  },
+  "test/services/ai/tasks/clarification_resolution_test.rb": {
+    "mtime": 1790556582.9776344,
+    "seen": 1790556829.93239,
+    "ast_hash": "da5d0d0532964c5c723802fc07b571f3",
+    "semantic_hash": ""
+  },
+  "test/services/whatsapp/reply_sender_test.rb": {
+    "mtime": 1790558272.0931897,
+    "seen": 1790559068.2921028,
+    "ast_hash": "b2cd8640115f045d07d5e6d256afb1e9",
     "semantic_hash": ""
   }
 }

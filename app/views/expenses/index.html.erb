@@ -161,6 +161,7 @@
                 <%= sortable_column_header(t("common.date"), "date", current_sort: @sort, current_dir: @dir) %>
                 <%= sortable_column_header(t("common.description"), "description", current_sort: @sort, current_dir: @dir) %>
                 <%= sortable_column_header(t("common.category"), "category", current_sort: @sort, current_dir: @dir) %>
+                <th scope="col"><%= t("expenses.source") %></th>
                 <%= sortable_column_header(t("common.amount"), "amount", current_sort: @sort, current_dir: @dir) %>
                 <th scope="col" class="text-end"><span class="visually-hidden"><%= t("common.actions") %></span></th>
               </tr>
@@ -184,6 +185,7 @@
                     <% end %>
                   </td>
                   <td><%= category_badge(expense.category) %></td>
+                  <td><%= money_source_badge(expense.money_source) %></td>
                   <td class="text-end amount"><%= number_to_currency(expense.amount) %></td>
                   <td class="text-end text-nowrap" data-stop="1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-open-drawer
@@ -215,7 +217,7 @@
               <input type="checkbox" class="form-check-input row-check mt-2"
                      aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: expense.description.presence || t('expenses.no_description').downcase) %>">
               <div>
-                <div class="small text-muted"><%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %></div>
+                <div class="small text-muted"><%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %> · <%= money_source_badge(expense.money_source) %></div>
                 <div class="mt-1">
                   <% if expense.description.present? %>
                     <%= expense.description %>

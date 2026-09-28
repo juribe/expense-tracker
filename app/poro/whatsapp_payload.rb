@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class WhatsappPayload
   attr_reader :object, :entries
 
@@ -79,7 +80,7 @@ class WhatsappPayload
   end
 
   class Message
-    attr_reader :id, :from, :timestamp, :type, :text, :document, :image, :audio, :video, :raw, :sticker
+    attr_reader :id, :from, :timestamp, :type, :text, :document, :image, :audio, :video, :raw, :sticker, :interactive
 
     def initialize(data)
       @raw = data
@@ -93,10 +94,17 @@ class WhatsappPayload
       @audio = data["audio"]
       @video = data["video"]
       @sticker = data["sticker"]
+      @interactive = data["interactive"]
     end
 
     def text_body
       text&.dig("body")
+    end
+
+    # Tapped row/button of an interactive reply ("list_reply" or
+    # "button_reply"), exposed as { "id" => ..., "title" => ... } or nil.
+    def interactive_reply
+      interactive&.values_at("list_reply", "button_reply").compact.first
     end
 
     # ============ Document / Media Helpers ============

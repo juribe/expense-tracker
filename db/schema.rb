@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_27_173443) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_27_232000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -184,6 +184,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_27_173443) do
     t.index ["user_id", "created_at"], name: "index_expense_candidates_on_user_id_and_created_at"
     t.index ["user_id", "status"], name: "index_expense_candidates_on_user_id_and_status"
     t.index ["user_id"], name: "index_expense_candidates_on_user_id"
+  end
+
+  create_table "expense_clarification_candidates", force: :cascade do |t|
+    t.bigint "expense_clarification_id", null: false
+    t.bigint "expense_candidate_id", null: false
+    t.jsonb "missing_fields", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_candidate_id"], name: "index_expense_clarification_candidates_on_expense_candidate_id"
+    t.index ["expense_clarification_id", "expense_candidate_id"], name: "index_clarification_candidates_unique", unique: true
+    t.index ["expense_clarification_id"], name: "idx_on_expense_clarification_id_cea0c05a63"
+  end
+
+  create_table "expense_clarifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "phone_number", null: false
+    t.string "status", default: "pending", null: false
+    t.text "question"
+    t.integer "questions_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "original_message"
+    t.index ["status"], name: "index_expense_clarifications_on_status"
+    t.index ["user_id"], name: "index_expense_clarifications_on_user_id"
+    t.index ["user_id"], name: "index_expense_clarifications_on_user_pending", unique: true, where: "((status)::text = 'pending'::text)"
   end
 
   create_table "expense_playground_runs", force: :cascade do |t|
@@ -629,6 +654,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_27_173443) do
     t.index ["phone_number"], name: "index_whatsapp_identities_on_phone_number", unique: true
   end
 
+  create_table "whatsapp_inbound_messages", force: :cascade do |t|
+    t.string "mid", null: false
+    t.datetime "processed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mid"], name: "index_whatsapp_inbound_messages_on_mid", unique: true
+  end
+
   add_foreign_key "activity_classifications", "categories"
   add_foreign_key "activity_classifications", "users"
   add_foreign_key "ai_requests", "users"
@@ -643,6 +676,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_27_173443) do
   add_foreign_key "expense_candidates", "money_sources"
   add_foreign_key "expense_candidates", "transactions", column: "expense_id"
   add_foreign_key "expense_candidates", "users"
+  add_foreign_key "expense_clarification_candidates", "expense_candidates"
+  add_foreign_key "expense_clarification_candidates", "expense_clarifications"
+  add_foreign_key "expense_clarifications", "users"
   add_foreign_key "expense_playground_runs", "users"
   add_foreign_key "expenses", "categories"
   add_foreign_key "expenses", "users"
