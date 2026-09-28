@@ -50,10 +50,19 @@ class RecurringTemplatesController < ApplicationController
 
   # Receive (income) / Pay (expense): creates the real one-time transaction.
   def process_transaction
+    money_source = current_user.money_sources.active.payment_sources.find_by(id: params[:money_source_id].presence)
+    if params[:money_source_id].present? && money_source.nil?
+      redirect_to recurring_templates_path(kind: @recurring_template.kind),
+                  alert: t("recurring.invalid_payment_source"),
+                  status: :see_other
+      return
+    end
+
     result = RecurringTemplateProcessor.call(
       recurring_template: @recurring_template,
       amount: params[:amount],
-      date: params[:date]
+      date: params[:date],
+      money_source: money_source
     )
 
     if result.success?
@@ -100,6 +109,10 @@ class RecurringTemplatesController < ApplicationController
                                        .where(kind: @kind)
                                        .ordered
     @current_period = Date.current.strftime("%Y-%m")
+
+    # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
+    # payment sources — loans are never recipients of an income nor payers.
+    @payment_sources = current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
 
     @status_filter = %w[all paid pending].include?(params[:status]) ? params[:status] : "all"
     if @status_filter != "all"

@@ -166,7 +166,10 @@ class MoneySource < ApplicationRecord
   def display_name
     parts = [ name ]
     parts << bank if bank.present?
-    parts << card_last_four if credit_card? && card_last_four.present?
+    # Touch credit_account unconditionally so Bullet sees the association
+    # accessed even when the list has no credit cards (nil id loads nothing).
+    digits = credit_account&.card_last_four
+    parts << digits if credit_card? && digits.present?
     parts.join(" · ")
   end
 

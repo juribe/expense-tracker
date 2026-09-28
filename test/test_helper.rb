@@ -78,3 +78,31 @@ module ActiveSupport
     end
   end
 end
+
+# Bullet raises on N+1 queries and unused eager loading detected during
+# integration tests (each index page in the sidebar is exercised here).
+# start_request runs on the first HTTP request, not in setup, so records
+# created while seeding are not registered as "impossible" (Bullet exempts
+# in-thread created objects, which would mask their real N+1s).
+module BulletIntegrationHook
+  def process(*)
+    Bullet.start_request unless Bullet.start? if defined?(Bullet)
+    super
+  end
+
+  def teardown
+    super
+    if defined?(Bullet)
+      Bullet.raise = true
+      Bullet.perform_out_of_channel_notifications if Bullet.notification?
+      Bullet.raise = false
+      Bullet.end_request
+    end
+  end
+end
+
+module ActionDispatch
+  class IntegrationTest
+    prepend BulletIntegrationHook
+  end
+end

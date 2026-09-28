@@ -109,6 +109,15 @@ module ApplicationHelper
     t("kinds.#{kind.to_s}", default: kind.to_s.titleize)
   end
 
+  # Label for a recurring template's select option in the "apply to recurring"
+  # modal: the most identifying bits without taking too much width.
+  def recurring_template_option_label(template)
+    parts = [ template.description.presence, template.category&.name,
+              number_to_currency(template.amount, unit: "") ]
+    parts << "día #{template.payment_day}" if template.payment_day.present?
+    parts.compact.join(" · ")
+  end
+
   def source_kind_options
     MoneySource::KINDS.map { |kind| [ source_kind_label(kind), kind ] }
   end

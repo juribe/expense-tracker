@@ -5,7 +5,7 @@ class CategoriesController < ApplicationController
   # GET /categories
   def index
     @default_categories = Category.defaults
-    @custom_categories = Category.custom_for_user(current_user)
+    @custom_categories = Category.custom_for_user(current_user).includes(:parent)
   end
 
   # GET /categories/1

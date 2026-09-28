@@ -13,13 +13,16 @@ class ExpensesController < ApplicationController
   # Load money sources for forms and filters
   before_action :set_money_sources, only: [ :index, :new, :create, :edit, :update ]
 
+  # Active expense recurring templates for the "apply to recurring" modal
+  before_action :set_recurring_templates, only: [ :index ]
+
   SORTABLE_COLUMNS = %w[date description category amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
   DEFAULT_SORT_DIR = { "date" => "desc", "amount" => "desc" }.freeze
   DEFAULT_PAGE_SIZE = 25
 
   def index
-    @expenses = current_user.expenses.includes(:category)
+    @expenses = current_user.expenses.includes(:category, { money_source: :credit_account })
     @sort = params[:sort].to_s
     @dir = params[:dir].to_s
     @sort = "date" unless SORTABLE_COLUMNS.include?(@sort)
@@ -97,6 +100,62 @@ class ExpensesController < ApplicationController
   def destroy
     @expense.destroy
     redirect_to expenses_path(redirect_params), notice: t("expenses.deleted")
+  end
+
+  # POST /expenses/apply_recurring
+  # Links ONE existing expense (e.g. imported from an email statement) to an
+  # active expense recurring template. The template reads its own status from
+  # its linked transactions, so the linked expense immediately marks that
+  # month as "Pagado" — the same effect the processor's generated payment has.
+  def apply_recurring
+    expense = current_user.expenses.find_by(id: params[:expense_id])
+    template = current_user.recurring_templates.find_by(id: params[:recurring_template_id])
+
+    if expense.nil? || template.nil?
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.not_found")
+      return
+    end
+
+    if template.income?
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.not_expense")
+      return
+    end
+
+    unless template.active?
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.inactive")
+      return
+    end
+
+    if expense.recurring_template_id.present?
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.already_linked")
+      return
+    end
+
+    if template.transactions.where(date: expense.date.beginning_of_month..expense.date.end_of_month).exists?
+      redirect_to expenses_path(bulk_update_state),
+                  alert: t("expenses.apply_recurring.period_taken", description: template.description)
+      return
+    end
+
+    expense.update!(recurring_template_id: template.id)
+    redirect_to expenses_path(bulk_update_state),
+                notice: t("expenses.apply_recurring.applied", description: template.description)
+  end
+
+  # POST /expenses/unlink_recurring
+  # Clears the recurring-template link of a single expense; the template
+  # falls back to "Pendiente" for the period the expense had covered.
+  def unlink_recurring
+    expense = current_user.expenses.where.not(recurring_template_id: nil).find_by(id: params[:expense_id])
+
+    if expense.nil?
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.not_linked")
+      return
+    end
+
+    expense.update!(recurring_template_id: nil)
+    redirect_to expenses_path(bulk_update_state),
+                notice: t("expenses.apply_recurring.unlinked")
   end
 
   def bulk_destroy
@@ -248,7 +307,11 @@ class ExpensesController < ApplicationController
   def set_money_sources
     # Only payment sources: loans never pay an expense, their money lives in
     # the account it was disbursed to (see MoneySource#payment_source?).
-    @money_sources = current_user.money_sources.active.payment_sources.order(:kind, :name)
+    @money_sources = current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
+  end
+
+  def set_recurring_templates
+    @recurring_templates = current_user.recurring_templates.active.expense.includes(:category).ordered
   end
 
   def expense_params

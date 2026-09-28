@@ -19,9 +19,13 @@ class RecurringTemplateProcessor
   Result = Struct.new(:success?, :transaction, :error, keyword_init: true)
 
   class << self
-    def call(recurring_template:, amount:, date:)
+    # money_source: the source the user picked in the "Pagar"/"Recibir"
+    # modal. When omitted (or nil) the template's own money source is used,
+    # preserving the wizard-linked behaviour for debt-payment cuotas.
+    def call(recurring_template:, amount:, date:, money_source: nil)
       amount = normalize_amount(amount)
       date = coerce_date(date)
+      money_source ||= recurring_template.money_source
 
       return failure("Recurring template is inactive.") unless recurring_template.active?
       return failure("Amount must be greater than zero.") if amount.nil? || amount <= 0
@@ -45,7 +49,7 @@ class RecurringTemplateProcessor
           kind: recurring_template.kind,
           recurring_template: recurring_template,
           source: "recurring_template",
-          money_source: recurring_template.money_source
+          money_source: money_source
         )
         transaction.save!
       end

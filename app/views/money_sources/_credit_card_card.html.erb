@@ -76,7 +76,7 @@
       <% if source.statement_day.present? || source.payment_due_day.present? %>
         <span class="cc-foot-divider" aria-hidden="true"></span>
       <% end %>
-      <span class="cc-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.count) %></span></span>
+      <span class="cc-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.size) %></span></span>
     <% end %>
   </div>
 </article>

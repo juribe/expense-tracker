@@ -169,6 +169,8 @@
             <tbody id="tableBody">
               <% @expenses.each do |expense| %>
                 <tr data-id="<%= expense.id %>" tabindex="0" data-testid="row"
+                    data-category-id="<%= expense.category_id %>"
+                    data-recurring-id="<%= expense.recurring_template_id %>"
                     data-view-url="<%= expense_path(expense) %>"
                     data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                     data-delete-url="<%= expense_path(expense, state_query) %>">
@@ -192,6 +194,13 @@
                             aria-label="<%= t('expenses.view_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
                       <i class="bi bi-eye"></i>
                     </button>
+                    <% if expense.recurring_template_id.nil? %>
+                      <button type="button" class="btn btn-sm btn-outline-primary" data-apply-recurring
+                              data-testid="row-apply-recurring"
+                              aria-label="<%= t('expenses.apply_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                        <i class="bi bi-arrow-repeat"></i>
+                      </button>
+                    <% end %>
                     <%= link_to edit_expense_path(expense, state_query), class: "btn btn-sm btn-outline-primary",
                                 aria: { label: t("expenses.edit_expense", description: expense.description.presence || t("expenses.no_description").downcase) } do %>
                       <i class="bi bi-pencil"></i>
@@ -211,6 +220,8 @@
         <div class="mobile-list" id="mobileList">
           <% @expenses.each do |expense| %>
             <div class="mobile-item" data-id="<%= expense.id %>" tabindex="0" data-testid="row"
+                 data-category-id="<%= expense.category_id %>"
+                 data-recurring-id="<%= expense.recurring_template_id %>"
                  data-view-url="<%= expense_path(expense) %>"
                  data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                  data-delete-url="<%= expense_path(expense, state_query) %>">
@@ -233,6 +244,12 @@
                           aria-label="<%= t('expenses.view_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
                     <i class="bi bi-eye"></i>
                   </button>
+                  <% if expense.recurring_template_id.nil? %>
+                    <button type="button" class="btn btn-outline-primary" data-apply-recurring
+                            aria-label="<%= t('expenses.apply_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                      <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                  <% end %>
                   <%= link_to edit_expense_path(expense, state_query), class: "btn btn-outline-primary",
                               aria: { label: t("expenses.edit_expense", description: expense.description.presence || t('expenses.no_description').downcase) } do %>
                     <i class="bi bi-pencil"></i>
@@ -368,6 +385,42 @@
            amount_hint: "Puedes ajustar el monto para este gasto específico.",
            testid: "expense-process-modal" %>
 
+<!-- Modal: aplicar un gasto existente a una plantilla recurrente -->
+<%= form_with url: apply_recurring_expenses_path, method: :post, id: "bulkRecurringForm", data: { testid: "apply-recurring-form" } do %>
+  <div class="modal fade" id="bulkRecurringModal" tabindex="-1" aria-labelledby="bulkRecurringTitle" aria-hidden="true" data-testid="apply-recurring-modal">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.apply_recurring.modal_title", default: "Aplicar a gasto recurrente") %></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <%= hidden_field_tag :expense_id, nil, id: "recurringExpenseId" %>
+          <p class="text-muted mb-3"><%= t("expenses.apply_recurring.modal_hint", default: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\").") %></p>
+          <div class="mb-0">
+            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.apply_recurring.template_label", default: "Gasto recurrente") %></label>
+            <select id="bulkRecurringSelect" name="recurring_template_id" class="form-select" required>
+              <option value=""><%= t("expenses.apply_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
+              <% @recurring_templates.each do |template| %>
+                <option value="<%= template.id %>"
+                        data-category-id="<%= template.category_id %>">
+                  <%= recurring_template_option_label(template) %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
+          <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-apply-recurring" disabled>
+            <i class="bi bi-check-lg me-1"></i><%= t("expenses.apply_recurring.apply_button", default: "Aplicar") %>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <script>
 (function () {
   if (window.__expensesTableInit) return;
@@ -453,6 +506,34 @@
     bootstrap.Modal.getOrCreateInstance("#bulkEditModal").show();
   }
 
+  function openBulkRecurring(row) {
+    if (!row) return;
+
+    // Same-category templates first: clone matching options into a top
+    // optgroup so the likely selection is one tap away.
+    var category = row.dataset.categoryId || "";
+    var select = $("#bulkRecurringSelect");
+    var oldGroup = $("#sameCategoryGroup");
+    if (oldGroup) oldGroup.remove();
+    var matching = Array.prototype.slice.call(select.options)
+                                      .filter(function (o) {
+                                        return o.value && o.dataset.categoryId === category;
+                                      });
+    if (matching.length) {
+      var group = document.createElement("optgroup");
+      group.label = "<%= t("expenses.apply_recurring.same_category_group", default: "Misma categoría") %>";
+      group.id = "sameCategoryGroup";
+      matching.reverse().forEach(function (option) { group.appendChild(option.cloneNode(true)); });
+      select.insertBefore(group, select.options[1]);
+    }
+
+    select.value = "";
+    $("#recurringExpenseId").value = row.dataset.id;
+    $("#bulkRecurringForm").action = urlWithState("<%= apply_recurring_expenses_path %>");
+    $("#confirmBulkRecurring").disabled = true;
+    bootstrap.Modal.getOrCreateInstance("#bulkRecurringModal").show();
+  }
+
   function openDrawer(url, editUrl, deleteUrl) {
     var body = $("#drawerBody");
     body.innerHTML = '<div class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Cargando&hellip;</span></div></div>';
@@ -498,17 +579,17 @@
     if (e.target.matches("#bulkCategorySelect, #bulkSourceSelect")) {
       updateBulkEdit();
     }
+    if (e.target.matches("#bulkRecurringSelect")) {
+      $("#confirmBulkRecurring").disabled = !e.target.value;
+    }
   });
 
   document.addEventListener("click", function (e) {
-    var row = e.target.closest("tr[data-id], .mobile-item[data-id]");
-    if (row && !e.target.closest("[data-stop], input, button, a")) {
-      openDrawer(row.dataset.viewUrl, row.dataset.editUrl, row.dataset.deleteUrl);
-      return;
-    }
+    // The drawer opens ONLY from the eye button — a whole-row click no
+    // longer opens it (rows host interactive buttons on every column).
     var viewBtn = e.target.closest("[data-open-drawer]");
     if (viewBtn) {
-      row = viewBtn.closest("tr[data-id], .mobile-item[data-id]");
+      var row = viewBtn.closest("tr[data-id], .mobile-item[data-id]");
       openDrawer(row.dataset.viewUrl, row.dataset.editUrl, row.dataset.deleteUrl);
       return;
     }
@@ -520,6 +601,11 @@
     var processBtn = e.target.closest("[data-process-expense]");
     if (processBtn) {
       openProcessModal(processBtn);
+      return;
+    }
+    var applyRecBtn = e.target.closest("[data-apply-recurring]");
+    if (applyRecBtn) {
+      openBulkRecurring(applyRecBtn.closest("tr[data-id], .mobile-item[data-id]"));
       return;
     }
     if (e.target.id === "clearSel") {

@@ -262,6 +262,16 @@
             <p class="form-control-plaintext" id="processConfiguredAmount"></p>
           </div>
           <div class="mb-3">
+            <label for="processMoneySource" class="form-label"><%= t("recurring.process_money_source") %></label>
+            <select class="form-select" id="processMoneySource" name="money_source_id">
+              <option value=""><%= t("recurring.process_money_source_default") %></option>
+              <% @payment_sources.each do |source| %>
+                <option value="<%= source.id %>"><%= source.display_name %></option>
+              <% end %>
+            </select>
+            <div class="form-text"><%= t("recurring.process_money_source_hint") %></div>
+          </div>
+          <div class="mb-3">
             <label for="processDate" class="form-label"><%= t("recurring.transaction_date") %></label>
             <input type="date" class="form-control" id="processDate" name="date" required>
           </div>
@@ -390,6 +400,16 @@
       $("#processDate").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
       $("#processAmount").value = parseFloat(row.dataset.amount).toFixed(2);
       if (window.MoneyInputs) window.MoneyInputs.formatField($("#processAmount"), true);
+
+      // Preselect the template's source, but only when it is one of the
+      // payment sources offered (debt cuota sources — loans — stay blank so
+      // the user must pick where the money comes from).
+      var sourceSelect = $("#processMoneySource");
+      var templateSource = row.dataset.moneySourceId || "";
+      sourceSelect.value = Array.prototype.slice.call(sourceSelect.options)
+                                           .some(function (o) { return o.value === templateSource; })
+        ? templateSource
+        : "";
 
       var form = $("#processForm");
       form.action = row.dataset.processUrl;

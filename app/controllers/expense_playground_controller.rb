@@ -218,7 +218,7 @@ class ExpensePlaygroundController < ApplicationController
 
   def set_categories
     @categories = Category.for_user(current_user)
-    @money_sources = current_user.money_sources.active.order(:name)
+    @money_sources = current_user.money_sources.active.includes(:credit_account).order(:name)
   end
 
   # Raw channel params. Expenses::Input.from_params reads only the

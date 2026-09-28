@@ -48,10 +48,19 @@ module RecurringTemplateActions
   end
 
   def process_transaction
+    money_source = payment_money_source(params[:money_source_id])
+    if money_source == :invalid
+      redirect_to index_path,
+                  alert: t("recurring.invalid_payment_source"),
+                  status: :see_other
+      return
+    end
+
     result = RecurringTemplateProcessor.call(
       recurring_template: @recurring_template,
       amount: params[:amount],
-      date: params[:date]
+      date: params[:date],
+      money_source: money_source
     )
 
     if result.success?
@@ -82,10 +91,14 @@ module RecurringTemplateActions
 
   def load_index_data
     @recurring_templates = current_user.recurring_templates
-                                       .includes(:category, :transactions)
+                                       .includes(:category)
                                        .where(kind: template_kind)
                                        .ordered
     @current_period = Date.current.strftime("%Y-%m")
+
+    # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
+    # payment sources — loans are never recipients of an income nor payers.
+    @payment_sources = current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
 
     @status_filter = %w[all completed pending].include?(params[:status]) ? params[:status] : "all"
     if @status_filter != "all"
@@ -94,6 +107,14 @@ module RecurringTemplateActions
 
     @total_count = @recurring_templates.size
     @filtered_total = @recurring_templates.sum(&:signed_amount)
+  end
+
+  # The money source chosen in the process modal. :invalid signals the
+  # submitted id does not belong to the user or is not a payment source.
+  def payment_money_source(raw_id)
+    return nil if raw_id.blank?
+
+    current_user.money_sources.active.payment_sources.find_by(id: raw_id) || :invalid
   end
 
   def set_recurring_template

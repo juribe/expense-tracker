@@ -22,7 +22,14 @@ class TransactionRulesController < ApplicationController
   before_action :set_form_data, only: [ :new, :create, :edit, :update ]
 
   def index
-    @rules = current_user.transaction_rules.order(:created_at)
+    rules = current_user.transaction_rules.order(:created_at)
+    @rules = rules.includes(:category)
+    # The card helper only touches the money source associations when a rule
+    # actually references them; preload just in that case to avoid Bullet
+    # flagging unused eager loading when no rule uses them.
+    if rules.where.not(money_source_condition_id: nil).exists? || rules.where.not(action_money_source_id: nil).exists?
+      @rules = @rules.includes({ money_source_condition: :credit_account }, { action_money_source: :credit_account })
+    end
     @suggestions = TransactionRules::SuggestionService.new(current_user).suggestions
     @enabled_count = @rules.active.count
   end

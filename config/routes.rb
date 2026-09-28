@@ -32,6 +32,8 @@ Rails.application.routes.draw do
       patch :bulk_update
       post :parse
       post :bulk_create
+      post :apply_recurring
+      post :unlink_recurring
     end
   end
   resources :expense_candidates, only: [ :index, :show, :update ] do

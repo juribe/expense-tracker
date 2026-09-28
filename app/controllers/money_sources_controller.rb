@@ -12,11 +12,21 @@ class MoneySourcesController < ApplicationController
     "loans" => %w[loan]
   }.freeze
 
+  # Each filter renders a different template using different associations;
+  # preloading only what the rendered partial touches keeps Bullet quiet for
+  # both N+1 (USE) and unused eager loading (AVOID) per page.
+  INDEX_INCLUDES = {
+    nil => %i[parent children transactions recognition_identifiers credit_account],
+    "cash" => %i[parent children transactions recognition_identifiers],
+    "credit_cards" => %i[transactions credit_account children],
+    "loans" => %i[transactions credit_account]
+  }.freeze
+
   # GET /money_sources
   def index
-    scope = current_user.money_sources.includes(:parent, :children, recognition: :recognition_identifiers)
-
     @filter = params[:type].presence
+    scope = current_user.money_sources.includes(*INDEX_INCLUDES[@filter])
+
     if @filter && FILTERS[@filter]
       scope = scope.where(kind: FILTERS[@filter])
     end
@@ -40,7 +50,7 @@ class MoneySourcesController < ApplicationController
   # GET /money_sources/recognition
   def recognition
     @money_sources = current_user.money_sources
-                                 .includes(recognition: :recognition_identifiers)
+                                 .includes(:recognition_identifiers, recognition: :recognition_identifiers)
                                  .order(:kind, :name)
 
     if params[:edit].present?

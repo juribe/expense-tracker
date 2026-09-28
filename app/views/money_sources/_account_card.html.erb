@@ -3,7 +3,10 @@
   icon = source_kind_icon(source.kind)
   kind_label = source_kind_label(source.kind)
   balance = source.balance
-  is_debit_linked = source.debit_card? && source.parent
+  # Touch parent unconditionally so Bullet sees the association accessed even
+  # when the source is not a debit card (nil parent_id loads nothing).
+  linked_parent = source.parent
+  is_debit_linked = source.debit_card? && linked_parent
 %>
 <article class="account-card" data-testid="account-card">
   <div class="account-card-head">
@@ -37,7 +40,7 @@
   <% if is_debit_linked %>
     <div class="account-linked">
       <i class="bi bi-link-45deg" aria-hidden="true"></i>
-      <span><%= t("money_sources.accounts.linked_to", name: source.parent.name) %></span>
+      <span><%= t("money_sources.accounts.linked_to", name: linked_parent.name) %></span>
     </div>
   <% end %>
 
@@ -57,7 +60,7 @@
 
   <div class="account-card-foot">
     <% if source.transactions.any? %>
-      <span class="account-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.count) %></span></span>
+      <span class="account-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.size) %></span></span>
     <% end %>
     <% if source.children.any? %>
       <span class="account-foot-divider" aria-hidden="true"></span>

@@ -233,6 +233,7 @@ en:
   nav:
     setup_wizard: "Setup"
     rules: "Rules"
+    transfers: "Transfers"
     money_sources_cash: "Cash & Accounts"
     money_sources_credit_cards: "Credit Cards"
     money_sources_loans: "Loans"
@@ -505,6 +506,28 @@ en:
 
   expenses:
     automatic_rules: "Auto-categorize"
+
+    apply_recurring:
+      row_button_aria: "Apply to recurring expense: %{description}"
+      modal_title: "Apply to recurring expense"
+      modal_hint: "The selected expense becomes the recurring payment for its month (the template will show as \"Paid\")."
+      template_label: "Recurring expense"
+      choose_template: "Select a template..."
+      same_category_group: "Same category"
+      apply_button: "Apply"
+      applied: "Expense applied to \"%{description}\". The template is Paid for that month."
+      unlinked: "Recurring template link removed."
+      not_found: "Expense or recurring template not found for this user."
+      not_linked: "The expense has no recurring template link."
+      not_expense: "You can only apply expenses to expense recurring templates."
+      inactive: "The recurring template is inactive."
+      already_linked: "The expense is already applied to another recurring template."
+      period_taken: "\"%{description}\" already has its payment registered for that month."
+
+    recurring_link:
+      title: "Recurring expense"
+      unlink: "Unlink"
+      none: "Unlinked"
 
   playground:
     title: "Expense Playground"

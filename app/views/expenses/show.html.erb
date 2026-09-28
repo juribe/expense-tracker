@@ -15,6 +15,21 @@
   <dd><%= category_badge(@expense.category) %></dd>
   <dt><%= t("expenses.source") %></dt>
   <dd><%= money_source_badge(@expense.money_source) %></dd>
+  <dt><%= t("expenses.recurring_link.title", default: "Gasto recurrente") %></dt>
+  <dd>
+    <% if (template = @expense.recurring_template) %>
+      <span class="badge bg-info text-dark">
+        <i class="bi bi-arrow-repeat me-1"></i><%= template.description.presence || "##{template.id}" %>
+      </span>
+      <%= button_to t("expenses.recurring_link.unlink", default: "Quitar vínculo"),
+                    unlink_recurring_expenses_path(expense_id: @expense.id),
+                    method: :post,
+                    class: "btn btn-sm btn-outline-warning ms-2",
+                    data: { testid: "unlink-recurring" } %>
+    <% else %>
+      <span class="text-muted"><%= t("expenses.recurring_link.none", default: "Sin vínculo") %></span>
+    <% end %>
+  </dd>
   <dt><%= t("common.created_at", default: "Creado") %></dt>
   <dd><%= l(@expense.created_at, format: :short) %></dd>
   <dt><%= t("common.updated_at", default: "Actualizado") %></dt>

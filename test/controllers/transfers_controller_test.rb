@@ -27,6 +27,14 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: I18n.t("transfers.index.title")
   end
 
+  test "the sidebar links to the transfers section" do
+    get transfers_path
+    assert_response :success
+    assert_select "aside.sidebar a[href='#{transfers_path}']" do
+      assert_select "span", text: I18n.t("nav.transfers")
+    end
+  end
+
   test "GET /transfers shows empty state when no transfers" do
     get transfers_path
     assert_response :success
