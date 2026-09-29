@@ -83,7 +83,7 @@ module ExpenseResolver
       return [] unless user
 
       @money_source_identifiers ||= user.money_sources.active.payment_sources
-                                        .includes(recognition: :recognition_identifiers)
+                                        .includes(:recognition_identifiers, recognition: :recognition_identifiers)
                                         .flat_map { |source| [ source.name, source.recognition_identifiers.select(&:confirmed?).map(&:value) ] }
                                         .flatten
                                         .map(&:presence)

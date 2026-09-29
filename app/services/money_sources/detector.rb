@@ -29,7 +29,7 @@ module MoneySources
     # debt payment) once those flows land.
     def initialize(user:, sources: nil)
       @sources = sources || MoneySource.active.payment_sources
-                             .includes(recognition: :recognition_identifiers).to_a
+                             .includes(:recognition_identifiers, recognition: :recognition_identifiers).to_a
     end
 
     def call(text)
