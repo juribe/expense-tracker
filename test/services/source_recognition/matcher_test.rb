@@ -115,18 +115,89 @@ module SourceRecognition
       assert_nil match(from: "alguien@otro.com", subject: "sin señales", body: "nada relevante aquí")
     end
 
-    test "tied top score returns all candidates (ambiguous)" do
-      oro = create_configured_source(name: "Davibank Oro", domains: [ "davibank.com" ], keywords: [])
-      # Both match the sender/domain space with the same weight (3 each).
-      result = match(body: "movimiento registrado", subject: "resumen")
-      assert_kind_of Array, result
-      assert_equal [ @clasica.id, oro.id ].sort, result.map(&:id).sort
+    test "a product keyword breaks an institution tie" do
+      create_configured_source(name: "Davibank Oro", domains: [ "davibank.com" ], keywords: [])
+      # Both match the bank (sender vs domain), but only Clásica has product
+      # evidence in the body: institution signals zero out, keywords decide.
+      assert_equal @clasica, match
     end
 
     test "strictly higher score wins among several candidates" do
       create_configured_source(name: "Davibank Oro", domains: [ "davibank.com" ], keywords: [])
       # Clásica: sender (3) + davibank keyword (1) + clasica keyword (1) = 5; Oro: domain (3).
       assert_equal @clasica, match
+    end
+
+    test "institution boilerplate does not decide between two cards of the same bank" do
+      @clasica.destroy
+      lifemiles = create_configured_source(
+        name: "Tarjeta Lifemiles", kind: "credit_card", identifier: "47512300005194",
+        keywords: [ "lifemiles" ],
+        senders: [ "davibankinforma@davibank.com" ], domains: [ "davibank.com" ],
+        subjects: [ "DAVIbank en Linea" ]
+      )
+      cuenta = create_configured_source(
+        name: "Cuenta Davibank", keywords: [ "davibank", "tarjeta Clasica" ],
+        senders: [ "davibank.com" ]
+      )
+
+      # Both sources match Davibank's institution-level boilerplate (sender,
+      # domain, subject), so those signals cannot say WHICH card was used.
+      # Only product evidence in the body may: "tarjeta Clasica".
+      result = match(
+        from: "DAVIbank <davibankinforma@davibank.com>",
+        subject: "DAVIbank en Linea",
+        body: "DAVIbank te notifica que realizaste con tu tarjeta Clasica la siguiente " \
+              "transacción: Comercio AUTOMOTORES FUJIYAMA Monto 80,000 Fecha 2026/09/29"
+      )
+
+      assert_equal cuenta, result
+      assert_not_equal lifemiles, result
+    end
+
+    test "same-bank cards with no product evidence stay ambiguous" do
+      @clasica.destroy
+      create_configured_source(
+        name: "Tarjeta Lifemiles", kind: "credit_card", identifier: "47512300005194",
+        keywords: [ "davibank" ],
+        senders: [ "davibankinforma@davibank.com" ], domains: [ "davibank.com" ],
+        subjects: [ "DAVIbank en Linea" ]
+      )
+      otra = create_configured_source(
+        name: "Otra Davibank", keywords: [ "davibank" ],
+        senders: [ "davibankinforma@davibank.com" ]
+      )
+
+      result = match(
+        from: "DAVIbank <davibankinforma@davibank.com>",
+        subject: "DAVIbank en Linea",
+        body: "DAVIbank te notifica: transacción por 80,000 en Comercio X"
+      )
+
+      assert_kind_of Array, result
+      assert_equal 2, result.size
+    end
+
+    test "anchored last-four still wins between same-bank cards" do
+      create_configured_source(
+        name: "Tarjeta Lifemiles", kind: "credit_card", identifier: "47512300005194",
+        keywords: [ "lifemiles" ],
+        senders: [ "davibankinforma@davibank.com" ], domains: [ "davibank.com" ],
+        subjects: [ "DAVIbank en Linea" ]
+      )
+      oro = create_configured_source(
+        name: "Davibank Oro", kind: "credit_card", identifier: "47512300001234",
+        keywords: [ "oro", "1234" ],
+        senders: [ "davibank.com" ]
+      )
+
+      result = match(
+        from: "DAVIbank <davibankinforma@davibank.com>",
+        subject: "DAVIbank en Linea",
+        body: "realizaste con tu tarjeta Oro •••• 1234 una transacción de 80,000"
+      )
+
+      assert_equal oro, result
     end
 
     test "handles legacy message shape without from or headers" do
