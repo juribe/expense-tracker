@@ -67,8 +67,12 @@
           <!-- Parent Category -->
           <div class="col-12 col-md-6">
             <div class="mb-3">
-              <%= form.label :parent_id, Category.human_attribute_name(:parent_id), class: "form-label" %>
-              <%= form.collection_select :parent_id, @parent_categories, :id, :name, { prompt: t("categories.parent_none") }, class: "form-select #{field_class(category, :parent_id)}", aria_describedby: "parentHelp" %>
+              <%= category_picker form, :parent_id, @parent_categories,
+                                  label: Category.human_attribute_name(:parent_id),
+                                  prompt: t("categories.parent_none"),
+                                  class: field_class(category, :parent_id),
+                                  aria_describedby: "parentHelp",
+                                  testid: "category-parent-picker" %>
               <div id="parentHelp" class="form-text"><%= t("categories.parent_help") %></div>
               <% if category.errors[:parent_id].any? %>
                 <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :parent_id) %></div>

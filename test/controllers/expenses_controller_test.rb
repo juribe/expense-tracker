@@ -62,7 +62,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#bulkBar button[data-testid=bulk-category]"
     assert_select "#bulkBar button[data-testid=bulk-source]"
     assert_select "#bulkEditModal[data-testid=bulk-update-modal]"
-    assert_select "select[data-testid=bulk-category-select] option", text: "Food"
+    assert_select "select#bulkCategorySelect option", text: "Food"
+    assert_select "[data-testid=bulk-category-picker] [role=combobox]"
+    assert_select "[data-testid=bulk-category-picker] [role=option]", text: "Food"
     assert_select "select[data-testid=bulk-source-select] option", text: "Visa · Chase"
     assert_select "button[data-testid=confirm-bulk-update]"
   end

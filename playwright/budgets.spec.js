@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 async function createBudget(page, categoryName, amount) {
   await page.goto('/budgets/new');
-  await page.locator('#budget_category_id').selectOption({ label: categoryName });
+  await pickCategory(page, 'budget_category_id', categoryName);
   await page.locator('#budget_monthly_amount').fill(String(amount));
   await page.getByRole('button', { name: 'Crear Presupuesto' }).click();
   await expect(page).toHaveURL(/\/budgets$/);
@@ -16,7 +17,7 @@ async function createExpense(page, { amount, category, description, date }) {
   if (date) {
     await page.locator('#expense_date').fill(date);
   }
-  await page.locator('#expense_category_id').selectOption({ label: category });
+  await pickCategory(page, 'expense_category_id', category);
   if (description) {
     await page.locator('#expense_description').fill(description);
   }

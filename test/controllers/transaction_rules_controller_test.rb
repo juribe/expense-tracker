@@ -43,6 +43,9 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input#transaction_rule_merchant_contains[value='smartfit']"
     assert_select "select#transaction_rule_category_id option[value=?][selected='selected']", @category.id.to_s
+    assert_select "[data-testid=transaction-rule-category-picker] [role=combobox]"
+    assert_select "[data-testid=transaction-rule-category-picker] [role=option][data-value=?][aria-selected=true]",
+                  @category.id.to_s
   end
 
   test "POST /transaction_rules creates a rule for the current user" do

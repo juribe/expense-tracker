@@ -22,11 +22,13 @@
         <div class="row g-3">
           <div class="col-12">
             <div class="mb-3">
-              <%= form.label :category_id, class: "form-label" %>
-              <%= form.collection_select :category_id, @categories, :id, :name,
-                    { prompt: t("budgets.form.select_category"), disabled: !budget.new_record? },
-                    class: "form-select #{field_class(budget, :category_id)}",
-                    aria_describedby: "categoryHelp" %>
+              <%= category_picker form, :category_id, @categories,
+                                  label: Budget.human_attribute_name(:category_id),
+                                  prompt: t("budgets.form.select_category"),
+                                  disabled: !budget.new_record?,
+                                  class: field_class(budget, :category_id),
+                                  aria_describedby: "categoryHelp",
+                                  testid: "budget-category-picker" %>
               <%= form.hidden_field :category_id unless budget.new_record? %>
               <div id="categoryHelp" class="form-text"><%= t("budgets.form.category_help") %></div>
               <% if budget.errors[:category_id].any? %>

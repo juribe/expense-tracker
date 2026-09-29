@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 test.describe('suggested rules – dismiss and create from suggestion', () => {
   async function createExpense(page, category, description) {
@@ -7,7 +8,7 @@ test.describe('suggested rules – dismiss and create from suggestion', () => {
     await page.locator('#expense_amount').fill('50.00');
     await page.locator('#expense_date').fill('2023-11-15');
     await page.locator('#expense_description').fill(description);
-    await page.locator('#expense_category_id').selectOption({ label: category });
+    await pickCategory(page, 'expense_category_id', category);
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses$/);
   }
@@ -60,7 +61,7 @@ test.describe('editing a rule – changing condition and action type', () => {
   async function createMerchantRule(page, category, merchant) {
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill(merchant);
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
   }

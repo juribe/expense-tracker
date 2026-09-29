@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 test.describe('app health checks', () => {
   test('health endpoint responds successfully', async ({ page }) => {
@@ -35,7 +36,7 @@ test.describe('app health checks', () => {
     // Create expense
     await page.goto('/dashboard');
     await page.locator('#expense_amount').fill('75');
-    await page.locator('#expense_category_id').selectOption({ label: category });
+    await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Grocery Store');
     await page.getByRole('button', { name: 'Agregar Gasto' }).click();
     await expect(page.getByText('El gasto se creó correctamente.')).toBeVisible();

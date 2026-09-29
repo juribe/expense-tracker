@@ -674,3 +674,67 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(93, 135, 255, 0.06);
   box-shadow: 0 0 0 4px rgba(93, 135, 255, 0.12);
 }
+
+/* -------------------------------------------------
+ * Category Picker (type-ahead category dropdown)
+ * ------------------------------------------------- */
+.category-picker {
+  position: relative;
+}
+
+/* The prompt ("Todas las Categorías") is a placeholder, so it would sit on
+   top of the open listbox and read like a real selection. Hide it while the
+   combobox has focus; it comes back on blur if nothing was chosen. */
+.category-picker__input:focus::placeholder {
+  color: transparent;
+}
+
+.category-picker__list {
+  position: absolute;
+  z-index: 1055;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--bs-body-bg, #fff);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.category-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.925rem;
+}
+
+.category-picker__option:hover,
+.category-picker__option--active {
+  background: rgba(93, 135, 255, 0.12);
+}
+
+.category-picker__option--active {
+  box-shadow: inset 3px 0 0 var(--bs-primary);
+}
+
+.category-picker__option[aria-selected="true"] {
+  font-weight: 600;
+  color: var(--bs-primary);
+}
+
+.category-picker__empty {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+}
+
+.category-picker__feedback {
+  display: block;
+}

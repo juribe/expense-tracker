@@ -164,8 +164,11 @@
             </div>
           </div>
           <div class="mb-2">
-            <%= f.label :category_id, t("common.category"), class: "form-label small" %>
-            <%= f.collection_select :category_id, Category.all, :id, :name, {}, class: "form-select", required: true %>
+            <%= category_picker f, :category_id, @categories,
+                                label: t("common.category"),
+                                label_class: "form-label small",
+                                required: true,
+                                testid: "dashboard-expense-category-picker" %>
           </div>
           <div class="mb-2">
             <%= f.label :date, class: "form-label small" %>

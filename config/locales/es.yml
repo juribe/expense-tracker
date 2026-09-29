@@ -253,6 +253,12 @@ es:
     mortgage: "Crédito hipotecario"
     education: "Crédito educativo"
     business: "Crédito empresarial"
+  category_picker:
+    search_placeholder: "Escribe para buscar una categoría"
+    no_results: "Sin coincidencias"
+    toggle: "Ver categorías"
+    required: "Elige una categoría"
+
   categories:
     title: "Categorías"
     new: "Nueva categoría"

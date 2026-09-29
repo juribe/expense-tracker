@@ -33,8 +33,10 @@
   </div>
 
   <div class="mb-3">
-    <%= f.label :category_id, t("activerecord.attributes.income.category_id"), class: "form-label" %>
-    <%= f.collection_select :category_id, @categories, :id, :name, include_blank: true, class: "form-select" %>
+    <%= category_picker f, :category_id, @categories,
+                        label: t("activerecord.attributes.income.category_id"),
+                        include_blank: t("common.none"),
+                        testid: "income-category-picker" %>
   </div>
 
   <div class="mb-3">

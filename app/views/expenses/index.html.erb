@@ -30,8 +30,12 @@
     <div class="card-body">
       <%= form_with url: expenses_path, method: :get, class: "row g-3", data: { testid: "filter-form" } do |f| %>
         <div class="col-12 col-md-4 col-lg-2">
-          <%= f.label :category_id, t("common.category"), class: "form-label" %>
-          <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, params[:category_id]), { include_blank: t("expenses.all_categories") }, class: "form-select" %>
+          <%= category_picker f, :category_id, @categories,
+                              label: t("common.category"),
+                              include_blank: t("expenses.all_categories"),
+                              placeholder: t("expenses.all_categories"),
+                              value: params[:category_id],
+                              testid: "expense-filter-category-picker" %>
         </div>
         <div class="col-12 col-md-4 col-lg-2">
           <%= f.label :money_source_id, t("expenses.source"), class: "form-label" %>
@@ -325,7 +329,7 @@
 <% end %>
 
 <!-- Modal de confirmación de actualización en lote (Cambiar Categoría / Cambiar Fuente de Dinero / ambos) -->
-<%= form_with url: bulk_update_expenses_path, method: :patch, id: "bulkEditForm", data: { testid: "bulk-update-form" } do %>
+<%= form_with url: bulk_update_expenses_path, method: :patch, id: "bulkEditForm", data: { testid: "bulk-update-form" } do |f| %>
   <div class="modal fade" id="bulkEditModal" tabindex="-1" aria-labelledby="bulkEditTitle" aria-hidden="true" data-testid="bulk-update-modal">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -337,13 +341,11 @@
           <%= hidden_field_tag :expense_ids, nil, id: "bulkExpenseIds" %>
           <p class="text-muted" id="bulkEditSummary">Actualiza los gastos seleccionados.</p>
           <div class="mb-3">
-            <label for="bulkCategorySelect" class="form-label">Nueva Categoría</label>
-            <select id="bulkCategorySelect" name="category_id" class="form-select" data-testid="bulk-category-select">
-              <option value="">Sin cambios</option>
-              <% @categories.each do |category| %>
-                <option value="<%= category.id %>"><%= category.name %></option>
-              <% end %>
-            </select>
+            <%= category_picker f, :category_id, @categories,
+                                label: "Nueva Categoría",
+                                include_blank: "Sin cambios",
+                                id: "bulkCategorySelect",
+                                testid: "bulk-category-picker" %>
             <div class="invalid-feedback" id="bulkCategoryFeedback">Elige una categoría y/o una fuente de dinero para actualizar.</div>
           </div>
           <div class="mb-3">
@@ -474,7 +476,7 @@
     var word = n === 1 ? "gasto" : "gastos";
     btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Actualizar ' + n + " " + word;
     if (hasValue) {
-      $("#bulkCategorySelect").classList.remove("is-invalid");
+      CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
       $("#bulkSourceSelect").classList.remove("is-invalid");
     }
   }
@@ -498,9 +500,9 @@
       $("#bulkEditSummary").innerHTML =
         "Estás a punto de cambiar la fuente de dinero de <strong>" + n + "</strong> " + word + " seleccionados.";
     }
-    $("#bulkCategorySelect").value = "";
+    CategoryPicker.setValue($("#bulkCategorySelect"), "");
     $("#bulkSourceSelect").value = "";
-    $("#bulkCategorySelect").classList.remove("is-invalid");
+    CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
     $("#bulkSourceSelect").classList.remove("is-invalid");
     updateBulkEdit();
     bootstrap.Modal.getOrCreateInstance("#bulkEditModal").show();
@@ -648,7 +650,7 @@
   $("#bulkEditForm").addEventListener("submit", function (e) {
     if (!$("#bulkCategorySelect").value && !$("#bulkSourceSelect").value) {
       e.preventDefault();
-      $("#bulkCategorySelect").classList.add("is-invalid");
+      CategoryPicker.setInvalid($("#bulkCategorySelect"), true);
       $("#bulkSourceSelect").classList.add("is-invalid");
       return;
     }
@@ -658,8 +660,11 @@
   });
 
   $("#bulkEditModal").addEventListener("shown.bs.modal", function () {
-    var target = bulkEditFocus === "source" ? $("#bulkSourceSelect") : $("#bulkCategorySelect");
-    if (target) target.focus();
+    if (bulkEditFocus === "source") {
+      $("#bulkSourceSelect").focus();
+    } else {
+      CategoryPicker.focus($("#bulkCategorySelect"));
+    }
   });
 
   document.addEventListener("keydown", function (e) {

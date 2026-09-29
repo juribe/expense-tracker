@@ -228,6 +228,12 @@ en:
     recurring:
       payment_description: "Payment for %{name}"
 
+  category_picker:
+    search_placeholder: "Type to search a category"
+    no_results: "No matches"
+    toggle: "Show categories"
+    required: "Choose a category"
+
   categories:
     debt_payments: "Debt payments"
   nav:

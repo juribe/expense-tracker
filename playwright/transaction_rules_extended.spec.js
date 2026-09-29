@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 async function createExpense(page, { amount, description, date }) {
   await page.goto('/expenses/new');
@@ -20,7 +21,7 @@ test.describe('automatic rules – extended scenarios', () => {
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('description_contains');
     await page.locator('#transaction_rule_description_contains').fill('NETFLIX');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -60,7 +61,7 @@ test.describe('automatic rules – extended scenarios', () => {
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('amount_gt');
     await page.locator('#transaction_rule_amount_gt').fill('500');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -81,7 +82,7 @@ test.describe('automatic rules – extended scenarios', () => {
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('amount_lt');
     await page.locator('#transaction_rule_amount_lt').fill('20');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -100,7 +101,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('COMBO');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: catA });
+    await pickCategory(page, 'transaction_rule_category_id', catA);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -129,7 +130,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('GASSTATION');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: ruleCategory });
+    await pickCategory(page, 'transaction_rule_category_id', ruleCategory);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -141,7 +142,7 @@ test.describe('automatic rules – extended scenarios', () => {
     await page.locator('#expenseTable tr', { hasText: 'GASSTATION fill up' }).getByRole('link').click();
     await expect(page).toHaveURL(/\/expenses\/\d+\/edit/);
 
-    await page.locator('#expense_category_id').selectOption({ label: manualCategory });
+    await pickCategory(page, 'expense_category_id', manualCategory);
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses/);
 
@@ -156,7 +157,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('SPECIFIC_MERCHANT');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -173,7 +174,7 @@ test.describe('automatic rules – extended scenarios', () => {
     await createCategory(page, category);
 
     await page.goto('/transaction_rules/new');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
 
     await expect(page.locator('#error-summary')).toBeVisible();

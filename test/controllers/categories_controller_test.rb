@@ -29,6 +29,15 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#category_description"
   end
 
+  test "GET /categories/new offers a searchable parent category picker" do
+    parent = Category.create!(name: "Comida", is_default: true, category_type: "expense")
+    get new_category_path
+    assert_response :success
+    assert_select "[data-testid=category-parent-picker] [role=combobox]"
+    assert_select "select#category_parent_id option[value=?]", parent.id.to_s
+    assert_select "[data-testid=category-parent-picker] [role=option][data-value=?]", parent.id.to_s
+  end
+
   test "POST /categories creates a custom category and auto-generates slug" do
     assert_difference("Category.count", 1) do
       post categories_path, params: { category: { name: "Food", description: "Meals", category_type: "expense" } }

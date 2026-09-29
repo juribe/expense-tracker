@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 test.describe('automatic rules (reglas automáticas)', () => {
   test('user can create a rule and it is listed on the rules page', async ({ page }) => {
@@ -14,7 +15,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
     await expect(page).toHaveURL(/\/transaction_rules\/new/);
 
     await page.locator('#transaction_rule_merchant_contains').fill('SMARTFIT');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
 
     await expect(page).toHaveURL(/\/transaction_rules$/);
@@ -31,7 +32,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('SMARTFIT');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -54,7 +55,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('UBER');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
