@@ -375,4 +375,33 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     post approve_gmail_review_path(foreign)
     assert_response :not_found
   end
+
+  test "index shows a re-authorization prompt when the sync failed with invalid_grant" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                            last_sync_summary: { "error" => "Google OAuth request failed (HTTP 400): invalid_grant" })
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "[data-testid='reauth-alert']"
+  end
+
+  test "index does not show the re-authorization prompt for a healthy connection" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "[data-testid='reauth-alert']", count: 0
+  end
+
+  test "sync_status exposes the authorization_expired flag" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                            last_sync_summary: { "error" => "invalid_grant" })
+
+    get gmail_sync_status_path
+
+    assert_response :success
+    assert_equal true, JSON.parse(response.body)["authorization_expired"]
+  end
 end

@@ -86,4 +86,24 @@ class GmailConnectionTest < ActiveSupport::TestCase
     @connection.syncing = GmailConnection::STALE_SYNC_TIMEOUT.ago - 1.minute
     assert_not @connection.sync_running?
   end
+
+  test "authorization_expired? is true when the last sync failed with invalid_grant" do
+    @connection.last_sync_summary = { "error" => "Google OAuth request failed (HTTP 400): { \"error\": \"invalid_grant\" }" }
+    assert @connection.authorization_expired?
+  end
+
+  test "authorization_expired? is false for a healthy summary" do
+    @connection.last_sync_summary = { "fetched" => 3, "created" => 1 }
+    assert_not @connection.authorization_expired?
+  end
+
+  test "authorization_expired? is false for other sync errors" do
+    @connection.last_sync_summary = { "error" => "Connection reset by peer" }
+    assert_not @connection.authorization_expired?
+  end
+
+  test "authorization_expired? is false without a summary" do
+    @connection.last_sync_summary = nil
+    assert_not @connection.authorization_expired?
+  end
 end

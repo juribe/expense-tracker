@@ -2,17 +2,15 @@
 
 module Ai
   module Tasks
-    # Email transaction extraction (bank / card notification emails). Emails
-    # mix marketing, alerts and real transactions, so they are classified by
-    # the strong tier.
+    # Email transaction extraction (bank / card notification emails). Follows
+    # the standard cascade (cheap -> strong): when the strong tier is disabled
+    # the configured cheap model serves the gmail import instead of failing
+    # every email with "AI is not configured".
     #
     # input:   { subject:, body: }
     # context: { today: Date }
     # data:    { transactions:, should_ignore:, reason: } (see Ai::TransactionExtractor)
     class TransactionExtraction < Base
-      def tiers
-        %i[strong]
-      end
 
       def messages(input, _context)
         [

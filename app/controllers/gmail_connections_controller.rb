@@ -96,7 +96,8 @@ class GmailConnectionsController < ApplicationController
     render json: {
       syncing: @connection.syncing.present?,
       summary: summary,
-      last_synced_at: @connection.last_synced_at&.iso8601
+      last_synced_at: @connection.last_synced_at&.iso8601,
+      authorization_expired: @connection.authorization_expired?
     }
   end
 

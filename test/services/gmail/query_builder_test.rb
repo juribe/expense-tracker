@@ -8,11 +8,11 @@ module Gmail
       Gmail::QueryBuilder.build(config: config, last_synced_at: last_synced_at)
     end
 
-    test "uses default subject keywords when none configured" do
-      query = build({})
-      assert_includes query, "subject:(compra OR compró OR transacción OR transaccion OR pago"
-      assert_match(/newer_than:\d+d/, query)
-    end
+  test "uses default subject keywords when none configured" do
+    query = build({})
+    assert_includes query, 'subject:("compra" OR "compró" OR "transacción" OR "transaccion" OR "pago"'
+    assert_match(/newer_than:\d+d/, query)
+  end
 
     test "includes configured senders and domains in the from clause" do
       query = build({ senders: [ "notifications@bank.com" ], domains: [ "cards.bank.com" ] })
@@ -35,10 +35,22 @@ module Gmail
       assert_includes build({ lookback_days: 2 }, last_synced_at: 500.days.ago), "newer_than:2d"
     end
 
-    test "excludes noisy categories" do
-      query = build({})
-      assert_includes query, "-category:promotions"
-      assert_includes query, "-category:social"
-    end
+  test "excludes noisy categories" do
+    query = build({})
+    assert_includes query, "-category:promotions"
+    assert_includes query, "-category:social"
   end
+
+  test "quotes subject keywords so multi-word phrases do not break the clause" do
+    query = build({ subject_keywords: [ "davibank", "DAVIbank en Linea", "tarjeta infinite" ] })
+
+    assert_includes query, 'subject:("davibank" OR "DAVIbank en Linea" OR "tarjeta infinite")'
+  end
+
+  test "strips embedded quotes from subject keywords" do
+    query = build({ subject_keywords: [ 'we"ird' ] })
+
+    assert_includes query, 'subject:("weird")'
+  end
+end
 end

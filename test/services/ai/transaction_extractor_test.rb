@@ -8,6 +8,10 @@ module Ai
       @extractor ||= Ai::TransactionExtractor.new
     end
 
+    test "cascades cheap then strong so the cheap model can serve the gmail import" do
+      assert_equal %i[cheap strong], Ai::Tasks::TransactionExtraction.new.tiers
+    end
+
     def parse(raw, today = Date.current)
       Ai::TransactionExtractor.parse(raw, today: today)
     end

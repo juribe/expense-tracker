@@ -51,6 +51,14 @@ class GmailConnection < ApplicationRecord
     syncing.present? && syncing > STALE_SYNC_TIMEOUT.ago
   end
 
+  # True when the periodic sync keeps failing because Google rejected the
+  # refresh token (invalid_grant). Happens when the OAuth consent screen is
+  # in Testing mode (refresh tokens expire after 7 days) or the user revoked
+  # access. The UI shows a re-authorization prompt in that case.
+  def authorization_expired?
+    last_sync_summary.is_a?(Hash) && last_sync_summary["error"].to_s.include?("invalid_grant")
+  end
+
   # Normalized search criteria hash used by Gmail::QueryBuilder.
   def search_config_hash
     config = search_config.is_a?(Hash) ? search_config.deep_symbolize_keys : {}

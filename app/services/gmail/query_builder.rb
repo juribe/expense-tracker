@@ -64,7 +64,11 @@ module Gmail
     end
 
     def subject_clause
-      "subject:(#{subject_keywords.join(' OR ')})"
+      # Quote every term: unquoted multi-word keywords (e.g. "DAVIbank en
+      # Linea") silently break the whole Gmail subject:() clause and yield
+      # zero results. Embedded double quotes are stripped.
+      terms = subject_keywords.map { |keyword| %("#{keyword.delete('"')}") }.join(" OR ")
+      "subject:(#{terms})"
     end
 
     # Look back a bit further than the last sync so border-line messages are

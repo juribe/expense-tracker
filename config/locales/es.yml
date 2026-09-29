@@ -1288,6 +1288,8 @@ es:
     paused: "Pausada"
     last_synced: "Última sincronización"
     never: "nunca"
+    reauth_alert: "La sincronización falla porque Google rechazó el acceso (token revocado o expirado). Vuelve a conectar la cuenta para reanudar la importación."
+    reconnect: "Reconectar cuenta de Gmail"
     disconnect: "Desconectar"
     disconnect_confirm: "¿Desconectar %{email}?"
     connect_help: "Conecta tu cuenta de Gmail para importar automáticamente las notificaciones de transacciones bancarias."
