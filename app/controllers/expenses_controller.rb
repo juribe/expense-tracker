@@ -305,9 +305,7 @@ class ExpensesController < ApplicationController
   end
 
   def set_money_sources
-    # Only payment sources: loans never pay an expense, their money lives in
-    # the account it was disbursed to (see MoneySource#payment_source?).
-    @money_sources = current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
+    @money_sources = MoneySource.payment_origins(current_user)
   end
 
   def set_recurring_templates

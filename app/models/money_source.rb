@@ -48,6 +48,13 @@ class MoneySource < ApplicationRecord
   scope :funding_sources, -> { by_kind("loan").where(sub_kind: "revolving") }
   scope :debt_payment_targets, -> { where(kind: %w[credit_card loan]) }
 
+  # Sources that can originate a payment, with credit data loaded for
+  # display_name. Loans never pay an expense directly — their money lives in
+  # the account they were disbursed to (see #payment_source?).
+  def self.payment_origins(user)
+    user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
+  end
+
   before_validation :normalize_kind
   before_validation :normalize_sub_kind
   before_validation :normalize_identifier_to_last_four

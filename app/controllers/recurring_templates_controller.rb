@@ -112,7 +112,7 @@ class RecurringTemplatesController < ApplicationController
 
     # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
     # payment sources — loans are never recipients of an income nor payers.
-    @payment_sources = current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
+    @payment_sources = MoneySource.payment_origins(current_user)
 
     @status_filter = %w[all paid pending].include?(params[:status]) ? params[:status] : "all"
     if @status_filter != "all"

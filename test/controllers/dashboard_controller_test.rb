@@ -48,4 +48,19 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-testid=table]", count: 0
   end
+
+  test "GET /dashboard quick add form offers payment sources, not loans" do
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true)
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
+    loan = @user.money_sources.create!(name: "Préstamo", kind: "loan", active: true)
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    select_values = assert_select("select#expense_money_source_id option").map { |node| node["value"] }
+    assert_includes select_values, cash.id.to_s
+    assert_includes select_values, card.id.to_s
+    assert_not_includes select_values, loan.id.to_s
+  end
 end
