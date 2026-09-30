@@ -59,16 +59,20 @@ class MoneySource < ApplicationRecord
   before_validation :normalize_sub_kind
   before_validation :normalize_identifier_to_last_four
 
+  # A new source starts with its starting balance; subsequent movements move
+  # it via BalanceSync deltas.
+  before_create :init_cached_balance_from_starting_balance
+
+  # Changing the starting balance shifts the cached balance by the same delta
+  # in before_update so it stays aligned (after_commit would double-apply on
+  # reload patterns and flush out of the same transaction as the attribute).
+  before_update :sync_cached_balance_with_starting_balance, if: :starting_balance_changed?
+
+  # Cached saldo — maintained incrementally by MoneySources::BalanceSync on
+  # every transaction/transfer write. O(1) per write instead of re-aggregating
+  # potentially tens of thousands of rows on every render.
   def balance
-    base = starting_balance.to_d
-
-    tx_sum = transactions.sum(:amount).to_d
-    card_tx_sum = children.map(&:transactions_amount_sum).sum.to_d
-
-    tx_out = outgoing_transfers.sum(:amount).to_d
-    tx_in = incoming_transfers.sum(:amount).to_d
-
-    base + tx_sum + card_tx_sum - tx_out + tx_in
+    cached_balance.to_d
   end
 
   def transactions_amount_sum
@@ -209,6 +213,14 @@ class MoneySource < ApplicationRecord
   end
 
   private
+
+  def init_cached_balance_from_starting_balance
+    self.cached_balance = starting_balance.to_d
+  end
+
+  def sync_cached_balance_with_starting_balance
+    self.cached_balance = cached_balance.to_d + (starting_balance - starting_balance_was)
+  end
 
   def normalize_kind
     self.kind = kind.to_s.downcase if kind.present?
