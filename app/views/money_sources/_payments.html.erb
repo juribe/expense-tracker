@@ -1,0 +1,133 @@
+<div class="card shadow-sm mt-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <h5 class="card-title mb-0"><i class="bi bi-cash-coin me-2"></i><%= t("payments.history_title") %></h5>
+    </div>
+
+    <% if @payments.any? %>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-2">
+          <thead>
+            <tr>
+              <th scope="col"><%= t("payments.form.expense") %></th>
+              <th scope="col" class="text-end"><%= t("payments.form.payment_amount") %></th>
+              <th scope="col" class="text-end"><%= t("payments.breakdown_principal") %></th>
+              <th scope="col" class="text-end"><%= t("payments.breakdown_interest") %></th>
+              <th scope="col" class="text-end"><%= t("payments.breakdown_insurance") %></th>
+              <th scope="col" class="text-end"><%= t("payments.breakdown_other") %></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @payments.each do |payment| %>
+              <tr>
+                <td>
+                  <div class="fw-semibold"><%= payment.expense.description.presence || t("payments.description_fallback") %></div>
+                  <div class="small text-muted"><%= l(payment.date, format: :short) %></div>
+                </td>
+                <td class="text-end fw-bold"><%= number_to_currency(payment.amount) %></td>
+                <td class="text-end"><%= number_to_currency(payment.principal_amount) %></td>
+                <td class="text-end"><%= number_to_currency(payment.interest_amount) %></td>
+                <td class="text-end"><%= number_to_currency(payment.insurance_amount) %></td>
+                <td class="text-end"><%= number_to_currency(payment.other_amount) %></td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <%= link_to edit_money_source_payment_path(@money_source, payment),
+                                class: "btn btn-outline-primary", title: t("payments.edit") do %>
+                      <i class="bi bi-pencil"></i>
+                    <% end %>
+                    <%= button_to money_source_payment_path(@money_source, payment), method: :delete,
+                                  form_class: "d-inline",
+                                  class: "btn btn-outline-danger", title: t("payments.reverse"),
+                                  data: { confirm: t("payments.reverse_confirm") } do %>
+                      <i class="bi bi-arrow-counterclockwise"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @payments_total_pages > 1 %>
+        <div class="d-flex justify-content-between align-items-center small mt-2">
+          <span class="text-muted"><%= t("payments.page", current: @payments_page, total: @payments_total_pages) %></span>
+          <div class="btn-group btn-group-sm">
+            <% if @payments_page > 1 %>
+              <%= link_to money_source_path(@money_source, payments_page: @payments_page - 1),
+                          class: "btn btn-outline-secondary" do %>
+                <i class="bi bi-chevron-left me-1"></i><%= t("payments.prev") %>
+              <% end %>
+            <% else %>
+              <span class="btn btn-outline-secondary disabled"><%= t("payments.prev") %></span>
+            <% end %>
+            <% if @payments_page < @payments_total_pages %>
+              <%= link_to money_source_path(@money_source, payments_page: @payments_page + 1),
+                          class: "btn btn-outline-secondary" do %>
+                <%= t("payments.next") %><i class="bi bi-chevron-right ms-1"></i>
+              <% end %>
+            <% else %>
+              <span class="btn btn-outline-secondary disabled"><%= t("payments.next") %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted mb-0"><%= t("payments.empty") %></p>
+    <% end %>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3"><i class="bi bi-hourglass-split me-2"></i><%= t("payments.awaiting_title") %></h5>
+
+    <% if @awaiting_expenses.any? %>
+      <div class="list-group mb-3">
+        <% @awaiting_expenses.each do |expense| %>
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold"><%= expense.description.presence || t("payments.description_fallback") %></div>
+                <div class="small text-muted"><%= l(expense.date, format: :short) %></div>
+                <% if expense.recurring_template.present? %>
+                  <div class="small text-muted">
+                    <i class="bi bi-arrow-repeat me-1"></i><%= t("payments.from_template", description: expense.recurring_template.description) %>
+                  </div>
+                <% end %>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-danger"><%= number_to_currency(expense.amount.to_d.abs) %></div>
+                <span class="badge bg-warning text-dark mt-1"><%= t("payments.pending") %></span>
+                <%= link_to new_money_source_payment_path(@money_source, expense_id: expense.id),
+                            class: "btn btn-sm btn-primary mt-1" do %>
+                  <i class="bi bi-check2-square me-1"></i><%= t("payments.apply_button") %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted mb-3"><%= t("payments.awaiting_empty") %></p>
+    <% end %>
+
+    <%= form_with url: new_money_source_payment_path(@money_source), method: :get, class: "row g-2 align-items-end" do %>
+      <div class="col-12 col-md-8">
+        <label for="pickExpense" class="form-label small"><%= t("payments.pick_other") %></label>
+        <select id="pickExpense" name="expense_id" class="form-select">
+          <option value=""><%= t("payments.pick_placeholder") %></option>
+          <% @pickable_expenses.each do |expense| %>
+            <option value="<%= expense.id %>">
+              <%= "#{l(expense.date, format: :short)} · #{expense.description.presence || t('payments.description_fallback')} · #{number_to_currency(expense.amount.to_d.abs)}" %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+      <div class="col-6 col-md-4">
+        <button type="submit" class="btn btn-outline-primary"><%= t("payments.pick_submit") %></button>
+      </div>
+    <% end %>
+  </div>
+</div>

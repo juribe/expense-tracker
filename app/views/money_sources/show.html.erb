@@ -15,6 +15,7 @@
     <div class="col-lg-7">
       <% if @money_source.debt? %>
         <%= render "debt_panel", source: @money_source %>
+        <%= render "payments" %>
       <% else %>
         <div class="card shadow-sm">
           <div class="card-body">

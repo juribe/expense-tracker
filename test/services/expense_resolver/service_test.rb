@@ -324,7 +324,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal Date.new(2026, 9, 22), result.result.first.date
+    assert_equal most_recent_past(2), result.result.first.date
   end
 
   test "a fragment that keeps its own weekday expression is not overridden" do
@@ -337,7 +337,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     result = with_forced_ai(entries: [ entry ], text: "el martes compré zapatos por 180.000")
 
     assert result.success?
-    assert_equal Date.new(2026, 9, 22), result.result.first.date
+    assert_equal most_recent_past(2), result.result.first.date
   end
 
   test "a message with several date expressions keeps the AI dates" do

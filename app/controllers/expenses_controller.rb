@@ -102,60 +102,62 @@ class ExpensesController < ApplicationController
     redirect_to expenses_path(redirect_params), notice: t("expenses.deleted")
   end
 
-  # POST /expenses/apply_recurring
-  # Links ONE existing expense (e.g. imported from an email statement) to an
+  # POST /expenses/assign_recurring
+  # Assigns ONE existing expense (e.g. imported from an email statement) to an
   # active expense recurring template. The template reads its own status from
-  # its linked transactions, so the linked expense immediately marks that
+  # its linked transactions, so the assigned expense immediately marks that
   # month as "Pagado" — the same effect the processor's generated payment has.
-  def apply_recurring
+  # This is only the template association: no Payment is created and no
+  # credit balance changes (apply payments from the credit/loan page).
+  def assign_recurring
     expense = current_user.expenses.find_by(id: params[:expense_id])
     template = current_user.recurring_templates.find_by(id: params[:recurring_template_id])
 
     if expense.nil? || template.nil?
-      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.not_found")
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.assign_recurring.not_found")
       return
     end
 
     if template.income?
-      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.not_expense")
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.assign_recurring.not_expense")
       return
     end
 
     unless template.active?
-      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.inactive")
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.assign_recurring.inactive")
       return
     end
 
     if expense.recurring_template_id.present?
-      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.already_linked")
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.assign_recurring.already_linked")
       return
     end
 
     if template.transactions.where(date: expense.date.beginning_of_month..expense.date.end_of_month).exists?
       redirect_to expenses_path(bulk_update_state),
-                  alert: t("expenses.apply_recurring.period_taken", description: template.description)
+                  alert: t("expenses.assign_recurring.period_taken", description: template.description)
       return
     end
 
     expense.update!(recurring_template_id: template.id)
     redirect_to expenses_path(bulk_update_state),
-                notice: t("expenses.apply_recurring.applied", description: template.description)
+                notice: t("expenses.assign_recurring.applied", description: template.description)
   end
 
-  # POST /expenses/unlink_recurring
-  # Clears the recurring-template link of a single expense; the template
+  # POST /expenses/unassign_recurring
+  # Clears the recurring-template assignment of a single expense; the template
   # falls back to "Pendiente" for the period the expense had covered.
-  def unlink_recurring
+  def unassign_recurring
     expense = current_user.expenses.where.not(recurring_template_id: nil).find_by(id: params[:expense_id])
 
     if expense.nil?
-      redirect_to expenses_path(bulk_update_state), alert: t("expenses.apply_recurring.not_linked")
+      redirect_to expenses_path(bulk_update_state), alert: t("expenses.assign_recurring.not_linked")
       return
     end
 
     expense.update!(recurring_template_id: nil)
     redirect_to expenses_path(bulk_update_state),
-                notice: t("expenses.apply_recurring.unlinked")
+                notice: t("expenses.assign_recurring.unlinked")
   end
 
   def bulk_destroy
@@ -308,8 +310,14 @@ class ExpensesController < ApplicationController
     @money_sources = MoneySource.payment_origins(current_user)
   end
 
+  # Active expense recurring templates for the "assign to recurring" modal,
+  # plus the ids already paid this period — those render disabled, since an
+  # expense must first be unassigned to reopen the period.
   def set_recurring_templates
     @recurring_templates = current_user.recurring_templates.active.expense.includes(:category).ordered
+    month_range = Date.current.beginning_of_month..Date.current.end_of_month
+    @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: month_range)
+                                    .distinct.pluck(:recurring_template_id)
   end
 
   def expense_params

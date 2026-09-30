@@ -29,6 +29,7 @@ class MoneySource < ApplicationRecord
   has_many :outgoing_transfers, class_name: "Transfer", foreign_key: :from_source_id, dependent: :destroy
   has_many :incoming_transfers, class_name: "Transfer", foreign_key: :to_source_id, dependent: :destroy
   has_one :credit_account, dependent: :destroy
+  has_many :payments, foreign_key: :money_source_id, dependent: :restrict_with_error
   has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
   has_many :recognition_identifiers, through: :recognition, source: :recognition_identifiers
 

@@ -32,8 +32,8 @@ Rails.application.routes.draw do
       patch :bulk_update
       post :parse
       post :bulk_create
-      post :apply_recurring
-      post :unlink_recurring
+      post :assign_recurring
+      post :unassign_recurring
     end
   end
   resources :expense_candidates, only: [ :index, :show, :update ] do
@@ -65,7 +65,9 @@ Rails.application.routes.draw do
   get "money_sources/recognition", to: "money_sources#recognition", as: :money_sources_recognition
   patch "money_sources/recognition/:money_source_id", to: "money_sources#update_recognition", as: :money_source_recognition
   delete "money_sources/recognition/:money_source_id", to: "money_sources#destroy_recognition", as: :money_source_recognition_destroy
-  resources :money_sources, id: /[0-9]+/
+  resources :money_sources, id: /[0-9]+/ do
+    resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
+  end
   resources :transfers, only: [ :index, :new, :create, :destroy ]
   resources :recurring_templates do
     member do

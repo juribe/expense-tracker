@@ -84,20 +84,22 @@ end
 # start_request runs on the first HTTP request, not in setup, so records
 # created while seeding are not registered as "impossible" (Bullet exempts
 # in-thread created objects, which would mask their real N+1s).
+# Bullet is disabled in test by default (see config/initializers/bullet.rb);
+# with BULLET=1 the hook below collects normally again.
 module BulletIntegrationHook
   def process(*)
-    Bullet.start_request unless Bullet.start? if defined?(Bullet)
+    Bullet.start_request unless Bullet.start? if Bullet.enable?
     super
   end
 
   def teardown
     super
-    if defined?(Bullet)
-      Bullet.raise = true
-      Bullet.perform_out_of_channel_notifications if Bullet.notification?
-      Bullet.raise = false
-      Bullet.end_request
-    end
+    return unless Bullet.enable?
+
+    Bullet.raise = true
+    Bullet.perform_out_of_channel_notifications if Bullet.notification?
+    Bullet.raise = false
+    Bullet.end_request
   end
 end
 

@@ -28,8 +28,11 @@ module MoneySources
     # may override the pool explicitly for other operations (funding,
     # debt payment) once those flows land.
     def initialize(user:, sources: nil)
+      # order(:id) pins "first-created wins ties"; without an explicit ORDER
+      # row loading order is unspecified and the tie-break becomes a flake.
       @sources = sources || MoneySource.active.payment_sources
-                             .includes(:recognition_identifiers, recognition: :recognition_identifiers).to_a
+                         .includes(:recognition_identifiers, recognition: :recognition_identifiers)
+                         .order(:id).to_a
     end
 
     def call(text)

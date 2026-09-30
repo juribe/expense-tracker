@@ -199,9 +199,9 @@
                       <i class="bi bi-eye"></i>
                     </button>
                     <% if expense.recurring_template_id.nil? %>
-                      <button type="button" class="btn btn-sm btn-outline-primary" data-apply-recurring
-                              data-testid="row-apply-recurring"
-                              aria-label="<%= t('expenses.apply_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                      <button type="button" class="btn btn-sm btn-outline-primary" data-assign-recurring
+                              data-testid="row-assign-recurring"
+                              aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
                         <i class="bi bi-arrow-repeat"></i>
                       </button>
                     <% end %>
@@ -249,8 +249,8 @@
                     <i class="bi bi-eye"></i>
                   </button>
                   <% if expense.recurring_template_id.nil? %>
-                    <button type="button" class="btn btn-outline-primary" data-apply-recurring
-                            aria-label="<%= t('expenses.apply_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                    <button type="button" class="btn btn-outline-primary" data-assign-recurring
+                            aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
                       <i class="bi bi-arrow-repeat"></i>
                     </button>
                   <% end %>
@@ -388,25 +388,27 @@
            testid: "expense-process-modal" %>
 
 <!-- Modal: aplicar un gasto existente a una plantilla recurrente -->
-<%= form_with url: apply_recurring_expenses_path, method: :post, id: "bulkRecurringForm", data: { testid: "apply-recurring-form" } do %>
-  <div class="modal fade" id="bulkRecurringModal" tabindex="-1" aria-labelledby="bulkRecurringTitle" aria-hidden="true" data-testid="apply-recurring-modal">
+<%= form_with url: assign_recurring_expenses_path, method: :post, id: "bulkRecurringForm", data: { testid: "assign-recurring-form" } do %>
+  <div class="modal fade" id="bulkRecurringModal" tabindex="-1" aria-labelledby="bulkRecurringTitle" aria-hidden="true" data-testid="assign-recurring-modal">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.apply_recurring.modal_title", default: "Aplicar a gasto recurrente") %></h2>
+          <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.assign_recurring.modal_title", default: "Aplicar a gasto recurrente") %></h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
           <%= hidden_field_tag :expense_id, nil, id: "recurringExpenseId" %>
-          <p class="text-muted mb-3"><%= t("expenses.apply_recurring.modal_hint", default: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\").") %></p>
+          <p class="text-muted mb-3"><%= t("expenses.assign_recurring.modal_hint", default: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\").") %></p>
           <div class="mb-0">
-            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.apply_recurring.template_label", default: "Gasto recurrente") %></label>
+            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.assign_recurring.template_label", default: "Gasto recurrente") %></label>
             <select id="bulkRecurringSelect" name="recurring_template_id" class="form-select" required>
-              <option value=""><%= t("expenses.apply_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
+              <option value=""><%= t("expenses.assign_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
               <% @recurring_templates.each do |template| %>
+                <% paid = @paid_template_ids.include?(template.id) %>
                 <option value="<%= template.id %>"
-                        data-category-id="<%= template.category_id %>">
-                  <%= recurring_template_option_label(template) %>
+                        data-category-id="<%= template.category_id %>"
+                        <%= "disabled" if paid %>>
+                  <%= recurring_template_option_label(template) %><%= t("expenses.assign_recurring.paid_suffix") if paid %>
                 </option>
               <% end %>
             </select>
@@ -414,8 +416,8 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
-          <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-apply-recurring" disabled>
-            <i class="bi bi-check-lg me-1"></i><%= t("expenses.apply_recurring.apply_button", default: "Aplicar") %>
+          <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-assign-recurring" disabled>
+            <i class="bi bi-check-lg me-1"></i><%= t("expenses.assign_recurring.apply_button", default: "Aplicar") %>
           </button>
         </div>
       </div>
@@ -523,7 +525,7 @@
                                       });
     if (matching.length) {
       var group = document.createElement("optgroup");
-      group.label = "<%= t("expenses.apply_recurring.same_category_group", default: "Misma categoría") %>";
+      group.label = "<%= t("expenses.assign_recurring.same_category_group", default: "Misma categoría") %>";
       group.id = "sameCategoryGroup";
       matching.reverse().forEach(function (option) { group.appendChild(option.cloneNode(true)); });
       select.insertBefore(group, select.options[1]);
@@ -531,7 +533,7 @@
 
     select.value = "";
     $("#recurringExpenseId").value = row.dataset.id;
-    $("#bulkRecurringForm").action = urlWithState("<%= apply_recurring_expenses_path %>");
+    $("#bulkRecurringForm").action = urlWithState("<%= assign_recurring_expenses_path %>");
     $("#confirmBulkRecurring").disabled = true;
     bootstrap.Modal.getOrCreateInstance("#bulkRecurringModal").show();
   }
@@ -605,7 +607,7 @@
       openProcessModal(processBtn);
       return;
     }
-    var applyRecBtn = e.target.closest("[data-apply-recurring]");
+    var applyRecBtn = e.target.closest("[data-assign-recurring]");
     if (applyRecBtn) {
       openBulkRecurring(applyRecBtn.closest("tr[data-id], .mobile-item[data-id]"));
       return;
