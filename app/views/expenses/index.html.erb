@@ -172,6 +172,7 @@
             </thead>
             <tbody id="tableBody">
               <% @expenses.each do |expense| %>
+                <%- decorated = ExpenseDecorator.new(expense) -%>
                 <tr data-id="<%= expense.id %>" tabindex="0" data-testid="row"
                     data-category-id="<%= expense.category_id %>"
                     data-recurring-id="<%= expense.recurring_template_id %>"
@@ -180,7 +181,7 @@
                     data-delete-url="<%= expense_path(expense, state_query) %>">
                   <td>
                     <input type="checkbox" class="form-check-input row-check"
-                           aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                           aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
                   </td>
                   <td class="text-nowrap"><%= l(expense.date, format: :short) %></td>
                   <td class="desc-cell" title="<%= expense.description %>">
@@ -195,23 +196,23 @@
                   <td class="text-end amount"><%= number_to_currency(expense.amount) %></td>
                   <td class="text-end text-nowrap" data-stop="1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-open-drawer
-                            aria-label="<%= t('expenses.view_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.view_expense', description: decorated.lowercase_description) %>">
                       <i class="bi bi-eye"></i>
                     </button>
                     <% if expense.recurring_template_id.nil? %>
                       <button type="button" class="btn btn-sm btn-outline-primary" data-assign-recurring
                               data-testid="row-assign-recurring"
-                              aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                              aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
                         <i class="bi bi-arrow-repeat"></i>
                       </button>
                     <% end %>
                     <%= link_to edit_expense_path(expense, state_query), class: "btn btn-sm btn-outline-primary",
-                                aria: { label: t("expenses.edit_expense", description: expense.description.presence || t("expenses.no_description").downcase) } do %>
+                                aria: { label: t("expenses.edit_expense", description: decorated.lowercase_description) } do %>
                       <i class="bi bi-pencil"></i>
                     <% end %>
                     <button type="button" class="btn btn-sm btn-outline-danger" data-delete
                             data-delete-url="<%= expense_path(expense, state_query) %>"
-                            aria-label="<%= t('expenses.delete_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.delete_expense', description: decorated.lowercase_description) %>">
                       <i class="bi bi-trash"></i>
                     </button>
                   </td>
@@ -223,6 +224,7 @@
 
         <div class="mobile-list" id="mobileList">
           <% @expenses.each do |expense| %>
+            <%- decorated = ExpenseDecorator.new(expense) -%>
             <div class="mobile-item" data-id="<%= expense.id %>" tabindex="0" data-testid="row"
                  data-category-id="<%= expense.category_id %>"
                  data-recurring-id="<%= expense.recurring_template_id %>"
@@ -230,7 +232,7 @@
                  data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                  data-delete-url="<%= expense_path(expense, state_query) %>">
               <input type="checkbox" class="form-check-input row-check mt-2"
-                     aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                     aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
               <div>
                 <div class="small text-muted"><%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %> · <%= money_source_badge(expense.money_source) %></div>
                 <div class="mt-1">
@@ -245,22 +247,22 @@
                 <div class="amount"><%= number_to_currency(expense.amount) %></div>
                 <div class="mobile-actions mt-2" data-stop="1">
                   <button type="button" class="btn btn-outline-secondary" data-open-drawer
-                          aria-label="<%= t('expenses.view_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                          aria-label="<%= t('expenses.view_expense', description: decorated.lowercase_description) %>">
                     <i class="bi bi-eye"></i>
                   </button>
                   <% if expense.recurring_template_id.nil? %>
                     <button type="button" class="btn btn-outline-primary" data-assign-recurring
-                            aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
                       <i class="bi bi-arrow-repeat"></i>
                     </button>
                   <% end %>
                   <%= link_to edit_expense_path(expense, state_query), class: "btn btn-outline-primary",
-                              aria: { label: t("expenses.edit_expense", description: expense.description.presence || t('expenses.no_description').downcase) } do %>
+                              aria: { label: t("expenses.edit_expense", description: decorated.lowercase_description) } do %>
                     <i class="bi bi-pencil"></i>
                   <% end %>
                   <button type="button" class="btn btn-outline-danger" data-delete
                             data-delete-url="<%= expense_path(expense, state_query) %>"
-                            aria-label="<%= t('expenses.delete_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.delete_expense', description: decorated.lowercase_description) %>">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
