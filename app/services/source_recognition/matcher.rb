@@ -18,6 +18,13 @@ module SourceRecognition
   # characters ("•••• 5678" / "****5678") or a "terminada en 5678" phrase.
   # A bare 4-digit token in the body (an amount, a date) never matches.
   #
+  # Institution signals (sender/domain/subject/header) identify the BANK, not
+  # the product: every card of the same bank shares them. When two or more
+  # configured sources match the message at institution level, those signals
+  # are zeroed out for everyone and only product evidence (keywords, anchored
+  # last-four) may pick a winner; with no product evidence the result stays
+  # ambiguous instead of rewarding whoever confirmed more bank boilerplate.
+  #
   #   Matcher.call(user: user, message: gmail_message_hash)
   #     => MoneySource            when exactly one source wins
   #     => [MoneySource, ...]     when the top score is tied (ambiguous)
@@ -29,6 +36,7 @@ module SourceRecognition
   class Matcher
     WEIGHTS = { "sender" => 3, "domain" => 3, "subject" => 2, "header" => 2, "keyword" => 1 }.freeze
     LAST_FOUR_WEIGHT = 4
+    INSTITUTION_KINDS = %w[sender domain subject header].freeze
     MASK_PREFIX = /[*•#]+\s*/.freeze
     TERMINATION_PHRASE = /terminad[ao]s?\s+en|termina(?:n|do)?\s+en\s+los?\s+d[ií]gitos|termina\s+en|ending\s+in/.freeze
 
@@ -57,7 +65,11 @@ module SourceRecognition
     def call
       scored = sources.filter_map do |source|
         score = score_for(source)
-        [source, score] if score.positive?
+        [ source, score ] if score.positive?
+      end
+      Rails.logger.debug do
+        "[SourceRecognition::Matcher] user=#{@user&.id} institution_ambiguous=#{institution_ambiguous?} " \
+          "scores=#{scored.map { |source, score| "#{source.name}=#{score}" }.join(', ')}"
       end
       return nil if scored.empty?
       return scored.first.first if scored.one?
@@ -83,6 +95,10 @@ module SourceRecognition
     end
 
     def identifier_score(id, source)
+      # Between sibling cards of the same bank the boilerplate matches for
+      # everyone, so it carries no information about which card was used.
+      return 0 if institution_ambiguous? && INSTITUTION_KINDS.include?(id.kind)
+
       case id.kind
       when "sender"  then sender_matches?(id.value) ? WEIGHTS["sender"] : 0
       when "domain"  then domain_matches?(id.value) ? WEIGHTS["domain"] : 0
@@ -90,6 +106,29 @@ module SourceRecognition
       when "header"  then header_matches?(id.value) ? WEIGHTS["header"] : 0
       when "keyword" then keyword_score(id, source)
       else 0
+      end
+    end
+
+    def institution_ambiguous?
+      return @institution_ambiguous if defined?(@institution_ambiguous)
+
+      matched = sources.count { |source| institution_match?(source) }
+      @institution_ambiguous = matched >= 2
+    end
+
+    def institution_match?(source)
+      source.recognition_identifiers
+            .reject(&:suggested?)
+            .any? { |id| INSTITUTION_KINDS.include?(id.kind) && institution_kind_match?(id) }
+    end
+
+    def institution_kind_match?(id)
+      case id.kind
+      when "sender"  then sender_matches?(id.value)
+      when "domain"  then domain_matches?(id.value)
+      when "subject" then @subject.include?(fold(id.value))
+      when "header"  then header_matches?(id.value)
+      else false
       end
     end
 

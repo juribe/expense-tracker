@@ -1,4 +1,8 @@
 class ApplicationController < ActionController::Base
+  # Shared page size for every paginated list (expenses, expense candidates,
+  # applied payments) so pagination behaves consistently app-wide.
+  PER_PAGE = 25
+
   before_action :authenticate_user!
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern

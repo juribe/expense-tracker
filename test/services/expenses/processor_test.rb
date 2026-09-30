@@ -319,5 +319,81 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
         assert_equal "Tiquetes", candidate.suggested_category_name
       end
     end
+
+    test "a whatsapp message whose caption and screenshot repeat the same transaction keeps one candidate" do
+      stub_method(Ocr::LocalReader, :call, "El envío de $1.000 ha sido exitoso Desde: Cuenta De Ahorros 7273") do
+        stub_method(ExpenseResolver::HeuristicResolver, :call, ->(**_kwargs) {
+          ExpenseResolver::HeuristicResolver::Resolution.new(nil)
+        }) do
+          stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+            ServiceResult.success([
+              Ai::Tasks::ParsedExpense.new(
+                original_text: "comida", amount: 1000, date: Date.current,
+                description: "Comida", category: "Restaurants", money_source_hint: "7273", confidence: 0.9
+              ),
+              Ai::Tasks::ParsedExpense.new(
+                original_text: "El envío de $1.000 ha sido exitoso", amount: 1000, date: Date.current,
+                description: "Cuenta De Ahorros 7273 a Nequi", category: nil,
+                money_source_hint: "7273", confidence: 0.9
+              )
+            ])
+          }) do
+            source = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account")
+            source.ensure_recognition.replace_identifiers(keyword: [ "7273" ])
+
+            assert_difference -> { ExpenseCandidate.count }, 1 do
+              result = Processor.call(
+                user: @user,
+                input: Expenses::Input.from_params("text_image", text: "comida",
+                                                   image_data: "data:image/jpeg;base64,Zm9v"),
+                source: "whatsapp"
+              )
+
+              assert_equal 1, result.candidates.size
+              assert_equal "Comida", result.candidates.first.description
+              assert_includes result.candidates.first.warnings.join(" "), "skipped as a duplicate"
+            end
+
+            persisted = ExpenseCandidate.last
+            assert_equal source.id, persisted.money_source_id
+            assert_includes persisted.metadata["warnings"].join(" "), "skipped as a duplicate"
+          end
+        end
+      end
+    end
+
+    test "non-whatsapp pipelines keep every entry even when signatures collide" do
+      stub_method(Ocr::LocalReader, :call, "El envío de $1.000 ha sido exitoso Desde: Cuenta De Ahorros 7273") do
+        stub_method(ExpenseResolver::HeuristicResolver, :call, ->(**_kwargs) {
+          ExpenseResolver::HeuristicResolver::Resolution.new(nil)
+        }) do
+          stub_method(ExpenseResolver::NaturalLanguageParser, :call, ->(**_kwargs) {
+            ServiceResult.success([
+              Ai::Tasks::ParsedExpense.new(
+                original_text: "comida", amount: 1000, date: Date.current,
+                description: "Comida", category: "Restaurants", money_source_hint: "7273", confidence: 0.9
+              ),
+              Ai::Tasks::ParsedExpense.new(
+                original_text: "El envío de $1.000 ha sido exitoso", amount: 1000, date: Date.current,
+                description: "Cuenta De Ahorros 7273 a Nequi", category: nil,
+                money_source_hint: "7273", confidence: 0.9
+              )
+            ])
+          }) do
+            source = @user.money_sources.create!(name: "Cuenta Davibank", kind: "account")
+            source.ensure_recognition.replace_identifiers(keyword: [ "7273" ])
+
+            result = Processor.call(
+              user: @user,
+              input: Expenses::Input.from_params("text_image", text: "comida",
+                                                 image_data: "data:image/jpeg;base64,Zm9v"),
+              source: "playground"
+            )
+
+            assert_equal 2, result.candidates.size
+          end
+        end
+      end
+    end
   end
 end

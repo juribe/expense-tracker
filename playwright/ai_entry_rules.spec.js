@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 // The parser assigns its own category to detected expenses (a guess, not an
 // explicit user choice), so at save time a matching transaction rule must
@@ -47,7 +48,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('description_contains');
     await page.locator('#transaction_rule_description_contains').fill('didi');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: ruleCategory });
+    await pickCategory(page, 'transaction_rule_category_id', ruleCategory);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -82,7 +83,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('description_contains');
     await page.locator('#transaction_rule_description_contains').fill('didi');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: ruleCategory });
+    await pickCategory(page, 'transaction_rule_category_id', ruleCategory);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 

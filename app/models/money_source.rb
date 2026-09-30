@@ -29,6 +29,7 @@ class MoneySource < ApplicationRecord
   has_many :outgoing_transfers, class_name: "Transfer", foreign_key: :from_source_id, dependent: :destroy
   has_many :incoming_transfers, class_name: "Transfer", foreign_key: :to_source_id, dependent: :destroy
   has_one :credit_account, dependent: :destroy
+  has_many :payments, foreign_key: :money_source_id, dependent: :restrict_with_error
   has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
   has_many :recognition_identifiers, through: :recognition, source: :recognition_identifiers
 
@@ -48,20 +49,31 @@ class MoneySource < ApplicationRecord
   scope :funding_sources, -> { by_kind("loan").where(sub_kind: "revolving") }
   scope :debt_payment_targets, -> { where(kind: %w[credit_card loan]) }
 
+  # Sources that can originate a payment, with credit data loaded for
+  # display_name. Loans never pay an expense directly — their money lives in
+  # the account they were disbursed to (see #payment_source?).
+  def self.payment_origins(user)
+    user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
+  end
+
   before_validation :normalize_kind
   before_validation :normalize_sub_kind
   before_validation :normalize_identifier_to_last_four
 
+  # A new source starts with its starting balance; subsequent movements move
+  # it via BalanceSync deltas.
+  before_create :init_cached_balance_from_starting_balance
+
+  # Changing the starting balance shifts the cached balance by the same delta
+  # in before_update so it stays aligned (after_commit would double-apply on
+  # reload patterns and flush out of the same transaction as the attribute).
+  before_update :sync_cached_balance_with_starting_balance, if: :starting_balance_changed?
+
+  # Cached saldo — maintained incrementally by MoneySources::BalanceSync on
+  # every transaction/transfer write. O(1) per write instead of re-aggregating
+  # potentially tens of thousands of rows on every render.
   def balance
-    base = starting_balance.to_d
-
-    tx_sum = transactions.sum(:amount).to_d
-    card_tx_sum = children.map(&:transactions_amount_sum).sum.to_d
-
-    tx_out = outgoing_transfers.sum(:amount).to_d
-    tx_in = incoming_transfers.sum(:amount).to_d
-
-    base + tx_sum + card_tx_sum - tx_out + tx_in
+    cached_balance.to_d
   end
 
   def transactions_amount_sum
@@ -202,6 +214,14 @@ class MoneySource < ApplicationRecord
   end
 
   private
+
+  def init_cached_balance_from_starting_balance
+    self.cached_balance = starting_balance.to_d
+  end
+
+  def sync_cached_balance_with_starting_balance
+    self.cached_balance = cached_balance.to_d + (starting_balance - starting_balance_was)
+  end
 
   def normalize_kind
     self.kind = kind.to_s.downcase if kind.present?

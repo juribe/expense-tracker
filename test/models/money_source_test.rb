@@ -271,4 +271,23 @@ class MoneySourceTest < ActiveSupport::TestCase
     source.save!
     assert_equal "4321", source.last_four
   end
+
+  test "payment_origins returns the user's active payment sources ordered, without loans" do
+    create_source(name: "Préstamo", kind: "loan")
+    create_source(name: "Zapatos store card", kind: "wallet", active: false)
+    wallet = create_source(name: "Nequi", kind: "wallet")
+    card = create_source(name: "Visa", kind: "credit_card")
+
+    origins = MoneySource.payment_origins(@user)
+
+    assert_equal [ card.id, wallet.id ], origins.map(&:id)
+  end
+
+  test "payment_origins isolates users" do
+    other = User.create!(name: "Other", email: "other_ms_#{Time.now.to_i}@example.com", password: "password123")
+    other.money_sources.create!(name: "Their card", kind: "credit_card")
+    mine = create_source(name: "My cash", kind: "cash")
+
+    assert_equal [ mine.id ], MoneySource.payment_origins(@user).map(&:id)
+  end
 end

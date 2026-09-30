@@ -228,6 +228,30 @@ en:
     recurring:
       payment_description: "Payment for %{name}"
 
+  activerecord:
+    errors:
+      messages:
+        must_match_expense: "must match the expense amount"
+        distribution_mismatch: "the distribution does not add up to the payment amount"
+        not_debt: "is not a debt (credit card or loan)"
+        other_user: "does not belong to this user"
+    attributes:
+      payment:
+        amount: "Payment amount"
+        principal_amount: "Principal"
+        interest_amount: "Interest"
+        insurance_amount: "Insurance"
+        other_amount: "Other"
+        expense: "Expense"
+        money_source: "Debt"
+        date: "Date"
+
+  category_picker:
+    search_placeholder: "Type to search a category"
+    no_results: "No matches"
+    toggle: "Show categories"
+    required: "Choose a category"
+
   categories:
     debt_payments: "Debt payments"
   nav:
@@ -504,30 +528,76 @@ en:
       at_least_one_condition: "Add at least one condition."
       at_least_one_action: "Add at least one action."
 
+  payments:
+    not_found: "Expense not found for this user."
+    duplicate: "That expense is already applied to this debt."
+    created: "Payment of %{amount} applied to %{target}."
+    updated: "Payment updated."
+    deleted: "Payment reversed."
+    pending: "Awaiting application"
+    applied: "Applied"
+    apply_button: "Apply payment"
+    edit: "Edit"
+    reverse: "Reverse"
+    reverse_confirm: "Reverse this payment? The debt balance returns to its previous value."
+    empty: "No payments applied to this debt yet."
+    page: "Page %{current} of %{total}"
+    prev: "Previous"
+    next: "Next"
+    awaiting_title: "Payments awaiting application"
+    awaiting_empty: "No payments awaiting application."
+    history_title: "Applied payments"
+    from_template: "Via template \"%{description}\""
+    pick_other: "Apply from another expense…"
+    pick_placeholder: "Pick a recent expense..."
+    pick_submit: "Continue"
+    breakdown_principal: "Principal"
+    breakdown_interest: "Interest"
+    breakdown_insurance: "Insurance"
+    breakdown_other: "Other"
+    description_fallback: "Debt payment"
+    form:
+      title: "Apply payment"
+      hint: "Distribute this expense's payment across %{target}. Only the principal you enter reduces the debt."
+      expense: "Expense"
+      expense_default: "Expense without description"
+      payment_amount: "Payment"
+      distribution: "Payment distribution"
+      principal: "Principal"
+      interest: "Interest"
+      insurance: "Insurance"
+      other: "Other"
+      total: "Distribution total"
+      total_empty: "Enter the payment distribution."
+      total_short: "%{missing} still missing to complete the payment."
+      total_over: "The distribution exceeds the payment by %{extra}."
+      apply: "Apply payment"
+
   expenses:
     automatic_rules: "Auto-categorize"
 
-    apply_recurring:
-      row_button_aria: "Apply to recurring expense: %{description}"
-      modal_title: "Apply to recurring expense"
+    assign_recurring:
+      row_button_aria: "Assign to recurring template: %{description}"
+      modal_title: "Assign to recurring template"
       modal_hint: "The selected expense becomes the recurring payment for its month (the template will show as \"Paid\")."
-      template_label: "Recurring expense"
+      template_label: "Recurring template"
       choose_template: "Select a template..."
       same_category_group: "Same category"
-      apply_button: "Apply"
-      applied: "Expense applied to \"%{description}\". The template is Paid for that month."
-      unlinked: "Recurring template link removed."
+      apply_button: "Assign"
+      paid_suffix: " (Paid)"
+      applied: "Expense assigned to \"%{description}\". The template is Paid for that month."
+      unlinked: "Recurring template assignment removed."
       not_found: "Expense or recurring template not found for this user."
-      not_linked: "The expense has no recurring template link."
-      not_expense: "You can only apply expenses to expense recurring templates."
+      not_linked: "The expense has no recurring template assignment."
+      not_expense: "You can only assign expenses to expense recurring templates."
       inactive: "The recurring template is inactive."
-      already_linked: "The expense is already applied to another recurring template."
+      already_linked: "The expense is already assigned to another recurring template. Unassign it first to reassign."
       period_taken: "\"%{description}\" already has its payment registered for that month."
 
     recurring_link:
-      title: "Recurring expense"
-      unlink: "Unlink"
-      none: "Unlinked"
+      title: "Recurring template"
+      unlink: "Unassign"
+      none: "Unassigned"
 
   playground:
     title: "Expense Playground"

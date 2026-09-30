@@ -45,6 +45,7 @@ class MoneySourcesController < ApplicationController
 
   # GET /money_sources/1
   def show
+    load_payment_context if @money_source.debt?
   end
 
   # GET /money_sources/recognition
@@ -191,6 +192,23 @@ class MoneySourcesController < ApplicationController
 
   def set_money_source
     @money_source = current_user.money_sources.find(params[:id])
+  end
+
+  # Applied payments paginate on the debt show page: a long mortgage history
+  # must stay one click away without flooding the card.
+  def load_payment_context
+    payments_scope = @money_source.payments.order(date: :desc, id: :desc)
+    @payments = payments_scope.paginate(
+      page: params[:payments_page], per_page: ApplicationController::PER_PAGE
+    )
+
+    unapplied = current_user.expenses
+                            .where.not(id: @money_source.payments.select(:expense_id))
+                            .includes(:recurring_template)
+                            .order(date: :desc, id: :desc)
+    @awaiting_expenses = unapplied.where(recurring_template_id: current_user.recurring_templates
+                                                                         .where(money_source_id: @money_source.id)).limit(10)
+    @pickable_expenses = unapplied.limit(20)
   end
 
   def money_source_params

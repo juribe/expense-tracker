@@ -44,6 +44,7 @@ gem "thruster", require: false
 
 gem "devise"
 gem "pdf-reader"
+gem "will_paginate", "~> 4.0"
 
 # Loads environment variables from .env in development and test.
 gem "dotenv-rails", groups: [ :development, :test ]

@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 test.describe('dashboard is working', () => {
   test('user can view dashboard summary', async ({ page }) => {
@@ -19,7 +20,7 @@ test.describe('dashboard is working', () => {
 
     await page.goto('/dashboard');
     await page.locator('#expense_amount').fill('50');
-    await page.locator('#expense_category_id').selectOption({ label: category });
+    await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Grocery Store');
     await page.getByRole('button', { name: 'Agregar Gasto' }).click();
 

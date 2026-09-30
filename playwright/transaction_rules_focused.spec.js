@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 async function createExpense(page, { amount, description, date, moneySourceLabel }) {
   await page.goto('/expenses/new');
@@ -36,7 +37,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('money_source_condition');
     await page.locator('#transaction_rule_money_source_condition_id').selectOption({ label: sourceName });
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -62,7 +63,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('money_source_condition');
     await page.locator('#transaction_rule_money_source_condition_id').selectOption({ label: srcA });
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -105,7 +106,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('TOGGLE_TEST');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -125,7 +126,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('DUP_MERCHANT');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -136,7 +137,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await row.getByRole('link').click();
     await expect(page).toHaveURL(/\/expenses\/\d+\/edit/);
-    await page.locator('#expense_category_id').selectOption({ label: category });
+    await pickCategory(page, 'expense_category_id', category);
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses/);
 
@@ -151,7 +152,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('STARBUCKS');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: category });
+    await pickCategory(page, 'transaction_rule_category_id', category);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -171,7 +172,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('PRE_FILL');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: categoryA });
+    await pickCategory(page, 'transaction_rule_category_id', categoryA);
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
@@ -182,7 +183,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await expect(page.locator('#transaction_rule_category_id')).toHaveValue(/[0-9]+/);
 
     await page.locator('#transaction_rule_merchant_contains').fill('PRE_FILL_V2');
-    await page.locator('#transaction_rule_category_id').selectOption({ label: categoryB });
+    await pickCategory(page, 'transaction_rule_category_id', categoryB);
     await page.getByRole('button', { name: /Guardar cambios/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 

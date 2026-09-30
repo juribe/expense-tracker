@@ -106,6 +106,8 @@
       </table>
     </div>
   </div>
+
+  <%= will_paginate @candidates, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, previous_label: t("common.previous"), next_label: t("common.next") if @candidates.total_pages > 1 %>
 <% else %>
   <div class="card shadow-sm">
     <div class="card-body text-center p-5">
@@ -135,13 +137,11 @@
           <%= f.hidden_field :candidate_ids, id: "bulkCandidateIds" %>
 
           <div class="mb-3">
-            <label for="bulkCategorySelect" class="form-label"><%= t("common.category") %></label>
-            <select id="bulkCategorySelect" name="category_id" class="form-select">
-              <option value=""><%= t("expense_candidates.no_change", default: "Sin cambio") %></option>
-              <% @categories.each do |category| %>
-                <option value="<%= category.id %>"><%= category.name %></option>
-              <% end %>
-            </select>
+            <%= category_picker f, :category_id, @categories,
+                                label: t("common.category"),
+                                include_blank: t("expense_candidates.no_change", default: "Sin cambio"),
+                                id: "bulkCategorySelect",
+                                testid: "bulk-category-picker" %>
           </div>
 
           <div class="mb-3">
@@ -199,12 +199,14 @@
       var word = n === 1 ? "candidato" : "candidatos";
       $("#bulkCandidateIds").value = ids.join(",");
       $("#bulkConfirmDescription").textContent = n + " " + word + " <%= t('expense_candidates.will_be_confirmed', default: 'serán confirmados como gastos.') %>";
-      $("#bulkCategorySelect").value = "";
+      CategoryPicker.setValue($("#bulkCategorySelect"), "");
       $("#bulkSourceSelect").value = "";
       $("#confirmBulkSubmit").disabled = false;
       var modal = bootstrap.Modal.getOrCreateInstance("#bulkConfirmModal");
       modal.show();
-      if (focusField) {
+      if (focusField === "bulkCategorySelect") {
+        CategoryPicker.focus($("#bulkCategorySelect"));
+      } else if (focusField) {
         document.getElementById(focusField).focus();
       }
     }

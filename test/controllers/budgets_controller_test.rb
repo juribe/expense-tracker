@@ -44,6 +44,8 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#budget_category_id"
     assert_select "option[value=?]", @category.id.to_s
     assert_select "option[value=?]", income_category.id.to_s, count: 0
+    assert_select "[data-testid=budget-category-picker] [role=combobox]"
+    assert_select "[data-testid=budget-category-picker] [role=option][data-value=?]", @category.id.to_s
   end
 
   test "POST /budgets creates a budget for the current user" do

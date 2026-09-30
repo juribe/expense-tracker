@@ -1,0 +1,118 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-cash-coin me-2"></i><%= t("payments.form.title") %></h4>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">
+            <%= t("payments.form.hint", target: @money_source.name) %>
+          </p>
+
+          <div class="bg-light rounded p-3 mb-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="small text-muted"><%= t("payments.form.expense") %></div>
+                <div class="fw-bold"><%= @expense.description.presence || t("payments.form.expense_default") %></div>
+                <div class="small text-muted"><%= l(@expense.date, format: :long) %>
+                  <% if @expense.money_source.present? %> · <%= @expense.money_source.name %><% end %></div>
+              </div>
+              <div class="text-end">
+                <div class="small text-muted"><%= t("payments.form.payment_amount") %></div>
+                <div class="fs-4 fw-bold text-danger"><%= number_to_currency(@expense.amount.to_d.abs) %></div>
+              </div>
+            </div>
+          </div>
+
+          <%= form_with model: [@money_source, @payment], local: true,
+                data: { payment_distribution_form: true } do |f| %>
+            <% if @payment.errors.any? || flash[:alert].present? %>
+              <div class="alert alert-danger">
+                <% if @payment.errors.any? %>
+                  <ul class="mb-0">
+                    <% @payment.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <%= flash[:alert] %>
+                <% end %>
+              </div>
+            <% end %>
+
+            <%= f.hidden_field :expense_id, value: @expense.id %>
+
+            <h5 class="mb-3"><%= t("payments.form.distribution") %></h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :principal_amount, t("payments.form.principal"), class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= f.text_field :principal_amount, value: money_field_value(@payment.principal_amount),
+                        class: "form-control", inputmode: "decimal", autocomplete: "off",
+                        data: { money_input: true, payment_component: true } %>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :interest_amount, t("payments.form.interest"), class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= f.text_field :interest_amount, value: money_field_value(@payment.interest_amount),
+                        class: "form-control", inputmode: "decimal", autocomplete: "off",
+                        data: { money_input: true, payment_component: true } %>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :insurance_amount, t("payments.form.insurance"), class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= f.text_field :insurance_amount, value: money_field_value(@payment.insurance_amount),
+                        class: "form-control", inputmode: "decimal", autocomplete: "off",
+                        data: { money_input: true, payment_component: true } %>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :other_amount, t("payments.form.other"), class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <%= f.text_field :other_amount, value: money_field_value(@payment.other_amount),
+                        class: "form-control", inputmode: "decimal", autocomplete: "off",
+                        data: { money_input: true, payment_component: true } %>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between border-top pt-3 mb-4">
+              <div>
+                <div class="small text-muted"><%= t("payments.form.total") %></div>
+                <div class="fs-5 fw-bold" data-payment-total-display>$0</div>
+              </div>
+              <div class="text-end">
+                <div class="small text-muted"><%= t("payments.form.payment_amount") %></div>
+                <div class="fs-5 fw-bold" data-payment-expense-total="<%= @expense.amount.to_d.abs %>"
+                     data-payment-warning-empty="<%= t("payments.form.total_empty") %>"
+                     data-payment-warning-short="<%= t("payments.form.total_short", missing: "__MISSING__") %>"
+                     data-payment-warning-over="<%= t("payments.form.total_over", extra: "__EXTRA__") %>">
+                  <%= money_field_value(@expense.amount.to_d.abs) %>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-warning d-none py-2 small mb-4" data-payment-warning>
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              <span data-payment-warning-text></span>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+              <%= link_to money_source_path(@money_source), class: "btn btn-outline-secondary" do %>
+                <%= t("common.cancel", default: "Cancelar") %>
+              <% end %>
+              <%= f.submit t("payments.form.apply"), class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

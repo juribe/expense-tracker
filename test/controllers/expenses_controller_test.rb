@@ -62,7 +62,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#bulkBar button[data-testid=bulk-category]"
     assert_select "#bulkBar button[data-testid=bulk-source]"
     assert_select "#bulkEditModal[data-testid=bulk-update-modal]"
-    assert_select "select[data-testid=bulk-category-select] option", text: "Food"
+    assert_select "select#bulkCategorySelect option", text: "Food"
+    assert_select "[data-testid=bulk-category-picker] [role=combobox]"
+    assert_select "[data-testid=bulk-category-picker] [role=option]", text: "Food"
     assert_select "select[data-testid=bulk-source-select] option", text: "Visa · Chase"
     assert_select "button[data-testid=confirm-bulk-update]"
   end
@@ -198,7 +200,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "GET /expenses/:id drawer shows no recurring link for unlinked expenses" do
     expense = create_expense(amount: 12.50, date: Date.today)
     get expense_path(expense)
-    assert_select "dd", text: /Sin vínculo/
+    assert_select "dd", text: /Sin asignar/
   end
 
   test "DELETE /expenses/:id destroys and preserves filter query" do
@@ -258,108 +260,108 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   # ------------------------------------------------ apply to recurring
 
-  test "POST /expenses/apply_recurring links a gmail expense to an expense template" do
+  test "POST /expenses/assign_recurring assigns an expense to an expense template" do
     expense = create_expense(amount: 63_500, date: Date.today, description: "Cuota Veículo", source: "gmail")
     template = template_for(amount: 65_000)
 
-    post apply_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
 
     assert_redirected_to expenses_path
     assert_equal template.id, expense.reload.recurring_template_id
     assert_equal :completed, template.status_for(Date.current.strftime("%Y-%m"))
     assert_equal expense.id, template.last_occurrence.id
     follow_redirect!
-    assert_equal I18n.t("expenses.apply_recurring.applied", description: template.description), flash[:notice]
+    assert_equal I18n.t("expenses.assign_recurring.applied", description: template.description), flash[:notice]
   end
 
-  test "POST /expenses/apply_recurring rejects when the template already paid that period" do
+  test "POST /expenses/assign_recurring rejects when the template already paid that period" do
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000)
     template.transactions.create!(user: @user, category: @category, amount: 50_000,
                                   date: Date.today, kind: "expense", source: "recurring_template")
 
-    post apply_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
 
     assert_redirected_to expenses_path
     assert_nil expense.reload.recurring_template_id
-    assert_equal I18n.t("expenses.apply_recurring.period_taken", description: template.description), flash[:alert]
+    assert_equal I18n.t("expenses.assign_recurring.period_taken", description: template.description), flash[:alert]
   end
 
-  test "POST /expenses/apply_recurring rejects an already linked expense" do
+  test "POST /expenses/assign_recurring rejects an already linked expense" do
     expense = create_expense(amount: 50_000, date: Date.today)
     first = template_for(amount: 50_000)
     expense.update!(recurring_template_id: first.id)
     second = template_for(amount: 50_000)
 
-    post apply_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: second.id }
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: second.id }
 
     assert_redirected_to expenses_path
     assert_equal first.id, expense.reload.recurring_template_id
-    assert_equal I18n.t("expenses.apply_recurring.already_linked"), flash[:alert]
+    assert_equal I18n.t("expenses.assign_recurring.already_linked"), flash[:alert]
   end
 
-  test "POST /expenses/apply_recurring rejects an income template" do
+  test "POST /expenses/assign_recurring rejects an income template" do
     expense = create_expense(amount: 50_000, date: Date.today)
     income_template = @user.recurring_templates.create!(
       category: @category, kind: "income", amount: 3_000_000, frequency: "monthly", source: "manual"
     )
 
-    post apply_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: income_template.id }
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: income_template.id }
 
     assert_redirected_to expenses_path
     assert_nil expense.reload.recurring_template_id
-    assert_equal I18n.t("expenses.apply_recurring.not_expense"), flash[:alert]
+    assert_equal I18n.t("expenses.assign_recurring.not_expense"), flash[:alert]
   end
 
-  test "POST /expenses/apply_recurring rejects an inactive template" do
+  test "POST /expenses/assign_recurring rejects an inactive template" do
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000, active: false)
 
-    post apply_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
 
     assert_redirected_to expenses_path
     assert_nil expense.reload.recurring_template_id
-    assert_equal I18n.t("expenses.apply_recurring.inactive"), flash[:alert]
+    assert_equal I18n.t("expenses.assign_recurring.inactive"), flash[:alert]
   end
 
-  test "POST /expenses/apply_recurring rejects other users' expense and template" do
-    other = User.create!(name: "Other", email: "other_apply_recurring@example.com", password: "password123")
+  test "POST /expenses/assign_recurring rejects other users' expense and template" do
+    other = User.create!(name: "Other", email: "other_assign_recurring@example.com", password: "password123")
     other_expense = other.expenses.create!(category: @category, amount: 50_000, date: Date.today, source: "gmail")
     other_template = other.recurring_templates.create!(
       category: @category, kind: "expense", amount: 50_000, frequency: "monthly", source: "wizard"
     )
 
-    post apply_recurring_expenses_path, params: { expense_id: other_expense.id, recurring_template_id: @template.id }
-    assert_equal I18n.t("expenses.apply_recurring.not_found"), flash[:alert]
+    post assign_recurring_expenses_path, params: { expense_id: other_expense.id, recurring_template_id: @template.id }
+    assert_equal I18n.t("expenses.assign_recurring.not_found"), flash[:alert]
 
-    post apply_recurring_expenses_path, params: { expense_id: create_expense(amount: 1, date: Date.today).id,
+    post assign_recurring_expenses_path, params: { expense_id: create_expense(amount: 1, date: Date.today).id,
                                                   recurring_template_id: other_template.id }
-    assert_equal I18n.t("expenses.apply_recurring.not_found"), flash[:alert]
+    assert_equal I18n.t("expenses.assign_recurring.not_found"), flash[:alert]
   end
 
-  test "POST /expenses/unlink_recurring clears the link and reopens the period" do
+  test "POST /expenses/unassign_recurring clears the link and reopens the period" do
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000)
     expense.update!(recurring_template_id: template.id)
     assert_equal :completed, template.status_for(Date.current.strftime("%Y-%m"))
 
-    post unlink_recurring_expenses_path, params: { expense_id: expense.id }
+    post unassign_recurring_expenses_path, params: { expense_id: expense.id }
 
     assert_redirected_to expenses_path
     assert_nil expense.reload.recurring_template_id
     assert_equal :pending, template.status_for(Date.current.strftime("%Y-%m"))
   end
 
-  test "POST /expenses/unlink_recurring rejects an unlinked or foreign expense" do
+  test "POST /expenses/unassign_recurring rejects an unlinked or foreign expense" do
     expense = create_expense(amount: 50_000, date: Date.today)
-    post unlink_recurring_expenses_path, params: { expense_id: expense.id }
-    assert_equal I18n.t("expenses.apply_recurring.not_linked"), flash[:alert]
+    post unassign_recurring_expenses_path, params: { expense_id: expense.id }
+    assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
 
-    other = User.create!(name: "Other2", email: "other2_apply_recurring@example.com", password: "password123")
+    other = User.create!(name: "Other2", email: "other2_assign_recurring@example.com", password: "password123")
     other_expense = other.expenses.create!(category: @category, amount: 1, date: Date.today, source: "gmail")
     other_expense.update!(recurring_template_id: template_for(amount: 1).id)
-    post unlink_recurring_expenses_path, params: { expense_id: other_expense.id }
-    assert_equal I18n.t("expenses.apply_recurring.not_linked"), flash[:alert]
+    post unassign_recurring_expenses_path, params: { expense_id: other_expense.id }
+    assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
     assert other_expense.reload.recurring_template_id.present?
   end
 
@@ -371,13 +373,41 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
     # Per-row button (not bulk-bar), only for unlinked expenses.
     assert_select "[data-testid=bulk-recurring]", count: 0
-    assert_select "tr[data-testid=row][data-recurring-id=''] [data-testid=row-apply-recurring]", count: 1
+    assert_select "tr[data-testid=row][data-recurring-id=''] [data-testid=row-assign-recurring]", count: 1
     # Already-linked expenses don't offer the button again (2 rows, 1 linked).
     linked = create_expense(amount: 1, date: Date.today)
     linked.update!(recurring_template_id: @template.id)
     get expenses_path
-    assert_select "[data-testid=row-apply-recurring]", count: 1
+    assert_select "[data-testid=row-assign-recurring]", count: 1
     assert_select "select option", text: /Cuota Vehículo/
+  end
+
+  test "assigning an expense to a template creates NO payment and does not change any credit balance" do
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
+    source.create_credit_account!(credit_limit: 3_000_000)
+    expense = create_expense(amount: 1_500_000, date: Date.today, source: "gmail", money_source: source)
+    template = template_for(amount: 1_500_000)
+    template.update!(money_source: source, description: "Cuota Visa")
+    card_balance_before = source.reload.balance
+
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
+
+    assert_redirected_to expenses_path
+    assert_not Payment.exists?
+    assert_equal template.id, expense.reload.recurring_template_id
+    assert_equal card_balance_before, source.reload.balance
+    assert_equal 0, source.credit_account.installments_paid.to_i
+  end
+
+  test "GET /expenses renders templates already paid this period as unavailable options" do
+    create_expense(amount: 1, date: Date.today, source: "gmail")
+    template = template_for(amount: 20_000, active: true)
+    expense = create_expense(amount: 20_000, date: Date.today)
+    expense.update!(recurring_template_id: template.id)
+
+    get expenses_path
+    assert_response :success
+    assert_select "select#bulkRecurringSelect option[disabled]", text: /Pagado/
   end
 
   test "GET /expenses rows keep the eye-only drawer button" do

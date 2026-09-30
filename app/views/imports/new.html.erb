@@ -31,8 +31,11 @@
 
         <% if @categories.any? %>
           <div class="mb-3">
-            <label for="import_category" class="form-label"><%= t("imports.default_category", default: "Categoría por defecto (opcional)") %></label>
-            <%= form.collection_select :default_category_id, @categories, :id, :name, { prompt: t("imports.category_from_csv", default: "Usar la categoría del CSV") }, class: "form-select", id: "import_category" %>
+            <%= category_picker form, :default_category_id, @categories,
+                                label: t("imports.default_category", default: "Categoría por defecto (opcional)"),
+                                prompt: t("imports.category_from_csv", default: "Usar la categoría del CSV"),
+                                id: "import_category",
+                                testid: "import-category-picker" %>
             <div class="form-text"><%= t("imports.default_category_help", default: "Si la seleccionas, todas las importaciones usarán esta categoría en lugar de leerla del CSV.") %></div>
           </div>
         <% else %>

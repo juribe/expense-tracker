@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_28_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_30_085853) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -354,11 +354,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_28_130000) do
     t.datetime "updated_at", null: false
     t.string "identifier"
     t.string "sub_kind"
+    t.decimal "cached_balance", precision: 14, scale: 2, default: "0.0", null: false
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
     t.index ["user_id"], name: "index_money_sources_on_user_id"
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "expense_id", null: false
+    t.bigint "money_source_id", null: false
+    t.date "date", null: false
+    t.decimal "amount", precision: 14, scale: 2, null: false
+    t.decimal "principal_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "interest_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "insurance_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "other_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "source", default: "manual", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expense_id", "money_source_id"], name: "index_payments_on_expense_and_target", unique: true
+    t.index ["expense_id"], name: "index_payments_on_expense_id"
+    t.index ["money_source_id"], name: "index_payments_on_money_source_id"
+    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "pending_whatsapp_connections", force: :cascade do |t|
@@ -694,6 +714,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_28_130000) do
   add_foreign_key "money_source_recognitions", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
   add_foreign_key "money_sources", "users"
+  add_foreign_key "payments", "transactions", column: "expense_id"
   add_foreign_key "pending_whatsapp_connections", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :cascade
   add_foreign_key "processed_emails", "users"

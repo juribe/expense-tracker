@@ -12,6 +12,7 @@ class Transaction < ApplicationRecord
   belongs_to :recurring_template, optional: true
   belongs_to :money_source, optional: true
   has_many :processed_emails, foreign_key: :expense_id, dependent: :destroy
+  has_many :payments, class_name: "Payment", foreign_key: :expense_id, dependent: :destroy
 
   validates :amount, presence: true, numericality: { other_than: 0 }
   validates :date, presence: true
@@ -49,7 +50,30 @@ class Transaction < ApplicationRecord
     SpendingAlertService.call(user: user, category: category, month: date)
   end
 
+  # Keeps the owning money source's cached balance in sync. The delta equals
+  # the signed amount already normalized by normalize_signed_amount, so the
+  # same routing works for expenses and incomes.
+  after_commit on: [ :create ], if: :money_source_id? do
+    MoneySources::BalanceSync.adjust!(money_source, amount.to_d)
+  end
+
+  after_commit on: [ :update ], if: :balance_relevant_change? do
+    old_source_id = saved_change_to_money_source_id? ? money_source_id_before_last_save : money_source_id_was
+    old_source = old_source_id && MoneySource.find_by(id: old_source_id)
+    MoneySources::BalanceSync.adjust!(old_source, -amount_before_last_save.to_d)
+
+    MoneySources::BalanceSync.adjust!(money_source, amount.to_d)
+  end
+
+  after_commit on: [ :destroy ], if: :money_source_id? do
+    MoneySources::BalanceSync.adjust!(money_source, -amount.to_d)
+  end
+
   private
+
+  def balance_relevant_change?
+    (saved_changes.keys & %w[amount money_source_id]).any?
+  end
 
   def normalize_kind
     self.kind = kind.to_s.downcase if kind.present?

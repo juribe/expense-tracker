@@ -65,15 +65,15 @@
             <!-- Category -->
             <div class="col-12 col-md-6">
               <div class="mb-3">
-                <%= f.label :category_id, t("common.category"), class: "form-label" %>
                 <% if @candidate.category_id.nil? && @candidate.category_suggestion.present? %>
                   <small class="text-muted d-block mb-2"><%= t("expense_candidates.suggestion_hint_short", default: "Usa la sugerencia de IA mostrada arriba o elige una abajo.") %></small>
                 <% elsif @candidate.category_id.nil? %>
                   <span class="badge bg-warning text-dark mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
                 <% end %>
-                <%= f.collection_select :category_id, @categories, :id, :name,
-                                        { include_blank: t("expense_candidates.select_category", default: "Seleccionar categoría...") },
-                                        class: "form-select" %>
+                <%= category_picker f, :category_id, @categories,
+                                    label: t("common.category"),
+                                    include_blank: t("expense_candidates.select_category", default: "Seleccionar categoría..."),
+                                    testid: "expense-candidate-category-picker" %>
               </div>
             </div>
 

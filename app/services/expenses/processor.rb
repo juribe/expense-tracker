@@ -30,7 +30,11 @@ module Expenses
       @recording&.add_step(:stt, { applicable: false })
 
       candidates, engine = processor_for.call
-      candidates = Array(candidates).map { |c| persist_candidate(c, engine: engine) }
+      candidates = Array(candidates)
+      # A WhatsApp message often repeats the same transaction (caption plus an
+      # attached confirmation screenshot); keep one entry per transaction.
+      candidates = CandidateDeduplicator.call(candidates) if @source == "whatsapp"
+      candidates = candidates.map { |c| persist_candidate(c, engine: engine) }
 
       build_result(candidates, engine, started)
     end

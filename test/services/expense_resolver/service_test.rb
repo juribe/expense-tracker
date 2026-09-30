@@ -43,6 +43,14 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  # Weekday names resolve to the latest date strictly before today, so the
+  # expectation has to follow the clock instead of being pinned to dates.
+  def most_recent_past(wday)
+    date = Date.current - 1
+    date -= 1 until date.wday == wday
+    date
+  end
+
   test "a confidently resolvable message skips the AI call" do
     with_stubbed_ai(entries: ai_entries) do |calls|
       result = ExpenseResolver::Service.call(text: "gasté 50 mil en almuerzo", user: @user)
@@ -316,7 +324,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal Date.new(2026, 9, 22), result.result.first.date
+    assert_equal most_recent_past(2), result.result.first.date
   end
 
   test "a fragment that keeps its own weekday expression is not overridden" do
@@ -329,7 +337,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     result = with_forced_ai(entries: [ entry ], text: "el martes compré zapatos por 180.000")
 
     assert result.success?
-    assert_equal Date.new(2026, 9, 22), result.result.first.date
+    assert_equal most_recent_past(2), result.result.first.date
   end
 
   test "a message with several date expressions keeps the AI dates" do
@@ -415,7 +423,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     )
 
     assert result.success?
-    assert_equal [ Date.new(2026, 9, 21), Date.new(2026, 9, 22) ], result.result.map(&:date)
+    assert_equal [ most_recent_past(1), most_recent_past(2) ], result.result.map(&:date)
   end
 
   test "a merged fragment naming several sources is flagged as a possible unsplit" do

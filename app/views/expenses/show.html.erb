@@ -22,7 +22,7 @@
         <i class="bi bi-arrow-repeat me-1"></i><%= template.description.presence || "##{template.id}" %>
       </span>
       <%= button_to t("expenses.recurring_link.unlink", default: "Quitar vínculo"),
-                    unlink_recurring_expenses_path(expense_id: @expense.id),
+                    unassign_recurring_expenses_path(expense_id: @expense.id),
                     method: :post,
                     class: "btn btn-sm btn-outline-warning ms-2",
                     data: { testid: "unlink-recurring" } %>

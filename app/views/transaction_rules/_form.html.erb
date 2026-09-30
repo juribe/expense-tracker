@@ -81,9 +81,9 @@
               <label for="action_value" class="form-label"><%= t("transaction_rules.action_select") %></label>
 
               <div data-action-input="category">
-                <%= form.collection_select :category_id, @categories, :id, :name,
-                      { include_blank: t("transaction_rules.select_category") },
-                      class: "form-select" %>
+                <%= category_picker form, :category_id, @categories,
+                                    include_blank: t("transaction_rules.select_category"),
+                                    testid: "transaction-rule-category-picker" %>
               </div>
               <div data-action-input="tag" class="d-none">
                 <%= form.text_field :tag, class: "form-control", placeholder: "Subscriptions" %>

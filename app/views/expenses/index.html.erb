@@ -30,8 +30,12 @@
     <div class="card-body">
       <%= form_with url: expenses_path, method: :get, class: "row g-3", data: { testid: "filter-form" } do |f| %>
         <div class="col-12 col-md-4 col-lg-2">
-          <%= f.label :category_id, t("common.category"), class: "form-label" %>
-          <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, params[:category_id]), { include_blank: t("expenses.all_categories") }, class: "form-select" %>
+          <%= category_picker f, :category_id, @categories,
+                              label: t("common.category"),
+                              include_blank: t("expenses.all_categories"),
+                              placeholder: t("expenses.all_categories"),
+                              value: params[:category_id],
+                              testid: "expense-filter-category-picker" %>
         </div>
         <div class="col-12 col-md-4 col-lg-2">
           <%= f.label :money_source_id, t("expenses.source"), class: "form-label" %>
@@ -168,6 +172,7 @@
             </thead>
             <tbody id="tableBody">
               <% @expenses.each do |expense| %>
+                <%- decorated = ExpenseDecorator.new(expense) -%>
                 <tr data-id="<%= expense.id %>" tabindex="0" data-testid="row"
                     data-category-id="<%= expense.category_id %>"
                     data-recurring-id="<%= expense.recurring_template_id %>"
@@ -176,7 +181,7 @@
                     data-delete-url="<%= expense_path(expense, state_query) %>">
                   <td>
                     <input type="checkbox" class="form-check-input row-check"
-                           aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                           aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
                   </td>
                   <td class="text-nowrap"><%= l(expense.date, format: :short) %></td>
                   <td class="desc-cell" title="<%= expense.description %>">
@@ -191,23 +196,23 @@
                   <td class="text-end amount"><%= number_to_currency(expense.amount) %></td>
                   <td class="text-end text-nowrap" data-stop="1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-open-drawer
-                            aria-label="<%= t('expenses.view_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.view_expense', description: decorated.lowercase_description) %>">
                       <i class="bi bi-eye"></i>
                     </button>
                     <% if expense.recurring_template_id.nil? %>
-                      <button type="button" class="btn btn-sm btn-outline-primary" data-apply-recurring
-                              data-testid="row-apply-recurring"
-                              aria-label="<%= t('expenses.apply_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                      <button type="button" class="btn btn-sm btn-outline-primary" data-assign-recurring
+                              data-testid="row-assign-recurring"
+                              aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
                         <i class="bi bi-arrow-repeat"></i>
                       </button>
                     <% end %>
                     <%= link_to edit_expense_path(expense, state_query), class: "btn btn-sm btn-outline-primary",
-                                aria: { label: t("expenses.edit_expense", description: expense.description.presence || t("expenses.no_description").downcase) } do %>
+                                aria: { label: t("expenses.edit_expense", description: decorated.lowercase_description) } do %>
                       <i class="bi bi-pencil"></i>
                     <% end %>
                     <button type="button" class="btn btn-sm btn-outline-danger" data-delete
                             data-delete-url="<%= expense_path(expense, state_query) %>"
-                            aria-label="<%= t('expenses.delete_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.delete_expense', description: decorated.lowercase_description) %>">
                       <i class="bi bi-trash"></i>
                     </button>
                   </td>
@@ -219,6 +224,7 @@
 
         <div class="mobile-list" id="mobileList">
           <% @expenses.each do |expense| %>
+            <%- decorated = ExpenseDecorator.new(expense) -%>
             <div class="mobile-item" data-id="<%= expense.id %>" tabindex="0" data-testid="row"
                  data-category-id="<%= expense.category_id %>"
                  data-recurring-id="<%= expense.recurring_template_id %>"
@@ -226,7 +232,7 @@
                  data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                  data-delete-url="<%= expense_path(expense, state_query) %>">
               <input type="checkbox" class="form-check-input row-check mt-2"
-                     aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                     aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
               <div>
                 <div class="small text-muted"><%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %> · <%= money_source_badge(expense.money_source) %></div>
                 <div class="mt-1">
@@ -241,22 +247,22 @@
                 <div class="amount"><%= number_to_currency(expense.amount) %></div>
                 <div class="mobile-actions mt-2" data-stop="1">
                   <button type="button" class="btn btn-outline-secondary" data-open-drawer
-                          aria-label="<%= t('expenses.view_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                          aria-label="<%= t('expenses.view_expense', description: decorated.lowercase_description) %>">
                     <i class="bi bi-eye"></i>
                   </button>
                   <% if expense.recurring_template_id.nil? %>
-                    <button type="button" class="btn btn-outline-primary" data-apply-recurring
-                            aria-label="<%= t('expenses.apply_recurring.row_button_aria', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                    <button type="button" class="btn btn-outline-primary" data-assign-recurring
+                            aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
                       <i class="bi bi-arrow-repeat"></i>
                     </button>
                   <% end %>
                   <%= link_to edit_expense_path(expense, state_query), class: "btn btn-outline-primary",
-                              aria: { label: t("expenses.edit_expense", description: expense.description.presence || t('expenses.no_description').downcase) } do %>
+                              aria: { label: t("expenses.edit_expense", description: decorated.lowercase_description) } do %>
                     <i class="bi bi-pencil"></i>
                   <% end %>
                   <button type="button" class="btn btn-outline-danger" data-delete
                             data-delete-url="<%= expense_path(expense, state_query) %>"
-                            aria-label="<%= t('expenses.delete_expense', description: expense.description.presence || t('expenses.no_description').downcase) %>">
+                            aria-label="<%= t('expenses.delete_expense', description: decorated.lowercase_description) %>">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -267,10 +273,10 @@
 
         <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top small text-muted">
           <span id="pageFoot">
-            <%= t("expenses.page_info", offset: @offset + 1, last: @offset + @expenses.length, total: @total_count, page_subtotal: number_to_currency(@page_subtotal), filtered_total: number_to_currency(@filtered_total)) %>
+            <%= t("expenses.page_info", offset: @expenses.offset_value + 1, last: @expenses.offset_value + @expenses.length, total: @total_count, page_subtotal: number_to_currency(@page_subtotal), filtered_total: number_to_currency(@filtered_total)) %>
           </span>
         </div>
-        <%= pagination_nav(current_page: @page, total_pages: @total_pages) %>
+        <%= will_paginate @expenses, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, previous_label: t("common.previous"), next_label: t("common.next") if @expenses.total_pages > 1 %>
       </div>
     <% end %>
   </div>
@@ -325,7 +331,7 @@
 <% end %>
 
 <!-- Modal de confirmación de actualización en lote (Cambiar Categoría / Cambiar Fuente de Dinero / ambos) -->
-<%= form_with url: bulk_update_expenses_path, method: :patch, id: "bulkEditForm", data: { testid: "bulk-update-form" } do %>
+<%= form_with url: bulk_update_expenses_path, method: :patch, id: "bulkEditForm", data: { testid: "bulk-update-form" } do |f| %>
   <div class="modal fade" id="bulkEditModal" tabindex="-1" aria-labelledby="bulkEditTitle" aria-hidden="true" data-testid="bulk-update-modal">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -337,13 +343,11 @@
           <%= hidden_field_tag :expense_ids, nil, id: "bulkExpenseIds" %>
           <p class="text-muted" id="bulkEditSummary">Actualiza los gastos seleccionados.</p>
           <div class="mb-3">
-            <label for="bulkCategorySelect" class="form-label">Nueva Categoría</label>
-            <select id="bulkCategorySelect" name="category_id" class="form-select" data-testid="bulk-category-select">
-              <option value="">Sin cambios</option>
-              <% @categories.each do |category| %>
-                <option value="<%= category.id %>"><%= category.name %></option>
-              <% end %>
-            </select>
+            <%= category_picker f, :category_id, @categories,
+                                label: "Nueva Categoría",
+                                include_blank: "Sin cambios",
+                                id: "bulkCategorySelect",
+                                testid: "bulk-category-picker" %>
             <div class="invalid-feedback" id="bulkCategoryFeedback">Elige una categoría y/o una fuente de dinero para actualizar.</div>
           </div>
           <div class="mb-3">
@@ -386,25 +390,27 @@
            testid: "expense-process-modal" %>
 
 <!-- Modal: aplicar un gasto existente a una plantilla recurrente -->
-<%= form_with url: apply_recurring_expenses_path, method: :post, id: "bulkRecurringForm", data: { testid: "apply-recurring-form" } do %>
-  <div class="modal fade" id="bulkRecurringModal" tabindex="-1" aria-labelledby="bulkRecurringTitle" aria-hidden="true" data-testid="apply-recurring-modal">
+<%= form_with url: assign_recurring_expenses_path, method: :post, id: "bulkRecurringForm", data: { testid: "assign-recurring-form" } do %>
+  <div class="modal fade" id="bulkRecurringModal" tabindex="-1" aria-labelledby="bulkRecurringTitle" aria-hidden="true" data-testid="assign-recurring-modal">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.apply_recurring.modal_title", default: "Aplicar a gasto recurrente") %></h2>
+          <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.assign_recurring.modal_title", default: "Aplicar a gasto recurrente") %></h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
           <%= hidden_field_tag :expense_id, nil, id: "recurringExpenseId" %>
-          <p class="text-muted mb-3"><%= t("expenses.apply_recurring.modal_hint", default: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\").") %></p>
+          <p class="text-muted mb-3"><%= t("expenses.assign_recurring.modal_hint", default: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\").") %></p>
           <div class="mb-0">
-            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.apply_recurring.template_label", default: "Gasto recurrente") %></label>
+            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.assign_recurring.template_label", default: "Gasto recurrente") %></label>
             <select id="bulkRecurringSelect" name="recurring_template_id" class="form-select" required>
-              <option value=""><%= t("expenses.apply_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
+              <option value=""><%= t("expenses.assign_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
               <% @recurring_templates.each do |template| %>
+                <% paid = @paid_template_ids.include?(template.id) %>
                 <option value="<%= template.id %>"
-                        data-category-id="<%= template.category_id %>">
-                  <%= recurring_template_option_label(template) %>
+                        data-category-id="<%= template.category_id %>"
+                        <%= "disabled" if paid %>>
+                  <%= recurring_template_option_label(template) %><%= t("expenses.assign_recurring.paid_suffix") if paid %>
                 </option>
               <% end %>
             </select>
@@ -412,8 +418,8 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
-          <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-apply-recurring" disabled>
-            <i class="bi bi-check-lg me-1"></i><%= t("expenses.apply_recurring.apply_button", default: "Aplicar") %>
+          <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-assign-recurring" disabled>
+            <i class="bi bi-check-lg me-1"></i><%= t("expenses.assign_recurring.apply_button", default: "Aplicar") %>
           </button>
         </div>
       </div>
@@ -474,7 +480,7 @@
     var word = n === 1 ? "gasto" : "gastos";
     btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Actualizar ' + n + " " + word;
     if (hasValue) {
-      $("#bulkCategorySelect").classList.remove("is-invalid");
+      CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
       $("#bulkSourceSelect").classList.remove("is-invalid");
     }
   }
@@ -498,9 +504,9 @@
       $("#bulkEditSummary").innerHTML =
         "Estás a punto de cambiar la fuente de dinero de <strong>" + n + "</strong> " + word + " seleccionados.";
     }
-    $("#bulkCategorySelect").value = "";
+    CategoryPicker.setValue($("#bulkCategorySelect"), "");
     $("#bulkSourceSelect").value = "";
-    $("#bulkCategorySelect").classList.remove("is-invalid");
+    CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
     $("#bulkSourceSelect").classList.remove("is-invalid");
     updateBulkEdit();
     bootstrap.Modal.getOrCreateInstance("#bulkEditModal").show();
@@ -521,7 +527,7 @@
                                       });
     if (matching.length) {
       var group = document.createElement("optgroup");
-      group.label = "<%= t("expenses.apply_recurring.same_category_group", default: "Misma categoría") %>";
+      group.label = "<%= t("expenses.assign_recurring.same_category_group", default: "Misma categoría") %>";
       group.id = "sameCategoryGroup";
       matching.reverse().forEach(function (option) { group.appendChild(option.cloneNode(true)); });
       select.insertBefore(group, select.options[1]);
@@ -529,7 +535,7 @@
 
     select.value = "";
     $("#recurringExpenseId").value = row.dataset.id;
-    $("#bulkRecurringForm").action = urlWithState("<%= apply_recurring_expenses_path %>");
+    $("#bulkRecurringForm").action = urlWithState("<%= assign_recurring_expenses_path %>");
     $("#confirmBulkRecurring").disabled = true;
     bootstrap.Modal.getOrCreateInstance("#bulkRecurringModal").show();
   }
@@ -603,7 +609,7 @@
       openProcessModal(processBtn);
       return;
     }
-    var applyRecBtn = e.target.closest("[data-apply-recurring]");
+    var applyRecBtn = e.target.closest("[data-assign-recurring]");
     if (applyRecBtn) {
       openBulkRecurring(applyRecBtn.closest("tr[data-id], .mobile-item[data-id]"));
       return;
@@ -648,7 +654,7 @@
   $("#bulkEditForm").addEventListener("submit", function (e) {
     if (!$("#bulkCategorySelect").value && !$("#bulkSourceSelect").value) {
       e.preventDefault();
-      $("#bulkCategorySelect").classList.add("is-invalid");
+      CategoryPicker.setInvalid($("#bulkCategorySelect"), true);
       $("#bulkSourceSelect").classList.add("is-invalid");
       return;
     }
@@ -658,8 +664,11 @@
   });
 
   $("#bulkEditModal").addEventListener("shown.bs.modal", function () {
-    var target = bulkEditFocus === "source" ? $("#bulkSourceSelect") : $("#bulkCategorySelect");
-    if (target) target.focus();
+    if (bulkEditFocus === "source") {
+      $("#bulkSourceSelect").focus();
+    } else {
+      CategoryPicker.focus($("#bulkCategorySelect"));
+    }
   });
 
   document.addEventListener("keydown", function (e) {

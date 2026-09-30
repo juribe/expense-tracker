@@ -1,12 +1,13 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { pickCategory } = require('./helpers/category_picker');
 
 async function createExpense(page, { amount, date, description, categoryName }) {
   await page.goto('/expenses/new');
   await page.locator('#expense_amount').fill(amount);
   await page.locator('#expense_date').fill(date);
   await page.locator('#expense_description').fill(description);
-  await page.locator('#expense_category_id').selectOption({ label: categoryName });
+  await pickCategory(page, 'expense_category_id', categoryName);
   await page.getByRole('button', { name: 'Guardar' }).click();
   const row = page.locator('#expenseTable tr[data-id]', { hasText: description });
   await expect(row.locator('td.desc-cell')).toHaveText(description);
