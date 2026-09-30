@@ -196,17 +196,11 @@ class MoneySourcesController < ApplicationController
 
   # Applied payments paginate on the debt show page: a long mortgage history
   # must stay one click away without flooding the card.
-  PAYMENTS_PER_PAGE = 10
-
   def load_payment_context
     payments_scope = @money_source.payments.order(date: :desc, id: :desc)
-    @payments_total_pages = (payments_scope.count / PAYMENTS_PER_PAGE.to_f).ceil
-    @payments_total_pages = 1 if @payments_total_pages.zero?
-    @payments_page = params[:payments_page].to_i
-    @payments_page = 1 if @payments_page < 1 || @payments_page > @payments_total_pages
-    @payments = payments_scope
-                .offset((@payments_page - 1) * PAYMENTS_PER_PAGE)
-                .limit(PAYMENTS_PER_PAGE)
+    @payments = payments_scope.paginate(
+      page: params[:payments_page], per_page: ApplicationController::PER_PAGE
+    )
 
     unapplied = current_user.expenses
                             .where.not(id: @money_source.payments.select(:expense_id))

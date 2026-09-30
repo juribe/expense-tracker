@@ -271,10 +271,10 @@
 
         <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top small text-muted">
           <span id="pageFoot">
-            <%= t("expenses.page_info", offset: @offset + 1, last: @offset + @expenses.length, total: @total_count, page_subtotal: number_to_currency(@page_subtotal), filtered_total: number_to_currency(@filtered_total)) %>
+            <%= t("expenses.page_info", offset: @expenses.offset_value + 1, last: @expenses.offset_value + @expenses.length, total: @total_count, page_subtotal: number_to_currency(@page_subtotal), filtered_total: number_to_currency(@filtered_total)) %>
           </span>
         </div>
-        <%= pagination_nav(current_page: @page, total_pages: @total_pages) %>
+        <%= will_paginate @expenses, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, previous_label: t("common.previous"), next_label: t("common.next") if @expenses.total_pages > 1 %>
       </div>
     <% end %>
   </div>

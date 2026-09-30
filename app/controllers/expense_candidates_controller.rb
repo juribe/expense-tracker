@@ -14,6 +14,7 @@ class ExpenseCandidatesController < ApplicationController
     @status = "needs_review" unless %w[needs_review discarded].include?(@status)
     @candidates = @candidates.where(status: @status)
     @candidates = @candidates.order(created_at: :desc)
+                             .paginate(page: params[:page], per_page: ApplicationController::PER_PAGE)
   end
 
   def show

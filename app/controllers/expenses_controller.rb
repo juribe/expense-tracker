@@ -19,7 +19,6 @@ class ExpensesController < ApplicationController
   SORTABLE_COLUMNS = %w[date description category amount].freeze
   SORT_DIRECTIONS = %w[asc desc].freeze
   DEFAULT_SORT_DIR = { "date" => "desc", "amount" => "desc" }.freeze
-  DEFAULT_PAGE_SIZE = 25
 
   def index
     @expenses = current_user.expenses.includes(:category, { money_source: :credit_account })
@@ -37,9 +36,9 @@ class ExpensesController < ApplicationController
       respond_to do |format|
         format.csv { render_csv(@expenses) }
         format.html do
-          @total_count = @expenses.count
-          @filtered_total = @expenses.sum(:amount)
-          paginate_expenses
+          @expenses = @expenses.paginate(page: params[:page], per_page: ApplicationController::PER_PAGE)
+          @total_count = @expenses.total_entries
+          @filtered_total = @expenses.except(:offset, :limit, :order).sum(:amount)
           @page_subtotal = @expenses.sum(&:amount)
           render :index
         end
@@ -51,9 +50,6 @@ class ExpensesController < ApplicationController
       @total_count = 0
       @filtered_total = 0
       @page_subtotal = 0
-      @page = 1
-      @offset = 0
-      @total_pages = 1
       render :index
     end
   rescue ArgumentError, ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound
@@ -63,9 +59,6 @@ class ExpensesController < ApplicationController
     @total_count = 0
     @filtered_total = 0
     @page_subtotal = 0
-    @page = 1
-    @offset = 0
-    @total_pages = 1
     render :index
   end
 
@@ -395,16 +388,6 @@ class ExpensesController < ApplicationController
     else
       @expenses = @expenses.order("#{Expense.table_name}.#{@sort} #{@dir}, #{Expense.table_name}.id #{@dir}")
     end
-  end
-
-  def paginate_expenses
-    @per_page = DEFAULT_PAGE_SIZE
-    @total_pages = (@total_count.to_f / @per_page).ceil
-    @total_pages = 1 if @total_pages.zero?
-    @page = params[:page].to_i.positive? ? params[:page].to_i : 1
-    @page = @total_pages if @page > @total_pages
-    @offset = (@page - 1) * @per_page
-    @expenses = @expenses.limit(@per_page).offset(@offset).to_a
   end
 
   def render_csv(expenses)

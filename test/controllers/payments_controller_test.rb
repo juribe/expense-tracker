@@ -152,8 +152,8 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select#pickExpense option", text: /Pendiente listado/
   end
 
-  test "applied payments paginate: page 1 shows the most recent and page 2 the older ones" do
-    15.times do |i|
+  test "applied payments paginate at 25 rows: page 1 shows the most recent and page 2 the older ones" do
+    30.times do |i|
       expense = create_expense(amount: 600_000, description: "Cuota #{i}",
                                money_source: @account)
       expense.update_columns(date: Date.current.ago((i + 1) * 31.days))
@@ -165,16 +165,16 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
 
     get money_source_path(@mortgage)
     assert_response :success
-    assert_select "table.table tbody tr", count: 10
+    assert_select "table.table tbody tr", count: 25
     # Sorted most recent first: the newest payment (Cuota 0) is on page 1,
-    # the oldest (Cuota 14) is not.
+    # the oldest (Cuota 29) is not.
     assert_select "table tbody tr", text: /Cuota 0/
-    assert_select "table tbody tr", text: /Cuota 14/, count: 0
+    assert_select "table tbody tr", text: /Cuota 29/, count: 0
     assert_select "a", text: /Siguiente/
 
     get money_source_path(@mortgage), params: { payments_page: 2 }
     assert_select "table.table tbody tr", count: 5
-    assert_select "table tbody tr", text: /Cuota 14/
+    assert_select "table tbody tr", text: /Cuota 29/
     assert_select "table tbody tr", text: /Cuota 0/, count: 0
   end
 

@@ -50,27 +50,12 @@
         </table>
       </div>
 
-      <% if @payments_total_pages > 1 %>
-        <div class="d-flex justify-content-between align-items-center small mt-2">
-          <span class="text-muted"><%= t("payments.page", current: @payments_page, total: @payments_total_pages) %></span>
-          <div class="btn-group btn-group-sm">
-            <% if @payments_page > 1 %>
-              <%= link_to money_source_path(@money_source, payments_page: @payments_page - 1),
-                          class: "btn btn-outline-secondary" do %>
-                <i class="bi bi-chevron-left me-1"></i><%= t("payments.prev") %>
-              <% end %>
-            <% else %>
-              <span class="btn btn-outline-secondary disabled"><%= t("payments.prev") %></span>
-            <% end %>
-            <% if @payments_page < @payments_total_pages %>
-              <%= link_to money_source_path(@money_source, payments_page: @payments_page + 1),
-                          class: "btn btn-outline-secondary" do %>
-                <%= t("payments.next") %><i class="bi bi-chevron-right ms-1"></i>
-              <% end %>
-            <% else %>
-              <span class="btn btn-outline-secondary disabled"><%= t("payments.next") %></span>
-            <% end %>
-          </div>
+      <% if @payments.total_pages > 1 %>
+        <div class="mt-2">
+          <%= will_paginate @payments, renderer: WillPaginate::ActionView::BootstrapLinkRenderer,
+                                       param_name: :payments_page,
+                                       previous_label: t("payments.prev"),
+                                       next_label: t("payments.next") %>
         </div>
       <% end %>
     <% else %>

@@ -1230,9 +1230,9 @@
     "semantic_hash": "8e38e13dc85bb5b17d7d7bf2d5868aa3"
   },
   "test/test_helper.rb": {
-    "mtime": 1790633913.0280402,
-    "seen": 1790634702.078787,
-    "ast_hash": "3ce562f57cbb10c94f744329a1e694a7",
+    "mtime": 1790784217.494059,
+    "seen": 1790784883.277529,
+    "ast_hash": "b0475d20bb8d6b1e8619e6f5969b6394",
     "semantic_hash": ""
   },
   ".rubocop.yml": {
@@ -3498,9 +3498,9 @@
     "semantic_hash": ""
   },
   "config/initializers/bullet.rb": {
-    "mtime": 1790632485.7201042,
-    "seen": 1790634702.078345,
-    "ast_hash": "26d3d760ff3aa63eb0d5115980298aeb",
+    "mtime": 1790784173.329979,
+    "seen": 1790784883.276864,
+    "ast_hash": "3ed96352cc4763826ddc0123f44cdb87",
     "semantic_hash": ""
   },
   "test/integration/sidebar_indexes_bullet_test.rb": {
@@ -3645,6 +3645,12 @@
     "mtime": 1790783562.805056,
     "seen": 1790783577.5957341,
     "ast_hash": "ffca52e606e115e9c82e875700063d24",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/payments.js": {
+    "mtime": 1790784633.503554,
+    "seen": 1790784883.2748768,
+    "ast_hash": "01f4e47ab05636fdc719b3c287742e4a",
     "semantic_hash": ""
   }
 }

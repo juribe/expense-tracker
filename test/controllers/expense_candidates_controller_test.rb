@@ -47,6 +47,31 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /expense_candidates paginates at 25 rows and preserves page param" do
+    30.times do |i|
+      create_candidate(status: "needs_review", description: "Candidato #{i}")
+    end
+
+    get expense_candidates_path, params: { page: 1 }
+    assert_response :success
+    assert_select "tr[data-testid=candidate-row]", count: 25
+    assert_select "nav[data-testid=pagination]"
+
+    get expense_candidates_path, params: { page: 2 }
+    assert_response :success
+    assert_select "tr[data-testid=candidate-row]", count: 5
+    # Ordered by created_at desc: page 2 holds the five oldest candidates.
+    assert_select "tr[data-id]", text: /Candidato 4/
+    assert_select "tr[data-id]", text: /Candidato 5/, count: 0
+  end
+
+  test "GET /expense_candidates renders pagination links on page 2" do
+    30.times { create_candidate(status: "needs_review") }
+
+    get expense_candidates_path, params: { page: 2 }
+    assert_select "a[href*='page=1']"
+  end
+
   # --- SHOW ---
 
   test "GET /expense_candidates/:id shows candidate details" do
