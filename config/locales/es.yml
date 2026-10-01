@@ -577,6 +577,8 @@ es:
     evaluations: "Evaluaciones"
     assistant: "Asistente"
     financial_chat: "Chat Financiero"
+    financial_chat: "Chat Financiero"
+    financial_summary: "Resumen"
 
   evaluations:
     subtitle: "Sube un dataset CSV y evalúa el pipeline completo con un proveedor/modelo concreto."
@@ -1628,3 +1630,17 @@ es:
         - "¿Qué categorías aumentaron más?"
         - "Muéstrame mis gastos más grandes"
         - "¿Cuánto gasté en restaurantes?"
+  financial_summary:
+    title: "Resumen Financiero"
+    income: "Ingresos"
+    expenses: "Gastos"
+    savings: "Ahorro"
+    vs_previous: "vs. mes anterior"
+    of_income: "de tus ingresos"
+    debts_title: "Deudas y créditos"
+    debt_payments: "Pagos de deuda"
+    card_utilization: "Utilización de tarjetas"
+    no_credit_cards: "Sin tarjetas de crédito configuradas"
+    top_expenses: "Gastos principales"
+    no_expenses: "Sin gastos registrados este mes"
+

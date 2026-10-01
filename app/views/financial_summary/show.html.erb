@@ -1,0 +1,110 @@
+<% content_for :title, t("financial_summary.title") %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="fw-bold mb-1"><%= t("financial_summary.title") %></h1>
+    <p class="text-muted mb-0"><%= I18n.l(@summary[:month], format: :long, default: @summary[:month].strftime("%B %Y")) %></p>
+  </div>
+  <%= link_to financial_chat_path, class: "btn btn-outline-primary" do %>
+    <i class="bi bi-chat-dots me-1"></i><%= t("nav.financial_chat") %>
+  <% end %>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small mb-1"><%= t("financial_summary.income") %></div>
+        <div class="summary-value"><%= money_field_value(@summary[:income][:total]) %></div>
+        <% if @summary[:income][:delta_pct] %>
+          <div class="small">
+            <span class="<%= @summary[:income][:delta_pct] >= 0 ? "text-success" : "text-danger" %> fw-semibold">
+              <%= @summary[:income][:delta_pct] >= 0 ? "↑" : "↓" %> <%= @summary[:income][:delta_pct].abs %>%
+            </span>
+            <span class="text-muted"><%= t("financial_summary.vs_previous") %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small mb-1"><%= t("financial_summary.expenses") %></div>
+        <div class="summary-value"><%= money_field_value(@summary[:expenses][:total]) %></div>
+        <% if @summary[:expenses][:delta_pct] %>
+          <div class="small">
+            <span class="<%= @summary[:expenses][:delta_pct] >= 0 ? "text-danger" : "text-success" %> fw-semibold">
+              <%= @summary[:expenses][:delta_pct] >= 0 ? "↑" : "↓" %> <%= @summary[:expenses][:delta_pct].abs %>%
+            </span>
+            <span class="text-muted"><%= t("financial_summary.vs_previous") %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small mb-1"><%= t("financial_summary.savings") %></div>
+        <div class="summary-value"><%= money_field_value(@summary[:savings][:total]) %></div>
+        <% if @summary[:savings][:pct_of_income] %>
+          <div class="small text-muted">
+            <%= @summary[:savings][:pct_of_income] %>% <%= t("financial_summary.of_income") %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3"><%= t("financial_summary.debts_title") %></h5>
+        <div class="mb-3">
+          <div class="text-muted small"><%= t("financial_summary.debt_payments") %></div>
+          <div class="fw-bold fs-4"><%= money_field_value(@summary[:debt][:payments]) %></div>
+        </div>
+        <div class="text-muted small mb-1"><%= t("financial_summary.card_utilization") %></div>
+        <% if @summary[:debt][:utilization_pct] %>
+          <div class="d-flex align-items-center gap-2">
+            <div class="progress flex-grow-1" style="height: 8px;">
+              <div class="progress-bar bg-primary" style="width: <%= @summary[:debt][:utilization_pct] %>%;" role="progressbar"
+                   aria-valuenow="<%= @summary[:debt][:utilization_pct] %>" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <span class="fw-semibold small"><%= @summary[:debt][:utilization_pct] %>%</span>
+          </div>
+        <% else %>
+          <div class="text-muted small"><%= t("financial_summary.no_credit_cards") %></div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3"><%= t("financial_summary.top_expenses") %></h5>
+        <% if @summary[:expenses][:top_categories].empty? %>
+          <div class="text-muted small"><%= t("financial_summary.no_expenses") %></div>
+        <% else %>
+          <% icons = { "Vivienda" => "house", "Alimentación" => "cup-hot", "Transporte" => "car-front", "Entretenimiento" => "controller" } %>
+          <% @summary[:expenses][:top_categories].each_with_index do |category, index| %>
+            <div class="d-flex align-items-center gap-3 <%= "mb-3" unless index == @summary[:expenses][:top_categories].size - 1 %>">
+              <div class="chat-icon-circle"><i class="bi bi-<%= icons[category[:name]] || "tag" %>"></i></div>
+              <div class="flex-fill">
+                <div class="small text-muted"><%= category[:name] %></div>
+                <div class="fw-semibold"><%= money_field_value(category[:total]) %></div>
+              </div>
+              <span class="text-muted small"><%= category[:share_pct] %>%</span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

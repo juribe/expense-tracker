@@ -266,6 +266,8 @@ en:
     evaluations: "Evaluations"
     assistant: "Assistant"
     financial_chat: "Financial Chat"
+    financial_chat: "Financial Chat"
+    financial_summary: "Summary"
 
   evaluations:
     subtitle: "Upload a CSV dataset and evaluate the full pipeline with a specific provider/model."
@@ -756,3 +758,17 @@ en:
         - "What categories increased the most?"
         - "Show me my biggest expenses"
         - "How much did I spend on restaurants?"
+  financial_summary:
+    title: "Financial Summary"
+    income: "Income"
+    expenses: "Expenses"
+    savings: "Savings"
+    vs_previous: "vs. previous month"
+    of_income: "of your income"
+    debts_title: "Debts & credits"
+    debt_payments: "Debt payments"
+    card_utilization: "Card utilization"
+    no_credit_cards: "No credit cards configured"
+    top_expenses: "Top expenses"
+    no_expenses: "No expenses recorded this month"
+

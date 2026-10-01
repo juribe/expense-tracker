@@ -134,6 +134,9 @@ Rails.application.routes.draw do
   get "financial_chat", to: "financial_chat#show", as: :financial_chat
   post "financial_chat/messages", to: "financial_chats/messages#create", as: :financial_chat_messages
 
+  # Financial summary (month snapshot page)
+  get "financial_summary", to: "financial_summary#show", as: :financial_summary
+
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'

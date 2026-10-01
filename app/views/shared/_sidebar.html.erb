@@ -87,6 +87,10 @@
         <i class="bi bi-chat-dots"></i>
         <span><%= t("nav.financial_chat") %></span>
       <% end %>
+      <%= link_to financial_summary_path, class: "sidebar-link #{active_class('financial_summary')}" do %>
+        <i class="bi bi-clipboard-data"></i>
+        <span><%= t("nav.financial_summary") %></span>
+      <% end %>
     </div>
 
     <div class="sidebar-section sidebar-settings">
