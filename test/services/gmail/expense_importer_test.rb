@@ -78,6 +78,22 @@ module Gmail
       assert_equal expense.id, processed.expense_id
     end
 
+    # Regression: dropping the imported expense used to destroy the marker row
+    # (cascade), so the next sync re-imported the same message as a duplicate.
+    test "skips a message whose imported expense was deleted by the user" do
+      first = importer.call(@message)
+      assert_equal :processed, first.status
+
+      Expense.find(first.expense_ids.first).destroy
+
+      second = importer.call(@message)
+      assert_equal :skipped, second.status
+      assert_equal "already processed", second.reason
+      # The deleted expense is gone and nothing was re-imported.
+      assert_equal 0, @user.expenses.count
+      assert_not_nil ProcessedEmail.find_by(provider: "gmail", message_id: "msg-100")
+    end
+
     test "assigns the money source when exactly one source matches" do
       source = @user.money_sources.create!(name: "Visa", kind: "credit_card", identifier: "1234")
 

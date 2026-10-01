@@ -42,4 +42,21 @@ class ProcessedEmailTest < ActiveSupport::TestCase
     assert_includes ProcessedEmail.gmail.needs_review, @email
     assert_not_includes ProcessedEmail.failed, @email
   end
+
+  # Deleting the imported expense must NOT delete the pipeline marker: the
+  # Gmail message was processed regardless of what the user later did with
+  # the expense. Otherwise the next sync re-imports it as a duplicate.
+  test "destroying the expense keeps the processed_email row with a nullified expense_id" do
+    @email.save!
+    expense = Expense.create!(
+      user: @user, category: @category, amount: 1_000, description: "Temporal",
+      date: Date.current, source: "gmail"
+    )
+    @email.update!(expense_id: expense.id)
+
+    expense.destroy!
+
+    @email.reload
+    assert_nil @email.expense_id
+  end
 end

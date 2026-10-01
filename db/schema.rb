@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_30_085853) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -716,7 +716,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_30_085853) do
   add_foreign_key "money_sources", "users"
   add_foreign_key "payments", "transactions", column: "expense_id"
   add_foreign_key "pending_whatsapp_connections", "users"
-  add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :cascade
+  add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :nullify
   add_foreign_key "processed_emails", "users"
   add_foreign_key "recurring_templates", "categories"
   add_foreign_key "recurring_templates", "money_sources"
