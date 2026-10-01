@@ -1614,15 +1614,17 @@ es:
 
   financial_chat:
     title: "Chat Financiero"
-    subtitle: "Pregúntame lo que quieras sobre tus finanzas. Te ayudaré a entender tu situación y te daré consejos personalizados."
-    input_placeholder: "Escribe tu pregunta..."
-    summary:
-      title: "Resumen actual"
-      income: "Ingresos"
-      expenses: "Gastos"
-      savings: "Ahorro"
-      debts_title: "Deudas y créditos"
-      debt_payments: "Pagos de deuda"
-      card_utilization: "Utilización de tarjetas"
-      top_expenses: "Gastos principales"
-      see_details: "Ver más detalles"
+    subtitle: "Pregúntame lo que quieras sobre tus finanzas"
+    input_placeholder: "Pregúntame sobre tus finanzas..."
+    thinking: "Analizando tus finanzas..."
+    reconnecting: "Reconectando..."
+    empty:
+      title: "¿Cómo puedo ayudarte con tus finanzas?"
+      subtitle: "Pregúntame lo que quieras sobre tus gastos, categorías o tendencias financieras."
+      suggestions:
+        - "¿Cuánto gasté este mes?"
+        - "¿En qué gasto más?"
+        - "Compara mis gastos con el mes pasado"
+        - "¿Qué categorías aumentaron más?"
+        - "Muéstrame mis gastos más grandes"
+        - "¿Cuánto gasté en restaurantes?"

@@ -31,6 +31,10 @@ class FinancialChatMessage < ApplicationRecord
     status == "failed"
   end
 
+  def complete?
+    status == "complete"
+  end
+
   # Serialization contract for the browser client (broadcasts and JSON API).
   # Assistant content is delivered pre-rendered as safe HTML; user content
   # stays as plain text.

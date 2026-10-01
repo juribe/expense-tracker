@@ -742,15 +742,17 @@ en:
 
   financial_chat:
     title: "Financial Chat"
-    subtitle: "Ask me anything about your finances. I'll help you understand your situation and give you personalized advice."
-    input_placeholder: "Type your question..."
-    summary:
-      title: "Current summary"
-      income: "Income"
-      expenses: "Expenses"
-      savings: "Savings"
-      debts_title: "Debts & credits"
-      debt_payments: "Debt payments"
-      card_utilization: "Card utilization"
-      top_expenses: "Top expenses"
-      see_details: "See more details"
+    subtitle: "Ask questions about your finances"
+    input_placeholder: "Ask about your finances..."
+    thinking: "Analyzing your finances..."
+    reconnecting: "Reconnecting..."
+    empty:
+      title: "How can I help with your finances?"
+      subtitle: "Ask me anything about your spending, expenses, categories, or financial trends."
+      suggestions:
+        - "How much did I spend this month?"
+        - "Where am I spending the most?"
+        - "Compare my spending with last month"
+        - "What categories increased the most?"
+        - "Show me my biggest expenses"
+        - "How much did I spend on restaurants?"
