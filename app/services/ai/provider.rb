@@ -58,6 +58,58 @@ module Ai
       raise Error, "AI request failed (#{e.message})"
     end
 
+    # Streaming variant of #chat for conversational answers. Sends the same
+    # request with stream:true and yields content deltas as they arrive over
+    # the SSE wire; returns a Response with the full accumulated content.
+    # Usage tokens are not reported by streaming endpoints, so they are 0.
+    #
+    #   provider.chat_stream(messages: messages) { |delta| ... }
+    #
+    # Raises Ai::Provider::Error on transport, HTTP and payload failures.
+    def chat_stream(messages:, temperature: 0.0, model: nil, timeout: 30, max_tokens: nil)
+      raise Error, "AI provider #{name} is not configured" unless configured?
+
+      http, request = build_request(messages, temperature, false, model, timeout, max_tokens, stream: true)
+
+      content = +""
+      partial = +""
+      handle_chunk = lambda do |chunk|
+        partial << chunk
+        # limit -1 keeps trailing empty strings: a complete "…\n\n" chunk
+        # would otherwise lose its final data line (split drops it).
+        lines = partial.split("\n", -1)
+        partial.replace(lines.pop.to_s)
+        lines.each do |line|
+          delta = stream_delta(line)
+          next if delta.blank?
+
+          content << delta
+          yield delta
+        end
+      end
+
+      http.start do
+        retry_with_backoff do
+          http.request(request) do |response|
+            next response.read_body unless response.code.to_i == 200
+
+            response.read_body(&handle_chunk)
+          end
+        end
+      end
+
+      # A stream may end without a trailing newline; flush the leftover line.
+      leftover = stream_delta(partial)
+      if leftover.present?
+        content << leftover
+        yield leftover
+      end
+
+      Response.new(content: content, model: model || @model, input_tokens: 0, output_tokens: 0)
+    rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
+      raise Error, "AI request failed (#{e.message})"
+    end
+
     private
 
     # Vendor-specific headers (e.g. OpenRouter's attribution headers). Only
@@ -66,7 +118,7 @@ module Ai
       {}
     end
 
-    def build_request(messages, temperature, json, model_override, timeout, max_tokens)
+    def build_request(messages, temperature, json, model_override, timeout, max_tokens, stream: false)
       uri = URI(@base_url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == "https"
@@ -83,10 +135,25 @@ module Ai
         messages: messages
       }
       body[:response_format] = { type: "json_object" } if json
+      body[:stream] = true if stream
       body[:max_tokens] = max_tokens if max_tokens
       request.body = body.to_json
 
       [ http, request ]
+    end
+
+    # One SSE line ("data: {...}") → the delta text it carries, or nil for
+    # keep-alives, [DONE] markers and malformed payloads.
+    def stream_delta(line)
+      payload = line.strip
+      return nil unless payload.start_with?("data:")
+
+      data = payload.delete_prefix("data:").strip
+      return nil if data.empty? || data == "[DONE]"
+
+      JSON.parse(data).dig("choices", 0, "delta", "content").to_s
+    rescue JSON::ParserError
+      nil
     end
 
     # Retries rate-limited (HTTP 429) responses with a short backoff; other

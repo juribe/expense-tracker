@@ -128,5 +128,133 @@ module Ai
       assert_equal "AI HTTP 429 (Budget has been exceeded!)", error.message
       assert_equal 1, fake_http.request_count
     end
+
+    test "chat_stream yields deltas in order and returns the full content" do
+      sse_chunks = [
+        "data: {\"choices\":[{\"delta\":{\"content\":\"COP \"}}]}\n\n",
+        "data: {\"choices\":[{\"delta\":{\"content\":\"23.400\"}}]}\n\n",
+        "data: {\"choices\":[{\"delta\":{\"content\":\".000\"}}]}\n\ndata: [DONE]\n\n"
+      ]
+      p = provider_with_streaming(sse_chunks)
+
+      deltas = []
+      response = p.chat_stream(messages: [ { role: "user", content: "hi" } ]) { |delta| deltas << delta }
+
+      assert_equal [ "COP ", "23.400", ".000" ], deltas
+      assert_equal "COP 23.400.000", response.content
+    end
+
+    test "chat_stream buffers partial SSE lines split across chunks" do
+      sse_chunks = [
+        "data: {\"choices\":[{\"delta\":{\"conten",
+        "t\":\"Hola\"}}]}\n\n",
+        "data: {\"choices\":[{\"delta\":{\"content\":\" mundo\"}}]}\n\n"
+      ]
+      p = provider_with_streaming(sse_chunks)
+
+      deltas = []
+      response = p.chat_stream(messages: [ { role: "user", content: "hi" } ]) { |delta| deltas << delta }
+
+      assert_equal [ "Hola", " mundo" ], deltas
+      assert_equal "Hola mundo", response.content
+    end
+
+    test "streaming request body carries stream:true and no json mode" do
+      _http, request = provider.send(
+        :build_request, [ { role: "user", content: "hi" } ], 0.0, false, nil, 25, nil, stream: true
+      )
+
+      body = JSON.parse(request.body)
+      assert_equal true, body["stream"]
+      assert_not body.key?("response_format")
+    end
+
+    test "chat_stream ignores malformed SSE lines but keeps valid deltas" do
+      sse = [ "data: not-json\n\ndata: {\"choices\":[{\"delta\":{\"content\":\"ok\"}}]}\n\n" ]
+      p = provider_with_streaming(sse)
+
+      deltas = []
+      response = p.chat_stream(messages: [ { role: "user", content: "hi" } ]) { |delta| deltas << delta }
+
+      assert_equal [ "ok" ], deltas
+      assert_equal "ok", response.content
+    end
+
+    test "chat_stream raises when the provider is not configured" do
+      unconfigured = Ai::Provider.new(name: "test", model: "m", api_key: nil, base_url: nil)
+
+      assert_raises(Ai::Provider::Error) { unconfigured.chat_stream(messages: []) }
+    end
+
+    test "chat_stream raises on HTTP failure status" do
+      p = provider
+      fake_http = FakeStreamingHttp.new(code: "500", chunks: [ "boom" ], body: "boom")
+      p.define_singleton_method(:build_request) do |*_args|
+        [ fake_http, Net::HTTP::Post.new("/") ]
+      end
+      p.define_singleton_method(:sleep) { |_seconds| nil }
+
+      assert_raises(Ai::Provider::Error) do
+        p.chat_stream(messages: [ { role: "user", content: "hi" } ])
+      end
+    end
+
+    private
+
+    # Builds a provider whose streaming HTTP call is replaced by a fake that
+    # emits `chunks` through response.read_body (the SSE body).
+    def provider_with_streaming(chunks)
+      p = provider
+      fake_http = FakeStreamingHttp.new(code: "200", chunks: chunks)
+      p.define_singleton_method(:build_request) do |*_args|
+        request = Net::HTTP::Post.new("/")
+        request.body = { stream: true, messages: [ { role: "user", content: "hi" } ] }.to_json
+        [ fake_http, request ]
+      end
+      p.define_singleton_method(:sleep) { |_seconds| nil }
+      p
+    end
+  end
+
+  # Minimal Net::HTTP double for streaming tests: `start` yields,
+  # `request` yields the response (block form), and read_body emits the
+  # pre-loaded SSE chunks (or returns the full body for error statuses).
+  class FakeStreamingHttp
+    attr_reader :request_count
+
+    def initialize(code:, chunks:, body: nil)
+      @code = code
+      @chunks = chunks
+      @body = body
+      @request_count = 0
+    end
+
+    def start
+      yield
+    end
+
+    def request(_request)
+      @request_count += 1
+      response = FakeStreamingResponse.new(@code, @chunks, @body)
+      yield response if block_given?
+      response
+    end
+  end
+
+  class FakeStreamingResponse
+    attr_reader :code, :body
+
+    def initialize(code, chunks, body)
+      @code = code
+      @chunks = chunks
+      @body = body
+    end
+
+    def read_body(&block)
+      return @body if !block_given? || @chunks.nil?
+
+      @chunks.each { |chunk| block.call(chunk) }
+      @body
+    end
   end
 end

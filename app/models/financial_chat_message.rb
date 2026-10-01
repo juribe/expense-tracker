@@ -32,11 +32,13 @@ class FinancialChatMessage < ApplicationRecord
   end
 
   # Serialization contract for the browser client (broadcasts and JSON API).
+  # Assistant content is delivered pre-rendered as safe HTML; user content
+  # stays as plain text.
   def client_payload
     {
       id: id,
       role: role,
-      content: content,
+      content: assistant? ? FinancialChatMarkdownRenderer.render(content) : content,
       status: status,
       error_message: error_message,
       created_at: created_at&.strftime("%H:%M")
