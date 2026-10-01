@@ -29,7 +29,10 @@ class FinancialChatMarkdownRenderer
   end
 
   def call
-    return "" if @text.strip.empty?
+    # Safe by construction: every content line is HTML-escaped (inline())
+    # before any allowlisted tag is added, so the result is safe to
+    # interpolate directly in ERB.
+    return "".html_safe if @text.strip.empty?
 
     html = +""
     lines = @text.lines.map(&:chomp)
@@ -56,7 +59,7 @@ class FinancialChatMarkdownRenderer
       end
     end
 
-    html
+    html.html_safe
   end
 
   private

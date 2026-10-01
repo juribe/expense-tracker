@@ -104,4 +104,8 @@ class FinancialChatMarkdownRendererTest < ActiveSupport::TestCase
       assert_equal "", render("")
       assert_equal "", render(nil)
     end
+
+    test "output is html_safe for direct ERB interpolation" do
+      assert render("Gastaste **COP 845.000** en restaurantes").html_safe?
+    end
   end
