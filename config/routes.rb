@@ -130,6 +130,9 @@ Rails.application.routes.draw do
   post "expense-evaluations/:id/retry", to: "expense_evaluations#retry", as: :expense_evaluation_retry
   post "expense-evaluations/:id/cases/:case_id/map", to: "expense_evaluations#map_case", as: :expense_evaluation_map_case
 
+  # Financial chat (static mockup page for now)
+  get "financial_chat", to: "financial_chat#show", as: :financial_chat
+
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'
   root to: 'categories#index'

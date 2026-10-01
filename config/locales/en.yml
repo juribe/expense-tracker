@@ -264,6 +264,8 @@ en:
     source_recognition: "Source Recognition"
     playground: "Playground"
     evaluations: "Evaluations"
+    assistant: "Assistant"
+    financial_chat: "Financial Chat"
 
   evaluations:
     subtitle: "Upload a CSV dataset and evaluate the full pipeline with a specific provider/model."
@@ -737,3 +739,18 @@ en:
     ai_summary_analysis_generation: "Generation-bound: %{tps} tokens/s on average."
     ai_summary_analysis_slowest_model: "Slowest model: %{model} (%{latency} ms)."
     ai_summary_analysis_errors: "%{count} failed AI calls in the last week."
+
+  financial_chat:
+    title: "Financial Chat"
+    subtitle: "Ask me anything about your finances. I'll help you understand your situation and give you personalized advice."
+    input_placeholder: "Type your question..."
+    summary:
+      title: "Current summary"
+      income: "Income"
+      expenses: "Expenses"
+      savings: "Savings"
+      debts_title: "Debts & credits"
+      debt_payments: "Debt payments"
+      card_utilization: "Card utilization"
+      top_expenses: "Top expenses"
+      see_details: "See more details"

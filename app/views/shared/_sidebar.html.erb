@@ -81,6 +81,14 @@
       <% end %>
     </div>
 
+    <div class="sidebar-section">
+      <div class="sidebar-section-title"><%= t("nav.assistant") %></div>
+      <%= link_to financial_chat_path, class: "sidebar-link #{active_class('financial_chat')}" do %>
+        <i class="bi bi-chat-dots"></i>
+        <span><%= t("nav.financial_chat") %></span>
+      <% end %>
+    </div>
+
     <div class="sidebar-section sidebar-settings">
       <div class="sidebar-section-title"><%= t("nav.settings") %></div>
       <%= link_to categories_path, class: "sidebar-link #{active_class('categories')}" do %>
