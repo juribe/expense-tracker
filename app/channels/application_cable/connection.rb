@@ -11,7 +11,7 @@ module ApplicationCable
 
     def find_verified_user
       user = env["warden"].user
-      raise "Connection requires a signed-in user" unless user
+      reject_unauthorized_connection unless user
 
       user
     end

@@ -30,4 +30,16 @@ class FinancialChatMessage < ApplicationRecord
   def failed?
     status == "failed"
   end
+
+  # Serialization contract for the browser client (broadcasts and JSON API).
+  def client_payload
+    {
+      id: id,
+      role: role,
+      content: content,
+      status: status,
+      error_message: error_message,
+      created_at: created_at&.strftime("%H:%M")
+    }
+  end
 end
