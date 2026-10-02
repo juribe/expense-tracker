@@ -533,6 +533,7 @@ en:
       at_least_one_action: "Add at least one action."
 
   payments:
+    index_button: "Payments"
     not_found: "Expense not found for this user."
     duplicate: "That expense is already applied to this debt."
     created: "Payment of %{amount} applied to %{target}."

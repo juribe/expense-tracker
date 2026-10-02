@@ -2,16 +2,22 @@
 
 module Gmail
   # Processes ONE email message through the import pipeline:
-  # dedup check -> transaction detection -> AI extraction -> validation ->
+  # claim -> transaction detection -> AI extraction -> validation ->
   # expense creation (or review queue) -> mark as processed.
   #
-  # Every outcome is recorded in ProcessedEmail so the same Gmail message can
-  # never generate more than one import.
+  # The message is CLAIMED first: its ProcessedEmail row is created (or taken
+  # over from "failed"/stale) in "processing" state behind the
+  # [provider, message_id] unique index. A concurrent sync run then loses the
+  # claim at the database level and never re-reads the message — the double
+  # DiDi/UBER imports came from the old check-then-act guard.
   #
   #   Gmail::ExpenseImporter.new(connection: connection).call(message)
   class ExpenseImporter
     AUTO_CREATE_THRESHOLD = 0.75
     PROVIDER = "gmail"
+    # A crashed process can leave a "processing" claim behind forever; after
+    # this long the claim is considered dead and a new run may take over.
+    STALE_CLAIM_TIMEOUT = 30.minutes
 
     Result = Struct.new(:status, :processed_email, :expense_ids, :reason, keyword_init: true)
 
@@ -25,8 +31,17 @@ module Gmail
     #   { id:, from:, subject:, body_text:, internal_date:, snippet:, headers: }
     def call(message)
       @message_id = message[:id].to_s
-      return skipped("already processed") if already_processed?
+      return skipped("already processed") unless claim_message!
 
+      run_import_pipeline(message)
+    rescue StandardError
+      release_claim
+      raise
+    end
+
+    private
+
+    def run_import_pipeline(message)
       detection = @detector.call(subject: message[:subject], body: message[:body_text])
       unless detection.transactional?
         return record!(:ignored, reason: detection.reason)
@@ -40,13 +55,56 @@ module Gmail
       process_extraction(message)
     end
 
-    private
+    # Race-safe claim. Returns true when this run owns the message.
+    #
+    #   new row              -> insert "processing" (unique index arbitrates)
+    #   failed row           -> retryable: take over atomically
+    #   stale processing row -> crashed run: take over atomically
+    #   terminal row         -> blocked: already processed/ignored/needs_review
+    #
+    # The take-over uses UPDATE ... WHERE status = 'failed' (or stale), so two
+    # racing runs can never both win: Postgres re-evaluates the predicate
+    # after the row lock and only one UPDATE matches.
+    def claim_message!
+      row = ProcessedEmail.find_or_initialize_by(provider: PROVIDER, message_id: @message_id)
+      row.user ||= @connection.user
 
-    def already_processed?
-      # Failed rows stay retryable: only terminal outcomes block reprocessing.
-      ProcessedEmail.where(provider: PROVIDER, message_id: @message_id)
-                    .where.not(status: "failed")
-                    .exists?
+      if row.new_record?
+        row.assign_attributes(status: "processing", failure_reason: nil, processed_at: nil)
+        row.save!
+        return true
+      end
+
+      return false if terminal_claim?(row)
+
+      take_over(row)
+    rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
+      # Another run inserted the claim first: it owns the message.
+      false
+    end
+
+    def terminal_claim?(row)
+      !row.failed? && !stale_claim?(row)
+    end
+
+    def stale_claim?(row)
+      row.status == "processing" && row.updated_at < STALE_CLAIM_TIMEOUT.ago
+    end
+
+    def take_over(row)
+      claimed = ProcessedEmail.where(id: row.id, status: [ "failed", "processing" ])
+                              .where("status = ? OR updated_at < ?", "failed", STALE_CLAIM_TIMEOUT.ago)
+                              .update_all(status: "processing", failure_reason: nil,
+                                          processed_at: nil, updated_at: Time.current)
+      claimed == 1
+    end
+
+    # A run that dies mid-pipeline must not leave a live claim: downgrade it
+    # to "failed" so the next sync can retry.
+    def release_claim
+      ProcessedEmail.where(provider: PROVIDER, message_id: @message_id, status: "processing")
+                    .update_all(status: "failed", failure_reason: "import raised unexpectedly",
+                                updated_at: Time.current)
     end
 
     def process_extraction(message)
@@ -81,6 +139,7 @@ module Gmail
     def create_expenses(transactions)
       expense_ids = []
       skipped_types = []
+      seen_keys = Set.new
 
       ActiveRecord::Base.transaction do
         transactions.each do |transaction|
@@ -89,21 +148,39 @@ module Gmail
             next
           end
 
-        matched = resolve_money_source(transaction)
-        # Match returns an array when several sources share the tag. Do not
-        # auto-assign: leave the expense without a source for manual review.
-        money_source = matched if matched.is_a?(MoneySource)
+          # Merchant emails repeat the total (summary + confirmation), so the
+          # extractor can emit the same charge twice. Only the first entry of
+          # each (amount, merchant, date) may create an expense.
+          key = duplicate_key(transaction)
+          if seen_keys.include?(key)
+            skipped_types << "duplicate entry: #{transaction[:merchant]} #{transaction[:amount]}"
+            next
+          end
+          seen_keys << key
 
-          expense_ids << Expenses::Create.call(
-            user: @connection.user,
-            amount: transaction[:amount],
-            description: transaction[:merchant],
-            category: transaction[:category],
-            occurred_at: Time.zone.parse(transaction[:occurred_at]),
-            source: :gmail,
-            gmail_message_id: @message_id,
-            money_source: money_source
-          ).id
+          matched = resolve_money_source(transaction)
+          # Match returns an array when several sources share the tag. Do not
+          # auto-assign: leave the expense without a source for manual review.
+          money_source = matched if matched.is_a?(MoneySource)
+
+          begin
+            expense_ids << Expenses::Create.call(
+              user: @connection.user,
+              amount: transaction[:amount],
+              description: transaction[:merchant],
+              category: transaction[:category],
+              occurred_at: Time.zone.parse(transaction[:occurred_at]),
+              source: :gmail,
+              gmail_message_id: @message_id,
+              money_source: money_source
+            ).id
+          rescue Expenses::Create::Invalid => e
+            # The DB-level guard rejected this expense as an already-imported
+            # (message, amount, date) combination: not a failure, just noise.
+            raise unless e.message.include?("already exists")
+
+            skipped_types << "already imported: #{transaction[:merchant]} #{transaction[:amount]}"
+          end
         end
       end
 
@@ -111,6 +188,11 @@ module Gmail
       record!(:processed, expense_ids: expense_ids, reason: reason)
     rescue Expenses::Create::Invalid, ActiveRecord::RecordInvalid => e
       record!(:failed, reason: e.message)
+    end
+
+    def duplicate_key(transaction)
+      date = Time.zone.parse(transaction[:occurred_at]).to_date
+      [ transaction[:amount].to_d.abs, transaction[:merchant], date ]
     end
 
     # Source resolution precedence for a transaction:

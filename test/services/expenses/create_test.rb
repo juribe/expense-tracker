@@ -39,6 +39,42 @@ module Expenses
       assert_equal "18f0c2abc", expense.gmail_message_id
     end
 
+    # Last-resort DB guard: one email must never produce two expenses with
+    # the same amount and date, no matter how buggy an import run is.
+    test "rejects a duplicate gmail expense with the same message id, amount and date" do
+      first = create(gmail_message_id: "18f0c2abc")
+
+      error = assert_raises(Expenses::Create::Invalid) do
+        create(gmail_message_id: "18f0c2abc")
+      end
+      assert_match(/already/i, error.message)
+      assert_equal 1, Expense.where(gmail_message_id: "18f0c2abc").count
+    end
+
+    test "allows the same amount on different gmail messages" do
+      create(gmail_message_id: "msg-a")
+
+      other = create(gmail_message_id: "msg-b")
+      assert_predicate other, :persisted?
+    end
+
+    test "allows the same message id with different amounts" do
+      # e.g. one email containing two items bought the same day
+      first = create(gmail_message_id: "msg-a", amount: 48_500)
+      assert_predicate first, :persisted?
+
+      second = create(gmail_message_id: "msg-a", amount: 9_000,
+                      description: "Cafe X", occurred_at: Time.zone.parse("2026-08-23T15:00:00"))
+      assert_predicate second, :persisted?
+    end
+
+    test "allows non-gmail sources to repeat amounts freely" do
+      create(gmail_message_id: "msg-a", source: :gmail)
+
+      manual = create(source: :manual)
+      assert_predicate manual, :persisted?
+    end
+
     test "resolves categories by id, object or name (case-insensitive)" do
       assert_equal @category.id, create(category: @category.id).category_id
       assert_equal @category.id, create(category: @category).category_id

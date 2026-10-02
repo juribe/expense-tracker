@@ -17,6 +17,13 @@
           <% end %>
         </div>
         <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= source.name %>">
+          <% if source.debt_payment_target? %>
+            <%= link_to money_source_path(source, anchor: "payments"),
+                        class: "btn btn-outline-primary", title: t("payments.index_button"),
+                        aria: { label: t("payments.index_button") } do %>
+              <i class="bi bi-cash-coin"></i>
+            <% end %>
+          <% end %>
           <%= link_to edit_money_source_path(source), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("common.edit") } do %>
             <i class="bi bi-pencil"></i>
           <% end %>

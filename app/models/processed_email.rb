@@ -2,9 +2,11 @@
 
 # Tracks every email examined by the import pipeline so each message is only
 # processed once across all providers. The [provider, message_id] unique index
-# makes duplicate prevention race-safe.
+# makes duplicate prevention race-safe: an import run claims a message by
+# creating its row in "processing" state BEFORE doing extraction, so
+# concurrent syncs see the claim and skip.
 class ProcessedEmail < ApplicationRecord
-  STATUSES = %w[processed ignored needs_review failed].freeze
+  STATUSES = %w[processing processed ignored needs_review failed].freeze
 
   belongs_to :user
   belongs_to :expense, optional: true

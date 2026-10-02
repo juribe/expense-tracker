@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_01_141100) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_02_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -657,6 +657,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_01_141100) do
     t.index ["kind"], name: "index_transactions_on_kind"
     t.index ["money_source_id"], name: "index_transactions_on_money_source_id"
     t.index ["recurring_template_id"], name: "index_transactions_on_recurring_template_id"
+    t.index ["user_id", "gmail_message_id", "amount", "date"], name: "index_transactions_gmail_dedup", unique: true, where: "(gmail_message_id IS NOT NULL)"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end

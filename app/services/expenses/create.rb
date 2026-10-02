@@ -32,6 +32,8 @@ module Expenses
     end
 
     def call
+      raise_if_gmail_duplicate!
+
       Expense.new(
         user: @user,
         category: resolve_category!,
@@ -45,6 +47,31 @@ module Expenses
     end
 
     private
+
+    # Database-level last line of defense (partial unique index
+    # index_transactions_gmail_dedup): one gmail email must never produce two
+    # expenses with the same amount and date, even when import runs race.
+    def raise_if_gmail_duplicate!
+      return if @gmail_message_id.blank?
+
+      normalized = normalize_source!
+      return unless normalized == "gmail"
+
+      amount = parse_amount!
+      date = parse_date!
+
+      duplicated = Expense.where(
+        user_id: @user.id,
+        gmail_message_id: @gmail_message_id,
+        amount: amount_for_comparison(amount),
+        date: date
+      ).exists?
+      raise Invalid, "an expense for this email, amount and date already exists" if duplicated
+    end
+
+    def amount_for_comparison(value)
+      -value
+    end
 
     # Upper bound matching the `numeric(10,2)` expenses.amount column
     # (precision 10, scale 2 => max 99,999,999.99) so a huge/garbled amount

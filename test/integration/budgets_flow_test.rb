@@ -114,7 +114,9 @@ class BudgetsFlowTest < ActionDispatch::IntegrationTest
 
   test "dashboard shows the budgets summary card when budgets exist" do
     Budget.create!(user: @user, category: @restaurants, monthly_amount: 100_000)
-    create_expense(@restaurants, 80_000)
+    # The dashboard budgets card is always scoped to the current month, so the
+    # 80% usage must be created there (a fixed September date breaks on Oct 1+).
+    create_expense(@restaurants, 80_000, Date.current)
 
     get "/dashboard"
 

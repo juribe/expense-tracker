@@ -1018,6 +1018,7 @@ es:
       deleted: "La transferencia se eliminó correctamente."
 
   payments:
+    index_button: "Pagos"
     not_found: "No se encontró el gasto para este usuario."
     duplicate: "Ese gasto ya está aplicado a esta deuda."
     created: "Pago de %{amount} aplicado a %{target}."

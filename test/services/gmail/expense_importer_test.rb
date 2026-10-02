@@ -223,7 +223,64 @@ module Gmail
       assert_match(/amount/i, ProcessedEmail.find_by(message_id: "msg-100").failure_reason)
     end
 
-    # --- source recognition -------------------------------------------------
+    # --- duplicate protection (DiDi/UBER regression) ------------------------
+
+    # DiDi-style emails repeat the total amount twice in the body, so the AI
+    # extractor can return the same transaction as two entries. Only one
+    # expense may be created per unique (amount, merchant, occurred_at).
+    test "creates one expense when extraction returns the same transaction twice" do
+      duplicated = importer(
+        extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction ], should_ignore: false, reason: nil }, error: nil })
+      )
+      result = duplicated.call(@message)
+
+      assert_equal 1, result.expense_ids.size
+      assert_equal 1, Expense.where(gmail_message_id: "msg-100").count
+    end
+
+    test "creates one expense when extraction repeats the transaction with different categories" do
+      duplicated = importer(
+        extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction(category: "transportation") ], should_ignore: false, reason: nil }, error: nil })
+      )
+      result = duplicated.call(@message)
+
+      assert_equal 1, result.expense_ids.size
+      assert_equal 1, Expense.where(gmail_message_id: "msg-100").count
+    end
+
+    test "keeps genuinely distinct transactions in the same email" do
+      multi = importer(
+        extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction(merchant: "Cafe X", amount: BigDecimal(9000.to_s)) ], should_ignore: false, reason: nil }, error: nil })
+      )
+      assert_equal 2, multi.call(@message).expense_ids.size
+    end
+
+    # Two sync runs can overlap (retry racing the periodic job). The second
+    # run must lose the claim cleanly instead of re-reading the message.
+    test "detects a message already claimed by a concurrent import" do
+      ProcessedEmail.create!(user: @user, provider: "gmail", message_id: "msg-100", status: "processing")
+
+      result = importer.call(@message)
+
+      assert_equal :skipped, result.status
+      assert_equal "already processed", result.reason
+      assert_equal 0, Expense.where(gmail_message_id: "msg-100").count
+    end
+
+    # Even if a duplicate expense somehow got created earlier, a fresh import
+    # run must not add more expenses for the same message + amount + date.
+    test "does not create a second expense with the same message id, amount and date" do
+      first = importer.call(@message)
+      assert_equal :processed, first.status
+
+      ProcessedEmail.find_by(provider: "gmail", message_id: "msg-100").update!(status: "failed")
+      retry_result = importer.call(@message)
+
+      assert_equal :processed, retry_result.status
+      assert_equal 1, Expense.where(gmail_message_id: "msg-100", description: "Restaurante XYZ").count
+    end
+
+    # --- source recognition ---------------------------------------------------
 
     def recognized_message
       @message.merge(

@@ -31,6 +31,20 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid]", count: 0
   end
 
+  # Payments apply to every credit: credit cards AND all loan subtypes.
+  test "GET /money_sources shows a payments button on every debt source card" do
+    create_source(name: "Checking", kind: "account")
+    create_source(name: "Cash", kind: "cash", starting_balance: 500000)
+    create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
+    create_source(name: "Car Loan", kind: "loan", sub_kind: "vehicle", starting_balance: -2000000)
+    create_source(name: "Mortgage", kind: "loan", sub_kind: "mortgage", starting_balance: -50000000)
+
+    get money_sources_path
+    assert_response :success
+    # Only the 3 debt sources (credit card + both loans) carry the button.
+    assert_select "a[title='#{I18n.t('payments.index_button')}']", count: 3
+  end
+
   test "GET /money_sources/cash filters to cash and accounts only" do
     create_source(name: "Checking", kind: "account")
     create_source(name: "Cash", kind: "cash", starting_balance: 500000)
