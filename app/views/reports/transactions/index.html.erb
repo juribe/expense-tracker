@@ -1,0 +1,39 @@
+<%= render "reports/page_header", path: reports_transactions_path %>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><%= t("reports.transactions.title", default: "Gastos del periodo") %></h5>
+    <span class="text-muted small"><%= t("reports.overview.number_of_expenses") %>: <strong><%= @transactions.total_entries %></strong></span>
+  </div>
+  <div class="card-body">
+    <% if @transactions.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col"><%= t("common.date") %></th>
+              <th scope="col"><%= t("common.description") %></th>
+              <th scope="col"><%= t("common.category") %></th>
+              <th scope="col"><%= t("money_sources.title", default: "Fuente") %></th>
+              <th scope="col" class="text-end"><%= t("common.amount") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @transactions.each do |transaction| %>
+              <tr>
+                <td><%= l(transaction.date, format: :short) %></td>
+                <td><%= transaction.description.presence || "—" %></td>
+                <td><%= transaction.category ? category_badge(transaction.category) : "—" %></td>
+                <td><%= transaction.money_source&.name || "—" %></td>
+                <td class="text-end fw-bold text-danger"><%= money_amount(transaction.amount.abs) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= will_paginate @transactions %>
+    <% else %>
+      <p class="text-muted mb-0"><%= t("reports.categories.empty") %></p>
+    <% end %>
+  </div>
+</div>

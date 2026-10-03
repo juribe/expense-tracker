@@ -184,18 +184,12 @@ module ApplicationHelper
     t("kinds_sub.#{sub_kind}", default: sub_kind.titleize)
   end
 
-  # Best-effort next payment date for a loan card. Prefers a scheduled
-  # recurring template (payment day); otherwise derives a date from the loan's
-  # start date and payment frequency. Returns nil when it cannot be known, so
-  # the view shows "Sin fecha" rather than a fabricated value.
+  # Best-effort next payment date for a loan card, delegated to
+  # Loans::NextPayment (recurring template first, then start-date derivation).
   def next_payment_date(loan)
     return nil unless loan.is_a?(MoneySource) && loan.loan?
 
-    if (rt = loan.recurring_templates.active.order(:payment_day).first) && rt.payment_day
-      return next_day_of_month(rt.payment_day)
-    end
-
-    derive_loan_payment_date(loan)
+    Loans::NextPayment.call(loan)
   end
 
   # Aggregates used by the loans dashboard summary card.
@@ -305,31 +299,4 @@ module ApplicationHelper
   end
 
   # --- private helpers for the loans dashboard ---
-
-  def next_day_of_month(day)
-    today = Date.current
-    candidate = Date.new(today.year, today.month, day.to_i)
-    candidate = candidate.next_month if candidate < today
-    candidate
-  rescue ArgumentError, TypeError
-    nil
-  end
-
-  PERIOD_ADVANCE = { "weekly" => 7, "biweekly" => 14, "monthly" => 1.month, "quarterly" => 3.months }.freeze
-
-  def derive_loan_payment_date(loan)
-    return nil if loan.start_date.blank? || loan.payment_frequency.blank?
-
-    period = PERIOD_ADVANCE[loan.payment_frequency]
-    return nil if period.nil?
-
-    paid = loan.credit_account&.installments_paid.to_i
-    current = advance_period(loan.start_date, period, paid)
-    current = current + period if current < Date.current
-    current
-  end
-
-  def advance_period(date, period, count)
-    date + (period * count)
-  end
 end

@@ -490,4 +490,76 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "confirmed", mine.reload.status
     assert_equal "ready", other_candidate.reload.status
   end
+
+  # --- BULK DISCARD ---
+
+  test "POST /expense_candidates/bulk_discard marks selected candidates as discarded" do
+    a = create_candidate(status: "needs_review")
+    b = create_candidate(status: "ready")
+
+    assert_no_difference -> { Expense.count } do
+      post bulk_discard_expense_candidates_path, params: {
+        candidate_ids: [a.id, b.id]
+      }
+    end
+    assert_redirected_to expense_candidates_path
+
+    assert_equal "discarded", a.reload.status
+    assert_equal "discarded", b.reload.status
+    assert_not_nil a.reload.discarded_at
+    follow_redirect!
+    assert_equal I18n.t("expense_candidates.bulk_discarded", count: 2, default: "2 candidatos descartados."), flash[:notice]
+  end
+
+  test "POST /expense_candidates/bulk_discard accepts comma-separated ids" do
+    a = create_candidate(status: "needs_review")
+    b = create_candidate(status: "ready")
+
+    post bulk_discard_expense_candidates_path, params: {
+      candidate_ids: "#{a.id},#{b.id}"
+    }
+
+    assert_equal "discarded", a.reload.status
+    assert_equal "discarded", b.reload.status
+  end
+
+  test "POST /expense_candidates/bulk_discard rejects empty candidate ids" do
+    post bulk_discard_expense_candidates_path, params: {
+      candidate_ids: []
+    }
+    assert_redirected_to expense_candidates_path
+    follow_redirect!
+    assert_equal I18n.t("expense_candidates.no_selection", default: "No hay candidatos seleccionados."), flash[:alert]
+  end
+
+  test "POST /expense_candidates/bulk_discard ignores candidates not owned by the current user" do
+    other_user = User.create!(name: "Other", email: "bulk_dis_#{SecureRandom.hex(4)}@example.com", password: "password123")
+    other_candidate = ExpenseCandidate.create!(user: other_user, amount: 100, date: Date.current, source: "text", status: "needs_review")
+    mine = create_candidate(status: "needs_review")
+
+    post bulk_discard_expense_candidates_path, params: {
+      candidate_ids: [mine.id, other_candidate.id]
+    }
+    assert_redirected_to expense_candidates_path
+
+    assert_equal "discarded", mine.reload.status
+    assert_equal "needs_review", other_candidate.reload.status
+  end
+
+  test "POST /expense_candidates/bulk_discard keeps already confirmed candidates confirmed" do
+    candidate = create_candidate(
+      category_id: @category.id, money_source_id: @money_source.id,
+      amount: 50_000, date: Date.current, description: "Already",
+      status: "ready"
+    )
+    candidate.confirm!
+    other = create_candidate(status: "needs_review")
+
+    post bulk_discard_expense_candidates_path, params: {
+      candidate_ids: [candidate.id, other.id]
+    }
+
+    assert_equal "confirmed", candidate.reload.status
+    assert_equal "discarded", other.reload.status
+  end
 end

@@ -81,6 +81,8 @@
       </div>
     <% end %>
 
+    <%= javascript_include_tag "Chart.bundle", defer: true %>
+    <%= javascript_include_tag "chartkick", defer: true %>
     <%= javascript_include_tag "application", defer: true %>
     <%= javascript_include_tag "payments", defer: true %>
     <%= javascript_include_tag "actioncable", defer: true %>

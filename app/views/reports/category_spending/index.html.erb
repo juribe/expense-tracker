@@ -1,0 +1,56 @@
+<%= render "reports/page_header", path: reports_by_category_path %>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><%= t("reports.categories.title") %></h5>
+  </div>
+  <div class="card-body">
+    <% if @category_spending[:categories].any? %>
+      <div class="row g-4">
+        <div class="col-12 col-lg-5">
+          <%= pie_chart @category_spending[:categories].map { |c| [ c[:name], c[:total] ] },
+                height: "320px", legend: "bottom", colors: category_colors(@category_spending[:categories]) %>
+        </div>
+        <div class="col-12 col-lg-7">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col"><%= t("common.category") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.categories.total") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.categories.share") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.categories.count") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.categories.change") %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @category_spending[:categories].each do |category| %>
+                  <tr>
+                    <td>
+                      <%= link_to reports_transactions_path(filter_params_for(category_id: category[:id])), class: "text-decoration-none" do %>
+                        <%= category[:name] %>
+                      <% end %>
+                    </td>
+                    <td class="text-end fw-bold text-danger"><%= money_amount(category[:total]) %></td>
+                    <td class="text-end"><%= number_to_percentage(category[:share_pct], precision: 1) if category[:share_pct] %></td>
+                    <td class="text-end"><%= category[:count] %></td>
+                    <td class="text-end"><%= delta_badge(category[:delta_pct]) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+              <tfoot>
+                <tr class="table-light fw-bold">
+                  <td><%= t("reports.categories.total") %></td>
+                  <td class="text-end"><%= money_amount(@category_spending[:total]) %></td>
+                  <td colspan="3"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <p class="text-muted mb-0"><%= t("reports.categories.empty") %></p>
+    <% end %>
+  </div>
+</div>

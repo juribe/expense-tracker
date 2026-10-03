@@ -1,0 +1,93 @@
+<%= render "reports/page_header", path: reports_recurring_path %>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-semibold mb-1"><%= t("reports.recurring.monthly_committed") %></div>
+        <div class="summary-value text-danger" data-testid="recurring-monthly"><%= money_amount(@recurring[:monthly_committed]) %></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-semibold mb-1"><%= t("reports.recurring.annual_committed") %></div>
+        <div class="summary-value text-warning" data-testid="recurring-annual"><%= money_amount(@recurring[:annual_committed]) %></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white">
+        <h5 class="mb-0"><%= t("reports.recurring.title") %></h5>
+      </div>
+      <div class="card-body">
+        <% if @recurring[:items].any? %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col"><%= t("common.description") %></th>
+                  <th scope="col" class="text-end"><%= t("common.amount") %></th>
+                  <th scope="col"><%= t("reports.recurring.monthly_equivalent") %></th>
+                  <th scope="col"><%= t("reports.recurring.next_due") %></th>
+                  <th scope="col"><%= t("common.category") %></th>
+                  <th scope="col"><%= t("common.status", default: "Estado") %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @recurring[:items].each do |item| %>
+                  <tr>
+                    <td class="fw-semibold"><%= item[:description].presence || "—" %></td>
+                    <td class="text-end fw-bold <%= item[:kind] == :income ? 'text-success' : 'text-danger' %>"><%= money_amount(item[:amount]) %></td>
+                    <td><%= money_amount(item[:monthly_equivalent]) %></td>
+                    <td><%= item[:payment_day] ? l(next_due_date_label(item[:payment_day]), format: :short) : "—" %></td>
+                    <td><%= item[:category_name] %></td>
+                    <td>
+                      <% if item[:active] %>
+                        <span class="badge bg-success"><%= t("reports.recurring.active") %></span>
+                      <% else %>
+                        <span class="badge bg-secondary"><%= t("reports.recurring.inactive") %></span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+              <tfoot>
+                <tr class="table-light fw-bold">
+                  <td><%= t("reports.recurring.monthly_committed") %></td>
+                  <td colspan="5" class="text-end"><%= money_amount(@recurring[:monthly_committed]) %></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        <% else %>
+          <p class="text-muted mb-0"><%= t("reports.recurring.empty") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white">
+        <h5 class="mb-0"><%= t("reports.recurring.upcoming") %></h5>
+      </div>
+      <div class="card-body">
+        <% if @recurring[:upcoming].any? %>
+          <% @recurring[:upcoming].each do |item| %>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small"><%= item[:description].presence || "—" %></span>
+              <span class="fw-bold text-danger"><%= money_amount(item[:amount]) %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted mb-0"><%= t("reports.recurring.empty") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

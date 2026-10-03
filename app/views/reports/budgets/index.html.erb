@@ -1,0 +1,65 @@
+<%= render "reports/page_header", path: reports_budgets_path %>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><%= t("reports.budgets.title") %></h5>
+  </div>
+  <div class="card-body">
+    <% if @budgets[:rows].any? || @budgets[:unbudgeted] %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col"><%= t("common.category") %></th>
+              <th scope="col" class="text-end"><%= t("reports.budgets.budget") %></th>
+              <th scope="col" class="text-end"><%= t("reports.budgets.actual") %></th>
+              <th scope="col" class="text-end"><%= t("reports.budgets.remaining") %></th>
+              <th scope="col" class="text-end"><%= t("reports.budgets.usage") %></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @budgets[:rows].each do |row| %>
+              <tr>
+                <td class="fw-semibold"><%= row[:category_name] %></td>
+                <td class="text-end"><%= money_amount(row[:budget]) %></td>
+                <td class="text-end fw-bold <%= row[:remaining].negative? ? 'text-danger' : 'text-danger' %>"><%= money_amount(row[:actual]) %></td>
+                <td class="text-end <%= row[:remaining].negative? ? 'text-danger' : 'text-success' %>"><%= money_amount(row[:remaining]) %></td>
+                <td class="text-end"><%= number_to_percentage(row[:pct_used], precision: 1) %></td>
+                <td style="min-width: 140px;"><%= usage_progress(row[:pct_used]) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr class="table-light fw-bold">
+              <td><%= t("reports.categories.total") %></td>
+              <td class="text-end"><%= money_amount(@budgets[:total_budget]) %></td>
+              <td class="text-end"><%= money_amount(@budgets[:total_actual]) %></td>
+              <td class="text-end"><%= money_amount(@budgets[:total_remaining]) %></td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <% if @budgets[:unbudgeted] %>
+        <hr>
+        <h6 class="text-muted"><%= t("reports.budgets.unbudgeted") %></h6>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <tbody>
+              <% @budgets[:unbudgeted][:categories].each do |category| %>
+                <tr>
+                  <td><%= category[:name] %></td>
+                  <td class="text-end fw-bold text-danger"><%= money_amount(category[:actual]) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted mb-0"><%= t("reports.budgets.empty") %></p>
+    <% end %>
+  </div>
+</div>

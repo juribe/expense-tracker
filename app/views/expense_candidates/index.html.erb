@@ -31,8 +31,11 @@
   <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
     <i class="bi bi-wallet2 me-1"></i><%= t("expense_candidates.change_source", default: "Cambiar Fuente de Dinero") %>
   </button>
-  <button type="button" class="btn btn-sm btn-success ms-auto" id="bulkConfirm" data-testid="bulk-confirm" disabled>
+  <button type="button" class="btn btn-sm btn-success" id="bulkConfirm" data-testid="bulk-confirm" disabled>
     <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
+  </button>
+  <button type="button" class="btn btn-sm btn-outline-danger ms-auto" id="bulkDiscard" data-testid="bulk-discard" disabled>
+    <i class="bi bi-x-circle me-1"></i><%= t("expense_candidates.discard_selected", default: "Descartar Seleccionados") %>
   </button>
 </div>
 
@@ -186,7 +189,7 @@
       var bar = $("#bulkBar");
       if (bar) bar.style.display = has ? "flex" : "none";
       if ($("#bulkCount")) $("#bulkCount").textContent = n + " <%= t('expense_candidates.selected', default: 'seleccionados') %>";
-      ["bulkCategory", "bulkSource", "bulkConfirm"].forEach(function(id) {
+      ["bulkCategory", "bulkSource", "bulkConfirm", "bulkDiscard"].forEach(function(id) {
         var el = $("#" + id);
         if (el) el.disabled = !has;
       });
@@ -220,6 +223,33 @@
       }
     });
 
+    function bulkDiscardSelected() {
+      var ids = selectedIds();
+      if (!ids.length) return;
+      var n = ids.length;
+      var word = n === 1 ? "candidato" : "candidatos";
+      var message = n + " " + word + " <%= t('expense_candidates.will_be_discarded', default: 'serán descartados.') %> <%= t('expense_candidates.discard_undo_hint', default: 'Podrás verlos en la pestaña Descartados.') %>";
+      if (!window.confirm(message)) return;
+      var form = document.createElement("form");
+      form.method = "post";
+      form.action = "<%= bulk_discard_expense_candidates_path %>";
+      var csrf = document.querySelector('meta[name="csrf-token"]');
+      if (csrf) {
+        var csrfInput = document.createElement("input");
+        csrfInput.type = "hidden";
+        csrfInput.name = "authenticity_token";
+        csrfInput.value = csrf.content;
+        form.appendChild(csrfInput);
+      }
+      var idsInput = document.createElement("input");
+      idsInput.type = "hidden";
+      idsInput.name = "candidate_ids";
+      idsInput.value = ids.join(",");
+      form.appendChild(idsInput);
+      document.body.appendChild(form);
+      form.submit();
+    }
+
     document.addEventListener("click", function(e) {
       if (e.target.id === "bulkConfirm" || e.target.closest("#bulkConfirm")) {
         openBulkConfirmModal();
@@ -227,6 +257,8 @@
         openBulkConfirmModal("bulkCategorySelect");
       } else if (e.target.id === "bulkSource" || e.target.closest("#bulkSource")) {
         openBulkConfirmModal("bulkSourceSelect");
+      } else if (e.target.id === "bulkDiscard" || e.target.closest("#bulkDiscard")) {
+        bulkDiscardSelected();
       }
     });
 

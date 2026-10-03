@@ -1,0 +1,50 @@
+<%= render "reports/page_header", path: reports_transfers_path %>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><%= t("reports.transfers.title") %></h5>
+    <span class="text-muted small"><%= t("reports.transfers.count") %>: <strong><%= @transfers[:count] %></strong></span>
+  </div>
+  <div class="card-body">
+    <% if @transfers[:routes].any? %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col"><%= t("money_sources.title", default: "Ruta") %></th>
+              <th scope="col" class="text-end"><%= t("reports.categories.total") %></th>
+              <th scope="col" class="text-end"><%= t("reports.transfers.count") %></th>
+              <th scope="col"><%= t("common.status", default: "Tipo") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @transfers[:routes].each do |route| %>
+              <tr>
+                <td>
+                  <span class="fw-semibold"><%= route[:from_name] %></span>
+                  <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                  <span class="fw-semibold"><%= route[:to_name] %></span>
+                </td>
+                <td class="text-end fw-bold"><%= money_amount(route[:total]) %></td>
+                <td class="text-end"><%= route[:count] %></td>
+                <td>
+                  <% badge_class = { internal: "bg-secondary", debt_payment: "bg-warning text-dark", disbursement: "bg-info text-dark" }[route[:movement]] %>
+                  <span class="badge <%= badge_class %>"><%= t("reports.transfers.movement_#{route[:movement]}") %></span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot>
+            <tr class="table-light fw-bold">
+              <td><%= t("reports.categories.total") %></td>
+              <td class="text-end"><%= money_amount(@transfers[:total]) %></td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-muted mb-0"><%= t("reports.transfers.empty") %></p>
+    <% end %>
+  </div>
+</div>

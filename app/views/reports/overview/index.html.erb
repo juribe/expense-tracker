@@ -1,0 +1,123 @@
+<%= render "reports/page_header", path: reports_overview_path %>
+
+<div class="row g-3 mb-4" data-testid="overview-cards">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.income") %></div>
+        <div class="summary-value text-success" data-testid="income-total"><%= money_amount(@overview[:income][:total]) %></div>
+        <%= delta_badge(@overview[:income][:delta_pct], good_when_positive: true) %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.expenses") %></div>
+        <div class="summary-value text-danger" data-testid="expenses-total"><%= money_amount(@overview[:expenses][:total]) %></div>
+        <%= delta_badge(@overview[:expenses][:delta_pct]) %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.debt_payments") %></div>
+        <div class="summary-value text-warning" data-testid="debt-total"><%= money_amount(@overview[:debt][:total]) %></div>
+        <%= delta_badge(@overview[:debt][:delta_pct]) %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.net_cash_flow") %></div>
+        <div class="summary-value <%= @overview[:net_cash_flow] >= 0 ? 'text-success' : 'text-danger' %>" data-testid="net-cash-flow">
+          <%= money_amount(@overview[:net_cash_flow]) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><%= t("reports.nav.by_category") %></h5>
+        <%= link_to reports_by_category_path(params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id", "money_source_id", "credit_card_id", "loan_id", "kind").compact_blank), class: "btn btn-sm btn-outline-primary" do %>
+          <%= t("common.view_all", default: "Ver todo") %> <i class="bi bi-arrow-right ms-1"></i>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @category_preview.any? %>
+          <% @category_preview.each do |category| %>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small"><%= category[:name] %></span>
+              <span class="fw-bold text-danger"><%= money_amount(category[:total]) %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted mb-0"><%= t("reports.categories.empty") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><%= t("reports.insights.title") %></h5>
+        <%= link_to reports_insights_path, class: "btn btn-sm btn-outline-primary" do %>
+          <%= t("common.view_all", default: "Ver todo") %> <i class="bi bi-arrow-right ms-1"></i>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @insights.any? %>
+          <% @insights.each do |insight| %>
+            <div class="mb-2">
+              <i class="bi bi-lightning-charge text-warning me-1"></i>
+              <span class="small"><%= insight[:message] %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted mb-0"><%= t("reports.insights.empty") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <span><%= t("reports.overview.total_transfers") %></span>
+        <span class="fw-bold"><%= money_amount(@overview[:transfers][:total]) %></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <span><%= t("reports.overview.number_of_expenses") %></span>
+        <span class="fw-bold"><%= number_with_delimiter(@overview[:expenses][:count]) %></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <span><%= t("reports.overview.average_expense") %></span>
+        <span class="fw-bold"><%= money_amount(@overview[:expenses][:average]) %></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <span><%= t("reports.loans.total_debt") %></span>
+        <span class="fw-bold text-warning"><%= money_amount(loan_summary(current_user.money_sources.active.where(kind: "loan").includes(:credit_account))[:total_balance]) %></span>
+      </div>
+    </div>
+  </div>
+</div>

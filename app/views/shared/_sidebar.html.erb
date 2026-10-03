@@ -67,6 +67,10 @@
 
     <div class="sidebar-section">
       <div class="sidebar-section-title"><%= t("nav.reports") %></div>
+      <%= link_to reports_overview_path, class: "sidebar-link #{active_class('reports')}" do %>
+        <i class="bi bi-bar-chart"></i>
+        <span><%= t("reports.title") %></span>
+      <% end %>
       <%= link_to monthly_reports_path, class: "sidebar-link #{active_class('monthly_reports')}" do %>
         <i class="bi bi-graph-up"></i>
         <span><%= t("nav.reports_title") %></span>

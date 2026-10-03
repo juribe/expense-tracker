@@ -1,0 +1,26 @@
+<%# Period selector: preset dropdown + custom range fields.
+    GET form so the period is shareable across reports via URL params.
+    locals: path %>
+<%= form_with url: path, method: :get, local: true, data: { turbo_frame: "_top" } do |f| %>
+  <% %w[category_id money_source_id credit_card_id loan_id kind].each do |key| %>
+    <%= hidden_field_tag key, params[key] if params[key].present? %>
+  <% end %>
+
+  <div class="input-group">
+    <%= select_tag :period,
+          options_for_select(period_presets, params[:period] || "this_month"),
+          class: "form-select", id: "report-period-select" %>
+    <%= f.submit t("common.apply", default: "Aplicar"), class: "btn btn-outline-primary" %>
+  </div>
+
+  <% if params[:period] == "custom" %>
+    <div class="row g-2 mt-2">
+      <div class="col-5 col-sm-6">
+        <%= date_field_tag :start_date, params[:start_date], class: "form-control" %>
+      </div>
+      <div class="col-5 col-sm-6">
+        <%= date_field_tag :end_date, params[:end_date], class: "form-control" %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

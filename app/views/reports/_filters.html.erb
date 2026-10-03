@@ -1,0 +1,52 @@
+<%# Composable filters: category, account/money source, credit card, loan, kind.
+    All GET params, composable with the period.
+    locals: path %>
+<%= form_with url: path, method: :get, local: true do %>
+  <%= hidden_field_tag :period, params[:period] || "this_month" %>
+  <% if params[:period] == "custom" %>
+    <%= hidden_field_tag :start_date, params[:start_date] %>
+    <%= hidden_field_tag :end_date, params[:end_date] %>
+  <% end %>
+
+  <div class="row g-2">
+    <div class="col-6 col-md-4 col-xl-2">
+      <%= label_tag :category_id, t("common.category"), class: "form-label small text-muted mb-1" %>
+      <%= select_tag :category_id,
+            options_for_select(category_options, params[:category_id]),
+            include_blank: t("common.all", default: "Todas"),
+            class: "form-select form-select-sm" %>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <%= label_tag :money_source_id, t("money_sources.title", default: "Fuentes"), class: "form-label small text-muted mb-1" %>
+      <%= select_tag :money_source_id,
+            options_for_select(money_source_options, params[:money_source_id]),
+            include_blank: t("common.all", default: "Todas"),
+            class: "form-select form-select-sm" %>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <%= label_tag :credit_card_id, t("reports.credit_cards.title"), class: "form-label small text-muted mb-1" %>
+      <%= select_tag :credit_card_id,
+            options_for_select(credit_card_options, params[:credit_card_id]),
+            include_blank: t("common.all", default: "Todas"),
+            class: "form-select form-select-sm" %>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <%= label_tag :loan_id, t("reports.loans.title"), class: "form-label small text-muted mb-1" %>
+      <%= select_tag :loan_id,
+            options_for_select(loan_options, params[:loan_id]),
+            include_blank: t("common.all", default: "Todos"),
+            class: "form-select form-select-sm" %>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+      <%= label_tag :kind, t("reports.nav.overview"), class: "form-label small text-muted mb-1" %>
+      <%= select_tag :kind,
+            options_for_select(kind_options, params[:kind]),
+            include_blank: t("common.all", default: "Todos"),
+            class: "form-select form-select-sm" %>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2 d-flex align-items-end gap-2">
+      <%= submit_tag t("common.filter", default: "Filtrar"), class: "btn btn-sm btn-primary" %>
+      <%= link_to t("common.clear", default: "Limpiar"), path, class: "btn btn-sm btn-outline-secondary" %>
+    </div>
+  </div>
+<% end %>

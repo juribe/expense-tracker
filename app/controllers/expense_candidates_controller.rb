@@ -129,6 +129,21 @@ class ExpenseCandidatesController < ApplicationController
     end
   end
 
+  # POST /expense_candidates/bulk_discard
+  # Marks the selected reviewable candidates as discarded.
+  def bulk_discard
+    result = ExpenseCandidates::BulkDiscard.call(user: current_user, ids: params[:candidate_ids])
+
+    if result.success?
+      redirect_to expense_candidates_path,
+                  notice: t("expense_candidates.bulk_discarded", count: result.discarded_count,
+                            default: "#{result.discarded_count} candidatos descartados.")
+    else
+      redirect_to expense_candidates_path,
+                  alert: t("expense_candidates.no_selection", default: "No hay candidatos seleccionados.")
+    end
+  end
+
   private
 
   def set_candidate

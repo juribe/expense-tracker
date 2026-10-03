@@ -12,6 +12,8 @@
 class Payment < ApplicationRecord
   COMPONENTS = %i[principal_amount interest_amount insurance_amount other_amount].freeze
 
+  scope :for_user, ->(user) { where(user_id: user.id) }
+
   belongs_to :user
   belongs_to :expense, class_name: "Transaction"
   belongs_to :money_source

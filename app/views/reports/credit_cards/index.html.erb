@@ -1,0 +1,70 @@
+<%= render "reports/page_header", path: reports_credit_cards_path %>
+
+<% if @credit_cards[:cards].any? %>
+  <div class="row g-3">
+    <% @credit_cards[:cards].each do |card| %>
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-credit-card-2-front me-2"></i><%= card[:display_name] %></h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-2 mb-3">
+              <div class="col-4">
+                <div class="text-muted small"><%= t("reports.credit_cards.limit") %></div>
+                <div class="fw-bold"><%= money_amount(card[:limit]) %></div>
+              </div>
+              <div class="col-4">
+                <div class="text-muted small"><%= t("reports.credit_cards.used") %></div>
+                <div class="fw-bold text-danger"><%= money_amount(card[:used]) %></div>
+              </div>
+              <div class="col-4">
+                <div class="text-muted small"><%= t("reports.credit_cards.available") %></div>
+                <div class="fw-bold text-success"><%= money_amount(card[:available]) %></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted"><%= t("reports.credit_cards.utilization") %></span>
+                <span class="small fw-bold"><%= number_to_percentage(card[:utilization_pct], precision: 1) if card[:utilization_pct] %></span>
+              </div>
+              <%= usage_progress(card[:utilization_pct] || 0) %>
+            </div>
+
+            <table class="table table-sm align-middle mb-0">
+              <tbody>
+                <tr>
+                  <td><%= t("reports.credit_cards.purchases") %></td>
+                  <td class="text-end fw-bold text-danger"><%= money_amount(card[:purchases]) %></td>
+                </tr>
+                <tr>
+                  <td><%= t("reports.credit_cards.payments") %></td>
+                  <td class="text-end fw-bold text-success"><%= money_amount(card[:payments]) %></td>
+                </tr>
+                <tr>
+                  <td><%= t("reports.credit_cards.interest") %></td>
+                  <td class="text-end fw-bold text-warning"><%= money_amount(card[:interest]) %></td>
+                </tr>
+                <tr>
+                  <td><%= t("reports.credit_cards.fees") %></td>
+                  <td class="text-end fw-bold text-warning"><%= money_amount(card[:fees]) %></td>
+                </tr>
+                <tr>
+                  <td class="text-muted"><%= t("reports.credit_cards.closing") %></td>
+                  <td class="text-end fw-bold"><%= money_amount(card[:closing]) %></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <p class="text-muted mb-0"><%= t("reports.credit_cards.empty") %></p>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,67 @@
+<%= render "reports/page_header", path: reports_loans_path %>
+
+<div class="card shadow-sm mb-4" data-testid="debt-consolidated">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><%= t("reports.loans.title") %></h5>
+  </div>
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-6 col-lg-3">
+        <div class="text-muted small"><%= t("reports.loans.total_debt") %></div>
+        <div class="summary-value text-warning"><%= money_amount(@loans[:total_debt]) %></div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="text-muted small"><%= t("reports.loans.principal_paid") %></div>
+        <div class="fw-bold text-success"><%= money_amount(@loans[:principal_paid]) %></div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="text-muted small"><%= t("reports.loans.interest_paid") %></div>
+        <div class="fw-bold text-danger"><%= money_amount(@loans[:interest_paid]) %></div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="text-muted small"><%= t("reports.loans.total_paid") %></div>
+        <div class="fw-bold"><%= money_amount(@loans[:total_paid]) %></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if @loans[:rows].any? %>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th scope="col"><%= t("common.description", default: "Préstamo") %></th>
+          <th scope="col" class="text-end"><%= t("reports.loans.balance") %></th>
+          <th scope="col" class="text-end"><%= t("reports.loans.installment") %></th>
+          <th scope="col" class="text-end"><%= t("reports.loans.principal_paid") %></th>
+          <th scope="col" class="text-end"><%= t("reports.loans.interest_paid") %></th>
+          <th scope="col" class="text-end"><%= t("reports.loans.total_paid") %></th>
+          <th scope="col"><%= t("reports.loans.next_payment") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @loans[:rows].each do |row| %>
+          <tr>
+            <td>
+              <span class="fw-semibold"><%= row[:name] %></span>
+              <% if row[:interest_rate_label] %><br><small class="text-muted"><%= row[:interest_rate_label] %></small><% end %>
+            </td>
+            <td class="text-end fw-bold text-warning"><%= money_amount(row[:balance]) %></td>
+            <td class="text-end"><%= money_amount(row[:installment_amount]) %></td>
+            <td class="text-end text-success"><%= money_amount(row[:principal_paid]) %></td>
+            <td class="text-end text-danger"><%= money_amount(row[:interest_paid]) %></td>
+            <td class="text-end fw-bold"><%= money_amount(row[:paid]) %></td>
+            <td><%= row[:next_payment_date] ? l(row[:next_payment_date], format: :short) : t("reports.loans.no_date") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <p class="text-muted mb-0"><%= t("reports.loans.empty") %></p>
+    </div>
+  </div>
+<% end %>

@@ -45,6 +45,7 @@ Rails.application.routes.draw do
     collection do
       patch :bulk_update
       post :bulk_confirm
+      post :bulk_discard
     end
   end
   resources :incomes
@@ -95,6 +96,21 @@ Rails.application.routes.draw do
     end
   end
   resources :monthly_reports, only: [:index, :show]
+
+  # Financial reports (overview, spending, debt, recurring, accounts, insights)
+  scope :reports, as: :reports do
+    get "/", to: "reports/overview#index", as: :overview
+    get "/by_category", to: "reports/category_spending#index", as: :by_category
+    get "/trends", to: "reports/spending_trend#index", as: :trends
+    get "/budgets", to: "reports/budgets#index", as: :budgets
+    get "/credit_cards", to: "reports/credit_cards#index", as: :credit_cards
+    get "/loans", to: "reports/loans#index", as: :loans
+    get "/recurring", to: "reports/recurring#index", as: :recurring
+    get "/money_sources", to: "reports/money_sources#index", as: :money_sources
+    get "/transfers", to: "reports/transfers#index", as: :transfers
+    get "/insights", to: "reports/insights#index", as: :insights
+    get "/transactions", to: "reports/transactions#index", as: :transactions
+  end
 
   resources :imports, only: [:new, :create]
 

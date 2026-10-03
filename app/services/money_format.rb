@@ -10,6 +10,14 @@
 #
 # Example: MoneyFormat.normalize("1.234.567,89") # => "1234567.89"
 class MoneyFormat
+  def self.currency(value)
+    ActionController::Base.helpers.number_to_currency(value.to_d, precision: 0)
+  end
+
+  def self.number(value)
+    ActionController::Base.helpers.number_with_delimiter(value.to_i, delimiter: ".")
+  end
+
   def self.normalize(value)
     return value if value.blank?
 
