@@ -1,0 +1,219 @@
+<div class="container mt-4">
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <% summary = @review.summary %>
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-receipt me-2"></i><%= t("statement_imports.summary_title") %></h5>
+        </div>
+        <div class="card-body">
+          <% if @review.source %>
+            <div class="mb-3">
+              <span class="badge bg-light text-dark">
+                <i class="bi bi-<%= source_kind_icon(@review.source.kind) %> me-1"></i>
+                <%= @review.source.display_name %>
+                <% if @review.source.bank %>&nbsp;·&nbsp;<%= @review.source.bank %><% end %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if summary %>
+            <table class="table table-sm mb-3">
+              <tbody>
+                <% if summary.total_due %>
+                  <tr>
+                    <td><%= t("statement_imports.total_due") %></td>
+                    <td class="text-end fw-bold text-danger"><%= number_to_currency(summary.total_due) %></td>
+                  </tr>
+                <% end %>
+                <% if summary.min_payment %>
+                  <tr>
+                    <td><%= t("statement_imports.min_payment") %></td>
+                    <td class="text-end"><%= number_to_currency(summary.min_payment) %></td>
+                  </tr>
+                <% end %>
+                <% if summary.interest_charged %>
+                  <tr>
+                    <td><%= t("statement_imports.interest_charged") %></td>
+                    <td class="text-end"><%= number_to_currency(summary.interest_charged) %></td>
+                  </tr>
+                <% end %>
+                <% if summary.due_date %>
+                  <tr>
+                    <td><%= t("statement_imports.due_date") %></td>
+                    <td class="text-end"><%= l(summary.due_date, format: :long) %></td>
+                  </tr>
+                <% end %>
+                <% if summary.statement_date %>
+                  <tr>
+                    <td><%= t("statement_imports.statement_date") %></td>
+                    <td class="text-end"><%= l(summary.statement_date, format: :long) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% end %>
+
+          <span class="badge <%= @review.candidates.any? ? "bg-primary" : "bg-secondary" %>">
+            <%= t("statement_imports.engine_ai") %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <%= form_with url: confirm_money_source_statement_imports_path(@money_source),
+                    local: true,
+                    data: { payment_distribution_form: true } do %>
+        <div class="card shadow">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="bi bi-list-check me-2"></i><%= t("statement_imports.movements_title", count: @review.candidates.length) %>
+            </h5>
+            <p class="text-muted small"><%= t("payments.form.hint", target: @money_source.name) %></p>
+
+            <% if @review.candidates.any? || @review.credits.any? %>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="text-center"><%= t("statement_imports.column_create") %></th>
+                      <th scope="col"><%= t("statement_imports.column_date") %></th>
+                      <th scope="col"><%= t("statement_imports.column_description") %></th>
+                      <th scope="col" class="text-end"><%= t("statement_imports.column_amount") %></th>
+                      <th scope="col"><%= t("statement_imports.column_status") %></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @review.candidates.each_with_index do |candidate, index| %>
+                      <% fields = "movements[#{index}]" %>
+                      <tr>
+                        <td class="text-center">
+                          <%= check_box_tag("#{fields}[selected]", "1", !candidate.duplicate,
+                                            aria_label: t("statement_imports.column_create")) %>
+                          <%= hidden_field_tag("#{fields}[description]", candidate.description) %>
+                          <%= hidden_field_tag("#{fields}[amount]", candidate.amount) %>
+                          <%= hidden_field_tag("#{fields}[date]", candidate.date) %>
+                          <%= hidden_field_tag("#{fields}[category_id]", candidate.category_id) %>
+                          <%= hidden_field_tag("#{fields}[category_name]", candidate.category_name) %>
+                        </td>
+                        <td><%= candidate.date.present? ? l(candidate.date, format: :short) : "—" %></td>
+                        <td><%= candidate.description %></td>
+                        <td class="text-end fw-bold"><%= number_to_currency(candidate.amount.to_d.abs) %></td>
+                        <td>
+                          <% if candidate.duplicate %>
+                            <span class="badge bg-warning text-dark"><%= t("statement_imports.status_duplicate") %></span>
+                          <% else %>
+                            <span class="badge bg-success"><%= t("statement_imports.status_new") %></span>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                    <% @review.credits.each do |movement| %>
+                      <tr class="table-light">
+                        <td class="text-center text-muted"><i class="bi bi-slash-circle"></i></td>
+                        <td><%= movement[:date].present? ? l(movement[:date], format: :short) : "—" %></td>
+                        <td><%= movement[:description] %></td>
+                        <td class="text-end text-success fw-bold"><%= number_to_currency(movement[:amount].to_d.abs) %></td>
+                        <td><span class="badge bg-light text-dark"><%= t("statement_imports.status_credit") %></span></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <div class="alert alert-info mb-0"><%= t("statement_imports.empty_movements") %></div>
+            <% end %>
+          </div>
+        </div>
+
+        <% suggestion = @review.payment_suggestion %>
+        <% if suggestion %>
+          <div class="card shadow mt-4">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-cash-coin me-2"></i><%= t("statement_imports.payment_title") %></h5>
+              <p class="text-muted small"><%= t("statement_imports.payment_hint") %></p>
+              <%= hidden_field_tag "payment[amount]", suggestion[:amount].to_s,
+                    id: "payment_amount", data: { payment_amount: true } %>
+
+              <div class="row">
+                <div class="col-12 mb-3">
+                  <div class="form-check">
+                    <%= check_box_tag "payment[register]", "1", true, id: "register_payment",
+                          class: "form-check-input" %>
+                    <label for="register_payment" class="form-check-label">
+                      <%= t("statement_imports.payment_register_label") %>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
+                  <%= label_tag "payment_description", t("statement_imports.payment_description_label"), class: "form-label" %>
+                  <%= text_field_tag "payment[description]", suggestion[:description], class: "form-control",
+                        id: "payment_description" %>
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
+                  <%= label_tag "payment_date", t("statement_imports.payment_date_label"), class: "form-label" %>
+                  <%= date_field_tag "payment[date]", suggestion[:date]&.iso8601,
+                        class: "form-control", id: "payment_date" %>
+                </div>
+
+                <div class="col-12 mb-3">
+                  <%= label_tag "payment_funding_money_source_id", t("statement_imports.payment_funding_label"), class: "form-label" %>
+                  <%= select_tag "payment[funding_money_source_id]",
+                        options_from_collection_for_select(current_user.money_sources.active.order(:name), :id, :name),
+                        { include_blank: t("statement_imports.payment_funding_placeholder"),
+                          class: "form-select", id: "payment_funding_money_source_id" } %>
+                </div>
+              </div>
+
+              <h6 class="mb-2"><%= t("payments.form.distribution") %></h6>
+              <div class="row">
+                <% { principal_amount: :principal, interest_amount: :interest,
+                    insurance_amount: :insurance, other_amount: :other }.each do |field, label_key| %>
+                  <div class="col-md-6 mb-3">
+                    <%= label_tag "payment_#{field}", t("payments.form.#{label_key}"), class: "form-label" %>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <%= text_field_tag "payment[#{field}]", money_field_value(suggestion[field]),
+                            class: "form-control", inputmode: "decimal", autocomplete: "off",
+                            id: "payment_#{field}",
+                            data: { money_input: true, payment_component: true } %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="d-flex justify-content-between border-top pt-3 mb-1">
+                <div>
+                  <div class="small text-muted"><%= t("payments.form.total") %></div>
+                  <div class="fs-5 fw-bold" data-payment-total-display>$0</div>
+                </div>
+                <div class="text-end">
+                  <div class="small text-muted"><%= t("statement_imports.payment_amount_label") %></div>
+                  <div class="fs-5 fw-bold" data-payment-expense-total="<%= suggestion[:amount].to_d %>">
+                    <%= money_field_value(suggestion[:amount]) %>
+                  </div>
+                </div>
+              </div>
+              <div class="alert alert-warning d-none py-2 small mb-0" data-payment-warning>
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                <span data-payment-warning-text></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <%= hidden_field_tag :summary, @review.summary.to_h.to_json if @review.summary %>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+          <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-outline-secondary" do %>
+            <i class="bi bi-arrow-counterclockwise me-1"></i><%= t("statement_imports.back") %>
+          <% end %>
+          <%= submit_tag t("statement_imports.confirm"), class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

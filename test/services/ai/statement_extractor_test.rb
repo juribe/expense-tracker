@@ -137,6 +137,55 @@ module Ai
       assert_raises(Ai::StatementExtractor::ExtractionError) { parse("transactions" => []) }
     end
 
+    test "normalizes statement-level summary totals" do
+      data = parse(
+        "sources" => [ { "kind" => "credit_card", "name" => "Visa", "bank" => "Davivienda" } ],
+        "summary" => { "total_due" => "1.250.300,50", "min_payment" => "62.515",
+                       "interest_charged" => "45.200", "due_date" => "2026-09-04",
+                       "statement_date" => "2026-08-25" }
+      )
+
+      summary = data[:summary]
+      assert_equal BigDecimal("1250300.50"), summary[:total_due]
+      assert_equal BigDecimal("62515"), summary[:min_payment]
+      assert_equal BigDecimal("45200"), summary[:interest_charged]
+      assert_equal "2026-09-04", summary[:due_date]
+      assert_equal "2026-08-25", summary[:statement_date]
+    end
+
+    test "summary tolerates partial and malformed values" do
+      data = parse(
+        "sources" => [ { "kind" => "credit_card", "name" => "Visa", "bank" => "Davivienda" } ],
+        "summary" => { "total_due" => "1.250.300", "min_payment" => "no es un valor", "due_date" => "no-date" }
+      )
+
+      summary = data[:summary]
+      assert_equal BigDecimal("1250300"), summary[:total_due]
+      assert_nil summary[:min_payment]
+      assert_nil summary[:due_date]
+    end
+
+    test "summary with only garbage values is nil" do
+      data = parse(
+        "sources" => [ { "kind" => "credit_card", "name" => "Visa", "bank" => "Davivienda" } ],
+        "summary" => { "total_due" => "no es un valor", "min_payment" => "", "due_date" => "no-date" }
+      )
+      assert_nil data[:summary]
+    end
+
+    test "summary is nil when the payload has no summary" do
+      data = parse("sources" => [ { "kind" => "account", "name" => "Savings", "bank" => "Bancolombia" } ])
+      assert_nil data[:summary]
+    end
+
+    test "instructs the AI to extract statement-level payment totals" do
+      prompt = Ai::StatementExtractor.new.send(:system_prompt)
+      assert_match(/pago m[ií]nimo/i, prompt)
+      assert_match(/saldo total a pagar/i, prompt)
+      assert_match(/fecha l[ií]mite de pago/i, prompt)
+      assert_match(/intereses/i, prompt)
+    end
+
     test "call fails cleanly without an API key configured" do
       result = with_env({ "MISTRAL_API_KEY" => nil }) do
         Ai::StatementExtractor.new.call(text: "statement")

@@ -67,8 +67,10 @@ class PaymentsController < ApplicationController
     @payment = @money_source.payments.find(params[:id])
   end
 
+  # The expense id arrives as a top-level param (GET /payments/new?expense_id=)
+  # or inside the payment form payload (POST, hidden field payment[expense_id]).
   def set_expense
-    @expense = current_user.expenses.find_by(id: params[:expense_id])
+    @expense = current_user.expenses.find_by(id: params[:expense_id] || params.dig(:payment, :expense_id))
     return unless @expense.nil?
 
     redirect_apply_error(t("payments.not_found"))

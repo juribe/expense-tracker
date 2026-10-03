@@ -19,6 +19,9 @@
       </div>
     </div>
     <div class="loan-actions d-print-none" role="group" aria-label="<%= source.name %>">
+      <%= link_to money_source_path(source, anchor: "payments"), class: "btn loan-action-btn btn-edit", title: t("payments.index_button"), aria: { label: t("payments.index_button") } do %>
+        <i class="bi bi-cash-coin" aria-hidden="true"></i>
+      <% end %>
       <%= link_to edit_money_source_path(source), class: "btn loan-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
         <i class="bi bi-pencil" aria-hidden="true"></i>
       <% end %>

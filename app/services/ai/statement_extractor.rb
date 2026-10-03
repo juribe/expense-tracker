@@ -56,7 +56,7 @@ module Ai
         raise ExtractionError, "no financial sources extracted"
       end
 
-      { sources: sources, transactions: transactions }
+      { sources: sources, transactions: transactions, summary: normalize_summary(raw["summary"]) }
     end
 
     def call(text:, today: Date.current)
@@ -143,6 +143,23 @@ module Ai
             number. card_last_four = null. (privacy — the full number is never stored)
           - For a revolving line, prefer the "crédito" / contract number over any card number.
 
+        STATEMENT SUMMARY — when the document is a credit-card or loan statement
+        period summary, map these totals (null when the label is not printed):
+          - total_due = the full amount to pay this period: "Saldo total a pagar",
+            "Valor total a pagar", "Total a pagar", "Saldo para pago".
+          - min_payment = the minimum required payment: "Pago mínimo", "Pago mínimo
+            requerido", "Cuota mínima de pago", "Minimum payment".
+          - interest_charged = the interest charged this period: "Intereses",
+            "Interés de compra", "Interés de financiación", "Interés corriente",
+            "Cargos por interés".
+          - due_date = the payment deadline, ISO "YYYY-MM-DD": "Fecha límite de pago",
+            "Pagar antes de", "Vence el", "Fecha de vencimiento".
+          - statement_date = the statement/closing date, ISO "YYYY-MM-DD":
+            "Fecha de extracto", "Fecha de corte", "Fecha del extracto".
+            Do NOT use the due_date as statement_date.
+          - For a simple account statement without a payment summary, return
+            "summary": null.
+
         Respond with ONLY JSON of the shape:
         {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
           "sub_kind":"savings","card_last_four":"5689","balance":5420000,
@@ -151,6 +168,8 @@ module Ai
          {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","sub_kind":"personal",
           "principal_amount":8000000,
           "outstanding_balance":6000000,"monthly_payment":350000,"installment_count":36}],
+         "summary":{"total_due":1250300,"min_payment":62515,"interest_charged":45200,
+          "due_date":"2026-09-04","statement_date":"2026-08-25"},
          "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
           "type":"expense","category":"restaurants","confidence":0.98}]}
         When a document contains no identifiable financial source, respond with {"sources":[]}.
@@ -213,6 +232,43 @@ module Ai
     # Zero amounts are valid here: balances, limits and rates can be 0.
     def parse_amount(value)
       super(value, allow_zero: true)
+    end
+
+    SUMMARY_FIELDS = %i[total_due min_payment interest_charged due_date statement_date].freeze
+
+    # Garbage text ("no es un valor") parses to 0.0; a summary total of zero
+    # is never meaningful, so only digit-bearing values are accepted.
+    def parse_summary_amount(value)
+      return nil unless value.is_a?(Numeric) || value.to_s.match?(/\d/)
+
+      parse_amount(value)
+    end
+
+    # Statement-level totals for the apply-payment flow. Returns nil when the
+    # document carried no summary at all; amounts and dates that cannot be
+    # parsed stay nil individually.
+    def normalize_summary(raw)
+      return nil unless raw.is_a?(Hash)
+
+      summary = {
+        total_due: parse_summary_amount(raw["total_due"]),
+        min_payment: parse_summary_amount(raw["min_payment"]),
+        interest_charged: parse_summary_amount(raw["interest_charged"]),
+        due_date: normalize_date(raw["due_date"]),
+        statement_date: normalize_date(raw["statement_date"])
+      }
+      summary.values.any?(&:present?) ? summary : nil
+    end
+
+    # Summary dates must never fall back to "today" (a wrong due date would
+    # prefill a wrong payment), so anything unparseable stays nil.
+    def normalize_date(value)
+      return nil if value.blank?
+      return Date.iso8601(value.to_s).iso8601 if value.to_s.match?(/\A\d{4}-\d{2}-\d{2}\z/)
+
+      Date.parse(value.to_s).iso8601
+    rescue ArgumentError, Date::Error, TypeError
+      nil
     end
 
     # Integer counts (e.g. "48 cuotas", "Número de cuotas: 24").

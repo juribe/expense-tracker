@@ -67,6 +67,11 @@ Rails.application.routes.draw do
   delete "money_sources/recognition/:money_source_id", to: "money_sources#destroy_recognition", as: :money_source_recognition_destroy
   resources :money_sources, id: /[0-9]+/ do
     resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
+    resources :statement_imports, only: [ :new, :create ] do
+      collection do
+        post :confirm
+      end
+    end
   end
   resources :transfers, only: [ :index, :new, :create, :destroy ]
   resources :recurring_templates do

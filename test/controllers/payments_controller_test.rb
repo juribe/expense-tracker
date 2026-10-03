@@ -41,6 +41,22 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # ---------------------------------------------------------- create
+  # The real form posts the hidden field payment[expense_id] (payments/_form),
+  # not a top-level param — the controller must read it from there.
+  test "POST create reads the expense from payment[expense_id] like the actual form submits" do
+    expense = create_expense(amount: 1_500_000, money_source: @account)
+
+    assert_difference -> { Payment.count }, 1 do
+      post money_source_payments_path(@mortgage), params: {
+        payment: { expense_id: expense.id, principal_amount: "900.000", interest_amount: "600.000" }
+      }
+    end
+
+    assert_redirected_to money_source_path(@mortgage)
+    payment = Payment.last
+    assert_equal expense.id, payment.expense_id
+  end
+
   test "POST create applies the existing expense with a manual distribution and does NOT create another expense" do
     expense = create_expense(amount: 1_500_000, money_source: @account)
 

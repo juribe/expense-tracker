@@ -18,7 +18,7 @@ class MoneySourcesController < ApplicationController
   INDEX_INCLUDES = {
     nil => %i[parent children transactions recognition_identifiers credit_account],
     "cash" => %i[parent children transactions recognition_identifiers],
-    "credit_cards" => %i[transactions credit_account children],
+    "credit_cards" => %i[transactions credit_account],
     "loans" => %i[transactions credit_account]
   }.freeze
 
@@ -204,10 +204,12 @@ class MoneySourcesController < ApplicationController
 
     unapplied = current_user.expenses
                             .where.not(id: @money_source.payments.select(:expense_id))
-                            .includes(:recurring_template)
                             .order(date: :desc, id: :desc)
-    @awaiting_expenses = unapplied.where(recurring_template_id: current_user.recurring_templates
-                                                                         .where(money_source_id: @money_source.id)).limit(10)
+    # Only the awaiting list renders the template hint; the picker does not,
+    # so the eager load stays scoped to what is used (keeps Bullet quiet).
+    @awaiting_expenses = unapplied.includes(:recurring_template)
+                                  .where(recurring_template_id: current_user.recurring_templates
+                                                                           .where(money_source_id: @money_source.id)).limit(10)
     @pickable_expenses = unapplied.limit(20)
   end
 

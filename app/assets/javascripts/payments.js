@@ -32,7 +32,7 @@
     var display = form.querySelector("[data-payment-total-display]");
     var warning = form.querySelector("[data-payment-warning]");
     var warningText = form.querySelector("[data-payment-warning-text]");
-    var submit = form.querySelector("button[type='submit']");
+    var submit = form.querySelector("button[type='submit'], input[type='submit']");
     var inputs = Array.prototype.slice.call(form.querySelectorAll("[data-payment-component='true']"));
     if (!totalSource || !display || inputs.length === 0) return;
 
@@ -61,6 +61,9 @@
         warning.classList.add("d-none");
         if (submit) submit.disabled = false;
       }
+
+      var amountInput = form.querySelector("[data-payment-amount]");
+      if (amountInput) amountInput.value = total > 0 ? String(total) : "";
     }
 
     inputs.forEach(function (input) {
