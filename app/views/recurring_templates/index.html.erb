@@ -341,7 +341,7 @@
     var form = $("#recurringForm");
     var typeSelect = $("#recurring_template_kind");
 
-    $("#recurringFormTitle").textContent = isEdit ? <%= t("monthly_incomes.form.edit_title").to_json %> : <%= t("monthly_incomes.form.add_title").to_json %>;
+    $("#recurringFormTitle").textContent = isEdit ? <%= raw t("monthly_incomes.form.edit_title").to_json %> : <%= raw t("monthly_incomes.form.add_title").to_json %>;
 
     // A hand-pointed form needs an explicit _method override for updates.
     var methodInput = form.querySelector('input[name="_method"]');
@@ -390,8 +390,8 @@
       currentRow = row;
       var isIncome = row.dataset.type === "income";
 
-      $("#processTitle").textContent = isIncome ? <%= t("recurring.confirm_receive").to_json %> : <%= t("recurring.confirm_pay", default: "Confirmar pago").to_json %>;
-      $("#processConfirm").textContent = isIncome ? <%= t("monthly_incomes.receive").to_json %> : <%= t("monthly_expenses.pay", default: "Pagar").to_json %>;
+      $("#processTitle").textContent = isIncome ? <%= raw t("recurring.confirm_receive").to_json %> : <%= raw t("recurring.confirm_pay", default: "Confirmar pago").to_json %>;
+      $("#processConfirm").textContent = isIncome ? <%= raw t("monthly_incomes.receive").to_json %> : <%= raw t("monthly_expenses.pay", default: "Pagar").to_json %>;
       $("#processCategory").textContent =
         row.querySelector("td .badge").textContent;
       $("#processDescription").textContent = row.cells[1].textContent.trim();

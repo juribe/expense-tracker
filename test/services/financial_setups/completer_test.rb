@@ -30,7 +30,11 @@ class CompleterTest < ActiveSupport::TestCase
     assert result.ok?
     assert_equal 2, result.created_count
     assert_equal %w[account account], @user.money_sources.reload.pluck(:kind)
-    assert_equal BigDecimal("1000000"), @user.money_sources.first.starting_balance
+    # Row order is preserved at creation time; assert by id — bare .first has
+    # no defined order once the association is loaded in memory.
+    sources = @user.money_sources.reload.order(:id)
+    assert_equal "Bancolombia Savings", sources.first.name
+    assert_equal BigDecimal("1000000"), sources.first.starting_balance
   end
 
   test "creates a credit card with its credit account" do

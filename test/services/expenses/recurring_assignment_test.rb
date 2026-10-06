@@ -53,15 +53,105 @@ module Expenses
       assert_equal "inactive", result.message_key
     end
 
-    test "rejects an expense that is already linked" do
-      linked = create_expense(recurring_template_id: @template.id)
+    test "assigning the same expense twice succeeds without changing the link" do
+      result_one = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id
+      )
+      result_two = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id
+      )
+
+      assert result_one.success?
+      assert result_two.success?
+      assert_equal "applied", result_two.message_key
+      assert_equal @template.id, @expense.reload.recurring_template_id
+    end
+
+    test "rejects an expense already linked to a different template" do
+      other_template = @user.recurring_templates.create!(
+        category: @category, kind: "expense", amount: 12_000,
+        description: "Administración", payment_day: 10, source: "manual"
+      )
+      @expense.update!(recurring_template_id: other_template.id)
 
       result = RecurringAssignment.assign(
-        user: @user, expense_id: linked.id, recurring_template_id: @template.id
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id
       )
 
       assert result.failure?
       assert_equal "already_linked", result.message_key
+      assert_equal other_template.id, @expense.reload.recurring_template_id
+    end
+
+    test "rejects an expense dated outside the requested period" do
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id,
+        period: "2026-04"
+      )
+
+      assert result.failure?
+      assert_equal "period_mismatch", result.message_key
+      assert_nil @expense.reload.recurring_template_id
+    end
+
+    test "rejects debt-target templates in the manual assign flows" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      debt_template = @user.recurring_templates.create!(
+        category: @category, kind: "expense", amount: 10_000,
+        description: "Cuota carro", payment_day: 5, source: "manual",
+        money_source: loan
+      )
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: debt_template.id
+      )
+
+      assert result.failure?
+      assert_equal "debt_target", result.message_key
+      assert_nil @expense.reload.recurring_template_id
+    end
+
+    test "allows debt-target assignment when it comes from the payments flow" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      debt_template = @user.recurring_templates.create!(
+        category: @category, kind: "expense", amount: 10_000,
+        description: "Cuota carro", payment_day: 5, source: "manual",
+        money_source: loan
+      )
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: debt_template.id,
+        allow_debt_target: true
+      )
+
+      assert result.success?
+      assert_equal debt_template.id, @expense.reload.recurring_template_id
+    end
+
+    test "allows non-debt money-source templates in the manual assign flows" do
+      account = MoneySource.create!(user: @user, name: "Davibank", kind: "account")
+      account_template = @user.recurring_templates.create!(
+        category: @category, kind: "expense", amount: 10_000,
+        description: "Internet desde Davibank", payment_day: 8, source: "manual",
+        money_source: account
+      )
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: account_template.id
+      )
+
+      assert result.success?
+      assert_equal account_template.id, @expense.reload.recurring_template_id
+    end
+
+    test "accepts an expense dated inside the requested period" do
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id,
+        period: "2026-03"
+      )
+
+      assert result.success?
+      assert_equal @template.id, @expense.reload.recurring_template_id
     end
 
     test "rejects when the template already covers the expense month" do

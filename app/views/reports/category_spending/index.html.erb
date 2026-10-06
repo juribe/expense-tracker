@@ -1,48 +1,65 @@
-<%= render "reports/page_header", path: reports_by_category_path %>
+<%= render "reports/page_header",
+      title: t("reports.categories.title"),
+      subtitle: t("reports.categories.subtitle"),
+      path: reports_by_category_path %>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-white">
-    <h5 class="mb-0"><%= t("reports.categories.title") %></h5>
+<div class="card report-card">
+  <div class="card-header d-flex align-items-start">
+    <span class="report-card-icon" style="background-color: #7FA7D8;">
+      <i class="bi bi-bar-chart-line fs-5"></i>
+    </span>
+    <div>
+      <h2 class="report-card-title mb-0"><%= t("reports.categories.title") %></h2>
+      <p class="report-card-subtitle"><%= t("reports.categories.card_subtitle") %></p>
+    </div>
   </div>
-  <div class="card-body">
+  <div class="card-body pt-3">
     <% if @category_spending[:categories].any? %>
-      <div class="row g-4">
+      <div class="row g-3">
         <div class="col-12 col-lg-5">
-          <%= pie_chart @category_spending[:categories].map { |c| [ c[:name], c[:total] ] },
-                height: "320px", legend: "bottom", colors: category_colors(@category_spending[:categories]) %>
+          <div class="chart-panel h-100">
+            <%= pie_chart @category_spending[:categories].map { |c| [ c[:name], c[:total] ] },
+                  height: "320px", legend: "bottom",
+                  colors: category_colors(@category_spending[:categories]) %>
+          </div>
         </div>
         <div class="col-12 col-lg-7">
           <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead class="table-light">
+            <table class="table report-table align-middle mb-0">
+              <thead>
                 <tr>
                   <th scope="col"><%= t("common.category") %></th>
                   <th scope="col" class="text-end"><%= t("reports.categories.total") %></th>
                   <th scope="col" class="text-end"><%= t("reports.categories.share") %></th>
                   <th scope="col" class="text-end"><%= t("reports.categories.count") %></th>
-                  <th scope="col" class="text-end"><%= t("reports.categories.change") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.categories.change") %> <i class="bi bi-arrow-down-up"></i></th>
                 </tr>
               </thead>
               <tbody>
-                <% @category_spending[:categories].each do |category| %>
+                <% @category_spending[:categories].each_with_index do |category, index| %>
                   <tr>
                     <td>
-                      <%= link_to reports_transactions_path(filter_params_for(category_id: category[:id])), class: "text-decoration-none" do %>
-                        <%= category[:name] %>
+                      <%= link_to reports_transactions_path(filter_params_for(category_id: category[:id])), class: "d-flex align-items-center text-decoration-none text-reset" do %>
+                        <span class="category-swatch me-2" style="background-color: <%= category_colors(@category_spending[:categories])[index] %>;">
+                          <i class="bi bi-tag"></i>
+                        </span>
+                        <span class="fw-semibold"><%= category[:name] %></span>
                       <% end %>
                     </td>
-                    <td class="text-end fw-bold text-danger"><%= money_amount(category[:total]) %></td>
-                    <td class="text-end"><%= number_to_percentage(category[:share_pct], precision: 1) if category[:share_pct] %></td>
+                    <td class="text-end amount-negative"><%= money_amount(category[:total]) %></td>
+                    <td class="text-end text-muted"><%= number_to_percentage(category[:share_pct], precision: 1) if category[:share_pct] %></td>
                     <td class="text-end"><%= category[:count] %></td>
-                    <td class="text-end"><%= delta_badge(category[:delta_pct]) %></td>
+                    <td class="text-end"><%= category_delta_label(category[:delta_pct]) %></td>
                   </tr>
                 <% end %>
               </tbody>
               <tfoot>
-                <tr class="table-light fw-bold">
+                <tr class="total-row">
                   <td><%= t("reports.categories.total") %></td>
                   <td class="text-end"><%= money_amount(@category_spending[:total]) %></td>
-                  <td colspan="3"></td>
+                  <td class="text-end text-muted">—</td>
+                  <td class="text-end text-muted">—</td>
+                  <td class="text-end text-muted">—</td>
                 </tr>
               </tfoot>
             </table>

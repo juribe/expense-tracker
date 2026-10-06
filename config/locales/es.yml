@@ -579,6 +579,7 @@ es:
     financial_chat: "Chat Financiero"
     financial_chat: "Chat Financiero"
     financial_summary: "Resumen"
+    reconciliation: "Día de Cuadre"
 
   evaluations:
     subtitle: "Sube un dataset CSV y evalúa el pipeline completo con un proveedor/modelo concreto."
@@ -772,6 +773,9 @@ es:
       details: "Detalles"
       current_balance: "Saldo actual"
       status: "Estado"
+      manual_adjustment: "Ajuste manual"
+      reset_adjustment: "Revertir ajuste"
+      reset_adjustment_confirm: "¿Revertir el ajuste manual? El saldo volverá a lo que explican sus movimientos."
       recognition: "Reconocimiento"
       statement_alert: "Próxima factura el día %{statement}, pago vence el día %{due}."
       loan_debt_alert: "Esto es deuda. Los pagos reducen el saldo pendiente."
@@ -845,6 +849,7 @@ es:
       created: "La fuente de dinero se creó correctamente."
       updated: "La fuente de dinero se actualizó correctamente."
       deleted: "La fuente de dinero se eliminó correctamente."
+      adjustment_reset: "Ajuste manual revertido. El saldo vuelve a lo que explican sus movimientos."
 
   budgets:
     title: "Presupuestos"
@@ -1180,6 +1185,8 @@ es:
       not_expense: "Solo puedes asignar gastos a plantillas de gasto recurrente."
       inactive: "La plantilla recurrente está inactiva."
       already_linked: "El gasto ya está asignado a otra plantilla recurrente. Quítalo primero si quieres reasignarlo."
+      debt_target: "Los pagos a crédito se aplican desde la página de la cuenta: allí se registra el pago real (cuota dividida en capital e intereses) y el cuadre se limpia solo."
+      period_mismatch: "El gasto tiene fecha de %{description}; no puede contar como el pago de este período. Usa un gasto con fecha dentro del mes del cuadre (edita su fecha o crea uno nuevo)."
       period_taken: "\"%{description}\" ya registra el pago de ese mes."
 
     recurring_link:
@@ -1348,6 +1355,9 @@ es:
     back: "Volver a reportes mensuales"
     uncategorized: "Sin categoría"
     title: "Informes"
+    transactions:
+      title: "Transacciones"
+      subtitle: "Gastos del periodo seleccionado"
     sections:
       overview: "Resumen"
       spending: "Gastos"
@@ -1376,7 +1386,15 @@ es:
         this_year: "Este año"
         custom: "Rango personalizado"
       vs_previous: "vs periodo anterior"
+    filters:
+      title: "Filtros"
+      description: "Selecciona los criterios para actualizar el reporte."
+      apply: "Aplicar filtros"
+      all_f: "Todas"
+      all_m: "Todos"
+      kind: "Resumen"
     overview:
+      subtitle: "Tu resumen financiero del periodo"
       income: "Ingresos"
       expenses: "Gastos reales"
       debt_payments: "Pagos de deuda"
@@ -1386,6 +1404,8 @@ es:
       average_expense: "Gasto promedio"
     categories:
       title: "Gasto por categoría"
+      subtitle: "Cómo se distribuyen tus gastos"
+      card_subtitle: "Distribución de tus gastos y principales categorías."
       total: "Total"
       share: "% del gasto"
       count: "Transacciones"
@@ -1394,9 +1414,11 @@ es:
       empty: "No hay gastos en este periodo."
     trend:
       title: "Tendencia de gasto"
+      subtitle: "Evolución de tu gasto en el tiempo"
       empty: "No hay gastos para graficar."
     budgets:
       title: "Presupuesto vs real"
+      subtitle: "Cuánto llevas gastado frente a tus presupuestos"
       budget: "Presupuesto"
       actual: "Real"
       remaining: "Restante"
@@ -1407,6 +1429,7 @@ es:
       empty: "No hay presupuestos activos todavía."
     credit_cards:
       title: "Tarjetas de crédito"
+      subtitle: "Cupo, utilización y actividad de cada tarjeta"
       limit: "Cupo"
       used: "Usado"
       available: "Disponible"
@@ -1420,6 +1443,7 @@ es:
       empty: "No tienes tarjetas de crédito registradas."
     loans:
       title: "Préstamos y deuda"
+      subtitle: "Saldo, cuotas y pagos de tus deudas"
       balance: "Saldo pendiente"
       installment: "Cuota"
       principal_paid: "Capital pagado"
@@ -1431,6 +1455,7 @@ es:
       empty: "No tienes préstamos registrados."
     recurring:
       title: "Pagos recurrentes"
+      subtitle: "Compromisos fijos mensuales y próximos vencimientos"
       monthly_committed: "Recurrente mensual"
       annual_committed: "Recurrente anual"
       monthly_equivalent: "Equivale mensual"
@@ -1442,9 +1467,11 @@ es:
       empty: "No hay pagos recurrentes registrados."
     money_sources:
       title: "Origen del gasto"
+      subtitle: "De dónde sale tu dinero"
       empty: "No hay gastos para mostrar."
     transfers:
       title: "Transferencias"
+      subtitle: "Movimientos entre tus cuentas y fuentes"
       count: "Transferencias"
       movement_internal: "Interna"
       movement_debt_payment: "Pago de deuda"
@@ -1452,6 +1479,7 @@ es:
       empty: "No hay transferencias en este periodo."
     insights:
       title: "Perspectivas financieras"
+      subtitle: "Lo más importante que detectamos en tus datos"
       empty: "No hay nada destacable en este periodo. Eso es buena señal."
       spending_increase: "Tus gastos subieron %{pct}% frente al periodo anterior."
       spending_decrease: "Tus gastos bajaron %{pct}% frente al periodo anterior."
@@ -1762,6 +1790,91 @@ es:
     top_expenses: "Gastos principales"
     no_expenses: "Sin gastos registrados este mes"
 
+  reconciliation:
+    title: "Día de Cuadre"
+    subtitle: "Revisa pagos y saldos para dejar tus finanzas al día."
+    refresh: "Actualizar"
+    checked_today: "Última revisión: Hoy, %{time}"
+    checked_on: "Última revisión: %{date}"
+    status:
+      all_set: "Todo cuadrado"
+      all_set_subtitle: "Todas tus cuentas y pagos están al día."
+      pending_count:
+        one: "%{count} pendiente"
+        other: "%{count} pendientes"
+      differences_count:
+        one: "%{count} diferencia"
+        other: "%{count} diferencias"
+      unverified_count: "%{count} sin conciliar"
+    payments:
+      title: "Pagos pendientes"
+      subtitle: "Pagos recurrentes que todavía no tienen un gasto asignado."
+      empty: "Todos los pagos recurrentes del mes están asignados."
+      account: "Cuenta"
+      due: "Vence"
+      expected: "Monto"
+      status_pending: "Pendiente"
+      assign: "Asignar"
+      go_to_source: "Ir a la cuenta"
+    assign:
+      title: "Asignar pago"
+      due: "Vencimiento"
+      search_label: "Buscar un expense existente"
+      search_placeholder: "Buscar por descripción o monto..."
+      search_hint: "Escribe para buscar entre tus gastos recientes."
+      no_results: "Sin gastos que coincidan."
+      sync_gmail: "Sync Gmail"
+      sync_helper: "Busca nuevos gastos en Gmail y agrégalos a tus registros."
+      create_expense: "Crear expense"
+      submit: "Asignar pago"
+      error: "No se pudo asignar el pago. Intenta de nuevo."
+    balances:
+      title: "Saldos por conciliar"
+      subtitle: "Compara los saldos registrados con los saldos reales."
+      empty: "No tienes cuentas ni tarjetas activas para conciliar."
+      app_balance: "Saldo en la app"
+      actual_balance: "Saldo real"
+      difference: "Diferencia"
+      unverified: "Sin verificar"
+      reconcile: "Conciliar"
+      kinds:
+        account: "Cuenta"
+        cash: "Efectivo"
+        wallet: "Billetera"
+        debit_card: "Tarjeta débito"
+        credit_card: "Tarjeta de crédito"
+      statuses:
+        unverified: "Sin verificar"
+        ok: "Cuadrado"
+        difference: "Diferencia"
+        left_pending: "Pendiente"
+    reconcile:
+      title: "Conciliar"
+      app_balance: "Saldo en la app"
+      actual_balance: "Saldo real"
+      difference: "Diferencia"
+      search_button: "Buscar movimiento"
+      search_placeholder: "Buscar por descripción o monto..."
+      search_hint: "Busca un gasto, ingreso o transferencia que explique la diferencia."
+      no_movements: "Sin movimientos que coincidan."
+      note_label: "Motivo (opcional)"
+      note_placeholder: "Ej. pago hecho por fuera de la app"
+      create_expense: "Crear expense"
+      create_income: "Crear ingreso"
+      all_good: "Todo está bien"
+      adjust: "Ajustar saldo"
+      leave_pending: "Dejar pendiente"
+    movements:
+      income: "Ingreso"
+      expense: "Gasto"
+    flashes:
+      refreshed: "Cuadre recalculado."
+      assigned: "Pago asignado a %{description}."
+      assign_failed: "No se pudo asignar el pago: %{reason}"
+      balance_checked: "Saldo registrado."
+      reconciled_ok: "Confirmado: el saldo está cuadrado."
+      left_pending: "Diferencia dejada pendiente."
+
   statement_imports:
     title: "Importar extracto"
     new_title: "Importar un extracto"
@@ -1790,6 +1903,16 @@ es:
     column_create: "Crear"
     status_new: "Nuevo"
     status_duplicate: "Ya registrado"
+    status_pending_category: "Pendiente de categoría"
+    category_pending: "— Pendiente —"
+    payment_category_placeholder: "Elige una categoría"
+    payment_category_required: "Elige una categoría para el pago antes de confirmar."
+    skipped_duplicates:
+      one: "1 movimiento duplicado omitido."
+      other: "%{count} movimientos duplicados omitidos."
+    parked_candidates:
+      one: "1 movimiento quedó pendiente de categoría para revisión."
+      other: "%{count} movimientos quedaron pendientes de categoría para revisión."
     status_credit: "Pago / abono — no se importa"
     empty_movements: "No se encontraron gastos en este extracto."
     payment_description: "Pago %{target}"

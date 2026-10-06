@@ -11,11 +11,18 @@
   // thousands ("1.234" stays one thousand two hundred thirty-four).
   function decimalParts(value) {
     var raw = String(value == null ? "" : value).trim();
+    // A leading minus is meaningful (negative balances); keep it through the
+    // split and re-attach it to the integer part. `-` elsewhere is ignored
+    // along with the other non-digit noise.
+    var negative = raw.charAt(0) === "-";
+    if (negative) raw = raw.slice(1);
+    var sign = negative ? "-" : "";
+
     var commaIndex = raw.indexOf(",");
     if (commaIndex !== -1) {
       var integer = raw.slice(0, commaIndex).replace(/[^\d]/g, "");
       var decimal = raw.slice(commaIndex + 1).replace(/[^\d]/g, "");
-      return { integer: integer, decimal: decimal };
+      return { integer: sign + integer, decimal: decimal };
     }
 
     var lastDot = raw.lastIndexOf(".");
@@ -23,11 +30,11 @@
       var tail = raw.slice(lastDot + 1);
       var integer = raw.slice(0, lastDot).replace(/[^\d]/g, "");
       if (/^\d{1,2}$/.test(tail) && raw.slice(0, lastDot).match(/^\d+$/)) {
-        return { integer: integer, decimal: tail };
+        return { integer: sign + integer, decimal: tail };
       }
     }
 
-    return { integer: raw.replace(/\./g, "").replace(/[^\d]/g, ""), decimal: "" };
+    return { integer: sign + raw.replace(/\./g, "").replace(/[^\d]/g, ""), decimal: "" };
   }
 
   function sanitizeValue(value) {

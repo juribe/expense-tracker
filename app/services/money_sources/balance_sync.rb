@@ -33,6 +33,8 @@ module MoneySources
         out = Transfer.where(from_source_id: source.id).sum(:amount).to_d
         inn = Transfer.where(to_source_id: source.id).sum(:amount).to_d
 
+        # balance_offset is NOT folded in: it lives beside cached_balance and
+        # MoneySource#balance adds it, so a rebuild must not double-apply it.
         source.update_column(:cached_balance, base + tx_sum + child_sum - out + inn)
       end
     end

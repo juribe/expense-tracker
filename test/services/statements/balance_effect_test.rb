@@ -47,7 +47,8 @@ module Statements
       result = Statements::Confirmation.call(
         user: @user, money_source: card,
         movements: [],
-        payment: { "register" => "1", "date" => "2026-09-05", "principal_amount" => "60000",
+        payment: { "register" => "1", "date" => "2026-09-05", "category_id" => @category.id,
+                   "principal_amount" => "60000",
                    "interest_amount" => "3000", "insurance_amount" => "", "other_amount" => "",
                    "funding_money_source_id" => account.id }
       )

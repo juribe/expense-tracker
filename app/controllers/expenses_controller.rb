@@ -49,6 +49,7 @@ class ExpensesController < ApplicationController
 
   def new
     @expense = current_user.expenses.build(date: Date.today)
+    assign_expense_prefill
   end
 
   def create
@@ -217,7 +218,12 @@ class ExpensesController < ApplicationController
   # plus the ids already paid this period — those render disabled, since an
   # expense must first be unassigned to reopen the period.
   def set_recurring_templates
-    @recurring_templates = current_user.recurring_templates.active.expense.includes(:category).ordered
+    # Debt payments (credit cards / loans) are applied from their money
+    # source page — a single-link assign would skip the real Payment. Their
+    # templates never appear in the assign modal.
+    @recurring_templates = current_user.recurring_templates.active.expense
+                                       .includes(:category, :money_source).ordered
+                                       .reject { |template| template.money_source&.debt_payment_target? }
     month_range = Date.current.beginning_of_month..Date.current.end_of_month
     @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: month_range)
                                     .distinct.pluck(:recurring_template_id)
@@ -225,6 +231,23 @@ class ExpensesController < ApplicationController
 
   def expense_params
     params.require(:expense).permit(:amount, :description, :date, :category_id, :money_source_id)
+  end
+
+  # Optional prefill for the standard new-expense form, used when it is opened
+  # from the Día de Cuadre reconciliation modals (amount/money source of the
+  # difference). Only fills the form; creation still goes through create.
+  def assign_expense_prefill
+    prefill = params.permit(:amount, :description, :money_source_id, :date)
+    return if prefill.blank?
+
+    @expense.amount = prefill[:amount] if prefill[:amount].present?
+    @expense.description = prefill[:description] if prefill[:description].present?
+    @expense.date = prefill[:date] if prefill[:date].present?
+
+    return if prefill[:money_source_id].blank?
+
+    source = current_user.money_sources.find_by(id: prefill[:money_source_id])
+    @expense.money_source = source if source
   end
 
   def filter_query

@@ -313,6 +313,34 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("expenses.assign_recurring.not_expense"), flash[:alert]
   end
 
+  test "POST /expenses/assign_recurring rejects a debt-target template" do
+    expense = create_expense(amount: 50_000, date: Date.today)
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    debt_template = @user.recurring_templates.create!(
+      category: @category, kind: "expense", amount: 3_000_000, frequency: "monthly",
+      source: "manual", money_source: loan
+    )
+
+    post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: debt_template.id }
+
+    assert_redirected_to expenses_path
+    assert_nil expense.reload.recurring_template_id
+    assert_equal I18n.t("expenses.assign_recurring.debt_target"), flash[:alert]
+  end
+
+  test "bulk assign modal template list excludes debt-target templates" do
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    @user.recurring_templates.create!(
+      category: @category, kind: "expense", amount: 3_000_000, frequency: "monthly",
+      source: "manual", money_source: loan
+    )
+
+    get expenses_path
+
+    assert_response :success
+    assert_not @controller.view_assigns["recurring_templates"].any? { |t| t.money_source&.debt_payment_target? }
+  end
+
   test "POST /expenses/assign_recurring rejects an inactive template" do
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000, active: false)
@@ -382,7 +410,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "select option", text: /Cuota Vehículo/
   end
 
-  test "assigning an expense to a template creates NO payment and does not change any credit balance" do
+  test "assigning to a credit-card template is rejected: apply the payment from the account page" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
     source.create_credit_account!(credit_limit: 3_000_000)
     expense = create_expense(amount: 1_500_000, date: Date.today, source: "gmail", money_source: source)
@@ -393,8 +421,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
 
     assert_redirected_to expenses_path
+    assert_equal I18n.t("expenses.assign_recurring.debt_target"), flash[:alert]
     assert_not Payment.exists?
-    assert_equal template.id, expense.reload.recurring_template_id
+    assert_nil expense.reload.recurring_template_id
     assert_equal card_balance_before, source.reload.balance
     assert_equal 0, source.credit_account.installments_paid.to_i
   end

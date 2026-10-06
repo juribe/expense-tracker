@@ -3,6 +3,8 @@
 class Transaction < ApplicationRecord
   self.inheritance_column = :_type_disabled
 
+  include Reconciliation::Invalidatable
+
   # Set by the AI-entry confirm flow when the user explicitly picked a
   # category; rules then never override it.
   attr_accessor :category_locked_by_user

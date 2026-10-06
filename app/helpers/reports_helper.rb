@@ -25,6 +25,20 @@ module ReportsHelper
     end
   end
 
+  # Table variant of the change label: green/red arrow with the percentage,
+  # em dash when there is no comparable previous data.
+  def category_delta_label(delta_pct)
+    return content_tag(:span, "—", class: "text-muted") if delta_pct.blank?
+
+    up = delta_pct >= 0
+    color = up ? "text-success" : "text-danger"
+    icon = up ? "bi-arrow-up-right" : "bi-arrow-down-right"
+    content_tag(:span, class: "#{color} small text-nowrap") do
+      content_tag(:i, "", class: "bi #{icon} me-1") +
+        "#{number_with_delimiter(delta_pct.abs, precision: 1)}% #{t('reports.period.vs_previous')}"
+    end
+  end
+
   def usage_progress(pct_used)
     pct = [ [ pct_used.to_f, 0 ].max, 100 ].min
     variant = pct_used.to_f > 100 ? "danger" : (pct_used.to_f >= Budget::NEAR_LIMIT_PERCENT ? "warning" : "success")
@@ -65,13 +79,14 @@ module ReportsHelper
   end
 
   # Chart.js renders to canvas and cannot resolve CSS var() colors, so the
-  # Bootstrap palette is hardcoded as hex values here.
-  BOOTSTRAP_CHART_COLORS = %w[
-    #0d6efd #198754 #dc3545 #ffc107 #0dcaf0 #6c757d #212529
+  # chart palette is hardcoded as hex values here.
+  CHART_COLORS = %w[
+    #7FA7D8 #9B8BC4 #D48FA8 #D99A72 #D8B45C #75B89B #70B8C5
+    #8299C7 #8EAF8B #B08FC2 #C8877D #7FAFA8 #B59A7A #8D9BB8 #C19A6B
   ].freeze
 
   def category_colors(rows)
-    rows.each_with_index.map { |row, index| BOOTSTRAP_CHART_COLORS[(row[:id] || 0) % BOOTSTRAP_CHART_COLORS.size] }
+    rows.each_with_index.map { |_row, index| CHART_COLORS[index % CHART_COLORS.size] }
   end
 
   def filter_params_for(**overrides)

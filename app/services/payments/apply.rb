@@ -32,6 +32,11 @@ module Payments
       payment.assign_attributes(distribution_attributes)
       ActiveRecord::Base.transaction do
         payment.save!
+        # Keep Día de Cuadre in sync: the cuota paid here is usually the
+        # expense of its recurring template. Non-blocking — if the
+        # assignment is ambiguous it is skipped and stays pending in the
+        # cuadre's manual "Asignar" flow.
+        RecurringLink.call(user: user, expense: expense, money_source: money_source)
       end
       ServiceResult.success(payment)
     rescue ActiveRecord::RecordNotUnique

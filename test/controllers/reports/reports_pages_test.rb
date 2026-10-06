@@ -75,6 +75,13 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "reports pages include the chip click-through script" do
+    get reports_by_category_path
+    assert_response :success
+    scripts = Nokogiri::HTML(response.body).css("script[src]").map { |s| s["src"] }
+    assert scripts.any? { |src| src.include?("reports") && src.end_with?(".js") || src.include?("reports-") }
+  end
+
   test "GET /reports/transactions renders drill-down with filters" do
     @user.expenses.create!(amount: -100_000, date: Date.current, category: @category, money_source: @bank, description: "coffee")
 

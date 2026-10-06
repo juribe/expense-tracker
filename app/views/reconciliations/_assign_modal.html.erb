@@ -1,0 +1,71 @@
+<%# Asignar pago modal — populated by app/assets/javascripts/reconciliation.js
+    from the data-* attributes of the clicked "Asignar" button. %>
+<div class="modal fade" id="assignPaymentModal" tabindex="-1" aria-hidden="true"
+     data-search-url="<%= reconciliation_search_expenses_path %>"
+     data-assign-url="<%= reconciliation_assign_payment_path("TEMPLATE_ID") %>"
+     data-create-expense-url="<%= new_expense_path %>"
+     data-period="<%= @period %>"
+     data-results-empty-label="<%= t("reconciliation.assign.no_results") %>"
+     data-error-label="<%= t("reconciliation.assign.error") %>">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold"><%= t("reconciliation.assign.title") %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+      <div class="modal-body">
+        <div class="card bg-body-tertiary border-0 mb-3">
+          <div class="card-body py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <div class="fw-bold fs-5 js-payment-name">—</div>
+              <div class="text-muted small">
+                <%= t("reconciliation.assign.due") %>: <span class="js-payment-due">—</span>
+              </div>
+            </div>
+            <div class="fw-bold fs-4 text-primary js-payment-amount">—</div>
+          </div>
+        </div>
+
+        <label class="fw-semibold mb-2" for="assignExpenseSearch">
+          <%= t("reconciliation.assign.search_label") %>
+        </label>
+        <input type="search"
+               id="assignExpenseSearch"
+               class="form-control mb-2"
+               placeholder="<%= t("reconciliation.assign.search_placeholder") %>"
+               autocomplete="off">
+        <div id="assignExpenseResults" class="list-group list-group-flush border rounded-3 mb-1" style="max-height: 16rem; overflow-y: auto;">
+          <div class="list-group-item text-muted small js-search-empty">
+            <%= t("reconciliation.assign.search_hint") %>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mt-3">
+          <%= button_to sync_gmail_connection_path,
+                        method: :post,
+                        form_class: "d-inline",
+                        class: "btn btn-outline-secondary btn-sm",
+                        data: { turbo: false } do %>
+            <i class="bi bi-envelope-arrow-up me-1"></i><%= t("reconciliation.assign.sync_gmail") %>
+          <% end %>
+          <span class="text-muted small"><%= t("reconciliation.assign.sync_helper") %></span>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between align-items-center">
+        <%= link_to "#",
+                    class: "btn btn-outline-primary btn-sm",
+                    id: "assignCreateExpenseLink",
+                    target: "_blank",
+                    rel: "noopener" do %>
+          <i class="bi bi-plus-lg me-1"></i><%= t("reconciliation.assign.create_expense") %>
+        <% end %>
+        <button type="button"
+                id="assignPaymentSubmit"
+                class="btn btn-primary"
+                disabled>
+          <i class="bi bi-check2 me-1"></i><%= t("reconciliation.assign.submit") %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

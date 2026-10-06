@@ -1,0 +1,168 @@
+<% content_for :title, t("reconciliation.title") %>
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+  <div>
+    <h1 class="fw-bold mb-1"><%= t("reconciliation.title") %></h1>
+    <p class="text-muted mb-0"><%= t("reconciliation.subtitle") %></p>
+  </div>
+  <div class="text-md-end">
+    <% checked_label = reconciliation_checked_at_label(@state.checked_at&.iso8601) %>
+    <% if checked_label %>
+      <div class="text-muted small mb-2">
+        <i class="bi bi-clock-history me-1"></i><%= checked_label %>
+      </div>
+    <% end %>
+    <%= button_to reconciliation_refresh_path,
+                  method: :post,
+                  class: "btn btn-outline-primary btn-sm",
+                  data: { turbo: false } do %>
+      <i class="bi bi-arrow-clockwise me-1"></i><%= t("reconciliation.refresh") %>
+    <% end %>
+  </div>
+</div>
+
+<%# ---- Overall status strip ------------------------------------------------ %>
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <% if @state.reconciled? %>
+        <%= reconciliation_status_badge("reconciled", t("reconciliation.status.all_set")) %>
+        <span class="text-muted small"><%= t("reconciliation.status.all_set_subtitle") %></span>
+      <% else %>
+        <%= reconciliation_status_badge("pending", t("reconciliation.status.pending_count", count: @state.pending_payments_count)) %>
+        <span class="text-muted small">·</span>
+        <span class="small"><%= t("reconciliation.status.unverified_count", count: @state.unverified_count) %></span>
+        <% if @state.discrepancies_count.positive? %>
+          <span class="text-muted small">·</span>
+          <%= reconciliation_status_badge("warning", t("reconciliation.status.differences_count", count: @state.discrepancies_count)) %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="text-muted small">
+      <%= [ t("reconciliation.status.pending_count", count: @state.pending_payments_count),
+            t("reconciliation.status.unverified_count", count: @state.unverified_count),
+            t("reconciliation.status.differences_count", count: @state.discrepancies_count) ].join(" · ") %>
+    </div>
+  </div>
+</div>
+
+<% pending_payments = @state.snapshot["pending_payments"] || [] %>
+<% balances = @state.snapshot["balances"] || [] %>
+
+<%# ---- Section 1: Saldos por conciliar ------------------------------------ %>
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-body">
+    <h2 class="h5 fw-bold mb-0"><%= t("reconciliation.balances.title") %></h2>
+    <p class="text-muted small mb-0"><%= t("reconciliation.balances.subtitle") %></p>
+  </div>
+
+  <% if balances.empty? %>
+    <div class="card-body py-4 text-center">
+      <p class="text-muted mb-0"><%= t("reconciliation.balances.empty") %></p>
+    </div>
+  <% else %>
+    <ul class="list-group list-group-flush">
+      <% balances.each do |balance| %>
+        <li class="list-group-item d-flex align-items-center flex-wrap gap-3 py-3">
+          <div class="flex-grow-1" style="min-width: 12rem;">
+            <div class="fw-semibold"><%= balance["name"] %></div>
+            <div class="text-muted small text-capitalize"><%= t("reconciliation.balances.kinds.#{balance["kind"]}", default: balance["kind"].humanize) %></div>
+          </div>
+          <div class="text-nowrap text-end" style="min-width: 8.5rem;">
+            <div class="text-muted small"><%= t("reconciliation.balances.app_balance") %></div>
+            <div class="fw-semibold"><%= reconciliation_money(balance["app_balance"]) %></div>
+          </div>
+          <div class="text-nowrap text-end" style="min-width: 8.5rem;">
+            <div class="text-muted small"><%= t("reconciliation.balances.actual_balance") %></div>
+            <div class="fw-semibold">
+              <%= balance["actual_balance"] ? reconciliation_money(balance["actual_balance"]) : content_tag(:span, t("reconciliation.balances.unverified"), class: "text-muted fw-normal") %>
+            </div>
+          </div>
+          <div class="text-nowrap text-end" style="min-width: 7.5rem;">
+            <div class="text-muted small"><%= t("reconciliation.balances.difference") %></div>
+            <% if balance["difference"] %>
+              <div class="fw-semibold <%= balance["difference"].to_d.zero? ? "" : "text-warning-emphasis" %>">
+                <%= reconciliation_signed_money(balance["difference"]) %>
+              </div>
+            <% else %>
+              <div class="fw-semibold text-muted">—</div>
+            <% end %>
+          </div>
+          <%= reconciliation_status_badge(balance["status"], t("reconciliation.balances.statuses.#{balance["status"]}")) %>
+          <button type="button"
+                  class="btn <%= balance["status"] == "ok" ? "btn-outline-secondary" : "btn-primary" %> btn-sm js-reconcile flex-shrink-0"
+                  data-source-id="<%= balance["source_id"] %>"
+                  data-name="<%= balance["name"] %>"
+                  data-app-balance="<%= balance["app_balance"] %>"
+                  data-app-balance-formatted="<%= reconciliation_money(balance["app_balance"]) %>"
+                  data-actual-balance="<%= balance["actual_balance"] %>"
+                  data-kind="<%= balance["kind"] %>">
+            <%= t("reconciliation.balances.reconcile") %>
+          </button>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<%# ---- Section 2: Pagos pendientes ---------------------------------------- %>
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-body d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="h5 fw-bold mb-0"><%= t("reconciliation.payments.title") %></h2>
+      <p class="text-muted small mb-0"><%= t("reconciliation.payments.subtitle") %></p>
+    </div>
+    <% if pending_payments.any? %>
+      <span class="badge bg-danger-subtle text-danger rounded-pill"><%= pending_payments.size %></span>
+    <% end %>
+  </div>
+
+  <% if pending_payments.empty? %>
+    <div class="card-body py-4 text-center">
+      <i class="bi bi-check2-circle text-success fs-4"></i>
+      <p class="text-muted mb-0 mt-2"><%= t("reconciliation.payments.empty") %></p>
+    </div>
+  <% else %>
+    <ul class="list-group list-group-flush">
+      <% pending_payments.each do |payment| %>
+        <li class="list-group-item d-flex align-items-center flex-wrap gap-3 py-3">
+          <div class="flex-grow-1" style="min-width: 12rem;">
+            <div class="fw-semibold"><%= payment["name"] %></div>
+            <div class="text-muted small"><%= t("reconciliation.payments.account") %>: <%= payment["source_label"] %></div>
+          </div>
+          <div class="text-nowrap" style="min-width: 7rem;">
+            <div class="text-muted small"><%= t("reconciliation.payments.due") %></div>
+            <div class="small fw-semibold"><%= reconciliation_due_date_label(payment["due_date"]) || "—" %></div>
+          </div>
+          <div class="text-nowrap text-end" style="min-width: 8.5rem;">
+            <div class="text-muted small"><%= t("reconciliation.payments.expected") %></div>
+            <div class="fw-semibold"><%= reconciliation_money(payment["amount"]) %></div>
+          </div>
+          <%= reconciliation_status_badge("pending", t("reconciliation.payments.status_pending")) %>
+          <% if payment["debt"] %>
+            <%# Debt cuotas are applied from the money source page: that flow
+                registers the real Payment (and clears this row via the
+                recurring link), the assign modal only relabels a template. %>
+            <%= link_to money_source_path(payment["money_source_id"]),
+                        class: "btn btn-primary btn-sm flex-shrink-0" do %>
+              <i class="bi bi-box-arrow-up-right me-1"></i><%= t("reconciliation.payments.go_to_source") %>
+            <% end %>
+          <% else %>
+            <button type="button"
+                    class="btn btn-primary btn-sm js-assign-payment flex-shrink-0"
+                    data-template-id="<%= payment["template_id"] %>"
+                    data-name="<%= payment["name"] %>"
+                    data-amount="<%= payment["amount"] %>"
+                    data-amount-formatted="<%= reconciliation_money(payment["amount"]) %>"
+                    data-due="<%= payment["due_date"] %>">
+              <%= t("reconciliation.payments.assign") %>
+            </button>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+
+<%= render "reconciliations/assign_modal" %>
+<%= render "reconciliations/reconcile_modal" %>

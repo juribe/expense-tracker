@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_02_192959) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_05_184700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -379,6 +379,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_02_192959) do
     t.string "identifier"
     t.string "sub_kind"
     t.decimal "cached_balance", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "balance_offset", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "balance_offset_note"
+    t.datetime "balance_offset_at"
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
@@ -432,6 +435,36 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_02_192959) do
     t.index ["provider", "message_id"], name: "index_processed_emails_on_provider_and_message_id", unique: true
     t.index ["status"], name: "index_processed_emails_on_status"
     t.index ["user_id"], name: "index_processed_emails_on_user_id"
+  end
+
+  create_table "reconciliation_snapshots", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "money_source_id", null: false
+    t.string "period", null: false
+    t.decimal "actual_balance", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "resolution", default: "unverified", null: false
+    t.datetime "checked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_source_id"], name: "index_reconciliation_snapshots_on_money_source_id"
+    t.index ["user_id", "money_source_id", "period"], name: "idx_on_user_id_money_source_id_period_c7a140e6c1", unique: true
+    t.index ["user_id"], name: "index_reconciliation_snapshots_on_user_id"
+  end
+
+  create_table "reconciliation_states", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "period", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "pending_payments_count", default: 0, null: false
+    t.integer "discrepancies_count", default: 0, null: false
+    t.jsonb "snapshot", default: {}, null: false
+    t.datetime "checked_at"
+    t.boolean "stale", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "unverified_count", default: 0, null: false
+    t.index ["user_id", "period"], name: "index_reconciliation_states_on_user_id_and_period", unique: true
+    t.index ["user_id"], name: "index_reconciliation_states_on_user_id"
   end
 
   create_table "recurring_templates", force: :cascade do |t|
@@ -755,6 +788,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_02_192959) do
   add_foreign_key "pending_whatsapp_connections", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :nullify
   add_foreign_key "processed_emails", "users"
+  add_foreign_key "reconciliation_snapshots", "money_sources"
+  add_foreign_key "reconciliation_snapshots", "users"
+  add_foreign_key "reconciliation_states", "users"
   add_foreign_key "recurring_templates", "categories"
   add_foreign_key "recurring_templates", "money_sources"
   add_foreign_key "recurring_templates", "users"

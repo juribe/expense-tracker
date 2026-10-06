@@ -81,6 +81,7 @@
                       <th scope="col"><%= t("statement_imports.column_date") %></th>
                       <th scope="col"><%= t("statement_imports.column_description") %></th>
                       <th scope="col" class="text-end"><%= t("statement_imports.column_amount") %></th>
+                      <th scope="col"><%= t("common.category") %></th>
                       <th scope="col"><%= t("statement_imports.column_status") %></th>
                     </tr>
                   </thead>
@@ -94,15 +95,24 @@
                           <%= hidden_field_tag("#{fields}[description]", candidate.description) %>
                           <%= hidden_field_tag("#{fields}[amount]", candidate.amount) %>
                           <%= hidden_field_tag("#{fields}[date]", candidate.date) %>
-                          <%= hidden_field_tag("#{fields}[category_id]", candidate.category_id) %>
+                          <%= hidden_field_tag("#{fields}[money_source_id]", candidate.money_source_id) %>
                           <%= hidden_field_tag("#{fields}[category_name]", candidate.category_name) %>
                         </td>
                         <td><%= candidate.date.present? ? l(candidate.date, format: :short) : "—" %></td>
                         <td><%= candidate.description %></td>
                         <td class="text-end fw-bold"><%= number_to_currency(candidate.amount.to_d.abs) %></td>
                         <td>
+                          <%= select_tag("#{fields}[category_id]",
+                                options_for_select(user_expense_category_options, candidate.category_id),
+                                include_blank: t("statement_imports.category_pending"),
+                                aria_label: t("common.category"),
+                                class: "form-select form-select-sm") %>
+                        </td>
+                        <td>
                           <% if candidate.duplicate %>
                             <span class="badge bg-warning text-dark"><%= t("statement_imports.status_duplicate") %></span>
+                          <% elsif candidate.category_id.blank? %>
+                            <span class="badge bg-secondary"><%= t("statement_imports.status_pending_category") %></span>
                           <% else %>
                             <span class="badge bg-success"><%= t("statement_imports.status_new") %></span>
                           <% end %>
@@ -157,6 +167,14 @@
                   <%= label_tag "payment_date", t("statement_imports.payment_date_label"), class: "form-label" %>
                   <%= date_field_tag "payment[date]", suggestion[:date]&.iso8601,
                         class: "form-control", id: "payment_date" %>
+                </div>
+
+                <div class="col-12 mb-3">
+                  <%= label_tag "payment_category", t("common.category"), class: "form-label" %>
+                  <%= select_tag "payment[category_id]",
+                        options_for_select(user_expense_category_options, nil),
+                        { include_blank: t("statement_imports.payment_category_placeholder"),
+                          class: "form-select", id: "payment_category", required: true } %>
                 </div>
 
                 <div class="col-12 mb-3">

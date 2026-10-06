@@ -1,0 +1,298 @@
+/* -------------------------------------------------
+ * Reports section
+ * Big page header, period control and the filters bar.
+ * ------------------------------------------------- */
+
+.reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.reports-header-icon {
+  font-size: 2.25rem;
+  color: var(--bs-primary);
+  line-height: 1;
+}
+
+.reports-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #1e2337;
+  margin: 0;
+}
+
+.reports-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Period control (top right) */
+.period-control {
+  min-width: 200px;
+}
+
+.period-control .input-group {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.period-control .form-select {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: #1e2337;
+  padding: 0.6rem 0.75rem 0.6rem 0.25rem;
+}
+
+.period-control .input-group-text {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+}
+
+.period-control .btn {
+  border: none;
+  color: #6b7280;
+}
+
+.period-control .custom-range {
+  margin-top: 0.5rem;
+}
+
+/* Filters card: title block + two-row chip grid + actions */
+.filters-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.filters-title-block {
+  flex: 0 0 190px;
+}
+
+.filters-title-block .filters-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1e2337;
+}
+
+.filters-title-block .filters-heading i {
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.filters-title-block .filters-description {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.35;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  gap: 0.75rem;
+  flex: 1 1 auto;
+}
+
+/* Single filter row on wide screens (one chip per column). */
+@media (min-width: 1200px) {
+  .filters-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.filter-chip > i:first-child {
+  color: #4b5563;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.filter-chip .chip-label {
+  font-size: 0.7rem;
+  color: #6b7280;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.filter-chip .chip-value {
+  display: flex;
+  align-items: center;
+}
+
+.filter-chip .form-select {
+  border: none;
+  padding: 0;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #1e2337;
+  background-color: transparent;
+  width: 100%;
+  background-image: none;
+}
+
+.filter-chip .form-select:focus {
+  box-shadow: none;
+}
+
+.filters-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  border-left: 1px solid #e5e7eb;
+  padding-left: 1.25rem;
+  align-self: stretch;
+  align-items: center;
+}
+
+.filters-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+/* Report cards */
+.report-card {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+}
+
+.report-card .card-header {
+  border-bottom: none;
+  background: transparent;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.report-card-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #1e2337;
+}
+
+.report-card-subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.15rem 0 0 0;
+}
+
+.report-card-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Chart panel inside a report card */
+.chart-panel {
+  background: #f6f7f9;
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+
+/* Report tables */
+.report-table th {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.report-table td {
+  vertical-align: middle;
+}
+
+.report-table .category-swatch {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.report-table .amount-negative {
+  color: #e2574c;
+  font-weight: 700;
+}
+
+.report-table .amount-positive {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.report-table .total-row td {
+  background: #f6f7f9;
+  font-weight: 700;
+}
+
+/* Mobile: stack the header; the chip grid collapses to two columns and the
+ * actions move below the grid. */
+@media (max-width: 991.98px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .reports-header {
+    flex-direction: column;
+  }
+
+  .filters-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-title-block {
+    flex: none;
+  }
+
+  .filters-actions {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 0.75rem;
+  }
+
+  .filters-actions .btn {
+    flex: 1;
+  }
+}

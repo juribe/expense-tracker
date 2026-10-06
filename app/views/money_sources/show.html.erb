@@ -49,6 +49,29 @@
             <% end %>
             <dt class="col-sm-5"><%= t("money_sources.show.status") %></dt>
             <dd class="col-sm-7"><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %></dd>
+            <% if @money_source.balance_offset.to_d.nonzero? %>
+              <dt class="col-sm-5"><%= t("money_sources.show.manual_adjustment") %></dt>
+              <dd class="col-sm-7">
+                <div>
+                  <span class="fw-semibold <%= @money_source.balance_offset.to_d.positive? ? "text-success" : "text-danger" %>">
+                    <%= reconciliation_signed_money(@money_source.balance_offset) %>
+                  </span>
+                  <% if @money_source.balance_offset_at %>
+                    <span class="text-muted small">— <%= I18n.l(@money_source.balance_offset_at.to_date, format: :long) %></span>
+                  <% end %>
+                </div>
+                <% if @money_source.balance_offset_note.present? %>
+                  <div class="text-muted small"><i class="bi bi-chat-left-text me-1"></i><%= @money_source.balance_offset_note %></div>
+                <% end %>
+                <%= button_to reset_adjustment_money_source_path(@money_source),
+                              method: :post,
+                              form_class: "d-inline",
+                              class: "btn btn-outline-secondary btn-sm mt-1",
+                              data: { turbo: false, confirm: t("money_sources.show.reset_adjustment_confirm") } do %>
+                  <i class="bi bi-arrow-counterclockwise me-1"></i><%= t("money_sources.show.reset_adjustment") %>
+                <% end %>
+              </dd>
+            <% end %>
           </dl>
         </div>
       </div>

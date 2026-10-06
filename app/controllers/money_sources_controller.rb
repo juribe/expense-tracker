@@ -2,7 +2,7 @@
 
 class MoneySourcesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_money_source, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_money_source, only: [ :show, :edit, :update, :destroy, :reset_adjustment ]
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -58,6 +58,17 @@ class MoneySourcesController < ApplicationController
       @editing = current_user.money_sources.find(params[:edit])
       @suggestions = SourceRecognition::SuggestionEngine.new(source: @editing).call
     end
+  end
+
+  # POST /money_sources/:id/reset_adjustment
+  #
+  # Undoes the manual "Ajustar saldo" correction from the Día de Cuadre
+  # dashboard: balance_offset goes back to zero (the balance returns to what
+  # its transactions explain) and the trace is cleared. The cuadre state is
+  # invalidated by the model's invalidation hook on update.
+  def reset_adjustment
+    @money_source.update!(balance_offset: 0, balance_offset_note: nil, balance_offset_at: nil)
+    redirect_to money_source_path(@money_source), notice: t("money_sources.flashes.adjustment_reset")
   end
 
   # PATCH /money_sources/recognition/:money_source_id

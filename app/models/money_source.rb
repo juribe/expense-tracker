@@ -13,6 +13,8 @@
 # Example: source.used_credit
 class MoneySource < ApplicationRecord
   KINDS = %w[account debit_card credit_card cash wallet loan].freeze
+
+  include Reconciliation::Invalidatable
   # Flavor within a kind, set by the wizard's loan step / statement import.
   # For loans it drives the capabilities below (revolving disburses money,
   # the rest are debts only); other kinds leave it nil.
@@ -72,8 +74,12 @@ class MoneySource < ApplicationRecord
   # Cached saldo — maintained incrementally by MoneySources::BalanceSync on
   # every transaction/transfer write. O(1) per write instead of re-aggregating
   # potentially tens of thousands of rows on every render.
+  #
+  # balance_offset is the persistent "Ajustar saldo" correction from the
+  # reconciliation dashboard (no transaction behind it), so it is part of the
+  # visible balance and survives BalanceSync.rebuild! recomputes.
   def balance
-    cached_balance.to_d
+    cached_balance.to_d + balance_offset.to_d
   end
 
   def transactions_amount_sum

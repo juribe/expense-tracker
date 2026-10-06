@@ -1,4 +1,4 @@
-<%= render "reports/page_header", path: reports_credit_cards_path %>
+<%= render "reports/page_header", title: t("reports.credit_cards.title"), subtitle: t("reports.credit_cards.subtitle"), path: reports_credit_cards_path %>
 
 <% if @credit_cards[:cards].any? %>
   <div class="row g-3">

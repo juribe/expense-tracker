@@ -1,0 +1,93 @@
+<%# Conciliar modal — populated by app/assets/javascripts/reconciliation.js
+    from the data-* attributes of the clicked "Conciliar" button.
+    Four resolutions + "Dejar pendiente". A discrepancy is NEVER auto-converted
+    into a "Descuadre" expense; crear expense/ingreso reuse the standard forms. %>
+<div class="modal fade" id="reconcileModal" tabindex="-1" aria-hidden="true"
+     data-balance-url="<%= reconciliation_actual_balance_path("SOURCE_ID") %>"
+     data-leave-url="<%= reconciliation_leave_pending_path("SOURCE_ID") %>"
+     data-movements-url="<%= reconciliation_search_movements_path %>"
+     data-create-expense-url="<%= new_expense_path %>"
+     data-create-income-url="<%= new_income_path %>"
+     data-movement-empty-label="<%= t("reconciliation.reconcile.no_movements") %>">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <%= t("reconciliation.reconcile.title") %> <span class="js-source-name">—</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-2">
+          <div class="col-12 col-md-4">
+            <div class="text-muted small mb-1"><%= t("reconciliation.reconcile.app_balance") %></div>
+            <div class="fw-bold fs-5 js-app-balance">—</div>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="text-muted small mb-1" for="reconcileActualBalance">
+              <%= t("reconciliation.reconcile.actual_balance") %>
+            </label>
+            <input type="text"
+                   id="reconcileActualBalance"
+                   class="form-control fw-semibold"
+                   inputmode="decimal"
+                   autocomplete="off"
+                   data-money-input="true"
+                   placeholder="0">
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="text-muted small mb-1"><%= t("reconciliation.reconcile.difference") %></div>
+            <div class="fw-bold fs-5 js-difference">—</div>
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <%= label_tag :reconcileNote, t("reconciliation.reconcile.note_label"), class: "text-muted small mb-1" %>
+          <input type="text"
+                 id="reconcileNote"
+                 class="form-control form-control-sm"
+                 maxlength="140"
+                 autocomplete="off"
+                 placeholder="<%= t("reconciliation.reconcile.note_placeholder") %>">
+        </div>
+
+        <div class="border-top my-3"></div>
+
+        <button type="button" class="btn btn-outline-secondary btn-sm mb-2" id="reconcileSearchToggle">
+          <i class="bi bi-search me-1"></i><%= t("reconciliation.reconcile.search_button") %>
+        </button>
+        <div id="reconcileSearchBlock" class="d-none">
+          <input type="search"
+                 id="reconcileSearchInput"
+                 class="form-control form-control-sm mb-2"
+                 placeholder="<%= t("reconciliation.reconcile.search_placeholder") %>"
+                 autocomplete="off">
+          <div id="reconcileSearchResults" class="list-group list-group-flush border rounded-3" style="max-height: 14rem; overflow-y: auto;">
+            <div class="list-group-item text-muted small js-search-empty">
+              <%= t("reconciliation.reconcile.search_hint") %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between flex-wrap gap-2">
+        <button type="button" id="reconcileLeavePending" class="btn btn-outline-secondary btn-sm">
+          <%= t("reconciliation.reconcile.leave_pending") %>
+        </button>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <%= link_to "#", id: "reconcileCreateExpense", target: "_blank", rel: "noopener", class: "btn btn-outline-primary btn-sm" do %>
+            <%= t("reconciliation.reconcile.create_expense") %>
+          <% end %>
+          <%= link_to "#", id: "reconcileCreateIncome", target: "_blank", rel: "noopener", class: "btn btn-outline-primary btn-sm" do %>
+            <%= t("reconciliation.reconcile.create_income") %>
+          <% end %>
+          <button type="button" id="reconcileAllGood" class="btn btn-outline-success btn-sm">
+            <i class="bi bi-check2-all me-1"></i><%= t("reconciliation.reconcile.all_good") %>
+          </button>
+          <button type="button" id="reconcileAdjust" class="btn btn-primary btn-sm">
+            <i class="bi bi-sliders me-1"></i><%= t("reconciliation.reconcile.adjust") %>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

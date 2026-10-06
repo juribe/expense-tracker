@@ -3,6 +3,8 @@
 class RecurringTemplate < ApplicationRecord
   TRANSACTION_TYPES = %w[income expense].freeze
 
+  include Reconciliation::Invalidatable
+
   belongs_to :user
   belongs_to :category
   belongs_to :money_source, optional: true

@@ -21,8 +21,26 @@ module ApplicationHelper
     end
   end
 
+  # The user's expense-type categories as [name, id] option pairs, used by the
+  # statement import review and the payment block.
+  def user_expense_category_options
+    Category.for_user_and_type(current_user, "expense").pluck(:name, :id)
+  end
+
   def active_class(controller)
     controller_name == controller ? "active" : ""
+  end
+
+  # Exact match on controller_path, needed where two controllers share a
+  # controller_name (e.g. Reports::BudgetsController vs BudgetsController).
+  def exact_active_class(path_name)
+    controller_path == path_name ? "active" : ""
+  end
+
+  # Sidebar Reports submenu stays expanded on any reports page, including the
+  # old monthly reports page and the drill-down.
+  def reports_section_active?
+    controller_path.to_s.start_with?("reports", "monthly_reports")
   end
 
   def money_source_filter_active?(filter)
@@ -106,7 +124,7 @@ module ApplicationHelper
   end
 
   def source_kind_label(kind)
-    t("kinds.#{kind.to_s}", default: kind.to_s.titleize)
+    t("kinds.#{kind}", default: kind.to_s.titleize)
   end
 
   # Label for a recurring template's select option in the "apply to recurring"

@@ -67,6 +67,9 @@ Rails.application.routes.draw do
   patch "money_sources/recognition/:money_source_id", to: "money_sources#update_recognition", as: :money_source_recognition
   delete "money_sources/recognition/:money_source_id", to: "money_sources#destroy_recognition", as: :money_source_recognition_destroy
   resources :money_sources, id: /[0-9]+/ do
+    member do
+      post :reset_adjustment
+    end
     resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
     resources :statement_imports, only: [ :new, :create ] do
       collection do
@@ -157,6 +160,18 @@ Rails.application.routes.draw do
 
   # Financial summary (month snapshot page)
   get "financial_summary", to: "financial_summary#show", as: :financial_summary
+
+  # Día de Cuadre (reconciliation dashboard)
+  get "reconciliation", to: "reconciliations#show", as: :reconciliation
+  post "reconciliation/refresh", to: "reconciliations#refresh", as: :reconciliation_refresh
+  get "reconciliation/search_expenses", to: "reconciliations#search_expenses", as: :reconciliation_search_expenses
+  get "reconciliation/search_movements", to: "reconciliations#search_movements", as: :reconciliation_search_movements
+  post "reconciliation/payments/:recurring_template_id/assign",
+       to: "reconciliations#assign_payment", as: :reconciliation_assign_payment
+  post "reconciliation/sources/:money_source_id/actual_balance",
+       to: "reconciliations#set_actual_balance", as: :reconciliation_actual_balance
+  post "reconciliation/sources/:money_source_id/leave_pending",
+       to: "reconciliations#leave_pending", as: :reconciliation_leave_pending
 
   # Categories as the main entry point
   get 'dashboard', to: 'dashboard#index'

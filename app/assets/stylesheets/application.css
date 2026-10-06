@@ -199,6 +199,20 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
 }
 
+/* Reports submenu: nested links under the collapsible Informes entry. */
+.sidebar-submenu {
+  padding-bottom: 0.25rem;
+}
+
+.sidebar-submenu .sidebar-link {
+  padding: 0.35rem 1.25rem 0.35rem 3.1rem;
+  font-size: 0.8125rem;
+}
+
+.sidebar-submenu .sidebar-link.active {
+  font-weight: 600;
+}
+
 .sidebar-link i {
   width: 1.25rem;
   margin-right: 0.75rem;

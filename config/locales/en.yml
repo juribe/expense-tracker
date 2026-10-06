@@ -597,6 +597,8 @@ en:
       not_expense: "You can only assign expenses to expense recurring templates."
       inactive: "The recurring template is inactive."
       already_linked: "The expense is already assigned to another recurring template. Unassign it first to reassign."
+      period_mismatch: "The expense is dated %{description}; it can't count as this period's payment. Use an expense dated within the cuadre month (edit its date or create a new one)."
+      debt_target: "Debt payments are applied from the account page: the real payment (quota split into principal and interest) is registered there and the cuadre clears on its own."
       period_taken: "\"%{description}\" already has its payment registered for that month."
 
     recurring_link:

@@ -47,7 +47,7 @@
         <i class="bi bi-wallet2"></i>
         <span><%= t("nav.incomes") %></span>
       <% end %>
-      <%= link_to transfers_path, class: "sidebar-link #{active_class('transfers')}" do %>
+      <%= link_to transfers_path, class: "sidebar-link #{exact_active_class('reports/transfers')}" do %>
         <i class="bi bi-arrow-left-right"></i>
         <span><%= t("nav.transfers", default: "Transferencias") %></span>
       <% end %>
@@ -67,22 +67,52 @@
 
     <div class="sidebar-section">
       <div class="sidebar-section-title"><%= t("nav.reports") %></div>
-      <%= link_to reports_overview_path, class: "sidebar-link #{active_class('reports')}" do %>
+      <a class="sidebar-link <%= 'active' if reports_section_active? %>" data-bs-toggle="collapse" href="#reportsSubmenu"
+         role="button" aria-expanded="<%= reports_section_active? %>" aria-controls="reportsSubmenu">
         <i class="bi bi-bar-chart"></i>
         <span><%= t("reports.title") %></span>
-      <% end %>
-      <%= link_to monthly_reports_path, class: "sidebar-link #{active_class('monthly_reports')}" do %>
-        <i class="bi bi-graph-up"></i>
-        <span><%= t("nav.reports_title") %></span>
-      <% end %>
-      <%= link_to budgets_path, class: "sidebar-link #{active_class('budgets')}" do %>
-        <i class="bi bi-bullseye"></i>
-        <span><%= t("nav.budgets") %></span>
-      <% end %>
-      <%= link_to transaction_rules_path, class: "sidebar-link #{active_class('transaction_rules')}" do %>
-        <i class="bi bi-magic"></i>
-        <span><%= t("nav.rules") %></span>
-      <% end %>
+        <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem;"></i>
+      </a>
+      <div class="collapse <%= 'show' if reports_section_active? %>" id="reportsSubmenu">
+        <div class="sidebar-submenu">
+          <%= link_to reports_overview_path, class: "sidebar-link #{exact_active_class('reports/overview')}" do %>
+            <span><%= t("reports.nav.overview") %></span>
+          <% end %>
+          <%= link_to reports_by_category_path, class: "sidebar-link #{exact_active_class('reports/category_spending')}" do %>
+            <span><%= t("reports.nav.by_category") %></span>
+          <% end %>
+          <%= link_to reports_trends_path, class: "sidebar-link #{exact_active_class('reports/spending_trend')}" do %>
+            <span><%= t("reports.nav.trends") %></span>
+          <% end %>
+          <%= link_to reports_budgets_path, class: "sidebar-link #{exact_active_class('reports/budgets')}" do %>
+            <span><%= t("reports.nav.budgets") %></span>
+          <% end %>
+          <%= link_to reports_credit_cards_path, class: "sidebar-link #{exact_active_class('reports/credit_cards')}" do %>
+            <span><%= t("reports.nav.credit_cards") %></span>
+          <% end %>
+          <%= link_to reports_loans_path, class: "sidebar-link #{exact_active_class('reports/loans')}" do %>
+            <span><%= t("reports.nav.loans") %></span>
+          <% end %>
+          <%= link_to reports_recurring_path, class: "sidebar-link #{exact_active_class('reports/recurring')}" do %>
+            <span><%= t("reports.nav.recurring") %></span>
+          <% end %>
+          <%= link_to reports_money_sources_path, class: "sidebar-link #{exact_active_class('reports/money_sources')}" do %>
+            <span><%= t("reports.nav.money_sources") %></span>
+          <% end %>
+          <%= link_to reports_transfers_path, class: "sidebar-link #{exact_active_class('reports/transfers')}" do %>
+            <span><%= t("reports.nav.transfers") %></span>
+          <% end %>
+          <%= link_to reports_insights_path, class: "sidebar-link #{exact_active_class('reports/insights')}" do %>
+            <span><%= t("reports.nav.insights") %></span>
+          <% end %>
+          <%= link_to reports_transactions_path, class: "sidebar-link #{exact_active_class('reports/transactions')}" do %>
+            <span><%= t("reports.transactions.title", default: "Transacciones") %></span>
+          <% end %>
+          <%= link_to monthly_reports_path, class: "sidebar-link #{exact_active_class('monthly_reports')}" do %>
+            <span><%= t("reports.monthly_balance") %></span>
+          <% end %>
+        </div>
+      </div>
     </div>
 
     <div class="sidebar-section">
@@ -95,6 +125,10 @@
         <i class="bi bi-clipboard-data"></i>
         <span><%= t("nav.financial_summary") %></span>
       <% end %>
+      <%= link_to reconciliation_path, class: "sidebar-link #{active_class('reconciliations')}" do %>
+        <i class="bi bi-check2-square"></i>
+        <span><%= t("nav.reconciliation", default: "Día de Cuadre") %></span>
+      <% end %>
     </div>
 
     <div class="sidebar-section sidebar-settings">
@@ -102,6 +136,14 @@
       <%= link_to categories_path, class: "sidebar-link #{active_class('categories')}" do %>
         <i class="bi bi-tags"></i>
         <span><%= t("nav.categories") %></span>
+      <% end %>
+      <%= link_to budgets_path, class: "sidebar-link #{exact_active_class('budgets')}" do %>
+        <i class="bi bi-bullseye"></i>
+        <span><%= t("nav.budgets") %></span>
+      <% end %>
+      <%= link_to transaction_rules_path, class: "sidebar-link #{exact_active_class('transaction_rules')}" do %>
+        <i class="bi bi-magic"></i>
+        <span><%= t("nav.rules") %></span>
       <% end %>
       <%= link_to money_sources_cash_path, class: "sidebar-link #{money_source_filter_active?('cash')}" do %>
         <i class="bi bi-cash-stack"></i>

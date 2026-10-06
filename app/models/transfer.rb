@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Transfer < ApplicationRecord
+  include Reconciliation::Invalidatable
+
   belongs_to :user
   belongs_to :from_source, class_name: "MoneySource"
   belongs_to :to_source, class_name: "MoneySource"

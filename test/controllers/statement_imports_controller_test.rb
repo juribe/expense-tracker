@@ -100,7 +100,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
             { description: "Supermercado", amount: "210000", date: "2026-09-02", category_id: @category.id, selected: "0" }
           ],
           payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
-                     principal_amount: "60000", interest_amount: "3000",
+                     category_id: @category.id, principal_amount: "60000", interest_amount: "3000",
                      funding_money_source_id: @account.id }
         }
       end
@@ -139,7 +139,8 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
           "0" => { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01",
                    category_id: @category.id, selected: "1" }
         },
-        payment: { register: "1", date: "2026-09-05", principal_amount: "60000",
+        payment: { register: "1", date: "2026-09-05", category_id: @category.id,
+                   principal_amount: "60000",
                    interest_amount: "3000", funding_money_source_id: @account.id }
       }
     end
@@ -176,6 +177,62 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: /Restaurante XYZ/
   end
 
+  # --------------------------------------------------- category safety
+  test "review renders a per-row category select and a payment category select" do
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "select[name*='[category_id]']"
+    assert_select "select[name='payment[category_id]']"
+  end
+
+  test "confirm parks movements without a usable category as review candidates" do
+    assert_no_difference -> { Expense.count } do
+      assert_difference -> { ExpenseCandidate.needs_review.count }, 1 do
+        post confirm_money_source_statement_imports_path(@card), params: {
+          movements: [ { description: "MAXIDIFICACION RARA", amount: "48500", date: "2026-09-01",
+                         money_source_id: @card.id, selected: "1" } ]
+        }
+      end
+    end
+
+    assert_redirected_to money_source_path(@card)
+    assert_match /pendiente de categoría/, flash[:notice].to_s
+    parked = ExpenseCandidate.needs_review.last
+    assert_equal "statement_file", parked.source
+    assert_equal "MAXIDIFICACION RARA", parked.description
+    assert_includes parked.missing_fields, "category_id"
+  end
+
+  test "confirm with a row the user classified creates the expense directly" do
+    assert_difference -> { Expense.count }, 1 do
+      post confirm_money_source_statement_imports_path(@card), params: {
+        movements: [ { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01",
+                       category_id: @category.id, selected: "1" } ]
+      }
+    end
+
+    assert_redirected_to money_source_path(@card)
+  end
+
+  test "confirm skips movements that duplicate an existing expense and reports it" do
+    Expense.create!(user: @user, category: @category, money_source: @card,
+                    amount: -48_500, date: Date.new(2026, 9, 1), description: "Restaurante XYZ")
+
+    assert_no_difference -> { Expense.count } do
+      post confirm_money_source_statement_imports_path(@card), params: {
+        movements: [ { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01",
+                       category_id: @category.id, money_source_id: @card.id, selected: "1" } ]
+      }
+    end
+
+    assert_redirected_to money_source_path(@card)
+    assert_match /duplicado omitido/, flash[:notice].to_s
+  end
+
   test "POST confirm lowers the money source balance for imported expenses" do
     card_before = @card.reload.balance
     account_before = @account.reload.balance
@@ -187,7 +244,8 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
         "1" => { description: "Supermercado", amount: "15000", date: "2026-09-02",
                  category_id: @category.id, selected: "1" }
       },
-      payment: { register: "1", date: "2026-09-05", principal_amount: "60000",
+      payment: { register: "1", date: "2026-09-05", category_id: @category.id,
+                 principal_amount: "60000",
                  interest_amount: "3000", funding_money_source_id: @account.id }
     }
 

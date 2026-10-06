@@ -90,9 +90,9 @@ class StatementImportsController < ApplicationController
 
     entries = if raw.is_a?(Array)
                 raw
-              else
+    else
                 raw.keys.sort_by(&:to_i).map { |key| raw[key] }
-              end
+    end
     entries.map { |row| row.respond_to?(:permit) ? row.permit(*ROW_FIELDS) : row }
   end
 
@@ -136,6 +136,12 @@ class StatementImportsController < ApplicationController
                       target: @money_source.name)
     else
       parts << I18n.t("statement_imports.confirmed_without_payment")
+    end
+    if outcome[:skipped_duplicates].to_i.positive?
+      parts << I18n.t("statement_imports.skipped_duplicates", count: outcome[:skipped_duplicates])
+    end
+    if (parked = Array(outcome[:candidates])).any?
+      parts << I18n.t("statement_imports.parked_candidates", count: parked.length)
     end
     parts.join(" ")
   end
