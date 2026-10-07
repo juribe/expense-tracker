@@ -170,6 +170,50 @@ class SpendingAlertServiceTest < ActiveSupport::TestCase
     assert_empty SpendingAlert.where(user: @user)
   end
 
+  test "budget alerts measure the financial cycle when a schedule is configured" do
+    @user.update!(financial_cycle_start_day: 20)
+    create_budget(1_000_000)
+    cycle = PayCycle.current(@user)
+    # Two in-cycle expenses fall in different calendar months but the same cycle.
+    create_expense(400_000, date: cycle.starts + 5)
+    create_expense(400_000, date: cycle.starts + 15)
+    # An expense in the next cycle does not count toward this cycle.
+    create_expense(400_000, date: cycle.ends + 5)
+
+    assert_equal 1, alerts_of_kind("budget_threshold").count
+    alert = alerts_of_kind("budget_threshold").first
+    assert_equal 80, alert.pct
+    assert_equal 800_000.to_d, alert.amount
+    assert_equal cycle.starts.iso8601, alert.month
+  end
+
+  test "spending_increase compares the previous cycle with a configured schedule" do
+    @user.update!(financial_cycle_start_day: 20)
+    @user.alert_prefs.update!(spending_increase_enabled: true)
+    cycle = PayCycle.current(@user)
+    previous_cycle = PayCycle.containing(@user, cycle.starts - 1.day)
+    create_expense(100_000, date: previous_cycle.starts)
+    create_expense(135_000, date: cycle.starts)
+
+    assert_equal 1, alerts_of_kind("spending_increase").count
+    alert = alerts_of_kind("spending_increase").first
+    assert_equal 35, alert.pct
+    assert_equal 135_000.to_d, alert.amount
+    assert_equal 100_000.to_d, alert.previous_amount
+  end
+
+  test "with a schedule, expenses outside the current cycle are never evaluated" do
+    @user.update!(financial_cycle_start_day: 20)
+    create_budget(1_000_000)
+    cycle = PayCycle.current(@user)
+    previous_cycle = PayCycle.containing(@user, cycle.starts - 1.day)
+
+    create_expense(800_000, date: cycle.ends + 5)
+    create_expense(800_000, date: previous_cycle.starts)
+
+    assert_empty SpendingAlert.where(user: @user)
+  end
+
   test "a brand new user with default preferences never crashes the engine" do
     user = User.create!(name: "Fresh", email: "fresh_#{SecureRandom.hex(4)}@example.com", password: "password123")
     category = Category.create!(name: "Nuevo_#{SecureRandom.hex(4)}", category_type: "expense", user: user)

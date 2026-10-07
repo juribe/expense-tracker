@@ -54,11 +54,7 @@
 <% else %>
   <% @alerts.group_by(&:month).each do |month, alerts| %>
     <div class="text-muted small fw-semibold text-uppercase border-bottom pb-1 mb-3">
-      <% if month == Time.zone.today.strftime("%Y-%m") %>
-        <%= t("alerts.this_month", default: "Este mes") %>
-      <% else %>
-        <%= l(Date.new(*month.split("-").map(&:to_i)), format: :month_year) %>
-      <% end %>
+      <%= alert_period_title(month) %>
     </div>
     <%= render partial: "alerts/alert", collection: alerts, as: :alert %>
   <% end %>

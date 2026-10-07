@@ -49,6 +49,96 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=table]", count: 0
   end
 
+  test "GET /dashboard groups the summaries by pay cycle with a configured schedule" do
+    sign_in @user
+    @user.update!(financial_cycle_start_day: 20)
+    # Inside the cycle opened Oct 20 (a bill paid Nov 3).
+    @user.expenses.create!(amount: 500_000, date: Date.new(2026, 11, 3), category: @category, description: "Arriendo")
+    # Calendar-month expense outside the cycle (belongs to the next cycle).
+    @user.expenses.create!(amount: 900_000, date: Date.new(2026, 11, 25), category: @category, description: "Fuera")
+
+    get dashboard_path, params: { cycle: "2026-11-2" }
+
+    assert_response :success
+    assert_select "h5", text: /Gastos de este ciclo/
+  end
+
+  test "GET /dashboard shows the financial cycle banner when cycles are enabled" do
+    sign_in @user
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.new(2026, 10, 25))
+
+    get dashboard_path, params: { cycle: "2026-10-25" }
+
+    assert_response :success
+    assert_select "div.cycle-banner" do
+      assert_select "strong", text: cycle.label
+      assert_select "span", text: cycle.range_label
+    end
+  end
+
+  test "GET /dashboard hides the cycle banner without a configured schedule" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "div.cycle-banner", count: 0
+  end
+
+  test "GET /dashboard labels the expense card with the cycle when cycles are enabled" do
+    sign_in @user
+    @user.update!(financial_cycle_start_day: 20)
+
+    get dashboard_path, params: { cycle: "2026-10-25" }
+
+    assert_response :success
+    assert_select "h5", text: /Gastos de este ciclo/
+    assert_select "h5", text: /Gastos de este mes/, count: 0
+    assert_select "span", text: /No hay gastos este ciclo/
+  end
+
+  test "GET /dashboard labels the expense card with the month without a configured schedule" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "h5", text: /Gastos de este mes/
+  end
+
+  test "GET /dashboard transactions card counts all the period's expenses, not just the recent 5" do
+    sign_in @user
+    7.times { |i| @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "G#{i}") }
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "p.summary-value", text: "7"
+  end
+
+  test "GET /dashboard renders the transactions label, never the translations hash" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_includes response.body, "Transacciones"
+    refute_includes response.body, "Gastos del periodo seleccionado"
+    refute_includes response.body, '{:title=>'
+  end
+
+  test "GET /dashboard shows the budgets card above the quick add card" do
+    Budget.create!(user: @user, category: @category, monthly_amount: 100_000, period: "monthly", active: true)
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    body = response.body
+    assert_operator body.index(t("budgets.dashboard_title")), :<, body.index(t("dashboard.quick_add_expense", default: "Agregar gasto rápido"))
+  end
+
   test "GET /dashboard quick add form offers payment sources, not loans" do
     cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true)
     card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)

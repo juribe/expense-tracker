@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # AlertsHelper
-# Methods: alert_icon, alert_chip_text_class, alert_level_label, alert_message
+# Methods: alert_icon, alert_chip_text_class, alert_level_label, alert_message,
+# alert_period_title, alert_period_range
 #
 # Example: alert_message(alert) # => "Restaurantes usó el 82% de su presupuesto mensual de $800.000."
 module AlertsHelper
@@ -55,5 +56,32 @@ module AlertsHelper
     else
       ""
     end
+  end
+
+  # Group title for the alert's stored period key: "Este ciclo"/"Este mes"
+  # for the current period, else its human label ("Septiembre 2026") — the
+  # key is either a calendar month ("YYYY-MM") or a pay-cycle start date.
+  def alert_period_title(month_key)
+    if month_key == PayCycle.period_for(current_user, Time.zone.today).first
+      current_user.financial_cycles_enabled? ? t("alerts.this_cycle", default: "Este ciclo") : t("alerts.this_month", default: "Este mes")
+    else
+      alert_period_label(month_key)
+    end
+  end
+
+  # Human label of the period key: the cycle's name (or the month's) — both
+  # key shapes render "Octubre 2026".
+  def alert_period_label(month_key)
+    if month_key.match?(/\A\d{4}-\d{2}\z/)
+      year, month = month_key.split("-").map(&:to_i)
+      I18n.l(Date.new(year, month, 1), format: :month_year)
+    else
+      PayCycle.containing(current_user, Date.iso8601(month_key)).label
+    end
+  end
+
+  # Date span of the period key, for links that filter by explicit dates.
+  def alert_period_range(month_key)
+    PayCycle.key_range(current_user, month_key)
   end
 end

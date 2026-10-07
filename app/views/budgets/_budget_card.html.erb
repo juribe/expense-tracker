@@ -1,4 +1,4 @@
-<% data = budget_progress_data(budget, month) %>
+<% data = budget_progress_data(budget, period) %>
 <% status = data[:status] %>
 <% pct = data[:percentage] %>
 <div class="card h-100 shadow-sm">
@@ -23,7 +23,7 @@
     <div class="row g-3 mb-3 text-center">
       <div class="col-4">
         <div class="small text-muted"><%= t("budgets.budget") %></div>
-        <div class="fw-bold budget-amount"><%= number_to_currency(budget.monthly_amount) %></div>
+        <div class="fw-bold budget-amount"><%= number_to_currency(budget.amount_for(period)) %></div>
       </div>
       <div class="col-4">
         <div class="small text-muted"><%= t("budgets.spent") %></div>
@@ -34,7 +34,7 @@
           <%= status == :over_budget ? t("budgets.exceeded") : t("budgets.remaining") %>
         </div>
         <div class="fw-bold <%= status == :over_budget ? 'text-danger' : 'text-success' %> budget-amount">
-          <%= number_to_currency(status == :over_budget ? data[:spent] - budget.monthly_amount : budget.remaining_for(month)) %>
+          <%= number_to_currency(status == :over_budget ? data[:spent] - budget.amount_for(period) : budget.remaining_for(period)) %>
         </div>
       </div>
     </div>

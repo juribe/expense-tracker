@@ -2,11 +2,14 @@
 
 # Budget
 # Monthly spending target for an expense category, computed against the user's
-# actual expenses for the selected month via the shared CategorySpend service.
+# actual expenses for the selected period via the shared CategorySpend service.
+# Periods may be a calendar month (Date) or a financial cycle (Range or
+# PayCycle::Cycle); since a financial cycle always spans one month, the
+# monthly target applies 1:1 to every cycle.
 #
 # Associations: belongs_to :user, belongs_to :category
-# Methods: spent_for(month), remaining_for(month), percentage_for(month),
-#          status_for(month), near_limit?, over_budget?
+# Methods: spent_for(period), remaining_for(period), percentage_for(period),
+#          status_for(period), amount_for(period), near_limit?, over_budget?
 #
 # Example: Budget.find(id).status_for(Time.zone.today) # => :near_limit
 class Budget < ApplicationRecord
@@ -27,23 +30,24 @@ class Budget < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :for_user, ->(user) { where(user_id: user.id) }
 
-  def spent_for(month)
+  def spent_for(period)
+    args = range_period?(period) ? { range: period.respond_to?(:to_range) ? period.to_range : period } : { month: period }
     @spent_for ||= {}
-    @spent_for[month] ||= CategorySpend.call(user: user, category: category, month: month)
+    @spent_for[period] ||= CategorySpend.call(user: user, category: category, **args)
   end
 
-  def remaining_for(month)
-    monthly_amount.to_d - spent_for(month)
+  def remaining_for(period)
+    amount_for(period) - spent_for(period)
   end
 
-  def percentage_for(month)
-    return 0.0 if monthly_amount.to_f <= 0
+  def percentage_for(period)
+    return 0.0 if amount_for(period).to_f <= 0
 
-    (spent_for(month) / monthly_amount.to_d) * 100
+    (spent_for(period) / amount_for(period)) * 100
   end
 
-  def status_for(month)
-    pct = percentage_for(month)
+  def status_for(period)
+    pct = percentage_for(period)
     if pct > 100.0
       :over_budget
     elsif pct >= NEAR_LIMIT_PERCENT
@@ -51,6 +55,18 @@ class Budget < ApplicationRecord
     else
       :on_track
     end
+  end
+
+  # The target the period is measured against: the monthly amount applies
+  # 1:1 both to calendar months and to financial cycles.
+  def amount_for(period)
+    monthly_amount.to_d
+  end
+
+  # A financial-cycle period (explicit Range or PayCycle::Cycle) spans dates,
+  # while a calendar period is a single Date.
+  def range_period?(period)
+    period.is_a?(Range) || period.is_a?(PayCycle::Cycle)
   end
 
   def over_budget?(month)

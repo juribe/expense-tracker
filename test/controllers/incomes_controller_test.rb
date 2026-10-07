@@ -26,4 +26,32 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, loan.reload.name
     assert account.persisted?
   end
+
+  test "GET /incomes shows the financial cycle badge in the title with a schedule" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+
+    get incomes_path
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.label}/
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.range_label}/
+  end
+
+  test "GET /incomes hides the cycle badge without a configured schedule" do
+    get incomes_path
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", count: 0
+  end
+
+  test "GET /incomes/new defaults the date to the current cycle start with a schedule" do
+    @user.update!(financial_cycle_start_day: 20)
+    expected = PayCycle.current(@user).starts
+
+    get new_income_path
+
+    assert_response :success
+    assert_select "input[name='income[date]'][value=?]", expected.to_s
+  end
 end

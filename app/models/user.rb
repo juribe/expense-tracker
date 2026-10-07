@@ -4,6 +4,15 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  validates :financial_cycle_start_day,
+            numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }
+
+  # A start day of 1 means plain calendar months; anything else turns on the
+  # pay-cycle grouping everywhere (reports, budgets, dashboard, cuadre).
+  def financial_cycles_enabled?
+    financial_cycle_start_day.to_i != 1
+  end
+
   has_many :incomes, dependent: :destroy
   has_many :expenses, dependent: :destroy
   has_many :transactions, dependent: :destroy

@@ -1,9 +1,17 @@
 <% content_for :title, t("financial_summary.title") %>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h1 class="fw-bold mb-1"><%= t("financial_summary.title") %></h1>
-    <p class="text-muted mb-0"><%= I18n.l(@summary[:month], format: :long, default: @summary[:month].strftime("%B %Y")) %></p>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <h1 class="fw-bold mb-0"><%= t("financial_summary.title") %></h1>
+    <% if @cycle %>
+      <span class="badge bg-light text-dark border" data-testid="cycle-badge">
+        <i class="bi bi-calendar-heart me-1"></i><%= @cycle.label %> (<%= @cycle.range_label %>)
+      </span>
+    <% else %>
+      <span class="text-muted">
+        <%= I18n.l(@summary[:month], format: :long, default: @summary[:month].strftime("%B %Y")) %>
+      </span>
+    <% end %>
   </div>
   <%= link_to financial_chat_path, class: "btn btn-outline-primary" do %>
     <i class="bi bi-chat-dots me-1"></i><%= t("nav.financial_chat") %>

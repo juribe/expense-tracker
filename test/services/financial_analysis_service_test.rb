@@ -143,6 +143,18 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     end
   end
 
+  test "strong tier disabled flag does not block the chat" do
+    @fake.responses << { content: "ok", output_tokens: 5, input_tokens: 10 }
+
+    with_env({ "AI_DISABLE_STRONG_TIER" => "true" }) do
+      run_service
+    end
+
+    assert_includes events_on_stream, "assistant_completed"
+    assert_equal 1, @chat.messages.reload.where(role: "assistant").count
+    assert_equal "strong_ai", AiRequest.order(:created_at).last.strategy
+  end
+
   test "unconfigured provider broadcasts assistant_failed" do
     stub_method(Ai::Providers, :strong, ->(**_kwargs) { nil }) do
       FinancialAnalysisService.new(chat_id: @chat.id, message_id: @question.id).call

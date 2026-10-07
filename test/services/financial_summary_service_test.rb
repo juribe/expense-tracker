@@ -84,4 +84,22 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
   test "utilization is nil without credit limits" do
     assert_nil summary[:debt][:utilization_pct]
   end
+
+  test "cycle period spans the pay cycle and compares against the previous cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.new(2026, 11, 2))
+
+    @user.incomes.create!(amount: 10_000_000, date: Date.new(2026, 10, 20), category: @income_cat)
+    @user.expenses.create!(amount: 3_000_000, date: Date.new(2026, 11, 3), category: @food)
+    # Calendar-month expenses outside the cycle must not count.
+    @user.expenses.create!(amount: 999_000, date: Date.new(2026, 11, 25), category: @food)
+    @user.expenses.create!(amount: 2_000_000, date: Date.new(2026, 10, 5), category: @food)
+
+    data = FinancialSummaryService.new(user: @user, cycle: cycle).call
+
+    assert_equal "2026-10-20", data[:period_key]
+    assert_equal 3_000_000, data[:expenses][:total]
+    assert_equal 2_000_000, data[:expenses][:previous]
+    assert_equal 10_000_000, data[:income][:total]
+  end
 end

@@ -94,7 +94,7 @@ module RecurringTemplateActions
                                        .includes(:category)
                                        .where(kind: template_kind)
                                        .ordered
-    @current_period = Date.current.strftime("%Y-%m")
+    @current_period = current_listing_period
 
     # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
     # payment sources — loans are never recipients of an income nor payers.
@@ -107,6 +107,18 @@ module RecurringTemplateActions
 
     @total_count = @recurring_templates.size
     @filtered_total = @recurring_templates.sum(&:signed_amount)
+  end
+
+  # The period the listing judges pending/completed against: a pay cycle
+  # (PayCycle::Cycle) when the user configured paydays — anchored by the
+  # ?period= param for navigation — or the legacy calendar-month string.
+  def current_listing_period
+    return Date.current.strftime("%Y-%m") unless Reports::Period.cycles_enabled?(current_user)
+
+    anchor = params[:period].present? ? Date.parse(params[:period]) : Date.current
+    PayCycle.containing(current_user, anchor)
+  rescue ArgumentError, TypeError
+    PayCycle.current(current_user)
   end
 
   # The money source chosen in the process modal. :invalid signals the

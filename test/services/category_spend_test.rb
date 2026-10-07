@@ -57,4 +57,15 @@ class CategorySpendTest < ActiveSupport::TestCase
   test "returns zero when there is no spending" do
     assert_equal 0.to_d, CategorySpend.call(user: @user, category: @category, month: @month)
   end
+
+  test "accepts an explicit range instead of a calendar month" do
+    create_expense(300_000, date: Date.new(2026, 10, 21))
+    create_expense(200_000, date: Date.new(2026, 11, 3))
+    create_expense(999_999, date: Date.new(2026, 10, 5))
+    create_expense(999_999, date: Date.new(2026, 11, 20))
+
+    range = Date.new(2026, 10, 20)..Date.new(2026, 11, 19)
+
+    assert_equal 500_000.to_d, CategorySpend.call(user: @user, category: @category, range: range)
+  end
 end

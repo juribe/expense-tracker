@@ -1,11 +1,37 @@
 <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-arrow-left-right me-2"></i><%= t("transfers.index.title") %></h1>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <h1 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i><%= t("transfers.index.title") %></h1>
+    <% if @cycle %>
+      <span class="badge bg-light text-dark border" data-testid="cycle-badge">
+        <i class="bi bi-calendar-heart me-1"></i><%= @cycle.label %> (<%= @cycle.range_label %>)
+      </span>
+    <% end %>
+  </div>
   <div class="d-flex gap-2">
     <%= link_to money_sources_path, class: "btn btn-outline-primary" do %>
       <i class="bi bi-wallet2 me-1"></i><%= t("nav.money_sources") %>
     <% end %>
     <%= link_to new_transfer_path, class: "btn btn-primary" do %>
       <i class="bi bi-plus-lg me-1"></i><%= t("transfers.index.new") %>
+    <% end %>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <%= form_with url: transfers_path, method: :get, class: "row g-3 align-items-end" do |f| %>
+      <div class="col-6 col-md-3">
+        <%= f.label :start_date, t("common.from", default: "Desde"), class: "form-label" %>
+        <%= f.date_field :start_date, value: @start_date, class: "form-control" %>
+      </div>
+      <div class="col-6 col-md-3">
+        <%= f.label :end_date, t("common.to", default: "Hasta"), class: "form-label" %>
+        <%= f.date_field :end_date, value: @end_date, class: "form-control" %>
+      </div>
+      <div class="col-12 col-md-4 d-flex gap-2">
+        <%= f.submit t("common.filter", default: "Filtrar"), class: "btn btn-outline-primary" %>
+        <%= link_to t("transfers.index.back_to_current", default: "Período actual"), transfers_path, class: "btn btn-outline-secondary" %>
+      </div>
     <% end %>
   </div>
 </div>

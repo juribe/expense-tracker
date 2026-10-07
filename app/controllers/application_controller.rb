@@ -7,6 +7,13 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
+  # Default date for new records (expense/income/transfer forms): the start
+  # of the current pay cycle when the user configured paydays — bills paid
+  # right after payday get dated from it — otherwise plain today.
+  def default_record_date
+    Reports::Period.cycles_enabled?(current_user) ? PayCycle.current(current_user).starts : Date.current
+  end
+
   # A stale/invalid CSRF token (e.g. a page left open across a sign-in, or a
   # Turbo-cached form) must not surface as a cryptic JSON 500: send the user
   # back with a clear "please retry" message.

@@ -13,9 +13,11 @@ module Expenses
   #                        # period_taken
   #   result.message_key   # symbol-ish key under expenses.assign_recurring.*
   #
-  # `period` (optional, "YYYY-MM") is used by the Día de Cuadre assign flow:
-  # the expense must be dated inside that period, otherwise the linked
-  # transaction would never clear the period's pending row. Re-assigning an
+  # `period` (optional) is the persisted period key — the calendar month
+  # "YYYY-MM" or, with a configured pay schedule, the pay cycle's start date.
+  # It is used by the Día de Cuadre assign flow: the expense must be dated
+  # inside that period, otherwise the linked transaction would never clear
+  # the period's pending row. Re-assigning an
   # expense to the template it is already linked to is a no-op success.
   #
   # Templates pointing at a debt source (credit card / loan) are NOT
@@ -64,7 +66,7 @@ module Expenses
       return reject("inactive") unless template.active?
       return reject("debt_target") if template.money_source&.debt_payment_target? && !allow_debt_target
 
-      if period.present? && expense_date_month(expense.date) != period
+      if period.present? && !PayCycle.key_range(user, period).cover?(expense.date)
         @description = expense_month_label(expense.date)
         return reject("period_mismatch")
       end
@@ -72,7 +74,7 @@ module Expenses
       return applied(template) if expense.recurring_template_id == template.id
       return reject("already_linked") if expense.recurring_template_id.present?
 
-      if template.transactions.where(date: expense.date.beginning_of_month..expense.date.end_of_month).exists?
+      if template.transactions.where(date: PayCycle.period_for(user, expense.date).last).exists?
         @description = template.description
         return reject("period_taken")
       end
@@ -104,10 +106,6 @@ module Expenses
       @message_key = "applied"
       @description = template.description
       self
-    end
-
-    def expense_date_month(date)
-      date.strftime("%Y-%m")
     end
 
     def expense_month_label(date)

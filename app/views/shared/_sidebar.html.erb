@@ -132,6 +132,17 @@
     </div>
 
     <div class="sidebar-section sidebar-settings">
+      <% if current_user %>
+        <% cycle_info = financial_cycle_visible %>
+        <%= link_to pay_settings_path, class: "sidebar-link #{active_class('pay_settings')}" do %>
+          <i class="bi bi-calendar-heart"></i>
+          <span>
+            <span class="d-block small text-muted"><%= cycle_info[:heading] %></span>
+            <span class="d-block fw-semibold"><%= cycle_info[:label] %></span>
+            <% if cycle_info[:range] %><span class="d-block small text-muted"><%= cycle_info[:range] %></span><% end %>
+          </span>
+        <% end %>
+      <% end %>
       <div class="sidebar-section-title"><%= t("nav.settings") %></div>
       <%= link_to categories_path, class: "sidebar-link #{active_class('categories')}" do %>
         <i class="bi bi-tags"></i>
@@ -164,6 +175,10 @@
       <%= link_to whatsapp_settings_path, class: "sidebar-link #{active_class('whatsapp_settings')}" do %>
         <i class="bi bi-whatsapp"></i>
         <span><%= t("nav.whatsapp", default: "WhatsApp") %></span>
+      <% end %>
+      <%= link_to pay_settings_path, class: "sidebar-link #{active_class('pay_settings')}" do %>
+        <i class="bi bi-calendar-heart"></i>
+        <span><%= t("nav.pay_settings", default: "Día de pago") %></span>
       <% end %>
       <%= link_to money_sources_recognition_path, class: "sidebar-link #{'active' if controller_name == 'money_sources' && action_name == 'recognition'}" do %>
         <i class="bi bi-envelope-paper-heart"></i>

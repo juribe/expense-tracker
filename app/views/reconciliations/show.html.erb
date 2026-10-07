@@ -2,8 +2,13 @@
 
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
   <div>
-    <h1 class="fw-bold mb-1"><%= t("reconciliation.title") %></h1>
-    <p class="text-muted mb-0"><%= t("reconciliation.subtitle") %></p>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <h1 class="fw-bold mb-0"><%= t("reconciliation.title") %></h1>
+      <span class="badge bg-light text-dark border" data-testid="cycle-badge">
+        <i class="bi bi-calendar-heart me-1"></i><%= @period_label %><%= " (#{@cycle.range_label})" if @cycle %>
+      </span>
+    </div>
+    <p class="text-muted mb-0 mt-1"><%= t("reconciliation.subtitle") %></p>
   </div>
   <div class="text-md-end">
     <% checked_label = reconciliation_checked_at_label(@state.checked_at&.iso8601) %>

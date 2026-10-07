@@ -79,6 +79,19 @@ module ApplicationHelper
     end
   end
 
+  # The always-visible financial cycle indicator for the sidebar: the
+  # configured financial cycle, or the current calendar month for users who
+  # never changed the start day.
+  def financial_cycle_visible
+    if current_user && Reports::Period.cycles_enabled?(current_user)
+      cycle = PayCycle.current(current_user)
+      { heading: t("nav.current_cycle", default: "Ciclo financiero"), label: cycle.label, range: cycle.range_label }
+    else
+      { heading: t("nav.current_cycle", default: "Ciclo financiero"),
+        label: I18n.l(Date.current, format: :month_year), range: nil }
+    end
+  end
+
   def source_icon(source)
     case source
     when "text" then "chat-left-text"

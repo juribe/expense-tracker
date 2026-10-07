@@ -36,6 +36,32 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     assert_equal :over_budget, row[:status]
   end
 
+  test "cycle period scales the budget to one cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 10, 25), user: @user)
+    filter = Reports::Filter.new(user: @user, period: period)
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+    Expense.create!(user: @user, category: @restaurants, money_source: @bank, amount: -300_000,
+                    date: Date.new(2026, 10, 25), description: "x")
+
+    row = Reports::Budgets.new(user: @user, filter: filter).call[:rows].sole
+
+    assert_equal 800_000.to_d, row[:budget]
+    assert_equal 300_000.to_d, row[:actual]
+    assert_equal 500_000.to_d, row[:remaining]
+  end
+
+  test "multi-cycle period scales the budget across the covered cycles" do
+    @user.update!(financial_cycle_start_day: 20)
+    period = Reports::Period.new(preset: "last_3_months", date: Date.new(2026, 10, 25), user: @user)
+    filter = Reports::Filter.new(user: @user, period: period)
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+
+    row = Reports::Budgets.new(user: @user, filter: filter).call[:rows].sole
+
+    assert_equal 2_400_000.to_d, row[:budget]
+  end
+
   test "under budget status and remaining" do
     Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
     expense(-600_000, category: @restaurants)

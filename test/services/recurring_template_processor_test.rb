@@ -42,4 +42,20 @@ class RecurringTemplateProcessorTest < ActiveSupport::TestCase
     assert_not result.success?
     assert_match(/Already processed/, result.error)
   end
+
+  test "cycle schedules enforce one transaction per pay cycle, not per month" do
+    @user.update!(financial_cycle_start_day: 20)
+
+    first = RecurringTemplateProcessor.call(recurring_template: @template, amount: 30_000,
+                                            date: Date.new(2026, 10, 21))
+    assert first.success?
+
+    duplicate = RecurringTemplateProcessor.call(recurring_template: @template, amount: 30_000,
+                                                date: Date.new(2026, 11, 2))
+    assert_not duplicate.success?
+
+    next_cycle = RecurringTemplateProcessor.call(recurring_template: @template, amount: 30_000,
+                                                 date: Date.new(2026, 11, 21))
+    assert next_cycle.success?
+  end
 end

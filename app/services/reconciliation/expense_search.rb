@@ -14,9 +14,7 @@ module Reconciliation
       scope = user.expenses.where(recurring_template_id: nil).order(date: :desc, created_at: :desc)
 
       if period.present?
-        year, month = period.split("-").map(&:to_i)
-        range = Date.new(year, month, 1).all_month
-        scope = scope.where(date: range)
+        scope = scope.where(date: PayCycle.key_range(user, period))
       end
 
       query = query.to_s.strip

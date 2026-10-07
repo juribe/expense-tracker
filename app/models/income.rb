@@ -3,9 +3,9 @@
 class Income < Transaction
   default_scope { income }
 
-  # Dashboard summary for the given month
-  def self.dashboard_summary(user:, month: Time.zone.today)
-    incomes = for_user(user).in_month(month)
+  # Dashboard summary for the given month, or an explicit range (pay cycles)
+  def self.dashboard_summary(user:, month: Time.zone.today, range: nil)
+    incomes = range ? for_user(user).where(date: range) : for_user(user).in_month(month)
     total_amount = incomes.sum(:amount)
     by_category = incomes.joins(:category).group("categories.name").sum(:amount)
     recent_incomes = incomes.recent(5)

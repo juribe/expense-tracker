@@ -96,4 +96,65 @@ class ReportsPeriodTest < ActiveSupport::TestCase
     assert_equal "Jul–Sep 2026", period("last_3_months").label
     assert_equal "10/03/2026 – 19/03/2026", period("custom", start_date: Date.new(2026, 3, 10), end_date: Date.new(2026, 3, 19)).label
   end
+
+  test "cycle presets with a configured schedule" do
+    user = User.create!(name: "Cycle User", email: "cycle_period_test@example.com", password: "password123")
+    user.update!(financial_cycle_start_day: 20)
+
+    p = Reports::Period.new(preset: "this_month", date: Date.new(2026, 10, 25), user: user)
+
+    assert_equal "this_cycle", p.preset
+    assert_equal Date.new(2026, 10, 20)..Date.new(2026, 11, 19), p.range
+    assert_equal Date.new(2026, 9, 20)..Date.new(2026, 10, 19), p.previous_range
+    assert_equal :day, p.bucket
+  end
+
+  test "last month becomes the previous cycle with a configured schedule" do
+    user = User.create!(name: "Cycle User", email: "cycle_period_last_test@example.com", password: "password123")
+    user.update!(financial_cycle_start_day: 20)
+
+    p = Reports::Period.new(preset: "last_month", date: Date.new(2026, 10, 25), user: user)
+
+    assert_equal "last_cycle", p.preset
+    assert_equal Date.new(2026, 9, 20)..Date.new(2026, 10, 19), p.range
+    assert_equal Date.new(2026, 8, 20)..Date.new(2026, 9, 19), p.previous_range
+  end
+
+  test "last 3 months become three cycles with a configured schedule" do
+    user = User.create!(name: "Cycle User", email: "cycle_period_span_test@example.com", password: "password123")
+    user.update!(financial_cycle_start_day: 20)
+
+    p = Reports::Period.new(preset: "last_3_months", date: Date.new(2026, 10, 25), user: user)
+
+    assert_equal "last_3_cycles", p.preset
+    assert_equal Date.new(2026, 8, 20)..Date.new(2026, 11, 19), p.range
+    assert_equal Date.new(2026, 5, 20)..Date.new(2026, 8, 19), p.previous_range
+    assert_equal :week, p.bucket
+  end
+
+  test "month presets stay calendar with a default calendar schedule" do
+    user = User.create!(name: "Calendar User", email: "cycle_period_calendar_test@example.com", password: "password123")
+
+    p = Reports::Period.new(preset: "this_month", date: Date.new(2026, 10, 25), user: user)
+
+    assert_equal "this_month", p.preset
+    assert_equal Date.new(2026, 10, 1)..Date.new(2026, 10, 31), p.range
+  end
+
+  test "cycle presets degrade to months without a configured schedule" do
+    p = period("this_cycle", date: @anchor)
+
+    assert_equal "this_month", p.preset
+    assert_equal Date.new(2026, 9, 1)..Date.new(2026, 9, 30), p.range
+  end
+
+  test "this cycle label names the payday month" do
+    user = User.create!(name: "Cycle User", email: "cycle_period_label_test@example.com", password: "password123")
+    user.update!(financial_cycle_start_day: 20)
+
+    p = Reports::Period.new(preset: "this_month", date: Date.new(2026, 10, 25), user: user)
+
+    assert_match(/oct/i, p.label)
+    assert_match(/2026/, p.label)
+  end
 end

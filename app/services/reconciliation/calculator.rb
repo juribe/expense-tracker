@@ -57,16 +57,21 @@ module Reconciliation
 
     attr_reader :user, :period
 
-    def month_range
-      year, month = period.split("-").map(&:to_i)
-      Date.new(year, month, 1).beginning_of_month..Date.new(year, month, 1).end_of_month
+    # The period key is the calendar month ("YYYY-MM", the historical shape)
+    # or the pay cycle start date when the user configured paydays.
+    def period_range
+      @period_range ||= PayCycle.key_range(user, period)
+    end
+
+    def cycle_period?
+      !period.match?(/\A\d{4}-\d{2}\z/)
     end
 
     def build_pending_payments
       templates = user.recurring_templates.active.expense.includes(:money_source).ordered
       return [] if templates.empty?
 
-      paid_ids = Transaction.where(user_id: user.id, recurring_template_id: templates, date: month_range)
+      paid_ids = Transaction.where(user_id: user.id, recurring_template_id: templates, date: period_range)
                             .distinct.pluck(:recurring_template_id)
 
       templates.reject { |template| paid_ids.include?(template.id) }.map { |template| pending_row(template) }
@@ -87,9 +92,34 @@ module Reconciliation
     def due_date_for(template)
       return nil if template.payment_day.nil?
 
+      if cycle_period?
+        cycle_due_date(template.payment_day)
+      else
+        calendar_due_date(template.payment_day)
+      end
+    end
+
+    # First occurrence of the payment day inside the pay cycle (the day may
+    # belong to the next calendar month when the cycle crosses months).
+    def cycle_due_date(day)
+      range = period_range
+      (0..1).each do |months_ahead|
+        month = range.begin >> months_ahead
+        candidate = clamped_day(month.year, month.month, day)
+        return candidate if range.cover?(candidate)
+      end
+      nil
+    end
+
+    def calendar_due_date(day)
       year, month = period.split("-").map(&:to_i)
       last_day = Date.new(year, month, 1).end_of_month.day
-      Date.new(year, month, [ template.payment_day, last_day ].min)
+      Date.new(year, month, [ day, last_day ].min)
+    end
+
+    def clamped_day(year, month, day)
+      last_day = Date.new(year, month, 1).end_of_month.day
+      Date.new(year, month, [ day, last_day ].min)
     end
 
     def build_balances

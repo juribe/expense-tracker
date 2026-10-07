@@ -108,7 +108,7 @@ class RecurringTemplatesController < ApplicationController
                                        .includes(:category, :transactions)
                                        .where(kind: @kind)
                                        .ordered
-    @current_period = Date.current.strftime("%Y-%m")
+    @current_period = current_listing_period
 
     # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
     # payment sources — loans are never recipients of an income nor payers.
@@ -121,6 +121,17 @@ class RecurringTemplatesController < ApplicationController
 
     @total_count = @recurring_templates.size
     @filtered_total = @recurring_templates.sum(&:signed_amount)
+  end
+
+  # Mirrors RecurringTemplateActions#current_listing_period: a pay cycle for
+  # users with configured paydays, or the legacy calendar-month string.
+  def current_listing_period
+    return Date.current.strftime("%Y-%m") unless Reports::Period.cycles_enabled?(current_user)
+
+    anchor = params[:period].present? ? Date.parse(params[:period]) : Date.current
+    PayCycle.containing(current_user, anchor)
+  rescue ArgumentError, TypeError
+    PayCycle.current(current_user)
   end
 
   # Owner-only authorization: scoping through current_user guarantees a user

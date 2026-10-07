@@ -22,7 +22,8 @@ class Reports::BaseController < ApplicationController
       preset: params[:period],
       date: Date.current,
       start_date: parse_date(params[:start_date]),
-      end_date: parse_date(params[:end_date])
+      end_date: parse_date(params[:end_date]),
+      user: current_user
     )
   end
 

@@ -24,19 +24,41 @@ module BudgetsHelper
     t("budgets.status.#{status}")
   end
 
-  def budget_summary_counts(budgets, month)
+  def budget_summary_counts(budgets, period)
     {
       total: budgets.size,
-      near_limit: budgets.count { |budget| budget.status_for(month) == :near_limit },
-      over_budget: budgets.count { |budget| budget.status_for(month) == :over_budget }
+      near_limit: budgets.count { |budget| budget.status_for(period) == :near_limit },
+      over_budget: budgets.count { |budget| budget.status_for(period) == :over_budget }
     }
   end
 
-  def budget_progress_data(budget, month)
+  def budget_progress_data(budget, period)
     {
-      spent: budget.spent_for(month),
-      percentage: budget.percentage_for(month),
-      status: budget.status_for(month)
+      spent: budget.spent_for(period),
+      percentage: budget.percentage_for(period),
+      status: budget.status_for(period)
     }
+  end
+
+  # Calendar months navigate by month param, pay cycles by an anchor date
+  # param that snaps into the adjacent cycle.
+  def budget_prev_nav_path(period)
+    period.is_a?(PayCycle::Cycle) ? budgets_path(cycle: period.starts - 1.day) : budgets_path(month: period.prev_month)
+  end
+
+  def budget_next_nav_path(period)
+    period.is_a?(PayCycle::Cycle) ? budgets_path(cycle: period.ends + 1.day) : budgets_path(month: period.next_month)
+  end
+
+  def budget_period_label(period)
+    period.is_a?(PayCycle::Cycle) ? period.label : l(period, format: :month_year)
+  end
+
+  def budget_current_period?(period)
+    if period.is_a?(PayCycle::Cycle)
+      period == PayCycle.current(current_user)
+    else
+      period.beginning_of_month == Time.zone.today.beginning_of_month
+    end
   end
 end

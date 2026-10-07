@@ -22,13 +22,14 @@ module Expenses
     attr_reader :relation, :csv_scope, :total_count, :filtered_total,
                 :sort, :dir, :filter_errors
 
-    def self.call(user:, params:)
-      new(user: user, params: params)
+    def self.call(user:, params:, period_range: nil)
+      new(user: user, params: params, period_range: period_range)
     end
 
-    def initialize(user:, params:)
+    def initialize(user:, params:, period_range: nil)
       @user = user
       @params = params
+      @period_range = period_range
       run
     end
 
@@ -119,6 +120,7 @@ module Expenses
     end
 
     def apply_filters(scope)
+      scope = scope.where(date: @period_range) if @period_range
       scope = scope.in_category(params[:category_id]) if params[:category_id].present?
       scope = scope.where("date >= ?", params[:start_date]) if params[:start_date].present?
       scope = scope.where("date <= ?", params[:end_date]) if params[:end_date].present?

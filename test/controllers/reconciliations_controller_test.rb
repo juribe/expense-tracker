@@ -38,6 +38,27 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_select("button.js-reconcile", minimum: 1)
   end
 
+  test "GET /reconciliation shows the financial cycle badge in the title when cycles are enabled" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.current)
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.label}/
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.range_label}/
+  end
+
+  test "GET /reconciliation falls back to the calendar month label without a schedule" do
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", text: /#{I18n.l(Date.current, format: :month_year)}/
+  end
+
   test "debt-target pending payment shows go-to-account link instead of the assign modal" do
     loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
     RecurringTemplate.create!(

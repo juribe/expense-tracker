@@ -27,7 +27,10 @@
               <i class="bi bi-check2 me-1"></i><%= t("alerts.mark_read", default: "Marcar leída") %>
             <% end %>
           <% end %>
-          <%= link_to expenses_path(category_id: alert.category_id, start_date: "#{alert.month}-01"),
+          <% period_range = alert_period_range(alert.month) %>
+          <%= link_to expenses_path(category_id: alert.category_id,
+                                    start_date: period_range.first.iso8601,
+                                    end_date: period_range.last.iso8601),
                       class: "btn btn-sm btn-outline-secondary" do %>
             <i class="bi bi-list-ul me-1"></i><%= t("alerts.view_expenses", default: "Ver gastos") %>
           <% end %>

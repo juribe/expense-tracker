@@ -4,11 +4,12 @@ class IncomesController < ApplicationController
   # GET /incomes or /incomes.json
   def index
     @incomes = Income.for_user(current_user).recent(50)
+    @cycle_filter = Reports::Period.cycles_enabled?(current_user) ? PayCycle.current(current_user) : nil
   end
 
   # GET /incomes/new
   def new
-    @income = Income.new
+    @income = Income.new(date: default_record_date)
     assign_income_prefill
     @categories = Category.for_user(current_user)
     @money_sources = money_in_sources

@@ -190,5 +190,26 @@ module Expenses
         }.merge(overrides)
       )
     end
+
+    test "period keys accept pay-cycle starts: inside the cycle passes" do
+      @user.update!(financial_cycle_start_day: 20)
+      expense = create_expense(date: Date.new(2026, 11, 3))
+
+      result = RecurringAssignment.assign(user: @user, expense_id: expense.id,
+                                          recurring_template_id: @template.id, period: "2026-10-20")
+
+      assert result.success?
+    end
+
+    test "period keys reject expenses dated outside the cycle" do
+      @user.update!(financial_cycle_start_day: 20)
+      expense = create_expense(date: Date.new(2026, 10, 5))
+
+      result = RecurringAssignment.assign(user: @user, expense_id: expense.id,
+                                          recurring_template_id: @template.id, period: "2026-10-20")
+
+      assert result.failure?
+      assert_equal "period_mismatch", result.message_key
+    end
   end
 end

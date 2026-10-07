@@ -32,14 +32,12 @@ class Loans::NextPayment
     template = loan.recurring_templates.active.order(:payment_day).first
     return nil unless template&.payment_day
 
-    next_day_of_month(template.payment_day)
-  end
-
-  def next_day_of_month(day)
     today = Date.current
-    candidate = Date.new(today.year, today.month, day.to_i)
-    candidate = candidate.next_month if candidate < today
-    candidate
+    candidate = Date.new(today.year, today.month, template.payment_day.to_i)
+    # An unprocessed current period is still "next" even if its day already
+    # passed (pending/overdue); only advance when the template's monthly
+    # occurrence was already recorded.
+    template.processed_for_period?(today.strftime("%Y-%m")) ? candidate.next_month : candidate
   rescue ArgumentError, TypeError
     nil
   end

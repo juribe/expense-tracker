@@ -23,6 +23,52 @@ class AlertsControllerTest < ActionDispatch::IntegrationTest
     @read_alert = SpendingAlert.create!(user: @user, category: @category, kind: "budget_exceeded", month: @current_month, pct: 115, amount: 920_000, read_at: Time.current)
   end
 
+  test "GET /alerts groups a cycle-keyed alert under the cycle label without errors" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, PayCycle.current(@user).starts - 1.day)
+    cycle_alert = SpendingAlert.create!(
+      user: @user, category: @category, kind: "budget_threshold",
+      month: cycle.starts.iso8601, pct: 80, amount: 800_000
+    )
+
+    get alerts_path
+
+    assert_response :success
+    assert_select "##{dom_id(cycle_alert)}"
+    assert_select "div", text: /#{cycle.label}/
+  end
+
+  test "the current cycle group header says Este ciclo when cycles are enabled" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    SpendingAlert.create!(
+      user: @user, category: @category, kind: "budget_threshold",
+      month: cycle.starts.iso8601, pct: 80, amount: 800_000
+    )
+
+    get alerts_path
+
+    assert_response :success
+    assert_select "div", text: /Este ciclo/
+  end
+
+  test "the cycle alert links to the expenses of the whole cycle range" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    cycle_alert = SpendingAlert.create!(
+      user: @user, category: @category, kind: "budget_threshold",
+      month: cycle.starts.iso8601, pct: 80, amount: 800_000
+    )
+
+    get alerts_path
+
+    assert_response :success
+    link = css_select("##{dom_id(cycle_alert)} a.btn-outline-secondary").first
+    assert link, "the alert row should link to its expenses"
+    assert link["href"].include?("start_date=#{cycle.starts.iso8601}"), link["href"]
+    assert link["href"].include?("end_date=#{cycle.ends.iso8601}"), link["href"]
+  end
+
   test "GET /alerts requires authentication" do
     sign_out @user
     get alerts_path

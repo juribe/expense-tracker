@@ -517,6 +517,34 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     assert texts.any? { |(_, text)| text.include?("cancelé") }
   end
 
+  test "a stale clarification does not swallow the reply; it is processed as a new expense" do
+    connect_user!
+    stale_candidate = @user.expense_candidates.create!(amount: 12_000, date: Date.current, description: "compra rara",
+                                                       source: "whatsapp", status: "needs_review",
+                                                       category: restaurants_category)
+    session = start_clarification(stale_candidate)
+    # The candidate was confirmed outside the conversation (e.g. the web app):
+    # the session is pending but has nothing left to clarify.
+    stale_candidate.confirm!
+    new_candidate = @user.expense_candidates.create!(amount: 80_000, date: Date.current, description: "cine",
+                                                     source: "whatsapp", status: "ready",
+                                                     category: restaurants_category)
+    ran_pipeline = false
+    texts = []
+    stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { texts << [ phone, text ] }) do
+      stub_method(Expenses::Processor, :call, ->(**_kwargs) {
+        ran_pipeline = true
+        Expenses::Result.new(candidates: [ new_candidate ], errors: [], engine: "test")
+      }) do
+        WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "gasté 80 mil en cine"))
+      end
+    end
+
+    assert ran_pipeline, "stale clarification must fall through to the normal pipeline"
+    assert session.reload.resolved?, "zombie session must be healed on the stale path"
+    assert texts.none? { |(_, text)| text.include?("No entendí") }
+  end
+
   test "an interactive tap replies to the pending candidate through the webhook" do
     connect_user!
     source = @user.money_sources.create!(name: "Nequi", kind: "wallet")

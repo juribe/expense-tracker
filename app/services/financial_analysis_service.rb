@@ -9,6 +9,9 @@ require_relative "financial_chat_markdown_renderer"
 #
 # Uses the strong AI tier (Ai::Providers.strong) bypassing Ai::Router: chat
 # is a free-text streaming conversation, not a structured extraction task.
+# The strong tier is used even when AI_DISABLE_STRONG_TIER is set: that flag
+# is a cost guard for the structured Router tasks, while chat answers demand
+# the best available model.
 #
 # Broadcast events on FinancialChatChannel (all anchored with
 # user_message_id):
@@ -35,7 +38,6 @@ class FinancialAnalysisService
 
     @provider = Ai::Providers.strong
     return fail_analysis("El asistente de IA no está configurado.") unless @provider&.configured?
-    return fail_analysis("La capa de IA está deshabilitada.") if Ai.configuration.strong_tier_disabled?
 
     answer
   end

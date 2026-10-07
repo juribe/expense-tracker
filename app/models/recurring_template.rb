@@ -45,8 +45,7 @@ class RecurringTemplate < ApplicationRecord
   end
 
   def processed_for_period?(period)
-    range = period_range(period)
-    transactions.where(date: range).exists?
+    transactions.where(date: period_range(period)).exists?
   end
 
   def status_for(period = Date.current.strftime("%Y-%m"))
@@ -84,7 +83,16 @@ class RecurringTemplate < ApplicationRecord
     self.amount = amount.to_s.delete(",").to_d.abs
   end
 
+  # Periods come in three shapes: a pay cycle (PayCycle::Cycle), an explicit
+  # date range, or the legacy "YYYY-MM" string used by calendar-month lists.
   def period_range(period)
+    return period.to_range if period.is_a?(PayCycle::Cycle)
+    return period if period.is_a?(Range)
+
+    period_range_from_period_string(period)
+  end
+
+  def period_range_from_period_string(period)
     year, month = period.to_s.split("-").map(&:to_i)
     date = Date.new(year, month, 1)
     date.beginning_of_month..date.end_of_month

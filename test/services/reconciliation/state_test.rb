@@ -172,5 +172,39 @@ module Reconciliation
       assert state.pending_payments_count.positive?
       assert_equal 1, state.discrepancies_count
     end
+
+    test "cycle period keys group pending payments by pay cycle" do
+      @user.update!(financial_cycle_start_day: 20)
+      # Nov 7 falls inside the cycle opened Oct 20 (oct 20 – nov 19).
+      state = State.call(@user, period: "2026-10-20")
+
+      assert_equal 1, state.pending_payments_count
+      assert_equal Date.new(2026, 11, 7), Date.iso8601(state.snapshot["pending_payments"].first["due_date"])
+    end
+
+    test "a transaction from the previous cycle does not clear the current cycle" do
+      @user.update!(financial_cycle_start_day: 20)
+      # Paid Oct 5: inside the calendar month AND inside the previous cycle
+      # (sep 20 – oct 19), so the cycle opened Oct 20 stays pending.
+      build_expense(date: Date.new(2026, 10, 5))
+      Expenses::RecurringAssignment.assign(user: @user, expense_id: Expense.last.id,
+                                           recurring_template_id: @template.id, period: "2026-09-20")
+
+      state = State.call(@user, period: "2026-10-20")
+
+      assert_equal 1, state.pending_payments_count
+    end
+
+    test "assigning an expense dated inside the cycle clears the cycle's pending row" do
+      @user.update!(financial_cycle_start_day: 20)
+      expense = build_expense(date: Date.new(2026, 11, 3))
+
+      result = Expenses::RecurringAssignment.assign(user: @user, expense_id: expense.id,
+                                                    recurring_template_id: @template.id, period: "2026-10-20")
+
+      assert result.success?
+      state = State.call(@user, period: "2026-10-20")
+      assert_equal 0, state.pending_payments_count
+    end
   end
 end

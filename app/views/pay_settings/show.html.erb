@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0"><i class="bi bi-calendar-heart me-2"></i><%= t("pay_settings.title", default: "Ciclo financiero") %></h1>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">
+    <i class="bi bi-calendar-heart me-2"></i><%= t("pay_settings.title", default: "Ciclo financiero") %>
+  </div>
+  <div class="card-body">
+    <p class="text-muted">
+      <%= t("pay_settings.intro", default: "Tu mes financiero comienza el día que elijas. Esto afecta cómo se agrupan ingresos y gastos en ciclos financieros en reportes, presupuestos y el cuadre.") %>
+    </p>
+
+    <%= form_with(model: current_user, url: pay_settings_path, method: :patch, local: true) do |form| %>
+      <div class="mb-3" style="max-width: 16rem;">
+        <%= form.label :financial_cycle_start_day, t("pay_settings.start_day", default: "El ciclo financiero comienza el"), class: "form-label" %>
+        <%= form.select :financial_cycle_start_day,
+                        (1..28).map { |day| [ day.to_s.rjust(2, "0"), day ] },
+                        {}, class: "form-select" %>
+        <div class="small text-muted mt-1"><%= t("pay_settings.start_day_help", default: "Días 29–31 no están disponibles para que el ciclo quepa en cualquier mes.") %></div>
+      </div>
+
+      <% if current_user.errors.any? %>
+        <div class="alert alert-danger">
+          <% current_user.errors.full_messages.each do |message| %>
+            <div><%= message %></div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="small text-muted mb-3">
+        <i class="bi bi-info-circle me-1"></i>
+        <%= t("pay_settings.example", default: "Ejemplo: empieza el 20 → \"Octubre\" va del 20 de octubre al 19 de noviembre; lo que pagues el 1–5 de noviembre pertenece al ciclo de octubre.") %>
+      </div>
+
+      <div class="d-flex gap-2">
+        <%= form.button type: :submit, class: "btn btn-primary" do %>
+          <i class="bi bi-check-lg me-1"></i><%= t("alerts.save", default: "Guardar") %>
+        <% end %>
+        <%= link_to t("alerts.cancel", default: "Cancelar"), pay_settings_path, class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if current_user.valid? && Reports::Period.cycles_enabled?(current_user) %>
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <div class="small text-muted fw-semibold text-uppercase mb-1"><%= t("pay_settings.current_cycle", default: "Ciclo actual") %></div>
+      <div class="fw-bold"><%= PayCycle.current(current_user).label %></div>
+      <div class="small text-muted"><%= PayCycle.current(current_user).range_label %></div>
+    </div>
+  </div>
+<% end %>

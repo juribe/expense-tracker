@@ -49,10 +49,24 @@ module ReportsHelper
     end
   end
 
-  def period_presets
-    Reports::Period::PRESETS.map do |preset|
-      [ t("reports.period.presets.#{preset}"), preset ]
+  def period_presets(user: nil)
+    user ||= current_user if respond_to?(:current_user)
+    presets = Reports::Period.cycles_enabled?(user) ? Reports::Period::CYCLE_PRESETS : Reports::Period::PRESETS
+
+    presets.map do |preset|
+      [ period_preset_label(preset, user), preset ]
     end
+  end
+
+  # The two single-cycle presets name their concrete range ("Este ciclo
+  # (Oct 20 – Nov 4)") so the selector is unambiguous about which months it
+  # covers; multi-cycle and calendar presets keep their static labels.
+  def period_preset_label(preset, user)
+    base = t("reports.period.presets.#{preset}")
+    return base unless user.present? && %w[this_cycle last_cycle].include?(preset)
+
+    cycle = preset == "this_cycle" ? PayCycle.current(user) : PayCycle.previous(user)
+    "#{base} (#{cycle.label})"
   end
 
   def category_options

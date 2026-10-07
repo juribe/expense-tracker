@@ -1,5 +1,6 @@
 # BudgetsController
-# RESTful for Budget, plus `?month=YYYY-MM` month navigation on index.
+# RESTful for Budget, plus `?month=YYYY-MM` month navigation or `?cycle=`
+# anchor navigation on index when the user has a pay schedule configured.
 # Requires a signed-in user; budgets are always scoped to current_user.
 class BudgetsController < ApplicationController
   before_action :set_budget, only: [ :edit, :update, :destroy ]
@@ -7,7 +8,7 @@ class BudgetsController < ApplicationController
 
   # GET /budgets
   def index
-    @month = resolve_month
+    @period = resolve_budget_period
     @budgets = current_user.budgets.includes(:category)
   end
 
@@ -68,6 +69,18 @@ class BudgetsController < ApplicationController
   rescue ArgumentError, TypeError
     flash.now[:alert] = t("budgets.invalid_month")
     Time.zone.today
+  end
+
+  # Calendar month by default; a pay-cycle (PayCycle::Cycle) when the user
+  # configured their paydays, navigable with ?cycle=<any date in the cycle>.
+  def resolve_budget_period
+    return resolve_month unless Reports::Period.cycles_enabled?(current_user)
+
+    anchor = params[:cycle].present? ? Date.parse(params[:cycle]) : Date.current
+    PayCycle.containing(current_user, anchor)
+  rescue ArgumentError, TypeError
+    flash.now[:alert] = t("budgets.invalid_month")
+    PayCycle.current(current_user)
   end
 
   def budget_params

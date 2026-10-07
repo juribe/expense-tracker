@@ -36,6 +36,28 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     assert_match I18n.t("budgets.invalid_month"), flash[:alert]
   end
 
+  test "GET /budgets with a configured schedule resolves the cycle from the param" do
+    @user.update!(financial_cycle_start_day: 20)
+    Budget.create!(user: @user, category: @category, monthly_amount: 500_000)
+    Expense.create!(user: @user, category: @category, amount: -200_000, date: Date.new(2026, 11, 2),
+                    description: "cycle expense")
+
+    get budgets_path(cycle: "2026-10-20")
+
+    assert_response :success
+    assert_select "h5", text: /oct/i
+    assert_select ".budget-amount", text: /200\.000/
+  end
+
+  test "GET /budgets with an invalid cycle param falls back to the current cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+
+    get budgets_path(cycle: "not-a-date")
+
+    assert_response :success
+    assert_match I18n.t("budgets.invalid_month"), flash[:alert]
+  end
+
   test "GET /budgets/new renders the form with expense categories" do
     income_category = Category.create!(name: "Salary", is_default: true, category_type: "income")
     get new_budget_path

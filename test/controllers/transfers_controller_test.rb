@@ -40,11 +40,39 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /transfers shows the financial cycle badge in the title with a schedule" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+
+    get transfers_path
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.label}/
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.range_label}/
+  end
+
+  test "GET /transfers hides the cycle badge without a configured schedule" do
+    get transfers_path
+
+    assert_response :success
+    assert_select "[data-testid=cycle-badge]", count: 0
+  end
+
   test "GET /transfers/new renders the form" do
     get new_transfer_path
     assert_response :success
     assert_select "form"
     assert_select "select", minimum: 2
+  end
+
+  test "GET /transfers/new defaults the date to the current cycle start with a schedule" do
+    @user.update!(financial_cycle_start_day: 20)
+    expected = PayCycle.current(@user).starts
+
+    get new_transfer_path
+
+    assert_response :success
+    assert_select "input[name='transfer[date]'][value=?]", expected.to_s
   end
 
   test "GET /transfers/new offers each operation only its allowed sources" do
@@ -123,5 +151,47 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     delete transfer_path(other_transfer)
     assert_response :not_found
     assert Transfer.exists?(other_transfer.id)
+  end
+
+  test "GET /transfers defaults to the current calendar month without a configured cycle" do
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: 100,
+                     date: Date.current, note: "en mes")
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: 70,
+                     date: Date.current.beginning_of_month.prev_month, note: "mes pasado")
+
+    get transfers_path
+
+    assert_response :success
+    assert_includes response.body, "en mes"
+    refute_includes response.body, "mes pasado"
+  end
+
+  test "GET /transfers defaults to the current cycle with a configured cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    current_cycle = PayCycle.current(@user)
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: 100,
+                     date: current_cycle.starts + 2, note: "en ciclo")
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: 90,
+                     date: current_cycle.ends + 3, note: "fuera de ciclo")
+
+    get transfers_path
+
+    assert_response :success
+    assert_select "form input[name='start_date']"
+    assert_includes response.body, "en ciclo"
+    refute_includes response.body, "fuera de ciclo"
+  end
+
+  test "GET /transfers accepts explicit date bounds" do
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: 100,
+                     date: Date.new(2026, 3, 5), note: "en rango")
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: 60,
+                     date: Date.new(2026, 3, 28), note: "rango fuera")
+
+    get transfers_path, params: { start_date: "2026-03-01", end_date: "2026-03-10" }
+
+    assert_response :success
+    assert_includes response.body, "en rango"
+    refute_includes response.body, "rango fuera"
   end
 end

@@ -36,7 +36,7 @@ class Reports::Budgets < Reports::Base
 
   def budget_row(budget, spending)
     actual = spending[budget.category_id].to_d
-    budget_amount = budget.monthly_amount.to_d * span_months
+    budget_amount = budget_target(budget)
     remaining = budget_amount - actual
     pct_used = budget_amount.positive? ? (actual / budget_amount * 100).round(1) : 0.0
 
@@ -60,6 +60,16 @@ class Reports::Budgets < Reports::Base
         { id: category_id, name: categories[category_id]&.name, actual: actual }
       end
     }
+  end
+
+  # Calendar periods scale the monthly amount by covered months; financial
+  # cycles span one month each, so the target applies per cycle.
+  def budget_target(budget)
+    if period.cycle_aligned?
+      budget.monthly_amount.to_d * period.cycles_displayed
+    else
+      budget.monthly_amount.to_d * span_months
+    end
   end
 
   def status(pct_used)

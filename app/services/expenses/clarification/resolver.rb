@@ -56,7 +56,13 @@ module Expenses
       def handle_reply(clarification:, reply_text:)
         clarification.with_lock do
           return [ :stale, nil ] unless clarification.pending?
-          return [ :stale, nil ] if clarification.all_candidates_resolved?
+          # A session whose candidates were all resolved outside the
+          # conversation (web confirmation, pipeline) is a zombie: heal it by
+          # closing and let the caller treat the reply as a normal message.
+          if clarification.all_candidates_resolved?
+            clarification.close!(:resolved)
+            return [ :stale, nil ]
+          end
 
           Rails.logger.info "[Clarification::Resolver] Reply for session=#{clarification.id}: " \
                             "#{reply_text.to_s.strip[0, 80].inspect} " \

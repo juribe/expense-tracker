@@ -37,6 +37,25 @@ class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "cycle schedules judge pending status by pay cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    account = @user.money_sources.create!(name: "Cuenta Ciclos", kind: "account")
+    @template.update!(active: true)
+    # Paid early in October: inside the calendar month but inside the PREVIOUS
+    # pay cycle (sep 20 – oct 19), so against the cycle opened oct 20 it is
+    # still pending.
+    @template.transactions.create!(user: @user, category: @category, amount: 42_000,
+                                   date: Date.new(2026, 10, 5), kind: "expense",
+                                   source: "recurring_template", money_source: account)
+
+    get monthly_expenses_path(period: "2026-10-25")
+
+    assert_response :success
+    assert_select 'tr[data-testid="recurring-row"][data-id=?]', @template.id.to_s do
+      assert_select 'td[data-testid="status"] .badge', text: I18n.t("statuses.pending")
+    end
+  end
+
   test "POST process with the chosen source records the payment from there" do
     post process_transaction_monthly_expense_path(@template), params: {
       amount: "42000", date: Date.current.to_s, money_source_id: @account.id

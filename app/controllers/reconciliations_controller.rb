@@ -101,10 +101,26 @@ class ReconciliationsController < ApplicationController
   private
 
   def set_period
-    @period = params[:period].presence || Date.current.strftime("%Y-%m")
-    return if @period.match?(/\A\d{4}-\d{2}\z/)
+    @period = params[:period].presence || PayCycle.period_for(current_user).first
+    unless @period.match?(/\A\d{4}-\d{2}(-\d{2})?\z/)
+      @period = PayCycle.period_for(current_user).first
+    end
+    resolve_cycle
+  end
 
-    @period = Date.current.strftime("%Y-%m")
+  # The cuadre period as something displayable: the PayCycle::Cycle when the
+  # user configured paydays (period key = the cycle start), or the plain
+  # calendar month otherwise. Shown in the header so the cuadre period is
+  # always visible.
+  def resolve_cycle
+    if Reports::Period.cycles_enabled?(current_user)
+      @cycle = PayCycle.containing(current_user, Date.iso8601(@period))
+      @period_label = @cycle.label
+    else
+      @cycle = nil
+      year, month = @period.split("-").map(&:to_i)
+      @period_label = I18n.l(Date.new(year, month, 1), format: :month_year)
+    end
   end
 
   def set_template

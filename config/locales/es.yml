@@ -898,6 +898,15 @@ es:
       expense_type: "solo se puede asignar a categorías de gasto"
       invalid_category: "no está disponible"
 
+  pay_settings:
+    title: "Ciclo financiero"
+    intro: "Tu mes financiero comienza el día que elijas. Esto afecta cómo se agrupan ingresos y gastos en ciclos financieros en reportes, presupuestos y el cuadre."
+    start_day: "El ciclo financiero comienza el"
+    start_day_help: "Días 29–31 no están disponibles para que el ciclo quepa en cualquier mes."
+    example: "Ejemplo: empieza el 20 → \"Octubre\" va del 20 de octubre al 19 de noviembre; lo que pagues el 1–5 de noviembre pertenece al ciclo de octubre."
+    current_cycle: "Ciclo actual"
+    saved: "Configuración guardada. Ciclo actual: %{cycle}."
+
   alerts:
     title: "Alertas"
     unread: "No leída"
@@ -1385,6 +1394,11 @@ es:
         last_12_months: "Últimos 12 meses"
         this_year: "Este año"
         custom: "Rango personalizado"
+        this_cycle: "Este ciclo"
+        last_cycle: "Ciclo pasado"
+        last_3_cycles: "Últimos 3 ciclos"
+        last_6_cycles: "Últimos 6 ciclos"
+        last_12_cycles: "Últimos 12 ciclos"
       vs_previous: "vs periodo anterior"
     filters:
       title: "Filtros"

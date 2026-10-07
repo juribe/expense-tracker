@@ -678,6 +678,22 @@ module Expenses
         assert result.candidates.size >= 1
         assert result.candidates.all? { |candidate| candidate.is_a?(ExpenseCandidate) && candidate.persisted? }
       end
+
+      test "handle_reply closes a zombie session whose candidates are all resolved" do
+        candidate = create_candidate(amount: 40_000, date: Date.current, description: "Éxito",
+                                     category: @restaurants)
+        session = Expenses::Clarification::Resolver.start_session!(
+          user: @user, phone_number: @phone, candidates: [ candidate ], original_message: "40 mil en Éxito"
+        )
+        # Resolved outside the conversation (e.g. confirmed in the web app):
+        # the session stays pending but has nothing left to clarify.
+        candidate.confirm!
+
+        outcome = Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "cualquier cosa")
+
+        assert_equal [ :stale, nil ], outcome
+        assert session.reload.resolved?
+      end
     end
   end
 end

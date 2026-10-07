@@ -5,21 +5,42 @@ class DashboardController < ApplicationController
     load_dashboard
   rescue ArgumentError
     flash.now[:alert] = I18n.t("dashboard.invalid_month", default: "El mes no es válido; se muestra el mes actual.")
-    @month = Time.zone.today
+    params.delete(:month)
+    params.delete(:cycle)
     load_dashboard
   end
 
   private
 
   def load_dashboard
-    @month ||= params[:month] ? Date.parse(params[:month]) : Time.zone.today
-    @expense_summary = Expense.dashboard_summary(user: current_user, month: @month)
-    @income_summary = Income.dashboard_summary(user: current_user, month: @month)
+    resolve_period
+    @expense_summary = Expense.dashboard_summary(user: current_user, range: @span)
+    @income_summary = Income.dashboard_summary(user: current_user, range: @span)
     @net_balance = @income_summary[:total_amount] + @expense_summary[:total_amount]
     @summary = @expense_summary
     @budgets = current_user.budgets.includes(:category)
     @pending_candidates = current_user.expense_candidates.pending.includes(:category).limit(10)
     @categories = Category.for_user_and_type(current_user, "expense")
     @money_sources = MoneySource.payment_origins(current_user)
+  end
+
+  # Calendar month by default; a pay cycle when the user configured paydays,
+  # navigable with ?cycle=<any date in the cycle>. The cycle (or nil) is
+  # exposed for the header banner so the current financial cycle is visible.
+  def resolve_period
+    @budget_period = nil
+    @cycle = nil
+    if Reports::Period.cycles_enabled?(current_user)
+      anchor = params[:cycle].present? ? Date.parse(params[:cycle]) : Date.current
+      @budget_period = PayCycle.containing(current_user, anchor)
+      @cycle = @budget_period
+      @span = @budget_period.to_range
+      @period_label = @budget_period.label
+    else
+      @month = params[:month] ? Date.parse(params[:month]) : Time.zone.today
+      @budget_period = @month
+      @span = @month.beginning_of_month..@month.end_of_month
+      @period_label = I18n.l(@month, format: :month_year)
+    end
   end
 end

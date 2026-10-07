@@ -252,4 +252,33 @@ class BudgetTest < ActiveSupport::TestCase
       category.destroy
     end
   end
+
+  test "spent_for accepts a cycle range instead of a calendar month" do
+    budget = create_budget
+    create_expense(amount: 300_000, date: Date.new(2026, 10, 21))
+    create_expense(amount: 200_000, date: Date.new(2026, 11, 3))
+    create_expense(amount: 999_999, date: Date.new(2026, 10, 5))
+
+    cycle = Date.new(2026, 10, 20)..Date.new(2026, 11, 19)
+
+    assert_equal 500_000.to_d, budget.spent_for(cycle)
+  end
+
+  test "cycle amount equals the monthly amount for a financial cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    budget = create_budget(monthly_amount: 800_000)
+
+    assert_equal 800_000.to_d, budget.amount_for(Date.new(2026, 10, 20)..Date.new(2026, 11, 19))
+  end
+
+  test "remaining and percentage use the monthly amount for cycle ranges" do
+    @user.update!(financial_cycle_start_day: 20)
+    budget = create_budget(monthly_amount: 800_000)
+    create_expense(amount: 300_000, date: Date.new(2026, 10, 21))
+
+    cycle = Date.new(2026, 10, 20)..Date.new(2026, 11, 19)
+
+    assert_equal 500_000.to_d, budget.remaining_for(cycle)
+    assert_in_delta 37.5, budget.percentage_for(cycle), 0.01
+  end
 end

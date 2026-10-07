@@ -10,7 +10,8 @@
 #
 # Rules:
 # * The recurring template must be active.
-# * The period is derived from the given date ("YYYY-MM").
+# * The period is derived from the given date: the user's pay cycle when a
+#   pay schedule is configured, otherwise the calendar month ("YYYY-MM").
 # * A recurring template can only be processed once per period.
 # * Processing creates a normal Transaction
 #   linked back to the template.
@@ -31,10 +32,10 @@ class RecurringTemplateProcessor
       return failure("Amount must be greater than zero.") if amount.nil? || amount <= 0
       return failure("A valid transaction date is required.") if date.nil?
 
-      period_range = period_range_for(date)
+      period, period_range = period_for(recurring_template.user, date)
 
       if recurring_template.transactions.where(date: period_range).exists?
-        return failure("Already processed for #{date.strftime('%B %Y')}.")
+        return failure("Already processed for #{period_label(period, date)}.")
       end
 
       transaction = nil
@@ -79,8 +80,17 @@ class RecurringTemplateProcessor
       nil
     end
 
-    def period_range_for(date)
-      date.beginning_of_month..date.end_of_month
+    def period_for(user, date)
+      if Reports::Period.cycles_enabled?(user)
+        cycle = PayCycle.containing(user, date)
+        [ cycle, cycle.to_range ]
+      else
+        [ nil, date.beginning_of_month..date.end_of_month ]
+      end
+    end
+
+    def period_label(period, date)
+      period ? period.label : date.strftime("%B %Y")
     end
 
     def failure(message)

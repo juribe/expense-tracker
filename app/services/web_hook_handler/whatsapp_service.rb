@@ -93,7 +93,13 @@ module WebHookHandler
           input = Expenses::Input.from_params("text", { text: new_expense_text })
           return run_pipeline(user, event, input)
         end
-        return
+        # A stale session (closed by a racing reply or healed because its
+        # candidates were resolved elsewhere) must not swallow the message:
+        # fall through and process it as a brand-new message.
+        return if outcome != :stale
+
+        Rails.logger.info "[WhatsappService] Clarification session=#{session.id} is stale; " \
+                          "processing the message as a new expense"
       end
 
       # Gibberish never reaches the AI pipeline: filter first, no credits.
@@ -167,6 +173,8 @@ module WebHookHandler
                         "(new_expense=#{new_expense_text.inspect})"
       if new_expense_text.present?
         [ :new_expense_fragment, new_expense_text ]
+      elsif outcome == :stale
+        [ :stale, nil ] # the caller falls through and processes a new message
       else
         [ :handled, nil ]
       end

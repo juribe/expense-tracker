@@ -246,6 +246,42 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, loan.reload.name
   end
 
+  test "GET /expenses/new defaults the date to the current cycle start with a schedule" do
+    @user.update!(financial_cycle_start_day: 20)
+    expected = PayCycle.current(@user).starts
+
+    get new_expense_path
+
+    assert_response :success
+    assert_select "input[name='expense[date]'][value=?]", expected.to_s
+  end
+
+  test "GET /expenses prefills the current cycle when no date filter is given" do
+    @user.update!(financial_cycle_start_day: 20)
+    # Inside the cycle opened this month (dated at its start).
+    @user.expenses.create!(amount: -500_000, date: PayCycle.current(@user).starts,
+                           category: @category, description: "Arriendo en ciclo")
+    # Outside it (belongs to the next cycle).
+    @user.expenses.create!(amount: -900_000, date: PayCycle.current(@user).ends + 5, category: @category,
+                           description: "Fuera de ciclo")
+
+    get expenses_path
+
+    assert_response :success
+    assert_select '[data-testid="cycle-badge"]'
+    assert_includes response.body, "Arriendo en ciclo"
+    refute_includes response.body, "Fuera de ciclo"
+  end
+
+  test "GET /expenses skips the cycle prefill when explicit dates are given" do
+    @user.update!(financial_cycle_start_day: 20)
+
+    get expenses_path, params: { start_date: Date.current.iso8601, end_date: Date.current.iso8601 }
+
+    assert_response :success
+    assert_select '[data-testid="cycle-badge"]', count: 0
+  end
+
   test "GET /expenses/:id/edit offers only payment sources in the source dropdown" do
     expense = create_expense(amount: 10, date: Date.today)
     card = create_source(name: "Visa", kind: "credit_card")

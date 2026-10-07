@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-# Persisted "Día de Cuadre" state for one user and period (YYYY-MM).
+# Persisted "Día de Cuadre" state for one user and period. The period key is
+# the calendar month ("YYYY-MM", the historical shape) or — for users with a
+# configured pay schedule — the pay cycle's start date ("YYYY-MM-DD").
 #
 # The dashboard reads this row instead of recomputing pending payments and
 # balance discrepancies on every page load. Reconciliation::Invalidate marks
@@ -11,7 +13,7 @@ class ReconciliationState < ApplicationRecord
 
   belongs_to :user
 
-  validates :period, presence: true, format: { with: /\A\d{4}-\d{2}\z/ }
+  validates :period, presence: true, format: { with: /\A\d{4}-\d{2}(-\d{2})?\z/ }
   validates :status, inclusion: { in: STATUSES }
 
   scope :for_user, ->(user) { where(user_id: user.id) }

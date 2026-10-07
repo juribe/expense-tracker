@@ -15,7 +15,8 @@ class ExpensesController < ApplicationController
   before_action :set_recurring_templates, only: [ :index ]
 
   def index
-    search = Expenses::Search.call(user: current_user, params: params)
+    @cycle_filter = cycle_prefill
+    search = Expenses::Search.call(user: current_user, params: params, period_range: @cycle_filter&.to_range)
 
     @sort = search.sort
     @dir = search.dir
@@ -48,7 +49,7 @@ class ExpensesController < ApplicationController
   end
 
   def new
-    @expense = current_user.expenses.build(date: Date.today)
+    @expense = current_user.expenses.build(date: default_record_date)
     assign_expense_prefill
   end
 
@@ -224,9 +225,19 @@ class ExpensesController < ApplicationController
     @recurring_templates = current_user.recurring_templates.active.expense
                                        .includes(:category, :money_source).ordered
                                        .reject { |template| template.money_source&.debt_payment_target? }
-    month_range = Date.current.beginning_of_month..Date.current.end_of_month
-    @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: month_range)
+    @current_period_range = PayCycle.period_for(current_user).last
+    @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: @current_period_range)
                                     .distinct.pluck(:recurring_template_id)
+  end
+
+  # The expenses list is prefilled with the current financial cycle (badge on
+  # the header) unless the user filters by explicit dates; without a
+  # configured cycle the list defaults to the calendar month.
+  def cycle_prefill
+    return nil if params[:start_date].present? || params[:end_date].present?
+    return nil unless Reports::Period.cycles_enabled?(current_user)
+
+    PayCycle.current(current_user)
   end
 
   def expense_params

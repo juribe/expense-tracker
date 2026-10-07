@@ -29,7 +29,7 @@
 
   <div class="mb-3">
     <%= f.label :date, t("incomes.form.date_label"), class: "form-label" %>
-    <%= f.date_field :date, value: Date.current, class: "form-control" %>
+    <%= f.date_field :date, value: @income.date || Date.current, class: "form-control" %>
   </div>
 
   <div class="mb-3">
