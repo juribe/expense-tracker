@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_06_210000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_06_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -327,6 +327,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_06_210000) do
     t.json "setup_suggestions"
     t.index ["user_id", "email"], name: "index_gmail_connections_on_user_id_and_email", unique: true
     t.index ["user_id"], name: "index_gmail_connections_on_user_id"
+  end
+
+  create_table "goals", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.decimal "target_amount", precision: 14, scale: 2, null: false
+    t.decimal "saved_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.date "target_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "name"], name: "index_goals_on_user_id_and_name"
+    t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
   create_table "incomes", force: :cascade do |t|
@@ -779,6 +791,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_06_210000) do
   add_foreign_key "financial_chats", "users"
   add_foreign_key "financial_setups", "users"
   add_foreign_key "gmail_connections", "users"
+  add_foreign_key "goals", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
   add_foreign_key "money_source_recognition_identifiers", "money_source_recognitions"

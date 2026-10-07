@@ -1,0 +1,70 @@
+<div class="container py-4" style="max-width: 640px;">
+  <%= form_with(model: goal, local: true) do |form| %>
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-bullseye me-2"></i><%= goal.new_record? ? t("goals.form.create_title", default: "Nueva meta") : t("goals.form.edit_title", default: "Editar meta") %>
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <div class="mb-3">
+          <%= form.label :name, class: "form-label" %>
+          <%= form.text_field :name,
+                              class: "form-control #{field_class(goal, :name)}",
+                              required: true %>
+          <% if goal.errors[:name].any? %>
+            <div class="invalid-feedback d-block"><%= field_error(goal, :name) %></div>
+          <% end %>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :target_amount, class: "form-label" do %>
+            <%= Goal.human_attribute_name(:target_amount) %> <span class="text-danger">*</span>
+          <% end %>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <%= form.text_field :target_amount,
+                                 value: money_field_value(goal.target_amount&.abs),
+                                 class: "form-control #{field_class(goal, :target_amount)}",
+                                 required: true,
+                                 inputmode: "decimal",
+                                 autocomplete: "off",
+                                 data: { money_input: true } %>
+          </div>
+          <% if goal.errors[:target_amount].any? %>
+            <div class="invalid-feedback d-block"><%= field_error(goal, :target_amount) %></div>
+          <% end %>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :saved_amount, class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <%= form.text_field :saved_amount,
+                                 value: money_field_value(goal.saved_amount&.abs),
+                                 class: "form-control #{field_class(goal, :saved_amount)}",
+                                 inputmode: "decimal",
+                                 autocomplete: "off",
+                                 data: { money_input: true } %>
+          </div>
+          <% if goal.errors[:saved_amount].any? %>
+            <div class="invalid-feedback d-block"><%= field_error(goal, :saved_amount) %></div>
+          <% end %>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :target_date, class: "form-label" %>
+          <%= form.date_field :target_date, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
+        <%= link_to goals_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
+        <% end %>
+        <%= form.submit goal.new_record? ? t("goals.form.submit_create", default: "Crear meta") : t("goals.form.submit_update", default: "Guardar cambios"), class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -67,3 +67,106 @@
     padding: 1rem;
   }
 }
+
+/* -------------------------------------------------
+ * Redesigned dashboard cards (mockup layout)
+ * ------------------------------------------------- */
+.dashboard-card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* Rounded icon tile in card headers */
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.stat-icon-sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+}
+.stat-icon-primary { background: #e0e9ff; color: #3b82f6; }
+.stat-icon-success { background: #dcfce7; color: #16a34a; }
+.stat-icon-warning { background: #fef3c7; color: #d97706; }
+.stat-icon-info    { background: #e0f2fe; color: #0284c7; }
+.stat-icon-secondary { background: #f1f5f9; color: #64748b; }
+
+/* Signed delta chip (↑ +8.4%) */
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.125rem 0.6rem;
+}
+.delta-badge-success { background: #dcfce7; color: #15803d; }
+.delta-badge-danger { background: #fee2e2; color: #b91c1c; }
+
+/* Donut chart with the total centered in the hole */
+.donut-wrap {
+  width: 170px;
+  height: 170px;
+}
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.donut-legend .legend-dot,
+.legend-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+/* Thin progress bars for rankings and goals */
+.dashboard-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: #f1f5f9;
+}
+.top-category-row .progress-bar,
+.dashboard-progress .progress-bar {
+  border-radius: 999px;
+}
+
+/* Mini bar chart inside the transactions card */
+.dashboard-mini-chart .chart-container {
+  margin: 0;
+}
+
+/* On/over meta box inside the cycle summary card */
+.cycle-meta-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  color: inherit;
+}
+.cycle-meta-box-success { background: #dcfce7; color: #15803d; }
+.cycle-meta-box-danger { background: #fee2e2; color: #b91c1c; }
+.cycle-meta-box .text-muted { color: #64748b !important; }
+
+/* Tip banner */
+.tip-banner {
+  background: #eef2ff;
+  border-radius: 0.6rem;
+}

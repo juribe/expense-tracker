@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
   # applied payments) so pagination behaves consistently app-wide.
   PER_PAGE = 25
 
+  include Chartkick::Helper
+
   before_action :authenticate_user!
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern

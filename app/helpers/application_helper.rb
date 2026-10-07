@@ -82,14 +82,29 @@ module ApplicationHelper
   # The always-visible financial cycle indicator for the sidebar: the
   # configured financial cycle, or the current calendar month for users who
   # never changed the start day.
+  # The always-visible financial cycle indicator for the sidebar: the
+  # configured financial cycle, or the current calendar month for users who
+  # never changed the start day. A rejected form submit (e.g. start day 30)
+  # leaves an invalid value in memory, so the cycle lookup falls back to the
+  # calendar month instead of raising while rendering.
   def financial_cycle_visible
-    if current_user && Reports::Period.cycles_enabled?(current_user)
-      cycle = PayCycle.current(current_user)
+    cycle = sidebar_cycle
+    if cycle
       { heading: t("nav.current_cycle", default: "Ciclo financiero"), label: cycle.label, range: cycle.range_label }
     else
       { heading: t("nav.current_cycle", default: "Ciclo financiero"),
         label: I18n.l(Date.current, format: :month_year), range: nil }
     end
+  end
+
+  private
+
+  def sidebar_cycle
+    return nil unless current_user && Reports::Period.cycles_enabled?(current_user)
+
+    PayCycle.current(current_user)
+  rescue ArgumentError
+    nil
   end
 
   def source_icon(source)

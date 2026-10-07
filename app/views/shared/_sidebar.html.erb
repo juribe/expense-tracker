@@ -152,6 +152,10 @@
         <i class="bi bi-bullseye"></i>
         <span><%= t("nav.budgets") %></span>
       <% end %>
+      <%= link_to goals_path, class: "sidebar-link #{active_class('goals')}" do %>
+        <i class="bi bi-bag-heart"></i>
+        <span><%= t("nav.goals", default: "Metas") %></span>
+      <% end %>
       <%= link_to transaction_rules_path, class: "sidebar-link #{exact_active_class('transaction_rules')}" do %>
         <i class="bi bi-magic"></i>
         <span><%= t("nav.rules") %></span>

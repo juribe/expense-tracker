@@ -15,13 +15,19 @@ class DashboardController < ApplicationController
   def load_dashboard
     resolve_period
     @expense_summary = Expense.dashboard_summary(user: current_user, range: @span)
-    @income_summary = Income.dashboard_summary(user: current_user, range: @span)
-    @net_balance = @income_summary[:total_amount] + @expense_summary[:total_amount]
-    @summary = @expense_summary
+    @cycle_summary = Dashboard::CycleSummary.new(user: current_user, span: @span, previous_span: previous_span).call
     @budgets = current_user.budgets.includes(:category)
+    @goals = current_user.goals.order(:id)
     @pending_candidates = current_user.expense_candidates.pending.includes(:category).limit(10)
     @categories = Category.for_user_and_type(current_user, "expense")
     @money_sources = MoneySource.payment_origins(current_user)
+  end
+
+  # The equivalent previous window (a month back, or the prior cycle), so the
+  # dashboard can show deltas against a like-for-like period.
+  def previous_span
+    length = (@span.last - @span.first).to_i + 1
+    (@span.first - length.days)..(@span.first - 1.day)
   end
 
   # Calendar month by default; a pay cycle when the user configured paydays,

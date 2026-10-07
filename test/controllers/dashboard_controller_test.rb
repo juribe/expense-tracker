@@ -136,7 +136,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     body = response.body
-    assert_operator body.index(t("budgets.dashboard_title")), :<, body.index(t("dashboard.quick_add_expense", default: "Agregar gasto rápido"))
+    assert_operator body.index("Presupuestos"), :<, body.index("Agregar gasto rápido")
   end
 
   test "GET /dashboard quick add form offers payment sources, not loans" do

@@ -30014,7 +30014,7 @@
       "file_type": "code",
       "norm_label": ".dashboard_summary()",
       "source_file": "app/models/expense.rb",
-      "source_location": "L14"
+      "source_location": "L16"
     },
     {
       "id": "app_models_income_income_dashboard_summary",
@@ -115761,7 +115761,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/models/expense.rb",
-      "source_location": "L14",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -136677,7 +136677,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/models/expense.rb",
-      "source_location": "L15",
+      "source_location": "L17",
       "weight": 1.0
     },
     {

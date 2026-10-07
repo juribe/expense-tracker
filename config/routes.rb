@@ -51,6 +51,7 @@ Rails.application.routes.draw do
   resources :incomes
   resources :categories
   resources :budgets
+  resources :goals
   resources :transaction_rules do
     collection do
       post :dismiss_suggestion

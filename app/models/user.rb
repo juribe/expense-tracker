@@ -23,6 +23,7 @@ class User < ApplicationRecord
   has_many :transfers, dependent: :destroy
   has_many :financial_setups, dependent: :destroy
   has_many :budgets, dependent: :destroy
+  has_many :goals, dependent: :destroy
   has_one :financial_chat, dependent: :destroy
   has_many :spending_alerts, dependent: :destroy
   has_many :transaction_rules, dependent: :destroy
