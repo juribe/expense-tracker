@@ -139,6 +139,33 @@ class BalanceEffectTest < ActiveSupport::TestCase
     assert_equal BigDecimal("0"), small_loan.reload.credit_account.outstanding_balance.to_d
   end
 
+  # A revolving line has no schedule: payments lower the debt but never fake
+  # installment progress either way.
+  test "a principal payment on a revolving loan never counts an installment" do
+    revolving = create_source(kind: "loan", sub_kind: "revolving", name: "Rotativo")
+    revolving.create_credit_account!(principal_amount: 50_000_000, outstanding_balance: 8_000_000,
+                                     installment_amount: 400_000, installment_count: 36)
+    expense = create_expense(amount: 2_000_000, money_source: @account)
+
+    create_payment(expense, revolving, principal_amount: 2_000_000)
+
+    assert_equal BigDecimal("6_000_000"), revolving.reload.credit_account.outstanding_balance.to_d
+    assert_equal 0, revolving.credit_account.installments_paid.to_i
+  end
+
+  test "destroying a revolving payment restores the balance and never un-counts installments" do
+    revolving = create_source(kind: "loan", sub_kind: "revolving", name: "Rotativo")
+    revolving.create_credit_account!(principal_amount: 50_000_000, outstanding_balance: 8_000_000,
+                                     installment_amount: 400_000, installment_count: 36)
+    expense = create_expense(amount: 2_000_000, money_source: @account)
+    payment = create_payment(expense, revolving, principal_amount: 2_000_000)
+
+    payment.destroy!
+
+    assert_equal BigDecimal("8_000_000"), revolving.reload.credit_account.outstanding_balance.to_d
+    assert_equal 0, revolving.credit_account.installments_paid.to_i
+  end
+
   private
 
   def create_source(kind:, name:, sub_kind: nil, starting_balance: 100_000)

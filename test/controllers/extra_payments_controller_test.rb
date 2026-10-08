@@ -95,6 +95,54 @@ class ExtraPaymentsControllerTest < ActionDispatch::IntegrationTest
   end
 end
 
+# Revolving targets (credit cards / crédito rotativo) use the simplified
+# abono: a transfer from the funding source lowers the balance directly.
+class ExtraPaymentsRevolvingControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
+  setup do
+    @user = User.create!(name: "Revolving Ctrl", email: "revolving-ctrl@example.com", password: "password123")
+    sign_in @user
+    @account = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 20_000_000)
+  end
+
+  test "create records a transfer-based abono on a credit card" do
+    card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: -8_000_000)
+    card.create_credit_account!(credit_limit: 10_000_000)
+
+    post money_source_extra_payments_path(card), params: {
+      date: Date.current, extra_amount: "2000000", application_type: "reduce_balance",
+      funding_money_source_id: @account.id
+    }
+
+    assert_redirected_to money_source_path(card)
+    extra = card.reload.credit_extra_payments.last
+    assert_equal "reduce_balance", extra.application_type
+    assert_nil extra.expense_id
+    assert_nil extra.payment_id
+    assert extra.transfer_id.present?
+    assert_equal BigDecimal("6_000_000"), card.used_credit
+    assert_equal BigDecimal("4_000_000"), card.available_credit
+    assert_equal BigDecimal("18_000_000"), @account.reload.balance
+  end
+
+  test "overpaying a credit card redirects with an alert and records nothing" do
+    card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: -500_000)
+    card.create_credit_account!(credit_limit: 10_000_000)
+
+    post money_source_extra_payments_path(card), params: {
+      date: Date.current, extra_amount: "700000", application_type: "reduce_balance",
+      funding_money_source_id: @account.id
+    }
+
+    assert_redirected_to money_source_path(card)
+    assert_not flash[:alert].blank?
+    assert_equal BigDecimal("500_000"), card.reload.used_credit
+    assert_equal BigDecimal("20_000_000"), @account.reload.balance
+    assert_equal 0, card.credit_extra_payments.count
+  end
+end
+
 # The real abonos card lives on the credit's own page, never on the
 # simulation page.
 class ExtraPaymentsPlacementTest < ActionDispatch::IntegrationTest
@@ -115,13 +163,28 @@ class ExtraPaymentsPlacementTest < ActionDispatch::IntegrationTest
     assert_match "Abonos extraordinarios", @response.body
   end
 
-  test "credit cards do not get the abonos card" do
+  test "credit cards get the simplified abono extraordinario form" do
     card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: -100_000)
 
     get money_source_path(card)
 
     assert_response :success
-    assert_no_match "Abonos extraordinarios", @response.body
+    assert_match "Abonos extraordinarios", @response.body
+    assert_match "data-extra-preview", @response.body
+    # The select (id extra_application_…) is amortizing-only; the simplified
+    # form carries the application type as a hidden field instead.
+    assert_no_match 'id="extra_application_', @response.body
+  end
+
+  test "revolving loans get the simplified abono extraordinario form too" do
+    line = @user.money_sources.create!(name: "Rotativo", kind: "loan", sub_kind: "revolving")
+    line.create_credit_account!(outstanding_balance: 4_000_000)
+
+    get money_source_path(line)
+
+    assert_response :success
+    assert_match "Abonos extraordinarios", @response.body
+    assert_match "data-extra-preview", @response.body
   end
 
   test "the credits simulation page never renders the abonos card" do

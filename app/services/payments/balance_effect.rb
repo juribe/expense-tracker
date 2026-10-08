@@ -27,7 +27,9 @@ module Payments
         return
       end
 
-      counts_installment = principal.positive?
+      # A revolving line has no schedule: its payments move the debt but
+      # never fake installment progress in either direction.
+      counts_installment = principal.positive? && !revolving_target?
       had_installment = @previous_principal.positive?
       delta = principal - @previous_principal
 
@@ -53,6 +55,10 @@ module Payments
 
     def credit_card?
       payment.money_source.credit_card?
+    end
+
+    def revolving_target?
+      payment.money_source.revolving?
     end
 
     def apply_loan(delta, counts_installment, had_installment)
@@ -82,8 +88,9 @@ module Payments
       outstanding = credit_account.outstanding_balance.to_d
       credit_account.update_column(:outstanding_balance, outstanding + @previous_principal)
 
-      # Interest-only payments were never counted, so they never uncount.
-      adjust_installments(credit_account, -1) if @previous_principal.positive?
+      # Interest-only payments were never counted, so they never uncount;
+      # revolving targets were never counted in the first place.
+      adjust_installments(credit_account, -1) if @previous_principal.positive? && !revolving_target?
       @previous_principal = principal
     end
 

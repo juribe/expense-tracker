@@ -57,7 +57,7 @@ module MoneySources
     # Only revolving lines can be used (disbursed/purchased against); the
     # other loan sub-types never take usage expenses.
     def revolving_loan?
-      @source.loan? && @source.sub_kind == "revolving"
+      @source.revolving?
     end
   end
 end

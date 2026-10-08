@@ -2289,6 +2289,15 @@ es:
         reduce_term: "A capital (reducir plazo)"
         reduce_installment: "A capital (reducir cuota)"
         prepay_installments: "Adelantar cuotas"
+        reduce_balance: "Reducir saldo"
+      simple_hint: "Un abono de verdad para tu tarjeta o crédito rotativo: la plata sale de la fuente que elijas y el saldo baja de inmediato. No cambia cuotas ni plazo, y libera el cupo al instante."
+      preview:
+        balance: "Saldo actual"
+        payment: "Abono extraordinario"
+        new_balance: "Nuevo saldo"
+        available: "Cupo disponible"
+      exceeds_balance: "El abono extraordinario supera el saldo pendiente (%{balance}); no se registró nada."
+      only_revolving: "El abono «Reducir saldo» solo aplica a tarjetas de crédito o créditos rotativos."
       effect:
         eliminated: "%{count} cuotas eliminadas"
         covered: "%{count} cuotas adelantadas"

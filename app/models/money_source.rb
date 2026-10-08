@@ -139,6 +139,14 @@ class MoneySource < ApplicationRecord
   # a free-investment loan deposits into a savings account once, so the
   # account — not the loan — is the reusable funding source.
   def funding_source?
+    revolving?
+  end
+
+  # A recycled line of credit: crédito rotativo / sobregiro. Its debt lives
+  # on credit_account.outstanding_balance and its usage transactions raise
+  # it (MoneySources::OutstandingSync), unlike an amortizing loan's fixed
+  # schedule or a card's negative cash balance.
+  def revolving?
     loan? && sub_kind == "revolving"
   end
 
@@ -158,8 +166,11 @@ class MoneySource < ApplicationRecord
 
   # Positive magnitude of what is owed. balance returns the negative for debt
   # sources so existing debt-means-negative rendering stays consistent.
+  # A revolving line owes its credit_account.outstanding_balance (usage
+  # transactions raise it there), not its (mostly-zero) cash balance.
   def used_credit
     return 0 unless debt?
+    return outstanding_balance.to_d if revolving?
 
     [ -balance, 0 ].max
   end

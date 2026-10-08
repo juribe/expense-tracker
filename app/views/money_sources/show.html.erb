@@ -104,8 +104,9 @@
         </div>
       </div>
 
-      <% if @money_source.loan? %>
+      <% if @money_source.loan? || @money_source.credit_card? %>
         <%= render "extra_payments", source: @money_source,
+                   simple: @money_source.credit_card? || @money_source.revolving?,
                    funding_sources: current_user.money_sources.payment_sources.order(:kind, :name).where.not(id: @money_source.id) %>
       <% end %>
     </div>

@@ -318,4 +318,43 @@ class MoneySourceTest < ActiveSupport::TestCase
 
     assert_equal [ mine.id ], MoneySource.payment_origins(@user).map(&:id)
   end
+
+  test "revolving? is true only for loans with the revolving sub_kind" do
+    assert create_source(kind: "loan", sub_kind: "revolving").revolving?
+    assert_not create_source(kind: "loan", sub_kind: "personal").revolving?
+    assert_not create_source(kind: "loan").revolving?
+    assert_not create_source(kind: "credit_card").revolving?
+  end
+
+  test "used_credit of a revolving loan is the outstanding balance" do
+    revolving = create_source(kind: "loan", sub_kind: "revolving", starting_balance: 0)
+    revolving.create_credit_account!(outstanding_balance: 8_000_000, credit_limit: 10_000_000)
+    revolving.reload
+
+    assert_equal BigDecimal("8_000_000"), revolving.used_credit
+    assert_equal BigDecimal("2_000_000"), revolving.available_credit
+    assert_equal 80.0, revolving.credit_utilization
+  end
+
+  test "amortizing loans and cards keep their previous used_credit semantics" do
+    card = create_source(name: "Visa", kind: "credit_card", starting_balance: -8_000_000)
+    card.create_credit_account!(outstanding_balance: 1_234, credit_limit: 10_000_000)
+    card.reload
+    # The card's owed number comes from its balance, never outstanding_balance.
+    assert_equal BigDecimal("8_000_000"), card.used_credit
+
+    mortgage = create_source(name: "Hipotecario", kind: "loan", sub_kind: "mortgage", starting_balance: 0)
+    mortgage.create_credit_account!(outstanding_balance: 8_000_000, credit_limit: 10_000_000)
+    mortgage.reload
+    # An amortizing loan has no line: its balance stays 0 and no credit is available.
+    assert_equal BigDecimal("0"), mortgage.used_credit
+    assert_equal BigDecimal("10_000_000"), mortgage.available_credit
+  end
+
+  test "available credit of a revolving loan without a limit stays nil" do
+    revolving = create_source(kind: "loan", sub_kind: "revolving", starting_balance: 0)
+    revolving.create_credit_account!(outstanding_balance: 8_000_000)
+
+    assert_nil revolving.available_credit
+  end
 end

@@ -18,15 +18,22 @@ class Transfer < ApplicationRecord
   scope :recent, ->(limit = 20) { order(date: :desc, created_at: :desc).limit(limit) }
 
   # Keeps both ends' cached balances in sync: a transfer removes money from
-  # the origin and adds it to the destination.
+  # the origin and adds it to the destination. A transfer into a debt IS
+  # that debt's payment, so the debt's own numbers move too: a credit card
+  # rides its cached balance (the debt-means-negative number), while a
+  # revolving loan's debt lives on credit_account.outstanding_balance and
+  # must be lowered through MoneySources::OutstandingSync like its usage
+  # transactions raise it.
   after_commit on: [ :create ] do
     MoneySources::BalanceSync.adjust!(from_source, -amount.to_d)
     MoneySources::BalanceSync.adjust!(to_source, amount.to_d)
+    MoneySources::OutstandingSync.adjust!(to_source, -amount.to_d)
   end
 
   after_commit on: [ :destroy ] do
     MoneySources::BalanceSync.adjust!(from_source, amount.to_d)
     MoneySources::BalanceSync.adjust!(to_source, -amount.to_d)
+    MoneySources::OutstandingSync.adjust!(to_source, amount.to_d)
   end
 
   private

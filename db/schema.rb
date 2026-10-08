@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_07_233100) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -132,11 +132,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_233100) do
     t.bigint "funding_money_source_id"
     t.bigint "payment_id"
     t.bigint "expense_id"
+    t.bigint "transfer_id"
     t.index ["expense_id"], name: "index_credit_extra_payments_on_expense_id"
     t.index ["funding_money_source_id"], name: "index_credit_extra_payments_on_funding_money_source_id"
     t.index ["money_source_id", "date"], name: "index_credit_extra_payments_on_money_source_id_and_date"
     t.index ["money_source_id"], name: "index_credit_extra_payments_on_money_source_id"
     t.index ["payment_id"], name: "index_credit_extra_payments_on_payment_id"
+    t.index ["transfer_id"], name: "index_credit_extra_payments_on_transfer_id"
   end
 
   create_table "credit_projections", force: :cascade do |t|
@@ -845,6 +847,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_233100) do
   add_foreign_key "credit_extra_payments", "money_sources", column: "funding_money_source_id"
   add_foreign_key "credit_extra_payments", "payments"
   add_foreign_key "credit_extra_payments", "transactions", column: "expense_id"
+  add_foreign_key "credit_extra_payments", "transfers"
   add_foreign_key "credit_projections", "money_sources"
   add_foreign_key "credit_scenarios", "money_sources"
   add_foreign_key "evaluation_cases", "evaluation_runs"

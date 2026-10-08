@@ -3,17 +3,25 @@
 module Credits
   module ExtraPayments
     # Create
-    # Records a REAL extraordinary payment: a cash Expense leaves the chosen
-    # funding money source (account/card/wallet) and the payment is applied
-    # to the debt through the standard store machinery
-    # (Payments::Apply → Payments::BalanceEffect), so the loan's real
-    # balance moves and the payment shows up in the loan's payment list,
-    # reports and Día de Cuadre.
+    # Records a REAL extraordinary payment.
+    #
+    # Amortizing credit: a cash Expense leaves the chosen funding money
+    # source and the payment is applied to the debt through the standard
+    # store machinery (Payments::Apply → Payments::BalanceEffect), so the
+    # loan's real balance moves and the payment shows up in the loan's
+    # payment list, reports and Día de Cuadre.
     #
     #   reduce_term / reduce_installment → the applied amount is pure capital
     #   prepay_installments            → covers the ruled installments at
     #     face value: the distribution carries their capital/interest/
     #     insurance and the leftover as "other"
+    #
+    # Revolving credit (credit cards / crédito rotativo, application_type
+    # "reduce_balance"): a Transfer from the funding source to the debt —
+    # the transfer callbacks move the same balance the rest of the app
+    # reads (card cached balance / line outstanding_balance), so credit
+    # balance, available credit and utilization all reflect it. No Expense,
+    # no schedule, no installments. Overpaying the balance is rejected.
     #
     # Methods: call
     class Create
@@ -32,6 +40,8 @@ module Credits
 
       def call
         return ServiceResult.error([ funding_missing_error ]) if @funding_money_source.nil?
+
+        return record_revolving_payment if @application_type == "reduce_balance"
 
         projection_result = refresh_projection
         return projection_result if projection_result.failure?
@@ -70,6 +80,67 @@ module Credits
 
       private
 
+      # Revolving products: the abono is only a balance movement. The
+      # Transfer lowers the debt (card cached balance / line outstanding
+      # balance) and frees the credit limit; no amortization is touched.
+      def record_revolving_payment
+        return ServiceResult.error([ not_revolving_error ]) unless revolving_target?
+
+        amount = normalized_amount
+        balance = revolving_balance
+        return ServiceResult.error([ exceeds_balance_error(balance) ]) if amount > balance
+
+        extra = @money_source.credit_extra_payments.build(
+          date: @date,
+          amount: amount,
+          application_type: "reduce_balance",
+          funding_money_source_id: @funding_money_source.id,
+          principal_reduction: amount,
+          effect: revolving_effect(balance, amount),
+          note: @note
+        )
+        ActiveRecord::Base.transaction do
+          extra.save!
+          transfer = Transfer.create!(
+            user: @money_source.user, from_source: @funding_money_source,
+            to_source: @money_source, amount: amount, date: @date,
+            note: description
+          )
+          extra.update!(transfer_id: transfer.id)
+        end
+        ServiceResult.success(extra.reload)
+      rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved => e
+        ServiceResult.error(e.record.errors.full_messages)
+      end
+
+      def revolving_target?
+        @money_source.credit_card? || @money_source.revolving?
+      end
+
+      # The owed number the rest of the app displays: the card's used credit
+      # (-balance) or the line's credit_account.outstanding_balance.
+      def revolving_balance
+        return @money_source.used_credit.to_d if @money_source.credit_card?
+
+        @money_source.credit_account&.outstanding_balance.to_d
+      end
+
+      def revolving_effect(balance, amount)
+        {
+          "application" => "reduce_balance",
+          "balance_before" => balance.to_s("F"),
+          "balance_after" => (balance - amount).to_s("F")
+        }
+      end
+
+      def exceeds_balance_error(balance)
+        I18n.t("credits.extras.exceeds_balance", balance: MoneyFormat.number(balance))
+      end
+
+      def not_revolving_error
+        I18n.t("credits.extras.only_revolving")
+      end
+
       def apply_payment!(distribution)
         Payments::Apply.call(
           user: @money_source.user,
@@ -95,7 +166,20 @@ module Credits
           date: @date,
           kind: "expense",
           source: "manual",
-          money_source: @funding_money_source
+          money_source: @funding_money_source,
+          category: payment_category
+        )
+      end
+
+      # Abonos never invent a category: the expense is a debt payment, so it
+      # lands in the same default "Pagos de créditos" category recurring
+      # payments share (created on demand, same pattern as db/seeds.rb and
+      # the setup wizard).
+      def payment_category
+        @payment_category ||= Category.find_or_create_by!(
+          name: I18n.t("categories.debt_payments"),
+          is_default: true,
+          category_type: "expense"
         )
       end
 
