@@ -7,6 +7,11 @@
           <i class="bi bi-piggy-bank me-1"></i><%= t("goals.assign_money", default: "Asignar dinero") %>
         <% end %>
       <% end %>
+      <% if @money_source.loan? %>
+        <%= link_to money_source_credits_path(@money_source), class: "btn btn-primary" do %>
+          <i class="bi bi-graph-up-arrow me-1"></i><%= t("credits.index_button") %>
+        <% end %>
+      <% end %>
       <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
         <i class="bi bi-pencil me-1"></i><%= t("common.edit") %>
       <% end %>

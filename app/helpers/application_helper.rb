@@ -156,6 +156,24 @@ module ApplicationHelper
     t("kinds.#{kind}", default: kind.to_s.titleize)
   end
 
+  # Compact dd/mm/yyyy label for iso dates stored in credit projections.
+  def date_label(value)
+    return "—" if value.blank?
+
+    I18n.l(Date.parse(value.to_s), format: :default)
+  rescue Date::Error
+    value.to_s
+  end
+
+  # "Febrero 2028" style payoff dates for projection summaries.
+  def payoff_label(value)
+    return "—" if value.blank?
+
+    I18n.l(Date.parse(value.to_s), format: :month_year)
+  rescue Date::Error
+    value.to_s
+  end
+
   # Label for a recurring template's select option in the "apply to recurring"
   # modal: the most identifying bits without taking too much width.
   def recurring_template_option_label(template)

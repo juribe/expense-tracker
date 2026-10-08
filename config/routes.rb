@@ -77,6 +77,13 @@ Rails.application.routes.draw do
     member do
       post :reset_adjustment
     end
+    get "credits", to: "credits#show", as: :credits
+    get "credits/reconstruct", to: "credits#reconstruct", as: :credit_reconstruct
+    post "credits", to: "credits#build", as: :credit_build
+    post "credits/refresh", to: "credits#refresh", as: :credit_refresh
+    get "credits/schedule", to: "credits#schedule", as: :credit_schedule
+    post "credits/scenarios", to: "credits#create_scenario", as: :credit_scenarios
+    delete "credits/scenarios/:scenario_id", to: "credits#destroy_scenario", as: :credit_scenario
     resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
     resources :statement_imports, only: [ :new, :create ] do
       collection do

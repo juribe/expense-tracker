@@ -1,0 +1,94 @@
+<div class="d-flex gap-2 mb-3 flex-wrap">
+  <% [["future", t("credits.schedule.view_future")],
+      ["full", t("credits.schedule.view_full")],
+      ["actual", t("credits.schedule.view_actual")]].each do |view, label| %>
+    <%= link_to money_source_credit_schedule_path(@loan, view: view),
+                class: "btn btn-sm #{view == @view ? "btn-primary" : "btn-outline-secondary"}",
+                data: { turbo_frame: "credit_schedule" } do %>
+      <%= label %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover align-middle">
+    <thead>
+      <tr>
+        <th class="text-end"><%= t("credits.schedule.number") %></th>
+        <th><%= t("credits.schedule.date") %></th>
+        <th class="text-end"><%= t("credits.schedule.principal") %></th>
+        <th class="text-end"><%= t("credits.schedule.interest") %></th>
+        <th class="text-end"><%= t("credits.schedule.insurance") %></th>
+        <th class="text-end"><%= t("credits.schedule.other") %></th>
+        <th class="text-end"><%= t("credits.schedule.payment") %></th>
+        <th class="text-end"><%= t("credits.schedule.balance") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @view == "full" %>
+        <% @projection.past_rows.each do |row| %>
+          <tr class="table-light">
+            <td class="text-end text-muted"><%= row["installment_number"] %></td>
+            <td class="text-muted"><%= date_label(row["date"]) %></td>
+            <td class="text-end"><%= number_to_currency(row["principal"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["interest"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["insurance"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["other"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["total_payment"].to_d) %></td>
+            <td class="text-end text-muted"><%= t("credits.schedule.actual") %></td>
+          </tr>
+        <% end %>
+      <% end %>
+
+      <% if @view == "actual" %>
+        <% @projection.past_rows.each do |row| %>
+          <tr class="<%= "table-danger" if row["deviates"] %>">
+            <td class="text-end text-muted"><%= row["installment_number"] %></td>
+            <td><%= date_label(row["date"]) %></td>
+            <td class="text-end">
+              <%= number_to_currency(row["principal"].to_d) %>
+              <% if row["projected_principal"].present? %>
+                <div class="text-muted small">↔ <%= number_to_currency(row["projected_principal"].to_d) %></div>
+              <% end %>
+            </td>
+            <td class="text-end">
+              <%= number_to_currency(row["interest"].to_d) %>
+              <% if row["projected_interest"].present? %>
+                <div class="text-muted small">↔ <%= number_to_currency(row["projected_interest"].to_d) %></div>
+              <% end %>
+            </td>
+            <td class="text-end"><%= number_to_currency(row["insurance"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["other"].to_d) %></td>
+            <td class="text-end fw-bold"><%= number_to_currency(row["total_payment"].to_d) %></td>
+            <td class="text-end text-muted"><%= t("credits.schedule.actual") %></td>
+          </tr>
+        <% end %>
+      <% end %>
+
+      <% if @view != "actual" %>
+        <% @projection.future_rows.each do |row| %>
+          <tr>
+            <td class="text-end text-muted"><%= row["installment_number"] %></td>
+            <td><%= date_label(row["date"]) %></td>
+            <td class="text-end"><%= number_to_currency(row["principal"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["interest"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["insurance"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["other"].to_d) %></td>
+            <td class="text-end fw-bold"><%= number_to_currency(row["total_payment"].to_d) %></td>
+            <td class="text-end"><%= number_to_currency(row["closing_balance"].to_d) %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="small text-muted">
+  <i class="bi bi-info-circle me-1"></i>
+  <% if @view == "actual" %>
+    <%= t("credits.schedule.actual_legend") %>
+  <% else %>
+    <%= t("credits.schedule.projected") %>: <%= number_to_currency(@projection.summary["total_remaining"].to_d) %>
+    · <%= t("credits.schedule.payoff") %> <%= payoff_label(@projection.summary["payoff_date"]) %>
+  <% end %>
+</div>

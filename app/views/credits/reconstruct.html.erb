@@ -1,0 +1,115 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-9">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="bi bi-arrow-repeat me-2"></i><%= t("credits.reconstruct.title") %> — <%= @loan.name %></h4>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-4"><%= t("credits.reconstruct.hint") %></p>
+
+          <%= form_with url: money_source_credit_build_path(@loan), method: :post, local: true do %>
+            <h5 class="mb-3"><%= t("credits.status.title") %></h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label" for="credit_balance"><%= t("credits.reconstruct.balance") %></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="credit_balance" name="balance"
+                         value="<%= money_field_value(@inputs[:balance]) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="credit_interest_rate"><%= t("credits.reconstruct.interest_rate") %></label>
+                <input type="text" class="form-control" id="credit_interest_rate" name="interest_rate"
+                       value="<%= money_field_value(@inputs[:interest_rate]) %>" inputmode="decimal" autocomplete="off">
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="credit_rate_type"><%= t("credits.reconstruct.interest_rate_type") %></label>
+                <select class="form-select" id="credit_rate_type" name="interest_rate_type">
+                  <option value="effective_annual" <%= "selected" if @inputs[:interest_rate_type] == "effective_annual" %>>EA</option>
+                  <option value="nominal_annual" <%= "selected" if @inputs[:interest_rate_type] == "nominal_annual" %>>NA</option>
+                  <option value="monthly" <%= "selected" if @inputs[:interest_rate_type] == "monthly" %>><%= t("credits.reconstruct.rate_monthly", default: "Mensual") %></option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_installment"><%= t("credits.reconstruct.installment_amount") %></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="credit_installment" name="installment_amount"
+                         value="<%= money_field_value(@inputs[:installment_amount]) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_installment_number"><%= t("credits.reconstruct.current_installment_number") %></label>
+                <input type="number" class="form-control" id="credit_installment_number" name="current_installment_number"
+                       value="<%= @inputs[:current_installment_number] %>" min="0">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_original_term"><%= t("credits.reconstruct.original_term") %></label>
+                <input type="number" class="form-control" id="credit_original_term" name="original_term"
+                       value="<%= @inputs[:installment_count] %>" min="1">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_latest_date"><%= t("credits.reconstruct.latest_payment_date") %></label>
+                <input type="date" class="form-control" id="credit_latest_date" name="latest_payment_date"
+                       value="<%= @inputs[:latest_payment_date].respond_to?(:iso8601) ? @inputs[:latest_payment_date].iso8601 : @inputs[:latest_payment_date] %>">
+              </div>
+            </div>
+
+            <h5 class="mb-3 mt-2"><%= t("credits.reconstruct.latest_payment") %></h5>
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="credit_principal"><%= t("credits.reconstruct.principal") %></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="credit_principal" name="principal_amount"
+                         value="<%= money_field_value(@inputs[:latest_principal]) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="credit_interest"><%= t("credits.reconstruct.interest") %></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="credit_interest" name="interest_amount"
+                         value="<%= money_field_value(@inputs[:latest_interest]) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="credit_insurance"><%= t("credits.reconstruct.insurance") %></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="credit_insurance" name="insurance_amount"
+                         value="<%= money_field_value(@inputs[:latest_insurance]) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label" for="credit_other"><%= t("credits.reconstruct.other") %></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="credit_other" name="other_amount"
+                         value="<%= money_field_value(@inputs[:latest_other]) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-calculator me-1"></i><%= t("credits.reconstruct.submit") %>
+              </button>
+              <%= link_to money_source_path(@loan), class: "btn btn-outline-secondary" do %>
+                <%= t("common.cancel", default: "Cancelar") %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

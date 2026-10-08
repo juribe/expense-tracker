@@ -41,6 +41,8 @@ class MoneySource < ApplicationRecord
   has_many :goal_allocations, class_name: "GoalAllocation", foreign_key: :pocket_id, dependent: :delete_all
   has_one :credit_account, dependent: :destroy
   has_many :payments, foreign_key: :money_source_id, dependent: :restrict_with_error
+  has_one :credit_projection, dependent: :destroy
+  has_many :credit_scenarios, dependent: :destroy
   has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
   has_many :recognition_identifiers, through: :recognition, source: :recognition_identifiers
 

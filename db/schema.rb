@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_07_220000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_07_230100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_220000) do
     t.integer "installments_paid"
     t.boolean "outstanding_usage_replayed", default: false, null: false
     t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
+  end
+
+  create_table "credit_projections", force: :cascade do |t|
+    t.bigint "money_source_id", null: false
+    t.boolean "estimated", default: false, null: false
+    t.string "fingerprint", null: false
+    t.jsonb "inputs", default: {}, null: false
+    t.jsonb "schedule", default: {}, null: false
+    t.jsonb "summary", default: {}, null: false
+    t.jsonb "assumptions", default: [], null: false
+    t.datetime "computed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_source_id"], name: "index_credit_projections_on_money_source_id", unique: true
+  end
+
+  create_table "credit_scenarios", force: :cascade do |t|
+    t.bigint "money_source_id", null: false
+    t.string "name", null: false
+    t.string "kind", null: false
+    t.jsonb "params", default: {}, null: false
+    t.jsonb "results", default: {}, null: false
+    t.datetime "computed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_source_id", "kind"], name: "index_credit_scenarios_on_money_source_id_and_kind"
+    t.index ["money_source_id"], name: "index_credit_scenarios_on_money_source_id"
   end
 
   create_table "evaluation_cases", force: :cascade do |t|
@@ -793,6 +820,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_220000) do
   add_foreign_key "budgets", "users"
   add_foreign_key "categories", "users"
   add_foreign_key "credit_accounts", "money_sources"
+  add_foreign_key "credit_projections", "money_sources"
+  add_foreign_key "credit_scenarios", "money_sources"
   add_foreign_key "evaluation_cases", "evaluation_runs"
   add_foreign_key "evaluation_runs", "users"
   add_foreign_key "expense_candidates", "categories"
