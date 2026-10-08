@@ -14,10 +14,18 @@ module Credits
     #                                   name: "+500 mil", params: { "amount" => "500000" })
     class Create
       DEFAULT_NAMES = {
-        "reduce_term" => ->(params) { "+#{params['amount']} para terminar antes" },
-        "reduce_installment" => ->(params) { "+#{params['amount']} para pagar menos cada mes" },
-        "prepay_installments" => ->(params) { "+#{params['amount']} adelantando cuotas" },
-        "target_payoff" => ->(params) { "Terminar #{params['months_earlier']} cuotas antes" }
+        "reduce_term" => lambda { |params|
+          "+#{MoneyFormat.currency(BigDecimal(MoneyFormat.normalize(params['amount'])))} para terminar antes"
+        },
+        "reduce_installment" => lambda { |params|
+          "+#{MoneyFormat.currency(BigDecimal(MoneyFormat.normalize(params['amount'])))} para pagar menos cada mes"
+        },
+        "prepay_installments" => lambda { |params|
+          "+#{MoneyFormat.currency(BigDecimal(MoneyFormat.normalize(params['amount'])))} adelantando cuotas"
+        },
+        "target_payoff" => lambda { |params|
+          "Terminar #{params['months_earlier'].to_i} cuotas antes"
+        }
       }.freeze
 
       ALLOWED_INPUT_KINDS = Credits::Simulator::STRATEGIES + Credits::Simulator::LEGACY_STRATEGIES.keys

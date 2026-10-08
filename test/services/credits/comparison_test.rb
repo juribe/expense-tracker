@@ -158,3 +158,36 @@ class ComparisonTest < ActiveSupport::TestCase
     result.result
   end
 end
+
+# Auto-generated scenario names format the amount in Colombian pesos.
+class ScenarioNamesFormattingTest < ActiveSupport::TestCase
+  setup do
+    @loan = MoneySource.create!(
+      user: User.create!(name: "Fmt User", email: "fmt@example.com", password: "password123"),
+      name: "Ref Loan", kind: "loan", sub_kind: "personal"
+    )
+    @loan.create_credit_account!(
+      outstanding_balance: 1_200, interest_rate: 1.0, interest_rate_type: "monthly",
+      installment_amount: 300, installment_count: 5, installments_paid: 0,
+      start_date: Date.new(2026, 1, 5), payment_frequency: "monthly"
+    )
+    Credits::Projection::Builder.call(money_source: @loan).result
+  end
+
+  test "default scenario names format the amount" do
+    result = Credits::Scenarios::Create.call(money_source: @loan, kind: "reduce_installment",
+                                             params: { "amount" => "5000000" })
+
+    assert result.success?
+    assert_equal "+$5.000.000 para pagar menos cada mes", result.result.name
+  end
+
+  test "explicit names win over defaults" do
+    result = Credits::Scenarios::Create.call(money_source: @loan, kind: "reduce_term",
+                                             name: "Aguinaldo al crédito",
+                                             params: { "amount" => "5000000" })
+
+    assert result.success?
+    assert_equal "Aguinaldo al crédito", result.result.name
+  end
+end
