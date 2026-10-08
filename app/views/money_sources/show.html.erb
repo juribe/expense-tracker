@@ -38,11 +38,7 @@
       <% end %>
     </div>
     <div class="col-lg-5">
-      <% if @money_source.loan? %>
-        <%= render "extra_payments", source: @money_source,
-                   funding_sources: current_user.money_sources.payment_sources.order(:kind, :name).where.not(id: @money_source.id) %>
-      <% end %>
-      <div class="card shadow-sm <%= "mt-4" if @money_source.loan? %>">
+      <div class="card shadow-sm">
         <div class="card-body">
           <h5 class="card-title"><%= t("money_sources.show.details") %></h5>
           <dl class="row mb-0">
@@ -107,6 +103,11 @@
           <% end %>
         </div>
       </div>
+
+      <% if @money_source.loan? %>
+        <%= render "extra_payments", source: @money_source,
+                   funding_sources: current_user.money_sources.payment_sources.order(:kind, :name).where.not(id: @money_source.id) %>
+      <% end %>
     </div>
   </div>
 </div>
