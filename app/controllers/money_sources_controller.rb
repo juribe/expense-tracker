@@ -217,7 +217,8 @@ class MoneySourcesController < ApplicationController
   # must stay one click away without flooding the card.
   def load_payment_context
     payments_scope = @money_source.payments.order(date: :desc, id: :desc)
-    @payments = payments_scope.paginate(
+    # The list renders the expense description/date of every payment.
+    @payments = payments_scope.includes(:expense).paginate(
       page: params[:payments_page], per_page: ApplicationController::PER_PAGE
     )
 
