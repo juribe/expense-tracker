@@ -59,8 +59,8 @@
   </div>
 
   <div class="account-card-foot">
-    <% if source.transactions.any? %>
-      <span class="account-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions.size) %></span></span>
+    <% if source.transactions_count.to_i.positive? %>
+      <span class="account-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions_count.to_i) %></span></span>
     <% end %>
     <% if source.children.any? %>
       <span class="account-foot-divider" aria-hidden="true"></span>

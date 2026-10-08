@@ -49,6 +49,15 @@
               </div>
             </div>
 
+            <div class="mb-3" id="assign-goal-field">
+              <%= f.label :assign_goal_id, t("transfers.new.assign_to_goal", default: "Asignar a meta (opcional)"), class: "form-label" %>
+              <%= f.select :assign_goal_id,
+                  pocket_goal_groups(@pocket_goals),
+                  { include_blank: t("transfers.new.assign_blank", default: "Solo dejar el dinero en el bolsillo") },
+                  class: "form-select", id: "transfer_assign_goal_id" %>
+              <div class="form-text"><%= t("transfers.new.assign_goal_hint", default: "Si eliges una meta, el dinero transferido queda reservado para ella dentro del bolsillo. No crea un gasto.") %></div>
+            </div>
+
             <div class="mb-3">
               <%= f.label :note, t("transfers.new.note", default: "Nota"), class: "form-label" %>
               <%= f.text_area :note, class: "form-control", rows: 2, placeholder: t("transfers.new.note_placeholder") %>
@@ -63,3 +72,31 @@
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  var toSelect = document.getElementById('transfer_to_source_id');
+  var goalField = document.getElementById('assign-goal-field');
+  var goalSelect = document.getElementById('transfer_assign_goal_id');
+  if (!toSelect || !goalField || !goalSelect) return;
+
+  function sync() {
+    var pocketId = toSelect.value;
+    var hasVisibleGoal = false;
+    Array.prototype.forEach.call(goalSelect.options, function(option) {
+      if (!option.value) return; // the blank "pocket only" choice always stays
+      var visible = option.getAttribute('data-pocket-id') === pocketId;
+      option.hidden = !visible;
+      if (visible) hasVisibleGoal = true;
+    });
+    // Drop a stale selection when its goal is no longer visible.
+    if (!hasVisibleGoal || goalSelect.selectedOptions[0]?.hidden) {
+      goalSelect.value = "";
+    }
+    goalField.hidden = !hasVisibleGoal;
+  }
+
+  toSelect.addEventListener('change', sync);
+  sync();
+})();
+</script>

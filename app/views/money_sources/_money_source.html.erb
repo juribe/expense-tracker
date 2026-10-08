@@ -17,6 +17,11 @@
           <% end %>
         </div>
         <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= source.name %>">
+          <% if source.pocket? %>
+            <%= link_to new_transfer_path(to_source_id: source.id), class: "btn btn-outline-primary", title: t("goals.assign_money", default: "Asignar dinero"), aria: { label: t("goals.assign_money", default: "Asignar dinero") } do %>
+              <i class="bi bi-piggy-bank"></i>
+            <% end %>
+          <% end %>
           <% if source.debt_payment_target? %>
             <%= link_to money_source_path(source, anchor: "payments"),
                         class: "btn btn-outline-primary", title: t("payments.index_button"),
@@ -109,7 +114,7 @@
 
       <div class="mt-2">
         <small class="text-muted">
-          <%= t("money_sources.index.transactions_count", count: source.transactions.size) %>
+          <%= t("money_sources.index.transactions_count", count: source.transactions_count.to_i) %>
           <% if source.children.any? %>
             · <%= t("money_sources.index.linked_cards_count", count: source.children.count) %>
           <% end %>

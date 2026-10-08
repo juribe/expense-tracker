@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_06_220000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_07_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -329,14 +329,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_06_220000) do
     t.index ["user_id"], name: "index_gmail_connections_on_user_id"
   end
 
+  create_table "goal_allocations", force: :cascade do |t|
+    t.bigint "financial_goal_id", null: false
+    t.bigint "pocket_id", null: false
+    t.decimal "amount", precision: 14, scale: 2, null: false
+    t.date "date", null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["financial_goal_id"], name: "index_goal_allocations_on_financial_goal_id"
+    t.index ["pocket_id", "date"], name: "index_goal_allocations_on_pocket_id_and_date"
+    t.index ["pocket_id"], name: "index_goal_allocations_on_pocket_id"
+  end
+
   create_table "goals", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "name", null: false
     t.decimal "target_amount", precision: 14, scale: 2, null: false
-    t.decimal "saved_amount", precision: 14, scale: 2, default: "0.0", null: false
     t.date "target_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "pocket_id"
+    t.integer "priority", default: 1, null: false
+    t.string "category"
+    t.string "status", default: "active", null: false
+    t.index ["pocket_id"], name: "index_goals_on_pocket_id"
     t.index ["user_id", "name"], name: "index_goals_on_user_id_and_name"
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
@@ -394,6 +411,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_06_220000) do
     t.decimal "balance_offset", precision: 14, scale: 2, default: "0.0", null: false
     t.string "balance_offset_note"
     t.datetime "balance_offset_at"
+    t.integer "transactions_count", default: 0, null: false
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
@@ -791,6 +809,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_06_220000) do
   add_foreign_key "financial_chats", "users"
   add_foreign_key "financial_setups", "users"
   add_foreign_key "gmail_connections", "users"
+  add_foreign_key "goal_allocations", "goals", column: "financial_goal_id"
+  add_foreign_key "goal_allocations", "money_sources", column: "pocket_id"
+  add_foreign_key "goals", "money_sources", column: "pocket_id"
   add_foreign_key "goals", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"

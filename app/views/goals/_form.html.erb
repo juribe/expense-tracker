@@ -38,25 +38,60 @@
         </div>
 
         <div class="mb-3">
-          <%= form.label :saved_amount, class: "form-label" %>
-          <div class="input-group">
-            <span class="input-group-text">$</span>
-            <%= form.text_field :saved_amount,
-                                 value: money_field_value(goal.saved_amount&.abs),
-                                 class: "form-control #{field_class(goal, :saved_amount)}",
-                                 inputmode: "decimal",
-                                 autocomplete: "off",
-                                 data: { money_input: true } %>
-          </div>
-          <% if goal.errors[:saved_amount].any? %>
-            <div class="invalid-feedback d-block"><%= field_error(goal, :saved_amount) %></div>
+          <%= form.label :pocket, class: "form-label" do %>
+            <%= Goal.human_attribute_name(:pocket) %> <span class="text-danger">*</span>
           <% end %>
+          <% if @pockets&.any? %>
+            <%= form.collection_select :pocket_id, @pockets, :id, :name,
+                { prompt: t("goals.form.pocket_prompt", default: "Selecciona un bolsillo") },
+                class: "form-select #{field_class(goal, :pocket_id)}" %>
+          <% else %>
+            <div class="alert alert-warning mb-2">
+              <i class="bi bi-piggy-bank me-1"></i>
+              <%= t("goals.form.no_pockets", default: "Aún no tienes bolsillos. Crea uno para empezar a asignar dinero a esta meta.") %>
+            </div>
+            <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-outline-primary btn-sm" do %>
+              <i class="bi bi-plus-lg me-1"></i><%= t("goals.form.create_pocket", default: "Crear bolsillo") %>
+            <% end %>
+          <% end %>
+          <div class="form-text"><%= t("goals.form.pocket_hint", default: "Lo ahorrado se calcula con el saldo del bolsillo; no se ingresa manualmente.") %></div>
+          <% if goal.errors[:pocket].any? %>
+            <div class="invalid-feedback d-block"><%= field_error(goal, :pocket) %></div>
+          <% end %>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <%= form.label :priority, class: "form-label" %>
+            <%= form.select :priority,
+                options_for_select(goal_priority_options, goal.priority || Goal::PRIORITIES[:medium]),
+                {},
+                class: "form-select" %>
+          </div>
+          <div class="col-md-6 mb-3">
+            <%= form.label :category, class: "form-label" %>
+            <%= form.select :category,
+                options_for_select(goal_category_options, goal.category),
+                { include_blank: t("goals.form.category_blank", default: "Sin categoría") },
+                class: "form-select" %>
+          </div>
         </div>
 
         <div class="mb-3">
           <%= form.label :target_date, class: "form-label" %>
           <%= form.date_field :target_date, class: "form-control" %>
+          <div class="form-text"><%= t("goals.form.target_date_hint", default: "Opcional: con fecha se calcula el aporte mensual sugerido y el estado de la meta.") %></div>
         </div>
+
+        <% unless goal.new_record? %>
+          <div class="mb-3">
+            <%= form.label :status, class: "form-label" %>
+            <%= form.select :status,
+                options_for_select(goal_status_options, goal.status || "active"),
+                {},
+                class: "form-select" %>
+          </div>
+        <% end %>
       </div>
 
       <div class="card-footer d-flex justify-content-end gap-2 d-print-none">

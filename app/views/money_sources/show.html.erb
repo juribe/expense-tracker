@@ -2,6 +2,11 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="bi bi-<%= source_kind_icon(@money_source.kind) %> me-2"></i><%= @money_source.name %></h1>
     <div class="d-flex gap-2 flex-wrap">
+      <% if @money_source.pocket? %>
+        <%= link_to new_transfer_path(to_source_id: @money_source.id), class: "btn btn-primary" do %>
+          <i class="bi bi-piggy-bank me-1"></i><%= t("goals.assign_money", default: "Asignar dinero") %>
+        <% end %>
+      <% end %>
       <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
         <i class="bi bi-pencil me-1"></i><%= t("common.edit") %>
       <% end %>
@@ -16,6 +21,8 @@
       <% if @money_source.debt? %>
         <%= render "debt_panel", source: @money_source %>
         <%= render "payments" %>
+      <% elsif @money_source.pocket? %>
+        <%= render "pocket_breakdown" %>
       <% else %>
         <div class="card shadow-sm">
           <div class="card-body">

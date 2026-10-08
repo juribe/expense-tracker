@@ -194,4 +194,80 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "en rango"
     refute_includes response.body, "rango fuera"
   end
+
+  # ----- Transfer to pocket with optional goal allocation -----
+
+  test "POST /transfers into a pocket with a goal assigns the money to it" do
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje Europa", target_amount: 20_000_000)
+
+    assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
+      post transfers_path, params: { transfer: {
+        from_source_id: @savings.id, to_source_id: pocket.id, amount: "1.000.000",
+        date: Date.today.to_s, assign_goal_id: goal.id
+      } }
+    end
+
+    allocation = GoalAllocation.last
+    assert_equal goal, allocation.financial_goal
+    assert_equal pocket, allocation.pocket
+    assert_equal 1_000_000, allocation.amount
+    # One movement, one reservation: no expense, no income.
+    assert_equal 0, Expense.count
+    assert_equal 0, Income.count
+  end
+
+  test "POST /transfers into a pocket without a goal leaves it unallocated" do
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
+
+    assert_difference("Transfer.count", 1) do
+      assert_no_difference("GoalAllocation.count") do
+        post transfers_path, params: { transfer: {
+          from_source_id: @savings.id, to_source_id: pocket.id, amount: "500.000", date: Date.today.to_s
+        } }
+      end
+    end
+    assert_equal 500_000, pocket.reload.unallocated_amount.to_i
+  end
+
+  test "assign_goal_id pointing outside the destiny pocket is ignored" do
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
+    other_pocket = @user.money_sources.create!(name: "Otro", kind: "pocket", starting_balance: 0)
+    other_goal = Goal.create!(user: @user, pocket: other_pocket, name: "Carro", target_amount: 5_000_000)
+
+    assert_difference("Transfer.count", 1) do
+      assert_no_difference("GoalAllocation.count") do
+        post transfers_path, params: { transfer: {
+          from_source_id: @savings.id, to_source_id: pocket.id, amount: "100.000",
+          date: Date.today.to_s, assign_goal_id: other_goal.id
+        } }
+      end
+    end
+  end
+
+  test "assign_goal_id is ignored when the destiny is not a pocket" do
+    goal = Goal.create!(user: @user, pocket: @user.money_sources.create!(name: "B", kind: "pocket", starting_balance: 0), name: "Viaje", target_amount: 5_000_000)
+
+    assert_difference("Transfer.count", 1) do
+      assert_no_difference("GoalAllocation.count") do
+        post transfers_path, params: { transfer: {
+          from_source_id: @savings.id, to_source_id: @checking.id, amount: "100.000",
+          date: Date.today.to_s, assign_goal_id: goal.id
+        } }
+      end
+    end
+  end
+
+  test "destroying a transfer that fed a pocket with allocations is blocked" do
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 5_000_000)
+    transfer = Transfer.create!(user: @user, from_source: @savings, to_source: pocket, amount: 1_000_000, date: Date.today)
+    assert_equal 1_000_000, pocket.reload.balance.to_i
+    goal.goal_allocations.create!(pocket: pocket, amount: 1_000_000, date: Date.today)
+
+    assert_no_difference("Transfer.count") do
+      delete transfer_path(transfer)
+    end
+    assert_equal 1_000_000, pocket.reload.balance.to_i
+  end
 end

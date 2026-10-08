@@ -1,0 +1,82 @@
+<div class="col-12 col-md-6 col-lg-4">
+  <div class="card h-100 shadow-sm <%= "border-secondary opacity-75" if goal.archived? %>">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <h5 class="mb-0">
+          <span class="me-1"><%= goal_category_emoji(goal.category) %></span>
+          <%= goal.name %>
+        </h5>
+        <%= goal_health_badge(goal) %>
+      </div>
+
+      <p class="summary-value fw-bold mb-1">
+        <%= number_to_currency(goal.saved_amount) %>
+        <span class="text-muted fw-normal fs-6"><%= t("goals.of_target", default: "de %{amount}", amount: number_to_currency(goal.target_amount)) %></span>
+      </p>
+
+      <% progress = goal.progress_percentage.round %>
+      <div class="progress mb-1" role="progressbar"
+           aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
+           aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar <%= goal_health_progress_class(goal) %>" style="width: <%= progress %>%"></div>
+      </div>
+      <p class="text-muted small mb-3"><%= number_to_percentage(progress, precision: 0) %></p>
+
+      <dl class="row row-cols-1 gx-2 gy-1 small mb-3">
+        <div class="col d-flex justify-content-between">
+          <dt class="fw-normal text-muted"><%= t("goals.remaining", default: "Restante") %></dt>
+          <dd class="fw-bold mb-0"><%= number_to_currency(goal.remaining_amount) %></dd>
+        </div>
+        <% if goal.required_monthly_contribution.present? %>
+          <div class="col d-flex justify-content-between">
+            <dt class="fw-normal text-muted"><%= t("goals.required_monthly", default: "Requerido/mes") %></dt>
+            <dd class="fw-bold mb-0"><%= number_to_currency(goal.required_monthly_contribution) %></dd>
+          </div>
+        <% end %>
+        <% if goal.target_date %>
+          <div class="col d-flex justify-content-between">
+            <dt class="fw-normal text-muted"><%= t("goals.target_date", default: "Fecha límite") %></dt>
+            <dd class="mb-0"><%= l(goal.target_date, format: :long) %></dd>
+          </div>
+        <% end %>
+        <div class="col d-flex justify-content-between">
+          <dt class="fw-normal text-muted"><%= t("goals.pocket", default: "Bolsillo") %></dt>
+          <dd class="mb-0">
+            <% if goal.pocket %>
+              <i class="bi bi-piggy-bank me-1"></i><%= goal.pocket.name %>
+            <% else %>
+              <span class="text-muted">—</span>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+
+      <div class="d-flex gap-2 d-print-none">
+        <% if goal.pocket&.persisted? %>
+          <button type="button" class="btn btn-sm btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#assign-to-goal-modal"
+                  data-assign-goal="<%= goal.id %>"
+                  data-assign-goal-name="<%= goal.name %>"
+                  data-assign-pocket-name="<%= goal.pocket.name %>"
+                  data-assign-unallocated="<%= goal.pocket.unallocated_amount %>">
+            <i class="bi bi-piggy-bank me-1"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
+          </button>
+          <%= link_to money_source_path(goal.pocket), class: "btn btn-sm btn-outline-primary", title: t("goals.view_pocket", default: "Ver bolsillo") do %>
+            <i class="bi bi-eye me-1"></i><%= t("goals.view_pocket", default: "Ver bolsillo") %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card-footer bg-white d-flex justify-content-end d-print-none">
+      <div class="btn-group btn-group-sm">
+        <%= link_to edit_goal_path(goal), class: "btn btn-outline-primary", title: t("common.edit") do %>
+          <i class="bi bi-pencil"></i>
+        <% end %>
+        <%= button_to goal_path(goal), method: :delete, form: { data: { turbo: true } },
+                      class: "btn btn-outline-danger", data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
+          <i class="bi bi-trash"></i>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

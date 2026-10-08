@@ -74,6 +74,7 @@ module ApplicationHelper
     when "credit_card" then "credit-card-2-front"
     when "cash" then "cash"
     when "wallet" then "wallet2"
+    when "pocket" then "piggy-bank"
     when "loan" then "cash-coin"
     else "circle"
     end
@@ -166,6 +167,65 @@ module ApplicationHelper
 
   def source_kind_options
     MoneySource::KINDS.map { |kind| [ source_kind_label(kind), kind ] }
+  end
+
+  # ----- Financial goals / pockets -----
+
+  GOAL_CATEGORY_EMOJIS = {
+    "travel" => "✈️", "savings" => "💰", "emergency" => "🚨", "health" => "🏥",
+    "education" => "🎓", "vehicle" => "🚗", "home" => "🏠", "holidays" => "🎄",
+    "gifts" => "🎁", "taxes" => "🧾", "other" => "🎯"
+  }.freeze
+
+  def goal_category_emoji(category)
+    GOAL_CATEGORY_EMOJIS.fetch(category, "🎯")
+  end
+
+  def goal_category_options
+    Goal::CATEGORIES.map { |category| [ goal_category_label(category), category ] }
+  end
+
+  def goal_category_label(category)
+    t("goals.categories.#{category}", default: category.to_s.titleize)
+  end
+
+  def goal_priority_options
+    Goal::PRIORITIES.map { |name, value| [ t("goals.priorities.#{name}", default: name.to_s.titleize), value ] }
+  end
+
+  def goal_status_options
+    Goal::STATUSES.map { |status| [ t("goals.statuses.#{status}", default: status.to_s.titleize), status ] }
+  end
+
+  # Grouped goal options for the transfer form's optional "assign to goal"
+  # step: one optgroup per pocket, each option tagged with its pocket so JS
+  # can filter them when the destiny pocket changes.
+  def pocket_goal_groups(pockets)
+    pockets.map do |pocket|
+      [ pocket.name, pocket.goals.map { |goal| [ goal.name, goal.id, { "data-pocket-id" => pocket.id } ] } ]
+    end
+  end
+
+  # Health badge for a goal card: derived state, colored per health.
+  def goal_health_badge(goal)
+    if goal.archived?
+      return tag.span(t("goals.statuses.archived", default: "Archivada"), class: "badge bg-secondary")
+    end
+
+    labels = {
+      completed: [ t("goals.health.completed", default: "Cumplida"), "bg-success" ],
+      on_track: [ t("goals.health.on_track", default: "En rumbo"), "bg-success-subtle text-success" ],
+      at_risk: [ t("goals.health.at_risk", default: "En riesgo"), "bg-warning text-dark" ],
+      behind: [ t("goals.health.behind", default: "Atrás"), "bg-danger" ]
+    }
+    label, css_class = labels[goal.health]
+    tag.span(label, class: "badge #{css_class}")
+  end
+
+  def goal_health_progress_class(goal)
+    return "bg-secondary" if goal.archived?
+
+    { completed: "bg-success", on_track: "bg-success", at_risk: "bg-warning", behind: "bg-danger" }[goal.health]
   end
 
   # Interest-rate type options with localized labels (reuses the money-sources

@@ -52,6 +52,11 @@ Rails.application.routes.draw do
   resources :categories
   resources :budgets
   resources :goals
+  resources :goal_allocations, only: [ :create, :destroy ] do
+    collection do
+      post :reallocate
+    end
+  end
   resources :transaction_rules do
     collection do
       post :dismiss_suggestion
@@ -61,6 +66,7 @@ Rails.application.routes.draw do
     end
   end
   get "money_sources/cash",         to: "money_sources#index", as: :money_sources_cash, defaults: { type: "cash" }
+  get "money_sources/pockets",      to: "money_sources#index", as: :money_sources_pockets, defaults: { type: "pockets" }
   get "money_sources/credit_cards", to: "money_sources#index", as: :money_sources_credit_cards, defaults: { type: "credit_cards" }
   get "money_sources/loans",        to: "money_sources#index", as: :money_sources_loans, defaults: { type: "loans" }
   # Source Recognition: manage how money sources appear in emails

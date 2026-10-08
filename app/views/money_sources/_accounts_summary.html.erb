@@ -4,7 +4,7 @@
   total_balance = sources.sum { |s| s.balance.to_d }
   account_count = sources.count { |s| s.kind == "account" }
   debit_count = sources.count { |s| s.debit_card? }
-  total_txns = sources.sum { |s| s.transactions.size }
+  total_txns = sources.sum { |s| s.transactions_count.to_i }
   summaries = [
     { icon: "wallet2", label: t("money_sources.accounts.summary_total"), value: number_to_currency(total_balance) },
     { icon: "bank", label: t("money_sources.accounts.summary_accounts"), value: number_with_delimiter(account_count) },

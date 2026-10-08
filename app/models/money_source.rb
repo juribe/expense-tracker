@@ -2,7 +2,10 @@
 
 # MoneySource
 # Common financial-source entity (account, debit_card, credit_card, cash,
-# wallet, loan). Credit/debt-specific details live on a CreditAccount.
+# wallet, pocket, loan). Credit/debt-specific details live on a CreditAccount.
+# A pocket is generic assigned-money within the user's assets ("Bolsillo"):
+# it is never a payment source (money must be moved out to a real account
+# first) and it cannot pay a debt directly.
 #
 # Associations: belongs_to :user/parent, has_many children/transactions/
 #   recurring_templates/outgoing_transfers/incoming_transfers, has_one :credit_account,
@@ -12,7 +15,7 @@
 #
 # Example: source.used_credit
 class MoneySource < ApplicationRecord
-  KINDS = %w[account debit_card credit_card cash wallet loan].freeze
+  KINDS = %w[account debit_card credit_card cash wallet pocket loan].freeze
 
   include Reconciliation::Invalidatable
   # Flavor within a kind, set by the wizard's loan step / statement import.
@@ -20,7 +23,9 @@ class MoneySource < ApplicationRecord
   # the rest are debts only); other kinds leave it nil.
   SUB_KINDS = %w[revolving personal vehicle mortgage education business].freeze
   # Kinds that can directly pay an expense. Credit cards pay AND receive
-  # debt payments (two independent roles).
+  # debt payments (two independent roles). Pockets are deliberately excluded:
+  # their money is assigned, so it must be moved back to a real account
+  # before it can be spent.
   PAYMENT_KINDS = %w[cash account debit_card wallet credit_card].freeze
 
   belongs_to :user
@@ -30,6 +35,10 @@ class MoneySource < ApplicationRecord
   has_many :recurring_templates, dependent: :nullify
   has_many :outgoing_transfers, class_name: "Transfer", foreign_key: :from_source_id, dependent: :destroy
   has_many :incoming_transfers, class_name: "Transfer", foreign_key: :to_source_id, dependent: :destroy
+  # Deleting a pocket that still backs goals is blocked: the user removes the
+  # goals first so nothing disappears silently.
+  has_many :goals, class_name: "Goal", foreign_key: :pocket_id, dependent: :restrict_with_error
+  has_many :goal_allocations, class_name: "GoalAllocation", foreign_key: :pocket_id, dependent: :delete_all
   has_one :credit_account, dependent: :destroy
   has_many :payments, foreign_key: :money_source_id, dependent: :restrict_with_error
   has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
@@ -44,6 +53,7 @@ class MoneySource < ApplicationRecord
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
+  scope :pockets, -> { by_kind("pocket") }
 
   # Operation-specific source pools. Call sites chain .active so disabled
   # sources never reach the LLM, the WhatsApp lists or the resolver.
@@ -96,6 +106,24 @@ class MoneySource < ApplicationRecord
 
   def debit_card?
     kind == "debit_card"
+  end
+
+  def pocket?
+    kind == "pocket"
+  end
+
+  # Money currently reserved for goals inside this pocket. Only meaningful
+  # for pockets; the money never leaves the pocket, it is just earmarked.
+  def allocated_amount
+    return 0.to_d unless pocket?
+
+    goal_allocations.sum(:amount).to_d
+  end
+
+  def unallocated_amount
+    return balance unless pocket?
+
+    [ balance - allocated_amount, 0 ].max
   end
 
   # Can this source pay an expense directly? Loans never pay — their money
@@ -243,7 +271,12 @@ class MoneySource < ApplicationRecord
     # Store NULL (not "") when no identifier was given, so the unique index on
     # (user_id, identifier) allows several sources without one.
     self.identifier = nil if identifier.blank?
-    return if kind == "cash" || kind == "wallet"
+    if kind == "cash" || kind == "wallet" || kind == "pocket"
+      # Pockets never carry an account number: their money is detached from
+      # any real deposit account.
+      self.identifier = nil
+      return
+    end
 
     digits = identifier.to_s.gsub(/\D/, "")
     self.identifier = digits.chars.last(4).join if digits.present?

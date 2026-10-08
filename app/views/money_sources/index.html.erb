@@ -13,13 +13,29 @@
 </div>
 
 <% if @money_sources.any? %>
-  <% assets = @money_sources.reject(&:debt?) %>
+  <% assets = @money_sources.reject { |s| s.debt? || s.pocket? } %>
+  <% pockets = @money_sources.select(&:pocket?) %>
   <% debts = @money_sources.select(&:debt?) %>
 
   <% if assets.any? %>
     <h6 class="fw-bold text-uppercase mb-3 mt-2"><%= t("money_sources.index.assets_section") %></h6>
     <div class="row g-3 mb-4">
       <% assets.each do |source| %>
+        <%= render partial: "money_source", locals: { source: source } %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if pockets.any? %>
+    <div class="d-flex justify-content-between align-items-end mb-1 mt-4">
+      <h6 class="fw-bold text-uppercase mb-0"><%= t("money_sources.index.pockets_section", default: "Bolsillos") %></h6>
+      <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-sm btn-outline-primary" do %>
+        <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new_pocket", default: "Crear bolsillo") %>
+      <% end %>
+    </div>
+    <p class="text-muted small mb-3"><%= t("money_sources.index.pockets_caption", default: "Dinero asignado a un propósito, aunque siga dentro de tu cuenta. Asignar a un bolsillo no es un gasto.") %></p>
+    <div class="row g-3 mb-4">
+      <% pockets.each do |source| %>
         <%= render partial: "money_source", locals: { source: source } %>
       <% end %>
     </div>

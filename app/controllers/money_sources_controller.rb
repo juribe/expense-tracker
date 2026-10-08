@@ -8,6 +8,7 @@ class MoneySourcesController < ApplicationController
 
   FILTERS = {
     "cash" => %w[cash wallet account debit_card],
+    "pockets" => %w[pocket],
     "credit_cards" => %w[credit_card],
     "loans" => %w[loan]
   }.freeze
@@ -16,16 +17,21 @@ class MoneySourcesController < ApplicationController
   # preloading only what the rendered partial touches keeps Bullet quiet for
   # both N+1 (USE) and unused eager loading (AVOID) per page.
   INDEX_INCLUDES = {
-    nil => %i[parent children transactions recognition_identifiers credit_account],
-    "cash" => %i[parent children transactions recognition_identifiers],
-    "credit_cards" => %i[transactions credit_account],
-    "loans" => %i[transactions credit_account]
+    nil => %i[parent children recognition_identifiers credit_account],
+    "cash" => %i[parent children recognition_identifiers],
+    "pockets" => %i[],
+    "credit_cards" => %i[credit_account],
+    "loans" => %i[credit_account]
   }.freeze
 
   # GET /money_sources
   def index
     @filter = params[:type].presence
-    scope = current_user.money_sources.includes(*INDEX_INCLUDES[@filter])
+    scope = current_user.money_sources
+    # Pockets touch no associations; includes() without arguments would raise.
+    if INDEX_INCLUDES[@filter].present?
+      scope = scope.includes(*INDEX_INCLUDES[@filter])
+    end
 
     if @filter && FILTERS[@filter]
       scope = scope.where(kind: FILTERS[@filter])
@@ -46,6 +52,7 @@ class MoneySourcesController < ApplicationController
   # GET /money_sources/1
   def show
     load_payment_context if @money_source.debt?
+    load_pocket_context if @money_source.pocket?
   end
 
   # GET /money_sources/recognition
@@ -120,6 +127,7 @@ class MoneySourcesController < ApplicationController
   # GET /money_sources/new
   def new
     @money_source = current_user.money_sources.build
+    @money_source.kind = params[:kind] if params[:kind].in?(MoneySource::KINDS)
     @money_source.build_credit_account
   end
 
@@ -222,6 +230,15 @@ class MoneySourcesController < ApplicationController
                                   .where(recurring_template_id: current_user.recurring_templates
                                                                            .where(money_source_id: @money_source.id)).limit(10)
     @pickable_expenses = unapplied.limit(20)
+  end
+
+  # Pockets display how their balance is distributed across their goals.
+  def load_pocket_context
+    @pocket_goals = @money_source.goals.active.order(:id).includes(:goal_allocations)
+    @recent_allocations = @money_source.goal_allocations
+                                       .includes(:financial_goal)
+                                       .order(date: :desc, created_at: :desc)
+                                       .limit(5)
   end
 
   def money_source_params

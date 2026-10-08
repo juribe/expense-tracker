@@ -31,6 +31,16 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid]", count: 0
   end
 
+  test "GET /money_sources/pockets renders the pockets page with only pockets" do
+    pocket = create_source(name: "Bolsillo Europa", kind: "pocket")
+    create_source(name: "Davibank", kind: "account")
+
+    get money_sources_pockets_path
+    assert_response :success
+    assert_select "a[href=?]", money_source_path(pocket)
+    assert_select "h5.card-title", text: /Davibank/, count: 0
+  end
+
   # Payments apply to every credit: credit cards AND all loan subtypes.
   test "GET /money_sources shows a payments button on every debt source card" do
     create_source(name: "Checking", kind: "account")

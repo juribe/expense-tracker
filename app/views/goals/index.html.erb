@@ -8,44 +8,7 @@
 <% if @goals.any? %>
   <div class="row g-3">
     <% @goals.each do |goal| %>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <h5 class="mb-0"><i class="bi bi-bag-heart me-2 text-primary"></i><%= goal.name %></h5>
-              <% if goal.completed? %>
-                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i><%= t("goals.completed", default: "Cumplida") %></span>
-              <% end %>
-            </div>
-            <p class="summary-value fw-bold mb-1"><%= number_to_currency(goal.saved_amount) %></p>
-            <p class="text-muted small mb-2">
-              <%= t("goals.of_target", default: "de %{amount}", amount: number_to_currency(goal.target_amount)) %>
-            </p>
-            <div class="progress mb-2" role="progressbar"
-                 aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
-                 aria-valuenow="<%= goal.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100">
-              <div class="progress-bar bg-primary" style="width: <%= goal.progress_percentage.round %>%"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold small"><%= number_to_percentage(goal.progress_percentage, precision: 0) %></span>
-              <% if goal.target_date %>
-                <span class="badge bg-light text-dark"><i class="bi bi-calendar-event me-1"></i><%= l(goal.target_date, format: :long) %></span>
-              <% end %>
-            </div>
-          </div>
-          <div class="card-footer bg-white d-flex justify-content-end">
-            <div class="btn-group btn-group-sm">
-              <%= link_to edit_goal_path(goal), class: "btn btn-outline-primary" do %>
-                <i class="bi bi-pencil"></i>
-              <% end %>
-              <%= button_to goal_path(goal), method: :delete, form: { data: { turbo: true } },
-                            class: "btn btn-outline-danger", data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
-                <i class="bi bi-trash"></i>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </div>
+      <%= render partial: "goal", locals: { goal: goal } %>
     <% end %>
   </div>
 <% else %>
@@ -60,3 +23,70 @@
     </div>
   </div>
 <% end %>
+
+<%# Assign-to-goal modal: reserves pocket money for one goal. It is not a
+    money movement — the amount stays inside the pocket, only its purpose
+    changes. Fed by the per-card buttons. %>
+<div class="modal fade" id="assign-to-goal-modal" tabindex="-1" aria-labelledby="assign-to-goal-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path, local: true do |f| %>
+        <div class="modal-header">
+          <h5 class="modal-title" id="assign-to-goal-modal-title">
+            <i class="bi bi-piggy-bank me-2"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label"><%= t("goals.pocket", default: "Bolsillo") %></label>
+            <div class="form-control bg-light d-flex align-items-center justify-content-between">
+              <span><i class="bi bi-piggy-bank me-2"></i><span id="assign-to-goal-pocket-name"></span></span>
+              <span class="text-muted small" id="assign-to-goal-unallocated"></span>
+            </div>
+          </div>
+          <%= f.hidden_field :financial_goal_id, id: "assign-to-goal-id" %>
+          <div class="mb-3">
+            <%= f.label :amount, t("common.amount", default: "Monto"), class: "form-label" %>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <%= f.text_field :amount, class: "form-control", inputmode: "decimal",
+                    autocomplete: "off", required: true, data: { money_input: true } %>
+            </div>
+          </div>
+          <%= f.hidden_field :date, value: Date.current %>
+          <div class="mb-2">
+            <%= f.label :note, t("transfers.new.note", default: "Nota"), class: "form-label" %>
+            <%= f.text_field :note, class: "form-control", placeholder: t("goal_allocations.note_placeholder", default: "Opcional") %>
+          </div>
+          <div class="form-text"><%= t("goals.assign_to_goal_hint", default: "El dinero queda reservado para esta meta dentro del bolsillo. No crea un gasto ni cambia tu patrimonio.") %></div>
+          <div class="alert alert-light border small mt-2 mb-0">
+            <%= t("goals.assign_from_account_hint", default: "¿Falta dinero en el bolsillo?") %>
+            <%= link_to t("goals.move_money", default: "Mueve dinero desde tu cuenta"), new_transfer_path, class: "fw-semibold" %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
+          <%= f.submit t("goals.assign_to_goal", default: "Asignar a meta"), class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.getElementById('assign-to-goal-modal');
+  if (!modal) return;
+  modal.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget;
+    if (!button) return;
+    document.getElementById('assign-to-goal-id').value = button.getAttribute('data-assign-goal');
+    document.getElementById('assign-to-goal-pocket-name').textContent = button.getAttribute('data-assign-pocket-name');
+    document.getElementById('assign-to-goal-unallocated').textContent =
+      '<%= t("goals.unallocated_label", default: "No asignado") %>: ' + button.getAttribute('data-assign-unallocated');
+    document.getElementById('assign-to-goal-modal-title').innerHTML =
+      '<i class="bi bi-piggy-bank me-2"></i>' + button.getAttribute('data-assign-goal-name');
+  });
+});
+</script>

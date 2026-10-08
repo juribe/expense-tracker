@@ -86,8 +86,28 @@ class MoneySourceCapabilitiesTest < ActiveSupport::TestCase
     assert_nil loan.sub_kind
   end
 
-  test "sub_kind is normalized to lowercase and validated" do
-    loan = create_source(kind: "loan", sub_kind: "REVOLVING")
+  test "pocket is an asset: NOT a payment source, NOT a funding source, NOT a debt target" do
+    pocket = create_source(kind: "pocket")
+    assert pocket.pocket?
+    assert_not pocket.payment_source?
+    assert_not pocket.funding_source?
+    assert_not pocket.debt_payment_target?
+    assert_not pocket.debt?
+  end
+
+  test "pockets scope collects pocket-kind sources only" do
+    create_source(kind: "account", name: "Cuenta")
+    pocket = create_source(kind: "pocket", name: "Bolsillo")
+    assert_expected_sources [ pocket ], @user.money_sources.pockets.to_a
+  end
+
+  test "identifier is never stored for pockets" do
+    pocket = @user.money_sources.build(name: "Bolsillo", kind: "pocket", identifier: "1234")
+    assert pocket.valid?
+    assert_nil pocket.identifier
+  end
+
+  test "sub_kind is normalized to lowercase and validated" do    loan = create_source(kind: "loan", sub_kind: "REVOLVING")
     assert_equal "revolving", loan.reload.sub_kind
 
     invalid = @user.money_sources.build(name: "Bad Loan", kind: "loan", sub_kind: "spaceship")

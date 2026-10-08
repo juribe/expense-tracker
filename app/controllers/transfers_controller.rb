@@ -20,25 +20,37 @@ class TransfersController < ApplicationController
 
   # GET /transfers/new
   def new
-    @transfer = current_user.transfers.build(date: default_record_date)
+    @transfer = current_user.transfers.build(
+      date: default_record_date,
+      from_source_id: params[:from_source_id],
+      to_source_id: params[:to_source_id],
+      amount: params[:amount].present? ? MoneyFormat.normalize(params[:amount]) : nil
+    )
     set_direction_sources
+    set_pocket_goals
   end
 
   # POST /transfers
   def create
     @transfer = current_user.transfers.build(transfer_params)
     if @transfer.save
-      redirect_to transfers_path, notice: t("transfers.flashes.created")
+      allocate_transfer_to_goal(@transfer)
+      redirect_to(safe_return_to.presence || transfers_path,
+                  notice: t("transfers.flashes.created"))
     else
       set_direction_sources
+      set_pocket_goals
       render :new, status: :unprocessable_entity
     end
   end
 
   # DELETE /transfers/1
   def destroy
-    @transfer.destroy
-    redirect_to transfers_path, notice: t("transfers.flashes.deleted")
+    if @transfer.destroy
+      redirect_to transfers_path, notice: t("transfers.flashes.deleted")
+    else
+      redirect_to transfers_path, alert: @transfer.errors.full_messages.first
+    end
   end
 
   private
@@ -72,16 +84,26 @@ class TransfersController < ApplicationController
 
   # Each end of the transfer offers only the sources the operation allows
   # (see MoneySource capabilities):
-  #   from — pays out: payment sources, plus a revolving loan (which is the
-  #          only kind allowed to disburse money).
-  #   to   — receives: payment sources, plus credit cards and loans (a
-  #          transfer into a debt IS that debt's payment).
+  #   from — pays out: payment sources, a revolving loan (the only kind
+  #          allowed to disburse money), and pockets (releasing assigned
+  #          money back / re-assigning it).
+  #   to   — receives: payment sources, credit cards and loans (a transfer
+  #          into a debt IS that debt's payment), and pockets (assigning
+  #          money to them). A pocket can never fund a debt — the model
+  #          validation pocket_flow_rules rejects that combination.
   def set_direction_sources
+    # display_name touches credit_account for card digits; Bullet requires it eager-loaded.
     @from_sources = current_user.money_sources.active
-                                .merge(MoneySource.payment_sources.or(MoneySource.funding_sources))
+                                .merge(MoneySource.payment_sources
+                                                   .or(MoneySource.funding_sources)
+                                                   .or(MoneySource.pockets))
+                                .includes(:credit_account)
                                 .order(:kind, :name)
     @to_sources = current_user.money_sources.active
-                               .merge(MoneySource.payment_sources.or(MoneySource.debt_payment_targets))
+                               .merge(MoneySource.payment_sources
+                                                  .or(MoneySource.debt_payment_targets)
+                                                  .or(MoneySource.pockets))
+                               .includes(:credit_account)
                                .order(:kind, :name)
   end
 
@@ -94,6 +116,53 @@ class TransfersController < ApplicationController
   end
 
   def transfer_params
-    params.require(:transfer).permit(:from_source_id, :to_source_id, :amount, :date, :note)
+    permitted = params.require(:transfer)
+                      .permit(:from_source_id, :to_source_id, :amount, :date, :note)
+    if permitted[:amount].present?
+      # Accepts both Colombian display format ("1.000.000,50") and the
+      # machine format ("1000000.50") — see MoneyFormat.
+      permitted[:amount] = MoneyFormat.normalize(permitted[:amount])
+    end
+    permitted
+  end
+
+  # Goals grouped by pocket for the optional "assign to goal" step: the user
+  # can earmark the transferred money for one of the destiny pocket's goals
+  # in the same action.
+  def set_pocket_goals
+    @pocket_goals = current_user.money_sources.pockets.active
+                                .includes(:goals)
+                                .order(:name)
+  end
+
+  # When the transfer targets a pocket and a goal was picked, reserve the
+  # whole transferred amount for that goal. The transfer just raised the
+  # pocket's balance, so the allocation always fits — and it never creates
+  # an expense or a bank movement.
+  def allocate_transfer_to_goal(transfer)
+    return unless transfer.to_source&.pocket?
+    return if assign_goal_id.blank?
+
+    goal = current_user.goals.find_by(id: assign_goal_id)
+    return unless goal && goal.pocket_id == transfer.to_source_id
+
+    goal.goal_allocations.create!(
+      pocket: goal.pocket,
+      amount: transfer.amount,
+      date: transfer.date,
+      note: transfer.note.presence
+    )
+  end
+
+  def assign_goal_id
+    params[:transfer].present? ? params[:transfer][:assign_goal_id] : params[:assign_goal_id]
+  end
+
+  # Where to go back after creating a transfer (e.g. the goals page when the
+  # transfer came from the "Assign money" modal). Only local paths are
+  # honored to avoid open redirects.
+  def safe_return_to
+    return_to = params[:return_to].to_s
+    return_to if return_to.start_with?("/") && !return_to.start_with?("//")
   end
 end

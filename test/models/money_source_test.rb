@@ -79,6 +79,34 @@ class MoneySourceTest < ActiveSupport::TestCase
     assert_equal BigDecimal("250"), source.reload.balance
   end
 
+  test "allocations are tracked for pockets only" do
+    pocket = create_source(name: "Ahorros", kind: "pocket", starting_balance: 6_000_000)
+    account = create_source(name: "Cuenta", kind: "account", starting_balance: 6_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 20_000_000)
+    goal.goal_allocations.create!(pocket: pocket, amount: 5_000_000, date: Date.today)
+
+    assert_equal 5_000_000, pocket.reload.allocated_amount.to_i
+    assert_equal 1_000_000, pocket.reload.unallocated_amount.to_i
+    assert_equal 0, account.reload.allocated_amount.to_i
+    assert_equal account.reload.balance, account.unallocated_amount
+  end
+
+  test "destroying a pocket with goals is restricted" do
+    pocket = create_source(name: "Ahorros", kind: "pocket", starting_balance: 1_000_000)
+    Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 5_000_000)
+
+    assert_no_difference "MoneySource.count" do
+      assert_not pocket.destroy
+    end
+    assert pocket.errors[:base].any?
+  end
+
+  test "destroying an empty pocket works" do
+    pocket = create_source(name: "Ahorros", kind: "pocket", starting_balance: 1_000_000)
+    pocket.destroy
+    assert pocket.destroyed?
+  end
+
   test "balance rolls up child card transactions for debit_card parent" do
     account = create_source(name: "Checking", kind: "account", starting_balance: 500)
     card = create_source(name: "Debit Card", kind: "debit_card", parent: account)

@@ -164,6 +164,10 @@
         <i class="bi bi-cash-stack"></i>
         <span><%= t("nav.money_sources_cash") %></span>
       <% end %>
+      <%= link_to money_sources_pockets_path, class: "sidebar-link #{money_source_filter_active?('pockets')}" do %>
+        <i class="bi bi-piggy-bank"></i>
+        <span><%= t("nav.money_sources_pockets", default: "Bolsillos") %></span>
+      <% end %>
       <%= link_to money_sources_credit_cards_path, class: "sidebar-link #{money_source_filter_active?('credit_cards')}" do %>
         <i class="bi bi-credit-card-2-front"></i>
         <span><%= t("nav.money_sources_credit_cards") %></span>

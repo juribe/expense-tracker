@@ -71,6 +71,25 @@
               </div>
             </div>
 
+            <div data-kind-panel="pocket">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= f.label :starting_balance, t("money_sources.form.starting_balance", default: "Saldo inicial"), class: "form-label" %>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <%= f.text_field :starting_balance,
+                        value: money_field_value(@money_source.starting_balance),
+                        class: "form-control",
+                        placeholder: t("money_sources.form.placeholder_balance"),
+                        inputmode: "decimal",
+                        autocomplete: "off",
+                        data: { money_input: true } %>
+                  </div>
+                  <div class="form-text"><%= t("money_sources.form.pocket_balance_hint", default: "Déjalo en 0 y usa \"Asignar dinero\" para mover el dinero desde tu cuenta. Usa un saldo inicial solo si ya tenías ese dinero separado.") %></div>
+                </div>
+              </div>
+            </div>
+
             <div data-kind-panel="debit_card">
               <div class="row">
                 <div class="col-md-6 mb-3">
@@ -244,13 +263,15 @@
             </div>
 
             <hr>
-            <div class="mb-3">
-              <h6 class="mb-1"><%= t("money_sources.form.recognition_title") %></h6>
-              <p class="text-muted small mb-2"><%= t("money_sources.form.recognition_hint") %></p>
-              <%= link_to money_sources_recognition_path, class: "btn btn-sm btn-outline-secondary" do %>
-                <i class="bi bi-envelope-paper-heart me-1"></i><%= t("money_sources.form.recognition_link") %>
-              <% end %>
-            </div>
+            <% if @money_source.kind != "pocket" %>
+              <div class="mb-3">
+                <h6 class="mb-1"><%= t("money_sources.form.recognition_title") %></h6>
+                <p class="text-muted small mb-2"><%= t("money_sources.form.recognition_hint") %></p>
+                <%= link_to money_sources_recognition_path, class: "btn btn-sm btn-outline-secondary" do %>
+                  <i class="bi bi-envelope-paper-heart me-1"></i><%= t("money_sources.form.recognition_link") %>
+                <% end %>
+              </div>
+            <% end %>
 
             <div class="d-grid mt-3">
               <%= f.submit class: "btn btn-primary" %>
