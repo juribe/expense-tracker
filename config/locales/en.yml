@@ -1037,6 +1037,23 @@ en:
         reduction: "Reduction per installment"
         required: "Required extra payment per installment"
         new_total: "New total installment"
+        covered: "Prepaid installments"
+        months_without_payment: "Payment-free months"
+        freed_cash: "Freed cash flow"
+      strategies:
+        reduce_term: "Finish earlier"
+        reduce_installment: "Pay less every month"
+        prepay_installments: "Prepay installments"
+        target_payoff: "Finish earlier (compute the extra)"
+      strategy_hint:
+        reduce_term: "Keep your installment and settle sooner."
+        reduce_installment: "Roughly the same payoff date, lower installment."
+        prepay_installments: "Cover upcoming scheduled installments."
+        target_payoff: "Enter how many installments earlier you want to finish."
+      pay_in_one: "Apply the payment in a single installment"
+      repeat_label: "Repeat the extra payment"
+      repeat_once: "Just once"
+      repeat_every: "Every %{n} installments"
     scenarios:
       kinds:
         reduce_term: "Finish earlier"
@@ -1062,6 +1079,19 @@ en:
         payoff: "Payoff"
         interest: "Interest"
         saved: "Saved"
+      objectives:
+        max_savings: "Max savings"
+        min_payment: "Min payment"
+        fastest_payoff: "Fastest payoff"
+        balanced: "Best balance"
+      metrics:
+        extra: "Extra payment"
+        payment: "Ongoing installment"
+        installments: "Remaining installments"
+        interest: "Future interest"
+        saved: "Interest saved"
+        payoff: "Payoff"
+        without_payment: "Payment-free months"
       best: "Best option: %{name}"
       rationale:
         max_savings: "maximum interest savings"
@@ -1089,25 +1119,11 @@ en:
       payoff: "Payoff:"
       empty: "Generate the projection to see the amortization table."
 
-    comparison:
-      objectives:
-        max_savings: "Max savings"
-        min_payment: "Min payment"
-        fastest_payoff: "Fastest payoff"
-        balanced: "Best balance"
-      metrics:
-        extra: "Extra payment"
-        payment: "Ongoing installment"
-        installments: "Remaining installments"
-        interest: "Future interest"
-        saved: "Interest saved"
-        payoff: "Payoff"
-        without_payment: "Payment-free months"
     quick:
       title: "What should I do with this money?"
       amount_label: "Amount available to pay in"
       amount_hint: "Compare what happens if you apply the same amount in different ways."
-      simulation_hint: "Simulation only: nothing moves. To apply a real payment use the Extraordinary payments card."
+      simulation_hint: "Simulation only: nothing moves. To apply a real payment use the \u201cExtraordinary payments\u201d card on the credit's page."
       mode: "How do you apply it?"
       mode_once: "Just once"
       mode_recurring: "Every installment (constant extra)"
@@ -1156,25 +1172,6 @@ en:
         eliminated: "%{count} installments eliminated"
         covered: "%{count} installments prepaid"
       installments_affected: "Effect"
-    simulators:
-      strategies:
-        reduce_term: "Finish earlier"
-        reduce_installment: "Pay less every month"
-        prepay_installments: "Prepay installments"
-        target_payoff: "Finish earlier (compute the extra)"
-      strategy_hint:
-        reduce_term: "Keep your installment and settle sooner."
-        reduce_installment: "Roughly the same payoff date, lower installment."
-        prepay_installments: "Cover upcoming scheduled installments."
-        target_payoff: "Enter how many installments earlier you want to finish."
-      pay_in_one: "Apply the payment in a single installment"
-      repeat_label: "Repeat the extra payment"
-      repeat_once: "Just once"
-      repeat_every: "Every %{n} installments"
-      results:
-        covered: "Prepaid installments"
-        months_without_payment: "Payment-free months"
-        freed_cash: "Freed cash flow"
     reconstruct:
       title: "Reconstruct credit"
       hint: "Enter whatever information you have about the credit. Missing data is estimated and the schedule is clearly marked as estimated. The credit data is never modified."

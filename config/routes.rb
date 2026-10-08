@@ -16,8 +16,8 @@ Rails.application.routes.draw do
 
   # Devise authentication
   devise_for :users, controllers: {
-    registrations: 'users/registrations',
-    passwords: 'users/passwords'
+    registrations: "users/registrations",
+    passwords: "users/passwords"
   }
 
   # Allow sign out via GET as a no-JS fallback (Turbo/JS may not be loaded)
@@ -83,8 +83,8 @@ Rails.application.routes.draw do
     post "credits/refresh", to: "credits#refresh", as: :credit_refresh
     post "credits/scenarios", to: "credits#create_scenario", as: :credit_scenarios
     delete "credits/scenarios/:scenario_id", to: "credits#destroy_scenario", as: :credit_scenario
-    post "credits/extras", to: "credits#record_extra", as: :credit_extras
-    delete "credits/extras/:extra_id", to: "credits#destroy_extra", as: :credit_extra
+    post "extra_payments", to: "extra_payments#create", as: :extra_payments
+    delete "extra_payments/:extra_id", to: "extra_payments#destroy", as: :extra_payment
     resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
     resources :statement_imports, only: [ :new, :create ] do
       collection do
@@ -113,7 +113,7 @@ Rails.application.routes.draw do
       patch :toggle_active
     end
   end
-  resources :monthly_reports, only: [:index, :show]
+  resources :monthly_reports, only: [ :index, :show ]
 
   # Financial reports (overview, spending, debt, recurring, accounts, insights)
   scope :reports, as: :reports do
@@ -130,7 +130,7 @@ Rails.application.routes.draw do
     get "/transactions", to: "reports/transactions#index", as: :transactions
   end
 
-  resources :imports, only: [:new, :create]
+  resources :imports, only: [ :new, :create ]
 
   # Gmail expense import
   get "settings/gmail", to: "gmail_connections#index", as: :gmail_connection
@@ -193,8 +193,8 @@ Rails.application.routes.draw do
        to: "reconciliations#leave_pending", as: :reconciliation_leave_pending
 
   # Categories as the main entry point
-  get 'dashboard', to: 'dashboard#index'
-  root to: 'categories#index'
+  get "dashboard", to: "dashboard#index"
+  root to: "categories#index"
 
   # Hybrid financial setup wizard
   get "financial_setup", to: "financial_setups#show", as: :financial_setup

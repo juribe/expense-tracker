@@ -60,26 +60,6 @@ class CreditsController < ApplicationController
     redirect_to money_source_credits_path(@loan), notice: t("credits.scenarios.deleted")
   end
 
-  def record_extra
-    funding = current_user.money_sources.payment_sources.find_by(id: params[:funding_money_source_id])
-    result = Credits::ExtraPayments::Create.call(money_source: @loan, funding_money_source: funding,
-                                                 date: params[:date],
-                                                 amount: params[:extra_amount],
-                                                 application_type: params[:application_type],
-                                                 note: params[:note])
-    if result.success?
-      redirect_to money_source_path(@loan), notice: t("credits.extras.recorded")
-    else
-      redirect_to money_source_credits_path(@loan), alert: result.errors.to_sentence
-    end
-  end
-
-  def destroy_extra
-    extra = @loan.credit_extra_payments.find(params[:extra_id])
-    extra.discard!
-    redirect_to money_source_credits_path(@loan), notice: t("credits.extras.deleted")
-  end
-
   private
 
   def set_loan

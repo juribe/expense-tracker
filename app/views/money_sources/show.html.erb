@@ -26,6 +26,10 @@
       <% if @money_source.debt? %>
         <%= render "debt_panel", source: @money_source %>
         <%= render "payments" %>
+        <% if @money_source.loan? %>
+          <%= render "extra_payments", source: @money_source,
+                     funding_sources: current_user.money_sources.payment_sources.order(:kind, :name).where.not(id: @money_source.id) %>
+        <% end %>
       <% elsif @money_source.pocket? %>
         <%= render "pocket_breakdown" %>
       <% else %>

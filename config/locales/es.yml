@@ -2158,6 +2158,23 @@ es:
         reduction: "Reducción por cuota"
         required: "Pago extra requerido por cuota"
         new_total: "Nueva cuota total"
+        covered: "Cuotas adelantadas"
+        months_without_payment: "Meses sin pagar"
+        freed_cash: "Flujo liberado"
+      strategies:
+        reduce_term: "Terminar antes"
+        reduce_installment: "Pagar menos cada mes"
+        prepay_installments: "Adelantar cuotas"
+        target_payoff: "Terminar antes (calcular extra)"
+      strategy_hint:
+        reduce_term: "Mantén tu cuota y liquida antes."
+        reduce_installment: "Mantén aprox. la fecha final y baja tu cuota."
+        prepay_installments: "Cubre cuotas programadas próximas."
+        target_payoff: "Ingresa cuántas cuotas antes quieres terminar."
+      pay_in_one: "Aplicar el abono en una sola cuota"
+      repeat_label: "Repetir el abono"
+      repeat_once: "Una sola vez"
+      repeat_every: "Cada %{n} cuotas"
     scenarios:
       kinds:
         reduce_term: "Terminar antes"
@@ -2183,6 +2200,19 @@ es:
         payoff: "Terminación"
         interest: "Interés"
         saved: "Ahorro"
+      objectives:
+        max_savings: "Máximo ahorro"
+        min_payment: "Cuota mínima"
+        fastest_payoff: "Termina antes"
+        balanced: "Mejor balance"
+      metrics:
+        extra: "Abono"
+        payment: "Cuota que seguirás pagando"
+        installments: "Cuotas restantes"
+        interest: "Interés futuro"
+        saved: "Ahorro de interés"
+        payoff: "Terminación"
+        without_payment: "Meses sin pagar"
       best: "Mejor opción: %{name}"
       rationale:
         max_savings: "máximo ahorro de interés"
@@ -2210,25 +2240,11 @@ es:
       payoff: "Terminación:"
       empty: "Genera la proyección para ver la tabla de amortización."
 
-    comparison:
-      objectives:
-        max_savings: "Máximo ahorro"
-        min_payment: "Cuota mínima"
-        fastest_payoff: "Termina antes"
-        balanced: "Mejor balance"
-      metrics:
-        extra: "Abono"
-        payment: "Cuota que seguirás pagando"
-        installments: "Cuotas restantes"
-        interest: "Interés futuro"
-        saved: "Ahorro de interés"
-        payoff: "Terminación"
-        without_payment: "Meses sin pagar"
     quick:
       title: "¿Qué hago con esta plata?"
       amount_label: "Monto disponible para abonar"
       amount_hint: "Compara qué pasa si aplica el mismo monto de distintas maneras."
-      simulation_hint: "Simulación: no mueve el saldo. Para aplicar un abono de verdad usa la tarjeta Abonos extraordinarios."
+      simulation_hint: "Simulación: no mueve el saldo. Para aplicar un abono de verdad usa la tarjeta «Abonos extraordinarios» en la página del crédito."
       mode: "¿Cómo lo aplicas?"
       mode_once: "Una sola vez"
       mode_recurring: "Cada cuota (abono constante)"
@@ -2277,25 +2293,6 @@ es:
         eliminated: "%{count} cuotas eliminadas"
         covered: "%{count} cuotas adelantadas"
       installments_affected: "Efecto"
-    simulators:
-      strategies:
-        reduce_term: "Terminar antes"
-        reduce_installment: "Pagar menos cada mes"
-        prepay_installments: "Adelantar cuotas"
-        target_payoff: "Terminar antes (calcular extra)"
-      strategy_hint:
-        reduce_term: "Mantén tu cuota y liquida antes."
-        reduce_installment: "Mantén aprox. la fecha final y baja tu cuota."
-        prepay_installments: "Cubre cuotas programadas próximas."
-        target_payoff: "Ingresa cuántas cuotas antes quieres terminar."
-      pay_in_one: "Aplicar el abono en una sola cuota"
-      repeat_label: "Repetir el abono"
-      repeat_once: "Una sola vez"
-      repeat_every: "Cada %{n} cuotas"
-      results:
-        covered: "Cuotas adelantadas"
-        months_without_payment: "Meses sin pagar"
-        freed_cash: "Flujo liberado"
     reconstruct:
       title: "Reconstruir crédito"
       hint: "Ingresa la información que tengas del crédito. Con lo que falte, el sistema genera una proyección estimada marcada como tal. Nunca se modifican los datos del crédito."
