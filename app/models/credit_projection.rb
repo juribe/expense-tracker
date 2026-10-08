@@ -16,12 +16,15 @@ class CreditProjection < ApplicationRecord
 
   def self.current_fingerprint_parts(money_source)
     payments = money_source.payments
+    extras = money_source.credit_extra_payments
     [
       money_source.updated_at.to_f,
       money_source.credit_account&.updated_at.to_f,
       payments.maximum(:updated_at).to_f,
       payments.maximum(:id).to_i,
-      payments.count
+      payments.count,
+      extras.maximum(:updated_at).to_f,
+      extras.count
     ]
   end
 

@@ -41,7 +41,7 @@ module Credits
         @start_installment_number = start_installment_number.to_i
         @first_payment_date = first_payment_date
         @frequency = frequency
-        @one_time_extra = extras[:one_time]
+        @one_time_extra = normalize_one_time(extras[:one_time])
         @recurring_extra = extras[:recurring]
         @cap = cap.to_i.positive? ? cap.to_i : DEFAULT_CAP
       end
@@ -126,21 +126,29 @@ module Credits
 
       def apply_extras(period)
         amount = one_time_extra_for(period) || recurring_extra_for(period)
-        amount.nil? ? nil : [amount.round(CENTS), @balance].min
+        amount.nil? ? nil : [ amount.round(CENTS), @balance ].min
+      end
+
+      def normalize_one_time(one_time)
+        return [] if one_time.nil?
+        return Array(one_time) if one_time.is_a?(Array)
+
+        [ one_time ]
       end
 
       def one_time_extra_for(period)
-        return nil unless @one_time_extra
-
-        after = @one_time_extra[:after_period].to_i
-        after.positive? && period == after ? @one_time_extra[:amount].to_d : nil
+        @one_time_extra.each do |extra|
+          after = extra[:after_period].to_i
+          return extra[:amount].to_d if after.positive? && period == after
+        end
+        nil
       end
 
       def recurring_extra_for(period)
         return nil unless @recurring_extra
 
         start = @recurring_extra[:start_period].to_i
-        every = [@recurring_extra[:every_n_periods].to_i, 1].max
+        every = [ @recurring_extra[:every_n_periods].to_i, 1 ].max
         return nil if period < start || (period - start) % every != 0
 
         @recurring_extra[:amount].to_d

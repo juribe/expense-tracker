@@ -17,6 +17,9 @@ class CreditsController < ApplicationController
 
     @projection = result.result
     @comparison = Credits::Comparison.call(projection: @projection, objective: params[:objective])
+    @view = %w[full actual].include?(params[:view]) ? params[:view] : "future"
+    load_quick_comparison
+    load_opportunity
   end
 
   def reconstruct
@@ -40,21 +43,14 @@ class CreditsController < ApplicationController
     redirect_to money_source_credits_path(@loan), notice: t("credits.refreshed")
   end
 
-  def schedule
-    @projection = @loan.credit_projection
-    return redirect_to_reconstruct if @projection.nil?
-
-    @view = %w[full actual].include?(params[:view]) ? params[:view] : "future"
-    render :schedule, layout: false
-  end
-
   def create_scenario
     result = Credits::Scenarios::Create.call(money_source: @loan, kind: params[:kind],
                                              name: params[:name], params: scenario_params)
     if result.success?
       redirect_to money_source_credits_path(@loan), notice: t("credits.scenarios.created")
     else
-      redirect_to money_source_credits_path(@loan), alert: result.errors.to_sentence
+      redirect_to money_source_credits_path(@loan, amount: scenario_params["amount"]),
+                  alert: result.errors.to_sentence
     end
   end
 
@@ -62,6 +58,26 @@ class CreditsController < ApplicationController
     scenario = @loan.credit_scenarios.find(params[:scenario_id])
     scenario.destroy!
     redirect_to money_source_credits_path(@loan), notice: t("credits.scenarios.deleted")
+  end
+
+  def record_extra
+    funding = current_user.money_sources.payment_sources.find_by(id: params[:funding_money_source_id])
+    result = Credits::ExtraPayments::Create.call(money_source: @loan, funding_money_source: funding,
+                                                 date: params[:date],
+                                                 amount: params[:extra_amount],
+                                                 application_type: params[:application_type],
+                                                 note: params[:note])
+    if result.success?
+      redirect_to money_source_path(@loan), notice: t("credits.extras.recorded")
+    else
+      redirect_to money_source_credits_path(@loan), alert: result.errors.to_sentence
+    end
+  end
+
+  def destroy_extra
+    extra = @loan.credit_extra_payments.find(params[:extra_id])
+    extra.discard!
+    redirect_to money_source_credits_path(@loan), notice: t("credits.extras.deleted")
   end
 
   private
@@ -73,7 +89,8 @@ class CreditsController < ApplicationController
   def reconstruct_params
     params.permit(:balance, :interest_rate, :interest_rate_type, :installment_amount,
                   :original_term, :current_installment_number, :latest_payment_date,
-                  :principal_amount, :interest_amount, :insurance_amount, :other_amount)
+                  :principal_amount, :interest_amount, :insurance_amount, :other_amount,
+                  :insurance_assumption, :interest_calculation, :extra_payment_default)
           .to_h
           .compact_blank
           .transform_keys do |key|
@@ -82,7 +99,45 @@ class CreditsController < ApplicationController
   end
 
   def scenario_params
-    params.permit(:amount, :every_n_periods, :months_earlier, :after_period)
+    params.permit(:amount, :repeat_every, :every_n_periods, :months_earlier, :after_period)
+          .to_h
+          .transform_keys { |key| key == "every_n_periods" ? "repeat_every" : key }
+  end
+
+  # "¿Qué hago con esta plata?": transient side-by-side strategy comparison
+  # for the entered amount. Nothing is persisted here. The recurring mode
+  # simulates paying the amount as a constant extra every installment.
+  def load_quick_comparison
+    return if params[:amount].blank?
+    return if @projection.nil?
+
+    amount = params[:amount].to_s.gsub(/[^\d.,]/, "")
+    return if amount.blank?
+
+    @quick_comparison = Credits::Comparison.quick(projection: @projection, amount: amount,
+                                                  mode: recurring_quick_mode? ? "recurring" : "once")
+  rescue ArgumentError, TypeError
+    nil
+  end
+
+  def recurring_quick_mode?
+    params[:mode] == "recurring"
+  end
+
+  # Opportunity hint: the impact of putting one extra installment into the
+  # credit. Cheap: reads the persisted schedule and runs one simulation.
+  def load_opportunity
+    @opportunity = nil
+    return if @projection.nil?
+    return if @quick_comparison.present? || @loan.credit_scenarios.exists?
+
+    installment_total = (@projection.summary["installment_amount"].to_d +
+                         @projection.summary["future_insurance"].to_d / [ @projection.summary["remaining_installments"].to_i, 1 ].max)
+    results = Credits::Simulator.run(projection: @projection, strategy: "reduce_term",
+                                     params: { "amount" => installment_total.round(2) })
+    @opportunity = { amount: installment_total, results: results }
+  rescue ActiveRecord::RecordNotFound, ArgumentError, TypeError
+    nil
   end
 
   def redirect_to_reconstruct

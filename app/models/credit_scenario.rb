@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
 # CreditScenario
-# A saved "what-if" simulation against a loan's credit projection (extra
-# principal payment, recurring extra, periodic extra or target payoff).
-# Max 3 per money source; results are computed by the Credits::Simulator
-# engine and stored as a snapshot so the comparison view never recalculates.
+# A saved "what-if" simulation of an extraordinary payment on a loan.
+# The kind IS the application type (reduce_term, reduce_installment,
+# prepay_installments, target_payoff); results are computed by
+# Credits::Simulator and stored as a snapshot. Max 3 per money source.
 #
 # Associations: belongs_to :money_source
-# Methods: KINDS, limit validation
-#
-# Example: Credits::Scenarios::Create.call(money_source:, kind:, name:, params:)
+# Methods: KINDS, MAX_PER_CREDIT
 class CreditScenario < ApplicationRecord
-  KINDS = %w[one_time_extra recurring_extra target_payoff].freeze
+  KINDS = Credits::Simulator::STRATEGIES.freeze
 
   MAX_PER_CREDIT = 3
 

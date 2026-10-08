@@ -149,8 +149,8 @@ class ProjectionBuilderTest < ActiveSupport::TestCase
 
     Credits::Projection::Builder.call(money_source: @loan)
     scenario = Credits::Scenarios::Create.call(
-      money_source: @loan, kind: "recurring_extra", name: "+100 mil/mes",
-      params: { "amount" => "100000" }
+      money_source: @loan, kind: "reduce_term", name: "+100 mil/mes",
+      params: { "amount" => "100000", "repeat_every" => 1 }
     ).result
     assert scenario.results["interest_saved"].to_d.positive?
 

@@ -99,12 +99,13 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
     create_projection
 
     post money_source_credit_scenarios_path(@loan), params: {
-      kind: "recurring_extra", name: "+100 mil/mes", amount: "100000", every_n_periods: 1
+      kind: "reduce_term", name: "+100 mil/mes", amount: "100000", repeat_every: 1
     }
 
     assert_redirected_to money_source_credits_path(@loan)
     scenario = @loan.reload.credit_scenarios.last
-    assert_equal "recurring_extra", scenario.kind
+    assert_equal "reduce_term", scenario.kind
+    assert_equal 1, scenario.params["repeat_every"].to_i
     assert_equal "100000", scenario.params["amount"].to_s
     assert scenario.results["interest_saved"].present?
   end
@@ -117,7 +118,7 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
       kind: "one_time_extra", amount: "100000"
     }
 
-    assert_redirected_to money_source_credits_path(@loan)
+    assert_redirected_to money_source_credits_path(@loan, amount: "100000")
     assert_match I18n.t("errors.messages.scenario_limit"), flash[:alert]
     assert_equal 3, @loan.reload.credit_scenarios.count
   end
@@ -132,14 +133,109 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, @loan.reload.credit_scenarios.count
   end
 
-  test "schedule renders the lazy amortization table inside its turbo frame" do
+  test "show renders the amortization table views without re-routing" do
     create_projection
 
-    get money_source_credit_schedule_path(@loan)
+    get money_source_credits_path(@loan)
 
     assert_response :success
-    assert_match 'turbo-frame id="credit_schedule"', @response.body
     assert_match "table-responsive", @response.body
+
+    get money_source_credits_path(@loan, view: "actual")
+
+    assert_response :success
+    assert_match "Real vs proyectado", @response.body
+  end
+
+  test "show renders the quick strategy comparison for the entered amount" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000")
+
+    assert_response :success
+    assert_match "Terminar antes", @response.body
+    assert_match "Adelantar cuotas", @response.body
+    assert_equal 0, @loan.reload.credit_scenarios.count
+  end
+
+  test "show supports the recurring (constant extra) quick comparison" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "200000", mode: "recurring")
+
+    assert_response :success
+    assert_match "Cada cuota", @response.body
+    assert_equal 0, @loan.reload.credit_scenarios.count
+  end
+
+  test "recording an extra payment creates a real expense + payment and moves the credit" do
+    create_projection
+    account = @user.money_sources.create!(name: "Cuenta Ahorros", kind: "account", starting_balance: 500_000)
+    balance_before = @loan.reload.credit_account.outstanding_balance.to_d
+
+    post money_source_credit_extras_path(@loan), params: {
+      date: Date.current, extra_amount: "300000", application_type: "reduce_term",
+      funding_money_source_id: account.id, note: "Aguinaldo"
+    }
+
+    assert_redirected_to money_source_path(@loan)
+    extra = @loan.reload.credit_extra_payments.last
+    assert_equal "reduce_term", extra.application_type
+    assert_equal BigDecimal("300000"), extra.amount
+    assert_equal BigDecimal("300000"), extra.principal_reduction
+
+    # Real expense: the money actually leaves the funding account.
+    assert_equal BigDecimal("200_000"), account.reload.balance
+    assert_equal "expense", extra.expense.kind
+    # Real payment: principal-only distribution applied to the debt.
+    assert_equal BigDecimal("300000"), extra.payment.principal_amount.to_d
+    assert_equal BigDecimal("0"), extra.payment.interest_amount.to_d
+    assert_equal balance_before - BigDecimal("300000"),
+                 @loan.credit_account.reload.outstanding_balance.to_d
+    # The payment is listed with the loan's own payments.
+    assert_includes @loan.reload.payments.map(&:id), extra.payment.id
+  end
+
+  test "recording an extra payment without a funding source is rejected" do
+    create_projection
+
+    post money_source_credit_extras_path(@loan), params: {
+      date: Date.current, extra_amount: "300000", application_type: "reduce_term"
+    }
+
+    assert_redirected_to money_source_credits_path(@loan)
+    assert @loan.reload.credit_extra_payments.empty?
+  end
+
+  test "prepay distributes the covered installments at face value" do
+    create_projection
+    account = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 2_000_000)
+
+    post money_source_credit_extras_path(@loan), params: {
+      date: Date.current, extra_amount: "900000", application_type: "prepay_installments",
+      funding_money_source_id: account.id
+    }
+
+    assert_redirected_to money_source_path(@loan)
+    payment = @loan.reload.credit_extra_payments.last.payment
+    assert_equal BigDecimal("900000"), payment.amount.to_d
+    # 288,000 + 290,880 + 293,788.80 of capital; the rest is pre-collected interest.
+    assert_equal BigDecimal("872668.8"), payment.principal_amount.to_d
+    assert_equal BigDecimal("27331.2"), payment.interest_amount.to_d
+  end
+
+  test "destroying an extra payment removes it from the history" do
+    create_projection
+    account = @user.money_sources.create!(name: "Ahorros abonos", kind: "account")
+    Credits::ExtraPayments::Create.call(money_source: @loan, funding_money_source: account,
+                                        date: Date.current, amount: "300000",
+                                        application_type: "reduce_term")
+    extra = @loan.credit_extra_payments.last
+
+    delete money_source_credit_extra_path(@loan, extra)
+
+    assert_redirected_to money_source_credits_path(@loan)
+    assert_equal 0, @loan.reload.credit_extra_payments.count
   end
 
   private
@@ -155,8 +251,9 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
 
   def create_scenario_record(index)
     @loan.credit_scenarios.create!(
-      name: "Escenario #{index + 1}", kind: "one_time_extra",
+      name: "Escenario #{index + 1}",
       params: { "amount" => "100000", "after_period" => 1 },
+      kind: "reduce_term",
       results: { "interest_saved" => "1000" }, computed_at: Time.current
     )
   end

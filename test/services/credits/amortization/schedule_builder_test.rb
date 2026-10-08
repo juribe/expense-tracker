@@ -254,7 +254,7 @@ class ScheduleBuilderTest < ActiveSupport::TestCase
     # 2: interest 1.02 principal 78.98 → 22.82
     # 3: interest 0.23 final 22.82 (total 23.05)
     dates = biweekly.rows.map(&:date)
-    assert_equal [Date.new(2026, 1, 5), Date.new(2026, 1, 19), Date.new(2026, 2, 2)], dates
+    assert_equal [ Date.new(2026, 1, 5), Date.new(2026, 1, 19), Date.new(2026, 2, 2) ], dates
 
     quarterly = Credits::Amortization::ScheduleBuilder.build(
       balance: BigDecimal("80.00"),
@@ -265,8 +265,32 @@ class ScheduleBuilderTest < ActiveSupport::TestCase
       frequency: "quarterly"
     )
 
-    assert_equal [Date.new(2026, 3, 1)], quarterly.rows.map(&:date)
+    assert_equal [ Date.new(2026, 3, 1) ], quarterly.rows.map(&:date)
     assert_equal 7, quarterly.rows.first.installment_number
+  end
+
+  test "supports multiple one-time extra payments" do
+    result = Credits::Amortization::ScheduleBuilder.build(
+      **reference_locked,
+      extras: {
+        one_time: [
+          { after_period: 1, amount: BigDecimal("100.00") },
+          { after_period: 3, amount: BigDecimal("200.00") }
+        ]
+      }
+    )
+
+    rows = result.rows
+    # 1: 12.00/288.00 → 912.00, extra 100 → 812.00
+    # 2: 8.12/291.88 → 520.12
+    # 3: 5.20/294.80 → 225.32, extra 200 → 25.32
+    # 4: 0.25 final 25.32 (total 25.57)
+    assert_equal BigDecimal("812.00"), rows[1].opening_balance
+    assert_equal BigDecimal("25.32"), rows.last.opening_balance
+    assert_equal BigDecimal("0.25"), rows.last.interest
+    assert_equal BigDecimal("25.57"), rows.last.total_payment
+    assert_equal 4, rows.size
+    assert_equal BigDecimal("300.00"), result.extra_cash
   end
 
   private

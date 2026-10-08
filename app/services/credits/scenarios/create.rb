@@ -3,24 +3,24 @@
 module Credits
   module Scenarios
     # Create
-    # Persists a simulation scenario (max 3 per credit) computing its
-    # results through Credits::Simulator against the stored projection.
+    # Persists a simulation scenario (max 3 per credit) computing its results
+    # through Credits::Simulator against the stored projection. The kind is
+    # the application type of the extraordinary payment.
     #
     # Methods: call
     #
     # Example:
-    #   Credits::Scenarios::Create.call(money_source: loan, kind: "recurring_extra",
-    #                                   name: "+500 mil/mes", params: { "amount" => "500000" })
+    #   Credits::Scenarios::Create.call(money_source: loan, kind: "reduce_term",
+    #                                   name: "+500 mil", params: { "amount" => "500000" })
     class Create
       DEFAULT_NAMES = {
-        "one_time_extra" => ->(params) { "+#{MoneyFormat.currency(params['amount'].to_d)} una vez" },
-        "recurring_extra" => lambda { |params|
-          period = params["every_n_periods"].to_i
-          base = "+#{MoneyFormat.currency(params['amount'].to_d)} por cuota"
-          period > 1 ? "#{base} (cada #{period})" : base
-        },
+        "reduce_term" => ->(params) { "+#{params['amount']} para terminar antes" },
+        "reduce_installment" => ->(params) { "+#{params['amount']} para pagar menos cada mes" },
+        "prepay_installments" => ->(params) { "+#{params['amount']} adelantando cuotas" },
         "target_payoff" => ->(params) { "Terminar #{params['months_earlier']} cuotas antes" }
       }.freeze
+
+      ALLOWED_INPUT_KINDS = Credits::Simulator::STRATEGIES + Credits::Simulator::LEGACY_STRATEGIES.keys
 
       def self.call(money_source:, kind:, name: nil, params: {})
         new(money_source, kind, name, params).call
@@ -35,14 +35,14 @@ module Credits
 
       def call
         projection = @money_source.credit_projection
-        return ServiceResult.error(["Primero genera la proyección del crédito."]) if projection.nil?
-        unless CreditScenario::KINDS.include?(@kind)
-          return ServiceResult.error(["Tipo de escenario inválido."])
+        return ServiceResult.error([ I18n.t("credits.scenarios.missing_projection", default: "Primero genera la proyección del crédito.") ]) if projection.nil?
+        unless ALLOWED_INPUT_KINDS.include?(@kind)
+          return ServiceResult.error([ I18n.t("credits.scenarios.invalid_kind", default: "Tipo de escenario inválido.") ])
         end
 
         scenario = @money_source.credit_scenarios.build(
           name: default_name, kind: @kind, params: normalized_params,
-          results: Credits::Simulator.run(projection: projection, kind: @kind, params: normalized_params),
+          results: Credits::Simulator.run(projection: projection, strategy: @kind, params: normalized_params),
           computed_at: Time.current
         )
         scenario.save!
@@ -54,12 +54,14 @@ module Credits
       private
 
       def default_name
-        @name.presence || DEFAULT_NAMES.fetch(@kind).call(@params)
+        @name.presence || DEFAULT_NAMES.fetch(@kind, ->(_p) { @kind.to_s.humanize }).call(@params)
       end
 
       def normalized_params
-        normalized = @params.slice("after_period", "every_n_periods", "start_period", "months_earlier")
+        normalized = @params.slice("after_period", "every_n_periods", "start_period", "repeat_every", "months_earlier")
                             .transform_values(&:to_i)
+        normalized["repeat_every"] = normalized.delete("every_n_periods") if normalized["every_n_periods"]
+        normalized["after_period"] = normalized.delete("start_period") if normalized["start_period"]
         normalized["amount"] = MoneyFormat.normalize(@params["amount"]).to_s if @params["amount"].present?
         normalized
       end

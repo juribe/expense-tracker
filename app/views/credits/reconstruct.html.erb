@@ -57,6 +57,29 @@
                 <input type="date" class="form-control" id="credit_latest_date" name="latest_payment_date"
                        value="<%= @inputs[:latest_payment_date].respond_to?(:iso8601) ? @inputs[:latest_payment_date].iso8601 : @inputs[:latest_payment_date] %>">
               </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_insurance_assumption"><%= t("credits.reconstruct.insurance_assumption") %></label>
+                <select class="form-select" id="credit_insurance_assumption" name="insurance_assumption">
+                  <option value="fixed" <%= "selected" if @inputs[:insurance_assumption] == "fixed" %>><%= t("credits.reconstruct.insurance_fixed") %></option>
+                  <option value="variable" <%= "selected" if @inputs[:insurance_assumption] == "variable" %>><%= t("credits.reconstruct.insurance_variable") %></option>
+                  <option value="unknown" <%= "selected" if @inputs[:insurance_assumption] == "unknown" %>><%= t("credits.reconstruct.insurance_unknown") %></option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_interest_calculation"><%= t("credits.reconstruct.interest_calculation") %></label>
+                <select class="form-select" id="credit_interest_calculation" name="interest_calculation">
+                  <option value="monthly" <%= "selected" unless @inputs[:interest_calculation] == "daily" %>><%= t("credits.reconstruct.interest_monthly") %></option>
+                  <option value="daily" <%= "selected" if @inputs[:interest_calculation] == "daily" %>><%= t("credits.reconstruct.interest_daily") %></option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label" for="credit_extra_default"><%= t("credits.reconstruct.extra_payment_default") %></label>
+                <select class="form-select" id="credit_extra_default" name="extra_payment_default">
+                  <option value="user_choice"><%= t("credits.reconstruct.extra_user_choice") %></option>
+                  <option value="reduce_term" <%= "selected" if @inputs[:extra_payment_default] == "reduce_term" %>><%= t("credits.reconstruct.extra_reduce_term") %></option>
+                  <option value="reduce_installment" <%= "selected" if @inputs[:extra_payment_default] == "reduce_installment" %>><%= t("credits.reconstruct.extra_reduce_installment") %></option>
+                </select>
+              </div>
             </div>
 
             <h5 class="mb-3 mt-2"><%= t("credits.reconstruct.latest_payment") %></h5>

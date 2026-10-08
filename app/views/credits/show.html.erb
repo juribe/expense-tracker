@@ -36,6 +36,23 @@
     </div>
   <% end %>
 
+  <% if @opportunity && @opportunity[:results]["interest_saved"].to_d.positive? && @quick_comparison.nil? %>
+    <div class="alert alert-info d-flex justify-content-between align-items-center" id="opportunity">
+      <div>
+        <i class="bi bi-lightbulb me-2"></i>
+        <strong><%= t("credits.opportunity.title") %>:</strong>
+        <%= t("credits.opportunity.text",
+              amount: number_to_currency(@opportunity[:amount]),
+              savings: number_to_currency(@opportunity[:results]["interest_saved"].to_d),
+              installments: t("credits.opportunity.installments_text",
+                              count: @opportunity[:results]["installments_eliminated"].to_i)) %>
+      </div>
+      <%= link_to money_source_credits_path(@loan, anchor: "quick"), class: "btn btn-primary btn-sm text-nowrap" do %>
+        <i class="bi bi-calculator me-1"></i><%= t("credits.opportunity.button") %>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class="row g-4 mb-4">
     <div class="col-12 col-lg-5">
       <div class="card shadow-sm h-100">
@@ -131,7 +148,7 @@
     <div class="card-body">
       <h5 class="card-title mb-3"><i class="bi bi-clipboard-data me-2"></i><%= t("credits.assumptions.title") %></h5>
       <ul class="mb-0 text-muted">
-        <% @projection.assumptions.each do |assumption| %>
+        <% @projection.assumptions.compact_blank.each do |assumption| %>
           <li><%= assumption %></li>
         <% end %>
       </ul>
@@ -141,12 +158,13 @@
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <h5 class="card-title mb-3"><i class="bi bi-table me-2"></i><%= t("credits.schedule.title") %></h5>
-      <%= turbo_frame_tag "credit_schedule", src: money_source_credit_schedule_path(@loan), loading: "lazy" do %>
-        <div class="text-center py-4 text-muted">
-          <div class="spinner-border spinner-border-sm me-2"></div>
-          <span><%= t("credits.schedule.title") %>…</span>
-        </div>
-      <% end %>
+      <button class="btn btn-outline-primary btn-sm mb-3" type="button" data-bs-toggle="collapse"
+              data-bs-target="#creditSchedule" aria-expanded="false" aria-controls="creditSchedule">
+        <i class="bi bi-chevron-down me-1"></i><%= t("credits.schedule.toggle", default: "Mostrar / ocultar") %>
+      </button>
+      <div class="collapse <%= "show" if params[:view].present? %>" id="creditSchedule">
+        <%= render "credits/schedule_table" %>
+      </div>
     </div>
   </div>
 </div>

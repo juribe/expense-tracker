@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_07_230100) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_07_233100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_230100) do
     t.integer "installments_paid"
     t.boolean "outstanding_usage_replayed", default: false, null: false
     t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
+  end
+
+  create_table "credit_extra_payments", force: :cascade do |t|
+    t.bigint "money_source_id", null: false
+    t.date "date", null: false
+    t.decimal "amount", precision: 14, scale: 2, null: false
+    t.string "application_type", null: false
+    t.decimal "principal_reduction", precision: 14, scale: 2, default: "0.0", null: false
+    t.integer "installments_affected"
+    t.jsonb "effect", default: {}, null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "funding_money_source_id"
+    t.bigint "payment_id"
+    t.bigint "expense_id"
+    t.index ["expense_id"], name: "index_credit_extra_payments_on_expense_id"
+    t.index ["funding_money_source_id"], name: "index_credit_extra_payments_on_funding_money_source_id"
+    t.index ["money_source_id", "date"], name: "index_credit_extra_payments_on_money_source_id_and_date"
+    t.index ["money_source_id"], name: "index_credit_extra_payments_on_money_source_id"
+    t.index ["payment_id"], name: "index_credit_extra_payments_on_payment_id"
   end
 
   create_table "credit_projections", force: :cascade do |t|
@@ -820,6 +841,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_07_230100) do
   add_foreign_key "budgets", "users"
   add_foreign_key "categories", "users"
   add_foreign_key "credit_accounts", "money_sources"
+  add_foreign_key "credit_extra_payments", "money_sources"
+  add_foreign_key "credit_extra_payments", "money_sources", column: "funding_money_source_id"
+  add_foreign_key "credit_extra_payments", "payments"
+  add_foreign_key "credit_extra_payments", "transactions", column: "expense_id"
   add_foreign_key "credit_projections", "money_sources"
   add_foreign_key "credit_scenarios", "money_sources"
   add_foreign_key "evaluation_cases", "evaluation_runs"

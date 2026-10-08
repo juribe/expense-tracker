@@ -18,7 +18,7 @@ module Credits
       principal_amount interest_amount insurance_amount other_amount
     ].freeze
     DATE_OVERRIDES = %w[latest_payment_date].freeze
-    STRING_OVERRIDES = %w[interest_rate_type payment_frequency].freeze
+    STRING_OVERRIDES = %w[interest_rate_type payment_frequency insurance_assumption interest_calculation extra_payment_default].freeze
 
     def self.call(money_source:, overrides: {})
       new(money_source, overrides).call
@@ -42,22 +42,22 @@ module Credits
 
     def base_inputs
       {
-        :balance => @credit_account&.outstanding_balance.presence || @credit_account&.principal_amount,
-        :interest_rate => @credit_account&.interest_rate,
-        :interest_rate_type => @credit_account&.interest_rate_type || "effective_annual",
-        :payment_frequency => @credit_account&.payment_frequency.presence || "monthly",
-        :installment_amount => @credit_account&.installment_amount,
-        :installment_count => @credit_account&.installment_count,
-        :installments_paid => @credit_account&.installments_paid,
-        :start_date => @credit_account&.start_date,
-        :current_installment_number => nil,
-        :latest_payment_date => nil,
-        :latest_principal => nil,
-        :latest_interest => nil,
-        :latest_insurance => nil,
-        :latest_other => nil,
-        :actual_payments_count => payments.count,
-        :user_supplied => []
+        balance: @credit_account&.outstanding_balance.presence || @credit_account&.principal_amount,
+        interest_rate: @credit_account&.interest_rate,
+        interest_rate_type: @credit_account&.interest_rate_type || "effective_annual",
+        payment_frequency: @credit_account&.payment_frequency.presence || "monthly",
+        installment_amount: @credit_account&.installment_amount,
+        installment_count: @credit_account&.installment_count,
+        installments_paid: @credit_account&.installments_paid,
+        start_date: @credit_account&.start_date,
+        current_installment_number: nil,
+        latest_payment_date: nil,
+        latest_principal: nil,
+        latest_interest: nil,
+        latest_insurance: nil,
+        latest_other: nil,
+        actual_payments_count: payments.count,
+        user_supplied: []
       }
     end
 

@@ -2,9 +2,8 @@
   <% [["future", t("credits.schedule.view_future")],
       ["full", t("credits.schedule.view_full")],
       ["actual", t("credits.schedule.view_actual")]].each do |view, label| %>
-    <%= link_to money_source_credit_schedule_path(@loan, view: view),
-                class: "btn btn-sm #{view == @view ? "btn-primary" : "btn-outline-secondary"}",
-                data: { turbo_frame: "credit_schedule" } do %>
+    <%= link_to money_source_credits_path(@loan, view: view, anchor: "creditSchedule"),
+                class: "btn btn-sm #{view == @view ? "btn-primary" : "btn-outline-secondary"}" do %>
       <%= label %>
     <% end %>
   <% end %>

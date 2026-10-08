@@ -11,6 +11,6 @@ class CreateCreditScenarios < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :credit_scenarios, [:money_source_id, :kind]
+    add_index :credit_scenarios, [ :money_source_id, :kind ]
   end
 end

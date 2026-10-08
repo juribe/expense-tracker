@@ -42,6 +42,7 @@ module Credits
       def call
         errors = missing_critical_errors
         return ServiceResult.error(errors) if errors.any?
+        return ServiceResult.error(depleted_balance_error) if effective_balance <= 0
 
         projection = find_or_build_projection
         persist_projection(projection)
@@ -50,6 +51,17 @@ module Credits
       end
 
       private
+
+      # The real balance (already including recorded extraordinary payments,
+      # applied by Credits::ExtraPayments) is the source of truth — newcomers
+      # never need layering here.
+      def effective_balance
+        @inputs["balance"].to_d
+      end
+
+      def depleted_balance_error
+        [ "Los abonos registrados ya cubren todo el saldo del crédito." ]
+      end
 
       def missing_critical_errors
         CRITICAL_KEYS.filter_map do |key, label|
@@ -201,6 +213,8 @@ module Credits
           "remaining_installments" => rows.size,
           "payoff_date" => result.payoff_date&.iso8601,
           "actual_payments_count" => @inputs["actual_payments_count"],
+          "extra_payments_count" => @money_source.credit_extra_payments.count,
+          "extra_principal_total" => money(@money_source.credit_extra_payments.sum(:principal_reduction)),
           "past_principal" => money(actual_sums[:principal]),
           "past_interest" => money(actual_sums[:interest]),
           "past_insurance" => money(actual_sums[:insurance]),
@@ -262,9 +276,9 @@ module Credits
           projected = replay_rows_by_number[number]
           next if projected.nil?
 
-          [[:interest_amount, "interest", projected.interest],
-           [:principal_amount, "principal", projected.principal],
-           [:insurance_amount, "insurance", projected.insurance]].filter_map do |attribute, field, expected|
+          [ [ :interest_amount, "interest", projected.interest ],
+           [ :principal_amount, "principal", projected.principal ],
+           [ :insurance_amount, "insurance", projected.insurance ] ].filter_map do |attribute, field, expected|
             deviation_for(payment, attribute, field, expected, number)
           end
         end.flatten
@@ -295,17 +309,30 @@ module Credits
         list << "Cuota fija de #{amount_display(@inputs['installment_amount'])} mantenida constante."
         list << if recurring_insurance.positive?
                   "Seguro constante de #{amount_display(recurring_insurance)} por cuota."
-                else
+        else
                   "Sin seguro registrado; se asume $0 en cuotas futuras."
-                end
+        end
         list << "Interés calculado con la tasa periódica #{periodic_rate_percent}% por #{frequency_label}."
         list << if @inputs["actual_payments_count"].positive?
                   "Proyección basada en #{@inputs['actual_payments_count']} pagos reales registrados."
-                else
+        else
                   "Proyección estimada: los valores reales pueden diferir por interés diario, " \
                     "redondeos o pagos extraordinarios previos."
-                end
+        end
         list << "Cuota supuesta constante desde el desembolso para comparar lo proyectado con lo real." if replay_available?
+        if @money_source.credit_extra_payments.exists?
+          list << "El saldo real ya incluye #{@money_source.credit_extra_payments.count} abono(s) " \
+            "extraordinario(s) aplicado(s) desde este módulo."
+        end
+        if @inputs["insurance_assumption"].present? && @inputs["insurance_assumption"] != "fixed"
+          list << if @inputs["insurance_assumption"] == "variable"
+                    "El seguro declarado como variable: se proyecta con el último valor conocido."
+          else
+                    "Seguro desconocido: se proyecta con el último valor conocido y puede diferir."
+          end
+        end
+        list << "Interés calculado mensualmente; si tu banco capitaliza por día, los valores pueden diferir." if @inputs["interest_calculation"] == "daily"
+        list << "El comportamiento del abono extraordinario se asume según lo indiques en cada simulación." if @inputs["extra_payment_default"].present?
         list << "El cronograma se truncó al límite de cuotas; revisar los datos del crédito." if projection_result.truncated?
         list
       end
@@ -320,7 +347,7 @@ module Credits
 
       def refresh_scenarios!(projection)
         @money_source.credit_scenarios.find_each do |scenario|
-          results = Credits::Simulator.run(projection: projection, kind: scenario.kind, params: scenario.params)
+          results = Credits::Simulator.run(projection: projection, strategy: scenario.kind, params: scenario.params)
           scenario.update!(results: results, computed_at: Time.current)
         end
       end

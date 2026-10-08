@@ -81,9 +81,10 @@ Rails.application.routes.draw do
     get "credits/reconstruct", to: "credits#reconstruct", as: :credit_reconstruct
     post "credits", to: "credits#build", as: :credit_build
     post "credits/refresh", to: "credits#refresh", as: :credit_refresh
-    get "credits/schedule", to: "credits#schedule", as: :credit_schedule
     post "credits/scenarios", to: "credits#create_scenario", as: :credit_scenarios
     delete "credits/scenarios/:scenario_id", to: "credits#destroy_scenario", as: :credit_scenario
+    post "credits/extras", to: "credits#record_extra", as: :credit_extras
+    delete "credits/extras/:extra_id", to: "credits#destroy_extra", as: :credit_extra
     resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
     resources :statement_imports, only: [ :new, :create ] do
       collection do

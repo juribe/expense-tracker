@@ -1,60 +1,51 @@
-<div class="row g-4 mb-4">
-  <div class="col-12 col-lg-5">
-    <div class="card shadow-sm h-100 border-primary">
-      <div class="card-body">
-        <h5 class="card-title mb-3"><i class="bi bi-magic me-2"></i><%= t("credits.simulators.title") %></h5>
+<div class="row g-4 mb-4 align-items-stretch">
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card shadow-sm h-100 border-primary">
+        <div class="card-body">
+          <h5 class="card-title mb-3"><i class="bi bi-question-circle me-2"></i><%= t("credits.quick.title") %></h5>
+          <p class="text-muted small mb-2"><%= t("credits.quick.amount_hint") %></p>
+          <p class="text-muted small border-bottom pb-2"><i class="bi bi-broadcast me-1"></i><%= t("credits.quick.simulation_hint") %></p>
 
-        <% limit_reached = @loan.credit_scenarios.count >= CreditScenario::MAX_PER_CREDIT %>
-        <% if limit_reached %>
-          <div class="alert alert-info small"><i class="bi bi-info-circle me-1"></i><%= t("credits.simulators.limit_reached") %></div>
-        <% end %>
-
-        <%= form_with url: money_source_credit_scenarios_path(@loan), method: :post, local: true do %>
-          <div class="mb-3">
-            <% CreditScenario::KINDS.each do |kind| %>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="kind" id="kind_<%= kind %>"
-                       value="<%= kind %>" <%= "checked" if kind == "one_time_extra" %> <%= "disabled" if limit_reached %>>
-                <label class="form-check-label" for="kind_<%= kind %>"><%= t("credits.simulators.#{kind}") %></label>
+          <%= form_with url: money_source_credits_path(@loan), method: :get, local: true do %>
+            <div class="row align-items-end">
+              <div class="col-md-5">
+                <label class="form-label fw-semibold" for="quick_amount">
+                  <i class="bi bi-cash-coin me-1"></i><%= t("credits.quick.amount_label") %>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="quick_amount" name="amount"
+                         value="<%= money_field_value(@quick_comparison&.amount) %>"
+                         inputmode="decimal" autocomplete="off">
+                </div>
               </div>
-            <% end %>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" for="scenario_amount"><%= t("credits.simulators.amount") %></label>
-            <div class="input-group">
-              <span class="input-group-text">$</span>
-              <input type="text" class="form-control" id="scenario_amount" name="amount"
-                     inputmode="decimal" autocomplete="off" <%= "disabled" if limit_reached %>>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label" for="every_n_periods"><%= t("credits.simulators.every_n_periods") %></label>
-              <select class="form-select" id="every_n_periods" name="every_n_periods" <%= "disabled" if limit_reached %>>
-                <option value="1"><%= t("credits.simulators.periods") %> (1)</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="6">6</option>
-              </select>
-              <div class="form-text small"><%= t("credits.simulators.recurring_extra") %></div>
-            </div>
-            <div class="col-6 mb-3">
-              <label class="form-label" for="months_earlier"><%= t("credits.simulators.months_earlier") %></label>
-              <div class="input-group">
-                <input type="number" class="form-control" id="months_earlier" name="months_earlier"
-                       min="1" <%= "disabled" if limit_reached %>>
-                <span class="input-group-text"><%= t("credits.simulators.periods") %></span>
+              <div class="col-md-4">
+                <label class="form-label" for="quick_mode"><%= t("credits.quick.mode") %></label>
+                <select class="form-select" id="quick_mode" name="mode">
+                  <option value="once" <%= "selected" unless @quick_comparison&.mode == "recurring" %>>
+                    <%= t("credits.quick.mode_once") %>
+                  </option>
+                  <option value="recurring" <%= "selected" if @quick_comparison&.mode == "recurring" %>>
+                    <%= t("credits.quick.mode_recurring") %>
+                  </option>
+                </select>
               </div>
-              <div class="form-text small"><%= t("credits.simulators.target_payoff") %></div>
+              <% if params[:objective].present? %><input type="hidden" name="objective" value="<%= params[:objective] %>"><% end %>
+              <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-calculator me-1"></i><%= t("credits.quick.title") %>
+                </button>
+              </div>
             </div>
-          </div>
+          <% end %>
 
-          <button type="submit" class="btn btn-primary" <%= "disabled" if limit_reached %>>
-            <i class="bi bi-play-fill me-1"></i><%= t("credits.simulators.title") %>
-          </button>
-        <% end %>
+          <% if @quick_comparison %>
+            <%= render "credits/quick_comparison", quick: @quick_comparison %>
+          <% else %>
+            <p class="text-muted mb-0 mt-3"><i class="bi bi-inbox me-1"></i><%= t("credits.quick.nothing") %></p>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
@@ -69,17 +60,20 @@
             <%= t("credits.simulators.empty") %>
           </p>
         <% else %>
+          <% if @loan.credit_scenarios.count >= CreditScenario::MAX_PER_CREDIT %>
+            <div class="alert alert-info small py-2"><i class="bi bi-info-circle me-1"></i><%= t("credits.simulators.limit_reached") %></div>
+          <% end %>
           <% @loan.credit_scenarios.order(:created_at).each do |scenario| %>
             <% results = scenario.results %>
             <div class="border rounded p-3 mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                   <span class="fw-bold"><%= scenario.name %></span>
-                  <span class="badge bg-light text-dark ms-1"><%= t("credits.scenarios.kinds.#{scenario.kind}") %></span>
+                  <span class="badge bg-light text-dark ms-1"><%= t("credits.scenarios.kinds.#{scenario.kind}", default: scenario.kind.humanize) %></span>
                 </div>
                 <%= button_to money_source_credit_scenario_path(@loan, scenario), method: :delete,
                               form_class: "d-inline", class: "btn btn-outline-danger btn-sm",
-                              data: { confirm: t("credits.scenarios.delete_confirm") } do %>
+                              data: { turbo_confirm: t("credits.scenarios.delete_confirm") } do %>
                   <i class="bi bi-trash"></i>
                 <% end %>
               </div>
@@ -94,43 +88,124 @@
                   <div class="fw-bold"><%= results["installments_eliminated"].to_i %></div>
                 </div>
                 <div class="col-6 col-md-4">
-                  <div class="text-muted"><%= t("credits.simulators.results.saved") %></div>
-                  <div class="fw-bold text-success"><%= number_to_currency(results["interest_saved"].to_d) %></div>
+                  <div class="text-muted"><%= t("credits.simulators.results.new_total") %></div>
+                  <div class="fw-bold">
+                    <% if results["new_total_payment"].present? %>
+                      <%= number_to_currency(results["new_total_payment"].to_d) %>
+                    <% else %>
+                      <%= number_to_currency(results["installment_amount"].to_d) %>
+                    <% end %>
+                  </div>
                 </div>
                 <div class="col-6 col-md-4">
-                  <div class="text-muted"><%= t("credits.simulators.results.interest_with") %></div>
-                  <div class="fw-bold"><%= number_to_currency(results["future_interest"].to_d) %></div>
+                  <div class="text-muted"><%= t("credits.simulators.results.saved") %></div>
+                  <div class="fw-bold text-success"><%= number_to_currency(results["interest_saved"].to_d) %></div>
                 </div>
                 <div class="col-6 col-md-4">
                   <div class="text-muted"><%= t("credits.simulators.results.extra_cash") %></div>
                   <div class="fw-bold"><%= number_to_currency(results["extra_cash"].to_d) %></div>
                 </div>
+                <% if scenario.kind == "prepay_installments" %>
+                  <div class="col-6 col-md-4">
+                    <div class="text-muted"><%= t("credits.simulators.results.months_without_payment") %></div>
+                    <div class="fw-bold"><%= results["months_without_payment"].to_i %></div>
+                  </div>
+                <% elsif results["new_installment"].present? %>
+                  <div class="col-6 col-md-4">
+                    <div class="text-muted"><%= t("credits.simulators.results.new_installment") %></div>
+                    <div class="fw-bold"><%= number_to_currency(results["new_installment"].to_d) %></div>
+                  </div>
+                <% end %>
               </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
 
-              <% if results["required_extra"].present? %>
-                <hr class="my-2">
-                <div class="small">
-                  <span class="text-muted"><%= t("credits.simulators.results.required") %>:</span>
-                  <span class="fw-bold"><%= number_to_currency(results["required_extra"].to_d) %></span>
-                  · <span class="text-muted"><%= t("credits.simulators.results.new_total") %>:</span>
-                  <span class="fw-bold"><%= number_to_currency(results["new_total_payment"].to_d) %></span>
-                </div>
-              <% end %>
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title mb-2"><i class="bi bi-journal-plus me-2"></i><%= t("credits.extras.title") %></h5>
+        <p class="small text-muted"><%= t("credits.extras.hint") %></p>
+        <%= form_with url: money_source_credit_extras_path(@loan), method: :post, local: true do %>
+          <div class="row">
+            <div class="col-12 mb-2">
+              <label class="form-label small" for="extra_funding">
+                <%= t("credits.extras.funding", default: "¿De dónde sale la plata?") %>
+              </label>
+              <select class="form-select" id="extra_funding" name="funding_money_source_id" required>
+                <option value=""><%= t("credits.extras.funding_blank", default: "Selecciona la fuente de dinero…") %></option>
+                <% current_user.money_sources.payment_sources.order(:kind, :name).each do |source| %>
+                  <option value="<%= source.id %>"><%= source.name %></option>
+                <% end %>
+              </select>
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label small" for="extra_date"><%= t("credits.extras.date") %></label>
+              <input type="date" class="form-control" id="extra_date" name="date" value="<%= Date.current %>">
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label small" for="extra_amount"><%= t("credits.extras.amount") %></label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="text" class="form-control" id="extra_amount" name="extra_amount"
+                       inputmode="decimal" autocomplete="off">
+              </div>
+            </div>
+            <div class="col-12 mb-2">
+              <label class="form-label small" for="extra_application"><%= t("credits.extras.application_type") %></label>
+              <select class="form-select" id="extra_application" name="application_type">
+                <% CreditExtraPayment::APPLICATION_TYPES.each do |type| %>
+                  <option value="<%= type %>"><%= t("credits.extras.application_types.#{type}") %></option>
+                <% end %>
+              </select>
+            </div>
+            <div class="col-12 mb-3">
+              <label class="form-label small" for="extra_note"><%= t("credits.extras.note") %></label>
+              <input type="text" class="form-control" id="extra_note" name="note" maxlength="140">
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i><%= t("credits.extras.record") %>
+              </button>
+            </div>
+          </div>
+        <% end %>
 
-              <% if results["reduce_installment"].present? %>
-                <hr class="my-2">
-                <div class="small">
-                  <span class="badge bg-light text-dark me-1"><%= t("credits.simulators.results.reduce_installment") %></span>
-                  <span class="text-muted"><%= t("credits.simulators.results.new_installment") %>:</span>
-                  <span class="fw-bold"><%= number_to_currency(results["reduce_installment"]["new_installment_amount"].to_d) %></span>
-                  · <span class="text-muted"><%= t("credits.simulators.results.reduction") %>:</span>
-                  <span class="fw-bold text-success"><%= number_to_currency(results["reduce_installment"]["reduction"].to_d) %></span>
-                  · <span class="text-muted"><%= t("credits.simulators.results.saved") %>:</span>
-                  <span class="fw-bold"><%= number_to_currency(results["reduce_installment"]["interest_saved"].to_d) %></span>
+        <% if @loan.credit_extra_payments.any? %>
+          <hr>
+          <% @loan.credit_extra_payments.recent_first.each do |extra| %>
+            <div class="border rounded p-2 mb-2 small d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-bold">
+                  <%= l(extra.date, format: :long) %> ·
+                  <%= number_to_currency(extra.amount) %>
                 </div>
+                <div>
+                  <span class="badge bg-light text-dark"><%= t("credits.extras.application_types.#{extra.application_type}") %></span>
+                  <% if extra.installments_affected.to_i.positive? %>
+                    <span class="text-success">
+                      <% if extra.application_type == "prepay_installments" %>
+                        <%= t("credits.extras.effect.covered", count: extra.installments_affected) %>
+                      <% else %>
+                        <%= t("credits.extras.effect.eliminated", count: extra.installments_affected) %>
+                      <% end %>
+                    </span>
+                  <% end %>
+                  <% if extra.note.present? %><div class="text-muted"><%= extra.note %></div><% end %>
+                </div>
+              </div>
+              <%= button_to money_source_credit_extra_path(@loan, extra), method: :delete,
+                            form_class: "d-inline", class: "btn btn-outline-danger btn-sm",
+                            data: { turbo_confirm: t("credits.extras.delete_confirm") } do %>
+                <i class="bi bi-trash"></i>
               <% end %>
             </div>
           <% end %>
+        <% else %>
+          <p class="text-muted small mb-0 mt-2"><i class="bi bi-inbox me-1"></i><%= t("credits.extras.empty") %></p>
         <% end %>
       </div>
     </div>
