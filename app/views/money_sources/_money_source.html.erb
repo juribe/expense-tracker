@@ -29,6 +29,7 @@
               <i class="ti ti-coin"></i>
             <% end %>
           <% end %>
+          <%= render "money_sources/quick_transfer_actions", source: source %>
           <%= link_to edit_money_source_path(source), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("common.edit") } do %>
             <i class="ti ti-pencil"></i>
           <% end %>

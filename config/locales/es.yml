@@ -1085,6 +1085,16 @@ es:
     flashes:
       created: "La transferencia se creó correctamente."
       deleted: "La transferencia se eliminó correctamente."
+    quick:
+      title: "Transferencia"
+      from: "Desde"
+      to: "Hacia"
+      withdraw: "Retirar efectivo"
+      transfer: "Transferir a otra cuenta"
+      deposit: "Depositar en cuenta"
+      deposit_to: "Cuenta a depositar"
+      pocket: "Enviar a bolsillo"
+      unavailable: "Esa acción rápida no está disponible para esta fuente de dinero."
 
   payments:
     index_button: "Pagos"

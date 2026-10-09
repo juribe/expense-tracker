@@ -1,0 +1,17 @@
+<%# Quick-transfer form: the modal fetch tags the request with
+    X-Requested-With, so it gets the bare fragment (no layout, nothing but
+    the action HTML); anything else gets the standalone page. %>
+<% if request.headers["X-Requested-With"] == "XMLHttpRequest" %>
+  <%= render "quick_form" %>
+<% else %>
+  <%= render "shared/page_header", title: t("transfers.quick.title", default: "Transferencia") %>
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-body p-4">
+          <%= render "quick_form" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

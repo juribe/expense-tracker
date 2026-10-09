@@ -23,6 +23,7 @@
       </div>
     </div>
     <div class="account-actions d-print-none" role="group" aria-label="<%= source.name %>">
+      <%= render "money_sources/quick_transfer_actions", source: source %>
       <%= link_to edit_money_source_path(source), class: "btn account-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
         <i class="ti ti-pencil" aria-hidden="true"></i>
       <% end %>

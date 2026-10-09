@@ -1,5 +1,10 @@
 <%= render "shared/unfinished_setup_banner", setup: @setup %>
 
+<% # Quick actions only exist when there are cards to trigger them.
+   if @money_sources.any? %>
+  <%= render "money_sources/quick_transfer_modal" %>
+<% end %>
+
 <%= render "shared/page_header", title: t("nav.money_sources") do %>
   <div class="d-flex gap-2">
     <%= link_to new_transfer_path, class: "btn btn-outline-secondary" do %>

@@ -47,6 +47,36 @@ module ApplicationHelper
     @filter == filter ? "active" : ""
   end
 
+  # Contextual quick transfer actions for a money source card. The compact
+  # form (TransfersController#quick_new) re-validates compatibility, so these
+  # two must agree:
+  #   cash          → deposit into an account + send to pocket
+  #   account/card  → withdraw cash (only with a live cash source),
+  #                   transfer, send to pocket
+  #   credit card   → plain transfer only: cash advances and debt payments
+  #                   run through their own flows
+  # Inactive sources and pockets never offer quick actions.
+  def quick_transfer_actions(source)
+    return [] unless source.active? && source.payment_source?
+
+    if source.cash?
+      [ { mode: "transfer", icon: "building-bank", title: t("transfers.quick.deposit") },
+        { mode: "pocket", icon: "pig-money", title: t("transfers.quick.pocket") } ]
+    else
+      actions = []
+      actions << { mode: "withdraw", icon: "cash", title: t("transfers.quick.withdraw") } if quick_cash_destination && !source.debt?
+      actions << { mode: "transfer", icon: "arrows-left-right", title: t("transfers.quick.transfer") }
+      actions << { mode: "pocket", icon: "pig-money", title: t("transfers.quick.pocket") } unless source.debt?
+      actions
+    end
+  end
+
+  # The cash source quick transfers retire into: first active cash source by
+  # creation order; nil when the user has none (no implicit creation).
+  def quick_cash_destination
+    current_user.money_sources.active.by_kind("cash").order(:id).first
+  end
+
   def field_class(object, method)
     return "" unless object.errors.any?
 

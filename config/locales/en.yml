@@ -916,6 +916,16 @@ en:
       assign_to_goal: "Assign to goal (optional)"
       assign_blank: "Only leave the money in the pocket"
       assign_goal_hint: "If you pick a goal, the transferred money stays reserved for it inside the pocket. It does not create an expense."
+    quick:
+      title: "Transfer"
+      from: "From"
+      to: "To"
+      withdraw: "Withdraw cash"
+      transfer: "Transfer to another account"
+      deposit: "Deposit into account"
+      deposit_to: "Account to deposit into"
+      pocket: "Send to pocket"
+      unavailable: "That quick action is not available for this money source."
 
   goals:
     title: "Financial goals"

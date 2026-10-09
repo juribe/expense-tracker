@@ -1,0 +1,18 @@
+<%# Contextual quick transfer triggers for a money source card. Each opens
+    the shared quick-transfer modal (lazy turbo frame) whose compact form
+    fixes this source as the origin. Locals: source (MoneySource),
+    with_text (boolean, default false — icon-only variant for card groups). %>
+<% with_text = local_assigns.fetch(:with_text, false) %>
+<% quick_transfer_actions(source).each do |action| %>
+  <button type="button"
+          class="btn btn-outline-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#quick-transfer-modal"
+          data-src="<%= quick_new_transfers_path(from_source_id: source.id, mode: action[:mode], return_to: request.path) %>"
+          data-title="<%= action[:title] %>"
+          data-testid="quick-action-<%= action[:mode] %>"
+          title="<%= action[:title] %>"
+          aria-label="<%= action[:title] %>">
+    <i class="ti ti-<%= action[:icon] %>" aria-hidden="true"></i><% if with_text %><span class="ms-1"><%= action[:title] %></span><% end %>
+  </button>
+<% end %>

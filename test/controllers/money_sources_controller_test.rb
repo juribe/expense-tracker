@@ -581,4 +581,84 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal BigDecimal("2000000"), source.credit_account.credit_limit
     assert_equal "2222", source.credit_account.card_last_four
   end
+
+  # ----- Quick transfer actions on the money source cards -----
+
+  test "GET /money_sources offers each card only the quick actions its kind allows" do
+    create_source(name: "Checking", kind: "account", starting_balance: 100)
+    create_source(name: "Efectivo", kind: "cash", starting_balance: 100)
+    create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
+    create_source(name: "Bolsillo", kind: "pocket")
+    create_source(name: "Prestamo", kind: "loan", sub_kind: "personal")
+
+    get money_sources_path
+    assert_response :success
+
+    # Only the bank account can retire cash into the existing cash source.
+    assert_select "[data-testid='quick-action-withdraw']", count: 1
+    # Transfer offers on bank account + cash (deposit) + credit card, none elsewhere.
+    assert_select "[data-testid='quick-action-transfer']", count: 3
+    # Pocket is reachable from bank account + cash (money inside the pocket changes form but is not spent); never from a debt.
+    assert_select "[data-testid='quick-action-pocket']", count: 2
+  end
+
+  test "the withdraw quick action disappears when no active cash source exists" do
+    create_source(name: "Checking", kind: "account", starting_balance: 100)
+
+    get money_sources_path
+    assert_select "[data-testid='quick-action-withdraw']", count: 0
+    assert_select "[data-testid='quick-action-transfer']", count: 1
+  end
+
+  test "inactive sources do not offer quick transfer actions" do
+    create_source(name: "Checking", kind: "account", starting_balance: 100, active: false)
+    create_source(name: "Efectivo", kind: "cash", starting_balance: 100)
+
+    get money_sources_path
+    assert_select "[data-testid='quick-action-withdraw']", count: 0
+  end
+
+  test "GET /money_sources/cash shows the deposit action on the cash card" do
+    create_source(name: "Checking", kind: "account", starting_balance: 100)
+    create_source(name: "Efectivo", kind: "cash", starting_balance: 100)
+
+    get money_sources_cash_path
+    assert_response :success
+    assert_select "[data-testid='quick-action-withdraw']", count: 1
+    # Deposit (cash) + transfer (account) + goals available that can send to pocket.
+    assert_select "[data-testid='quick-action-transfer']", count: 2
+    assert_select "[data-testid='quick-action-pocket']", count: 2
+  end
+
+  test "the money source show page renders the quick transfer actions and modal" do
+    account = create_source(name: "Checking", kind: "account", starting_balance: 100)
+    create_source(name: "Efectivo", kind: "cash", starting_balance: 100)
+
+    get money_source_path(account)
+    assert_response :success
+    assert_select "[data-testid='quick-transfer-modal']", count: 1
+    assert_select "button[data-testid='quick-action-withdraw']", count: 1
+    assert_select "button[data-testid='quick-action-transfer']", count: 1
+    assert_select "button[data-testid='quick-action-pocket']", count: 1
+  end
+
+  test "the credit card show page only offers the plain transfer quick action" do
+    card = create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
+
+    get money_source_path(card)
+    assert_response :success
+    assert_select "button[data-testid='quick-action-withdraw']", count: 0
+    assert_select "button[data-testid='quick-action-transfer']", count: 1
+    assert_select "button[data-testid='quick-action-pocket']", count: 0
+  end
+
+  test "the loan show page offers no quick transfer actions" do
+    loan = create_source(name: "Prestamo", kind: "loan", sub_kind: "personal")
+
+    get money_source_path(loan)
+    assert_response :success
+    assert_select "[data-testid='quick-action-transfer']", count: 0
+    assert_select "[data-testid='quick-action-withdraw']", count: 0
+    assert_select "[data-testid='quick-action-pocket']", count: 0
+  end
 end

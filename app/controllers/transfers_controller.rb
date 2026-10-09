@@ -4,6 +4,11 @@ class TransfersController < ApplicationController
   before_action :authenticate_user!
   before_action :set_transfer, only: [ :destroy ]
 
+  # Quick-action forms (money sources): the origin is fixed by the card that
+  # opened the modal, so the compact form renders no origin selector and the
+  # withdraw variant fixes the cash destination as well.
+  QUICK_MODES = %w[withdraw transfer pocket].freeze
+
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   # GET /transfers
@@ -30,6 +35,24 @@ class TransfersController < ApplicationController
     set_pocket_goals
   end
 
+  # GET /transfers/quick_new
+  #
+  # Compact quick-action form for the money source cards: the origin is fixed
+  # by the card that opened the modal (no selector is rendered for it) and the
+  # withdraw variant fixes the cash destination too. Posting goes to the
+  # regular #create, so every model validation, the balance sync and the goal
+  # allocation flow are the same the full form uses.
+  def quick_new
+    @transfer = current_user.transfers.build(
+      from_source_id: params[:from_source_id],
+      date: Date.current
+    )
+    set_quick_form_context
+    return redirect_quick_unavailable unless @quick_ready
+
+    render :quick_new, layout: !quick_ajax?
+  end
+
   # POST /transfers
   def create
     @transfer = current_user.transfers.build(transfer_params)
@@ -37,6 +60,13 @@ class TransfersController < ApplicationController
       allocate_transfer_to_goal(@transfer)
       redirect_to(safe_return_to.presence || transfers_path,
                   notice: t("transfers.flashes.created"))
+    elsif params[:quick].present?
+      set_quick_form_context
+      return redirect_quick_unavailable unless @quick_ready
+
+      # The modal fetch swaps the bare fragment back in; with JS unavailable
+      # the browser gets the standalone page (same layout as every other form).
+      render :quick_new, layout: !quick_ajax?, status: :unprocessable_entity
     else
       set_direction_sources
       set_pocket_goals
@@ -133,6 +163,86 @@ class TransfersController < ApplicationController
     @pocket_goals = current_user.money_sources.pockets.active
                                 .includes(:goals)
                                 .order(:name)
+  end
+
+  # ----- Quick actions (compact transfer forms from a fixed origin) -----
+
+  # Fills everything the compact quick form needs. Shared with #create so a
+  # validation failure re-renders the same form plus its errors.
+  def set_quick_form_context
+    @mode = params[:mode].to_s if params[:mode].in?(QUICK_MODES)
+    @source = current_user.money_sources.active
+                          .find_by(id: params[:from_source_id].presence || @transfer&.from_source_id)
+    @cash_destination = quick_cash_destination
+    @quick_return_to = quick_return_to_value
+    @quick_ready = quick_form_ready?
+    return unless @quick_ready
+
+    # Withdraw knows both ends up front: pin the cash destination onto the
+    # form object so the hidden field carries it.
+    @transfer.to_source_id = @cash_destination.id if @mode == "withdraw" && @transfer.to_source_id.blank?
+    @to_sources = quick_to_sources
+    set_pocket_goals if @mode == "pocket"
+  end
+
+  # Which quick modes a given origin may perform. Borrowed straight from the
+  # model's capabilities: only payment sources can send money; cash cannot
+  # retire from itself (it deposits instead); a pocket can never receive
+  # directly from a debt (pocket_flow_rules); withdrawing needs a live cash
+  # source to receive the money.
+  def quick_form_ready?
+    return false if @source.blank? || !@source.payment_source? || @mode.blank?
+
+    case @mode
+    when "withdraw" then !@source.cash? && !@source.debt? && @cash_destination.present?
+    when "pocket" then !@source.debt?
+    else true
+    end
+  end
+
+  # The cash money source quick transfers retire into. The first active one
+  # by creation order; the withdraw button is simply not offered when none
+  # exists (no account is ever created implicitly).
+  def quick_cash_destination
+    current_user.money_sources.active.by_kind("cash").order(:id).first
+  end
+
+  # Quick destinations, narrowed from the full form's direction pools:
+  #   pocket    — every pocket (the optional goal step follows on the form)
+  #   transfer  — real money locations only. Cash is excluded (the withdraw
+  #               variant covers it) and debts are excluded: paying a card or
+  #               loan is a Payment, never a plain quick transfer.
+  # The origin itself is always left out of the options.
+  def quick_to_sources
+    scope = current_user.money_sources.active
+    if @mode == "pocket"
+      scope.pockets.order(:name)
+    else
+      scope.by_kind(%w[account debit_card wallet])
+           .where.not(id: @source.id)
+           .order(:name)
+    end
+  end
+
+  # Same shape as safe_return_to: only local paths are honored.
+  def quick_return_to_value
+    raw = params[:return_to].to_s
+    raw if raw.start_with?("/") && !raw.start_with?("//")
+  end
+
+  # The modal fetch tags itself with XHR: the quick templates then render as
+  # a bare fragment (layout: false). Anything else — direct URL, JS off —
+  # gets the regular layout. `layout: !quick_ajax?` picks between both.
+  def quick_ajax?
+    request.headers["X-Requested-With"] == "XMLHttpRequest"
+  end
+
+  # Direct-entry guard: the cards only ever render valid actions, so an
+  # unsupported combination (or another user's source) lands here with a
+  # clear alert instead of a form.
+  def redirect_quick_unavailable
+    redirect_to(quick_return_to_value.presence || transfers_path,
+                alert: t("transfers.quick.unavailable", default: "Esa acción rápida no está disponible para esta fuente de dinero."))
   end
 
   # When the transfer targets a pocket and a goal was picked, reserve the

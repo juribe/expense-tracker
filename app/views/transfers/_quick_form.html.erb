@@ -1,0 +1,126 @@
+<%# Compact quick-action transfer form, lazily loaded into the money source
+    modal (turbo frame id quick_transfer). The origin @source is fixed by
+    context, so it renders no origin selector; the withdraw variant fixes the
+    cash destination too. It posts to the regular #create, keeping every
+    existing validation, the balance sync and the goal allocation flow. %>
+<%
+  destination_label = if @mode == "transfer" && @source.cash?
+    t("transfers.quick.deposit_to", default: "Cuenta a depositar")
+  else
+    t("transfers.quick.to", default: "Hacia")
+  end
+%>
+<%= form_with model: @transfer, url: transfers_path, data: { testid: "quick-transfer-form" } do |f| %>
+  <%= hidden_field_tag :quick, "1" %>
+  <%= hidden_field_tag :mode, @mode %>
+  <%= hidden_field_tag :return_to, @quick_return_to %>
+  <%= f.hidden_field :from_source_id %>
+
+  <% if @transfer.errors.any? %>
+    <div class="alert alert-danger">
+      <strong><%= t("transfers.new.error_prohibited", count: @transfer.errors.count) %></strong>
+      <ul class="mb-0 mt-2">
+        <% @transfer.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-section">
+    <div class="form-section-title"><%= @mode == "transfer" && @source.cash? ? t("transfers.quick.deposit", default: "Depositar en cuenta") : t("transfers.quick.title", default: "Transferencia") %></div>
+
+    <div class="mb-2">
+      <span class="form-label d-block"><%= t("transfers.quick.from", default: "Desde") %></span>
+      <span class="badge text-bg-light">
+        <i class="ti ti-<%= source_kind_icon(@source.kind) %> me-1" aria-hidden="true"></i><%= @source.display_name %>
+      </span>
+    </div>
+
+    <% if @mode == "withdraw" %>
+      <div class="mb-2">
+        <span class="form-label d-block"><%= t("transfers.quick.to", default: "Hacia") %></span>
+        <span class="badge text-bg-light"><i class="ti ti-cash me-1" aria-hidden="true"></i><%= @cash_destination.name %></span>
+      </div>
+      <%= f.hidden_field :to_source_id %>
+    <% else %>
+      <div class="mb-2">
+        <%= f.label :to_source_id, destination_label, class: "form-label" %>
+        <%= f.collection_select :to_source_id, @to_sources, :id, :display_name,
+            { include_blank: t("transfers.new.select", default: "Selecciona...") }, class: "form-select" %>
+      </div>
+    <% end %>
+
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <%= f.label :amount, t("common.amount"), class: "form-label" %>
+        <div class="input-group">
+          <span class="input-group-text">$</span>
+          <%= f.text_field :amount,
+              value: money_field_value(@transfer.amount),
+              class: "form-control",
+              placeholder: t("transfers.new.amount_placeholder"),
+              inputmode: "decimal",
+              autocomplete: "off",
+              data: { money_input: true } %>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <%= f.label :date, class: "form-label" %>
+        <%= f.date_field :date, class: "form-control" %>
+      </div>
+    </div>
+
+    <% if @mode == "pocket" %>
+      <div class="mb-2 mt-2" id="quick-assign-goal-field">
+        <%= f.label :assign_goal_id, t("transfers.new.assign_to_goal", default: "Asignar a meta (opcional)"), class: "form-label" %>
+        <%= f.select :assign_goal_id,
+            pocket_goal_groups(@pocket_goals),
+            { include_blank: t("transfers.new.assign_blank", default: "Solo dejar el dinero en el bolsillo") },
+            class: "form-select", id: "quick_transfer_assign_goal_id" %>
+        <div class="form-text"><%= t("transfers.new.assign_goal_hint", default: "Si eliges una meta, el dinero transferido queda reservado para ella dentro del bolsillo. No crea un gasto.") %></div>
+      </div>
+    <% end %>
+
+    <div class="mt-2">
+      <%= f.label :note, t("transfers.new.note", default: "Nota"), class: "form-label" %>
+      <%= f.text_area :note, class: "form-control", rows: 2, placeholder: t("transfers.new.note_placeholder") %>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit t("transfers.new.submit", default: "Crear Transferencia"), class: "btn btn-primary" %>
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel", default: "Cancelar") %></button>
+  </div>
+<% end %>
+
+<% if @mode == "pocket" %>
+<script>
+(function() {
+  var pocketSelect = document.getElementById('transfer_to_source_id');
+  var goalField = document.getElementById('quick-assign-goal-field');
+  var goalSelect = document.getElementById('quick_transfer_assign_goal_id');
+  if (!pocketSelect || !goalField || !goalSelect) return;
+
+  function sync() {
+    var pocketId = pocketSelect.value;
+    var hasVisibleGoal = false;
+    Array.prototype.forEach.call(goalSelect.options, function(option) {
+      if (!option.value) return; // the blank "pocket only" choice always stays
+      var visible = option.getAttribute('data-pocket-id') === pocketId;
+      option.hidden = !visible;
+      if (visible) hasVisibleGoal = true;
+    });
+    // Drop a stale selection when its goal is no longer visible.
+    if (!hasVisibleGoal || goalSelect.selectedOptions[0]?.hidden) {
+      goalSelect.value = "";
+    }
+    goalField.hidden = !hasVisibleGoal;
+  }
+
+  pocketSelect.addEventListener('change', sync);
+  sync();
+})();
+</script>
+
+<% end %>

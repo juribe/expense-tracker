@@ -111,6 +111,10 @@ class MoneySource < ApplicationRecord
     kind == "debit_card"
   end
 
+  def cash?
+    kind == "cash"
+  end
+
   def pocket?
     kind == "pocket"
   end

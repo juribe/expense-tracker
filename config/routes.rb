@@ -92,7 +92,11 @@ Rails.application.routes.draw do
       end
     end
   end
-  resources :transfers, only: [ :index, :new, :create, :destroy ]
+  resources :transfers, only: [ :index, :new, :create, :destroy ] do
+    collection do
+      get :quick_new
+    end
+  end
   resources :recurring_templates do
     member do
       post :process_transaction

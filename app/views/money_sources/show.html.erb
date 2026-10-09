@@ -1,5 +1,8 @@
 <% source_actions = capture do %>
-  <div class="d-flex gap-2 flex-wrap">
+    <div class="d-flex gap-2 flex-wrap">
+      <% if @money_source.payment_source? %>
+        <%= render "money_sources/quick_transfer_actions", source: @money_source, with_text: true %>
+      <% end %>
       <% if @money_source.pocket? %>
         <%= link_to new_transfer_path(to_source_id: @money_source.id), class: "btn btn-primary" do %>
           <i class="ti ti-pig-money me-1"></i><%= t("goals.assign_money", default: "Asignar dinero") %>
@@ -110,3 +113,5 @@
       <% end %>
     </div>
   </div>
+
+<%= render "money_sources/quick_transfer_modal" %>
