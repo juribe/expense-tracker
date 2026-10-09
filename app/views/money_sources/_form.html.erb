@@ -263,7 +263,9 @@
             </div>
 
             <hr>
-            <% if @money_source.kind != "pocket" %>
+            <%# Recognition only applies to payment sources (see MoneySourceRecognition):
+                loans and pockets never hold recognition. %>
+            <% if @money_source.payment_source? %>
               <div class="mb-3">
                 <h6 class="mb-1"><%= t("money_sources.form.recognition_title") %></h6>
                 <p class="text-muted small mb-2"><%= t("money_sources.form.recognition_hint") %></p>

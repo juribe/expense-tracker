@@ -118,5 +118,19 @@ module MoneySources
     test "returns nil for non-existent value" do
       assert_nil match(tag: "non_existent")
     end
+
+    test "a loan is never a candidate even with configured keywords" do
+      loan = @user.money_sources.create!(
+        name: "Credito Vehiculo", kind: "loan", sub_kind: "personal",
+        bank: "Bancolombia", starting_balance: 0
+      )
+      # Legacy configuration (pre-validation/migration data).
+      recognition = loan.ensure_recognition
+      recognition.save!(validate: false)
+      recognition.recognition_identifiers.create!(kind: "keyword", value: "credito vehiculo", origin: "user")
+
+      assert_nil match(tag: "credito vehiculo")
+      assert_nil match(bank: "bancolombia")
+    end
   end
 end

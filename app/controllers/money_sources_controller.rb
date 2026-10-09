@@ -58,6 +58,7 @@ class MoneySourcesController < ApplicationController
   # GET /money_sources/recognition
   def recognition
     @money_sources = current_user.money_sources
+                                 .payment_sources
                                  .includes(:recognition_identifiers, recognition: :recognition_identifiers)
                                  .order(:kind, :name)
 
@@ -86,7 +87,10 @@ class MoneySourcesController < ApplicationController
   # button arrive in `dismissed` and are deleted. Untouched suggestions are
   # preserved for a later review.
   def update_recognition
-    source = current_user.money_sources.find(params[:money_source_id])
+    # Only payment sources may hold recognition (the model validates it too);
+    # scoping the lookup makes non-payment sources 404 instead of failing on
+    # the validation after ensure_recognition's save!.
+    source = current_user.money_sources.payment_sources.find(params[:money_source_id])
     senders, domains = classify_senders(Array(params[:senders]))
     subjects, headers = classify_subjects(Array(params[:subjects]))
     values = {
@@ -119,7 +123,7 @@ class MoneySourcesController < ApplicationController
 
   # DELETE /money_sources/recognition/:money_source_id
   def destroy_recognition
-    source = current_user.money_sources.find(params[:money_source_id])
+    source = current_user.money_sources.payment_sources.find(params[:money_source_id])
     source.recognition&.destroy
     redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.deleted")
   end

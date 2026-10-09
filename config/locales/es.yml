@@ -89,6 +89,7 @@ es:
         must_match_expense: "debe coincidir con el valor del gasto"
         distribution_mismatch: "la distribución no suma el valor del pago"
         not_debt: "no es una deuda (tarjeta de crédito o crédito)"
+        not_a_payment_source: "no es una fuente de pago (cuenta, tarjeta o efectivo), por lo que no puede tener reconocimiento"
         not_a_pocket: "no es un bolsillo"
         pocket_flow: "no permite esa combinación de bolsillos: no se puede pagar una deuda con dinero de un bolsillo"
         pocket_mismatch: "no corresponde al bolsillo de la meta"

@@ -46,7 +46,7 @@ module MoneySources
     end
 
     def candidate_sources_scope
-      @user.money_sources.active.includes(recognition: :recognition_identifiers)
+      @user.money_sources.active.payment_sources.includes(recognition: :recognition_identifiers)
     end
 
     def lookup_values

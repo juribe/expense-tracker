@@ -256,7 +256,10 @@ class MoneySource < ApplicationRecord
   end
 
   # Lazily builds the recognition record (persisted on save) without creating
-  # it just for a look-up.
+  # it just for a look-up. Only payment sources may hold recognition (the
+  # MoneySourceRecognition validation enforces it): loans have no available
+  # money, a revolving line's usage must move to a savings account first, and
+  # pockets are detached from any real account.
   def ensure_recognition
     recognition || build_recognition
   end

@@ -9,9 +9,10 @@
   each suggestion; nothing is confirmed silently.
 %>
 <%
+  # Only payment sources are listed here (see MoneySourcesController#recognition);
+  # loans and pockets can never hold recognition.
   kind_badges = {
     "credit_card" => { label: t("kinds.credit_card"), class: "recognition-badge-type" },
-    "loan" => { label: t("kinds.loan"), class: "recognition-badge-loan" },
     "account" => { label: t("kinds.account"), class: "recognition-badge-account" },
     "debit_card" => { label: t("kinds.debit_card"), class: "recognition-badge-account" },
     "cash" => { label: t("kinds.cash"), class: "recognition-badge-account" },

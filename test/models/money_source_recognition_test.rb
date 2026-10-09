@@ -140,6 +140,58 @@ class MoneySourceRecognitionTest < ActiveSupport::TestCase
     assert_not recognition.valid?
   end
 
+  test "recognition is invalid for a non-payment source (loan)" do
+    source = create_source(kind: "loan", sub_kind: "personal")
+    recognition = source.ensure_recognition
+
+    assert_not recognition.valid?
+    assert recognition.errors[:money_source].present?
+  end
+
+  test "recognition is invalid for a revolving loan (its money goes to an account)" do
+    source = create_source(kind: "loan", sub_kind: "revolving")
+    recognition = source.ensure_recognition
+
+    assert_not recognition.valid?
+  end
+
+  test "recognition is invalid for a pocket" do
+    source = create_source(kind: "pocket")
+    recognition = source.ensure_recognition
+
+    assert_not recognition.valid?
+  end
+
+  test "recognition is valid for every payment kind" do
+    %w[account debit_card credit_card cash wallet].each do |kind|
+      source = create_source(kind: kind)
+
+      assert source.ensure_recognition.valid?, "kind #{kind} should accept recognition"
+    end
+  end
+
+  test "destroy_for_non_payment_sources! removes recognition of loans and pockets" do
+    loan = create_source(kind: "loan", sub_kind: "personal")
+    # Legacy configuration (pre-validation data): insert it bypassing the
+    # validation so the cleanup method has something to remove.
+    loan_recognition = loan.ensure_recognition
+    loan_recognition.save!(validate: false)
+    loan_recognition.recognition_identifiers.create!(kind: "keyword", value: "credito", origin: "user")
+    pocket = create_source(kind: "pocket")
+    pocket_recognition = pocket.ensure_recognition
+    pocket_recognition.save!(validate: false)
+    pocket_recognition.recognition_identifiers.create!(kind: "keyword", value: "bolsillo", origin: "user")
+    account = create_source(kind: "account")
+    account.ensure_recognition.replace_identifiers(keyword: ["ahorros"])
+
+    MoneySourceRecognition.destroy_for_non_payment_sources!
+
+    assert_not MoneySourceRecognition.exists?(id: loan_recognition.id)
+    assert_not MoneySourceRecognition.exists?(id: pocket_recognition.id)
+    assert account.reload.recognition_configured?
+    assert_empty loan.reload.recognition_identifiers
+  end
+
   test "identifier value is unique per kind within a recognition" do
     source = create_source
     recognition = source.ensure_recognition.tap(&:save!)

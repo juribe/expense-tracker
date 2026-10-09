@@ -90,9 +90,12 @@ module SourceRecognition
         return [] if inst.blank?
 
         # "Same institution" compares normalized bank strings: users type
-        # "Davibank" / "davibank" freely, so match case-insensitively.
+        # "Davibank" / "davibank" freely, so match case-insensitively. Only
+        # payment sources may hold recognition, so loans/pockets never
+        # contribute or receive suggestions.
         MoneySource
           .where(user_id: source.user_id)
+          .payment_sources
           .where.not(id: source.id)
           .where("LOWER(TRIM(COALESCE(bank, ''))) = :inst", inst: inst)
           .includes(:recognition_identifiers)

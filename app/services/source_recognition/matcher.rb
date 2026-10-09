@@ -84,6 +84,7 @@ module SourceRecognition
 
     def sources
       @sources ||= @user.money_sources
+                        .payment_sources
                         .includes(recognition: :recognition_identifiers)
                         .select(&:recognition_configured?)
     end

@@ -188,6 +188,25 @@ module SourceRecognition
       assert_equal 1, keywords.count { |s| s[:value] == "davibank" }
     end
 
+    test "non-payment siblings (loans, pockets) do not contribute suggestions" do
+      loan_sibling = create_source(name: "Davibank Crédito", kind: "loan", sub_kind: "personal", bank: "davibank")
+      loan_recognition = loan_sibling.ensure_recognition
+      loan_recognition.save!(validate: false)
+      loan_recognition.recognition_identifiers.create!(kind: "sender", value: "loan@davibank.com", origin: "user")
+      loan_recognition.recognition_identifiers.create!(kind: "subject", value: "Extracto crédito", origin: "user")
+      pocket_sibling = create_source(name: "Davibank Bolsillo", kind: "pocket", bank: "davibank")
+      pocket_recognition = pocket_sibling.ensure_recognition
+      pocket_recognition.save!(validate: false)
+      pocket_recognition.recognition_identifiers.create!(kind: "sender", value: "pocket@davibank.com", origin: "user")
+
+      source = create_source(name: "Davibank Nómina", bank: "davibank")
+      result = call(source)
+
+      assert_not_includes values(result)[:senders], "loan@davibank.com"
+      assert_not_includes values(result)[:senders], "pocket@davibank.com"
+      assert_empty result[:subjects]
+    end
+
     test "excludes values already configured on the current source" do
       sibling = create_source(name: "Davibank Clásica", bank: "davibank")
       sibling.ensure_recognition.replace_identifiers(sender: ["no-reply@davibank.com"])

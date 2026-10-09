@@ -90,21 +90,26 @@
         </div>
       </div>
 
-      <div class="card mt-4">
-        <div class="card-body">
-          <h5 class="card-title"><%= t("money_sources.show.recognition") %></h5>
-          <% recognition_keywords = @money_source.recognition_identifiers.select(&:keyword?).map(&:value) %>
-          <% if recognition_keywords.any? %>
-            <% recognition_keywords.each do |keyword| %>
-              <span class="badge bg-light text-dark me-1 mb-1">
-                <%= keyword %>
-              </span>
+      <%# Recognition only applies to payment sources: loans have no
+          available money and a revolving line's usage lives on the account
+          its money moves to. %>
+      <% if @money_source.payment_source? %>
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title"><%= t("money_sources.show.recognition") %></h5>
+            <% recognition_keywords = @money_source.recognition_identifiers.select(&:keyword?).map(&:value) %>
+            <% if recognition_keywords.any? %>
+              <% recognition_keywords.each do |keyword| %>
+                <span class="badge bg-light text-dark me-1 mb-1">
+                  <%= keyword %>
+                </span>
+              <% end %>
+            <% else %>
+              <p class="text-secondary mb-0"><%= t("money_sources.recognition.status_unconfigured") %></p>
             <% end %>
-          <% else %>
-            <p class="text-secondary mb-0"><%= t("money_sources.recognition.status_unconfigured") %></p>
-          <% end %>
+          </div>
         </div>
-      </div>
+      <% end %>
 
       <% if @money_source.loan? || @money_source.credit_card? %>
         <%= render "extra_payments", source: @money_source,

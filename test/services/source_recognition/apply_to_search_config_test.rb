@@ -76,5 +76,19 @@ module SourceRecognition
       assert_includes config[:domains], "davibank.com"
       assert_includes config[:domains], "mail.davivienda.com"
     end
+    test "confirmed values of non-payment sources never leak into the search config" do
+      loan = @user.money_sources.create!(name: "Davibank Libre", kind: "loan", sub_kind: "personal",
+                                         starting_balance: 0, bank: "Davibank")
+      # Legacy configuration (pre-validation/migration data).
+      recognition = loan.ensure_recognition
+      recognition.save!(validate: false)
+      recognition.recognition_identifiers.create!(kind: "sender", value: "loan@davibank.com", origin: "user")
+      @source.ensure_recognition.replace_identifiers(sender: [ "notificaciones@davibank.com" ])
+
+      ApplyToSearchConfig.call(user: @user)
+
+      assert_includes config[:senders], "notificaciones@davibank.com"
+      assert_not_includes config[:senders], "loan@davibank.com"
+    end
   end
 end

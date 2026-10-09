@@ -5,12 +5,29 @@
 # (absent == "Sin configurar"). The actual matching signals live in
 # MoneySourceRecognitionIdentifier (typed: keyword / sender / domain /
 # subject / header; status: confirmed / suggested).
+#
+# Only PAYMENT sources may have recognition: recognition drives source
+# attribution from bank notifications, and that only makes sense for sources
+# where money can be spent or withdrawn (cash, accounts, cards, wallets).
+# Loans have no available money, and a revolving line's usage must be moved
+# to a savings account (whose account gets the recognition instead); pockets
+# are detached from any real account.
 class MoneySourceRecognition < ApplicationRecord
   belongs_to :money_source
   has_many :recognition_identifiers, class_name: "MoneySourceRecognitionIdentifier",
                                      dependent: :destroy, inverse_of: :money_source_recognition
 
   validates :money_source, presence: true
+  validate :source_must_be_payment_source
+
+  # Data cleanup for sources that may never hold recognition (loans,
+  # pockets). Used by the migration that removes legacy configurations and
+  # available as a maintenance entry point.
+  def self.destroy_for_non_payment_sources!
+    joins(:money_source)
+      .where.not(money_sources: { kind: MoneySource::PAYMENT_KINDS })
+      .find_each(&:destroy!)
+  end
 
   # Full replace of the CONFIRMED identifiers for the given kinds. Values are
   # normalized before saving. Persisted suggested identifiers are preserved:
@@ -78,5 +95,13 @@ class MoneySourceRecognition < ApplicationRecord
       "senders" => %w[sender domain],
       "subjects" => %w[subject header]
     }.fetch(section, [])
+  end
+
+  private
+
+  def source_must_be_payment_source
+    return if money_source.nil? || money_source.payment_source?
+
+    errors.add(:money_source, :not_a_payment_source)
   end
 end

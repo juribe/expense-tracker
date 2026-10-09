@@ -246,6 +246,27 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".recognition-drawer-overlay", count: 0
   end
 
+  test "GET /money_sources/recognition lists only payment sources (loans and pockets excluded)" do
+    create_source(name: "Mi Cuenta", kind: "account")
+    create_source(name: "Crédito Libre", kind: "loan", sub_kind: "personal")
+    create_source(name: "Bolsillo Viaje", kind: "pocket")
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "[data-testid='recognition-row']", count: 1
+    assert_select "[data-testid='recognition-row'] .recognition-row-name", text: "Mi Cuenta"
+  end
+
+  test "PATCH /money_sources/recognition/:id rejects a non-payment source" do
+    loan = create_source(name: "Crédito Libre", kind: "loan", sub_kind: "personal")
+
+    patch money_source_recognition_path(loan.id), params: { keywords: ["credito"], senders: [], subjects: [] }
+
+    assert_response :not_found
+    loan.reload
+    assert_nil loan.recognition
+    assert_not loan.recognition_configured?
+  end
+
   test "PATCH /money_sources/recognition/:id adds and removes identifiers per kind" do
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
     source.ensure_recognition.replace_identifiers(keyword: ["davi"], sender: ["no-reply@davibank.com"])
@@ -381,11 +402,39 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "loan show hides the recognition card" do
+    loan = create_source(name: "Libre Inversión", kind: "loan", sub_kind: "personal")
+    get money_source_path(loan)
+    assert_response :success
+    assert_select "h5.card-title", text: I18n.t("money_sources.show.recognition"), count: 0
+  end
+
+  test "payment source show keeps the recognition card" do
+    source = create_source
+    get money_source_path(source)
+    assert_response :success
+    assert_select "h5.card-title", text: I18n.t("money_sources.show.recognition"), count: 1
+  end
+
   test "GET /money_sources/:id/edit renders edit form" do
     source = create_source
     get edit_money_source_path(source)
     assert_response :success
     assert_select "form"
+  end
+
+  test "loan edit form hides the recognition section" do
+    loan = create_source(name: "Libre Inversión", kind: "loan", sub_kind: "personal")
+    get edit_money_source_path(loan)
+    assert_response :success
+    assert_select "h6", text: I18n.t("money_sources.form.recognition_title"), count: 0
+  end
+
+  test "payment source edit form keeps the recognition section" do
+    source = create_source
+    get edit_money_source_path(source)
+    assert_response :success
+    assert_select "h6", text: I18n.t("money_sources.form.recognition_title"), count: 1
   end
 
   test "PATCH /money_sources/:id updates the money source" do
@@ -630,14 +679,17 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='quick-action-pocket']", count: 2
   end
 
-  test "GET /money_sources/recognition renders for every source kind including pockets" do
+  test "GET /money_sources/recognition renders the payment source kinds (pockets excluded)" do
     create_source(name: "Cuenta", kind: "account")
+    create_source(name: "Efectivo", kind: "cash")
     create_source(name: "Bolsillo", kind: "pocket")
 
     get money_sources_recognition_path
     assert_response :success
     assert_select "[data-testid='recognition-row']", count: 2
-    assert_select "[data-testid='recognition-row']", text: /Bolsillo/, count: 1
+    assert_select "[data-testid='recognition-row']", text: /Cuenta/, count: 1
+    assert_select "[data-testid='recognition-row']", text: /Efectivo/, count: 1
+    assert_select "[data-testid='recognition-row']", text: /Bolsillo/, count: 0
   end
 
   test "the money source show page renders the quick transfer actions and modal" do

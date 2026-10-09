@@ -172,6 +172,22 @@ module SourceRecognition
       assert_empty suggested(@clasica, "sender")
     end
 
+    test "loans and pockets never receive suggestions" do
+      loan = @user.money_sources.create!(name: "Davibank Libre Inversion", kind: "loan",
+                                         sub_kind: "personal", starting_balance: 0, bank: "Davibank")
+      pocket = @user.money_sources.create!(name: "Davibank Bolsillo", kind: "pocket",
+                                           starting_balance: 0, bank: "Davibank")
+
+      result = @service.process(davibank_email)
+
+      assert result.passed?
+      assert_empty suggested(loan, "sender")
+      assert_empty suggested(loan, "keyword")
+      assert_empty suggested(loan, "domain")
+      assert_empty suggested(pocket, "sender")
+      assert_empty suggested(pocket, "keyword")
+    end
+
     test "matcher never matches on suggested values only" do
       @service.process(davibank_email)
 

@@ -72,7 +72,8 @@ module SourceRecognition
 
       return [] unless institution
 
-      user.money_sources.includes(recognition: :recognition_identifiers)
+      user.money_sources.payment_sources
+          .includes(recognition: :recognition_identifiers)
           .select { |source| institution_matches_source?(institution, source) }
     end
 

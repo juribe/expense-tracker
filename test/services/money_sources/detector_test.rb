@@ -38,10 +38,11 @@ class MoneySourcesDetectorTest < ActiveSupport::TestCase
     assert MoneySources::Detector.payment_mention?("transferencia a Juan")
   end
 
-  # Setup creates one wallet and one cash book after this comment.
+  # Loans are never payment sources, so they can never hold recognition
+  # (MoneySourceRecognition validation). The pool exclusion below works off
+  # the loan's NAME, which is all a legacy loan ever had to match by.
   setup do
     @loan = @user.money_sources.create!(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
-    @loan.ensure_recognition.replace_identifiers(keyword: [ "crédito vehículo" ])
   end
 
   # Loans are never expense payment sources: the default candidate pool is

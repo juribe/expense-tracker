@@ -32,6 +32,19 @@ module SourceRecognition
       { id: "msg-1", from: from, subject: subject, body_text: body, headers: headers }
     end
 
+    # Simulates a LEGACY recognition configuration on a non-payment source
+    # (data the new validation and the cleanup migration now forbid).
+    def create_legacy_config(name:, kind:, sub_kind: nil, keywords: [], senders: [])
+      source = @user.money_sources.create!(
+        { name: name, kind: kind, sub_kind: sub_kind, starting_balance: 0, bank: "davibank" }.compact
+      )
+      recognition = source.ensure_recognition
+      recognition.save!(validate: false)
+      keywords.each { |v| recognition.recognition_identifiers.create!(kind: "keyword", value: v, origin: "user") }
+      senders.each { |v| recognition.recognition_identifiers.create!(kind: "sender", value: v, origin: "user") }
+      source
+    end
+
     def match(**opts)
       SourceRecognition::Matcher.call(user: @user, message: email_message(**opts))
     end
@@ -202,6 +215,23 @@ module SourceRecognition
 
     test "handles legacy message shape without from or headers" do
       assert_nil SourceRecognition::Matcher.call(user: @user, message: { id: "m", subject: "s", body_text: "nada" })
+    end
+
+    test "a loan never participates in matching" do
+      create_legacy_config(name: "Davibank Libre", kind: "loan", sub_kind: "personal",
+                           keywords: [ "davibank", "clasica" ], senders: [ "notificaciones@davibank.com" ])
+
+      # Legacy loan recognition must be ignored: the loan's own emails belong
+      # to the account where its money lives, and a loan can never pay.
+      assert_equal @clasica, match
+    end
+
+    test "a loan is ignored even when it is the only configured source" do
+      @clasica.recognition.destroy
+      create_legacy_config(name: "Davibank Libre", kind: "loan", sub_kind: "personal",
+                           keywords: [ "davibank", "clasica" ], senders: [ "notificaciones@davibank.com" ])
+
+      assert_nil match
     end
 
     test "suggested (discovered) identifiers never drive matching" do

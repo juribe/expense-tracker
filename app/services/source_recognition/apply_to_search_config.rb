@@ -41,7 +41,7 @@ module SourceRecognition
 
       confirmed = MoneySourceRecognitionIdentifier
                   .joins(money_source_recognition: :money_source)
-                  .where(money_sources: { user_id: user.id })
+                  .where(money_sources: { user_id: user.id, kind: MoneySource::PAYMENT_KINDS })
                   .where(status: "confirmed")
                   .pluck(:kind, :value)
 
