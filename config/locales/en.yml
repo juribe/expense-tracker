@@ -231,6 +231,7 @@ en:
   activerecord:
     errors:
       messages:
+        required: "can't be blank"
         must_match_expense: "must match the expense amount"
         distribution_mismatch: "the distribution does not add up to the payment amount"
         not_debt: "is not a debt (credit card or loan)"
@@ -247,6 +248,11 @@ en:
         pocket_locked_by_allocations: "cannot change while the goal has assigned money; release the allocations first"
         other_user: "does not belong to this user"
     attributes:
+      transfer:
+        from_source: "From source"
+        to_source: "To source"
+        amount: "Amount"
+        date: "Date"
       goal:
         name: "Name"
         target_amount: "Target amount"

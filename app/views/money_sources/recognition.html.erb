@@ -15,7 +15,8 @@
     "account" => { label: t("kinds.account"), class: "recognition-badge-account" },
     "debit_card" => { label: t("kinds.debit_card"), class: "recognition-badge-account" },
     "cash" => { label: t("kinds.cash"), class: "recognition-badge-account" },
-    "wallet" => { label: t("kinds.wallet"), class: "recognition-badge-account" }
+    "wallet" => { label: t("kinds.wallet"), class: "recognition-badge-account" },
+    "pocket" => { label: t("kinds.pocket"), class: "recognition-badge-account" }
   }
 
   keywords = @editing&.recognition_identifiers&.select { |id| id.keyword? && id.confirmed? }&.sort_by(&:position) || []

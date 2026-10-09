@@ -1,6 +1,11 @@
 <div class="col-12 col-md-6 col-lg-4">
   <div class="card <%= source.debt? ? 'card-debt' : '' %> h-100 card-hover">
     <div class="card-body">
+      <%
+        # Touch parent unconditionally so Bullet sees the association accessed
+        # even when no debit card is rendered (nil parent_id loads nothing).
+        linked_parent = source.parent
+      %>
       <div class="d-flex justify-content-between align-items-start mb-2">
         <div>
           <h5 class="card-title mb-0">
@@ -16,7 +21,7 @@
             <span class="badge bg-light text-dark mt-1"><%= card_id_parts.join(" · ") %></span>
           <% end %>
         </div>
-        <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= source.name %>">
+        <div class="d-flex flex-shrink-0 gap-2 d-print-none">
           <% if source.pocket? %>
             <%= link_to new_transfer_path(to_source_id: source.id), class: "btn btn-outline-primary", title: t("goals.assign_money", default: "Asignar dinero"), aria: { label: t("goals.assign_money", default: "Asignar dinero") } do %>
               <i class="ti ti-pig-money"></i>
@@ -29,13 +34,27 @@
               <i class="ti ti-coin"></i>
             <% end %>
           <% end %>
-          <%= render "money_sources/quick_transfer_actions", source: source %>
-          <%= link_to edit_money_source_path(source), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("common.edit") } do %>
-            <i class="ti ti-pencil"></i>
-          <% end %>
-          <%= button_to money_source_path(source), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
-            <i class="ti ti-trash"></i>
-          <% end %>
+          <% # Spike-style card menu: quick transfers, edit and delete collapse
+             # behind a "..." toggle so the title keeps its full width.
+          %>
+          <div class="dropdown">
+            <button type="button" class="card-more-btn" data-bs-toggle="dropdown" aria-expanded="false"
+                    data-testid="card-actions-toggle" aria-label="<%= t("common.actions") %>">
+              <i class="ti ti-dots" aria-hidden="true"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+              <%= render "money_sources/quick_transfer_actions", source: source, menu: true, with_text: true %>
+              <% if quick_transfer_actions(source).any? %>
+                <div class="dropdown-divider"></div>
+              <% end %>
+              <%= link_to edit_money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2" do %>
+                <i class="ti ti-pencil me-2" aria-hidden="true"></i><span><%= t("common.edit") %></span>
+              <% end %>
+              <%= button_to money_source_path(source), method: :delete, class: "dropdown-item d-flex align-items-center gap-2", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { style: "display:block" } do %>
+                <i class="ti ti-trash me-2" aria-hidden="true"></i><span><%= t("common.delete") %></span>
+              <% end %>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -96,8 +115,8 @@
           <div class="fs-5 fw-bold text-success">
             <%= source.balance_label %>
           </div>
-          <% if source.debit_card? && source.parent %>
-            <small class="text-muted"><%= t("money_sources.index.linked_to", name: source.parent.name) %></small>
+          <% if source.debit_card? && linked_parent %>
+            <small class="text-muted"><%= t("money_sources.index.linked_to", name: linked_parent.name) %></small>
           <% end %>
         <% end %>
       </div>

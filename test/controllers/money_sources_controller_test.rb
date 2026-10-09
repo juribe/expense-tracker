@@ -630,6 +630,16 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='quick-action-pocket']", count: 2
   end
 
+  test "GET /money_sources/recognition renders for every source kind including pockets" do
+    create_source(name: "Cuenta", kind: "account")
+    create_source(name: "Bolsillo", kind: "pocket")
+
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "[data-testid='recognition-row']", count: 2
+    assert_select "[data-testid='recognition-row']", text: /Bolsillo/, count: 1
+  end
+
   test "the money source show page renders the quick transfer actions and modal" do
     account = create_source(name: "Checking", kind: "account", starting_balance: 100)
     create_source(name: "Efectivo", kind: "cash", starting_balance: 100)

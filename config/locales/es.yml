@@ -81,6 +81,7 @@ es:
   activerecord:
     errors:
       messages:
+        required: "no puede estar vacío"
         record_invalid: "La validación falló: %{errors}"
         restrict_dependent_destroy:
           has_one: "No se puede eliminar el registro porque existe un %{record} dependiente"
@@ -99,6 +100,11 @@ es:
         other_user: "no pertenece a este usuario"
         after_start: "debe ser posterior a la fecha inicial"
     attributes:
+      transfer:
+        from_source: "Desde"
+        to_source: "Hacia"
+        amount: "Valor"
+        date: "Fecha"
       goal:
         name: "Nombre"
         target_amount: "Monto objetivo"

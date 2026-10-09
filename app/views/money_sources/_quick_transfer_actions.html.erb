@@ -1,18 +1,20 @@
-<%# Contextual quick transfer triggers for a money source card. Each opens
-    the shared quick-transfer modal (lazy turbo frame) whose compact form
-    fixes this source as the origin. Locals: source (MoneySource),
-    with_text (boolean, default false — icon-only variant for card groups). %>
-<% with_text = local_assigns.fetch(:with_text, false) %>
+<%# Contextual quick transfer triggers for a money source. Each opens the
+    shared quick-transfer modal whose compact form fixes this source as the
+    origin. Locals: source (MoneySource), menu (boolean, default false).
+      menu: false — icon-only outline buttons for card action groups.
+      menu: true  — dropdown-menu items (card's "..." menu), closing the
+                    menu when the item opens the modal. %>
+<% menu = local_assigns.fetch(:menu, false) %>
 <% quick_transfer_actions(source).each do |action| %>
   <button type="button"
-          class="btn btn-outline-primary"
+          class="<%= menu ? "dropdown-item" : "btn btn-outline-primary" %><%= menu ? " d-flex align-items-center gap-2" : "" %>"
           data-bs-toggle="modal"
           data-bs-target="#quick-transfer-modal"
-          data-src="<%= quick_new_transfers_path(from_source_id: source.id, mode: action[:mode], return_to: request.path) %>"
+          <%= "data-bs-dismiss=\u0022dropdown\u0022 ".html_safe if menu %>data-src="<%= quick_new_transfers_path(from_source_id: source.id, mode: action[:mode], return_to: request.path) %>"
           data-title="<%= action[:title] %>"
           data-testid="quick-action-<%= action[:mode] %>"
           title="<%= action[:title] %>"
           aria-label="<%= action[:title] %>">
-    <i class="ti ti-<%= action[:icon] %>" aria-hidden="true"></i><% if with_text %><span class="ms-1"><%= action[:title] %></span><% end %>
+    <i class="ti ti-<%= action[:icon] %> me-2" aria-hidden="true"></i><% if with_text or menu %><span class="ms-1"><%= action[:title] %></span><% end %>
   </button>
 <% end %>

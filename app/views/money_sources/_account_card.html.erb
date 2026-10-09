@@ -22,14 +22,29 @@
         </div>
       </div>
     </div>
-    <div class="account-actions d-print-none" role="group" aria-label="<%= source.name %>">
-      <%= render "money_sources/quick_transfer_actions", source: source %>
-      <%= link_to edit_money_source_path(source), class: "btn account-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
-        <i class="ti ti-pencil" aria-hidden="true"></i>
-      <% end %>
-      <%= button_to money_source_path(source), method: :delete, class: "btn account-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
-        <i class="ti ti-trash" aria-hidden="true"></i>
-      <% end %>
+    <div class="account-actions d-print-none">
+      <% # Spike-style card menu: one "..." toggle in the card corner; every
+         # action (quick transfers, edit, delete) lives in its dropdown, so
+         # the title keeps the full row width.
+      %>
+      <div class="dropdown">
+        <button type="button" class="card-more-btn" data-bs-toggle="dropdown" aria-expanded="false"
+                data-testid="card-actions-toggle" aria-label="<%= t("common.actions") %>">
+          <i class="ti ti-dots" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+          <%= render "money_sources/quick_transfer_actions", source: source, menu: true, with_text: true %>
+          <% if quick_transfer_actions(source).any? %>
+            <div class="dropdown-divider"></div>
+          <% end %>
+          <%= link_to edit_money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2", href: edit_money_source_path(source) do %>
+            <i class="ti ti-pencil me-2" aria-hidden="true"></i><span><%= t("common.edit") %></span>
+          <% end %>
+          <%= button_to money_source_path(source), method: :delete, class: "dropdown-item d-flex align-items-center gap-2", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { style: "display:block" } do %>
+            <i class="ti ti-trash me-2" aria-hidden="true"></i><span><%= t("common.delete") %></span>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -20,16 +20,29 @@
         </div>
       </div>
     </div>
-    <div class="cc-actions d-print-none" role="group" aria-label="<%= source.name %>">
-      <%= link_to money_source_path(source, anchor: "payments"), class: "btn cc-action-btn btn-edit", title: t("payments.index_button"), aria: { label: t("payments.index_button") } do %>
-        <i class="ti ti-coin" aria-hidden="true"></i>
-      <% end %>
-      <%= link_to edit_money_source_path(source), class: "btn cc-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
-        <i class="ti ti-pencil" aria-hidden="true"></i>
-      <% end %>
-      <%= button_to money_source_path(source), method: :delete, class: "btn cc-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
-        <i class="ti ti-trash" aria-hidden="true"></i>
-      <% end %>
+    <div class="cc-actions d-print-none">
+      <% # Same Spike-style card menu as the account cards: card actions
+         # collapse behind a "..." toggle so the title keeps its full width.
+         # Credit cards are debts: no quick transfers, only payments/edit.
+      %>
+      <div class="dropdown">
+        <button type="button" class="card-more-btn" data-bs-toggle="dropdown" aria-expanded="false"
+                data-testid="card-actions-toggle" aria-label="<%= t("common.actions") %>">
+          <i class="ti ti-dots" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+          <%= link_to money_source_path(source, anchor: "payments"), class: "dropdown-item d-flex align-items-center gap-2" do %>
+            <i class="ti ti-coin me-2" aria-hidden="true"></i><span><%= t("payments.index_button") %></span>
+          <% end %>
+          <div class="dropdown-divider"></div>
+          <%= link_to edit_money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2" do %>
+            <i class="ti ti-pencil me-2" aria-hidden="true"></i><span><%= t("common.edit") %></span>
+          <% end %>
+          <%= button_to money_source_path(source), method: :delete, class: "dropdown-item d-flex align-items-center gap-2", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { style: "display:block" } do %>
+            <i class="ti ti-trash me-2" aria-hidden="true"></i><span><%= t("common.delete") %></span>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 
