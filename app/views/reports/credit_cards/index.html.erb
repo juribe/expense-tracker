@@ -4,9 +4,9 @@
   <div class="row g-3">
     <% @credit_cards[:cards].each do |card| %>
       <div class="col-12 col-lg-6">
-        <div class="card shadow-sm h-100">
-          <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-credit-card-2-front me-2"></i><%= card[:display_name] %></h5>
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="ti ti-credit-card me-2"></i><%= card[:display_name] %></h5>
           </div>
           <div class="card-body">
             <div class="row g-2 mb-3">
@@ -62,7 +62,7 @@
     <% end %>
   </div>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="card-body">
       <p class="text-muted mb-0"><%= t("reports.credit_cards.empty") %></p>
     </div>

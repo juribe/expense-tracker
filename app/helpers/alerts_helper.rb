@@ -7,9 +7,9 @@
 # Example: alert_message(alert) # => "Restaurantes usó el 82% de su presupuesto mensual de $800.000."
 module AlertsHelper
   KIND_ICONS = {
-    "budget_threshold" => "bi-exclamation-triangle",
-    "budget_exceeded" => "bi-exclamation-circle",
-    "spending_increase" => "bi-graph-up-arrow"
+    "budget_threshold" => "ti-alert-triangle",
+    "budget_exceeded" => "ti-alert-circle",
+    "spending_increase" => "ti-trending-up"
   }.freeze
 
   KIND_CHIP_CLASS = {
@@ -19,7 +19,7 @@ module AlertsHelper
   }.freeze
 
   def alert_icon(alert)
-    KIND_ICONS.fetch(alert.kind, "bi-bell")
+    KIND_ICONS.fetch(alert.kind, "ti-bell")
   end
 
   def alert_chip_text_class(alert)

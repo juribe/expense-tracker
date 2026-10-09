@@ -1,6 +1,6 @@
 <%= render "reports/page_header", title: t("reports.insights.title"), subtitle: t("reports.insights.subtitle"), path: reports_insights_path %>
 
-<div class="card shadow-sm">
+<div class="card">
   <div class="card-header bg-white">
     <h5 class="mb-0"><%= t("reports.insights.title") %></h5>
   </div>
@@ -8,7 +8,7 @@
     <% if @insights.any? %>
       <% @insights.each do |insight| %>
         <div class="d-flex align-items-start mb-3" data-testid="insight">
-          <i class="bi bi-lightning-charge-fill text-warning me-2 mt-1"></i>
+          <i class="ti ti-bolt text-warning me-2 mt-1"></i>
           <div>
             <div><%= insight[:message] %></div>
             <small class="text-muted"><%= t("reports.insights.title") %></small>

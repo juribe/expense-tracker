@@ -11,23 +11,23 @@
 <article class="account-card" data-testid="account-card">
   <div class="account-card-head">
     <div class="account-identity">
-      <span class="account-icon accent-teal" aria-hidden="true"><i class="bi bi-<%= icon %>"></i></span>
+      <span class="account-icon accent-teal" aria-hidden="true"><i class="ti ti-<%= icon %>"></i></span>
       <div class="min-w-0">
         <h3 class="account-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
         <div class="account-meta">
           <span><%= kind_label %></span>
           <% if source.bank.present? %>
-            <span class="ms-2"><i class="bi bi-bank" aria-hidden="true"></i><%= source.bank %></span>
+            <span class="ms-2"><i class="ti ti-building-bank" aria-hidden="true"></i><%= source.bank %></span>
           <% end %>
         </div>
       </div>
     </div>
     <div class="account-actions d-print-none" role="group" aria-label="<%= source.name %>">
       <%= link_to edit_money_source_path(source), class: "btn account-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
-        <i class="bi bi-pencil" aria-hidden="true"></i>
+        <i class="ti ti-pencil" aria-hidden="true"></i>
       <% end %>
       <%= button_to money_source_path(source), method: :delete, class: "btn account-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
-        <i class="bi bi-trash" aria-hidden="true"></i>
+        <i class="ti ti-trash" aria-hidden="true"></i>
       <% end %>
     </div>
   </div>
@@ -39,7 +39,7 @@
 
   <% if is_debit_linked %>
     <div class="account-linked">
-      <i class="bi bi-link-45deg" aria-hidden="true"></i>
+      <i class="ti ti-link" aria-hidden="true"></i>
       <span><%= t("money_sources.accounts.linked_to", name: linked_parent.name) %></span>
     </div>
   <% end %>
@@ -60,11 +60,11 @@
 
   <div class="account-card-foot">
     <% if source.transactions_count.to_i.positive? %>
-      <span class="account-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions_count.to_i) %></span></span>
+      <span class="account-foot-item"><i class="ti ti-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions_count.to_i) %></span></span>
     <% end %>
     <% if source.children.any? %>
       <span class="account-foot-divider" aria-hidden="true"></span>
-      <span class="account-foot-item"><i class="bi bi-credit-card" aria-hidden="true"></i><span><%= t("money_sources.index.linked_cards_count", count: source.children.count) %></span></span>
+      <span class="account-foot-item"><i class="ti ti-credit-card" aria-hidden="true"></i><span><%= t("money_sources.index.linked_cards_count", count: source.children.count) %></span></span>
     <% end %>
     <% unless source.active? %>
       <span class="account-foot-divider" aria-hidden="true"></span>

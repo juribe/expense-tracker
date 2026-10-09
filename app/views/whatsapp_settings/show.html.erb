@@ -1,19 +1,19 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0"><i class="bi bi-whatsapp me-2"></i>WhatsApp</h1>
+<% wa_status = capture do %>
   <% if @connection %>
-    <span class="badge bg-success fs-6"><i class="bi bi-check-circle me-1"></i>Conectado</span>
+    <span class="badge bg-success fs-6"><i class="ti ti-circle-check me-1"></i>Conectado</span>
   <% else %>
     <span class="badge bg-secondary fs-6">No conectado</span>
   <% end %>
-</div>
+<% end %>
+<%= render "shared/page_header", title: "WhatsApp", subtitle: wa_status %>
 
-<div class="card shadow-sm" id="whatsapp-connect-card"
+<div class="card" id="whatsapp-connect-card"
      data-status-url="<%= status_whatsapp_settings_path %>"
      data-cancel-url="<%= cancel_whatsapp_settings_path %>"
      data-expired-url="<%= whatsapp_settings_path(expired: 1) %>"
      data-clean-url="<%= whatsapp_settings_path %>">
   <div class="card-header <%= @connection ? "bg-success" : "bg-secondary" %> text-white">
-    <i class="bi bi-whatsapp me-2"></i>Estado de la conexión
+    <i class="ti ti-brand-whatsapp me-2"></i>Estado de la conexión
   </div>
   <div class="card-body">
 
@@ -22,7 +22,7 @@
       <p class="mb-1 small text-muted fw-semibold text-uppercase">Teléfono</p>
       <p class="fs-5 mb-4"><%= @connection ? format_whatsapp_phone(@connection.whatsapp_identity.phone_number) : "" %></p>
       <%= button_to whatsapp_settings_path, method: :delete, form: { data: { turbo_confirm: "¿Desconectar WhatsApp? No se borrarán tus gastos." } }, class: "btn btn-outline-danger" do %>
-        <i class="bi bi-x-circle me-1"></i>Desconectar WhatsApp
+        <i class="ti ti-circle-x me-1"></i>Desconectar WhatsApp
       <% end %>
     </div>
 
@@ -39,7 +39,7 @@
         <p class="mb-4">
           <%= link_to "#", target: "_blank", rel: "noopener", class: "btn btn-sm btn-outline-success d-none",
                       data: { reopen_link: true } do %>
-            <i class="bi bi-whatsapp me-1"></i>Abrir WhatsApp de nuevo
+            <i class="ti ti-brand-whatsapp me-1"></i>Abrir WhatsApp de nuevo
           <% end %>
         </p>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-cancel-action>Cancelar</button>
@@ -54,10 +54,10 @@
           <%= link_to wa_connect_url(@connect_code), target: "_blank", rel: "noopener",
                       class: "btn btn-success btn-lg fw-bold", style: "letter-spacing: 1px;",
                       data: { connect_action: true } do %>
-            <i class="bi bi-whatsapp me-2"></i>CONNECT <%= @connect_code %>
+            <i class="ti ti-brand-whatsapp me-2"></i>CONNECT <%= @connect_code %>
           <% end %>
           <p class="small text-muted mt-3 mb-0 text-center">
-            <i class="bi bi-clock me-1"></i>Al abrir WhatsApp se enviará automáticamente el mensaje de conexión.
+            <i class="ti ti-clock me-1"></i>Al abrir WhatsApp se enviará automáticamente el mensaje de conexión.
           </p>
         <% else %>
           <p class="text-muted mb-0">Generando código de conexión…</p>
@@ -68,7 +68,7 @@
     <%# ── Expired attempt notice ── %>
     <% if params[:expired].present? %>
       <div class="alert alert-warning mt-4 mb-0">
-        <i class="bi bi-hourglass-split me-1"></i><strong>Intento de conexión expirado.</strong>
+        <i class="ti ti-hourglass me-1"></i><strong>Intento de conexión expirado.</strong>
         No recibimos la confirmación de WhatsApp. Intenta de nuevo.
       </div>
     <% end %>
@@ -77,6 +77,6 @@
 
 <div class="mt-4 small">
   <%= link_to alert_settings_path, class: "text-decoration-none" do %>
-    <i class="bi bi-gear me-1"></i>Configurar alertas
+    <i class="ti ti-settings me-1"></i>Configurar alertas
   <% end %>
 </div>

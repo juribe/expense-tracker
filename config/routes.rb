@@ -192,9 +192,9 @@ Rails.application.routes.draw do
   post "reconciliation/sources/:money_source_id/leave_pending",
        to: "reconciliations#leave_pending", as: :reconciliation_leave_pending
 
-  # Categories as the main entry point
-  get "dashboard", to: "dashboard#index"
-  root to: "categories#index"
+  # Dashboard is the app's home
+  root "dashboard#index"
+  get "dashboard", to: "dashboard#index", as: :dashboard
 
   # Hybrid financial setup wizard
   get "financial_setup", to: "financial_setups#show", as: :financial_setup

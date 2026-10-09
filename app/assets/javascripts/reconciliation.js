@@ -171,7 +171,7 @@
     return "<button type='button' class='list-group-item list-group-item-action d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 js-assign-result' data-expense-id='" +
       expense.id + "' data-description='" + escapeHtml(expense.description) + "'>" +
       "<span class='d-flex align-items-center gap-2'>" +
-      "<i class='bi bi-circle text-secondary small'></i>" +
+      "<i class='ti ti-circle text-secondary small'></i>" +
       "<span>" + escapeHtml(expense.description) + "</span>" +
       "</span>" +
       "<span class='text-muted small'>" + escapeHtml(expense.amount) + " · " + escapeHtml(date) + "</span>" +
@@ -182,11 +182,11 @@
     assignState.expenseId = button.dataset.expenseId;
     document.querySelectorAll("#assignExpenseResults .js-assign-result").forEach(function (row) {
       row.classList.remove("active");
-      row.querySelector(".bi-circle") && row.querySelector(".bi-circle").classList.remove("text-primary");
+      row.querySelector(".ti-circle") && row.querySelector(".ti-circle").classList.remove("text-primary");
     });
     button.classList.add("active");
-    var dot = button.querySelector(".bi-circle");
-    if (dot) dot.classList.replace("bi-circle", "bi-check-circle-fill");
+    var dot = button.querySelector(".ti-circle");
+    if (dot) dot.classList.replace("ti-circle", "ti-circle-check");
     if (dot) dot.classList.add("text-primary");
     document.getElementById("assignPaymentSubmit").disabled = false;
   }

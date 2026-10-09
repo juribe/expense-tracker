@@ -15,13 +15,13 @@ class FinancialSetupWizard
     Step.new(key: :cash, kind: "cash", label_key: "wizard.steps.cash",
              icon: "cash", review_noun_key: "wizard.review.cash"),
     Step.new(key: :accounts, kind: "account", label_key: "wizard.steps.accounts",
-             icon: "bank", review_noun_key: "wizard.review.accounts"),
+             icon: "building-bank", review_noun_key: "wizard.review.accounts"),
     Step.new(key: :credit_cards, kind: "credit_card", label_key: "wizard.steps.credit_cards",
-             icon: "credit-card-2-front", review_noun_key: "wizard.review.credit_cards"),
+             icon: "credit-card", review_noun_key: "wizard.review.credit_cards"),
     Step.new(key: :loans, kind: "loan", label_key: "wizard.steps.loans",
-             icon: "cash-coin", review_noun_key: "wizard.review.loans"),
+             icon: "coin", review_noun_key: "wizard.review.loans"),
     Step.new(key: :review, kind: nil, label_key: "wizard.steps.review",
-             icon: "check2-circle", review_noun_key: nil)
+             icon: "circle-check", review_noun_key: nil)
   ].freeze
 
   CHOICES = %w[manual import skip].freeze

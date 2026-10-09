@@ -1,6 +1,7 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-6 col-lg-4">
-    <div class="card shadow-sm my-5">
+    <%= render "devise/shared/brand" %>
+    <div class="card my-5">
       <div class="card-body p-4 p-md-5">
         <h1 class="h3 mb-1 text-center fw-bold"><%= t("auth.sign_in") %></h1>
         <p class="text-muted text-center mb-4"><%= t("auth.sign_in_prompt") %></p>
@@ -22,7 +23,7 @@
               <%= f.password_field :password, autocomplete: "current-password", class: "form-control form-control-lg password-field", placeholder: "••••••••" %>
               <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
                       data-toggle-pw-target="#user_password" aria-label="<%= t('auth.show_password') %>">
-                <i class="bi bi-eye"></i>
+                <i class="ti ti-eye"></i>
               </button>
             </div>
           </div>
@@ -44,5 +45,3 @@
     </div>
   </div>
 </div>
-
-<%= render "devise/shared/auth_scripts" %>

@@ -7,19 +7,19 @@
      data-testid="<%= field.testid %>"
      data-required="<%= field.required %>">
   <div class="input-group">
-    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <span class="input-group-text"><i class="ti ti-search"></i></span>
     <input <%= tag.attributes(field.search_html_options) %>>
     <button class="btn btn-outline-secondary" type="button" tabindex="-1"
             data-category-picker-toggle
             aria-label="<%= field.toggle_label %>"<%= " disabled" if field.disabled %>>
-      <i class="bi bi-chevron-down"></i>
+      <i class="ti ti-chevron-down"></i>
     </button>
   </div>
 
   <% if field.required %>
     <div class="invalid-feedback d-block category-picker__feedback" role="alert" hidden
          data-required-message="<%= field.required_message %>">
-      <i class="bi bi-exclamation-circle me-1"></i><%= field.required_message %>
+      <i class="ti ti-alert-circle me-1"></i><%= field.required_message %>
     </div>
   <% end %>
 
@@ -47,7 +47,7 @@
     <% unless field.empty? %>
       <li class="category-picker__empty" role="presentation" hidden
           data-no-results="<%= field.no_results_label %>">
-        <i class="bi bi-search me-1"></i><%= field.no_results_label %>
+        <i class="ti ti-search me-1"></i><%= field.no_results_label %>
       </li>
     <% end %>
   </ul>

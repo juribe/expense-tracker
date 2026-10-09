@@ -1,23 +1,20 @@
-<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-inbox me-2"></i><%= t("expense_candidates.title", default: "Candidatos de Gastos") %></h1>
-  <div class="d-flex gap-2">
-    <%= link_to expenses_path, class: "btn btn-outline-primary" do %>
-      <i class="bi bi-arrow-left me-1"></i><%= t("common.back_to_expenses", default: "Volver a Gastos") %>
-    <% end %>
-  </div>
-</div>
+<%= render "shared/page_header", title: t("expense_candidates.title", default: "Candidatos de Gastos") do %>
+  <%= link_to expenses_path, class: "btn btn-outline-secondary" do %>
+    <i class="ti ti-arrow-left me-1"></i><%= t("common.back_to_expenses", default: "Volver a Gastos") %>
+  <% end %>
+<% end %>
 
 <!-- Status filter tabs -->
-<ul class="nav nav-pills mb-4">
+<ul class="nav nav-pills mb-4 gap-2">
   <li class="nav-item">
     <%= link_to expense_candidates_path, class: "nav-link #{'active' if @status == 'needs_review'}" do %>
-      <i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.pending", default: "Pendientes") %>
+      <i class="ti ti-alert-triangle me-1"></i><%= t("expense_candidates.pending", default: "Pendientes") %>
       <span class="badge bg-warning text-dark ms-1"><%= current_user.expense_candidates.needs_review.count %></span>
     <% end %>
   </li>
   <li class="nav-item">
     <%= link_to expense_candidates_path(status: "discarded"), class: "nav-link #{'active' if @status == 'discarded'}" do %>
-      <i class="bi bi-trash me-1"></i><%= t("expense_candidates.discarded", default: "Descartado") %>
+      <i class="ti ti-trash me-1"></i><%= t("expense_candidates.discarded", default: "Descartado") %>
     <% end %>
   </li>
 </ul>
@@ -26,23 +23,23 @@
 <div class="bulk-bar" id="bulkBar" role="region" aria-label="Acciones en lote" data-testid="bulk-bar" style="display: none;">
   <strong id="bulkCount" aria-live="polite">0 <%= t("expense_candidates.selected", default: "seleccionados") %></strong>
   <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
-    <i class="bi bi-tags me-1"></i><%= t("expense_candidates.change_category", default: "Cambiar Categoría") %>
+    <i class="ti ti-tags me-1"></i><%= t("expense_candidates.change_category", default: "Cambiar Categoría") %>
   </button>
   <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
-    <i class="bi bi-wallet2 me-1"></i><%= t("expense_candidates.change_source", default: "Cambiar Fuente de Dinero") %>
+    <i class="ti ti-wallet me-1"></i><%= t("expense_candidates.change_source", default: "Cambiar Fuente de Dinero") %>
   </button>
   <button type="button" class="btn btn-sm btn-success" id="bulkConfirm" data-testid="bulk-confirm" disabled>
-    <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
+    <i class="ti ti-circle-check me-1"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
   </button>
   <button type="button" class="btn btn-sm btn-outline-danger ms-auto" id="bulkDiscard" data-testid="bulk-discard" disabled>
-    <i class="bi bi-x-circle me-1"></i><%= t("expense_candidates.discard_selected", default: "Descartar Seleccionados") %>
+    <i class="ti ti-circle-x me-1"></i><%= t("expense_candidates.discard_selected", default: "Descartar Seleccionados") %>
   </button>
 </div>
 
 <% if @candidates.any? %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="table-responsive">
-      <table class="table table-hover mb-0" data-testid="candidates-table">
+      <table class="table table-hover ledger-table mb-0" data-testid="candidates-table">
         <thead class="table-light">
           <tr>
             <th scope="col" style="width: 40px;">
@@ -68,7 +65,7 @@
               </td>
               <td>
                 <span class="badge bg-light text-dark">
-                  <i class="bi bi-<%= source_icon(candidate.source) %> me-1"></i>
+                  <i class="ti ti-<%= source_icon(candidate.source) %> me-1"></i>
                   <%= candidate.source.titleize %>
                 </span>
               </td>
@@ -85,22 +82,22 @@
                 <% if candidate.category %>
                   <%= category_badge(candidate.category) %>
                 <% elsif candidate.category_suggestion.present? %>
-                  <span class="badge bg-info text-dark"><i class="bi bi-lightbulb me-1"></i><%= t("expense_candidates.suggested", default: "Sugerida") %>: "<%= candidate.category_suggestion %>"</span>
+                  <span class="badge bg-info text-dark"><i class="ti ti-bulb me-1"></i><%= t("expense_candidates.suggested", default: "Sugerida") %>: "<%= candidate.category_suggestion %>"</span>
                 <% else %>
-                  <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
+                  <span class="badge bg-warning text-dark"><i class="ti ti-alert-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
                 <% end %>
               </td>
               <td>
                 <% if candidate.money_source %>
-                  <span class="badge bg-light text-dark"><i class="bi bi-wallet2 me-1"></i><%= candidate.money_source.name %></span>
+                  <span class="badge bg-light text-dark"><i class="ti ti-wallet me-1"></i><%= candidate.money_source.name %></span>
                 <% else %>
-                  <span class="text-muted">—</span>
+                  <span class="text-secondary">—</span>
                 <% end %>
               </td>
               <td><%= status_badge(candidate.status) %></td>
               <td class="text-end">
                 <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
-                   <i class="bi bi-eye me-1"></i><%= t("common.review", default: "Revisar") %>
+                   <i class="ti ti-eye me-1"></i><%= t("common.review", default: "Revisar") %>
                 <% end %>
               </td>
             </tr>
@@ -112,13 +109,13 @@
 
   <%= will_paginate @candidates, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, previous_label: t("common.previous"), next_label: t("common.next") if @candidates.total_pages > 1 %>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="card-body text-center p-5">
-      <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+      <i class="ti ti-inbox display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("expense_candidates.empty_title", default: "Sin candidatos") %></h4>
-      <p class="text-muted"><%= t("expense_candidates.empty_hint", default: "Los gastos procesados por IA que necesitan tu revisión aparecerán aquí.") %></p>
+      <p class="text-secondary"><%= t("expense_candidates.empty_hint", default: "Los gastos procesados por IA que necesitan tu revisión aparecerán aquí.") %></p>
       <%= link_to expenses_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
+        <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
       <% end %>
     </div>
   </div>
@@ -130,13 +127,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="bulkConfirmModalLabel">
-          <i class="bi bi-check-circle me-2"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
+          <i class="ti ti-circle-check me-2"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <%= form_with url: bulk_confirm_expense_candidates_path, method: :post, id: "bulkConfirmForm" do |f| %>
         <div class="modal-body">
-          <p id="bulkConfirmDescription" class="text-muted mb-3"></p>
+          <p id="bulkConfirmDescription" class="text-secondary mb-3"></p>
           <%= f.hidden_field :candidate_ids, id: "bulkCandidateIds" %>
 
           <div class="mb-3">
@@ -162,7 +159,7 @@
             <%= t("common.cancel", default: "Cancelar") %>
           </button>
           <button type="submit" id="confirmBulkSubmit" class="btn btn-success" disabled>
-            <i class="bi bi-check-circle me-1"></i><%= t("expense_candidates.confirm_and_create", default: "Confirmar y Crear Gastos") %>
+            <i class="ti ti-circle-check me-1"></i><%= t("expense_candidates.confirm_and_create", default: "Confirmar y Crear Gastos") %>
           </button>
         </div>
       <% end %>

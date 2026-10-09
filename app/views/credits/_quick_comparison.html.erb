@@ -89,7 +89,7 @@
 
   <% if quick.strategies.max_by { |s| s["interest_saved"].to_d }["interest_saved"].to_d.positive? %>
     <div class="bg-light rounded p-2 small mb-2">
-      <i class="bi bi-lightbulb text-primary me-1"></i>
+      <i class="ti ti-bulb text-primary me-1"></i>
       <span class="fw-bold"><%= t("credits.quick.best_savings") %>:</span>
       <% best = quick.strategies.max_by { |s| s["interest_saved"].to_d } %>
       <%= t("credits.simulators.strategies.#{best["strategy"]}") %> —
@@ -107,7 +107,7 @@
                     disabled: limit,
                     params: { kind: strategy["strategy"], amount: quick.amount.to_s,
                               repeat_every: (quick.mode == "recurring" ? 1 : nil) }.compact do %>
-        <i class="bi bi-bookmark-plus me-1"></i>
+        <i class="ti ti-bookmark me-1"></i>
         <%= t("credits.quick.save") %> · <%= t("credits.simulators.strategies.#{strategy["strategy"]}") %>
       <% end %>
     <% end %>

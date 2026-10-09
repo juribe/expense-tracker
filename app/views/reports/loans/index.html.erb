@@ -1,6 +1,6 @@
 <%= render "reports/page_header", title: t("reports.loans.title"), subtitle: t("reports.loans.subtitle"), path: reports_loans_path %>
 
-<div class="card shadow-sm mb-4" data-testid="debt-consolidated">
+<div class="card mb-4" data-testid="debt-consolidated">
   <div class="card-header bg-white">
     <h5 class="mb-0"><%= t("reports.loans.title") %></h5>
   </div>
@@ -59,7 +59,7 @@
     </table>
   </div>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="card-body">
       <p class="text-muted mb-0"><%= t("reports.loans.empty") %></p>
     </div>

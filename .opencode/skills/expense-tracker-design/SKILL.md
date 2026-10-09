@@ -1,109 +1,95 @@
 ---
 name: expense-tracker-design
-description: UI/UX design conventions (Bootstrap 5, ERB views, cards, forms, badges, money formatting, HTML mockups) for the Expense Tracker Rails app. Use when creating or modifying views, layouts, HTML mockups, design specs, forms, or any UI component in the expense-tracker project.
+description: UI/UX design conventions (Bootstrap 5.3 → Spike theme, ERB views, cards, forms, badges, money formatting, HTML mockups) for the Expense Tracker Rails app. Use when creating or modifying views, layouts, HTML mockups, design specs, forms, or any UI component in the expense-tracker project.
 ---
 
 # Expense Tracker Design System
 
-Conventions extracted from the live app. Follow them exactly; do not
+Conventions after the 2026 Spike-theme redesign. Follow them exactly; do not
 introduce new frameworks, icon sets, or design tokens.
 
 ## Stack
 
-- Rails 8 + ERB views, Turbo (use `turbo_method` for non-GET links)
-- Bootstrap 5.3 via CDN (already loaded in the layout - never re-add it)
-- Bootstrap Icons 1.10 via CDN (`bi bi-<icon>`)
-- NO Tailwind, NO custom CSS files, NO JavaScript frameworks. The only
-  custom CSS is the small `<style>` block in
-  `app/views/layouts/application.html.erb`.
+- Rails 8 + ERB views, Turbo (use `turbo_method` for non-GET linkssell)
+- **Spike admin theme, vendored**: `app/assets/vendor/themes/spike.css`
+  (compiled Bootstrap 5.3.2 + Tabler icons + dark mode + skins, loaded via
+  `stylesheet_link_tag "themes/spike"`)
+- Tabler icons via the vendored font: `<i class="ti ti-<name>">` — never
+  `bi …` (Bootstrap Icons is removed); mapping kept during migration:
+  e.g. `bi-plus-lg→ti-plus`, `bi-trash→ti-trash`, `bi-pencil→ti-pencil`,
+  `bi-piggy-bank→ti-pig-money`, `bi-check-circle→ti-circle-check`
+- The design system lives in `app/assets/stylesheets/theme.css` (tokens,
+  surfaces, components). Per-need page CSS: `dashboard.css`, `expenses.css`,
+  `reports.css`, `financial_chat.css`, `playground.css` + domain styles in
+  `application.css` (loan/account/credit-card/budget/recognition cards).
+- NO Tailwind, no Sass build, no JS frameworks. Vanilla JS only.
 
-## Global chrome (application.html.erb)
+## Themes and dark mode
 
-- Navbar: `navbar navbar-expand-lg navbar-dark bg-primary shadow-sm`,
-  brand uses `bi bi-wallet2` + bold text (`navbar-brand` override)
-- Content wrapper: `<main class="container py-4">`
-- Flash: dismissible `alert alert-success` (notice) / `alert-danger` (alert)
-- Existing CSS overrides (already global, reuse them):
-  - `body { background: #f8f9fa; }`
-  - `.card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }`
-  - `.btn { border-radius: 8px; }`
-  - `.summary-value { font-size: 2rem; }`
+- `<html data-bs-theme="light|dark" data-color-theme="Blue_Theme" data-layout="vertical">`
+- Everything must adapt to dark mode via Bootstrap variables / `[data-bs-theme=dark]` blocks in theme.css. Verify both themes for new markup.
+- `app/assets/javascripts/shell.js` owns: theme toggle (`[data-theme-toggle]`,
+  persisted `localStorage.etTheme`), sidebar (full/mini/off-canvas with
+  `data-sidebartype`, persisted `etSidebarMini`, mobile `show-sidebar`).
 
-## Page header pattern
+## Chrome and navigation
 
-```erb
-<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-wallet2 me-2"></i>Page Title</h1>
-  <div class="d-flex gap-2">
-    <%= link_to new_thing_path, class: "btn btn-primary" do %>
-      <i class="bi bi-plus-lg me-1"></i>New Thing
-    <% end %>
-  </div>
-</div>
-```
+- Layout: `application.html.erb` → `#main-wrapper → aside.left-sidebar → .page-wrapper → header.topbar → .body-wrapper → .app-container`
+- Topbar partial: `shared/_topbar.html.erb` (cycle indicator, alerts bell, theme toggle, user dropdown incl. dev tools)
+- Sidebar partial: `shared/_sidebar.html.erb` — Spike classes
+  (`sidebar-item/sidebar-link/aside-icon/hide-menu/nav-small-cap/collapse.first-level`),
+  grouped per domain: Inicio / Actividad / Dinero / Planificación / Deudas /
+  Análisis / Por revisar / Automatización. Active state server-rendered.
 
-Primary create action: `btn btn-primary` with `bi-plus-lg`. Secondary
-actions: `btn btn-outline-primary`.
+## Global design rules
 
-## Index/list pages
+1. Semantic colors only: green = income/positive/healthy, red = expense/debt,
+   blue = accounts/neutral, amber = attention, gray = secondary. Classes:
+   `amt-pos`, `amt-debt`, `text-balance-blue`, `delta-badge(-success|-danger)`.
+2. Money: `money_field_value` helper for inputs; `number_to_currency` for
+   display; amounts are bold `num` (tabular-nums) and carry meaning.
+3. Page header: `<%= render "shared/page_header", title:, subtitle: do — actions
+   end %>`; never child h1 + button row ad hoc. Card titles: `h5.card-title`.
+   Section labels: `.section-title`; KPI blocks: `shared/_stat` (never colored
+   "giant metric cards").
+4. Lists: `shared/_section` (card with header), `ledger-table` table treatment
+   (`cell-strong/cell-muted/cell-amount`), `shared/_empty_state` for empties.
+5. Surfaces: `.card` has `1px` border + `.75rem` radius, no shadow. Interactive
+   cards: `card-hover`. Debt cards: `card-debt` red accent.
+6. Forms: `form-section` + `form-section-title` for grouped sections;
+   `field_class`/`field_error` for validation; submit = `btn btn-primary`,
+   cancel = `btn btn-outline-secondary`.
+7. Filters: `.filter-chip` (with `.active`), grouped rows; complex filters top
+   of the page in a card, secondary filters may collapse.
+8. Charts stay Chartkick/Chart.js with the semantic palette.
 
-- Responsive card grid: `row g-3`, columns `col-12 col-md-6 col-lg-4`,
-  cards `card h-100 shadow-sm`
-- Row actions use icon-only small buttons in `btn-group btn-group-sm`:
-  edit = `btn btn-outline-primary` + `bi-pencil`,
-  delete = `btn btn-outline-danger` + `bi-trash` via `button_to`
-  with `data: { confirm: "Are you sure?" }`
-- Always include an empty state (friendly message + call-to-action button)
+## Money sources (accounts/cards)
 
-## Money and amounts
+- Kinds: `source_kind_icon` maps to ti- icons (building-bank, credit-card,
+  cash, wallet, pig-money, coin). Distinct card components:
+  `_account_card` / `_credit_card_card` / `_loan_card`.
+- Credit-card surfaces show: balance, limit, utilization bar, statement/due day.
 
-- Amounts are bold and colored by meaning: `text-success` for
-  positive/assets/income, `text-danger` for credit cards/expenses/negatives
-- Format values with the `money_field_value` helper (2 decimals,
-  `,` delimiter, no trailing zeros)
-- Large summary numbers use the `.summary-value` class
+## State to design for (every screen)
 
-## Badges and icons
-
-- Category badges: `category_badge(category)` helper (rotates
-  `CATEGORY_COLORS`: primary success danger warning info secondary dark)
-- Identifier/tag style badges: `badge bg-light text-dark` with a `bi` icon
-- Icons carry meaning; add spacing with `me-1`/`me-2`
-- Kind-to-icon mappings (e.g. `source_kind_icon`: account→bank,
-  debit_card→credit-card, credit_card→credit-card-2-front, cash→cash,
-  wallet→wallet2) belong in `ApplicationHelper`, not in views
-
-## Forms
-
-- Inputs: `form-control`; selects: `form-select`
-- Validation: use the `field_class(object, method)` helper
-  (`is-valid`/`is-invalid`) and `field_error(object, method)` for messages
-- Prefill money inputs with `money_field_value`
-- Submit button: `btn btn-primary`; cancel/back: `btn btn-outline-secondary`
-
-## Navigation
-
-- Mark the active nav item with the `active_class('controller')` helper
-
-## States to design for (every screen)
-
-- Empty (with CTA), error (danger alert + invalid fields), success
-  (green alert), loading (Turbo/Bootstrap defaults), and mobile
-  (`col-12` first, then `col-md-*`/`col-lg-*`)
+- Empty (with CTA), error (danger alert + invalid fields), success (green
+  alert), loading (Turbo/Bootstrap defaults), and mobile (`col-12` first,
+  `d-none d-md-*` secondary columns; `.mobile-list` pattern in expenses).
+- Keep `data-testid` attributes — Playwright and Capybara assertions depend on
+  them (see `test/` and `playwright/`).
 
 ## HTML mockups (design stage)
 
-- Self-contained HTML file using the same Bootstrap + Icons CDNs and the
-  same `<style>` overrides as the layout
-- Include the navbar and realistic sample data
-- Output body content only - the boilerplate (head/footer) is added by
-  the caller
+- Self-contained HTML that references the vendored Spike + theme CSS is NOT
+  possible offline; mockups keep using CDN Bootstrap 5.3 + Tabler webfont and
+  mirror theme.css tokens inline. Output body content only.
 
 ## Rules
 
 1. Reuse existing views and helpers as templates before inventing markup.
-2. Keep UI copy in English (code comments may be Spanish).
-3. Never add CSS/JS frameworks or files; extend the layout `<style>`
-   block only when a rule is truly global.
+2. Keep UI copy in English or Spanish consistent with the current locale files
+   (Spanish defaults).
+3. Never add CSS/JS frameworks or files; extend `theme.css` (design tokens) or
+   the page-specific css files.
 4. New view helpers go in `ApplicationHelper` (or a matching
    `<Resource>Helper`), never inline logic in views.

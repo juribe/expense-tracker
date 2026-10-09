@@ -6,7 +6,7 @@
 <div class="card report-card">
   <div class="card-header d-flex align-items-start">
     <span class="report-card-icon" style="background-color: #7FA7D8;">
-      <i class="bi bi-bar-chart-line fs-5"></i>
+      <i class="ti ti-chart-line fs-5"></i>
     </span>
     <div>
       <h2 class="report-card-title mb-0"><%= t("reports.categories.title") %></h2>
@@ -32,7 +32,7 @@
                   <th scope="col" class="text-end"><%= t("reports.categories.total") %></th>
                   <th scope="col" class="text-end"><%= t("reports.categories.share") %></th>
                   <th scope="col" class="text-end"><%= t("reports.categories.count") %></th>
-                  <th scope="col" class="text-end"><%= t("reports.categories.change") %> <i class="bi bi-arrow-down-up"></i></th>
+                  <th scope="col" class="text-end"><%= t("reports.categories.change") %> <i class="ti ti-arrows-sort"></i></th>
                 </tr>
               </thead>
               <tbody>
@@ -41,7 +41,7 @@
                     <td>
                       <%= link_to reports_transactions_path(filter_params_for(category_id: category[:id])), class: "d-flex align-items-center text-decoration-none text-reset" do %>
                         <span class="category-swatch me-2" style="background-color: <%= category_colors(@category_spending[:categories])[index] %>;">
-                          <i class="bi bi-tag"></i>
+                          <i class="ti ti-tag"></i>
                         </span>
                         <span class="fw-semibold"><%= category[:name] %></span>
                       <% end %>

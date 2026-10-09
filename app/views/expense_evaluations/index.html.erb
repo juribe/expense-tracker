@@ -1,14 +1,14 @@
 <div class="container py-4" data-testid="playground-evaluation-panel">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0"><i class="bi bi-check2-circle me-2"></i><%= t("nav.evaluations") %></h1>
+    <h1 class="page-title mb-0"><i class="ti ti-list-check me-2 text-secondary"></i><%= t("nav.evaluations") %></h1>
   </div>
 
   <div class="row g-4">
     <!-- Left column: form & history -->
     <div class="col-lg-5">
-      <div class="card shadow-sm">
+      <div class="card">
         <div class="card-body">
-          <h5 class="mb-1"><i class="bi bi-bar-chart-line me-2"></i><%= t("playground.evaluation_title", default: "AI Evaluation") %></h5>
+          <h5 class="mb-1"><i class="ti ti-chart-line me-2"></i><%= t("playground.evaluation_title", default: "AI Evaluation") %></h5>
           <p class="text-muted small mb-3"><%= t("evaluations.subtitle", default: "Sube un dataset CSV y evalúa el pipeline completo con un proveedor/modelo concreto.") %></p>
 
           <form id="pgEvalForm">
@@ -45,14 +45,14 @@
             </div>
 
             <button type="submit" class="btn btn-primary w-100" id="pgEvalStartBtn" data-testid="evaluation-start">
-              <i class="bi bi-play-fill me-1"></i>Ejecutar Evaluación
+              <i class="ti ti-player-play me-1"></i>Ejecutar Evaluación
             </button>
             <div class="alert alert-danger py-2 small mt-2 mb-0 d-none" id="pgEvalError"></div>
           </form>
-          <div class="alert alert-info py-2 small mt-2 mb-0"><i class="bi bi-info-circle me-1"></i><%= t("evaluations.async_hint", default: "La evaluación corre en segundo fondo.<br><span class=\"text-muted\">Puedes cerrar esta página y volver más tarde.") %></div>
+          <div class="alert alert-info py-2 small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i><%= t("evaluations.async_hint", default: "La evaluación corre en segundo fondo.<br><span class=\"text-muted\">Puedes cerrar esta página y volver más tarde.") %></div>
 
           <div class="mt-3">
-            <div class="small fw-semibold mb-2"><i class="bi bi-clock-history me-1"></i><%= t("evaluations.history", default: "Historial") %></div>
+            <div class="small fw-semibold mb-2"><i class="ti ti-history me-1"></i><%= t("evaluations.history", default: "Historial") %></div>
             <div class="table-responsive">
               <table class="table table-sm align-middle mb-0">
                 <thead><tr><th class="small text-muted">Dataset</th><th class="small text-muted">Modelo</th><th class="small text-muted">Estado</th><th class="small text-muted text-end">Extras</th></tr></thead>
@@ -67,10 +67,10 @@
 
     <!-- Right column: results & failed cases -->
     <div class="col-lg-7">
-      <div class="card shadow-sm d-none" id="pgEvalResults">
+      <div class="card d-none" id="pgEvalResults">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i><%= t("evaluations.results", default: "Resultados de la Evaluación") %><span class="badge bg-warning-subtle text-warning ms-2" id="pgEvalRunStatus"><%= t("evaluations.in_progress", default: "En progreso") %></span></h5>
+            <h5 class="mb-0"><i class="ti ti-chart-bar me-2"></i><%= t("evaluations.results", default: "Resultados de la Evaluación") %><span class="badge bg-warning-subtle text-warning ms-2" id="pgEvalRunStatus"><%= t("evaluations.in_progress", default: "En progreso") %></span></h5>
             <div class="text-end small text-muted" id="pgEvalRunMeta"></div>
           </div>
           <div class="progress mb-3" style="height: 8px;">
@@ -96,7 +96,7 @@
             </div>
             <div class="col-md-6">
               <div class="border rounded p-3">
-                <div class="small fw-semibold mb-2"><i class="bi bi-balance me-1"></i><%= t("evaluations.compare_models", default: "Comparar Modelos") %></div>
+                <div class="small fw-semibold mb-2"><i class="ti ti-scale me-1"></i><%= t("evaluations.compare_models", default: "Comparar Modelos") %></div>
                 <div class="table-responsive">
                   <table class="table table-sm">
                     <thead><tr><th>Modelo</th><th>Accuracy</th><th>JSON válido</th><th>Latencia</th><th>Costo</th></tr></thead>
@@ -109,10 +109,10 @@
         </div>
       </div>
 
-      <div class="card shadow-sm mt-3 d-none" id="pgEvalFailedWrap">
+      <div class="card mt-3 d-none" id="pgEvalFailedWrap">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="small fw-semibold"><i class="bi bi-exclamation-triangle text-danger me-1"></i><%= t("evaluations.failed_cases", default: "Casos fallidos") %> <span class="badge bg-danger" id="pgEvalFailedCount">0</span></div>
+            <div class="small fw-semibold"><i class="ti ti-alert-triangle text-danger me-1"></i><%= t("evaluations.failed_cases", default: "Casos fallidos") %> <span class="badge bg-danger" id="pgEvalFailedCount">0</span></div>
             <div class="d-flex gap-2">
               <select class="form-select form-select-sm" style="width:auto" id="pgEvalFailedStatus" data-testid="evaluation-failed-status">
                 <option value="failed"><%= t("evaluations.failed_status", default: "Fallidos") %></option>
@@ -286,7 +286,7 @@
       error.classList.remove("d-none");
     }).finally(function () {
       btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Ejecutar Evaluación';
+      btn.innerHTML = '<i class="ti ti-player-play me-1"></i>Ejecutar Evaluación';
     });
   }
 
@@ -422,7 +422,7 @@
       tr.innerHTML =
         "<td>" +
         '<button type="button" class="btn btn-sm btn-link p-0 text-decoration-none fw-semibold pg-toggle" title="Revisar esperado vs. recibido">' +
-        c.row_number + ' <i class="bi bi-chevron-down"></i></button>' +
+        c.row_number + ' <i class="ti ti-chevron-down"></i></button>' +
         "</td>" +
         "<td class=\"small\">" + escapeHtml(c.message) + "</td>" +
         "<td class=\"small\">" + escapeHtml(prettyValue(c.expected_json)) + "</td>" +

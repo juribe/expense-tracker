@@ -1,7 +1,7 @@
 <% data = budget_progress_data(budget, period) %>
 <% status = data[:status] %>
 <% pct = data[:percentage] %>
-<div class="card h-100 shadow-sm">
+<div class="card h-100 card-hover">
   <div class="card-body d-flex flex-column">
     <div class="d-flex justify-content-between align-items-start mb-3">
       <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
@@ -11,10 +11,10 @@
         <% end %>
         <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= budget.category.name %>">
           <%= link_to edit_budget_path(budget), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("budgets.edit_aria", name: budget.category.name) } do %>
-            <i class="bi bi-pencil"></i>
+            <i class="ti ti-pencil"></i>
           <% end %>
           <%= button_to budget_path(budget), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("budgets.delete_aria", name: budget.category.name) }, data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
-            <i class="bi bi-trash"></i>
+            <i class="ti ti-trash"></i>
           <% end %>
         </div>
       </div>
@@ -47,7 +47,7 @@
 
     <div class="d-flex justify-content-between align-items-center mt-auto">
       <span class="badge <%= budget_status_class(status) %>">
-        <i class="bi <%= budget_status_icon(status) %> me-1"></i><%= budget_status_label(status) %>
+        <i class="<%= budget_status_icon(status) %> me-1"></i><%= budget_status_label(status) %>
       </span>
       <span class="small text-muted fw-semibold">
         <%= t("budgets.usage") %> <span class="fw-bold"><%= t("budgets.percentage_value", pct: number_to_percentage(pct, precision: 0)) %></span>

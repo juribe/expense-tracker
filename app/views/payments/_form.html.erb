@@ -1,9 +1,9 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0"><i class="bi bi-cash-coin me-2"></i><%= t("payments.form.title") %></h4>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title"><i class="ti ti-coin me-2 text-secondary"></i><%= t("payments.form.title") %></h5>
         </div>
         <div class="card-body">
           <p class="text-muted mb-3">
@@ -11,7 +11,7 @@
           </p>
           <p class="text-muted mb-3">
             <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
-              <i class="bi bi-file-earmark-arrow-up me-1"></i><%= t("statement_imports.title") %>
+              <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
             <% end %>
           </p>
 
@@ -104,7 +104,7 @@
               </div>
             </div>
             <div class="alert alert-warning d-none py-2 small mb-4" data-payment-warning>
-              <i class="bi bi-exclamation-triangle me-1"></i>
+              <i class="ti ti-alert-triangle me-1"></i>
               <span data-payment-warning-text></span>
             </div>
 

@@ -1,7 +1,7 @@
 <%= render "reports/page_header", title: t("reports.transactions.title"), subtitle: t("reports.transactions.subtitle"), path: reports_transactions_path %>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0"><%= t("reports.transactions.title", default: "Gastos del periodo") %></h5>
     <span class="text-muted small"><%= t("reports.overview.number_of_expenses") %>: <strong><%= @transactions.total_entries %></strong></span>
   </div>

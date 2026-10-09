@@ -8,13 +8,13 @@
      data-thinking-text="<%= t("financial_chat.thinking") %>">
   <div class="financial-chat__header">
     <h1 class="fw-bold mb-1"><%= t("financial_chat.title") %></h1>
-    <p class="text-muted mb-0"><%= t("financial_chat.subtitle") %></p>
+    <p class="text-secondary mb-0"><%= t("financial_chat.subtitle") %></p>
   </div>
 
   <div class="financial-chat__scroll" id="chatScroll" data-testid="chat-messages">
     <% if @messages.empty? %>
       <div class="chat-empty" id="chatEmptyState">
-        <div class="chat-empty__icon"><i class="bi bi-piggy-bank"></i></div>
+        <div class="chat-empty__icon"><i class="ti ti-pig-money"></i></div>
         <h2 class="chat-empty__title"><%= t("financial_chat.empty.title") %></h2>
         <p class="chat-empty__subtitle"><%= t("financial_chat.empty.subtitle") %></p>
         <div class="chat-empty__suggestions">
@@ -27,7 +27,7 @@
       <% @messages.each do |message| %>
         <div class="chat-row <%= message.user? ? "chat-row-user" : "chat-row-assistant" %>" data-message-id="<%= message.id %>">
           <% unless message.user? %>
-            <div class="chat-avatar bg-primary text-white"><i class="bi bi-piggy-bank"></i></div>
+            <div class="chat-avatar bg-primary text-white"><i class="ti ti-pig-money"></i></div>
           <% end %>
           <div class="<%= message.user? ? "chat-bubble-user" : "chat-bubble-assistant chat-bubble-rich" %>">
             <% if message.user? %>
@@ -41,7 +41,7 @@
       <% end %>
     <% end %>
     <div class="chat-reconnecting" id="chatReconnecting" hidden>
-      <i class="bi bi-arrow-repeat"></i> <%= t("financial_chat.reconnecting") %>
+      <i class="ti ti-repeat"></i> <%= t("financial_chat.reconnecting") %>
     </div>
   </div>
 
@@ -50,7 +50,7 @@
               placeholder="<%= t("financial_chat.input_placeholder") %>"
               aria-label="<%= t("financial_chat.input_placeholder") %>"></textarea>
     <button type="submit" class="btn btn-primary chat-send" id="chatSend" aria-label="Enviar" disabled>
-      <i class="bi bi-send-fill"></i>
+      <i class="ti ti-send"></i>
     </button>
   </form>
 </div>

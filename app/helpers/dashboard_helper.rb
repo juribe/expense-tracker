@@ -33,9 +33,9 @@ module DashboardHelper
     return content_tag(:span, "—", class: "small text-muted") if pct.nil?
 
     improved = good_direction == :down ? pct.negative? : pct.positive?
-    arrow = pct >= 0 ? "bi-arrow-up-right" : "bi-arrow-down-right"
+    arrow = pct >= 0 ? "ti-arrow-up-right" : "ti-arrow-down-right"
     content_tag(:span, class: class_names("delta-badge", "delta-badge-success": improved, "delta-badge-danger": !improved)) do
-      content_tag(:i, "", class: "bi #{arrow}") + " " + dashboard_signed_pct(pct)
+      content_tag(:i, "", class: "ti #{arrow}") + " " + dashboard_signed_pct(pct)
     end
   end
 

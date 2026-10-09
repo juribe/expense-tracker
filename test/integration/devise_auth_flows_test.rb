@@ -40,7 +40,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_equal "Jane Doe", user.name
     assert_redirected_to root_path
     follow_redirect!
-    assert_select ".sidebar-brand", I18n.t("layout.app_title")
+    assert_select ".logo-img .fs-5", I18n.t("layout.app_title")
   end
 
   test "sign up with mismatched passwords re-renders the form with errors" do

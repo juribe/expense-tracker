@@ -1,25 +1,24 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-<%= source_kind_icon(@money_source.kind) %> me-2"></i><%= @money_source.name %></h1>
-    <div class="d-flex gap-2 flex-wrap">
+<% source_actions = capture do %>
+  <div class="d-flex gap-2 flex-wrap">
       <% if @money_source.pocket? %>
         <%= link_to new_transfer_path(to_source_id: @money_source.id), class: "btn btn-primary" do %>
-          <i class="bi bi-piggy-bank me-1"></i><%= t("goals.assign_money", default: "Asignar dinero") %>
+          <i class="ti ti-pig-money me-1"></i><%= t("goals.assign_money", default: "Asignar dinero") %>
         <% end %>
       <% end %>
       <% if @money_source.loan? %>
         <%= link_to money_source_credits_path(@money_source), class: "btn btn-primary" do %>
-          <i class="bi bi-graph-up-arrow me-1"></i><%= t("credits.index_button") %>
+          <i class="ti ti-trending-up me-1"></i><%= t("credits.index_button") %>
         <% end %>
       <% end %>
       <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
-        <i class="bi bi-pencil me-1"></i><%= t("common.edit") %>
+        <i class="ti ti-pencil me-1"></i><%= t("common.edit") %>
       <% end %>
       <%= link_to money_sources_path, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-arrow-left me-1"></i><%= t("common.back") %>
+        <i class="ti ti-arrow-left me-1"></i><%= t("common.back") %>
       <% end %>
     </div>
-  </div>
+<% end %>
+<%= render "shared/page_header", title: (@money_source.name.presence || @money_source.display_name), actions: source_actions %>
 
   <div class="row g-4">
     <div class="col-lg-7">
@@ -29,7 +28,7 @@
       <% elsif @money_source.pocket? %>
         <%= render "pocket_breakdown" %>
       <% else %>
-        <div class="card shadow-sm">
+        <div class="card">
           <div class="card-body">
             <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
             <div class="fs-4 fw-bold text-success"><%= @money_source.balance_label %></div>
@@ -38,7 +37,7 @@
       <% end %>
     </div>
     <div class="col-lg-5">
-      <div class="card shadow-sm">
+      <div class="card">
         <div class="card-body">
           <h5 class="card-title"><%= t("money_sources.show.details") %></h5>
           <dl class="row mb-0">
@@ -69,18 +68,18 @@
                     <%= reconciliation_signed_money(@money_source.balance_offset) %>
                   </span>
                   <% if @money_source.balance_offset_at %>
-                    <span class="text-muted small">— <%= I18n.l(@money_source.balance_offset_at.to_date, format: :long) %></span>
+                    <span class="text-secondary small">— <%= I18n.l(@money_source.balance_offset_at.to_date, format: :long) %></span>
                   <% end %>
                 </div>
                 <% if @money_source.balance_offset_note.present? %>
-                  <div class="text-muted small"><i class="bi bi-chat-left-text me-1"></i><%= @money_source.balance_offset_note %></div>
+                  <div class="text-secondary small"><i class="ti ti-message-circle me-1"></i><%= @money_source.balance_offset_note %></div>
                 <% end %>
                 <%= button_to reset_adjustment_money_source_path(@money_source),
                               method: :post,
                               form_class: "d-inline",
                               class: "btn btn-outline-secondary btn-sm mt-1",
                               data: { turbo: false, confirm: t("money_sources.show.reset_adjustment_confirm") } do %>
-                  <i class="bi bi-arrow-counterclockwise me-1"></i><%= t("money_sources.show.reset_adjustment") %>
+                  <i class="ti ti-rotate-2 me-1"></i><%= t("money_sources.show.reset_adjustment") %>
                 <% end %>
               </dd>
             <% end %>
@@ -88,7 +87,7 @@
         </div>
       </div>
 
-      <div class="card shadow-sm mt-4">
+      <div class="card mt-4">
         <div class="card-body">
           <h5 class="card-title"><%= t("money_sources.show.recognition") %></h5>
           <% recognition_keywords = @money_source.recognition_identifiers.select(&:keyword?).map(&:value) %>
@@ -99,7 +98,7 @@
               </span>
             <% end %>
           <% else %>
-            <p class="text-muted mb-0"><%= t("money_sources.recognition.status_unconfigured") %></p>
+            <p class="text-secondary mb-0"><%= t("money_sources.recognition.status_unconfigured") %></p>
           <% end %>
         </div>
       </div>
@@ -111,4 +110,3 @@
       <% end %>
     </div>
   </div>
-</div>

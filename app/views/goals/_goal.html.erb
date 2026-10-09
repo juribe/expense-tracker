@@ -1,5 +1,5 @@
 <div class="col-12 col-md-6 col-lg-4">
-  <div class="card h-100 shadow-sm <%= "border-secondary opacity-75" if goal.archived? %>">
+  <div class="card h-100 card-hover <%= "border-secondary opacity-75" if goal.archived? %>">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-start mb-3">
         <h5 class="mb-0">
@@ -43,7 +43,7 @@
           <dt class="fw-normal text-muted"><%= t("goals.pocket", default: "Bolsillo") %></dt>
           <dd class="mb-0">
             <% if goal.pocket %>
-              <i class="bi bi-piggy-bank me-1"></i><%= goal.pocket.name %>
+              <i class="ti ti-pig-money me-1"></i><%= goal.pocket.name %>
             <% else %>
               <span class="text-muted">—</span>
             <% end %>
@@ -58,10 +58,10 @@
                   data-assign-goal-name="<%= goal.name %>"
                   data-assign-pocket-name="<%= goal.pocket.name %>"
                   data-assign-unallocated="<%= goal.pocket.unallocated_amount %>">
-            <i class="bi bi-piggy-bank me-1"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
+            <i class="ti ti-pig-money me-1"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
           </button>
           <%= link_to money_source_path(goal.pocket), class: "btn btn-sm btn-outline-primary", title: t("goals.view_pocket", default: "Ver bolsillo") do %>
-            <i class="bi bi-eye me-1"></i><%= t("goals.view_pocket", default: "Ver bolsillo") %>
+            <i class="ti ti-eye me-1"></i><%= t("goals.view_pocket", default: "Ver bolsillo") %>
           <% end %>
         <% end %>
       </div>
@@ -70,11 +70,11 @@
     <div class="card-footer bg-white d-flex justify-content-end d-print-none">
       <div class="btn-group btn-group-sm">
         <%= link_to edit_goal_path(goal), class: "btn btn-outline-primary", title: t("common.edit") do %>
-          <i class="bi bi-pencil"></i>
+          <i class="ti ti-pencil"></i>
         <% end %>
         <%= button_to goal_path(goal), method: :delete, form: { data: { turbo: true } },
                       class: "btn btn-outline-danger", data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
-          <i class="bi bi-trash"></i>
+          <i class="ti ti-trash"></i>
         <% end %>
       </div>
     </div>

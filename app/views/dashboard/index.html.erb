@@ -1,292 +1,216 @@
+<%# Finances dashboard — the app's home.
+  Answers, in order: how much money do I have / what does this cycle look
+  like / what is coming / what needs attention. %>
+
 <% period_nav = capture do %>
   <div class="btn-group btn-group-sm" role="group" aria-label="<%= t("dashboard.period_nav_aria", default: "Navegar período") %>">
     <%= link_to dashboard_period_nav_path(:prev), class: "btn btn-outline-secondary", aria: { label: t("dashboard.previous_period", default: "Período anterior") } do %>
-      <i class="bi bi-chevron-left"></i>
+      <i class="ti ti-chevron-left"></i>
     <% end %>
     <%= link_to dashboard_period_nav_path(:next), class: "btn btn-outline-secondary", aria: { label: t("dashboard.next_period", default: "Período siguiente") } do %>
-      <i class="bi bi-chevron-right"></i>
+      <i class="ti ti-chevron-right"></i>
     <% end %>
   </div>
 <% end %>
 
+<%# The cycle banner doubles as the page header on cycle-enabled accounts %>
 <% if @cycle %>
-  <div class="cycle-banner d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <i class="bi bi-calendar-heart fs-3 text-primary"></i>
+  <div class="cycle-banner page-header d-flex align-items-center gap-3 flex-wrap">
     <div>
-      <strong class="d-block fs-5"><%= @cycle.label %></strong>
-      <span class="text-muted small"><%= @cycle.range_label %></span>
+      <h1 class="page-title"><strong><%= @cycle.label %></strong></h1>
+      <span class="page-subtitle"><%= @cycle.range_label %></span>
     </div>
-    <%= period_nav %>
+    <div class="page-actions">
+      <%= period_nav %>
+      <%= link_to new_expense_path, class: "btn btn-primary" do %>
+        <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
+      <% end %>
+    </div>
   </div>
 <% else %>
-  <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-    <i class="bi bi-calendar-week fs-3 text-primary"></i>
+  <div class="page-header">
     <div>
-      <strong class="d-block fs-5"><%= @period_label %></strong>
-      <span class="text-muted small"><%= dashboard_span_label(@span) %></span>
+      <h1 class="page-title"><%= @period_label %></h1>
+      <div class="page-subtitle"><%= dashboard_span_label(@span) %></div>
     </div>
-    <%= period_nav %>
+    <div class="page-actions">
+      <%= period_nav %>
+      <%= link_to new_expense_path, class: "btn btn-primary" do %>
+        <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
+      <% end %>
+    </div>
   </div>
 <% end %>
 
-<% if @pending_candidates.any? %>
-  <div class="row g-3 mb-4">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center bg-warning bg-opacity-10">
-          <h5 class="mb-0 text-warning"><i class="bi bi-inbox me-2"></i><%= t("dashboard.expense_candidates", default: "Expense Candidates") %></h5>
-          <%= link_to expense_candidates_path, class: "btn btn-sm btn-outline-warning" do %>
-            <%= t("dashboard.view_all_candidates", default: "View All") %> <i class="bi bi-arrow-right ms-1"></i>
-          <% end %>
+<%# --------------------------------------------------------- overview %>
+<section class="page-section">
+  <div class="kpi-strip d-block">
+    <div class="row g-3 align-items-end">
+      <div class="col-6 col-lg-3">
+        <%= render "shared/stat", label: t("dashboard.available_money", default: "Dinero disponible"),
+              value: number_to_currency(@balance_snapshot[:net]).html_safe,
+              tone: @balance_snapshot[:net].negative? ? :negative : nil %>
+        <div class="small text-secondary mt-1">
+          <%= t("dashboard.balance_breakdown", default: "%{assets} en cuentas · %{debt} en deudas", assets: number_to_currency(@balance_snapshot[:assets]), debt: number_to_currency(@balance_snapshot[:debt])) %>
         </div>
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
-                <th scope="col"><%= t("common.source", default: "Source") %></th>
-                <th scope="col"><%= t("common.description") %></th>
-                <th scope="col" class="text-end"><%= t("common.amount") %></th>
-                <th scope="col"><%= t("common.date") %></th>
-                <th scope="col"><%= t("common.category") %></th>
-                <th scope="col"><%= t("common.status", default: "Status") %></th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @pending_candidates.each do |candidate| %>
-                <tr>
-                  <td>
-                    <span class="badge bg-light text-dark">
-                      <i class="bi bi-<%= source_icon(candidate.source) %> me-1"></i>
-                      <%= candidate.source.titleize %>
-                    </span>
-                  </td>
-                  <td><%= candidate.description.presence || candidate.original_text&.truncate(50) || "—" %></td>
-                  <td class="text-end fw-bold text-danger">
-                    <% if candidate.amount %>
-                      $<%= number_with_precision(candidate.amount.abs, precision: 0, delimiter: ",") %>
-                    <% else %>
-                      —
-                    <% end %>
-                  </td>
-                  <td><%= candidate.date ? l(candidate.date, format: :long) : "—" %></td>
-                  <td>
-                    <% if candidate.category %>
-                      <%= category_badge(candidate.category) %>
-                    <% else %>
-                      <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i><%= t("expense_candidates.missing", default: "Missing") %></span>
-                    <% end %>
-                  </td>
-                  <td><%= status_badge(candidate.status) %></td>
-                  <td class="text-end">
-                    <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
-                      <i class="bi bi-eye me-1"></i><%= t("common.review", default: "Review") %>
-                    <% end %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+      </div>
+      <div class="col-6 col-lg-3">
+        <%= render "shared/stat", label: t("dashboard.incomes", default: "Ingresos"),
+              value: number_to_currency(@cycle_summary[:income_total]).html_safe, tone: :positive %>
+        <div class="small text-secondary mt-1"><%= dashboard_delta_badge(@cycle_summary[:income_delta_pct]) %> <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span></div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <%= render "shared/stat", label: t("dashboard.expenses", default: "Gastos"),
+              value: number_to_currency(@cycle_summary[:expense_total]).html_safe, tone: :negative %>
+        <div class="small text-secondary mt-1"><%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %> <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span></div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <%= render "shared/stat", label: t("dashboard.projected_spend", default: "Gasto proyectado"),
+              value: number_to_currency(@cycle_summary[:projected_spend]).html_safe,
+              tone: @cycle_summary[:on_track] ? :positive : :negative %>
+        <div class="small text-secondary mt-1">
+          <%= link_to @cycle_summary[:on_track] ? t("dashboard.on_track_title", default: "Estás en línea con tu meta") : t("dashboard.off_track_title", default: "Vas sobre tu meta de gasto"), reports_budgets_path, class: "text-decoration-none d-flex align-items-center gap-1" %>
+          <span class="progress mt-1 d-block" role="progressbar" aria-label="<%= t("dashboard.cycle_progress_aria", default: "Progreso del ciclo") %>"
+                aria-valuenow="<%= @cycle_summary[:period_progress_pct].round %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar <%= @cycle_summary[:on_track] ? "bg-success" : "bg-danger" %>" style="width: <%= @cycle_summary[:period_progress_pct].round %>%"></div>
+          </span>
         </div>
       </div>
     </div>
   </div>
+</section>
+
+<%# ------------------------------------------------- needs attention %>
+<% needs_attention = [] %>
+<% needs_attention << { icon: "inbox", tone: "amber", text: t("dashboard.attention_candidates", count: @pending_candidates.size, default: "%{count} gastos por revisar"), path: expense_candidates_path } if @pending_candidates.any? %>
+<% if current_user.spending_alerts.unread.any? %>
+  <% needs_attention << { icon: "bell", tone: "amber", text: t("dashboard.attention_alerts", default: "%{count} alertas sin leer", count: current_user.spending_alerts.unread.count), path: alerts_path } %>
+<% end %>
+<% if @budgets.any? %>
+  <% attention_counts = budget_summary_counts(@budgets, @budget_period) %>
+  <% if attention_counts[:over_budget].positive? %>
+    <% needs_attention << { icon: "calculator", tone: "red", text: t("budgets.attention_over", count: attention_counts[:over_budget], default: "%{count} presupuestos excedidos"), path: budgets_path } %>
+  <% elsif attention_counts[:near_limit].positive? %>
+    <% needs_attention << { icon: "calculator", tone: "amber", text: t("budgets.attention_near", count: attention_counts[:near_limit], default: "%{count} presupuestos cerca del límite"), path: budgets_path } %>
+  <% end %>
+<% end %>
+<% if needs_attention.any? %>
+  <section class="page-section">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="section-title mb-0"><%= t("dashboard.attention", default: "Requiere atención") %></span>
+      <% needs_attention.each do |item| %>
+        <%= link_to item[:path], class: "filter-chip #{item[:tone] == "red" ? "border-danger text-danger" : "border-warning-subtle text-warning-emphasis"}" do %>
+          <i class="ti ti-<%= item[:icon] %>"></i><%= item[:text] %>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
 <% end %>
 
 <div class="row g-3">
-  <div class="col-12 col-lg-9">
-    <div class="row g-3 mb-3">
-      <div class="col-12 col-lg-4">
-        <div class="card dashboard-card h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="stat-icon stat-icon-success"><i class="bi bi-wallet2"></i></span>
-              <h5 class="mb-0 fw-semibold"><%= t("dashboard.net_balance", default: "Saldo neto") %></h5>
-            </div>
-            <p class="summary-value fw-bold <%= @cycle_summary[:net_total].negative? ? "text-danger" : "text-success" %> mb-2">
-              <%= number_to_currency(@cycle_summary[:net_total]) %>
-            </p>
-            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-              <%= dashboard_delta_badge(@cycle_summary[:net_delta_pct]) %>
-              <span class="text-muted small"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
-            </div>
-            <div class="row g-0">
-              <div class="col-6">
-                <span class="text-muted small d-block"><%= t("dashboard.incomes", default: "Ingresos") %></span>
-                <span class="fw-bold text-success"><%= number_to_currency(@cycle_summary[:income_total]) %></span>
-              </div>
-              <div class="col-6">
-                <span class="text-muted small d-block"><%= t("dashboard.expenses", default: "Gastos") %></span>
-                <span class="fw-bold text-danger"><%= number_to_currency(@cycle_summary[:expense_total]) %></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-4">
-        <div class="card dashboard-card h-100">
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="stat-icon stat-icon-primary"><i class="bi bi-receipt"></i></span>
-              <h5 class="mb-0 fw-semibold flex-grow-1"><%= dashboard_expenses_title(@cycle) %></h5>
-              <%= link_to expenses_path, class: "text-muted", aria: { label: t("dashboard.view_all", default: "Ver todos") } do %>
-                <i class="bi bi-chevron-right"></i>
-              <% end %>
-            </div>
-            <p class="summary-value fw-bold text-primary mb-2"><%= @cycle_summary[:expense_count] %></p>
-            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-              <%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %>
-              <span class="text-muted small"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
-            </div>
-            <div class="mt-auto dashboard-mini-chart">
-              <%= column_chart @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] },
-                               height: "120px",
-                               colors: [ "#93c5fd" ],
-                               legend: false,
-                               library: { plugins: { legend: { display: false } },
-                                          scales: { x: { display: false }, y: { display: false } } } %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-4">
-        <div class="card dashboard-card h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="stat-icon stat-icon-info"><i class="bi bi-pie-chart"></i></span>
-              <h5 class="mb-0 fw-semibold"><%= t("dashboard.category_breakdown", default: "Distribución por categoría") %></h5>
-            </div>
-            <% if @expense_summary[:by_category].any? %>
-              <% ranked_categories = @expense_summary[:by_category].sort_by { |_name, total| -total }
-                                                            .first(8)
-                                                            .map { |name, total| { name: name, total: total } } %>
-              <% palette = dashboard_category_palette(ranked_categories.size) %>
-              <div class="donut-wrap position-relative mx-auto">
-                <%= pie_chart ranked_categories.map { |category| [ category[:name], category[:total] ] },
-                                height: "170px",
-                                donut: true,
-                                legend: false,
-                                colors: palette,
-                                library: { cutout: "70%" } %>
-                <div class="donut-center text-center">
-                  <span class="d-block fw-bold"><%= number_to_currency(@cycle_summary[:expense_total]) %></span>
-                  <span class="text-muted small"><%= t("dashboard.total_expenses", default: "Total gastos") %></span>
-                </div>
-              </div>
-              <ul class="list-unstyled mb-0 mt-3 donut-legend">
-                <% ranked_categories.each_with_index do |category, index| %>
-                  <li class="d-flex align-items-center gap-2 mb-1">
-                    <span class="legend-dot" style="background: <%= palette[index] %>"></span>
-                    <span class="small flex-grow-1"><%= category[:name] %></span>
-                    <span class="small fw-bold">
-                      <% if @cycle_summary[:expense_total].to_f.positive? %>
-                        <%= number_with_precision(category[:total] / @cycle_summary[:expense_total] * 100, precision: 0) %>%
-                      <% else %>
-                        0%
-                      <% end %>
-                    </span>
-                  </li>
-                <% end %>
-              </ul>
-            <% else %>
-              <div class="text-center text-muted py-4">
-                <i class="bi bi-pie-chart display-4 d-block mb-2"></i>
-                <span><%= dashboard_no_expenses_label(@cycle) %></span>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row g-3 mb-3">
-      <div class="col-12 col-lg-7">
-        <div class="card dashboard-card h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="stat-icon stat-icon-warning"><i class="bi bi-graph-up"></i></span>
-              <h5 class="mb-0 fw-semibold flex-grow-1"><%= t("dashboard.evolution_title", default: "Evolución de ingresos y gastos") %></h5>
-            </div>
-            <% has_evolution = @cycle_summary[:evolution].any? { |point| point[:income].positive? || point[:expense].positive? } %>
-            <% if has_evolution %>
-              <div class="d-flex gap-3 mb-2">
-                <span class="small"><span class="legend-dot" style="background: #16a34a"></span> <%= t("dashboard.incomes", default: "Ingresos") %></span>
-                <span class="small"><span class="legend-dot" style="background: #f97316"></span> <%= t("dashboard.expenses", default: "Gastos") %></span>
-              </div>
-              <%= area_chart [
-                               { name: t("dashboard.incomes", default: "Ingresos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:income] ] } },
-                               { name: t("dashboard.expenses", default: "Gastos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] } }
-                             ],
-                             height: "240px",
-                             colors: [ "#16a34a", "#f97316" ],
-                             legend: false,
-                             library: { scales: { x: { ticks: { maxTicksLimit: 8 } } } } %>
-            <% else %>
-              <div class="text-center text-muted py-5">
-                <i class="bi bi-graph-up display-4 d-block mb-2"></i>
-                <span><%= t("dashboard.no_evolution", default: "Sin movimientos en este período") %></span>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-5">
-        <div class="card dashboard-card h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="stat-icon stat-icon-warning"><i class="bi bi-trophy"></i></span>
-              <h5 class="mb-0 fw-semibold flex-grow-1"><%= t("dashboard.top_categories", default: "Top categorías de gasto") %></h5>
-              <%= link_to categories_path, class: "small text-decoration-none" do %>
-                <%= t("dashboard.view_all", default: "Ver todas") %> <i class="bi bi-arrow-right"></i>
-              <% end %>
-            </div>
-            <% if @cycle_summary[:top_categories].any? %>
-              <% top_palette = dashboard_category_palette(@cycle_summary[:top_categories].size) %>
-              <% top_icons = %w[bi-bus-front bi-film bi-cash-coin bi-lightning-charge-fill bi-bag bi-mortarboard bi-house-gear bi-three-dots] %>
-              <% @cycle_summary[:top_categories].each_with_index do |category, index| %>
-                <div class="top-category-row mb-3">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small fw-semibold">
-                      <i class="bi <%= top_icons[index % top_icons.size] %> me-2" style="color: <%= top_palette[index] %>"></i><%= category[:name] %>
-                    </span>
-                    <span class="d-flex align-items-center gap-2">
-                      <strong class="small"><%= number_to_currency(category[:total]) %></strong>
-                      <span class="text-muted small"><%= number_with_precision(category[:percentage], precision: 0) %>%</span>
-                    </span>
-                  </div>
-                  <div class="progress dashboard-progress" role="progressbar"
-                       aria-label="<%= category[:name] %>"
-                       aria-valuenow="<%= category[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar" style="width: <%= [ category[:percentage], 100 ].min.round %>%"></div>
-                  </div>
-                </div>
-              <% end %>
-            <% else %>
-              <div class="text-center text-muted py-5">
-                <i class="bi bi-trophy display-4 d-block mb-2"></i>
-                <span><%= t("dashboard.no_top_categories", default: "Sin gastos por categoría en este período") %></span>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  <div class="col-12 col-lg-8">
+    <%# ------------------------------------------------- period count %>
     <div class="row g-3">
-      <div class="col-12 col-lg-7">
-        <div class="card dashboard-card h-100">
-          <div class="card-header d-flex justify-content-between align-items-center bg-white border-0">
-            <h5 class="mb-0 fw-semibold"><i class="bi bi-list-ul me-2"></i><%= t("dashboard.recent_expenses", default: "Gastos recientes") %></h5>
-            <%= link_to expenses_path, class: "btn btn-sm btn-outline-primary" do %>
-              <%= t("dashboard.view_all", default: "Ver todos") %> <i class="bi bi-arrow-right ms-1"></i>
-            <% end %>
+      <div class="col-12">
+        <div class="card page-section">
+          <div class="card-body">
+            <div class="row g-3 align-items-center">
+              <div class="col-12 col-md-4">
+                <h5 class="card-title"><%= dashboard_expenses_title(@cycle) %></h5>
+                <p class="summary-value mb-0 text-body"><%= @cycle_summary[:expense_count] %></p>
+                <div class="small text-secondary"><%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %> <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span></div>
+              </div>
+              <div class="col-12 col-md-8 dashboard-mini-chart">
+                <%= column_chart @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] },
+                                 height: "120px",
+                                 colors: [ "#f2a5b6" ],
+                                 legend: false,
+                                 library: { plugins: { legend: { display: false } },
+                                            scales: { x: { display: false }, y: { display: false } } } %>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ------------------------------------------------- cash flow %>
+    <div class="card page-section">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title"><%= t("dashboard.evolution_title", default: "Evolución de ingresos y gastos") %></h5>
+      </div>
+      <div class="card-body">
+        <% has_evolution = @cycle_summary[:evolution].any? { |point| point[:income].positive? || point[:expense].positive? } %>
+        <% if has_evolution %>
+          <div class="d-flex gap-3 mb-2 small text-secondary">
+            <span><span class="legend-dot" style="background: var(--et-positive)"></span> <%= t("dashboard.incomes", default: "Ingresos") %></span>
+            <span><span class="legend-dot" style="background: var(--et-negative)"></span> <%= t("dashboard.expenses", default: "Gastos") %></span>
+          </div>
+          <%= area_chart [
+                           { name: t("dashboard.incomes", default: "Ingresos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:income] ] } },
+                           { name: t("dashboard.expenses", default: "Gastos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] } }
+                         ],
+                         height: "240px",
+                         colors: [ "#0e9f6e", "#e0254b" ],
+                         legend: false,
+                         library: { scales: { x: { ticks: { maxTicksLimit: 8 } } } } %>
+        <% else %>
+          <%= render "shared/empty_state", icon: "chart-line", title: t("dashboard.no_evolution", default: "Sin movimientos en este período") %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ------------------------------------------------ categories %>
+    <div class="row g-3">
+      <div class="col-12 col-lg-5">
+        <%= render "shared/section", title: t("dashboard.category_breakdown", default: "Distribución por categoría") do %>
+          <% if @expense_summary[:by_category].any? %>
+            <% ranked_categories = @expense_summary[:by_category].sort_by { |_name, total| -total }
+                                                          .first(8)
+                                                          .map { |name, total| { name: name, total: total } } %>
+            <% palette = dashboard_category_palette(ranked_categories.size) %>
+            <div class="donut-wrap position-relative mx-auto">
+              <%= pie_chart ranked_categories.map { |category| [ category[:name], category[:total] ] },
+                              height: "170px",
+                              donut: true,
+                              legend: false,
+                              colors: palette,
+                              library: { cutout: "70%" } %>
+              <div class="donut-center text-center">
+                <span class="d-block fw-bold num"><%= number_to_currency(@cycle_summary[:expense_total]) %></span>
+                <span class="text-secondary small"><%= t("dashboard.total_expenses", default: "Total gastos") %></span>
+              </div>
+            </div>
+            <ul class="list-unstyled mb-0 mt-3 donut-legend">
+              <% ranked_categories.each_with_index do |category, index| %>
+                <li class="d-flex align-items-center gap-2 mb-1">
+                  <span class="legend-dot" style="background: <%= palette[index] %>"></span>
+                  <span class="small flex-grow-1"><%= category[:name] %></span>
+                  <span class="small fw-bold num">
+                    <% if @cycle_summary[:expense_total].to_f.positive? %>
+                      <%= number_with_precision(category[:total] / @cycle_summary[:expense_total] * 100, precision: 0) %>%
+                    <% else %>
+                      0%
+                    <% end %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <div class="text-center text-secondary py-4">
+              <i class="ti ti-chart-pie display-5 d-block mb-2"></i>
+              <span><%= dashboard_no_expenses_label(@cycle) %></span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <%= render "shared/section", title: t("dashboard.recent_expenses", default: "Gastos recientes"),
+              header: false do %>
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+            <table class="table table-hover ledger-table mb-0" data-testid="dashboard-recent-expenses">
+              <thead>
                 <tr>
                   <th scope="col"><%= t("common.date") %></th>
                   <th scope="col"><%= t("common.category") %></th>
@@ -297,210 +221,149 @@
               <tbody>
                 <% @expense_summary[:recent_expenses].each do |expense| %>
                   <tr>
-                    <td><%= l(expense.date, format: :long) %></td>
+                    <td class="cell-muted small"><%= l(expense.date, format: :long) %></td>
                     <td><%= category_badge(expense.category) %></td>
-                    <td><%= expense.description %></td>
-                    <td class="text-end fw-bold text-danger"><%= number_to_currency(expense.amount.abs) %></td>
+                    <td class="cell-strong"><%= expense.description %></td>
+                    <td class="cell-amount text-danger"><%= number_to_currency(expense.amount.abs) %></td>
                   </tr>
                 <% end %>
               </tbody>
             </table>
           </div>
           <% if @expense_summary[:recent_expenses].empty? %>
-            <div class="p-5 text-center">
-              <i class="bi bi-clipboard-x display-4 text-muted mb-3 d-block"></i>
-              <h4 class="mb-2"><%= t("dashboard.no_expenses", default: "No se encontraron gastos") %></h4>
-              <p class="text-muted"><%= t("dashboard.add_expense_to_start", default: "Agrega un gasto nuevo para comenzar.") %></p>
-              <%= link_to new_expense_path, class: "btn btn-primary mt-3" do %>
-                <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
-              <% end %>
-            </div>
+            <%= render "shared/empty_state", icon: "clipboard-x", title: t("dashboard.no_expenses", default: "No se encontraron gastos"),
+                  text: t("dashboard.add_expense_to_start", default: "Agrega un gasto nuevo para comenzar."),
+                  cta: link_to(new_expense_path, class: "btn btn-primary btn-sm") do %><i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %><% end %>
           <% end %>
-
-          <div class="tip-banner d-flex align-items-center gap-3 m-3 p-3">
-            <i class="bi bi-lightbulb-fill text-warning fs-4"></i>
-            <div class="flex-grow-1">
-              <strong class="d-block small"><%= t("dashboard.tip_title", default: "Tip del mes") %></strong>
-              <span class="small text-muted"><%= t("dashboard.tip_body", default: "Revisa tus suscripciones. Puedes ahorrar hasta $150.000 al mes eliminando las que no usas.") %></span>
-            </div>
-            <%= link_to monthly_expenses_path, class: "small text-nowrap" do %>
-              <%= t("dashboard.tip_link", default: "Ver suscripciones") %> <i class="bi bi-arrow-right"></i>
-            <% end %>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-5">
-        <% if @budgets.any? %>
-          <% counts = budget_summary_counts(@budgets, @budget_period) %>
-          <div class="card dashboard-card mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center bg-white border-0">
-              <h5 class="mb-0 fw-semibold"><i class="bi bi-bullseye me-2"></i><%= t("budgets.dashboard_title") %></h5>
-              <%= link_to budgets_path, class: "btn btn-sm btn-outline-primary" do %>
-                <%= t("budgets.dashboard_view_all") %> <i class="bi bi-arrow-right ms-1"></i>
-              <% end %>
-            </div>
-            <div class="card-body">
-              <% @budgets.first(4).each do |budget| %>
-                <% data = budget_progress_data(budget, @budget_period) %>
-                <div class="budget-mini mb-3">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
-                    <span class="fw-bold small budget-amount"><%= number_to_percentage(data[:percentage], precision: 0) %></span>
-                  </div>
-                  <div class="progress dashboard-progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= data[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar <%= budget_status_class(data[:status]) %>" style="width: <%= [ data[:percentage], 100 ].min %>%"></div>
-                  </div>
-                </div>
-              <% end %>
-              <p class="text-muted small mb-0">
-                <%= t("budgets.summary", count: counts[:total], near_limit: counts[:near_limit], over_budget: counts[:over_budget]) %>
-              </p>
-            </div>
+          <div class="d-flex justify-content-end mt-2">
+            <%= link_to expenses_path, class: "btn btn-sm btn-outline-secondary" do %><%= t("dashboard.view_all", default: "Ver todos") %><i class="ti ti-arrow-right ms-1"></i><% end %>
           </div>
         <% end %>
-
-        <div class="card dashboard-card">
-          <div class="card-header bg-success bg-opacity-10 border-0">
-            <span class="fw-semibold text-success"><i class="bi bi-plus-circle me-2"></i><%= t("dashboard.quick_add_expense", default: "Agregar gasto rápido") %></span>
-          </div>
-          <div class="card-body">
-            <%= form_with model: Expense.new, local: true do |f| %>
-              <%= f.hidden_field :date, value: Date.today %>
-              <div class="mb-2">
-                <%= f.label :amount, t("dashboard.quick_add_amount", default: "Valor"), class: "form-label small" %>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <%= f.text_field :amount,
-                                   value: money_field_value(f.object.amount&.abs),
-                                   class: "form-control",
-                                   placeholder: t("expenses.placeholder_amount"),
-                                   required: true,
-                                   inputmode: "decimal",
-                                   autocomplete: "off",
-                                   data: { money_input: true } %>
-                </div>
-              </div>
-              <div class="mb-2">
-                <%= category_picker f, :category_id, @categories,
-                                    label: t("common.category"),
-                                    label_class: "form-label small",
-                                    required: true,
-                                    testid: "dashboard-expense-category-picker" %>
-              </div>
-              <div class="mb-3">
-                <%= f.label :money_source_id, t("expenses.source"), class: "form-label small" %>
-                <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
-                                        { include_blank: t("common.none") }, class: "form-select" %>
-              </div>
-              <button type="submit" class="btn btn-success w-100">
-                <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
-              </button>
-            <% end %>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-12 col-lg-3">
-    <div class="card dashboard-card mb-3">
-      <div class="card-body">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <span class="stat-icon stat-icon-primary"><i class="bi bi-calendar-check"></i></span>
-          <h6 class="mb-0 fw-semibold"><%= t("dashboard.cycle_summary", default: "Resumen del ciclo") %></h6>
-        </div>
-        <span class="fw-semibold small d-block"><%= t("dashboard.current_period", default: "Periodo actual") %></span>
-        <span class="text-muted small d-block mb-2"><%= dashboard_span_label(@span) %></span>
-        <div class="progress dashboard-progress mb-2" role="progressbar"
-             aria-label="<%= t("dashboard.cycle_progress_aria", default: "Progreso del ciclo") %>"
-             aria-valuenow="<%= @cycle_summary[:period_progress_pct].round %>" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-bar bg-primary" style="width: <%= @cycle_summary[:period_progress_pct].round %>%"></div>
-        </div>
-        <div class="d-flex justify-content-between mb-1">
-          <span class="text-muted small"><%= t("dashboard.days_elapsed", default: "Días transcurridos") %></span>
-          <span class="fw-bold small"><%= number_to_percentage(@cycle_summary[:period_progress_pct], precision: 0) %></span>
-        </div>
-        <span class="text-muted small"><%= t("dashboard.days_counter", elapsed: @cycle_summary[:days_elapsed], total: @cycle_summary[:days_total], default: "%{elapsed} de %{total}") %></span>
-
-        <%= link_to reports_budgets_path, class: "text-decoration-none" do %>
-          <div class="cycle-meta-box <%= @cycle_summary[:on_track] ? "cycle-meta-box-success" : "cycle-meta-box-danger" %> mt-3">
-            <i class="bi <%= @cycle_summary[:on_track] ? "bi-check-circle-fill" : "bi-exclamation-circle-fill" %>"></i>
-            <div class="flex-grow-1">
-              <span class="fw-semibold d-block small"><%= @cycle_summary[:on_track] ? t("dashboard.on_track_title", default: "Estás en línea con tu meta") : t("dashboard.off_track_title", default: "Vas sobre tu meta de gasto") %></span>
-              <span class="small text-muted"><%= t("dashboard.projected_spend", default: "Gasto proyectado") %>: <%= number_to_currency(@cycle_summary[:projected_spend]) %></span>
-            </div>
-            <i class="bi bi-chevron-right text-muted"></i>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="card dashboard-card mb-3">
-      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 fw-semibold"><i class="bi bi-calendar-event me-2"></i><%= t("dashboard.upcoming_payments", default: "Próximos pagos") %></h6>
-        <%= link_to monthly_expenses_path, class: "small text-decoration-none" do %>
-          <%= t("dashboard.view_all", default: "Ver todos") %> <i class="bi bi-arrow-right"></i>
-        <% end %>
+  <div class="col-12 col-lg-4">
+    <%# ------------------------------------------------ upcoming %>
+    <div class="card page-section">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title"><i class="ti ti-calendar-event me-1 text-secondary"></i><%= t("dashboard.upcoming_payments", default: "Próximos pagos") %></h5>
+        <%= link_to monthly_expenses_path, class: "small text-decoration-none text-secondary" do %><%= t("dashboard.view_all", default: "Ver todos") %><i class="ti ti-arrow-right"></i><% end %>
       </div>
       <div class="card-body pt-0">
         <% if @cycle_summary[:upcoming_payments].any? %>
           <% @cycle_summary[:upcoming_payments].each do |payment| %>
             <div class="upcoming-payment d-flex align-items-center gap-2 py-2 border-bottom">
-              <span class="stat-icon stat-icon-secondary stat-icon-sm"><i class="bi bi-arrow-repeat"></i></span>
+              <span class="icon-chip icon-chip-gray icon-chip-sm"><i class="ti ti-repeat"></i></span>
               <div class="flex-grow-1">
-                <span class="small fw-semibold d-block"><%= payment[:label] %></span>
-                <span class="text-muted small"><%= l(payment[:next_date], format: "%e %b").squeeze(" ") %></span>
+                <span class="small fw-semibold d-block cell-strong"><%= payment[:label] %></span>
+                <span class="text-secondary small"><%= l(payment[:next_date], format: "%e %b").squeeze(" ") %></span>
               </div>
               <div class="text-end">
-                <span class="small fw-bold d-block"><%= number_to_currency(payment[:amount]) %></span>
+                <span class="small fw-bold num d-block"><%= number_to_currency(payment[:amount]) %></span>
                 <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger small"><%= t("dashboard.pending", default: "Pendiente") %></span>
               </div>
             </div>
           <% end %>
         <% else %>
-          <div class="text-center text-muted py-4">
-            <i class="bi bi-calendar-event display-5 d-block mb-2"></i>
-            <span class="small"><%= t("dashboard.no_upcoming_payments", default: "No hay pagos próximos") %></span>
-          </div>
+          <%= render "shared/empty_state", icon: "calendar-event", title: t("dashboard.no_upcoming_payments", default: "No hay pagos próximos") %>
         <% end %>
       </div>
     </div>
 
-    <div class="card dashboard-card">
-      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 fw-semibold"><i class="bi bi-bullseye me-2"></i><%= t("dashboard.financial_goals", default: "Metas financieras") %></h6>
-        <%= link_to goals_path, class: "small text-decoration-none" do %>
-          <%= t("dashboard.view_all", default: "Ver todas") %> <i class="bi bi-arrow-right"></i>
-        <% end %>
+    <%# ------------------------------------------------ budgets %>
+    <% if @budgets.any? %>
+      <% counts = budget_summary_counts(@budgets, @budget_period) %>
+      <div class="card page-section">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title"><i class="ti ti-calculator me-1 text-secondary"></i><%= t("budgets.dashboard_title") %></h5>
+          <%= link_to budgets_path, class: "small text-decoration-none text-secondary" do %><%= t("budgets.dashboard_view_all") %><i class="ti ti-arrow-right"></i><% end %>
+        </div>
+        <div class="card-body">
+          <% @budgets.first(4).each do |budget| %>
+            <% data = budget_progress_data(budget, @budget_period) %>
+            <div class="budget-mini mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
+                <span class="fw-bold small budget-amount num"><%= number_to_percentage(data[:percentage], precision: 0) %></span>
+              </div>
+              <div class="progress dashboard-progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= data[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar <%= budget_status_class(data[:status]) %>" style="width: <%= [ data[:percentage], 100 ].min %>%"></div>
+              </div>
+            </div>
+          <% end %>
+          <p class="text-secondary small mb-0"><%= t("budgets.summary", count: counts[:total], near_limit: counts[:near_limit], over_budget: counts[:over_budget]) %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ------------------------------------------------ goals %>
+    <div class="card page-section">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title"><i class="ti ti-trophy me-1 text-secondary"></i><%= t("dashboard.financial_goals", default: "Metas financieras") %></h5>
+        <%= link_to goals_path, class: "small text-decoration-none text-secondary" do %><%= t("dashboard.view_all", default: "Ver todas") %><i class="ti ti-arrow-right"></i><% end %>
       </div>
       <div class="card-body pt-0">
         <% if @goals.any? %>
           <% @goals.each do |goal| %>
             <div class="goal-row py-2 border-bottom">
               <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="stat-icon stat-icon-success stat-icon-sm"><i class="bi bi-piggy-bank"></i></span>
+                <span class="icon-chip icon-chip-green icon-chip-sm"><i class="ti ti-pig-money"></i></span>
                 <span class="small fw-semibold flex-grow-1"><%= link_to goal.name, goals_path, class: "text-decoration-none text-reset" %></span>
-                <span class="small fw-bold"><%= number_to_percentage(goal.progress_percentage, precision: 0) %></span>
+                <span class="small fw-bold num"><%= number_to_percentage(goal.progress_percentage, precision: 0) %></span>
               </div>
               <div class="progress dashboard-progress mb-1" role="progressbar"
                    aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
                    aria-valuenow="<%= goal.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100">
                 <div class="progress-bar bg-primary" style="width: <%= goal.progress_percentage.round %>%"></div>
               </div>
-              <span class="text-muted small">
-                <%= number_to_currency(goal.saved_amount) %> / <%= number_to_currency(goal.target_amount) %>
-              </span>
+              <span class="text-secondary small num"><%= number_to_currency(goal.saved_amount) %> / <%= number_to_currency(goal.target_amount) %></span>
             </div>
           <% end %>
         <% else %>
-          <div class="text-center text-muted py-4">
-            <i class="bi bi-piggy-bank display-5 d-block mb-2"></i>
-            <span class="small d-block mb-2"><%= t("dashboard.no_goals", default: "Aún no tienes metas financieras") %></span>
-            <%= link_to new_goal_path, class: "btn btn-sm btn-outline-primary" do %>
-              <i class="bi bi-plus-lg me-1"></i><%= t("goals.new", default: "Nueva meta") %>
-            <% end %>
+          <%= render "shared/empty_state", icon: "pig-money", title: t("dashboard.no_goals", default: "Aún no tienes metas financieras"),
+                cta: link_to(new_goal_path, class: "btn btn-sm btn-outline-primary") { "<i class=\"ti ti-plus me-1\"></i>#{t("goals.new", default: "Nueva meta")}".html_safe } %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ------------------------------------------------ quick add %>
+    <div class="card" id="quick-add-expense">
+      <div class="card-header">
+        <h5 class="card-title"><i class="ti ti-plus me-1 text-secondary"></i><%= t("dashboard.quick_add_expense", default: "Agregar gasto rápido") %></h5>
+      </div>
+      <div class="card-body">
+        <%= form_with model: Expense.new, local: true do |f| %>
+          <%= f.hidden_field :date, value: Date.today %>
+          <div class="mb-2">
+            <%= f.label :amount, t("dashboard.quick_add_amount", default: "Valor"), class: "form-label small" %>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <%= f.text_field :amount,
+                               value: money_field_value(f.object.amount&.abs),
+                               class: "form-control",
+                               placeholder: t("expenses.placeholder_amount"),
+                               required: true,
+                               inputmode: "decimal",
+                               autocomplete: "off",
+                               data: { money_input: true } %>
+            </div>
           </div>
+          <div class="mb-2">
+            <%= category_picker f, :category_id, @categories,
+                                label: t("common.category"),
+                                label_class: "form-label small",
+                                required: true,
+                                testid: "dashboard-expense-category-picker" %>
+          </div>
+          <div class="mb-0 small text-secondary">
+            <%= f.label :money_source_id, t("expenses.source"), class: "form-label small" %>
+            <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                                    { include_blank: t("common.none") }, class: "form-select" %>
+          </div>
+          <button type="submit" class="btn btn-success w-100 mt-3">
+            <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
+          </button>
         <% end %>
       </div>
     </div>

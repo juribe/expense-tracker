@@ -1,0 +1,64 @@
+<%# Topbar: sidebar toggle, financial-cycle indicator, theme toggle, user menu %>
+<header class="topbar sticky-top">
+  <div class="with-vertical">
+    <div class="d-flex align-items-center justify-content-between py-2 gap-2">
+      <div class="d-flex align-items-center">
+        <a class="nav-link nav-icon-hover-bg rounded-circle sidebartoggler" id="headerCollapse" href="#" aria-label="<%= t('nav.toggle_sidebar') %>">
+          <i class="ti ti-menu-2 fs-6"></i>
+        </a>
+        <% cycle_info = financial_cycle_visible %>
+        <%= link_to pay_settings_path, class: "nav-link text-secondary small d-none d-md-flex align-items-center gap-2" do %>
+          <i class="ti ti-calendar-heart"></i>
+          <span class="fw-semibold text-body"><%= cycle_info[:label] %></span>
+          <% if cycle_info[:range] %><span class="d-none d-xl-inline"><%= cycle_info[:range] %></span><% end %>
+        <% end %>
+      </div>
+
+      <ul class="nav d-flex align-items-center gap-1 ms-auto">
+        <li class="nav-item nav-icon-hover-bg rounded-circle">
+          <%= link_to alerts_path, class: "nav-link position-relative", "aria-label": t("nav.alerts", default: "Alertas") do %>
+            <i class="ti ti-bell fs-5"></i>
+            <% unread = current_user.spending_alerts.unread.count %>
+            <% if unread.positive? %>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1" style="font-size: 0.55rem;">
+                <%= unread > 9 ? "9+" : unread %>
+              </span>
+            <% end %>
+          <% end %>
+        </li>
+        <li class="nav-item nav-icon-hover-bg rounded-circle">
+          <a class="nav-link" href="#" data-theme-toggle aria-label="Cambiar tema">
+            <i class="ti ti-moon fs-5"></i>
+          </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+            <span class="avatar-sm rounded-circle text-bg-primary d-inline-flex align-items-center justify-content-center fw-bold" style="width: 2rem; height: 2rem;">
+              <%= current_user.email[0].upcase %>
+            </span>
+            <i class="ti ti-chevron-down fs-4 d-none d-lg-inline"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <div class="px-3 py-2">
+                <div class="fw-semibold small text-truncate" style="max-width: 14rem;"><%= current_user.email %></div>
+              </div>
+            </li>
+            <li><div class="dropdown-divider"></div></li>
+            <li><%= link_to edit_user_registration_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+              <i class="ti ti-user-circle fs-5"></i><span><%= t("nav.profile", default: "Mi perfil") %></span><% end %></li>
+            <li><%= link_to alert_settings_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+              <i class="ti ti-adjustments fs-5"></i><span><%= t("nav.alert_settings", default: "Preferencias de alertas") %></span><% end %></li>
+            <li><%= link_to expense_playground_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+              <i class="ti ti-flask fs-5"></i><span><%= t("nav.playground") %></span><% end %></li>
+            <li><%= link_to expense_evaluations_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+              <i class="ti ti-list-check fs-5"></i><span><%= t("nav.evaluations") %></span><% end %></li>
+            <li><div class="dropdown-divider"></div></li>
+            <li><%= button_to destroy_user_session_path, method: :delete, form: { data: { turbo: false } }, class: "dropdown-item d-flex align-items-center gap-2 text-danger" do %>
+              <i class="ti ti-logout fs-5"></i><span><%= t("nav.sign_out") %></span><% end %></li>
+          </ul>
+      </li>
+      </ul>
+    </div>
+  </div>
+</header>

@@ -6,13 +6,13 @@
 <article class="credit-card-card" data-testid="credit-card-card">
   <div class="cc-card-head">
     <div class="cc-identity">
-      <span class="cc-icon accent-blue" aria-hidden="true"><i class="bi bi-credit-card-2-front"></i></span>
+      <span class="cc-icon accent-blue" aria-hidden="true"><i class="ti ti-credit-card"></i></span>
       <div class="min-w-0">
         <h3 class="cc-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
         <div class="cc-meta">
           <span><%= t("money_sources.credit_cards.type") %></span>
           <% if source.bank.present? %>
-            <span class="ms-2"><i class="bi bi-bank" aria-hidden="true"></i><%= source.bank %></span>
+            <span class="ms-2"><i class="ti ti-building-bank" aria-hidden="true"></i><%= source.bank %></span>
           <% end %>
           <% if card_id_parts.any? %>
             <span class="ms-2"><%= card_id_parts.join(" · ") %></span>
@@ -22,13 +22,13 @@
     </div>
     <div class="cc-actions d-print-none" role="group" aria-label="<%= source.name %>">
       <%= link_to money_source_path(source, anchor: "payments"), class: "btn cc-action-btn btn-edit", title: t("payments.index_button"), aria: { label: t("payments.index_button") } do %>
-        <i class="bi bi-cash-coin" aria-hidden="true"></i>
+        <i class="ti ti-coin" aria-hidden="true"></i>
       <% end %>
       <%= link_to edit_money_source_path(source), class: "btn cc-action-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") } do %>
-        <i class="bi bi-pencil" aria-hidden="true"></i>
+        <i class="ti ti-pencil" aria-hidden="true"></i>
       <% end %>
       <%= button_to money_source_path(source), method: :delete, class: "btn cc-action-btn btn-delete", title: t("common.delete"), aria: { label: t("common.delete") }, data: { confirm: t("common.confirm") }, form: { style: "display:inline-block" } do %>
-        <i class="bi bi-trash" aria-hidden="true"></i>
+        <i class="ti ti-trash" aria-hidden="true"></i>
       <% end %>
     </div>
   </div>
@@ -67,19 +67,19 @@
 
   <div class="cc-card-foot">
     <% if source.statement_day.present? %>
-      <span class="cc-foot-item"><i class="bi bi-calendar-event" aria-hidden="true"></i><span><%= t("money_sources.credit_cards.statement_day") %></span><strong><%= source.statement_day %></strong></span>
+      <span class="cc-foot-item"><i class="ti ti-calendar-event" aria-hidden="true"></i><span><%= t("money_sources.credit_cards.statement_day") %></span><strong><%= source.statement_day %></strong></span>
     <% end %>
     <% if source.payment_due_day.present? %>
       <% if source.statement_day.present? %>
         <span class="cc-foot-divider" aria-hidden="true"></span>
       <% end %>
-      <span class="cc-foot-item"><i class="bi bi-calendar-check" aria-hidden="true"></i><span><%= t("money_sources.credit_cards.payment_due_day") %></span><strong><%= source.payment_due_day %></strong></span>
+      <span class="cc-foot-item"><i class="ti ti-calendar-event" aria-hidden="true"></i><span><%= t("money_sources.credit_cards.payment_due_day") %></span><strong><%= source.payment_due_day %></strong></span>
     <% end %>
     <% if source.transactions_count.to_i.positive? %>
       <% if source.statement_day.present? || source.payment_due_day.present? %>
         <span class="cc-foot-divider" aria-hidden="true"></span>
       <% end %>
-      <span class="cc-foot-item"><i class="bi bi-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions_count.to_i) %></span></span>
+      <span class="cc-foot-item"><i class="ti ti-receipt" aria-hidden="true"></i><span><%= t("money_sources.index.transactions_count", count: source.transactions_count.to_i) %></span></span>
     <% end %>
   </div>
 </article>

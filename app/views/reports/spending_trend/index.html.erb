@@ -1,10 +1,10 @@
 <%= render "reports/page_header", title: t("reports.trend.title"), subtitle: t("reports.trend.subtitle"), path: reports_trends_path %>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0"><%= t("reports.trend.title") %></h5>
     <%= link_to reports_transactions_path(filter_params_for), class: "btn btn-sm btn-outline-primary" do %>
-      <%= t("reports.categories.drill_down") %> <i class="bi bi-arrow-right ms-1"></i>
+      <%= t("reports.categories.drill_down") %> <i class="ti ti-arrow-right ms-1"></i>
     <% end %>
   </div>
   <div class="card-body">

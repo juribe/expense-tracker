@@ -1,4 +1,4 @@
-<div class="card card-debt shadow-sm">
+<div class="card card-debt">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
       <div>
@@ -37,7 +37,7 @@
 
       <% if source.statement_day.present? && source.payment_due_day.present? %>
         <div class="alert alert-warning py-2 px-3 small mt-3 mb-0">
-          <i class="bi bi-info-circle me-1"></i><%= t("money_sources.show.statement_alert", statement: source.statement_day, due: source.payment_due_day) %>
+          <i class="ti ti-info-circle me-1"></i><%= t("money_sources.show.statement_alert", statement: source.statement_day, due: source.payment_due_day) %>
         </div>
       <% end %>
 
@@ -91,7 +91,7 @@
       </div>
 
       <div class="alert alert-warning py-2 px-3 small mt-3 mb-0">
-        <i class="bi bi-info-circle me-1"></i><%= t("money_sources.show.loan_debt_alert") %>
+        <i class="ti ti-info-circle me-1"></i><%= t("money_sources.show.loan_debt_alert") %>
       </div>
 
       <dl class="row mb-0 mt-3">
@@ -115,7 +115,7 @@
         <% end %>
         <% if source.payment_frequency.present? %>
           <dt class="col-sm-5"><%= t("money_sources.form.payment_frequency") %></dt>
-          <dd class="col-sm-7"><i class="bi bi-calendar-week me-1"></i><%= t("money_sources.form.frequency.#{source.payment_frequency}") %></dd>
+          <dd class="col-sm-7"><i class="ti ti-calendar me-1"></i><%= t("money_sources.form.frequency.#{source.payment_frequency}") %></dd>
         <% end %>
         <% if source.start_date.present? %>
           <dt class="col-sm-5"><%= t("money_sources.form.start_date") %></dt>

@@ -2,7 +2,7 @@
 <% presenter = FinancialSetups::StepPresenter.new(setup: @setup, step: @step) %>
 <%= render "stepper", step_key: @step_key %>
 
-<div class="card shadow">
+<div class="card">
   <div class="card-body p-4">
     <h3 class="fw-bold text-primary mb-1"><%= t(@step.label_key) %></h3>
     <p class="text-muted mb-4"><%= t("wizard.select.prompt", kind: t(@step.label_key).downcase) %></p>
@@ -19,7 +19,7 @@
             <div>
               <% if step_idx = FinancialSetupWizard.step_keys.index(@step.key) and step_idx > 0 %>
                 <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[step_idx - 1]), class: "btn btn-outline-secondary" do %>
-                  <i class="bi bi-arrow-left me-1"></i><%= t("wizard.back") %>
+                  <i class="ti ti-arrow-left me-1"></i><%= t("wizard.back") %>
                 <% end %>
               <% else %>
                 <span></span>

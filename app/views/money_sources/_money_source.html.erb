@@ -1,15 +1,15 @@
 <div class="col-12 col-md-6 col-lg-4">
-  <div class="card <%= source.debt? ? 'card-debt' : '' %> h-100 shadow-sm">
+  <div class="card <%= source.debt? ? 'card-debt' : '' %> h-100 card-hover">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <div>
           <h5 class="card-title mb-0">
-            <i class="bi bi-<%= source_kind_icon(source.kind) %> me-1"></i>
+            <i class="ti ti-<%= source_kind_icon(source.kind) %> me-1"></i>
             <%= link_to source.name, money_source_path(source), class: "text-decoration-none" %>
           </h5>
           <small class="text-muted"><%= source_kind_label(source.kind) %></small>
           <% if source.bank.present? %>
-            <small class="text-muted d-block"><i class="bi bi-bank me-1"></i><%= source.bank %></small>
+            <small class="text-muted d-block"><i class="ti ti-building-bank me-1"></i><%= source.bank %></small>
           <% end %>
           <% card_id_parts = [ source.card_brand, source.card_last_four ].compact_blank %>
           <% if source.credit_card? && card_id_parts.any? %>
@@ -19,21 +19,21 @@
         <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= source.name %>">
           <% if source.pocket? %>
             <%= link_to new_transfer_path(to_source_id: source.id), class: "btn btn-outline-primary", title: t("goals.assign_money", default: "Asignar dinero"), aria: { label: t("goals.assign_money", default: "Asignar dinero") } do %>
-              <i class="bi bi-piggy-bank"></i>
+              <i class="ti ti-pig-money"></i>
             <% end %>
           <% end %>
           <% if source.debt_payment_target? %>
             <%= link_to money_source_path(source, anchor: "payments"),
                         class: "btn btn-outline-primary", title: t("payments.index_button"),
                         aria: { label: t("payments.index_button") } do %>
-              <i class="bi bi-cash-coin"></i>
+              <i class="ti ti-coin"></i>
             <% end %>
           <% end %>
           <%= link_to edit_money_source_path(source), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("common.edit") } do %>
-            <i class="bi bi-pencil"></i>
+            <i class="ti ti-pencil"></i>
           <% end %>
           <%= button_to money_source_path(source), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
-            <i class="bi bi-trash"></i>
+            <i class="ti ti-trash"></i>
           <% end %>
         </div>
       </div>
@@ -58,13 +58,13 @@
           <% end %>
           <div class="small text-muted d-flex flex-wrap gap-2 mt-2">
             <% if source.interest_rate.present? %>
-              <span><i class="bi bi-percent me-1"></i><%= source.interest_rate_label %></span>
+              <span><i class="ti ti-percentage me-1"></i><%= source.interest_rate_label %></span>
             <% end %>
             <% if source.statement_day.present? %>
-              <span><i class="bi bi-calendar-event me-1"></i><%= t("money_sources.index.statement_day", day: source.statement_day) %></span>
+              <span><i class="ti ti-calendar-event me-1"></i><%= t("money_sources.index.statement_day", day: source.statement_day) %></span>
             <% end %>
             <% if source.payment_due_day.present? %>
-              <span><i class="bi bi-calendar-check me-1"></i><%= t("money_sources.index.payment_due_day", day: source.payment_due_day) %></span>
+              <span><i class="ti ti-calendar-event me-1"></i><%= t("money_sources.index.payment_due_day", day: source.payment_due_day) %></span>
             <% end %>
           </div>
         <% elsif source.loan? %>
@@ -81,13 +81,13 @@
           <% end %>
           <div class="small text-muted d-flex flex-wrap gap-2 mt-2">
             <% if source.interest_rate.present? %>
-              <span><i class="bi bi-percent me-1"></i><%= source.interest_rate_label %></span>
+              <span><i class="ti ti-percentage me-1"></i><%= source.interest_rate_label %></span>
             <% end %>
             <% if source.installment_amount.present? %>
-              <span><i class="bi bi-cash-stack me-1"></i><%= number_to_currency(source.installment_amount) %><%= source.payment_frequency.present? ? "/#{t("money_sources.form.frequency.#{source.payment_frequency}")}" : "" %></span>
+              <span><i class="ti ti-cash me-1"></i><%= number_to_currency(source.installment_amount) %><%= source.payment_frequency.present? ? "/#{t("money_sources.form.frequency.#{source.payment_frequency}")}" : "" %></span>
             <% end %>
             <% if source.remaining_installments.present? %>
-              <span><i class="bi bi-arrow-repeat me-1"></i><%= t("money_sources.index.remaining_installments", count: source.remaining_installments, total: source.installment_count) %></span>
+              <span><i class="ti ti-repeat me-1"></i><%= t("money_sources.index.remaining_installments", count: source.remaining_installments, total: source.installment_count) %></span>
             <% end %>
           </div>
         <% else %>

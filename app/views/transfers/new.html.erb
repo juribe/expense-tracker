@@ -1,36 +1,33 @@
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0"><%= t("transfers.new.title") %></h4>
-        </div>
-        <div class="card-body">
-          <%= form_with model: @transfer, local: true do |f| %>
-            <% if @transfer.errors.any? %>
-              <div class="alert alert-danger">
-                <h6><%= t("transfers.new.error_prohibited", count: @transfer.errors.count) %></h6>
-                <ul>
-                  <% @transfer.errors.full_messages.each do |message| %>
-                    <li><%= message %></li>
-                  <% end %>
-                </ul>
-              </div>
-            <% end %>
+<% content_for(:back_path_path) do %><% end %>
+<%= render "shared/page_header", title: t("transfers.new.title") %>
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <%= form_with model: @transfer, local: true do |f| %>
+          <% if @transfer.errors.any? %>
+            <div class="alert alert-danger">
+              <strong><%= t("transfers.new.error_prohibited", count: @transfer.errors.count) %></strong>
+              <ul class="mb-0 mt-2">
+                <% @transfer.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
+          <div class="form-section">
+            <div class="form-section-title">Movimiento</div>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
                 <%= f.label :from_source_id, t("transfers.new.from", default: "Desde"), class: "form-label" %>
                 <%= f.collection_select :from_source_id, @from_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
               </div>
-              <div class="col-md-6 mb-3">
+              <div class="col-12 col-md-6">
                 <%= f.label :to_source_id, t("transfers.new.to", default: "Hacia"), class: "form-label" %>
                 <%= f.collection_select :to_source_id, @to_sources, :id, :display_name, { include_blank: t("transfers.new.select") }, class: "form-select" %>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
+              <div class="col-12 col-md-6">
                 <%= f.label :amount, t("common.amount"), class: "form-label" %>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
@@ -43,13 +40,16 @@
                       data: { money_input: true } %>
                 </div>
               </div>
-              <div class="col-md-6 mb-3">
+              <div class="col-12 col-md-6">
                 <%= f.label :date, class: "form-label" %>
                 <%= f.date_field :date, class: "form-control" %>
               </div>
             </div>
+          </div>
 
-            <div class="mb-3" id="assign-goal-field">
+          <div class="form-section">
+            <div class="form-section-title">Opciones</div>
+            <div class="mb-2" id="assign-goal-field">
               <%= f.label :assign_goal_id, t("transfers.new.assign_to_goal", default: "Asignar a meta (opcional)"), class: "form-label" %>
               <%= f.select :assign_goal_id,
                   pocket_goal_groups(@pocket_goals),
@@ -57,17 +57,17 @@
                   class: "form-select", id: "transfer_assign_goal_id" %>
               <div class="form-text"><%= t("transfers.new.assign_goal_hint", default: "Si eliges una meta, el dinero transferido queda reservado para ella dentro del bolsillo. No crea un gasto.") %></div>
             </div>
-
-            <div class="mb-3">
+            <div>
               <%= f.label :note, t("transfers.new.note", default: "Nota"), class: "form-label" %>
               <%= f.text_area :note, class: "form-control", rows: 2, placeholder: t("transfers.new.note_placeholder") %>
             </div>
+          </div>
 
-            <div class="d-grid">
-              <%= f.submit t("transfers.new.submit"), class: "btn btn-primary" %>
-            </div>
-          <% end %>
-        </div>
+          <div class="d-flex gap-2 mt-4">
+            <%= f.submit t("transfers.new.submit"), class: "btn btn-primary" %>
+            <%= link_to t("common.cancel", default: "Cancelar"), transfers_path, class: "btn btn-outline-secondary" %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

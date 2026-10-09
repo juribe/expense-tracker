@@ -30,14 +30,14 @@
 %>
 
 <header class="recognition-header">
-  <div class="recognition-header-icon" aria-hidden="true"><i class="bi bi-envelope-paper-heart"></i></div>
+  <div class="recognition-header-icon" aria-hidden="true"><i class="ti ti-mail"></i></div>
   <div class="min-w-0 flex-grow-1">
     <h1 class="recognition-title"><%= t("money_sources.recognition.title") %></h1>
     <p class="recognition-subtitle"><%= t("money_sources.recognition.subtitle") %></p>
   </div>
   <div class="recognition-header-actions d-print-none">
     <button type="button" class="btn btn-outline-secondary recognition-help-btn">
-      <i class="bi bi-question-circle" aria-hidden="true"></i><%= t("money_sources.recognition.how_it_works") %>
+      <i class="ti ti-help" aria-hidden="true"></i><%= t("money_sources.recognition.how_it_works") %>
     </button>
   </div>
 </header>
@@ -57,7 +57,7 @@
         <tr data-testid="recognition-row" class="<%= 'recognition-row-active' if source == @editing %>">
           <td>
             <div class="recognition-source-cell">
-              <span class="recognition-row-icon" aria-hidden="true"><i class="bi bi-<%= source_kind_icon(source.kind) %>"></i></span>
+              <span class="recognition-row-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(source.kind) %>"></i></span>
               <span class="recognition-row-name"><%= source.name %></span>
             </div>
           </td>
@@ -68,28 +68,28 @@
           <td>
             <% if source.recognition_configured? %>
               <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
+                <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
               </span>
             <% else %>
               <span class="recognition-status recognition-status-pending" data-testid="recognition-status">
-                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i><%= t("money_sources.recognition.status_unconfigured") %>
+                <i class="ti ti-alert-triangle" aria-hidden="true"></i><%= t("money_sources.recognition.status_unconfigured") %>
               </span>
             <% end %>
             <% suggestion_count = source.recognition_identifiers.count(&:suggested?) %>
             <% if suggestion_count.positive? %>
               <span class="recognition-status-hint" data-testid="recognition-suggestion-count">
-                <i class="bi bi-lightbulb" aria-hidden="true"></i><%= t("money_sources.recognition.status_suggestions", count: suggestion_count) %>
+                <i class="ti ti-bulb" aria-hidden="true"></i><%= t("money_sources.recognition.status_suggestions", count: suggestion_count) %>
               </span>
             <% end %>
           </td>
           <td class="text-end">
             <div class="recognition-row-actions d-print-none">
               <%= link_to money_sources_recognition_path(edit: source.id), class: "btn recognition-icon-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") }, data: { testid: "edit-recognition" } do %>
-                <i class="bi bi-pencil" aria-hidden="true"></i>
+                <i class="ti ti-pencil" aria-hidden="true"></i>
               <% end %>
               <% if source.recognition_configured? %>
                 <%= button_to money_source_recognition_destroy_path(source.id), method: :delete, class: "btn recognition-icon-btn btn-delete", title: t("money_sources.recognition.delete_config"), aria: { label: t("money_sources.recognition.delete_config") }, data: { confirm: t("money_sources.recognition.delete_confirm_title") }, form: { style: "display:inline-block", data: { turbo_confirm: "#{t('money_sources.recognition.delete_confirm_title')} #{t('money_sources.recognition.delete_confirm_body')}" } } do %>
-                  <i class="bi bi-trash" aria-hidden="true"></i>
+                  <i class="ti ti-trash" aria-hidden="true"></i>
                 <% end %>
               <% end %>
             </div>
@@ -108,14 +108,14 @@
       <div class="recognition-drawer-head">
         <div class="recognition-edit-identity">
           <% badge = kind_badges[@editing.kind] %>
-          <span class="recognition-row-icon recognition-edit-icon" aria-hidden="true"><i class="bi bi-<%= source_kind_icon(@editing.kind) %>"></i></span>
+          <span class="recognition-row-icon recognition-edit-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(@editing.kind) %>"></i></span>
           <div class="min-w-0">
             <h2 class="recognition-edit-title"><%= @editing.name %></h2>
             <div class="recognition-edit-subtitle"><%= badge[:label] %></div>
           </div>
         </div>
         <%= link_to money_sources_recognition_path, class: "btn recognition-icon-btn", title: t("common.cancel"), aria: { label: t("common.cancel") }, data: { recognition_close: true } do %>
-          <i class="bi bi-x-lg" aria-hidden="true"></i>
+          <i class="ti ti-x" aria-hidden="true"></i>
         <% end %>
       </div>
 
@@ -125,15 +125,15 @@
           <div class="recognition-section">
             <div class="recognition-section-title">
               <%= t("money_sources.recognition.section_identification") %>
-              <i class="bi bi-info-circle" title="<%= t("money_sources.recognition.section_identification_hint") %>" aria-hidden="true"></i>
+              <i class="ti ti-info-circle" title="<%= t("money_sources.recognition.section_identification_hint") %>" aria-hidden="true"></i>
             </div>
             <p class="recognition-section-desc"><%= t("money_sources.recognition.section_identification_desc") %></p>
             <% if @editing.last_four.blank? %>
               <div class="recognition-lastfour-hint" data-testid="last-four-hint">
-                <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                <i class="ti ti-alert-circle" aria-hidden="true"></i>
                 <span><%= t("money_sources.recognition.last_four_hint") %></span>
                 <%= link_to edit_money_source_path(@editing), class: "recognition-lastfour-cta" do %>
-                  <i class="bi bi-pencil" aria-hidden="true"></i><%= t("money_sources.recognition.last_four_cta") %>
+                  <i class="ti ti-pencil" aria-hidden="true"></i><%= t("money_sources.recognition.last_four_cta") %>
                 <% end %>
               </div>
             <% end %>
@@ -145,10 +145,10 @@
                 <span class="recognition-chip" data-testid="recognition-chip">
                   <%= id.value %>
                   <input type="hidden" name="keywords[]" value="<%= id.value %>">
-                  <button type="button" class="recognition-chip-remove" data-recognition-remove aria-label="<%= t("money_sources.recognition.remove") %>"><i class="bi bi-x"></i></button>
+                  <button type="button" class="recognition-chip-remove" data-recognition-remove aria-label="<%= t("money_sources.recognition.remove") %>"><i class="ti ti-x"></i></button>
                 </span>
               <% end %>
-              <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="keywords"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add") %></button>
+              <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="keywords"><i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.add") %></button>
             </div>
             <%= render "recognition_suggested", section: "keywords", suggestions: section_suggestions["keywords"] %>
             <div class="recognition-section-foot">
@@ -161,7 +161,7 @@
           <div class="recognition-section">
             <div class="recognition-section-title">
               <%= t("money_sources.recognition.section_senders") %>
-              <i class="bi bi-info-circle" title="<%= t("money_sources.recognition.section_senders_hint") %>" aria-hidden="true"></i>
+              <i class="ti ti-info-circle" title="<%= t("money_sources.recognition.section_senders_hint") %>" aria-hidden="true"></i>
             </div>
             <p class="recognition-section-desc"><%= t("money_sources.recognition.section_senders_desc") %></p>
             <div class="recognition-chips" data-recognition-chips="senders">
@@ -172,10 +172,10 @@
                 <span class="recognition-chip" data-testid="recognition-chip">
                   <%= id.value %>
                   <input type="hidden" name="senders[]" value="<%= id.value %>">
-                  <button type="button" class="recognition-chip-remove" data-recognition-remove aria-label="<%= t("money_sources.recognition.remove") %>"><i class="bi bi-x"></i></button>
+                  <button type="button" class="recognition-chip-remove" data-recognition-remove aria-label="<%= t("money_sources.recognition.remove") %>"><i class="ti ti-x"></i></button>
                 </span>
               <% end %>
-              <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="senders"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_sender") %></button>
+              <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="senders"><i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.add_sender") %></button>
             </div>
             <%= render "recognition_suggested", section: "senders", suggestions: section_suggestions["senders"] %>
             <div class="recognition-section-foot">
@@ -188,7 +188,7 @@
           <div class="recognition-section">
             <div class="recognition-section-title">
               <%= t("money_sources.recognition.section_subjects") %>
-              <i class="bi bi-info-circle" title="<%= t("money_sources.recognition.section_subjects_hint") %>" aria-hidden="true"></i>
+              <i class="ti ti-info-circle" title="<%= t("money_sources.recognition.section_subjects_hint") %>" aria-hidden="true"></i>
             </div>
             <p class="recognition-section-desc"><%= t("money_sources.recognition.section_subjects_desc") %></p>
             <div class="recognition-chips" data-recognition-chips="subjects">
@@ -199,10 +199,10 @@
                 <span class="recognition-chip" data-testid="recognition-chip">
                   <%= id.value %>
                   <input type="hidden" name="subjects[]" value="<%= id.value %>">
-                  <button type="button" class="recognition-chip-remove" data-recognition-remove aria-label="<%= t("money_sources.recognition.remove") %>"><i class="bi bi-x"></i></button>
+                  <button type="button" class="recognition-chip-remove" data-recognition-remove aria-label="<%= t("money_sources.recognition.remove") %>"><i class="ti ti-x"></i></button>
                 </span>
               <% end %>
-              <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="subjects"><i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.recognition.add_pattern") %></button>
+              <button type="button" class="recognition-chip-add" data-recognition-add data-add-for="subjects"><i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.add_pattern") %></button>
             </div>
             <%= render "recognition_suggested", section: "subjects", suggestions: section_suggestions["subjects"] %>
             <div class="recognition-section-foot">

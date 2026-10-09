@@ -83,7 +83,7 @@
 
       var avatar = document.createElement("div");
       avatar.className = "chat-avatar bg-primary text-white";
-      avatar.innerHTML = "<i class='bi bi-piggy-bank'></i>";
+      avatar.innerHTML = "<i class='ti ti-pig-money'></i>";
 
       var bubble = document.createElement("div");
       bubble.className = "chat-bubble-assistant";
@@ -118,7 +118,7 @@
 
       var avatar = document.createElement("div");
       avatar.className = "chat-avatar bg-primary text-white";
-      avatar.innerHTML = "<i class='bi bi-piggy-bank'></i>";
+      avatar.innerHTML = "<i class='ti ti-pig-money'></i>";
 
       var bubble = document.createElement("div");
       bubble.className = "chat-bubble-assistant chat-bubble-streaming";
@@ -147,7 +147,7 @@
 
       var avatar = document.createElement("div");
       avatar.className = "chat-avatar bg-primary text-white";
-      avatar.innerHTML = "<i class='bi bi-piggy-bank'></i>";
+      avatar.innerHTML = "<i class='ti ti-pig-money'></i>";
 
       var bubble = document.createElement("div");
       bubble.className = "chat-bubble-assistant chat-bubble-rich";
@@ -175,12 +175,12 @@
 
       var avatar = document.createElement("div");
       avatar.className = "chat-avatar bg-primary text-white";
-      avatar.innerHTML = "<i class='bi bi-piggy-bank'></i>";
+      avatar.innerHTML = "<i class='ti ti-pig-money'></i>";
 
       var bubble = document.createElement("div");
       bubble.className = "chat-error";
       bubble.innerHTML =
-        "<i class='bi bi-exclamation-triangle'></i><span>" + escapeHtml(error) + "</span>";
+        "<i class='ti ti-alert-triangle'></i><span>" + escapeHtml(error) + "</span>";
 
       var retry = document.createElement("button");
       retry.type = "button";

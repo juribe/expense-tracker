@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="vertical">
   <head>
     <title><%= content_for(:title) || t("layout.app_title") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10,15 +10,23 @@
 
     <%= yield :head %>
 
+    <script>
+      /* Back-paint the stored theme before CSS to avoid a light flash. */
+      try {
+        var t = localStorage.getItem("etTheme");
+        if (t) document.documentElement.setAttribute("data-bs-theme", t);
+      } catch (e) { /* noop */ }
+    </script>
+
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag "themes/spike", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :theme, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :expenses, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :dashboard, "data-turbo-track": "reload" %>
@@ -29,38 +37,38 @@
 
   <body>
     <% if user_signed_in? %>
-      <%= render "shared/sidebar" %>
-      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+      <div id="main-wrapper">
+        <%= render "shared/sidebar" %>
 
-      <div class="main-content">
-        <div class="mobile-topbar d-lg-none">
-          <button class="btn btn-link" id="sidebarToggle" aria-label="<%= t('nav.toggle_sidebar') %>">
-            <i class="bi bi-list fs-4"></i>
-          </button>
-          <span class="fw-bold"><%= t("layout.app_title") %></span>
-        </div>
+        <div class="page-wrapper">
+          <%= render "shared/topbar" %>
 
-        <div class="container py-4">
-          <% if notice %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert" data-testid="flash-notice">
-              <%= notice %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          <div class="body-wrapper">
+            <div class="app-container content-wrapper py-4">
+              <% if notice %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert" data-testid="flash-notice">
+                  <%= notice %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <% end %>
+              <% if alert %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" data-testid="flash-alert">
+                  <%= alert %>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <% end %>
+
+              <%= yield %>
             </div>
-          <% end %>
-          <% if alert %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" data-testid="flash-alert">
-              <%= alert %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          <% end %>
 
-          <%= yield %>
+            <footer class="text-center py-3 mt-4">
+              <small class="text-secondary"><%= t("layout.footer", year: Date.today.year) %></small>
+            </footer>
+          </div>
         </div>
-
-        <footer class="text-center py-3 mt-4 border-top">
-          <small class="text-muted"><%= t("layout.footer", year: Date.today.year) %></small>
-        </footer>
       </div>
+
+      <div class="dark-transparent sidebartoggler"></div>
     <% else %>
       <div class="auth-wrapper">
         <div class="auth-content">
@@ -88,38 +96,10 @@
     <%= javascript_include_tag "application", defer: true %>
     <%= javascript_include_tag "payments", defer: true %>
     <%= javascript_include_tag "extras", defer: true %>
+    <%= javascript_include_tag "shell", defer: true %>
     <%= javascript_include_tag "actioncable", defer: true %>
     <%= javascript_include_tag "financial_chat", defer: true %>
     <%= javascript_include_tag "reconciliation", defer: true %>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var toggle = document.getElementById('sidebarToggle');
-        var sidebar = document.getElementById('sidebar');
-        var backdrop = document.getElementById('sidebarBackdrop');
-
-        function openSidebar() {
-          sidebar.classList.add('open');
-          backdrop.classList.add('active');
-          document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebar() {
-          sidebar.classList.remove('open');
-          backdrop.classList.remove('active');
-          document.body.style.overflow = '';
-        }
-
-        if (toggle) {
-          toggle.addEventListener('click', function() {
-            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-          });
-        }
-
-        if (backdrop) {
-          backdrop.addEventListener('click', closeSidebar);
-        }
-      });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

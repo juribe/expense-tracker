@@ -10,14 +10,14 @@
   <div class="filters-card">
     <div class="filters-title-block">
       <div class="filters-heading">
-        <i class="bi bi-funnel"></i><%= t("reports.filters.title", default: "Filtros") %>
+        <i class="ti ti-filter"></i><%= t("reports.filters.title", default: "Filtros") %>
       </div>
       <p class="filters-description"><%= t("reports.filters.description", default: "Selecciona los criterios para actualizar el reporte.") %></p>
     </div>
 
     <div class="filters-grid">
       <div class="filter-chip">
-        <i class="bi bi-tag"></i>
+        <i class="ti ti-tag"></i>
         <div class="flex-grow-1 min-w-0">
           <div class="chip-label"><%= t("common.category") %></div>
           <%= select_tag :category_id,
@@ -25,11 +25,11 @@
                 include_blank: t("reports.filters.all_f", default: "Todas"),
                 class: "form-select" %>
         </div>
-        <i class="bi bi-chevron-down text-muted" style="font-size: 0.7rem;"></i>
+        <i class="ti ti-chevron-down text-muted" style="font-size: 0.7rem;"></i>
       </div>
 
       <div class="filter-chip">
-        <i class="bi bi-wallet2"></i>
+        <i class="ti ti-wallet"></i>
         <div class="flex-grow-1 min-w-0">
           <div class="chip-label"><%= t("money_sources.title", default: "Fuentes") %></div>
           <%= select_tag :money_source_id,
@@ -37,11 +37,11 @@
                 include_blank: t("reports.filters.all_f", default: "Todas"),
                 class: "form-select" %>
         </div>
-        <i class="bi bi-chevron-down text-muted" style="font-size: 0.7rem;"></i>
+        <i class="ti ti-chevron-down text-muted" style="font-size: 0.7rem;"></i>
       </div>
 
       <div class="filter-chip">
-        <i class="bi bi-grid"></i>
+        <i class="ti ti-layout-grid"></i>
         <div class="flex-grow-1 min-w-0">
           <div class="chip-label"><%= t("reports.filters.kind", default: "Resumen") %></div>
           <%= select_tag :kind,
@@ -49,16 +49,16 @@
                 include_blank: t("reports.filters.all_f", default: "Todas"),
                 class: "form-select" %>
         </div>
-        <i class="bi bi-chevron-down text-muted" style="font-size: 0.7rem;"></i>
+        <i class="ti ti-chevron-down text-muted" style="font-size: 0.7rem;"></i>
       </div>
     </div>
 
     <div class="filters-actions">
       <%= link_to path, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-eraser"></i> <%= t("common.clear", default: "Limpiar") %>
+        <i class="ti ti-eraser"></i> <%= t("common.clear", default: "Limpiar") %>
       <% end %>
       <%= button_tag type: "submit", class: "btn btn-primary" do %>
-        <i class="bi bi-funnel"></i> <%= t("common.filter", default: "Filtrar") %>
+        <i class="ti ti-filter"></i> <%= t("common.filter", default: "Filtrar") %>
       <% end %>
     </div>
   </div>

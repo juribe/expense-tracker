@@ -1,6 +1,6 @@
-<div class="card shadow-sm border-primary mb-4" data-testid="ai-entry-card">
+<div class="card mb-4" data-testid="ai-entry-card">
   <div class="card-body">
-    <h2 class="h5 mb-3"><i class="bi bi-stars me-2" aria-hidden="true"></i><%= t("expenses.ai_what_did_you_spend") %></h2>
+    <h5 class="card-title mb-3"><i class="ti ti-stars me-2 text-secondary" aria-hidden="true"></i><%= t("expenses.ai_what_did_you_spend") %></h5>
     <form id="aiParseForm" data-testid="ai-form" data-turbo="false"
           data-parse-url="<%= parse_expenses_path(format: :json) %>"
           data-bulk-create-url="<%= bulk_create_expenses_path(format: :json) %>"
@@ -14,16 +14,16 @@
       <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
         <button type="button" class="btn btn-outline-secondary" id="aiMicButton" data-testid="ai-mic-button"
                 aria-label="<%= t('expenses.ai_record_voice') %>" title="<%= t('expenses.ai_record_voice') %>">
-          <i class="bi bi-mic" aria-hidden="true"></i> <%= t("expenses.ai_dictate") %>
+          <i class="ti ti-microphone" aria-hidden="true"></i> <%= t("expenses.ai_dictate") %>
         </button>
         <button type="submit" class="btn btn-primary" id="aiParseButton" data-testid="ai-parse-button">
-          <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i><%= t("expenses.ai_detect") %>
+          <i class="ti ti-bolt me-1" aria-hidden="true"></i><%= t("expenses.ai_detect") %>
         </button>
-        <span id="aiStatus" class="small text-muted ms-1" role="status" aria-live="polite"></span>
+        <span id="aiStatus" class="small text-secondary ms-1" role="status" aria-live="polite"></span>
       </div>
 
       <div id="aiTranscriptionWrap" class="alert alert-info mt-3 mb-0 d-none" data-testid="ai-transcription">
-        <i class="bi bi-soundwave me-1" aria-hidden="true"></i><strong><%= t("expenses.ai_transcription") %></strong>
+        <i class="ti ti-wave-sine me-1" aria-hidden="true"></i><strong><%= t("expenses.ai_transcription") %></strong>
         <span id="aiTranscriptionText"></span>
       </div>
     </form>
@@ -45,13 +45,13 @@
       </div>
       <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
         <button type="button" class="btn btn-outline-primary btn-sm" id="aiAddRow" data-testid="ai-add-row">
-          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t("expenses.ai_add_expense") %>
+          <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("expenses.ai_add_expense") %>
         </button>
         <div class="d-flex align-items-center gap-3">
           <strong id="aiPreviewTotal" data-testid="ai-total"><%= t("common.total") %>: 0</strong>
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
           <button type="button" class="btn btn-success" id="aiSaveAll" data-testid="ai-save-all">
-            <i class="bi bi-check-lg me-1" aria-hidden="true"></i><%= t("expenses.save_expenses") %>
+            <i class="ti ti-check me-1" aria-hidden="true"></i><%= t("expenses.save_expenses") %>
           </button>
         </div>
       </div>
@@ -269,7 +269,7 @@ function initializeAiEntry() {
     var remove = document.createElement("button");
     remove.type = "button";
     remove.className = "btn btn-outline-danger btn-sm ai-remove";
-    remove.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i>';
+    remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
     remove.setAttribute("aria-label", <%= raw(t("expenses.ai_remove_expense").to_json) %>);
     actions.appendChild(remove);
     grid.appendChild(actions);
@@ -398,8 +398,8 @@ function initializeAiEntry() {
       micButton.classList.toggle("btn-danger", active);
       micButton.classList.toggle("btn-outline-secondary", !active);
       micButton.innerHTML = active
-        ? '<i class="bi bi-stop-circle" aria-hidden="true"></i> Detener'
-        : '<i class="bi bi-mic" aria-hidden="true"></i> Dictar';
+        ? '<i class="ti ti-player-stop" aria-hidden="true"></i> Detener'
+        : '<i class="ti ti-microphone" aria-hidden="true"></i> Dictar';
     }
 
     var VOICE_ERRORS = {

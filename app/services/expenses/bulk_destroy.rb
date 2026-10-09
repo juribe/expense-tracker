@@ -23,7 +23,7 @@ module Expenses
     end
 
     def call
-      scope = user.expenses.where(id: parse_ids)
+      scope = user.expenses.includes([ :payments ]).where(id: parse_ids)
       count = scope.count
 
       if count.zero?

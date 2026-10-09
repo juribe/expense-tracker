@@ -4,4 +4,5 @@
 Rails.application.config.assets.version = "1.0"
 
 # Add additional assets to the asset load path.
-# Rails.application.config.assets.paths << Emoji.images_path
+# Spike admin theme (vendored: css + tabler fonts + referenced images)
+Rails.application.config.assets.paths << Rails.root.join("app/assets/vendor")

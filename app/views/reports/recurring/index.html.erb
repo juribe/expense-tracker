@@ -2,7 +2,7 @@
 
 <div class="row g-3 mb-4">
   <div class="col-12 col-lg-6">
-    <div class="card shadow-sm h-100">
+    <div class="card h-100">
       <div class="card-body">
         <div class="text-muted small fw-semibold mb-1"><%= t("reports.recurring.monthly_committed") %></div>
         <div class="summary-value text-danger" data-testid="recurring-monthly"><%= money_amount(@recurring[:monthly_committed]) %></div>
@@ -10,7 +10,7 @@
     </div>
   </div>
   <div class="col-12 col-lg-6">
-    <div class="card shadow-sm h-100">
+    <div class="card h-100">
       <div class="card-body">
         <div class="text-muted small fw-semibold mb-1"><%= t("reports.recurring.annual_committed") %></div>
         <div class="summary-value text-warning" data-testid="recurring-annual"><%= money_amount(@recurring[:annual_committed]) %></div>
@@ -21,7 +21,7 @@
 
 <div class="row g-3">
   <div class="col-12 col-lg-8">
-    <div class="card shadow-sm h-100">
+    <div class="card h-100">
       <div class="card-header bg-white">
         <h5 class="mb-0"><%= t("reports.recurring.title") %></h5>
       </div>
@@ -72,7 +72,7 @@
     </div>
   </div>
   <div class="col-12 col-lg-4">
-    <div class="card shadow-sm h-100">
+    <div class="card h-100">
       <div class="card-header bg-white">
         <h5 class="mb-0"><%= t("reports.recurring.upcoming") %></h5>
       </div>

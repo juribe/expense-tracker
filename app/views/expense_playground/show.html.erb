@@ -1,6 +1,6 @@
 <div class="container py-4" data-testid="playground-page">
   <div class="d-flex align-items-center mb-4">
-    <i class="bi bi-controller display-6 me-3" aria-hidden="true"></i>
+    <i class="ti ti-device-gamepad-2 display-6 me-3" aria-hidden="true"></i>
     <div>
       <h1 class="h3 mb-0" data-testid="playground-title"><%= t("playground.title") %></h1>
       <p class="text-muted mb-0"><%= t("playground.subtitle") %></p>
@@ -9,26 +9,26 @@
 
   <div class="btn-group w-100 mb-3" role="group" aria-label="<%= t('playground.title') %>" data-testid="playground-tabs">
             <button type="button" class="btn btn-outline-primary active" data-pg-tab="text" data-testid="tab-text">
-              <i class="bi bi-fonts me-1" aria-hidden="true"></i><%= t("playground.tab_text") %>
+              <i class="ti ti-typography me-1" aria-hidden="true"></i><%= t("playground.tab_text") %>
             </button>
             <button type="button" class="btn btn-outline-primary" data-pg-tab="image" data-testid="tab-image">
-              <i class="bi bi-image me-1" aria-hidden="true"></i><%= t("playground.tab_image") %>
+              <i class="ti ti-photo me-1" aria-hidden="true"></i><%= t("playground.tab_image") %>
             </button>
             <button type="button" class="btn btn-outline-primary" data-pg-tab="text_image" data-testid="tab-text-image">
-              <i class="bi bi-files me-1" aria-hidden="true"></i><%= t("playground.tab_text_image") %>
+              <i class="ti ti-files me-1" aria-hidden="true"></i><%= t("playground.tab_text_image") %>
             </button>
             <button type="button" class="btn btn-outline-primary" data-pg-tab="audio" data-testid="tab-audio">
-              <i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.tab_audio") %>
+              <i class="ti ti-microphone me-1" aria-hidden="true"></i><%= t("playground.tab_audio") %>
             </button>
             <button type="button" class="btn btn-outline-primary" data-pg-tab="file" data-testid="tab-file">
-              <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i><%= t("playground.tab_file") %>
+              <i class="ti ti-file-text me-1" aria-hidden="true"></i><%= t("playground.tab_file") %>
             </button>
           </div>
 
   <div class="row g-4" id="pgMainArea">
     <!-- ------------------------------------------------------- input column -->
     <div class="col-lg-6">
-      <div class="card shadow-sm" data-testid="playground-input-card">
+      <div class="card" data-testid="playground-input-card">
         <div class="card-body">
 
           <form id="pgForm" data-turbo="false"
@@ -68,7 +68,7 @@
             <div id="pgImagePanel" class="mb-3 d-none" data-testid="panel-image">
               <div id="pgDropzone" class="pg-dropzone text-center" role="button" tabindex="0"
                    aria-label="<%= t('playground.upload_label') %>" data-testid="playground-dropzone">
-                <i class="bi bi-cloud-arrow-up fs-3 d-block mb-1" aria-hidden="true"></i>
+                <i class="ti ti-cloud-upload fs-3 d-block mb-1" aria-hidden="true"></i>
                 <span id="pgDropzoneLabel"><%= t("playground.upload_label") %></span>
                 <div class="small text-muted"><%= t("playground.upload_hint") %></div>
               </div>
@@ -77,7 +77,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <span class="small fw-semibold text-truncate" id="pgImageName"></span>
                   <button type="button" class="btn btn-sm btn-outline-danger" id="pgRemoveImage" data-testid="playground-remove-image">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
+                    <i class="ti ti-x" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
                   </button>
                 </div>
                 <img id="pgImagePreview" class="img-fluid rounded border pg-image-preview" alt="Receipt preview" data-testid="playground-image-preview">
@@ -85,14 +85,14 @@
             </div>
 
             <div id="pgTextImageHint" class="alert alert-info py-2 small d-none" data-testid="text-image-hint">
-              <i class="bi bi-info-circle me-1" aria-hidden="true"></i><%= t("playground.text_image_hint") %>
+              <i class="ti ti-info-circle me-1" aria-hidden="true"></i><%= t("playground.text_image_hint") %>
             </div>
 
             <!-- audio input (audio tab) -->
             <div id="pgAudioPanel" class="mb-3 d-none" data-testid="panel-audio">
               <div id="pgAudioDropzone" class="pg-dropzone text-center" role="button" tabindex="0"
                    aria-label="<%= t('playground.audio_upload_label') %>" data-testid="playground-audio-dropzone">
-                <i class="bi bi-mic fs-3 d-block mb-1" aria-hidden="true"></i>
+                <i class="ti ti-microphone fs-3 d-block mb-1" aria-hidden="true"></i>
                 <span id="pgAudioDropzoneLabel"><%= t("playground.audio_upload_label") %></span>
                 <div class="small text-muted"><%= t("playground.audio_upload_hint") %></div>
               </div>
@@ -101,7 +101,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <span class="small fw-semibold text-truncate" id="pgAudioName" data-testid="playground-audio-name"></span>
                   <button type="button" class="btn btn-sm btn-outline-danger" id="pgRemoveAudio" data-testid="playground-remove-audio">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
+                    <i class="ti ti-x" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
                   </button>
                 </div>
                 <audio id="pgAudioPreview" controls class="w-100" data-testid="playground-audio-preview"></audio>
@@ -113,7 +113,7 @@
             <div id="pgFilePanel" class="mb-3 d-none" data-testid="panel-file">
               <div id="pgFileDropzone" class="pg-dropzone text-center" role="button" tabindex="0"
                    aria-label="<%= t('playground.file_upload_label') %>" data-testid="playground-file-dropzone">
-                <i class="bi bi-file-earmark-arrow-up fs-3 d-block mb-1" aria-hidden="true"></i>
+                <i class="ti ti-file-upload fs-3 d-block mb-1" aria-hidden="true"></i>
                 <span id="pgFileDropzoneLabel"><%= t("playground.file_upload_label") %></span>
                 <div class="small text-muted"><%= t("playground.file_upload_hint") %></div>
               </div>
@@ -122,7 +122,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <span class="small fw-semibold text-truncate" id="pgFileName" data-testid="playground-file-name"></span>
                   <button type="button" class="btn btn-sm btn-outline-danger" id="pgRemoveFile" data-testid="playground-remove-file">
-                    <i class="bi bi-x-lg" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
+                    <i class="ti ti-x" aria-hidden="true"></i> <%= t("playground.upload_remove") %>
                   </button>
                 </div>
               </div>
@@ -138,7 +138,7 @@
 
             <button type="submit" class="btn btn-primary w-100" id="pgProcessButton" data-testid="playground-process-button">
               <span class="spinner-border spinner-border-sm d-none me-1" id="pgProcessSpinner" aria-hidden="true"></span>
-              <i class="bi bi-lightning-charge me-1 pg-process-icon" aria-hidden="true"></i>
+              <i class="ti ti-bolt me-1 pg-process-icon" aria-hidden="true"></i>
               <span id="pgProcessLabel"><%= t("playground.process") %></span>
             </button>
 
@@ -147,7 +147,7 @@
               <button class="btn btn-sm btn-link text-decoration-none px-0 small text-muted" type="button"
                       data-bs-toggle="collapse" data-bs-target="#pgExpectedCollapse"
                       aria-expanded="false" aria-controls="pgExpectedCollapse" data-testid="playground-expected-toggle">
-                <i class="bi bi-bullseye me-1" aria-hidden="true"></i><%= t("playground.expected_title") %>
+                <i class="ti ti-target me-1" aria-hidden="true"></i><%= t("playground.expected_title") %>
               </button>
               <div id="pgExpectedCollapse" class="collapse">
                 <div class="border rounded p-2 bg-light">
@@ -189,9 +189,9 @@
 
     <!-- ------------------------------------------------------ result column -->
     <div class="col-lg-6">
-      <div id="pgResultEmpty" class="card shadow-sm" data-testid="playground-empty">
+      <div id="pgResultEmpty" class="card" data-testid="playground-empty">
         <div class="card-body text-center text-muted py-5">
-          <i class="bi bi-inbox fs-2 d-block mb-2" aria-hidden="true"></i>
+          <i class="ti ti-inbox fs-2 d-block mb-2" aria-hidden="true"></i>
           <%= t("playground.no_result") %>
         </div>
       </div>
@@ -201,16 +201,16 @@
 
       <div id="pgResult" class="d-none" data-testid="playground-result">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h2 class="h5 mb-0"><i class="bi bi-receipt me-2" aria-hidden="true"></i><%= t("playground.result_title") %></h2>
+          <h2 class="h5 mb-0"><i class="ti ti-receipt me-2" aria-hidden="true"></i><%= t("playground.result_title") %></h2>
           <div class="d-flex align-items-center gap-2">
             <span class="badge bg-primary d-none" id="pgResultCount" data-testid="playground-result-count"></span>
             <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="pgResultToggle"
                     aria-label="toggle expenses" data-testid="playground-result-toggle">
-              <i class="bi bi-arrows-expand" aria-hidden="true" id="pgResultToggleIcon"></i>
+              <i class="ti ti-arrows-maximize" aria-hidden="true" id="pgResultToggleIcon"></i>
             </button>
             <button type="button" class="btn btn-success btn-sm d-none" id="pgCreateAllButton" data-testid="playground-create-all-button">
               <span class="spinner-border spinner-border-sm d-none me-1" id="pgCreateAllSpinner" aria-hidden="true"></span>
-              <i class="bi bi-plus-circle me-1 pg-create-all-icon" aria-hidden="true"></i>
+              <i class="ti ti-circle-plus me-1 pg-create-all-icon" aria-hidden="true"></i>
               <span id="pgCreateAllLabel"><%= t("playground.create_all") %></span>
             </button>
           </div>
@@ -219,7 +219,7 @@
         <!-- transcript (audio inputs only) -->
         <div id="pgTranscript" class="border rounded p-2 bg-light mb-3 d-none" data-testid="playground-transcript">
           <div class="small fw-semibold text-muted mb-1">
-            <i class="bi bi-chat-square-text me-1" aria-hidden="true"></i><%= t("playground.transcript_title") %>
+            <i class="ti ti-message-circle-2 me-1" aria-hidden="true"></i><%= t("playground.transcript_title") %>
           </div>
           <div id="pgTranscriptText" data-testid="playground-transcript-text"></div>
         </div>
@@ -227,7 +227,7 @@
         <!-- speech-to-text metadata (audio inputs only) -->
         <div id="pgSttMeta" class="d-none mb-3" data-testid="playground-stt-meta">
           <hr class="mt-2 mb-2">
-          <h3 class="h6 mb-2"><i class="bi bi-mic me-1" aria-hidden="true"></i><%= t("playground.stt_title") %></h3>
+          <h3 class="h6 mb-2"><i class="ti ti-microphone me-1" aria-hidden="true"></i><%= t("playground.stt_title") %></h3>
           <dl class="row mb-0">
             <dt class="col-5 small text-muted"><%= t("playground.provider") %></dt>
             <dd class="col-7" id="pgSttProvider" data-testid="stt-provider"></dd>
@@ -245,10 +245,10 @@
       </div>
 
       <!-- file import result: extracted transactions preview -->
-      <div id="pgFileResult" class="card shadow-sm d-none" data-testid="playground-file-result">
+      <div id="pgFileResult" class="card d-none" data-testid="playground-file-result">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h5 mb-0"><i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>
+            <h2 class="h5 mb-0"><i class="ti ti-file-text me-2" aria-hidden="true"></i>
               <%= t("playground.file_result_title") %></h2>
             <span class="badge bg-primary" id="pgFileCount" data-testid="playground-file-count"></span>
           </div>
@@ -281,7 +281,7 @@
 
           <button type="button" class="btn btn-success d-none" id="pgFileCreateButton" data-testid="playground-file-create-button">
             <span class="spinner-border spinner-border-sm d-none me-1" id="pgFileCreateSpinner" aria-hidden="true"></span>
-            <i class="bi bi-check2-circle me-1 pg-file-create-icon" aria-hidden="true"></i>
+            <i class="ti ti-circle-check me-1 pg-file-create-icon" aria-hidden="true"></i>
             <span id="pgFileCreateLabel"><%= t("playground.file_create_all") %></span>
           </button>
         </div>
@@ -290,17 +290,17 @@
   </div>
 
   <!-- ------------------------------------------------------ debug / pipeline -->
-  <div id="pgDebug" class="card shadow-sm mt-4 d-none" data-testid="playground-debug">
+  <div id="pgDebug" class="card mt-4 d-none" data-testid="playground-debug">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center" id="pgDebugHeader">
       <button class="btn btn-sm btn-link text-decoration-none px-0 fw-semibold" type="button"
               data-bs-toggle="collapse" data-bs-target="#pgDebugCollapse"
               aria-expanded="true" aria-controls="pgDebugCollapse" data-testid="playground-debug-toggle">
-        <i class="bi bi-bug me-1" aria-hidden="true"></i><%= t("playground.processing_details") %>
+        <i class="ti ti-bug me-1" aria-hidden="true"></i><%= t("playground.processing_details") %>
         <span class="text-muted small ms-2" id="pgDebugMeta"></span>
       </button>
       <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="pgStepsToggle"
               aria-label="toggle expenses" data-testid="playground-steps-toggle">
-        <i class="bi bi-arrows-expand" aria-hidden="true" id="pgStepsToggleIcon"></i>
+        <i class="ti ti-arrows-maximize" aria-hidden="true" id="pgStepsToggleIcon"></i>
       </button>
     </div>
     <div id="pgDebugCollapse" class="collapse show" aria-labelledby="pgDebugHeader">
@@ -309,9 +309,9 @@
   </div>
 
   <!-- ---------------------------------------------------------- AI routing -->
-  <div class="card shadow-sm mt-4" data-testid="playground-ai-summary">
+  <div class="card mt-4" data-testid="playground-ai-summary">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-      <h2 class="h6 mb-0"><i class="bi bi-cpu me-2" aria-hidden="true"></i><%= t("playground.ai_summary_title") %></h2>
+      <h2 class="h6 mb-0"><i class="ti ti-cpu me-2" aria-hidden="true"></i><%= t("playground.ai_summary_title") %></h2>
       <span class="small text-muted" id="pgAiCheapTier" data-testid="playground-ai-cheap-tier"></span>
     </div>
     <div class="card-body py-2">
@@ -330,9 +330,9 @@
   </div>
 
   <!-- -------------------------------------------------------------- history -->
-  <div class="card shadow-sm mt-4" data-testid="playground-history">
+  <div class="card mt-4" data-testid="playground-history">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-      <h2 class="h6 mb-0"><i class="bi bi-clock-history me-2" aria-hidden="true"></i><%= t("playground.history_title") %></h2>
+      <h2 class="h6 mb-0"><i class="ti ti-history me-2" aria-hidden="true"></i><%= t("playground.history_title") %></h2>
       <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="pgClearHistory" data-testid="playground-clear-history">
         <%= t("playground.history_clear") %>
       </button>
@@ -791,7 +791,7 @@ function initializePlayground() {
       if (candidate.duplicate) {
         status = '<span class="badge bg-warning text-dark" data-testid="file-candidate-duplicate" title="' +
           escapeHtml(T.duplicateHint || "Possible duplicate: same date, amount and money source.") + '">' +
-          '<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>' +
+          '<i class="ti ti-alert-triangle me-1" aria-hidden="true"></i>' +
           escapeHtml(T.duplicateLabel || "Possible duplicate") + "</span>";
       } else {
         status = '<span class="badge bg-success" data-testid="file-candidate-ready">' +
@@ -832,7 +832,7 @@ function initializePlayground() {
     if (sources.length) {
       var names = sources.map(function (s) { return s.display_name || s.name || "source"; });
       sourceBox.innerHTML = '<div class="alert alert-info py-2 small mb-0" data-testid="playground-file-sources-list">' +
-        '<i class="bi bi-wallet2 me-1" aria-hidden="true"></i><strong>' + escapeHtml(T.tabFile || "File") + ":</strong> " +
+        '<i class="ti ti-wallet me-1" aria-hidden="true"></i><strong>' + escapeHtml(T.tabFile || "File") + ":</strong> " +
         escapeHtml(names.join(", ")) + "</div>";
       sourceBox.classList.remove("d-none");
     } else {
@@ -1111,7 +1111,7 @@ function initializePlayground() {
       '<div class="pg-card-evaluation mt-3 d-none" data-testid="playground-evaluation">' +
       '<hr class="mt-2 mb-2">' +
       '<div class="d-flex justify-content-between align-items-center mb-1">' +
-      '<h3 class="h6 mb-0"><i class="bi bi-bullseye me-1" aria-hidden="true"></i>' + escapeHtml(T.evaluationTitle) + '</h3>' +
+      '<h3 class="h6 mb-0"><i class="ti ti-target me-1" aria-hidden="true"></i>' + escapeHtml(T.evaluationTitle) + '</h3>' +
       '<span class="badge bg-success pg-evaluation-score" data-testid="evaluation-score"></span>' +
       "</div>" +
       '<table class="table table-sm mb-0"><thead><tr>' +
@@ -1141,13 +1141,13 @@ function initializePlayground() {
       '<input type="date" class="form-control form-control-sm pg-edit-date" data-testid="edit-date"></div>' +
       "</div>" +
       '<div class="alert alert-success mt-3 d-none pg-card-success" role="alert" data-testid="playground-success">' +
-      '<i class="bi bi-check-circle me-1" aria-hidden="true"></i>' +
+      '<i class="ti ti-circle-check me-1" aria-hidden="true"></i>' +
       '<span class="pg-card-success-text"></span>' +
       '<a href="<%= expenses_path %>" class="alert-link ms-1">' + escapeHtml(T.viewExpenses) + "</a>" +
       "</div>" +
       '<button type="button" class="btn btn-success w-100 mt-3 pg-create-button" data-testid="playground-create-button">' +
       '<span class="spinner-border spinner-border-sm d-none me-1 pg-create-spinner" aria-hidden="true"></span>' +
-      '<i class="bi bi-plus-circle me-1 pg-create-icon" aria-hidden="true"></i>' +
+      '<i class="ti ti-circle-plus me-1 pg-create-icon" aria-hidden="true"></i>' +
       '<span class="pg-create-label">' + escapeHtml(T.createExpense) + "</span>" +
       "</button>" +
       "</div></div>";
@@ -1520,8 +1520,8 @@ function initializePlayground() {
     var allOpen = accordions.length > 0 && Array.prototype.every.call(accordions, function (el) {
       return el.classList.contains("show");
     });
-    icon.classList.toggle("bi-arrows-collapse", allOpen);
-    icon.classList.toggle("bi-arrows-expand", !allOpen);
+    icon.classList.toggle("ti-arrows-diagonal-minimize", allOpen);
+    icon.classList.toggle("ti-arrows-maximize", !allOpen);
   }
 
   function wireAccordionToggle(container, toggle, icon) {
@@ -1616,7 +1616,7 @@ function initializePlayground() {
       row.className = "pg-history-row";
       row.setAttribute("data-testid", "playground-history-row");
       var result = entry.ok ? escapeHtml(historyResultLabel(entry)) : '<span class="text-danger">failed</span>';
-      if (entry.expense_id) result += ' <i class="bi bi-check2-circle text-success" title="expense created"></i>';
+      if (entry.expense_id) result += ' <i class="ti ti-circle-check text-success" title="expense created"></i>';
       row.innerHTML =
         '<td class="small">' + escapeHtml(new Date(entry.ts).toLocaleDateString()) + "</td>" +
         '<td class="small text-truncate" style="max-width:220px">"' + escapeHtml(entry.label || "") + '"</td>' +

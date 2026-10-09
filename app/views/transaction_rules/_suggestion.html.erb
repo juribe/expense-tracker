@@ -4,7 +4,7 @@
       <% if suggestion[:kind] == :correction %>
         <%= t("transaction_rules.suggested_correction", merchant: suggestion[:merchant].titleize, category: suggestion[:category].name) %>
       <% else %>
-        <i class="bi bi-shop me-1"></i><%= suggestion[:merchant].titleize %> <span class="text-muted">→</span> <%= category_badge(suggestion[:category]) %>
+        <i class="ti ti-building-store me-1"></i><%= suggestion[:merchant].titleize %> <span class="text-muted">→</span> <%= category_badge(suggestion[:category]) %>
       <% end %>
     </div>
     <div class="small text-muted mt-1">
@@ -21,11 +21,11 @@
           value: suggestion[:merchant],
           category_id: suggestion[:category].id
         ), class: "btn btn-sm btn-primary" do %>
-      <i class="bi bi-plus-lg me-1"></i><%= t("transaction_rules.create_rule") %>
+      <i class="ti ti-plus me-1"></i><%= t("transaction_rules.create_rule") %>
     <% end %>
     <%= button_to dismiss_suggestion_transaction_rules_path(merchant: suggestion[:merchant]),
           method: :post, class: "btn btn-sm btn-outline-secondary" do %>
-      <i class="bi bi-x-lg me-1"></i><%= t("transaction_rules.dismiss") %>
+      <i class="ti ti-x me-1"></i><%= t("transaction_rules.dismiss") %>
     <% end %>
   </div>
 </div>

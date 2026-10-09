@@ -1,0 +1,17 @@
+<%# Section wrapper with an optional titled header. Locals: title (optional),
+    actions (optional), icon (optional), body_attribute hmm keep simple:
+    Locals: title, header (bool, default true), actions (optional).
+    Content renders inside .card-body via yield %>
+<div class="card page-section">
+  <% if local_assigns[:header] != false %>
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="card-title">
+        <% if local_assigns[:icon] %><i class="ti ti-<%= icon %> me-2 text-secondary"></i><% end %><%= title %>
+      </h5>
+      <%= actions if local_assigns[:actions] %>
+    </div>
+  <% end %>
+  <div class="card-body">
+    <%= yield %>
+  </div>
+</div>

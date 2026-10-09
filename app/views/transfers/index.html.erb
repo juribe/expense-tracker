@@ -1,23 +1,22 @@
-<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <div class="d-flex align-items-center gap-2 flex-wrap">
-    <h1 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i><%= t("transfers.index.title") %></h1>
-    <% if @cycle %>
-      <span class="badge bg-light text-dark border" data-testid="cycle-badge">
-        <i class="bi bi-calendar-heart me-1"></i><%= @cycle.label %> (<%= @cycle.range_label %>)
-      </span>
-    <% end %>
-  </div>
+<% subtitle = capture do %>
+  <% if @cycle %>
+    <span class="badge bg-light text-dark border" data-testid="cycle-badge">
+      <i class="ti ti-calendar-plus me-1"></i><%= @cycle.label %> (<%= @cycle.range_label %>)
+    </span>
+  <% end %>
+<% end %>
+<%= render "shared/page_header", title: t("transfers.index.title"), subtitle: subtitle do %>
   <div class="d-flex gap-2">
-    <%= link_to money_sources_path, class: "btn btn-outline-primary" do %>
-      <i class="bi bi-wallet2 me-1"></i><%= t("nav.money_sources") %>
+    <%= link_to money_sources_path, class: "btn btn-outline-secondary" do %>
+      <i class="ti ti-wallet me-1"></i><%= t("nav.money_sources") %>
     <% end %>
     <%= link_to new_transfer_path, class: "btn btn-primary" do %>
-      <i class="bi bi-plus-lg me-1"></i><%= t("transfers.index.new") %>
+      <i class="ti ti-plus me-1"></i><%= t("transfers.index.new") %>
     <% end %>
   </div>
-</div>
+<% end %>
 
-<div class="card shadow-sm mb-4">
+<div class="card mb-4">
   <div class="card-body">
     <%= form_with url: transfers_path, method: :get, class: "row g-3 align-items-end" do |f| %>
       <div class="col-6 col-md-3">
@@ -37,9 +36,9 @@
 </div>
 
 <% if @transfers.any? %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table table-hover ledger-table align-middle mb-0">
         <caption class="visually-hidden"><%= t("transfers.index.caption") %></caption>
         <thead class="table-light">
           <tr>
@@ -63,7 +62,7 @@
               </td>
               <td class="text-end">
                 <%= button_to transfer_path(transfer), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: t("transfers.index.delete_confirm") }, form: { style: "display: inline-block" } do %>
-                  <i class="bi bi-trash"></i>
+                  <i class="ti ti-trash"></i>
                 <% end %>
               </td>
             </tr>
@@ -73,14 +72,9 @@
     </div>
   </div>
 <% else %>
-  <div class="card shadow-sm">
-    <div class="p-5 text-center" data-testid="empty">
-      <i class="bi bi-arrow-left-right display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2"><%= t("transfers.index.empty_title") %></h4>
-      <p class="text-muted"><%= t("transfers.index.empty_body") %></p>
-      <%= link_to new_transfer_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("transfers.index.new") %>
-      <% end %>
-    </div>
+  <div class="card" data-testid="empty">
+    <%= render "shared/empty_state", icon: "arrows-left-right", title: t("transfers.index.empty_title"),
+          text: t("transfers.index.empty_body"),
+          cta: link_to(new_transfer_path, class: "btn btn-primary") { "<i class=\"ti ti-plus me-1\"></i>#{t("transfers.index.new")}".html_safe } %>
   </div>
 <% end %>

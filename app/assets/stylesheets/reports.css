@@ -12,21 +12,21 @@
 }
 
 .reports-header-icon {
-  font-size: 2.25rem;
+  font-size: 1.6rem;
   color: var(--bs-primary);
   line-height: 1;
 }
 
 .reports-title {
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: #1e2337;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
   margin: 0;
 }
 
 .reports-subtitle {
-  color: #6b7280;
-  font-size: 0.95rem;
+  color: var(--et-muted, #6b7280);
+  font-size: 0.875rem;
   margin: 0.25rem 0 0 0;
 }
 

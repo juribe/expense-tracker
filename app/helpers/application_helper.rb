@@ -15,7 +15,7 @@ module ApplicationHelper
 
     tag.span(class: "badge bg-light text-dark border text-nowrap") do
       safe_join([
-                  tag.i(nil, class: "bi bi-#{source_kind_icon(source.kind)} me-1"),
+                  tag.i(nil, class: "ti ti-#{source_kind_icon(source.kind)} me-1"),
                   source.display_name
                 ])
     end
@@ -69,13 +69,13 @@ module ApplicationHelper
 
   def source_kind_icon(kind)
     case kind
-    when "account" then "bank"
+    when "account" then "building-bank"
     when "debit_card" then "credit-card"
-    when "credit_card" then "credit-card-2-front"
+    when "credit_card" then "credit-card"
     when "cash" then "cash"
-    when "wallet" then "wallet2"
-    when "pocket" then "piggy-bank"
-    when "loan" then "cash-coin"
+    when "wallet" then "wallet"
+    when "pocket" then "pig-money"
+    when "loan" then "coin"
     else "circle"
     end
   end
@@ -110,13 +110,13 @@ module ApplicationHelper
 
   def source_icon(source)
     case source
-    when "text" then "chat-left-text"
-    when "whatsapp" then "whatsapp"
-    when "email" then "envelope"
-    when "image" then "image"
-    when "ocr" then "upc-scan"
-    when "gmail" then "envelope-check"
-    else "file-earmark"
+    when "text" then "message-circle"
+    when "whatsapp" then "brand-whatsapp"
+    when "email" then "mail"
+    when "image" then "photo"
+    when "ocr" then "scan"
+    when "gmail" then "mail-opened"
+    else "file"
     end
   end
 
@@ -266,16 +266,16 @@ module ApplicationHelper
   # Contextual icon + restrained accent for a loan card, inferred from the loan
   # name so each loan reads visually distinct without a data-model change.
   LOAN_ACCENTS = {
-    revolving: { icon: "arrow-repeat", accent: "accent-teal" },
-    mortgage: { icon: "house", accent: "accent-purple" },
-    vehicle: { icon: "car-front", accent: "accent-amber" },
-    education: { icon: "mortarboard", accent: "accent-blue" },
-    personal: { icon: "wallet2", accent: "accent-rose" },
+    revolving: { icon: "rotate", accent: "accent-teal" },
+    mortgage: { icon: "home", accent: "accent-purple" },
+    vehicle: { icon: "car", accent: "accent-amber" },
+    education: { icon: "school", accent: "accent-blue" },
+    personal: { icon: "wallet", accent: "accent-rose" },
     business: { icon: "briefcase", accent: "accent-blueviolet" }
   }.freeze
 
   def loan_identity(loan)
-    return { icon: "cash-coin", accent: "accent-slate" } unless loan.is_a?(MoneySource)
+    return { icon: "coin", accent: "accent-slate" } unless loan.is_a?(MoneySource)
 
     name = [ loan.name, loan.bank ].compact.join(" ").downcase
     key =
@@ -337,7 +337,7 @@ module ApplicationHelper
     col_class = presenter.importable? ? "col-md-4" : "col-md-6"
 
     cards = [ {
-      value: "manual", icon: "pencil-square", icon_color: "text-primary",
+      value: "manual", icon: "edit", icon_color: "text-primary",
       title: t("wizard.select.manual"),
       hint: t("wizard.select.manual_hint", kind: kind_label),
       col_class: col_class
@@ -354,7 +354,7 @@ module ApplicationHelper
 
     if presenter.has_added?
       cards << {
-        value: "skip", icon: "check2-circle", icon_color: "text-primary",
+        value: "skip", icon: "circle-check", icon_color: "text-primary",
         title: t("wizard.select.continue_title"),
         hint: t("wizard.select.continue_hint", count: presenter.added_count, kind: kind_label),
         col_class: col_class

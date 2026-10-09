@@ -1,10 +1,9 @@
-<div class="container mt-4">
-  <h1><%= t("reports.monthly_balance", default: "Balance mensual") %></h1>
+<%= render "shared/page_header", title: t("reports.monthly_balance", default: "Balance mensual") %>
 
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-white">
+      <div class="card">
+        <div class="card-header">
           <h5 class="mb-0"><%= t("reports.income_vs_expense", default: "Ingresos y gastos por mes") %></h5>
         </div>
         <div class="card-body">
@@ -46,4 +45,3 @@
       </div>
     </div>
   </div>
-</div>

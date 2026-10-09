@@ -1,16 +1,16 @@
 <div class="container-fluid py-4 import-recurring-templates" style="max-width: 800px; margin: 0 auto;">
   <%= form_with(url: imports_path, local: true, html: { multipart: true }) do |form| %>
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-primary text-white">
+    <div class="card border-0">
+      <div class="card-header">
         <h4 class="mb-0">
-          <i class="bi bi-upload me-2"></i><%= t("imports.title", default: "Importar plantillas recurrentes") %>
+          <i class="ti ti-upload me-2"></i><%= t("imports.title", default: "Importar plantillas recurrentes") %>
         </h4>
       </div>
 
       <div class="card-body">
         <div class="alert alert-info" role="alert">
           <h6 class="alert-heading mb-2">
-            <i class="bi bi-info-circle me-1"></i><%= t("imports.csv_format", default: "Formato CSV") %>
+            <i class="ti ti-info-circle me-1"></i><%= t("imports.csv_format", default: "Formato CSV") %>
           </h6>
           <p class="mb-2"><%= t("imports.download_template", default: "Descarga y usa esta plantilla:") %></p>
           <code class="bg-white p-2 rounded">category,kind,amount,description,payment_day,active</code>
@@ -40,14 +40,14 @@
           </div>
         <% else %>
           <div class="alert alert-warning" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i><%= t("imports.no_categories", default: "No se encontraron categorías. Crea primero una categoría.") %>
+            <i class="ti ti-alert-triangle me-2"></i><%= t("imports.no_categories", default: "No se encontraron categorías. Crea primero una categoría.") %>
           </div>
         <% end %>
       </div>
 
       <div class="card-footer d-flex justify-content-end gap-2">
         <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
+          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
         <% end %>
         <%= form.submit t("nav.recurring", default: "Importar plantillas"), class: "btn btn-primary", id: "import-btn" %>
       </div>

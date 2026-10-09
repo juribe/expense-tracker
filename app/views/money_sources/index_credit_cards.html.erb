@@ -2,15 +2,15 @@
 
 <header class="loans-header loans-toolbar d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
   <div>
-    <h1 class="loans-title"><i class="bi bi-credit-card-2-front" aria-hidden="true"></i><%= t("money_sources.index.credit_cards_title") %></h1>
+    <h1 class="loans-title"><i class="ti ti-credit-card" aria-hidden="true"></i><%= t("money_sources.index.credit_cards_title") %></h1>
     <p class="loans-subtitle"><%= t("money_sources.credit_cards.subtitle") %></p>
   </div>
   <div class="loans-actions flex-wrap">
     <%= link_to new_transfer_path, class: "btn btn-outline-primary" do %>
-      <i class="bi bi-arrow-left-right" aria-hidden="true"></i><%= t("money_sources.index.new_transfer") %>
+      <i class="ti ti-arrows-left-right" aria-hidden="true"></i><%= t("money_sources.index.new_transfer") %>
     <% end %>
     <%= link_to new_money_source_path, class: "btn btn-primary" do %>
-      <i class="bi bi-plus-lg" aria-hidden="true"></i><%= t("money_sources.index.new") %>
+      <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new") %>
     <% end %>
   </div>
 </header>
@@ -24,13 +24,13 @@
 
   <%= render "credit_cards_summary", sources: @money_sources %>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="p-5 text-center">
-      <i class="bi bi-credit-card-2-front display-4 text-muted mb-3 d-block"></i>
+      <i class="ti ti-credit-card display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("money_sources.index.credit_cards_empty_title") %></h4>
       <p class="text-muted"><%= t("money_sources.index.credit_cards_empty_body") %></p>
       <%= link_to new_money_source_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new") %>
+        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new") %>
       <% end %>
     </div>
   </div>

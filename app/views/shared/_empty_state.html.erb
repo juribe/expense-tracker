@@ -1,0 +1,7 @@
+<%# Empty state. Locals: icon (ti name), title, text (optional), cta (optional link/button html) %>
+<div class="empty-state">
+  <i class="ti ti-<%= icon %>"></i>
+  <h3 class="h6 fw-bold mt-2"><%= title %></h3>
+  <% if local_assigns[:text] %><p class="text-secondary mb-0"><%= text %></p><% end %>
+  <% if local_assigns[:cta].present? %><div class="mt-1"><%= cta %></div><% end %>
+</div>

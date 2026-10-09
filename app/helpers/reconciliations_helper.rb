@@ -2,20 +2,20 @@
 
 module ReconciliationsHelper
   STATUS_STYLES = {
-    "pending" => { dot: "text-danger", badge: "bg-danger-subtle text-danger", icon: "bi-circle-fill" },
-    "warning" => { dot: "text-warning", badge: "bg-warning-subtle text-warning-emphasis", icon: "bi-circle-fill" },
-    "reconciled" => { dot: "text-success", badge: "bg-success-subtle text-success", icon: "bi-check-circle-fill" },
+    "pending" => { dot: "text-danger", badge: "bg-danger-subtle text-danger", icon: "ti-circle-dot" },
+    "warning" => { dot: "text-warning", badge: "bg-warning-subtle text-warning-emphasis", icon: "ti-circle-dot" },
+    "reconciled" => { dot: "text-success", badge: "bg-success-subtle text-success", icon: "ti-circle-check" },
     # Row-level statuses
-    "unverified" => { dot: "text-secondary", badge: "bg-secondary-subtle text-secondary-emphasis", icon: "bi-circle" },
-    "difference" => { dot: "text-warning", badge: "bg-warning-subtle text-warning-emphasis", icon: "bi-exclamation-circle-fill" },
-    "left_pending" => { dot: "text-warning", badge: "bg-warning-subtle text-warning-emphasis", icon: "bi-hourglass-split" },
-    "ok" => { dot: "text-success", badge: "bg-success-subtle text-success", icon: "bi-check-circle-fill" }
+    "unverified" => { dot: "text-secondary", badge: "bg-secondary-subtle text-secondary-emphasis", icon: "ti-circle" },
+    "difference" => { dot: "text-warning", badge: "bg-warning-subtle text-warning-emphasis", icon: "ti-alert-circle" },
+    "left_pending" => { dot: "text-warning", badge: "bg-warning-subtle text-warning-emphasis", icon: "ti-hourglass" },
+    "ok" => { dot: "text-success", badge: "bg-success-subtle text-success", icon: "ti-circle-check" }
   }.freeze
 
   def reconciliation_status_badge(status, label)
     styles = STATUS_STYLES.fetch(status, STATUS_STYLES["unverified"])
     tag.span(class: "badge rounded-pill d-inline-flex align-items-center gap-1 fw-semibold #{styles[:badge]}") do
-      tag.i(class: "bi #{styles[:icon]} small") + tag.span(label)
+      tag.i(class: "ti #{styles[:icon]} small") + tag.span(label)
     end
   end
 

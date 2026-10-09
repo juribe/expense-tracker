@@ -14,9 +14,9 @@ module ExpensesHelper
     end
     aria_sort = active ? (current_dir == "asc" ? "ascending" : "descending") : nil
     icon = if active
-             current_dir == "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill"
+             current_dir == "asc" ? "ti-caret-up" : "ti-caret-down"
     else
-             "bi-chevron-expand"
+             "ti-selector"
     end
 
     attrs = { scope: "col", class: ("text-end" if column == "amount") }
@@ -27,7 +27,7 @@ module ExpensesHelper
               class: "sort-btn#{' active' if active}",
               data: { testid: "sort-#{column}" } do
         concat label
-        concat content_tag(:i, "", class: "bi #{icon} ms-1", "aria-hidden": "true")
+        concat content_tag(:i, "", class: "ti #{icon} ms-1", "aria-hidden": "true")
       end
     end
   end

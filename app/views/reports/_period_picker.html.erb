@@ -7,7 +7,7 @@
   <% end %>
 
   <div class="input-group">
-    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+    <span class="input-group-text"><i class="ti ti-calendar"></i></span>
     <%= select_tag :period,
           options_for_select(period_presets, params[:period] || "this_month"),
           class: "form-select", id: "report-period-select",

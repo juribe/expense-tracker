@@ -18,9 +18,9 @@ module ReportsHelper
 
     up = delta_pct >= 0
     color = up == good_when_positive ? "text-success" : "text-danger"
-    icon = up ? "bi-arrow-up-right" : "bi-arrow-down-right"
+    icon = up ? "ti-arrow-up-right" : "ti-arrow-down-right"
     content_tag(:span, class: "#{color} small") do
-      content_tag(:i, "", class: "bi #{icon} me-1") + "#{number_with_delimiter(delta_pct.abs, precision: 1)}% " +
+      content_tag(:i, "", class: "ti #{icon} me-1") + "#{number_with_delimiter(delta_pct.abs, precision: 1)}% " +
         t("reports.period.vs_previous")
     end
   end
@@ -32,9 +32,9 @@ module ReportsHelper
 
     up = delta_pct >= 0
     color = up ? "text-success" : "text-danger"
-    icon = up ? "bi-arrow-up-right" : "bi-arrow-down-right"
+    icon = up ? "ti-arrow-up-right" : "ti-arrow-down-right"
     content_tag(:span, class: "#{color} small text-nowrap") do
-      content_tag(:i, "", class: "bi #{icon} me-1") +
+      content_tag(:i, "", class: "ti #{icon} me-1") +
         "#{number_with_delimiter(delta_pct.abs, precision: 1)}% #{t('reports.period.vs_previous')}"
     end
   end

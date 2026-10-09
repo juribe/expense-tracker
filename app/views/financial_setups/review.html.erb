@@ -11,7 +11,7 @@
   total_sources = summary.sum { |item| item[:count] }
 %>
 
-<div class="card shadow">
+<div class="card">
   <div class="card-body p-4">
     <h3 class="fw-bold text-primary mb-4"><%= t("wizard.review.title") %></h3>
 
@@ -19,8 +19,8 @@
       <% next if item[:count].zero? %>
       <div class="card border mb-2">
         <div class="card-body py-3 d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#collapse<%= item[:step].key %>" style="cursor:pointer;">
-          <span><i class="bi bi-<%= item[:step].icon %> me-2 text-primary"></i><span class="fw-bold"><%= t("wizard.review.#{item[:step].key}", count: item[:count]) %></span></span>
-          <span class="text-muted"><i class="bi bi-chevron-down"></i></span>
+          <span><i class="ti ti-<%= item[:step].icon %> me-2 text-primary"></i><span class="fw-bold"><%= t("wizard.review.#{item[:step].key}", count: item[:count]) %></span></span>
+          <span class="text-muted"><i class="ti ti-chevron-down"></i></span>
         </div>
         <div class="collapse" id="collapse<%= item[:step].key %>">
           <ul class="list-group list-group-flush">
@@ -47,13 +47,13 @@
     <div class="d-flex justify-content-between mt-4">
       <div>
         <%= link_to financial_setup_step_path(step: FinancialSetupWizard.source_step_keys.last), class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-arrow-left me-1"></i><%= t("wizard.review.back_to_edit") %>
+          <i class="ti ti-arrow-left me-1"></i><%= t("wizard.review.back_to_edit") %>
         <% end %>
       </div>
       <div>
         <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
         <%= button_to financial_setup_complete_path, method: :post, class: "btn btn-primary btn-lg", form: { data: { turbo: false } } do %>
-          <i class="bi bi-check-circle me-1"></i><%= t("wizard.review.complete") %>
+          <i class="ti ti-circle-check me-1"></i><%= t("wizard.review.complete") %>
         <% end %>
       </div>
     </div>

@@ -3,7 +3,7 @@
     locals: path (current page path), title, subtitle (optional) %>
 <div class="reports-header">
   <div class="d-flex align-items-start">
-    <i class="bi bi-bar-chart-line-fill reports-header-icon me-3 d-none d-sm-inline"></i>
+    <i class="ti ti-chart-line reports-header-icon me-3 d-none d-sm-inline"></i>
     <div>
       <h1 class="reports-title"><%= local_assigns[:title].presence || t("reports.title") %></h1>
       <% if local_assigns[:subtitle].present? %>

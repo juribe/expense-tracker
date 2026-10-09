@@ -40,7 +40,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=table]"
     assert_select "tr[data-testid=row]", count: 1
     assert_select "tr[data-testid=row] td .badge", text: /Visa/
-    assert_select "tr[data-testid=row] td .bi-credit-card-2-front"
+    assert_select "tr[data-testid=row] td .ti-credit-card"
     assert_select "form[data-testid=filter-form]"
     assert_select "#resultsMeta", text: /1 gasto/
   end
@@ -51,7 +51,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     get expense_path(expense)
     assert_response :success
     assert_select "dd .badge", text: /Nequi/
-    assert_select "dd .bi-wallet2"
+    assert_select "dd .ti-wallet"
   end
 
   test "GET /expenses renders the bulk update bar and modal" do

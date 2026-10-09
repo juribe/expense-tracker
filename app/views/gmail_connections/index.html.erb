@@ -1,5 +1,5 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0"><i class="bi bi-envelope-paper me-2"></i><%= t("gmail.title") %></h1>
+  <h1 class="page-title mb-0"><i class="ti ti-mail me-2 text-secondary"></i><%= t("gmail.title") %></h1>
   <% if @connection&.active? %>
   <% syncing = @connection.sync_running? %>
   <div class="d-flex gap-2 align-items-center" <%= tag.attributes(data: { sync_in_progress: true }) if syncing %>>
@@ -7,14 +7,14 @@
           disabled: syncing,
           form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
           data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}" } do %>
-      <i class="bi bi-magic me-1"></i><%= t("gmail.setup_sync") %>
+      <i class="ti ti-wand me-1"></i><%= t("gmail.setup_sync") %>
     <% end %>
     <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary",
           disabled: syncing,
           form: { data: { turbo_confirm: t("gmail.fetch_confirm") } },
           data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
                   sync_status_path: gmail_sync_status_path } do %>
-      <i class="bi bi-arrow-repeat me-1"></i><%= t("gmail.sync_now") %>
+      <i class="ti ti-repeat me-1"></i><%= t("gmail.sync_now") %>
     <% end %>
     <% if syncing %>
       <span class="badge bg-info text-dark" data-testid="sync-running-badge">
@@ -38,10 +38,10 @@
     <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.sync_running? %>
       <div class="card mb-4 border-primary" data-testid="setup-suggestions-card">
         <div class="card-body">
-          <h2 class="h5 card-title"><i class="bi bi-magic me-1"></i><%= t("gmail.setup.review_title") %></h2>
+          <h2 class="h5 card-title"><i class="ti ti-wand me-1"></i><%= t("gmail.setup.review_title") %></h2>
           <p class="text-muted small mb-3"><%= t("gmail.setup.review_help") %></p>
           <%= link_to setup_gmail_connection_path, class: "btn btn-primary btn-sm" do %>
-            <%= t("gmail.setup.review_cta") %> <i class="bi bi-arrow-right ms-1"></i>
+            <%= t("gmail.setup.review_cta") %> <i class="ti ti-arrow-right ms-1"></i>
           <% end %>
         </div>
       </div>
@@ -49,18 +49,18 @@
 
     <div class="card mb-4">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-link-45deg me-1"></i><%= t("gmail.connection") %></h2>
+        <h2 class="h5 card-title"><i class="ti ti-link me-1"></i><%= t("gmail.connection") %></h2>
         <% if @connection %>
           <% if @connection.active? && @connection.authorization_expired? %>
             <div class="alert alert-warning py-2" data-testid="reauth-alert">
-              <p class="small mb-2"><i class="bi bi-exclamation-triangle me-1"></i><%= t("gmail.reauth_alert") %></p>
+              <p class="small mb-2"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.reauth_alert") %></p>
               <%= button_to start_gmail_auth_path, method: :post, class: "btn btn-warning btn-sm" do %>
-                <i class="bi bi-arrow-clockwise me-1"></i><%= t("gmail.reconnect") %>
+                <i class="ti ti-rotate me-1"></i><%= t("gmail.reconnect") %>
               <% end %>
             </div>
           <% end %>
           <p class="mb-1">
-            <i class="bi bi-envelope-check me-1 text-success"></i>
+            <i class="ti ti-mail-opened me-1 text-success"></i>
             <strong><%= @connection.email %></strong>
             <span class="badge bg-<%= @connection.active? ? 'success' : 'secondary' %>">
               <%= @connection.active? ? t("gmail.active") : t("gmail.paused") %>
@@ -79,7 +79,7 @@
           <p class="text-muted"><%= t("gmail.connect_help") %></p>
           <%= button_to start_gmail_auth_path, method: :post, class: "btn btn-primary",
                 disabled: !@configured do %>
-            <i class="bi bi-google me-1"></i><%= t("gmail.connect") %>
+            <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
           <% end %>
         <% end %>
       </div>
@@ -88,7 +88,7 @@
     <% if @connection %>
       <div class="card">
         <div class="card-body">
-          <h2 class="h5 card-title"><i class="bi bi-sliders me-1"></i><%= t("gmail.criteria") %></h2>
+          <h2 class="h5 card-title"><i class="ti ti-adjustments me-1"></i><%= t("gmail.criteria") %></h2>
           <p class="text-muted small">
             <%= t("gmail.criteria_help") %>
           </p>
@@ -122,7 +122,7 @@
     <% if @pending_reviews.any? %>
       <div class="card mb-4 border-warning">
         <div class="card-body">
-          <h2 class="h5 card-title"><i class="bi bi-eye me-1"></i><%= t("gmail.pending_review") %>
+          <h2 class="h5 card-title"><i class="ti ti-eye me-1"></i><%= t("gmail.pending_review") %>
             <span class="badge bg-warning text-dark"><%= @pending_reviews.size %></span></h2>
           <p class="text-muted small"><%= t("gmail.pending_help") %></p>
           <div class="table-responsive">
@@ -141,15 +141,15 @@
                       <td><%= "#{(t['confidence'].to_f * 100).round}%".html_safe %></td>
                       <td>
                         <% if t["card_last_four"].present? %>
-                          <span class="badge bg-light text-dark"><i class="bi bi-credit-card me-1"></i>****<%= t["card_last_four"] %></span>
+                          <span class="badge bg-light text-dark"><i class="ti ti-credit-card me-1"></i>****<%= t["card_last_four"] %></span>
                         <% end %>
                         <% if t["bank"].present? %>
-                          <span class="badge bg-light text-dark"><i class="bi bi-bank me-1"></i><%= t["bank"] %></span>
+                          <span class="badge bg-light text-dark"><i class="ti ti-building-bank me-1"></i><%= t["bank"] %></span>
                         <% end %>
                         <% if candidate_sources.one? %>
-                          <div class="small text-success mt-1"><i class="bi bi-check-circle me-1"></i><%= candidate_sources.first.display_name %></div>
+                          <div class="small text-success mt-1"><i class="ti ti-circle-check me-1"></i><%= candidate_sources.first.display_name %></div>
                         <% elsif candidate_sources.many? %>
-                          <div class="small text-warning mt-1"><i class="bi bi-exclamation-triangle me-1"></i><%= t("gmail.ambiguous_match", default: "Ambiguous match") %>: <%= candidate_sources.map(&:display_name).join(", ") %></div>
+                          <div class="small text-warning mt-1"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.ambiguous_match", default: "Ambiguous match") %>: <%= candidate_sources.map(&:display_name).join(", ") %></div>
                         <% end %>
                       </td>
                       <td class="text-end">
@@ -171,7 +171,7 @@
 
     <div class="card mb-4">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-clock-history me-1"></i><%= t("gmail.recent_imports") %></h2>
+        <h2 class="h5 card-title"><i class="ti ti-history me-1"></i><%= t("gmail.recent_imports") %></h2>
         <% if @recent_imports.any? %>
           <ul class="list-group list-group-flush" data-testid="recent-imports">
             <% @recent_imports.each do |expense| %>
@@ -192,7 +192,7 @@
 
     <div class="card">
       <div class="card-body">
-        <h2 class="h5 card-title"><i class="bi bi-gear me-1"></i><%= t("gmail.how_it_works") %></h2>
+        <h2 class="h5 card-title"><i class="ti ti-settings me-1"></i><%= t("gmail.how_it_works") %></h2>
         <ol class="text-muted small mb-2">
           <li>Your Gmail account is linked with Google OAuth (read-only scope).</li>
           <li>A background job polls the account every <%= @polling_interval %> minute(s)

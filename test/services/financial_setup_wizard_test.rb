@@ -21,7 +21,7 @@ class FinancialSetupWizardTest < ActiveSupport::TestCase
     step = FinancialSetupWizard.step("credit_cards")
     assert_equal :credit_cards, step.key
     assert_equal "credit_card", step.kind
-    assert_equal "credit-card-2-front", step.icon
+    assert_equal "credit-card", step.icon
   end
 
   test "recognizes the manual, import and skip choices" do

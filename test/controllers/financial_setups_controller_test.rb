@@ -86,7 +86,7 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
   test "sidebar shows the source recognition link under settings" do
     get money_sources_cash_path
     assert_response :success
-    assert_select "aside.sidebar a[href='#{money_sources_recognition_path}']" do
+    assert_select "aside.left-sidebar a[href='#{money_sources_recognition_path}']" do
       assert_select "span", text: I18n.t("nav.source_recognition")
     end
   end

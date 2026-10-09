@@ -1,9 +1,8 @@
-<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-bullseye me-2"></i><%= t("goals.title", default: "Metas financieras") %></h1>
+<%= render "shared/page_header", title: t("goals.title", default: "Metas financieras") do %>
   <%= link_to new_goal_path, class: "btn btn-primary" do %>
-    <i class="bi bi-plus-lg me-1"></i><%= t("goals.new", default: "Nueva meta") %>
+    <i class="ti ti-plus me-1"></i><%= t("goals.new", default: "Nueva meta") %>
   <% end %>
-</div>
+<% end %>
 
 <% if @goals.any? %>
   <div class="row g-3">
@@ -12,13 +11,13 @@
     <% end %>
   </div>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="p-5 text-center">
-      <i class="bi bi-bullseye display-4 text-muted mb-3 d-block"></i>
+      <i class="ti ti-target display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("goals.empty_title", default: "Aún no tienes metas") %></h4>
-      <p class="text-muted"><%= t("goals.empty_body", default: "Crea una meta para empezar a ahorrar.") %></p>
+      <p class="text-secondary"><%= t("goals.empty_body", default: "Crea una meta para empezar a ahorrar.") %></p>
       <%= link_to new_goal_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("goals.new", default: "Nueva meta") %>
+        <i class="ti ti-plus me-1"></i><%= t("goals.new", default: "Nueva meta") %>
       <% end %>
     </div>
   </div>
@@ -33,7 +32,7 @@
       <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path, local: true do |f| %>
         <div class="modal-header">
           <h5 class="modal-title" id="assign-to-goal-modal-title">
-            <i class="bi bi-piggy-bank me-2"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
+            <i class="ti ti-pig-money me-2"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
@@ -41,8 +40,8 @@
           <div class="mb-3">
             <label class="form-label"><%= t("goals.pocket", default: "Bolsillo") %></label>
             <div class="form-control bg-light d-flex align-items-center justify-content-between">
-              <span><i class="bi bi-piggy-bank me-2"></i><span id="assign-to-goal-pocket-name"></span></span>
-              <span class="text-muted small" id="assign-to-goal-unallocated"></span>
+              <span><i class="ti ti-pig-money me-2"></i><span id="assign-to-goal-pocket-name"></span></span>
+              <span class="text-secondary small" id="assign-to-goal-unallocated"></span>
             </div>
           </div>
           <%= f.hidden_field :financial_goal_id, id: "assign-to-goal-id" %>
@@ -86,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('assign-to-goal-unallocated').textContent =
       '<%= t("goals.unallocated_label", default: "No asignado") %>: ' + button.getAttribute('data-assign-unallocated');
     document.getElementById('assign-to-goal-modal-title').innerHTML =
-      '<i class="bi bi-piggy-bank me-2"></i>' + button.getAttribute('data-assign-goal-name');
+      '<i class="ti ti-pig-money me-2"></i>' + button.getAttribute('data-assign-goal-name');
   });
 });
 </script>

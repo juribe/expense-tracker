@@ -1,11 +1,12 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-5 col-lg-4">
-    <div class="card shadow-sm my-5">
+    <%= render "devise/shared/brand" %>
+    <div class="card my-5">
       <div class="card-body p-4 p-md-5">
         <% if @success_notice %>
           <h1 class="h3 mb-3 text-center fw-bold"><%= t("devise.passwords.check_inbox_title", default: "Revisa tu bandeja de entrada") %></h1>
           <div class="alert alert-success" role="alert">
-            <i class="bi bi-envelope-check me-2"></i><%= @success_notice %>
+            <i class="ti ti-mail-opened me-2"></i><%= @success_notice %>
           </div>
           <p class="text-center mb-0">
             <%= link_to t("auth.back_to_sign_in"), new_session_path(resource_name), class: "link-secondary" %>
@@ -33,5 +34,3 @@
     </div>
   </div>
 </div>
-
-<%= render "devise/shared/auth_scripts" %>

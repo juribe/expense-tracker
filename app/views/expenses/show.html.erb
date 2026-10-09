@@ -19,7 +19,7 @@
   <dd>
     <% if (template = @expense.recurring_template) %>
       <span class="badge bg-info text-dark">
-        <i class="bi bi-arrow-repeat me-1"></i><%= template.description.presence || "##{template.id}" %>
+        <i class="ti ti-repeat me-1"></i><%= template.description.presence || "##{template.id}" %>
       </span>
       <%= button_to t("expenses.recurring_link.unlink", default: "Quitar vínculo"),
                     unassign_recurring_expenses_path(expense_id: @expense.id),

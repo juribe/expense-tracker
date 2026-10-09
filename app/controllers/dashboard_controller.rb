@@ -21,6 +21,18 @@ class DashboardController < ApplicationController
     @pending_candidates = current_user.expense_candidates.pending.includes(:category).limit(10)
     @categories = Category.for_user_and_type(current_user, "expense")
     @money_sources = MoneySource.payment_origins(current_user)
+    @balance_snapshot = balance_snapshot
+  end
+
+  # Read-only position snapshot for the financial overview: asset balances
+  # (accounts/cash/wallets/debit cards), pockets and outstanding debt, from
+  # the existing cached_balance column.
+  def balance_snapshot
+    sources = current_user.money_sources
+    assets = sources.where(kind: %w[account debit_card cash wallet]).filter_map(&:balance).sum
+    pockets = sources.pockets.filter_map(&:balance).sum
+    debt = sources.debt_payment_targets.filter_map(&:balance).sum
+    { assets: assets, pockets: pockets, debt: debt, net: assets + pockets - debt }
   end
 
   # The equivalent previous window (a month back, or the prior cycle), so the

@@ -1,9 +1,9 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-9">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0"><i class="bi bi-arrow-repeat me-2"></i><%= t("credits.reconstruct.title") %> — <%= @loan.name %></h4>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title"><i class="ti ti-repeat me-2 text-secondary"></i><%= t("credits.reconstruct.title") %> — <%= @loan.name %></h5>
         </div>
         <div class="card-body">
           <p class="text-muted mb-4"><%= t("credits.reconstruct.hint") %></p>
@@ -124,7 +124,7 @@
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-primary">
-                <i class="bi bi-calculator me-1"></i><%= t("credits.reconstruct.submit") %>
+                <i class="ti ti-calculator me-1"></i><%= t("credits.reconstruct.submit") %>
               </button>
               <%= link_to money_source_path(@loan), class: "btn btn-outline-secondary" do %>
                 <%= t("common.cancel", default: "Cancelar") %>

@@ -98,14 +98,14 @@ class RecurringTemplatesController < ApplicationController
     # Expense templates keep every source: a normal expense points at a
     # payment source, while a debt-payment cuota points at the loan/card
     # itself (debt_payment_target — see MoneySource).
-    sources = current_user.money_sources.active.order(:kind, :name)
+    sources = current_user.money_sources.active.includes([ :credit_account ]).order(:kind, :name)
     @money_sources = params[:kind].to_s == "expense" ? sources : sources.payment_sources
   end
 
   def load_index_data
     @kind = %w[income expense].include?(params[:kind]) ? params[:kind] : "income"
     @recurring_templates = current_user.recurring_templates
-                                       .includes(:category, :transactions)
+                                       .includes(:category)
                                        .where(kind: @kind)
                                        .ordered
     @current_period = current_listing_period

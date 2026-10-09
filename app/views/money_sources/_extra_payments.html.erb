@@ -9,9 +9,9 @@
     preview_limit = source.credit_limit.to_d
   end
 %>
-<div class="card shadow-sm mt-4">
+<div class="card mt-4">
   <div class="card-body">
-    <h5 class="card-title mb-2"><i class="bi bi-journal-plus me-2"></i><%= t("credits.extras.title") %></h5>
+    <h5 class="card-title mb-2"><i class="ti ti-notebook me-2"></i><%= t("credits.extras.title") %></h5>
     <% if simple %>
       <p class="small text-muted"><%= t("credits.extras.simple_hint") %></p>
       <div data-extra-preview data-balance="<%= preview_balance %>" data-limit="<%= preview_limit %>">
@@ -43,7 +43,7 @@
             </div>
             <div class="col-8 col-md-7 mb-2 d-flex align-items-end">
               <button type="submit" class="btn btn-primary btn-sm w-100">
-                <i class="bi bi-plus-lg me-1"></i><%= t("credits.extras.record") %>
+                <i class="ti ti-plus me-1"></i><%= t("credits.extras.record") %>
               </button>
             </div>
           </div>
@@ -105,7 +105,7 @@
           </div>
           <div class="col-4 col-md-5 mb-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary btn-sm w-100">
-              <i class="bi bi-plus-lg me-1"></i><%= t("credits.extras.record") %>
+              <i class="ti ti-plus me-1"></i><%= t("credits.extras.record") %>
             </button>
           </div>
         </div>
@@ -139,20 +139,20 @@
           <%= button_to money_source_extra_payment_path(source, extra), method: :delete,
                         form_class: "d-inline", class: "btn btn-outline-danger btn-sm",
                         data: { turbo_confirm: t("credits.extras.delete_confirm") } do %>
-            <i class="bi bi-trash"></i>
+            <i class="ti ti-trash"></i>
           <% end %>
         </div>
       <% end %>
       <% if source.credit_projection.present? %>
         <div class="small text-muted">
-          <i class="bi bi-calculator me-1"></i>
+          <i class="ti ti-calculator me-1"></i>
           <%= link_to money_source_credits_path(source) do %>
             <%= t("credit_intelligence_link", default: "Ver el análisis y simular sin mover nada") %>
           <% end %>
         </div>
       <% end %>
     <% else %>
-      <p class="text-muted small mb-0 mt-2"><i class="bi bi-inbox me-1"></i><%= t("credits.extras.empty") %></p>
+      <p class="text-muted small mb-0 mt-2"><i class="ti ti-inbox me-1"></i><%= t("credits.extras.empty") %></p>
     <% end %>
   </div>
 </div>

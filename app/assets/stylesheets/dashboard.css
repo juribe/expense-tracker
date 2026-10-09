@@ -1,123 +1,13 @@
-/* app/assets/stylesheets/dashboard.css */
+/* app/assets/stylesheets/dashboard.css
+ * Dashboard-specific pieces layered on the shared design system (theme.css).
+ * Tokens, cards, tables and badges come from theme.css — only composition
+ * that is unique to the dashboard lives here. */
 
-/* -------------------------------------------------
- * Core container
- * ------------------------------------------------- */
-.dashboard {
-  max-width: 80rem;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 2rem 1rem;
-}
-
-/* -------------------------------------------------
- * Summary boxes
- * ------------------------------------------------- */
-.summary-box {
-  background: #fff;
-  border-radius: var(--bs-border-radius);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.summary-box h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.summary-box p {
-  color: var(--bs-gray-500);
-}
-
-/* -------------------------------------------------
- * Table styling – striped rows & hover effect
- * ------------------------------------------------- */
-.dashboard table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.dashboard th,
-.dashboard td {
-  border: 1px solid var(--bs-border-color);
-  padding: 0.5rem;
-  text-align: left;
-}
-.dashboard tbody tr:nth-child(even) {
-  background: var(--bs-gray-100);
-}
-.dashboard tbody tr:hover {
-  background: var(--bs-gray-200);
-}
-
-/* -------------------------------------------------
- * Chart placeholder
- * ------------------------------------------------- */
-.chart-placeholder {
-  width: 100%;
-  min-height: 24rem;
-}
-
-/* -------------------------------------------------
- * Responsive
- * ------------------------------------------------- */
-@media (max-width: 640px) {
-  .dashboard {
-    padding: 1rem;
-  }
-}
-
-/* -------------------------------------------------
- * Redesigned dashboard cards (mockup layout)
- * ------------------------------------------------- */
-.dashboard-card {
-  border: none;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
-/* Rounded icon tile in card headers */
-.stat-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.6rem;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-.stat-icon-sm {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.8rem;
-}
-.stat-icon-primary { background: #e0e9ff; color: #3b82f6; }
-.stat-icon-success { background: #dcfce7; color: #16a34a; }
-.stat-icon-warning { background: #fef3c7; color: #d97706; }
-.stat-icon-info    { background: #e0f2fe; color: #0284c7; }
-.stat-icon-secondary { background: #f1f5f9; color: #64748b; }
-
-/* Signed delta chip (↑ +8.4%) */
-.delta-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  border-radius: 999px;
-  padding: 0.125rem 0.6rem;
-}
-.delta-badge-success { background: #dcfce7; color: #15803d; }
-.delta-badge-danger { background: #fee2e2; color: #b91c1c; }
+/* Mini bar chart inside the period-count card */
+.dashboard-mini-chart .chart-container { margin: 0; }
 
 /* Donut chart with the total centered in the hole */
-.donut-wrap {
-  width: 170px;
-  height: 170px;
-}
+.donut-wrap { width: 170px; height: 170px; }
 .donut-center {
   position: absolute;
   inset: 0;
@@ -136,37 +26,13 @@
   flex-shrink: 0;
 }
 
-/* Thin progress bars for rankings and goals */
-.dashboard-progress {
-  height: 6px;
-  border-radius: 999px;
-  background: #f1f5f9;
-}
-.top-category-row .progress-bar,
-.dashboard-progress .progress-bar {
-  border-radius: 999px;
-}
+/* Thin progress bars used by budgets, goals and category rankings */
+.dashboard-progress { height: 6px; border-radius: 999px; }
+.dashboard-progress .progress-bar { border-radius: 999px; }
 
-/* Mini bar chart inside the transactions card */
-.dashboard-mini-chart .chart-container {
-  margin: 0;
-}
+/* Upcoming payments & goals rows */
+.upcoming-payment:last-child,
+.goal-row:last-child { border-bottom: 0 !important; }
 
-/* On/over meta box inside the cycle summary card */
-.cycle-meta-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 0.6rem;
-  color: inherit;
-}
-.cycle-meta-box-success { background: #dcfce7; color: #15803d; }
-.cycle-meta-box-danger { background: #fee2e2; color: #b91c1c; }
-.cycle-meta-box .text-muted { color: #64748b !important; }
-
-/* Tip banner */
-.tip-banner {
-  background: #eef2ff;
-  border-radius: 0.6rem;
-}
+/* Cycle banner reuses .page-header; make the period controls align */
+.cycle-banner .page-subtitle { display: block; }

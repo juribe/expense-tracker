@@ -30,7 +30,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
   test "the sidebar links to the transfers section" do
     get transfers_path
     assert_response :success
-    assert_select "aside.sidebar a[href='#{transfers_path}']" do
+    assert_select "aside.left-sidebar a[href='#{transfers_path}']" do
       assert_select "span", text: I18n.t("nav.transfers")
     end
   end

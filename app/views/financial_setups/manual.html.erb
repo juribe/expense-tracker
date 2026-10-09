@@ -1,12 +1,12 @@
 <% @step_key = @step.key.to_s %>
 <%= render "stepper", step_key: @step_key %>
 
-<div class="card shadow">
+<div class="card">
   <div class="card-body p-4">
     <div class="d-flex justify-content-between align-items-center mb-1">
       <h3 class="fw-bold text-primary mb-0"><%= t("wizard.manual.title", kind: t(@step.label_key).downcase) %></h3>
       <button type="button" class="btn btn-sm btn-outline-primary" id="addAnotherRow">
-        <i class="bi bi-plus-lg me-1"></i><%= t("wizard.manual.add_another") %>
+        <i class="ti ti-plus me-1"></i><%= t("wizard.manual.add_another") %>
       </button>
     </div>
     <p class="text-muted mb-4"><%= t("wizard.manual.hint") %></p>
@@ -23,7 +23,7 @@
        <div class="d-flex justify-content-between">
          <div class="d-flex gap-2">
            <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
-             <i class="bi bi-x-lg me-1"></i><%= t("wizard.cancel") %>
+             <i class="ti ti-x me-1"></i><%= t("wizard.cancel") %>
            <% end %>
          </div>
          <div>

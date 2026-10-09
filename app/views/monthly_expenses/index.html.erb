@@ -1,4 +1,4 @@
-<div class="container-fluid py-4" data-testid="monthly-expenses-page">
+<div data-testid="monthly-expenses-page">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
       <li class="breadcrumb-item"><%= link_to t("nav.dashboard"), dashboard_path %></li>
@@ -6,19 +6,18 @@
     </ol>
   </nav>
 
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h4 class="text-primary mb-0"><i class="bi bi-arrow-up-circle me-2"></i><%= t("nav.recurring_expenses") %></h4>
+  <%= render "shared/page_header", title: t("nav.recurring_expenses") do %>
     <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
-      <i class="bi bi-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
+      <i class="ti ti-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
     <% end %>
-    <button type="button" class="btn btn-success ms-auto" data-testid="add-recurring"
+    <button type="button" class="btn btn-primary" data-testid="add-recurring"
             onclick="RecurringUI.openFormModal('create')">
-      <i class="bi bi-plus-lg me-1"></i><%= t("expenses.add_expense") %>
+      <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
     </button>
-  </div>
+<% end %>
 
   <!-- Filter -->
-  <div class="card shadow-sm mb-4">
+  <div class="card mb-4">
     <div class="card-body">
       <%= form_with url: monthly_expenses_path, method: :get, class: "row g-3 align-items-end", data: { testid: "filter-form" } do |f| %>
         <div class="col-12 col-md-4 col-lg-2">
@@ -40,16 +39,16 @@
     </p>
   </div>
 
-  <div class="card shadow-sm" data-testid="recurring-card">
+  <div class="card" data-testid="recurring-card">
     <% if @recurring_templates.empty? %>
       <div class="text-center py-5" data-testid="empty-state">
-        <i class="bi bi-arrow-up-circle display-4 text-muted d-block mb-3"></i>
+        <i class="ti ti-arrow-up-circle display-4 text-muted d-block mb-3"></i>
         <% if @status_filter != "all" %>
           <h5><%= t("monthly_incomes.empty.no_matching") %></h5>
-          <p class="text-muted"><%= t("monthly_incomes.empty.filter_hint") %></p>
+          <p class="text-secondary"><%= t("monthly_incomes.empty.filter_hint") %></p>
         <% else %>
           <h5><%= t("monthly_expenses.empty.title", default: "Aún no hay plantillas de gastos mensuales") %></h5>
-          <p class="text-muted"><%= t("monthly_expenses.empty.body", default: "Configura un pago recurrente para registrarlo aquí.") %></p>
+          <p class="text-secondary"><%= t("monthly_expenses.empty.body", default: "Configura un pago recurrente para registrarlo aquí.") %></p>
           <button type="button" class="btn btn-outline-primary" onclick="RecurringUI.openFormModal('create')">
             <%= t("monthly_incomes.empty.add_first") %>
           </button>
@@ -57,7 +56,7 @@
       </div>
     <% else %>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" data-testid="recurring-table">
+        <table class="table table-hover ledger-table align-middle mb-0" data-testid="recurring-table">
           <thead class="table-light">
             <tr>
               <th scope="col"><%= t("common.category") %></th>
@@ -92,7 +91,7 @@
                   <% if (last = rt.last_occurrence) %>
                     <%= l(last.date, format: :long) %>
                   <% else %>
-                    <span class="text-muted">&mdash;</span>
+                    <span class="text-secondary">&mdash;</span>
                   <% end %>
                 </td>
                 <td data-testid="status">
@@ -109,29 +108,29 @@
                   <button type="button" class="btn btn-outline-primary btn-sm me-1" data-testid="edit"
                           aria-label="<%= t("recurring.edit_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
                           onclick="RecurringUI.openFormModal('edit', this.closest('tr'))">
-                    <i class="bi bi-pencil"></i>
+                    <i class="ti ti-pencil"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="deactivate"
                           aria-label="<%= rt.active? ? t("recurring.deactivate_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) : t("recurring.activate_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
                           title="<%= rt.active? ? t("recurring.deactivate") : t("recurring.activate") %>"
                           onclick="RecurringUI.toggleActive(this)">
-                    <i class="bi bi-power"></i>
+                    <i class="ti ti-power"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="delete"
                           aria-label="<%= t("recurring.delete_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
                           onclick="RecurringUI.confirmDelete(this)">
-                    <i class="bi bi-trash"></i>
+                    <i class="ti ti-trash"></i>
                   </button>
                   <% if status == :pending %>
                     <button type="button" class="btn btn-primary btn-sm" data-testid="process"
                             onclick="RecurringUI.openProcessModal(this.closest('tr'))">
-                      <i class="bi bi-cash-coin me-1"></i><%= t("monthly_expenses.pay", default: "Pagar") %>
+                      <i class="ti ti-coin me-1"></i><%= t("monthly_expenses.pay", default: "Pagar") %>
                     </button>
                   <% elsif status == :completed %>
                     <button type="button" class="btn btn-outline-secondary btn-sm disabled" data-testid="process-disabled"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             title="<%= t("monthly_expenses.paid_tooltip", default: "Ya pagado este mes") %>" tabindex="-1" aria-disabled="true">
-                      <i class="bi bi-check-lg me-1"></i><%= t("monthly_expenses.paid", default: "Pagado") %>
+                      <i class="ti ti-check me-1"></i><%= t("monthly_expenses.paid", default: "Pagado") %>
                     </button>
                   <% end %>
                 </td>

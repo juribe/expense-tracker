@@ -1,16 +1,16 @@
 <div class="row g-4 mb-4">
     <div class="col-12">
-      <div class="card shadow-sm h-100 border-primary">
+      <div class="card h-100 border-primary">
         <div class="card-body">
-          <h5 class="card-title mb-3"><i class="bi bi-question-circle me-2"></i><%= t("credits.quick.title") %></h5>
+          <h5 class="card-title mb-3"><i class="ti ti-help me-2"></i><%= t("credits.quick.title") %></h5>
           <p class="text-muted small mb-2"><%= t("credits.quick.amount_hint") %></p>
-          <p class="text-muted small border-bottom pb-2"><i class="bi bi-broadcast me-1"></i><%= t("credits.quick.simulation_hint") %></p>
+          <p class="text-muted small border-bottom pb-2"><i class="ti ti-broadcast me-1"></i><%= t("credits.quick.simulation_hint") %></p>
 
           <%= form_with url: money_source_credits_path(@loan), method: :get, local: true do %>
             <div class="row align-items-end">
               <div class="col-md-5">
                 <label class="form-label fw-semibold" for="quick_amount">
-                  <i class="bi bi-cash-coin me-1"></i><%= t("credits.quick.amount_label") %>
+                  <i class="ti ti-coin me-1"></i><%= t("credits.quick.amount_label") %>
                 </label>
                 <div class="input-group">
                   <span class="input-group-text">$</span>
@@ -34,7 +34,7 @@
               <% if params[:objective].present? %><input type="hidden" name="objective" value="<%= params[:objective] %>"><% end %>
               <div class="col-md-auto">
                 <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-calculator me-1"></i><%= t("credits.quick.title") %>
+                  <i class="ti ti-calculator me-1"></i><%= t("credits.quick.title") %>
                 </button>
               </div>
             </div>
@@ -43,7 +43,7 @@
           <% if @quick_comparison %>
             <%= render "credits/quick_comparison", quick: @quick_comparison %>
           <% else %>
-            <p class="text-muted mb-0 mt-3"><i class="bi bi-inbox me-1"></i><%= t("credits.quick.nothing") %></p>
+            <p class="text-muted mb-0 mt-3"><i class="ti ti-inbox me-1"></i><%= t("credits.quick.nothing") %></p>
           <% end %>
         </div>
       </div>
@@ -51,17 +51,17 @@
   </div>
 
   <div class="col-12">
-    <div class="card shadow-sm">
+    <div class="card">
       <div class="card-body">
-        <h5 class="card-title mb-3"><i class="bi bi-collection me-2"></i><%= t("credits.simulators.title") %></h5>
+        <h5 class="card-title mb-3"><i class="ti ti-stack-2 me-2"></i><%= t("credits.simulators.title") %></h5>
         <% if @loan.credit_scenarios.empty? %>
           <p class="text-muted mb-0">
-            <i class="bi bi-inbox me-1"></i>
+            <i class="ti ti-inbox me-1"></i>
             <%= t("credits.simulators.empty") %>
           </p>
         <% else %>
           <% if @loan.credit_scenarios.count >= CreditScenario::MAX_PER_CREDIT %>
-            <div class="alert alert-info small py-2"><i class="bi bi-info-circle me-1"></i><%= t("credits.simulators.limit_reached") %></div>
+            <div class="alert alert-info small py-2"><i class="ti ti-info-circle me-1"></i><%= t("credits.simulators.limit_reached") %></div>
           <% end %>
           <% @loan.credit_scenarios.order(:created_at).each do |scenario| %>
             <% results = scenario.results %>
@@ -74,7 +74,7 @@
                 <%= button_to money_source_credit_scenario_path(@loan, scenario), method: :delete,
                               form_class: "d-inline", class: "btn btn-outline-danger btn-sm",
                               data: { turbo_confirm: t("credits.scenarios.delete_confirm") } do %>
-                  <i class="bi bi-trash"></i>
+                  <i class="ti ti-trash"></i>
                 <% end %>
               </div>
 

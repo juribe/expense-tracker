@@ -2,15 +2,15 @@
   <div class="row g-4">
     <div class="col-12 col-lg-4">
       <% summary = @review.summary %>
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="bi bi-receipt me-2"></i><%= t("statement_imports.summary_title") %></h5>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title"><i class="ti ti-receipt me-2 text-secondary"></i><%= t("statement_imports.summary_title") %></h5>
         </div>
         <div class="card-body">
           <% if @review.source %>
             <div class="mb-3">
               <span class="badge bg-light text-dark">
-                <i class="bi bi-<%= source_kind_icon(@review.source.kind) %> me-1"></i>
+                <i class="ti ti-<%= source_kind_icon(@review.source.kind) %> me-1"></i>
                 <%= @review.source.display_name %>
                 <% if @review.source.bank %>&nbsp;·&nbsp;<%= @review.source.bank %><% end %>
               </span>
@@ -65,10 +65,10 @@
       <%= form_with url: confirm_money_source_statement_imports_path(@money_source),
                     local: true,
                     data: { payment_distribution_form: true } do %>
-        <div class="card shadow">
+        <div class="card">
           <div class="card-body">
             <h5 class="card-title">
-              <i class="bi bi-list-check me-2"></i><%= t("statement_imports.movements_title", count: @review.candidates.length) %>
+              <i class="ti ti-list-check me-2"></i><%= t("statement_imports.movements_title", count: @review.candidates.length) %>
             </h5>
             <p class="text-muted small"><%= t("payments.form.hint", target: @money_source.name) %></p>
 
@@ -121,7 +121,7 @@
                     <% end %>
                     <% @review.credits.each do |movement| %>
                       <tr class="table-light">
-                        <td class="text-center text-muted"><i class="bi bi-slash-circle"></i></td>
+                        <td class="text-center text-muted"><i class="ti ti-ban"></i></td>
                         <td><%= movement[:date].present? ? l(movement[:date], format: :short) : "—" %></td>
                         <td><%= movement[:description] %></td>
                         <td class="text-end text-success fw-bold"><%= number_to_currency(movement[:amount].to_d.abs) %></td>
@@ -139,9 +139,9 @@
 
         <% suggestion = @review.payment_suggestion %>
         <% if suggestion %>
-          <div class="card shadow mt-4">
+          <div class="card mt-4">
             <div class="card-body">
-              <h5 class="card-title"><i class="bi bi-cash-coin me-2"></i><%= t("statement_imports.payment_title") %></h5>
+              <h5 class="card-title"><i class="ti ti-coin me-2"></i><%= t("statement_imports.payment_title") %></h5>
               <p class="text-muted small"><%= t("statement_imports.payment_hint") %></p>
               <%= hidden_field_tag "payment[amount]", suggestion[:amount].to_s,
                     id: "payment_amount", data: { payment_amount: true } %>
@@ -216,7 +216,7 @@
                 </div>
               </div>
               <div class="alert alert-warning d-none py-2 small mb-0" data-payment-warning>
-                <i class="bi bi-exclamation-triangle me-1"></i>
+                <i class="ti ti-alert-triangle me-1"></i>
                 <span data-payment-warning-text></span>
               </div>
             </div>
@@ -227,7 +227,7 @@
 
         <div class="d-flex gap-2 justify-content-end mt-4">
           <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-outline-secondary" do %>
-            <i class="bi bi-arrow-counterclockwise me-1"></i><%= t("statement_imports.back") %>
+            <i class="ti ti-rotate-2 me-1"></i><%= t("statement_imports.back") %>
           <% end %>
           <%= submit_tag t("statement_imports.confirm"), class: "btn btn-primary" %>
         </div>

@@ -1,39 +1,36 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <h1 class="mb-0"><i class="bi bi-receipt me-2"></i><%= t("expenses.page_title") %></h1>
-      <% if @cycle_filter %>
-        <span class="badge bg-light text-dark border" data-testid="cycle-badge">
-          <i class="bi bi-calendar-heart me-1"></i><%= @cycle_filter.label %> (<%= @cycle_filter.range_label %>)
-        </span>
+<% subtitle = capture do %>
+  <% if @cycle_filter %>
+    <span class="badge bg-light text-dark border" data-testid="cycle-badge">
+      <i class="ti ti-calendar-plus me-1"></i><%= @cycle_filter.label %> (<%= @cycle_filter.range_label %>)
+    </span>
+  <% end %>
+<% end %>
+<%= render "shared/page_header", title: t("expenses.page_title"), subtitle: subtitle do %>
+  <div class="d-flex flex-column flex-sm-row gap-2">
+    <%= link_to transaction_rules_path, class: "btn btn-outline-secondary" do %>
+      <i class="ti ti-wand me-1"></i> <%= t("expenses.automatic_rules") %>
+    <% end %>
+    <%= link_to monthly_expenses_path, class: "btn btn-outline-secondary" do %>
+      <i class="ti ti-arrow-up-circle me-1"></i> <%= t("expenses.monthly") %>
+    <% end %>
+    <% if @total_count.to_i > 0 %>
+      <%= link_to expenses_path(page_params.merge(format: :csv)), class: "btn btn-outline-secondary" do %>
+        <i class="ti ti-download me-1"></i><%= t("expenses.export_csv") %>
       <% end %>
-    </div>
-    <div class="d-flex gap-2 header-actions flex-column flex-sm-row">
-      <%= link_to transaction_rules_path, class: "btn btn-outline-primary" do %>
-        <i class="bi bi-magic me-1"></i> <%= t("expenses.automatic_rules") %>
-      <% end %>
-      <%= link_to monthly_expenses_path, class: "btn btn-outline-primary" do %>
-        <i class="bi bi-arrow-up-circle me-1"></i> <%= t("expenses.monthly") %>
-      <% end %>
-      <% if @total_count.to_i > 0 %>
-        <%= link_to expenses_path(page_params.merge(format: :csv)), class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-download me-1"></i><%= t("expenses.export_csv") %>
-        <% end %>
-      <% else %>
-        <button type="button" class="btn btn-outline-secondary" aria-disabled="true" disabled title="<%= t('expenses.nothing_to_export') %>">
-          <i class="bi bi-download me-1"></i><%= t("expenses.export_csv") %>
-        </button>
-      <% end %>
-      <%= link_to new_expense_path, class: "btn btn-primary" do %>
-        <i class="bi bi-plus-lg me-1"></i> <%= t("expenses.add_expense") %>
-      <% end %>
-    </div>
+    <% else %>
+      <button type="button" class="btn btn-outline-secondary" aria-disabled="true" disabled title="<%= t('expenses.nothing_to_export') %>">
+        <i class="ti ti-download me-1"></i><%= t("expenses.export_csv") %>
+      </button>
+    <% end %>
+    <%= link_to new_expense_path, class: "btn btn-primary" do %>
+      <i class="ti ti-plus me-1"></i> <%= t("expenses.add_expense") %>
+    <% end %>
   </div>
-
+<% end %>
   <%= render "expenses/ai_entry", categories: @categories %>
 
   <!-- Filters -->
-  <div class="card shadow-sm mb-4">
+  <div class="card mb-4">
     <div class="card-body">
       <%= form_with url: expenses_path, method: :get, class: "row g-3", data: { testid: "filter-form" } do |f| %>
         <div class="col-12 col-md-4 col-lg-2">
@@ -132,29 +129,29 @@
   <div class="bulk-bar" id="bulkBar" role="region" aria-label="<%= t('expenses.bulk_actions_label') %>" data-testid="bulk-bar">
     <strong id="bulkCount" aria-live="polite"><%= t("expenses.bulk_selected", count: 0) %></strong>
     <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
-      <i class="bi bi-tags me-1"></i><%= t("expenses.bulk_category_button") %>
+      <i class="ti ti-tags me-1"></i><%= t("expenses.bulk_category_button") %>
     </button>
     <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
-      <i class="bi bi-wallet2 me-1"></i><%= t("expenses.bulk_source_button") %>
+      <i class="ti ti-wallet me-1"></i><%= t("expenses.bulk_source_button") %>
     </button>
     <button type="button" class="btn btn-sm btn-outline-secondary" id="clearSel" disabled><%= t("common.clear") %></button>
-    <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete" disabled><i class="bi bi-trash me-1"></i><%= t("expenses.delete_selected") %></button>
+    <button type="button" class="btn btn-sm btn-danger ms-auto" id="bulkDelete" disabled><i class="ti ti-trash me-1"></i><%= t("expenses.delete_selected") %></button>
   </div>
 
-  <div class="card shadow-sm" id="tableCard">
+  <div class="card" id="tableCard">
     <% if @load_error %>
     <% elsif @total_count == 0 && !filter_params.any? { |_k, v| v.present? } %>
       <div class="p-5 text-center" data-testid="empty">
-        <i class="bi bi-inbox display-4 text-muted mb-3 d-block"></i>
+        <i class="ti ti-inbox display-4 text-muted mb-3 d-block"></i>
         <h2 class="h4 mb-2"><%= t("expenses.empty_title") %></h2>
         <p class="text-muted mb-0"><%= t("expenses.empty_body") %></p>
         <%= link_to new_expense_path, class: "btn btn-primary mt-3" do %>
-          <i class="bi bi-plus-lg me-1"></i> <%= t("expenses.add_expense") %>
+          <i class="ti ti-plus me-1"></i> <%= t("expenses.add_expense") %>
         <% end %>
       </div>
     <% elsif @total_count == 0 %>
       <div class="p-5 text-center" data-testid="empty">
-        <i class="bi bi-funnel display-4 text-muted mb-3 d-block"></i>
+        <i class="ti ti-filter display-4 text-muted mb-3 d-block"></i>
         <h2 class="h4 mb-2"><%= t("expenses.no_results_title") %></h2>
         <p class="text-muted mb-0"><%= t("expenses.no_results_body") %></p>
         <%= link_to t("expenses.clear_filters"), expenses_path, class: "btn btn-outline-secondary mt-3" %>
@@ -162,7 +159,7 @@
     <% else %>
       <div data-testid="table">
         <div class="table-responsive desktop-table">
-          <table class="table table-hover align-middle mb-0" id="expenseTable" aria-busy="false">
+          <table class="table table-hover ledger-table align-middle mb-0" id="expenseTable" aria-busy="false">
             <caption class="visually-hidden"><%= t("expenses.table_caption") %></caption>
             <thead class="table-light">
               <tr>
@@ -204,23 +201,23 @@
                   <td class="text-end text-nowrap" data-stop="1">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-open-drawer
                             aria-label="<%= t('expenses.view_expense', description: decorated.lowercase_description) %>">
-                      <i class="bi bi-eye"></i>
+                      <i class="ti ti-eye"></i>
                     </button>
                     <% if expense.recurring_template_id.nil? %>
                       <button type="button" class="btn btn-sm btn-outline-primary" data-assign-recurring
                               data-testid="row-assign-recurring"
                               aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
-                        <i class="bi bi-arrow-repeat"></i>
+                        <i class="ti ti-repeat"></i>
                       </button>
                     <% end %>
                     <%= link_to edit_expense_path(expense, state_query), class: "btn btn-sm btn-outline-primary",
                                 aria: { label: t("expenses.edit_expense", description: decorated.lowercase_description) } do %>
-                      <i class="bi bi-pencil"></i>
+                      <i class="ti ti-pencil"></i>
                     <% end %>
                     <button type="button" class="btn btn-sm btn-outline-danger" data-delete
                             data-delete-url="<%= expense_path(expense, state_query) %>"
                             aria-label="<%= t('expenses.delete_expense', description: decorated.lowercase_description) %>">
-                      <i class="bi bi-trash"></i>
+                      <i class="ti ti-trash"></i>
                     </button>
                   </td>
                 </tr>
@@ -255,22 +252,22 @@
                 <div class="mobile-actions mt-2" data-stop="1">
                   <button type="button" class="btn btn-outline-secondary" data-open-drawer
                           aria-label="<%= t('expenses.view_expense', description: decorated.lowercase_description) %>">
-                    <i class="bi bi-eye"></i>
+                    <i class="ti ti-eye"></i>
                   </button>
                   <% if expense.recurring_template_id.nil? %>
                     <button type="button" class="btn btn-outline-primary" data-assign-recurring
                             aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
-                      <i class="bi bi-arrow-repeat"></i>
+                      <i class="ti ti-repeat"></i>
                     </button>
                   <% end %>
                   <%= link_to edit_expense_path(expense, state_query), class: "btn btn-outline-primary",
                               aria: { label: t("expenses.edit_expense", description: decorated.lowercase_description) } do %>
-                    <i class="bi bi-pencil"></i>
+                    <i class="ti ti-pencil"></i>
                   <% end %>
                   <button type="button" class="btn btn-outline-danger" data-delete
                             data-delete-url="<%= expense_path(expense, state_query) %>"
                             aria-label="<%= t('expenses.delete_expense', description: decorated.lowercase_description) %>">
-                    <i class="bi bi-trash"></i>
+                    <i class="ti ti-trash"></i>
                   </button>
                 </div>
               </div>
@@ -287,11 +284,10 @@
       </div>
     <% end %>
   </div>
-</div>
 
 <!-- Skeleton de carga mostrado mientras Turbo carga la siguiente página de gastos -->
 <div id="loadingState" class="d-none" aria-busy="true" data-testid="loading">
-  <div class="card shadow-sm p-3">
+  <div class="card p-3">
     <div class="skel mb-3"></div>
     <div class="skel mb-3" style="width:90%"></div>
     <div class="skel mb-3" style="width:80%"></div>
@@ -310,8 +306,8 @@
   </div>
   <div class="offcanvas-body" id="drawerBody"></div>
   <div class="offcanvas-footer border-top p-3 d-flex gap-2">
-    <a href="#" class="btn btn-outline-primary" id="drawerEdit"><i class="bi bi-pencil me-1"></i>Editar</a>
-    <button type="button" class="btn btn-outline-danger" id="drawerDelete"><i class="bi bi-trash me-1"></i>Eliminar</button>
+    <a href="#" class="btn btn-outline-primary" id="drawerEdit"><i class="ti ti-pencil me-1"></i>Editar</a>
+    <button type="button" class="btn btn-outline-danger" id="drawerDelete"><i class="ti ti-trash me-1"></i>Eliminar</button>
     <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="offcanvas">Cerrar</button>
   </div>
 </div>
@@ -371,7 +367,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary" id="confirmBulkEdit" data-testid="confirm-bulk-update" disabled>
-            <i class="bi bi-check-lg me-1"></i>Actualizar gastos
+            <i class="ti ti-check me-1"></i>Actualizar gastos
           </button>
         </div>
       </div>
@@ -426,7 +422,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
           <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-assign-recurring" disabled>
-            <i class="bi bi-check-lg me-1"></i><%= t("expenses.assign_recurring.apply_button", default: "Aplicar") %>
+            <i class="ti ti-check me-1"></i><%= t("expenses.assign_recurring.apply_button", default: "Aplicar") %>
           </button>
         </div>
       </div>
@@ -485,7 +481,7 @@
     var btn = $("#confirmBulkEdit");
     btn.disabled = !hasValue;
     var word = n === 1 ? "gasto" : "gastos";
-    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Actualizar ' + n + " " + word;
+    btn.innerHTML = '<i class="ti ti-check me-1"></i>Actualizar ' + n + " " + word;
     if (hasValue) {
       CategoryPicker.setInvalid($("#bulkCategorySelect"), false);
       $("#bulkSourceSelect").classList.remove("is-invalid");

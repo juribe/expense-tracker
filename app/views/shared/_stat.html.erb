@@ -1,0 +1,12 @@
+<%# Typographic KPI block. Locals: label, value, delta (optional html string),
+    tone: nil | :positive | :negative | :balance (colors the value) %>
+<div class="stat">
+  <div class="stat-label"><%= label %></div>
+  <div class="stat-value
+              <%= "amt-pos" if local_assigns[:tone] == :positive %><%= "amt-debt" if local_assigns[:tone] == :negative %><%= "text-balance-blue" if local_assigns[:tone] == :balance %>">
+    <%= value %>
+  </div>
+  <% if local_assigns[:delta] %>
+    <div class="small text-secondary mt-1"><%= delta %></div>
+  <% end %>
+</div>

@@ -1,33 +1,32 @@
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 d-print-none">
-  <h1><i class="bi bi-bullseye me-2"></i><%= t("budgets.title") %></h1>
+<%= render "shared/page_header", title: t("budgets.title") do %>
   <%= link_to new_budget_path, class: "btn btn-primary" do %>
-    <i class="bi bi-plus-lg me-1"></i><%= t("budgets.new") %>
+    <i class="ti ti-plus me-1"></i><%= t("budgets.new") %>
   <% end %>
-</div>
+<% end %>
 
 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
   <%= link_to budget_prev_nav_path(@period), class: "btn btn-outline-secondary btn-sm", aria: { label: t("budgets.month_previous_aria") } do %>
-    <i class="bi bi-chevron-left"></i>
+    <i class="ti ti-chevron-left"></i>
   <% end %>
   <h5 class="mb-0"><%= budget_period_label(@period) %></h5>
   <%= link_to budget_next_nav_path(@period), class: "btn btn-outline-secondary btn-sm", aria: { label: t("budgets.month_next_aria") } do %>
-    <i class="bi bi-chevron-right"></i>
+    <i class="ti ti-chevron-right"></i>
   <% end %>
 </div>
 
 <div class="text-center mb-4">
   <% if budget_current_period?(@period) %>
-    <span class="badge bg-light text-dark border"><i class="bi bi-calendar-month me-1"></i><%= t("budgets.current_month_badge") %></span>
+    <span class="badge bg-light text-dark border"><i class="ti ti-calendar me-1"></i><%= t("budgets.current_month_badge") %></span>
   <% else %>
     <%= link_to budgets_path, class: "small" do %>
-      <i class="bi bi-arrow-left me-1"></i><%= t("budgets.back_to_current_month") %>
+      <i class="ti ti-arrow-left me-1"></i><%= t("budgets.back_to_current_month") %>
     <% end %>
   <% end %>
 </div>
 
 <% if @budgets.any? %>
   <% counts = budget_summary_counts(@budgets, @period) %>
-  <p class="text-muted small mb-4">
+  <p class="text-secondary small mb-4">
     <%= t("budgets.summary", count: counts[:total], near_limit: counts[:near_limit], over_budget: counts[:over_budget]) %>
   </p>
 
@@ -39,13 +38,13 @@
     <% end %>
   </div>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="p-5 text-center">
-      <i class="bi bi-bullseye display-4 text-muted mb-3 d-block"></i>
+      <i class="ti ti-target display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("budgets.empty_title") %></h4>
-      <p class="text-muted"><%= t("budgets.empty_body") %></p>
+      <p class="text-secondary"><%= t("budgets.empty_body") %></p>
       <%= link_to new_budget_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("budgets.new") %>
+        <i class="ti ti-plus me-1"></i><%= t("budgets.new") %>
       <% end %>
     </div>
   </div>

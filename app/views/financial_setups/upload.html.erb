@@ -1,17 +1,17 @@
 <% @step_key = @step.key.to_s %>
 <%= render "stepper", step_key: @step_key %>
 
-<div class="card shadow">
+<div class="card">
   <div class="card-body p-4">
     <h3 class="fw-bold text-primary mb-1"><%= t("wizard.upload.title") %></h3>
     <p class="text-muted mb-4"><%= t("wizard.upload.hint") %></p>
 
     <% if alert %>
       <div class="alert alert-danger" role="alert">
-        <i class="bi bi-exclamation-triangle me-1"></i><%= alert %>
+        <i class="ti ti-alert-triangle me-1"></i><%= alert %>
         <div class="mt-2">
           <button type="button" class="btn btn-outline-danger btn-sm" onclick="document.getElementById('statementFile').click()">
-            <i class="bi bi-arrow-clockwise me-1"></i><%= t("wizard.upload.retry") %>
+            <i class="ti ti-rotate me-1"></i><%= t("wizard.upload.retry") %>
           </button>
         </div>
       </div>
@@ -19,7 +19,7 @@
 
     <div class="card password-card d-none mb-4">
       <div class="card-body">
-        <h6 class="fw-bold"><i class="bi bi-lock me-1"></i><%= t("wizard.upload.password_title") %></h6>
+        <h6 class="fw-bold"><i class="ti ti-lock me-1"></i><%= t("wizard.upload.password_title") %></h6>
         <p class="text-muted small mb-3"><%= t("wizard.upload.password_hint") %></p>
         <label class="form-label" for="statementPassword"><%= t("wizard.upload.password_label") %></label>
         <div class="input-group">
@@ -35,7 +35,7 @@
       <input type="hidden" name="password" id="statementPasswordHidden">
 
       <div class="border border-2 border-dashed rounded p-5 text-center" id="dropzone">
-        <i class="bi bi-cloud-arrow-up display-4 text-primary d-block mb-3"></i>
+        <i class="ti ti-cloud-upload display-4 text-primary d-block mb-3"></i>
         <p class="mb-1"><%= t("wizard.upload.drop") %></p>
         <button type="button" class="btn btn-sm btn-primary" id="browseBtn"><%= t("wizard.upload.browse") %></button>
         <input type="file" id="statementFile" name="file" accept=".pdf,.csv,.xlsx" class="d-none">
@@ -44,7 +44,7 @@
 
       <div id="fileChip" class="d-none mt-3">
         <span class="badge bg-light text-dark border px-3 py-2">
-          <i class="bi bi-file-earmark me-1"></i><span id="fileName"></span>
+          <i class="ti ti-file me-1"></i><span id="fileName"></span>
           <span id="fileSize" class="text-muted ms-1"></span>
         </span>
       </div>
@@ -56,7 +56,7 @@
       <div class="d-flex justify-content-between mt-4">
         <div>
           <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
-            <i class="bi bi-x-lg me-1"></i><%= t("wizard.cancel") %>
+            <i class="ti ti-x me-1"></i><%= t("wizard.cancel") %>
           <% end %>
         </div>
         <div>

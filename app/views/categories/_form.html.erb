@@ -1,9 +1,9 @@
-<div class="container-fluid py-4 category-form" style="max-width: 960px; margin: 0 auto;">
+<div class="app-container category-form mx-auto" style="max-width: 960px;">
   <%= form_with(model: category, local: true, html: { novalidate: false }) do |form| %>
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">
-          <i class="bi bi-tags me-2"></i><%= category.new_record? ? t("categories.create_category") : t("categories.edit_category") %>
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">
+          <i class="ti ti-tags me-2"></i><%= category.new_record? ? t("categories.create_category") : t("categories.edit_category") %>
         </h4>
       </div>
 
@@ -11,7 +11,7 @@
         <!-- Error Summary -->
         <div class="alert alert-danger <%= category.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
           <h6 class="alert-heading">
-            <i class="bi bi-exclamation-circle me-1"></i><%= t("categories.form_errors") %>
+            <i class="ti ti-alert-circle me-1"></i><%= t("categories.form_errors") %>
           </h6>
           <ul class="mb-0" id="error-summary-list">
             <% category.errors.full_messages.each do |message| %>
@@ -32,7 +32,7 @@
                     aria_describedby: "typeHelp" %>
               <div id="typeHelp" class="form-text"><%= t("categories.type_help") %></div>
               <% if category.errors[:category_type].any? %>
-                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :category_type) %></div>
+                <div class="invalid-feedback d-block"><i class="ti ti-alert-circle me-1"></i><%= field_error(category, :category_type) %></div>
               <% end %>
             </div>
           </div>
@@ -46,9 +46,9 @@
               <%= form.text_field :name, class: "form-control #{field_class(category, :name)}", placeholder: t("categories.name_placeholder"), autocomplete: "off", aria_describedby: "nameHelp" %>
               <div id="nameHelp" class="form-text"><%= t("categories.name_help") %></div>
               <% if category.errors[:name].any? %>
-                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :name) %></div>
+                <div class="invalid-feedback d-block"><i class="ti ti-alert-circle me-1"></i><%= field_error(category, :name) %></div>
               <% else %>
-                <div class="valid-feedback"><i class="bi bi-check-circle me-1"></i><%= t("categories.name_valid") %></div>
+                <div class="valid-feedback"><i class="ti ti-circle-check me-1"></i><%= t("categories.name_valid") %></div>
               <% end %>
             </div>
           </div>
@@ -57,10 +57,10 @@
           <div class="col-12 col-md-6">
             <div class="mb-3">
               <%= form.label :slug, class: "form-label" do %>
-                <%= Category.human_attribute_name(:slug) %> <i class="bi bi-info-circle text-muted" title="<%= t('categories.slug_help') %>"></i>
+                <%= Category.human_attribute_name(:slug) %> <i class="ti ti-info-circle text-muted" title="<%= t('categories.slug_help') %>"></i>
               <% end %>
               <%= form.text_field :slug, class: "form-control-plaintext bg-light rounded px-2", disabled: true, title: t("categories.slug_help"), aria_describedby: "slugHelp" %>
-              <div id="slugHelp" class="form-text"><i class="bi bi-magic me-1"></i><%= t("categories.slug_help") %></div>
+              <div id="slugHelp" class="form-text"><i class="ti ti-wand me-1"></i><%= t("categories.slug_help") %></div>
             </div>
           </div>
 
@@ -75,7 +75,7 @@
                                   testid: "category-parent-picker" %>
               <div id="parentHelp" class="form-text"><%= t("categories.parent_help") %></div>
               <% if category.errors[:parent_id].any? %>
-                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :parent_id) %></div>
+                <div class="invalid-feedback d-block"><i class="ti ti-alert-circle me-1"></i><%= field_error(category, :parent_id) %></div>
               <% end %>
             </div>
           </div>
@@ -98,7 +98,7 @@
               <%= form.text_area :description, class: "form-control #{field_class(category, :description)}", rows: 3, placeholder: t("categories.description_placeholder"), aria_describedby: "descriptionHelp", autocomplete: "off" %>
               <div id="descriptionHelp" class="form-text"><%= t("common.optional") %></div>
               <% if category.errors[:description].any? %>
-                <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1"></i><%= field_error(category, :description) %></div>
+                <div class="invalid-feedback d-block"><i class="ti ti-alert-circle me-1"></i><%= field_error(category, :description) %></div>
               <% end %>
             </div>
           </div>
@@ -110,7 +110,7 @@
               <div class="input-group">
                 <%= form.file_field :image, class: "form-control", accept: "image/*", aria_describedby: "imageHelp" %>
                 <button type="button" class="btn btn-outline-secondary" id="image-browse-btn">
-                  <i class="bi bi-folder2-open me-1"></i><%= t("categories.browse") %>
+                  <i class="ti ti-folders me-1"></i><%= t("categories.browse") %>
                 </button>
               </div>
               <div id="imageHelp" class="form-text"><%= t("categories.image_help") %></div>
@@ -125,7 +125,7 @@
 
       <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
         <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-x-lg me-1"></i><%= t("common.cancel") %>
+          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
         <% end %>
         <%= form.submit t("categories.save"), class: "btn btn-primary", id: "save-category-btn" %>
       </div>

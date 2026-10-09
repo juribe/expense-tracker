@@ -1,16 +1,15 @@
 <%= render "shared/unfinished_setup_banner", setup: @setup %>
 
-<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
-  <h1><i class="bi bi-wallet2 me-2"></i><%= t("nav.money_sources") %></h1>
+<%= render "shared/page_header", title: t("nav.money_sources") do %>
   <div class="d-flex gap-2">
-    <%= link_to new_transfer_path, class: "btn btn-outline-primary" do %>
-      <i class="bi bi-arrow-left-right me-1"></i><%= t("money_sources.index.new_transfer") %>
+    <%= link_to new_transfer_path, class: "btn btn-outline-secondary" do %>
+      <i class="ti ti-arrows-left-right me-1"></i><%= t("money_sources.index.new_transfer") %>
     <% end %>
     <%= link_to new_money_source_path, class: "btn btn-primary" do %>
-      <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new") %>
+      <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new") %>
     <% end %>
   </div>
-</div>
+<% end %>
 
 <% if @money_sources.any? %>
   <% assets = @money_sources.reject { |s| s.debt? || s.pocket? } %>
@@ -18,7 +17,7 @@
   <% debts = @money_sources.select(&:debt?) %>
 
   <% if assets.any? %>
-    <h6 class="fw-bold text-uppercase mb-3 mt-2"><%= t("money_sources.index.assets_section") %></h6>
+    <h5 class="section-title"><%= t("money_sources.index.assets_section") %></h6>
     <div class="row g-3 mb-4">
       <% assets.each do |source| %>
         <%= render partial: "money_source", locals: { source: source } %>
@@ -28,12 +27,12 @@
 
   <% if pockets.any? %>
     <div class="d-flex justify-content-between align-items-end mb-1 mt-4">
-      <h6 class="fw-bold text-uppercase mb-0"><%= t("money_sources.index.pockets_section", default: "Bolsillos") %></h6>
+      <h5 class="section-title"><%= t("money_sources.index.pockets_section", default: "Bolsillos") %></h6>
       <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-sm btn-outline-primary" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new_pocket", default: "Crear bolsillo") %>
+        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new_pocket", default: "Crear bolsillo") %>
       <% end %>
     </div>
-    <p class="text-muted small mb-3"><%= t("money_sources.index.pockets_caption", default: "Dinero asignado a un propósito, aunque siga dentro de tu cuenta. Asignar a un bolsillo no es un gasto.") %></p>
+    <p class="text-secondary small mb-3"><%= t("money_sources.index.pockets_caption", default: "Dinero asignado a un propósito, aunque siga dentro de tu cuenta. Asignar a un bolsillo no es un gasto.") %></p>
     <div class="row g-3 mb-4">
       <% pockets.each do |source| %>
         <%= render partial: "money_source", locals: { source: source } %>
@@ -42,8 +41,8 @@
   <% end %>
 
   <% if debts.any? %>
-    <h6 class="fw-bold text-uppercase text-danger mb-1 mt-4"><%= t("money_sources.index.debts_section") %></h6>
-    <p class="text-muted small mb-3"><%= t("money_sources.index.debts_caption") %></p>
+    <h5 class="section-title text-danger"><%= t("money_sources.index.debts_section") %></h6>
+    <p class="text-secondary small mb-3"><%= t("money_sources.index.debts_caption") %></p>
     <div class="row g-3">
       <% debts.each do |source| %>
         <%= render partial: "money_source", locals: { source: source } %>
@@ -51,13 +50,13 @@
     </div>
   <% end %>
 <% else %>
-  <div class="card shadow-sm">
+  <div class="card">
     <div class="p-5 text-center">
-      <i class="bi bi-wallet2 display-4 text-muted mb-3 d-block"></i>
+      <i class="ti ti-wallet display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("money_sources.index.empty_title") %></h4>
       <p class="text-muted"><%= t("money_sources.index.empty_body") %></p>
       <%= link_to new_money_source_path, class: "btn btn-primary mt-3" do %>
-        <i class="bi bi-plus-lg me-1"></i><%= t("money_sources.index.new") %>
+        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new") %>
       <% end %>
     </div>
   </div>

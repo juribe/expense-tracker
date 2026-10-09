@@ -214,7 +214,7 @@
     remove.className = "recognition-chip-remove";
     remove.setAttribute("data-recognition-remove", "");
     remove.setAttribute("aria-label", "Remover");
-    remove.innerHTML = '<i class="bi bi-x"></i>';
+    remove.innerHTML = '<i class="ti ti-x"></i>';
 
     chip.appendChild(document.createTextNode(value));
     chip.appendChild(hidden);

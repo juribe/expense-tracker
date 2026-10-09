@@ -9,8 +9,8 @@
         input.setAttribute("type", isPassword ? "text" : "password");
         var icon = button.querySelector("i");
         if (icon) {
-          icon.classList.toggle("bi-eye", !isPassword);
-          icon.classList.toggle("bi-eye-slash", isPassword);
+          icon.classList.toggle("ti-eye", !isPassword);
+          icon.classList.toggle("ti-eye-off", isPassword);
         }
       });
     });

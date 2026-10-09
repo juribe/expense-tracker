@@ -46,7 +46,7 @@
                         form_class: "d-inline",
                         class: "btn btn-outline-secondary btn-sm",
                         data: { turbo: false } do %>
-            <i class="bi bi-envelope-arrow-up me-1"></i><%= t("reconciliation.assign.sync_gmail") %>
+            <i class="ti ti-mail-forward me-1"></i><%= t("reconciliation.assign.sync_gmail") %>
           <% end %>
           <span class="text-muted small"><%= t("reconciliation.assign.sync_helper") %></span>
         </div>
@@ -57,13 +57,13 @@
                     id: "assignCreateExpenseLink",
                     target: "_blank",
                     rel: "noopener" do %>
-          <i class="bi bi-plus-lg me-1"></i><%= t("reconciliation.assign.create_expense") %>
+          <i class="ti ti-plus me-1"></i><%= t("reconciliation.assign.create_expense") %>
         <% end %>
         <button type="button"
                 id="assignPaymentSubmit"
                 class="btn btn-primary"
                 disabled>
-          <i class="bi bi-check2 me-1"></i><%= t("reconciliation.assign.submit") %>
+          <i class="ti ti-check me-1"></i><%= t("reconciliation.assign.submit") %>
         </button>
       </div>
     </div>

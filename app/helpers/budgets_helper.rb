@@ -14,9 +14,9 @@ module BudgetsHelper
 
   def budget_status_icon(status)
     case status.to_sym
-    when :over_budget then "bi-x-circle"
-    when :near_limit then "bi-exclamation-triangle"
-    else "bi-check-circle"
+    when :over_budget then "ti-circle-x"
+    when :near_limit then "ti-alert-triangle"
+    else "ti-circle-check"
     end
   end
 

@@ -1,7 +1,7 @@
 <%= render "reports/page_header", title: t("reports.transfers.title"), subtitle: t("reports.transfers.subtitle"), path: reports_transfers_path %>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0"><%= t("reports.transfers.title") %></h5>
     <span class="text-muted small"><%= t("reports.transfers.count") %>: <strong><%= @transfers[:count] %></strong></span>
   </div>
@@ -22,7 +22,7 @@
               <tr>
                 <td>
                   <span class="fw-semibold"><%= route[:from_name] %></span>
-                  <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                  <i class="ti ti-arrow-right mx-1 text-muted"></i>
                   <span class="fw-semibold"><%= route[:to_name] %></span>
                 </td>
                 <td class="text-end fw-bold"><%= money_amount(route[:total]) %></td>

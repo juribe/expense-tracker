@@ -1,9 +1,9 @@
-<div id="payments" class="card shadow-sm mt-4">
+<div id="payments" class="card mt-4">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start mb-3">
-      <h5 class="card-title mb-0"><i class="bi bi-cash-coin me-2"></i><%= t("payments.history_title") %></h5>
+      <h5 class="card-title mb-0"><i class="ti ti-coin me-2"></i><%= t("payments.history_title") %></h5>
       <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
-        <i class="bi bi-file-earmark-arrow-up me-1"></i><%= t("statement_imports.title") %>
+        <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
       <% end %>
     </div>
 
@@ -37,13 +37,13 @@
                   <div class="btn-group btn-group-sm">
                     <%= link_to edit_money_source_payment_path(@money_source, payment),
                                 class: "btn btn-outline-primary", title: t("payments.edit") do %>
-                      <i class="bi bi-pencil"></i>
+                      <i class="ti ti-pencil"></i>
                     <% end %>
                     <%= button_to money_source_payment_path(@money_source, payment), method: :delete,
                                   form_class: "d-inline",
                                   class: "btn btn-outline-danger", title: t("payments.reverse"),
                                   data: { confirm: t("payments.reverse_confirm") } do %>
-                      <i class="bi bi-arrow-counterclockwise"></i>
+                      <i class="ti ti-rotate-2"></i>
                     <% end %>
                   </div>
                 </td>
@@ -67,9 +67,9 @@
   </div>
 </div>
 
-<div class="card shadow-sm mt-4">
+<div class="card mt-4">
   <div class="card-body">
-    <h5 class="card-title mb-3"><i class="bi bi-hourglass-split me-2"></i><%= t("payments.awaiting_title") %></h5>
+    <h5 class="card-title mb-3"><i class="ti ti-hourglass me-2"></i><%= t("payments.awaiting_title") %></h5>
 
     <% if @awaiting_expenses.any? %>
       <div class="list-group mb-3">
@@ -81,7 +81,7 @@
                 <div class="small text-muted"><%= l(expense.date, format: :short) %></div>
                 <% if expense.recurring_template.present? %>
                   <div class="small text-muted">
-                    <i class="bi bi-arrow-repeat me-1"></i><%= t("payments.from_template", description: expense.recurring_template.description) %>
+                    <i class="ti ti-repeat me-1"></i><%= t("payments.from_template", description: expense.recurring_template.description) %>
                   </div>
                 <% end %>
               </div>
@@ -90,7 +90,7 @@
                 <span class="badge bg-warning text-dark mt-1"><%= t("payments.pending") %></span>
                 <%= link_to new_money_source_payment_path(@money_source, expense_id: expense.id),
                             class: "btn btn-sm btn-primary mt-1" do %>
-                  <i class="bi bi-check2-square me-1"></i><%= t("payments.apply_button") %>
+                  <i class="ti ti-square-check me-1"></i><%= t("payments.apply_button") %>
                 <% end %>
               </div>
             </div>

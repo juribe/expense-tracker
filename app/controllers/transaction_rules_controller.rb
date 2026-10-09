@@ -86,7 +86,7 @@ class TransactionRulesController < ApplicationController
 
   def set_form_data
     @categories = Category.for_user_and_type(current_user, "expense")
-    @money_sources = current_user.money_sources.active.order(:kind, :name)
+    @money_sources = current_user.money_sources.active.includes([:credit_account]).order(:kind, :name)
   end
 
   def rule_params
