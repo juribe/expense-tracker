@@ -32,5 +32,18 @@ module SourceRecognition
     def boundary_regex(escaped_value)
       /(?:\A|[^a-z0-9])#{escaped_value}(?:\z|[^a-z0-9])/
     end
+
+    # Accent-folded alphanumeric tokens of a name, minus very short ones and
+    # words that read as generic finance vocabulary. Same normalization the
+    # SuggestionEngine uses for name-derived keyword suggestions.
+    def name_tokens(text, stop_words: [])
+      text.to_s.unicode_normalize(:nfkd)
+          .gsub(/\p{Mn}/, "")
+          .gsub(/[^\p{Alnum}\s]/i, " ")
+          .downcase
+          .split(/\s+/)
+          .reject { |token| token.length < 3 }
+          .reject { |token| stop_words.include?(token) }
+    end
   end
 end

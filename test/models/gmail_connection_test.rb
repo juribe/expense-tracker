@@ -106,4 +106,52 @@ class GmailConnectionTest < ActiveSupport::TestCase
     @connection.last_sync_summary = nil
     assert_not @connection.authorization_expired?
   end
+
+  # --- criteria form values ---------------------------------------------------
+
+  test "criteria_form_values returns the saved search config" do
+    @connection.save!
+    @connection.update!(search_config: { senders: [ "manual@bank.com" ],
+                                         domains: [ "bank.com" ], subject_keywords: [ "pago" ] })
+
+    assert_equal({ senders: "manual@bank.com", domains: "bank.com",
+                   subject_keywords: "pago" }, @connection.criteria_form_values)
+  end
+
+  test "criteria_form_values merges scan suggestions into the saved config without duplicates" do
+    @connection.save!
+    @connection.update!(search_config: { senders: [ "manual@bank.com" ], domains: [],
+                                         subject_keywords: [ "pago" ] })
+    @connection.setup_suggestions = {
+      "senders" => [ { "value" => "manual@bank.com", "count" => 2 },
+                     { "value" => "notificaciones@davibank.com", "count" => 2 } ],
+      "domains" => [ { "value" => "davibank.com", "count" => 2 } ],
+      "subject_keywords" => [ { "value" => "transacción", "count" => 1 } ],
+      "subject_templates" => [ { "value" => "Transacción aprobada por", "count" => 2,
+                                 "institution" => "DAVIbank" } ]
+    }
+
+    values = @connection.criteria_form_values
+
+    # The saved value keeps its original casing and leads the list.
+    assert_equal "manual@bank.com, notificaciones@davibank.com", values[:senders]
+    assert_equal "davibank.com", values[:domains]
+    # Templates join the subject field: they search by subject too.
+    assert_equal "pago, transacción, Transacción aprobada por", values[:subject_keywords]
+  end
+
+  test "criteria_form_values tolerates scalar or missing suggestion entries" do
+    @connection.save!
+    @connection.update!(search_config: {})
+    @connection.setup_suggestions = {
+      "senders" => [ "plain@bank.com" ],
+      "subject_templates" => [ { "value" => "Compraste por" } ]
+    }
+
+    values = @connection.criteria_form_values
+
+    assert_equal "plain@bank.com", values[:senders]
+    assert_equal "Compraste por", values[:subject_keywords]
+    assert_empty values[:domains]
+  end
 end

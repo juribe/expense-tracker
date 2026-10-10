@@ -230,6 +230,79 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
                   text: I18n.t("money_sources.recognition.status_suggestions", count: 1)
   end
 
+  # --- Gmail criteria card ---------------------------------------------------
+
+  test "GET /money_sources/recognition does not render the gmail criteria card without a connection" do
+    get money_sources_recognition_path
+    assert_select "[data-testid='gmail-criteria-card']", count: 0
+  end
+
+  test "GET /money_sources/recognition renders the gmail criteria card for manual entry" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                            search_config: { senders: [ "manual@bank.com" ],
+                                             domains: [ "bank.com" ],
+                                             subject_keywords: [ "pago" ] })
+
+    get money_sources_recognition_path
+
+    assert_select "[data-testid='gmail-criteria-card']", count: 1
+    form = css_select("form[action='#{gmail_connection_path}']")
+    assert_equal 1, form.size
+    assert_select form, "textarea[name='search_config[senders]']", text: "manual@bank.com"
+    assert_select form, "textarea[name='search_config[domains]']", text: "bank.com"
+    assert_select form, "textarea[name='search_config[subject_keywords]']", text: "pago"
+    assert_select "[data-testid='gmail-criteria-rescan']", count: 1
+  end
+
+  test "GET /money_sources/recognition prefills the gmail criteria card from the scan suggestions" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com").update!(setup_suggestions: {
+      "scanned" => 10, "passed" => 2,
+      "senders" => [ { "value" => "notificaciones@davibank.com", "count" => 2 },
+                     { "value" => "otro@davibank.com", "count" => 3 } ],
+      "domains" => [ { "value" => "davibank.com", "count" => 2 } ],
+      "subject_keywords" => [ { "value" => "transacción", "count" => 1 } ],
+      "subject_templates" => [ { "value" => "Transacción aprobada por", "count" => 2,
+                                 "institution" => "DAVIbank" } ]
+    })
+
+    get money_sources_recognition_path
+
+    assert_select "[data-testid='gmail-criteria-card']", count: 1
+    form = css_select("form[action='#{gmail_connection_path}']")
+    assert_select form, "textarea[name='search_config[senders]']",
+                  text: "notificaciones@davibank.com, otro@davibank.com"
+    assert_select form, "textarea[name='search_config[subject_keywords]']",
+                  text: "transacción, Transacción aprobada por"
+    # Suggestion provenance (value + occurrence count) is visible for review.
+    assert_select "[data-testid='gmail-criteria-entry']", count: 5
+    assert_match(/Transacción aprobada por \(2 · DAVIbank\)/, response.body)
+  end
+
+  test "GET /money_sources/recognition keeps the rescan button outside the criteria form" do
+    connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
+    connection.update!(setup_suggestions: { "passed" => 1, "senders" => [ { "value" => "a@b.com", "count" => 2 } ] })
+
+    get money_sources_recognition_path
+
+    assert_response :success
+    # A nested <form> corrupts the outer form's authenticity_token.
+    assert_select "form form", count: 0
+    # While the scan runs in the background the JS auto-refresh needs the
+    # status endpoint; the page reloads itself when the scan finishes.
+    assert_select "[data-testid='gmail-criteria-rescan'] [data-sync-status-path]"
+  end
+
+  test "GET /money_sources/recognition marks the criteria card as syncing" do
+    connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
+    connection.update!(syncing: Time.current)
+
+    get money_sources_recognition_path
+
+    assert_select "[data-testid='gmail-criteria-card'][data-sync-in-progress]", count: 1
+    assert_select "[data-testid='criteria-syncing']",
+                  text: I18n.t("money_sources.recognition.criteria_syncing")
+  end
+
   test "GET /money_sources/recognition?edit hides the last-four hint when digits exist" do
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank", identifier: "5678")
     get money_sources_recognition_path(edit: source.id)

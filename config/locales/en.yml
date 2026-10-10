@@ -30,6 +30,15 @@
 en:
   hello: "Hello world"
 
+  gmail:
+    how_it_works: "How does it work?"
+    how_step_1_html: "<strong>You connect your Gmail</strong> securely so we can read your emails — we never modify them or send messages."
+    how_step_2_html: "<strong>We check your emails periodically</strong> looking for purchase notifications and other movements."
+    how_step_3_html: "<strong>We identify each expense's details</strong> such as the amount, merchant, date and category."
+    how_step_4_html: "<strong>Expenses we can recognize with confidence are recorded automatically.</strong> Anything uncertain or incomplete is left pending for you to review."
+    how_step_5_html: "<strong>We never register the same email twice</strong>, so your expenses stay duplicate-free."
+    how_closing_html: "Keep your expenses up to date without logging them one by one!"
+
   kinds_sub:
     revolving: "Revolving credit line"
     personal: "Free-investment loan"
@@ -449,6 +458,14 @@ en:
       title: "Source recognition"
       subtitle: "Configure how your money sources appear in emails and transactions so they can be identified automatically."
       how_it_works: "How does it work?"
+      criteria_title: "Gmail criteria"
+      criteria_help: "We scanned %{scanned} emails and found %{passed} financial notifications. Confirm, edit or add these criteria — the sync will know exactly which emails to read."
+      criteria_help_manual: "Type the senders, domains and subjects used to read your bank emails (comma-separated). You can also run the initial sync to generate them automatically."
+      criteria_senders_placeholder: "notifications@davibank.com"
+      criteria_domains_placeholder: "davibank.com"
+      criteria_subjects_placeholder: "purchase, transaction, payment"
+      criteria_save: "Save criteria"
+      criteria_syncing: "Scanning your mailbox… this page will refresh itself when it finishes."
       connect_gmail: "Connect Gmail"
       col_source: "Money source"
       col_type: "Type"
@@ -467,7 +484,7 @@ en:
       edit_title: "Edit source:"
       section_identification: "Identification (keywords)"
       section_identification_hint: "Matched against the email body."
-      section_identification_desc: "Words or phrases that may appear in the email content."
+      section_identification_desc: "Words or phrases that help us recognize your expenses in emails, WhatsApp and text messages."
       section_senders: "Senders / Domains"
       section_senders_hint: "Matched against the email sender."
       section_senders_desc: "Email addresses or domains that usually send statements or notifications."

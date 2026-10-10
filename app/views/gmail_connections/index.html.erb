@@ -6,7 +6,8 @@
     <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-outline-secondary",
           disabled: syncing,
           form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
-          data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}" } do %>
+          data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
+                  sync_status_path: gmail_sync_status_path } do %>
       <i class="ti ti-wand me-1"></i><%= t("gmail.setup_sync") %>
     <% end %>
     <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary",
@@ -40,7 +41,7 @@
         <div class="card-body">
           <h2 class="h5 card-title"><i class="ti ti-wand me-1"></i><%= t("gmail.setup.review_title") %></h2>
           <p class="text-muted small mb-3"><%= t("gmail.setup.review_help") %></p>
-          <%= link_to setup_gmail_connection_path, class: "btn btn-primary btn-sm" do %>
+          <%= link_to money_sources_recognition_path, class: "btn btn-primary btn-sm" do %>
             <%= t("gmail.setup.review_cta") %> <i class="ti ti-arrow-right ms-1"></i>
           <% end %>
         </div>
@@ -194,13 +195,11 @@
       <div class="card-body">
         <h2 class="h5 card-title"><i class="ti ti-settings me-1"></i><%= t("gmail.how_it_works") %></h2>
         <ol class="text-muted small mb-2">
-          <li>Your Gmail account is linked with Google OAuth (read-only scope).</li>
-          <li>A background job polls the account every <%= @polling_interval %> minute(s)
-              (<code>GMAIL_SYNC_INTERVAL_MINUTES</code>) searching transaction notifications.</li>
-          <li>An AI model extracts amount, merchant, date and category from each candidate email.</li>
-          <li>High-confidence purchases create expenses automatically; anything uncertain is queued above.</li>
-          <li>Every email is tracked by message ID, so nothing is ever imported twice.</li>
+          <% (1..5).each do |step| %>
+            <li><%= t("gmail.how_step_#{step}_html") %></li>
+          <% end %>
         </ol>
+        <p class="text-muted small mb-0"><%= t("gmail.how_closing_html") %></p>
       </div>
     </div>
   </div>

@@ -23,6 +23,23 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: I18n.t("gmail.title")
+    # The "how it works" guide is localized content, not hardcoded English.
+    assert_select "ol", 1
+    assert_select "ol li", count: 5
+    # The step copy renders its <strong> emphasis as real markup.
+    assert_select "ol strong",
+                  text: "Evitamos registrar el mismo correo dos veces"
+    assert_select "p", text: /^¡Así puedes mantener tus gastos al día/
+  end
+
+  test "index points the setup suggestions CTA to the recognition page" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+    GmailConnection.first.update!(setup_suggestions: { "opened" => 10, "passed" => 2,
+                                                       "senders" => [ { "value" => "a@b.com", "count" => 2 } ] })
+
+    get gmail_connection_path
+
+    assert_select "[data-testid='setup-suggestions-card'] a[href='#{money_sources_recognition_path}']"
   end
 
   test "index renders the sync button with a loading spinner for an active connection" do
@@ -33,6 +50,11 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "button", text: /#{I18n.t("gmail.sync_now")}/
     assert_select "button[data-turbo-submits-with]"
+    # The initial-sync button carries the status endpoint: the page JS starts
+    # polling right away and keeps it across the redirect to the recognition
+    # page, so the results appear without a manual reload.
+    assert_select "form.button_to[action='#{setup_sync_gmail_connection_path}'] [data-sync-status-path]",
+                  count: 1
   end
 
   test "start_auth redirects to google when oauth is configured" do
@@ -155,50 +177,11 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to gmail_connection_path
+    # The recognition results live on the recognition page: land there.
+    assert_redirected_to money_sources_recognition_path
   end
 
-  test "setup renders the prefilled suggestions form" do
-    GmailConnection.create!(user: @user, email: "me@gmail.com")
-    GmailConnection.first.update!(setup_suggestions: {
-      "scanned" => 10, "passed" => 2,
-      "senders" => [ { "value" => "notificaciones@davibank.com", "count" => 2 } ],
-      "domains" => [ { "value" => "davibank.com", "count" => 2 } ],
-      "subject_keywords" => [ { "value" => "transacción", "count" => 1 } ]
-    })
-
-    get setup_gmail_connection_path
-
-    assert_response :success
-    assert_match(/notifications|notificaciones@davibank\.com/, response.body)
-    assert_select "input[name='next'][value='recognition']"
-  end
-
-  test "setup page has no nested forms (their CSRF token corrupts the outer form)" do
-    GmailConnection.create!(user: @user, email: "me@gmail.com")
-    GmailConnection.first.update!(setup_suggestions: {
-      "scanned" => 10, "passed" => 2, "senders" => [ { "value" => "a@b.com", "count" => 1 } ]
-    })
-
-    get setup_gmail_connection_path
-
-    assert_response :success
-    # The rescan button_to must live OUTSIDE the PATCH form: browsers drop a
-    # nested <form> tag but keep its hidden authenticity_token, which then
-    # fails verification for the outer form's action.
-    assert_select "form form", count: 0
-  end
-
-  test "setup redirects back when there are no suggestions yet" do
-    GmailConnection.create!(user: @user, email: "me@gmail.com")
-
-    get setup_gmail_connection_path
-
-    assert_redirected_to gmail_connection_path
-    assert_match(/escaneo/i, flash[:alert])
-  end
-
-  test "saving setup criteria with next=recognition continues to step 2" do
+  test "saving setup criteria with next=recognition lands on the recognition page" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
 
     patch gmail_connection_path, params: {

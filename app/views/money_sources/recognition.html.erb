@@ -44,6 +44,89 @@
   </div>
 </header>
 
+<% if @gmail_connection&.active? %>
+  <%# Gmail criteria: three recognition inputs (senders / domains / subjects),
+      prefilled with the saved config plus the setup-scan suggestions. Works
+      as a manual editor: the user can add, edit or remove criteria without
+      having scanned the mailbox at all. The rescan button lives OUTSIDE the
+      form (a nested form would corrupt the outer form's CSRF token). %>
+  <% gmail_values = @gmail_connection.criteria_form_values %>
+  <% gmail_suggestions = @gmail_connection.criteria_suggestions %>
+  <% gmail_scan = @gmail_connection.setup_suggestions.is_a?(Hash) ? @gmail_connection.setup_suggestions : {} %>
+  <section class="recognition-table-card" data-testid="gmail-criteria-card" <%# polled while a scan runs %>
+           <%= tag.attributes(data: { sync_in_progress: true }) if @gmail_connection.sync_running? %>
+           aria-label="<%= t("money_sources.recognition.criteria_title") %>">
+    <div class="recognition-criteria">
+      <div class="recognition-criteria-head">
+        <h2 class="recognition-criteria-title">
+          <i class="ti ti-adjustments" aria-hidden="true"></i><%= t("money_sources.recognition.criteria_title") %>
+        </h2>
+        <p class="recognition-criteria-desc">
+          <% if @gmail_connection.sync_running? %>
+            <span class="badge bg-info text-dark" data-testid="criteria-syncing">
+              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+              <%= t("money_sources.recognition.criteria_syncing") %>
+            </span>
+          <% elsif gmail_scan["scanned"].to_i.positive? %>
+            <%= t("money_sources.recognition.criteria_help",
+                  scanned: gmail_scan["scanned"], passed: gmail_scan["passed"]) %>
+          <% else %>
+            <%= t("money_sources.recognition.criteria_help_manual") %>
+          <% end %>
+        </p>
+      </div>
+
+      <%= form_with model: @gmail_connection, url: gmail_connection_path, method: :patch, scope: :search_config do |f| %>
+        <input type="hidden" name="next" value="recognition">
+
+        <div class="recognition-criteria-field">
+          <%= f.label :senders, t("gmail.senders"), class: "form-label small mb-1" %>
+          <%= f.text_area :senders, rows: 2, class: "form-control form-control-sm",
+                          placeholder: t("money_sources.recognition.criteria_senders_placeholder"),
+                          value: gmail_values[:senders] %>
+        </div>
+        <div class="recognition-criteria-field">
+          <%= f.label :domains, t("gmail.domains"), class: "form-label small mb-1" %>
+          <%= f.text_area :domains, rows: 2, class: "form-control form-control-sm",
+                          placeholder: t("money_sources.recognition.criteria_domains_placeholder"),
+                          value: gmail_values[:domains] %>
+        </div>
+        <div class="recognition-criteria-field">
+          <%= f.label :subject_keywords, t("gmail.subject_keywords"), class: "form-label small mb-1" %>
+          <%= f.text_area :subject_keywords, rows: 2, class: "form-control form-control-sm",
+                          placeholder: t("money_sources.recognition.criteria_subjects_placeholder"),
+                          value: gmail_values[:subject_keywords] %>
+        </div>
+        <div class="recognition-criteria-foot d-flex gap-2 align-items-center">
+          <%= f.submit t("money_sources.recognition.criteria_save"), class: "btn btn-primary btn-sm" %>
+        </div>
+      <% end %>
+
+      <%# Suggestion provenance: what the scan found and how many times.
+          Reviewing here never persists anything until Save is pressed. %>
+      <% if gmail_suggestions.present? %>
+        <div class="recognition-criteria-suggestions">
+          <% gmail_suggestions.each do |entry| %>
+            <span class="recognition-criteria-entry" data-testid="gmail-criteria-entry">
+              <%= entry[:value] %> (<%= entry[:count] %><%= " · #{entry[:institution]}" if entry[:institution] %>)
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# Outside the form on purpose: nested forms corrupt the outer form's
+          authenticity_token. %>
+      <div class="recognition-criteria-rescan" data-testid="gmail-criteria-rescan">
+        <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-outline-secondary btn-sm",
+              data: { sync_status_path: gmail_sync_status_path },
+              form: { data: { turbo_confirm: t("gmail.setup.rescan_confirm") } } do %>
+          <i class="ti ti-repeat me-1" aria-hidden="true"></i><%= t("gmail.setup.rescan") %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>
+
 <section class="recognition-table-card" aria-label="<%= t("money_sources.recognition.title") %>">
   <table class="recognition-table">
     <thead>

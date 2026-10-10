@@ -124,33 +124,12 @@ module SourceRecognition
       alias_present.present? || filter_result.subject_patterns.any?
     end
 
-    # Strips reply/forward prefixes and collapses whitespace so recurring
-    # templates collapse to a single value.
-    def clean_subject(subject)
-      subject.to_s.gsub(/\A\s*((re|fwd?|fw)\s*:\s*)+/i, "").gsub(/\s+/, " ").strip
-    end
-
-    # Amounts, dates and card references inside a subject are per-email noise
-    # ("Compraste por $50.000 en X", "Resumen 12/08/2026", "tarjeta *5678"):
-    # they never repeat, so a FULL subject line is useless as a recognition
-    # value. The suggested value is therefore a TEMPLATE: everything before
-    # the first amount-like run. Subjects without amounts are kept whole when
-    # they look like a short recurring headline (≤ 8 words).
-    AMOUNT_RUN = /\$\s*\d[\d.,]*|\d[\d.,]{3,}|[*•#]+\s*\d{4}/.freeze
-    TEMPLATE_MIN_WORDS = 2
-    TEMPLATE_MAX_WORDS = 8
-
+    # Subject cleaning and template extraction live in SubjectTemplates so
+    # the setup scan (connection-level suggestions) and this service
+    # (per-source suggestions) always collapse subjects into the same
+    # reusable patterns.
     def subject_template(subject)
-      cleaned = clean_subject(subject)
-      return nil if cleaned.blank?
-
-      cut_at = cleaned.index(AMOUNT_RUN)
-      template = cut_at ? cleaned[0, cut_at] : cleaned
-      template = template.gsub(/\s+/, " ").strip
-      return nil if template.scan(/\S+/).length < TEMPLATE_MIN_WORDS
-      return nil if cut_at.nil? && template.scan(/\S+/).length > TEMPLATE_MAX_WORDS
-
-      template
+      SourceRecognition::SubjectTemplates.template(subject)
     end
 
     # Deterministic keyword candidates for a source:
@@ -182,8 +161,15 @@ module SourceRecognition
       TextNormalizer.fold(source.name.to_s).split(/\s+/)
                     .reject { |token| token.length < 3 || bank_tokens.include?(token) }
                     .reject { |token| SuggestionEngine::STOP_KEYWORDS.include?(token) }
+                    .reject { |token| ambiguous_tokens.include?(token) }
                     .select { |token| TextNormalizer.contains_word?(full_text, token) }
                     .uniq
+    end
+
+    # Tokens found in several of the user's sources (a brand shared by two
+    # cards) can never single out one source: never suggest them.
+    def ambiguous_tokens
+      @ambiguous_tokens ||= AmbiguousTokens.for_user(user)
     end
 
     # Persists one discovered value as a suggestion. Never overwrites a

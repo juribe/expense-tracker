@@ -121,21 +121,20 @@ module SourceRecognition
     end
 
     # Tokens from the source's own name/bank, lowercased, accent-stripped.
-    # Strips combining marks explicitly: NFKD turns "é" into "e" + U+0301 and
-    # combining marks are NOT \p{Alnum}, so a plain "[^\p{Alnum}\s]" gsub
-    # would replace them with spaces and cut "Crédito" into "cre" + "dito".
+    # Tokens shared by several of the user's sources (the classic shared
+    # card-brand token) never discriminate and are skipped.
     def name_keywords
-      tokens = (source.name.to_s + " " + source.bank.to_s).unicode_normalize(:nfkd)
-               .gsub(/\p{Mn}/, "")
-               .gsub(/[^\p{Alnum}\s]/i, " ")
-               .downcase
-               .split(/\s+/)
-               .reject { |t| t.length < 3 }
-               .reject { |t| STOP_KEYWORDS.include?(t) }
+      tokens = TextNormalizer.name_tokens(source.name.to_s + " " + source.bank.to_s,
+                                          stop_words: STOP_KEYWORDS)
 
       tokens.select { |t| new_value?("keyword", t) }
+            .reject { |t| ambiguous_tokens.include?(t) }
             .uniq
             .map { |t| { value: t, source: :name } }
+    end
+
+    def ambiguous_tokens
+      @ambiguous_tokens ||= AmbiguousTokens.for_user(source.user)
     end
 
     # Only the shared institution token qualifies as a keyword suggested from

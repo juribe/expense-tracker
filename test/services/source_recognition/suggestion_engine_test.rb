@@ -96,6 +96,7 @@ module SourceRecognition
     end
 
     test "bank domain guess is excluded when already configured" do
+
       source = create_source(name: "Davibank Nómina", bank: "Davibank")
       source.ensure_recognition.replace_identifiers(domain: ["davibank.com"])
       assert_empty call(source)[:senders]
@@ -280,6 +281,19 @@ module SourceRecognition
       assert_includes senders, "b@davibank.com"
       assert_includes senders, "c@davibank.com"
       assert_not_includes senders, "a@davibank.com"
+    end
+
+    test "a brand token shared by several sources is never a keyword suggestion" do
+      create_source(name: "Davibank Visa Clásica", bank: "davibank")
+      create_source(name: "Davibank Visa Oro", bank: "davibank")
+      target = create_source(name: "Davibank Visa Nómina", bank: "davibank")
+
+      keywords = values(call(target))[:keywords]
+
+      # "visa" matches the two siblings equally: it can never pick one source.
+      assert_not_includes keywords, "visa"
+      # unique product tokens still qualify
+      assert_includes keywords, "nomina"
     end
   end
 end

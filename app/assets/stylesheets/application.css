@@ -320,6 +320,19 @@
 
 .recognition-row-active td { background: var(--loan-accent-soft) !important; }
 
+/* Gmail criteria card: manual editor + scan suggestions for the three
+   recognition inputs (senders, domains, subjects). */
+.recognition-criteria { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+.recognition-criteria-head { display: flex; flex-direction: column; gap: .15rem; }
+.recognition-criteria-title { font-size: 1rem; font-weight: 800; color: var(--loan-strong); margin: 0; display: flex; align-items: center; gap: .4rem; }
+.recognition-criteria-title .ti-adjustments { color: var(--loan-accent); }
+.recognition-criteria-desc { font-size: .8125rem; color: var(--loan-muted); margin: 0; max-width: 48rem; }
+.recognition-criteria-field { display: flex; flex-direction: column; }
+.recognition-criteria-foot { margin-top: .15rem; }
+.recognition-criteria-suggestions { display: flex; flex-wrap: wrap; gap: .4rem .9rem; }
+.recognition-criteria-entry { font-size: .75rem; font-weight: 600; color: var(--loan-muted); background: #f8f9fb; border: 1px solid var(--loan-card-border); border-radius: 999px; padding: .25rem .7rem; }
+.recognition-criteria-rescan { display: flex; justify-content: flex-end; margin-top: -.5rem; }
+
 /* Right-side drawer */
 .recognition-form { display: contents; }
 .recognition-drawer-overlay { position: fixed; inset: 0; z-index: 1050; background: rgba(15, 23, 42, .45); animation: recognition-fade .2s ease; }
@@ -368,6 +381,7 @@
 @media (max-width: 575.98px) {
   .recognition-header { flex-wrap: wrap; }
   .recognition-header-actions { width: 100%; }
+  .recognition-criteria { padding: 1.25rem; }
   .recognition-table th:nth-child(2), .recognition-table td:nth-child(2) { display: none; }
   .recognition-drawer-body { padding: 1.25rem; }
   .recognition-drawer-head, .recognition-drawer-foot { padding-left: 1.25rem; padding-right: 1.25rem; }

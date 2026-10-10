@@ -61,6 +61,19 @@ module SourceRecognition
       assert_not_includes values_of(suggested(@oro, "keyword")), "5678"
     end
 
+    test "a card brand found in the body is not suggested when several sources share the brand" do
+      @user.money_sources.create!(name: "Davibank Visa Clásica", kind: "account",
+                                  starting_balance: 0, bank: "Davibank", identifier: "1234")
+      @user.money_sources.create!(name: "Davibank Visa Oro", kind: "account",
+                                  starting_balance: 0, bank: "Davibank")
+
+      @service.process(davibank_email(body: "DAVIbank te notifica que realizaste una " \
+                        "transacción por 20,300 con la tarjeta Visa. Terminada en 1234."))
+
+      visa_source = @user.money_sources.find_by(name: "Davibank Visa Clásica")
+      assert_not_includes values_of(suggested(visa_source, "keyword")), "visa"
+    end
+
     test "institution alone does not identify the source when confirmed rules match one" do
       @clasica.ensure_recognition.replace_identifiers(keyword: [ "davibank", "clasica" ])
 

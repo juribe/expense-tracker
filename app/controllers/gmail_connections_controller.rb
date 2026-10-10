@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 class GmailConnectionsController < ApplicationController
-  before_action :set_connection, only: %i[update destroy sync sync_status setup_sync setup]
-
-  helper_method :values_from
+  before_action :set_connection, only: %i[update destroy sync sync_status setup_sync]
 
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
@@ -18,7 +16,6 @@ class GmailConnectionsController < ApplicationController
     @configured = Gmail::OauthClient.configured?
     @pending_reviews = current_user.processed_emails.gmail.needs_review.order(created_at: :desc)
     @recent_imports = current_user.expenses.where(source: "gmail").order(date: :desc).limit(10)
-    @polling_interval = GmailSyncJob.polling_interval_minutes
   end
 
   # Kicks off the Google OAuth authorization-code flow.
@@ -103,24 +100,14 @@ class GmailConnectionsController < ApplicationController
 
   # Step 0 of the setup wizard: kicks off the broad mailbox scan
   # (Gmail::SetupScanService) in the background. The scan does NOT import
-  # expenses — it only discovers Gmail settings and money source suggestions.
+  # expenses — it only discovers Gmail criteria and money source suggestions.
+  # The results are reviewed on the recognition page, so land there; the
+  # page auto-refreshes when the background scan finishes.
   def setup_sync
     return sync_already_running if @connection.sync_running?
 
     GmailSetupSyncJob.perform_later(connection_id: @connection.id)
-    redirect_to gmail_connection_path, notice: t("gmail_messages.setup_sync_started")
-  end
-
-  # Step 1 of the setup wizard: review the Gmail settings the scan suggested
-  # (senders / domains / subject keywords), edit if needed and confirm. Saving
-  # continues to step 2 (money source recognition suggestions).
-  def setup
-    @suggestions = @connection.setup_suggestions || {}
-    if @connection.sync_running?
-      redirect_to gmail_connection_path, notice: t("gmail_messages.setup_sync_started")
-    elsif @suggestions["senders"].blank? && @suggestions["subject_keywords"].blank?
-      redirect_to gmail_connection_path, alert: t("gmail_messages.setup_no_suggestions")
-    end
+    redirect_to money_sources_recognition_path, notice: t("gmail_messages.setup_sync_started")
   end
 
   # Approves a low-confidence transaction extracted from an email.
@@ -177,15 +164,6 @@ class GmailConnectionsController < ApplicationController
 
   def split_values(value)
     value.to_s.split(/[,\n]/).map(&:strip).reject(&:blank?).uniq
-  end
-
-  # Normalizes a setup_suggestions list into plain values (entries are
-  # { "value" => ..., "count" => ... } hashes straight from the json column).
-  def values_from(suggestions, key)
-    Array(suggestions[key]).filter_map do |entry|
-      value = entry.is_a?(Hash) ? entry["value"] : entry
-      value.to_s.strip.presence
-    end
   end
 
   def create_expenses_from_review(review)

@@ -68,4 +68,52 @@ class GmailConnection < ApplicationRecord
       subject_keywords: Array(config[:subject_keywords]).map(&:to_s).map(&:strip).reject(&:blank?)
     }
   end
+
+  # What the Gmail criteria form on the recognition page shows: the saved
+  # search_config first (the user's own values, original casing kept), then
+  # the scan suggestions appended (deduplicated case-insensitively). Subject
+  # templates join the subject list — they search by subject exactly like
+  # keywords (Gmail::QueryBuilder quotes multi-word terms).
+  # Returns a { senders:, domains:, subject_keywords: } hash of joined
+  # strings ready for the textareas.
+  def criteria_form_values
+    suggestions = setup_suggestions.is_a?(Hash) ? setup_suggestions : {}
+    saved = search_config_hash
+    {
+      senders: joined_for(saved[:senders], suggestions["senders"]),
+      domains: joined_for(saved[:domains], suggestions["domains"]),
+      subject_keywords: joined_for(saved[:subject_keywords],
+                                   Array(suggestions["subject_keywords"]) +
+                                   Array(suggestions["subject_templates"]))
+    }
+  end
+
+  # Scan suggestions in display form ({ value:, count:, institution: }) for
+  # the provenance list next to the form. Accepts either the { "value" =>
+  # ... } hashes persisted to setup_suggestions or plain strings.
+  def criteria_suggestions
+    suggestions = setup_suggestions.is_a?(Hash) ? setup_suggestions : {}
+
+    %w[senders domains subject_keywords subject_templates].flat_map do |section|
+      Array(suggestions[section]).filter_map do |entry|
+        value = (entry.is_a?(Hash) ? entry["value"] : entry).to_s.strip
+        next if value.blank?
+
+        { value: value, count: entry["count"].to_i, institution: entry["institution"].presence }
+      end
+    end
+  end
+
+  private
+
+  def joined_for(saved_values, suggestion_entries)
+    values = saved_values.dup
+    keys = values.map { |value| value.to_s.downcase.strip }
+    Array(suggestion_entries).filter_map do |entry|
+      (entry.is_a?(Hash) ? entry["value"] : entry).to_s.strip.presence
+    end.each do |value|
+      values << value unless keys.include?(value.downcase)
+    end
+    values.join(", ")
+  end
 end

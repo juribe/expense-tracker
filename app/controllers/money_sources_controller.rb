@@ -62,6 +62,11 @@ class MoneySourcesController < ApplicationController
                                  .includes(:recognition_identifiers, recognition: :recognition_identifiers)
                                  .order(:kind, :name)
 
+    # The Gmail criteria card doubles as a manual editor: it renders whenever
+    # there is an ACTIVE connection — even before any scan ran — prefilled
+    # with the saved search_config plus (when available) the scan suggestions.
+    @gmail_connection = current_user.gmail_connections.order(:id).last
+
     if params[:edit].present?
       @editing = current_user.money_sources.find(params[:edit])
       @suggestions = SourceRecognition::SuggestionEngine.new(source: @editing).call
