@@ -238,13 +238,19 @@
       chipAddBtn.parentNode.insertBefore(input, chipAddBtn);
       input.focus();
 
+      // Enter commit and the blur that removing the input triggers must
+      // never both add the chip: one value, one chip.
+      var committed = false;
       function commit() {
+        if (committed) return;
+        committed = true;
         var value = input.value.trim();
         if (value) {
           chipsEl.insertBefore(recognitionMakeChip(value, kind), chipAddBtn);
           recognitionRefreshCount(chipsEl);
           recognitionMarkDirty();
         }
+        input.value = "";
         input.remove();
       }
       input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); commit(); } });
@@ -403,6 +409,7 @@
   var SYNC_POLL_KEY = "gmailSyncPending";
   var SYNC_POLL_INTERVAL = 2000;
   var SYNC_POLL_TIMEOUT = 5 * 60 * 1000; // give up after 5 minutes
+  var syncPollerRunning = false;
 
   function gmailSyncStatusPath() {
     var btn = document.querySelector("[data-sync-status-path]");
@@ -410,8 +417,13 @@
   }
 
   function startSyncPoller() {
+    // One poller at a time: the submit listener and the turbo:load resume
+    // both may try to start one on the same navigation.
+    if (syncPollerRunning) return;
+
     var statusPath = gmailSyncStatusPath();
     if (!statusPath) return;
+    syncPollerRunning = true;
 
     var startedAt = Date.now();
     var timer = setInterval(function () {
@@ -425,6 +437,7 @@
           if (!done && !timedOut) return;
 
           clearInterval(timer);
+          syncPollerRunning = false;
           try { sessionStorage.removeItem(SYNC_POLL_KEY); } catch (_) {}
           if (window.Turbo) { window.Turbo.visit(window.location.href); }
           else { window.location.reload(); }
@@ -440,21 +453,27 @@
     startSyncPoller();
   });
 
-  // If we land here with a pending sync (e.g. a hard navigation that dropped
-  // the in-flight poller), resume polling.
-  var hasPendingSync = false;
-  try { hasPendingSync = sessionStorage.getItem(SYNC_POLL_KEY) === "1"; } catch (_) {}
-  if (hasPendingSync && gmailSyncStatusPath()) {
-    startSyncPoller();
-    try { sessionStorage.removeItem(SYNC_POLL_KEY); } catch (_) {}
+  // If we arrive with a pending sync, start polling right away — no manual
+  // reload. Turbo Drive renders redirects WITHOUT a full page load, so this
+  // must re-run on every Turbo visit (turbo:load), not just at script eval.
+  function resumePendingSyncPolling() {
+    var hasPendingSync = false;
+    try { hasPendingSync = sessionStorage.getItem(SYNC_POLL_KEY) === "1"; } catch (_) {}
+    if (hasPendingSync && gmailSyncStatusPath()) {
+      startSyncPoller();
+    }
+
+    // Page rendered while a sync is running (arrived mid-scan): poll until it
+    // finishes and refresh so the results show up without a manual reload.
+    if (document.querySelector("[data-sync-in-progress]")) {
+      startSyncPoller();
+    }
   }
 
-  // Page rendered while a sync is running (re-synced via the running badge):
-  // poll until it finishes and refresh so the buttons re-enable and the
-  // results show up without a manual reload.
-  if (document.querySelector("[data-sync-in-progress]")) {
-    startSyncPoller();
-  }
+  resumePendingSyncPolling();
+  document.addEventListener("DOMContentLoaded", resumePendingSyncPolling);
+  document.addEventListener("turbo:load", resumePendingSyncPolling);
+  document.addEventListener("turbo:render", resumePendingSyncPolling);
 })();
 
 // Settings → WhatsApp connection flow. Clicking the primary CONNECT token

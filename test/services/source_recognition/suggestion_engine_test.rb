@@ -295,5 +295,48 @@ module SourceRecognition
       # unique product tokens still qualify
       assert_includes keywords, "nomina"
     end
+
+    test "cash sources get automatic keyword suggestions for cash words" do
+      source = create_source(name: "Bolsillos del día a día", kind: "cash")
+
+      keywords = values(call(source))[:keywords]
+
+      %w[efectivo plata dinero cash billete].each do |word|
+        assert_includes keywords, word
+      end
+    end
+
+    test "cash word suggestions survive a second cash wallet with a similar name" do
+      create_source(name: "Efectivo", kind: "cash")
+      second = create_source(name: "Efectivo diario", kind: "cash")
+
+      keywords = values(call(second))[:keywords]
+
+      # Two cash wallets is the normal case: cash words are generic, never
+      # an ambiguous product brand.
+      assert_includes keywords, "efectivo"
+      assert_includes keywords, "billete"
+    end
+
+    test "already-confirmed cash words are not re-suggested" do
+      source = create_source(name: "Efectivo", kind: "cash")
+      source.ensure_recognition.replace_identifiers(keyword: [ "efectivo", "plata" ])
+
+      keywords = values(call(source))[:keywords]
+
+      assert_includes keywords, "dinero"
+      assert_includes keywords, "billete"
+      assert_not_includes keywords, "efectivo"
+      assert_not_includes keywords, "plata"
+    end
+
+    test "non-cash sources do not get the cash word suggestions" do
+      source = create_source(name: "Cuenta única", kind: "account")
+
+      keywords = values(call(source))[:keywords]
+
+      assert_not_includes keywords, "billete"
+      assert_not_includes keywords, "plata"
+    end
   end
 end

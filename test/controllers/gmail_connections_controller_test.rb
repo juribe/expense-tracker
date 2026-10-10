@@ -179,6 +179,9 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     # The recognition results live on the recognition page: land there.
     assert_redirected_to money_sources_recognition_path
+    # The syncing claim happens BEFORE the redirect, so the recognition page
+    # renders its loading state deterministically (the job is async).
+    assert_kind_of ActiveSupport::TimeWithZone, @user.gmail_connections.last.reload.syncing
   end
 
   test "saving setup criteria with next=recognition lands on the recognition page" do

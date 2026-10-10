@@ -61,8 +61,42 @@ module SourceRecognition
       assert_not_includes values_of(suggested(@oro, "keyword")), "5678"
     end
 
-    test "a card brand found in the body is not suggested when several sources share the brand" do
-      @user.money_sources.create!(name: "Davibank Visa Clásica", kind: "account",
+    test "payment processors are not the bank: their sender/domain/subject are never suggested" do
+      # A PSE-style processor receipt: the body talks about DaviBank, but the
+      # SENDER is claro (a telecom relay). The bank owns davibank.com.
+      message = davibank_email(
+        subject: "Comprobante de pago",
+        from: "Información pagos <informacion.pagos@claro.com.co>",
+        body: "Comprobante de pago Banco DaviBank: tu compra fue aprobada por 50,000 " \
+              "con la tarjeta Clasica terminada en 5678."
+      )
+
+      @service.process(message)
+
+      [ @clasica, @oro ].each do |source|
+        assert_empty suggested(source, "sender")
+        assert_empty suggested(source, "domain")
+        assert_empty suggested(source, "subject")
+      end
+      # Identity keywords in the body are still source-specific signal.
+      assert_includes values_of(suggested(@clasica, "keyword")), "davibank"
+    end
+
+    test "the bank's own relay domain still contributes senders and subjects" do
+      message = davibank_email(
+        from: "Davibank <avisos@davibank.com.co>",
+        subject: "Notificación de compra aprobada por $9.900",
+        body: "DAVIbank te notifica una compra con la tarjeta Clasica terminada en 5678."
+      )
+
+      @service.process(message)
+
+      assert_includes values_of(suggested(@clasica, "sender")), "avisos@davibank.com.co"
+      assert_includes values_of(suggested(@clasica, "domain")), "davibank.com.co"
+      refute_empty suggested(@clasica, "subject")
+    end
+
+    test "a card brand found in the body is not suggested when several sources share the brand" do      @user.money_sources.create!(name: "Davibank Visa Clásica", kind: "account",
                                   starting_balance: 0, bank: "Davibank", identifier: "1234")
       @user.money_sources.create!(name: "Davibank Visa Oro", kind: "account",
                                   starting_balance: 0, bank: "Davibank")
@@ -72,6 +106,25 @@ module SourceRecognition
 
       visa_source = @user.money_sources.find_by(name: "Davibank Visa Clásica")
       assert_not_includes values_of(suggested(visa_source, "keyword")), "visa"
+    end
+
+    test "suggestions never attach to sources of a different bank that tie on generic keywords" do
+      ahorros = @user.money_sources.create!(name: "Cuenta de Ahorros", kind: "account",
+                                            starting_balance: 0, bank: "Banco de Bogotá")
+      ahorros.ensure_recognition.replace_identifiers(keyword: [ "bogota" ])
+      @clasica.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
+
+      # The Davibank email mentions "Bogota" in the boilerplate: both sources
+      # tie on keywords, but only the Davibank source belongs to the email's
+      # bank and may receive its recognition suggestions.
+      @service.process(davibank_email(body: "DAVIbank Bogota te notifica que realizaste con tu tarjeta Clasica " \
+                        "una transacción de 20,300 con la tarjeta terminada en 5678."))
+
+      assert_empty suggested(ahorros, "sender")
+      assert_empty suggested(ahorros, "domain")
+      assert_empty suggested(ahorros, "subject")
+      assert_empty suggested(ahorros, "keyword")
+      assert_includes values_of(suggested(@clasica, "sender")), "notificaciones@davibank.com"
     end
 
     test "institution alone does not identify the source when confirmed rules match one" do

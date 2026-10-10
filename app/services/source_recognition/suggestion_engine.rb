@@ -34,6 +34,11 @@ module SourceRecognition
       banco financing cuotas lineadcredito sorgo savings bank money card account
     ].freeze
 
+    # Cash wallets live off any "cash" wording (an ATM note, a transfer note
+    # or a plain text like "pagué la plata"): every cash source gets these
+    # kind-level keyword suggestions, whatever its actual name is.
+    CASH_KIND_KEYWORDS = %w[efectivo plata dinero cash billete].freeze
+
     INSTITUTION_TOKENS = %w[banco bancolombia davibank davienda bancopopular
                             bancocaja bbva santander avvillas pibranchcolpatria
                             bancolombia].freeze
@@ -108,9 +113,25 @@ module SourceRecognition
     def keyword_suggestions
       result = []
       result << { value: source.last_four, source: :last_four } if last_four_suggested?
+      result.concat kind_keywords
       result.concat name_keywords
       result << { value: source.institution, source: :institution } if institution_token_eligible?
       result.uniq { |s| s[:value] }
+    end
+
+    # Kind-level keywords (cash wallets → efectivo/plata/dinero/cash/billete):
+    # generic money words every source of that kind can be recognized by.
+    # The shared-brand ambiguity guard does NOT apply — several cash wallets
+    # is the normal case, and cash words are never product discriminators.
+    # Still respect what the user already confirmed on the source.
+    def kind_keywords
+      return [] unless source.kind == "cash"
+
+      CASH_KIND_KEYWORDS
+        .reject { |word| STOP_KEYWORDS.include?(word) }
+        .filter_map do |word|
+          { value: word, source: :kind } if new_value?("keyword", word)
+        end
     end
 
     # The account/card's last four digits are the strongest discriminator

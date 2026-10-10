@@ -19,6 +19,19 @@ class GmailSetupSyncJobTest < ActiveJob::TestCase
     assert_equal 10, @connection.last_sync_summary["scanned"]
   end
 
+  test "claims syncing while the scan runs" do
+    summary = { scanned: 10, passed: 2, suggestions: 3, senders: [], domains: [], subject_keywords: [] }
+    stub_method(Gmail::SetupScanService, :call, ->(*) do
+      @connection.reload
+      assert_kind_of ActiveSupport::TimeWithZone, @connection.syncing
+      summary
+    end) do
+      GmailSetupSyncJob.perform_now(connection_id: @connection.id)
+    end
+
+    assert_nil @connection.reload.syncing
+  end
+
   test "clears syncing and records an error summary when the scan fails" do
     silence_logger do
       stub_method(Gmail::SetupScanService, :call, ->(*) { raise StandardError, "network down" }) do
@@ -41,7 +54,7 @@ class GmailSetupSyncJobTest < ActiveJob::TestCase
     assert_nil @connection.reload.syncing
   end
 
-  test "skips a connection whose sync is already running" do
+  test "runs when the controller already claimed syncing (pre-claimed before redirect)" do
     @connection.update!(syncing: Time.current)
     calls = 0
 
@@ -51,8 +64,10 @@ class GmailSetupSyncJobTest < ActiveJob::TestCase
       end
     end
 
-    assert_equal 0, calls
-    assert_nil @connection.reload.last_sync_summary
+    # The stacked-sync guard lives in the controller; the job must not bail.
+    assert_equal 1, calls
+    assert @connection.reload.last_sync_summary.is_a?(Hash)
+    assert_nil @connection.syncing
   end
 
   test "runs when the syncing flag is stale (crashed previous run)" do
@@ -68,7 +83,6 @@ class GmailSetupSyncJobTest < ActiveJob::TestCase
     assert_equal 1, calls
     assert_nil @connection.reload.syncing
   end
-
   private
 
   def silence_logger

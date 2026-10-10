@@ -111,26 +111,16 @@ module Gmail
     # institution's official domains (mail.davibank.com → davibank.com) or
     # the From is itself the bank (display name/body alias, e.g. a
     # notification relay that still identifies the bank).
+    # The email is bank-owned when the sender's domain is one of the
+    # institution's official domains (mail.davibank.com → davibank.com) or
+    # the From is itself the bank (alias in the display name / local part —
+    # e.g. a notification relay that still identifies the bank).
     def bank_email?(message, filter_result)
-      institution = filter_result.institution
-      return false unless institution
-
-      domain = from_domain(message)
-      return false if domain.blank?
-
-      domain_institution = SourceRecognition::Catalog.match_domain(domain, domains_index)
-      domain_institution == institution ||
-        institution.folded_aliases.any? do |alias_word|
-          SourceRecognition::TextNormalizer.contains_word?(message[:from].to_s, alias_word)
-        end
+      SourceRecognition::Catalog.bank_owned_sender?(message, filter_result.institution, domains_index)
     end
 
     def domains_index
       @domains_index ||= SourceRecognition::Catalog.domains_index(SourceRecognition::Catalog.institutions)
-    end
-
-    def from_domain(message)
-      message[:from].to_s[/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/]&.split("@")&.last
     end
 
     # --- 1. sender recognition ------------------------------------------------

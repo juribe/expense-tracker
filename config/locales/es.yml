@@ -831,6 +831,7 @@ es:
       suggested_from_gmail: "Descubierto en Gmail"
       suggested_from_name: "Sugerido desde el nombre de la fuente"
       suggested_from_institution: "Sugerido desde la entidad"
+      suggested_from_kind: "Sugerido por su tipo de cuenta"
       suggested_from_last_four: "Sugerido desde los últimos 4 dígitos"
       suggested_from_source: "Sugerido desde %{source}"
       last_four_hint: "Esta fuente no tiene los últimos 4 dígitos guardados. Agregarlos mejora el reconocimiento en los correos."

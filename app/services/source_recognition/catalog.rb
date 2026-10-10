@@ -35,6 +35,26 @@ module SourceRecognition
       nil
     end
 
+    # True when the message's SENDER is owned by the bank: either its
+    # address domain equals an institution's official domain (or a
+    # subdomain) or the From string itself names the bank (alias in the
+    # display name / local part — payment relays like
+    # "Banco DaviBank via claro.com.co").
+    #
+    # Payment processors and telecom receipts (epayco, claro, PSE) may
+    # mention the bank in the body — they are not the bank and must never
+    # contribute bank-identity values (senders, domains, subject patterns).
+    def bank_owned_sender?(message, institution, index = domains_index)
+      return false unless institution
+
+      from = message[:from].to_s
+      email = from[/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/]
+      return false unless email
+
+      match_domain(email.split("@").last, index) == institution ||
+        institution.folded_aliases.any? { |alias_word| contains_word?(from, alias_word) }
+    end
+
     # Institutions whose alias appears in the text (word-boundary, folded).
     def match_text(text, institutions = self.institutions)
       folded = fold(text)

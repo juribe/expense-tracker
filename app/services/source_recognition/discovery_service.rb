@@ -42,10 +42,20 @@ module SourceRecognition
       candidates = candidate_sources(message, filter_result.institution)
       return empty_result if candidates.empty?
 
-      created = candidates.sum { |source| suggest_for(source, message, filter_result) }
+      # Bank-owning sender (official bank domain or bank alias in the From):
+      # only then may the sender/domain/subject feed recognition values.
+      # Processor/telecom receipts that merely mention the bank in the body
+      # never suggest their own (not-a-bank) sender/domain/subject patterns.
+      bank_owned = Catalog.bank_owned_sender?(message, filter_result.institution, owned_sender_index)
+
+      created = candidates.sum { |source| suggest_for(source, message, filter_result, bank_owned) }
 
       Result.new(passed?: true, institution: filter_result.institution,
                  suggestions_created: created, candidate_source_ids: candidates.map(&:id))
+    end
+
+    def owned_sender_index
+      @owned_sender_index ||= Catalog.domains_index(Catalog.institutions)
     end
 
     private
@@ -60,17 +70,24 @@ module SourceRecognition
       Result.new(passed?: false, institution: nil, suggestions_created: 0, candidate_source_ids: [])
     end
 
-    # Which of the user's sources does this email likely belong to?
-    # 1. Confirmed recognition rules with a single winner → that source.
-    # 2. Ambiguous recognition (several tied sources, same institution) →
-    #    all of them (institution-level values are safe for each).
-    # 3. No confirmed match → sources of the discovered institution.
+    # Which of the user's sources does this email likely belong to? Only
+    # sources that BELONG to the email's bank may receive suggestions: bank
+    # recognition identifiers (sender/domain/subject patterns) never go to a
+    # source of a different institution, no matter how its generic keywords
+    # tie in matching.
+    #   1. Sources of this institution whose confirmed rules matched the
+    #      email (single winner or tie).
+    #   2. Otherwise all sources of the discovered institution
+    #      (institution-level values are safe for each).
     def candidate_sources(message, institution)
-      matched = Matcher.call(user: user, message: message)
-      return [ matched ] if matched.is_a?(MoneySource)
-      return matched if matched.is_a?(Array)
-
       return [] unless institution
+
+      matched = Matcher.call(user: user, message: message)
+      eligible = Array(matched).compact.select do |source|
+        institution_matches_source?(institution, source)
+      end
+
+      return eligible.uniq if eligible.any?
 
       user.money_sources.payment_sources
           .includes(recognition: :recognition_identifiers)
@@ -89,17 +106,22 @@ module SourceRecognition
 
     # --- suggestion building --------------------------------------------------
 
-    def suggest_for(source, message, filter_result)
+    def suggest_for(source, message, filter_result, bank_owned)
       created = 0
       email = from_email(message)
       domain = email && email.split("@").last
 
       # Institution-level values (senders, domains, subject templates) are
-      # safe to reuse across every source of the same institution.
-      created += suggest!(source, :sender, email)
-      created += suggest!(source, :domain, domain)
+      # safe to reuse across every source of the same institution — but ONLY
+      # when the email's sender owns the bank. Processor/telecom receipts
+      # (claro, epayco, PSE) must not turn their own sender/domain/subject
+      # into bank recognition patterns.
+      if bank_owned
+        created += suggest!(source, :sender, email)
+        created += suggest!(source, :domain, domain)
+      end
 
-      if subject_usable?(message, filter_result)
+      if bank_owned && subject_usable?(message, filter_result)
         created += suggest!(source, :subject, subject_template(message[:subject]))
       end
 

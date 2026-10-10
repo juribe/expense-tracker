@@ -2,19 +2,22 @@
 
 # Background job for the explicit "Setup sync": scans the mailbox broadly
 # for bank/financial emails (Gmail::SetupScanService) and persists Gmail
-# settings + money source suggestions. Mirrors GmailSyncJob's UI contract:
+# criteria + money source suggestions. Mirrors GmailSyncJob's UI contract:
 # sets `syncing` beforehand and clears it (storing the summary) when done,
 # even on failure, so the settings page can poll sync_status.
+#
+# The SYNCING CLAIM is taken by the controller (GmailConnectionsController#setup_sync)
+# BEFORE redirecting, so the recognition page can render its loading state
+# right away; this job does not re-check it (a stacked sync cannot pass the
+# controller guard).
 class GmailSetupSyncJob < ApplicationJob
   queue_as :default
 
   def perform(connection_id:)
     connection = GmailConnection.find_by(id: connection_id)
     return unless connection
-    # Another sync (normal or setup) already claimed this connection.
-    return if connection.sync_running?
 
-    connection.update!(syncing: Time.current)
+    connection.update!(syncing: Time.current) if connection.syncing.blank?
 
     summary = Gmail::SetupScanService.call(connection)
     Rails.logger.info("[GmailSetupJob] connection=#{connection.id} #{summary.inspect}")

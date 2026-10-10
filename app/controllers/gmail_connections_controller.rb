@@ -101,11 +101,14 @@ class GmailConnectionsController < ApplicationController
   # Step 0 of the setup wizard: kicks off the broad mailbox scan
   # (Gmail::SetupScanService) in the background. The scan does NOT import
   # expenses — it only discovers Gmail criteria and money source suggestions.
-  # The results are reviewed on the recognition page, so land there; the
-  # page auto-refreshes when the background scan finishes.
+  # The results are reviewed on the recognition page, so land there.
+  # `syncing` is CLAIMED here (before the redirect) so the recognition page
+  # renders its loading state deterministically — the job may still be
+  # spinning up when the page loads — and auto-refreshes when the scan ends.
   def setup_sync
     return sync_already_running if @connection.sync_running?
 
+    @connection.update!(syncing: Time.current)
     GmailSetupSyncJob.perform_later(connection_id: @connection.id)
     redirect_to money_sources_recognition_path, notice: t("gmail_messages.setup_sync_started")
   end

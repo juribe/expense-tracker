@@ -520,6 +520,7 @@ en:
       suggested_from_gmail: "Discovered in Gmail"
       suggested_from_name: "Suggested from the source name"
       suggested_from_institution: "Suggested from the institution"
+      suggested_from_kind: "Suggested by its account type"
       suggested_from_last_four: "Suggested from the last 4 digits"
       suggested_from_source: "Suggested from %{source}"
       last_four_hint: "This source has no last 4 digits saved. Adding them improves recognition in emails."

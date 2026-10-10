@@ -445,6 +445,8 @@ module ApplicationHelper
       t("money_sources.recognition.suggested_from_name")
     when :institution
       t("money_sources.recognition.suggested_from_institution")
+    when :kind
+      t("money_sources.recognition.suggested_from_kind")
     when :last_four
       t("money_sources.recognition.suggested_from_last_four")
     else
