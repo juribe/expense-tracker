@@ -56,19 +56,28 @@ class MoneySourcesController < ApplicationController
   end
 
   # GET /money_sources/recognition
+  #
+  # Sources are GROUPED by their financial institution (the attached entity,
+  # or the folded legacy bank text). Each group shows one bank-level
+  # configuration (senders + subject patterns — the SEED source carries the
+  # confirmed values and the whole group shares them) plus the per-source
+  # rows whose drawer edits only the product-level keywords/last-four.
   def recognition
-    @money_sources = current_user.money_sources
-                                 .payment_sources
-                                 .includes(:recognition_identifiers, recognition: :recognition_identifiers)
-                                 .order(:kind, :name)
+    sources = current_user.money_sources
+                          .payment_sources
+                          .includes(:recognition_identifiers, recognition: :recognition_identifiers)
+                          .order(:kind, :name)
+    @bank_groups = build_bank_groups(sources)
 
     # The Gmail criteria card doubles as a manual editor: it renders whenever
     # there is an ACTIVE connection — even before any scan ran — prefilled
     # with the saved search_config plus (when available) the scan suggestions.
     @gmail_connection = current_user.gmail_connections.order(:id).last
 
-    if params[:edit].present?
-      @editing = current_user.money_sources.find(params[:edit])
+    if params[:edit].present? || params[:bank_edit].present?
+      @bank_editing = params[:bank_edit].present? &&
+                      (@editing = @bank_groups.find { |group| group[:key] == params[:bank_edit] }&.dig(:seed))
+      @editing ||= current_user.money_sources.find(params[:edit]) # product drawer (keywords only)
       @suggestions = SourceRecognition::SuggestionEngine.new(source: @editing).call
     end
   end
@@ -91,23 +100,32 @@ class MoneySourcesController < ApplicationController
   # that without duplicates); suggestions explicitly dismissed with their ×
   # button arrive in `dismissed` and are deleted. Untouched suggestions are
   # preserved for a later review.
+  #
+  # Section ABSENCE means "leave that section as-is": the per-source drawer
+  # posts only keywords, the bank-level drawer (seed source) posts only
+  # senders/subject patterns. replace_identifiers replaces exactly the kinds
+  # it receives.
   def update_recognition
     # Only payment sources may hold recognition (the model validates it too);
     # scoping the lookup makes non-payment sources 404 instead of failing on
     # the validation after ensure_recognition's save!.
     source = current_user.money_sources.payment_sources.find(params[:money_source_id])
-    senders, domains = classify_senders(Array(params[:senders]))
-    subjects, headers = classify_subjects(Array(params[:subjects]))
-    values = {
-      keyword: Array(params[:keywords]),
-      sender: senders,
-      domain: domains,
-      subject: subjects,
-      header: headers
-    }
+    values = {}
+    values[:keyword] = Array(params[:keywords]) if params.key?(:keywords)
+    if params.key?(:senders)
+      senders, domains = classify_senders(Array(params[:senders]))
+      values[:sender] = senders
+      values[:domain] = domains
+    end
+    if params.key?(:subjects)
+      subjects, headers = classify_subjects(Array(params[:subjects]))
+      values[:subject] = subjects
+      values[:header] = headers
+    end
 
-    all_empty = values.values.all? { |v| Array(v).compact_blank.empty? }
-    recognition = all_empty ? source.recognition : source.ensure_recognition
+    # Nothing submitted at all (a pure dismissal submit): don't create a
+    # recognition record just to delete suggestions from it.
+    recognition = values.empty? ? source.recognition : source.ensure_recognition
 
     if recognition
       ActiveRecord::Base.transaction do
@@ -123,14 +141,16 @@ class MoneySourcesController < ApplicationController
       SourceRecognition::ApplyToSearchConfig.call(user: current_user)
     end
 
-    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved")
+    redirect_back fallback_location: money_sources_recognition_path,
+                  notice: t("money_sources.recognition.saved")
   end
 
   # DELETE /money_sources/recognition/:money_source_id
   def destroy_recognition
     source = current_user.money_sources.payment_sources.find(params[:money_source_id])
     source.recognition&.destroy
-    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.deleted")
+    redirect_back fallback_location: money_sources_recognition_path,
+                  notice: t("money_sources.recognition.deleted")
   end
 
   # GET /money_sources/new
@@ -146,7 +166,8 @@ class MoneySourcesController < ApplicationController
 
   # POST /money_sources
   def create
-    @money_source = current_user.money_sources.build(money_source_params)
+    @money_source = current_user.money_sources.build(money_source_params.except(:institution_ref))
+    @money_source.assign_institution_ref(money_source_params[:institution_ref])
 
     if @money_source.save
       redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.created")
@@ -157,7 +178,11 @@ class MoneySourcesController < ApplicationController
 
   # PATCH/PUT /money_sources/1
   def update
-    @money_source.assign_attributes(money_source_params)
+    @money_source.assign_attributes(money_source_params.except(:institution_ref))
+    # "FinancialInstitution:12" / "CustomFinancialInstitution:3" / blank.
+    # Ownership of a custom entity is re-checked by the model against the
+    # source's user, so a forged reference never binds foreign data.
+    @money_source.assign_institution_ref(money_source_params[:institution_ref])
 
     if @money_source.save
       redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.updated")
@@ -173,6 +198,36 @@ class MoneySourcesController < ApplicationController
   end
 
   private
+
+  # Groups payment sources by their entity for the recognition page. The
+  # attached polymorphic entity wins; unattached rows fall back to the folded
+  # legacy bank token ("legacy:..."), and rows without any bank stay as
+  # single-source groups. The SEED (earliest member) is the source whose
+  # recognition record carries the group's bank-level configuration.
+  def build_bank_groups(sources)
+    groups = Hash.new { |hash, key| hash[key] = [] }
+    sources.each { |source| groups[group_key_for_source(source)] << source }
+
+    groups.values.map do |members|
+      seed = members.min_by(&:id)
+      {
+        key: group_key_for_source(members.first),
+        label: members.first.institution_name.presence || I18n.t("money_sources.recognition.no_bank_group"),
+        seed: seed,
+        members: members.sort_by { |source| [ source.kind, source.name ] },
+        pending: members.sum { |source| source.recognition_identifiers.count(&:suggested?) }
+      }
+    end.sort_by { |group| [ group[:key].to_s.starts_with?("legacy:", "source:") ? 1 : 0, group[:label].to_s.downcase ] }
+  end
+
+  def group_key_for_source(source)
+    if source.institution?
+      "#{source.institution_type}:#{source.institution_id}"
+    else
+      token = SourceRecognition::TextNormalizer.fold(source.institution_token.to_s)
+      token.blank? ? "source:#{source.id}" : "legacy:#{token}"
+    end
+  end
 
   def kind_index_path(source)
     case source.kind
@@ -201,7 +256,7 @@ class MoneySourcesController < ApplicationController
         senders << value
       end
     end
-    [senders, domains]
+    [ senders, domains ]
   end
 
   # The subjects section mixes subject text (subject) and RFC header patterns
@@ -215,7 +270,7 @@ class MoneySourcesController < ApplicationController
         subjects << value
       end
     end
-    [subjects, headers]
+    [ subjects, headers ]
   end
 
   def set_money_source
@@ -252,7 +307,8 @@ class MoneySourcesController < ApplicationController
   end
 
   def money_source_params
-    permitted = [ :name, :kind, :sub_kind, :bank, :parent_id, :starting_balance, :active, :identifier ]
+    permitted = [ :name, :kind, :sub_kind, :bank, :parent_id, :starting_balance, :active, :identifier,
+                  :institution_ref ]
 
     if params.dig(:money_source, :kind).to_s.in?(%w[credit_card loan]) || @money_source&.debt?
       permitted << {

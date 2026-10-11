@@ -30,10 +30,15 @@ class StatementDuplicateDetector
   def by_bank_and_last_four(statement)
     return nil if statement.card_last_four.blank? || statement.bank.blank?
 
+    folded_bank = fold(statement.bank)
     @user.money_sources
          .joins(:credit_account)
-         .where(money_sources: { bank: statement.bank })
+         .includes(:institution)
          .where(credit_accounts: { card_last_four: statement.card_last_four })
-         .first
+         .find { |source| source.institution_aliases.include?(folded_bank) || fold(source.bank) == folded_bank }
+  end
+
+  def fold(text)
+    SourceRecognition::TextNormalizer.fold(text)
   end
 end

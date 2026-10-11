@@ -1,0 +1,63 @@
+<%#
+  "Mis entidades" — the user's own financial entities ONLY ("Otra entidad").
+  A custom entity can be edited (name/type) or deleted; deleting one that
+  still backs money sources is blocked at the controller. The shared global
+  catalog is NOT listed here: it surfaces inline in the money-source form's
+  institution autocomplete, and its data is never editable by users.
+%>
+<%= render "shared/page_header", title: t("financial_institutions.title"),
+                                subtitle: t("financial_institutions.subtitle") do %>
+  <%= link_to new_custom_financial_institution_path, class: "btn btn-primary" do %>
+    <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("financial_institutions.new_custom") %>
+  <% end %>
+<% end %>
+
+<% if @custom_institutions.empty? %>
+  <div class="card page-section">
+    <div class="card-body">
+      <%= render "shared/empty_state", icon: "user-plus",
+                                      title: t("financial_institutions.no_custom"),
+                                      text: t("financial_institutions.no_custom_hint") %>
+    </div>
+  </div>
+<% else %>
+  <%# Entities without a typed classification group under "other" %>
+  <% grouped = @custom_institutions.group_by { |institution| institution.institution_type.presence || "other" } %>
+  <% FinancialInstitution::TYPES.each do |type| %>
+    <% group = grouped[type].to_a %>
+    <% next if group.empty? %>
+    <h6 class="section-title mb-2 <%= 'mt-4' if type != FinancialInstitution::TYPES.first %>">
+      <%= t("financial_institutions.types.#{type}") %>
+      <span class="badge bg-light text-dark border ms-1"><%= group.size %></span>
+    </h6>
+    <div class="card page-section">
+      <div class="card-body pt-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 ledger-table">
+            <thead>
+              <tr>
+                <th class="w-100"><%= t("financial_institutions.col_name") %></th>
+                <th class="text-end"><%= t("common.actions", default: "Acciones") %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% group.each do |institution| %>
+                <tr data-testid="custom-institution-row">
+                  <td class="cell-strong"><%= institution.display_name %></td>
+                  <td class="text-end">
+                    <div class="d-inline-flex gap-1">
+                      <%= link_to edit_custom_financial_institution_path(institution), class: "btn btn-sm btn-outline-secondary", "aria-label": t("common.edit") do %><i class="ti ti-pencil"></i><% end %>
+                      <%= button_to custom_financial_institution_path(institution), method: :delete,
+                                    class: "btn btn-sm btn-outline-danger", "aria-label": t("common.destroy", default: "Eliminar"),
+                                    form: { data: { turbo_confirm: t("custom_financial_institutions.delete_confirm") } } do %><i class="ti ti-trash"></i><% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

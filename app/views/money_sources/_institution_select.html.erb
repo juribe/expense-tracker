@@ -1,0 +1,36 @@
+<%#
+  Institution AUTOCOMPLETE for money source forms. Replaces the free-text
+  bank: a searchable combobox listing the global active catalog entities, the
+  user's own custom entities, and a "no entity" option. The combined
+  polymorphic ref value is kept in a hidden input and parsed by
+  MoneySource#assign_institution_ref (ownership re-checked on the model).
+  Locals: f (form builder), label_text (optional).
+  Behavior lives in application.js ([data-institution-combobox]); the option
+  list travels inline as JSON so the combobox works offline/no round-trips.
+  The legacy free-text bank keeps its value in the DB for historical data.
+%>
+<div class="col-md-6 mb-3">
+  <%= f.label :institution_ref, local_assigns[:label_text] || t("money_sources.form.institution"), class: "form-label" %>
+  <%= f.hidden_field :institution_ref %>
+  <div class="position-relative" data-institution-combobox data-options="<%= institution_autocomplete_data(f.object.institution_ref).to_json %>">
+    <div class="input-group">
+      <input type="text" class="form-control"
+             data-institution-search
+             placeholder="<%= t('money_sources.form.institution_search') %>"
+             autocomplete="off" spellcheck="false"
+             role="combobox" aria-autocomplete="list" aria-expanded="false"
+             aria-haspopup="listbox" aria-label="<%= t('money_sources.form.institution') %>" >
+      <button type="button" class="btn btn-outline-secondary" data-institution-clear
+              aria-label="<%= t('money_sources.form.institution_none') %>" hidden>
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="institution-autocomplete dropdown-menu w-100 border shadow-sm" data-institution-list hidden></div>
+    <div class="form-text d-none" data-institution-hint></div>
+  </div>
+  <div class="form-text">
+    <%= link_to new_custom_financial_institution_path, class: "text-decoration-none" do %>
+      <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("money_sources.form.create_custom_institution") %>
+    <% end %>
+  </div>
+</div>

@@ -5,8 +5,8 @@
         <span class="badge bg-danger mb-2"><%= source_kind_label(source.kind) %></span>
         <% if source.credit_card? %>
           <span class="badge bg-light text-dark"><%= [ source.card_brand, source.card_last_four ].compact_blank.join(" · ") %></span>
-        <% elsif source.bank.present? %>
-          <span class="badge bg-light text-dark"><%= source.bank %></span>
+        <% elsif source.institution_name.present? %>
+          <span class="badge bg-light text-dark"><%= source.institution_name %></span>
         <% end %>
       </div>
       <div class="text-end">
@@ -44,9 +44,9 @@
       <dl class="row mb-0 mt-3">
         <dt class="col-sm-5"><%= t("common.type", default: "Tipo") %></dt>
         <dd class="col-sm-7"><%= source_kind_label(source.kind) %></dd>
-        <% if source.bank.present? %>
+        <% if source.institution_name.present? %>
           <dt class="col-sm-5"><%= t("money_sources.form.bank_issuer") %></dt>
-          <dd class="col-sm-7"><%= source.bank %></dd>
+          <dd class="col-sm-7"><%= source.institution_name %></dd>
         <% end %>
         <% if source.card_brand.present? %>
           <dt class="col-sm-5"><%= t("money_sources.form.card_brand") %></dt>
@@ -97,9 +97,9 @@
       <dl class="row mb-0 mt-3">
         <dt class="col-sm-5"><%= t("common.type", default: "Tipo") %></dt>
         <dd class="col-sm-7"><%= source_kind_label(source.kind) %></dd>
-        <% if source.bank.present? %>
+        <% if source.institution_name.present? %>
           <dt class="col-sm-5"><%= t("money_sources.form.lender") %></dt>
-          <dd class="col-sm-7"><%= source.bank %></dd>
+          <dd class="col-sm-7"><%= source.institution_name %></dd>
         <% end %>
         <% if source.interest_rate.present? %>
           <dt class="col-sm-5"><%= t("money_sources.form.interest_rate") %></dt>

@@ -31,7 +31,7 @@ module MoneySources
       # order(:id) pins "first-created wins ties"; without an explicit ORDER
       # row loading order is unspecified and the tie-break becomes a flake.
       @sources = sources || MoneySource.active.payment_sources
-                         .includes(:recognition_identifiers, recognition: :recognition_identifiers)
+                         .includes(:recognition_identifiers, { recognition: :recognition_identifiers })
                          .order(:id).to_a
     end
 
@@ -106,9 +106,22 @@ module MoneySources
       identifier_points = identifier_values.compact.map { |value| normalize_text(value) }
                                            .uniq
                                            .count { |value| value.present? && clean.match?(/\b#{Regexp.escape(value)}\b/) }
-      bank_points = source.bank.present? && clean.match?(/\b#{Regexp.escape(normalize_text(source.bank))}\b/) ? 1 : 0
+      identifier_points * IDENTIFIER_POINTS +
+        (bank_points(source, clean) + legacy_bank_points(source, clean)) * BANK_POINTS
+    end
 
-      identifier_points * IDENTIFIER_POINTS + bank_points * BANK_POINTS
+    # Institution evidence via the attached entity's folded aliases and name,
+    # or the legacy free-text bank when nothing is attached yet.
+    def bank_points(source, clean)
+      return 0 if source.institution_aliases.empty?
+
+      source.institution_aliases.any? { |token| clean.match?(/\b#{Regexp.escape(token)}\b/) } ? 1 : 0
+    end
+
+    def legacy_bank_points(source, clean)
+      return 0 if source.institution_aliases.any? # attached sources don't double-count legacy bank text
+
+      source.bank.present? && clean.match?(/\b#{Regexp.escape(normalize_text(source.bank))}\b/) ? 1 : 0
     end
 
     def normalize_text(text)

@@ -90,14 +90,21 @@ module SourceRecognition
       return eligible.uniq if eligible.any?
 
       user.money_sources.payment_sources
-          .includes(recognition: :recognition_identifiers)
+          .includes({ recognition: :recognition_identifiers })
           .select { |source| institution_matches_source?(institution, source) }
     end
 
-    # A source belongs to the institution when its bank (folded) equals one
-    # of the institution's aliases, or its name contains one.
+    # A source belongs to the institution when the source is ATTACHED to it
+    # (polymorphic institution association), or — legacy unattached rows —
+    # when its free-text bank (folded) equals one of the institution's
+    # aliases, or its name contains one.
     def institution_matches_source?(institution, source)
-      bank = TextNormalizer.fold(source.institution)
+      if source.institution?
+        return source.institution_type == "FinancialInstitution" &&
+               source.institution_id == institution.id
+      end
+
+      bank = TextNormalizer.fold(source.institution_token)
       name = TextNormalizer.fold(source.name)
       institution.folded_aliases.any? do |alias_word|
         bank == alias_word || name.include?(alias_word)

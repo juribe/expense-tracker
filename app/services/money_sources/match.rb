@@ -9,10 +9,12 @@ module MoneySources
   #   MoneySources::Match.call(user: user, tag: "Tarjeta Clásica")
   #   MoneySources::Match.call(user: user, card_last_four: "1234", bank: "Bancolombia")
   #
-  # Lookup semantics (values normalized with strip + downcase):
+  # Lookup semantics (values normalized with strip + downcase, accent-folded
+  # for institution matching):
   #   tag            — equals a configured keyword identifier or the source name
   #   card_last_four — equals source.last_four (only the ending digits count)
-  #   bank           — equals source.institution (normalized bank string)
+  #   bank           — equals the attached institution name or the legacy
+  #                    normalized bank string
   class Match
     def self.call(user:, **kwargs)
       new(user: user, **kwargs).call
@@ -46,7 +48,7 @@ module MoneySources
     end
 
     def candidate_sources_scope
-      @user.money_sources.active.payment_sources.includes(recognition: :recognition_identifiers)
+      @user.money_sources.active.payment_sources.includes({ recognition: :recognition_identifiers })
     end
 
     def lookup_values
@@ -59,12 +61,21 @@ module MoneySources
 
     def source_matches_value?(source, value)
       return true if value.match?(/\A\d{4}\z/) && source.last_four == value
-      return true if source.institution == value
+      return true if institution_matches_value?(source, value)
       return true if normalize(source.name) == value
 
       source.recognition_identifiers.any? do |id|
         id.kind == "keyword" && normalize(id.value) == value
       end
+    end
+
+    # Bank lookups match the ATTACHED institution name as well as the legacy
+    # free-text bank token; accent-folded so "Bancamía" ~ "bancamia".
+    def institution_matches_value?(source, value)
+      normalized = SourceRecognition::TextNormalizer.fold(value)
+      SourceRecognition::TextNormalizer
+        .fold(source.institution_name.to_s) == normalized ||
+        source.institution_token == value
     end
 
     def last_four

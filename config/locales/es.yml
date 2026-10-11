@@ -100,6 +100,7 @@ es:
         pocket_locked_by_allocations: "no se puede cambiar mientras la meta tenga dinero asignado; libera las asignaciones primero"
         other_user: "no pertenece a este usuario"
         after_start: "debe ser posterior a la fecha inicial"
+        foreign_or_missing: "no pertenece a este usuario o no existe"
     attributes:
       transfer:
         from_source: "Desde"
@@ -154,6 +155,7 @@ es:
         name: "Nombre"
         kind: "Tipo"
         bank: "Banco"
+        institution: "Entidad financiera"
         parent_id: "Vinculada a"
         starting_balance: "Saldo inicial"
         active: "Activa"
@@ -608,6 +610,7 @@ es:
     gmail: "Integración Gmail"
     whatsapp: "WhatsApp"
     source_recognition: "Reconocimiento de fuentes"
+    entities: "Entidades"
     playground: "Playground"
     evaluations: "Evaluaciones"
     assistant: "Asistente"
@@ -783,6 +786,17 @@ es:
       col_status: "Estado de configuración"
       col_actions: "Acciones"
       status_configured: "Configurada"
+      group_sources_count:
+        one: "%{count} fuente"
+        other: "%{count} fuentes"
+      group_pending:
+        one: "%{count} sugerencia por revisar"
+        other: "%{count} sugerencias por revisar"
+      group_configure: "Configurar banco"
+      bank_edit_title: "Reconocimiento del banco"
+      bank_edit_subtitle: "Configuración compartida por todas tus fuentes de este banco"
+      bank_edit_note: "Estos valores (dominios, remitentes, asuntos) se guardan una sola vez y aplican a todas tus cuentas y tarjetas de este banco. Los datos de cada producto (últimos 4 dígitos, alias) se configuran en cada fuente."
+      no_bank_group: "Sin entidad identificada"
       status_unconfigured: "Sin configurar"
       status_suggestions:
         one: "%{count} sugerencia"
@@ -873,6 +887,11 @@ es:
       recognition_title: "Reconocimiento de la fuente"
       recognition_hint: "Configura cómo identificar esta fuente en tus correos (remitentes, asuntos, palabras clave)."
       recognition_link: "Configurar reconocimiento"
+      institution: "Entidad financiera"
+      institution_none: "— Sin entidad —"
+      institution_search: "Buscar entidad (banco, billetera…)"
+      institution_no_match: "Sin resultados"
+      create_custom_institution: "¿Tu banco no aparece? Crea tu propia entidad"
       submit_create: "Crear Fuente de Dinero"
       submit_update: "Actualizar Fuente de Dinero"
       bank_issuer: "Banco / Emisor"
@@ -2361,3 +2380,36 @@ es:
       other: "Otros"
       submit: "Calcular proyección"
       regenerate: "Regenerar proyección"
+
+  # Entidades financieras: catálogo compartido, entidades propias y
+  # configuración privada de reconocimiento por entidad.
+  financial_institutions:
+    title: "Mis entidades"
+    subtitle: "Tus propias entidades financieras: re-nómbralas o elimínalas; el catálogo compartido se elige al crear una fuente."
+
+    my_entities: "Mis entidades"
+    col_name: "Nombre"
+    col_type: "Tipo"
+    inactive_marker: "(inactiva)"
+    new_custom: "Nueva entidad"
+    no_custom: "Aún no tienes entidades propias"
+    no_custom_hint: "Crea una \"otra entidad\" cuando la que necesitas no aparece en el catálogo/solo tú la ves."
+    types:
+      bank: "Banco"
+      digital_bank: "Banco digital"
+      digital_wallet: "Billetera digital"
+      financing_company: "Compañía de financiamiento"
+      other: "Otra entidad financiera"
+
+  custom_financial_institutions:
+    new_title: "Nueva entidad propia"
+    edit_title: "Editar entidad propia"
+    name: "Nombre"
+    name_hint: "p. ej. Cooperativa de mi empresa"
+    delete_confirm: "¿Eliminar esta entidad? Las fuentes que la usen deberán reasociarse primero."
+    flashes:
+      created: "Entidad creada."
+      updated: "Entidad actualizada."
+      deleted: "Entidad eliminada."
+      blocked_by_sources: "No se puede eliminar: todavía hay fuentes de dinero que la usan. Reasócialas primero."
+

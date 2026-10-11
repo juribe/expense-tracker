@@ -1,0 +1,48 @@
+<%#
+  Custom financial institution form ("Otra entidad"). Only name and optional
+  type: the entity stays private to its owner and is never auto-promoted to
+  the global catalog.
+%>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0"><%= @custom_institution.new_record? ? t("custom_financial_institutions.new_title") : t("custom_financial_institutions.edit_title") %></h4>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @custom_institution, local: true do |f| %>
+            <% if @custom_institution.errors.any? %>
+              <div class="alert alert-danger">
+                <ul>
+                  <% @custom_institution.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <%= f.label :name, t("custom_financial_institutions.name"), class: "form-label" %>
+              <%= f.text_field :name, class: "form-control", placeholder: t("custom_financial_institutions.name_hint") %>
+            </div>
+            <div class="mb-3">
+              <%= f.label :institution_type, t("financial_institutions.col_type"), class: "form-label" %>
+              <%= f.select :institution_type,
+                           options_for_select(
+                             FinancialInstitution::TYPES.map { |type| [ t("financial_institutions.types.#{type}"), type ] },
+                             @custom_institution.institution_type.presence || "other"
+                           ),
+                           {},
+                           class: "form-select" %>
+            </div>
+            <div class="d-flex gap-2">
+              <%= f.submit class: "btn btn-primary" %>
+              <%= link_to t("common.cancel"), financial_institutions_path, class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

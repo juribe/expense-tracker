@@ -30,6 +30,12 @@ class MoneySource < ApplicationRecord
 
   belongs_to :user
   belongs_to :parent, class_name: "MoneySource", optional: true
+  # Optional financial institution: the global FinancialInstitution catalog
+  # or the user's own CustomFinancialInstitution. Never replaces the source's
+  # own name/alias, kind or last-four identifier — it only ties the source to
+  # the entity behind it (and to the user's private institution recognition
+  # settings). Cash and unattributed sources keep working with nil.
+  belongs_to :institution, polymorphic: true, optional: true
   has_many :children, class_name: "MoneySource", foreign_key: :parent_id, dependent: :nullify
   has_many :transactions, dependent: :nullify
   has_many :recurring_templates, dependent: :nullify
@@ -47,12 +53,19 @@ class MoneySource < ApplicationRecord
   has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
   has_many :recognition_identifiers, through: :recognition, source: :recognition_identifiers
 
+  # Whether an institution is (or is being) attached. Defined explicitly so
+  # the predicate never depends on the built-in association predicate.
+  def institution?
+    institution_id.present? && institution_type.present?
+  end
+
   accepts_nested_attributes_for :credit_account, allow_destroy: true
 
   validates :name, presence: true
   validates :kind, presence: true, inclusion: { in: KINDS }
   validates :sub_kind, inclusion: { in: SUB_KINDS }, allow_blank: true
   validates :starting_balance, numericality: true
+  validate :institution_belongs_to_owner, if: :institution?
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
@@ -78,6 +91,12 @@ class MoneySource < ApplicationRecord
   # A new source starts with its starting balance; subsequent movements move
   # it via BalanceSync deltas.
   before_create :init_cached_balance_from_starting_balance
+
+  # Denormalized entity label upkeep: written once per save here (the single
+  # write path) and cascaded on entity renames by the institution models.
+  # Views/badges/reports read institution_cached_name — the polymorphic
+  # association is only loaded by code that needs its id/type or aliases.
+  before_save :sync_institution_cached_name
 
   # Changing the starting balance shifts the cached balance by the same delta
   # in before_update so it stays aligned (after_commit would double-apply on
@@ -227,14 +246,62 @@ class MoneySource < ApplicationRecord
     end
   end
 
+  # Display label for the institution behind this source: the associated
+  # entity name, falling back to the legacy free-text bank. Both stay intact
+  # during the transition (bank is never cleared, so unattributed sources
+  # keep rendering exactly as before).
   def display_name
     parts = [ name ]
-    parts << bank if bank.present?
+    parts << institution_name if institution_name.present?
     # Touch credit_account unconditionally so Bullet sees the association
     # accessed even when the list has no credit cards (nil id loads nothing).
     digits = credit_account&.card_last_four
     parts << digits if credit_card? && digits.present?
     parts.join(" · ")
+  end
+
+  # The attached entity's display name WITHOUT any database access: reads the
+  # denormalized institution_cached_name (kept fresh by before_save + the
+  # rename cascades). Falls back to the legacy free-text bank so historical
+  # and unattached rows keep rendering exactly as before.
+  def institution_name
+    institution_cached_name.presence || bank.presence
+  end
+
+  # Parses the combined select value ("FinancialInstitution:12") from the
+  # money source form. Only these two classes are accepted; anything else —
+  # including a forged CustomFinancialInstitution id owned by another user —
+  # fails the institution_belongs_to_owner validation (or is rejected here).
+  def institution_ref
+    institution? ? "#{institution_type}:#{institution_id}" : ""
+  end
+
+  def assign_institution_ref(ref)
+    klass, id = ref.to_s.split(":", 2)
+    if klass.in?(%w[FinancialInstitution CustomFinancialInstitution]) && id.to_s.match?(/\A\d+\z/)
+      self.institution_type = klass
+      self.institution_id = id
+    else
+      self.institution_type = nil
+      self.institution_id = nil
+    end
+  end
+
+  # Folded text tokens identifying the institution behind this source, for
+  # services that previously matched the raw bank string. For global catalog
+  # entities the folded canonical name + aliases participate; custom and
+  # legacy rows keep their own folded name / bank token. The free-text bank
+  # is only used as fallback when unattached, so historical rows keep
+  # matching without stale secondary matches.
+  def institution_aliases
+    tokens = []
+    if institution?
+      tokens.concat(institution.folded_aliases) if institution.is_a?(FinancialInstitution)
+      tokens << SourceRecognition::TextNormalizer.fold(institution_name)
+    else
+      tokens << SourceRecognition::TextNormalizer.fold(bank) if bank.present?
+    end
+    tokens.uniq.reject(&:blank?)
   end
 
   # Whether minimum recognition configuration exists: at least one CONFIRMED
@@ -264,11 +331,31 @@ class MoneySource < ApplicationRecord
     recognition || build_recognition
   end
 
-  def institution
+  # (Legacy) downcased free-text bank token, used by bank-level matching and
+  # suggestion/ discovery pipelines. Renamed from #institution when the
+  # polymorphic association took over that name.
+  def institution_token
     bank.to_s.strip.downcase.presence
   end
 
   private
+
+  # Denormalized entity label: the attached institution's display name, or
+  # nil when detached (so #institution_name falls back to the legacy bank).
+  # The ONLY writer besides the entity rename cascades.
+  def sync_institution_cached_name
+    self.institution_cached_name = institution?.presence ? institution&.display_name : nil
+  end
+
+  # A custom institution must belong to the source's owner: one user must
+  # never be able to attach another user's private entity (or its private
+  # recognition settings) to their own sources.
+  def institution_belongs_to_owner
+    return if institution_type == "FinancialInstitution"
+    return if institution_type == "CustomFinancialInstitution" && institution&.user_id == user_id
+
+    errors.add(:institution, :foreign_or_missing)
+  end
 
   def init_cached_balance_from_starting_balance
     self.cached_balance = starting_balance.to_d

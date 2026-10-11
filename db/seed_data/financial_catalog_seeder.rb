@@ -9,6 +9,14 @@
 # multiple times never creates duplicates. Values removed from the YAML files
 # are left in place (they are harmless historical data) — the catalog is
 # additive by design.
+#
+# Attribute ownership (institution entries):
+#   * Managed at CREATION only: slug, active. A manually disabled institution
+#     is therefore never re-activated by a later seed run.
+#   * Managed on every run: aliases, domains, keywords, institution_type —
+#     the YAML is the single source of truth for catalog metadata.
+#   * Never touched: any per-user data (the catalog is global; personal data
+#     lives in CustomFinancialInstitution / UserInstitutionSetting).
 class FinancialCatalogSeeder
   DATA_DIR = Rails.root.join("db/seed_data")
 
@@ -26,13 +34,19 @@ class FinancialCatalogSeeder
 
   def seed_institutions
     yaml("financial_institutions.yml").fetch("institutions", []).each do |attrs|
-      institution = FinancialInstitution.find_or_create_by!(canonical_name: attrs["canonical_name"])
-      institution.update!(
+      institution = FinancialInstitution.find_or_initialize_by(canonical_name: attrs["canonical_name"])
+      institution.assign_attributes(
         aliases: Array(attrs["aliases"]),
         domains: Array(attrs["domains"]),
         keywords: Array(attrs["keywords"]),
-        active: attrs.fetch("active", true)
+        institution_type: attrs["institution_type"].presence
       )
+      # Admin-owned attribute set at creation only: a stable slug is never
+      # overwritten by later runs.
+      institution.slug = attrs["slug"].to_s.parameterize if institution.slug.blank?
+      # `active` is NEVER assigned here — the seeds may not re-activate an
+      # institution that was disabled manually after its creation.
+      institution.save!
     end
   end
 

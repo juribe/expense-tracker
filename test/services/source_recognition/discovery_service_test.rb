@@ -78,8 +78,9 @@ module SourceRecognition
         assert_empty suggested(source, "domain")
         assert_empty suggested(source, "subject")
       end
-      # Identity keywords in the body are still source-specific signal.
-      assert_includes values_of(suggested(@clasica, "keyword")), "davibank"
+      # matched_alias wins with the LONGEST matching alias present ("banco
+      # davibank" beats "davibank").
+      assert_includes values_of(suggested(@clasica, "keyword")), "banco davibank"
     end
 
     test "the bank's own relay domain still contributes senders and subjects" do

@@ -1,6 +1,77 @@
 module ApplicationHelper
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
 
+  # Data for the money-source institution AUTOCOMPLETE: catalog entities
+  # (active; the currently attached one is always listed even when inactive)
+  # plus the user's own custom entities. Values are polymorphic references
+  # ("FinancialInstitution:12") parsed by MoneySource#assign_institution_ref.
+  def institution_autocomplete_data(selected_ref)
+    catalog = FinancialInstitution.active.order(:canonical_name).map do |i|
+      institution_autocomplete_option(i, "catalog")
+    end
+    if selected_ref.to_s.include?(":")
+      attached = FinancialInstitution.find_by(institution_ref_parts(selected_ref))
+      if attached && !attached.active? && !catalog.any? { |o| o[:value] == institution_ref_to(attached) }
+        catalog << institution_autocomplete_option(attached, "catalog")
+      end
+    end
+
+    customs = current_user.custom_financial_institutions.ordered.map do |c|
+      institution_autocomplete_option(c, "custom")
+    end
+
+    {
+      options: catalog + customs,
+      groups: {
+        "catalog" => t("financial_institutions.catalog"),
+        "custom" => t("financial_institutions.my_entities")
+      },
+      types: FinancialInstitution::TYPES.index_with { |type| t("financial_institutions.types.#{type}") }
+                                         .stringify_keys,
+      inactive_marker: t("financial_institutions.inactive_marker"),
+      none_label: t("money_sources.form.institution_none"),
+      no_match: t("money_sources.form.institution_no_match")
+    }
+  end
+
+  def institution_autocomplete_option(institution, group)
+    {
+      value: institution_ref_to(institution),
+      label: institution.display_name,
+      group: group,
+      type: institution.respond_to?(:institution_type) ? institution.institution_type : nil,
+      inactive: !institution.try(:active)
+    }
+  end
+
+  def institution_ref_parts(ref)
+    type, id = ref.to_s.split(":", 2)
+    { institution_type: type }.compact_blank
+                             .merge(id.to_s.match?(/\A\d+\z/) ? { id: id } : {})
+  end
+
+  def institution_ref_to(target)
+    "#{target.class.name}:#{target.id}"
+  end
+
+  # Small taxonomy badge for an entity (bank / digital_bank / ...).
+  def institution_type_badge(institution)
+    type = institution.institution_type
+    class_map = {
+      "bank" => "bg-primary-subtle text-primary-emphasis",
+      "digital_bank" => "bg-info-subtle text-info-emphasis",
+      "digital_wallet" => "bg-success-subtle text-success-emphasis",
+      "financing_company" => "bg-warning-subtle text-warning-emphasis",
+      "other" => "bg-light text-dark border"
+    }.freeze
+    return "" if type.blank?
+
+    tag.span(t("financial_institutions.types.#{type}", default: type),
+             class: "badge #{class_map.fetch(type, 'bg-light text-dark border')}")
+  end
+
+
+
   def category_badge(category)
     return tag.span(t("common.uncategorized", default: "Sin categoría"), class: "badge bg-light text-dark border") if category.nil?
 

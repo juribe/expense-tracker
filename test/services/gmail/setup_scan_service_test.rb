@@ -170,8 +170,8 @@ module Gmail
       assert_equal [ { "value" => "davibank.com", "count" => 2 } ],
                    result[:domains].map { |d| { "value" => d[:value], "count" => d[:count] } }
       refute result[:subject_keywords].any? { |k| k[:value].in?([ "transferencia", "pagos" ]) }
-      assert_equal [ { "value" => "Transacción aprobada por", "count" => 2,
-                       "institution" => "DAVIbank" } ],
+      assert_equal [ { value: "Transacción aprobada por", count: 2,
+                       institution: "DAVIbank" } ],
                    result[:subject_templates]
       # Money source discovery still only consumes bank-recognized messages.
       assert result[:suggestions].positive?

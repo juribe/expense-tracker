@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_09_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_10_131000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -166,6 +166,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_09_120000) do
     t.datetime "updated_at", null: false
     t.index ["money_source_id", "kind"], name: "index_credit_scenarios_on_money_source_id_and_kind"
     t.index ["money_source_id"], name: "index_credit_scenarios_on_money_source_id"
+  end
+
+  create_table "custom_financial_institutions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "institution_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "name"], name: "index_custom_financial_institutions_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_custom_financial_institutions_on_user_id"
   end
 
   create_table "evaluation_cases", force: :cascade do |t|
@@ -328,7 +338,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_09_120000) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug", null: false
+    t.string "institution_type"
     t.index ["canonical_name"], name: "index_financial_institutions_on_canonical_name", unique: true
+    t.index ["institution_type"], name: "index_financial_institutions_on_institution_type"
+    t.index ["slug"], name: "index_financial_institutions_on_slug", unique: true
   end
 
   create_table "financial_keywords", force: :cascade do |t|
@@ -462,6 +476,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_09_120000) do
     t.string "balance_offset_note"
     t.datetime "balance_offset_at"
     t.integer "transactions_count", default: 0, null: false
+    t.string "institution_type"
+    t.bigint "institution_id"
+    t.string "institution_cached_name"
+    t.index ["institution_type", "institution_id"], name: "index_money_sources_on_institution"
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
@@ -850,6 +868,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_09_120000) do
   add_foreign_key "credit_extra_payments", "transfers"
   add_foreign_key "credit_projections", "money_sources"
   add_foreign_key "credit_scenarios", "money_sources"
+  add_foreign_key "custom_financial_institutions", "users"
   add_foreign_key "evaluation_cases", "evaluation_runs"
   add_foreign_key "evaluation_runs", "users"
   add_foreign_key "expense_candidates", "categories"

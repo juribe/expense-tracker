@@ -256,6 +256,7 @@ en:
         pocket_reverse_would_break_allocations: "cannot be reversed: it would leave the pocket with less money than is already assigned to goals"
         pocket_locked_by_allocations: "cannot change while the goal has assigned money; release the allocations first"
         other_user: "does not belong to this user"
+        foreign_or_missing: "does not belong to this user or does not exist"
     attributes:
       transfer:
         from_source: "From source"
@@ -304,6 +305,7 @@ en:
     money_sources_credit_cards: "Credit Cards"
     money_sources_loans: "Loans"
     source_recognition: "Source Recognition"
+    entities: "Entities"
     playground: "Playground"
     evaluations: "Evaluations"
     assistant: "Assistant"
@@ -472,6 +474,18 @@ en:
       col_status: "Configuration status"
       col_actions: "Actions"
       status_configured: "Configured"
+      group_sources_count:
+        one: "%{count} source"
+        other: "%{count} sources"
+      group_pending:
+        one: "%{count} suggestion to review"
+        other: "%{count} suggestions to review"
+      group_configure: "Configure bank"
+      bank_edit_title: "Bank recognition"
+      bank_edit_subtitle: "Configuration shared by every source of this bank"
+      bank_edit_note: "These values (domains, senders, subjects) are stored once and apply to all of your accounts and cards of this bank. Per-product details (last four, alias) are configured on each source."
+      no_bank_group: "No identified entity"
+
       status_unconfigured: "Not configured"
       status_suggestions:
         one: "%{count} suggestion"
@@ -537,6 +551,14 @@ en:
       loan_type_hint: "Determines what the loan can be used for: only revolving lines disburse money; every loan receives debt payments."
       start_date: "Payment start date"
       end_date: "Payment end date"
+      recognition_title: "Source recognition"
+      recognition_hint: "Configure how this source is identified in your emails (senders, subjects, keywords)."
+      recognition_link: "Configure recognition"
+      institution: "Financial institution"
+      institution_none: "— No entity —"
+      institution_search: "Search an entity (bank, wallet…)"
+      institution_no_match: "No results"
+      create_custom_institution: "Bank not listed? Create your own entity"
 
   wizard:
     manual:
@@ -1248,3 +1270,36 @@ en:
       other: "Other"
       submit: "Compute projection"
       regenerate: "Regenerate projection"
+
+  # Financial institutions: shared catalog, user-owned entities and private
+  # per-institution recognition settings.
+  financial_institutions:
+    title: "My entities"
+    subtitle: "Your own financial entities: rename or delete them; the shared catalog is picked when you create a source."
+
+    my_entities: "My entities"
+    col_name: "Name"
+    col_type: "Type"
+    inactive_marker: "(inactive)"
+    new_custom: "New entity"
+    no_custom: "You have no custom entities yet"
+    no_custom_hint: "Create an \"other entity\" when the one you need is missing from the catalog or only you know it."
+    types:
+      bank: "Bank"
+      digital_bank: "Digital bank"
+      digital_wallet: "Digital wallet"
+      financing_company: "Financing company"
+      other: "Other financial entity"
+
+  custom_financial_institutions:
+    new_title: "New custom entity"
+    edit_title: "Edit custom entity"
+    name: "Name"
+    name_hint: "e.g. My employer's cooperative"
+    delete_confirm: "Delete this entity? Its money sources must be re-linked first."
+    flashes:
+      created: "Entity created."
+      updated: "Entity updated."
+      deleted: "Entity deleted."
+      blocked_by_sources: "Cannot delete: money sources still use it. Re-link them first."
+

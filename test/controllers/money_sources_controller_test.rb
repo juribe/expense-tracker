@@ -179,10 +179,12 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     source.ensure_recognition.replace_identifiers(keyword: ["davi"], sender: ["no-reply@davibank.com"])
     get money_sources_recognition_path(edit: source.id)
     assert_response :success
-    assert_select "[data-testid='recognition-edit-panel']", count: 1
+    # PRODUCT drawer: keywords only (the bank-level signals live in the
+    # bank drawer of the group).
+    assert_select "[data-testid='recognition-edit-panel'][data-testid-mode='source']", count: 1
     assert_select "[data-testid='recognition-edit-panel'].recognition-drawer[role='dialog']"
     assert_select ".recognition-drawer-overlay"
-    assert_select "[data-testid='recognition-chip']", count: 2
+    assert_select "[data-testid='recognition-chip']", count: 1
     assert_select "form[action='#{money_source_recognition_path(source.id)}'][method='post']"
     assert_select "form.recognition-form[data-unsaved-message='#{I18n.t('money_sources.recognition.unsaved_changes')}']"
     assert_select "[data-testid='recognition-drawer-foot'] [data-testid='recognition-save']"
@@ -201,20 +203,33 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     get money_sources_recognition_path(edit: source.id)
 
     assert_response :success
-    # Confirmed chips only (the suggested sender must not appear as confirmed).
+    # PRODUCT drawer: the keywords section only; senders/subjects belong to
+    # the group's bank drawer. The suggested keyword comes from the shared
+    # institution token (the "davibank" name token is ambiguous here: two of
+    # the user's source names share it).
     assert_select "[data-recognition-chips='senders'] [data-testid='recognition-chip']", count: 0
-    # Per-section suggested blocks: name keyword, sibling sender/subject and
-    # the persisted gmail sender.
-    assert_select "[data-testid='recognition-suggested-block']", count: 3
-    assert_select ".recognition-chip-suggested[data-suggested-for='senders'][data-suggested-value='nuevo@davibank.com']"
-    assert_select ".recognition-chip-suggested[data-suggested-for='senders'][data-suggested-value='notificaciones@davibank.com']"
-    assert_select ".recognition-chip-suggested[data-suggested-for='subjects'][data-suggested-value='Transacción aprobada']"
+    assert_select "[data-recognition-chips='subjects'] [data-testid='recognition-chip']", count: 0
+    assert_select "[data-testid='recognition-suggested-block']", count: 1
     assert_select ".recognition-chip-suggested[data-suggested-for='keywords'][data-suggested-value='davibank']"
-    # Per-suggestion accept and dismiss controls.
-    assert_select "[data-recognition-accept-suggestion]", count: 4
-    assert_select "[data-recognition-dismiss-suggestion]", count: 4
     assert_select ".recognition-chip-suggested .recognition-chip-provenance",
-                  text: I18n.t("money_sources.recognition.suggested_from_gmail")
+                  text: I18n.t("money_sources.recognition.suggested_from_institution")
+  end
+
+  test "GET /money_sources/recognition?bank_edit opens the bank drawer of the group with suggestions" do
+    sibling = create_source(name: "Davibank Clásica", kind: "account", bank: "Davibank")
+    sibling.ensure_recognition.replace_identifiers(sender: [ "notificaciones@davibank.com" ], subject: [ "Transacción aprobada" ])
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+      kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail", observation_count: 2
+    )
+
+    get money_sources_recognition_path(bank_edit: "legacy:davibank")
+    assert_response :success
+    # The seed (earliest member: the sibling) carries the group's bank config.
+    assert_select "[data-testid='recognition-edit-panel'][data-testid-mode='bank']", count: 1
+    assert_select "[data-testid='recognition-chip']", count: 2
+    assert_select ".recognition-chip-suggested[data-suggested-for='senders'][data-suggested-value='nuevo@davibank.com']"
+    assert_select "form[action='#{money_source_recognition_path(sibling.id)}']"
   end
 
   test "GET /money_sources/recognition shows the suggestion count badge for suggested-only sources" do

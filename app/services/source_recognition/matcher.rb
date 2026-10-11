@@ -83,21 +83,90 @@ module SourceRecognition
     private
 
     def sources
-      @sources ||= @user.money_sources
-                        .payment_sources
-                        .includes(recognition: :recognition_identifiers)
-                        .select(&:recognition_configured?)
+      @sources ||= begin
+        groups = bank_groups
+        @user.money_sources
+             .payment_sources
+             .includes({ recognition: :recognition_identifiers })
+             .select do |source|
+               source.recognition_configured? || group_configured?(source)
+             end
+      end
     end
 
     def score_for(source)
+      # Legacy multi-configured banks keep the original semantics unchanged:
+      # every source scores its OWN confirmed identifiers (with the ambiguity
+      # zeroing of bank boilerplate when several sources match).
+      #
+      # When a bank group has exactly ONE configured source (the SEED — the
+      # redesigned per-bank config), siblings ride the seed's confirmed
+      # sender/domain/subject/header evidence through the group: product
+      # evidence (keywords, anchored last-four) always lives on the individual
+      # source, and bank signals can never rank siblings.
+      self_score = per_source_score(source)
+
+      if shared_bank_evidence_applicable?(source)
+        self_score + shared_bank_evidence(source)
+      else
+        self_score
+      end
+    end
+
+    # --- bank groups ------------------------------------------------------------
+
+    # Member pools keyed by institution: the attached polymorphic entity, or
+    # — legacy unattached rows — the folded bank token. A group carries
+    # exactly one SEED (its earliest member): the source whose recognition
+    # record holds the bank-level configuration the whole group shares.
+    def bank_groups
+      key_by_id = {}
+      buckets = Hash.new { |hash, key| hash[key] = { key: key, members: [] } }
+      @user.money_sources.payment_sources
+          .includes({ recognition: :recognition_identifiers })
+          .each do |source|
+            key = bank_group_key(source)
+            key_by_id[source.id] = key
+            buckets[key][:members] << source
+          end
+
+      buckets.values.each do |group|
+        group[:seed] = group[:members].min_by(&:id)
+        group[:configured] = group[:members].any?(&:recognition_configured?)
+      end
+
+      buckets
+    end
+
+    def bank_group_key(source)
+      if source.institution?
+        "#{source.institution_type}:#{source.institution_id}"
+      else
+        token = TextNormalizer.fold(source.institution_token.to_s)
+        token.blank? ? "source:#{source.id}" : "legacy:#{token}"
+      end
+    end
+
+    def bank_group_for(source)
+      bank_groups[bank_group_key(source)]
+    end
+
+    def group_configured?(source)
+      group = bank_group_for(source)
+      group ? group[:configured] : false
+    end
+
+    # --- scoring ----------------------------------------------------------------
+
+    def per_source_score(source)
       source.recognition_identifiers
             .reject(&:suggested?)
             .sum { |id| identifier_score(id, source) }
     end
 
     def identifier_score(id, source)
-      # Between sibling cards of the same bank the boilerplate matches for
-      # everyone, so it carries no information about which card was used.
+      # Between configured siblings of the same bank the boilerplate matches
+      # for everyone, so it carries no information about which card was used.
       return 0 if institution_ambiguous? && INSTITUTION_KINDS.include?(id.kind)
 
       case id.kind
@@ -110,11 +179,58 @@ module SourceRecognition
       end
     end
 
+    # Shared bank evidence applies only when the group has EXACTLY ONE
+    # configured source (the seed) and the source addressed here is NOT it:
+    # the seed owns the bank-level configuration, the sibling rides it.
+    def shared_bank_evidence_applicable?(source)
+      group = bank_group_for(source)
+      return false unless group
+
+      configured = group[:members].select(&:recognition_configured?)
+      configured.size == 1 && configured.first.id != source.id
+    end
+
+    # Non-configured siblings score the seed's CONFIRMED bank-level
+    # identifiers (sender/domain/subject/header) at a LOWER weight: the bank
+    # alone must never outrank the seed's own evidence nor decide a product;
+    # product evidence (own keywords/last-four) always breaks such ties.
+    # Shared evidence is zeroed by the same ambiguity rule as every other
+    # bank signal.
+    SHARED_WEIGHTS = { "sender" => 2, "domain" => 2, "subject" => 1, "header" => 1 }.freeze
+
+    def shared_bank_evidence(source)
+      seed = bank_group_for(source)[:seed]
+      seed.recognition_identifiers
+          .reject(&:suggested?)
+          .select { |id| INSTITUTION_KINDS.include?(id.kind) && shared_bank_match?(id) }
+          .sum { |id| SHARED_WEIGHTS[id.kind] }
+    end
+
+    def shared_bank_match?(id)
+      return false if institution_ambiguous?
+
+      case id.kind
+      when "sender"  then sender_matches?(id.value)
+      when "domain"  then domain_matches?(id.value)
+      when "subject" then @subject.include?(fold(id.value))
+      when "header"  then header_matches?(id.value)
+      else false
+      end
+    end
+
     def institution_ambiguous?
       return @institution_ambiguous if defined?(@institution_ambiguous)
 
-      matched = sources.count { |source| institution_match?(source) }
-      @institution_ambiguous = matched >= 2
+      # Bank-level evidence identifies a BANK GROUP, not a product: it is
+      # ambiguous only when TWO DIFFERENT groups matched at bank level.
+      # Within one group the shared sender/domain/subject boilerplate is
+      # expected on every card — product evidence (keywords, last-four)
+      # picks the member.
+      own_bank_matches = bank_groups.values
+                                    .flat_map { |group| group[:members] }
+                                    .select(&:recognition_configured?)
+                                    .count { |source| institution_match?(source) }
+      @institution_ambiguous = own_bank_matches >= 2
     end
 
     def institution_match?(source)

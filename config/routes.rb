@@ -73,6 +73,11 @@ Rails.application.routes.draw do
   get "money_sources/recognition", to: "money_sources#recognition", as: :money_sources_recognition
   patch "money_sources/recognition/:money_source_id", to: "money_sources#update_recognition", as: :money_source_recognition
   delete "money_sources/recognition/:money_source_id", to: "money_sources#destroy_recognition", as: :money_source_recognition_destroy
+
+  # Entidades financieras: read-only catalog + user's custom entities +
+  # private per-user recognition settings per entity
+  get "financial_institutions", to: "financial_institutions#index", as: :financial_institutions
+  resources :custom_financial_institutions, only: [ :new, :create, :edit, :update, :destroy ]
   resources :money_sources, id: /[0-9]+/ do
     member do
       post :reset_adjustment

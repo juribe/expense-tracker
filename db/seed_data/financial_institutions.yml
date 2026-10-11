@@ -1,194 +1,492 @@
 # Colombian financial institutions catalog.
 #
 # Fields:
-#   canonical_name - stable unique identifier of the institution.
+#   canonical_name - commercial name (unique). The name users recognize.
+#   slug           - stable unique identifier (seeds-managed, set at creation).
+#   institution_type - bank / digital_bank / digital_wallet /
+#                      financing_company / other. Seed-managed catalog data.
 #   aliases        - candidate matching values (NOT guaranteed to be in use).
 #   domains        - verified official domains (candidate signals, not proof
 #                    that an email is a transaction notification).
 #   keywords       - well-known product/brand words that point to the
 #                    institution. Only verified, widely-known values belong
 #                    here; leave empty when unsure.
-#   active         - disabled entries are ignored by matching.
+#   active         - disabled entries are ignored by matching. The seeder only
+#                    applies `active` at creation: entities disabled manually
+#                    are never silently re-activated by a seed run.
 #
 # The seeder (db/seed_data/financial_catalog_seeder.rb) upserts by
 # canonical_name and is idempotent.
+#
+# Brand-careful rules honored by this file:
+#   * A brand that legally belongs to another entity may still be a separate
+#     catalog row when users know it as its own product (see Nequi vs
+#     Bancolombia, DaviPlata vs Davivienda, DAVIbank vs Davivienda). The brand
+#     alias moves to the standalone row (never listed twice) so matching and
+#     bank-text migration stay unambiguous.
+#   * Renamed/bought entities are separate rows (Citibank Colombia,
+#     Banco J.P. Morgan Colombia) — legal successors are NOT merged silently.
+#   * Generic everyday words (dale, tuya, iris, koa, bold) are excluded from
+#     `aliases` to avoid false matches; their canonical names still resolve
+#     for the selector and the bank-text migration.
+#   * Domains are listed only when reasonably confirmed; never invented.
+#   * Classification (`institution_type`) follows the provider scene as
+#     best known; entries needing legal verification should not diverge much
+#     from the catalog taxonomy even if the classification is debatable.
 institutions:
+  # ── Bancos tradicionales y comerciales ──────────────────────────────
   - canonical_name: Bancolombia
+    slug: bancolombia
+    institution_type: bank
     aliases: [bancolombia, banco de colombia]
     domains: [bancolombia.com, grupobancolombia.com]
-    keywords: [nequi]
-    active: true
-
-  - canonical_name: Davivienda
-    aliases: [davivienda, banco davivienda]
-    domains: [davivienda.com]
-    keywords: [daviplata]
-    active: true
-
-  - canonical_name: DAVIbank
-    aliases: [davibank, banco davibank]
-    domains: [davibank.com]
     keywords: []
     active: true
 
   - canonical_name: Banco de Bogotá
+    slug: banco-de-bogota
+    institution_type: bank
     aliases: [banco de bogota, banco de bogotá, bogota]
     domains: [bancodebogota.com]
     keywords: []
     active: true
 
-  - canonical_name: Banco de Occidente
-    aliases: [banco de occidente, occidente]
-    domains: [bancodeoccidente.com.co]
-    keywords: []
-    active: true
-
   - canonical_name: Banco Popular
+    slug: banco-popular
+    institution_type: bank
     aliases: [banco popular, popular]
     domains: [bancopopular.com.co]
     keywords: []
     active: true
 
-  - canonical_name: Banco Caja Social
-    aliases: [banco caja social, caja social, bcs]
-    domains: [bancocajasocial.com]
+  - canonical_name: Banco de Occidente
+    slug: banco-de-ocidente
+    institution_type: bank
+    aliases: [banco de occidente, occidente]
+    domains: [bancodeoccidente.com.co]
     keywords: []
     active: true
 
   - canonical_name: Banco AV Villas
+    slug: banco-av-villas
+    institution_type: bank
     aliases: [av villas, avvillas, banco av villas]
     domains: [avvillas.com.co]
     keywords: []
     active: true
 
+  - canonical_name: Banco Caja Social
+    slug: banco-caja-social
+    institution_type: bank
+    aliases: [banco caja social, caja social, bcs]
+    domains: [bancocajasocial.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Davivienda
+    slug: davivienda
+    institution_type: bank
+    aliases: [davivienda, banco davivienda]
+    domains: [davivienda.com]
+    keywords: []
+    active: true
+
+  - canonical_name: DAVIbank
+    slug: davibank
+    institution_type: digital_bank
+    aliases: [davibank, banco davibank]
+    domains: [davibank.com]
+    keywords: []
+    active: true
+
   - canonical_name: BBVA Colombia
+    slug: bbva-colombia
+    institution_type: bank
     aliases: [bbva, bbva colombia]
     domains: [bbva.com.co]
     keywords: []
     active: true
 
-  - canonical_name: Scotiabank Colpatria
-    aliases: [scotiabank, colpatria, scotiabank colpatria]
-    domains: []
+  - canonical_name: Banco Agrario
+    slug: banco-agrario
+    institution_type: bank
+    aliases: [banco agrario, banagrario, agrario]
+    domains: [bancoagrario.gov.co]
     keywords: []
     active: true
 
-  - canonical_name: Banco Agrario
-    aliases: [banco agrario, banagrario, agrario]
-    domains: []
+  - canonical_name: Banco GNB Sudameris
+    slug: banco-gnb-sudameris
+    institution_type: bank
+    aliases: [gnb, gnb sudameris, sudameris]
+    domains: [gnbsudameris.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Itaú
+    slug: banco-itau
+    institution_type: bank
+    aliases: [itau, itaú, banco itau, banco itaú, banco de itaú colombia]
+    domains: [itau.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Scotiabank Colpatria
+    slug: scotiabank-colpatria
+    institution_type: bank
+    aliases: [scotiabank, colpatria, scotiabank colpatria]
+    domains: [scotiabank.com.co]
     keywords: []
     active: true
 
   - canonical_name: Banco Falabella
+    slug: banco-falabella
+    institution_type: bank
     aliases: [banco falabella, falabella, cmr]
     domains: [bancofalabella.com.co]
     keywords: []
     active: true
 
-  - canonical_name: Banco Pichincha
-    aliases: [banco pichincha, pichincha]
-    domains: [pichincha.com.co]
-    keywords: []
-    active: true
-
   - canonical_name: Banco Finandina
+    slug: banco-finandina
+    institution_type: bank
     aliases: [banco finandina, finandina]
     domains: [bancofinandina.com]
     keywords: []
     active: true
 
-  - canonical_name: Banco Santander
-    aliases: [banco santander, santander, santander colombia]
-    domains: [santander.com.co]
+  - canonical_name: Banco Pichincha
+    slug: banco-pichincha
+    institution_type: bank
+    aliases: [banco pichincha, pichincha]
+    domains: [pichincha.com.co]
     keywords: []
     active: true
 
   - canonical_name: Banco Serfinanza
+    slug: banco-serfinanza
+    institution_type: bank
     aliases: [banco serfinanza, serfinanza]
     domains: [serfinanza.com]
     keywords: []
     active: true
 
-  - canonical_name: Lulo Bank
-    aliases: [lulo, lulo bank, lulobank]
-    domains: [lulobank.com]
-    keywords: []
-    active: true
-
-  - canonical_name: Nu Colombia
-    aliases: [nu, nu colombia, nubank]
-    domains: [nu.com.co]
-    keywords: []
-    active: true
-
-  - canonical_name: Banco Itaú
-    aliases: [itau, itaú, banco itau, banco itaú]
-    domains: [itau.co]
-    keywords: []
-    active: true
-
-  - canonical_name: Banco GNB Sudameris
-    aliases: [gnb, gnb sudameris, sudameris]
-    domains: []
-    keywords: []
-    active: true
-
-  - canonical_name: Banco Mundo Mujer
-    aliases: [mundo mujer, banco mundo mujer]
-    domains: []
-    keywords: []
-    active: true
-
   - canonical_name: Banco W
+    slug: banco-w
+    institution_type: bank
     aliases: [banco w, bancow]
     domains: []
     keywords: []
     active: true
 
+  - canonical_name: Banco Mundo Mujer
+    slug: banco-mundo-mujer
+    institution_type: bank
+    aliases: [mundo mujer, banco mundo mujer]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Contactar
+    slug: banco-contactar
+    institution_type: bank
+    aliases: [banco contactar, contactar]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Unión
+    slug: banco-union
+    institution_type: bank
+    aliases: [banco union, banco unión]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Banco Cooperativo Coopcentral
+    slug: banco-cooperativo-coopcentral
+    institution_type: bank
+    aliases: [coopcentral, banco coopcentral]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Bancoomeva
+    slug: bancoomeva
+    institution_type: bank
+    aliases: [bancoomeva, banco coomeva]
+    domains: []
+    keywords: []
+    active: true
+
   - canonical_name: Ban100
+    slug: ban100
+    institution_type: bank
     aliases: [ban100, bancien]
     domains: []
     keywords: []
     active: true
 
   - canonical_name: Bancamía
+    slug: bancamia
+    institution_type: bank
     aliases: [bancamia, bancamía]
     domains: []
     keywords: []
     active: true
 
-  - canonical_name: Bancoomeva
-    aliases: [bancoomeva, banco coomeva]
-    domains: []
-    keywords: []
-    active: true
-
-  - canonical_name: Banco Cooperativo Coopcentral
-    aliases: [coopcentral, banco coopcentral]
-    domains: []
+  - canonical_name: Banco Santander
+    slug: banco-santander
+    institution_type: bank
+    aliases: [banco santander, santander, santander colombia]
+    domains: [santander.com.co]
     keywords: []
     active: true
 
   - canonical_name: Banco BTG Pactual
+    slug: banco-btg-pactual
+    institution_type: bank
     aliases: [btg, btg pactual]
     domains: []
     keywords: []
     active: true
 
   - canonical_name: MiBanco
+    slug: mibanco
+    institution_type: bank
     aliases: [mibanco, mi banco]
     domains: []
     keywords: []
     active: true
 
-  - canonical_name: Banco Unión
-    aliases: [banco union, banco unión]
+  - canonical_name: Citibank Colombia
+    slug: citibank-colombia
+    institution_type: bank
+    aliases: [citibank, banco citibank]
+    domains: [citibank.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Banco J.P. Morgan Colombia
+    slug: banco-jp-morgan-colombia
+    institution_type: bank
+    aliases: [jp morgan, jpmorgan, banco jp morgan]
+    domains: [jpmorgan.com]
+    keywords: []
+    active: true
+
+  # ── Bancos y servicios financieros digitales ────────────────────────
+  - canonical_name: Nu Colombia
+    slug: nu-colombia
+    institution_type: digital_bank
+    aliases: [nu, nu colombia, nubank]
+    domains: [nu.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Lulo Bank
+    slug: lulo-bank
+    institution_type: digital_bank
+    aliases: [lulo, lulo bank, lulobank]
+    domains: [lulobank.com]
+    keywords: []
+    active: true
+
+  - canonical_name: RappiPay
+    slug: rappipay
+    institution_type: digital_bank
+    aliases: [rappipay]
     domains: []
     keywords: []
     active: true
 
-  - canonical_name: Banco Contactar
-    aliases: [banco contactar, contactar]
+  - canonical_name: Ualá
+    slug: uala
+    institution_type: digital_bank
+    aliases: [uala, ualá]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Revolut
+    slug: revolut
+    institution_type: digital_bank
+    aliases: [revolut]
+    domains: []
+    keywords: []
+    active: true
+
+  # ── Billeteras digitales y plataformas de pagos ─────────────────────
+  # Nequi (Bancolombia) and DaviPlata (Davivienda) are standalone catalog
+  # rows: users treat them as their own product. Their brand alias moved
+  # here (removed from the parent banks) so matching stays unambiguous.
+  - canonical_name: Nequi
+    slug: nequi
+    institution_type: digital_wallet
+    aliases: [nequi]
+    domains: [nequi.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: DaviPlata
+    slug: daviplata
+    institution_type: digital_wallet
+    aliases: [daviplata]
+    domains: [daviplata.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: dale!
+    slug: dale
+    institution_type: digital_wallet
+    aliases: []
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: MOVii
+    slug: movii
+    institution_type: digital_wallet
+    aliases: [movii]
+    domains: [movii.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Tpaga
+    slug: tpaga
+    institution_type: digital_wallet
+    aliases: [tpaga]
+    domains: [tpaga.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Powwi
+    slug: powwi
+    institution_type: digital_wallet
+    aliases: [powwi]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Mercado Pago
+    slug: mercado-pago
+    institution_type: digital_wallet
+    aliases: [mercado pago]
+    domains: [mercadopago.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Global66
+    slug: global66
+    institution_type: digital_wallet
+    aliases: [global66]
+    domains: [global66.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Littio
+    slug: littio
+    institution_type: digital_wallet
+    aliases: [littio]
+    domains: [littio.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Coink
+    slug: coink
+    institution_type: digital_wallet
+    aliases: [coink]
+    domains: []
+    keywords: []
+    active: true
+
+  # ── Compañías de financiamiento y crédito ───────────────────────────
+  - canonical_name: Tuya
+    slug: tuya
+    institution_type: financing_company
+    aliases: []
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: Addi
+    slug: addi
+    institution_type: financing_company
+    aliases: [addi]
+    domains: [addi.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Sistecrédito
+    slug: sistecredito
+    institution_type: financing_company
+    aliases: [sistecredito, sistecrédito]
+    domains: [sistecredito.com]
+    keywords: []
+    active: true
+
+  - canonical_name: RCI Colombia
+    slug: rci-colombia
+    institution_type: financing_company
+    aliases: [rci, rci colombia]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: GM Financial Colombia
+    slug: gm-financial-colombia
+    institution_type: financing_company
+    aliases: [gm financial, gmfinanciera]
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: La Hipotecaria
+    slug: la-hipotecaria
+    institution_type: financing_company
+    aliases: [la hipotecaria]
+    domains: [lahipotecaria.com]
+    keywords: []
+    active: true
+
+  - canonical_name: Credifamilia
+    slug: credifamilia
+    institution_type: financing_company
+    aliases: [credifamilia]
+    domains: [credifamilia.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Crezcamos
+    slug: crezcamos
+    institution_type: financing_company
+    aliases: [crezcamos]
+    domains: [crezcamos.com.co]
+    keywords: []
+    active: true
+
+  - canonical_name: Iris
+    slug: iris
+    institution_type: financing_company
+    aliases: []
+    domains: []
+    keywords: []
+    active: true
+
+  - canonical_name: KOA
+    slug: koa
+    institution_type: financing_company
+    aliases: []
+    domains: []
+    keywords: []
+    active: true
+
+  # Bold is a payment processor rather than a lender, but it lives in the
+  # catalog taxonomy requested by the project owner ("otra entidad" bucket).
+  - canonical_name: Bold
+    slug: bold
+    institution_type: other
+    aliases: []
     domains: []
     keywords: []
     active: true

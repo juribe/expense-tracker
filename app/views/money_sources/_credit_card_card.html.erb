@@ -11,8 +11,8 @@
         <h3 class="cc-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
         <div class="cc-meta">
           <span><%= t("money_sources.credit_cards.type") %></span>
-          <% if source.bank.present? %>
-            <span class="ms-2"><i class="ti ti-building-bank" aria-hidden="true"></i><%= source.bank %></span>
+          <% if source.institution_name.present? %>
+            <span class="ms-2"><i class="ti ti-building-bank" aria-hidden="true"></i><%= source.institution_name %></span>
           <% end %>
           <% if card_id_parts.any? %>
             <span class="ms-2"><%= card_id_parts.join(" · ") %></span>

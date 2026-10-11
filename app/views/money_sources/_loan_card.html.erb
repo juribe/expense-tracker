@@ -12,8 +12,8 @@
         <h3 class="loan-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit" %></h3>
         <div class="loan-meta">
           <span><%= t("money_sources.loans.type") %></span>
-          <% if source.bank.present? %>
-            <span class="ms-2"><i class="ti ti-building-bank" aria-hidden="true"></i><%= source.bank %></span>
+          <% if source.institution_name.present? %>
+            <span class="ms-2"><i class="ti ti-building-bank" aria-hidden="true"></i><%= source.institution_name %></span>
           <% end %>
         </div>
       </div>

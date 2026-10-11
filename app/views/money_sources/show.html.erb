@@ -46,8 +46,11 @@
           <dl class="row mb-0">
             <dt class="col-sm-5"><%= t("common.type", default: "Tipo") %></dt>
             <dd class="col-sm-7"><%= source_kind_label(@money_source.kind) %></dd>
-            <dt class="col-sm-5"><%= t("money_sources.form.bank", default: "Banco") %></dt>
-            <dd class="col-sm-7"><%= @money_source.bank.presence || "—" %></dd>
+            <dt class="col-sm-5"><%= t("money_sources.form.institution", default: "Entidad") %></dt>
+            <dd class="col-sm-7">
+              <%= @money_source.institution_name.presence || "—" %>
+              <%= institution_type_badge(@money_source.institution) if @money_source.institution? %>
+            </dd>
             <% if @money_source.debt? %>
               <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
               <dd class="col-sm-7 fw-bold text-danger">

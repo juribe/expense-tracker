@@ -78,8 +78,9 @@ module Expenses
           kind = statement.kind.to_s
           return nil if bank.blank? || kind.blank?
 
-          matches = @user.money_sources.active.select do |source|
-            source.kind == kind && normalize_name(source.bank) == normalize_name(bank)
+          matches = @user.money_sources.active.includes(:institution).select do |source|
+            source.kind == kind &&
+              (source.institution_aliases.include?(normalize_name(bank)) || normalize_name(source.bank) == normalize_name(bank))
           end
           matches.one? ? matches.first : nil
         end

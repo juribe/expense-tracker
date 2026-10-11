@@ -127,30 +127,65 @@
   </section>
 <% end %>
 
-<section class="recognition-table-card" aria-label="<%= t("money_sources.recognition.title") %>">
-  <table class="recognition-table">
-    <thead>
-      <tr>
-        <th><%= t("money_sources.recognition.col_source") %></th>
-        <th><%= t("money_sources.recognition.col_type") %></th>
-        <th><%= t("money_sources.recognition.col_status") %></th>
-        <th class="text-end"><%= t("money_sources.recognition.col_actions") %></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @money_sources.each do |source| %>
-        <tr data-testid="recognition-row" class="<%= 'recognition-row-active' if source == @editing %>">
-          <td>
-            <div class="recognition-source-cell">
-              <span class="recognition-row-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(source.kind) %>"></i></span>
-              <span class="recognition-row-name"><%= source.name %></span>
-            </div>
-          </td>
-          <td>
-            <% badge = kind_badges[source.kind] %>
-            <span class="recognition-badge <%= badge[:class] %>"><%= badge[:label] %></span>
-          </td>
-          <td>
+<%
+  # Recognition page groups (from MoneySourcesController#recognition):
+  # each group is one bank: label = entity name (attached or legacy bank
+  # text), seed = the source whose recognition holds the group's bank-level
+  # config (senders + subject patterns), members = the individual sources.
+%>
+<% @bank_groups.each do |group| %>
+  <section class="recognition-table-card" aria-label="<%= group[:label] %>" data-testid="recognition-bank-group" <%= tag.attributes(data: { group_key: group[:key] }) %>>
+    <header class="recognition-criteria-head d-flex justify-content-between align-items-center px-1 pt-3">
+      <div class="min-w-0">
+        <h2 class="h6 mb-0 text-truncate">
+          <i class="ti ti-building-bank me-1 text-secondary" aria-hidden="true"></i>
+          <%= group[:label] %>
+        </h2>
+        <span class="text-secondary small">
+          <%= t("money_sources.recognition.group_sources_count", count: group[:members].size) %>
+        </span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <% if group[:pending].positive? %>
+          <span class="recognition-status-hint">
+            <i class="ti ti-bulb" aria-hidden="true"></i>
+            <%= t("money_sources.recognition.group_pending", count: group[:pending]) %>
+          </span>
+        <% end %>
+        <%# Bank-level drawer: edits the SEED source's recognition; the whole
+            group reuses it through the matcher (no per-source copies). %>
+        <%= link_to money_sources_recognition_path(bank_edit: group[:key]),
+                    class: "btn btn-sm btn-outline-secondary",
+                    "aria-label": t("money_sources.recognition.group_configure"),
+                    data: { testid: "recognition-bank-edit" } do %>
+          <i class="ti ti-building-bank" aria-hidden="true"></i>
+          <%= t("money_sources.recognition.group_configure") %>
+        <% end %>
+      </div>
+    </header>
+    <table class="recognition-table">
+      <thead>
+        <tr>
+          <th><%= t("money_sources.recognition.col_source") %></th>
+          <th><%= t("money_sources.recognition.col_type") %></th>
+          <th><%= t("money_sources.recognition.col_status") %></th>
+          <th class="text-end"><%= t("money_sources.recognition.col_actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% group[:members].each do |source| %>
+          <tr data-testid="recognition-row" class="<%= 'recognition-row-active' if source == @editing %>">
+            <td>
+              <div class="recognition-source-cell">
+                <span class="recognition-row-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(source.kind) %>"></i></span>
+                <span class="recognition-row-name"><%= source.name %></span>
+              </div>
+            </td>
+            <td>
+              <% badge = kind_badges[source.kind] %>
+              <span class="recognition-badge <%= badge[:class] %>"><%= badge[:label] %></span>
+            </td>
+            <td>
             <% if source.recognition_configured? %>
               <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
                 <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
@@ -184,20 +219,36 @@
     </tbody>
   </table>
 </section>
+<% end %>
 
 <% if @editing %>
-  <%# Right-side drawer: table stays visible behind the overlay %>
+  <%# Right-side drawer: table stays visible behind the overlay. Two modes:
+      BANK drawer (@bank_editing — configures the group's bank-level signals
+      on the seed source: senders/domains + subject patterns, shared by every
+      member without copies) and SOURCE drawer (only product keywords +
+      last-four hint; the bank signals live in the bank drawer). %>
   <div class="recognition-drawer-overlay d-print-none" data-recognition-close data-close-url="<%= money_sources_recognition_path %>"></div>
   <%= form_with url: money_source_recognition_path(@editing.id), method: :patch, class: "recognition-form", data: { unsaved_message: t("money_sources.recognition.unsaved_changes") } do %>
-    <aside class="recognition-drawer d-print-none" data-testid="recognition-edit-panel" role="dialog" aria-modal="true" aria-label="<%= t("money_sources.recognition.edit_title") %>">
+    <aside class="recognition-drawer d-print-none" data-testid="recognition-edit-panel"
+           data-testid-mode="<%= @bank_editing ? "bank" : "source" %>"
+           role="dialog" aria-modal="true"
+           aria-label="<%= @bank_editing ? t("money_sources.recognition.bank_edit_title") : t("money_sources.recognition.edit_title") %>">
       <div class="recognition-drawer-head">
         <div class="recognition-edit-identity">
-          <% badge = kind_badges[@editing.kind] %>
-          <span class="recognition-row-icon recognition-edit-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(@editing.kind) %>"></i></span>
-          <div class="min-w-0">
-            <h2 class="recognition-edit-title"><%= @editing.name %></h2>
-            <div class="recognition-edit-subtitle"><%= badge[:label] %></div>
-          </div>
+          <% if @bank_editing %>
+            <span class="recognition-row-icon recognition-edit-icon" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
+            <div class="min-w-0">
+              <h2 class="recognition-edit-title"><%= @editing.institution_name %></h2>
+              <div class="recognition-edit-subtitle"><%= t("money_sources.recognition.bank_edit_subtitle") %></div>
+            </div>
+          <% else %>
+            <% badge = kind_badges[@editing.kind] %>
+            <span class="recognition-row-icon recognition-edit-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(@editing.kind) %>"></i></span>
+            <div class="min-w-0">
+              <h2 class="recognition-edit-title"><%= @editing.name %></h2>
+              <div class="recognition-edit-subtitle"><%= badge[:label] %></div>
+            </div>
+          <% end %>
         </div>
         <%= link_to money_sources_recognition_path, class: "btn recognition-icon-btn", title: t("common.cancel"), aria: { label: t("common.cancel") }, data: { recognition_close: true } do %>
           <i class="ti ti-x" aria-hidden="true"></i>
@@ -206,7 +257,9 @@
 
       <div class="recognition-drawer-body">
         <div class="recognition-edit-grid">
-          <%# A. Identificación %>
+          <%# A. Identificación del PRODUCTO — only in the SOURCE drawer (the
+              bank drawer never carries keywords). %>
+          <% unless @bank_editing %>
           <div class="recognition-section">
             <div class="recognition-section-title">
               <%= t("money_sources.recognition.section_identification") %>
@@ -241,7 +294,15 @@
               <div class="recognition-section-count" data-recognition-count><%= t("money_sources.recognition.keywords_count", count: keywords.length) %></div>
             </div>
           </div>
+          <% end %>
 
+          <%# B + C: BANK-level signals — only in the BANK drawer. The seed's
+              confirmed senders/domains/subjects are reused by every member
+              of the group; a mistyped value harms only this group. %>
+          <% if @bank_editing %>
+          <p class="text-secondary small">
+            <i class="ti ti-info-circle me-1" aria-hidden="true"></i><%= t("money_sources.recognition.bank_edit_note") %>
+          </p>
           <%# B. Remitentes / Dominios %>
           <div class="recognition-section">
             <div class="recognition-section-title">
@@ -295,6 +356,7 @@
               <div class="recognition-section-count" data-recognition-count><%= t("money_sources.recognition.patterns_count", count: subjects.length) %></div>
             </div>
           </div>
+          <% end %>
         </div>
       </div>
 

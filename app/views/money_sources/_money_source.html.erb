@@ -13,8 +13,8 @@
             <%= link_to source.name, money_source_path(source), class: "text-decoration-none" %>
           </h5>
           <small class="text-muted"><%= source_kind_label(source.kind) %></small>
-          <% if source.bank.present? %>
-            <small class="text-muted d-block"><i class="ti ti-building-bank me-1"></i><%= source.bank %></small>
+          <% if source.institution_name.present? %>
+            <small class="text-muted d-block"><i class="ti ti-building-bank me-1"></i><%= source.institution_name %></small>
           <% end %>
           <% card_id_parts = [ source.card_brand, source.card_last_four ].compact_blank %>
           <% if source.credit_card? && card_id_parts.any? %>

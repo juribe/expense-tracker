@@ -38,6 +38,12 @@ class ParsedStatement
     parts.compact.join(" ")
   end
 
+  # Institution label for the review badge; mirrors MoneySource#institution_name
+  # (bank text is all a parsed statement carries — nothing is associated yet).
+  def institution_name
+    bank.presence
+  end
+
   private
 
   def symbolize_keys(hash)

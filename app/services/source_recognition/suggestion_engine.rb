@@ -90,21 +90,28 @@ module SourceRecognition
     end
 
     def siblings
-      @siblings ||= begin
-        inst = source.institution
-        return [] if inst.blank?
+      # "Same institution" primarily compares the polymorphic institution
+      # association; legacy free-text banks fall back to normalized string
+      # equality of the bank token. Only payment sources may hold
+      # recognition, so loans/pockets never contribute or receive suggestions.
+      payment_sources = MoneySource
+                        .where(user_id: source.user_id)
+                        .payment_sources
+                        .where.not(id: source.id)
+                        .includes(:recognition_identifiers)
+                        .select { |s| s.recognition_identifiers.any? }
 
-        # "Same institution" compares normalized bank strings: users type
-        # "Davibank" / "davibank" freely, so match case-insensitively. Only
-        # payment sources may hold recognition, so loans/pockets never
-        # contribute or receive suggestions.
-        MoneySource
-          .where(user_id: source.user_id)
-          .payment_sources
-          .where.not(id: source.id)
-          .where("LOWER(TRIM(COALESCE(bank, ''))) = :inst", inst: inst)
-          .includes(:recognition_identifiers)
-          .reject { |s| s.recognition_identifiers.empty? }
+      @siblings ||= payment_sources.select { |s| same_institution?(s) }
+    end
+
+    def same_institution?(other)
+      if source.institution?
+        return false unless other.institution?
+
+        other.institution_type == source.institution_type &&
+          other.institution_id == source.institution_id
+      else
+        other.institution? ? false : other.institution_token == source.institution_token
       end
     end
 
@@ -115,8 +122,18 @@ module SourceRecognition
       result << { value: source.last_four, source: :last_four } if last_four_suggested?
       result.concat kind_keywords
       result.concat name_keywords
-      result << { value: source.institution, source: :institution } if institution_token_eligible?
+      result << { value: institution_keyword_token, source: :institution } if institution_token_eligible?
       result.uniq { |s| s[:value] }
+    end
+
+    # The shared institution keyword: the folded name of the ATTACHED entity,
+    # or the legacy downcased bank token for unattached rows.
+    def institution_keyword_token
+      if source.institution?
+        TextNormalizer.fold(source.institution_name).presence
+      else
+        source.institution_token
+      end
     end
 
     # Kind-level keywords (cash wallets → efectivo/plata/dinero/cash/billete):
@@ -161,8 +178,8 @@ module SourceRecognition
     # Only the shared institution token qualifies as a keyword suggested from
     # a sibling — never a sibling's product tokens.
     def institution_token_eligible?
-      source.institution.present? &&
-        !existing_values.fetch("keyword", []).include?(source.institution) &&
+      institution_keyword_token.present? &&
+        !existing_values.fetch("keyword", []).include?(institution_keyword_token) &&
         siblings.any?
     end
 
@@ -187,13 +204,24 @@ module SourceRecognition
     end
 
     def bank_domain_suggestion
-      inst = source.institution
-      return nil if inst.blank? || inst.include?(" ")
+      # Attached to a catalog entity: suggest one of its verified domains
+      # (candidate signal the user still must accept).
+      if source.institution? && source.institution.is_a?(FinancialInstitution)
+        domains = source.institution.domains
+        domain = domains.first if domains.any?
+      end
 
-      value = "#{inst}.com"
-      return nil unless new_value?("sender", value) && new_value?("domain", value)
+      # Legacy fallback: "<bank-token>.com" for unattached single-token bank.
+      unless domain
+        inst = source.institution_token
+        return nil if inst.blank? || inst.include?(" ")
 
-      { value: value, source: :institution }
+        domain = "#{inst}.com"
+      end
+
+      return nil unless new_value?("sender", domain) && new_value?("domain", domain)
+
+      { value: domain, source: :institution }
     end
 
     # --- subjects / headers --------------------------------------------------

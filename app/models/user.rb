@@ -32,6 +32,7 @@ class User < ApplicationRecord
   has_many :activity_classifications, dependent: :destroy
   has_many :expense_candidates, dependent: :destroy
   has_many :expense_clarifications, dependent: :destroy
+  has_many :custom_financial_institutions, dependent: :destroy
   has_one :alert_preference, dependent: :destroy
 
   # WhatsApp linking: connections and pending tokens die with the account;
