@@ -67,6 +67,16 @@ class MoneySourcesController < ApplicationController
                           .payment_sources
                           .includes(:recognition_identifiers, recognition: :recognition_identifiers)
                           .order(:kind, :name)
+    # Children are loaded per KIND, only where the page reads them: the
+    # identifiers cell shows each source's last four. Cards that carry their
+    # own denormalized identifier never need the child; blank ones resolve it
+    # from their credit_account, fetched here in a single query instead of an
+    # eager include (which Bullet would flag as unused for identified cards).
+    @recognition_last_fours = if sources.where(kind: "credit_card").exists?
+      CreditAccount.where(money_source_id: sources.by_kind("credit_card").select { |source| source.identifier.blank? })
+                   .index_by(&:money_source_id)
+                   .transform_values { |account| MoneySource.last_four_from(account.card_last_four) }
+    end
     @bank_groups = build_bank_groups(sources)
 
     # The Gmail criteria card doubles as a manual editor: it renders whenever
@@ -75,10 +85,23 @@ class MoneySourcesController < ApplicationController
     @gmail_connection = current_user.gmail_connections.order(:id).last
 
     if params[:edit].present? || params[:bank_edit].present?
-      @bank_editing = params[:bank_edit].present? &&
-                      (@editing = @bank_groups.find { |group| group[:key] == params[:bank_edit] }&.dig(:seed))
-      @editing ||= current_user.money_sources.find(params[:edit]) # product drawer (keywords only)
-      @suggestions = SourceRecognition::SuggestionEngine.new(source: @editing).call
+      group = @bank_groups.find { |element| element[:key] == params[:bank_edit] }
+      @bank_editing = params[:bank_edit].present? && group.present?
+      @editing = group&.dig(:seed) || current_user.money_sources.find(params[:edit]) # product drawer otherwise
+      engine = SourceRecognition::SuggestionEngine.new(
+        source: @editing,
+        # BANK drawer: the members' pending bank-level suggestions are
+        # reviewed here so every card of the group stops showing them.
+        group_members: @bank_editing ? (group[:members] - [ @editing ]) : []
+      )
+      @suggestions = engine.call
+
+      # The engine's own suggestions persist at display time: from then on
+      # the group card counts every pending value — gmail-discovered AND
+      # own-computed — until it is applied or dismissed.
+      persisted = engine.persist!
+      group = @bank_groups.find { |element| Array(element[:members]).include?(@editing) }
+      group[:pending] += persisted if group && persisted.positive?
     end
   end
 
@@ -136,21 +159,71 @@ class MoneySourcesController < ApplicationController
         recognition.reload.destroy if recognition.recognition_identifiers.empty?
       end
 
+      # Bank-drawer review (senders/subjects submitted): the siblings no
+      # longer keep their own pending copies — values the seed now CONFIRMS
+      # are satisfied at group level, and explicitly dismissed values are
+      # deleted from every member of the group.
+      if params.key?(:senders) || params.key?(:subjects)
+        sweep_group_bank_suggestions(source, values)
+      end
+
       # Feed the now-confirmed values back into the Gmail search config so the
       # next sync queries the confirmed bank senders/domains/subjects.
       SourceRecognition::ApplyToSearchConfig.call(user: current_user)
     end
 
-    redirect_back fallback_location: money_sources_recognition_path,
-                  notice: t("money_sources.recognition.saved")
+    # Back to the BASE recognition URL: the drawer URL carries ?edit=/?bank_edit=
+    # params, so redirecting to the referer would reopen the just-saved drawer.
+    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved")
+  end
+
+  # Removes the members' bank-level SUGGESTED rows that the just-reviewed
+  # bank config settles: any (kind, value) now confirmed on the seed, and any
+  # value explicitly dismissed. Product keywords are never touched.
+  def sweep_group_bank_suggestions(seed, submitted_values)
+    group_key = group_key_for_source(seed)
+    members = current_user.money_sources
+                          .payment_sources
+                          .includes(recognition: :recognition_identifiers)
+                          .select { |candidate| group_key_for_source(candidate) == group_key && candidate.id != seed.id }
+    return if members.empty?
+
+    settled = submitted_values.filter_map do |kind, values|
+      values = Array(values).compact_blank
+      next if kind == :keyword || values.empty?
+
+      [ kind.to_s, values ]
+    end
+
+    dismissed_bank_values = dismissed_suggestions.flat_map do |section, values|
+      MoneySourceRecognition.section_kinds(section.to_s)
+                            .reject { |kind| kind == "keyword" }
+                            .product(Array(values).compact_blank)
+    end
+
+    members.each do |member|
+      recognition_record = member.recognition
+      next unless recognition_record
+
+      stale = recognition_record.recognition_identifiers.suggested
+                                .reject(&:keyword?)
+                                .select do |identifier|
+        settled.any? { |(kind, values)| kind == identifier.kind && values.include?(identifier.value) } ||
+          dismissed_bank_values.include?([ identifier.kind, identifier.value ])
+      end
+      next if stale.empty?
+
+      stale.each(&:destroy!)
+      recognition_record.reload
+      recognition_record.destroy if recognition_record.recognition_identifiers.empty?
+    end
   end
 
   # DELETE /money_sources/recognition/:money_source_id
   def destroy_recognition
     source = current_user.money_sources.payment_sources.find(params[:money_source_id])
     source.recognition&.destroy
-    redirect_back fallback_location: money_sources_recognition_path,
-                  notice: t("money_sources.recognition.deleted")
+    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.deleted")
   end
 
   # GET /money_sources/new
@@ -204,29 +277,35 @@ class MoneySourcesController < ApplicationController
   # legacy bank token ("legacy:..."), and rows without any bank stay as
   # single-source groups. The SEED (earliest member) is the source whose
   # recognition record carries the group's bank-level configuration.
+  #
+  # CASH gets a special group: the money lives wherever the person keeps it,
+  # so there is no bank behind it — the group renders without a "configure
+  # bank" affordance and the rows only carry product keywords.
   def build_bank_groups(sources)
     groups = Hash.new { |hash, key| hash[key] = [] }
     sources.each { |source| groups[group_key_for_source(source)] << source }
 
     groups.values.map do |members|
       seed = members.min_by(&:id)
+      cash_only = members.all? { |source| source.kind == "cash" }
       {
         key: group_key_for_source(members.first),
-        label: members.first.institution_name.presence || I18n.t("money_sources.recognition.no_bank_group"),
+        label: cash_only ? I18n.t("money_sources.recognition.cash_group")
+                         : (members.first.institution_name.presence || I18n.t("money_sources.recognition.no_bank_group")),
+        cash_only: cash_only,
         seed: seed,
         members: members.sort_by { |source| [ source.kind, source.name ] },
         pending: members.sum { |source| source.recognition_identifiers.count(&:suggested?) }
       }
-    end.sort_by { |group| [ group[:key].to_s.starts_with?("legacy:", "source:") ? 1 : 0, group[:label].to_s.downcase ] }
+    end.sort_by { |group| [ group_cash_or_unbanked?(group) ? 1 : 0, group[:label].to_s.downcase ] }
+  end
+
+  def group_cash_or_unbanked?(group)
+    group[:cash_only] || group[:key].to_s.starts_with?("legacy:", "source:")
   end
 
   def group_key_for_source(source)
-    if source.institution?
-      "#{source.institution_type}:#{source.institution_id}"
-    else
-      token = SourceRecognition::TextNormalizer.fold(source.institution_token.to_s)
-      token.blank? ? "source:#{source.id}" : "legacy:#{token}"
-    end
+    SourceRecognition::BankGrouping.key(source)
   end
 
   def kind_index_path(source)
@@ -245,32 +324,15 @@ class MoneySourcesController < ApplicationController
   end
 
   # The senders section mixes real addresses (sender) and bare domains
-  # (domain). An email address always carries "@" (a sender); only a bare
-  # domain like "davibank.com" is stored as a domain.
+  # (domain) — delegated to SourceRecognition::ValueClassifier.
   def classify_senders(list)
-    senders, domains = [], []
-    list.compact_blank.each do |value|
-      if value.match?(/\A[\w.-]+\.[a-z]{2,}\z/i) && !value.include?("@")
-        domains << value
-      else
-        senders << value
-      end
-    end
-    [ senders, domains ]
+    SourceRecognition::ValueClassifier.senders(list)
   end
 
   # The subjects section mixes subject text (subject) and RFC header patterns
-  # like "From: ..." (header). A value with a top-level ":" is a header.
+  # like "From: ..." (header) — delegated to SourceRecognition::ValueClassifier.
   def classify_subjects(list)
-    subjects, headers = [], []
-    list.compact_blank.each do |value|
-      if value.include?(":")
-        headers << value
-      else
-        subjects << value
-      end
-    end
-    [ subjects, headers ]
+    SourceRecognition::ValueClassifier.subjects(list)
   end
 
   def set_money_source

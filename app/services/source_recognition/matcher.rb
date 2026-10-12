@@ -139,12 +139,7 @@ module SourceRecognition
     end
 
     def bank_group_key(source)
-      if source.institution?
-        "#{source.institution_type}:#{source.institution_id}"
-      else
-        token = TextNormalizer.fold(source.institution_token.to_s)
-        token.blank? ? "source:#{source.id}" : "legacy:#{token}"
-      end
+      BankGrouping.key(source)
     end
 
     def bank_group_for(source)

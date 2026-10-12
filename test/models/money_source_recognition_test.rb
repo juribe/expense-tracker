@@ -85,7 +85,7 @@ class MoneySourceRecognitionTest < ActiveSupport::TestCase
     assert_equal "user", identifiers.first.origin
   end
 
-  test "dismiss_suggestions! removes only the dismissed suggested values" do
+  test "dismiss_suggestions! tombstones the dismissed suggestions (they never resurface)" do
     source = create_source
     recognition = source.ensure_recognition.tap(&:save!)
     recognition.recognition_identifiers.create!(kind: "sender", value: "a@davibank.com", status: "suggested", origin: "gmail")
@@ -94,9 +94,37 @@ class MoneySourceRecognitionTest < ActiveSupport::TestCase
 
     recognition.dismiss_suggestions!("senders" => ["a@davibank.com"])
 
-    assert_nil recognition.recognition_identifiers.find_by(kind: "sender", value: "a@davibank.com")
-    assert recognition.recognition_identifiers.exists?(kind: "domain", value: "davibank.com")
-    assert recognition.recognition_identifiers.exists?(kind: "keyword", value: "davi")
+    dismissed = recognition.recognition_identifiers.find_by(kind: "sender", value: "a@davibank.com")
+    assert dismissed.dismissed?, "a dismissed suggestion keeps a tombstone row"
+    assert_not dismissed.suggested?
+    assert recognition.recognition_identifiers.exists?(kind: "domain", value: "davibank.com", status: "suggested")
+    assert recognition.recognition_identifiers.exists?(kind: "keyword", value: "davi", status: "confirmed")
+  end
+
+  test "dismiss_suggestions! records tombstones for never-persisted suggestions" do
+    source = create_source
+    recognition = source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+    recognition = source.reload.recognition
+
+    recognition.dismiss_suggestions!("keywords" => ["infinite"])
+
+    tombstone = recognition.recognition_identifiers.find_by(kind: "keyword", value: "infinite")
+    assert tombstone.dismissed?
+    assert_equal "user", tombstone.origin
+    assert_not tombstone.suggested?
+  end
+
+  test "typing a dismissed value promotes the tombstone to a confirmed identifier" do
+    source = create_source
+    recognition = source.ensure_recognition
+    recognition.dismiss_suggestions!("keywords" => ["infinite"])
+
+    recognition.replace_identifiers(keyword: ["infinite"])
+
+    identifiers = recognition.reload.recognition_identifiers.where(kind: "keyword")
+    assert_equal ["infinite"], identifiers.map(&:value)
+    assert identifiers.first.confirmed?
+    assert_equal "user", identifiers.first.origin
   end
 
   test "configured? requires a confirmed identifier" do

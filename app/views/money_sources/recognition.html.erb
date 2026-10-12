@@ -20,6 +20,38 @@
     "pocket" => { label: t("kinds.pocket"), class: "recognition-badge-account" }
   }
 
+  # Collapsed accordions: bodies are server-rendered and only shown under the
+  # `expanded` class (toggled by JS), so Capybara assertions keep working.
+  # Bank groups auto-expand only when the edited source/bank belongs to them;
+  # the Gmail card auto-expands while a scan is running.
+  gmail_expanded = @gmail_connection&.sync_running? ? true : false
+  group_expanded = lambda do |group|
+    Array(group[:members]).any? { |member| member == @editing } || @bank_editing == group[:key]
+  end
+  # Last four per source, controller-provided: identifier-less credit cards
+  # resolve through @recognition_last_fours (loaded per kind) so the
+  # credit_account fallback is never touched while rendering.
+  confirmed_keyword_text = lambda do |source|
+    values = source.recognition_identifiers
+                   .select { |id| id.keyword? && id.confirmed? }
+                   .sort_by(&:position).map(&:value)
+    four = if source.credit_card? && source.identifier.blank?
+      @recognition_last_fours[source.id]
+    else
+      source.last_four
+    end
+    values << "•••• #{four}" if four.present?
+    values.join(", ").presence
+  end
+  suggested_keyword_text = lambda do |source|
+    source.recognition_identifiers
+          .select { |id| id.keyword? && id.suggested? }
+          .sort_by(&:position).map(&:value).join(", ").presence
+  end
+  status_suggestions_count = lambda do |source|
+    source.recognition_identifiers.count(&:suggested?)
+  end
+
   keywords = @editing&.recognition_identifiers&.select { |id| id.keyword? && id.confirmed? }&.sort_by(&:position) || []
   senders  = @editing&.recognition_identifiers&.select { |id| (id.sender? || id.domain?) && id.confirmed? }&.sort_by(&:position) || []
   subjects = @editing&.recognition_identifiers&.select { |id| (id.subject? || id.header?) && id.confirmed? }&.sort_by(&:position) || []
@@ -38,7 +70,8 @@
     <p class="recognition-subtitle"><%= t("money_sources.recognition.subtitle") %></p>
   </div>
   <div class="recognition-header-actions d-print-none">
-    <button type="button" class="btn btn-outline-secondary recognition-help-btn">
+    <button type="button" class="btn btn-outline-secondary recognition-help-btn" data-testid="recognition-help-btn"
+            data-bs-toggle="modal" data-bs-target="#recognition-help-modal">
       <i class="ti ti-help" aria-hidden="true"></i><%= t("money_sources.recognition.how_it_works") %>
     </button>
   </div>
@@ -49,33 +82,50 @@
       prefilled with the saved config plus the setup-scan suggestions. Works
       as a manual editor: the user can add, edit or remove criteria without
       having scanned the mailbox at all. The rescan button lives OUTSIDE the
-      form (a nested form would corrupt the outer form's CSRF token). %>
+      form (a nested form would corrupt the outer form's CSRF token).
+      Collapsed by default: the head is a summary row and the editor is
+      revealed by the toggle (auto-expanded while a scan runs). %>
   <% gmail_values = @gmail_connection.criteria_form_values %>
   <% gmail_suggestions = @gmail_connection.criteria_suggestions %>
   <% gmail_scan = @gmail_connection.setup_suggestions.is_a?(Hash) ? @gmail_connection.setup_suggestions : {} %>
-  <section class="recognition-table-card" data-testid="gmail-criteria-card" <%# polled while a scan runs %>
+  <section class="recognition-table-card recognition-bank <%= "expanded" if gmail_expanded %>" data-testid="gmail-criteria-card" data-recognition-collapsible
            <%= tag.attributes(data: { sync_in_progress: true }) if @gmail_connection.sync_running? %>
            aria-label="<%= t("money_sources.recognition.criteria_title") %>">
-    <div class="recognition-criteria">
-      <div class="recognition-criteria-head">
-        <h2 class="recognition-criteria-title">
-          <i class="ti ti-adjustments" aria-hidden="true"></i><%= t("money_sources.recognition.criteria_title") %>
-        </h2>
-        <p class="recognition-criteria-desc">
-          <% if @gmail_connection.sync_running? %>
-            <span class="badge bg-info text-dark" data-testid="criteria-syncing">
-              <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-              <%= t("money_sources.recognition.criteria_syncing") %>
-            </span>
-          <% elsif gmail_scan["scanned"].to_i.positive? %>
-            <%= t("money_sources.recognition.criteria_help",
-                  scanned: gmail_scan["scanned"], passed: gmail_scan["passed"]) %>
-          <% else %>
-            <%= t("money_sources.recognition.criteria_help_manual") %>
-          <% end %>
-        </p>
+    <div class="recognition-bank-head">
+      <button type="button" class="recognition-bank-toggle" data-recognition-toggle
+              aria-expanded="<%= gmail_expanded ? "true" : "false" %>" aria-controls="gmail-criteria-body">
+        <span class="recognition-bank-icon tone-gmail" aria-hidden="true"><i class="ti ti-brand-gmail"></i></span>
+        <span class="recognition-bank-identity">
+          <span class="recognition-bank-name"><%= t("money_sources.recognition.criteria_title") %></span>
+          <span class="recognition-bank-desc">
+            <% if @gmail_connection.sync_running? %>
+              <span class="badge bg-info text-dark" data-testid="criteria-syncing">
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                <%= t("money_sources.recognition.criteria_syncing") %>
+              </span>
+            <% elsif gmail_scan["scanned"].to_i.positive? %>
+              <%= t("money_sources.recognition.criteria_help",
+                    scanned: gmail_scan["scanned"], passed: gmail_scan["passed"]) %>
+            <% else %>
+              <%= t("money_sources.recognition.criteria_help_manual") %>
+            <% end %>
+          </span>
+        </span>
+        <i class="ti ti-chevron-down recognition-bank-chevron" aria-hidden="true"></i>
+      </button>
+      <div class="recognition-bank-actions">
+        <span class="recognition-status recognition-status-ok" data-testid="gmail-connected">
+          <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.gmail_connected") %>
+        </span>
+        <button type="button" class="btn btn-sm btn-outline-secondary recognition-manage-btn"
+                data-testid="gmail-criteria-manage" data-recognition-toggle
+                aria-expanded="<%= gmail_expanded ? "true" : "false" %>" aria-controls="gmail-criteria-body">
+          <i class="ti ti-pencil" aria-hidden="true"></i><%= t("money_sources.recognition.criteria_manage") %>
+        </button>
       </div>
-
+    </div>
+    <div class="recognition-bank-body" id="gmail-criteria-body">
+    <div class="recognition-criteria">
       <%= form_with model: @gmail_connection, url: gmail_connection_path, method: :patch, scope: :search_config do |f| %>
         <input type="hidden" name="next" value="recognition">
 
@@ -124,6 +174,7 @@
         <% end %>
       </div>
     </div>
+    </div>
   </section>
 <% end %>
 
@@ -133,92 +184,145 @@
   # text), seed = the source whose recognition holds the group's bank-level
   # config (senders + subject patterns), members = the individual sources.
 %>
+
+<%# Banks section: the mockup's "Bancos y fuentes de dinero" header. %>
+<section class="recognition-banks-header" data-testid="recognition-banks-header" aria-label="<%= t("money_sources.recognition.banks_title") %>">
+  <div class="recognition-header-icon" aria-hidden="true"><i class="ti ti-building-bank"></i></div>
+  <div class="min-w-0 flex-grow-1">
+    <h2 class="recognition-title"><%= t("money_sources.recognition.banks_title") %></h2>
+    <p class="recognition-subtitle"><%= t("money_sources.recognition.banks_subtitle") %></p>
+  </div>
+</section>
+
 <% @bank_groups.each do |group| %>
-  <section class="recognition-table-card" aria-label="<%= group[:label] %>" data-testid="recognition-bank-group" <%= tag.attributes(data: { group_key: group[:key] }) %>>
-    <header class="recognition-criteria-head d-flex justify-content-between align-items-center px-1 pt-3">
-      <div class="min-w-0">
-        <h2 class="h6 mb-0 text-truncate">
-          <i class="ti ti-building-bank me-1 text-secondary" aria-hidden="true"></i>
-          <%= group[:label] %>
-        </h2>
-        <span class="text-secondary small">
-          <%= t("money_sources.recognition.group_sources_count", count: group[:members].size) %>
+  <%
+    group_id = "recognition-group-#{group[:key].to_s.parameterize}"
+    expanded = group_expanded.call(group)
+    group_configured = group[:members].any?(&:recognition_configured?)
+    bank_status = if group_configured
+      { text: t("money_sources.recognition.group_configured"), class: "recognition-status-ok" }
+    elsif group[:pending].positive?
+      { text: t("money_sources.recognition.status_pending"), class: "recognition-status-pending" }
+    else
+      { text: t("money_sources.recognition.status_unconfigured"), class: "recognition-status-unconfigured" }
+    end
+  %>
+  <section class="recognition-table-card recognition-bank <%= "expanded" if expanded %>" aria-label="<%= group[:label] %>"
+           data-testid="recognition-bank-group" data-recognition-collapsible <%= tag.attributes(data: { group_key: group[:key] }) %>>
+    <div class="recognition-bank-head">
+      <button type="button" class="recognition-bank-toggle" data-testid="recognition-bank-toggle" data-recognition-toggle
+              aria-expanded="<%= expanded ? "true" : "false" %>" aria-controls="<%= group_id %>">
+        <span class="recognition-bank-icon <%= bank_icon_tone(group[:key]) %>" aria-hidden="true">
+          <i class="ti ti-<%= group[:cash_only] ? 'cash' : 'building-bank' %>"></i>
         </span>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <% if group[:pending].positive? %>
-          <span class="recognition-status-hint">
-            <i class="ti ti-bulb" aria-hidden="true"></i>
-            <%= t("money_sources.recognition.group_pending", count: group[:pending]) %>
+        <span class="recognition-bank-identity">
+          <span class="recognition-bank-name"><%= group[:label] %></span>
+          <span class="recognition-bank-meta">
+            <span class="recognition-count-chip"><%= t("money_sources.recognition.group_sources_count", count: group[:members].size) %></span>
+            <% if group[:pending].positive? %>
+              <span class="recognition-count-chip recognition-chip-pending" data-testid="recognition-suggestion-count">
+                <i class="ti ti-bulb" aria-hidden="true"></i><%= t("money_sources.recognition.group_pending", count: group[:pending]) %>
+              </span>
+            <% end %>
           </span>
-        <% end %>
+        </span>
+        <i class="ti ti-chevron-down recognition-bank-chevron" aria-hidden="true"></i>
+      </button>
+      <div class="recognition-bank-actions">
+        <span class="recognition-status <%= bank_status[:class] %>" data-testid="recognition-bank-status">
+          <i class="ti <%= group_configured ? 'ti-circle-check' : 'ti-circle-minus' %>" aria-hidden="true"></i><%= bank_status[:text] %>
+        </span>
         <%# Bank-level drawer: edits the SEED source's recognition; the whole
-            group reuses it through the matcher (no per-source copies). %>
-        <%= link_to money_sources_recognition_path(bank_edit: group[:key]),
-                    class: "btn btn-sm btn-outline-secondary",
-                    "aria-label": t("money_sources.recognition.group_configure"),
-                    data: { testid: "recognition-bank-edit" } do %>
-          <i class="ti ti-building-bank" aria-hidden="true"></i>
-          <%= t("money_sources.recognition.group_configure") %>
+            group reuses it through the matcher (no per-source copies). Cash
+            groups have no bank behind them: no bank config is offered. %>
+        <% unless group[:cash_only] %>
+          <%= link_to money_sources_recognition_path(bank_edit: group[:key]),
+                      class: "btn btn-sm btn-outline-secondary",
+                      "aria-label": t("money_sources.recognition.group_configure"),
+                      data: { testid: "recognition-bank-edit" } do %>
+            <i class="ti ti-building-bank" aria-hidden="true"></i>
+            <%= t("money_sources.recognition.group_configure") %>
+          <% end %>
         <% end %>
       </div>
-    </header>
-    <table class="recognition-table">
-      <thead>
-        <tr>
-          <th><%= t("money_sources.recognition.col_source") %></th>
-          <th><%= t("money_sources.recognition.col_type") %></th>
-          <th><%= t("money_sources.recognition.col_status") %></th>
-          <th class="text-end"><%= t("money_sources.recognition.col_actions") %></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% group[:members].each do |source| %>
-          <tr data-testid="recognition-row" class="<%= 'recognition-row-active' if source == @editing %>">
-            <td>
-              <div class="recognition-source-cell">
-                <span class="recognition-row-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(source.kind) %>"></i></span>
-                <span class="recognition-row-name"><%= source.name %></span>
+    </div>
+    <div class="recognition-bank-body" id="<%= group_id %>">
+      <table class="recognition-table">
+        <thead>
+          <tr>
+            <th><%= t("money_sources.recognition.col_source") %></th>
+            <th><%= t("money_sources.recognition.col_type") %></th>
+            <th class="d-none d-md-table-cell"><%= t("money_sources.recognition.col_identifiers") %></th>
+            <th class="d-none d-md-table-cell"><%= t("money_sources.recognition.col_keywords") %></th>
+            <th><%= t("money_sources.recognition.col_status") %></th>
+            <th class="text-end"><%= t("money_sources.recognition.col_actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% group[:members].each do |source| %>
+            <% row_suggestions = status_suggestions_count.call(source) %>
+            <tr data-testid="recognition-row" class="<%= 'recognition-row-active' if source == @editing %>">
+              <td>
+                <div class="recognition-source-cell">
+                  <span class="recognition-row-icon" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(source.kind) %>"></i></span>
+                  <span class="recognition-row-name"><%= source.name %></span>
+                </div>
+              </td>
+              <td>
+                <% badge = kind_badges[source.kind] %>
+                <span class="recognition-badge <%= badge[:class] %>"><%= badge[:label] %></span>
+              </td>
+              <td class="d-none d-md-table-cell">
+                <span class="recognition-cell-muted" data-testid="recognition-identifiers"><%= confirmed_keyword_text.call(source) || "—" %></span>
+              </td>
+              <td class="d-none d-md-table-cell">
+                <span class="recognition-cell-muted" data-testid="recognition-keywords"><%= suggested_keyword_text.call(source) || "—" %></span>
+              </td>
+              <td>
+              <% if source.recognition_configured? %>
+                <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
+                  <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
+                </span>
+              <% elsif row_suggestions.positive? %>
+                <span class="recognition-status recognition-status-pending" data-testid="recognition-status">
+                  <i class="ti ti-alert-triangle" aria-hidden="true"></i><%= t("money_sources.recognition.status_pending") %>
+                </span>
+              <% else %>
+                <span class="recognition-status recognition-status-unconfigured" data-testid="recognition-status">
+                  <i class="ti ti-circle-minus" aria-hidden="true"></i><%= t("money_sources.recognition.status_unconfigured") %>
+                </span>
+              <% end %>
+            </td>
+            <td class="text-end">
+              <div class="recognition-row-actions d-print-none">
+                <%= link_to money_sources_recognition_path(edit: source.id), class: "btn recognition-icon-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") }, data: { testid: "edit-recognition" } do %>
+                  <i class="ti ti-pencil" aria-hidden="true"></i>
+                <% end %>
+                <% if source.recognition_configured? %>
+                  <%= button_to money_source_recognition_destroy_path(source.id), method: :delete, class: "btn recognition-icon-btn btn-delete", title: t("money_sources.recognition.delete_config"), aria: { label: t("money_sources.recognition.delete_config") }, data: { confirm: t("money_sources.recognition.delete_confirm_title") }, form: { style: "display:inline-block", data: { turbo_confirm: "#{t('money_sources.recognition.delete_confirm_title')} #{t('money_sources.recognition.delete_confirm_body')}" } } do %>
+                    <i class="ti ti-trash" aria-hidden="true"></i>
+                  <% end %>
+                <% end %>
               </div>
             </td>
-            <td>
-              <% badge = kind_badges[source.kind] %>
-              <span class="recognition-badge <%= badge[:class] %>"><%= badge[:label] %></span>
-            </td>
-            <td>
-            <% if source.recognition_configured? %>
-              <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
-                <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
-              </span>
-            <% else %>
-              <span class="recognition-status recognition-status-pending" data-testid="recognition-status">
-                <i class="ti ti-alert-triangle" aria-hidden="true"></i><%= t("money_sources.recognition.status_unconfigured") %>
-              </span>
-            <% end %>
-            <% suggestion_count = source.recognition_identifiers.count(&:suggested?) %>
-            <% if suggestion_count.positive? %>
-              <span class="recognition-status-hint" data-testid="recognition-suggestion-count">
-                <i class="ti ti-bulb" aria-hidden="true"></i><%= t("money_sources.recognition.status_suggestions", count: suggestion_count) %>
-              </span>
-            <% end %>
-          </td>
-          <td class="text-end">
-            <div class="recognition-row-actions d-print-none">
-              <%= link_to money_sources_recognition_path(edit: source.id), class: "btn recognition-icon-btn btn-edit", title: t("common.edit"), aria: { label: t("common.edit") }, data: { testid: "edit-recognition" } do %>
-                <i class="ti ti-pencil" aria-hidden="true"></i>
-              <% end %>
-              <% if source.recognition_configured? %>
-                <%= button_to money_source_recognition_destroy_path(source.id), method: :delete, class: "btn recognition-icon-btn btn-delete", title: t("money_sources.recognition.delete_config"), aria: { label: t("money_sources.recognition.delete_config") }, data: { confirm: t("money_sources.recognition.delete_confirm_title") }, form: { style: "display:inline-block", data: { turbo_confirm: "#{t('money_sources.recognition.delete_confirm_title')} #{t('money_sources.recognition.delete_confirm_body')}" } } do %>
-                  <i class="ti ti-trash" aria-hidden="true"></i>
-                <% end %>
-              <% end %>
-            </div>
-          </td>
-        </tr>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div class="recognition-bank-foot d-print-none">
+      <%= link_to new_money_source_path, class: "btn btn-sm btn-outline-primary", data: { testid: "recognition-add-source" } do %>
+        <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.add_source") %>
       <% end %>
-    </tbody>
-  </table>
-</section>
+      <% if group[:pending].positive? %>
+        <%= link_to money_sources_recognition_path(bank_edit: group[:key]),
+                    class: "recognition-view-suggestions",
+                    data: { testid: "recognition-view-suggestions" } do %>
+          <%= t("money_sources.recognition.view_pending", count: group[:pending]) %><i class="ti ti-arrow-right" aria-hidden="true"></i>
+        <% end %>
+      <% end %>
+    </div>
+    </div>
+  </section>
 <% end %>
 
 <% if @editing %>
@@ -367,3 +471,5 @@
     </aside>
   <% end %>
 <% end %>
+
+<%= render "recognition_help_modal" %>

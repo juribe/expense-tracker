@@ -311,15 +311,23 @@ class MoneySource < ApplicationRecord
     recognition_identifiers.confirmed.any?
   end
 
-  # The source's last four digits, used as a recognition signal. Re-derived
-  # from the raw stored value so only the ENDING digits are ever used (never a
-  # random or partial slice). Falls back to the credit card's last four and
-  # returns nil when there aren't exactly four digits to work with.
-  def last_four
-    raw = identifier.presence
-    raw ||= credit_account.card_last_four if credit_card? && credit_account
+  # The only ENDING four digits of a raw value. Digits are re-derived on
+  # every read: callers never see a random or partial slice, and a raw value
+  # that does not yield exactly four digits yields nil.
+  def self.last_four_from(raw)
     ending = raw.to_s.gsub(/\D/, "").chars.last(4).join
     ending if ending.length == 4
+  end
+
+  # The source's last four digits, used as a recognition signal. Reads the
+  # denormalized identifier first; credit-card rows without one fall back to
+  # the credit_account child (its card_last_four column). Only the ENDING
+  # digits are ever used. The child is NEVER touched when the identifier is
+  # present (eager-loading it for those rows is what Bullet flags as unused).
+  def last_four
+    raw = identifier.presence
+    raw = credit_account&.card_last_four if raw.nil? && credit_card?
+    self.class.last_four_from(raw)
   end
 
   # Lazily builds the recognition record (persisted on save) without creating

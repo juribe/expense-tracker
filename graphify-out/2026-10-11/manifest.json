@@ -1,8 +1,8 @@
 {
   "app/assets/javascripts/application.js": {
-    "mtime": 1791497874.1686513,
-    "seen": 1791557756.106426,
-    "ast_hash": "0bc98c28d13b7aa13344ea5a22907750",
+    "mtime": 1791760573.1936939,
+    "seen": 1791766165.40324,
+    "ast_hash": "fa58d5b7d396d7a673a3503e8d1ed4d3",
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
-    "mtime": 1790639712.3856766,
-    "seen": 1790977684.434844,
-    "ast_hash": "4c7969833cb93f6ef67d5c643e9b2453",
+    "mtime": 1791647582.8678768,
+    "seen": 1791739738.055885,
+    "ast_hash": "560e77177dc5c1d190bf909f13b1c65a",
     "semantic_hash": ""
   },
   "app/controllers/imports_controller.rb": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "app/controllers/money_sources_controller.rb": {
-    "mtime": 1791585433.4142075,
-    "seen": 1791588169.744627,
-    "ast_hash": "478b2e3916fae797b512948eacb62b0a",
+    "mtime": 1791765739.7658455,
+    "seen": 1791766165.403302,
+    "ast_hash": "921219b6f88a1eb035b0abe1f7806374",
     "semantic_hash": ""
   },
   "app/controllers/monthly_expenses_controller.rb": {
@@ -108,9 +108,9 @@
     "semantic_hash": "8035e71c031d78e90d6c1af220891a81"
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1791559141.4516473,
-    "seen": 1791559315.7603252,
-    "ast_hash": "80f8eb3f893ae39c47376642994c6d3c",
+    "mtime": 1791765877.2121503,
+    "seen": 1791766165.40335,
+    "ast_hash": "d29b9e31d6e7ebe2d0fd0117e84df22b",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -174,10 +174,10 @@
     "semantic_hash": ""
   },
   "app/models/financial_institution.rb": {
-    "mtime": 1788485433.2440972,
-    "seen": 1790977684.434916,
-    "ast_hash": "9cf36ae9cdad69ba7515b22d50071c3c",
-    "semantic_hash": "9cf36ae9cdad69ba7515b22d50071c3c"
+    "mtime": 1791735159.4766755,
+    "seen": 1791739738.056007,
+    "ast_hash": "a48160517a3bc6a98e80349f845cedbb",
+    "semantic_hash": ""
   },
   "app/models/financial_keyword.rb": {
     "mtime": 1788485437.5220728,
@@ -198,9 +198,9 @@
     "semantic_hash": "843da63d09510236e4e59c876646b1ba"
   },
   "app/models/gmail_connection.rb": {
-    "mtime": 1790639629.662777,
-    "seen": 1790977684.434922,
-    "ast_hash": "3875275e9a2bc12050c81c86e03c03d9",
+    "mtime": 1791591643.7776268,
+    "seen": 1791739738.056013,
+    "ast_hash": "a66ad9ebefd5023eda7e8d690ca67beb",
     "semantic_hash": ""
   },
   "app/models/income.rb": {
@@ -210,22 +210,22 @@
     "semantic_hash": ""
   },
   "app/models/money_source.rb": {
-    "mtime": 1791585433.4148312,
-    "seen": 1791588169.744756,
-    "ast_hash": "6a7c3bf583489aef792678fa0cc97c40",
+    "mtime": 1791763140.7031846,
+    "seen": 1791766165.403423,
+    "ast_hash": "19ab9dbd4034c01cc47a67ee10dc2fd4",
     "semantic_hash": ""
   },
   "app/models/money_source_recognition.rb": {
-    "mtime": 1791585433.4154363,
-    "seen": 1791588169.744757,
-    "ast_hash": "58c10b21e33b3bad63a67c672b7f8678",
+    "mtime": 1791765686.88323,
+    "seen": 1791766165.403424,
+    "ast_hash": "182c64ca318eed8f633507b7f598f6dd",
     "semantic_hash": ""
   },
   "app/models/money_source_recognition_identifier.rb": {
-    "mtime": 1788486798.1322262,
-    "seen": 1790977684.434927,
-    "ast_hash": "c698bae00caedb1a0adc04658a214ac1",
-    "semantic_hash": "c698bae00caedb1a0adc04658a214ac1"
+    "mtime": 1791765659.1709862,
+    "seen": 1791766165.403426,
+    "ast_hash": "9954a7e86dbde8eb3112aca71ca651ea",
+    "semantic_hash": ""
   },
   "app/models/processed_email.rb": {
     "mtime": 1790974312.5934954,
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "app/models/user.rb": {
-    "mtime": 1791343106.780237,
-    "seen": 1791343249.4568498,
-    "ast_hash": "0c3d40064a7cc18b0936e9a8c9b847ab",
+    "mtime": 1791735159.4764047,
+    "seen": 1791739738.056041,
+    "ast_hash": "fb342bc895f169d0fddf493304af1d95",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -348,16 +348,16 @@
     "semantic_hash": ""
   },
   "app/services/money_sources/match.rb": {
-    "mtime": 1791585433.4158995,
-    "seen": 1791588169.745024,
-    "ast_hash": "8bfbb3bb6265d63672ea05a2f57ce37c",
+    "mtime": 1791685764.2626858,
+    "seen": 1791739738.056289,
+    "ast_hash": "899451f2dba84988d197a17519f52614",
     "semantic_hash": ""
   },
   "app/services/parsed_statement.rb": {
-    "mtime": 1788316868.524676,
-    "seen": 1790977684.435137,
-    "ast_hash": "35a71d2f787c9dc996d3ccdb337e8fc8",
-    "semantic_hash": "35a71d2f787c9dc996d3ccdb337e8fc8"
+    "mtime": 1791729714.711619,
+    "seen": 1791739738.056293,
+    "ast_hash": "197e13ceafcc8122fdc7551d6dc8dd49",
+    "semantic_hash": ""
   },
   "app/services/recurring_template_importer.rb": {
     "mtime": 1788991771.7060819,
@@ -372,21 +372,21 @@
     "semantic_hash": ""
   },
   "app/services/source_recognition/apply_to_search_config.rb": {
-    "mtime": 1791585433.4161716,
-    "seen": 1791588169.745075,
+    "mtime": 1791735122.0049279,
+    "seen": 1791739738.05634,
     "ast_hash": "c2746249ef7d1afe54a1a2bee5e43a9d",
     "semantic_hash": ""
   },
   "app/services/source_recognition/catalog.rb": {
-    "mtime": 1788485489.0550866,
-    "seen": 1790977684.435147,
-    "ast_hash": "6fece41f1884b64806161b3f30ead035",
-    "semantic_hash": "6fece41f1884b64806161b3f30ead035"
+    "mtime": 1791648372.2107968,
+    "seen": 1791739738.056341,
+    "ast_hash": "be3badc577a60fb6a2d14dd3680992cb",
+    "semantic_hash": ""
   },
   "app/services/source_recognition/discovery_service.rb": {
-    "mtime": 1791585433.416596,
-    "seen": 1791588169.745078,
-    "ast_hash": "7ed70151ae49d2d20cfa45bbe5befae2",
+    "mtime": 1791760573.1952586,
+    "seen": 1791766165.40374,
+    "ast_hash": "8af7cf73b0052b632c61ebc954980ff4",
     "semantic_hash": ""
   },
   "app/services/source_recognition/financial_email_filter.rb": {
@@ -396,28 +396,28 @@
     "semantic_hash": "57fbab964703cce5d30fa4dd77057388"
   },
   "app/services/source_recognition/matcher.rb": {
-    "mtime": 1791585433.4169323,
-    "seen": 1791588169.7450812,
-    "ast_hash": "72e5c0c92f11e9d36739e9dad182a7cc",
+    "mtime": 1791760573.1956768,
+    "seen": 1791766165.403743,
+    "ast_hash": "e29b56cc63297aa47fc191d7e489ebfa",
     "semantic_hash": ""
   },
   "app/services/source_recognition/suggestion_engine.rb": {
-    "mtime": 1791585433.4180074,
-    "seen": 1791588169.7450821,
-    "ast_hash": "235d3507c7df701fb16dbc44c59b2618",
+    "mtime": 1791765858.3873112,
+    "seen": 1791766165.403747,
+    "ast_hash": "a215449356317e6e2bc6b090c10352a5",
     "semantic_hash": ""
   },
   "app/services/source_recognition/text_normalizer.rb": {
-    "mtime": 1788489201.0916078,
-    "seen": 1790977684.435154,
-    "ast_hash": "7f338754a18488077de75de009f6d2d7",
-    "semantic_hash": "7f338754a18488077de75de009f6d2d7"
+    "mtime": 1791591082.0221496,
+    "seen": 1791739738.05635,
+    "ast_hash": "7fd90db7cf29bd160347c6354a47089d",
+    "semantic_hash": ""
   },
   "app/services/statement_duplicate_detector.rb": {
-    "mtime": 1788387862.8915808,
-    "seen": 1790977684.4351628,
-    "ast_hash": "e3c9645c332a33a1d2b3fe457f231fac",
-    "semantic_hash": "e3c9645c332a33a1d2b3fe457f231fac"
+    "mtime": 1791683863.405191,
+    "seen": 1791739738.0563588,
+    "ast_hash": "62429391fdcec91c41dd810a2def5a6b",
+    "semantic_hash": ""
   },
   "app/views/pwa/service-worker.js": {
     "mtime": 1787694826.759546,
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1791559141.465273,
-    "seen": 1791559315.7608068,
-    "ast_hash": "671a6ef7213d6a3f712ecaea7d9a2ed6",
+    "mtime": 1791735168.7226815,
+    "seen": 1791739738.056426,
+    "ast_hash": "9c30dc413738526c369c94972ac67d9a",
     "semantic_hash": ""
   },
   "db/migrate/20260819140000_create_categories.rb": {
@@ -828,16 +828,16 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1791585433.4200134,
-    "seen": 1791588169.745316,
-    "ast_hash": "f697837bc1fcc9ca73d5173e5c5aac18",
+    "mtime": 1791735146.6095214,
+    "seen": 1791739738.056597,
+    "ast_hash": "5c606fcad3adb54852905e58c1626c52",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
-    "mtime": 1788486071.7592974,
-    "seen": 1790977684.4353259,
-    "ast_hash": "cbafc7504f2d07f7c01ef0394bfd9062",
-    "semantic_hash": "cbafc7504f2d07f7c01ef0394bfd9062"
+    "mtime": 1791668863.5026538,
+    "seen": 1791739738.056598,
+    "ast_hash": "d281e47c54e0bb28e9d36ad356a8f4ee",
+    "semantic_hash": ""
   },
   "db/seeds.rb": {
     "mtime": 1789525174.7464156,
@@ -876,9 +876,9 @@
     "semantic_hash": ""
   },
   "playwright/ai_money_source_detection.spec.js": {
-    "mtime": 1790454777.552252,
-    "seen": 1790977684.4353411,
-    "ast_hash": "d965f79ee311652bb982915ddd2b0f6c",
+    "mtime": 1791760573.1992576,
+    "seen": 1791766165.40401,
+    "ast_hash": "f78f36b8f134b64c30880a93b438ab6a",
     "semantic_hash": ""
   },
   "playwright/auth.spec.js": {
@@ -930,9 +930,9 @@
     "semantic_hash": "3f52eb06a9e5065c4a0d1f4758ccba3e"
   },
   "playwright/money_source_tags.spec.js": {
-    "mtime": 1789288591.284637,
-    "seen": 1790977684.435363,
-    "ast_hash": "28b162924d396a37144eb665d937652c",
+    "mtime": 1791760573.1995,
+    "seen": 1791766165.404035,
+    "ast_hash": "e6155334974f76f3fc34c3ee4896dd83",
     "semantic_hash": ""
   },
   "playwright/monthly-reports.spec.js": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "test/controllers/gmail_connections_controller_test.rb": {
-    "mtime": 1790639654.60962,
-    "seen": 1790977684.435422,
-    "ast_hash": "b63b0e6dbab6ff941ad059f55fa6033e",
+    "mtime": 1791647789.1476393,
+    "seen": 1791739738.056718,
+    "ast_hash": "e9b797c28cbbdaa937cdf84c08e0edac",
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
-    "mtime": 1791588018.7123518,
-    "seen": 1791588169.7454422,
-    "ast_hash": "a41cce859b2aaf9875ce0439fd8cb3fc",
+    "mtime": 1791767186.4092345,
+    "seen": 1791767943.626061,
+    "ast_hash": "efb6d2f50b2b958a6319bcaf5b52084f",
     "semantic_hash": ""
   },
   "test/controllers/sessions_controller_test.rb": {
@@ -1086,15 +1086,15 @@
     "semantic_hash": "1103a68c3444790597a69073003a6357"
   },
   "test/models/gmail_connection_test.rb": {
-    "mtime": 1790639596.742945,
-    "seen": 1790977684.435468,
-    "ast_hash": "f7105dec5e72456186a0426c69320a52",
+    "mtime": 1791591315.0680661,
+    "seen": 1791739738.056789,
+    "ast_hash": "65b2db520baa3b6501fb6e641bce33a9",
     "semantic_hash": ""
   },
   "test/models/money_source_recognition_test.rb": {
-    "mtime": 1791585433.422211,
-    "seen": 1791588169.7455082,
-    "ast_hash": "d2a70fa7bd6e325862083564bb0a45e0",
+    "mtime": 1791765560.9659512,
+    "seen": 1791766165.404185,
+    "ast_hash": "bca45a3248657b9250feb4cc10e6bc79",
     "semantic_hash": ""
   },
   "test/models/money_source_test.rb": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "test/services/source_recognition/discovery_service_test.rb": {
-    "mtime": 1791585433.4245634,
-    "seen": 1791588169.74569,
-    "ast_hash": "7725b031d715b3c2e0f1ac01e346b2ac",
+    "mtime": 1791760573.2001266,
+    "seen": 1791766165.4043689,
+    "ast_hash": "9efbe3fa1fe1bae817fcdc56ab6845f0",
     "semantic_hash": ""
   },
   "test/services/source_recognition/financial_email_filter_test.rb": {
@@ -1218,9 +1218,9 @@
     "semantic_hash": ""
   },
   "test/services/source_recognition/suggestion_engine_test.rb": {
-    "mtime": 1791585433.4259846,
-    "seen": 1791588169.745694,
-    "ast_hash": "40decd6f2ff81a0807a100057c3cb5ad",
+    "mtime": 1791649080.1629908,
+    "seen": 1791739738.0569978,
+    "ast_hash": "40fc458f6907e62f2d07f35913f93d46",
     "semantic_hash": ""
   },
   "test/services/statement_duplicate_detector_test.rb": {
@@ -1278,15 +1278,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1791566212.5184112,
-    "seen": 1791566307.375794,
-    "ast_hash": "277b0b3b89cae4fd9c274360fae61200",
+    "mtime": 1791767850.7753053,
+    "seen": 1791767943.626382,
+    "ast_hash": "7c2b459d889aceb0d14967905d3f4b62",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1791585433.4194016,
-    "seen": 1791588169.745748,
-    "ast_hash": "c9542104c7e71d9575ac8ba2e923dde7",
+    "mtime": 1791767256.9793065,
+    "seen": 1791767943.6263838,
+    "ast_hash": "c78dfa59e9f6530750c1cdff7978f25e",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1308,10 +1308,10 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1788485363.3952792,
-    "seen": 1790977684.435644,
-    "ast_hash": "483fe8d9c88f062def7608857ac188d2",
-    "semantic_hash": "483fe8d9c88f062def7608857ac188d2"
+    "mtime": 1791761249.874748,
+    "seen": 1791766165.404435,
+    "ast_hash": "e45792175dfd470a736fac899f79dd8d",
+    "semantic_hash": ""
   },
   "db/seed_data/financial_keywords.yml": {
     "mtime": 1788485385.4765558,
@@ -1662,15 +1662,15 @@
     "semantic_hash": ""
   },
   "app/jobs/gmail_setup_sync_job.rb": {
-    "mtime": 1788647142.2004344,
-    "seen": 1790977684.434886,
-    "ast_hash": "91f2cbe4063396ac7efe026515b1774f",
+    "mtime": 1791647597.842821,
+    "seen": 1791739738.055964,
+    "ast_hash": "a581488c83f756839bfbc519430cce07",
     "semantic_hash": ""
   },
   "app/services/gmail/setup_scan_service.rb": {
-    "mtime": 1788647142.2016802,
-    "seen": 1790977684.435126,
-    "ast_hash": "c361c1e5a2b787cc6364f10080d94ee6",
+    "mtime": 1791648442.8836741,
+    "seen": 1791739738.0562718,
+    "ast_hash": "43b7ea69bc622346237deb412918efcd",
     "semantic_hash": ""
   },
   "db/migrate/20260905000000_add_setup_suggestions_to_gmail_connections.rb": {
@@ -1680,15 +1680,15 @@
     "semantic_hash": ""
   },
   "test/jobs/gmail_setup_sync_job_test.rb": {
-    "mtime": 1788647142.253256,
-    "seen": 1790977684.4354491,
-    "ast_hash": "c346c88a69307dd7500b26c34faff7fb",
+    "mtime": 1791647778.8962266,
+    "seen": 1791739738.056763,
+    "ast_hash": "0a87676b7897c7dfdd579c7a4319b7a9",
     "semantic_hash": ""
   },
   "test/services/gmail/setup_scan_service_test.rb": {
-    "mtime": 1788647142.2538428,
-    "seen": 1790977684.435576,
-    "ast_hash": "a8eacedc67aadbc09adacf3d0a42c9a2",
+    "mtime": 1791732550.897692,
+    "seen": 1791739738.056942,
+    "ast_hash": "47cebf566e4eb1bfabc27161de931e4b",
     "semantic_hash": ""
   },
   "designs/design_gmail_setup_sync.md": {
@@ -2088,9 +2088,9 @@
     "semantic_hash": ""
   },
   "app/services/money_sources/detector.rb": {
-    "mtime": 1790801189.8180137,
-    "seen": 1790977684.435133,
-    "ast_hash": "bd914d7ddf0ba5deef47dd6ffa9f8f0b",
+    "mtime": 1791685763.6441276,
+    "seen": 1791739738.056287,
+    "ast_hash": "a142b51a175cb8136fec988a3c233da6",
     "semantic_hash": ""
   },
   "app/services/ocr/local_reader.rb": {
@@ -3144,9 +3144,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/enrichers/money_source.rb": {
-    "mtime": 1790560256.3651948,
-    "seen": 1790977684.4350579,
-    "ast_hash": "e92ee0430bf4236687befdb1510a01d4",
+    "mtime": 1791683859.2807622,
+    "seen": 1791739738.0561962,
+    "ast_hash": "19375f36dffd2b93b9fab1488a9b965a",
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/import_context.rb": {
@@ -3996,9 +3996,9 @@
     "semantic_hash": ""
   },
   "app/services/statements/review_builder.rb": {
-    "mtime": 1790982279.528867,
-    "seen": 1790988614.0184681,
-    "ast_hash": "bea439149a982422a4b5b1ba96ee2d52",
+    "mtime": 1791683859.2812498,
+    "seen": 1791739738.0563672,
+    "ast_hash": "6f5ed31d036faaa06ac54d3590dbea47",
     "semantic_hash": ""
   },
   "app/services/statements/summary.rb": {
@@ -4911,6 +4911,186 @@
     "mtime": 1791580473.7673624,
     "seen": 1791588169.745313,
     "ast_hash": "7501ad561873d00f16de22837d6107eb",
+    "semantic_hash": ""
+  },
+  "app/controllers/custom_financial_institutions_controller.rb": {
+    "mtime": 1791684489.3674874,
+    "seen": 1791739738.055865,
+    "ast_hash": "fa161f315ed265bc3a276f0bff58e730",
+    "semantic_hash": ""
+  },
+  "app/controllers/financial_institutions_controller.rb": {
+    "mtime": 1791735341.7604547,
+    "seen": 1791739738.0558798,
+    "ast_hash": "9b5f9262c958c314c8b5d2a318cba82d",
+    "semantic_hash": ""
+  },
+  "app/models/custom_financial_institution.rb": {
+    "mtime": 1791735159.4765575,
+    "seen": 1791739738.05599,
+    "ast_hash": "96aefce911f06b4cf0b9d898c3de42ad",
+    "semantic_hash": ""
+  },
+  "app/services/institutions/bank_migrator.rb": {
+    "mtime": 1791683075.4325194,
+    "seen": 1791739738.056278,
+    "ast_hash": "7d9d46975bf2d1065f128835043a0454",
+    "semantic_hash": ""
+  },
+  "app/services/institutions/bank_recognition_consolidator.rb": {
+    "mtime": 1791735415.4182465,
+    "seen": 1791739738.0562801,
+    "ast_hash": "93f5b8b04ffe147327bd4addad520adf",
+    "semantic_hash": ""
+  },
+  "app/services/source_recognition/ambiguous_tokens.rb": {
+    "mtime": 1791591089.3821,
+    "seen": 1791739738.0563378,
+    "ast_hash": "815b455e6d7ea7946d7a4b7e48df572c",
+    "semantic_hash": ""
+  },
+  "app/services/source_recognition/subject_templates.rb": {
+    "mtime": 1791590562.8845837,
+    "seen": 1791739738.056347,
+    "ast_hash": "767c9725cecdd3bde6004c947f865e2a",
+    "semantic_hash": ""
+  },
+  "config/initializers/disable_reloading_for_solid_queue.rb": {
+    "mtime": 1791739616.6106148,
+    "seen": 1791739738.056416,
+    "ast_hash": "39ec4162e6bed496b4f645b92da9ee8e",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261010120000_add_slug_and_institution_type_to_financial_institutions.rb": {
+    "mtime": 1791667245.3740466,
+    "seen": 1791739738.056587,
+    "ast_hash": "e31249c789ef368d26259a65ab1d61fd",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261010120100_create_custom_financial_institutions.rb": {
+    "mtime": 1791667248.9768338,
+    "seen": 1791739738.0565891,
+    "ast_hash": "bad16755e25b2c278231b20562b7518a",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261010120200_add_institution_to_money_sources.rb": {
+    "mtime": 1791667251.290314,
+    "seen": 1791739738.05659,
+    "ast_hash": "ec26e6661d0e6e2f2fbb236dc874349c",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261010120300_create_user_institution_settings.rb": {
+    "mtime": 1791667258.000877,
+    "seen": 1791739738.056591,
+    "ast_hash": "8ca335ca48770d94811406be20548969",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261010130000_add_institution_cached_name_to_money_sources.rb": {
+    "mtime": 1791685704.8446634,
+    "seen": 1791739738.056592,
+    "ast_hash": "f5ae0ed06cdbf6082099672cc2ec7d71",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261010131000_drop_user_institution_settings_tables.rb": {
+    "mtime": 1791735138.633346,
+    "seen": 1791739738.056594,
+    "ast_hash": "7efec35d612b77b5e121abf0c3ec4707",
+    "semantic_hash": ""
+  },
+  "lib/tasks/institutions.rake": {
+    "mtime": 1791735415.442757,
+    "seen": 1791739738.056604,
+    "ast_hash": "ecdccf5392df8f225cf7c3b730084fc7",
+    "semantic_hash": ""
+  },
+  "test/controllers/custom_financial_institutions_controller_test.rb": {
+    "mtime": 1791736801.2203622,
+    "seen": 1791739738.056698,
+    "ast_hash": "c0007fd2d6e77c6fdb4e25644f8e8b9d",
+    "semantic_hash": ""
+  },
+  "test/controllers/money_sources_institution_test.rb": {
+    "mtime": 1791736189.7198899,
+    "seen": 1791739738.056726,
+    "ast_hash": "13e970ac40e9d5fdc96adf7682bff023",
+    "semantic_hash": ""
+  },
+  "test/models/custom_financial_institution_test.rb": {
+    "mtime": 1791683876.7529953,
+    "seen": 1791739738.0567749,
+    "ast_hash": "cb18c950d91c8c467dabf9d508167d67",
+    "semantic_hash": ""
+  },
+  "test/models/financial_institution_catalog_test.rb": {
+    "mtime": 1791684130.1287189,
+    "seen": 1791739738.056784,
+    "ast_hash": "e8882ec6b73c08e576500d7e402694b2",
+    "semantic_hash": ""
+  },
+  "test/models/institution_cached_name_cascade_test.rb": {
+    "mtime": 1791685814.54031,
+    "seen": 1791739738.056793,
+    "ast_hash": "7ec568da9fdb44122fc1cde5521d43d5",
+    "semantic_hash": ""
+  },
+  "test/models/money_source_institution_test.rb": {
+    "mtime": 1791685898.0908055,
+    "seen": 1791739738.0567958,
+    "ast_hash": "83e768fe9ea3d1a577142d6e2b56d5de",
+    "semantic_hash": ""
+  },
+  "test/services/institutions/bank_migrator_test.rb": {
+    "mtime": 1791684213.032648,
+    "seen": 1791739738.056948,
+    "ast_hash": "42c24ce895fe04299e1d7883b5179313",
+    "semantic_hash": ""
+  },
+  "test/services/institutions/bank_recognition_consolidator_test.rb": {
+    "mtime": 1791736168.5159037,
+    "seen": 1791739738.056949,
+    "ast_hash": "b6197cc07c4a5bc78c61c9005bb1375e",
+    "semantic_hash": ""
+  },
+  "test/services/source_recognition/matcher_bank_group_test.rb": {
+    "mtime": 1791736015.366696,
+    "seen": 1791739738.0569952,
+    "ast_hash": "a7a865a2a2b3279fa81366a98ec481d4",
+    "semantic_hash": ""
+  },
+  "docs/institution-catalog-migration.md": {
+    "mtime": 1791739721.6667364,
+    "seen": 1791739738.0571039,
+    "ast_hash": "10510979bd8fccbd6c42c1a86ab064db",
+    "semantic_hash": ""
+  },
+  "app/services/source_recognition/bank_grouping.rb": {
+    "mtime": 1791750677.1831048,
+    "seen": 1791766165.403737,
+    "ast_hash": "694067098b1e33b7257c9e93ad9fe94e",
+    "semantic_hash": ""
+  },
+  "app/services/source_recognition/reset.rb": {
+    "mtime": 1791742191.1103642,
+    "seen": 1791766165.403745,
+    "ast_hash": "2372f53a21f21e430adc9a3f03c530a0",
+    "semantic_hash": ""
+  },
+  "app/services/source_recognition/value_classifier.rb": {
+    "mtime": 1791765705.7670145,
+    "seen": 1791766165.40375,
+    "ast_hash": "93baf99defbfa16f69ea5d4b231695e1",
+    "semantic_hash": ""
+  },
+  "lib/tasks/recognition.rake": {
+    "mtime": 1791742174.484705,
+    "seen": 1791766165.403998,
+    "ast_hash": "ea6e046dadce817a59aacbad875c2fe5",
+    "semantic_hash": ""
+  },
+  "test/services/source_recognition/reset_test.rb": {
+    "mtime": 1791742281.8088381,
+    "seen": 1791766165.404375,
+    "ast_hash": "bc80ceb865960a656a9fddbe6b7c0d95",
     "semantic_hash": ""
   }
 }

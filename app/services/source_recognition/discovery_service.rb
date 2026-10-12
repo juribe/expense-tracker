@@ -48,7 +48,8 @@ module SourceRecognition
       # never suggest their own (not-a-bank) sender/domain/subject patterns.
       bank_owned = Catalog.bank_owned_sender?(message, filter_result.institution, owned_sender_index)
 
-      created = candidates.sum { |source| suggest_for(source, message, filter_result, bank_owned) }
+      seeds = seed_index(user)
+      created = candidates.sum { |source| suggest_for(source, message, filter_result, bank_owned, seeds) }
 
       Result.new(passed?: true, institution: filter_result.institution,
                  suggestions_created: created, candidate_source_ids: candidates.map(&:id))
@@ -113,7 +114,29 @@ module SourceRecognition
 
     # --- suggestion building --------------------------------------------------
 
-    def suggest_for(source, message, filter_result, bank_owned)
+    # Bank-level values (senders/domains/subjects) are discovered ONCE per
+    # bank group — on the group's SEED — so the user reviews them in the bank
+    # drawer instead of getting the same pending badges on every card.
+    # Members only receive PRODUCT evidence (keywords, anchored last-four).
+    # One entry per SOURCE id → its group's seed id. Computed once per
+    # sync run (the DiscoveryService instance is reused per message).
+    def seed_index(user)
+      @seed_by_source_id ||= begin
+        groups = BankGrouping.groups_for(user.money_sources.payment_sources.load)
+        mapping = {}
+        groups.each_value do |members|
+          seed = members.min_by(&:id)
+          members.each { |member| mapping[member.id] = seed.id }
+        end
+        mapping
+      end
+    end
+
+    def bank_level_source?(source, seeds)
+      seeds[source.id] == source.id
+    end
+
+    def suggest_for(source, message, filter_result, bank_owned, seeds)
       created = 0
       email = from_email(message)
       domain = email && email.split("@").last
@@ -121,14 +144,14 @@ module SourceRecognition
       # Institution-level values (senders, domains, subject templates) are
       # safe to reuse across every source of the same institution — but ONLY
       # when the email's sender owns the bank. Processor/telecom receipts
-      # (claro, epayco, PSE) must not turn their own sender/domain/subject
-      # into bank recognition patterns.
-      if bank_owned
+      # (claro, ePayco, PSE) must not turn their own sender/domain/subject
+      # into bank recognition patterns. They are suggested ONLY on the seed.
+      if bank_owned && bank_level_source?(source, seeds)
         created += suggest!(source, :sender, email)
         created += suggest!(source, :domain, domain)
       end
 
-      if bank_owned && subject_usable?(message, filter_result)
+      if bank_owned && bank_level_source?(source, seeds) && subject_usable?(message, filter_result)
         created += suggest!(source, :subject, subject_template(message[:subject]))
       end
 

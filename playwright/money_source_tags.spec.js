@@ -27,8 +27,19 @@ test.describe('MoneySource recognition keywords', () => {
     return card.locator('a[href^="/money_sources/"]').first().getAttribute('href');
   }
 
+  async function expandGroupFor(page, sourceName) {
+    // Bank cards render as collapsed accordions: expand the one containing
+    // the source before touching anything inside its table.
+    const card = page.locator('[data-testid="recognition-bank-group"]', { hasText: sourceName }).first();
+    const toggle = card.locator('[data-testid="recognition-bank-toggle"]').first();
+    if ((await toggle.getAttribute('aria-expanded')) === 'false') {
+      await toggle.click();
+    }
+  }
+
   async function addKeywords(page, sourceName, keywords) {
     await page.goto('/money_sources/recognition');
+    await expandGroupFor(page, sourceName);
     const row = page.locator('[data-testid="recognition-row"]', { hasText: sourceName });
     await row.locator('[data-testid="edit-recognition"]').click();
     await expect(page.getByTestId('recognition-edit-panel')).toBeVisible();
@@ -101,6 +112,7 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['1111', '2222']);
 
     await page.goto('/money_sources/recognition');
+    await expandGroupFor(page, name);
     const row = page.locator('[data-testid="recognition-row"]', { hasText: name });
     await row.locator('[data-testid="edit-recognition"]').click();
     await expect(page.getByTestId('recognition-edit-panel')).toBeVisible();

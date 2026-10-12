@@ -395,11 +395,115 @@
     scope.querySelectorAll("[data-recognition-chips] .recognition-chip-add").forEach(recognitionSetupAddInput);
   }
 
+  // --- collapsible recognition cards ------------------------------------------
+  // Bank group cards and the Gmail criteria card are collapsed accordions:
+  // any [data-recognition-toggle] inside a [data-recognition-collapsible]
+  // flips the card's `expanded` class (bodies are server-rendered and only
+  // hidden with CSS, so the content stays crawler/test friendly).
+  function recognitionToggleCard(card) {
+    var expanded = card.classList.toggle("expanded");
+    card.querySelectorAll("[data-recognition-toggle]").forEach(function (btn) {
+      btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var toggle = e.target.closest("[data-recognition-toggle]");
+    if (!toggle) return;
+    var card = toggle.closest("[data-recognition-collapsible]");
+    if (!card) return;
+    e.preventDefault();
+    recognitionToggleCard(card);
+  });
+
   document.addEventListener("DOMContentLoaded", function () {
     bindRecognition(document);
   });
 
-  // ---------------------------------------------------------------- Institution autocomplete
+  // --- guided recognition tutorial -------------------------------------------
+  // The "¿Cómo funciona?" modal holds five server-rendered step panels: the
+  // active one is switched with local state (`.is-active`), the progress rail
+  // is clickable and the last step swaps "Next" for "Back to start".
+  function recognitionHelpShow(modal, targetStep) {
+    var steps = Array.prototype.slice.call(modal.querySelectorAll("[data-testid='recognition-help-step']"));
+    var current = steps.findIndex(function (step) { return step.classList.contains("is-active"); });
+    var index = Math.max(0, Math.min(targetStep - 1, steps.length - 1));
+    if (index === current) return;
+
+    var last = index === steps.length - 1;
+    steps.forEach(function (step, i) {
+      var active = i === index;
+      step.classList.toggle("is-active", active);
+      step.setAttribute("data-help-active", active ? "true" : "false");
+    });
+    modal.querySelectorAll("[data-testid='help-progress-step']").forEach(function (dot, i) {
+      dot.classList.toggle("is-active", i === index);
+      dot.classList.toggle("is-done", i < index);
+    });
+    var readoutTitle = modal.querySelector("[data-help-title]");
+    var readoutMeta = modal.querySelector("[data-help-meta]");
+    var stepTitle = steps[index].getAttribute("data-help-title-text");
+    if (readoutTitle && stepTitle) readoutTitle.textContent = stepTitle;
+    if (readoutMeta) {
+      var template = readoutMeta.dataset.progressTemplate || "";
+      readoutMeta.textContent = template.replace("%{count}", index + 1).replace("%{total}", steps.length);
+    }
+    var prev = modal.querySelector("[data-testid='help-prev']");
+    var next = modal.querySelector("[data-testid='help-next']");
+    var restart = modal.querySelector("[data-testid='help-restart']");
+    if (prev) prev.disabled = index === 0;
+    if (restart) restart.classList.toggle("d-none", !last);
+    if (next) next.classList.toggle("d-none", last);
+    var body = modal.querySelector(".modal-body");
+    if (body) body.scrollTop = 0;
+  }
+
+  function bindRecognitionHelp(modal) {
+    if (modal.dataset.helpBound === "true") return;
+    modal.dataset.helpBound = "true";
+    var readoutMeta = modal.querySelector("[data-help-meta]");
+    if (readoutMeta) readoutMeta.dataset.progressTemplate = readoutMeta.textContent;
+    var restart = modal.querySelector("[data-testid='help-restart']");
+    if (restart) restart.classList.add("d-none");
+
+    modal.addEventListener("click", function (e) {
+      var steps = modal.querySelectorAll("[data-testid='recognition-help-step']");
+      var current = -1;
+      for (var i = 0; i < steps.length; i++) {
+        if (steps[i].classList.contains("is-active")) { current = i; break; }
+      }
+
+      var jump = e.target.closest("[data-help-jump]");
+      if (jump) { recognitionHelpShow(modal, parseInt(jump.dataset.helpJump, 10)); return; }
+
+      var nav = e.target.closest("[data-help-nav]");
+      if (!nav) return;
+      if (nav.dataset.helpNav === "prev") recognitionHelpShow(modal, current);
+      if (nav.dataset.helpNav === "next") recognitionHelpShow(modal, current + 2);
+      if (nav.dataset.helpNav === "restart") recognitionHelpShow(modal, 1);
+    });
+  }
+
+  // Re-run the assistant every time the modal opens (Bootstrap event).
+  document.addEventListener("shown.bs.modal", function (e) {
+    var el = document.getElementById("recognition-help-modal");
+    if (el && el === e.target) {
+      recognitionHelpShow(el, 1);
+      bindRecognitionHelp(el);
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var el = document.getElementById("recognition-help-modal");
+    if (el) bindRecognitionHelp(el);
+  });
+
+  document.addEventListener("turbo:load", function () {
+    var el = document.getElementById("recognition-help-modal");
+    if (el) bindRecognitionHelp(el);
+  });
+
+  // --- institution autocomplete ---------------------------------------------
   // Searchable combobox for the money-source institution selector
   // ([data-institution-combobox] in money_sources/_institution_select).
   // The option list travels inline as JSON in data-options (catalog +

@@ -215,6 +215,20 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
                   text: I18n.t("money_sources.recognition.suggested_from_institution")
   end
 
+  test "cash sources group as 'Efectivo' without any bank configuration affordance" do
+    create_source(name: "Efectivo", kind: "cash", bank: "")
+    create_source(name: "Davibank", kind: "account", bank: "Davibank")
+
+    get money_sources_recognition_path
+    assert_response :success
+
+    assert_select "[data-testid=recognition-bank-group]" do |groups|
+      assert_select groups, "[data-testid='recognition-bank-edit']", count: 1
+    end
+    assert_select ".recognition-bank-name", text: I18n.t("money_sources.recognition.cash_group")
+    assert_select ".recognition-bank-name", text: I18n.t("money_sources.recognition.no_bank_group"), count: 0
+  end
+
   test "GET /money_sources/recognition?bank_edit opens the bank drawer of the group with suggestions" do
     sibling = create_source(name: "Davibank Clásica", kind: "account", bank: "Davibank")
     sibling.ensure_recognition.replace_identifiers(sender: [ "notificaciones@davibank.com" ], subject: [ "Transacción aprobada" ])
@@ -232,7 +246,31 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{money_source_recognition_path(sibling.id)}']"
   end
 
-  test "GET /money_sources/recognition shows the suggestion count badge for suggested-only sources" do
+  test "suggestions a member discovers surface in the BANK drawer and are swept on save" do
+    sibling = create_source(name: "Davibank Seed", kind: "account", bank: "Davibank")
+    member = create_source(name: "Davibank Member", kind: "account", bank: "Davibank")
+    member.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+      kind: "sender", value: "mail@procesador.co", status: "suggested", origin: "gmail", observation_count: 3
+    )
+
+    # The member's pending BANK-level suggestion is listed in the SEED's
+    # bank drawer (earliest source of the group = the sibling).
+    get money_sources_recognition_path(bank_edit: "legacy:davibank")
+    assert_response :success
+    assert_select ".recognition-chip-suggested[data-suggested-for='senders'][data-suggested-value='mail@procesador.co']"
+
+    # Review once: the user DISMISSES the value and saves.
+    patch money_source_recognition_path(sibling.id), params: {
+      senders: [], subjects: [], dismissed: { "senders" => [ "mail@procesador.co" ] }
+    }
+    assert_redirected_to money_sources_recognition_path
+
+    member.reload
+    assert_empty member.recognition_identifiers.suggested
+    assert_nil member.reload.recognition # nothing left → record dropped
+  end
+
+  test "GET /money_sources/recognition shows pending-review status and group badge for suggested-only sources" do
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
     source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
       kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail"
@@ -240,9 +278,197 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     get money_sources_recognition_path
 
-    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_unconfigured')}/
+    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_pending')}/
     assert_select "[data-testid='recognition-suggestion-count']",
-                  text: I18n.t("money_sources.recognition.status_suggestions", count: 1)
+                  text: I18n.t("money_sources.recognition.group_pending", count: 1)
+  end
+
+  # --- Own suggestions: persisted, counted, dismissible ----------------------
+
+  test "GET /money_sources/recognition?edit persists the source's own suggestions and counts them on the bank card" do
+    source = create_source(name: "Ahorros Banco de Bogotá", kind: "account", bank: "Banco de Bogotá")
+
+    get money_sources_recognition_path(edit: source.id)
+    assert_response :success
+
+    source.reload
+    pending_ids = source.recognition.recognition_identifiers.suggested
+    assert pending_ids.any?, "the engine's own suggestions persist as suggested rows"
+
+    get money_sources_recognition_path
+    assert_select "[data-testid='recognition-suggestion-count']",
+                  text: I18n.t("money_sources.recognition.group_pending", count: pending_ids.count)
+  end
+
+  test "dismissed own suggestions stop counting and never resurface" do
+    source = create_source(name: "Ahorros Banco de Bogotá", kind: "account", bank: "Banco de Bogotá")
+    get money_sources_recognition_path(edit: source.id)
+    total = source.reload.recognition.recognition_identifiers.suggested.count
+    assert total.positive?
+    value = source.recognition.recognition_identifiers.suggested.first.value
+
+    patch money_source_recognition_path(source.id), params: { keywords: [], senders: [], subjects: [],
+                                                              dismissed: { "keywords" => [value] } }
+    assert_redirected_to money_sources_recognition_path
+    assert source.reload.recognition.recognition_identifiers.exists?(kind: "keyword", value: value, status: "dismissed")
+
+    get money_sources_recognition_path(edit: source.id)
+    assert_response :success
+    remaining = source.reload.recognition.recognition_identifiers.suggested
+    assert_not remaining.exists?(value: value)
+    assert_select "[data-testid='recognition-suggested-chip'][data-suggested-value='#{value}']", count: 0
+    assert_select "[data-testid='recognition-suggestion-count']",
+                  text: I18n.t("money_sources.recognition.group_pending", count: remaining.count)
+  end
+
+  test "typing a previously dismissed value confirms it instead of leaving a tombstone" do
+    source = create_source(name: "Ahorros Banco de Bogotá", kind: "account", bank: "Banco de Bogotá")
+    get money_sources_recognition_path(edit: source.id)
+    value = source.reload.recognition.recognition_identifiers.suggested.find { |id| id.keyword? }.value
+    patch money_source_recognition_path(source.id), params: { keywords: [], senders: [], subjects: [],
+                                                              dismissed: { "keywords" => [value] } }
+
+    patch money_source_recognition_path(source.id), params: { keywords: [value], senders: [], subjects: [] }
+
+    identifiers = source.reload.recognition.recognition_identifiers.where(kind: "keyword")
+    identifiers.select { |id| id.value == value }.each do |id|
+      assert id.confirmed?
+      assert_equal "user", id.origin
+    end
+    assert identifiers.count { |id| id.value == value } > 0
+    assert_not identifiers.any? { |id| id.value == value && (id.suggested? || id.dismissed?) }
+  end
+
+  test "GET /money_sources/recognition wires the how-it-works guided tutorial" do
+    create_source(name: "Davibank", kind: "account", bank: "Davibank")
+
+    get money_sources_recognition_path
+    assert_response :success
+    btn = css_select("[data-testid='recognition-help-btn']").first
+    assert btn
+    assert_equal "#recognition-help-modal", btn["data-bs-target"]
+    assert_equal "modal", btn["data-bs-toggle"]
+
+    assert_select "[data-testid='recognition-help-modal'][aria-hidden='true']"
+    assert_select "[data-testid='recognition-help-modal'] h2", text: I18n.t("money_sources.recognition.help_title")
+    # Guided assistant: five steps, clickable progress, prev/next controls.
+    assert_select "[data-testid='recognition-help-step']", count: 6
+    assert_select "[data-testid='recognition-help-step'][data-help-active='true']", count: 1
+    assert_select "[data-testid='help-progress-step']", count: 6
+    assert_select "[data-testid='help-prev']"
+    assert_select "[data-testid='help-next']"
+    assert_select "[data-testid='help-restart']", count: 1
+    # Same demo text on both channels (WhatsApp message == app text input):
+    # the shared paragraph with the highlighted money-source phrase renders twice.
+    rendered_text = /con mi <mark class="recognition-help-mark">tarjeta oro<\/mark>\./
+    assert response.body.scan(rendered_text).size >= 2, "WhatsApp and app-text demos must share the same sentence"
+    # The email of step 1 highlights the matched money source too.
+    assert response.body.scan("recognition-help-mark").size >= 3
+    assert_select "[data-testid='help-next']", text: I18n.t("money_sources.recognition.help_next")
+  end
+
+  # --- Collapsible bank cards: collapses, default icons, chips, footer -------------------
+
+  test "GET /money_sources/recognition renders bank cards collapsed by default and expands only the edited group" do
+    davibank = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    create_source(name: "Ahorros Nu", kind: "account", bank: "Bancolombia")
+
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "[data-testid='recognition-bank-group']", count: 2
+    assert_select "[data-testid='recognition-bank-group'].expanded", count: 0
+    assert_select "[data-testid='recognition-bank-group'] [data-testid='recognition-bank-toggle'][aria-expanded='false']",
+                  count: 2
+
+    get money_sources_recognition_path(edit: davibank.id)
+    assert_select "[data-testid='recognition-bank-group'].expanded", count: 1
+    assert_select "[data-testid='recognition-bank-group'] [data-testid='recognition-bank-toggle'][aria-expanded='true']",
+                  count: 1
+
+    get money_sources_recognition_path(bank_edit: "legacy:davibank")
+    assert_select "[data-testid='recognition-bank-group'].expanded", count: 1
+  end
+
+  test "GET /money_sources/recognition renders default bank icons instead of images" do
+    create_source(name: "Davibank", kind: "account", bank: "Davibank")
+
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "[data-testid='recognition-bank-group'] .recognition-bank-icon i.ti-building-bank", count: 1
+    assert_select "[data-testid='recognition-bank-group'] img", count: 0
+  end
+
+  test "GET /money_sources/recognition renders the banks section header without an add-bank affordance" do
+    create_source(name: "Davibank", kind: "account", bank: "Davibank")
+
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "h2", text: I18n.t("money_sources.recognition.banks_title")
+    assert_select "p", text: I18n.t("money_sources.recognition.banks_subtitle")
+    assert_no_match(/Agregar banco/, response.body)
+  end
+
+  test "GET /money_sources/recognition shows identifiers and suggested keywords per source" do
+    source = create_source(name: "Tarjeta Infinite", kind: "credit_card", bank: "Davibank", identifier: "6017")
+    source.ensure_recognition.replace_identifiers(keyword: ["infinite"])
+    source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+      kind: "keyword", value: "millas", status: "suggested", origin: "gmail"
+    )
+
+    get money_sources_recognition_path
+    assert_response :success
+
+    assert_select ".recognition-table th", text: I18n.t("money_sources.recognition.col_identifiers")
+    assert_select ".recognition-table th", text: I18n.t("money_sources.recognition.col_keywords")
+    assert_select "[data-testid='recognition-row'] [data-testid='recognition-identifiers']",
+                  text: "infinite, •••• 6017"
+    assert_select "[data-testid='recognition-row'] [data-testid='recognition-keywords']",
+                  text: "millas"
+  end
+
+  # Cards whose identifier is blank resolve the last four from the child
+  # credit_account — loaded per kind in the controller, never as an eager
+  # include (it would be unused for cards that carry their own identifier).
+  test "GET /money_sources/recognition resolves the last four of identifier-less cards from their credit account" do
+    source = create_source(name: "Tarjeta LifeMiles", kind: "credit_card", bank: "Davibank")
+    source.build_credit_account(card_last_four: "5986", credit_limit: 3000000, interest_rate: 24.0,
+                                interest_rate_type: "effective_annual")
+    source.save!
+    source.ensure_recognition.replace_identifiers(keyword: ["lifemiles"])
+
+    get money_sources_recognition_path
+    assert_response :success
+
+    assert_select "[data-testid='recognition-row'] [data-testid='recognition-identifiers']",
+                  text: "lifemiles, •••• 5986"
+  end
+
+  test "GET /money_sources/recognition footer links to a new source and to the bank suggestion review" do
+    source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
+      kind: "keyword", value: "millas", status: "suggested", origin: "gmail"
+    )
+
+    get money_sources_recognition_path
+    assert_response :success
+
+    assert_select "a[data-testid='recognition-add-source'][href='#{new_money_source_path}']"
+    assert_select "a[data-testid='recognition-view-suggestions'][href='#{money_sources_recognition_path(bank_edit: 'legacy:davibank')}']",
+                  text: I18n.t("money_sources.recognition.view_pending", count: 1)
+  end
+
+  test "GET /money_sources/recognition shows bank header status badges" do
+    create_source(name: "Davibank", kind: "account", bank: "Davibank").ensure_recognition.replace_identifiers(keyword: ["davi"])
+    create_source(name: "Ahorros Nu", kind: "account", bank: "Bancolombia")
+
+    get money_sources_recognition_path
+    assert_response :success
+    assert_select "[data-testid='recognition-bank-status']",
+                  count: 2
+    assert_select "[data-testid='recognition-bank-status'].recognition-status-ok",
+                  text: I18n.t("money_sources.recognition.group_configured")
+    assert_select "[data-testid='recognition-bank-status'].recognition-status-unconfigured",
+                  text: I18n.t("money_sources.recognition.status_unconfigured")
   end
 
   # --- Gmail criteria card ---------------------------------------------------
@@ -252,7 +478,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='gmail-criteria-card']", count: 0
   end
 
-  test "GET /money_sources/recognition renders the gmail criteria card for manual entry" do
+  test "GET /money_sources/recognition renders the gmail criteria card as a collapsed summary" do
     GmailConnection.create!(user: @user, email: "me@gmail.com",
                             search_config: { senders: [ "manual@bank.com" ],
                                              domains: [ "bank.com" ],
@@ -261,6 +487,10 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     get money_sources_recognition_path
 
     assert_select "[data-testid='gmail-criteria-card']", count: 1
+    assert_select "[data-testid='gmail-criteria-card'].expanded", count: 0
+    assert_select "[data-testid='gmail-connected']", text: I18n.t("money_sources.recognition.gmail_connected")
+    assert_select "[data-testid='gmail-criteria-manage']",
+                  text: I18n.t("money_sources.recognition.criteria_manage")
     form = css_select("form[action='#{gmail_connection_path}']")
     assert_equal 1, form.size
     assert_select form, "textarea[name='search_config[senders]']", text: "manual@bank.com"
@@ -307,13 +537,13 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='gmail-criteria-rescan'] [data-sync-status-path]"
   end
 
-  test "GET /money_sources/recognition marks the criteria card as syncing" do
+  test "GET /money_sources/recognition marks the criteria card as syncing and expanded" do
     connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
     connection.update!(syncing: Time.current)
 
     get money_sources_recognition_path
 
-    assert_select "[data-testid='gmail-criteria-card'][data-sync-in-progress]", count: 1
+    assert_select "[data-testid='gmail-criteria-card'][data-sync-in-progress].expanded", count: 1
     assert_select "[data-testid='criteria-syncing']",
                   text: I18n.t("money_sources.recognition.criteria_syncing")
   end
@@ -403,7 +633,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert source.recognition_configured?
   end
 
-  test "PATCH /money_sources/recognition/:id deletes dismissed suggestions and preserves untouched ones" do
+  test "PATCH /money_sources/recognition/:id tombstones dismissed suggestions and preserves untouched ones" do
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
     recognition = source.ensure_recognition.tap(&:save!)
     recognition.replace_identifiers(keyword: ["davi"])
@@ -417,8 +647,9 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
           }
 
     source.reload
-    assert_nil source.recognition.recognition_identifiers.find_by(kind: "sender", value: "descartado@davibank.com")
-    assert source.recognition.recognition_identifiers.exists?(kind: "sender", value: "pendiente@davibank.com")
+    dismissed = source.recognition.recognition_identifiers.find_by(kind: "sender", value: "descartado@davibank.com")
+    assert dismissed.dismissed?
+    assert source.recognition.recognition_identifiers.exists?(kind: "sender", value: "pendiente@davibank.com", status: "suggested")
   end
 
   test "PATCH /money_sources/recognition/:id with all-empty keeps untouched suggestions and record" do

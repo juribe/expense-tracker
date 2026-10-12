@@ -23,9 +23,10 @@ module SourceRecognition
   #     subjects: [ { value:, source: }, ... ]
   #   }
   #
-  # The engine never writes to the database.
-  class SuggestionEngine
-    Suggestion = Struct.new(:value, :source, :product_specific, keyword_init: true)
+  # The computed suggestions persist via #persist!: own-computed values are
+  # stored as suggested rows (origin = the provenance token) so the group
+  # cards count every pending value until it is applied or dismissed.
+  class SuggestionEngine    Suggestion = Struct.new(:value, :source, :product_specific, keyword_init: true)
 
     # Words that read as generic (money / bank / card) are not useful distinct
     # keywords and are skipped as name-derived suggestions.
@@ -43,36 +44,130 @@ module SourceRecognition
                             bancocaja bbva santander avvillas pibranchcolpatria
                             bancolombia].freeze
 
-    def initialize(source:)
+    # `group_members` feeds the BANK drawer: its persisted suggestions for
+    # the bank-level kinds (senders/domains/subjects) are aggregated from
+    # every member the Gmail discovery touched, so the user reviews them in
+    # ONE place instead of per card. Product keywords stay per source.
+    def initialize(source:, group_members: [])
       @source = source
+      @group_members = group_members
     end
 
     def call
-      {
+      @call ||= {
         keywords: merge_persisted(%w[keyword], keyword_suggestions),
         senders: merge_persisted(%w[sender domain], sender_suggestions),
         subjects: merge_persisted(%w[subject header], subject_suggestions)
       }
     end
 
+    # Persists the computed suggestions (status "suggested", origin = the
+    # provenance token) so the group cards count them — gmail-discovered AND
+    # own-computed alike — until each value is applied (promoted) or
+    # dismissed (tombstoned). Existing CONFIRMED values block; SUGGESTED rows
+    # are already persisted; DISMISSED tombstones block forever. The
+    # discovery cap bounds the noise from messy names.
+    def persist!
+      created = 0
+      recognition = source.ensure_recognition
+      recognition.save! if recognition.new_record?
+
+      call.each do |section, suggestions|
+        suggestions.each do |suggestion|
+          kind = SourceRecognition::ValueClassifier.kind_of(section.to_s, suggestion[:value])
+          origin = suggested_origin(suggestion[:source])
+          value = MoneySourceRecognitionIdentifier.normalize(suggestion[:value])
+          next if value.blank? || origin.blank?
+          next if recognition.recognition_identifiers.exists?(kind: kind, value: value)
+          next if recognition.recognition_identifiers.where(kind: kind).count >= SourceRecognition::DiscoveryService::MAX_PER_KIND
+
+          recognition.recognition_identifiers.create!(
+            kind: kind, value: value, status: "suggested", origin: origin,
+            position: next_position(recognition, kind)
+          )
+          created += 1
+        rescue ActiveRecord::RecordNotUnique
+          0
+        end
+      end
+      recognition.recognition_identifiers.reload
+      created
+    end
+
     private
 
     attr_reader :source
 
-    # Values discovered during Gmail syncs (persisted, status "suggested")
-    # surface as suggestions with :gmail provenance, most-observed first.
-    def persisted_suggestions(kinds)
-      source.recognition_identifiers
-            .select { |id| id.suggested? && id.kind.in?(kinds) }
-            .sort_by { |id| -id.observation_count }
-            .map { |id| { value: id.value, source: :gmail, count: id.observation_count } }
+    # Maps the suggestion provenance to the persisted origin token. Sibling
+    # reuse collapses to "sibling" (the specific name is dynamic).
+    def suggested_origin(source_label)
+      # Only token provenances persist (own guesses); :gmail rows are already
+      # persisted and sibling-reuse values (String provenance) are already
+      # persisted on the sibling — copying them would double-count.
+      return nil unless source_label.is_a?(Symbol) && source_label != :gmail
+
+      MoneySourceRecognitionIdentifier::ORIGINS.include?(source_label.to_s) ? source_label.to_s : nil
     end
 
-    # Persisted Gmail suggestions take precedence over computed ones; the
-    # combined list is deduped case-insensitively.
+    def next_position(recognition, kind)
+      recognition.recognition_identifiers.where(kind: kind).maximum(:position).to_i.succ
+    end
+
+    # Values discovered during Gmail syncs (persisted, status "suggested")
+    # surface as suggestions with :gmail provenance, most-observed first.
+    # When banking-level kinds are rendered for a group (bank drawer), the
+    # members' suggestions join the pool — provenance shows the member name.
+    def persisted_suggestions(kinds)
+      bank_level_section = kinds.exclude?("keyword")
+      unless bank_level_section
+        return source.recognition_identifiers
+                     .select { |id| id.suggested? && id.kind.in?(kinds) }
+                     .sort_by { |id| -id.observation_count }
+                     .map { |id| { value: id.value, source: persisted_source(id), count: id.observation_count } }
+      end
+
+      ([ source ] + Array(@group_members))
+        .flat_map do |origin|
+          rows = if origin == source
+                   origin.recognition_identifiers
+                 else
+                   origin.recognition_identifiers.select { |id| !id.keyword? }
+                 end
+          rows.select { |id| id.suggested? && id.kind.in?(kinds) }
+              .sort_by { |id| -id.observation_count }
+              .map do |id|
+                { value: id.value,
+                  source: persisted_source(id, origin: origin),
+                  count: id.observation_count }
+              end
+        end
+        .sort_by { |suggestion| -suggestion[:count] }
+    end
+
+    # Provenance of a persisted row: gmail rows keep :gmail (or the owning
+    # member's name in the bank drawer); own-computed rows map their stored
+    # origin token back to the engine provenance symbol.
+    def persisted_source(id, origin: nil)
+      return origin.name if origin && origin != source && id.origin == "gmail"
+
+      case id.origin
+      when "gmail" then :gmail
+      when "name" then :name
+      when "institution" then :institution
+      when "kind" then :kind
+      when "last_four" then :last_four
+      else :sibling
+      end
+    end
+
+    # Merge order: gmail-discovered rows first (strongest provenance), then
+    # the computed suggestions (own-computed provenance), then any own-computed
+    # persisted rows not recomputed this time. Deduped case-insensitively.
     def merge_persisted(kinds, computed)
-      (persisted_suggestions(kinds) + computed)
-        .uniq { |s| s[:value].to_s.downcase }
+      persisted = persisted_suggestions(kinds)
+      gmail_rows = persisted.select { |s| s[:source] == :gmail }
+      persisted = persisted - gmail_rows
+      (gmail_rows + computed + persisted).uniq { |s| s[:value].to_s.downcase }
     end
 
     # Only CONFIRMED values block suggestions: persisted suggestions must
@@ -205,10 +300,12 @@ module SourceRecognition
 
     def bank_domain_suggestion
       # Attached to a catalog entity: suggest one of its verified domains
-      # (candidate signal the user still must accept).
-      if source.institution? && source.institution.is_a?(FinancialInstitution)
-        domains = source.institution.domains
-        domain = domains.first if domains.any?
+      # (candidate signal the user still must accept). Keyed by type/id
+      # columns + a point lookup so hot paths stay association-free (the
+      # display label lives in institution_cached_name).
+      if source.institution_type == "FinancialInstitution"
+        catalog_entity = FinancialInstitution.find_by(id: source.institution_id)
+        domain = catalog_entity&.domains&.first
       end
 
       # Legacy fallback: "<bank-token>.com" for unattached single-token bank.

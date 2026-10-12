@@ -5,15 +5,18 @@
 # email body), a sender/domain (matched against the From header) or a
 # subject/header pattern. Each identifier has a type, a normalized value and
 # a lifecycle state:
-#   status: "confirmed" (user accepted — used for matching) or "suggested"
-#           (discovered by e.g. Gmail sync — shown for review, NEVER used
-#           for matching and never silently promoted).
-#   origin: "user" (typed/accepted on the recognition page) or "gmail"
-#           (discovered during a sync).
+#   status: "confirmed" (user accepted — used for matching), "suggested"
+#           (shown for review, NEVER used for matching and never silently
+#           promoted) or "dismissed" (user rejected — a tombstone that keeps
+#           the value from being re-suggested).
+#   origin: "user" (typed/accepted on the recognition page), "gmail"
+#           (discovered during a sync) or the engine provenance token
+#           (name / institution / kind / last_four / sibling) for own
+#           suggestions computed by SourceRecognition::SuggestionEngine.
 class MoneySourceRecognitionIdentifier < ApplicationRecord
   KINDS = %w[keyword sender domain subject header].freeze
-  STATUSES = %w[confirmed suggested].freeze
-  ORIGINS = %w[user gmail].freeze
+  STATUSES = %w[confirmed suggested dismissed].freeze
+  ORIGINS = %w[user gmail name institution kind last_four sibling engine].freeze
 
   # autosave so identifiers can be created on a lazily built (unsaved)
   # recognition record — the parent is persisted first automatically.
@@ -31,6 +34,7 @@ class MoneySourceRecognitionIdentifier < ApplicationRecord
 
   scope :confirmed, -> { where(status: "confirmed") }
   scope :suggested, -> { where(status: "suggested") }
+  scope :dismissed, -> { where(status: "dismissed") }
 
   def keyword? = kind == "keyword"
   def sender? = kind == "sender"
@@ -40,6 +44,7 @@ class MoneySourceRecognitionIdentifier < ApplicationRecord
 
   def confirmed? = status == "confirmed"
   def suggested? = status == "suggested"
+  def dismissed? = status == "dismissed"
 
   # Domain-based uniqueness: a domain and a full address are both "sender"
   # signals. We normalize lowercase and strip, but keep the value as typed so

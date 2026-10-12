@@ -1,5 +1,6 @@
 module ApplicationHelper
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
+  BANK_ICON_TONES = 8
 
   # Data for the money-source institution AUTOCOMPLETE: catalog entities
   # (active; the currently attached one is always listed even when inactive)
@@ -156,6 +157,13 @@ module ApplicationHelper
 
   def field_error(object, method)
     object.errors[method].first
+  end
+
+  # Deterministic accent pairs (tone-N classes in application.css) for the
+  # recognition bank tiles: the group key is hashed so every bank keeps its
+  # own color across visits without brand images.
+  def bank_icon_tone(key)
+    "tone-#{key.to_s.sum % BANK_ICON_TONES}"
   end
 
   def money_field_value(value)
@@ -520,6 +528,8 @@ module ApplicationHelper
       t("money_sources.recognition.suggested_from_kind")
     when :last_four
       t("money_sources.recognition.suggested_from_last_four")
+    when :sibling
+      t("money_sources.recognition.suggested_from_sibling")
     else
       t("money_sources.recognition.suggested_from_source", source: s[:source])
     end

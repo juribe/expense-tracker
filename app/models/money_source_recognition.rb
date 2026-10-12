@@ -49,8 +49,9 @@ class MoneySourceRecognition < ApplicationRecord
           record = existing.delete(value)
           if record.nil?
             record = recognition_identifiers.build(kind: kind_str)
-          elsif record.suggested?
-            # The user accepted a suggestion: promote it, never duplicate it.
+          elsif record.suggested? || record.dismissed?
+            # The user typed the value back: an accepted suggestion or a
+            # dismissed tombstone both end up confirmed, never duplicated.
             record.assign_attributes(status: "confirmed", origin: "user")
           end
           record.value = value
@@ -67,18 +68,35 @@ class MoneySourceRecognition < ApplicationRecord
     configured?
   end
 
-  # Deletes persisted suggestions (by section kind group and values) that the
-  # user explicitly dismissed on the recognition page. Confirmed values are
-  # never touched.
+  # Persists a DISMISSAL as the tombstone state: a suggested row flips to
+  # "dismissed" (so it keeps blocking future re-suggestions from any origin),
+  # and a value the engine computed but had never persisted receives its own
+  # tombstone row. Confirmed values are never touched.
   def dismiss_suggestions!(dismissed_by_section)
-    dismissed_by_section.each do |section, values|
-      kinds = self.class.section_kinds(section.to_s)
-      next if kinds.empty?
+    transaction do
+      save! if new_record?
 
-      wanted = Array(values).compact_blank.map { |v| MoneySourceRecognitionIdentifier.normalize(v) }
-      next if wanted.empty?
+      dismissed_by_section.each do |section, values|
+        kinds = self.class.section_kinds(section.to_s)
+        next if kinds.empty?
 
-      recognition_identifiers.suggested.where(kind: kinds, value: wanted).destroy_all
+        wanted = Array(values).compact_blank.map { |v| MoneySourceRecognitionIdentifier.normalize(v) }
+        next if wanted.empty?
+
+        wanted.each do |value|
+          existing = recognition_identifiers.find_by(kind: kinds, value: value)
+          if existing
+            existing.update!(status: "dismissed") unless existing.dismissed?
+          else
+            recognition_identifiers.create!(
+              kind: kind_for_value(section, value), value: value,
+              status: "dismissed", origin: "user", position: next_position(kinds)
+            )
+          end
+        end
+      end
+
+      recognition_identifiers.reload
     end
     recognition_identifiers.reload
   end
@@ -103,5 +121,16 @@ class MoneySourceRecognition < ApplicationRecord
     return if money_source.nil? || money_source.payment_source?
 
     errors.add(:money_source, :not_a_payment_source)
+  end
+
+  # The section's first kind whose value shape matches: bare domains dismiss
+  # as "domain", addresses as "sender"; header patterns dismiss as "header".
+  def kind_for_value(section, value)
+    kind = SourceRecognition::ValueClassifier.kind_of(section, value)
+    kind.in?(section_kinds = self.class.section_kinds(section.to_s)) ? kind : section_kinds.first
+  end
+
+  def next_position(kinds)
+    recognition_identifiers.where(kind: kinds).maximum(:position).to_i.succ
   end
 end

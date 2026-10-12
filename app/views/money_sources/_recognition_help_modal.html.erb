@@ -1,0 +1,280 @@
+<%#
+  "¿Cómo funciona?" — guided, interactive tutorial. The modal shells are the
+  existing Bootstrap modal; the assistant itself is vanilla-JS state (the
+  same convention used by every recognition interaction): five server-side
+  step panels, a clickable progress rail and prev/next controls. Static
+  HTML/CSS roles only — no brand images, default Tabler icons.
+  The "Procesar" button and every example are illustrative only.
+%>
+<%
+  step2_source = t("money_sources.recognition.help_step2_highlight")
+  step_text = t("money_sources.recognition.help_step_text", source: step2_source)
+  step_pre, step_post = step_text.to_s.split(step2_source, 2)
+  step_post ||= ""
+
+  # The step-1 email bodies the same match phrase, highlighted like the other
+  # two channels (view-split on the locale source token).
+  mail_source = t("money_sources.recognition.help_step1_source")
+  mail_text = t("money_sources.recognition.help_step1_match", source: mail_source)
+  mail_pre, mail_post = mail_text.to_s.split(mail_source, 2)
+  mail_post ||= ""
+  highlight = "<mark class=\"recognition-help-mark\">%s</mark>"
+  step_mark = highlight % step2_source
+  mail_mark = highlight % mail_source
+%>
+<div class="modal fade recognition-help-modal" id="recognition-help-modal" tabindex="-1"
+     role="dialog" aria-labelledby="recognition-help-title" aria-hidden="true"
+     data-testid="recognition-help-modal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="recognition-help-head">
+        <span class="recognition-help-hero-icon" aria-hidden="true"><i class="ti ti-wand"></i></span>
+        <h2 class="recognition-help-title" id="recognition-help-title">
+          <%= t("money_sources.recognition.help_title") %>
+        </h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close") %>"></button>
+      </div>
+
+      <%# Progress rail: one clickable segment per step + the step readout. %>
+      <div class="recognition-help-progress">
+        <div class="recognition-help-progress-rail" role="tablist" aria-label="<%= t("money_sources.recognition.help_progress", count: 1, total: 6) %>">
+          <% labels = %w[help_step1_label help_step2_label help_step3_label help_step4_label help_step5_label help_foot_title] %>
+          <% labels.each_with_index do |label, index| %>
+            <button type="button" class="recognition-help-progress-step <%= "is-active" if index.zero? %>"
+                    data-testid="help-progress-step" data-help-jump="<%= index + 1 %>"
+                    aria-label="<%= t("money_sources.recognition.help_progress", count: index + 1, total: 6) %>: <%= t("money_sources.recognition.#{label}") %>"
+                    title="<%= t("money_sources.recognition.#{label}") %>">
+              <span class="recognition-help-progress-dot" aria-hidden="true"><%= index + 1 %></span>
+            </button>
+          <% end %>
+        </div>
+        <p class="recognition-help-progress-text" data-help-readout>
+          <strong data-help-title><%= t("money_sources.recognition.help_step1_title") %></strong>
+          <span data-help-meta><%= t("money_sources.recognition.help_progress", count: 1, total: 6) %></span>
+        </p>
+      </div>
+
+      <div class="modal-body">
+        <%# Demo text shared by WhatsApp (step 2) and the app form (step 3):
+            same string, the money-source phrase highlighted. %>
+
+        <%# 1 — Gmail filter %>
+        <section class="recognition-help-step tone-violet is-active" data-testid="recognition-help-step" data-help-title-text="<%= t("money_sources.recognition.help_step1_title") %>" data-help-active="true">
+          <p class="recognition-help-body"><%= t("money_sources.recognition.help_step1_body") %></p>
+          <div class="recognition-help-demo">
+            <div class="recognition-help-demo-row">
+              <span class="recognition-help-mini-icon tone-gmail" aria-hidden="true"><i class="ti ti-brand-gmail"></i></span>
+              <span class="recognition-help-demo-name">Gmail</span>
+              <span class="recognition-help-badge badge-ok"><i class="ti ti-circle-check" aria-hidden="true"></i> Conectado</span>
+            </div>
+            <p class="recognition-help-demo-label"><%= t("money_sources.recognition.help_step1_chips") %></p>
+            <div class="recognition-help-chips">
+              <% %w[help_step1_chip1 help_step1_chip2 help_step1_chip3].each do |key| %>
+                <span class="recognition-help-chip chip-blue"><%= t("money_sources.recognition.#{key}") %></span>
+              <% end %>
+            </div>
+            <span class="recognition-help-down" aria-hidden="true">↓</span>
+            <div class="recognition-help-mail is-match">
+              <div class="recognition-help-demo-row">
+                <span class="recognition-help-mini-icon tone-bank" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
+                <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step1_from") %></span>
+                <span class="recognition-help-mini-time">09:12 a. m.</span>
+              </div>
+              <p class="recognition-help-mail-subject"><%= t("money_sources.recognition.help_step1_subject") %></p>
+              <p class="recognition-help-mail-body"><%= mail_pre.html_safe rescue mail_pre %><%= mail_mark.html_safe %><%= mail_post.html_safe rescue mail_post %></p>
+            </div>
+            <div class="recognition-help-skip-row">
+              <div class="recognition-help-mail is-skip">
+                <div class="recognition-help-demo-row">
+                  <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-mail"></i></span>
+                  <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step1_promo") %></span>
+                  <span class="recognition-help-mail-body"><%= t("money_sources.recognition.help_step1_promo_desc") %></span>
+                </div>
+                <span class="recognition-help-skip-eye" title="<%= t("money_sources.recognition.help_step1_skipped") %>" aria-label="<%= t("money_sources.recognition.help_step1_skipped") %>"><i class="ti ti-eye-off"></i></span>
+              </div>
+              <div class="recognition-help-mail is-skip">
+                <div class="recognition-help-demo-row">
+                  <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-mail"></i></span>
+                  <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step1_status") %></span>
+                  <span class="recognition-help-mail-body"><%= t("money_sources.recognition.help_step1_status_desc") %></span>
+                </div>
+                <span class="recognition-help-skip-eye" title="<%= t("money_sources.recognition.help_step1_skipped") %>" aria-label="<%= t("money_sources.recognition.help_step1_skipped") %>"><i class="ti ti-eye-off"></i></span>
+              </div>
+            </div>
+            <div class="recognition-help-note note-ok">
+              <span class="recognition-help-check" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+              <%= t("money_sources.recognition.help_step1_note") %>
+            </div>
+          </div>
+        </section>
+
+        <%# 2 — WhatsApp message %>
+        <section class="recognition-help-step tone-blue" data-testid="recognition-help-step" data-help-title-text="<%= t("money_sources.recognition.help_step2_title") %>">
+          <p class="recognition-help-body"><%= t("money_sources.recognition.help_step2_body") %></p>
+          <div class="recognition-help-demo">
+            <div class="recognition-help-demo-row">
+              <span class="recognition-help-mini-icon tone-wa" aria-hidden="true"><i class="ti ti-brand-whatsapp"></i></span>
+              <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step2_thread") %></span>
+            </div>
+            <div class="recognition-help-bubble">
+              <p><%= step_pre.html_safe rescue step_pre %><%= step_mark.html_safe %><%= step_post.html_safe rescue step_post %></p>
+              <span class="recognition-help-mini-time"><%= t("money_sources.recognition.help_step2_time") %></span>
+            </div>
+            <p class="recognition-help-demo-label"><%= t("money_sources.recognition.help_foot_examples") %></p>
+            <div class="recognition-help-chips">
+              <span class="recognition-help-chip chip-blue"><%= step2_source %></span>
+            </div>
+            <div class="recognition-help-note note-info">
+              <span class="recognition-help-check" aria-hidden="true"><i class="ti ti-shield-check"></i></span>
+              <%= t("money_sources.recognition.help_step2_note") %>
+            </div>
+          </div>
+        </section>
+
+        <%# 3 — expense typed in the app (same text as step 2) %>
+        <section class="recognition-help-step tone-purple" data-testid="recognition-help-step" data-help-title-text="<%= t("money_sources.recognition.help_step3_title") %>">
+          <p class="recognition-help-body"><%= t("money_sources.recognition.help_step3_body") %></p>
+          <div class="recognition-help-demo">
+            <div class="recognition-help-demo-row">
+              <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-file-description"></i></span>
+              <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step3_inventory") %></span>
+            </div>
+            <div class="recognition-help-compose">
+              <div class="min-w-0">
+                <span class="recognition-help-field-label"><%= t("money_sources.recognition.help_step3_field_label") %></span>
+                <p class="recognition-help-compose-text"><%= step_pre.html_safe rescue step_pre %><%= step_mark.html_safe %><%= step_post.html_safe rescue step_post %></p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" disabled
+                      title="<%= t("money_sources.recognition.help_demo_note") %>"><%= t("money_sources.recognition.help_step3_process") %></button>
+            </div>
+            <div class="recognition-help-note note-info">
+              <span class="recognition-help-check" aria-hidden="true"><i class="ti ti-info-circle"></i></span>
+              <%= t("money_sources.recognition.help_demo_note") %>
+            </div>
+          </div>
+        </section>
+
+        <%# 4 — extract the expense details %>
+        <section class="recognition-help-step tone-amber" data-testid="recognition-help-step" data-help-title-text="<%= t("money_sources.recognition.help_step4_title") %>">
+          <p class="recognition-help-body"><%= t("money_sources.recognition.help_step4_body") %></p>
+          <div class="recognition-help-panel">
+            <p class="recognition-help-panel-title">
+              <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-file-analytics"></i></span>
+              <%= t("money_sources.recognition.help_step4_panel_title") %>
+            </p>
+              <% [
+                ["basket", "help_step4_field_commerce", "help_step4_field_commerce_value"],
+                ["cash", "help_step4_field_amount", "help_step4_field_amount_value"],
+                ["calendar-event", "help_step4_field_date", "help_step4_field_date_value"],
+                ["file-text", "help_step4_field_desc", "help_step4_field_desc_value"],
+                ["tag", "help_step4_field_category", "help_step4_field_category_value"]
+              ].each do |icon, label, value| %>
+              <div class="recognition-help-field">
+                <span class="recognition-help-field-icon" aria-hidden="true"><i class="ti ti-<%= icon %>"></i></span>
+                <div class="min-w-0">
+                  <span class="recognition-help-field-label"><%= t("money_sources.recognition.#{label}") %></span>
+                  <span class="recognition-help-field-value"><%= t("money_sources.recognition.#{value}") %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
+        <%# 5 — pick the money source: matches on the left, result on the right %>
+        <section class="recognition-help-step tone-green" data-testid="recognition-help-step" data-help-title-text="<%= t("money_sources.recognition.help_step5_title") %>">
+          <p class="recognition-help-body"><%= t("money_sources.recognition.help_step5_body") %></p>
+          <div class="recognition-help-cols">
+            <div class="recognition-help-panel">
+              <p class="recognition-help-panel-title">
+                <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-search"></i></span>
+                <%= t("money_sources.recognition.help_step5_panel_title") %>
+              </p>
+              <div class="recognition-help-candidate is-best">
+                <div class="recognition-help-demo-row">
+                  <span class="recognition-help-mini-icon tone-bank" aria-hidden="true"><i class="ti ti-credit-card"></i></span>
+                  <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_outcome_source_value") %></span>
+                  <span class="recognition-help-badge badge-best"><%= t("money_sources.recognition.help_step5_match_best") %></span>
+                </div>
+                <p class="recognition-help-mail-body muted"><%= t("money_sources.recognition.help_outcome_bank_value") %></p>
+                <p class="recognition-help-demo-label"><%= t("money_sources.recognition.help_step5_matched_label") %></p>
+                <div class="recognition-help-chips">
+                  <% %w[help_step5_match_chip1 help_step5_match_chip2].each do |key| %>
+                    <span class="recognition-help-chip chip-blue"><%= t("money_sources.recognition.#{key}") %></span>
+                  <% end %>
+                </div>
+              </div>
+              <div class="recognition-help-candidate">
+                <div class="recognition-help-demo-row">
+                  <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
+                  <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step5_source2") %></span>
+                  <span class="recognition-help-badge badge-low"><%= t("money_sources.recognition.help_step5_match_low") %></span>
+                </div>
+                <p class="recognition-help-mail-body muted"><%= t("money_sources.recognition.help_step5_source2_bank") %></p>
+              </div>
+              <div class="recognition-help-candidate">
+                <div class="recognition-help-demo-row">
+                  <span class="recognition-help-mini-icon" aria-hidden="true"><i class="ti ti-credit-card"></i></span>
+                  <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step5_source3") %></span>
+                  <span class="recognition-help-badge badge-ghost"><%= t("money_sources.recognition.help_step5_match_none") %></span>
+                </div>
+                <p class="recognition-help-mail-body muted"><%= t("money_sources.recognition.help_step5_source3_bank") %></p>
+              </div>
+            </div>
+            <div class="recognition-help-panel">
+              <span class="recognition-help-down" aria-hidden="true">↓</span>
+              <div class="recognition-help-outcome">
+                <p class="recognition-help-outcome-title">
+                  <span class="recognition-help-check" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+                  <%= t("money_sources.recognition.help_outcome") %>
+                </p>
+              <% [%w[help_outcome_commerce help_outcome_commerce_value],
+                  %w[help_outcome_value help_outcome_amount],
+                  %w[help_outcome_source help_outcome_source_value],
+                  %w[help_outcome_bank help_outcome_bank_value]].each do |label, value| %>
+                <div class="recognition-help-outcome-row">
+                  <span class="recognition-help-field-label"><%= t("money_sources.recognition.#{label}") %></span>
+                  <span class="recognition-help-field-value"><%= t("money_sources.recognition.#{value}") %></span>
+                </div>
+          <% end %>
+            </div>
+          </div>
+        </section>
+
+        <%# 6 — the keywords are yours to configure %>
+        <section class="recognition-help-step tone-violet" data-testid="recognition-help-step" data-help-title-text="<%= t("money_sources.recognition.help_foot_title") %>">
+          <p class="recognition-help-body"><%= t("money_sources.recognition.help_foot_body") %></p>
+          <div class="recognition-help-foot">
+            <div class="recognition-help-foot-main">
+              <span class="recognition-help-mini-icon big" aria-hidden="true"><i class="ti ti-settings"></i></span>
+              <div class="min-w-0">
+                <h3 class="recognition-help-foot-title"><%= t("money_sources.recognition.help_foot_title") %></h3>
+                <p class="recognition-help-body mb-0"><%= t("money_sources.recognition.help_foot_examples") %></p>
+              </div>
+            </div>
+            <div class="recognition-help-foot-examples">
+              <div class="recognition-help-chips">
+                <% %w[help_foot_example1 help_foot_example2 help_foot_example3 help_foot_example4 help_foot_example5].each do |key| %>
+                  <span class="recognition-help-chip chip-blue"><%= t("money_sources.recognition.#{key}") %></span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <%# Prev/next navigation (vanilla state in application.js) %>
+      <div class="recognition-help-nav d-print-none">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-testid="help-prev" data-help-nav="prev" disabled>
+          <i class="ti ti-arrow-left" aria-hidden="true"></i><%= t("money_sources.recognition.help_prev") %>
+        </button>
+        <div class="recognition-help-nav-spacer"></div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-testid="help-restart" data-help-nav="restart">
+          <i class="ti ti-rotate" aria-hidden="true"></i><%= t("money_sources.recognition.help_restart") %>
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" data-testid="help-next" data-help-nav="next">
+          <%= t("money_sources.recognition.help_next") %><i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

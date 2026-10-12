@@ -37,6 +37,9 @@ test.describe('AI expense detection selects the money source', () => {
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
     await page.goto('/money_sources/recognition');
+    const groupToggle = page.locator('[data-testid="recognition-bank-group"]', { hasText: 'Visa' })
+      .locator('[data-testid="recognition-bank-toggle"]').first();
+    if ((await groupToggle.getAttribute('aria-expanded')) === 'false') await groupToggle.click();
     const row = page.locator('[data-testid="recognition-row"]', { hasText: 'Visa' });
     await row.locator('[data-testid="edit-recognition"]').click();
     await expect(page.getByTestId('recognition-edit-panel')).toBeVisible();

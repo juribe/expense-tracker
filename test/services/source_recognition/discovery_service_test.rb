@@ -38,18 +38,24 @@ module SourceRecognition
       assert result.suggestions_created.positive?
       assert_equal [ @clasica.id, @oro.id ].sort, result.candidate_source_ids.sort
 
-      [ @clasica, @oro ].each do |source|
-        source.reload
-        # Nothing is confirmed silently.
-        assert_not source.recognition_configured?
-        assert_equal %w[notificaciones@davibank.com], values_of(suggested(source, "sender"))
-        assert_equal %w[davibank.com], values_of(suggested(source, "domain"))
-        assert_equal [ "Transacción aprobada" ], values_of(suggested(source, "subject"))
-        assert_includes values_of(suggested(source, "keyword")), "davibank"
+      # Bank-level values are discovered ONCE per group, on the SEED
+      # (the earliest source): the user reviews them in the bank drawer
+      # instead of getting pending badges on every card.
+      @clasica.reload
+      assert_not @clasica.recognition_configured? # Nothing confirmed silently.
+      assert_equal %w[notificaciones@davibank.com], values_of(suggested(@clasica, "sender"))
+      assert_equal %w[davibank.com], values_of(suggested(@clasica, "domain"))
+      assert_equal [ "Transacción aprobada" ], values_of(suggested(@clasica, "subject"))
 
-        created = suggested(source, "keyword")
-        assert created.all? { |id| id.origin == "gmail" }
-      end
+      # Members only receive PRODUCT evidence (keywords).
+      @oro.reload
+      assert_empty suggested(@oro, "sender")
+      assert_empty suggested(@oro, "domain")
+      assert_empty suggested(@oro, "subject")
+      assert_includes values_of(suggested(@oro, "keyword")), "davibank"
+
+      created = suggested(@clasica, "keyword") + suggested(@oro, "keyword")
+      assert created.all? { |id| id.origin == "gmail" }
     end
 
     test "product keywords are never copied between same-institution sources" do

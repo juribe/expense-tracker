@@ -358,6 +358,170 @@
 .recognition-chip-accept:hover { background: #7B61E0; color: #fff; border-color: #7B61E0; }
 .recognition-chips-label { flex-basis: 100%; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); }
 
+/* Collapsible bank cards ("Bancos y fuentes de dinero") + Gmail summary row:
+   the card head is a summary; the server-rendered body shows only when the
+   card carries the `expanded` class (JS toggles [data-recognition-toggle]). */
+.recognition-bank { margin-bottom: 1.25rem; }
+.recognition-bank-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.25rem; }
+.recognition-bank-toggle { display: flex; align-items: center; gap: .85rem; flex: 1; min-width: 0; background: transparent; border: 0; padding: 0; text-align: left; cursor: pointer; }
+.recognition-bank-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: .75rem; font-size: 1.25rem; flex-shrink: 0; }
+.recognition-bank-icon.tone-0 { color: #7B61E0; background: rgba(123, 97, 224, .12); }
+.recognition-bank-icon.tone-1 { color: #5D87FF; background: rgba(93, 135, 255, .12); }
+.recognition-bank-icon.tone-2 { color: #0FA3A3; background: rgba(15, 163, 163, .12); }
+.recognition-bank-icon.tone-3 { color: #E8912D; background: rgba(232, 145, 45, .12); }
+.recognition-bank-icon.tone-4 { color: #16a34a; background: rgba(22, 163, 74, .12); }
+.recognition-bank-icon.tone-5 { color: #D63384; background: rgba(214, 51, 132, .12); }
+.recognition-bank-icon.tone-6 { color: #0d6efd; background: rgba(13, 110, 253, .12); }
+.recognition-bank-icon.tone-7 { color: #6f42c1; background: rgba(111, 66, 193, .12); }
+.recognition-bank-icon.tone-gmail { color: #EA4335; background: rgba(234, 67, 53, .10); }
+.recognition-bank-identity { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.recognition-bank-name { font-size: 1rem; font-weight: 800; color: var(--loan-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recognition-bank-desc { font-size: .8125rem; color: var(--loan-muted); }
+.recognition-bank-meta { display: flex; flex-wrap: wrap; gap: .4rem; }
+.recognition-count-chip { display: inline-flex; align-items: center; gap: .3rem; font-size: .75rem; font-weight: 600; color: var(--loan-muted); background: #f8f9fb; border: 1px solid var(--loan-card-border); border-radius: 999px; padding: .2rem .7rem; }
+.recognition-count-chip.recognition-chip-pending { color: #7B61E0; background: rgba(123, 97, 224, .12); border-color: rgba(123, 97, 224, .3); }
+.recognition-bank-chevron { margin-left: auto; font-size: 1.15rem; color: var(--loan-muted); flex-shrink: 0; transition: transform .18s ease; }
+.recognition-bank.expanded .recognition-bank-chevron { transform: rotate(180deg); }
+.recognition-bank-actions { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
+.recognition-manage-btn { border-radius: .625rem; font-size: .8125rem; font-weight: 600; white-space: nowrap; }
+.recognition-status-unconfigured { color: var(--loan-muted); }
+.recognition-bank-body { display: none; border-top: 1px solid var(--loan-card-border); }
+.recognition-bank.expanded .recognition-bank-body { display: block; }
+.recognition-bank-foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.25rem; }
+.recognition-view-suggestions { display: inline-flex; align-items: center; gap: .4rem; font-size: .875rem; font-weight: 700; color: #7B61E0; }
+.recognition-view-suggestions:hover { color: #5a3fd6; text-decoration: none; }
+.recognition-cell-muted { font-size: .8125rem; color: var(--loan-muted); }
+.recognition-banks-header { display: flex; align-items: flex-start; gap: 1rem; margin: 2.25rem 0 1.25rem; }
+
+/* "¿Cómo funciona?" guided tutorial: one step panel at a time, clickable
+   progress rail, prev/next controls. Demo pieces keep the pastel pipeline. */
+.recognition-help-modal .modal-content { border-radius: 1.25rem; border: 1px solid var(--loan-card-border); background: var(--loan-card-bg); }
+.recognition-help-modal .modal-dialog { max-width: min(680px, calc(100vw - 2rem)); }
+.recognition-help-head { display: flex; align-items: flex-start; gap: 1rem; padding: 1.35rem 1.75rem .35rem; }
+.recognition-help-hero-icon { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 1.1rem; font-size: 1.5rem; color: #7B61E0; background: rgba(123, 97, 224, .12); flex-shrink: 0; }
+.recognition-help-title { font-size: 1.35rem; font-weight: 800; color: var(--loan-strong); margin: .2rem 0 0; }
+.recognition-help-progress { display: flex; flex-direction: column; gap: .45rem; padding: 1rem 1.75rem 0; }
+.recognition-help-progress-rail { display: flex; align-items: center; gap: .45rem; }
+.recognition-help-progress-step { appearance: none; border: 0; background: transparent; padding: 0; margin: 0; display: inline-flex; align-items: center; cursor: pointer; }
+.recognition-help-progress-step:not(:last-child)::after { content: ""; display: inline-block; width: 1.4rem; height: 2px; border-radius: 999px; background: rgba(123, 97, 224, .25); }
+.recognition-help-progress-dot { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: .6rem; font-size: .75rem; font-weight: 800; color: var(--loan-muted); background: rgba(123, 97, 224, .08); border: 1px solid transparent; transition: all .18s ease; }
+.recognition-help-progress-step.is-active .recognition-help-progress-dot { color: #fff; background: #7B61E0; }
+.recognition-help-progress-step.is-done .recognition-help-progress-dot { color: #7B61E0; background: rgba(123, 97, 224, .16); }
+.recognition-help-progress-text { display: flex; align-items: baseline; gap: .6rem; font-size: .8125rem; margin: 0; }
+.recognition-help-progress-text [data-help-title] { font-weight: 800; color: var(--loan-strong); }
+.recognition-help-progress-text [data-help-meta] { font-size: .75rem; color: var(--loan-muted); white-space: nowrap; }
+.recognition-help-body { font-size: .9375rem; color: var(--loan-muted); margin: 0 0 .8rem; line-height: 1.55; }
+
+/* Step panels: transitions without extra libraries (fade + translate). */
+.recognition-help-step { display: none; }
+.recognition-help-step.is-active { display: flex; flex-direction: column; gap: .35rem; animation: recognition-help-fade .22s ease; }
+@keyframes recognition-help-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .recognition-help-step.is-active { animation: none; } }
+.recognition-help-step.tone-violet { --help-accent: #7B61E0; }
+.recognition-help-step.tone-blue { --help-accent: #5D87FF; }
+.recognition-help-step.tone-purple { --help-accent: #7B61E0; }
+.recognition-help-step.tone-amber { --help-accent: #E8912D; }
+.recognition-help-step.tone-green { --help-accent: #16a34a; }
+
+.recognition-help-demo { border: 1px solid var(--loan-card-border); border-radius: 1rem; padding: 1rem; display: flex; flex-direction: column; gap: .55rem; background: var(--loan-card-bg); }
+.recognition-help-panel { border: 1px solid var(--loan-card-border); border-radius: 1rem; padding: 1rem; display: flex; flex-direction: column; gap: .55rem; background: var(--loan-card-bg); }
+/* Step 5: matches on the left, identified expense on the right. */
+.recognition-help-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; align-items: start; }
+.recognition-help-cols .recognition-help-down { margin: -.2rem auto; }
+@media (max-width: 767.98px) { .recognition-help-cols { grid-template-columns: 1fr; } .recognition-help-cols .recognition-help-down { display: block; } }
+.recognition-help-demo-row { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.recognition-help-mini-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: .6rem; font-size: .95rem; color: var(--help-accent, #7B61E0); background: rgba(123, 97, 224, .1); flex-shrink: 0; }
+.recognition-help-mini-icon.tone-gmail { color: #EA4335; background: rgba(234, 67, 53, .1); }
+.recognition-help-mini-icon.tone-wa { color: #16a34a; background: rgba(22, 163, 74, .12); }
+.recognition-help-mini-icon.tone-bank { color: #5D87FF; background: rgba(93, 135, 255, .12); }
+.recognition-help-mini-icon.big { width: 44px; height: 44px; border-radius: .9rem; font-size: 1.3rem; }
+.recognition-help-demo-name { font-size: .875rem; font-weight: 700; color: var(--loan-strong); }
+.recognition-help-mini-time { margin-left: auto; font-size: .7rem; color: var(--loan-muted); white-space: nowrap; }
+.recognition-help-badge { display: inline-flex; align-items: center; gap: .25rem; margin-left: auto; font-size: .7rem; font-weight: 700; border-radius: 999px; padding: .2rem .6rem; white-space: nowrap; }
+.recognition-help-badge.badge-ok { color: #16a34a; background: rgba(22, 163, 74, .12); }
+.recognition-help-badge.badge-best { color: #16a34a; background: rgba(22, 163, 74, .14); }
+.recognition-help-badge.badge-low { color: var(--loan-muted); background: rgba(123, 97, 224, .1); }
+.recognition-help-badge.badge-ghost { color: var(--loan-muted); background: rgba(148, 163, 184, .14); }
+.recognition-help-demo-label { font-size: .75rem; font-weight: 600; color: var(--loan-muted); margin: 0; }
+.recognition-help-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+/* Step 1 renders a tall mailbox demo: compact spacing keeps it inside the
+   modal without scrolling (single-line skipped emails, tighter gaps). */
+.recognition-help-step.tone-violet .recognition-help-demo { gap: .35rem; padding: .75rem .85rem; }
+.recognition-help-step.tone-violet .recognition-help-mini-icon { width: 28px; height: 28px; font-size: .85rem; }
+.recognition-help-step.tone-violet .recognition-help-note { padding: .45rem .6rem; font-size: .75rem; }
+.recognition-help-step.tone-violet .recognition-help-down { font-size: .8rem; margin: -.05rem 0; }
+.recognition-help-chip { display: inline-flex; align-items: center; font-size: .7rem; font-weight: 600; color: var(--loan-muted); border: 1px solid var(--loan-card-border); background: var(--loan-card-bg); border-radius: 999px; padding: .18rem .55rem; }
+.recognition-help-chip.chip-blue { color: #5D87FF; background: rgba(93, 135, 255, .1); border-color: rgba(93, 135, 255, .3); }
+.recognition-help-down { align-self: center; font-size: .95rem; color: var(--help-accent, #7B61E0); }
+.recognition-help-mark { background: rgba(123, 97, 224, .16); color: var(--loan-strong); border-radius: .3rem; padding: 0 .15rem; font-weight: 700; }
+.recognition-help-mail { border: 1px solid var(--loan-card-border); border-radius: .6rem; padding: .45rem .65rem; background: var(--loan-card-bg); }
+.recognition-help-mail.is-match { border-color: rgba(123, 97, 224, .4); background: rgba(123, 97, 224, .05); }
+.recognition-help-mail.is-skip { opacity: .55; padding: .3rem .55rem; display: flex; align-items: center; gap: .35rem; }
+/* The two "does not match" emails share one row (2 columns, 1 on mobile):
+   crossed out with a diagonal strike, dashed border and an eye-off badge so
+   the filtering reads at a glance. */
+.recognition-help-skip-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+.recognition-help-skip-row .recognition-help-mail-body { font-size: .715rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.recognition-help-skip-row .recognition-help-mail { position: relative; border-style: dashed; border-color: rgba(220, 76, 60, .35); }
+.recognition-help-skip-row .recognition-help-mail::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 1px; background: rgba(220, 76, 60, .5); transform: rotate(-2deg); pointer-events: none; }
+.recognition-help-skip-eye { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: .4rem; flex-shrink: 0; color: #D94C3C; background: rgba(220, 76, 60, .1); font-size: .68rem; }
+@media (max-width: 575.98px) { .recognition-help-skip-row { grid-template-columns: 1fr; } }
+.recognition-help-mail-subject { font-size: .8125rem; font-weight: 700; color: var(--loan-strong); margin: .12rem 0 0; }
+.recognition-help-mail-body { font-size: .8125rem; color: var(--loan-muted); margin: .12rem 0 0; line-height: 1.35; }
+.recognition-help-mail-body.muted { font-size: .75rem; }
+.recognition-help-note { display: flex; align-items: flex-start; gap: .45rem; border-radius: .7rem; padding: .55rem .7rem; font-size: .8125rem; color: var(--loan-strong); }
+.recognition-help-note .recognition-help-check { color: #16a34a; font-size: 1rem; line-height: 1.3; }
+.recognition-help-note.note-ok { background: rgba(22, 163, 74, .08); }
+.recognition-help-note.note-info { background: rgba(93, 135, 255, .08); }
+.recognition-help-note.note-info .recognition-help-check { color: #5D87FF; }
+.recognition-help-bubble { background: rgba(22, 163, 74, .08); border-radius: .7rem; padding: .6rem .7rem; }
+.recognition-help-bubble p { font-size: .875rem; font-weight: 600; color: var(--loan-strong); margin: 0; line-height: 1.5; }
+.recognition-help-bubble .recognition-help-mini-time { display: block; text-align: right; }
+.recognition-help-compose { display: flex; align-items: center; gap: .75rem; border: 1px solid var(--loan-card-border); border-radius: .7rem; padding: .6rem .7rem; background: var(--loan-card-bg); }
+.recognition-help-compose-text { font-size: .8125rem; color: var(--loan-strong); margin: .1rem 0 0; line-height: 1.5; }
+.recognition-help-compose .btn { flex-shrink: 0; font-weight: 700; }
+.recognition-help-panel-title { display: flex; align-items: center; gap: .5rem; font-size: .9375rem; font-weight: 800; color: var(--loan-strong); margin: 0 0 .15rem; }
+.recognition-help-field { display: flex; align-items: center; gap: .55rem; }
+.recognition-help-field-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: .6rem; font-size: .95rem; color: #0FA3A3; background: rgba(15, 163, 163, .1); flex-shrink: 0; }
+.recognition-help-field-label { display: block; font-size: .7rem; color: var(--loan-muted); }
+.recognition-help-field-value { display: block; font-size: .8125rem; font-weight: 700; color: var(--loan-strong); }
+.recognition-help-candidate { border: 1px solid var(--loan-card-border); border-radius: .7rem; padding: .6rem .7rem; background: var(--loan-card-bg); }
+.recognition-help-candidate.is-best { border-color: rgba(123, 97, 224, .4); background: rgba(123, 97, 224, .04); }
+/* Secondary candidates read as captions: smaller tiles keep the step short. */
+.recognition-help-candidate:not(.is-best) { padding: .35rem .55rem; gap: .1rem; }
+.recognition-help-candidate:not(.is-best) .recognition-help-mini-icon { width: 22px; height: 22px; border-radius: .45rem; font-size: .72rem; }
+.recognition-help-candidate:not(.is-best) .recognition-help-demo-name { font-size: .75rem; }
+.recognition-help-candidate:not(.is-best) .recognition-help-mail-body { font-size: .67rem; margin: 0; }
+.recognition-help-outcome { border: 1px solid rgba(22, 163, 74, .35); background: rgba(22, 163, 74, .06); border-radius: .7rem; padding: .6rem .7rem; }
+.recognition-help-outcome-title { display: flex; align-items: center; gap: .45rem; font-size: .875rem; font-weight: 800; color: #16a34a; margin: 0 0 .5rem; }
+.recognition-help-outcome-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.recognition-help-outcome-row .recognition-help-field-label { display: inline-block; }
+.recognition-help-outcome-row .recognition-help-field-value { display: inline-block; text-align: right; }
+.recognition-help-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; margin-top: 1.1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--loan-card-border); border-radius: 1rem; background: rgba(123, 97, 224, .04); }
+.recognition-help-foot-main { display: flex; align-items: flex-start; gap: .85rem; min-width: 0; flex: 1 1 18rem; }
+.recognition-help-foot-title { font-size: 1rem; font-weight: 800; color: var(--loan-strong); margin: 0 0 .3rem; }
+.recognition-help-foot-examples { flex: 1 1 16rem; min-width: 0; }
+.recognition-help-nav { display: flex; align-items: center; gap: .5rem; padding: 1rem 1.75rem 1.35rem; border-top: 1px solid var(--loan-card-border); }
+.recognition-help-nav-spacer { flex: 1; }
+.recognition-help-nav .btn { border-radius: .75rem; font-weight: 700; display: inline-flex; align-items: center; gap: .4rem; }
+
+/* Dark mode: translucent surfaces for every demo piece. */
+[data-bs-theme="dark"] .recognition-help-demo,
+[data-bs-theme="dark"] .recognition-help-panel,
+[data-bs-theme="dark"] .recognition-help-mail,
+[data-bs-theme="dark"] .recognition-help-bubble,
+[data-bs-theme="dark"] .recognition-help-compose,
+[data-bs-theme="dark"] .recognition-help-candidate,
+[data-bs-theme="dark"] .recognition-help-outcome { background: rgba(255, 255, 255, .03); }
+[data-bs-theme="dark"] .recognition-help-chip { background: rgba(255, 255, 255, .04); }
+
+/* Dark mode for the collapsed cards: translucent surfaces + readable tags. */
+[data-bs-theme="dark"] .recognition-count-chip,
+[data-bs-theme="dark"] .recognition-criteria-entry,
+[data-bs-theme="dark"] .recognition-chip { background: rgba(255, 255, 255, .04); }
+[data-bs-theme="dark"] .recognition-table th { background: rgba(255, 255, 255, .03); }
+[data-bs-theme="dark"] .recognition-table tbody tr:hover td { background: rgba(255, 255, 255, .02); }
+
 .recognition-inline-add { width: 9rem; margin-left: .25rem; border-radius: .625rem; }
 .recognition-section-title { font-size: .9375rem; font-weight: 700; color: var(--loan-strong); display: flex; align-items: center; gap: .35rem; }
 .recognition-section-title .ti-info-circle { color: var(--loan-muted); font-size: .8rem; cursor: help; }
