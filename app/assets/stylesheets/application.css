@@ -131,6 +131,22 @@
 .loan-action-btn.btn-delete:hover { border-color: var(--bs-danger); background: #FFF5F3; }
 .loan-action-btn:focus-visible { outline: 2px solid var(--loan-accent); outline-offset: 2px; }
 
+/* Icon-only action buttons across the app. Spike's global .btn paints them
+   with 27px/9px padding and a 30px pill radius, so the hover reads as a huge
+   oval. These are compact squares: neutralize the Bootstrap/Spike button
+   variables and kill any stray hover transform. */
+.recognition-icon-btn, .cc-action-btn, .account-action-btn, .loan-action-btn, .card-more-btn {
+  --bs-btn-padding-x: 0;
+  --bs-btn-padding-y: 0;
+  --bs-btn-border-radius: .5rem;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-border-color: transparent;
+  box-sizing: border-box;
+  transform: none;
+}
+.recognition-icon-btn:hover, .cc-action-btn:hover, .account-action-btn:hover,
+.loan-action-btn:hover, .card-more-btn:hover, .card-more-btn:focus { transform: none; }
+
 /* Category accent icon chips */
 .loan-icon.accent-purple   { --loan-accent: #7B61E0; --loan-accent-rgb: 123, 97, 224; }
 .loan-icon.accent-teal     { --loan-accent: #0FA3A3; --loan-accent-rgb: 15, 163, 163; }
@@ -314,7 +330,31 @@
 .recognition-status-hint { display: inline-flex; align-items: center; gap: .35rem; margin-top: .3rem; font-size: .75rem; font-weight: 600; color: #7B61E0; }
 .recognition-status-hint .ti-bulb { font-size: .8rem; }
 .recognition-row-actions { display: inline-flex; gap: .4rem; }
-.recognition-icon-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; font-size: .85rem; padding: 0; background: transparent; border: 1px solid var(--loan-card-border); color: var(--loan-muted); transition: all .15s ease; }
+.recognition-row-actions,
+.recognition-row-actions form { align-items: center; }
+.recognition-row-actions form { display: inline-flex !important; margin: 0; }
+.recognition-icon-btn,
+.recognition-row-actions .recognition-icon-btn,
+.account-action-btn,
+.cc-action-btn,
+.loan-action-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 !important;
+  margin: 0;
+  line-height: 1;
+  border-radius: .5rem !important;
+  vertical-align: middle;
+  background: transparent;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
 .recognition-icon-btn.btn-edit:hover { background: var(--loan-accent-soft); color: var(--loan-accent); border-color: var(--loan-accent); }
 .recognition-icon-btn.btn-delete:hover { background: #fde8ea; color: #dc3545; border-color: #dc3545; }
 
@@ -391,6 +431,17 @@
 .recognition-view-suggestions { display: inline-flex; align-items: center; gap: .4rem; font-size: .875rem; font-weight: 700; color: #7B61E0; }
 .recognition-view-suggestions:hover { color: #5a3fd6; text-decoration: none; }
 .recognition-cell-muted { font-size: .8125rem; color: var(--loan-muted); }
+/* Progress feedback: opening/closing the recognition drawer is a full
+   Turbo re-render; the veil lifts the instant the link is clicked and hides
+   when the render lands (turbo:load). */
+.turbo-veil { position: fixed; inset: 0; z-index: 1060; background: rgba(15, 23, 42, .45); animation: recognition-fade .15s ease; display: flex; align-items: center; justify-content: center; }
+.turbo-veil-card { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 1rem; background: var(--loan-card-bg); border: 1px solid var(--loan-card-border); box-shadow: -8px 0 24px rgba(15, 23, 42, .18); }
+.turbo-veil-card .spinner-border { width: 2rem; height: 2rem; color: #7B61E0; }
+[data-bs-theme="dark"] .turbo-veil-card { background: rgba(30, 41, 59, .9); }
+
+/* Clicked drawer links show a pressed state while loading. */
+.recognition-icon-btn.is-loading, .btn.is-loading { opacity: .6; pointer-events: none; }
+
 .recognition-banks-header { display: flex; align-items: flex-start; gap: 1rem; margin: 2.25rem 0 1.25rem; }
 
 /* "¿Cómo funciona?" guided tutorial: one step panel at a time, clickable

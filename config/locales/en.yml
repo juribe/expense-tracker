@@ -559,6 +559,10 @@ en:
       col_status: "Configuration status"
       col_actions: "Actions"
       status_configured: "Configured"
+      status_pending: "To review"
+      source_pending:
+        one: "%{count} suggestion pending"
+        other: "%{count} suggestions pending"
       group_sources_count:
         one: "%{count} source"
         other: "%{count} sources"
@@ -1388,4 +1392,3 @@ en:
       updated: "Entity updated."
       deleted: "Entity deleted."
       blocked_by_sources: "Cannot delete: money sources still use it. Re-link them first."
-

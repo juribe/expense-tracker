@@ -43,11 +43,6 @@
     values << "•••• #{four}" if four.present?
     values.join(", ").presence
   end
-  suggested_keyword_text = lambda do |source|
-    source.recognition_identifiers
-          .select { |id| id.keyword? && id.suggested? }
-          .sort_by(&:position).map(&:value).join(", ").presence
-  end
   status_suggestions_count = lambda do |source|
     source.recognition_identifiers.count(&:suggested?)
   end
@@ -253,7 +248,6 @@
             <th><%= t("money_sources.recognition.col_source") %></th>
             <th><%= t("money_sources.recognition.col_type") %></th>
             <th class="d-none d-md-table-cell"><%= t("money_sources.recognition.col_identifiers") %></th>
-            <th class="d-none d-md-table-cell"><%= t("money_sources.recognition.col_keywords") %></th>
             <th><%= t("money_sources.recognition.col_status") %></th>
             <th class="text-end"><%= t("money_sources.recognition.col_actions") %></th>
           </tr>
@@ -275,17 +269,17 @@
               <td class="d-none d-md-table-cell">
                 <span class="recognition-cell-muted" data-testid="recognition-identifiers"><%= confirmed_keyword_text.call(source) || "—" %></span>
               </td>
-              <td class="d-none d-md-table-cell">
-                <span class="recognition-cell-muted" data-testid="recognition-keywords"><%= suggested_keyword_text.call(source) || "—" %></span>
-              </td>
               <td>
-              <% if source.recognition_configured? %>
-                <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
-                  <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
-                </span>
-              <% elsif row_suggestions.positive? %>
+              <% if row_suggestions.positive? %>
                 <span class="recognition-status recognition-status-pending" data-testid="recognition-status">
                   <i class="ti ti-alert-triangle" aria-hidden="true"></i><%= t("money_sources.recognition.status_pending") %>
+                  <span class="recognition-row-pending-count" data-testid="recognition-row-pending-count">
+                    <%= t("money_sources.recognition.source_pending", count: row_suggestions) %>
+                  </span>
+                </span>
+              <% elsif source.recognition_configured? %>
+                <span class="recognition-status recognition-status-ok" data-testid="recognition-status">
+                  <i class="ti ti-circle-check" aria-hidden="true"></i><%= t("money_sources.recognition.status_configured") %>
                 </span>
               <% else %>
                 <span class="recognition-status recognition-status-unconfigured" data-testid="recognition-status">

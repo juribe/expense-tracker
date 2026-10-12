@@ -339,6 +339,7 @@
     var closer = e.target.closest("[data-recognition-close]");
     if (closer) {
       if (!recognitionConfirmLeave()) { e.preventDefault(); return; }
+      showRecognitionVeil(closer);
       if (closer.tagName !== "A") {
         e.preventDefault();
         var url = closer.dataset.closeUrl || recognitionLeaveUrl();
@@ -375,12 +376,16 @@
 
   document.addEventListener("submit", function (e) {
     var form = e.target.closest("form.recognition-form");
-    if (form && !e.defaultPrevented) delete form.dataset.recognitionDirty;
+    if (form && !e.defaultPrevented) {
+      delete form.dataset.recognitionDirty;
+      showRecognitionSaveLoading(e.submitter || form.querySelector("[data-testid='recognition-save']"));
+    }
   });
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape" || !document.querySelector(".recognition-drawer")) return;
     if (!recognitionConfirmLeave()) return;
+    showRecognitionVeil();
     var url = recognitionLeaveUrl();
     if (window.Turbo) { window.Turbo.visit(url); } else { window.location.href = url; }
   });
@@ -394,6 +399,60 @@
   function bindRecognition(scope) {
     scope.querySelectorAll("[data-recognition-chips] .recognition-chip-add").forEach(recognitionSetupAddInput);
   }
+
+  // --- drawer navigation feedback ---------------------------------------------
+  // Opening (edit/bank-edit links) and closing (data-recognition-close) the
+  // drawer are full Turbo re-renders: while the request is in flight nothing
+  // moved on screen and it read as lag. A full-screen veil with a spinner
+  // shows instantly on click and hides when the next render lands.
+  function showRecognitionVeil(link) {
+    var veil = document.createElement("div");
+    veil.className = "turbo-veil";
+    veil.innerHTML = '<div class="turbo-veil-card"><span class="spinner-border" aria-hidden="true"></span></div>';
+    if (link) veil.dataset.fromLink = link.getAttribute("data-testid") || "";
+    document.body.classList.add("turbo-loading");
+    document.body.appendChild(veil);
+  }
+
+  function hideRecognitionVeil() {
+    document.body.classList.remove("turbo-loading");
+    document.querySelectorAll(".turbo-veil").forEach(function (veil) { veil.remove(); });
+    document.querySelectorAll("[data-testid='edit-recognition'].is-loading, [data-testid='recognition-bank-edit'].is-loading")
+            .forEach(function (link) { link.classList.remove("is-loading"); });
+    document.querySelectorAll("form.recognition-form [data-testid='recognition-save']")
+            .forEach(resetRecognitionSave);
+  }
+
+  function resetRecognitionSave(button) {
+    if (!button) return;
+    button.disabled = false;
+    button.removeAttribute("aria-busy");
+    button.classList.remove("is-loading");
+  }
+
+  function showRecognitionSaveLoading(button) {
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    button.classList.add("is-loading");
+    showRecognitionVeil();
+  }
+
+  // Clicked drawer-open links: flag it and lift the veil BEFORE Turbo navigates.
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest("a[data-testid='edit-recognition'], a[data-testid='recognition-bank-edit']");
+    if (!link) return;
+    if (link.classList.contains("is-loading")) { e.preventDefault(); return; }
+    link.classList.add("is-loading");
+    showRecognitionVeil(link);
+  }, true);
+
+  // Render landed (or someone left a stale veil behind): clean slate.
+  document.addEventListener("turbo:load", hideRecognitionVeil);
+  document.addEventListener("turbo:before-cache", hideRecognitionVeil);
+  document.addEventListener("turbo:fetch-request-error", hideRecognitionVeil);
+  document.addEventListener("DOMContentLoaded", hideRecognitionVeil);
+  window.addEventListener("pageshow", hideRecognitionVeil);
 
   // --- collapsible recognition cards ------------------------------------------
   // Bank group cards and the Gmail criteria card are collapsed accordions:

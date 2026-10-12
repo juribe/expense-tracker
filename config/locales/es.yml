@@ -873,11 +873,13 @@ es:
       col_source: "Fuente de dinero"
       col_type: "Tipo"
       col_identifiers: "Identificadores"
-      col_keywords: "Palabras clave"
       col_status: "Estado"
       col_actions: "Acciones"
       status_configured: "Configurada"
       status_pending: "Por revisar"
+      source_pending:
+        one: "%{count} sugerencia pendiente"
+        other: "%{count} sugerencias pendientes"
       status_unconfigured: "Sin configurar"
       group_configured: "Configurado"
       add_source: "Agregar fuente existente"
@@ -2511,4 +2513,3 @@ es:
       updated: "Entidad actualizada."
       deleted: "Entidad eliminada."
       blocked_by_sources: "No se puede eliminar: todavía hay fuentes de dinero que la usan. Reasócialas primero."
-

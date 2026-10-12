@@ -270,8 +270,9 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_nil member.reload.recognition # nothing left → record dropped
   end
 
-  test "GET /money_sources/recognition shows pending-review status and group badge for suggested-only sources" do
+  test "GET /money_sources/recognition shows pending review for configured sources with suggestions" do
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
+    source.ensure_recognition.replace_identifiers(keyword: ["davi"])
     source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
       kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail"
     )
@@ -279,6 +280,8 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     get money_sources_recognition_path
 
     assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_pending')}/
+    assert_select "[data-testid='recognition-row-pending-count']",
+                  text: I18n.t("money_sources.recognition.source_pending", count: 1)
     assert_select "[data-testid='recognition-suggestion-count']",
                   text: I18n.t("money_sources.recognition.group_pending", count: 1)
   end
@@ -408,22 +411,17 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/Agregar banco/, response.body)
   end
 
-  test "GET /money_sources/recognition shows identifiers and suggested keywords per source" do
+  test "GET /money_sources/recognition shows identifiers per source" do
     source = create_source(name: "Tarjeta Infinite", kind: "credit_card", bank: "Davibank", identifier: "6017")
     source.ensure_recognition.replace_identifiers(keyword: ["infinite"])
-    source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
-      kind: "keyword", value: "millas", status: "suggested", origin: "gmail"
-    )
 
     get money_sources_recognition_path
     assert_response :success
 
     assert_select ".recognition-table th", text: I18n.t("money_sources.recognition.col_identifiers")
-    assert_select ".recognition-table th", text: I18n.t("money_sources.recognition.col_keywords")
+    assert_select ".recognition-table th", text: "Palabras clave", count: 0
     assert_select "[data-testid='recognition-row'] [data-testid='recognition-identifiers']",
                   text: "infinite, •••• 6017"
-    assert_select "[data-testid='recognition-row'] [data-testid='recognition-keywords']",
-                  text: "millas"
   end
 
   # Cards whose identifier is blank resolve the last four from the child
