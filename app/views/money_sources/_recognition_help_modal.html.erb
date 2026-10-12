@@ -82,6 +82,7 @@
               </div>
               <p class="recognition-help-mail-subject"><%= t("money_sources.recognition.help_step1_subject") %></p>
               <p class="recognition-help-mail-body"><%= mail_pre.html_safe rescue mail_pre %><%= mail_mark.html_safe %><%= mail_post.html_safe rescue mail_post %></p>
+              <span class="recognition-help-skip-eye is-read" title="<%= t("money_sources.recognition.help_step1_read") %>" aria-label="<%= t("money_sources.recognition.help_step1_read") %>"><i class="ti ti-circle-check"></i></span>
             </div>
             <div class="recognition-help-skip-row">
               <div class="recognition-help-mail is-skip">
@@ -90,7 +91,7 @@
                   <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step1_promo") %></span>
                   <span class="recognition-help-mail-body"><%= t("money_sources.recognition.help_step1_promo_desc") %></span>
                 </div>
-                <span class="recognition-help-skip-eye" title="<%= t("money_sources.recognition.help_step1_skipped") %>" aria-label="<%= t("money_sources.recognition.help_step1_skipped") %>"><i class="ti ti-eye-off"></i></span>
+                <span class="recognition-help-skip-eye is-blocked" title="<%= t("money_sources.recognition.help_step1_skipped") %>" aria-label="<%= t("money_sources.recognition.help_step1_skipped") %>"><i class="ti ti-x"></i></span>
               </div>
               <div class="recognition-help-mail is-skip">
                 <div class="recognition-help-demo-row">
@@ -98,7 +99,7 @@
                   <span class="recognition-help-demo-name"><%= t("money_sources.recognition.help_step1_status") %></span>
                   <span class="recognition-help-mail-body"><%= t("money_sources.recognition.help_step1_status_desc") %></span>
                 </div>
-                <span class="recognition-help-skip-eye" title="<%= t("money_sources.recognition.help_step1_skipped") %>" aria-label="<%= t("money_sources.recognition.help_step1_skipped") %>"><i class="ti ti-eye-off"></i></span>
+                <span class="recognition-help-skip-eye is-blocked" title="<%= t("money_sources.recognition.help_step1_skipped") %>" aria-label="<%= t("money_sources.recognition.help_step1_skipped") %>"><i class="ti ti-x"></i></span>
               </div>
             </div>
             <div class="recognition-help-note note-ok">

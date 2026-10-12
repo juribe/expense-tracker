@@ -455,7 +455,7 @@
 .recognition-help-down { align-self: center; font-size: .95rem; color: var(--help-accent, #7B61E0); }
 .recognition-help-mark { background: rgba(123, 97, 224, .16); color: var(--loan-strong); border-radius: .3rem; padding: 0 .15rem; font-weight: 700; }
 .recognition-help-mail { border: 1px solid var(--loan-card-border); border-radius: .6rem; padding: .45rem .65rem; background: var(--loan-card-bg); }
-.recognition-help-mail.is-match { border-color: rgba(123, 97, 224, .4); background: rgba(123, 97, 224, .05); }
+.recognition-help-mail.is-match { border-color: rgba(123, 97, 224, .4); background: rgba(123, 97, 224, .05); position: relative; padding-right: 2.1rem; }
 .recognition-help-mail.is-skip { opacity: .55; padding: .3rem .55rem; display: flex; align-items: center; gap: .35rem; }
 /* The two "does not match" emails share one row (2 columns, 1 on mobile):
    crossed out with a diagonal strike, dashed border and an eye-off badge so
@@ -464,7 +464,10 @@
 .recognition-help-skip-row .recognition-help-mail-body { font-size: .715rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .recognition-help-skip-row .recognition-help-mail { position: relative; border-style: dashed; border-color: rgba(220, 76, 60, .35); }
 .recognition-help-skip-row .recognition-help-mail::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 1px; background: rgba(220, 76, 60, .5); transform: rotate(-2deg); pointer-events: none; }
-.recognition-help-skip-eye { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: .4rem; flex-shrink: 0; color: #D94C3C; background: rgba(220, 76, 60, .1); font-size: .68rem; }
+.recognition-help-skip-eye { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: .45rem; flex-shrink: 0; font-size: .95rem; font-weight: 800; margin-left: auto; }
+.recognition-help-skip-eye.is-blocked { color: #D94C3C; background: rgba(220, 76, 60, .12); }
+.recognition-help-skip-eye.is-read { color: #16a34a; background: rgba(22, 163, 74, .14); }
+.recognition-help-mail.is-match .recognition-help-skip-eye { position: absolute; top: .45rem; right: .45rem; }
 @media (max-width: 575.98px) { .recognition-help-skip-row { grid-template-columns: 1fr; } }
 .recognition-help-mail-subject { font-size: .8125rem; font-weight: 700; color: var(--loan-strong); margin: .12rem 0 0; }
 .recognition-help-mail-body { font-size: .8125rem; color: var(--loan-muted); margin: .12rem 0 0; line-height: 1.35; }

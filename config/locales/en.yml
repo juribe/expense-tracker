@@ -488,6 +488,7 @@ en:
       help_step1_status: "Notifications"
       help_step1_status_desc: "Your account statement"
       help_step1_skipped: "Does not match your criteria: not read"
+      help_step1_read: "Matches your criteria: it is read"
       help_step2_title: "You send us a message on WhatsApp"
       help_step2_body: "Type your expense and send it to the app's WhatsApp number."
       help_step2_note: "We only process the messages you send to the app's WhatsApp number. We never read your personal conversations or other WhatsApp messages."

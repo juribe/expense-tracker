@@ -800,6 +800,7 @@ es:
       help_step1_status: "Notificaciones"
       help_step1_status_desc: "Tu estado de cuenta"
       help_step1_skipped: "No coincide con tus criterios: no se lee"
+      help_step1_read: "Coincide con tus criterios: sí se lee"
       help_step2_title: "Tú nos envías un mensaje por WhatsApp"
       help_step2_body: "Escribe tu gasto y envíalo al número de WhatsApp de la aplicación."
       help_step2_note: "Solo procesamos los mensajes que tú envías al número de WhatsApp de la app. No leemos tus conversaciones personales ni otros mensajes de WhatsApp."
