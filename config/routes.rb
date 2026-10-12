@@ -187,6 +187,8 @@ Rails.application.routes.draw do
 
   # Financial summary (month snapshot page)
   get "financial_summary", to: "financial_summary#show", as: :financial_summary
+  get "debt_capacity", to: "debt_capacity#show", as: :debt_capacity
+  get "debt_capacity/comparison", to: "debt_capacity#comparison", as: :debt_capacity_comparison
 
   # Día de Cuadre (reconciliation dashboard)
   get "reconciliation", to: "reconciliations#show", as: :reconciliation

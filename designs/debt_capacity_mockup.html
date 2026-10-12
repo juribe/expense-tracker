@@ -1,0 +1,202 @@
+<!-- Debt capacity design mockup. Body content only; uses project design tokens inline. -->
+<style>
+  .mockup { --body: #1d2b3a; --muted: #6d7d8c; --border: #e8edf3; --surface: #f7f8fb; --card: #fff; --blue: #2a6df5; --green: #0e9f6e; --red: #e0254b; --amber: #b26a00; max-width: 1180px; margin: 0 auto; padding: 2rem; background: var(--surface); color: var(--body); font: 15px/1.55 system-ui, -apple-system, sans-serif; }
+  .mockup * { box-sizing: border-box; }
+  .mockup h1, .mockup h2, .mockup h3, .mockup p { margin-top: 0; }
+  .mockup h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+  .mockup h2 { font-size: 1.05rem; margin-bottom: .25rem; }
+  .mockup h3 { font-size: .9rem; margin-bottom: .65rem; }
+  .muted { color: var(--muted); }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+  .header p { margin-bottom: 0; color: var(--muted); }
+  .button { border: 1px solid var(--border); border-radius: .5rem; padding: .55rem .8rem; background: var(--card); color: var(--body); font-weight: 650; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: .75rem; padding: 1.1rem; }
+  .debt-accent { border-left: 4px solid var(--red); }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; margin-bottom: 1rem; }
+  .stat-label { color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .stat-value { font-size: 1.35rem; font-weight: 750; font-variant-numeric: tabular-nums; margin-top: .3rem; }
+  .debt { color: var(--red); } .positive { color: var(--green); } .attention { color: var(--amber); } .balance { color: var(--blue); }
+  .top-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; margin-bottom: 1rem; }
+  .income-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: .85rem; margin-bottom: .9rem; }
+  .income-row strong { font-size: 1.2rem; }
+  .meter { position: relative; height: 14px; border-radius: 99px; background: linear-gradient(to right, #0e9f6e 0 30%, #e7a91b 30% 40%, #e0254b 40% 100%); margin: 1.1rem 0 .45rem; }
+  .meter-value { position: absolute; height: 100%; width: 37%; border-radius: 99px; background: #27384b; opacity: .8; }
+  .meter-pin { position: absolute; top: -5px; height: 24px; width: 2px; background: #27384b; }
+  .pin-30 { left: 30%; } .pin-40 { left: 40%; }
+  .legend { display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; }
+  .metric-list { display: grid; gap: .55rem; }
+  .metric-line { display: flex; justify-content: space-between; gap: 1rem; }
+  .metric-line strong { font-variant-numeric: tabular-nums; }
+  .notice { display: flex; gap: .65rem; align-items: flex-start; background: rgba(178,106,0,.09); border: 1px solid rgba(178,106,0,.22); border-radius: .6rem; padding: .7rem .8rem; color: #714700; font-size: .82rem; margin-top: .9rem; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: .8rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th { color: var(--muted); font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; text-align: left; padding: .7rem .6rem; border-bottom: 1px solid var(--border); }
+  td { padding: .8rem .6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .sub { display: block; color: var(--muted); font-size: .75rem; }
+  .badge { display: inline-block; border-radius: .4rem; padding: .2rem .45rem; font-size: .72rem; font-weight: 700; }
+  .badge-red { background: rgba(224,37,75,.11); color: var(--red); } .badge-amber { background: rgba(178,106,0,.12); color: var(--amber); } .badge-green { background: rgba(14,159,110,.12); color: var(--green); } .badge-blue { background: rgba(42,109,245,.11); color: var(--blue); } .badge-teal { background: rgba(14,159,180,.11); color: #087c91; }
+  .comparison { margin-top: 1rem; }
+  .comparison-intro { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1rem; }
+  .simulation-state { overflow: hidden; }
+  .state-body { padding: .2rem 0 0; }
+  .simulation-form { display: grid; grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(145px, .65fr) minmax(320px, 1.6fr) auto; gap: .8rem; align-items: end; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .7rem; }
+  .simulation-form:not(.is-revolving):not(.is-no-amortization) { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(320px, 1.6fr) auto; }
+  .simulation-form.is-revolving { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(145px, .65fr) auto; }
+  .simulation-form.is-no-amortization { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) auto; }
+  .simulation-form > .button { justify-self: start; width: auto; min-width: 122px; white-space: nowrap; padding-inline: .9rem; }
+  .form-divider { display: none; }
+  .field label, .choice-label { display: block; color: var(--muted); font-size: .72rem; font-weight: 700; margin-bottom: .3rem; }
+  .field select, .field input { width: 100%; border: 1px solid var(--border); border-radius: .5rem; padding: .55rem .7rem; color: var(--body); background: var(--card); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .choice-group { display: flex; gap: .45rem; }
+  .choice { flex: 1; border: 1px solid var(--border); border-radius: .5rem; background: var(--card); padding: .5rem .55rem; color: var(--body); font-size: .75rem; }
+  .choice.selected { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(42,109,245,.12); }
+  .choice strong { display: block; }
+  .comparison-result { display: grid; grid-template-columns: .85fr 1fr 1fr; gap: 0; margin-top: 1rem; border: 1px solid var(--border); border-radius: .7rem; overflow: hidden; }
+  .comparison-result > div { padding: .75rem .85rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .comparison-result > div:nth-child(3n) { border-right: 0; }
+  .comparison-result > div:nth-last-child(-n+3) { border-bottom: 0; }
+  .comparison-result .head { background: #fafbfd; font-weight: 750; font-size: .82rem; }
+  .comparison-result .label { color: var(--muted); font-size: .82rem; }
+  .comparison-result .number { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .simulation-note { color: var(--muted); font-size: .76rem; margin: .8rem 0 0; }
+  .recommendations { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 1rem; }
+  .recommendation { border: 1px solid var(--border); border-top: 3px solid var(--blue); border-radius: .65rem; padding: .9rem; }
+  .recommendation.priority { border-top-color: var(--red); } .recommendation.negotiate { border-top-color: var(--amber); } .recommendation.keep { border-top-color: var(--green); }
+  .recommendation p { color: var(--muted); font-size: .82rem; margin-bottom: 0; }
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(3, 1fr); } .top-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .comparison-result { grid-template-columns: .85fr 1fr 1fr; } }
+  @media (max-width: 1100px) { .simulation-form, .simulation-form.is-revolving, .simulation-form.is-no-amortization { grid-template-columns: 1fr 1fr; } .simulation-form .wide, .form-divider { grid-column: 1 / -1; } }
+  @media (max-width: 620px) { .mockup { padding: 1rem; } .header { display: block; } .header .button { margin-top: .8rem; } .stats { grid-template-columns: repeat(2, 1fr); } .comparison-intro { display: block; } .simulation-form { grid-template-columns: 1fr; } .simulation-form .wide, .form-divider { grid-column: auto; } .comparison-result { min-width: 600px; } .comparison-wrap { overflow-x: auto; } .recommendations { grid-template-columns: 1fr; } }
+</style>
+
+<div class="mockup">
+  <div class="header">
+    <div>
+      <h1>Deudas y capacidad de endeudamiento</h1>
+      <p>Entiende tu presión financiera y decide qué obligación atender primero.</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card debt-accent"><div class="stat-label">Deuda total</div><div class="stat-value debt">$84.700.000</div></div>
+    <div class="card"><div class="stat-label">Cuotas mensuales</div><div class="stat-value">$3.030.000</div></div>
+    <div class="card"><div class="stat-label">Intereses estimados</div><div class="stat-value debt">$1.060.000</div></div>
+    <div class="card"><div class="stat-label">Endeudamiento</div><div class="stat-value attention">37,0%</div></div>
+    <div class="card"><div class="stat-label">Margen hasta 30%</div><div class="stat-value positive">$0</div></div>
+  </div>
+
+  <div class="top-grid">
+    <div class="card">
+      <div class="section-head"><div><h2>Tu capacidad este mes</h2><span class="muted">El sueldo recurrente es la base del cálculo.</span></div><span class="badge badge-amber">Zona de precaución</span></div>
+      <div class="income-row"><span><span class="stat-label">Sueldo mensual recurrente</span><span class="sub">Ingreso de referencia registrado</span></span><strong class="positive">$8.200.000</strong></div>
+      <div class="meter"><div class="meter-value"></div><i class="meter-pin pin-30"></i><i class="meter-pin pin-40"></i></div>
+      <div class="legend"><span class="positive">Saludable ≤ 30%</span><span class="attention">Precaución 30–40%</span><span class="debt">Elevado &gt; 40%</span></div>
+      <div class="metric-list" style="margin-top: 1rem"><div class="metric-line"><span>Cuotas comprometidas</span><strong>$3.030.000</strong></div><div class="metric-line"><span>Exceso sobre objetivo</span><strong class="attention">$570.000</strong></div><div class="metric-line"><span>Dinero restante tras gastos esenciales</span><strong class="positive">$1.420.000</strong></div></div>
+      <div class="notice"><span>ⓘ</span><span>El margen del 30% es una referencia de endeudamiento; no representa dinero libre real.</span></div>
+    </div>
+    <div class="card">
+      <div class="section-head"><div><h2>Lectura rápida</h2><span class="muted">Qué significa tu situación hoy.</span></div></div>
+      <div class="metric-list"><div class="metric-line"><span>Mayor costo financiero</span><strong class="debt">Tarjeta Visa · 28% E.A.</strong></div><div class="metric-line"><span>Mayor cuota</span><strong>Hipotecario · $1.500.000</strong></div><div class="metric-line"><span>Obligación en riesgo</span><strong class="positive">Ninguna registrada</strong></div></div>
+      <div class="notice"><span>↗</span><span>Después de cubrir mínimos y obligaciones urgentes, el abono adicional a la Visa podría reducir más intereses.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-head"><div><h2>Obligaciones financieras</h2><span class="muted">Ordena por saldo, cuota, tasa o estado.</span></div><span class="muted">3 obligaciones</span></div>
+    <div class="comparison-wrap"><table><thead><tr><th>Deuda</th><th>Tipo</th><th style="text-align:right">Saldo</th><th style="text-align:right">Cuota</th><th style="text-align:right">Tasa E.A.</th><th style="text-align:right">Interés mensual</th><th>Estado</th><th></th></tr></thead><tbody>
+      <tr><td><strong>Visa clásica</strong><span class="sub">Banco Andino</span></td><td>Tarjeta</td><td class="num debt">$3.000.000</td><td class="num">$250.000</td><td class="num debt">28,0%</td><td class="num debt">$62.000</td><td><span class="badge badge-amber">Atender</span></td><td><button class="button">Detalle</button></td></tr>
+      <tr><td><strong>Hipotecario</strong><span class="sub">Banco Andino</span></td><td>Hipoteca</td><td class="num debt">$80.000.000</td><td class="num">$1.500.000</td><td class="num">10,0%</td><td class="num">$640.000</td><td><span class="badge badge-green">Al día</span></td><td><button class="button">Detalle</button></td></tr>
+      <tr><td><strong>Cupo rotativo</strong><span class="sub">Financiera Centro</span></td><td>Rotativo</td><td class="num debt">$1.700.000</td><td class="num">$1.280.000</td><td class="num attention">24,0%</td><td class="num attention">$358.000</td><td><span class="badge badge-red">Negociar</span></td><td><button class="button">Detalle</button></td></tr>
+    </tbody></table></div>
+  </div>
+
+  <div class="card comparison">
+    <div class="comparison-intro"><div><h2>Simula un abono en una deuda específica</h2><span class="muted">Elige la obligación, el monto y qué quieres reducir.</span></div><span class="badge badge-amber">Valores estimados</span></div>
+    <article class="simulation-state" data-simulation>
+      <div class="state-body">
+        <div class="simulation-form" data-simulation-form>
+          <div class="field"><label for="debt-to-pay">Deuda a la que aplicar el abono</label><select id="debt-to-pay" data-debt-kind><option value="amortizable">Crédito hipotecario · saldo $20.000.000</option><option value="amortizable">Crédito de vehículo · saldo $112.068.976</option><option value="revolving">Crédito rotativo · saldo $23.815.420</option><option value="card">Tarjeta Lifemiles · saldo $2.407.691</option></select></div>
+          <div class="field"><label for="extra-payment">Abono extraordinario</label><input id="extra-payment" value="$5.000.000" aria-label="Abono extraordinario"></div>
+          <div class="field" data-revolving-field hidden><label for="revolving-installments">Saldo en cuotas estimadas</label><input id="revolving-installments" value="48" aria-label="Saldo en cuotas estimadas"></div>
+          <div data-amortization-options><span class="choice-label">Aplicar abono para</span><div class="choice-group">
+            <button class="choice selected" type="button" data-mode="reduce_term" data-amortizable-only><strong>Reducir plazo</strong><span>Menos cuotas</span></button>
+            <button class="choice" type="button" data-mode="reduce_installment"><strong>Reducir cuota</strong><span data-mode-description>Menor pago mensual</span></button>
+          </div></div>
+          <button class="button">Calcular simulación</button>
+        </div>
+        <div class="comparison-wrap"><div class="comparison-result">
+          <div class="head">Resultado</div><div class="head">Antes</div><div class="head">Después</div>
+          <div class="label">Saldo</div><div class="number debt" data-before-balance>$20.000.000</div><div class="number debt" data-after-balance>$15.000.000</div>
+          <div class="label" data-installment-label>Cuota mensual</div><div class="number" data-before-installment>$1.130.642</div><div class="number positive" data-after-installment>$1.130.642</div>
+          <div class="label" data-term-label>Cuotas restantes</div><div class="number" data-before-term>24</div><div class="number positive" data-after-term>18</div>
+          <div class="label" data-saving-label>Ahorro en intereses</div><div class="number">—</div><div class="number positive" data-after-saving>$2.330.000</div>
+        </div></div>
+        <p class="simulation-note" data-state-note>El abono reduce el saldo de esta deuda. Puedes conservar la cuota para terminar antes o recalcularla.</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="card" style="margin-top: 1rem"><div class="section-head"><div><h2>¿Qué deuda debería atender primero?</h2><span class="muted">La recomendación se basa en costo, riesgo y presión mensual.</span></div></div><div class="recommendations">
+    <div class="recommendation priority"><h3><span class="badge badge-red">Priorizar para pagar</span><br>Visa clásica</h3><p>Tiene la tasa E.A. más alta. Después de cubrir pagos mínimos, un abono puede reducir el costo financiero.</p></div>
+    <div class="recommendation negotiate"><h3><span class="badge badge-amber">Considerar para negociar</span><br>Cupo rotativo</h3><p>La cuota presiona el ingreso mensual. Consulta alternativas, recordando que ampliar el plazo puede aumentar intereses.</p></div>
+    <div class="recommendation keep"><h3><span class="badge badge-green">Mantener al día</span><br>Hipotecario</h3><p>No suspendas pagos contractuales para priorizar otra deuda. No registra atraso en los datos disponibles.</p></div>
+  </div></div>
+</div>
+
+<script>
+  (function () {
+    var simulation = document.querySelector("[data-simulation]");
+    if (!simulation) return;
+
+    var select = simulation.querySelector("[data-debt-kind]");
+    var form = simulation.querySelector("[data-simulation-form]");
+    var revolvingField = simulation.querySelector("[data-revolving-field]");
+    var termOption = simulation.querySelector("[data-amortizable-only]");
+    var reduceInstallment = simulation.querySelector("[data-mode='reduce_installment']");
+    var amortizationOptions = simulation.querySelector("[data-amortization-options]");
+    var note = simulation.querySelector("[data-state-note]");
+    var termLabel = simulation.querySelector("[data-term-label]");
+    var savingLabel = simulation.querySelector("[data-saving-label]");
+    var beforeTerm = simulation.querySelector("[data-before-term]");
+    var afterTerm = simulation.querySelector("[data-after-term]");
+    var beforeInstallment = simulation.querySelector("[data-before-installment]");
+    var afterInstallment = simulation.querySelector("[data-after-installment]");
+    var afterSaving = simulation.querySelector("[data-after-saving]");
+
+    function refresh() {
+      var revolving = select.value === "revolving";
+      var card = select.value === "card";
+      form.classList.toggle("is-revolving", revolving);
+      form.classList.toggle("is-no-amortization", card);
+      revolvingField.hidden = !revolving;
+      amortizationOptions.hidden = revolving || card;
+      termOption.hidden = revolving || card;
+
+      if (revolving) {
+        note.textContent = "El número de cuotas es una referencia para calcular la nueva cuota; el abono real siempre se aplica directamente al saldo.";
+        termLabel.textContent = "Plazo de referencia";
+        savingLabel.textContent = "Ahorro mensual";
+        beforeTerm.textContent = "48 cuotas";
+        afterTerm.textContent = "48 cuotas";
+        beforeInstallment.textContent = "$857.459";
+        afterInstallment.textContent = "$509.100";
+        afterSaving.textContent = "$348.359";
+        reduceInstallment.classList.add("selected");
+        termOption.classList.remove("selected");
+      } else {
+        note.textContent = card ? "El abono real se aplica directamente al saldo de la tarjeta; no se simula un plazo fijo." : "El abono reduce el saldo de esta deuda. Puedes conservar la cuota para terminar antes o recalcularla.";
+        termLabel.textContent = card ? "Plazo" : "Cuotas restantes";
+        savingLabel.textContent = card ? "Saldo liberado" : "Ahorro en intereses";
+        beforeTerm.textContent = card ? "No aplica" : "24";
+        afterTerm.textContent = card ? "No aplica" : "18";
+        beforeInstallment.textContent = card ? "Pago registrado" : "$1.130.642";
+        afterInstallment.textContent = card ? "Pago registrado" : "$1.130.642";
+        afterSaving.textContent = card ? "$5.000.000" : "$2.330.000";
+      }
+    }
+
+    select.addEventListener("change", refresh);
+    refresh();
+  }());
+</script>

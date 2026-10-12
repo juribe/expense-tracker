@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_10_131000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_12_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -820,6 +820,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_10_131000) do
     t.datetime "remember_created_at"
     t.jsonb "dismissed_rule_suggestions", default: [], null: false
     t.integer "financial_cycle_start_day", default: 1, null: false
+    t.decimal "debt_capacity_target_percentage", precision: 5, scale: 2, default: "30.0", null: false
+    t.decimal "debt_capacity_alert_percentage", precision: 5, scale: 2, default: "40.0", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

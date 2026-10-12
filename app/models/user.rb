@@ -6,6 +6,9 @@ class User < ApplicationRecord
 
   validates :financial_cycle_start_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }
+  validates :debt_capacity_target_percentage, :debt_capacity_alert_percentage,
+            numericality: { greater_than: 0, less_than_or_equal_to: 100 }
+  validate :debt_capacity_thresholds_are_ordered
 
   # A start day of 1 means plain calendar months; anything else turns on the
   # pay-cycle grouping everywhere (reports, budgets, dashboard, cuadre).
@@ -59,5 +62,14 @@ class User < ApplicationRecord
 
   def rule_suggestion_dismissed?(merchant)
     dismissed_rule_suggestions.include?(merchant.to_s.strip.downcase)
+  end
+
+  private
+
+  def debt_capacity_thresholds_are_ordered
+    return if debt_capacity_target_percentage.blank? || debt_capacity_alert_percentage.blank?
+    return if debt_capacity_alert_percentage >= debt_capacity_target_percentage
+
+    errors.add(:debt_capacity_alert_percentage, :greater_than_or_equal_to_target)
   end
 end

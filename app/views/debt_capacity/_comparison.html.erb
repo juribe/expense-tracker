@@ -1,0 +1,63 @@
+<div data-testid="debt-capacity-comparison">
+  <% comparison = @debt_capacity[:comparison] %>
+  <% debts = @debt_capacity[:debts].select { |debt| debt[:balance].to_d.positive? && debt[:annual_rate].present? && debt[:monthly_installment].to_d.positive? } %>
+  <% selected_debt = @debt_capacity[:debts].find { |debt| debt[:id].to_s == comparison.dig(:selected_debt, :id).to_s } %>
+  <% revolving = selected_debt&.dig(:sub_kind) == "revolving" %>
+
+  <div class="debt-capacity-comparison-intro">
+    <div>
+      <h2 class="h4 mb-1">Simula un abono en una deuda específica</h2>
+      <p class="small text-secondary mb-0">Elige la obligación, el monto y qué quieres reducir.</p>
+    </div>
+    <span class="badge text-bg-warning">Valores estimados</span>
+  </div>
+
+  <%= form_with url: debt_capacity_comparison_path, method: :get, class: "debt-capacity-simulation-form", data: { debt_comparison_form: true } do |form| %>
+    <div>
+      <%= form.label :debt_id, "Deuda a la que aplicar el abono", class: "form-label small" %>
+      <%= form.select :debt_id, debts.map { |debt| ["#{debt[:name]} · saldo #{money_amount(debt[:balance])}", debt[:id], { data: { debt_type: debt[:sub_kind], debt_category: debt[:type] } }] }, { selected: comparison.dig(:selected_debt, :id) }, class: "form-select", data: { debt_comparison_select: true } %>
+    </div>
+    <div>
+      <%= form.label :amount, "Abono extraordinario", class: "form-label small" %>
+      <%= form.text_field :amount, value: comparison[:amount].to_i, inputmode: "decimal", class: "form-control", data: { money_input: true, debt_comparison_amount: true } %>
+    </div>
+    <div data-debt-comparison-installments-field class="<%= "d-none" unless revolving %>">
+      <%= form.label :installment_count, "Saldo en cuotas estimadas", class: "form-label small" %>
+      <%= form.number_field :installment_count, value: comparison[:installment_count] || 48, min: 1, max: 360, inputmode: "numeric", class: "form-control", data: { debt_comparison_installments: true } %>
+    </div>
+    <fieldset>
+      <legend class="form-label small">Aplicar abono para</legend>
+      <div class="debt-capacity-mode-options">
+        <label class="debt-capacity-mode-option <%= "is-selected" if comparison[:mode] == "reduce_term" %> <%= "d-none" if revolving %>" data-debt-comparison-term-option>
+          <%= form.radio_button :mode, "reduce_term", checked: comparison[:mode] == "reduce_term" %>
+          <span><strong>Reducir plazo</strong><small>Menos cuotas</small></span>
+        </label>
+        <label class="debt-capacity-mode-option <%= "is-selected" if comparison[:mode] == "reduce_installment" %>">
+          <%= form.radio_button :mode, "reduce_installment", checked: comparison[:mode] == "reduce_installment" %>
+          <span><strong>Reducir cuota</strong><small>Menor pago mensual</small></span>
+        </label>
+      </div>
+    </fieldset>
+    <%= form.submit "Calcular", class: "btn btn-primary", data: { debt_comparison_submit: true } %>
+  <% end %>
+
+  <% if comparison[:available] %>
+    <% current = comparison[:current] %>
+    <% after = comparison[:after] %>
+    <div class="table-responsive mt-3">
+      <table class="table align-middle mb-0 debt-capacity-comparison-table">
+        <thead><tr><th>Resultado</th><th>Antes del abono</th><th>Después del abono</th></tr></thead>
+        <tbody>
+          <tr><th>Saldo de esta deuda</th><td class="cell-amount amt-debt"><%= money_amount(current[:balance]) %></td><td class="cell-amount amt-debt"><%= money_amount(after[:balance]) %></td></tr>
+          <tr><th>Cuota mensual de esta deuda</th><td class="cell-amount"><%= money_amount(current[:installment]) %></td><td class="cell-amount <%= "amt-pos" if after[:installment] < current[:installment] %>"><%= money_amount(after[:installment]) %></td></tr>
+          <tr><th>Cuotas restantes</th><td class="cell-amount"><%= current[:remaining_installments] %></td><td class="cell-amount <%= "amt-pos" if after[:remaining_installments] < current[:remaining_installments] %>"><%= after[:remaining_installments] %></td></tr>
+          <tr><th>Intereses estimados</th><td class="cell-amount"><%= money_amount(current[:future_interest]) %></td><td class="cell-amount amt-pos"><%= money_amount(after[:future_interest]) %></td></tr>
+          <tr><th>Ahorro estimado</th><td class="cell-amount">—</td><td class="cell-amount amt-pos"><%= money_amount(comparison[:interest_saving]) %></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small text-secondary mt-3 mb-0">El abono reduce el saldo de esta deuda en <strong><%= money_amount(comparison[:balance_reduction]) %></strong>. La cuota cambia únicamente cuando eliges “Reducir cuota”.</p>
+  <% else %>
+    <div class="alert alert-info mt-3 mb-0">Faltan saldo, tasa o cuota para simular esta deuda.</div>
+  <% end %>
+</div>

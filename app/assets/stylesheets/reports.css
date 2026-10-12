@@ -30,6 +30,91 @@
   margin: 0.25rem 0 0 0;
 }
 
+.debt-capacity-card { border-color: var(--bs-border-color); }
+.debt-capacity-meter {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #198754 0 var(--debt-target), #ffc107 var(--debt-target) var(--debt-alert), #dc3545 var(--debt-alert) 100%);
+}
+.debt-capacity-meter-fill { width: var(--debt-ratio); height: 100%; border-radius: inherit; background: var(--bs-body-color); opacity: .75; }
+.debt-capacity-marker { position: absolute; top: -5px; width: 2px; height: 22px; background: var(--bs-body-color); opacity: .7; }
+.debt-capacity-marker-target { left: var(--debt-target); }
+.debt-capacity-marker-alert { left: var(--debt-alert); }
+.debt-capacity-current {
+  position: absolute;
+  top: -2.35rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--bs-body-color);
+  font-size: 0.78rem;
+}
+.debt-capacity-current strong { padding: 0.2rem 0.45rem; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 0.4rem; box-shadow: 0 2px 6px rgba(15, 34, 58, 0.12); }
+.debt-capacity-current i { display: block; width: 3px; height: 1.2rem; background: var(--bs-body-color); }
+.debt-capacity-current i::after { content: ""; display: block; width: 0.65rem; height: 0.65rem; margin: 0.9rem 0 0 -0.19rem; border-radius: 50%; background: var(--bs-body-color); border: 2px solid var(--bs-body-bg); }
+
+.card-attention { border-top: 3px solid var(--et-attention); }
+.card-positive { border-top: 3px solid var(--et-positive); }
+.debt-capacity-reading-list strong { max-width: 68%; }
+.debt-capacity-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem;
+  color: var(--bs-body-color);
+  background: rgba(224, 37, 75, 0.08);
+  border: 1px solid rgba(224, 37, 75, 0.2);
+  border-radius: var(--et-card-radius);
+  line-height: 1.45;
+}
+.debt-capacity-insight > i { color: var(--et-negative); flex: 0 0 auto; }
+.debt-capacity-insight strong { color: var(--et-negative); }
+.debt-capacity-cash-flow > p,
+.debt-capacity-cash-flow .text-secondary { color: var(--bs-secondary-color) !important; }
+.debt-capacity-cash-flow > p { font-weight: 600; }
+.debt-capacity-comparison-intro,
+.debt-capacity-simulation-form { display: flex; justify-content: space-between; align-items: end; gap: 1rem; }
+.debt-capacity-simulation-form { display: grid; grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(145px, .65fr) minmax(320px, 1.6fr) auto; align-items: end; padding: 1rem; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); border-radius: var(--et-card-radius); }
+.debt-capacity-simulation-form:not(.is-revolving):not(.is-no-amortization) { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(320px, 1.6fr) auto; }
+.debt-capacity-simulation-form.is-revolving { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(145px, .65fr) auto; }
+.debt-capacity-simulation-form.is-no-amortization { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) auto; }
+.debt-capacity-simulation-form > [data-debt-comparison-submit] { justify-self: start; width: auto; min-width: 122px; white-space: nowrap; }
+.debt-capacity-simulation-form fieldset { margin: 0; padding: 0; border: 0; }
+.debt-capacity-mode-options { display: flex; gap: .5rem; }
+.debt-capacity-mode-option { display: flex; align-items: center; gap: .45rem; flex: 1; min-height: 2.65rem; padding: .45rem .6rem; border: 1px solid var(--bs-border-color); border-radius: .45rem; background: var(--bs-body-bg); cursor: pointer; }
+.debt-capacity-mode-option.is-selected { border-color: var(--bs-primary); box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), .12); }
+.debt-capacity-mode-option input { accent-color: var(--bs-primary); }
+.debt-capacity-mode-option span { display: flex; flex-direction: column; line-height: 1.15; }
+.debt-capacity-mode-option small { color: var(--bs-secondary-color); margin-top: .18rem; }
+.debt-capacity-comparison-table thead th { color: var(--bs-secondary-color); font-size: .75rem; text-transform: uppercase; letter-spacing: .03em; }
+.debt-capacity-comparison-table tbody th { font-weight: 500; color: var(--bs-secondary-color); }
+.debt-capacity-comparison-table tbody td { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 991.98px) {
+  .debt-capacity-simulation-form,
+  .debt-capacity-simulation-form.is-revolving,
+  .debt-capacity-simulation-form.is-no-amortization { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 575.98px) {
+  .debt-capacity-comparison-intro { align-items: flex-start; flex-direction: column; }
+  .debt-capacity-simulation-form { grid-template-columns: 1fr; }
+  .debt-capacity-mode-options { flex-direction: column; }
+  .debt-capacity-comparison-table { min-width: 38rem; }
+}
+
+@media (max-width: 575.98px) {
+  .debt-capacity-reading-list strong { max-width: 55%; }
+}
+
+@media (max-width: 575.98px) {
+  .debt-capacity-meter { margin-top: 1rem; }
+}
+
 /* Period control (top right) */
 .period-control {
   min-width: 200px;

@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "app/models/user.rb": {
-    "mtime": 1791735159.4764047,
-    "seen": 1791739738.056041,
-    "ast_hash": "fb342bc895f169d0fddf493304af1d95",
+    "mtime": 1791836721.8907754,
+    "seen": 1791836986.6908748,
+    "ast_hash": "ebbee6b11bc7479f1fd5cbd37a09868d",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1791735168.7226815,
-    "seen": 1791739738.056426,
-    "ast_hash": "9c30dc413738526c369c94972ac67d9a",
+    "mtime": 1791844212.4056075,
+    "seen": 1791844522.0109792,
+    "ast_hash": "2bc3754160465514102e5cd5a932ff97",
     "semantic_hash": ""
   },
   "db/migrate/20260819140000_create_categories.rb": {
@@ -828,9 +828,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1791735146.6095214,
-    "seen": 1791739738.056597,
-    "ast_hash": "5c606fcad3adb54852905e58c1626c52",
+    "mtime": 1791840423.8066018,
+    "seen": 1791840554.957563,
+    "ast_hash": "eadffb4162055cf57251a6dedbd459f1",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1791834983.8595622,
-    "seen": 1791834997.227835,
-    "ast_hash": "e202b062ac2361eea7a717d57242d22f",
+    "mtime": 1791836736.2280686,
+    "seen": 1791836986.691995,
+    "ast_hash": "90409ff5d15500052a4152ce526f9e06",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1308,8 +1308,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1791761249.874748,
-    "seen": 1791766165.404435,
+    "mtime": 1791847715.1098156,
+    "seen": 1791848030.100393,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4230,8 +4230,8 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/reports_pages_test.rb": {
-    "mtime": 1791251411.642099,
-    "seen": 1791251577.997264,
+    "mtime": 1791840807.0721416,
+    "seen": 1791840901.091464,
     "ast_hash": "4d74a2f8b5642589b6c1f4a04efbd50a",
     "semantic_hash": ""
   },
@@ -5091,6 +5091,84 @@
     "mtime": 1791742281.8088381,
     "seen": 1791766165.404375,
     "ast_hash": "bc80ceb865960a656a9fddbe6b7c0d95",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/debt_capacity.js": {
+    "mtime": 1791847411.0586,
+    "seen": 1791847453.641494,
+    "ast_hash": "d7ea8bbecad53b90437194962cddc826",
+    "semantic_hash": ""
+  },
+  "app/services/debt_capacity/metrics.rb": {
+    "mtime": 1791843005.4666882,
+    "seen": 1791843097.6428428,
+    "ast_hash": "344b287129230866acf50de69b4c7e3c",
+    "semantic_hash": ""
+  },
+  "app/services/debt_capacity/overview.rb": {
+    "mtime": 1791844439.717013,
+    "seen": 1791844522.010656,
+    "ast_hash": "8965d85da2bf0368e71dbfca04c3ffa7",
+    "semantic_hash": ""
+  },
+  "app/services/debt_capacity/recommendations.rb": {
+    "mtime": 1791842783.082103,
+    "seen": 1791842802.467272,
+    "ast_hash": "21814bf997661203926271a3196537f0",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261012000000_add_debt_capacity_settings_to_users.rb": {
+    "mtime": 1791836702.6061356,
+    "seen": 1791836986.691495,
+    "ast_hash": "45a6d316049bf87662a747cab2327dab",
+    "semantic_hash": ""
+  },
+  "test/controllers/reports/debt_capacity_controller_test.rb": {
+    "mtime": 1791847993.2056818,
+    "seen": 1791848030.1000168,
+    "ast_hash": "57b9a0ab244aa126c6ac7c751ed1eab2",
+    "semantic_hash": ""
+  },
+  "test/services/debt_capacity/metrics_test.rb": {
+    "mtime": 1791842998.8565843,
+    "seen": 1791843097.6436129,
+    "ast_hash": "e6de0686607dd447be2068157f584fce",
+    "semantic_hash": ""
+  },
+  "test/services/debt_capacity/overview_test.rb": {
+    "mtime": 1791841405.1465387,
+    "seen": 1791841647.156875,
+    "ast_hash": "e2f7cbe70b415cd885cb88dd73026024",
+    "semantic_hash": ""
+  },
+  "test/services/debt_capacity/recommendations_test.rb": {
+    "mtime": 1791842582.4846277,
+    "seen": 1791842802.4680269,
+    "ast_hash": "3fd42e3bdef25f443f7ae41574562bee",
+    "semantic_hash": ""
+  },
+  "app/controllers/debt_capacity_controller.rb": {
+    "mtime": 1791845753.6262295,
+    "seen": 1791845793.1796741,
+    "ast_hash": "bba5ac65c8ced7303d9f251a1a5113bc",
+    "semantic_hash": ""
+  },
+  "app/services/debt_capacity/comparison.rb": {
+    "mtime": 1791845753.5588746,
+    "seen": 1791845793.1799428,
+    "ast_hash": "785c1d0528b3571d310fa4d39b48c183",
+    "semantic_hash": ""
+  },
+  "test/services/debt_capacity/comparison_test.rb": {
+    "mtime": 1791845770.3404012,
+    "seen": 1791845793.1806998,
+    "ast_hash": "b9d838b0ad2dc1833fc220554a2e19bc",
+    "semantic_hash": ""
+  },
+  "designs/debt_capacity_mockup.html": {
+    "mtime": 1791847192.046717,
+    "seen": 1791847453.642756,
+    "ast_hash": "27c87b395512eb6210bb742d0332de61",
     "semantic_hash": ""
   }
 }

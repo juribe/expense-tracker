@@ -1582,6 +1582,7 @@ es:
       budgets: "Presupuesto vs real"
       credit_cards: "Tarjetas de crédito"
       loans: "Préstamos y deuda"
+      debt_capacity: "Deudas y capacidad"
       recurring: "Pagos recurrentes"
       money_sources: "Origen del gasto"
       transfers: "Transferencias"
