@@ -44,6 +44,18 @@ class DebtCapacityComparisonTest < ActiveSupport::TestCase
     assert_equal 48, comparison[:after][:remaining_installments]
   end
 
+  test "treats a credit card as balance-based and only reduces the installment" do
+    comparison = DebtCapacity::Comparison.new(
+      debts: debts, debt_id: 3, amount: 1_000_000, mode: "reduce_term", installment_count: 24
+    ).call
+
+    assert comparison[:available]
+    assert_equal "reduce_installment", comparison[:mode]
+    assert_equal 24, comparison[:after][:remaining_installments]
+    assert_operator comparison[:after][:installment], :<, comparison[:current][:installment]
+    assert_equal 2_000_000.to_d, comparison[:after][:balance]
+  end
+
   test "selects the highest-rate debt when no debt is selected" do
     comparison = DebtCapacity::Comparison.new(debts: debts, amount: 500_000).call
 
@@ -65,7 +77,10 @@ class DebtCapacityComparisonTest < ActiveSupport::TestCase
         payment_frequency: "monthly" },
       { id: 2, name: "Rotativo", balance: 2_000_000.to_d, monthly_installment: 400_000.to_d,
         monthly_interest: 40_000.to_d, annual_rate: 24.to_d, interest_rate_type: "effective_annual",
-        payment_frequency: "monthly", sub_kind: "revolving" }
+        payment_frequency: "monthly", sub_kind: "revolving", installment_count: 48 },
+      { id: 3, name: "Tarjeta", kind: "credit_card", balance: 3_000_000.to_d, monthly_installment: 250_000.to_d,
+        monthly_interest: 50_000.to_d, annual_rate: 24.to_d, interest_rate_type: "effective_annual",
+        payment_frequency: "monthly", installment_count: 48 }
     ]
   end
 end

@@ -33,7 +33,7 @@ module DebtCapacity
         selected_debt: { id: debt[:id], name: debt[:name], balance: debt[:balance] },
         amount: payment,
         mode: mode_for(debt),
-        installment_count: revolving?(debt) ? revolving_installment_count : nil,
+        installment_count: balance_based?(debt) ? balance_based_installment_count(debt) : nil,
         current: current,
         after: after,
         balance_reduction: payment,
@@ -73,16 +73,16 @@ module DebtCapacity
     end
 
     def baseline_schedule(debt)
-      return schedule_for(debt) unless revolving?(debt)
+      return schedule_for(debt) unless balance_based?(debt)
 
-      schedule_for(debt, installment: annuity_installment(debt, debt[:balance], revolving_installment_count),
-                   cap: revolving_installment_count)
+      schedule_for(debt, installment: annuity_installment(debt, debt[:balance], balance_based_installment_count(debt)),
+                   cap: balance_based_installment_count(debt))
     end
 
     def simulated_schedule(debt, payment, baseline)
       return { schedule: baseline, installment: baseline_installment(debt) } if payment.zero?
 
-      return revolving_schedule(debt, payment) if revolving?(debt)
+      return revolving_schedule(debt, payment) if balance_based?(debt)
 
       if @mode == "reduce_installment"
         reduce_installment_schedule(debt, payment, baseline)
@@ -94,8 +94,8 @@ module DebtCapacity
 
     def revolving_schedule(debt, payment)
       balance = debt[:balance].to_d - payment
-      installment = annuity_installment(debt, balance, revolving_installment_count)
-      { schedule: schedule_for(debt, balance: balance, installment: installment, cap: revolving_installment_count),
+      installment = annuity_installment(debt, balance, balance_based_installment_count(debt))
+      { schedule: schedule_for(debt, balance: balance, installment: installment, cap: balance_based_installment_count(debt)),
         installment: installment }
     end
 
@@ -139,21 +139,21 @@ module DebtCapacity
     end
 
     def current_installment(debt)
-      return baseline_installment(debt) unless revolving?(debt)
+      return baseline_installment(debt) unless balance_based?(debt)
 
-      annuity_installment(debt, debt[:balance], revolving_installment_count)
+      annuity_installment(debt, debt[:balance], balance_based_installment_count(debt))
     end
 
     def mode_for(debt)
-      revolving?(debt) ? "reduce_installment" : @mode
+      balance_based?(debt) ? "reduce_installment" : @mode
     end
 
-    def revolving?(debt)
-      debt[:sub_kind].to_s == "revolving"
+    def balance_based?(debt)
+      debt[:kind].to_s == "credit_card" || debt[:sub_kind].to_s == "revolving"
     end
 
-    def revolving_installment_count
-      @installment_count || DEFAULT_REVOLVING_INSTALLMENTS
+    def balance_based_installment_count(debt)
+      @installment_count || (debt[:installment_count].to_i.positive? ? debt[:installment_count].to_i : DEFAULT_REVOLVING_INSTALLMENTS)
     end
 
     def normalize_installment_count(value)
@@ -173,7 +173,8 @@ module DebtCapacity
 
     def unavailable_result(debt = nil)
       { available: false, selected_debt: debt && { id: debt[:id], name: debt[:name], balance: debt[:balance] },
-        amount: 0.to_d, mode: debt ? mode_for(debt) : @mode, installment_count: debt && revolving?(debt) ? revolving_installment_count : nil,
+        amount: 0.to_d, mode: debt ? mode_for(debt) : @mode,
+        installment_count: debt && balance_based?(debt) ? balance_based_installment_count(debt) : nil,
         current: {}, after: {}, balance_reduction: 0.to_d, interest_saving: 0.to_d }
     end
   end

@@ -84,4 +84,21 @@ class DebtCapacityControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-debt-comparison-form] [data-debt-comparison-term-option].d-none input[name='mode'][value='reduce_term']"
     assert_select "[data-debt-comparison-form] input[name='mode'][value='reduce_installment'][checked]"
   end
+
+  test "GET /debt_capacity/comparison treats a credit card like a revolving debt" do
+    card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: -20_000_000)
+    card.create_credit_account!(installment_amount: 1_000_000, installment_count: 48,
+                                interest_rate: 29.3, interest_rate_type: "effective_annual",
+                                payment_frequency: "monthly")
+    sign_in @user
+
+    get debt_capacity_comparison_path,
+        params: { debt_id: card.id, amount: 5_000_000, mode: "reduce_term", installment_count: 36 }
+
+    assert_response :success
+    assert_select "[data-debt-comparison-form] input[data-debt-comparison-installments][value='36']"
+    assert_select "[data-debt-comparison-form] label[for='installment_count']", text: "Saldo en cuotas estimadas"
+    assert_select "[data-debt-comparison-form] [data-debt-comparison-term-option].d-none"
+    assert_select "[data-debt-comparison-form] input[name='mode'][value='reduce_installment'][checked]"
+  end
 end

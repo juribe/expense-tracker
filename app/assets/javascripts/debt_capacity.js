@@ -48,18 +48,19 @@
     var select = form.querySelector("[data-debt-comparison-select]");
     var option = select && select.options[select.selectedIndex];
     var revolving = option && option.dataset.debtType === "revolving";
-    var noAmortization = revolving || option && option.dataset.debtCategory === "Tarjeta de crédito";
+    var balanceBased = revolving || option && option.dataset.debtKind === "credit_card";
+    var noAmortization = balanceBased;
     var installments = form.querySelector("[data-debt-comparison-installments-field]");
     var termOption = form.querySelector("[data-debt-comparison-term-option]");
 
-    form.classList.toggle("is-revolving", revolving);
+    form.classList.toggle("is-revolving", balanceBased);
     form.classList.toggle("is-no-amortization", noAmortization);
 
-    if (installments) installments.classList.toggle("d-none", !revolving);
+    if (installments) installments.classList.toggle("d-none", !balanceBased);
     if (termOption) {
-      termOption.classList.toggle("d-none", revolving);
-      termOption.querySelector("input").disabled = revolving;
-      if (revolving) {
+      termOption.classList.toggle("d-none", balanceBased);
+      termOption.querySelector("input").disabled = balanceBased;
+      if (balanceBased) {
         var reduceInstallment = form.querySelector("input[name='mode'][value='reduce_installment']");
         reduceInstallment.checked = true;
         reduceInstallment.dispatchEvent(new Event("change", { bubbles: true }));

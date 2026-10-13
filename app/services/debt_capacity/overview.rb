@@ -46,6 +46,7 @@ module DebtCapacity
         {
           id: source.id,
           name: source.name,
+          kind: source.kind,
           institution: source.institution_name,
           type: debt_type(source),
           sub_kind: source.sub_kind,
