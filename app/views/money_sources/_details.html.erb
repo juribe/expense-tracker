@@ -1,0 +1,52 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title"><%= t("money_sources.show.details") %></h5>
+    <dl class="row mb-0">
+      <dt class="col-sm-5"><%= t("common.type", default: "Tipo") %></dt>
+      <dd class="col-sm-7"><%= source_kind_label(@money_source.kind) %></dd>
+      <dt class="col-sm-5"><%= t("money_sources.form.institution", default: "Entidad") %></dt>
+      <dd class="col-sm-7">
+        <%= @money_source.institution_name.presence || "—" %>
+        <%= institution_type_badge(@money_source.institution) if @money_source.institution? %>
+      </dd>
+      <% if @money_source.debt? %>
+        <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
+        <dd class="col-sm-7 fw-bold text-danger">
+          <%= number_to_currency(@money_source.loan? ? @money_source.outstanding_balance : @money_source.used_credit) %>
+        </dd>
+      <% else %>
+        <dt class="col-sm-5"><%= t("money_sources.form.starting_balance", default: "Saldo inicial") %></dt>
+        <dd class="col-sm-7"><%= number_to_currency(@money_source.starting_balance) %></dd>
+        <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
+        <dd class="col-sm-7 fw-bold text-success">
+          <%= @money_source.balance_label %>
+        </dd>
+      <% end %>
+      <dt class="col-sm-5"><%= t("money_sources.show.status") %></dt>
+      <dd class="col-sm-7"><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %></dd>
+      <% if @money_source.balance_offset.to_d.nonzero? %>
+        <dt class="col-sm-5"><%= t("money_sources.show.manual_adjustment") %></dt>
+        <dd class="col-sm-7">
+          <div>
+            <span class="fw-semibold <%= @money_source.balance_offset.to_d.positive? ? "text-success" : "text-danger" %>">
+              <%= reconciliation_signed_money(@money_source.balance_offset) %>
+            </span>
+            <% if @money_source.balance_offset_at %>
+              <span class="text-secondary small">— <%= I18n.l(@money_source.balance_offset_at.to_date, format: :long) %></span>
+            <% end %>
+          </div>
+          <% if @money_source.balance_offset_note.present? %>
+            <div class="text-secondary small"><i class="ti ti-message-circle me-1"></i><%= @money_source.balance_offset_note %></div>
+          <% end %>
+          <%= button_to reset_adjustment_money_source_path(@money_source),
+                        method: :post,
+                        form_class: "d-inline",
+                        class: "btn btn-outline-secondary btn-sm mt-1",
+                        data: { turbo: false, confirm: t("money_sources.show.reset_adjustment_confirm") } do %>
+            <i class="ti ti-rotate-2 me-1"></i><%= t("money_sources.show.reset_adjustment") %>
+          <% end %>
+        </dd>
+      <% end %>
+    </dl>
+  </div>
+</div>

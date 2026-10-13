@@ -20,6 +20,14 @@
     try { value ? localStorage.setItem(key, value) : localStorage.removeItem(key); } catch (e) { /* noop */ }
   }
 
+  function storedSession(key, fallback) {
+    try { return sessionStorage.getItem(key) || fallback; } catch (e) { return fallback; }
+  }
+
+  function saveSession(key, value) {
+    try { value ? sessionStorage.setItem(key, value) : sessionStorage.removeItem(key); } catch (e) { /* noop */ }
+  }
+
   function closeMobileSidebar() {
     var w = wrapper();
     if (w) w.classList.remove(MOBILE_OPEN_CLASS);
@@ -89,7 +97,34 @@
     });
   }
 
-  function init() { initTheme(); initSidebar(); }
+  function activateSourceTab(container, slug) {
+    var btn = container.querySelector('[data-tab-slug="' + slug + '"]');
+    if (!btn || btn.classList.contains("active")) { return; }
+    if (window.bootstrap && window.bootstrap.Tab) {
+      window.bootstrap.Tab.getOrCreateInstance(btn).show();
+    } else {
+      btn.click();
+    }
+  }
+
+  function initSourceTabs() {
+    document.querySelectorAll("[data-source-tabs]").forEach(function (container) {
+      var id = container.getAttribute("data-source-tabs");
+      if (!id) { return; }
+      var key = "etSourceTab:" + id;
+      if (!container.dataset.sourceTabsWired) {
+        container.dataset.sourceTabsWired = "1";
+        container.addEventListener("shown.bs.tab", function (event) {
+          var slug = event.target.getAttribute("data-tab-slug");
+          if (slug) { saveSession(key, slug); }
+        });
+      }
+      var saved = storedSession(key, "");
+      if (saved) { activateSourceTab(container, saved); }
+    });
+  }
+
+  function init() { initTheme(); initSidebar(); initSourceTabs(); }
 
   document.addEventListener("DOMContentLoaded", init);
   document.addEventListener("turbo:load", init);

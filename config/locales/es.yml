@@ -953,6 +953,11 @@ es:
       last_four_cta: "Agregar últimos 4 dígitos"
       gmail_blocked: "Crea al menos una fuente de dinero antes de conectar Gmail: la primera sincronización la usará para descubrir cómo reconocer tus fuentes."
     show:
+      tabs:
+        summary: "Resumen"
+        payments: "Pagos"
+        extras: "Abonos"
+        recognition: "Reconocimiento"
       details: "Detalles"
       current_balance: "Saldo actual"
       status: "Estado"

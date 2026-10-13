@@ -1040,4 +1040,66 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='quick-action-withdraw']", count: 0
     assert_select "[data-testid='quick-action-pocket']", count: 0
   end
+
+  # ----- Tabs on the money source show page -----
+
+  test "a debt show page renders tabs and defaults to the summary tab" do
+    loan = create_source(name: "Car Loan", kind: "loan", sub_kind: "personal")
+
+    get money_source_path(loan)
+    assert_response :success
+    assert_select "[data-source-tabs]"
+    assert_select ".nav-tabs [data-tab-slug='resumen']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='pagos']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='abonos']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='resumen'].active", count: 1
+    assert_select ".tab-pane#source-tab-resumen.active"
+  end
+
+  test "a loan show page has no recognition tab" do
+    loan = create_source(name: "Car Loan", kind: "loan", sub_kind: "personal")
+
+    get money_source_path(loan)
+    assert_response :success
+    assert_select ".nav-tabs [data-tab-slug='reconocimiento']", count: 0
+  end
+
+  test "a revolving loan show page renders summary, payments and extras tabs" do
+    loan = create_source(name: "Credito Rotativo", kind: "loan", sub_kind: "revolving")
+
+    get money_source_path(loan)
+    assert_response :success
+    assert_select ".nav-tabs [data-tab-slug='resumen']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='pagos']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='abonos']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='reconocimiento']", count: 0
+  end
+
+  test "a credit card show page renders the recognition tab" do
+    card = create_source(name: "Visa", kind: "credit_card")
+
+    get money_source_path(card)
+    assert_response :success
+    assert_select ".nav-tabs [data-tab-slug='reconocimiento']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='abonos']", count: 1
+  end
+
+  test "a non-debt payment source show page renders summary and recognition tabs" do
+    account = create_source(name: "Checking", kind: "account", starting_balance: 100)
+
+    get money_source_path(account)
+    assert_response :success
+    assert_select ".nav-tabs [data-tab-slug='resumen']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='reconocimiento']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='pagos']", count: 0
+    assert_select ".nav-tabs [data-tab-slug='abonos']", count: 0
+  end
+
+  test "a pocket show page renders no tabs" do
+    pocket = create_source(name: "Bolsillo", kind: "pocket")
+
+    get money_source_path(pocket)
+    assert_response :success
+    assert_select ".nav-tabs", count: 0
+  end
 end

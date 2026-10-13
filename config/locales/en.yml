@@ -352,6 +352,12 @@ en:
     no_matching: "No matching cases."
 
   money_sources:
+    show:
+      tabs:
+        summary: "Summary"
+        payments: "Payments"
+        extras: "Extra payments"
+        recognition: "Recognition"
     pocket:
       distribution_title: "Money distribution"
       add_money: "Add money"
