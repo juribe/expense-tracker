@@ -276,6 +276,14 @@ section.page-section { margin-bottom: 1.5rem; }
 
 .breadcrumb { font-size: 0.8125rem; }
 
+/* Nav links: Spike hardcodes --bs-nav-link-color to a dark navy, which is
+ * invisible against the dark topbar. Re-point it at theme tokens so plain
+ * .nav (topbar actions, tabs) adapts to both themes. */
+.nav {
+  --bs-nav-link-color: var(--bs-body-color);
+  --bs-nav-link-hover-color: var(--bs-primary);
+}
+
 /* Compatibility helpers during migration */
 .summary-value { font-size: 1.75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 

@@ -719,6 +719,23 @@
 [data-bs-theme="dark"] .choice-card.selected { background: rgba(42, 109, 245, 0.08); }
 [data-bs-theme="dark"] .category-picker__list { background: var(--bs-body-bg); }
 
+/* The recognition page reuses the --loan-* card tokens but its containers are
+ * not part of the card system above, so they kept the light :root values:
+ * white cards on the dark page and near-black headings. Re-declare the tokens
+ * on the recognition roots so the page inherits dark surfaces and text. */
+[data-bs-theme="dark"] .recognition-header,
+[data-bs-theme="dark"] .recognition-banks-header,
+[data-bs-theme="dark"] .recognition-table-card,
+[data-bs-theme="dark"] .recognition-bank,
+[data-bs-theme="dark"] .recognition-drawer {
+  --loan-card-bg: #1a2739;
+  --loan-card-border: #2a3c52;
+  --loan-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --loan-track: #253a52;
+  --loan-strong: #dfe7f0;
+  --loan-muted: #8fa3b6;
+}
+
 /* Institution autocomplete (money source forms) */
 .institution-autocomplete { max-height: 320px; overflow-y: auto; z-index: 1050; cursor: pointer; }
 .institution-autocomplete .dropdown-item { white-space: normal; word-break: break-word; align-items: center; }

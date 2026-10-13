@@ -10,56 +10,81 @@
     <div class="col-12 col-xl"><%= render "shared/stat", label: "Margen hasta 30%", value: money_amount(summary[:available_margin]), tone: :positive, delta: "Referencia fija de salud financiera" %></div>
   </section>
 
-  <section class="row g-3 mb-4">
-    <div class="col-12 col-xl-7">
-      <%= render "shared/section", title: "Tu capacidad este mes", icon: "chart-donut" do %>
-        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3 gap-3">
-          <div><span class="stat-label">Sueldo mensual recurrente</span><span class="d-block text-secondary small">Ingreso de referencia para el cálculo</span></div>
-          <strong class="stat-value-sm amt-pos"><%= money_amount(summary[:monthly_income].positive? ? summary[:monthly_income] : nil) %></strong>
-        </div>
-        <% if summary[:debt_ratio] %>
-          <div class="debt-capacity-meter" style="--debt-ratio: <%= [summary[:debt_ratio].to_f, 100].min %>%; --debt-target: 30%; --debt-alert: 40%" role="img" aria-label="Endeudamiento de <%= summary[:debt_ratio] %> por ciento">
-            <span class="debt-capacity-current" data-testid="debt-capacity-current" style="left: <%= [summary[:debt_ratio].to_f, 100].min %>%"><strong>Estás aquí: <%= number_to_percentage(summary[:debt_ratio], precision: 1) %></strong><i></i></span>
-          </div>
-          <div class="d-flex justify-content-between small text-secondary mt-2"><span class="amt-pos">Saludable ≤ 30%</span><span class="amt-attention">Precaución 30–40%</span><span class="amt-debt">Elevado &gt; 40%</span></div>
-          <div class="debt-capacity-cash-flow mt-4" data-testid="debt-capacity-cash-flow">
-            <p class="small text-secondary mb-2">Dinero tras esenciales</p>
-            <div class="row g-2 small">
-              <div class="col-12 d-flex justify-content-between gap-3"><span class="text-secondary">Sueldo mensual</span><strong class="num amt-pos"><%= money_amount(summary[:monthly_income]) %></strong></div>
-              <div class="col-12 d-flex justify-content-between gap-3"><span class="text-secondary">− Cuotas de crédito</span><strong class="num amt-debt"><%= money_amount(summary[:monthly_installments]) %></strong></div>
-              <div class="col-12 d-flex justify-content-between gap-3"><span class="text-secondary">− Gastos esenciales <%= summary[:essential_expenses_percentage] ? "(#{number_to_percentage(summary[:essential_expenses_percentage], precision: 1)} del sueldo)" : "(sin datos)" %></span><strong class="num amt-debt"><%= money_amount(summary[:essential_expenses]) %></strong></div>
-              <div class="col-12 d-flex justify-content-between gap-3 border-top pt-2 mt-1"><strong>= Dinero tras esenciales</strong><strong class="num amt-pos"><%= money_amount(summary[:financial_pressure]) %></strong></div>
+  <ul class="nav nav-tabs mb-4" id="debt-capacity-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="dc-capacity-tab" data-bs-toggle="tab" data-bs-target="#dc-capacity" type="button" role="tab" aria-controls="dc-capacity" aria-selected="true"><i class="ti ti-chart-donut me-1"></i>Capacidad</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="dc-obligations-tab" data-bs-toggle="tab" data-bs-target="#dc-obligations" type="button" role="tab" aria-controls="dc-obligations" aria-selected="false"><i class="ti ti-list-details me-1"></i>Obligaciones</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="dc-simulator-tab" data-bs-toggle="tab" data-bs-target="#dc-simulator" type="button" role="tab" aria-controls="dc-simulator" aria-selected="false"><i class="ti ti-arrows-left-right me-1"></i>Simulador</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="dc-recommendations-tab" data-bs-toggle="tab" data-bs-target="#dc-recommendations" type="button" role="tab" aria-controls="dc-recommendations" aria-selected="false"><i class="ti ti-target-arrow me-1"></i>Recomendaciones</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="debt-capacity-tab-content">
+    <div class="tab-pane fade show active" id="dc-capacity" role="tabpanel" aria-labelledby="dc-capacity-tab" tabindex="0">
+      <section class="row g-3">
+        <div class="col-12 col-xl-7">
+          <%= render "shared/section", title: "Tu capacidad este mes", icon: "chart-donut" do %>
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3 gap-3">
+              <div><span class="stat-label">Sueldo mensual recurrente</span><span class="d-block text-secondary small">Ingreso de referencia para el cálculo</span></div>
+              <strong class="stat-value-sm amt-pos"><%= money_amount(summary[:monthly_income].positive? ? summary[:monthly_income] : nil) %></strong>
             </div>
-          </div>
-          <div class="row g-3 mt-3 small"><div class="col-6"><span class="d-block text-secondary">Exceso sobre objetivo</span><strong class="num amt-attention"><%= money_amount(summary[:excess_over_target]) %></strong></div><div class="col-6"><span class="d-block text-secondary">Margen hasta 30%</span><strong class="num amt-pos"><%= money_amount(summary[:available_margin]) %></strong></div></div>
-        <% else %>
-          <div class="alert alert-info mb-0">Registra un ingreso mensual recurrente para calcular tu porcentaje de endeudamiento.</div>
-        <% end %>
-        <div class="alert alert-warning mt-3 mb-0 small"><i class="ti ti-info-circle me-1"></i>El margen del 30% es una referencia de endeudamiento; no representa dinero libre real.</div>
+            <% if summary[:debt_ratio] %>
+              <div class="debt-capacity-meter" style="--debt-ratio: <%= [summary[:debt_ratio].to_f, 100].min %>%; --debt-target: 30%; --debt-alert: 40%" role="img" aria-label="Endeudamiento de <%= summary[:debt_ratio] %> por ciento">
+                <span class="debt-capacity-current" data-testid="debt-capacity-current" style="left: <%= [summary[:debt_ratio].to_f, 100].min %>%"><strong>Estás aquí: <%= number_to_percentage(summary[:debt_ratio], precision: 1) %></strong><i></i></span>
+              </div>
+              <div class="d-flex justify-content-between small text-secondary mt-2"><span class="amt-pos">Saludable ≤ 30%</span><span class="amt-attention">Precaución 30–40%</span><span class="amt-debt">Elevado &gt; 40%</span></div>
+              <div class="debt-capacity-cash-flow mt-4" data-testid="debt-capacity-cash-flow">
+                <p class="small text-secondary mb-2">Dinero tras esenciales</p>
+                <div class="row g-2 small">
+                  <div class="col-12 d-flex justify-content-between gap-3"><span class="text-secondary">Sueldo mensual</span><strong class="num amt-pos"><%= money_amount(summary[:monthly_income]) %></strong></div>
+                  <div class="col-12 d-flex justify-content-between gap-3"><span class="text-secondary">− Cuotas de crédito</span><strong class="num amt-debt"><%= money_amount(summary[:monthly_installments]) %></strong></div>
+                  <div class="col-12 d-flex justify-content-between gap-3"><span class="text-secondary">− Gastos esenciales <%= summary[:essential_expenses_percentage] ? "(#{number_to_percentage(summary[:essential_expenses_percentage], precision: 1)} del sueldo)" : "(sin datos)" %></span><strong class="num amt-debt"><%= money_amount(summary[:essential_expenses]) %></strong></div>
+                  <div class="col-12 d-flex justify-content-between gap-3 border-top pt-2 mt-1"><strong>= Dinero tras esenciales</strong><strong class="num amt-pos"><%= money_amount(summary[:financial_pressure]) %></strong></div>
+                </div>
+              </div>
+              <div class="row g-3 mt-3 small"><div class="col-6"><span class="d-block text-secondary">Exceso sobre objetivo</span><strong class="num amt-attention"><%= money_amount(summary[:excess_over_target]) %></strong></div><div class="col-6"><span class="d-block text-secondary">Margen hasta 30%</span><strong class="num amt-pos"><%= money_amount(summary[:available_margin]) %></strong></div></div>
+            <% else %>
+              <div class="alert alert-info mb-0">Registra un ingreso mensual recurrente para calcular tu porcentaje de endeudamiento.</div>
+            <% end %>
+            <div class="alert alert-warning mt-3 mb-0 small"><i class="ti ti-info-circle me-1"></i>El margen del 30% es una referencia de endeudamiento; no representa dinero libre real.</div>
+          <% end %>
+        </div>
+        <div class="col-12 col-xl-5">
+          <%= render "shared/section", title: "Lectura rápida", icon: "bulb" do %>
+            <% top_debt = @debt_capacity[:debts].max_by { |debt| debt[:annual_rate].to_d } %>
+            <% high_installment = @debt_capacity[:debts].max_by { |debt| debt[:monthly_installment].to_d } %>
+            <div class="debt-capacity-reading-list"><div class="d-flex justify-content-between gap-3 py-2 border-bottom"><span class="text-secondary">Mayor costo financiero</span><strong class="text-end amt-debt"><%= top_debt ? "#{top_debt[:name]} · #{number_to_percentage(top_debt[:annual_rate], precision: 1)}" : "—" %></strong></div><div class="d-flex justify-content-between gap-3 py-2 border-bottom"><span class="text-secondary">Mayor cuota</span><strong class="text-end"><%= high_installment ? "#{high_installment[:name]} · #{money_amount(high_installment[:monthly_installment])}" : "—" %></strong></div><div class="d-flex justify-content-between gap-3 py-2"><span class="text-secondary">Obligación en riesgo</span><strong class="text-end <%= @debt_capacity[:debts].any? { |debt| %i[overdue at_risk].include?(debt[:status]) } ? 'amt-attention' : 'amt-pos' %>"><%= @debt_capacity[:debts].find { |debt| %i[overdue at_risk].include?(debt[:status]) }&.dig(:name) || "Ninguna registrada" %></strong></div></div>
+            <% priority = recommendations[:prioritize].first %>
+            <% if priority %><div class="debt-capacity-insight mt-3 mb-0 small"><i class="ti ti-arrow-up-right me-1"></i><span><strong><%= priority[:name] %>:</strong> <%= priority[:reason] %></span></div><% end %>
+          <% end %>
+        </div>
+      </section>
+    </div>
+
+    <div class="tab-pane fade" id="dc-obligations" role="tabpanel" aria-labelledby="dc-obligations-tab" tabindex="0">
+      <%= render "shared/section", title: "Obligaciones financieras", icon: "list-details", actions: content_tag(:span, "#{@debt_capacity[:debts].size} registradas", class: "small text-secondary") do %>
+        <p class="small text-secondary mb-3">Ordena por saldo, cuota, tasa o estado. Los datos provienen de tus fuentes de dinero.</p>
+        <div class="table-responsive"><table class="table table-hover align-middle mb-0" data-testid="debt-capacity-table"><thead><tr><% [["Deuda", 0], ["Tipo", 1], ["Saldo", 2], ["Cuota", 3], ["Tasa E.A.", 4], ["Interés mensual", 5], ["Estado", 6]].each do |label, index| %><th><button type="button" class="btn btn-link btn-sm p-0 text-reset text-decoration-none" data-debt-sort="<%= index %>"><%= label %> <i class="ti ti-selector"></i></button></th><% end %><th></th></tr></thead><tbody><% @debt_capacity[:debts].each do |debt| %><tr><td class="cell-strong"><%= debt[:name] %><span class="cell-muted"><%= debt[:institution].presence || "Entidad no registrada" %></span></td><td><%= debt[:type].to_s.humanize %></td><td class="cell-amount amt-debt" data-sort-value="<%= debt[:balance] %>"><%= money_amount(debt[:balance]) %></td><td class="cell-amount" data-sort-value="<%= debt[:monthly_installment] %>"><%= money_amount(debt[:monthly_installment]) %></td><td class="cell-amount" data-sort-value="<%= debt[:annual_rate] %>"><%= debt[:interest_rate_label].presence || "—" %></td><td class="cell-amount" data-sort-value="<%= debt[:monthly_interest] %>"><%= money_amount(debt[:monthly_interest]) %></td><td><span class="badge <%= debt[:status] == :current ? 'text-bg-success' : 'text-bg-warning' %>"><%= debt[:status].to_s.humanize %></span></td><td><%= link_to "Detalle", debt[:detail_path], class: "btn btn-sm btn-outline-primary" %></td></tr><% end %></tbody><tfoot><tr class="table-light" data-testid="debt-capacity-table-totals"><th colspan="2">Total</th><th class="cell-amount amt-debt"><%= money_amount(summary[:total_debt]) %></th><th class="cell-amount"><%= money_amount(summary[:monthly_installments]) %></th><th></th><th class="cell-amount"><%= money_amount(summary[:monthly_interest]) %></th><th colspan="2"></th></tr></tfoot></table></div>
       <% end %>
     </div>
-    <div class="col-12 col-xl-5">
-      <%= render "shared/section", title: "Lectura rápida", icon: "bulb" do %>
-        <% top_debt = @debt_capacity[:debts].max_by { |debt| debt[:annual_rate].to_d } %>
-        <% high_installment = @debt_capacity[:debts].max_by { |debt| debt[:monthly_installment].to_d } %>
-        <div class="debt-capacity-reading-list"><div class="d-flex justify-content-between gap-3 py-2 border-bottom"><span class="text-secondary">Mayor costo financiero</span><strong class="text-end amt-debt"><%= top_debt ? "#{top_debt[:name]} · #{number_to_percentage(top_debt[:annual_rate], precision: 1)}" : "—" %></strong></div><div class="d-flex justify-content-between gap-3 py-2 border-bottom"><span class="text-secondary">Mayor cuota</span><strong class="text-end"><%= high_installment ? "#{high_installment[:name]} · #{money_amount(high_installment[:monthly_installment])}" : "—" %></strong></div><div class="d-flex justify-content-between gap-3 py-2"><span class="text-secondary">Obligación en riesgo</span><strong class="text-end <%= @debt_capacity[:debts].any? { |debt| %i[overdue at_risk].include?(debt[:status]) } ? 'amt-attention' : 'amt-pos' %>"><%= @debt_capacity[:debts].find { |debt| %i[overdue at_risk].include?(debt[:status]) }&.dig(:name) || "Ninguna registrada" %></strong></div></div>
-        <% priority = recommendations[:prioritize].first %>
-        <% if priority %><div class="debt-capacity-insight mt-3 mb-0 small"><i class="ti ti-arrow-up-right me-1"></i><span><strong><%= priority[:name] %>:</strong> <%= priority[:reason] %></span></div><% end %>
+
+    <div class="tab-pane fade" id="dc-simulator" role="tabpanel" aria-labelledby="dc-simulator-tab" tabindex="0">
+      <%= render "shared/section", title: "Comparación de alternativas", icon: "arrows-left-right" do %>
+        <%= render "debt_capacity/comparison" %>
       <% end %>
     </div>
-  </section>
 
-  <%= render "shared/section", title: "Obligaciones financieras", icon: "list-details", actions: content_tag(:span, "#{@debt_capacity[:debts].size} registradas", class: "small text-secondary") do %>
-    <p class="small text-secondary mb-3">Ordena por saldo, cuota, tasa o estado. Los datos provienen de tus fuentes de dinero.</p>
-    <div class="table-responsive"><table class="table table-hover align-middle mb-0" data-testid="debt-capacity-table"><thead><tr><% [["Deuda", 0], ["Tipo", 1], ["Saldo", 2], ["Cuota", 3], ["Tasa E.A.", 4], ["Interés mensual", 5], ["Estado", 6]].each do |label, index| %><th><button type="button" class="btn btn-link btn-sm p-0 text-reset text-decoration-none" data-debt-sort="<%= index %>"><%= label %> <i class="ti ti-selector"></i></button></th><% end %><th></th></tr></thead><tbody><% @debt_capacity[:debts].each do |debt| %><tr><td class="cell-strong"><%= debt[:name] %><span class="cell-muted"><%= debt[:institution].presence || "Entidad no registrada" %></span></td><td><%= debt[:type].to_s.humanize %></td><td class="cell-amount amt-debt" data-sort-value="<%= debt[:balance] %>"><%= money_amount(debt[:balance]) %></td><td class="cell-amount" data-sort-value="<%= debt[:monthly_installment] %>"><%= money_amount(debt[:monthly_installment]) %></td><td class="cell-amount" data-sort-value="<%= debt[:annual_rate] %>"><%= debt[:interest_rate_label].presence || "—" %></td><td class="cell-amount" data-sort-value="<%= debt[:monthly_interest] %>"><%= money_amount(debt[:monthly_interest]) %></td><td><span class="badge <%= debt[:status] == :current ? 'text-bg-success' : 'text-bg-warning' %>"><%= debt[:status].to_s.humanize %></span></td><td><%= link_to "Detalle", debt[:detail_path], class: "btn btn-sm btn-outline-primary" %></td></tr><% end %></tbody><tfoot><tr class="table-light" data-testid="debt-capacity-table-totals"><th colspan="2">Total</th><th class="cell-amount amt-debt"><%= money_amount(summary[:total_debt]) %></th><th class="cell-amount"><%= money_amount(summary[:monthly_installments]) %></th><th></th><th class="cell-amount"><%= money_amount(summary[:monthly_interest]) %></th><th colspan="2"></th></tr></tfoot></table></div>
-  <% end %>
-
-  <%= render "shared/section", title: "Comparación de alternativas", icon: "arrows-left-right" do %>
-    <%= render "debt_capacity/comparison" %>
-  <% end %>
-
-  <%= render "shared/section", title: "¿Qué deuda debería atender primero?", icon: "target-arrow" do %>
-    <p class="small text-secondary">Las sugerencias se basan en costo financiero, presión mensual y estado registrado. Mantén siempre los pagos contractuales.</p>
-    <div class="row g-3" data-testid="debt-capacity-recommendations"><% { prioritize: ["Priorizar para pagar", "card-debt"], negotiate: ["Considerar para negociar", "card-attention"], keep_current: ["Mantener al día", "card-positive"] }.each do |group, (title, klass)| %><div class="col-12 col-lg-4"><div class="card h-100 <%= klass %>"><div class="card-body"><h3 class="card-title"><%= title %></h3><% items = recommendations[group] %><% if items.any? %><% items.each do |item| %><div class="mb-3"><strong><%= item[:name] %></strong><p class="small text-secondary mb-0 mt-1"><%= item[:reason] %></p></div><% end %><% else %><p class="small text-secondary mb-0">No hay obligaciones en este grupo.</p><% end %></div></div></div><% end %></div>
-  <% end %>
+    <div class="tab-pane fade" id="dc-recommendations" role="tabpanel" aria-labelledby="dc-recommendations-tab" tabindex="0">
+      <%= render "shared/section", title: "¿Qué deuda debería atender primero?", icon: "target-arrow" do %>
+        <p class="small text-secondary">Las sugerencias se basan en costo financiero, presión mensual y estado registrado. Mantén siempre los pagos contractuales.</p>
+        <div class="row g-3" data-testid="debt-capacity-recommendations"><% { prioritize: ["Priorizar para pagar", "card-debt"], negotiate: ["Considerar para negociar", "card-attention"], keep_current: ["Mantener al día", "card-positive"] }.each do |group, (title, klass)| %><div class="col-12 col-lg-4"><div class="card h-100 <%= klass %>"><div class="card-body"><h3 class="card-title"><%= title %></h3><% items = recommendations[group] %><% if items.any? %><% items.each do |item| %><div class="mb-3"><strong><%= item[:name] %></strong><p class="small text-secondary mb-0 mt-1"><%= item[:reason] %></p></div><% end %><% else %><p class="small text-secondary mb-0">No hay obligaciones en este grupo.</p><% end %></div></div></div><% end %></div>
+      <% end %>
+    </div>
+  </div>
 </div>
