@@ -80,8 +80,10 @@
 .debt-capacity-simulation-form { display: flex; justify-content: space-between; align-items: end; gap: 1rem; }
 .debt-capacity-simulation-form { display: grid; grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(145px, .65fr) minmax(320px, 1.6fr) auto; align-items: end; padding: 1rem; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); border-radius: var(--et-card-radius); }
 .debt-capacity-simulation-form:not(.is-revolving):not(.is-no-amortization) { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(320px, 1.6fr) auto; }
-.debt-capacity-simulation-form.is-revolving { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) minmax(145px, .65fr) auto; }
+.debt-capacity-simulation-form.is-revolving { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr) minmax(0, .72fr) minmax(0, 1.32fr) auto; }
 .debt-capacity-simulation-form.is-no-amortization { grid-template-columns: minmax(280px, 1.45fr) minmax(190px, .85fr) auto; }
+.debt-capacity-simulation-form.is-revolving.is-no-amortization { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr) minmax(0, .72fr) minmax(0, 1.32fr) auto; }
+.debt-capacity-simulation-form.is-revolving > * { min-width: 0; }
 .debt-capacity-simulation-form > [data-debt-comparison-submit] { justify-self: start; width: auto; min-width: 122px; white-space: nowrap; }
 .debt-capacity-simulation-form fieldset { margin: 0; padding: 0; border: 0; }
 .debt-capacity-mode-options { display: flex; gap: .5rem; }
