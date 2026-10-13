@@ -41,124 +41,169 @@
               installments: t("credits.opportunity.installments_text",
                               count: @opportunity[:results]["installments_eliminated"].to_i)) %>
       </div>
-      <%= link_to money_source_credits_path(@loan, anchor: "quick"), class: "btn btn-primary btn-sm text-nowrap" do %>
+      <button type="button" class="btn btn-primary btn-sm text-nowrap"
+              data-bs-toggle="tab" data-bs-target="#credit-tab-simulador">
         <i class="ti ti-calculator me-1"></i><%= t("credits.opportunity.button") %>
-      <% end %>
+      </button>
     </div>
   <% end %>
 
-  <div class="row g-4 mb-4">
-    <div class="col-12 col-lg-5">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title mb-3"><i class="ti ti-gauge me-2"></i><%= t("credits.status.title") %></h5>
-          <div class="mb-3">
-            <div class="small text-muted"><%= t("credits.status.outstanding") %></div>
-            <div class="summary-value fw-bold text-danger"><%= number_to_currency(summary["outstanding_balance"].to_d) %></div>
-          </div>
-          <dl class="row mb-0">
-            <dt class="col-7 fw-normal text-muted"><%= t("credits.status.installment_number") %></dt>
-            <dd class="col-5 text-end fw-bold"><%= summary["current_installment_number"] || "—" %></dd>
-            <dt class="col-7 fw-normal text-muted"><%= t("credits.status.remaining_installments") %></dt>
-            <dd class="col-5 text-end fw-bold"><%= summary["remaining_installments"] || "—" %></dd>
-            <dt class="col-7 fw-normal text-muted"><%= t("credits.status.installment_amount") %></dt>
-            <dd class="col-5 text-end fw-bold"><%= number_to_currency(summary["installment_amount"].to_d) %></dd>
-            <dt class="col-7 fw-normal text-muted"><%= t("credits.status.next_payment") %></dt>
-            <dd class="col-5 text-end fw-bold"><%= date_label(summary["next_payment_date"]) %></dd>
-            <dt class="col-7 fw-normal text-muted"><%= t("credits.status.payoff_date") %></dt>
-            <dd class="col-5 text-end fw-bold"><%= payoff_label(summary["payoff_date"]) %></dd>
-          </dl>
-          <% if summary["schedule_truncated"] %>
-            <div class="alert alert-warning small mt-3 mb-0">
-              <i class="ti ti-alert-triangle me-1"></i><%= t("credits.status.truncated") %>
+  <%
+    tabs = [
+      { slug: "resumen", label: t("credits.tabs.summary"), icon: "ti-gauge" },
+      { slug: "simulador", label: t("credits.tabs.simulator"), icon: "ti-calculator" },
+      { slug: "escenarios", label: t("credits.tabs.scenarios"), icon: "ti-trophy" },
+      { slug: "cronograma", label: t("credits.tabs.schedule"), icon: "ti-table" }
+    ]
+  %>
+
+  <div data-source-tabs="credit-<%= @loan.id %>">
+    <ul class="nav nav-tabs mb-4" id="credit-tabs" role="tablist">
+      <% tabs.each do |tab| %>
+        <% active = tab[:slug] == @active_tab %>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link<%= " active" if active %>"
+                  id="credit-tab-<%= tab[:slug] %>-btn"
+                  data-bs-toggle="tab"
+                  data-bs-target="#credit-tab-<%= tab[:slug] %>"
+                  data-tab-slug="<%= tab[:slug] %>"
+                  type="button"
+                  role="tab"
+                  aria-controls="credit-tab-<%= tab[:slug] %>"
+                  aria-selected="<%= active %>">
+            <i class="ti <%= tab[:icon] %> me-1"></i><%= tab[:label] %>
+          </button>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade<%= " show active" if @active_tab == "resumen" %>" id="credit-tab-resumen" role="tabpanel" aria-labelledby="credit-tab-resumen-btn" tabindex="0">
+        <div class="row g-4 mb-4">
+          <div class="col-12 col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title mb-3"><i class="ti ti-gauge me-2"></i><%= t("credits.status.title") %></h5>
+                <div class="mb-3">
+                  <div class="small text-muted"><%= t("credits.status.outstanding") %></div>
+                  <div class="summary-value fw-bold text-danger"><%= number_to_currency(summary["outstanding_balance"].to_d) %></div>
+                </div>
+                <dl class="row mb-0">
+                  <dt class="col-7 fw-normal text-muted"><%= t("credits.status.installment_number") %></dt>
+                  <dd class="col-5 text-end fw-bold"><%= summary["current_installment_number"] || "—" %></dd>
+                  <dt class="col-7 fw-normal text-muted"><%= t("credits.status.remaining_installments") %></dt>
+                  <dd class="col-5 text-end fw-bold"><%= summary["remaining_installments"] || "—" %></dd>
+                  <dt class="col-7 fw-normal text-muted"><%= t("credits.status.installment_amount") %></dt>
+                  <dd class="col-5 text-end fw-bold"><%= number_to_currency(summary["installment_amount"].to_d) %></dd>
+                  <dt class="col-7 fw-normal text-muted"><%= t("credits.status.next_payment") %></dt>
+                  <dd class="col-5 text-end fw-bold"><%= date_label(summary["next_payment_date"]) %></dd>
+                  <dt class="col-7 fw-normal text-muted"><%= t("credits.status.payoff_date") %></dt>
+                  <dd class="col-5 text-end fw-bold"><%= payoff_label(summary["payoff_date"]) %></dd>
+                </dl>
+                <% if summary["schedule_truncated"] %>
+                  <div class="alert alert-warning small mt-3 mb-0">
+                    <i class="ti ti-alert-triangle me-1"></i><%= t("credits.status.truncated") %>
+                  </div>
+                <% end %>
+              </div>
             </div>
-          <% end %>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title mb-3"><i class="ti ti-cash me-2"></i><%= t("credits.future_cost.title") %></h5>
+                <table class="table table-borderless mb-2 align-middle">
+                  <tbody>
+                    <tr>
+                      <td class="text-secondary"><%= t("credits.future_cost.principal") %></td>
+                      <td class="text-end fw-bold"><%= number_to_currency(summary["future_principal"].to_d) %></td>
+                    </tr>
+                    <tr>
+                      <td class="text-secondary"><%= t("credits.future_cost.interest") %></td>
+                      <td class="text-end fw-bold text-danger"><%= number_to_currency(summary["future_interest"].to_d) %></td>
+                    </tr>
+                    <tr>
+                      <td class="text-secondary"><%= t("credits.future_cost.insurance") %></td>
+                      <td class="text-end fw-bold"><%= number_to_currency(summary["future_insurance"].to_d) %></td>
+                    </tr>
+                    <tr>
+                      <td class="text-secondary"><%= t("credits.future_cost.other") %></td>
+                      <td class="text-end fw-bold"><%= number_to_currency(summary["future_other"].to_d) %></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="d-flex justify-content-between border-top pt-3">
+                  <span class="fs-5"><%= t("credits.future_cost.total") %></span>
+                  <span class="fs-4 fw-bold text-danger"><%= number_to_currency(summary["total_remaining"].to_d) %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-12 col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title mb-3"><i class="ti ti-percentage me-2"></i><%= t("credits.interest_analysis.title") %></h5>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-secondary"><%= t("credits.interest_analysis.paid") %></span>
+                  <span class="fw-bold"><%= number_to_currency(summary["past_interest"].to_d) %></span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="text-secondary"><%= t("credits.interest_analysis.remaining") %></span>
+                  <span class="fw-bold text-danger"><%= number_to_currency(summary["future_interest"].to_d) %></span>
+                </div>
+                <div class="bg-light rounded p-3">
+                  <i class="ti ti-bulb me-2"></i>
+                  <%= t("credits.interest_analysis.message", amount: number_to_currency(summary["future_interest"].to_d)) %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title mb-3"><i class="ti ti-clipboard-data me-2"></i><%= t("credits.assumptions.title") %></h5>
+                <dl class="row mb-0">
+                  <% @projection.assumptions.compact_blank.each do |assumption| %>
+                    <% label, value = credit_assumption_parts(assumption) %>
+                    <% if label.present? %>
+                      <dt class="col-6 fw-normal text-secondary"><%= label %></dt>
+                      <dd class="col-6 fw-bold mb-2"><%= value %></dd>
+                    <% else %>
+                      <dd class="col-12 fw-bold mb-2"><%= value %></dd>
+                    <% end %>
+                  <% end %>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade<%= " show active" if @active_tab == "simulador" %>" id="credit-tab-simulador" role="tabpanel" aria-labelledby="credit-tab-simulador-btn" tabindex="0">
+        <%= render "credits/quick" %>
+      </div>
+
+      <div class="tab-pane fade<%= " show active" if @active_tab == "escenarios" %>" id="credit-tab-escenarios" role="tabpanel" aria-labelledby="credit-tab-escenarios-btn" tabindex="0">
+        <div class="card mb-4">
+          <div class="card-body">
+            <%= render "credits/comparison", comparison: @comparison %>
+          </div>
+        </div>
+        <%= render "credits/saved_scenarios" %>
+      </div>
+
+      <div class="tab-pane fade<%= " show active" if @active_tab == "cronograma" %>" id="credit-tab-cronograma" role="tabpanel" aria-labelledby="credit-tab-cronograma-btn" tabindex="0">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title mb-3"><i class="ti ti-table me-2"></i><%= t("credits.schedule.title") %></h5>
+            <%= render "credits/schedule_table" %>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="col-12 col-lg-7">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title mb-3"><i class="ti ti-cash me-2"></i><%= t("credits.future_cost.title") %></h5>
-          <table class="table table-borderless mb-2 align-middle">
-            <tbody>
-              <tr>
-                <td class="text-secondary"><%= t("credits.future_cost.principal") %></td>
-                <td class="text-end fw-bold"><%= number_to_currency(summary["future_principal"].to_d) %></td>
-              </tr>
-              <tr>
-                <td class="text-secondary"><%= t("credits.future_cost.interest") %></td>
-                <td class="text-end fw-bold text-danger"><%= number_to_currency(summary["future_interest"].to_d) %></td>
-              </tr>
-              <tr>
-                <td class="text-secondary"><%= t("credits.future_cost.insurance") %></td>
-                <td class="text-end fw-bold"><%= number_to_currency(summary["future_insurance"].to_d) %></td>
-              </tr>
-              <tr>
-                <td class="text-secondary"><%= t("credits.future_cost.other") %></td>
-                <td class="text-end fw-bold"><%= number_to_currency(summary["future_other"].to_d) %></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="d-flex justify-content-between border-top pt-3">
-            <span class="fs-5"><%= t("credits.future_cost.total") %></span>
-            <span class="fs-4 fw-bold text-danger"><%= number_to_currency(summary["total_remaining"].to_d) %></span>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
-  <div class="row g-4 mb-4">
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title mb-3"><i class="ti ti-percentage me-2"></i><%= t("credits.interest_analysis.title") %></h5>
-          <div class="d-flex justify-content-between mb-2">
-            <span class="text-secondary"><%= t("credits.interest_analysis.paid") %></span>
-            <span class="fw-bold"><%= number_to_currency(summary["past_interest"].to_d) %></span>
-          </div>
-          <div class="d-flex justify-content-between mb-3">
-            <span class="text-secondary"><%= t("credits.interest_analysis.remaining") %></span>
-            <span class="fw-bold text-danger"><%= number_to_currency(summary["future_interest"].to_d) %></span>
-          </div>
-          <div class="bg-light rounded p-3">
-            <i class="ti ti-bulb me-2"></i>
-            <%= t("credits.interest_analysis.message", amount: number_to_currency(summary["future_interest"].to_d)) %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-lg-6">
-      <%= render "credits/comparison", comparison: @comparison %>
-    </div>
-  </div>
-
-  <%= render "credits/simulators" %>
-
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title mb-3"><i class="ti ti-clipboard-data me-2"></i><%= t("credits.assumptions.title") %></h5>
-      <ul class="mb-0 text-muted">
-        <% @projection.assumptions.compact_blank.each do |assumption| %>
-          <li><%= assumption %></li>
-        <% end %>
-      </ul>
-    </div>
-  </div>
-
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title mb-3"><i class="ti ti-table me-2"></i><%= t("credits.schedule.title") %></h5>
-      <button class="btn btn-outline-primary btn-sm mb-3" type="button" data-bs-toggle="collapse"
-              data-bs-target="#creditSchedule" aria-expanded="false" aria-controls="creditSchedule">
-        <i class="ti ti-chevron-down me-1"></i><%= t("credits.schedule.toggle", default: "Mostrar / ocultar") %>
-      </button>
-      <div class="collapse <%= "show" if params[:view].present? %>" id="creditSchedule">
-        <%= render "credits/schedule_table" %>
-      </div>
-    </div>
-  </div>
-

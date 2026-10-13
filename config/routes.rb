@@ -85,6 +85,7 @@ Rails.application.routes.draw do
     get "credits", to: "credits#show", as: :credits
     get "credits/reconstruct", to: "credits#reconstruct", as: :credit_reconstruct
     post "credits", to: "credits#build", as: :credit_build
+    post "credits/quick", to: "credits#quick", as: :credit_quick
     post "credits/refresh", to: "credits#refresh", as: :credit_refresh
     post "credits/scenarios", to: "credits#create_scenario", as: :credit_scenarios
     delete "credits/scenarios/:scenario_id", to: "credits#destroy_scenario", as: :credit_scenario

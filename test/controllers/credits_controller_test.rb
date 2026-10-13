@@ -168,6 +168,151 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, @loan.reload.credit_scenarios.count
   end
 
+  test "show renders the friendly savings experience for an entered amount" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000")
+
+    assert_response :success
+    assert_match I18n.t("credits.quick.section_title"), @response.body
+    assert_select "[data-testid='quick-primary']"
+    assert_select "[data-testid='quick-strategy-cards']"
+  end
+
+  test "show keeps the full comparison as a secondary detail" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000")
+
+    assert_response :success
+    assert_select "details[data-testid='quick-full-comparison'] summary", text: I18n.t("credits.quick.full_comparison")
+  end
+
+  test "show states that simulating never moves money" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000")
+
+    assert_response :success
+    assert_match I18n.t("credits.quick.simulation_note"), @response.body
+  end
+
+  test "show marks the chosen goal on its strategy card" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000", goal: "reduce_installment")
+
+    assert_response :success
+    assert_select "#credit-strategy-reduce_installment [data-testid='quick-chosen']"
+    assert_equal 0, @loan.reload.credit_scenarios.count
+  end
+
+  test "show headlines the chosen goal's own benefit" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000", goal: "reduce_installment")
+
+    assert_response :success
+    assert_select "[data-testid='quick-primary']" do
+      assert_select ".stat-label", text: I18n.t("credits.quick.result.goals.reduce_installment.primary_label")
+    end
+  end
+
+  test "show offers the bigger saver as a secondary recommendation" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000", goal: "reduce_installment")
+
+    assert_response :success
+    assert_select "[data-testid='quick-recommendation'] [data-quick-goal='reduce_term']"
+  end
+
+  test "show keeps the best-savings badge even when that goal is chosen" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000", goal: "reduce_term")
+
+    assert_response :success
+    assert_select "#credit-strategy-reduce_term [data-testid='quick-chosen']"
+    assert_select "#credit-strategy-reduce_term [data-testid='quick-best']"
+  end
+
+  test "show only cautions about prepaying, without a switch" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000", goal: "prepay_installments")
+
+    assert_response :success
+    assert_select "[data-testid='quick-recommendation']"
+    assert_select "[data-testid='quick-recommendation'] [data-quick-goal]", count: 0
+    assert_select "[data-testid='quick-primary']" do
+      assert_select ".stat-label", text: I18n.t("credits.quick.result.goals.prepay_installments.primary_label")
+    end
+  end
+
+  test "show tags the savings form to POST the comparison in place" do
+    create_projection
+
+    get money_source_credits_path(@loan)
+
+    assert_response :success
+    assert_select "[data-testid='credit-quick'] form[data-quick-form]"
+    assert_select "form[data-quick-form][method='post'][action='#{money_source_credit_quick_path(@loan)}']"
+    assert_select "form[data-quick-form] [data-quick-submit]"
+    assert_select "turbo-frame", count: 0
+  end
+
+  test "the quick comparison answers with only the savings panel" do
+    create_projection
+
+    post money_source_credit_quick_path(@loan), params: { amount: "900000" }
+
+    assert_response :success
+    assert_select "[data-testid='credit-quick']", count: 1
+    assert_select "[data-testid='quick-results']"
+    assert_select "#credit-tabs", count: 0
+  end
+
+  test "show renders the tabbed intelligence layout on the summary tab" do
+    create_projection
+
+    get money_source_credits_path(@loan)
+
+    assert_response :success
+    assert_select "ul#credit-tabs.nav-tabs"
+    assert_select "#credit-tab-resumen-btn.active"
+    assert_select "#credit-tab-simulador-btn"
+    assert_select "#credit-tab-escenarios-btn"
+    assert_select "#credit-tab-cronograma-btn"
+  end
+
+  test "show opens the schedule tab when a view is requested" do
+    create_projection
+
+    get money_source_credits_path(@loan, view: "actual")
+
+    assert_response :success
+    assert_select "#credit-tab-cronograma-btn.active"
+  end
+
+  test "show opens the simulator tab when an amount is entered" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "900000")
+
+    assert_response :success
+    assert_select "#credit-tab-simulador-btn.active"
+  end
+
+  test "show opens the scenarios tab when an objective is requested" do
+    create_projection
+
+    get money_source_credits_path(@loan, objective: "max_savings")
+
+    assert_response :success
+    assert_select "#credit-tab-escenarios-btn.active"
+  end
+
   private
 
   def create_projection

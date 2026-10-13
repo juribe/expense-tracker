@@ -71,7 +71,9 @@ class ProjectionBuilderTest < ActiveSupport::TestCase
     assert result.success?
     projection = result.result
     assert projection.estimated?
-    assumptions = projection.assumptions.join(" ")
+    assert projection.assumptions.all? { |assumption| assumption.is_a?(Hash) },
+           "assumptions are structured as { label, value } pairs"
+    assumptions = projection.assumptions.flat_map { |assumption| assumption.values_at("label", "value") }.join(" ")
     assert_match(/21\.27/, assumptions)
     assert_match(/10\.000/, assumptions)
     assert_match(/estimad/i, assumptions)
@@ -138,6 +140,25 @@ class ProjectionBuilderTest < ActiveSupport::TestCase
     create_payment(Date.new(2026, 2, 5), principal: 287_850, interest: 12_150)
 
     assert projection.stale?
+  end
+
+  test "a projection with legacy string assumptions rebuilds as structured pairs" do
+    @loan.create_credit_account!(
+      outstanding_balance: 1_200_000, interest_rate: 1.0, interest_rate_type: "monthly",
+      installment_amount: 300_000, installment_count: 5, installments_paid: 0,
+      start_date: Date.new(2026, 1, 5), payment_frequency: "monthly"
+    )
+    projection = Credits::Projection::Builder.call(money_source: @loan).result
+    assert_not projection.stale?
+
+    # A row persisted before assumptions became { label, value } pairs keeps a
+    # matching fingerprint but carries plain sentences.
+    projection.update_columns(assumptions: [ "Tasa de interés fija de 1.0% mensual mantenida constante." ])
+
+    assert projection.reload.stale?
+
+    rebuilt = Credits::Projection::Builder.call(money_source: @loan).result
+    assert rebuilt.assumptions.all? { |assumption| assumption.is_a?(Hash) }
   end
 
   test "rebuilding recomputes persisted scenario results" do

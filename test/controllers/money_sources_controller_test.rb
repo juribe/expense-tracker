@@ -55,6 +55,33 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[title='#{I18n.t('payments.index_button')}']", count: 3
   end
 
+  test "GET /money_sources/loans offers the savings tool on each loan card" do
+    loan = create_source(name: "Car Loan", kind: "loan", sub_kind: "vehicle", starting_balance: -2000000)
+
+    get money_sources_loans_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_credits_path(loan)
+  end
+
+  test "GET /money_sources/credit_cards offers the savings tool on each card" do
+    card = create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
+
+    get money_sources_credit_cards_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_credits_path(card)
+  end
+
+  test "GET /money_sources/:id shows the savings tool on a credit card detail" do
+    card = create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
+
+    get money_source_path(card)
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_credits_path(card)
+  end
+
   test "GET /money_sources/cash filters to cash and accounts only" do
     create_source(name: "Checking", kind: "account")
     create_source(name: "Cash", kind: "cash", starting_balance: 500000)

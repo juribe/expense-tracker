@@ -16,10 +16,23 @@ class CreditsController < ApplicationController
     return redirect_to_reconstruct if result.failure?
 
     @projection = result.result
+    load_quick_comparison
     @comparison = Credits::Comparison.call(projection: @projection, objective: params[:objective])
     @view = %w[full actual].include?(params[:view]) ? params[:view] : "future"
-    load_quick_comparison
+    @active_tab = credit_active_tab
     load_opportunity
+  end
+
+  # POST "Comparar" (creds.js): the form posts here so the comparison never
+  # leaks into the URL, and the answer is just the savings panel. Same shape as
+  # DebtCapacityController#comparison — a fragment-only endpoint the JS swaps in.
+  def quick
+    result = Credits::Projection::Builder.call(money_source: @loan)
+    return redirect_to_reconstruct if result.failure?
+
+    @projection = result.result
+    load_quick_comparison
+    render partial: "credits/quick", layout: false
   end
 
   def reconstruct
@@ -64,6 +77,17 @@ class CreditsController < ApplicationController
 
   def set_loan
     @loan = current_user.money_sources.find(params[:money_source_id])
+  end
+
+  # Server-rendered active tab so GET round-trips (quick comparison form,
+  # schedule view switch, comparison objective) reopen the tab that produced
+  # them. Client-side sessionStorage keeps it across parameter-less redirects.
+  def credit_active_tab
+    return "simulador" if params[:amount].present? || params[:mode].present?
+    return "cronograma" if params[:view].present?
+    return "escenarios" if params[:objective].present?
+
+    "resumen"
   end
 
   def reconstruct_params

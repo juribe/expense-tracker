@@ -303,38 +303,44 @@ module Credits
         }
       end
 
+      # Each assumption is a { "label" =>, "value" => } pair so the view can
+      # render a two-column card (label · bold value) instead of a sentence list.
       def assumptions
         list = []
-        list << "Tasa de interés fija de #{rate_display} mantenida constante."
-        list << "Cuota fija de #{amount_display(@inputs['installment_amount'])} mantenida constante."
+        list << assumption("Tasa de interés fija", "#{rate_display} mantenida constante.")
+        list << assumption("Cuota fija", "#{amount_display(@inputs['installment_amount'])} mantenida constante.")
         list << if recurring_insurance.positive?
-                  "Seguro constante de #{amount_display(recurring_insurance)} por cuota."
+                  assumption("Seguro", "constante de #{amount_display(recurring_insurance)} por cuota.")
         else
-                  "Sin seguro registrado; se asume $0 en cuotas futuras."
+                  assumption("Seguro", "sin seguro registrado; se asume $0 en cuotas futuras.")
         end
-        list << "Interés calculado con la tasa periódica #{periodic_rate_percent}% por #{frequency_label}."
+        list << assumption("Cálculo del interés", "tasa periódica #{periodic_rate_percent}% por #{frequency_label}.")
         list << if @inputs["actual_payments_count"].positive?
-                  "Proyección basada en #{@inputs['actual_payments_count']} pagos reales registrados."
+                  assumption("Base de la proyección", "#{@inputs['actual_payments_count']} pagos reales registrados.")
         else
-                  "Proyección estimada: los valores reales pueden diferir por interés diario, " \
-                    "redondeos o pagos extraordinarios previos."
+                  assumption("Proyección estimada", "los valores reales pueden diferir por interés diario, " \
+                    "redondeos o pagos extraordinarios previos.")
         end
-        list << "Cuota supuesta constante desde el desembolso para comparar lo proyectado con lo real." if replay_available?
+        list << assumption("Cuota de comparación", "constante desde el desembolso para comparar lo proyectado con lo real.") if replay_available?
         if @money_source.credit_extra_payments.exists?
-          list << "El saldo real ya incluye #{@money_source.credit_extra_payments.count} abono(s) " \
-            "extraordinario(s) aplicado(s) desde este módulo."
+          list << assumption("Abonos extraordinarios", "el saldo real ya incluye " \
+            "#{@money_source.credit_extra_payments.count} abono(s) extraordinario(s) aplicado(s) desde este módulo.")
         end
         if @inputs["insurance_assumption"].present? && @inputs["insurance_assumption"] != "fixed"
           list << if @inputs["insurance_assumption"] == "variable"
-                    "El seguro declarado como variable: se proyecta con el último valor conocido."
+            assumption("Seguro", "declarado como variable: se proyecta con el último valor conocido.")
           else
-                    "Seguro desconocido: se proyecta con el último valor conocido y puede diferir."
+            assumption("Seguro", "desconocido: se proyecta con el último valor conocido y puede diferir.")
           end
         end
-        list << "Interés calculado mensualmente; si tu banco capitaliza por día, los valores pueden diferir." if @inputs["interest_calculation"] == "daily"
-        list << "El comportamiento del abono extraordinario se asume según lo indiques en cada simulación." if @inputs["extra_payment_default"].present?
-        list << "El cronograma se truncó al límite de cuotas; revisar los datos del crédito." if projection_result.truncated?
+        list << assumption("Cálculo del interés", "mensual; si tu banco capitaliza por día, los valores pueden diferir.") if @inputs["interest_calculation"] == "daily"
+        list << assumption("Abono extraordinario", "se asume según lo indiques en cada simulación.") if @inputs["extra_payment_default"].present?
+        list << assumption("Cronograma", "truncado al límite de cuotas; revisar los datos del crédito.") if projection_result.truncated?
         list
+      end
+
+      def assumption(label, value)
+        { "label" => label, "value" => value }
       end
 
       def estimated?

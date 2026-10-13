@@ -29,7 +29,13 @@ class CreditProjection < ApplicationRecord
   end
 
   def stale?
-    fingerprint != self.class.current_fingerprint_parts(money_source.reload).join(":")
+    fingerprint != self.class.current_fingerprint_parts(money_source.reload).join(":") || legacy_assumptions?
+  end
+
+  # Assumptions became { "label" =>, "value" => } pairs in a later format; a row
+  # still holding plain sentences is rebuilt so the view can label each value.
+  def legacy_assumptions?
+    assumptions.any? && !assumptions.first.is_a?(Hash)
   end
 
   def future_rows

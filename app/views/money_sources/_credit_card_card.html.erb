@@ -34,6 +34,9 @@
           <%= link_to money_source_path(source, anchor: "payments"), class: "dropdown-item d-flex align-items-center gap-2" do %>
             <i class="ti ti-coin me-2" aria-hidden="true"></i><span><%= t("payments.index_button") %></span>
           <% end %>
+          <%= link_to money_source_credits_path(source), class: "dropdown-item d-flex align-items-center gap-2" do %>
+            <i class="ti ti-pig-money me-2" aria-hidden="true"></i><span><%= t("credits.index_button") %></span>
+          <% end %>
           <div class="dropdown-divider"></div>
           <%= link_to edit_money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2" do %>
             <i class="ti ti-pencil me-2" aria-hidden="true"></i><span><%= t("common.edit") %></span>

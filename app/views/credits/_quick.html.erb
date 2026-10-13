@@ -1,0 +1,90 @@
+<%
+  # Guided, benefit-oriented savings experience ("Ayúdame a ahorrar").
+  # Purely a simulation: the form only reflects its params back, nothing is
+  # persisted and the strategies are always computed by the services.
+  # The whole panel is the swap unit: "Comparar" POSTs here via credits.js, the
+  # controller answers with this partial alone and the panel swaps in place —
+  # the URL stays clean (no ?amount=&goal=&mode=).
+  selected_goal = Credits::Comparison::QUICK_STRATEGIES.include?(params[:goal]) ? params[:goal] : "reduce_term"
+  goal_icons = { "reduce_term" => "hourglass", "reduce_installment" => "coin", "prepay_installments" => "calendar-event" }
+%>
+<div class="card border-primary" id="quick" data-testid="credit-quick">
+  <div class="card-body">
+    <div class="d-flex align-items-start gap-3 mb-4">
+      <span class="d-grid rounded-3 bg-primary-subtle text-primary fs-3 p-2 flex-shrink-0" aria-hidden="true">
+        <i class="ti ti-bulb"></i>
+      </span>
+      <div>
+        <h5 class="card-title mb-1"><%= t("credits.quick.section_title") %></h5>
+        <p class="text-muted mb-0"><%= t("credits.quick.section_lead") %></p>
+      </div>
+    </div>
+
+    <%= form_with url: money_source_credit_quick_path(@loan), method: :post, local: true,
+                  data: { testid: "quick-form", quick_form: true } do %>
+      <div class="row g-4">
+        <div class="col-12 col-lg-5">
+          <label class="form-label fw-semibold" for="quick_amount"><%= t("credits.quick.amount_label") %></label>
+          <p class="text-muted small mb-2"><%= t("credits.quick.amount_examples") %></p>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="text" class="form-control" id="quick_amount" name="amount"
+                   value="<%= money_field_value(@quick_comparison&.amount) %>"
+                   inputmode="decimal" autocomplete="off" required
+                   aria-describedby="quick_amount_currency"
+                   data-money-input="true">
+          </div>
+          <p id="quick_amount_currency" class="text-muted small mt-2 mb-0"><%= t("credits.quick.amount_currency") %></p>
+        </div>
+
+        <div class="col-12 col-lg-7">
+          <span class="fw-semibold d-block"><%= t("credits.quick.goal_label") %></span>
+          <p class="text-muted small mb-2"><%= t("credits.quick.goal_hint") %></p>
+          <div class="d-grid gap-2" role="radiogroup" aria-label="<%= t("credits.quick.goal_label") %>">
+            <% Credits::Comparison::QUICK_STRATEGIES.each do |key| %>
+              <%= radio_button_tag "goal", key, key == selected_goal,
+                                   id: "quick_goal_#{key}", class: "btn-check", autocomplete: "off" %>
+              <%= label_tag "quick_goal_#{key}", class: "btn btn-outline-primary text-start d-flex gap-2 align-items-start" do %>
+                <i class="ti ti-<%= goal_icons[key] %> mt-1" aria-hidden="true"></i>
+                <span>
+                  <span class="d-block fw-semibold"><%= t("credits.simulators.strategies.#{key}") %></span>
+                  <span class="d-block small fw-normal"><%= t("credits.quick.strategies.#{key}.description") %></span>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 align-items-end mt-2">
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="quick_mode"><%= t("credits.quick.mode") %></label>
+          <select class="form-select" id="quick_mode" name="mode">
+            <option value="once" <%= "selected" unless @quick_comparison&.mode == "recurring" %>>
+              <%= t("credits.quick.mode_once") %>
+            </option>
+            <option value="recurring" <%= "selected" if @quick_comparison&.mode == "recurring" %>>
+              <%= t("credits.quick.mode_recurring") %>
+            </option>
+          </select>
+        </div>
+        <% if params[:objective].present? %><input type="hidden" name="objective" value="<%= params[:objective] %>"><% end %>
+        <div class="col-12 col-md-auto">
+          <button type="submit" class="btn btn-primary"
+                  data-quick-submit="true" data-quick-loading="<%= t("credits.quick.comparing") %>">
+            <i class="ti ti-calculator me-1"></i><%= t("credits.quick.compare_button") %>
+          </button>
+        </div>
+        <div class="col-12 col-md">
+          <p class="text-muted small mb-0"><i class="ti ti-info-circle me-1"></i><%= t("credits.quick.simulation_note") %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @quick_comparison %>
+      <%= render "credits/quick_comparison", quick: @quick_comparison %>
+    <% else %>
+      <p class="text-muted mb-0 mt-3"><i class="ti ti-inbox me-1"></i><%= t("credits.quick.nothing") %></p>
+    <% end %>
+  </div>
+</div>

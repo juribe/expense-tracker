@@ -1149,8 +1149,13 @@ en:
       target_date_hint: "Optional: with a date, the required monthly contribution and goal health are calculated."
 
   credits:
-    index_button: "Credit intelligence"
-    title: "Credit intelligence"
+    index_button: "Help me save"
+    title: "Help me save"
+    tabs:
+      summary: "Summary"
+      simulator: "How to save"
+      scenarios: "Scenarios"
+      schedule: "Schedule"
     rebuilt: "Projection generated successfully."
     refreshed: "Projection updated with the latest data."
     needs_data: "The credit is missing data to compute the projection. Complete it here."
@@ -1285,19 +1290,85 @@ en:
       empty: "Generate the projection to see the amortization table."
 
     quick:
-      title: "What should I do with this money?"
-      amount_label: "Amount available to pay in"
-      amount_hint: "Compare what happens if you apply the same amount in different ways."
-      simulation_hint: "Simulation only: nothing moves. To apply a real payment use the \u201cExtraordinary payments\u201d card on the credit's page."
+      section_title: "Discover how to save on your credit"
+      section_lead: "Tell us how much money you have available and we'll show you what you could achieve with it."
+      amount_label: "How much money do you have available?"
+      amount_examples: "For example: accumulated savings, a bonus, or extra money from this month."
+      amount_currency: "Colombian pesos (COP)"
+      goal_label: "What would you like to achieve?"
+      goal_hint: "You can compare every option to decide calmly."
+      compare_button: "Compare ways to save"
+      comparing: "Comparing…"
+      simulation_note: "This is a simulation: it does not change your balance or record payments."
       mode: "How do you apply it?"
       mode_once: "Just once"
       mode_recurring: "Every installment (constant extra)"
       mode_recurring_badge: "Every installment"
-      nothing: "Enter an amount to compare the strategies."
+      nothing: "Enter how much money you have available to see what you could achieve."
       save: "Save as scenario"
       current: "Do nothing"
-      best_savings: "Best interest savings"
-      saved_flag: "Saved in your scenarios"
+      strategies:
+        reduce_term:
+          description: "You keep your installment and pay off the debt sooner. It is usually the option that saves the most interest."
+        reduce_installment:
+          description: "You lower your monthly installment and keep a similar payoff date."
+        prepay_installments:
+          description: "You cover upcoming installments and get several payment-free months. It does not reduce interest."
+      result:
+        eyebrow: "Your result based on what you want to achieve"
+        tag: "Goal: %{goal}"
+        interest_label: "Estimated interest savings"
+        interest_detail: "Over the rest of the loan, compared to not prepaying."
+        interest_none: "Not estimated"
+        installments_value:
+          one: "%{count} installment"
+          other: "%{count} installments"
+        alternatives_title: "You could also choose"
+        alternatives_lead: "Compare the other strategies without losing sight of your goal."
+        savings_line: "Estimated interest savings"
+        choose: "Choose this option"
+        chosen_tag: "Your choice"
+        best_tag: "Highest interest savings"
+        other_tag: "Another alternative"
+        fine: "Savings and installments are estimates based on this loan's data and payments. We highlight the option that matches the goal you pick, not only the one that saves the most interest."
+        goals:
+          reduce_term:
+            title: "Finish earlier"
+            intro: "We prioritize shortening the time you'll be paying off the debt."
+            primary_label: "Your monthly payment stays the same"
+            primary_detail: "You keep paying a similar installment."
+            third_label: "Installments you'd remove"
+            third_detail: "You'd finish paying several months earlier."
+          reduce_installment:
+            title: "Lower your monthly payment"
+            intro: "We prioritize freeing up money each month, not maximizing savings at any cost."
+            primary_label: "Your monthly payment would drop to"
+            primary_detail: "You'd save %{amount} each month on your installment."
+            third_label: "Payoff date"
+            third_value: "Similar"
+            third_detail: "You keep a similar term."
+          prepay_installments:
+            title: "Prepay installments"
+            intro: "We prioritize covering future payments so you have months with fewer scheduled payments."
+            primary_label: "Scheduled monthly payment"
+            primary_detail: "The effect depends on how the prepaid installments are applied."
+            third_label: "Payment-free months"
+            third_detail: "Depends on the calendar and the loan's rules."
+        recommendations:
+          link: "See that alternative"
+          reduce_installment:
+            text: "There's another way to save more interest: %{strategy} would save about %{difference} more, though your monthly payment wouldn't drop."
+          reduce_term:
+            text: "Need more room in your monthly budget? You can lower your monthly payment, even if total interest savings are smaller."
+          prepay_installments:
+            text: "Prepaying installments doesn't always reduce interest: it covers already-scheduled payments. Check how your lender applies prepayments."
+      full_comparison: "View full comparison"
+      disclaimer: "The values are estimated from this credit's recorded data and payments. Real results depend on the rate, dates, credit conditions and how the lender applies the payments. Simulating does not make payments or change your debt."
+      metrics:
+        interest_saved: "Interest savings"
+        monthly_payment: "Monthly installment"
+        installments_left: "Installments left"
+        months_without_payment: "Payment-free months"
     tradeoff:
       title: "Which one is better for me?"
       reduce_term: "Best if your goal is to be debt-free sooner and maximize interest savings. Your installment stays the same; you finish earlier."

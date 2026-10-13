@@ -2261,8 +2261,13 @@ es:
       target_date_hint: "Opcional: con fecha se calcula el aporte mensual sugerido y el estado de la meta."
 
   credits:
-    index_button: "Inteligencia del crédito"
-    title: "Inteligencia del crédito"
+    index_button: "Ayúdame a ahorrar"
+    title: "Ayúdame a ahorrar"
+    tabs:
+      summary: "Resumen"
+      simulator: "Cómo ahorrar"
+      scenarios: "Escenarios"
+      schedule: "Cronograma"
     rebuilt: "Proyección generada correctamente."
     refreshed: "Proyección actualizada con los datos más recientes."
     needs_data: "Faltan datos del crédito para calcular la proyección. Complétalos aquí."
@@ -2397,19 +2402,85 @@ es:
       empty: "Genera la proyección para ver la tabla de amortización."
 
     quick:
-      title: "¿Qué hago con esta plata?"
-      amount_label: "Monto disponible para abonar"
-      amount_hint: "Compara qué pasa si aplica el mismo monto de distintas maneras."
-      simulation_hint: "Simulación: no mueve el saldo. Para aplicar un abono de verdad usa la tarjeta «Abonos extraordinarios» en la página del crédito."
+      section_title: "Descubre cómo ahorrar en tu crédito"
+      section_lead: "Cuéntanos cuánto dinero tienes disponible y te mostraremos qué podrías conseguir con él."
+      amount_label: "¿Cuánto dinero tienes disponible?"
+      amount_examples: "Por ejemplo: un ahorro acumulado, un bono o dinero extra de este mes."
+      amount_currency: "Pesos colombianos (COP)"
+      goal_label: "¿Qué te gustaría conseguir?"
+      goal_hint: "Puedes comparar todas las opciones para decidir con calma."
+      compare_button: "Comparar formas de ahorrar"
+      comparing: "Comparando…"
+      simulation_note: "Es una simulación: no modifica tu saldo ni registra pagos."
       mode: "¿Cómo lo aplicas?"
       mode_once: "Una sola vez"
       mode_recurring: "Cada cuota (abono constante)"
       mode_recurring_badge: "Cada cuota"
-      nothing: "Ingresa un monto para comparar las estrategias."
+      nothing: "Ingresa cuánto dinero tienes disponible para ver qué podrías conseguir."
       save: "Guardar como escenario"
       current: "No hacer nada"
-      best_savings: "Mejor ahorro de interés"
-      saved_flag: "Guardado en tus escenarios"
+      strategies:
+        reduce_term:
+          description: "Mantienes tu cuota y sales de la deuda más rápido. Es la opción que más intereses suele ahorrar."
+        reduce_installment:
+          description: "Bajas el valor de tu cuota mensual y conservas una fecha de terminación parecida."
+        prepay_installments:
+          description: "Cubres cuotas futuras y te quedas varios meses sin pagar. No reduce intereses."
+      result:
+        eyebrow: "Tu resultado según lo que quieres conseguir"
+        tag: "Objetivo: %{goal}"
+        interest_label: "Ahorro estimado en intereses"
+        interest_detail: "Durante el resto del crédito, frente a no abonar."
+        interest_none: "No estimado"
+        installments_value:
+          one: "%{count} cuota"
+          other: "%{count} cuotas"
+        alternatives_title: "También podrías elegir"
+        alternatives_lead: "Compara las otras estrategias sin perder de vista tu objetivo."
+        savings_line: "Ahorro estimado en intereses"
+        choose: "Elegir esta opción"
+        chosen_tag: "Tu elección"
+        best_tag: "Mayor ahorro en intereses"
+        other_tag: "Otra alternativa"
+        fine: "Los ahorros y las cuotas son estimaciones calculadas con los datos y pagos de este crédito. Destacamos la opción según el objetivo que elijas, no solo la que más intereses ahorra."
+        goals:
+          reduce_term:
+            title: "Terminar antes"
+            intro: "Priorizamos reducir el tiempo que estarás pagando la deuda."
+            primary_label: "Tu cuota mensual se mantiene"
+            primary_detail: "Sigues pagando una cuota similar a la actual."
+            third_label: "Cuotas que eliminarías"
+            third_detail: "Terminarías de pagar varios meses antes."
+          reduce_installment:
+            title: "Bajar tu cuota mensual"
+            intro: "Priorizamos liberar dinero cada mes, no maximizar el ahorro a cualquier costo."
+            primary_label: "Tu cuota mensual bajaría a"
+            primary_detail: "Ahorrarías %{amount} cada mes en tu cuota."
+            third_label: "Fecha de terminación"
+            third_value: "Similar"
+            third_detail: "Conservas un plazo parecido al actual."
+          prepay_installments:
+            title: "Adelantar cuotas"
+            intro: "Priorizamos cubrir pagos futuros para que tengas meses con menos pagos programados."
+            primary_label: "Cuota mensual programada"
+            primary_detail: "El efecto depende de cómo se apliquen las cuotas anticipadas."
+            third_label: "Meses sin pagar"
+            third_detail: "Depende del calendario y las reglas del crédito."
+        recommendations:
+          link: "Ver esa alternativa"
+          reduce_installment:
+            text: "Hay otra forma de ahorrar más intereses: %{strategy} ahorraría alrededor de %{difference} más, aunque tu cuota mensual no bajaría."
+          reduce_term:
+            text: "¿Necesitas más espacio en tu presupuesto mensual? Puedes bajar tu cuota mensual, aunque el ahorro total en intereses sea menor."
+          prepay_installments:
+            text: "Adelantar cuotas no siempre reduce los intereses: cubre pagos ya programados. Revisa cómo tu entidad aplica los pagos anticipados."
+      full_comparison: "Ver comparación completa"
+      disclaimer: "Los valores son estimados a partir de los datos y pagos registrados de este crédito. Los resultados reales dependen de la tasa, las fechas, las condiciones del crédito y la forma en que la entidad aplique los abonos. Simular no realiza pagos ni modifica tu deuda."
+      metrics:
+        interest_saved: "Ahorro en intereses"
+        monthly_payment: "Cuota mensual"
+        installments_left: "Cuotas restantes"
+        months_without_payment: "Meses sin pagar"
     tradeoff:
       title: "¿Cuál me conviene?"
       reduce_term: "Conviene si tu meta es quedar sin deuda lo antes posible y maximizar el ahorro de intereses. La cuota sigue igual, terminas antes."
