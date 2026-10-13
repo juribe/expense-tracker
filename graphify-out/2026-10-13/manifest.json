@@ -5094,9 +5094,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/debt_capacity.js": {
-    "mtime": 1791847411.0586,
-    "seen": 1791847453.641494,
-    "ast_hash": "d7ea8bbecad53b90437194962cddc826",
+    "mtime": 1791889723.798084,
+    "seen": 1791889762.57566,
+    "ast_hash": "6b2a448687b2e29c81b1f4953ff4c46c",
     "semantic_hash": ""
   },
   "app/services/debt_capacity/metrics.rb": {
@@ -5106,9 +5106,9 @@
     "semantic_hash": ""
   },
   "app/services/debt_capacity/overview.rb": {
-    "mtime": 1791844439.717013,
-    "seen": 1791844522.010656,
-    "ast_hash": "8965d85da2bf0368e71dbfca04c3ffa7",
+    "mtime": 1791889723.6662548,
+    "seen": 1791889762.575978,
+    "ast_hash": "62d62da0b6efc1b7f87c927d0becfbc8",
     "semantic_hash": ""
   },
   "app/services/debt_capacity/recommendations.rb": {
@@ -5124,9 +5124,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/debt_capacity_controller_test.rb": {
-    "mtime": 1791847993.2056818,
-    "seen": 1791848030.1000168,
-    "ast_hash": "57b9a0ab244aa126c6ac7c751ed1eab2",
+    "mtime": 1791889697.2578638,
+    "seen": 1791889762.5766149,
+    "ast_hash": "4828f042f380c7ba2ebe4b86a1121034",
     "semantic_hash": ""
   },
   "test/services/debt_capacity/metrics_test.rb": {
@@ -5154,15 +5154,15 @@
     "semantic_hash": ""
   },
   "app/services/debt_capacity/comparison.rb": {
-    "mtime": 1791845753.5588746,
-    "seen": 1791845793.1799428,
-    "ast_hash": "785c1d0528b3571d310fa4d39b48c183",
+    "mtime": 1791889723.599835,
+    "seen": 1791889762.575975,
+    "ast_hash": "10908893236b6a526c67561fabd660e0",
     "semantic_hash": ""
   },
   "test/services/debt_capacity/comparison_test.rb": {
-    "mtime": 1791845770.3404012,
-    "seen": 1791845793.1806998,
-    "ast_hash": "b9d838b0ad2dc1833fc220554a2e19bc",
+    "mtime": 1791889697.1896095,
+    "seen": 1791889762.576738,
+    "ast_hash": "559f085b58202502a5c923d7dc46aef6",
     "semantic_hash": ""
   },
   "designs/debt_capacity_mockup.html": {
