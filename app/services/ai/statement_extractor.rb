@@ -15,9 +15,13 @@ module Ai
 
     class ExtractionError < StandardError; end
 
-    STATEMENT_CHAR_LIMIT = 12_000
-    STATEMENT_HEAD_CHARS = 8_000
-    STATEMENT_TAIL_CHARS = 4_000
+    # The statement body (the transaction table) spans the MIDDLE of the
+    # document, so the window must be generous enough to keep it whole: a
+    # head+tail split that is too small silently drops rows. Long statements
+    # (bank exports are commonly ~18k chars) must fit under the limit.
+    STATEMENT_CHAR_LIMIT = 40_000
+    STATEMENT_HEAD_CHARS = 30_000
+    STATEMENT_TAIL_CHARS = 10_000
 
     # The system prompt lives in the extraction task; kept here as a class
     # method so both the task and this service share one definition.
@@ -56,7 +60,8 @@ module Ai
         raise ExtractionError, "no financial sources extracted"
       end
 
-      { sources: sources, transactions: transactions, summary: normalize_summary(raw["summary"]) }
+      { sources: sources, transactions: transactions, summary: normalize_summary(raw["summary"]),
+        layout: normalize_layout(raw["layout"]) }
     end
 
     def call(text:, today: Date.current)
@@ -160,6 +165,33 @@ module Ai
           - For a simple account statement without a payment summary, return
             "summary": null.
 
+        TRANSACTIONS — extract only the real purchases/charges:
+          - OMIT any row marked as cancelled ("CANCELADA", "ANULADA", "REVERSADA").
+          - OMIT payments, credits, refunds and every income/abono row. Never return
+            type "income"; only "expense" rows are used.
+
+        LAYOUT — describe how a purchase row is structured so the SAME bank format can
+        be parsed later WITHOUT AI. Only include it when you are confident:
+          - anchors: 1-3 stable lines (headings/labels) that always appear and identify
+            this exact format. Never use dates, amounts or totals as anchors.
+          - sections: {"expenses": [headings of the tables that list purchases]}, each
+            heading spelled exactly as printed.
+          - row.fields: the ordered tokens of a purchase line, using ONLY these tokens:
+            {"token":"date","format":"DD/MM/YYYY" | "DD-MM-YYYY" | "YYYY-MM-DD"},
+            {"token":"ref","kind":"digits","length":N}, {"token":"description","optional":true},
+            {"token":"amount","currency":"$"}, {"token":"ignore"} (ignore = remaining columns
+            after the amount).
+          - row.cancelled_pattern: the word marking a cancelled row, or null.
+          - summary: the labels of the period totals, so the same values can be read
+            again later without AI. Map each one to its printed label, spelled exactly
+            as it appears and sitting next to its value: {"total_due":{"label":"= Pago total"},
+            "min_payment":{"label":"= Pago mínimo"},"interest_charged":{"label":"+ Intereses
+            corrientes"},"due_date":{"label":"Fecha de pago"},"statement_date":{"label":"..."}}.
+            Omit a total whose label is not printed, and omit summary entirely when there is
+            none. Prefer a label on the same line as its value (a "= Total" summary row) over
+            a bare column header.
+          - confidence between 0 and 1.
+
         Respond with ONLY JSON of the shape:
         {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
           "sub_kind":"savings","card_last_four":"5689","balance":5420000,
@@ -171,7 +203,15 @@ module Ai
          "summary":{"total_due":1250300,"min_payment":62515,"interest_charged":45200,
           "due_date":"2026-09-04","statement_date":"2026-08-25"},
          "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
-          "type":"expense","category":"restaurants","confidence":0.98}]}
+          "type":"expense","category":"restaurants","confidence":0.98}],
+         "layout":{"bank":"Davibank","anchors":["Davibank pertenece a Davivienda Group S.A."],
+          "sections":{"expenses":["Transacciones del periodo facturado"]},
+          "row":{"fields":[{"token":"date","format":"DD/MM/YYYY"},
+            {"token":"ref","kind":"digits","length":6},{"token":"description","optional":true},
+            {"token":"amount","currency":"$"},{"token":"ignore"}],"cancelled_pattern":"CANCELADA"},
+          "summary":{"total_due":{"label":"= Pago total"},"min_payment":{"label":"= Pago mínimo"},
+            "interest_charged":{"label":"+ Intereses corrientes"},"due_date":{"label":"Fecha de pago"}},
+          "confidence":0.95}}
         When a document contains no identifiable financial source, respond with {"sources":[]}.
       PROMPT
     end
@@ -218,6 +258,10 @@ module Ai
       description = entry["description"].to_s.strip
       amount = parse_amount(entry["amount"])
       return nil if description.blank? || amount.nil?
+      # Cancelled charges are not real expenses and income/credits are not
+      # imported, so neither is ever surfaced as a candidate.
+      return nil if description.match?(/cancelad/i)
+      return nil if normalize_type(entry["type"]) == "income"
 
       {
         date: entry["date"].to_s.presence,
@@ -269,6 +313,14 @@ module Ai
       Date.parse(value.to_s).iso8601
     rescue ArgumentError, Date::Error, TypeError
       nil
+    end
+
+    # The layout recipe (anchors + row tokens) the AI describes the first time
+    # it sees a statement format. Kept as-is (string-keyed) for
+    # Statements::LayoutLearner to validate before it is persisted; nil when
+    # the model did not return a usable one.
+    def normalize_layout(raw)
+      raw.is_a?(Hash) ? raw : nil
     end
 
     # Integer counts (e.g. "48 cuotas", "Número de cuotas: 24").

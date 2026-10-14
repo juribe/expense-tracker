@@ -3,14 +3,16 @@
 module Ai
   module Tasks
     # Document-structure detection + transaction extraction for PDF statements.
-    # Requires real document reasoning, so it always goes straight to the
-    # strong tier — a cheap model is never trusted with whole statements.
+    # Follows the standard cascade (cheap -> strong): the cheap model is tried
+    # first and a confident result is accepted, while low-confidence (or
+    # transaction-less) results escalate to the strong tier when it is
+    # configured.
     #
     # input:  raw statement text
     # data:   { sources: [...], transactions: [...] } (see Ai::StatementExtractor)
     class StatementExtraction < Base
       def tiers
-        %i[strong]
+        %i[cheap strong]
       end
 
       def timeout

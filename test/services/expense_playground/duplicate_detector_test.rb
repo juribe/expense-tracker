@@ -49,6 +49,31 @@ module ExpensePlayground
       assert_equal [ false, true, false ], duplicates
     end
 
+    test "marks every occurrence of an in-batch duplicate as in-statement" do
+      first = candidate
+      second = candidate
+      other = candidate(amount: 10)
+
+      DuplicateDetector.new(user: @user).flag([ first, second, other ])
+
+      assert_equal :in_statement, first.duplicate_kind
+      assert_equal :in_statement, second.duplicate_kind
+      assert_nil other.duplicate_kind
+      assert_not first.duplicate
+      assert second.duplicate
+    end
+
+    test "marks a candidate matching an existing transaction as existing" do
+      Transaction.create!(user: @user, category: @category, amount: -45_000, date: Date.current,
+                          kind: "expense", source: "manual", money_source: @source)
+
+      target = candidate
+      DuplicateDetector.new(user: @user).flag([ target ])
+
+      assert_equal :existing, target.duplicate_kind
+      assert target.duplicate
+    end
+
     test "does not treat candidates without a resolvable amount as duplicates" do
       flags = DuplicateDetector.new(user: @user).flag([ candidate(amount: nil) ])
 

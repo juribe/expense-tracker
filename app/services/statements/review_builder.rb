@@ -12,7 +12,7 @@ module Statements
   #                                           money_source: card)
   #   review.candidates # => [ExpenseCandidate, ...]
   class ReviewBuilder
-    Review = Struct.new(:summary, :source, :candidates, :credits,
+    Review = Struct.new(:engine, :summary, :source, :candidates, :credits,
                         :payment_suggestion, keyword_init: true)
 
     def self.call(user:, document:, money_source: nil)
@@ -27,6 +27,7 @@ module Statements
 
     def build
       Review.new(
+        engine: @document.engine,
         summary: @document.summary,
         source: @document.source,
         candidates: expense_candidates,

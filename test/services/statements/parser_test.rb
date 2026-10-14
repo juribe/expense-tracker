@@ -43,13 +43,36 @@ module Statements
         end
       end
 
-      stub_method(Statements::Adapters, :for, ->(_text) { adapter }) do
+      stub_method(Statements::Adapters, :for, ->(_text, user: nil) { adapter }) do
         result = Statements::Parser.call(user: @user, file_data: data_uri("a\n1"),
                                          filename: "extracto.csv", extractor: @extractor)
 
         assert result.success?
         assert_equal :adapter, result.result.engine
         assert_nil @extractor.called_with
+      end
+    end
+
+    test "invokes the injected learner with the AI layout on a known-format miss" do
+      layout = { "anchors" => [ "x" ] }
+      data = default_data.merge(layout: layout)
+      extractor = FakeExtractor.new({ ok?: true, data: data, error: nil })
+      calls = []
+
+      result = Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n2026-09-01,100"),
+                                       filename: "extracto.csv", extractor: extractor,
+                                       learner: ->(user:, text:, layout:) { calls << [ user, text, layout ] })
+
+      assert result.success?
+      assert_equal 1, calls.length
+      assert_equal @user, calls.first[0]
+      assert_equal layout, calls.first[2]
+    end
+
+    test "does not learn unless a learner is injected" do
+      assert_no_difference -> { StatementFormatMapping.count } do
+        Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n2026-09-01,100"),
+                                filename: "extracto.csv", extractor: @extractor)
       end
     end
 

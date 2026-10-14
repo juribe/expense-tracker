@@ -21,7 +21,7 @@ class ExpenseCandidate < ApplicationRecord
   # Transient attributes used by CandidateDetector and pipeline but not persisted.
   attr_accessor :currency, :merchant, :category_name, :money_source_name,
                 :classification_source, :suggested_category_id,
-                :duplicate, :warnings,
+                :duplicate, :duplicate_kind, :warnings,
                 :money_source_source
 
   belongs_to :user
@@ -63,6 +63,7 @@ class ExpenseCandidate < ApplicationRecord
       "suggested_category_name" => suggested_category_name,
       "suggested_category_id" => suggested_category_id,
       "duplicate" => duplicate,
+      "duplicate_kind" => duplicate_kind,
       "warnings" => warnings
     )
   end

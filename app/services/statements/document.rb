@@ -10,6 +10,8 @@ module Statements
   #
   # Example: Statements::Document.new(engine: :ai, summary: summary, movements: [...])
   class Document
+    ENGINES = %w[ai adapter].freeze
+
     attr_reader :summary, :movements, :source, :engine
 
     def initialize(summary: nil, movements: [], source: nil, engine:)

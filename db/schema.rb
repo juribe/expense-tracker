@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_12_000000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_14_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -747,6 +747,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_12_000000) do
     t.index ["user_id"], name: "index_spreadsheet_format_mappings_on_user_id"
   end
 
+  create_table "statement_format_mappings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "fingerprint", null: false
+    t.string "bank"
+    t.jsonb "anchors", default: [], null: false
+    t.jsonb "sections", default: {}, null: false
+    t.jsonb "row_spec", default: {}, null: false
+    t.boolean "skip_income", default: true, null: false
+    t.decimal "confidence", precision: 4, scale: 3
+    t.string "source", default: "ai", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "summary_spec", default: {}, null: false
+    t.integer "recipe_version", default: 0, null: false
+    t.index ["user_id", "fingerprint"], name: "index_statement_format_mappings_on_user_id_and_fingerprint", unique: true
+    t.index ["user_id"], name: "index_statement_format_mappings_on_user_id"
+  end
+
   create_table "transaction_rules", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "name"
@@ -916,6 +934,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_12_000000) do
   add_foreign_key "spending_alerts", "categories"
   add_foreign_key "spending_alerts", "users"
   add_foreign_key "spreadsheet_format_mappings", "users"
+  add_foreign_key "statement_format_mappings", "users"
   add_foreign_key "transaction_rules", "categories"
   add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"
   add_foreign_key "transaction_rules", "money_sources", column: "money_source_condition_id"

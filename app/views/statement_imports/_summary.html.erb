@@ -1,0 +1,59 @@
+<% summary = @review.summary %>
+<div class="card h-100">
+  <div class="card-header">
+    <h5 class="card-title"><i class="ti ti-receipt me-2 text-secondary"></i><%= t("statement_imports.summary_title") %></h5>
+  </div>
+  <div class="card-body">
+    <% if @review.source %>
+      <div class="mb-3">
+        <span class="badge bg-light text-dark">
+          <i class="ti ti-<%= source_kind_icon(@review.source.kind) %> me-1"></i>
+          <%= @review.source.display_name %>
+          <% if @review.source.institution_name %>&nbsp;·&nbsp;<%= @review.source.institution_name %><% end %>
+        </span>
+      </div>
+    <% end %>
+
+    <% if summary %>
+      <table class="table table-sm mb-3">
+        <tbody>
+          <% if summary.total_due %>
+            <tr>
+              <td><%= t("statement_imports.total_due") %></td>
+              <td class="text-end fw-bold text-danger"><%= number_to_currency(summary.total_due) %></td>
+            </tr>
+          <% end %>
+          <% if summary.min_payment %>
+            <tr>
+              <td><%= t("statement_imports.min_payment") %></td>
+              <td class="text-end"><%= number_to_currency(summary.min_payment) %></td>
+            </tr>
+          <% end %>
+          <% if summary.interest_charged %>
+            <tr>
+              <td><%= t("statement_imports.interest_charged") %></td>
+              <td class="text-end"><%= number_to_currency(summary.interest_charged) %></td>
+            </tr>
+          <% end %>
+          <% if summary.due_date %>
+            <tr>
+              <td><%= t("statement_imports.due_date") %></td>
+              <td class="text-end"><%= l(summary.due_date, format: :long) %></td>
+            </tr>
+          <% end %>
+          <% if summary.statement_date %>
+            <tr>
+              <td><%= t("statement_imports.statement_date") %></td>
+              <td class="text-end"><%= l(summary.statement_date, format: :long) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <span class="badge <%= @review.candidates.any? ? "bg-primary" : "bg-secondary" %>">
+      <i class="ti ti-<%= @review.engine.to_s == "adapter" ? "bolt" : "sparkles" %> me-1"></i>
+      <%= t("statement_imports.engine_#{@review.engine}", default: t("statement_imports.engine_ai")) %>
+    </span>
+  </div>
+</div>

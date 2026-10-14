@@ -1,0 +1,86 @@
+<% suggestion = @review.payment_suggestion %>
+<% if suggestion %>
+  <%= form_with url: pay_money_source_statement_imports_path(@money_source),
+                local: true,
+                data: { payment_distribution_form: true } do %>
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title"><i class="ti ti-coin me-2"></i><%= t("statement_imports.payment_title") %></h5>
+        <p class="text-muted small"><%= t("statement_imports.payment_hint") %></p>
+        <%= hidden_field_tag "payment[register]", "1" %>
+        <%= hidden_field_tag :summary, @review.summary.to_h.to_json, id: nil if @review.summary %>
+        <%= hidden_field_tag :engine, @review.engine, id: nil %>
+        <%= hidden_field_tag "payment[amount]", suggestion[:amount].to_s,
+              id: "payment_amount", data: { payment_amount: true } %>
+
+        <div class="row">
+          <div class="col-12 col-md-6 mb-3">
+            <%= label_tag "payment_description", t("statement_imports.payment_description_label"), class: "form-label" %>
+            <%= text_field_tag "payment[description]", suggestion[:description], class: "form-control",
+                  id: "payment_description" %>
+          </div>
+
+          <div class="col-12 col-md-6 mb-3">
+            <%= label_tag "payment_date", t("statement_imports.payment_date_label"), class: "form-label" %>
+            <%= date_field_tag "payment[date]", suggestion[:date]&.iso8601,
+                  class: "form-control", id: "payment_date" %>
+          </div>
+
+          <div class="col-12 mb-3">
+            <%= label_tag "payment_category", t("common.category"), class: "form-label" %>
+            <%= select_tag "payment[category_id]",
+                  options_for_select(user_expense_category_options, nil),
+                  { include_blank: t("statement_imports.payment_category_placeholder"),
+                    class: "form-select", id: "payment_category", required: true } %>
+          </div>
+
+          <div class="col-12 mb-3">
+            <%= label_tag "payment_funding_money_source_id", t("statement_imports.payment_funding_label"), class: "form-label" %>
+            <%= select_tag "payment[funding_money_source_id]",
+                  options_from_collection_for_select(current_user.money_sources.active.order(:name), :id, :name),
+                  { include_blank: t("statement_imports.payment_funding_placeholder"),
+                    class: "form-select", id: "payment_funding_money_source_id" } %>
+          </div>
+        </div>
+
+        <h6 class="mb-2"><%= t("payments.form.distribution") %></h6>
+        <div class="row">
+          <% { principal_amount: :principal, interest_amount: :interest,
+              insurance_amount: :insurance, other_amount: :other }.each do |field, label_key| %>
+            <div class="col-md-6 mb-3">
+              <%= label_tag "payment_#{field}", t("payments.form.#{label_key}"), class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= text_field_tag "payment[#{field}]", money_field_value(suggestion[field]),
+                      class: "form-control", inputmode: "decimal", autocomplete: "off",
+                      id: "payment_#{field}",
+                      data: { money_input: true, payment_component: true } %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="d-flex justify-content-between border-top pt-3 mb-1">
+          <div>
+            <div class="small text-muted"><%= t("payments.form.total") %></div>
+            <div class="fs-5 fw-bold" data-payment-total-display>$0</div>
+          </div>
+          <div class="text-end">
+            <div class="small text-muted"><%= t("statement_imports.payment_amount_label") %></div>
+            <div class="fs-5 fw-bold" data-payment-expense-total="<%= suggestion[:amount].to_d %>">
+              <%= money_field_value(suggestion[:amount]) %>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warning d-none py-2 small" data-payment-warning>
+          <i class="ti ti-alert-triangle me-1"></i>
+          <span data-payment-warning-text></span>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <%= submit_tag t("statement_imports.payment_submit"), class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

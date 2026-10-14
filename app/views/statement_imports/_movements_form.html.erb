@@ -1,0 +1,145 @@
+<%= form_with url: confirm_money_source_statement_imports_path(@money_source),
+              local: true,
+              data: { movement_form: true } do %>
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <h5 class="card-title">
+          <i class="ti ti-list-check me-2"></i><%= t("statement_imports.movements_title", count: @review.candidates.length) %>
+        </h5>
+        <% if @review.candidates.any? %>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-movement-pay-only
+                  data-movement-pay-only-inactive="<%= t("statement_imports.pay_only") %>"
+                  data-movement-pay-only-active="<%= t("statement_imports.pay_only_active") %>">
+            <i class="ti ti-coin me-1"></i><span data-movement-pay-only-label><%= t("statement_imports.pay_only") %></span>
+          </button>
+        <% end %>
+      </div>
+      <p class="text-muted small"><%= t("payments.form.hint", target: @money_source.name) %></p>
+
+      <div class="alert alert-info d-none" data-movement-pay-only-hint>
+        <i class="ti ti-info-circle me-1"></i><%= t("statement_imports.pay_only_hint") %>
+      </div>
+
+      <div data-movement-body>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <button type="button" class="btn btn-sm btn-outline-primary" data-movement-bulk-open>
+            <i class="ti ti-tags me-1"></i><%= t("statement_imports.bulk_assign") %>
+          </button>
+          <span class="text-muted small" data-movement-selection-count
+                data-template="<%= t("statement_imports.selected_count", count: "__COUNT__") %>"></span>
+        </div>
+
+        <div class="alert alert-danger d-none" data-movement-error
+             data-movement-error-message="<%= t("statement_imports.movement_category_required") %>"></div>
+
+        <% if @review.candidates.any? || @review.credits.any? %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th class="text-center">
+                    <input type="checkbox" class="form-check-input" data-movement-select-all
+                           aria-label="<%= t("statement_imports.select_all") %>">
+                  </th>
+                  <th><%= t("statement_imports.column_date") %></th>
+                  <th><%= t("statement_imports.column_description") %></th>
+                  <th><%= t("statement_imports.column_amount") %></th>
+                  <th><%= t("common.category") %></th>
+                  <th><%= t("statement_imports.column_status") %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @review.candidates.each_with_index do |candidate, index| %>
+                  <tr data-movement-row class="<%= "table-danger" if candidate.duplicate_kind == :in_statement %>">
+                    <td class="text-center">
+                      <%= check_box_tag "movements[#{index}][selected]", "1", !candidate.duplicate,
+                            id: nil, data: { movement_select: true } %>
+                      <%= hidden_field_tag "movements[#{index}][description]", candidate.description, id: nil %>
+                      <%= hidden_field_tag "movements[#{index}][amount]", candidate.amount, id: nil %>
+                      <%= hidden_field_tag "movements[#{index}][date]", candidate.date&.iso8601, id: nil %>
+                      <%= hidden_field_tag "movements[#{index}][category_name]", candidate.category_name, id: nil %>
+                      <%= hidden_field_tag "movements[#{index}][money_source_id]", candidate.money_source_id, id: nil %>
+                    </td>
+                    <td><%= candidate.date.present? ? l(candidate.date, format: :short) : "—" %></td>
+                    <td><%= candidate.description %></td>
+                    <td class="text-end fw-bold"><%= number_to_currency(candidate.amount.to_d.abs) %></td>
+                    <td>
+                      <%= select_tag "movements[#{index}][category_id]",
+                            options_for_select(user_expense_category_options, candidate.category_id),
+                            include_blank: t("statement_imports.category_pending"),
+                            aria: { label: t("common.category") },
+                            class: "form-select form-select-sm",
+                            data: { movement_category: true } %>
+                    </td>
+                    <td>
+                      <% if candidate.duplicate_kind == :in_statement %>
+                        <span class="badge bg-danger"><%= t("statement_imports.status_duplicate_in_statement") %></span>
+                      <% elsif candidate.duplicate_kind == :existing %>
+                        <span class="badge bg-warning text-dark"><%= t("statement_imports.status_duplicate") %></span>
+                      <% elsif candidate.category_id.blank? %>
+                        <span class="badge bg-secondary"><%= t("statement_imports.status_pending_category") %></span>
+                      <% else %>
+                        <span class="badge bg-success"><%= t("statement_imports.status_new") %></span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+                <% @review.credits.each do |movement| %>
+                  <tr class="table-light">
+                    <td class="text-center text-muted"><i class="ti ti-ban"></i></td>
+                    <td><%= movement[:date].present? ? l(movement[:date], format: :short) : "—" %></td>
+                    <td><%= movement[:description] %></td>
+                    <td class="text-end text-success fw-bold"><%= number_to_currency(movement[:amount].to_d.abs) %></td>
+                    <td><span class="badge bg-light text-dark"><%= t("statement_imports.status_credit") %></span></td>
+                    <td></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="alert alert-info mb-0"><%= t("statement_imports.empty_movements") %></div>
+        <% end %>
+      </div>
+
+      <%= hidden_field_tag :summary, @review.summary.to_h.to_json, id: nil if @review.summary %>
+      <%= hidden_field_tag :engine, @review.engine, id: nil %>
+
+      <div class="d-flex justify-content-end mt-3" data-movement-submit>
+        <%= submit_tag t("statement_imports.confirm"), class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Bulk category modal -->
+<div class="modal fade" id="bulkCategoryModal" tabindex="-1" aria-labelledby="bulkCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkCategoryModalLabel">
+          <i class="ti ti-tags me-2"></i><%= t("statement_imports.bulk_modal_title") %>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.cancel") %>"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary mb-3" data-movement-bulk-count
+           data-template="<%= t("statement_imports.selected_count", count: "__COUNT__") %>"></p>
+        <label for="bulkCategorySelect" class="form-label"><%= t("common.category") %></label>
+        <select id="bulkCategorySelect" class="form-select" data-movement-bulk-category>
+          <option value=""><%= t("statement_imports.bulk_category_placeholder") %></option>
+          <%= options_for_select(user_expense_category_options) %>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <%= t("common.cancel") %>
+        </button>
+        <button type="button" class="btn btn-primary" data-movement-bulk-apply>
+          <i class="ti ti-check me-1"></i><%= t("common.apply") %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

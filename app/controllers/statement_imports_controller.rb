@@ -23,7 +23,8 @@ class StatementImportsController < ApplicationController
   # POST — parses the upload and renders the review; never persists.
   def create
     result = Statements::Parser.call(user: current_user, file_data: file_data,
-                                     filename: upload_filename, password: params[:password])
+                                     filename: upload_filename, password: params[:password],
+                                     learner: Statements::LayoutLearner)
 
     unless result.success?
       redirect_to new_money_source_statement_import_path(@money_source),
@@ -36,15 +37,32 @@ class StatementImportsController < ApplicationController
     render :review
   end
 
-  # POST /money_sources/:money_source_id/statement_imports/confirm — persists
-  # the reviewed rows and payment; on failure the review is re-rendered from
-  # the posted data without anything created.
+  # POST /money_sources/:money_source_id/statement_imports/confirm — creates
+  # the selected movements. On success the review is re-rendered (so the user
+  # can still register the payment) from the posted rows without navigating
+  # away; on failure it is re-rendered with the errors, creating nothing.
   def confirm
     result = Statements::Confirmation.call(user: current_user, money_source: @money_source,
-                                           movements: movement_rows, payment: payment_params)
+                                           movements: movement_rows)
+
+    @review = rebuild_review
+    if result.success?
+      flash.now[:notice] = movement_notice(result.result)
+      render :review
+    else
+      flash.now[:alert] = result.errors.to_sentence
+      render :review, status: :unprocessable_entity
+    end
+  end
+
+  # POST /money_sources/:money_source_id/statement_imports/pay — registers only
+  # the payment for the debt; on success it leaves for the money source.
+  def pay
+    result = Statements::Confirmation.call(user: current_user, money_source: @money_source,
+                                           movements: [], payment: payment_params)
 
     if result.success?
-      redirect_to money_source_path(@money_source), notice: confirmation_notice(result.result)
+      redirect_to money_source_path(@money_source), notice: payment_notice(result.result)
     else
       @review = rebuild_review
       flash.now[:alert] = result.errors.to_sentence
@@ -108,11 +126,18 @@ class StatementImportsController < ApplicationController
 
   def rebuild_review
     document = Statements::Document.new(
-      engine: :review,
+      engine: review_engine,
       summary: Statements::Summary.from_h(parsed_summary_json),
       movements: rebuilt_movements
     )
     Statements::ReviewBuilder.call(user: current_user, document: document, money_source: @money_source)
+  end
+
+  # The review forms round-trip which engine parsed the statement (AI or a
+  # learned direct parser) so the re-rendered review keeps showing the truth.
+  def review_engine
+    engine = params[:engine].to_s
+    Statements::Document::ENGINES.include?(engine) ? engine.to_sym : :ai
   end
 
   def parsed_summary_json
@@ -122,28 +147,29 @@ class StatementImportsController < ApplicationController
   end
 
   # The posted rows only carry the review decisions; the payment block data is
-  # not a movement, so payment-only submissions rebuild an empty document.
+  # not a movement, so payment-only submissions rebuild an empty document. The
+  # parsed category name is re-fed as the AI transaction's "category" so the
+  # rebuilt review keeps the row's category.
   def rebuilt_movements
-    movement_rows.map(&:to_h)
+    movement_rows.map do |row|
+      movement = row.to_h
+      movement["category"] ||= movement["category_name"]
+      movement
+    end
   end
 
-  def confirmation_notice(outcome)
+  def movement_notice(outcome)
     parts = [ I18n.t("statement_imports.confirmed", count: outcome[:expenses].length) ]
-    payment = outcome[:payment]
-    if payment
-      parts << I18n.t("statement_imports.confirmed_with_payment",
-                      amount: number_to_currency(payment.amount),
-                      target: @money_source.name)
-    else
-      parts << I18n.t("statement_imports.confirmed_without_payment")
-    end
     if outcome[:skipped_duplicates].to_i.positive?
       parts << I18n.t("statement_imports.skipped_duplicates", count: outcome[:skipped_duplicates])
     end
-    if (parked = Array(outcome[:candidates])).any?
-      parts << I18n.t("statement_imports.parked_candidates", count: parked.length)
-    end
     parts.join(" ")
+  end
+
+  def payment_notice(outcome)
+    I18n.t("statement_imports.confirmed_with_payment",
+           amount: number_to_currency(outcome[:payment].amount),
+           target: @money_source.name)
   end
 
   def not_found

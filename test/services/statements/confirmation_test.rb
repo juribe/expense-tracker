@@ -166,27 +166,21 @@ module Statements
       assert_equal 2, Expense.where(source: "statement_file").count
     end
 
-    test "unresolvable categories become review candidates, never new categories" do
-      @movements = [ @movements[0] ]
-      @movements[0] = { "description" => "MAXIDIFICACION RARA", "amount" => "48500",
-                        "date" => "2026-09-01", "category_id" => "",
-                        "category_name" => "MAXIDIFICACION", "selected" => "1",
-                        "money_source_id" => @card.id }
+    test "selected movements without a usable category are rejected, never new categories" do
+      @movements = [ { "description" => "MAXIDIFICACION RARA", "amount" => "48500",
+                       "date" => "2026-09-01", "category_id" => "",
+                       "category_name" => "MAXIDIFICACION", "selected" => "1",
+                       "money_source_id" => @card.id } ]
       categories_before = Category.count
 
       result = Statements::Confirmation.call(user: @user, money_source: @card,
                                              movements: @movements, payment: { "register" => "0" })
 
-      assert result.success?
-      assert_equal 1, result.result[:candidates].length
+      assert result.failure?
       assert_equal categories_before, Category.count
       assert_equal 0, Expense.where(source: "statement_file").count
-
-      parked = result.result[:candidates].first
-      assert_equal "needs_review", parked.status
-      assert_equal "statement_file", parked.source
-      assert_includes parked.missing_fields, "category_id"
-      assert_equal 48_500.to_d, parked.amount
+      assert_equal 0, ExpenseCandidate.count
+      assert_includes result.errors.join, "categoría"
     end
 
     test "resolvable category names create the expense with the matched category" do
@@ -199,12 +193,11 @@ module Statements
                                              movements: @movements, payment: { "register" => "0" })
 
       assert result.success?
-      assert_empty result.result[:candidates]
       expense = result.result[:expenses].first
       assert_equal @category.id, expense.category_id
     end
 
-    test "mixed batch parks only the uncertain rows" do
+    test "a mixed batch fails entirely when one selected row has no usable category" do
       @movements[1]["selected"] = "1"
       @movements[1]["category_id"] = ""
       @movements[1]["category_name"] = "COSA EXTRANISIMA SIN SENTIDO"
@@ -212,9 +205,8 @@ module Statements
       result = Statements::Confirmation.call(user: @user, money_source: @card,
                                              movements: @movements, payment: { "register" => "0" })
 
-      assert result.success?
-      assert_equal 2, result.result[:expenses].length
-      assert_equal 1, result.result[:candidates].length
+      assert result.failure?
+      assert_equal 0, Expense.where(source: "statement_file").count
     end
 
     test "payment without a usable category is rejected" do
@@ -240,19 +232,15 @@ module Statements
       assert_equal 0, Payment.count
     end
 
-    test "parked candidates are rolled back when the payment fails" do
-      @movements[0] = { "description" => "MAXIDIFICACION RARA", "amount" => "48500",
-                        "date" => "2026-09-01", "category_id" => "",
-                        "category_name" => "MAXIDIFICACION", "selected" => "1",
-                        "money_source_id" => @card.id }
+    test "a failed payment rolls back the expenses created in the same call" do
       @payment["category_id"] = ""
 
       result = Statements::Confirmation.call(user: @user, money_source: @card,
                                              movements: @movements, payment: @payment)
 
       assert result.failure?
-      assert_equal 0, ExpenseCandidate.where(source: "statement_file").count
       assert_equal 0, Expense.where(source: "statement_file").count
+      assert_equal 0, ExpenseCandidate.where(source: "statement_file").count
     end
   end
 end

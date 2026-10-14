@@ -101,6 +101,35 @@ module Ai
       assert_equal BigDecimal("1987759971"), data[:sources].first[:principal_amount]
     end
 
+    test "drops cancelled rows and income transactions" do
+      data = parse(
+        "sources" => [ { "kind" => "credit_card", "name" => "Visa", "bank" => "Davivienda" } ],
+        "transactions" => [
+          { "description" => "Compra A", "amount" => "10.000", "type" => "expense" },
+          { "description" => "CANCELADA ALKOSTO-", "amount" => "199.900", "type" => "expense" },
+          { "description" => "CANCELADA", "amount" => "17.100", "type" => "expense" },
+          { "description" => "GRACIAS POR SU PAGO", "amount" => "50.000", "type" => "income" },
+          { "description" => "REINTEGRO INTERES", "amount" => "-91", "type" => "income" }
+        ]
+      )
+
+      assert_equal [ "Compra A" ], data[:transactions].map { |tx| tx[:description] }
+    end
+
+    test "passes through the learned layout recipe" do
+      layout = { "bank" => "Davibank", "anchors" => [ "x" ],
+                 "sections" => { "expenses" => [ "y" ] }, "row" => { "fields" => [] }, "confidence" => 0.95 }
+      data = parse("sources" => [ { "kind" => "account", "name" => "A", "bank" => "B" } ], "layout" => layout)
+
+      assert_equal layout, data[:layout]
+    end
+
+    test "layout is nil when the payload carries none" do
+      data = parse("sources" => [ { "kind" => "account", "name" => "A", "bank" => "B" } ])
+
+      assert_nil data[:layout]
+    end
+
     test "instructs the AI to classify revolving credit lines as loans" do
       prompt = Ai::StatementExtractor.new.send(:system_prompt)
       assert_match(/crédito rotativo/i, prompt)
@@ -184,6 +213,18 @@ module Ai
       assert_match(/saldo total a pagar/i, prompt)
       assert_match(/fecha l[ií]mite de pago/i, prompt)
       assert_match(/intereses/i, prompt)
+    end
+
+    test "cascades cheap then strong so a cheap model can serve statements" do
+      assert_equal %i[cheap strong], Ai::Tasks::StatementExtraction.new.tiers
+    end
+
+    test "instructs the AI to skip cancelled/income rows and describe the layout" do
+      prompt = Ai::StatementExtractor.new.send(:system_prompt)
+
+      assert_match(/CANCELADA/i, prompt)
+      assert_match(/Never return\s+type "income"/i, prompt)
+      assert_match(/LAYOUT/i, prompt)
     end
 
     test "call fails cleanly without an API key configured" do

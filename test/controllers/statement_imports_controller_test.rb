@@ -62,11 +62,31 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "POST create highlights repeated movements as possible double charges" do
+    document = Statements::Document.new(
+      engine: :ai,
+      summary: @document.summary,
+      source: @document.source,
+      movements: [
+        { date: "2026-08-23", description: "Doble cobro", amount: 12_000, type: "expense" },
+        { date: "2026-08-23", description: "Doble cobro", amount: 12_000, type: "expense" }
+      ]
+    )
+
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+
+      assert_response :success
+      assert_select "tr.table-danger", 2
+      assert_select "span.badge.bg-danger", text: "Posible doble cobro", count: 2
+    end
+  end
+
   test "POST create sends the parsed movements back for review" do
     document = @document
     review_params = {}
-    spy = lambda do |user:, file_data:, filename:, password:|
-      review_params.merge!(file_data: file_data, filename: filename, password: password)
+    spy = lambda do |user:, file_data:, filename:, password:, learner: nil|
+      review_params.merge!(file_data: file_data, filename: filename, password: password, learner: learner)
       ServiceResult.success(document)
     end
 
@@ -79,6 +99,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "data:application/octet-stream;base64,cGRmLWJ5dGVz", review_params[:file_data]
     assert_equal "extracto.pdf", review_params[:filename]
     assert_equal "1234", review_params[:password]
+    assert_equal Statements::LayoutLearner, review_params[:learner]
   end
 
   test "POST create redirects back to the upload when parsing fails" do
@@ -91,29 +112,21 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # --------------------------------------------------------------- confirm
-  test "POST confirm creates the selected movements and applies the payment" do
-    assert_difference -> { Expense.count }, 2 do
-      assert_difference -> { Payment.count }, 1 do
+  test "POST confirm creates the selected movements and stays on the review" do
+    assert_difference -> { Expense.count }, 1 do
+      assert_no_difference -> { Payment.count } do
         post confirm_money_source_statement_imports_path(@card), params: {
+          summary: @document.summary.to_h.to_json,
           movements: [
             { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01", category_id: @category.id, selected: "1" },
             { description: "Supermercado", amount: "210000", date: "2026-09-02", category_id: @category.id, selected: "0" }
-          ],
-          payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
-                     category_id: @category.id, principal_amount: "60000", interest_amount: "3000",
-                     funding_money_source_id: @account.id }
+          ]
         }
       end
     end
 
-    assert_redirected_to money_source_path(@card)
-    assert_equal 1, Expense.where(source: "statement_file", description: "Restaurante XYZ").count
-    payment = Payment.last
-    assert_equal @card.id, payment.money_source_id
-    assert_equal BigDecimal("60000"), payment.principal_amount
-
-    get money_source_path(@card)
     assert_response :success
+    assert_equal 1, Expense.where(source: "statement_file", description: "Restaurante XYZ").count
   end
 
   test "POST confirm parses the real form shape when movements arrive as an indexed hash" do
@@ -128,20 +141,40 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to money_source_path(@card)
+    assert_response :success
     assert_equal 1, Expense.where(source: "statement_file", description: "Restaurante XYZ").count
   end
 
-  test "POST confirm registers the payment even without a posted amount" do
-    assert_difference -> { Payment.count }, 1 do
+  test "POST confirm re-renders with an error when a selected movement has no category" do
+    assert_no_difference -> { Expense.count } do
       post confirm_money_source_statement_imports_path(@card), params: {
-        movements: {
-          "0" => { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01",
-                   category_id: @category.id, selected: "1" }
-        },
-        payment: { register: "1", date: "2026-09-05", category_id: @category.id,
-                   principal_amount: "60000",
-                   interest_amount: "3000", funding_money_source_id: @account.id }
+        movements: [ { description: "MAXIDIFICACION RARA", amount: "48500", date: "2026-09-01",
+                       money_source_id: @card.id, selected: "1" } ]
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match /categoría/, flash[:alert].to_s
+  end
+
+  test "POST confirm renders the review without creating expenses when nothing is selected" do
+    assert_no_difference -> { Expense.count } do
+      post confirm_money_source_statement_imports_path(@card), params: {
+        movements: [ { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01", selected: "0" } ]
+      }
+    end
+
+    assert_response :success
+    assert_select "td", text: /Restaurante XYZ/
+  end
+
+  # ------------------------------------------------------------------- pay
+  test "POST pay registers the payment and returns to the money source" do
+    assert_difference -> { Payment.count }, 1 do
+      post pay_money_source_statement_imports_path(@card), params: {
+        payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
+                   category_id: @category.id, principal_amount: "60000", interest_amount: "3000",
+                   funding_money_source_id: @account.id }
       }
     end
 
@@ -149,32 +182,32 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     payment = Payment.last
     assert_equal @card.id, payment.money_source_id
     assert_equal BigDecimal("60000"), payment.principal_amount
-    assert_equal BigDecimal("3000"), payment.interest_amount
   end
 
-  test "POST confirm redirects with no expenses when everything is unselected" do
-    assert_no_difference -> { Expense.count } do
-      post confirm_money_source_statement_imports_path(@card), params: {
-        movements: [ { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01", selected: "0" } ],
-        payment: { register: "0" }
+  test "POST pay registers the payment even without a posted amount" do
+    assert_difference -> { Payment.count }, 1 do
+      post pay_money_source_statement_imports_path(@card), params: {
+        payment: { register: "1", date: "2026-09-05", category_id: @category.id,
+                   principal_amount: "60000", interest_amount: "3000",
+                   funding_money_source_id: @account.id }
       }
     end
 
     assert_redirected_to money_source_path(@card)
+    assert_equal BigDecimal("60000"), Payment.last.principal_amount
   end
 
-  test "POST confirm re-renders the review and creates nothing when the payment fails" do
-    assert_no_difference -> { Expense.count } do
-      post confirm_money_source_statement_imports_path(@card), params: {
+  test "POST pay re-renders the review and creates nothing when the payment fails" do
+    assert_no_difference -> { Payment.count } do
+      post pay_money_source_statement_imports_path(@card), params: {
         summary: @document.summary.to_h.to_json,
-        movements: [ { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01", selected: "1" } ],
         payment: { register: "1", amount: "63000", date: "2026-09-05",
-                   principal_amount: "", interest_amount: "" }
+                   principal_amount: "60000", interest_amount: "3000" }
       }
     end
 
     assert_response :unprocessable_entity
-    assert_select "td", text: /Restaurante XYZ/
+    assert_match /categoría/, flash[:alert].to_s
   end
 
   # --------------------------------------------------- category safety
@@ -189,9 +222,72 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='payment[category_id]']"
   end
 
-  test "confirm parks movements without a usable category as review candidates" do
+  test "review splits the movements and payment into separate forms" do
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "form[data-movement-form='true']", 1
+    assert_select "form[data-payment-distribution-form='true']", 1
+    # The movements form no longer carries the payment registration checkbox.
+    assert_select "form[data-movement-form='true'] input[name='payment[register]']", 0
+    assert_select "form[data-movement-form='true'] input[type='submit'][value=?]", I18n.t("statement_imports.confirm")
+    assert_select "form[data-payment-distribution-form='true'] input[type='submit'][value=?]", I18n.t("statement_imports.payment_submit")
+  end
+
+
+  # ----------------------------------------------- engine badge (adapter path)
+  test "POST create renders the learned-parser badge and summary for an adapter document" do
+    document = Statements::Document.new(
+      engine: :adapter,
+      summary: Statements::Summary.new(total_due: "3983689", due_date: "2026-10-07"),
+      movements: [ { date: "2026-09-10", description: "SMART FIT", amount: 112_916, type: "expense" } ]
+    )
+
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "span.badge", text: /Parser directo/
+    assert_select "form[data-payment-distribution-form='true']", 1
+    assert_select "td", text: /Total a pagar/ # summary table rendered from the learned recipe
+  end
+
+  test "POST confirm keeps the learned-parser badge from the posted engine" do
+    post confirm_money_source_statement_imports_path(@card), params: {
+      engine: "adapter",
+      summary: Statements::Summary.new(total_due: "1000").to_h.to_json,
+      movements: [ { description: "Café", amount: "5000", date: "2026-09-01",
+                     category_id: @category.id, selected: "1" } ]
+    }
+
+    assert_response :success
+    assert_select "span.badge", text: /Parser directo/
+  end
+
+  test "review renders the group controls, bulk modal and pay-only toggle" do
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "form[data-movement-form='true'] [data-movement-select-all]", 1
+    assert_select "form[data-movement-form='true'] [data-movement-bulk-open]", 1
+    assert_select "form[data-movement-form='true'] input[name='engine']", 1
+    assert_select "#bulkCategoryModal [data-movement-bulk-category]", 1
+    assert_select "#bulkCategoryModal [data-movement-bulk-apply]", 1
+    assert_select "form[data-movement-form='true'] [data-movement-pay-only]", 1
+    assert_select "[data-movement-pay-only-hint]", 1
+  end
+
+
+  test "confirm never parks movements without a usable category as review candidates" do
     assert_no_difference -> { Expense.count } do
-      assert_difference -> { ExpenseCandidate.needs_review.count }, 1 do
+      assert_no_difference -> { ExpenseCandidate.count } do
         post confirm_money_source_statement_imports_path(@card), params: {
           movements: [ { description: "MAXIDIFICACION RARA", amount: "48500", date: "2026-09-01",
                          money_source_id: @card.id, selected: "1" } ]
@@ -199,12 +295,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to money_source_path(@card)
-    assert_match /pendiente de categoría/, flash[:notice].to_s
-    parked = ExpenseCandidate.needs_review.last
-    assert_equal "statement_file", parked.source
-    assert_equal "MAXIDIFICACION RARA", parked.description
-    assert_includes parked.missing_fields, "category_id"
+    assert_response :unprocessable_entity
   end
 
   test "confirm with a row the user classified creates the expense directly" do
@@ -215,7 +306,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to money_source_path(@card)
+    assert_response :success
   end
 
   test "confirm skips movements that duplicate an existing expense and reports it" do
@@ -229,27 +320,32 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to money_source_path(@card)
+    assert_response :success
     assert_match /duplicado omitido/, flash[:notice].to_s
   end
 
-  test "POST confirm lowers the money source balance for imported expenses" do
+  test "POST confirm lowers the money source balance and POST pay applies the payment" do
     card_before = @card.reload.balance
     account_before = @account.reload.balance
 
     post confirm_money_source_statement_imports_path(@card), params: {
+      summary: @document.summary.to_h.to_json,
       movements: {
         "0" => { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01",
                  category_id: @category.id, selected: "1" },
         "1" => { description: "Supermercado", amount: "15000", date: "2026-09-02",
                  category_id: @category.id, selected: "1" }
-      },
+      }
+    }
+    assert_response :success
+
+    post pay_money_source_statement_imports_path(@card), params: {
       payment: { register: "1", date: "2026-09-05", category_id: @category.id,
                  principal_amount: "60000",
                  interest_amount: "3000", funding_money_source_id: @account.id }
     }
-
     assert_redirected_to money_source_path(@card)
+
     # 63,500 of purchases, 60,000 paid in principal: the card keeps only the
     # 3,000 interest owed.
     assert_equal card_before - 63_500 + 60_000, @card.reload.balance

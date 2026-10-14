@@ -45,7 +45,28 @@ module Statements
       review = Statements::ReviewBuilder.call(user: @user, document: @document, money_source: @card)
 
       assert review.candidates.first.duplicate
+      assert_equal :existing, review.candidates.first.duplicate_kind
       assert_not review.candidates.second.duplicate
+      assert_nil review.candidates.second.duplicate_kind
+    end
+
+    test "marks a repeated charge inside the statement as in-statement on every row" do
+      document = Statements::Document.new(
+        engine: :ai,
+        summary: @document.summary,
+        source: @document.source,
+        movements: [
+          { date: "2026-08-23", description: "Doble cobro", amount: 12_000, type: "expense" },
+          { date: "2026-08-23", description: "Doble cobro", amount: 12_000, type: "expense" }
+        ]
+      )
+
+      review = Statements::ReviewBuilder.call(user: @user, document: document, money_source: @card)
+
+      kinds = review.candidates.map(&:duplicate_kind)
+      assert_equal [ :in_statement, :in_statement ], kinds
+      assert_not review.candidates.first.duplicate
+      assert review.candidates.second.duplicate
     end
 
     test "resolves categories from stored classification reuse" do

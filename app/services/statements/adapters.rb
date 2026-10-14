@@ -2,24 +2,33 @@
 
 module Statements
   # Adapters
-  # Registry of bank-specific deterministic statement parsers. Each adapter
-  # recognises one statement layout and builds a Statements::Document without
-  # spending an AI request; the registry is the placeholder every future
-  # layout parser is slotted into, so the next file of the same bank goes
-  # through it instead of the AI fallback.
+  # Resolves the parser for an uploaded statement. Registered bank-specific
+  # parsers win first; otherwise the learned StatementFormatMapping of the
+  # uploading user is consulted (its anchor lines identify the layout) and a
+  # DynamicAdapter is built from the stored recipe. Returns nil when nothing
+  # matches, so the caller falls back to AI extraction.
   #
-  # An adapter implements:
+  # A code adapter implements:
   #   .matches?(text) -> boolean (layout fingerprint)
   #   .call(extraction) -> Statements::Document (engine: :adapter)
   #
-  # Example: Statements::Adapters.for(extraction.text) # => adapter or nil
+  # Example: Statements::Adapters.for(extraction.text, user: user) # => adapter or nil
   module Adapters
     # Layout parsers are registered here as they are written, e.g.
-    # REGISTRY = [Adapters::BancolombiaCreditCard, Adapters::DaviviendaLoan].freeze
+    # REGISTRY = [Adapters::BancolombiaCreditCard].freeze
     REGISTRY = [].freeze
 
-    def self.for(text)
-      REGISTRY.find { |adapter| adapter.matches?(text) }
+    def self.for(text, user: nil)
+      REGISTRY.find { |adapter| adapter.matches?(text) } || learned(text, user)
+    end
+
+    def self.learned(text, user)
+      return nil if user.nil?
+
+      mapping = StatementFormatMapping.lookup(user: user, text: text)
+      mapping && DynamicAdapter.new(mapping)
+    rescue RowCompiler::InvalidSpec
+      nil
     end
   end
 end

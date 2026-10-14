@@ -12,17 +12,18 @@ module Statements
   #                                    filename: "extracto.pdf", password: "1234")
   #   result.result # => Statements::Document
   class Parser
-    def self.call(user:, file_data:, filename: nil, password: nil, extractor: nil)
+    def self.call(user:, file_data:, filename: nil, password: nil, extractor: nil, learner: nil)
       new(user: user, file_data: file_data, filename: filename,
-          password: password, extractor: extractor).call
+          password: password, extractor: extractor, learner: learner).call
     end
 
-    def initialize(user:, file_data:, filename: nil, password: nil, extractor: nil)
+    def initialize(user:, file_data:, filename: nil, password: nil, extractor: nil, learner: nil)
       @user = user
       @file_data = file_data
       @filename = filename.to_s.presence || "uploaded_file"
       @password = password.to_s.presence
       @extractor = extractor || Ai::StatementExtractor.new
+      @learner = learner
       @errors = []
       @warnings = []
     end
@@ -50,7 +51,7 @@ module Statements
     end
 
     def parse_document(extraction)
-      adapter = Statements::Adapters.for(extraction.text)
+      adapter = Statements::Adapters.for(extraction.text, user: @user)
       return ServiceResult.success(adapter.call(extraction)) if adapter
 
       ai_document(extraction)
@@ -60,9 +61,21 @@ module Statements
       result = @extractor.call(text: extraction.text)
       return failure(result[:error].presence || I18n.t("wizard.upload.extract_failed")) unless result[:ok?]
 
+      learn_layout(extraction.text, result[:data])
       ServiceResult.success(build_document(result[:data], engine: :ai))
     rescue Ai::StatementExtractor::ExtractionError => e
       failure(e.message)
+    end
+
+    # Optionally remembers the layout the AI described so later statements of
+    # the same format parse deterministically. No-op unless a learner was
+    # injected (production wires Statements::LayoutLearner; tests leave it nil).
+    def learn_layout(text, data)
+      return if @learner.nil?
+
+      @learner.call(user: @user, text: text, layout: data[:layout])
+    rescue StandardError => e
+      Rails.logger.warn("[Statements::Parser] layout learning skipped: #{e.class}: #{e.message}")
     end
 
     def build_document(data, engine:)

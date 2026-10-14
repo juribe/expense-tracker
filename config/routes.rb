@@ -95,6 +95,7 @@ Rails.application.routes.draw do
     resources :statement_imports, only: [ :new, :create ] do
       collection do
         post :confirm
+        post :pay
       end
     end
   end

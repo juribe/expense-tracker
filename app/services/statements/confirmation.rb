@@ -4,11 +4,14 @@ module Statements
   # Confirmation
   # Persists the reviewed statement import: creates the selected movements as
   # Expenses (through Expenses::Create, so validations and rules are never
-  # bypassed), parks movements without a confidently-resolved category as
-  # ExpenseCandidates, and when requested creates the payment expense from the
-  # funding source applying it to the debt via Payments::Apply. The whole
-  # import is one transaction — a failed payment rolls back every expense and
-  # candidate.
+  # bypassed) and, when requested, creates the payment expense from the funding
+  # source applying it to the debt via Payments::Apply. The whole import is one
+  # transaction — a failed payment rolls back every expense.
+  #
+  # Every selected movement must resolve to an existing category (a posted
+  # category_id that belongs to the user, or a safe ClosestResolver match on the
+  # parsed name); otherwise the whole batch is rejected, so an import never
+  # force-classifies or silently drops a row.
   #
   # Selected movements are re-checked against the user's current expenses (and
   # against each other) right before creating anything, so a stale review can
@@ -19,14 +22,9 @@ module Statements
   class Confirmation
   # ClosestResolver matches that may create an expense directly: they are
   # deterministic and always land on an existing category. A :similar fold
-  # or no match at all is NOT safe — the row becomes a review candidate and
-  # Category.create! is never called from an import.
+  # or no match at all is NOT safe — Category.create! is never called from an
+  # import and the row is rejected instead.
   SAFE_MATCHES = %i[exact learned alias parking housing].freeze
-
-  # The outcome of resolving one movement's category: the category that may
-  # be created directly and the resolver result (used as the suggestion when
-  # parking).
-  CategoryResolution = Struct.new(:safe_category, :resolution, keyword_init: true)
 
     def self.call(user:, money_source:, movements:, payment: {})
       new(user: user, money_source: money_source, movements: movements,
@@ -44,7 +42,6 @@ module Statements
       outcome = {}
       ActiveRecord::Base.transaction do
         outcome[:expenses] = created_expenses
-        outcome[:candidates] = parked_candidates
         outcome[:skipped_duplicates] = skipped_duplicates
         if register_payment?
           payment = apply_payment
@@ -81,29 +78,21 @@ module Statements
 
       ExpensePlayground::DuplicateDetector.new(user: @user).flag(candidates)
 
-      expenses = []
       @skipped_duplicates = 0
-      @parked_candidates = []
 
-      candidates.each do |candidate|
+      candidates.filter_map do |candidate|
         if candidate.duplicate
           @skipped_duplicates += 1
           next
         end
 
-        resolved = resolve_category(candidate)
-        if resolved.safe_category
-          expenses << create_expense(candidate, resolved.safe_category)
-        else
-          park_candidate(candidate, resolved)
+        category = safe_category_for(candidate)
+        if category.nil?
+          raise RollbackWithErrors, [ I18n.t("statement_imports.movement_category_required") ]
         end
+
+        create_expense(candidate, category)
       end
-
-      expenses
-    end
-
-    def parked_candidates
-      @parked_candidates || []
     end
 
     def selected_movements
@@ -114,25 +103,20 @@ module Statements
       ExpenseCandidate.from_h(row, user: @user)
     end
 
-    # Category resolution for one movement: a posted category_id wins when it
-    # belongs to the user; otherwise the parsed name must resolve through one
-    # of the deterministic ClosestResolver matches.
-    def resolve_category(candidate)
+    # A movement may only be created with a category that already exists: a
+    # posted category_id wins when it belongs to the user; otherwise the parsed
+    # name must resolve through one of the deterministic ClosestResolver
+    # matches. Anything else is rejected — an import never invents a category.
+    def safe_category_for(candidate)
+      if candidate.category_id.present?
+        category = Category.for_user(@user).find_by(id: candidate.category_id)
+        return category if category
+      end
+
       resolved = Categories::ClosestResolver.call(
         user: @user, name: candidate.category_name, activity: candidate.description
       )
-      safe_category = nil
-      if candidate.category_id.present?
-        safe_category = Category.for_user(@user).find_by(id: candidate.category_id)
-        resolved = Categories::ClosestResolver::Result.new(
-          category: safe_category, matched_by: :exact, similarity: 1.0
-        ) if safe_category
-      end
-      if safe_category.nil? && resolved.matched_by.in?(SAFE_MATCHES)
-        safe_category = resolved.category
-      end
-
-      CategoryResolution.new(safe_category: safe_category, resolution: resolved)
+      resolved.category if resolved.matched_by.in?(SAFE_MATCHES)
     end
 
     def create_expense(candidate, category)
@@ -145,18 +129,6 @@ module Statements
         source: "statement_file",
         money_source: candidate_money_source(candidate)
       )
-    end
-
-    # Uncertain rows are never force-classified: they are persisted into the
-    # regular review queue with the closest category only as a suggestion.
-    def park_candidate(candidate, resolved)
-      candidate.category_id = nil
-      candidate.category_suggestion = (resolved.resolution.category&.name || candidate.category_name).presence
-      candidate.suggested_category_id = resolved.resolution.category&.id
-      candidate.suggested_category_name = candidate.category_suggestion
-      candidate.source = "statement_file"
-      candidate.save!
-      @parked_candidates << candidate
     end
 
     def register_payment?

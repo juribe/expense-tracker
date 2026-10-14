@@ -9,30 +9,54 @@ module ExpensePlayground
   # possible duplicate when it shares (date, amount, money source) with an
   # existing expense, or the same (date, amount) with another candidate.
   #
+  # Sets `candidate.duplicate` (true when it should be skipped on confirm) and
+  # `candidate.duplicate_kind` (:existing for a match against a recorded
+  # expense, :in_statement for a repeat inside the same batch — so the review
+  # can highlight every row of a possible double charge).
+  #
   # Example: ExpensePlayground::DuplicateDetector.new(user: user).flag(candidates)
   class DuplicateDetector
     def initialize(user:)
       @user = user
     end
 
-    # Returns an array of boolean flags aligned with `candidates` and sets
-    # `candidate.duplicate` on each ExpenseCandidate. Amounts are compared on
-    # their magnitude so the negative expense sign does not matter.
+    # Returns an array of boolean skip-flags aligned with `candidates` and sets
+    # `candidate.duplicate` / `candidate.duplicate_kind` on each
+    # ExpenseCandidate. Amounts are compared on their magnitude so the negative
+    # expense sign does not matter.
     def flag(candidates)
       existing_keys = existing_transaction_keys
+      signatures = candidates.map { |candidate| signature(candidate) }
+      counts = signatures.compact.tally
       seen = Hash.new(0)
 
-      candidates.map do |candidate|
-        key = signature(candidate)
-
+      candidates.each_with_index.map do |candidate, index|
+        key = signatures[index]
         seen[key] += 1 if key
-        duplicate = existing_keys.include?(key) || (key && seen[key] > 1) || false
-        candidate.duplicate = duplicate if candidate.respond_to?(:duplicate=)
+        in_statement = key && counts[key] > 1
+        matches_existing = key && existing_keys.include?(key)
+        duplicate = matches_existing || (key && seen[key] > 1) || false
+
+        apply(candidate, duplicate: duplicate, kind: duplicate_kind(in_statement, matches_existing))
         duplicate
       end
     end
 
     private
+
+    def apply(candidate, duplicate:, kind:)
+      candidate.duplicate = duplicate if candidate.respond_to?(:duplicate=)
+      candidate.duplicate_kind = kind if candidate.respond_to?(:duplicate_kind=)
+    end
+
+    # An in-statement repeat wins over an existing-expense match so every row of
+    # a possible double charge is highlighted as such.
+    def duplicate_kind(in_statement, matches_existing)
+      return :in_statement if in_statement
+      return :existing if matches_existing
+
+      nil
+    end
 
     # Only expenses can collide with imported statement rows, and only within a
     # reasonable window (statements rarely import months-old rows).
