@@ -20,6 +20,7 @@
   --et-positive: #0e9f6e;          /* income / healthy / progress        */
   --et-negative: #e0254b;          /* expense / debt / problem           */
   --et-attention: #b26a00;         /* warning / needs attention          */
+  --et-saving: #7929e8;            /* savings / pockets                  */
   --et-heading: 0.02em;
 }
 
@@ -28,6 +29,7 @@
   --bs-border-color: #253a52;
   --et-surface: #131f30;
   --et-muted: #8fa3b6;
+  --et-saving: #a78bfa;
   --et-heading: 0.01em;
 }
 

@@ -1,0 +1,37 @@
+<%# KPI metric card for the dashboard overview (prototype layout): icon chip,
+  title and amount, with an optional description, meta row (delta/status) and
+  progress bar. Rendered as a link when href is present — the whole card is
+  the target, so no nested anchors.
+  Locals: label, value, icon (Tabler name), variant (accounts | income |
+  expense | credit | savings | debt | normal-debt), href (nil allowed),
+  testid. Optional: description (String), meta (html String), progress
+  (Hash with :pct, :aria_label and :bar_class). %>
+<%
+  description = local_assigns[:description]
+  tag = href.present? ? :a : :div
+  card_options = {
+    class: class_names("card", "metric-card", "metric-card--#{variant}", "text-decoration-none", "text-reset"),
+    data: { testid: testid }
+  }
+  card_options[:href] = href if href.present?
+%>
+<%= content_tag(tag, card_options) do %>
+  <span class="icon-chip icon-chip-lg" aria-hidden="true"><i class="ti ti-<%= icon %>"></i></span>
+  <div class="metric-card-body">
+    <p class="card-title metric-card-title"><%= label %></p>
+    <p class="stat-value mb-0"><%= value %></p>
+    <% if description.present? %>
+      <p class="metric-card-desc"><%= description %></p>
+    <% end %>
+    <% if local_assigns[:meta] %>
+      <div class="metric-card-meta"><%= meta %></div>
+    <% end %>
+    <% if local_assigns[:progress] %>
+      <div class="progress dashboard-progress mt-2" role="progressbar"
+           aria-label="<%= progress[:aria_label] %>"
+           aria-valuenow="<%= progress[:pct].round %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar <%= progress[:bar_class] %>" style="width: <%= progress[:pct].round %>%"></div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

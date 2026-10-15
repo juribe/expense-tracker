@@ -36,3 +36,77 @@
 
 /* Cycle banner reuses .page-header; make the period controls align */
 .cycle-banner .page-subtitle { display: block; }
+
+/* ---------------------------------------------------- KPI metric cards
+ * Dashboard overview cards (prototype layout): icon chip + title + amount,
+ * with optional description, delta/status row and cycle progress bar. Each
+ * variant owns its tint, icon chip and amount color; light and dark aware. */
+.metric-card {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  height: 100%;
+  padding: 1.1rem;
+}
+.metric-card-body { min-width: 0; flex: 1; }
+.metric-card-title { margin-bottom: 0.4rem; }
+.metric-card-desc {
+  margin: 0.4rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--et-muted);
+}
+.metric-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--et-muted);
+}
+.metric-card .icon-chip-lg {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.875rem;
+}
+.metric-card .icon-chip-lg .ti { font-size: 1.6rem; }
+
+/* Amount semantics per variant */
+.metric-card--accounts .stat-value,
+.metric-card--income .stat-value { color: var(--et-positive); }
+.metric-card--expense .stat-value,
+.metric-card--debt .stat-value { color: var(--et-negative); }
+.metric-card--credit .stat-value { color: var(--et-balance); }
+.metric-card--savings .stat-value { color: var(--et-saving); }
+.metric-card--normal-debt .stat-value { color: var(--et-attention); }
+
+/* Icon chip per variant */
+.metric-card--accounts .icon-chip,
+.metric-card--income .icon-chip { background: rgba(14, 159, 110, 0.12); color: var(--et-positive); }
+.metric-card--expense .icon-chip,
+.metric-card--debt .icon-chip { background: rgba(224, 37, 75, 0.12); color: var(--et-negative); }
+.metric-card--credit .icon-chip { background: rgba(42, 109, 245, 0.12); color: var(--et-balance); }
+.metric-card--savings .icon-chip { background: rgba(121, 41, 232, 0.14); color: var(--et-saving); }
+.metric-card--normal-debt .icon-chip { background: rgba(178, 106, 0, 0.14); color: var(--et-attention); }
+
+/* Soft tint: only the cards that represent a balance bucket get one */
+.metric-card--accounts  { background: linear-gradient(115deg, #f1fbf7, #fff); }
+.metric-card--credit    { background: linear-gradient(115deg, #f2f8ff, #fff); }
+.metric-card--savings   { background: linear-gradient(115deg, #f8f3ff, #fff); }
+.metric-card--debt      { background: linear-gradient(115deg, #fff5f5, #fff); }
+.metric-card--normal-debt { background: linear-gradient(115deg, #fffaf0, #fff); }
+
+[data-bs-theme="dark"] .metric-card--accounts { background: linear-gradient(115deg, rgba(14, 159, 110, 0.16), rgba(14, 159, 110, 0) 70%); }
+[data-bs-theme="dark"] .metric-card--credit { background: linear-gradient(115deg, rgba(42, 109, 245, 0.18), rgba(42, 109, 245, 0) 70%); }
+[data-bs-theme="dark"] .metric-card--savings { background: linear-gradient(115deg, rgba(121, 41, 232, 0.2), rgba(121, 41, 232, 0) 70%); }
+[data-bs-theme="dark"] .metric-card--debt { background: linear-gradient(115deg, rgba(224, 37, 75, 0.16), rgba(224, 37, 75, 0) 70%); }
+[data-bs-theme="dark"] .metric-card--normal-debt { background: linear-gradient(115deg, rgba(178, 106, 0, 0.18), rgba(178, 106, 0, 0) 70%); }
+
+[data-bs-theme="dark"] .metric-card--accounts .icon-chip,
+[data-bs-theme="dark"] .metric-card--income .icon-chip { background: rgba(14, 159, 110, 0.22); }
+[data-bs-theme="dark"] .metric-card--expense .icon-chip,
+[data-bs-theme="dark"] .metric-card--debt .icon-chip { background: rgba(224, 37, 75, 0.22); }
+[data-bs-theme="dark"] .metric-card--credit .icon-chip { background: rgba(42, 109, 245, 0.22); }
+[data-bs-theme="dark"] .metric-card--savings .icon-chip { background: rgba(121, 41, 232, 0.28); }
+[data-bs-theme="dark"] .metric-card--normal-debt .icon-chip { background: rgba(178, 106, 0, 0.26); }

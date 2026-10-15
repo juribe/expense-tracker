@@ -2207,6 +2207,16 @@ es:
     tip_title: "Tip del mes"
     tip_body: "Revisa tus suscripciones. Puedes ahorrar hasta $150.000 al mes eliminando las que no usas."
     tip_link: "Ver suscripciones"
+    money_in_accounts: "Dinero en cuentas"
+    money_in_accounts_desc: "Saldo disponible en cuentas, tarjetas débito, efectivo y billeteras."
+    credit_available: "Cupo disponible"
+    credit_available_desc: "Saldo disponible en tarjetas de crédito y créditos rotativos."
+    savings: "Ahorros"
+    savings_desc: "Total de tus bolsillos de ahorro."
+    card_debt: "Deuda tarjetas de crédito"
+    card_debt_desc: "Total que debes en tarjetas de crédito."
+    normal_debt: "Deudas normales"
+    normal_debt_desc: "Total que debes en créditos y préstamos, incluidos los rotativos."
 
   goal_allocations:
     note_placeholder: "Opcional"

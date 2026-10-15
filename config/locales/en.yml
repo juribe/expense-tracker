@@ -1080,6 +1080,16 @@ en:
     tip_title: "Tip of the month"
     tip_body: "Review your subscriptions. You can save up to $150,000 a month by dropping the ones you don't use."
     tip_link: "View subscriptions"
+    money_in_accounts: "Money in accounts"
+    money_in_accounts_desc: "Available balance in accounts, debit cards, cash and wallets."
+    credit_available: "Available credit"
+    credit_available_desc: "Available balance on credit cards and revolving lines."
+    savings: "Savings"
+    savings_desc: "Total across your savings pockets."
+    card_debt: "Credit card debt"
+    card_debt_desc: "Total owed on credit cards."
+    normal_debt: "Standard loans"
+    normal_debt_desc: "Total owed on credit and loans, revolving lines included."
 
   goal_allocations:
     note_placeholder: "Optional"

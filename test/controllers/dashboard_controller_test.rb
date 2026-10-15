@@ -125,7 +125,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Transacciones"
     refute_includes response.body, "Gastos del periodo seleccionado"
-    refute_includes response.body, '{:title=>'
+    refute_includes response.body, "{:title=>"
   end
 
   test "GET /dashboard shows the budgets card above the quick add card" do
@@ -152,5 +152,64 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_includes select_values, cash.id.to_s
     assert_includes select_values, card.id.to_s
     assert_not_includes select_values, loan.id.to_s
+  end
+
+  test "GET /dashboard renders exactly eight KPI cards in the requested order" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    titles = css_select("a.metric-card .metric-card-title").map { |node| node.text.strip }
+    assert_equal [
+      "Dinero en cuentas",
+      "Ingresos",
+      "Gastos",
+      "Gasto proyectado",
+      "Cupo disponible",
+      "Ahorros",
+      "Deuda tarjetas de crédito",
+      "Deudas normales"
+    ], titles
+    assert_select "a.metric-card[href]", count: 8
+  end
+
+  test "GET /dashboard KPI cards link to their related pages" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    hrefs = css_select("a.metric-card").map { |node| node["href"] }
+    assert_equal [
+      money_sources_path,
+      incomes_path,
+      expenses_path,
+      reports_budgets_path,
+      reports_credit_cards_path,
+      money_sources_pockets_path,
+      debt_capacity_path,
+      reports_loans_path
+    ], hrefs
+  end
+
+  test "GET /dashboard drops the Dinero disponible indicator" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    refute_includes response.body, "Dinero disponible"
+    assert_select ".metric-card", count: 8
+  end
+
+  test "GET /dashboard keeps the evolution chart and the upcoming payments panel" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "h5.card-title", text: /Evolución de ingresos y gastos/
+    assert_select "h5.card-title", text: /Próximos pagos/
   end
 end

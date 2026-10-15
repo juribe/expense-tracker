@@ -58,6 +58,19 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
     assert_nil summary[:expense_delta_pct]
   end
 
+  test "income delta compares income against the previous span" do
+    Income.create!(user: @user, category: @category, amount: 10_000_000, date: Date.new(2026, 9, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+
+    assert_in_delta 24.5, summary[:income_delta_pct], 0.01
+  end
+
+  test "income delta is nil when the previous span had no income" do
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+
+    assert_nil summary[:income_delta_pct]
+  end
+
   test "evolution is a zero-filled daily series covering the whole span" do
     create_expense(amount: 220_000, date: Date.new(2026, 10, 5))
     Income.create!(user: @user, category: @category, amount: 1_000_000, date: Date.new(2026, 10, 5), description: "Salario")

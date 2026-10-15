@@ -25,6 +25,7 @@ class Dashboard::CycleSummary
       expense_total: expense_total,
       expense_count: expense_count,
       net_total: net_total,
+      income_delta_pct: income_delta_pct,
       expense_delta_pct: expense_delta_pct,
       net_delta_pct: net_delta_pct,
       evolution: evolution,
@@ -78,6 +79,10 @@ class Dashboard::CycleSummary
 
   def previous_net_total
     previous_income_total - previous_expense_total
+  end
+
+  def income_delta_pct
+    delta_pct(income_total, previous_income_total)
   end
 
   def expense_delta_pct
