@@ -19,6 +19,7 @@
         <div class="col-12 col-lg-5">
           <div class="chart-panel h-100">
             <%= pie_chart @category_spending[:categories].map { |c| [ c[:name], c[:total] ] },
+                  **chart_money_options,
                   height: "320px", legend: "bottom",
                   colors: category_colors(@category_spending[:categories]) %>
           </div>

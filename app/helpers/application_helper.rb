@@ -1,6 +1,10 @@
 module ApplicationHelper
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
   BANK_ICON_TONES = 8
+  # Chartkick understands these options natively and uses them to format both
+  # the hover tooltip and the axis ticks, so charts read "$12.345.678" instead
+  # of the raw "12345678".
+  MONEY_CHART_OPTIONS = { prefix: "$", thousands: ".", decimal: ",", round: 0 }.freeze
 
   # Data for the money-source institution AUTOCOMPLETE: catalog entities
   # (active; the currently attached one is always listed even when inactive)
@@ -178,6 +182,12 @@ module ApplicationHelper
     number_with_precision(value.to_d, precision: 2, strip_insignificant_zeros: true)
   rescue NoMethodError, ArgumentError
     value.to_s
+  end
+
+  # Money options for Chartkick charts: whole Colombian pesos in the tooltip
+  # and on the axes. Splat into a chart call: `column_chart data, **chart_money_options`.
+  def chart_money_options
+    MONEY_CHART_OPTIONS
   end
 
   def source_kind_icon(kind)

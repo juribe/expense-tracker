@@ -212,4 +212,18 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "h5.card-title", text: /Evolución de ingresos y gastos/
     assert_select "h5.card-title", text: /Próximos pagos/
   end
+
+  test "GET /dashboard charts format money values with whole pesos" do
+    sign_in @user
+    @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @user.expenses.create!(amount: -1_234_567, date: Date.current, category: @category, description: "x")
+
+    get dashboard_path
+
+    assert_response :success
+    assert_includes response.body, '"prefix":"$"'
+    assert_includes response.body, '"thousands":"."'
+    assert_includes response.body, '"decimal":","'
+    assert_includes response.body, '"round":0'
+  end
 end

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte TDD - Expense Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --success-bg: #064e3b;
+            --failure: #f43f5e;
+            --failure-bg: #4c0519;
+            --skipped: #f59e0b;
+            --skipped-bg: #451a03;
+            --info: #3b82f6;
+            --info-bg: #1e3a8a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #020617 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .meta {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-card h2 {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-number {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .passed .summary-number { color: var(--success); }
+        .failed .summary-number { color: var(--failure); }
+        .skipped .summary-number { color: var(--skipped); }
+        .total .summary-number { color: var(--info); }
+
+        section {
+            margin-bottom: 32px;
+        }
+
+        section > h2 {
+            font-size: 22px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            color: #fff;
+        }
+
+        .group {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .group-header {
+            padding: 16px;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .group-header h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .group-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .group-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+
+        .badge.passed { background: var(--success-bg); color: #6ee7b7; border-color: #065f46; }
+        .badge.failed { background: var(--failure-bg); color: #fda4af; border-color: #881337; }
+        .badge.skipped { background: var(--skipped-bg); color: #fcd34d; border-color: #92400e; }
+        .badge.neutral { background: var(--info-bg); color: #93c5fd; border-color: #1e40af; }
+        .badge.planned { background: #4c1d95; color: #c4b5fd; border-color: #5b21b6; }
+
+        .scenarios-list {
+            padding: 8px 0;
+        }
+
+        details.scenario {
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+        }
+
+        details.scenario:last-child {
+            border-bottom: none;
+        }
+
+        summary.scenario-summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: background 0.2s ease;
+        }
+
+        summary.scenario-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary.scenario-summary:hover {
+            background: rgba(148, 163, 184, 0.08);
+        }
+
+        .scenario-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .scenario-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+            flex: 1;
+        }
+
+        .scenario-explain {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .scenario-body {
+            padding: 0 16px 16px 16px;
+            border-top: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .scenario-section {
+            margin-top: 14px;
+        }
+
+        .scenario-section h4 {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .scenario-section p,
+        .scenario-section ul {
+            color: var(--text);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .scenario-section ul {
+            padding-left: 20px;
+        }
+
+        .scenario-section li {
+            margin-bottom: 6px;
+        }
+
+        .example-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+            font-size: 13px;
+            color: #a5b4fc;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .error-box {
+            background: var(--failure-bg);
+            border: 1px solid #881337;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            color: #fecdd3;
+            font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .not-tested {
+            background: var(--card);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+        }
+
+        .not-tested h4 {
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .phase-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .phase-banner.plan { background: #4c1d95; color: #ddd6fe; border-color: #5b21b6; }
+        .phase-banner.results { background: var(--success-bg); color: #6ee7b7; border-color: #065f46; }
+
+        .plan-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .plan-summary {
+            color: var(--text);
+            font-size: 15px;
+            margin: 10px 0 18px 0;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-top: 6px;
+        }
+
+        .plan-col h4 {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .plan-col ul,
+        .plan-steps {
+            padding-left: 20px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .plan-col li,
+        .plan-steps li {
+            margin-bottom: 6px;
+        }
+
+        .plan-steps {
+            margin-top: 18px;
+        }
+
+        .plan-steps code {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+            font-size: 12px;
+            color: #a5b4fc;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="phase-banner plan" id="phase-banner" style="display: none;"></div>
+            <h1 id="page-title">Reporte TDD - Expense Tracker</h1>
+            <div class="meta">
+                Generado: <span id="generated-at"></span> |
+                Archivo: <span id="source-file"></span>
+            </div>
+        </header>
+
+        <section class="plan-overview" id="plan-section" style="display: none;">
+            <h2 id="plan-heading">Plan de trabajo</h2>
+            <div class="plan-card">
+                <span class="badge planned" id="plan-change-type">Cambio</span>
+                <p class="plan-summary" id="plan-summary"></p>
+                <div class="summary-grid">
+                    <div class="summary-card total">
+                        <h2>Tests planificados</h2>
+                        <div class="summary-number" id="plan-tests-count">0</div>
+                    </div>
+                    <div class="summary-card total">
+                        <h2>Archivos de test</h2>
+                        <div class="summary-number" id="plan-test-files-count">0</div>
+                    </div>
+                    <div class="summary-card total">
+                        <h2>Archivos de implementación</h2>
+                        <div class="summary-number" id="plan-impl-files-count">0</div>
+                    </div>
+                </div>
+                <div class="plan-grid">
+                    <div class="plan-col">
+                        <h4>Tests a crear / modificar</h4>
+                        <ul id="plan-test-files"></ul>
+                    </div>
+                    <div class="plan-col">
+                        <h4>Archivos de implementación afectados</h4>
+                        <ul id="plan-impl-files"></ul>
+                    </div>
+                </div>
+                <div class="plan-col">
+                    <h4>Pasos TDD</h4>
+                    <ol class="plan-steps" id="plan-steps"></ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="summary" id="results-summary">
+            <div class="summary-grid">
+                <div class="summary-card total">
+                    <h2 id="summary-total-label">Total de escenarios evaluados</h2>
+                    <div class="summary-number" id="total-count">0</div>
+                </div>
+                <div class="summary-card passed">
+                    <h2>Aprobados</h2>
+                    <div class="summary-number" id="passed-count">0</div>
+                </div>
+                <div class="summary-card failed">
+                    <h2>Fallidos</h2>
+                    <div class="summary-number" id="failed-count">0</div>
+                </div>
+                <div class="summary-card skipped">
+                    <h2>Omitidos</h2>
+                    <div class="summary-number" id="skipped-count">0</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="verified-behaviors" id="verified-section">
+            <h2>Comportamientos probados y verificados</h2>
+            <div id="verified-groups"></div>
+        </section>
+
+        <section class="unverified-behaviors">
+            <h2 id="unverified-heading">Comportamientos identificados pero no verificados por esta ejecución</h2>
+            <p id="unverified-desc" style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
+                Estos escenarios se identificaron durante el flujo TDD, pero no se ejecutaron o no se verificaron
+                en esta corrida de tests. No se asume su estado.
+            </p>
+            <div id="unverified-list"></div>
+        </section>
+
+        <section class="failures-detail" id="failures-section" style="display: none;">
+            <h2>Detalle de fallos</h2>
+            <div id="failures-list"></div>
+        </section>
+
+        <footer>
+            <p>Reporte generado a partir de datos recopilados durante el flujo TDD. Solo refleja lo efectivamente verificado.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Data is injected by the deterministic renderer (render_tdd_report.rb).
+        const reportData = DATA_PLACEHOLDER;
+
+        function formatDate(iso) {
+            try {
+                const d = new Date(iso);
+                return d.toLocaleString('es-ES');
+            } catch (e) {
+                return iso;
+            }
+        }
+
+        document.getElementById('generated-at').textContent = formatDate(reportData.generatedAt);
+        document.getElementById('source-file').textContent = reportData.sourceFile || 'N/A';
+
+        document.getElementById('total-count').textContent = reportData.summary.total;
+        document.getElementById('passed-count').textContent = reportData.summary.passed;
+        document.getElementById('failed-count').textContent = reportData.summary.failed;
+        document.getElementById('skipped-count').textContent = reportData.summary.skipped;
+
+        const isPlan = reportData.phase === 'plan';
+
+        if (isPlan) {
+            document.title = 'Plan TDD - Expense Tracker';
+            document.getElementById('page-title').textContent = 'Plan TDD - Expense Tracker';
+            const banner = document.getElementById('phase-banner');
+            banner.style.display = 'inline-flex';
+            banner.textContent = 'Vista previa del plan (tests aún no ejecutados)';
+
+            const plan = reportData.plan || {};
+            document.getElementById('plan-section').style.display = 'block';
+            if (plan.changeType) {
+                document.getElementById('plan-change-type').textContent = plan.changeType;
+            } else {
+                document.getElementById('plan-change-type').style.display = 'none';
+            }
+            document.getElementById('plan-summary').textContent = plan.summary || '';
+            document.getElementById('plan-tests-count').textContent = (reportData.unverified || []).length;
+            document.getElementById('plan-test-files-count').textContent = (plan.testFiles || []).length;
+            document.getElementById('plan-impl-files-count').textContent = (plan.implFiles || []).length;
+
+            const testFilesEl = document.getElementById('plan-test-files');
+            if ((plan.testFiles || []).length > 0) {
+                plan.testFiles.forEach(f => testFilesEl.insertAdjacentHTML('beforeend', `<li><code>${escapeHtml(f)}</code></li>`));
+            } else {
+                testFilesEl.innerHTML = '<li style="color: var(--text-muted);">Sin archivos de test definidos</li>';
+            }
+
+            const implFilesEl = document.getElementById('plan-impl-files');
+            if ((plan.implFiles || []).length > 0) {
+                plan.implFiles.forEach(f => implFilesEl.insertAdjacentHTML('beforeend', `<li><code>${escapeHtml(f)}</code></li>`));
+            } else {
+                implFilesEl.innerHTML = '<li style="color: var(--text-muted);">Sin cambios de implementación definidos</li>';
+            }
+
+            const steps = plan.steps || [
+                'Step 1: Escribir tests de controlador / integración',
+                'Step 2: Revisión obligatoria del usuario',
+                'Step 3: Escribir tests de modelo y concerns',
+                'Step 4: Revisión obligatoria del usuario',
+                'Step 5: Implementación mínima',
+                'Step 6: Revisión final de implementación',
+                'Step 7: Refactor',
+                'Step 8: Tests de sistema / integración end-to-end',
+                'Step 9: Ejecutar suite completa y generar reporte'
+            ];
+            const stepsEl = document.getElementById('plan-steps');
+            steps.forEach(s => stepsEl.insertAdjacentHTML('beforeend', `<li>${escapeHtml(s)}</li>`));
+
+            document.getElementById('results-summary').style.display = 'none';
+            document.getElementById('verified-section').style.display = 'none';
+            document.getElementById('unverified-heading').textContent = 'Tests planificados (aún no escritos ni ejecutados)';
+            document.getElementById('unverified-desc').textContent = 'Estos son los tests que se escribirán durante el flujo TDD. Aún no se han creado ni ejecutado, por lo que no tienen resultado.';
+        } else {
+            const banner = document.getElementById('phase-banner');
+            banner.className = 'phase-banner results';
+            banner.style.display = 'inline-flex';
+            banner.textContent = 'Resultados de la ejecución de tests';
+        }
+
+        const verifiedGroupsEl = document.getElementById('verified-groups');
+        const unverifiedListEl = document.getElementById('unverified-list');
+        const failuresSection = document.getElementById('failures-section');
+        const failuresListEl = document.getElementById('failures-list');
+
+        if (reportData.verifiedGroups && reportData.verifiedGroups.length > 0) {
+            reportData.verifiedGroups.forEach(group => {
+                const groupEl = document.createElement('div');
+                groupEl.className = 'group';
+                groupEl.innerHTML = `
+                    <div class="group-header">
+                        <h3>${escapeHtml(group.name)}</h3>
+                        ${group.description ? `<div class="group-desc">${escapeHtml(group.description)}</div>` : ''}
+                        <div class="group-meta">
+                            <span class="badge neutral">${group.scenarios.length} escenario(s)</span>
+                            ${group.file ? `<span>Archivo: ${escapeHtml(group.file)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="scenarios-list"></div>
+                `;
+                const listEl = groupEl.querySelector('.scenarios-list');
+                group.scenarios.forEach(scenario => {
+                    const scenarioEl = document.createElement('details');
+                    scenarioEl.className = 'scenario';
+                    scenarioEl.innerHTML = `
+                        <summary class="scenario-summary">
+                            <div class="scenario-title-row">
+                                <div class="scenario-title">${escapeHtml(scenario.title)}</div>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    <span class="badge ${getStatusClass(scenario.status)}">${getStatusLabel(scenario.status)}</span>
+                                </div>
+                            </div>
+                            ${scenario.plainLanguageExplanation ? `<div class="scenario-explain">${escapeHtml(scenario.plainLanguageExplanation)}</div>` : ''}
+                        </summary>
+                        <div class="scenario-body">
+                            ${scenario.whyItMatters ? `
+                                <div class="scenario-section">
+                                    <h4>¿Por qué importa?</h4>
+                                    <p>${escapeHtml(scenario.whyItMatters)}</p>
+                                </div>
+                            ` : ''}
+
+                            ${scenario.examples && scenario.examples.length > 0 ? `
+                                <div class="scenario-section">
+                                    <h4>Ejemplos</h4>
+                                    ${scenario.examples.map(ex => `
+                                        <div style="margin-bottom: 10px;">
+                                            <strong style="color: var(--text-muted); font-size: 13px;">${escapeHtml(ex.name || 'Ejemplo')}</strong>
+                                            ${ex.input ? `
+                                                <div style="margin-top: 6px;">
+                                                    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;">Entrada:</div>
+                                                    <div class="example-box">${escapeHtml(formatValue(ex.input))}</div>
+                                                </div>
+                                            ` : ''}
+                                            ${ex.expected ? `
+                                                <div style="margin-top: 6px;">
+                                                    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;">Resultado esperado:</div>
+                                                    <div class="example-box">${escapeHtml(formatValue(ex.expected))}</div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${scenario.failure ? `
+                                <div class="scenario-section">
+                                    <h4>Fallo</h4>
+                                    ${scenario.failure.expected ? `
+                                        <div style="margin-bottom: 8px;">
+                                            <strong style="color: var(--text-muted); font-size: 13px;">Se esperaba:</strong>
+                                            <div class="example-box">${escapeHtml(formatValue(scenario.failure.expected))}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${scenario.failure.got ? `
+                                        <div style="margin-bottom: 8px;">
+                                            <strong style="color: var(--text-muted); font-size: 13px;">Se obtuvo:</strong>
+                                            <div class="example-box">${escapeHtml(formatValue(scenario.failure.got))}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${scenario.failure.error ? `
+                                        <div style="margin-bottom: 8px;">
+                                            <strong style="color: var(--text-muted); font-size: 13px;">Error relevante:</strong>
+                                            <div class="error-box">${escapeHtml(scenario.failure.error)}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+
+                            ${scenario.behaviorsVerified && scenario.behaviorsVerified.length > 0 ? `
+                                <div class="scenario-section">
+                                    <h4>Comportamientos verificados</h4>
+                                    <ul>
+                                        ${scenario.behaviorsVerified.map(b => `<li>${escapeHtml(b)}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+
+                            ${scenario.file ? `
+                                <div class="scenario-section">
+                                    <h4>Ubicación</h4>
+                                    <p style="font-family: monospace; font-size: 13px; color: var(--text-muted);">${escapeHtml(scenario.file)}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    listEl.appendChild(scenarioEl);
+                });
+                verifiedGroupsEl.appendChild(groupEl);
+            });
+        } else {
+            verifiedGroupsEl.innerHTML = '<p style="color: var(--text-muted);">No hay comportamientos verificados en esta ejecución.</p>';
+        }
+
+        const unverifiedItems = reportData.unverified || [];
+        if (unverifiedItems.length > 0) {
+            const unverifiedGroups = {};
+            unverifiedItems.forEach(item => {
+                const g = item.group || 'General';
+                (unverifiedGroups[g] = unverifiedGroups[g] || []).push(item);
+            });
+            Object.keys(unverifiedGroups).forEach(groupName => {
+                const items = unverifiedGroups[groupName];
+                const groupEl = document.createElement('div');
+                groupEl.className = 'group';
+                groupEl.innerHTML = `
+                    <div class="group-header">
+                        <h3>${escapeHtml(groupName)}</h3>
+                        <div class="group-meta">
+                            <span class="badge ${isPlan ? 'planned' : 'neutral'}">${items.length} test(s) ${isPlan ? 'planificado(s)' : 'sin verificar'}</span>
+                        </div>
+                    </div>
+                    <div class="scenarios-list"></div>
+                `;
+                const listEl = groupEl.querySelector('.scenarios-list');
+                items.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'not-tested';
+                    el.style.borderRadius = '0';
+                    el.style.borderLeft = 'none';
+                    el.style.borderRight = 'none';
+                    el.innerHTML = `
+                        <h4>${escapeHtml(item.title)}</h4>
+                        ${item.plainLanguageExplanation ? `<p>${escapeHtml(item.plainLanguageExplanation)}</p>` : ''}
+                        ${item.whyItMatters ? `<p><strong>¿Por qué importa?</strong> ${escapeHtml(item.whyItMatters)}</p>` : ''}
+                        ${item.file ? `<p style="font-family: monospace; font-size: 13px; margin-top: 6px;">${escapeHtml(item.file)}</p>` : ''}
+                    `;
+                    listEl.appendChild(el);
+                });
+                unverifiedListEl.appendChild(groupEl);
+            });
+        } else {
+            unverifiedListEl.innerHTML = `<p style="color: var(--text-muted);">${isPlan ? 'No se planificaron tests.' : 'No hay escenarios no verificados identificados.'}</p>`;
+        }
+
+        const failures = [];
+        if (reportData.verifiedGroups) {
+            reportData.verifiedGroups.forEach(g => {
+                g.scenarios.forEach(s => {
+                    if (s.status === 'failed' && s.failure) {
+                        failures.push({ group: g.name, scenario: s });
+                    }
+                });
+            });
+        }
+        if (failures.length > 0) {
+            failuresSection.style.display = 'block';
+            failures.forEach(f => {
+                const el = document.createElement('div');
+                el.className = 'group';
+                el.innerHTML = `
+                    <div class="group-header">
+                        <h3>${escapeHtml(f.group)} → ${escapeHtml(f.scenario.title)}</h3>
+                        <span class="badge failed">Fallido</span>
+                    </div>
+                    <div class="scenario-body">
+                        ${f.scenario.failure.expected ? `
+                            <div class="scenario-section">
+                                <h4>Se esperaba</h4>
+                                <div class="example-box">${escapeHtml(formatValue(f.scenario.failure.expected))}</div>
+                            </div>
+                        ` : ''}
+                        ${f.scenario.failure.got ? `
+                            <div class="scenario-section">
+                                <h4>Se obtuvo</h4>
+                                <div class="example-box">${escapeHtml(formatValue(f.scenario.failure.got))}</div>
+                            </div>
+                        ` : ''}
+                        ${f.scenario.failure.error ? `
+                            <div class="scenario-section">
+                                <h4>Error relevante</h4>
+                                <div class="error-box">${escapeHtml(f.scenario.failure.error)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                failuresListEl.appendChild(el);
+            });
+        }
+
+        function getStatusClass(status) {
+            if (status === 'passed') return 'passed';
+            if (status === 'failed') return 'failed';
+            if (status === 'skipped') return 'skipped';
+            return 'neutral';
+        }
+
+        function getStatusLabel(status) {
+            if (status === 'passed') return 'Aprobado';
+            if (status === 'failed') return 'Fallido';
+            if (status === 'skipped') return 'Omitido';
+            return 'Sin estado';
+        }
+
+        function escapeHtml(text) {
+            if (text == null) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatValue(val) {
+            if (val === null || val === undefined) return String(val);
+            if (typeof val === 'object') {
+                return JSON.stringify(val, null, 2);
+            }
+            return String(val);
+        }
+    </script>
+</body>
+</html>

@@ -174,6 +174,7 @@
               </div>
               <div class="col-12 col-md-8 dashboard-mini-chart">
                 <%= column_chart @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] },
+                                 **chart_money_options,
                                  height: "120px",
                                  colors: [ "#f2a5b6" ],
                                  legend: false,
@@ -202,6 +203,7 @@
                            { name: t("dashboard.incomes", default: "Ingresos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:income] ] } },
                            { name: t("dashboard.expenses", default: "Gastos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] } }
                          ],
+                         **chart_money_options,
                          height: "240px",
                          colors: [ "#0e9f6e", "#e0254b" ],
                          legend: false,
@@ -223,6 +225,7 @@
             <% palette = dashboard_category_palette(ranked_categories.size) %>
             <div class="donut-wrap position-relative mx-auto">
               <%= pie_chart ranked_categories.map { |category| [ category[:name], category[:total] ] },
+                              **chart_money_options,
                               height: "170px",
                               donut: true,
                               legend: false,

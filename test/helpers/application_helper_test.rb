@@ -21,6 +21,10 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "", money_field_value(nil)
   end
 
+  test "chart_money_options uses whole-peso Colombian format for chart tooltips" do
+    assert_equal({ prefix: "$", thousands: ".", decimal: ",", round: 0 }, chart_money_options)
+  end
+
   setup do
     @user = User.create!(name: "Test User", email: "app_helper_loans@example.com", password: "password123")
     @loan = @user.money_sources.create!(name: "Crédito Hipotecario en Pesos", kind: "loan", bank: "Davibank", active: true)

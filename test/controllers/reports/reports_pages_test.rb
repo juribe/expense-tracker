@@ -40,6 +40,22 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "reports charts format money values with whole pesos" do
+    @user.expenses.create!(amount: -1_234_567, date: Date.current, category: @category, money_source: @bank, description: "x")
+
+    get reports_by_category_path
+    assert_response :success
+    assert_includes response.body, '"prefix":"$"'
+    assert_includes response.body, '"thousands":"."'
+    assert_includes response.body, '"decimal":","'
+    assert_includes response.body, '"round":0'
+
+    get reports_trends_path
+    assert_response :success
+    assert_includes response.body, '"prefix":"$"'
+    assert_includes response.body, '"round":0'
+  end
+
   test "GET /reports/budgets renders" do
     get reports_budgets_path
     assert_response :success

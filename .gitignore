@@ -44,3 +44,6 @@
 
 # Local Python venv for faster-whisper (see docs/speech_to_text.md)
 /whisper-env/
+
+# Local TDD report output
+/.tmp/
