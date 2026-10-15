@@ -678,7 +678,6 @@ es:
       delete_allocation_confirm: "¿Eliminar esta asignación? El dinero volverá al saldo no asignado."
     index:
       new: "Nueva Fuente de Dinero"
-      new_transfer: "Nueva Transferencia"
       balance: "Saldo"
       linked_to: "Vinculada a %{name}"
       assets_section: "Activos y Dinero"
@@ -1207,13 +1206,11 @@ es:
   transfers:
     index:
       title: "Transferencias"
-      new: "Nueva Transferencia"
       caption: "Tus transferencias"
       delete_confirm: "¿Eliminar esta transferencia?"
       empty_title: "Aún no hay transferencias"
       empty_body: "Registra transferencias entre tus fuentes de dinero."
     new:
-      title: "Nueva Transferencia"
       error_prohibited:
         one: "%{count} error impidió guardar la transferencia:"
         other: "%{count} errores impidieron guardar la transferencia:"
@@ -1236,6 +1233,10 @@ es:
       deposit: "Depositar en cuenta"
       deposit_to: "Cuenta a depositar"
       pocket: "Enviar a bolsillo"
+      assign: "Asignar a bolsillo"
+      advance: "Avance de tarjeta de crédito"
+      disburse: "Transferencia desde rotativo"
+      release: "Retirar de bolsillo"
       unavailable: "Esa acción rápida no está disponible para esta fuente de dinero."
 
   payments:

@@ -372,7 +372,6 @@ en:
       delete_allocation_confirm: "Remove this allocation? The money returns to the unallocated balance."
     index:
       new: "New Money Source"
-      new_transfer: "New Transfer"
       cash_title: "Cash & Accounts"
       credit_cards_title: "Credit Cards"
       loans_title: "Loans"
@@ -1099,6 +1098,10 @@ en:
       deposit: "Deposit into account"
       deposit_to: "Account to deposit into"
       pocket: "Send to pocket"
+      assign: "Assign to pocket"
+      advance: "Credit card advance"
+      disburse: "Transfer from revolving credit"
+      release: "Withdraw from pocket"
       unavailable: "That quick action is not available for this money source."
 
   goals:

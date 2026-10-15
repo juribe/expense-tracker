@@ -143,14 +143,23 @@ test.describe('category budgets are working', () => {
     await createCategory(page, category);
     await createBudget(page, category, 100000);
 
-    await createAccount(page, `Savings-${Date.now()}`, 100000);
-    await createAccount(page, `Checking-${Date.now()}`, 0);
+    const savingsName = `Savings-${Date.now()}`;
+    const checkingName = `Checking-${Date.now()}`;
+    await createAccount(page, savingsName, 100000);
+    await createAccount(page, checkingName, 0);
 
-    await page.goto('/transfers/new');
-    await page.locator('#transfer_amount').fill('30000');
-    await page.locator('#transfer_from_source_id').selectOption({ index: 1 });
-    await page.locator('#transfer_to_source_id').selectOption({ index: 2 });
-    await page.getByRole('button', { name: 'Crear Transferencia' }).click();
+    // Transfers are quick actions: the origin account card's menu opens the
+    // compact modal with the origin fixed, so the form only asks for the
+    // destination and the amount.
+    await page.goto('/money_sources');
+    const savingsCard = page.locator('[data-testid="account-card"]', { hasText: savingsName });
+    await savingsCard.locator('[data-testid="card-actions-toggle"]').click();
+    await page.locator('[data-testid="quick-action-transfer"]').click();
+    const quickForm = page.locator('[data-testid="quick-transfer-form"]');
+    await expect(quickForm).toBeVisible();
+    await quickForm.locator('#transfer_amount').fill('30000');
+    await quickForm.locator('#transfer_to_source_id').selectOption({ label: checkingName });
+    await quickForm.getByRole('button', { name: 'Crear Transferencia' }).click();
     await expect(page.getByText('La transferencia se creó correctamente.')).toBeVisible();
 
     await createExpense(page, { amount: 40000, category, description: 'Food' });

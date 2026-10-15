@@ -104,7 +104,7 @@ Rails.application.routes.draw do
       end
     end
   end
-  resources :transfers, only: [ :index, :new, :create, :destroy ] do
+  resources :transfers, only: [ :index, :create, :destroy ] do
     collection do
       get :quick_new
     end

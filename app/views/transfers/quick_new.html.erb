@@ -4,7 +4,7 @@
 <% if request.headers["X-Requested-With"] == "XMLHttpRequest" %>
   <%= render "quick_form" %>
 <% else %>
-  <%= render "shared/page_header", title: t("transfers.quick.title", default: "Transferencia") %>
+  <%= render "shared/page_header", title: quick_transfer_title(@mode, @source) %>
   <div class="row justify-content-center">
     <div class="col-12 col-lg-6">
       <div class="card">

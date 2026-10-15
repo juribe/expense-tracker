@@ -6,8 +6,11 @@ class TransfersController < ApplicationController
 
   # Quick-action forms (money sources): the origin is fixed by the card that
   # opened the modal, so the compact form renders no origin selector and the
-  # withdraw variant fixes the cash destination as well.
-  QUICK_MODES = %w[withdraw transfer pocket].freeze
+  # withdraw variant fixes the cash destination as well. Each mode pairs an
+  # origin kind with its destination pool — see Transfers::QuickActions.
+  # The assign variant anchors on the DESTINATION instead: the pocket entry
+  # points fix the pocket and the form only asks for the origin.
+  QUICK_MODES = %w[withdraw transfer pocket advance disburse release assign].freeze
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -23,28 +26,18 @@ class TransfersController < ApplicationController
       .limit(50)
   end
 
-  # GET /transfers/new
-  def new
-    @transfer = current_user.transfers.build(
-      date: default_record_date,
-      from_source_id: params[:from_source_id],
-      to_source_id: params[:to_source_id],
-      amount: params[:amount].present? ? MoneyFormat.normalize(params[:amount]) : nil
-    )
-    set_direction_sources
-    set_pocket_goals
-  end
-
   # GET /transfers/quick_new
   #
   # Compact quick-action form for the money source cards: the origin is fixed
-  # by the card that opened the modal (no selector is rendered for it) and the
-  # withdraw variant fixes the cash destination too. Posting goes to the
-  # regular #create, so every model validation, the balance sync and the goal
-  # allocation flow are the same the full form uses.
+  # by the card that opened the modal (no selector is rendered for it), the
+  # withdraw variant fixes the cash destination and the assign variant fixes
+  # the pocket. Posting goes to the regular #create, so every model
+  # validation, the balance sync and the goal allocation flow are the same
+  # the old full form used.
   def quick_new
     @transfer = current_user.transfers.build(
       from_source_id: params[:from_source_id],
+      to_source_id: params[:to_source_id],
       date: Date.current
     )
     set_quick_form_context
@@ -68,9 +61,11 @@ class TransfersController < ApplicationController
       # the browser gets the standalone page (same layout as every other form).
       render :quick_new, layout: !quick_ajax?, status: :unprocessable_entity
     else
-      set_direction_sources
-      set_pocket_goals
-      render :new, status: :unprocessable_entity
+      # Every form posts with the quick context now; a stray POST without it
+      # has no form to fall back to.
+      redirect_to transfers_path,
+                  alert: t("transfers.quick.unavailable",
+                           default: "Esa acción rápida no está disponible para esta fuente de dinero.")
     end
   end
 
@@ -112,31 +107,6 @@ class TransfersController < ApplicationController
     transfer_period
   end
 
-  # Each end of the transfer offers only the sources the operation allows
-  # (see MoneySource capabilities):
-  #   from — pays out: payment sources, a revolving loan (the only kind
-  #          allowed to disburse money), and pockets (releasing assigned
-  #          money back / re-assigning it).
-  #   to   — receives: payment sources, credit cards and loans (a transfer
-  #          into a debt IS that debt's payment), and pockets (assigning
-  #          money to them). A pocket can never fund a debt — the model
-  #          validation pocket_flow_rules rejects that combination.
-  def set_direction_sources
-    # display_name touches credit_account for card digits; Bullet requires it eager-loaded.
-    @from_sources = current_user.money_sources.active
-                                .merge(MoneySource.payment_sources
-                                                   .or(MoneySource.funding_sources)
-                                                   .or(MoneySource.pockets))
-                                .includes(:credit_account)
-                                .order(:kind, :name)
-    @to_sources = current_user.money_sources.active
-                               .merge(MoneySource.payment_sources
-                                                  .or(MoneySource.debt_payment_targets)
-                                                  .or(MoneySource.pockets))
-                               .includes(:credit_account)
-                               .order(:kind, :name)
-  end
-
   def set_transfer
     @transfer = current_user.transfers.find(params[:id])
   end
@@ -165,7 +135,7 @@ class TransfersController < ApplicationController
                                 .order(:name)
   end
 
-  # ----- Quick actions (compact transfer forms from a fixed origin) -----
+  # ----- Quick actions (compact transfer forms) -----
 
   # Fills everything the compact quick form needs. Shared with #create so a
   # validation failure re-renders the same form plus its errors.
@@ -173,31 +143,65 @@ class TransfersController < ApplicationController
     @mode = params[:mode].to_s if params[:mode].in?(QUICK_MODES)
     @source = current_user.money_sources.active
                           .find_by(id: params[:from_source_id].presence || @transfer&.from_source_id)
+    @to_pocket = assign_pocket if @mode == "assign"
     @cash_destination = quick_cash_destination
     @quick_return_to = quick_return_to_value
     @quick_ready = quick_form_ready?
     return unless @quick_ready
 
-    # Withdraw knows both ends up front: pin the cash destination onto the
+    # Withdraw and assign know both ends up front: pin the fixed end onto the
     # form object so the hidden field carries it.
     @transfer.to_source_id = @cash_destination.id if @mode == "withdraw" && @transfer.to_source_id.blank?
-    @to_sources = quick_to_sources
-    set_pocket_goals if @mode == "pocket"
+    @transfer.to_source_id = @to_pocket.id if @mode == "assign"
+    @from_sources = quick_from_sources if @mode == "assign"
+    @to_sources = quick_to_sources if @mode != "assign"
+    set_pocket_goals if @mode.in?(%w[pocket assign])
   end
 
-  # Which quick modes a given origin may perform. Borrowed straight from the
-  # model's capabilities: only payment sources can send money; cash cannot
-  # retire from itself (it deposits instead); a pocket can never receive
-  # directly from a debt (pocket_flow_rules); withdrawing needs a live cash
-  # source to receive the money.
+  # Which quick modes a given context may perform. Origin-anchored modes
+  # mirror the concept table in Transfers::QuickActions: only payment
+  # sources move money around, cash cannot retire from itself (it deposits
+  # instead), a card's only outgoing move is the advance, a revolving line
+  # only disburses into accounts, a pocket only releases back into accounts
+  # + cash, and a pocket can never receive directly from a debt
+  # (pocket_flow_rules). Withdrawing additionally needs a live cash source
+  # to receive the money. The destination-anchored assign mode only needs a
+  # real pocket to fill.
   def quick_form_ready?
-    return false if @source.blank? || !@source.payment_source? || @mode.blank?
+    return false if @mode.blank?
 
     case @mode
-    when "withdraw" then !@source.cash? && !@source.debt? && @cash_destination.present?
-    when "pocket" then !@source.debt?
-    else true
+    when "assign" then @to_pocket.present?
+    when "withdraw" then origin_ready? && !@source.cash? && !@source.debt? && @cash_destination.present?
+    when "transfer" then origin_ready?
+    when "pocket" then origin_ready? && !@source.debt?
+    when "advance" then @source&.credit_card? == true
+    when "disburse" then @source&.revolving? == true
+    when "release" then @source&.pocket? == true
+    else false
     end
+  end
+
+  def origin_ready?
+    @source.present? && @source.payment_source?
+  end
+
+  # The pocket the destination-anchored assign mode fills: an active pocket
+  # owned by the user. Anything else (account, debt, foreign id) is nil, so
+  # the guard redirects with the unavailable alert.
+  def assign_pocket
+    current_user.money_sources.active.pockets
+                .find_by(id: params[:to_source_id].presence || @transfer&.to_source_id)
+  end
+
+  # Assign-mode origins: every non-debt payment source. Pockets never fund a
+  # pocket and a card/loan payment is never a plain transfer, so credit cards
+  # and loans stay out of the pool.
+  def quick_from_sources
+    current_user.money_sources.active
+                .by_kind(%w[account debit_card wallet cash])
+                .includes(:credit_account)
+                .order(:kind, :name)
   end
 
   # The cash money source quick transfers retire into. The first active one
@@ -207,8 +211,11 @@ class TransfersController < ApplicationController
     current_user.money_sources.active.by_kind("cash").order(:id).first
   end
 
-  # Quick destinations, narrowed from the full form's direction pools:
+  # Quick destinations, narrowed per mode from the concept table:
   #   pocket    — every pocket (the optional goal step follows on the form)
+  #   advance   — normal accounts plus cash (a card advance lands on either)
+  #   release   — normal accounts plus cash (pocket money comes back out)
+  #   disburse  — normal accounts only; a revolving line never pays a debt
   #   transfer  — real money locations only. Cash is excluded (the withdraw
   #               variant covers it) and debts are excluded: paying a card or
   #               loan is a Payment, never a plain quick transfer.
@@ -216,9 +223,14 @@ class TransfersController < ApplicationController
   def quick_to_sources
     scope = current_user.money_sources.active
     if @mode == "pocket"
-      scope.pockets.order(:name)
+      scope.pockets.includes(:credit_account).order(:name)
     else
-      scope.by_kind(%w[account debit_card wallet])
+      # display_name touches credit_account for card digits; eager load it
+      # to satisfy Bullet when rendering each destination badge.
+      kinds = %w[account debit_card wallet]
+      kinds << "cash" if @mode.in?(%w[advance release])
+      scope.by_kind(kinds)
+           .includes(:credit_account)
            .where.not(id: @source.id)
            .order(:name)
     end

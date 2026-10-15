@@ -8,9 +8,6 @@
     <p class="loans-subtitle"><%= t("money_sources.accounts.subtitle") %></p>
   </div>
   <div class="loans-actions flex-wrap">
-    <%= link_to new_transfer_path, class: "btn btn-outline-primary" do %>
-      <i class="ti ti-arrows-left-right" aria-hidden="true"></i><%= t("money_sources.index.new_transfer") %>
-    <% end %>
     <%= link_to new_money_source_path, class: "btn btn-primary" do %>
       <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new") %>
     <% end %>

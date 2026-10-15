@@ -188,6 +188,44 @@ class TransferTest < ActiveSupport::TestCase
     assert_equal BigDecimal("8_000_000"), card.reload.used_credit
   end
 
+  test "a transfer out of a revolving loan raises the outstanding balance; destroy restores it" do
+    loan = @user.money_sources.create!(name: "Crédito Rotativo", kind: "loan", sub_kind: "revolving", starting_balance: 0)
+    loan.create_credit_account!(outstanding_balance: 8_000_000)
+    loan.reload
+
+    transfer = create_transfer(from_source: loan, to_source: @checking, amount: 2_000_000)
+
+    assert_equal BigDecimal("10_000_000"), loan.reload.credit_account.outstanding_balance.to_d
+
+    transfer.destroy
+
+    assert_equal BigDecimal("8_000_000"), loan.reload.credit_account.outstanding_balance.to_d
+  end
+
+  test "a transfer out of a credit card raises the card's used credit (advance)" do
+    card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: -1_000_000)
+    card.create_credit_account!(credit_limit: 10_000_000)
+    card.reload
+
+    transfer = create_transfer(from_source: card, to_source: @checking, amount: 300_000)
+
+    assert_equal BigDecimal("1_300_000"), card.reload.used_credit
+
+    transfer.destroy
+
+    assert_equal BigDecimal("1_000_000"), card.reload.used_credit
+  end
+
+  test "a transfer out of a non-revolving loan never touches the outstanding balance" do
+    loan = @user.money_sources.create!(name: "Hipotecario", kind: "loan", sub_kind: "mortgage", starting_balance: 0)
+    loan.create_credit_account!(outstanding_balance: 30_000_000)
+    loan.reload
+
+    create_transfer(from_source: loan, to_source: @checking, amount: 2_000_000)
+
+    assert_equal BigDecimal("30_000_000"), loan.reload.credit_account.outstanding_balance.to_d
+  end
+
   test "asset transfers never touch outstanding balances" do
     loan = @user.money_sources.create!(name: "Hipotecario", kind: "loan", sub_kind: "mortgage", starting_balance: 0)
     loan.create_credit_account!(outstanding_balance: 30_000_000)

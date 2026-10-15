@@ -23,7 +23,8 @@
     <div class="cc-actions d-print-none">
       <% # Same Spike-style card menu as the account cards: card actions
          # collapse behind a "..." toggle so the title keeps its full width.
-         # Credit cards are debts: no quick transfers, only payments/edit.
+         # The card's only outgoing movement is the advance (Transfers::
+         # QuickActions); debt payments run through their own flow.
       %>
       <div class="dropdown">
         <button type="button" class="card-more-btn" data-bs-toggle="dropdown" aria-expanded="false"
@@ -31,6 +32,10 @@
           <i class="ti ti-dots" aria-hidden="true"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end">
+          <%= render "money_sources/quick_transfer_actions", source: source, menu: true, with_text: true %>
+          <% if quick_transfer_actions(source).any? %>
+            <div class="dropdown-divider"></div>
+          <% end %>
           <%= link_to money_source_path(source, anchor: "payments"), class: "dropdown-item d-flex align-items-center gap-2" do %>
             <i class="ti ti-coin me-2" aria-hidden="true"></i><span><%= t("payments.index_button") %></span>
           <% end %>

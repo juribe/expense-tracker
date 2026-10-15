@@ -4,9 +4,8 @@
         <%= render "money_sources/quick_transfer_actions", source: @money_source, with_text: true %>
       <% end %>
       <% if @money_source.pocket? %>
-        <%= link_to new_transfer_path(to_source_id: @money_source.id), class: "btn btn-primary" do %>
-          <i class="ti ti-pig-money me-1"></i><%= t("goals.assign_money", default: "Asignar dinero") %>
-        <% end %>
+        <%= render "money_sources/quick_assign_action", source: @money_source,
+              button_class: "btn btn-primary", text: t("goals.assign_money", default: "Asignar dinero") %>
       <% end %>
       <% if @money_source.debt? %>
         <%= link_to money_source_credits_path(@money_source), class: "btn btn-primary" do %>

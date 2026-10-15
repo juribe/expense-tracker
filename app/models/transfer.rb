@@ -23,16 +23,20 @@ class Transfer < ApplicationRecord
   # rides its cached balance (the debt-means-negative number), while a
   # revolving loan's debt lives on credit_account.outstanding_balance and
   # must be lowered through MoneySources::OutstandingSync like its usage
-  # transactions raise it.
+  # transactions raise it. A transfer OUT of a revolving loan is that
+  # line's disbursement (crédito rotativo), so the same number is raised
+  # from the origin side — and restored when the transfer is destroyed.
   after_commit on: [ :create ] do
     MoneySources::BalanceSync.adjust!(from_source, -amount.to_d)
     MoneySources::BalanceSync.adjust!(to_source, amount.to_d)
+    MoneySources::OutstandingSync.adjust!(from_source, amount.to_d)
     MoneySources::OutstandingSync.adjust!(to_source, -amount.to_d)
   end
 
   after_commit on: [ :destroy ] do
     MoneySources::BalanceSync.adjust!(from_source, amount.to_d)
     MoneySources::BalanceSync.adjust!(to_source, -amount.to_d)
+    MoneySources::OutstandingSync.adjust!(from_source, -amount.to_d)
     MoneySources::OutstandingSync.adjust!(to_source, amount.to_d)
   end
 

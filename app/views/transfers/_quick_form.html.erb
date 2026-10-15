@@ -1,10 +1,11 @@
 <%# Compact quick-action transfer form, lazily loaded into the money source
-    modal (turbo frame id quick_transfer). The origin @source is fixed by
-    context, so it renders no origin selector; the withdraw variant fixes the
-    cash destination too. It posts to the regular #create, keeping every
-    existing validation, the balance sync and the goal allocation flow. %>
+    modal. Origin-anchored modes fix @source by context, so no origin
+    selector is rendered; the withdraw variant fixes the cash destination and
+    the assign variant anchors on a fixed pocket with a selectable origin. It
+    posts to the regular #create, keeping every existing validation, the
+    balance sync and the goal allocation flow. %>
 <%
-  destination_label = if @mode == "transfer" && @source.cash?
+  destination_label = if @mode == "transfer" && @source&.cash?
     t("transfers.quick.deposit_to", default: "Cuenta a depositar")
   else
     t("transfers.quick.to", default: "Hacia")
@@ -14,7 +15,9 @@
   <%= hidden_field_tag :quick, "1" %>
   <%= hidden_field_tag :mode, @mode %>
   <%= hidden_field_tag :return_to, @quick_return_to %>
-  <%= f.hidden_field :from_source_id %>
+  <% unless @mode == "assign" %>
+    <%= f.hidden_field :from_source_id %>
+  <% end %>
 
   <% if @transfer.errors.any? %>
     <div class="alert alert-danger">
@@ -28,19 +31,30 @@
   <% end %>
 
   <div class="form-section">
-    <div class="form-section-title"><%= @mode == "transfer" && @source.cash? ? t("transfers.quick.deposit", default: "Depositar en cuenta") : t("transfers.quick.title", default: "Transferencia") %></div>
+    <div class="form-section-title"><%= quick_transfer_title(@mode, @source) %></div>
 
     <div class="mb-2">
       <span class="form-label d-block"><%= t("transfers.quick.from", default: "Desde") %></span>
-      <span class="badge text-bg-light">
-        <i class="ti ti-<%= source_kind_icon(@source.kind) %> me-1" aria-hidden="true"></i><%= @source.display_name %>
-      </span>
+      <% if @mode == "assign" %>
+        <%= f.collection_select :from_source_id, @from_sources, :id, :display_name,
+            { include_blank: t("transfers.new.select", default: "Selecciona...") }, class: "form-select" %>
+      <% else %>
+        <span class="badge text-bg-light">
+          <i class="ti ti-<%= source_kind_icon(@source.kind) %> me-1" aria-hidden="true"></i><%= @source.display_name %>
+        </span>
+      <% end %>
     </div>
 
     <% if @mode == "withdraw" %>
       <div class="mb-2">
         <span class="form-label d-block"><%= t("transfers.quick.to", default: "Hacia") %></span>
         <span class="badge text-bg-light"><i class="ti ti-cash me-1" aria-hidden="true"></i><%= @cash_destination.name %></span>
+      </div>
+      <%= f.hidden_field :to_source_id %>
+    <% elsif @mode == "assign" %>
+      <div class="mb-2">
+        <span class="form-label d-block"><%= t("transfers.quick.to", default: "Hacia") %></span>
+        <span class="badge text-bg-light"><i class="ti ti-pig-money me-1" aria-hidden="true"></i><%= @to_pocket.display_name %></span>
       </div>
       <%= f.hidden_field :to_source_id %>
     <% else %>
@@ -71,7 +85,7 @@
       </div>
     </div>
 
-    <% if @mode == "pocket" %>
+    <% if @mode.in?(%w[pocket assign]) %>
       <div class="mb-2 mt-2" id="quick-assign-goal-field">
         <%= f.label :assign_goal_id, t("transfers.new.assign_to_goal", default: "Asignar a meta (opcional)"), class: "form-label" %>
         <%= f.select :assign_goal_id,
@@ -88,13 +102,13 @@
     </div>
   </div>
 
-  <div class="d-flex gap-2">
+  <div class="d-flex gap-2 mt-3">
     <%= f.submit t("transfers.new.submit", default: "Crear Transferencia"), class: "btn btn-primary" %>
     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel", default: "Cancelar") %></button>
   </div>
 <% end %>
 
-<% if @mode == "pocket" %>
+<% if @mode.in?(%w[pocket assign]) %>
 <script>
 (function() {
   var pocketSelect = document.getElementById('transfer_to_source_id');
@@ -103,6 +117,8 @@
   if (!pocketSelect || !goalField || !goalSelect) return;
 
   function sync() {
+    // Origin-anchored pocket mode reads the select; the assign variant reads
+    // the hidden field — both carry the pocket id as their value.
     var pocketId = pocketSelect.value;
     var hasVisibleGoal = false;
     Array.prototype.forEach.call(goalSelect.options, function(option) {

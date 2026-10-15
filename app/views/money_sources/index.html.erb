@@ -7,9 +7,6 @@
 
 <%= render "shared/page_header", title: t("nav.money_sources") do %>
   <div class="d-flex gap-2">
-    <%= link_to new_transfer_path, class: "btn btn-outline-secondary" do %>
-      <i class="ti ti-arrows-left-right me-1"></i><%= t("money_sources.index.new_transfer") %>
-    <% end %>
     <%= link_to new_money_source_path, class: "btn btn-primary" do %>
       <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new") %>
     <% end %>

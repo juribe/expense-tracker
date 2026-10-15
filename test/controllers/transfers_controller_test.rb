@@ -58,47 +58,6 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=cycle-badge]", count: 0
   end
 
-  test "GET /transfers/new renders the form" do
-    get new_transfer_path
-    assert_response :success
-    assert_select "form"
-    assert_select "select", minimum: 2
-  end
-
-  test "GET /transfers/new defaults the date to the current cycle start with a schedule" do
-    @user.update!(financial_cycle_start_day: 20)
-    expected = PayCycle.current(@user).starts
-
-    get new_transfer_path
-
-    assert_response :success
-    assert_select "input[name='transfer[date]'][value=?]", expected.to_s
-  end
-
-  test "GET /transfers/new offers each operation only its allowed sources" do
-    revolving = @user.money_sources.create!(name: "Rotativo", kind: "loan", sub_kind: "revolving")
-    personal = @user.money_sources.create!(name: "Libre Inversión", kind: "loan", sub_kind: "personal")
-    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
-
-    get new_transfer_path
-    assert_response :success
-
-    # FROM: payment sources + revolving loans (disbursements only); loans
-    # other than revolving never send money. Credit cards CAN send money —
-    # they are payment sources.
-    assert_select "select[name='transfer[from_source_id]'] option", text: /Savings/, count: 1
-    assert_select "select[name='transfer[from_source_id]'] option", text: /Rotativo/, count: 1
-    assert_select "select[name='transfer[from_source_id]'] option", text: /Visa/, count: 1
-    assert_select "select[name='transfer[from_source_id]'] option", text: /Libre Inversión/, count: 0
-
-    # TO: payment sources + credit cards + loans (payments on debt).
-    assert_select "select[name='transfer[to_source_id]'] option", text: /Checking/, count: 1
-    assert_select "select[name='transfer[to_source_id]'] option", text: /Visa/, count: 1
-    assert_select "select[name='transfer[to_source_id]'] option", text: /Libre Inversión/, count: 1
-    assert_select "select[name='transfer[to_source_id]'] option", text: /Rotativo/, count: 1
-    assert personal.debt_payment_target?
-  end
-
   test "POST /transfers creates a transfer" do
     assert_difference "Transfer.count", 1 do
       post transfers_path, params: {
@@ -116,7 +75,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("transfers.flashes.created"), flash[:notice]
   end
 
-  test "POST /transfers renders new on validation failure" do
+  test "POST /transfers without quick context redirects with an alert" do
     post transfers_path, params: {
       transfer: {
         from_source_id: @savings.id,
@@ -125,8 +84,18 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
         date: Date.today.to_s
       }
     }
-    assert_response :unprocessable_entity
-    assert_select "form"
+    assert_redirected_to transfers_path
+    assert flash[:alert].present?
+    assert_no_difference "Transfer.count" do
+      post transfers_path, params: {
+        transfer: {
+          from_source_id: @savings.id,
+          to_source_id: @savings.id,
+          amount: 100,
+          date: Date.today.to_s
+        }
+      }
+    end
   end
 
   test "DELETE /transfers/:id destroys the transfer" do
@@ -420,6 +389,192 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /transfers/quick_new withdraw redirects with an alert when no cash source exists" do
     get quick_new_transfers_path(from_source_id: @savings.id, mode: "withdraw")
+
+    assert_redirected_to transfers_path
+    assert flash[:alert].present?
+  end
+
+  # ----- Quick actions: advances, disbursements and pocket releases -----
+
+  test "GET /transfers/quick_new advance from a credit card offers accounts and cash" do
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 100)
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+    wallet = @user.money_sources.create!(name: "Nequi", kind: "wallet")
+
+    get quick_new_transfers_path(from_source_id: card.id, mode: "advance")
+
+    assert_response :success
+    assert_select "select[name='transfer[from_source_id]']", count: 0
+    assert_select "input[name='transfer[from_source_id]'][value='#{card.id}']"
+    options = css_select "select[name='transfer[to_source_id]'] option"
+    values = options.map { |o| o["value"] }
+    assert_includes values, @checking.id.to_s
+    assert_includes values, wallet.id.to_s
+    assert_includes values, cash.id.to_s, "a credit card advance can land on cash"
+    refute_includes values, card.id.to_s, "the origin must not offer itself as destination"
+  end
+
+  test "quick advance POST raises the card debt without any expense" do
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card", starting_balance: -1_000_000)
+
+    assert_no_difference "Expense.count" do
+      assert_difference "Transfer.count", 1 do
+        post transfers_path, params: {
+          quick: "1", mode: "advance", return_to: money_sources_path,
+          transfer: { from_source_id: card.id, to_source_id: @checking.id, amount: 300_000, date: Date.current.to_s }
+        }
+      end
+    end
+    assert_redirected_to money_sources_path
+    assert_equal BigDecimal("1_300_000"), card.reload.used_credit
+    assert_equal BigDecimal("300_000"), @checking.reload.balance
+  end
+
+  test "GET /transfers/quick_new disburse from a revolving loan offers account destinations" do
+    revolving = @user.money_sources.create!(name: "Rotativo", kind: "loan", sub_kind: "revolving")
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+
+    get quick_new_transfers_path(from_source_id: revolving.id, mode: "disburse")
+
+    assert_response :success
+    assert_select "input[name='transfer[from_source_id]'][value='#{revolving.id}']"
+    options = css_select "select[name='transfer[to_source_id]'] option"
+    values = options.map { |o| o["value"] }
+    assert_includes values, @checking.id.to_s
+    refute_includes values, card.id.to_s, "a disbursement is never a debt payment"
+  end
+
+  test "quick disburse POST raises the revolving outstanding without any expense" do
+    revolving = @user.money_sources.create!(name: "Rotativo", kind: "loan", sub_kind: "revolving", starting_balance: 0)
+    revolving.create_credit_account!(outstanding_balance: 1_000_000)
+    revolving.reload
+
+    assert_no_difference "Expense.count" do
+      assert_difference "Transfer.count", 1 do
+        post transfers_path, params: {
+          quick: "1", mode: "disburse", return_to: money_sources_path,
+          transfer: { from_source_id: revolving.id, to_source_id: @checking.id, amount: 400_000, date: Date.current.to_s }
+        }
+      end
+    end
+    assert_redirected_to money_sources_path
+    assert_equal BigDecimal("1_400_000"), revolving.reload.credit_account.outstanding_balance.to_d
+    assert_equal BigDecimal("400_000"), @checking.reload.balance
+  end
+
+  test "GET /transfers/quick_new release from a pocket offers accounts and cash" do
+    pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 500_000)
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 100)
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+
+    get quick_new_transfers_path(from_source_id: pocket.id, mode: "release")
+
+    assert_response :success
+    assert_select "input[name='transfer[from_source_id]'][value='#{pocket.id}']"
+    options = css_select "select[name='transfer[to_source_id]'] option"
+    values = options.map { |o| o["value"] }
+    assert_includes values, @savings.id.to_s
+    assert_includes values, cash.id.to_s, "pocket money can come back out as cash"
+    refute_includes values, card.id.to_s, "a pocket can never fund a debt"
+  end
+
+  test "quick release POST moves pocket money out without any expense" do
+    pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 500_000)
+
+    assert_no_difference "Expense.count" do
+      assert_difference "Transfer.count", 1 do
+        post transfers_path, params: {
+          quick: "1", mode: "release", return_to: money_sources_path,
+          transfer: { from_source_id: pocket.id, to_source_id: @savings.id, amount: "200.000", date: Date.current.to_s }
+        }
+      end
+    end
+    assert_redirected_to money_sources_path
+    assert_equal BigDecimal("300_000"), pocket.reload.balance
+    assert_equal BigDecimal("201_000"), @savings.reload.balance
+  end
+
+  test "GET /transfers/quick_new rejects advance, disburse and release outside their origins" do
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 100)
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+    personal = @user.money_sources.create!(name: "Libre Inversión", kind: "loan", sub_kind: "personal")
+    pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 0)
+
+    get quick_new_transfers_path(from_source_id: @savings.id, mode: "advance")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(from_source_id: cash.id, mode: "advance")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(from_source_id: card.id, mode: "disburse")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(from_source_id: personal.id, mode: "disburse")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(from_source_id: @savings.id, mode: "release")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(from_source_id: card.id, mode: "release")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(from_source_id: pocket.id, mode: "transfer")
+    assert_redirected_to transfers_path
+  end
+
+  # ----- Destination-anchored quick assign (pocket entry points) -----
+
+  test "GET /transfers/quick_new assign fixes the pocket and offers non-debt payment origins" do
+    pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 0)
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 100)
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+
+    get quick_new_transfers_path(to_source_id: pocket.id, mode: "assign")
+
+    assert_response :success
+    # Destination: the pocket, fixed (no selector, hidden field).
+    assert_select "select[name='transfer[to_source_id]']", count: 0
+    assert_select "input[name='transfer[to_source_id]'][value='#{pocket.id}']"
+    # Origin: selectable, accounts + cash only, never a debt.
+    origins = css_select "select[name='transfer[from_source_id]'] option"
+    origin_values = origins.map { |o| o["value"] }
+    assert_includes origin_values, @savings.id.to_s
+    assert_includes origin_values, cash.id.to_s
+    refute_includes origin_values, card.id.to_s, "a debt can never fund a pocket"
+    # The optional goal step follows, like the pocket mode.
+    assert_select "select[name='transfer[assign_goal_id]']", count: 1
+  end
+
+  test "quick assign POST into a pocket with a goal allocates the money" do
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje Europa", target_amount: 20_000_000)
+
+    assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
+      assert_no_difference "Expense.count" do
+        post transfers_path, params: {
+          quick: "1", mode: "assign", return_to: money_source_path(pocket),
+          transfer: { from_source_id: @savings.id, to_source_id: pocket.id, amount: "700.000",
+                      date: Date.current.to_s, assign_goal_id: goal.id }
+        }
+      end
+    end
+    assert_redirected_to money_source_path(pocket)
+    allocation = GoalAllocation.last
+    assert_equal goal, allocation.financial_goal
+    assert_equal 700_000, allocation.amount
+    assert_equal 700_000, pocket.reload.balance.to_i
+  end
+
+  test "GET /transfers/quick_new assign rejects non-pocket or missing destinations" do
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+
+    get quick_new_transfers_path(to_source_id: @checking.id, mode: "assign")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(mode: "assign")
+    assert_redirected_to transfers_path
+    get quick_new_transfers_path(to_source_id: card.id, mode: "assign")
+    assert_redirected_to transfers_path
+  end
+
+  test "GET /transfers/quick_new assign rejects pockets from other users" do
+    other_user = User.create!(name: "Other", email: "assign_other@example.com", password: "password123")
+    foreign_pocket = other_user.money_sources.create!(name: "Ajeno", kind: "pocket", starting_balance: 0)
+
+    get quick_new_transfers_path(to_source_id: foreign_pocket.id, mode: "assign")
 
     assert_redirected_to transfers_path
     assert flash[:alert].present?

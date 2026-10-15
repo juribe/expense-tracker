@@ -121,26 +121,30 @@ module ApplicationHelper
 
   # Contextual quick transfer actions for a money source card. The compact
   # form (TransfersController#quick_new) re-validates compatibility, so these
-  # two must agree:
+  # two must agree. The concept table lives in Transfers::QuickActions:
   #   cash          → deposit into an account + send to pocket
   #   account/card  → withdraw cash (only with a live cash source),
   #                   transfer, send to pocket
-  #   credit card   → plain transfer only: cash advances and debt payments
-  #                   run through their own flows
-  # Inactive sources and pockets never offer quick actions.
+  #   credit card   → advance (accounts + cash)
+  #   revolving     → disbursement into accounts
+  #   pocket        → release back into accounts + cash
+  # Inactive sources and amortizing loans never offer quick actions.
   def quick_transfer_actions(source)
-    return [] unless source.active? && source.payment_source?
+    Transfers::QuickActions.for(source, cash_available: quick_cash_destination.present?)
+  end
 
-    if source.cash?
-      [ { mode: "transfer", icon: "building-bank", title: t("transfers.quick.deposit") },
-        { mode: "pocket", icon: "pig-money", title: t("transfers.quick.pocket") } ]
-    else
-      actions = []
-      actions << { mode: "withdraw", icon: "cash", title: t("transfers.quick.withdraw") } if quick_cash_destination && !source.debt?
-      actions << { mode: "transfer", icon: "arrows-left-right", title: t("transfers.quick.transfer") }
-      actions << { mode: "pocket", icon: "pig-money", title: t("transfers.quick.pocket") } unless source.debt?
-      actions
-    end
+  # Title of a quick-transfer form (modal section and standalone page header):
+  # named actions carry their concept name, the cash deposit keeps its
+  # dedicated label and everything else falls back to the plain transfer.
+  def quick_transfer_title(mode, source = nil)
+    key = { "assign" => "transfers.quick.assign",
+            "advance" => "transfers.quick.advance",
+            "release" => "transfers.quick.release",
+            "disburse" => "transfers.quick.disburse" }[mode.to_s]
+    return t(key) if key
+    return t("transfers.quick.deposit") if mode == "transfer" && source&.cash?
+
+    t("transfers.quick.title", default: "Transferencia")
   end
 
   # The cash source quick transfers retire into: first active cash source by

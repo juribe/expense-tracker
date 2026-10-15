@@ -10,9 +10,6 @@
     <%= link_to money_sources_path, class: "btn btn-outline-secondary" do %>
       <i class="ti ti-wallet me-1"></i><%= t("nav.money_sources") %>
     <% end %>
-    <%= link_to new_transfer_path, class: "btn btn-primary" do %>
-      <i class="ti ti-plus me-1"></i><%= t("transfers.index.new") %>
-    <% end %>
   </div>
 <% end %>
 
@@ -74,7 +71,6 @@
 <% else %>
   <div class="card" data-testid="empty">
     <%= render "shared/empty_state", icon: "arrows-left-right", title: t("transfers.index.empty_title"),
-          text: t("transfers.index.empty_body"),
-          cta: link_to(new_transfer_path, class: "btn btn-primary") { "<i class=\"ti ti-plus me-1\"></i>#{t("transfers.index.new")}".html_safe } %>
+          text: t("transfers.index.empty_body") %>
   </div>
 <% end %>

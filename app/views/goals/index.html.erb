@@ -61,7 +61,7 @@
           <div class="form-text"><%= t("goals.assign_to_goal_hint", default: "El dinero queda reservado para esta meta dentro del bolsillo. No crea un gasto ni cambia tu patrimonio.") %></div>
           <div class="alert alert-light border small mt-2 mb-0">
             <%= t("goals.assign_from_account_hint", default: "¿Falta dinero en el bolsillo?") %>
-            <%= link_to t("goals.move_money", default: "Mueve dinero desde tu cuenta"), new_transfer_path, class: "fw-semibold" %>
+            <%= link_to t("goals.move_money", default: "Mueve dinero desde tu cuenta"), money_sources_path, class: "fw-semibold" %>
           </div>
         </div>
         <div class="modal-footer">
