@@ -12,16 +12,19 @@ module Statements
   #                                    filename: "extracto.pdf", password: "1234")
   #   result.result # => Statements::Document
   class Parser
-    def self.call(user:, file_data:, filename: nil, password: nil, extractor: nil, learner: nil)
+    def self.call(user:, file_data:, filename: nil, password: nil, money_source: nil,
+                  extractor: nil, learner: nil)
       new(user: user, file_data: file_data, filename: filename,
-          password: password, extractor: extractor, learner: learner).call
+          password: password, money_source: money_source, extractor: extractor, learner: learner).call
     end
 
-    def initialize(user:, file_data:, filename: nil, password: nil, extractor: nil, learner: nil)
+    def initialize(user:, file_data:, filename: nil, password: nil, money_source: nil,
+                   extractor: nil, learner: nil)
       @user = user
       @file_data = file_data
       @filename = filename.to_s.presence || "uploaded_file"
       @password = password.to_s.presence
+      @money_source = money_source
       @extractor = extractor || Ai::StatementExtractor.new
       @learner = learner
       @errors = []
@@ -51,7 +54,7 @@ module Statements
     end
 
     def parse_document(extraction)
-      adapter = Statements::Adapters.for(extraction.text, user: @user)
+      adapter = Statements::Adapters.for(extraction.text, user: @user, money_source: @money_source)
       return ServiceResult.success(adapter.call(extraction)) if adapter
 
       ai_document(extraction)
@@ -68,12 +71,13 @@ module Statements
     end
 
     # Optionally remembers the layout the AI described so later statements of
-    # the same format parse deterministically. No-op unless a learner was
+    # the same money source parse deterministically. No-op unless a learner was
     # injected (production wires Statements::LayoutLearner; tests leave it nil).
     def learn_layout(text, data)
       return if @learner.nil?
+      return if @money_source.nil?
 
-      @learner.call(user: @user, text: text, layout: data[:layout])
+      @learner.call(user: @user, text: text, layout: data[:layout], money_source: @money_source)
     rescue StandardError => e
       Rails.logger.warn("[Statements::Parser] layout learning skipped: #{e.class}: #{e.message}")
     end

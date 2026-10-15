@@ -82,11 +82,25 @@ module Payments
       assert_equal @template.id, template.id
     end
 
-    test "same-source amount far from the cuota stays unlinked (e.g. full statement payment)" do
+    test "same-source template links even when the amount is far (e.g. full statement payment)" do
       expense = build_expense(amount: 1_907_504)
 
-      assert_nil RecurringLink.call(user: @user, expense: expense, money_source: @card)
-      assert_nil expense.reload.recurring_template_id
+      template = RecurringLink.call(user: @user, expense: expense, money_source: @card)
+
+      assert_equal @template.id, template.id
+      assert_equal @template.id, expense.reload.recurring_template_id
+    end
+
+    test "multiple same-source templates: the nearest amount wins" do
+      RecurringTemplate.create!(
+        user: @user, category: @category, kind: "expense", description: "Pago total tarjeta",
+        amount: 3_000_000, frequency: "monthly", source: "manual", payment_day: 5, money_source: @card
+      )
+      expense = build_expense(amount: 1_500_000)
+
+      template = RecurringLink.call(user: @user, expense: expense, money_source: @card)
+
+      assert_equal @template.id, template.id
     end
 
     test "no same-source template: exact amount on a sourceless template links" do
@@ -101,7 +115,7 @@ module Payments
     test "template pointing at another debt is never hijacked" do
       expense = build_expense(amount: 1_907_504) # far from @template's amount
 
-      assert_nil RecurringLink.call(user: @user, expense: expense, money_source: @card)
+      assert_nil RecurringLink.call(user: @user, expense: expense, money_source: @loan)
     end
 
     test "ambiguous candidates without a source hint stay unlinked" do

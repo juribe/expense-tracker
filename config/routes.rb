@@ -91,7 +91,12 @@ Rails.application.routes.draw do
     delete "credits/scenarios/:scenario_id", to: "credits#destroy_scenario", as: :credit_scenario
     post "extra_payments", to: "extra_payments#create", as: :extra_payments
     delete "extra_payments/:extra_id", to: "extra_payments#destroy", as: :extra_payment
-    resources :payments, only: [ :new, :create, :edit, :update, :destroy ]
+    resources :payments, only: [ :new, :create, :edit, :update, :destroy ] do
+      collection do
+        get :manual
+        post :create_manual
+      end
+    end
     resources :statement_imports, only: [ :new, :create ] do
       collection do
         post :confirm

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_14_000100) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_15_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -761,7 +761,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_14_000100) do
     t.datetime "updated_at", null: false
     t.jsonb "summary_spec", default: {}, null: false
     t.integer "recipe_version", default: 0, null: false
-    t.index ["user_id", "fingerprint"], name: "index_statement_format_mappings_on_user_id_and_fingerprint", unique: true
+    t.bigint "money_source_id", null: false
+    t.index ["money_source_id"], name: "index_statement_format_mappings_on_money_source_id"
+    t.index ["user_id", "money_source_id", "fingerprint"], name: "index_statement_format_mappings_source_fingerprint", unique: true
     t.index ["user_id"], name: "index_statement_format_mappings_on_user_id"
   end
 
@@ -934,6 +936,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_14_000100) do
   add_foreign_key "spending_alerts", "categories"
   add_foreign_key "spending_alerts", "users"
   add_foreign_key "spreadsheet_format_mappings", "users"
+  add_foreign_key "statement_format_mappings", "money_sources"
   add_foreign_key "statement_format_mappings", "users"
   add_foreign_key "transaction_rules", "categories"
   add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"

@@ -31,7 +31,7 @@ class CategoryPickerHelperTest < ActionView::TestCase
 
     assert_equal "expense_category_id_listbox", listbox["id"]
     assert_equal "listbox", listbox["role"]
-    assert_equal [ @restaurante.id, @comida.id, @transporte.id, @crypto.id ].sort.map(&:to_s),
+    assert_equal [ @restaurante.id, @comida.id, @transporte.id, @crypto.id ].map(&:to_s).sort,
                  listbox.css("[role=option][data-value]").map { |node| node["data-value"] }.sort
   end
 

@@ -1,0 +1,17 @@
+<div class="modal fade" id="manualPaymentModal" tabindex="-1" aria-labelledby="manualPaymentModalLabel" aria-hidden="true"
+     data-testid="manual-payment-modal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="manualPaymentModalLabel">
+          <i class="ti ti-coin me-2"></i><%= t("payments.manual.title") %>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.cancel") %>"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3"><%= t("payments.manual.hint", target: @money_source.name) %></p>
+        <%= render "payments/manual_form" %>
+      </div>
+    </div>
+  </div>
+</div>

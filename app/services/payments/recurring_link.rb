@@ -10,9 +10,10 @@ module Payments
   # - only expenses not linked to a template yet,
   # - templates already covered by another transaction in the expense's month
   #   are never candidates (RecurringAssignment would reject period_taken),
-  # - the debt source is the primary signal: the nearest-by-amount active
-  #   expense template pointing at the paid source wins, within a small
-  #   tolerance (cuotas drift a few pesos between interest and rounding),
+  # - the debt source is the primary signal: when exactly one active expense
+  #   template points at the paid source it wins whatever its amount (the
+  #   statement payment rarely matches the printed cuota). Several templates on
+  #   the same source are resolved by nearest amount within a small tolerance.
   # - when no template points at the paid source, an exact-amount match on a
   #   template without a source is accepted, but only when unambiguous.
   # Anything else stays pending and the cuadre offers manual assignment
@@ -62,8 +63,13 @@ module Payments
       return nil if candidates.empty?
 
       if money_source
-        source_candidates = candidates.where(money_source_id: money_source.id)
-        return nearest_by_amount(source_candidates) if source_candidates.exists?
+        # The debt source is the signal: a single active template pointing at
+        # the paid source is the payment's recurring expense, whatever its
+        # stored amount. Amount only breaks the tie when several templates
+        # share the source.
+        source_candidates = candidates.where(money_source_id: money_source.id).to_a
+        return source_candidates.first if source_candidates.one?
+        return nearest_by_amount(source_candidates) if source_candidates.any?
 
         # Templates explicitly pointing at another debt must not be hijacked.
         candidates = candidates.where(money_source_id: nil)

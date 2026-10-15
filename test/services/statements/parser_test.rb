@@ -43,7 +43,7 @@ module Statements
         end
       end
 
-      stub_method(Statements::Adapters, :for, ->(_text, user: nil) { adapter }) do
+      stub_method(Statements::Adapters, :for, ->(_text, user: nil, money_source: nil) { adapter }) do
         result = Statements::Parser.call(user: @user, file_data: data_uri("a\n1"),
                                          filename: "extracto.csv", extractor: @extractor)
 
@@ -53,20 +53,24 @@ module Statements
       end
     end
 
-    test "invokes the injected learner with the AI layout on a known-format miss" do
+    test "invokes the injected learner with the AI layout and the money source on a known-format miss" do
+      card = MoneySource.create!(user: @user, name: "Visa", kind: "credit_card", starting_balance: 0)
       layout = { "anchors" => [ "x" ] }
       data = default_data.merge(layout: layout)
       extractor = FakeExtractor.new({ ok?: true, data: data, error: nil })
       calls = []
 
       result = Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n2026-09-01,100"),
-                                       filename: "extracto.csv", extractor: extractor,
-                                       learner: ->(user:, text:, layout:) { calls << [ user, text, layout ] })
+                                       filename: "extracto.csv", extractor: extractor, money_source: card,
+                                       learner: ->(user:, text:, layout:, money_source:) {
+                                         calls << [ user, text, layout, money_source ]
+                                       })
 
       assert result.success?
       assert_equal 1, calls.length
       assert_equal @user, calls.first[0]
       assert_equal layout, calls.first[2]
+      assert_equal card, calls.first[3]
     end
 
     test "does not learn unless a learner is injected" do

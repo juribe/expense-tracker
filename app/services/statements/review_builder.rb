@@ -106,12 +106,26 @@ module Statements
     def payment_suggestion
       suggestion = @document.income_movements.first ? movement_suggestion : summary_suggestion
       return if suggestion.nil?
+      return if payment_already_registered?(suggestion)
 
       suggestion[:principal_amount] = [ suggestion[:amount] - interest_charged, BigDecimal("0") ].max
       suggestion[:interest_amount] = interest_charged
       suggestion[:insurance_amount] = BigDecimal("0")
       suggestion[:other_amount] = BigDecimal("0")
       suggestion
+    end
+
+    # A payment already applied to this debt for the suggested amount and date
+    # means the statement's payment is recorded: offering it again would invite
+    # a duplicate on the next confirm.
+    def payment_already_registered?(suggestion)
+      return false if @money_source.nil?
+
+      amount = suggestion[:amount]
+      date = suggestion[:date]
+      return false if amount.nil? || date.blank?
+
+      @money_source.payments.where(amount: amount, date: date).exists?
     end
 
     def movement_suggestion

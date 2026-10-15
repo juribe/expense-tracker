@@ -2,9 +2,15 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start mb-3">
       <h5 class="card-title mb-0"><i class="ti ti-coin me-2"></i><%= t("payments.history_title") %></h5>
-      <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
-        <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
-      <% end %>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                data-bs-target="#manualPaymentModal" data-testid="manual-payment-open">
+          <i class="ti ti-plus me-1"></i><%= t("payments.manual.button") %>
+        </button>
+        <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
+          <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
+        <% end %>
+      </div>
     </div>
 
     <% if @payments.any? %>
@@ -119,3 +125,5 @@
     <% end %>
   </div>
 </div>
+
+<%= render "manual_payment_modal" %>

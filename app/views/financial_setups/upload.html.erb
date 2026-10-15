@@ -17,6 +17,8 @@
       </div>
     <% end %>
 
+    <div id="uploadError" class="alert alert-danger d-none" role="alert" data-testid="wizard-upload-error"></div>
+
     <div class="card password-card d-none mb-4">
       <div class="card-body">
         <h6 class="fw-bold"><i class="ti ti-lock me-1"></i><%= t("wizard.upload.password_title") %></h6>
@@ -30,7 +32,10 @@
       </div>
     </div>
 
-    <%= form_with url: financial_setup_upload_path, method: :post, local: true, data: { turbo: false }, html: { id: "statementForm", multipart: true } do %>
+    <%= form_with url: financial_setup_upload_path, method: :post, local: true, data: { turbo: false },
+                  html: { id: "statementForm", multipart: true,
+                          data: { upload_form: true,
+                                  upload_failed: t("wizard.upload.import_failed", message: "") } } do %>
       <%= hidden_field_tag :step, @step_key %>
       <input type="hidden" name="password" id="statementPasswordHidden">
 
@@ -47,6 +52,24 @@
           <i class="ti ti-file me-1"></i><span id="fileName"></span>
           <span id="fileSize" class="text-muted ms-1"></span>
         </span>
+      </div>
+
+      <div id="uploadSteps" class="d-none mt-3" data-testid="wizard-upload-steps">
+        <ul class="list-unstyled mb-2">
+          <li class="d-flex align-items-center gap-2" data-upload-step="upload">
+            <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
+            <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
+            <i class="ti ti-file-arrow-up text-muted" data-step-idle aria-hidden="true"></i>
+            <span><%= t("wizard.upload.step_upload") %></span>
+            <span class="text-muted small ms-auto" data-step-percent></span>
+          </li>
+          <li class="d-flex align-items-center gap-2" data-upload-step="analyze">
+            <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
+            <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
+            <i class="ti ti-cpu text-muted" data-step-idle aria-hidden="true"></i>
+            <span><%= t("wizard.upload.processing") %></span>
+          </li>
+        </ul>
       </div>
 
       <div id="uploadProgress" class="progress d-none mt-3" style="height: 8px;">
@@ -80,16 +103,20 @@ document.addEventListener('DOMContentLoaded', function() {
   var form = document.getElementById('statementForm');
   var progressBar = document.getElementById('uploadProgressBar');
   var uploadProgress = document.getElementById('uploadProgress');
-  var fileNameEl = document.getElementById('fileName');
+  var uploadSteps = document.getElementById('uploadSteps');
+  var errorBox = document.getElementById('uploadError');
+
+  if (!form) return;
+
+  var uploadFailed = form.dataset.uploadFailed || '';
+  var submitting = false;
 
   browseBtn.addEventListener('click', function() { fileInput.click(); });
   dropzone.addEventListener('click', function() { fileInput.click(); });
 
   var unlockBtn = document.getElementById('unlockBtn');
   if (unlockBtn) {
-    unlockBtn.addEventListener('click', function() {
-      submitWithPassword();
-    });
+    unlockBtn.addEventListener('click', function() { form.requestSubmit(uploadBtn); });
   }
 
   ['dragover', 'dragenter'].forEach(function(ev) {
@@ -128,19 +155,87 @@ document.addEventListener('DOMContentLoaded', function() {
     return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
-  function submitWithPassword() {
-    var pwd = document.getElementById('statementPassword').value;
-    document.getElementById('statementPasswordHidden').value = pwd;
-    uploadProgress.classList.remove('d-none');
-    progressBar.style.width = '50%';
-    form.submit();
+  function setStep(step, state, percent) {
+    var item = uploadSteps && uploadSteps.querySelector('[data-upload-step="' + step + '"]');
+    if (!item) return;
+    var spinner = item.querySelector('[data-step-spinner]');
+    var done = item.querySelector('[data-step-done]');
+    var idle = item.querySelector('[data-step-idle]');
+    if (spinner) spinner.classList.toggle('d-none', state !== 'active');
+    if (done) done.classList.toggle('d-none', state !== 'done');
+    if (idle) idle.classList.toggle('d-none', state !== 'idle');
+    var readout = item.querySelector('[data-step-percent]');
+    if (readout) readout.textContent = percent == null ? '' : Math.round(percent) + '%';
+  }
+
+  function showError(message) {
+    if (!errorBox) return;
+    errorBox.textContent = message || uploadFailed;
+    errorBox.classList.remove('d-none');
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   form.addEventListener('submit', function(e) {
-    var pwd = document.getElementById('statementPassword').value;
-    document.getElementById('statementPasswordHidden').value = pwd;
+    if (submitting) { e.preventDefault(); return; }
+    if (!window.XMLHttpRequest || !fileInput.files.length) return; // fall back to native submit
+
+    e.preventDefault();
+    submitting = true;
+    document.getElementById('statementPasswordHidden').value = document.getElementById('statementPassword').value;
+    if (errorBox) errorBox.classList.add('d-none');
+    uploadSteps.classList.remove('d-none');
     uploadProgress.classList.remove('d-none');
-    progressBar.style.width = '50%';
+    progressBar.style.width = '0%';
+    setStep('upload', 'active', 0);
+    setStep('analyze', 'idle');
+    uploadBtn.disabled = true;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    var token = document.querySelector("meta[name='csrf-token']");
+    if (token) xhr.setRequestHeader('X-CSRF-Token', token.getAttribute('content'));
+
+    xhr.upload.addEventListener('progress', function(ev) {
+      if (!ev.lengthComputable) return;
+      var pct = (ev.loaded / ev.total) * 100;
+      progressBar.style.width = pct + '%';
+      setStep('upload', 'active', pct);
+    });
+
+    xhr.upload.addEventListener('load', function() {
+      progressBar.style.width = '100%';
+      setStep('upload', 'done', 100);
+      setStep('analyze', 'active');
+    });
+
+    xhr.addEventListener('load', function() {
+      submitting = false;
+      var data = {};
+      try { data = JSON.parse(xhr.responseText); } catch (err) { /* keep {} */ }
+
+      if (xhr.status >= 200 && xhr.status < 300 && data.ok && data.redirect_url) {
+        setStep('analyze', 'done');
+        window.location.assign(data.redirect_url);
+        return;
+      }
+
+      setStep('analyze', 'idle');
+      progressBar.style.width = '0%';
+      uploadBtn.disabled = false;
+      showError((data.errors || []).join(' '));
+    });
+
+    xhr.addEventListener('error', function() {
+      submitting = false;
+      setStep('analyze', 'idle');
+      progressBar.style.width = '0%';
+      uploadBtn.disabled = false;
+      showError('');
+    });
+
+    xhr.send(new FormData(form));
   });
 });
 </script>
+

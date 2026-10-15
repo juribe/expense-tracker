@@ -14,6 +14,13 @@
 // #bulkCategoryModal with [data-movement-bulk-category] / [data-movement-bulk-apply].
 (function () {
   var FORM_SELECTOR = '[data-movement-form="true"]';
+  var PAY_FORM_SELECTOR = '[data-payment-distribution-form="true"]';
+  var UPLOAD_FORM_SELECTOR = '[data-upload-form="true"]';
+
+  function csrfToken() {
+    var meta = document.querySelector("meta[name='csrf-token']");
+    return meta ? meta.getAttribute("content") : "";
+  }
 
   function form() {
     return document.querySelector(FORM_SELECTOR);
@@ -123,7 +130,10 @@
       if (error) {
         error.textContent = error.getAttribute("data-movement-error-message") || "";
         error.classList.remove("d-none");
+        error.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+      var firstSelect = invalid[0].querySelector("[data-movement-category='true']");
+      if (firstSelect) firstSelect.focus({ preventScroll: true });
     });
 
     scope.addEventListener("change", function (event) {
@@ -147,8 +157,8 @@
   }
 
   function bindControls() {
-    if (document.dataset.movementControlsBound === "true") return;
-    document.dataset.movementControlsBound = "true";
+    if (document.documentElement.dataset.movementControlsBound === "true") return;
+    document.documentElement.dataset.movementControlsBound = "true";
 
     document.addEventListener("click", function (event) {
       var scope = form();
@@ -164,11 +174,220 @@
     });
   }
 
-  function init() {
-    document.querySelectorAll(FORM_SELECTOR).forEach(bind);
+  function removePaymentSection() {
+    [ "statement-summary", "statement-payment-form" ].forEach(function (id) {
+      var section = document.getElementById(id);
+      if (section) section.remove();
+    });
+  }
+
+  function showNotice(message) {
+    if (!message) return;
+    var container = document.querySelector(".content-wrapper") || document.body;
+    var alert = document.createElement("div");
+    alert.className = "alert alert-success alert-dismissible fade show";
+    alert.setAttribute("role", "alert");
+    alert.setAttribute("data-testid", "flash-notice");
+    alert.appendChild(document.createTextNode(message));
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "btn-close";
+    close.setAttribute("data-bs-dismiss", "alert");
+    close.setAttribute("aria-label", "Close");
+    alert.appendChild(close);
+    container.insertBefore(alert, container.firstChild);
+  }
+
+  function showPayError(scope, errors) {
+    var error = scope.querySelector("[data-payment-error]");
+    if (!error) return;
+    error.textContent = errors.length > 0 ? errors.join(" ") : (scope.dataset.paymentErrorMessage || "");
+    error.classList.remove("d-none");
+    error.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function setPayLoading(scope, busy) {
+    var submit = scope.querySelector("[data-payment-submit]");
+    var spinner = scope.querySelector("[data-payment-spinner]");
+    var label = scope.querySelector("[data-payment-submit-label]");
+    scope.dataset.paymentSubmitting = busy ? "true" : "false";
+    if (submit) submit.disabled = busy;
+    if (spinner) spinner.classList.toggle("d-none", !busy);
+    if (label) {
+      label.textContent = busy
+        ? (label.dataset.busyLabel || label.textContent)
+        : (label.dataset.idleLabel || label.textContent);
+    }
+  }
+
+  function bindPayForm(scope) {
+    if (scope.dataset.paymentAjaxBound === "true") return;
+    scope.dataset.paymentAjaxBound = "true";
+
+    var label = scope.querySelector("[data-payment-submit-label]");
+    if (label) {
+      label.dataset.idleLabel = label.textContent;
+      label.dataset.busyLabel = scope.dataset.paymentBusyLabel || label.textContent;
+    }
+
+    scope.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (scope.dataset.paymentSubmitting === "true") return;
+      setPayLoading(scope, true);
+
+      var error = scope.querySelector("[data-payment-error]");
+      if (error) error.classList.add("d-none");
+
+      fetch(scope.action, {
+        method: "POST",
+        headers: { "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+        body: new FormData(scope),
+        credentials: "same-origin"
+      }).then(function (response) {
+        return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+      }).then(function (result) {
+        if (result.ok && result.data.success) {
+          removePaymentSection();
+          showNotice(result.data.notice);
+        } else {
+          setPayLoading(scope, false);
+          showPayError(scope, result.data.errors || []);
+        }
+      }).catch(function () {
+        setPayLoading(scope, false);
+        showPayError(scope, []);
+      });
+    });
+  }
+
+  // ------------------------------------------------------------ upload (AJAX)
+  // The "Importar extracto" form posts the file in the background so the page
+  // never goes blank while the statement is parsed. Two stages are surfaced:
+  // uploading the file (with a real byte-progress bar) and analyzing it on the
+  // server. On success the returned review HTML replaces the upload screen in
+  // place; on failure the error shows inline and the chosen file is kept.
+
+  function setUploadStep(steps, step, state, percent) {
+    if (!steps) return;
+    var item = steps.querySelector('[data-step="' + step + '"]');
+    if (!item) return;
+
+    var spinner = item.querySelector("[data-step-spinner]");
+    var done = item.querySelector("[data-step-done]");
+    var idle = item.querySelector("[data-step-idle]");
+    if (spinner) spinner.classList.toggle("d-none", state !== "active");
+    if (done) done.classList.toggle("d-none", state !== "done");
+    if (idle) idle.classList.toggle("d-none", state !== "idle");
+
+    var readout = item.querySelector("[data-step-percent]");
+    if (readout) readout.textContent = percent == null ? "" : Math.round(percent) + "%";
+  }
+
+  function rebindReview(scope) {
+    if (!scope) return;
+    if (window.StatementImports && window.StatementImports.init) window.StatementImports.init(scope);
+    if (window.PaymentDistribution && window.PaymentDistribution.init) window.PaymentDistribution.init(scope);
+    if (window.MoneyInputs && window.MoneyInputs.init) window.MoneyInputs.init(scope);
+  }
+
+  function swapToReview(root, html) {
+    if (!root || !html) { window.location.reload(); return; }
+    var template = document.createElement("template");
+    template.innerHTML = html.trim();
+    var replacement = template.content.firstElementChild;
+    if (!replacement) return;
+    root.replaceWith(replacement);
+    rebindReview(replacement);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function bindUploadForm(scope) {
+    if (scope.dataset.uploadAjaxBound === "true") return;
+    scope.dataset.uploadAjaxBound = "true";
+
+    var root = document.querySelector("[data-statement-import-root]");
+    var progress = document.getElementById("statementImportProgress");
+    var steps = progress && progress.querySelector("[data-statement-import-steps]");
+    var bar = progress && progress.querySelector("[data-step-bar]");
+    var errorBox = document.getElementById("statementImportError");
+    var submit = scope.querySelector("button[type='submit'], input[type='submit']");
+
+    function showError(message) {
+      if (!errorBox) return;
+      errorBox.textContent = message || "";
+      errorBox.classList.remove("d-none");
+      errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    scope.addEventListener("submit", function (event) {
+      var fileInput = scope.querySelector("input[type='file']");
+      if (!window.XMLHttpRequest || !fileInput || !fileInput.files.length) return;
+
+      event.preventDefault();
+      if (errorBox) errorBox.classList.add("d-none");
+      if (progress) progress.classList.remove("d-none");
+      setUploadStep(steps, "upload", "active", 0);
+      setUploadStep(steps, "analyze", "idle");
+      if (bar) bar.style.width = "0%";
+      if (submit) submit.disabled = true;
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", scope.action, true);
+      xhr.setRequestHeader("Accept", "application/json");
+      xhr.setRequestHeader("X-CSRF-Token", csrfToken());
+
+      xhr.upload.addEventListener("progress", function (e) {
+        if (!e.lengthComputable) return;
+        var pct = (e.loaded / e.total) * 100;
+        if (bar) bar.style.width = pct + "%";
+        setUploadStep(steps, "upload", "active", pct);
+      });
+
+      xhr.upload.addEventListener("load", function () {
+        if (bar) bar.style.width = "100%";
+        setUploadStep(steps, "upload", "done", 100);
+        setUploadStep(steps, "analyze", "active");
+      });
+
+      xhr.addEventListener("load", function () {
+        if (submit) submit.disabled = false;
+        var data = {};
+        try { data = JSON.parse(xhr.responseText); } catch (e) { /* keep {} */ }
+
+        if (xhr.status >= 200 && xhr.status < 300 && data.ok && data.html) {
+          setUploadStep(steps, "analyze", "done");
+          swapToReview(root, data.html);
+          return;
+        }
+
+        setUploadStep(steps, "analyze", "idle");
+        if (bar) bar.style.width = "0%";
+        var errors = (data.errors || []).join(" ");
+        showError(errors || scope.dataset.uploadFailed || "");
+      });
+
+      xhr.addEventListener("error", function () {
+        if (submit) submit.disabled = false;
+        setUploadStep(steps, "analyze", "idle");
+        if (bar) bar.style.width = "0%";
+        showError(scope.dataset.uploadFailed || "");
+      });
+
+      xhr.send(new FormData(scope));
+    });
+  }
+
+  function init(root) {
+    var scope = root || document;
+    scope.querySelectorAll(FORM_SELECTOR).forEach(bind);
+    scope.querySelectorAll(PAY_FORM_SELECTOR).forEach(bindPayForm);
+    scope.querySelectorAll(UPLOAD_FORM_SELECTOR).forEach(bindUploadForm);
     bindControls();
   }
 
-  document.addEventListener("DOMContentLoaded", init);
-  document.addEventListener("turbo:load", init);
+  // Exposed so the review HTML injected after an AJAX upload can be re-bound.
+  window.StatementImports = { init: init };
+
+  document.addEventListener("DOMContentLoaded", function () { init(document); });
+  document.addEventListener("turbo:load", function () { init(document); });
 })();

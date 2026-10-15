@@ -2,11 +2,14 @@
 <% if suggestion %>
   <%= form_with url: pay_money_source_statement_imports_path(@money_source),
                 local: true,
-                data: { payment_distribution_form: true } do %>
+                data: { payment_distribution_form: true,
+                        payment_error_message: t("statement_imports.payment_failed"),
+                        payment_busy_label: t("statement_imports.payment_processing") } do %>
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title"><i class="ti ti-coin me-2"></i><%= t("statement_imports.payment_title") %></h5>
         <p class="text-muted small"><%= t("statement_imports.payment_hint") %></p>
+        <div class="alert alert-danger d-none py-2 small" role="alert" data-payment-error></div>
         <%= hidden_field_tag "payment[register]", "1" %>
         <%= hidden_field_tag :summary, @review.summary.to_h.to_json, id: nil if @review.summary %>
         <%= hidden_field_tag :engine, @review.engine, id: nil %>
@@ -37,7 +40,9 @@
           <div class="col-12 mb-3">
             <%= label_tag "payment_funding_money_source_id", t("statement_imports.payment_funding_label"), class: "form-label" %>
             <%= select_tag "payment[funding_money_source_id]",
-                  options_from_collection_for_select(current_user.money_sources.active.order(:name), :id, :name),
+                  options_from_collection_for_select(
+                    MoneySource.payment_origins(current_user).where.not(id: @money_source.id), :id, :display_name
+                  ),
                   { include_blank: t("statement_imports.payment_funding_placeholder"),
                     class: "form-select", id: "payment_funding_money_source_id" } %>
           </div>
@@ -78,7 +83,11 @@
         </div>
 
         <div class="d-flex justify-content-end">
-          <%= submit_tag t("statement_imports.payment_submit"), class: "btn btn-primary" %>
+          <button type="submit" class="btn btn-primary" data-payment-submit>
+            <span class="spinner-border spinner-border-sm d-none me-2" data-payment-spinner
+                  role="status" aria-hidden="true"></span>
+            <span data-payment-submit-label><%= t("statement_imports.payment_submit") %></span>
+          </button>
         </div>
       </div>
     </div>

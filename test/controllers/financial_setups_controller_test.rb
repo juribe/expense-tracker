@@ -334,6 +334,52 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # ---------------------------------------------- AJAX upload (JSON format)
+  test "POST upload responds with the review URL and stores the extraction for an AJAX upload" do
+    setup_record
+    pipeline = successful_pipeline
+    stub_method(ImportPipeline, :new, ->(*) { pipeline }) do
+      post financial_setup_upload_path, as: :json,
+           params: { step: "accounts", file: upload_file("statement.csv") }
+
+      assert_response :success
+      body = JSON.parse(response.body)
+      assert_equal true, body["ok"]
+      assert_equal financial_setup_import_review_path(step: :accounts), body["redirect_url"]
+
+      import = @setup.reload.import_state("accounts")
+      assert_equal "Bancolombia Savings", import["sources"].first["name"]
+      assert_equal "import", @setup.choice_for("accounts")
+    end
+  end
+
+  test "POST upload responds with JSON errors when an AJAX upload has no file" do
+    setup_record
+    post financial_setup_upload_path, as: :json, params: { step: "accounts" }
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(response.body)
+    assert_equal false, body["ok"]
+    assert_includes body["errors"], I18n.t("wizard.upload.file_required")
+  end
+
+  test "POST upload responds with JSON errors when an AJAX upload fails to parse" do
+    setup_record
+    result = ImportPipeline::Result.new(ok?: false, sources: [], transactions: [], error: "unreadable document")
+    pipeline = Object.new
+    pipeline.define_singleton_method(:call) { |file:, password: nil| result }
+
+    stub_method(ImportPipeline, :new, ->(*) { pipeline }) do
+      post financial_setup_upload_path, as: :json,
+           params: { step: "accounts", file: upload_file("statement.csv") }
+
+      assert_response :unprocessable_entity
+      body = JSON.parse(response.body)
+      assert_equal false, body["ok"]
+      assert_includes body["errors"], "unreadable document"
+    end
+  end
+
   test "GET import_review shows extracted sources" do
     get financial_setup_import_review_path(step: :accounts)
     assert_response :success

@@ -18,6 +18,13 @@ class PaymentsController < ApplicationController
     @payment = Payment.new(amount: @expense.amount.to_d.abs, principal_amount: @expense.amount.to_d.abs)
   end
 
+  # GET /money_sources/:money_source_id/payments/manual
+  # Blank form to create a payment from scratch: it creates the expense AND
+  # applies it to the debt (like the statement import's payment).
+  def manual
+    load_manual_form_data
+  end
+
   def edit
     @expense = @payment.expense
   end
@@ -34,6 +41,38 @@ class PaymentsController < ApplicationController
       @payment = Payment.new(payment_params)
       flash.now[:alert] = result.errors.to_sentence
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  # POST /money_sources/:money_source_id/payments/create_manual
+  # Creates the expense and applies the payment in one step (like the import).
+  # A plain request redirects; an AJAX request gets a redirect URL (or errors)
+  # as JSON so the modal can show failures inline.
+  def create_manual
+    attributes = manual_payment_params
+    result = Payments::CreateManual.call(
+      user: current_user,
+      money_source: @money_source,
+      amount: attributes[:amount],
+      date: attributes[:date],
+      description: attributes[:description],
+      category_id: attributes[:category_id],
+      funding_money_source_id: attributes[:funding_money_source_id],
+      distribution: attributes.slice(:principal_amount, :interest_amount, :insurance_amount, :other_amount)
+    )
+
+    if result.success?
+      notice = t("payments.created", amount: number_to_currency(result.result.amount),
+                                      target: @money_source.name)
+      respond_to do |format|
+        format.html { redirect_to money_source_path(@money_source), notice: notice }
+        format.json { render json: { ok: true, redirect_url: money_source_path(@money_source) } }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to money_source_path(@money_source), alert: result.errors.to_sentence }
+        format.json { render json: { ok: false, errors: result.errors }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -79,6 +118,21 @@ class PaymentsController < ApplicationController
   def payment_params
     params.require(:payment).permit(:principal_amount, :interest_amount,
                                     :insurance_amount, :other_amount)
+  end
+
+  # The manual payment form posts everything under payment[]: the expense
+  # fields (amount, date, description, category, funding source) plus the
+  # distribution components the payment is split into.
+  def manual_payment_params
+    params.require(:payment).permit(:amount, :date, :description, :category_id,
+                                    :funding_money_source_id, :principal_amount,
+                                    :interest_amount, :insurance_amount, :other_amount)
+  end
+
+  def load_manual_form_data
+    @payment = Payment.new
+    @categories = Category.for_user(current_user).order(:name)
+    @funding_sources = MoneySource.payment_origins(current_user).where.not(id: @money_source.id)
   end
 
   def redirect_apply_error(message)

@@ -122,6 +122,29 @@ module Statements
       assert_nil result.result[:payment].expense.money_source_id
     end
 
+    test "a funding source that cannot pay (a loan) is rejected" do
+      loan = @user.money_sources.create!(name: "Crédito carro", kind: "loan", sub_kind: "vehicle",
+                                         starting_balance: 0)
+      @payment["funding_money_source_id"] = loan.id
+
+      result = Statements::Confirmation.call(user: @user, money_source: @card,
+                                             movements: @movements, payment: @payment)
+
+      assert result.failure?
+      assert_equal 0, Payment.count
+      assert_equal 0, Expense.where(source: "statement_file").count
+    end
+
+    test "the paid debt cannot fund its own payment" do
+      @payment["funding_money_source_id"] = @card.id
+
+      result = Statements::Confirmation.call(user: @user, money_source: @card,
+                                             movements: @movements, payment: @payment)
+
+      assert result.failure?
+      assert_equal 0, Payment.count
+    end
+
     test "skips selected movements that duplicate an existing expense" do
       Expense.create!(user: @user, category: @category, money_source: @card,
                       amount: -48_500, date: Date.new(2026, 9, 1), description: "Restaurante XYZ")

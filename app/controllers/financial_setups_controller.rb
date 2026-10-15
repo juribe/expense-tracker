@@ -104,59 +104,66 @@ class FinancialSetupsController < ApplicationController
   end
 
   # POST /financial_setup/upload
-  # Runs the import pipeline and stores the extraction for review.
+  # Runs the import pipeline and stores the extraction for review. A plain
+  # form redirects to the review; an AJAX upload gets the review URL (or the
+  # errors) as JSON so the upload page can stay dynamic while processing.
   def process_upload
     step_key = params.require(:step)
 
     if params[:file].blank?
-      flash.now[:alert] = t("wizard.upload.file_required")
-      return render_upload_renderer(step_key)
+      return render_upload_error(step_key, [ t("wizard.upload.file_required") ])
     end
 
     pipeline = ImportPipeline.new(user: current_user)
     result = pipeline.call(file: params[:file], password: params[:password])
 
-    if result.ok?
-      @setup.set_choice(step_key, "import")
+    unless result.ok?
+      errors = result.error.present? ? [ result.error ] : [ t("wizard.upload.extract_failed") ]
+      return render_upload_error(step_key, errors)
+    end
 
-      # Imported sources live only in the import state, accumulated across
-      # multiple "import more" uploads. Never pull from draft_sources, which
-      # holds manual entries — so switching to import only shows fresh imports.
-      current_imports = Array(@setup.import_state(step_key)["sources"])
-      new_sources = result.sources.map(&:to_h)
+    @setup.set_choice(step_key, "import")
 
-      # A step only accepts sources of its own kind. The AI may misclassify a
-      # document (e.g. a credit-card statement uploaded in the loans step), and
-      # the completer creates every source as the step's kind — keeping a
-      # mismatched source would create a record with the wrong kind and junk
-      # fields, so drop it and tell the user.
-      step_kind = FinancialSetupWizard.step(step_key)&.kind
-      matched_sources = result.sources
-      if step_kind.present?
-        new_sources, mismatched = new_sources.partition { |s| s["kind"] == step_kind }
-        matched_sources = result.sources.select { |s| s.kind == step_kind }
-        if mismatched.any?
-          flash.now[:alert] = t("wizard.upload.ignored_kinds",
-                                count: mismatched.size,
-                                kind: t("wizard.steps.#{step_key}").downcase)
-        end
+    # Imported sources live only in the import state, accumulated across
+    # multiple "import more" uploads. Never pull from draft_sources, which
+    # holds manual entries — so switching to import only shows fresh imports.
+    current_imports = Array(@setup.import_state(step_key)["sources"])
+    new_sources = result.sources.map(&:to_h)
+
+    # A step only accepts sources of its own kind. The AI may misclassify a
+    # document (e.g. a credit-card statement uploaded in the loans step), and
+    # the completer creates every source as the step's kind — keeping a
+    # mismatched source would create a record with the wrong kind and junk
+    # fields, so drop it and tell the user.
+    step_kind = FinancialSetupWizard.step(step_key)&.kind
+    matched_sources = result.sources
+    if step_kind.present?
+      new_sources, mismatched = new_sources.partition { |s| s["kind"] == step_kind }
+      matched_sources = result.sources.select { |s| s.kind == step_kind }
+      if mismatched.any?
+        flash.now[:alert] = t("wizard.upload.ignored_kinds",
+                              count: mismatched.size,
+                              kind: t("wizard.steps.#{step_key}").downcase)
       end
+    end
 
-      # Newest first: freshly imported sources are prepended so the review (and
-      # every "Added" list) shows the latest upload at the top. On identifier
-      # ties the freshly imported copy wins over the stored one.
-      imported = (new_sources + current_imports).uniq { |s| FinancialSetups::StepPresenter.dedup_key(s) }
+    # Newest first: freshly imported sources are prepended so the review (and
+    # every "Added" list) shows the latest upload at the top. On identifier
+    # ties the freshly imported copy wins over the stored one.
+    imported = (new_sources + current_imports).uniq { |s| FinancialSetups::StepPresenter.dedup_key(s) }
 
-      @setup.set_import_state(step_key, {
-        sources: imported,
-        transactions: result.transactions,
-        duplicates: duplicates_for(step_key, matched_sources)
-      })
-      @setup.save!
-      redirect_to financial_setup_import_review_path(step: step_key)
-    else
-      flash.now[:alert] = result.error
-      render_upload_renderer(step_key)
+    @setup.set_import_state(step_key, {
+      sources: imported,
+      transactions: result.transactions,
+      duplicates: duplicates_for(step_key, matched_sources)
+    })
+    @setup.save!
+
+    respond_to do |format|
+      format.html { redirect_to financial_setup_import_review_path(step: step_key) }
+      format.json do
+        render json: { ok: true, redirect_url: financial_setup_import_review_path(step: step_key) }
+      end
     end
   end
 
@@ -446,5 +453,20 @@ class FinancialSetupsController < ApplicationController
     @step_key = step_key.to_s
     @steps = FinancialSetupWizard.steps
     render :upload
+  end
+
+  # Upload failure: the plain form re-renders the upload screen with a flash
+  # alert; an AJAX upload gets the errors as JSON so the page keeps the chosen
+  # file and shows the message inline.
+  def render_upload_error(step_key, errors)
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = errors.to_sentence
+        render_upload_renderer(step_key)
+      end
+      format.json do
+        render json: { ok: false, errors: errors }, status: :unprocessable_entity
+      end
+    end
   end
 end

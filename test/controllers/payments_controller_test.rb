@@ -114,6 +114,101 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_not Payment.exists?
   end
 
+  # ------------------------------------------------------ manual payment
+  # The manual payment creates the expense AND applies it to the debt (like the
+  # statement import's payment), then auto-links the debt's recurring template.
+  test "GET /money_sources/:id renders the manual payment modal on the debt page" do
+    get money_source_path(@mortgage)
+
+    assert_response :success
+    assert_select "#manualPaymentModal [data-manual-payment-form='true']"
+    assert_select "#manualPaymentModal input[name='payment[amount]']"
+    assert_select "[data-bs-target='#manualPaymentModal']"
+  end
+
+  test "GET manual renders the manual payment form" do
+    get manual_money_source_payments_path(@mortgage)
+
+    assert_response :success
+    assert_select "form[action='#{create_manual_money_source_payments_path(@mortgage)}']"
+    assert_select "input[name='payment[amount]']"
+    assert_select "select[name='payment[category_id]']"
+  end
+
+  test "POST create_manual creates the expense and the payment and links the recurring template" do
+    category = create_category
+    template = @user.recurring_templates.create!(
+      category: category, kind: "expense", amount: 1_500_000,
+      description: "Cuota hipoteca", source: "manual", money_source: @mortgage
+    )
+
+    assert_difference -> { Expense.count }, 1 do
+      assert_difference -> { Payment.count }, 1 do
+        post create_manual_money_source_payments_path(@mortgage), as: :json, params: {
+          payment: {
+            amount: "1.500.000", date: Date.current.to_s, description: "Cuota hipoteca",
+            category_id: category.id, funding_money_source_id: @account.id,
+            principal_amount: "900.000", interest_amount: "600.000"
+          }
+        }
+      end
+    end
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal true, body["ok"]
+    assert_equal money_source_path(@mortgage), body["redirect_url"]
+
+    payment = Payment.order(:id).last
+    expense = payment.expense
+    assert_equal @mortgage.id, payment.money_source_id
+    assert_equal BigDecimal("1500000"), payment.principal_amount + payment.interest_amount
+    assert_equal @account.id, expense.money_source_id
+    assert_equal "manual", expense.source
+    assert_equal template.id, expense.recurring_template_id
+  end
+
+  test "POST create_manual rejects a distribution that does not sum to the amount" do
+    assert_no_difference -> { Expense.count } do
+      assert_no_difference -> { Payment.count } do
+        post create_manual_money_source_payments_path(@mortgage), as: :json, params: {
+          payment: { amount: "1.500.000", date: Date.current.to_s, category_id: create_category.id,
+                     principal_amount: "900.000" }
+        }
+      end
+    end
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(response.body)
+    assert_equal false, body["ok"]
+    assert body["errors"].any?
+  end
+
+  test "POST create_manual rejects a blank category and creates nothing" do
+    assert_no_difference -> { Expense.count } do
+      assert_no_difference -> { Payment.count } do
+        post create_manual_money_source_payments_path(@mortgage), as: :json, params: {
+          payment: { amount: "1.500.000", date: Date.current.to_s, principal_amount: "1.500.000" }
+        }
+      end
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "POST create_manual cannot target a plain account" do
+    assert_no_difference -> { Expense.count } do
+      assert_no_difference -> { Payment.count } do
+        post create_manual_money_source_payments_path(@savings), as: :json, params: {
+          payment: { amount: "1.500.000", date: Date.current.to_s, category_id: create_category.id,
+                     principal_amount: "1.500.000" }
+        }
+      end
+    end
+
+    assert_response :unprocessable_entity
+  end
+
   # ---------------------------------------------------------- update
   test "PATCH update changes the distribution and keeps the balance consistent" do
     expense = create_expense(amount: 1_500_000, money_source: @account)

@@ -3,25 +3,27 @@
 module Statements
   # LayoutLearner
   # Turns the layout recipe the AI describes during the first parse of a
-  # statement format into a persisted StatementFormatMapping. The recipe is
-  # validated against the very text it came from before anything is stored, so
-  # a bad or low-confidence recipe is simply not learned and the next upload
-  # falls back to AI again. Never raises on a bad recipe.
+  # statement format into a persisted StatementFormatMapping scoped to the
+  # money source it came from. The recipe is validated against the very text it
+  # came from before anything is stored, so a bad or low-confidence recipe is
+  # simply not learned and the next upload falls back to AI again. Never raises
+  # on a bad recipe.
   #
-  #   LayoutLearner.call(user: user, text: text, layout: data[:layout])
+  #   LayoutLearner.call(user: user, text: text, layout: data[:layout], money_source: card)
   #   # => StatementFormatMapping or nil
   class LayoutLearner
     MIN_ROWS = 3
     MIN_CONFIDENCE = 0.9
 
-    def self.call(user:, text:, layout:, source: "ai")
-      new(user: user, text: text.to_s, layout: layout, source: source).call
+    def self.call(user:, text:, layout:, money_source:, source: "ai")
+      new(user: user, text: text, layout: layout, money_source: money_source, source: source).call
     end
 
-    def initialize(user:, text:, layout:, source:)
+    def initialize(user:, text:, layout:, money_source:, source:)
       @user = user
-      @text = text
+      @text = text.to_s
       @layout = (layout || {}).to_h
+      @money_source = money_source
       @source = source
     end
 
@@ -29,8 +31,9 @@ module Statements
       return nil unless valid?
 
       StatementFormatMapping.record!(
-        user: @user, anchors: anchors, bank: bank, sections: sections,
-        row: row_spec, summary: summary_spec, confidence: confidence, source: @source
+        user: @user, money_source: @money_source, anchors: anchors, bank: bank,
+        sections: sections, row: row_spec, summary: summary_spec,
+        confidence: confidence, source: @source
       )
     rescue Adapters::RowCompiler::InvalidSpec
       nil
@@ -39,6 +42,7 @@ module Statements
     private
 
     def valid?
+      return false if @money_source.nil?
       return false if anchors.empty? || !anchors.all? { |anchor| @text.include?(anchor) }
       return false if expense_headings.empty? || !expense_headings.all? { |heading| @text.include?(heading) }
       return false unless confidence.is_a?(Numeric) && confidence >= MIN_CONFIDENCE

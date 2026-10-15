@@ -113,6 +113,34 @@ module Statements
       assert_match(/Visa/, suggestion[:description])
     end
 
+    test "does not suggest a payment that was already registered" do
+      document = Statements::Document.new(
+        engine: :ai,
+        summary: @document.summary,
+        source: @document.source,
+        movements: [ { date: "2026-08-25", description: "Pago recibido", amount: 500_000, type: "income" } ]
+      )
+      register_payment(amount: 500_000, date: Date.new(2026, 8, 25))
+
+      review = Statements::ReviewBuilder.call(user: @user, document: document, money_source: @card)
+
+      assert_nil review.payment_suggestion
+    end
+
+    test "still suggests the payment when the registered one differs" do
+      document = Statements::Document.new(
+        engine: :ai,
+        summary: @document.summary,
+        source: @document.source,
+        movements: [ { date: "2026-08-25", description: "Pago recibido", amount: 500_000, type: "income" } ]
+      )
+      register_payment(amount: 500_000, date: Date.new(2026, 8, 20))
+
+      review = Statements::ReviewBuilder.call(user: @user, document: document, money_source: @card)
+
+      assert_equal BigDecimal("500000"), review.payment_suggestion[:amount]
+    end
+
     test "works without a summary and without income movements" do
       document = Statements::Document.new(
         engine: :ai,
@@ -135,6 +163,17 @@ module Statements
       review = Statements::ReviewBuilder.call(user: @user, document: @document)
 
       assert_equal "Visa Davivienda", review.candidates.first.money_source_name
+    end
+
+    private
+
+    def register_payment(amount:, date:)
+      funding = @user.money_sources.create!(name: "Ahorros #{amount}", kind: "account", starting_balance: 0)
+      expense = Expense.create!(user: @user, amount: amount, description: "Pago Visa",
+                                date: date, kind: "expense", source: "statement_file",
+                                money_source: funding)
+      Payment.create!(user: @user, expense: expense, money_source: @card, amount: amount,
+                      principal_amount: amount)
     end
   end
 end

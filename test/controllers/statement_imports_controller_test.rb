@@ -85,8 +85,9 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
   test "POST create sends the parsed movements back for review" do
     document = @document
     review_params = {}
-    spy = lambda do |user:, file_data:, filename:, password:, learner: nil|
-      review_params.merge!(file_data: file_data, filename: filename, password: password, learner: learner)
+    spy = lambda do |user:, file_data:, filename:, password:, money_source: nil, learner: nil|
+      review_params.merge!(file_data: file_data, filename: filename, password: password,
+                           money_source: money_source, learner: learner)
       ServiceResult.success(document)
     end
 
@@ -99,6 +100,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "data:application/octet-stream;base64,cGRmLWJ5dGVz", review_params[:file_data]
     assert_equal "extracto.pdf", review_params[:filename]
     assert_equal "1234", review_params[:password]
+    assert_equal @card, review_params[:money_source]
     assert_equal Statements::LayoutLearner, review_params[:learner]
   end
 
@@ -108,6 +110,38 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
 
       assert_redirected_to new_money_source_statement_import_path(@card)
       assert_match /bad document/, flash[:alert].to_s
+    end
+  end
+
+  # ---------------------------------------------- AJAX upload (JSON format)
+  test "POST create responds with the review HTML for an AJAX upload" do
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), as: :json,
+           params: { file: "pdf-bytes", filename: "extracto.pdf" }
+
+      assert_response :success
+      body = JSON.parse(response.body)
+      assert_equal true, body["ok"]
+      assert body["html"].include?("Resumen del extracto")
+      assert body["html"].include?("Restaurante XYZ")
+      assert body["html"].include?("Pago recibido")
+      # The AJAX payload is the review fragment, not a full page: it is injected
+      # in place, so it must not carry the layout.
+      assert_not_includes body["html"], "<!DOCTYPE html>"
+      assert body["html"].lstrip.start_with?("<div")
+    end
+  end
+
+  test "POST create responds with JSON errors when an AJAX upload fails to parse" do
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.error([ "bad document" ]) }) do
+      post money_source_statement_imports_path(@card), as: :json,
+           params: { file: "pdf-bytes", filename: "extracto.pdf" }
+
+      assert_response :unprocessable_entity
+      body = JSON.parse(response.body)
+      assert_equal false, body["ok"]
+      assert_includes body["errors"], "bad document"
     end
   end
 
@@ -210,6 +244,95 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_match /categoría/, flash[:alert].to_s
   end
 
+  test "POST pay rejects a funding source that cannot pay (a loan)" do
+    loan = @user.money_sources.create!(name: "Crédito carro", kind: "loan", sub_kind: "vehicle",
+                                       starting_balance: 0)
+
+    assert_no_difference -> { Payment.count } do
+      post pay_money_source_statement_imports_path(@card), params: {
+        payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
+                   category_id: @category.id, principal_amount: "60000",
+                   funding_money_source_id: loan.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "the funding select offers only payment sources and excludes the paid debt" do
+    loan = @user.money_sources.create!(name: "Crédito carro", kind: "loan", sub_kind: "vehicle",
+                                       starting_balance: 0)
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "select[name='payment[funding_money_source_id]'] option[value='#{@account.id}']"
+    assert_select "select[name='payment[funding_money_source_id]'] option[value='#{loan.id}']", 0
+    assert_select "select[name='payment[funding_money_source_id]'] option[value='#{@card.id}']", 0
+  end
+
+  test "review omits the payment form when the payment was already registered" do
+    funding = @user.money_sources.create!(name: "Ahorros pago", kind: "account", starting_balance: 0)
+    expense = Expense.create!(user: @user, amount: 500_000, description: "Pago Visa",
+                              date: Date.new(2026, 8, 24), kind: "expense", source: "statement_file",
+                              money_source: funding)
+    Payment.create!(user: @user, expense: expense, money_source: @card, amount: 500_000,
+                    principal_amount: 500_000)
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "form[data-payment-distribution-form='true']", 0
+    assert_select "form[data-movement-form='true']", 1
+  end
+
+  test "POST pay responds with JSON success (progressive request)" do
+    assert_difference -> { Payment.count }, 1 do
+      post pay_money_source_statement_imports_path(@card), as: :json, params: {
+        payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
+                   category_id: @category.id, principal_amount: "60000", interest_amount: "3000",
+                   funding_money_source_id: @account.id }
+      }
+    end
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal true, body["success"]
+    assert body["notice"].present?
+  end
+
+  test "POST pay responds with JSON errors and creates nothing when the payment fails" do
+    assert_no_difference -> { Payment.count } do
+      post pay_money_source_statement_imports_path(@card), as: :json, params: {
+        payment: { register: "1", amount: "63000", date: "2026-09-05" }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(response.body)
+    assert_equal false, body["success"]
+    assert body["errors"].any?
+  end
+
+  test "review renders the control hooks the movement JS binds to" do
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+      assert_response :success
+    end
+
+    assert_select "[data-movement-bulk-open]", 1
+    assert_select "#bulkCategoryModal [data-movement-bulk-category]", 1
+    assert_select "#bulkCategoryModal [data-movement-bulk-apply]", 1
+    assert_select "[data-movement-pay-only]", 1
+    assert_select "[data-movement-selection-count]", 1
+    assert_select "[data-movement-error]"
+  end
+
   # --------------------------------------------------- category safety
   test "review renders a per-row category select and a payment category select" do
     document = @document
@@ -231,10 +354,14 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "form[data-movement-form='true']", 1
     assert_select "form[data-payment-distribution-form='true']", 1
+    assert_select "#statement-summary", 1
+    assert_select "#statement-payment-form", 1
     # The movements form no longer carries the payment registration checkbox.
     assert_select "form[data-movement-form='true'] input[name='payment[register]']", 0
     assert_select "form[data-movement-form='true'] input[type='submit'][value=?]", I18n.t("statement_imports.confirm")
-    assert_select "form[data-payment-distribution-form='true'] input[type='submit'][value=?]", I18n.t("statement_imports.payment_submit")
+    assert_select "form[data-payment-distribution-form='true'] [data-payment-submit]", 1
+    assert_select "form[data-payment-distribution-form='true'] [data-payment-submit]", text: I18n.t("statement_imports.payment_submit")
+    assert_select "form[data-payment-distribution-form='true'] [data-payment-spinner].spinner-border", 1
   end
 
 

@@ -24,17 +24,20 @@ class StatementImportsController < ApplicationController
   def create
     result = Statements::Parser.call(user: current_user, file_data: file_data,
                                      filename: upload_filename, password: params[:password],
+                                     money_source: @money_source,
                                      learner: Statements::LayoutLearner)
 
-    unless result.success?
-      redirect_to new_money_source_statement_import_path(@money_source),
-                  alert: t("statement_imports.parse_failed", error: result.errors.to_sentence)
-      return
-    end
+    return render_parse_failure(result) unless result.success?
 
     @review = Statements::ReviewBuilder.call(user: current_user, document: result.result,
                                              money_source: @money_source)
-    render :review
+
+    respond_to do |format|
+      format.html { render :review }
+      format.json do
+        render json: { ok: true, html: render_to_string(:review, formats: [ :html ], layout: false) }
+      end
+    end
   end
 
   # POST /money_sources/:money_source_id/statement_imports/confirm — creates
@@ -56,17 +59,26 @@ class StatementImportsController < ApplicationController
   end
 
   # POST /money_sources/:money_source_id/statement_imports/pay — registers only
-  # the payment for the debt; on success it leaves for the money source.
+  # the payment for the debt. A progressive (fetch/JSON) request removes the
+  # summary + payment form in place; a plain request leaves for the money source.
   def pay
     result = Statements::Confirmation.call(user: current_user, money_source: @money_source,
                                            movements: [], payment: payment_params)
 
     if result.success?
-      redirect_to money_source_path(@money_source), notice: payment_notice(result.result)
+      respond_to do |format|
+        format.json { render json: { success: true, notice: payment_notice(result.result) } }
+        format.html { redirect_to money_source_path(@money_source), notice: payment_notice(result.result) }
+      end
     else
       @review = rebuild_review
-      flash.now[:alert] = result.errors.to_sentence
-      render :review, status: :unprocessable_entity
+      respond_to do |format|
+        format.json { render json: { success: false, errors: result.errors }, status: :unprocessable_entity }
+        format.html do
+          flash.now[:alert] = result.errors.to_sentence
+          render :review, status: :unprocessable_entity
+        end
+      end
     end
   end
 
@@ -80,6 +92,21 @@ class StatementImportsController < ApplicationController
     return if @money_source.debt?
 
     redirect_to money_source_path(@money_source), alert: t("statement_imports.unsupported_target")
+  end
+
+  # Parse failure: the plain form redirects back to the upload with a flash
+  # alert; an AJAX upload gets the errors as JSON so the page keeps the chosen
+  # file and can show the message inline.
+  def render_parse_failure(result)
+    respond_to do |format|
+      format.html do
+        redirect_to new_money_source_statement_import_path(@money_source),
+                    alert: t("statement_imports.parse_failed", error: result.errors.to_sentence)
+      end
+      format.json do
+        render json: { ok: false, errors: result.errors }, status: :unprocessable_entity
+      end
+    end
   end
 
   # The browser sends a real multipart file; the pipeline consumes a base64

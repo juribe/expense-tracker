@@ -188,7 +188,16 @@ module Statements
 
     def funding_source
       id = @payment["funding_money_source_id"].presence
-      @user.money_sources.find_by(id: id) if id
+      return nil if id.nil?
+
+      source = @user.money_sources.find_by(id: id)
+      return nil if source.nil?
+
+      unless source.active? && source.payment_source? && source.id != @money_source.id
+        raise RollbackWithErrors, [ I18n.t("statement_imports.payment_funding_invalid") ]
+      end
+
+      source
     end
 
     def candidate_money_source(candidate)
