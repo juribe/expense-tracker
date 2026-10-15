@@ -989,8 +989,10 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     # Only the bank account can retire cash into the existing cash source.
     assert_select "[data-testid='quick-action-withdraw']", count: 1
-    # Transfer offers on bank account + cash (deposit) + credit card, none elsewhere.
-    assert_select "[data-testid='quick-action-transfer']", count: 3
+    # Transfer offers on bank account + cash (deposit); never on a debt.
+    assert_select "[data-testid='quick-action-transfer']", count: 2
+    # The credit card moves money out through its own advance action.
+    assert_select "[data-testid='quick-action-advance']", count: 1
     # Pocket is reachable from bank account + cash (money inside the pocket changes form but is not spent); never from a debt.
     assert_select "[data-testid='quick-action-pocket']", count: 2
   end
@@ -1048,13 +1050,14 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-testid='quick-action-pocket']", count: 1
   end
 
-  test "the credit card show page only offers the plain transfer quick action" do
+  test "the credit card show page only offers the advance quick action" do
     card = create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
 
     get money_source_path(card)
     assert_response :success
     assert_select "button[data-testid='quick-action-withdraw']", count: 0
-    assert_select "button[data-testid='quick-action-transfer']", count: 1
+    assert_select "button[data-testid='quick-action-advance']", count: 1
+    assert_select "button[data-testid='quick-action-transfer']", count: 0
     assert_select "button[data-testid='quick-action-pocket']", count: 0
   end
 
