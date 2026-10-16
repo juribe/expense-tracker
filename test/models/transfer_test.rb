@@ -48,7 +48,7 @@ class TransferTest < ActiveSupport::TestCase
 
   test "for_user scope filters by user" do
     other_user = User.create!(name: "Other", email: "other_transfer_test@example.com", password: "password123")
-    other_source_a = other_user.money_sources.create!(name: "A", kind: "account")
+    other_source_a = other_user.money_sources.create!(name: "A", kind: "account", starting_balance: 100)
     other_source_b = other_user.money_sources.create!(name: "B", kind: "account")
     my_transfer = create_transfer
     other_transfer = Transfer.create!(user: other_user, from_source: other_source_a, to_source: other_source_b, amount: 50, date: Date.today)
@@ -75,11 +75,12 @@ class TransferTest < ActiveSupport::TestCase
 
   test "assigning money to a pocket moves the balance without touching expense totals" do
     @pocket = @user.money_sources.create!(name: "Bolsillo Europa", kind: "pocket", starting_balance: 0)
+    @savings.update!(starting_balance: 2_000_000)
 
     Transfer.create!(user: @user, from_source: @savings, to_source: @pocket, amount: 1_000_000, date: Date.today)
 
-    # 1_000 starting balance minus the assigned amount
-    assert_equal(-999_000, @savings.reload.balance.to_i)
+    # 2_000_000 starting balance minus the assigned amount
+    assert_equal 1_000_000, @savings.reload.balance.to_i
     assert_equal 1_000_000, @pocket.reload.balance.to_i
     assert_equal 0, Expense.count
     assert_equal 0, Income.count
@@ -91,7 +92,6 @@ class TransferTest < ActiveSupport::TestCase
     Transfer.create!(user: @user, from_source: @pocket, to_source: @savings, amount: 400_000, date: Date.today)
 
     assert_equal 600_000, @pocket.reload.balance.to_i
-    # 1_000 starting balance plus the released amount
     assert_equal 401_000, @savings.reload.balance.to_i
     assert_equal 0, Income.count
   end
@@ -229,6 +229,7 @@ class TransferTest < ActiveSupport::TestCase
   test "asset transfers never touch outstanding balances" do
     loan = @user.money_sources.create!(name: "Hipotecario", kind: "loan", sub_kind: "mortgage", starting_balance: 0)
     loan.create_credit_account!(outstanding_balance: 30_000_000)
+    @savings.update!(starting_balance: 1000)
 
     create_transfer(amount: 400)
 

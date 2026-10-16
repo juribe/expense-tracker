@@ -101,6 +101,7 @@ es:
         other_user: "no pertenece a este usuario"
         after_start: "debe ser posterior a la fecha inicial"
         foreign_or_missing: "no pertenece a este usuario o no existe"
+        insufficient_balance: "no tiene saldo suficiente en %{source_name}: disponible %{available}, faltan %{missing}"
     attributes:
       transfer:
         from_source: "Desde"
@@ -665,6 +666,7 @@ es:
     results: "Resultados"
 
   money_sources:
+    negative_balance_warning: "Saldo negativo — pendiente de conciliación"
     pocket:
       distribution_title: "Distribución del dinero"
       add_money: "Agregar dinero"

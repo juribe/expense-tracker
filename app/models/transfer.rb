@@ -12,6 +12,12 @@ class Transfer < ApplicationRecord
   validate :different_sources
   validate :pocket_flow_rules
   validate :from_pocket_cannot_break_allocations
+  # Manual transfers, cash withdrawals and pocket assignments must not leave
+  # the origin without balance. Moving money INTO a debt is that debt's
+  # payment (Payments::Apply, ExtraPayments) and is never blocked, and debt
+  # origins (card advances, revolving disbursements) are never guarded.
+  validate :ensure_sufficient_origin_balance, on: :create,
+           if: -> { from_source.present? && to_source.present? }
   before_destroy :validate_pocket_coverage_on_reverse
 
   scope :for_user, ->(user) { where(user_id: user.id) }
@@ -46,6 +52,28 @@ class Transfer < ApplicationRecord
     return if from_source_id.blank? || to_source_id.blank?
 
     errors.add(:to_source, I18n.t("validation.transfer_sources")) if from_source_id == to_source_id
+  end
+
+  # Manual origin guard: the transfer (or withdraw) may consume up to the
+  # origin's whole available balance, never more. The balance owner follows
+  # the debit-card roll-up. Payments into a debt stay free: that is how the
+  # app registers card and revolving payments.
+  def ensure_sufficient_origin_balance
+    owner = from_source.balance_guard_source
+    return unless owner.balance_guarded?
+    return if to_source.debt?
+
+    missing = amount.to_d - owner.balance
+    add_insufficient_balance_error(owner, missing) if missing.positive?
+  end
+
+  # Shared manual-guard message: names the balance owner, its available
+  # balance and the exact missing amount (i18n: activerecord.errors.messages).
+  def add_insufficient_balance_error(owner, missing)
+    errors.add(:amount, :insufficient_balance,
+               source_name: owner.name,
+               available: MoneyFormat.currency(owner.balance),
+               missing: MoneyFormat.currency(missing))
   end
 
   # Pockets move assigned money (Account → Pocket to assign, Pocket →

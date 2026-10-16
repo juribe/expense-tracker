@@ -51,6 +51,11 @@
   <div class="account-balance">
     <div class="account-balance-label"><%= t("money_sources.accounts.balance") %></div>
     <div class="account-balance-amount <%= balance >= 0 ? 'text-success' : 'text-danger' %>"><%= number_to_currency(balance) %></div>
+    <% if source.negative_balance_warning? %>
+      <span class="badge text-bg-warning mt-1" data-testid="negative-balance-warning">
+        <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
+      </span>
+    <% end %>
   </div>
 
   <% if is_debit_linked %>

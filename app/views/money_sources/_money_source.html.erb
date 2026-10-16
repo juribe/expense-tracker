@@ -139,6 +139,12 @@
         </small>
       </div>
 
+      <% if source.negative_balance_warning? %>
+        <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
+          <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
+        </span>
+      <% end %>
+
       <% unless source.active? %>
         <span class="badge bg-secondary mt-2"><%= t("common.inactive", default: "Inactiva") %></span>
       <% end %>

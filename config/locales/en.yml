@@ -258,6 +258,7 @@ en:
         pocket_locked_by_allocations: "cannot change while the goal has assigned money; release the allocations first"
         other_user: "does not belong to this user"
         foreign_or_missing: "does not belong to this user or does not exist"
+        insufficient_balance: "has insufficient balance in %{source_name}: available %{available}, missing %{missing}"
     attributes:
       transfer:
         from_source: "From source"
@@ -353,6 +354,7 @@ en:
     no_matching: "No matching cases."
 
   money_sources:
+    negative_balance_warning: "Negative balance — pending reconciliation"
     show:
       tabs:
         summary: "Summary"

@@ -31,6 +31,26 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid]", count: 0
   end
 
+  test "GET /money_sources warns when a source balance is negative" do
+    source = create_source(name: "Ahorros", kind: "account", starting_balance: 0)
+    source.update_column(:cached_balance, -25_000)
+
+    get money_sources_path
+
+    assert_response :success
+    assert_select "[data-testid=negative-balance-warning]", count: 1
+  end
+
+  test "GET /money_sources does not warn for positive balances or debt sources" do
+    create_source(name: "Ahorros", kind: "account", starting_balance: 50_000)
+    create_source(name: "Visa", kind: "credit_card", starting_balance: -3_000_000)
+
+    get money_sources_path
+
+    assert_response :success
+    assert_select "[data-testid=negative-balance-warning]", count: 0
+  end
+
   test "GET /money_sources/pockets renders the pockets page with only pockets" do
     pocket = create_source(name: "Bolsillo Europa", kind: "pocket")
     create_source(name: "Davibank", kind: "account")

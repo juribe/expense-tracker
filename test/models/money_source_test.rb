@@ -357,4 +357,25 @@ class MoneySourceTest < ActiveSupport::TestCase
 
     assert_nil revolving.available_credit
   end
+
+  test "predicado de advertencia de saldo negativo" do
+    account = create_source(name: "Acc", kind: "account", starting_balance: 0)
+    account.update_column(:cached_balance, -100)
+    assert account.negative_balance_warning?
+
+    positive = create_source(name: "Pos", kind: "account", starting_balance: 200)
+    assert_not positive.negative_balance_warning?
+
+    cc = create_source(name: "CC", kind: "credit_card", starting_balance: -500)
+    assert_not cc.negative_balance_warning?
+  end
+
+  test "la advertencia desaparece al registrar el ingreso faltante" do
+    account = create_source(name: "Acc", kind: "account", starting_balance: 0)
+    account.update_column(:cached_balance, -300)
+    assert account.negative_balance_warning?
+
+    tx = account.transactions.create!(user: @user, category: @category, amount: 300, date: Date.today, kind: "income", source: "manual")
+    assert_not account.reload.negative_balance_warning?
+  end
 end

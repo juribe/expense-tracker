@@ -71,6 +71,11 @@
                 <div class="card-body">
                   <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
                   <div class="fs-4 fw-bold text-success"><%= @money_source.balance_label %></div>
+                  <% if @money_source.negative_balance_warning? %>
+                    <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
+                      <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
+                    </span>
+                  <% end %>
                 </div>
               </div>
             <% end %>

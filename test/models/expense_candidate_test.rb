@@ -638,4 +638,12 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     candidate.reload
     assert_not_includes candidate.missing_fields, "money_source_id"
   end
+
+  test "confirmar un candidato con saldo insuficiente sigue creando el gasto" do
+    source = @user.money_sources.create!(name: "Cta", kind: "account", starting_balance: 10)
+    candidate = build_candidate(amount: 500, money_source: source, category_id: @category.id)
+    assert candidate.save
+    assert candidate.confirm!
+    assert candidate.reload.expense_id.present?
+  end
 end

@@ -21,6 +21,16 @@ class Transaction < ApplicationRecord
   validates :kind, presence: true, inclusion: { in: %w[income expense] }
   validates :source, presence: true
 
+  # Manual web-form expenses must not leave the balance owner negative: the
+  # operation is rejected with the available balance and the missing amount.
+  # Every other source (gmail, statement_file, whatsapp, ai, recurring
+  # templates, wizard...) registers regardless of balance — a real detected
+  # expense is never blocked, and the resulting temporary negative balance is
+  # warned about instead. Debt sources (credit cards, loans) are never
+  # guarded: their negative balance IS the debt.
+  validate :ensure_sufficient_balance_for_manual_expense, on: :create,
+           if: -> { expense? && money_source_id? && source == "manual" }
+
   scope :for_user, ->(user) { where(user_id: user.id) }
   scope :in_month, ->(date) { where(date: date.beginning_of_month..date.end_of_month) }
   scope :recent, ->(limit = 5) { order(date: :desc, created_at: :desc).limit(limit) }
@@ -81,6 +91,28 @@ class Transaction < ApplicationRecord
 
   def balance_relevant_change?
     (saved_changes.keys & %w[amount money_source_id]).any?
+  end
+
+  # Manual expense guard: spend = |amount| against the available balance of
+  # the balance owner (a debit card spends its parent account, like
+  # BalanceSync). Spending up to the balance is allowed (balance ends at 0);
+  # anything above it is rejected. No operation is saved when it violates
+  # the rule.
+  def ensure_sufficient_balance_for_manual_expense
+    owner = money_source.balance_guard_source
+    return if owner.debt?
+
+    missing = amount.to_d.abs - owner.balance
+    add_insufficient_balance_error(owner, missing) if missing.positive?
+  end
+
+  # Shared manual-guard message: names the balance owner, its available
+  # balance and the exact missing amount (i18n: activerecord.errors.messages).
+  def add_insufficient_balance_error(owner, missing)
+    errors.add(:money_source, :insufficient_balance,
+               source_name: owner.name,
+               available: MoneyFormat.currency(owner.balance),
+               missing: MoneyFormat.currency(missing))
   end
 
   def normalize_kind

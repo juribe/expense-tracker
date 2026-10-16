@@ -108,9 +108,9 @@
     "semantic_hash": "8035e71c031d78e90d6c1af220891a81"
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1792025132.2227964,
-    "seen": 1792092091.99051,
-    "ast_hash": "3875227f68fd0b71ad27116ad78b6fa1",
+    "mtime": 1792093412.6516042,
+    "seen": 1792093507.3113978,
+    "ast_hash": "944926eb19ed4471eac522512638a73a",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -1044,9 +1044,9 @@
     "semantic_hash": ""
   },
   "test/helpers/application_helper_test.rb": {
-    "mtime": 1791505872.3043556,
-    "seen": 1791557756.107382,
-    "ast_hash": "48527f18dcc5350a48339c27d258b66e",
+    "mtime": 1792093298.61328,
+    "seen": 1792093507.312227,
+    "ast_hash": "7edba3ddb5545072ef1a4fd3479a1d69",
     "semantic_hash": ""
   },
   "test/integration/devise_auth_flows_test.rb": {
@@ -1992,9 +1992,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1792092015.7068207,
-    "seen": 1792092091.9914649,
-    "ast_hash": "ef32a355ef7e151ee7ae4aa2e2d22e78",
+    "mtime": 1792093330.0474987,
+    "seen": 1792093507.312175,
+    "ast_hash": "862e4a1312e1185c5748c4f62c4518ab",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
@@ -4230,9 +4230,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/reports_pages_test.rb": {
-    "mtime": 1791840807.0721416,
-    "seen": 1791840901.091464,
-    "ast_hash": "4d74a2f8b5642589b6c1f4a04efbd50a",
+    "mtime": 1792093345.4518905,
+    "seen": 1792093507.312216,
+    "ast_hash": "024428a808e2629630f11454b2104263",
     "semantic_hash": ""
   },
   "test/services/reports/base_test.rb": {

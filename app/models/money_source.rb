@@ -28,6 +28,13 @@ class MoneySource < ApplicationRecord
   # before it can be spent.
   PAYMENT_KINDS = %w[cash account debit_card wallet credit_card].freeze
 
+  # Kinds whose MANUAL operations must not leave a negative balance
+  # (gasto/retiro/transferencia de formularios web). Automatic imports
+  # (gmail, statement_file, whatsapp...) are exempt so real detected expenses
+  # always register, even with insufficient balance. Debt kinds
+  # (credit_card, loan) are never guarded: their negative balance IS the debt.
+  BALANCE_GUARDED_KINDS = %w[account debit_card cash wallet pocket].freeze
+
   belongs_to :user
   belongs_to :parent, class_name: "MoneySource", optional: true
   # Optional financial institution: the global FinancialInstitution catalog
@@ -156,6 +163,27 @@ class MoneySource < ApplicationRecord
   # lives in the account where it was disbursed, so expenses belong there.
   def payment_source?
     PAYMENT_KINDS.include?(kind)
+  end
+
+  # Does this source's manual spending have to respect its balance?
+  # Accounts, cash, wallets, pockets and debit cards do; debts never do.
+  def balance_guarded?
+    BALANCE_GUARDED_KINDS.include?(kind)
+  end
+
+  # The source whose balance a movement actually consumes: a debit card
+  # spends the parent account's money (same routing BalanceSync applies),
+  # every other kind spends itself.
+  def balance_guard_source
+    debit_card? && parent ? parent : self
+  end
+
+  # Temporary negative balance on a non-debt source: it can only come from a
+  # confirmed automatic import (manual operations are rejected), so the UI
+  # warns "pending reconciliation" until an income or correction brings the
+  # recalculated balance back to zero or more.
+  def negative_balance_warning?
+    !debt? && balance.negative?
   end
 
   # Can money be disbursed/obtained from this source? Only revolving loans:

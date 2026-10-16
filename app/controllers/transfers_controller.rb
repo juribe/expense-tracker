@@ -62,9 +62,11 @@ class TransfersController < ApplicationController
       render :quick_new, layout: !quick_ajax?, status: :unprocessable_entity
     else
       # Every form posts with the quick context now; a stray POST without it
-      # has no form to fall back to.
+      # still surfaces the model's own validation errors (e.g. insufficient
+      # balance) instead of the generic quick-unavailable alert.
       redirect_to transfers_path,
-                  alert: t("transfers.quick.unavailable",
+                  alert: @transfer.errors.full_messages.to_sentence.presence ||
+                         t("transfers.quick.unavailable",
                            default: "Esa acción rápida no está disponible para esta fuente de dinero.")
     end
   end

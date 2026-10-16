@@ -61,7 +61,7 @@ class TransactionOutstandingSyncTest < ActiveSupport::TestCase
     mortgage.create_credit_account!(principal_amount: 80_000_000, outstanding_balance: 40_000_000)
     card = @user.money_sources.create!(name: "Visa", kind: "credit_card", starting_balance: 0)
     card.create_credit_account!(outstanding_balance: 5_000_000, principal_amount: 5_000_000)
-    account = @user.money_sources.create!(name: "Ahorros", kind: "account", starting_balance: 100_000)
+    account = @user.money_sources.create!(name: "Ahorros", kind: "account", starting_balance: 5_000_000)
 
     create_expense(1_000_000, mortgage)
     create_expense(2_000_000, card)

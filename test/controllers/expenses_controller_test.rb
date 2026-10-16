@@ -46,7 +46,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses/:id shows the money source with its icon" do
-    source = create_source(name: "Nequi", kind: "wallet", bank: "Bancolombia")
+    source = create_source(name: "Nequi", kind: "wallet", bank: "Bancolombia", starting_balance: 100)
     expense = create_expense(amount: 20.00, date: Date.today, money_source: source)
     get expense_path(expense)
     assert_response :success
@@ -232,6 +232,35 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   def create_source(name: "Credit Card", kind: "credit_card", **opts)
     @user.money_sources.create!({ name: name, kind: kind, starting_balance: 0 }.merge(opts))
+  end
+
+  test "POST /expenses with a manual expense above the source balance is rejected" do
+    source = create_source(name: "Ahorros", kind: "account", starting_balance: 30_000)
+
+    assert_no_difference "Expense.count" do
+      post expenses_path, params: { expense: {
+        amount: 50_000, description: "Compra grande", date: Date.today.to_s,
+        category_id: @category.id, money_source_id: source.id
+      } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match(/saldo suficiente/i, response.body)
+    assert_equal BigDecimal("30_000"), source.reload.balance
+  end
+
+  test "POST /expenses with a manual expense within the source balance is saved" do
+    source = create_source(name: "Ahorros", kind: "account", starting_balance: 30_000)
+
+    assert_difference "Expense.count", 1 do
+      post expenses_path, params: { expense: {
+        amount: 20_000, description: "Compra", date: Date.today.to_s,
+        category_id: @category.id, money_source_id: source.id
+      } }
+    end
+
+    assert_redirected_to expenses_path
+    assert_equal BigDecimal("10_000"), source.reload.balance
   end
 
   test "GET /expenses/new offers only payment sources in the source dropdown" do

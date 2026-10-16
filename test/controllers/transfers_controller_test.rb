@@ -106,6 +106,41 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to transfers_path
   end
 
+  test "POST /transfers above the origin balance redirects with the balance message" do
+    assert_no_difference "Transfer.count" do
+      post transfers_path, params: { transfer: {
+        from_source_id: @savings.id,
+        to_source_id: @checking.id,
+        amount: 5_000,
+        date: Date.today.to_s
+      } }
+    end
+
+    assert_redirected_to transfers_path
+    assert_match(/saldo suficiente/i, flash[:alert].to_s)
+    assert_equal BigDecimal("1000"), @savings.reload.balance
+  end
+
+  test "POST /transfers quick withdraw above the origin balance re-renders with the balance message" do
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 0)
+
+    assert_no_difference "Transfer.count" do
+      post transfers_path, params: {
+        quick: "1", mode: "withdraw",
+        transfer: {
+          from_source_id: @savings.id,
+          to_source_id: cash.id,
+          amount: 5_000,
+          date: Date.today.to_s
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match(/saldo suficiente/i, response.body)
+    assert_equal BigDecimal("1000"), @savings.reload.balance
+  end
+
   test "transfer affects balances correctly" do
     create_transfer(amount: 200)
     assert_equal BigDecimal("800"), @savings.reload.balance
@@ -114,7 +149,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
 
   test "user cannot delete other user's transfer" do
     other_user = User.create!(name: "Other", email: "other_transfer_ctrl@example.com", password: "password123")
-    other_a = other_user.money_sources.create!(name: "A", kind: "account")
+    other_a = other_user.money_sources.create!(name: "A", kind: "account", starting_balance: 100)
     other_b = other_user.money_sources.create!(name: "B", kind: "account")
     other_transfer = Transfer.create!(user: other_user, from_source: other_a, to_source: other_b, amount: 50, date: Date.today)
     delete transfer_path(other_transfer)
@@ -169,6 +204,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
   test "POST /transfers into a pocket with a goal assigns the money to it" do
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
     goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje Europa", target_amount: 20_000_000)
+    @savings.update!(starting_balance: 2_000_000)
 
     assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
       post transfers_path, params: { transfer: {
@@ -188,6 +224,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
 
   test "POST /transfers into a pocket without a goal leaves it unallocated" do
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
+    @savings.update!(starting_balance: 1_000_000)
 
     assert_difference("Transfer.count", 1) do
       assert_no_difference("GoalAllocation.count") do
@@ -203,6 +240,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
     other_pocket = @user.money_sources.create!(name: "Otro", kind: "pocket", starting_balance: 0)
     other_goal = Goal.create!(user: @user, pocket: other_pocket, name: "Carro", target_amount: 5_000_000)
+    @savings.update!(starting_balance: 500_000)
 
     assert_difference("Transfer.count", 1) do
       assert_no_difference("GoalAllocation.count") do
@@ -216,6 +254,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
 
   test "assign_goal_id is ignored when the destiny is not a pocket" do
     goal = Goal.create!(user: @user, pocket: @user.money_sources.create!(name: "B", kind: "pocket", starting_balance: 0), name: "Viaje", target_amount: 5_000_000)
+    @savings.update!(starting_balance: 500_000)
 
     assert_difference("Transfer.count", 1) do
       assert_no_difference("GoalAllocation.count") do
@@ -230,6 +269,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
   test "destroying a transfer that fed a pocket with allocations is blocked" do
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
     goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 5_000_000)
+    @savings.update!(starting_balance: 2_000_000)
     transfer = Transfer.create!(user: @user, from_source: @savings, to_source: pocket, amount: 1_000_000, date: Date.today)
     assert_equal 1_000_000, pocket.reload.balance.to_i
     goal.goal_allocations.create!(pocket: pocket, amount: 1_000_000, date: Date.today)
@@ -326,6 +366,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
   test "quick pocket POST into a pocket with a goal allocates the money" do
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
     goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje Europa", target_amount: 20_000_000)
+    @savings.update!(starting_balance: 1_000_000)
 
     assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
       assert_no_difference "Expense.count" do
@@ -542,6 +583,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
   test "quick assign POST into a pocket with a goal allocates the money" do
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
     goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje Europa", target_amount: 20_000_000)
+    @savings.update!(starting_balance: 1_000_000)
 
     assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
       assert_no_difference "Expense.count" do
