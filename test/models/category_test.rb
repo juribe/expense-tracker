@@ -132,4 +132,22 @@ class CategoryTest < ActiveSupport::TestCase
     cat = Category.new(name: "Test", category_type: nil)
     assert cat.valid?
   end
+
+  test "savings_potential can be nil" do
+    cat = Category.new(name: "Test", savings_potential: nil)
+    assert cat.valid?
+  end
+
+  test "savings_potential accepts the allowed values" do
+    Category::SAVINGS_POTENTIALS.each do |value|
+      cat = Category.new(name: "Test #{value}", savings_potential: value)
+      assert cat.valid?, "expected #{value.inspect} to be accepted"
+    end
+  end
+
+  test "savings_potential rejects unknown values" do
+    cat = Category.new(name: "Test", savings_potential: "unknown")
+    assert_not cat.valid?
+    assert_includes cat.errors[:savings_potential], I18n.t("errors.messages.inclusion")
+  end
 end

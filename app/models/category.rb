@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Category < ApplicationRecord
+  SAVINGS_POTENTIALS = %w[low medium high variable none por_evaluar].freeze
+
   belongs_to :parent, class_name: "Category", optional: true
   belongs_to :user, optional: true
   has_many :children, class_name: "Category", foreign_key: :parent_id, dependent: :nullify
@@ -14,6 +16,7 @@ class Category < ApplicationRecord
 
   validates :name, presence: true
   validates :category_type, inclusion: { in: %w[income expense], allow_nil: true }
+  validates :savings_potential, inclusion: { in: SAVINGS_POTENTIALS, allow_nil: true }
   validate :parent_must_not_be_self
   validate :default_category_not_owned_by_user
   validate :custom_category_not_named_like_default, on: :create
