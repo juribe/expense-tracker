@@ -24,7 +24,6 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "form"
     assert_select "#category_name"
-    assert_select "#category_slug"
     assert_select "#category_category_type"
     assert_select "#category_description"
   end
@@ -38,12 +37,11 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=category-parent-picker] [role=option][data-value=?]", parent.id.to_s
   end
 
-  test "POST /categories creates a custom category and auto-generates slug" do
+  test "POST /categories creates a custom category" do
     assert_difference("Category.count", 1) do
       post categories_path, params: { category: { name: "Food", description: "Meals", category_type: "expense" } }
     end
     category = Category.last
-    assert_equal "food", category.slug
     assert category.active?
     assert_not category.is_default?
     assert_equal @user, category.user

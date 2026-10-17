@@ -14,18 +14,6 @@ class CategoryTest < ActiveSupport::TestCase
     assert_includes category.errors[:name], I18n.t("errors.messages.blank")
   end
 
-  test "slug is auto-generated from name" do
-    category = Category.create!(name: "Electronics & Gadgets")
-    assert_equal "electronics-gadgets", category.slug
-  end
-
-  test "slug is regenerated when name changes" do
-    category = Category.create!(name: "Electronics")
-    assert_equal "electronics", category.slug
-    category.update!(name: "Mobile Phones")
-    assert_equal "mobile-phones", category.slug
-  end
-
   test "active defaults to true" do
     category = Category.create!(name: "Food")
     assert category.active?

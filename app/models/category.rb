@@ -12,17 +12,13 @@ class Category < ApplicationRecord
   has_many :budgets, dependent: :destroy
   has_many :spending_alerts, dependent: :destroy
 
-  before_validation :generate_slug, if: -> { slug.blank? || name_changed? }
-
   validates :name, presence: true
-  validates :slug, presence: true
   validates :category_type, inclusion: { in: %w[income expense], allow_nil: true }
   validate :parent_must_not_be_self
   validate :default_category_not_owned_by_user
   validate :custom_category_not_named_like_default, on: :create
   validate :unique_custom_category_per_user_and_type
   validate :unique_name_within_scope
-  validate :unique_slug_within_scope
 
   scope :active, -> { where(active: true) }
   scope :roots, -> { where(parent_id: nil) }
@@ -50,11 +46,11 @@ class Category < ApplicationRecord
     editable_by?(user)
   end
 
-  private
-
-  def generate_slug
-    self.slug = name.to_s.parameterize
+  def tags
+    Array(self[:tags])
   end
+
+  private
 
   def parent_must_not_be_self
     return if parent_id.blank? || id.blank?
@@ -98,14 +94,6 @@ class Category < ApplicationRecord
     duplicates = scope_candidates.where(name: name)
     duplicates = duplicates.where.not(id: id) if persisted?
     errors.add(:name, I18n.t("validation.duplicate")) if duplicates.exists?
-  end
-
-  def unique_slug_within_scope
-    return unless slug.present? && category_type.present?
-
-    duplicates = scope_candidates.where(slug: slug)
-    duplicates = duplicates.where.not(id: id) if persisted?
-    errors.add(:slug, I18n.t("validation.duplicate")) if duplicates.exists?
   end
 
   def scope_candidates

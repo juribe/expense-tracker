@@ -20,10 +20,6 @@ class CategoryOption
     category.name
   end
 
-  def slug
-    category.slug
-  end
-
   def label
     name
   end

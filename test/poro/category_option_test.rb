@@ -3,13 +3,12 @@
 require "test_helper"
 
 class CategoryOptionTest < ActiveSupport::TestCase
-  test "exposes the category id, name and slug" do
+  test "exposes the category id and name" do
     category = Category.create!(name: "Servicios públicos", is_default: true, category_type: "expense")
     option = CategoryOption.new(category)
 
     assert_equal category.id, option.id
     assert_equal "Servicios públicos", option.name
-    assert_equal "servicios-publicos", option.slug
   end
 
   test "label is the bare category name" do

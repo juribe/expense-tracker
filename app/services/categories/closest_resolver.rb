@@ -95,9 +95,16 @@ module Categories
         learned = learned_match
         return learned if learned
 
-        return parking_match(categories, activity) ||
-               housing_match(categories, activity) ||
-               Result.new(category: nil, matched_by: nil)
+        parking = parking_match(categories, activity)
+        return parking if parking
+
+        housing = housing_match(categories, activity)
+        return housing if housing
+
+        tag = tag_match(categories, activity)
+        return tag if tag
+
+        Result.new(category: nil, matched_by: nil)
       end
 
       result =
@@ -106,13 +113,15 @@ module Categories
           # otherwise fall back to exact resolution (the English category itself).
           learned_match || parking_match(categories, "#{name} #{activity}") ||
             housing_match(categories, "#{name} #{activity}") ||
-            alias_match(categories) || exact_match(categories)
+            exact_match(categories) || alias_match(categories) ||
+            similar_match(categories) || tag_match(categories, "#{name} #{activity}")
         else
           learned_match || parking_match(categories, "#{name} #{activity}") ||
             housing_match(categories, "#{name} #{activity}") ||
-            exact_match(categories) || similar_match(categories)
+            exact_match(categories) || similar_match(categories) ||
+            tag_match(categories, "#{name} #{activity}")
         end
-      record_fold!(result) if result&.matched_by == :similar
+      record_fold!(result) if result&.matched_by == :similar || result&.matched_by == :tag
       result || Result.new(category: nil, matched_by: nil)
     end
 
@@ -173,6 +182,33 @@ module Categories
       return nil if tokens.empty?
 
       Result.new(category: transporte, matched_by: :parking, similarity: 1.0) if (tokens & PARKING_TERMS).any?
+    end
+
+    def tag_match(categories, text)
+      return nil if text.blank?
+
+      normalized_text = normalize(text).to_s
+      return nil if normalized_text.blank?
+
+      best_category = nil
+      best_tag_length = 0
+
+      categories.each do |category|
+        Array(category.tags).each do |tag|
+          normalized_tag = normalize(tag).to_s
+          next if normalized_tag.blank?
+          next unless normalized_text.include?(normalized_tag)
+
+          if normalized_tag.length > best_tag_length
+            best_tag_length = normalized_tag.length
+            best_category = category
+          end
+        end
+      end
+
+      return nil unless best_category
+
+      Result.new(category: best_category, matched_by: :tag, similarity: 1.0)
     end
 
     def similar_match(categories)

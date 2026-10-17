@@ -53,17 +53,6 @@
             </div>
           </div>
 
-          <!-- Slug (auto-generated) -->
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <%= form.label :slug, class: "form-label" do %>
-                <%= Category.human_attribute_name(:slug) %> <i class="ti ti-info-circle text-muted" title="<%= t('categories.slug_help') %>"></i>
-              <% end %>
-              <%= form.text_field :slug, class: "form-control-plaintext bg-light rounded px-2", disabled: true, title: t("categories.slug_help"), aria_describedby: "slugHelp" %>
-              <div id="slugHelp" class="form-text"><i class="ti ti-wand me-1"></i><%= t("categories.slug_help") %></div>
-            </div>
-          </div>
-
           <!-- Parent Category -->
           <div class="col-12 col-md-6">
             <div class="mb-3">
@@ -103,23 +92,6 @@
             </div>
           </div>
 
-          <!-- Image Upload -->
-          <div class="col-12">
-            <div class="mb-3 d-print-none">
-              <%= form.label :image, Category.human_attribute_name(:image), class: "form-label" %>
-              <div class="input-group">
-                <%= form.file_field :image, class: "form-control", accept: "image/*", aria_describedby: "imageHelp" %>
-                <button type="button" class="btn btn-outline-secondary" id="image-browse-btn">
-                  <i class="ti ti-folders me-1"></i><%= t("categories.browse") %>
-                </button>
-              </div>
-              <div id="imageHelp" class="form-text"><%= t("categories.image_help") %></div>
-              <img id="image-preview" class="img-thumbnail d-none mt-2" style="max-width: 160px; max-height: 160px;" alt="<%= t('categories.image_preview_alt') %>">
-              <% if category.image.present? && !category.new_record? %>
-                <img class="img-thumbnail mt-2" style="max-width: 160px; max-height: 160px;" src="<%= category.image %>" alt="<%= category.name %>">
-              <% end %>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -136,9 +108,6 @@
         var form = document.querySelector(".category-form form");
         var saveBtn = document.getElementById("save-category-btn");
         var nameInput = document.getElementById("category_name");
-        var fileInput = document.getElementById("category_image");
-        var browseBtn = document.getElementById("image-browse-btn");
-        var preview = document.getElementById("image-preview");
 
         function refreshSaveState() {
           if (!saveBtn) return;
@@ -157,25 +126,6 @@
             var invalid = form.querySelectorAll(".is-invalid").length > 0;
             if (summary && invalid) {
               summary.classList.remove("d-none");
-            }
-          });
-        }
-
-        if (browseBtn && fileInput) {
-          browseBtn.addEventListener("click", function () {
-            fileInput.click();
-          });
-        }
-
-        if (fileInput && preview) {
-          fileInput.addEventListener("change", function () {
-            var file = fileInput.files[0];
-            if (file) {
-              preview.src = URL.createObjectURL(file);
-              preview.classList.remove("d-none");
-            } else {
-              preview.src = "";
-              preview.classList.add("d-none");
             }
           });
         }

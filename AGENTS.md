@@ -9,6 +9,7 @@ This project is a personal Expense Tracker built with:
 - Action Cable
 - Solid Queue for background jobs
 - Solid Cache for caching
+- Minitest for testing
 
 The application manages personal finances, including expenses, income, money sources, transfers, credit cards, revolving credit, loans, savings goals, recurring obligations, financial reports, and AI-assisted expense capture.
 
@@ -260,35 +261,57 @@ Use Rails 8 and the installed versions of these components as the source of trut
 
 ## 10. Testing and TDD
 
-Follow the project's TDD skill and existing testing conventions.
+The project uses **Minitest**, not RSpec.
 
-For behavioral changes and bug fixes:
+Follow the project's TDD skill and existing Minitest conventions.
 
-1. Write or update a test that demonstrates the expected behavior.
-2. Run the relevant test and verify that it fails for the intended reason when practical.
-3. Implement the smallest change that satisfies the test.
-4. Run the relevant tests again.
-5. Run additional tests that cover affected behavior and regressions.
+### Mandatory rules
 
-Test behavior and business rules, not implementation details unnecessarily.
+- Never introduce RSpec or convert existing tests to RSpec.
+- Use the existing Minitest test structure, helpers, fixtures, assertions, and naming conventions.
+- Before writing tests, inspect similar tests in the project and follow their patterns.
+- For behavioral changes and bug fixes, write or update a test that demonstrates the expected behavior before implementing the solution.
+- Run the relevant test and verify that it fails for the intended reason when practical.
+- Implement the smallest change that satisfies the test.
+- Run the relevant tests again and verify the results.
+- Run additional regression tests when the change affects related behavior.
+- Test observable behavior and business rules rather than implementation details unnecessarily.
+- Do not modify test configuration or introduce another testing framework without explicit justification.
 
-Prioritize coverage for:
+### Minitest conventions
 
-- Monetary calculations and rounding.
-- Balance changes and financial transactions.
-- Transfers between money sources.
+- Use the test type appropriate to the behavior being tested, following existing project conventions.
+- Use `test "descriptive behavior" do` for test names when consistent with the existing suite.
+- Use native Minitest assertions such as `assert`, `assert_equal`, `assert_difference`, `assert_no_difference`, `assert_nil`, `assert_raises`, and `refute` where appropriate.
+- Use Rails test helpers and fixtures when they are already part of the project's testing approach.
+- Do not introduce factories, custom helpers, or test abstractions without a clear benefit.
+- Keep tests focused, deterministic, and independent whenever practical.
+- Avoid unnecessary database setup and expensive operations in tests.
+
+### Test coverage priorities
+
+Prioritize tests for:
+
+- Monetary calculations, decimal precision, and rounding.
+- Expenses, income, transfers, and balance changes.
 - Credit cards, revolving credit, loans, and debt payments.
+- Validations, database constraints, and transaction rollback.
 - Authorization and user data isolation.
-- Validations and database constraints.
 - Background job retries and duplicate execution.
 - Cache invalidation when financial data changes.
 - Action Cable authorization and message delivery.
 - JavaScript interactions that affect financial workflows.
 - Regression scenarios for previously reported bugs.
 
-Use the testing framework and conventions already established in the repository. Do not introduce another testing framework without a concrete reason.
+### Running tests
 
-Do not claim tests passed unless they were actually executed and passed. If a test cannot be run, state the limitation explicitly.
+- Follow the project's existing test commands and configuration.
+- Run the narrowest relevant test first, then expand coverage as needed.
+- Do not assume tests passed unless they were actually executed and passed.
+- If a test cannot be run, explain why and report what remains unverified.
+- Never hide failures or change assertions merely to make a test pass without verifying the expected behavior.
+
+The TDD skill defines the detailed workflow; these rules establish Minitest as the project's required testing framework.
 
 ## 11. Security and Privacy
 
@@ -331,7 +354,7 @@ Before declaring a task complete, verify:
 - [ ] No application JavaScript was added inline to ERB templates.
 - [ ] Feature-specific JavaScript lives in dedicated modules rather than being accumulated in `application.js`.
 - [ ] Financial rules and data integrity are preserved.
-- [ ] Relevant tests were added or updated.
+- [ ] Relevant Minitest tests were added or updated.
 - [ ] Relevant tests were executed, and their actual results are known.
 - [ ] Database migrations, background jobs, and cache invalidation were considered where applicable.
 - [ ] No unrelated changes or unnecessary dependencies were introduced.
