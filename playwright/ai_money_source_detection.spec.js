@@ -13,12 +13,47 @@ async function createMoneySource(page, name, kind = 'wallet') {
   await page.locator('#money_source_active').check();
   await page.locator('form input[type="submit"]').click();
   await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
+
+  const href = await page.locator('a[href^="/money_sources/"]', { hasText: name }).first().getAttribute('href');
+  return href.split('/').filter(Boolean).pop();
+}
+
+// The parse endpoint asks the AI provider to split the text into expenses; CI
+// runs without an AI key, so these cases stub the response to exercise how the
+// form pre-selects the money source the server detected. Source detection
+// itself is covered by the MoneySources::Detector unit tests.
+async function mockParse(page, expenses) {
+  await page.route('**/expenses/parse.json', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ transcription: '', expenses, errors: [] }),
+  }));
+}
+
+function detectedExpense(overrides = {}) {
+  return {
+    amount: 50000,
+    description: 'Almuerzo',
+    transaction_date: null,
+    category_id: null,
+    category_name: null,
+    create_category: false,
+    confidence: 0.95,
+    low_confidence: false,
+    warnings: [],
+    money_source_id: null,
+    money_source_name: null,
+    status: 'ok',
+    category_suggestion: null,
+    ...overrides,
+  };
 }
 
 test.describe('AI expense detection selects the money source', () => {
   test('pre-selects the source mentioned by name in the detected expense row', async ({ page }) => {
     await signUp(page);
-    await createMoneySource(page, 'Nequi', 'wallet');
+    const nequiId = await createMoneySource(page, 'Nequi', 'wallet');
+    await mockParse(page, [detectedExpense({ money_source_id: nequiId, money_source_name: 'Nequi' })]);
 
     await openExpenses(page);
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en almuerzo desde nequi');
@@ -70,6 +105,7 @@ test.describe('AI expense detection selects the money source', () => {
   test('leaves the source unselected when no source is mentioned in the text', async ({ page }) => {
     await signUp(page);
     await createMoneySource(page, 'Nequi', 'wallet');
+    await mockParse(page, [detectedExpense()]);
 
     await openExpenses(page);
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en almuerzo');
