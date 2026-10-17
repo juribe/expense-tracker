@@ -14,6 +14,13 @@ class Whatsapp::MediaFetcherTest < ActiveSupport::TestCase
     ENV["WHATSAPP_BUSINESS_PHONE_NUMBER_ID"] = "110497245015457"
   end
 
+  # Restore the test baseline (test_helper strips these): leaking live
+  # credentials into later tests would re-enable real Graph API calls.
+  teardown do
+    ENV.delete("WHATSAPP_ACCESS_TOKEN")
+    ENV.delete("WHATSAPP_BUSINESS_PHONE_NUMBER_ID")
+  end
+
   FakeResponse = Struct.new(:code, :body)
 
   def stub_http(media_url_response:, media_url_body:, download_response:, download_body:)

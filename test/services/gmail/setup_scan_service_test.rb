@@ -7,7 +7,7 @@ module Gmail
   class SetupScanServiceTest < ActiveSupport::TestCase
     setup do
       require Rails.root.join("db/seed_data/financial_catalog_seeder")
-      FinancialCatalogSeeder.run
+      FinancialCatalogSeeder.run unless FinancialInstitution.exists?(canonical_name: "Bancolombia")
 
       @user = User.create!(name: "Setup User", email: "setup_scan_test@example.com", password: "password123")
       @user.money_sources.create!(name: "Davibank Clásica", kind: "account",
