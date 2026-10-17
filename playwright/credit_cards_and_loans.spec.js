@@ -42,7 +42,7 @@ test.describe('Credit cards and loans as money sources', () => {
     await expect(card.getByText('Tasa')).toBeVisible();
     await expect(card.getByText('24.50% EA')).toBeVisible();
     await expect(card.getByText('Corte')).toBeVisible();
-    await expect(card.getByText('Pago').first()).toBeVisible();
+    await expect(card.getByText('Pago', { exact: true }).first()).toBeVisible();
     await expect(card.getByText('visa · 1234')).toBeVisible();
   });
 

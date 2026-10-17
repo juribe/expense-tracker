@@ -2,6 +2,10 @@ const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
 
+function alertBell(page) {
+  return page.locator('.topbar a[aria-label="Alertas"]');
+}
+
 function previousMonthDate() {
   const now = new Date();
   const prev = new Date(now.getFullYear(), now.getMonth() - 1, 15);
@@ -38,8 +42,8 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await expect(page.getByRole('heading', { name: 'Alertas' })).toBeVisible();
     await expect(page.getByText('Estás al día')).toBeVisible();
 
-    await expect(page.locator('.sidebar-link', { hasText: 'Alertas' })).toBeVisible();
-    await expect(page.locator('.sidebar-link', { hasText: 'Alertas' }).locator('.badge')).toHaveCount(0);
+    await expect(alertBell(page)).toBeVisible();
+    await expect(alertBell(page).locator('.badge')).toHaveCount(0);
   });
 
   test('alert settings page shows the three toggles and saves them', async ({ page }) => {
@@ -69,11 +73,11 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await page.goto('/alerts');
     await expect(page.getByText('Aumento de gasto')).toBeVisible();
     await expect(page.locator('.card', { hasText: category })).toBeVisible();
-    await expect(page.locator('.sidebar-link', { hasText: 'Alertas' }).locator('.badge')).toHaveText('1');
+    await expect(alertBell(page).locator('.badge')).toHaveText('1');
 
     await page.getByRole('button', { name: 'Marcar leídas' }).click();
     await expect(page.getByText('Alertas marcadas como leídas')).toBeVisible();
-    await expect(page.locator('.sidebar-link', { hasText: 'Alertas' }).locator('.badge')).toHaveCount(0);
+    await expect(alertBell(page).locator('.badge')).toHaveCount(0);
   });
 
   test('filters work in the alerts center', async ({ page }) => {
@@ -113,7 +117,7 @@ test.describe('spending alerts (alertas de gasto)', () => {
 
     await expect(card.getByText('Marcar leída')).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'Alertas' })).toBeVisible();
-    await expect(page.locator('.sidebar-link', { hasText: 'Alertas' }).locator('.badge')).toHaveCount(0);
+    await expect(alertBell(page).locator('.badge')).toHaveCount(0);
   });
 
   test('view expenses link opens the filtered expenses for the alert', async ({ page }) => {

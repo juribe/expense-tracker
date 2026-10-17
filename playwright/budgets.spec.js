@@ -152,9 +152,9 @@ test.describe('category budgets are working', () => {
     // compact modal with the origin fixed, so the form only asks for the
     // destination and the amount.
     await page.goto('/money_sources');
-    const savingsCard = page.locator('[data-testid="account-card"]', { hasText: savingsName });
+    const savingsCard = page.locator('.card', { hasText: savingsName });
     await savingsCard.locator('[data-testid="card-actions-toggle"]').click();
-    await page.locator('[data-testid="quick-action-transfer"]').click();
+    await savingsCard.locator('[data-testid="quick-action-transfer"]').click();
     const quickForm = page.locator('[data-testid="quick-transfer-form"]');
     await expect(quickForm).toBeVisible();
     await quickForm.locator('#transfer_amount').fill('30000');

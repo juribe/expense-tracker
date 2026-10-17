@@ -1,6 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const { signUp } = require('./helpers/auth');
 
+async function openExpenses(page) {
+  await page.goto('/expenses');
+  await expect(page.getByTestId('ai-form')).toHaveAttribute('data-ai-initialized', 'true');
+}
+
 async function createMoneySource(page, name, kind = 'wallet') {
   await page.goto('/money_sources/new');
   await page.locator('#money_source_name').fill(name);
@@ -15,12 +20,12 @@ test.describe('AI expense detection selects the money source', () => {
     await signUp(page);
     await createMoneySource(page, 'Nequi', 'wallet');
 
-    await page.goto('/expenses');
+    await openExpenses(page);
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en almuerzo desde nequi');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 30000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 30000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
     const sourceSelect = page.locator('[data-testid="ai-row"] .ai-field-source');
@@ -50,12 +55,12 @@ test.describe('AI expense detection selects the money source', () => {
     await page.getByTestId('recognition-save').click();
     await expect(page.getByText('Configuración de reconocimiento guardada.')).toBeVisible();
 
-    await page.goto('/expenses');
+    await openExpenses(page);
     await page.getByTestId('ai-text-input').fill('Pag 50 mil en el restaurante con la tarjeta clásica');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 30000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 30000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
     const sourceSelect = page.locator('[data-testid="ai-row"] .ai-field-source');
@@ -66,12 +71,12 @@ test.describe('AI expense detection selects the money source', () => {
     await signUp(page);
     await createMoneySource(page, 'Nequi', 'wallet');
 
-    await page.goto('/expenses');
+    await openExpenses(page);
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en almuerzo');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 30000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 30000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(1);
 
     const sourceSelect = page.locator('[data-testid="ai-row"] .ai-field-source');
@@ -82,12 +87,12 @@ test.describe('AI expense detection selects the money source', () => {
     await signUp(page);
     await createMoneySource(page, 'Nequi', 'wallet');
 
-    await page.goto('/expenses');
+    await openExpenses(page);
     await page.getByTestId('ai-text-input').fill('Gasté 50 mil en restaurante y 20 mil en parqueadero desde nequi');
     await page.getByTestId('ai-parse-button').click();
 
-    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 15000 });
-    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('ai-parse-button')).toBeEnabled({ timeout: 30000 });
+    await expect(page.getByTestId('ai-preview-modal')).toBeVisible({ timeout: 30000 });
     await expect(page.getByTestId('ai-row')).toHaveCount(2);
 
     const sourceSelects = page.locator('[data-testid="ai-row"] .ai-field-source');

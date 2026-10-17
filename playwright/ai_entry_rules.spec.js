@@ -26,6 +26,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
 
   async function detectAndSave(page) {
     await page.goto('/expenses');
+    await expect(page.getByTestId('ai-form')).toHaveAttribute('data-ai-initialized', 'true');
     await page.getByTestId('ai-text-input').fill(TEXT);
     await page.getByTestId('ai-parse-button').click();
     await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
@@ -97,6 +98,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     });
 
     await page.goto('/expenses');
+    await expect(page.getByTestId('ai-form')).toHaveAttribute('data-ai-initialized', 'true');
     await page.getByTestId('ai-text-input').fill(TEXT);
     await page.getByTestId('ai-parse-button').click();
     await expect(page.getByTestId('ai-preview-modal')).toBeVisible();
@@ -129,6 +131,6 @@ test.describe('AI entry – transaction rules take precedence over parser catego
 
     const row = page.locator('#expenseTable tr', { hasText: 'Didi viaje' });
     await expect(row).toBeVisible();
-    await expect(row).toContainText('Transportation');
+    await expect(row).toContainText('Transporte');
   });
 });

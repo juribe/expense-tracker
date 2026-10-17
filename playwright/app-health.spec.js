@@ -17,15 +17,15 @@ test.describe('app health checks', () => {
     await signUp(page);
     const response = await page.goto('/dashboard');
     expect(response && response.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: 'Saldo neto' })).toBeVisible();
+    await expect(page.getByText('Dinero en cuentas').first()).toBeVisible();
   });
 
   test('dashboard displays summary sections', async ({ page }) => {
     await signUp(page);
     await page.goto('/dashboard');
-    await expect(page.getByRole('heading', { name: 'Gastos de este mes' })).toBeVisible();
+    await expect(page.getByText('Dinero en cuentas').first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Distribución por categoría' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Gastos recientes' })).toBeVisible();
+    await expect(page.getByTestId('dashboard-recent-expenses')).toBeVisible();
   });
 
   test('expenses CRUD flow works end-to-end', async ({ page }) => {
@@ -33,12 +33,14 @@ test.describe('app health checks', () => {
     const category = `Food-${Date.now()}`;
     await createCategory(page, category);
 
-    // Create expense
+    // Create expense (the dashboard links to the full expense form)
     await page.goto('/dashboard');
+    await page.getByRole('link', { name: /Agregar Gasto/ }).first().click();
+    await expect(page).toHaveURL(/\/expenses\/new/);
     await page.locator('#expense_amount').fill('75');
     await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Grocery Store');
-    await page.getByRole('button', { name: 'Agregar Gasto' }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('El gasto se creó correctamente.')).toBeVisible();
 
     // Verify on dashboard

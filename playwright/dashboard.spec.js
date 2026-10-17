@@ -7,10 +7,10 @@ test.describe('dashboard is working', () => {
     await signUp(page);
     const response = await page.goto('/dashboard');
     expect(response && response.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: 'Saldo neto' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Gastos de este mes' })).toBeVisible();
+    await expect(page.getByText('Dinero en cuentas').first()).toBeVisible();
+    await expect(page.getByText('Gastos', { exact: true }).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Distribución por categoría' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Gastos recientes' })).toBeVisible();
+    await expect(page.getByTestId('dashboard-recent-expenses')).toBeVisible();
   });
 
   test('user can add an expense from the dashboard', async ({ page }) => {
@@ -19,10 +19,12 @@ test.describe('dashboard is working', () => {
     await createCategory(page, category);
 
     await page.goto('/dashboard');
+    await page.getByRole('link', { name: /Agregar Gasto/ }).first().click();
+    await expect(page).toHaveURL(/\/expenses\/new/);
     await page.locator('#expense_amount').fill('50');
     await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Grocery Store');
-    await page.getByRole('button', { name: 'Agregar Gasto' }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page.getByText('El gasto se creó correctamente.')).toBeVisible();
     await page.goto('/dashboard');
@@ -33,8 +35,8 @@ test.describe('dashboard is working', () => {
   test('user can navigate to add new expense', async ({ page }) => {
     await signUp(page);
     await page.goto('/dashboard');
-    await page.getByRole('link', { name: /Agregar Gasto/ }).click();
+    await page.getByRole('link', { name: /Agregar Gasto/ }).first().click();
     await expect(page).toHaveURL(/\/expenses\/new/);
-    await expect(page.locator('form')).toBeVisible();
+    await expect(page.locator('#expense_amount')).toBeVisible();
   });
 });

@@ -44,6 +44,18 @@ test.describe('expense playground', () => {
     page.route(/\/expense-playground\/process/, (route) => {
       route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(payload) });
     });
+    page.route(/\/expense-playground\/history/, (route) => {
+      const run = {
+        ts: Date.now(),
+        type: 'text',
+        ok: true,
+        label: 'Me gasté 50mil en almuerzos',
+        candidate: CANDIDATE,
+        confidence: 0.94,
+        steps: STEPS
+      };
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ runs: [run] }) });
+    });
   }
 
   function okPayload(overrides = {}) {
@@ -96,7 +108,7 @@ test.describe('expense playground', () => {
     await expect(page.getByTestId('playground-result')).toBeVisible();
     await expect(page.getByTestId('detected-amount')).toContainText('$50,000');
     await expect(page.getByTestId('detected-category')).toContainText('Restaurants');
-    await expect(page.getByTestId('detected-confidence')).toContainText('94%');
+    await expect(page.getByTestId('card-confidence')).toContainText('94%');
 
     await expect(page.getByTestId('playground-steps')).toContainText('Me gasté 50mil en almuerzos');
     await expect(page.getByTestId('playground-steps')).toContainText('50000');
@@ -182,7 +194,7 @@ test.describe('expense playground', () => {
     await expect(page.getByTestId('playground-result-errors')).toBeVisible();
     await expect(page.getByTestId('playground-result-errors')).toContainText('Could not extract an expense');
     // No candidate was rendered
-    await expect(page.getByTestId('detected-amount')).toHaveText('');
-    await expect(page.getByTestId('edit-amount')).toHaveValue('');
+    await expect(page.getByTestId('detected-amount')).toHaveCount(0);
+    await expect(page.getByTestId('edit-amount')).toHaveCount(0);
   });
 });

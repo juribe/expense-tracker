@@ -34,7 +34,8 @@ test.describe('expense pages are working', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Lunch at cafe');
 
-    await page.getByRole('link', { name: /Editar Lunch at cafe/ }).first().click();
+    const editRow = page.locator('#expenseTable tr', { hasText: 'Lunch at cafe' });
+    await editRow.getByRole('link', { name: /Editar/i }).click();
     await page.locator('#expense_description').fill('Dinner at restaurant');
     await page.locator('#expense_amount').fill('25.00');
     await page.getByRole('button', { name: 'Guardar' }).click();
@@ -51,7 +52,8 @@ test.describe('expense pages are working', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Lunch at cafe');
 
-    await page.getByRole('button', { name: /Eliminar Lunch at cafe/ }).first().click();
+    const deleteRow = page.locator('#expenseTable tr', { hasText: 'Lunch at cafe' });
+    await deleteRow.getByRole('button', { name: /Eliminar/i }).click();
     await page.locator('#confirmDelete').click();
 
     await expect(page.getByText('El gasto se eliminó correctamente.')).toBeVisible();

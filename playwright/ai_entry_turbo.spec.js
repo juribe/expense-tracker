@@ -27,12 +27,14 @@ async function mockParseEndpoint(page) {
   });
 }
 
-// Sidebar links carry a CSS icon glyph, so their accessible name is
-// "<icon> Gastos" and role-based exact matching is unreliable. Navigate with
-// DOM locators and wait for a unique element of the destination instead of
-// the URL alone (Turbo updates the URL before the new page renders).
-async function visitViaSidebar(page, linkLabel, targetLocator) {
-  await page.locator('.sidebar-link', { hasText: new RegExp(`^\\s*${linkLabel}\\s*$`) }).first().click();
+// The sidebar is not visible at the test viewport, so trigger a client-side
+// Turbo Drive visit programmatically (no full reload) and wait for a unique
+// element of the destination instead of the URL alone (Turbo updates the URL
+// before the new page renders).
+async function visitViaTurbo(page, href, targetLocator) {
+  await page.evaluate((h) => {
+    document.querySelector(`a.sidebar-link[href="${h}"]`).click();
+  }, href);
   await expect(targetLocator).toBeVisible();
 }
 
@@ -44,10 +46,13 @@ test.describe("AI powered expense entry survives Turbo navigation", () => {
     await expect(page.getByTestId('ai-text-input')).toBeVisible();
 
     // Turbo Drive visit away from /expenses...
-    await visitViaSidebar(page, 'Panel', page.getByRole('heading', { name: 'Saldo neto' }));
+    await visitViaTurbo(page, '/dashboard', page.getByText('Dinero en cuentas').first());
 
-    // ...and back through the sidebar link (client-side Turbo visit, no reload).
-    await visitViaSidebar(page, 'Gastos', page.getByTestId('ai-entry-card'));
+    // ...and back through a client-side Turbo visit (no reload).
+    await visitViaTurbo(page, '/expenses', page.getByTestId('ai-entry-card'));
+    // Wait for the freshly rendered form to be re-initialized (the script marks
+    // it via dataset) so the click below cannot race the Turbo re-render.
+    await expect(page.getByTestId('ai-form')).toHaveAttribute('data-ai-initialized', 'true');
 
     // Regression: the inline script used to bail out on a one-shot window
     // flag, leaving these buttons dead after any Turbo navigation.
@@ -87,6 +92,7 @@ test.describe("AI powered expense entry survives Turbo navigation", () => {
     });
 
     await page.goto('/expenses');
+    await expect(page.getByTestId('ai-form')).toHaveAttribute('data-ai-initialized', 'true');
     await page.getByTestId('ai-mic-button').click();
     await expect(page.getByTestId('ai-text-input')).toHaveValue('50 mil en almuerzo');
     await expect(page.getByTestId('ai-preview-modal')).toBeVisible();

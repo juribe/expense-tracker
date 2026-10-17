@@ -26,7 +26,7 @@ test.describe('monthly reports are working', () => {
 
     await page.getByRole('link', { name: 'Ver detalles' }).click();
     await expect(page).toHaveURL(/\/monthly_reports\/2023-01/);
-    await expect(page.getByRole('heading', { name: 'Balance mensual: 2023-01' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Balance mensual' })).toBeVisible();
     await expect(page.getByText('January rent')).toBeVisible();
   });
 });

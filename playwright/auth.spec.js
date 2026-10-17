@@ -18,10 +18,11 @@ test.describe('auth pages are working', () => {
 
   test('user can sign up and then sign in', async ({ page }) => {
     const { email, password } = await signUp(page);
-    await expect(page.getByText(email)).toBeVisible();
+    await expect(page.getByText(email).first()).toBeVisible();
 
-    await page.getByRole('link', { name: /Cerrar sesión/ }).click();
+    await page.locator('.topbar .nav-link[data-bs-toggle="dropdown"]').click();
+    await page.getByRole('button', { name: /Cerrar sesión/ }).click();
     await signIn(page, email, password);
-    await expect(page.getByText(email)).toBeVisible();
+    await expect(page.getByText(email).first()).toBeVisible();
   });
 });

@@ -161,6 +161,9 @@ test.describe('expense playground – AI evaluation', () => {
   //   { running, completed, history, latestPost, startErrors, completeAfterPolls }
   function mockEvaluationApi(page, store) {
     page.route(/\/expense-evaluations(\S*)?/, (route) => {
+      // Let the browser navigation load the real HTML page; only mock the
+      // XHR/fetch calls the page makes afterwards.
+      if (route.request().resourceType() === 'document') return route.continue();
       handleEvaluationRoute(route, store);
     });
   }
@@ -186,7 +189,7 @@ test.describe('expense playground – AI evaluation', () => {
       return;
     }
 
-    const casesMatch = path.match(/^\/expense-evaluations\/[0-9a-f-]{36}\/cases$/);
+    const casesMatch = path.match(/^\/expense-evaluations\/[^/]+\/cases$/);
     if (req.method() === 'GET' && casesMatch) {
       const cases = filterCases(url.searchParams.get('status'), url.searchParams.get('q'));
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
@@ -197,13 +200,13 @@ test.describe('expense playground – AI evaluation', () => {
       return;
     }
 
-    const retryMatch = path.match(/^\/expense-evaluations\/[0-9a-f-]{36}\/retry$/);
+    const retryMatch = path.match(/^\/expense-evaluations\/[^/]+\/retry$/);
     if (req.method() === 'POST' && retryMatch) {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, rerun_count: store.retryCount || 2 }) });
       return;
     }
 
-    const detailMatch = path.match(/^\/expense-evaluations\/[0-9a-f-]{36}$/);
+    const detailMatch = path.match(/^\/expense-evaluations\/[^/]+$/);
     if (req.method() === 'GET' && detailMatch) {
       store.polls = (store.polls || 0) + 1;
       const payload = store.polls >= store.completeAfterPolls ? store.completed : store.running;
@@ -237,7 +240,7 @@ test.describe('expense playground – AI evaluation', () => {
     await signUp(page);
     await openEvaluationTab(page);
 
-    await expect(page.getByRole('heading', { name: 'AI Evaluation' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 5, name: /Evaluaci/ })).toBeVisible();
     await expect(page.getByTestId('evaluation-dataset-file')).toBeVisible();
     await expect(page.getByTestId('evaluation-provider')).toHaveValue('openrouter');
     await expect(page.getByTestId('evaluation-provider')).toContainText('OpenRouter');
