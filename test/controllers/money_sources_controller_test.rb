@@ -31,6 +31,15 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid]", count: 0
   end
 
+  test "GET /money_sources with an unknown type falls back to the plain index" do
+    create_source
+
+    get money_sources_path(type: "bogus")
+
+    assert_response :success
+    assert_select "h1", text: I18n.t("nav.money_sources")
+  end
+
   test "GET /money_sources warns when a source balance is negative" do
     source = create_source(name: "Ahorros", kind: "account", starting_balance: 0)
     source.update_column(:cached_balance, -25_000)

@@ -20,9 +20,7 @@ module MoneySources
         targets = source.debit_card? && source.parent ? [ source.parent ] : [ source ]
 
         MoneySource.where(id: targets.map(&:id))
-                   .update_all(<<~SQL)
-          cached_balance = cached_balance + #{delta.to_s("F")}
-        SQL
+                   .update_all([ "cached_balance = cached_balance + ?", delta ])
       end
 
       def rebuild!(source)

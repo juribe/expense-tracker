@@ -55,6 +55,12 @@ class TransactionOutstandingSyncTest < ActiveSupport::TestCase
     assert_equal BigDecimal("25_500_000"), @loan.reload.credit_account.outstanding_balance.to_d
   end
 
+  test "decimal usage expenses raise the outstanding balance precisely" do
+    create_expense(BigDecimal("2500.55"), @loan)
+
+    assert_equal BigDecimal("21002500.55"), @loan.reload.credit_account.outstanding_balance.to_d
+  end
+
   test "non-revolving loans, credit cards and accounts are untouched" do
     mortgage = @user.money_sources.create!(name: "Hipotecario", kind: "loan", sub_kind: "mortgage",
                                            starting_balance: 0)

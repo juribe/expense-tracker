@@ -100,6 +100,21 @@ module Expenses
       assert_equal [ c.id, a.id, b.id ], ids_of_sorted(result)
     end
 
+    test "sorts by category name ascending" do
+      result = search(sort: "category", dir: "asc")
+      assert_equal [ "Cena", "Almuerzo", "Transporte" ], descriptions_of(result)
+    end
+
+    test "sorts by description ascending" do
+      result = search(sort: "description", dir: "asc")
+      assert_equal [ "Almuerzo", "Cena", "Transporte" ], descriptions_of(result)
+    end
+
+    test "sorts by date ascending with stable tiebreaker" do
+      result = search(sort: "date", dir: "asc")
+      assert_equal [ "Almuerzo", "Cena", "Transporte" ], descriptions_of(result)
+    end
+
     test "rejects an unknown sort column" do
       result = search(sort: "hacked; drop table", dir: "asc")
       assert result.success?

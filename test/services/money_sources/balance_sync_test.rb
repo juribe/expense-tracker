@@ -127,6 +127,14 @@ module MoneySources
       end
     end
 
+    test "applies decimal deltas without losing precision" do
+      source = create_source(starting_balance: 100)
+
+      assert_difference -> { source.reload.cached_balance }, BigDecimal("-30.55") do
+        create_expense(source, BigDecimal("30.55"))
+      end
+    end
+
     test "rebuild recalculates the cached balance from scratch" do
       source = create_source(starting_balance: 100)
       create_expense(source, 30)

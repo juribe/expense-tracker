@@ -47,9 +47,8 @@ module MoneySources
 
       # Atomic increment: two adjustments in one write (reassignment across
       # the same source) must not read a stale in-memory value.
-      CreditAccount.where(id: credit_account.id).update_all(<<~SQL)
-        outstanding_balance = GREATEST(outstanding_balance + #{@delta.to_s("F")}, 0)
-      SQL
+      CreditAccount.where(id: credit_account.id)
+                   .update_all([ "outstanding_balance = GREATEST(outstanding_balance + ?, 0)", @delta ])
     end
 
     private

@@ -131,14 +131,28 @@ module Expenses
     end
 
     def apply_sort(scope)
-      # Append a stable secondary sort key (id) so that rows sharing the same
-      # primary sort value produce deterministic pagination across databases.
-      if sort == "category"
-        scope.left_joins(:category).order(Arel.sql("categories.name #{dir}, #{Expense.table_name}.created_at #{dir}, #{Expense.table_name}.id #{dir}"))
-      elsif sort == "amount"
-        scope.order(Arel.sql("ABS(#{Expense.table_name}.amount) #{dir}, #{Expense.table_name}.created_at #{dir}, #{Expense.table_name}.id #{dir}"))
-      else
-        scope.order(Arel.sql("#{Expense.table_name}.#{sort} #{dir}, #{Expense.table_name}.created_at #{dir}, #{Expense.table_name}.id #{dir}"))
+      # Append stable secondary keys (created_at, id) so rows sharing the same
+      # primary sort value paginate deterministically across databases. The
+      # order is expressed with Arel attribute nodes rather than interpolated
+      # SQL, so the already-whitelisted column/direction is never concatenated
+      # into a query string.
+      scope = scope.left_joins(:category) if sort == "category"
+      scope.order(*order_nodes)
+    end
+
+    def order_nodes
+      direction = dir == "asc" ? :asc : :desc
+
+      [ primary_order.public_send(direction),
+        Expense.arel_table[:created_at].public_send(direction),
+        Expense.arel_table[:id].public_send(direction) ]
+    end
+
+    def primary_order
+      case sort
+      when "category" then Category.arel_table[:name]
+      when "amount" then Arel::Nodes::NamedFunction.new("ABS", [ Expense.arel_table[:amount] ])
+      else Expense.arel_table[sort]
       end
     end
   end

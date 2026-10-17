@@ -26,14 +26,16 @@ class MoneySourcesController < ApplicationController
 
   # GET /money_sources
   def index
-    @filter = params[:type].presence
+    # An unknown type is treated as no filter at all: it must never reach the
+    # renderer as a template name (see index_template).
+    @filter = FILTERS.key?(params[:type]) ? params[:type] : nil
     scope = current_user.money_sources
     # Pockets touch no associations; includes() without arguments would raise.
     if INDEX_INCLUDES[@filter].present?
       scope = scope.includes(*INDEX_INCLUDES[@filter])
     end
 
-    if @filter && FILTERS[@filter]
+    if @filter
       scope = scope.where(kind: FILTERS[@filter])
     end
 
@@ -46,7 +48,7 @@ class MoneySourcesController < ApplicationController
                          .order(updated_at: :desc, id: :desc)
                          .first
 
-    render @filter ? "index_#{@filter}" : :index
+    render index_template
   end
 
   # GET /money_sources/1
@@ -271,6 +273,18 @@ class MoneySourcesController < ApplicationController
   end
 
   private
+
+  # Maps the (already sanitized) filter to its concrete template. The case
+  # keeps the value a literal so no request parameter ever selects a path.
+  def index_template
+    case @filter
+    when "cash" then "index_cash"
+    when "pockets" then "index_pockets"
+    when "credit_cards" then "index_credit_cards"
+    when "loans" then "index_loans"
+    else "index"
+    end
+  end
 
   # Groups payment sources by their entity for the recognition page. The
   # attached polymorphic entity wins; unattached rows fall back to the folded
