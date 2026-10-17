@@ -19,7 +19,7 @@ module.exports = defineConfig({
   testMatch: '**/*.spec.js',
   timeout: 30000,
   fullyParallel: false,
-  workers: 1,
+  workers: Number(process.env.PLAYWRIGHT_WORKERS || 4),
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`,
     headless: true

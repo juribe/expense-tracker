@@ -113,7 +113,7 @@ module Categories
           # otherwise fall back to exact resolution (the English category itself).
           learned_match || parking_match(categories, "#{name} #{activity}") ||
             housing_match(categories, "#{name} #{activity}") ||
-            exact_match(categories) || alias_match(categories) ||
+            alias_match(categories) || exact_match(categories) ||
             similar_match(categories) || tag_match(categories, "#{name} #{activity}")
         else
           learned_match || parking_match(categories, "#{name} #{activity}") ||

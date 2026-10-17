@@ -111,7 +111,8 @@ module ExpenseResolver
       return unless result.ok?
 
       pending.each_with_index do |(entry, _), position|
-        suggestion = result.data[position.to_s] || result.data[position]
+        data = result.data
+        suggestion = data.is_a?(Hash) ? (data[position.to_s] || data[position]) : nil
         next if suggestion.blank?
 
         entry.category_suggestion = suggestion
