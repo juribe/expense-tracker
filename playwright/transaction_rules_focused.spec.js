@@ -18,7 +18,7 @@ async function createMoneySource(page, name) {
   await page.goto('/money_sources/new');
   await page.locator('#money_source_name').fill(name);
   await page.locator('#money_source_kind').selectOption('account');
-  await page.locator('#money_source_starting_balance').fill('0');
+  await page.locator('[data-kind-panel~="account"] #money_source_starting_balance').fill('1000000');
   await page.locator('#money_source_active').check();
   await page.locator('form input[type="submit"]').click();
   await expect(page).not.toHaveURL(/\/money_sources\/new/);

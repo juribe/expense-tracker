@@ -29,7 +29,7 @@ async function createAccount(page, name, balance) {
   await page.goto('/money_sources/new');
   await page.locator('#money_source_name').fill(name);
   await page.locator('#money_source_kind').selectOption('account');
-  await page.locator('#money_source_starting_balance').fill(String(balance));
+  await page.locator('[data-kind-panel~="account"] #money_source_starting_balance').fill(String(balance));
   await page.locator('form input[type="submit"]').click();
   await expect(page).not.toHaveURL(/\/money_sources\/new/);
   await expect(page).not.toHaveURL(/\/money_sources$/);

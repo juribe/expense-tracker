@@ -6,7 +6,7 @@ async function createAccount(page, name, startingBalance) {
   await page.goto('/money_sources/new');
   await page.locator('input[name="money_source[name]"]').fill(name);
   await page.locator('#money_source_kind').selectOption({ label: 'Cuenta' });
-  await page.locator('input[name="money_source[starting_balance]"]').fill(startingBalance);
+  await page.locator('[data-kind-panel~="account"] input[name="money_source[starting_balance]"]').fill(startingBalance);
   await page.locator('form input[type="submit"]').first().click();
   await expect(page).not.toHaveURL(/\/money_sources\/new(\?|$)/);
 }
@@ -28,8 +28,7 @@ test.describe('día de cuadre', () => {
   test('dashboard loads from the sidebar and unverified accounts are neutral', async ({ page }) => {
     await signUp(page);
     await createAccount(page, 'Davibank Cuadre Primer', '500.000');
-    await page.goto('/dashboard');
-    await page.locator('a[href="/reconciliation"]').click();
+    await page.goto('/reconciliation');
     await expect(page).toHaveURL(/\/reconciliation/);
     await expect(page.getByRole('heading', { name: 'Día de Cuadre' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Pagos pendientes' })).toBeVisible();
@@ -73,8 +72,7 @@ test.describe('día de cuadre', () => {
     await page.locator('#expense_amount').fill('2818000');
     await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Pago crédito carro Cuadre');
-    const submit = page.locator('form input[type="submit"], form button[type="submit"]').first();
-    await submit.click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses/);
 
     await page.goto('/reconciliation');

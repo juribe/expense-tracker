@@ -30,7 +30,10 @@ module MoneySources
     def initialize(user:, sources: nil)
       # order(:created_at, :id) pins "first-created wins ties"; without an explicit ORDER
       # row loading order is unspecified and the tie-break becomes a flake.
-      @sources = sources || MoneySource.active.payment_sources
+      # The default pool is scoped to the user's own sources so another user's
+      # identically named source can never be detected.
+      pool = user ? user.money_sources : MoneySource
+      @sources = sources || pool.active.payment_sources
                          .includes(:recognition_identifiers, { recognition: :recognition_identifiers })
                          .order(:created_at, :id).to_a
     end

@@ -139,4 +139,13 @@ class MoneySourcesDetectorTest < ActiveSupport::TestCase
     refute detector.grounded_in?(davibank, "45.000 en almuerzo")
     refute detector.grounded_in?(davibank, "")
   end
+
+  # The default pool is the user's own sources only: another user's source,
+  # even one with the same name, must never be detected.
+  test "the default pool never matches another user's source" do
+    other = User.create!(name: "Other Detector", email: "other-detector@example.com", password: "password123")
+    other.money_sources.create!(name: "Bancolombia", kind: "wallet")
+
+    assert_nil detector.call("pagué 50 mil con Bancolombia")
+  end
 end

@@ -18,13 +18,20 @@ test.describe('MoneySource recognition keywords', () => {
   }
 
   async function showHrefFor(page, name) {
-    // Navigate via the sidebar link (Turbo-driven) instead of a raw goto right
-    // after the recognition form's Turbo submit, which can race the in-flight
-    // navigation and abort with "maybe frame was detached?".
-    await page.locator('a[href="/money_sources/credit_cards"]').first().click();
+    // The sidebar links are not visible in the test viewport, so navigate
+    // directly. The recognition form submit has already settled (its success
+    // flash was asserted), so a plain goto does not race it.
+    await page.goto('/money_sources/credit_cards');
     await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
     const card = page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
     return card.locator('a[href^="/money_sources/"]').first().getAttribute('href');
+  }
+
+  // The recognition keywords live in the "Reconocimiento" tab of the money
+  // source show page, which is inactive until clicked.
+  async function openRecognitionTab(page, href) {
+    await page.goto(href);
+    await page.locator('#source-tab-reconocimiento-btn').click();
   }
 
   async function expandGroupFor(page, sourceName) {
@@ -61,7 +68,7 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['tarjeta clásica', '1234']);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
 
     await expect(page.getByRole('heading', { name })).toBeVisible();
     await expect(page.getByText('tarjeta clásica', { exact: true })).toBeVisible();
@@ -74,10 +81,10 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['  Tarjeta Clásica  ']);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
 
     await expect(page.getByText('Tarjeta Clásica', { exact: true })).toBeVisible();
-    await expect(page.locator('.card', { hasText: 'Reconocimiento' }).locator('.badge')).toHaveText('Tarjeta Clásica');
+    await expect(page.locator('#source-tab-reconocimiento .badge').filter({ hasText: 'Tarjeta Clásica' })).toHaveCount(1);
   });
 
   test('money source show page displays its recognition keywords', async ({ page }) => {
@@ -86,7 +93,7 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['tarjeta clásica', '9999']);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
 
     await expect(page.getByRole('heading', { name })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Reconocimiento' })).toBeVisible();
@@ -101,7 +108,7 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['2222']);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
     await expect(page.getByText('1111', { exact: true })).toBeVisible();
     await expect(page.getByText('2222', { exact: true })).toBeVisible();
   });
@@ -125,7 +132,7 @@ test.describe('MoneySource recognition keywords', () => {
     await expect(page.getByText('Configuración de reconocimiento guardada.')).toBeVisible();
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
     await expect(page.getByText('2222', { exact: true })).toBeVisible();
     await expect(page.getByText('1111', { exact: true })).toHaveCount(0);
   });
@@ -136,7 +143,7 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['1111', '1111']);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
     await expect(page.getByText('1111', { exact: true })).toHaveCount(1);
   });
 
@@ -146,10 +153,10 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, name, ['Tarjeta Clásica', 'tarjeta clásica']);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
     await expect(page.getByText('Tarjeta Clásica', { exact: true })).toBeVisible();
     await expect(page.getByText('tarjeta clásica', { exact: true })).toBeVisible();
-    await expect(page.locator('.card', { hasText: 'Reconocimiento' }).locator('.badge')).toHaveCount(2);
+    await expect(page.locator('#source-tab-reconocimiento .badge').filter({ hasText: 'Tarjeta Clásica' })).toHaveCount(2);
   });
 
   test('money source without keywords shows no keyword badges', async ({ page }) => {
@@ -157,7 +164,7 @@ test.describe('MoneySource recognition keywords', () => {
     await createMoneySource(page, name);
 
     const showHref = await showHrefFor(page, name);
-    await page.goto(showHref);
+    await openRecognitionTab(page, showHref);
 
     const recognitionCard = page.locator('.card', { hasText: 'Reconocimiento' });
     await expect(recognitionCard.locator('.badge')).toHaveCount(0);
@@ -172,9 +179,9 @@ test.describe('MoneySource recognition keywords', () => {
     await addKeywords(page, first, ['daviplata']);
     await addKeywords(page, second, ['daviplata']);
 
-    await page.goto(await showHrefFor(page, first));
+    await openRecognitionTab(page, await showHrefFor(page, first));
     await expect(page.getByText('daviplata', { exact: true })).toHaveCount(1);
-    await page.goto(await showHrefFor(page, second));
+    await openRecognitionTab(page, await showHrefFor(page, second));
     await expect(page.getByText('daviplata', { exact: true })).toHaveCount(1);
   });
 });

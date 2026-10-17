@@ -19,7 +19,6 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.goto('/money_sources/new');
     await page.locator('#money_source_name').fill(name);
     await page.locator('#money_source_kind').selectOption('credit_card');
-    await page.locator('[data-kind-panel="credit_card"] #money_source_bank').fill('Bancolombia');
     await page.locator('#money_source_credit_account_attributes_card_brand').selectOption('visa');
     await page.locator('#money_source_credit_account_attributes_card_last_four').fill('1234');
     await page.locator('#money_source_credit_account_attributes_credit_limit').fill('20000000');
@@ -39,11 +38,11 @@ test.describe('Credit cards and loans as money sources', () => {
     await expect(card.getByText('$0')).toBeVisible();
     await expect(card.getByText('Cupo aprobado')).toBeVisible();
     await expect(card.getByText('$20.000.000', { exact: true }).first()).toBeVisible();
-    await expect(card.getByText('Disponible')).toBeVisible();
+    await expect(card.getByText('Disponible').first()).toBeVisible();
     await expect(card.getByText('Tasa')).toBeVisible();
     await expect(card.getByText('24.50% EA')).toBeVisible();
     await expect(card.getByText('Corte')).toBeVisible();
-    await expect(card.getByText('Pago')).toBeVisible();
+    await expect(card.getByText('Pago').first()).toBeVisible();
     await expect(card.getByText('visa · 1234')).toBeVisible();
   });
 
@@ -68,7 +67,7 @@ test.describe('Credit cards and loans as money sources', () => {
     await expect(page.getByRole('heading', { name })).toBeVisible();
     await expect(page.getByText('Aprobado', { exact: true })).toBeVisible();
     await expect(page.getByText('Usado', { exact: true })).toBeVisible();
-    await expect(page.getByText('Disponible')).toBeVisible();
+    await expect(page.getByText('Disponible').first()).toBeVisible();
     await expect(page.getByText('$20.000.000', { exact: true }).first()).toBeVisible();
     await expect(page.getByText(/Próxima factura el día 15, pago vence el día 30/)).toBeVisible();
   });
@@ -78,7 +77,6 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.goto('/money_sources/new');
     await page.locator('#money_source_name').fill(name);
     await page.locator('#money_source_kind').selectOption('loan');
-    await page.locator('[data-kind-panel="loan"] #money_source_bank').fill('Banco');
     await page.locator('#money_source_credit_account_attributes_principal_amount').fill('114000000');
     await page.locator('[data-kind-panel="loan"] #money_source_credit_account_attributes_interest_rate').fill('21.27');
     await page.locator('[data-kind-panel="loan"] #money_source_credit_account_attributes_interest_rate_type').selectOption('effective_annual');
