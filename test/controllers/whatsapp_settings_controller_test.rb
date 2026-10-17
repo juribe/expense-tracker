@@ -41,11 +41,11 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a page refresh generates a fresh token without consuming previous ones" do
     get whatsapp_settings_path
-    first_pending = @user.pending_whatsapp_connections.unused.unexpired.last
+    first_pending = @user.pending_whatsapp_connections.unused.unexpired.order(:created_at, :id).last
 
     get whatsapp_settings_path
 
-    second_pending = @user.pending_whatsapp_connections.unused.unexpired.order(:id).last
+    second_pending = @user.pending_whatsapp_connections.unused.unexpired.order(:created_at, :id).last
     assert_not_equal first_pending.id, second_pending.id
     assert_nil first_pending.reload.used_at, "old token must remain valid until it expires"
   end

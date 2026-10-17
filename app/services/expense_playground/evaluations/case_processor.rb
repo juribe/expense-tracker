@@ -36,7 +36,7 @@ module ExpensePlayground
         return fail_unusable_override unless usable_override?
 
         started = monotonic
-        requests_before = latest_override_request_id
+        requests_before_at = latest_override_request_created_at
 
         execution = Ai::Execution.new(provider: @run.provider, model: @run.model, force_ai: true)
         input = Expenses::Input.from_params("text", text: @case_record.message)
@@ -49,7 +49,7 @@ module ExpensePlayground
         persist(
           result,
           latency_ms: ((monotonic - started) * 1000).round,
-          usage: usage_since(requests_before)
+          usage: usage_since(requests_before_at)
         )
       end
 
@@ -156,12 +156,13 @@ module ExpensePlayground
         )
       end
 
-      def latest_override_request_id
-        AiRequest.where(user_id: @run.user_id, strategy: "override").maximum(:id)
+      def latest_override_request_created_at
+        AiRequest.where(user_id: @run.user_id, strategy: "override").maximum(:created_at)
       end
 
-      def usage_since(request_id)
-        requests = AiRequest.where(user_id: @run.user_id, strategy: "override").where("id > ?", request_id.to_i)
+      def usage_since(created_at)
+        requests = AiRequest.where(user_id: @run.user_id, strategy: "override")
+        requests = requests.where("created_at > ?", created_at) if created_at
         failed = requests.where(status: "error").first
         input_tokens = requests.sum(:input_tokens).to_i
         output_tokens = requests.sum(:output_tokens).to_i

@@ -10,7 +10,7 @@ class ReportsCreditCardsTest < ActiveSupport::TestCase
     @visa.create_credit_account!(credit_limit: 10_000_000, card_brand: "visa", card_last_four: "1234")
     @mastercard = @user.money_sources.create!(name: "Mastercard", kind: "credit_card", active: true)
     @mastercard.create_credit_account!(credit_limit: 8_000_000)
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
     @filter = Reports::Filter.new(user: @user, period: @period)

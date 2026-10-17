@@ -7,7 +7,7 @@ class ReportsInsightsTest < ActiveSupport::TestCase
     @user = User.create!(name: "Insights User", email: "reports_insights_test@example.com", password: "password123")
     @food = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")
     @transport = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @card.create_credit_account!(credit_limit: 10_000_000)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)

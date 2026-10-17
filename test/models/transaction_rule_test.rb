@@ -117,7 +117,7 @@ class TransactionRuleTest < ActiveSupport::TestCase
 
   test "money source condition matches the transaction's source" do
     source = @user.money_sources.create!(name: "Nubank", kind: "credit_card", starting_balance: 0)
-    other_source = @user.money_sources.create!(name: "Bancolombia", kind: "account", starting_balance: 0)
+    other_source = @user.money_sources.create!(name: "Bancolombia", kind: "account", starting_balance: 1_000_000_000)
     rule = create_rule(merchant_contains: nil, money_source_condition: source, category_id: @fitness.id)
 
     matching = create_expense(description: "Gym", money_source: source)

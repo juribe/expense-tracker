@@ -9,11 +9,11 @@ module SourceRecognition
   module Catalog
     module_function
 
-    def institutions = FinancialInstitution.active.order(:id).to_a
+    def institutions = FinancialInstitution.active.order(:created_at, :id).to_a
 
-    def keywords = FinancialKeyword.order(:id).to_a
+    def keywords = FinancialKeyword.order(:created_at, :id).to_a
 
-    def subject_patterns = FinancialSubjectPattern.order(:id).to_a
+    def subject_patterns = FinancialSubjectPattern.order(:created_at, :id).to_a
 
     # Domain index: verified official domain → institution. Subdomains of a
     # listed domain count (mail.davibank.com → davibank.com).

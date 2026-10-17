@@ -33,7 +33,7 @@ module Institutions
     def initialize(dry_run: false)
       @dry_run = dry_run
       @outcomes = []
-      @institutions = FinancialInstitution.order(:id)
+      @institutions = FinancialInstitution.order(:created_at, :id)
                                           .each_with_object({}) do |institution, index|
         index[institution.id] = {
           institution:,

@@ -8,7 +8,7 @@ module Expenses
       @user = User.create!(name: "Search User", email: "search@example.com", password: "password123")
       @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
       @other_category = Category.create!(name: "Otra", user: @user, is_default: false, category_type: "expense")
-      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account")
+      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
 
       create_expense(date: Date.new(2026, 1, 15), amount: 50_000, description: "Almuerzo")
       create_expense(date: Date.new(2026, 2, 10), amount: 80_000, description: "Cena", category: @category)

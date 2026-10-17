@@ -210,7 +210,7 @@ class TransfersController < ApplicationController
   # by creation order; the withdraw button is simply not offered when none
   # exists (no account is ever created implicitly).
   def quick_cash_destination
-    current_user.money_sources.active.by_kind("cash").order(:id).first
+    current_user.money_sources.active.by_kind("cash").order(:created_at, :id).first
   end
 
   # Quick destinations, narrowed per mode from the concept table:

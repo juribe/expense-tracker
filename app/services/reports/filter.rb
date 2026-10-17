@@ -17,8 +17,8 @@ class Reports::Filter
                  credit_card_id: nil, loan_id: nil, kind: nil)
     @user = user
     @period = period
-    @category_id = category_id.presence&.to_i
-    @money_source_id = (credit_card_id.presence || loan_id.presence || money_source_id.presence)&.to_i
+    @category_id = UuidParams.normalize(category_id)
+    @money_source_id = UuidParams.normalize(credit_card_id.presence || loan_id.presence || money_source_id.presence)
     @kind = kind.to_s.presence_in(KINDS)
   end
 

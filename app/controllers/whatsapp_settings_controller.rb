@@ -42,7 +42,7 @@ class WhatsappSettingsController < ApplicationController
   end
 
   def destroy
-    current_user.whatsapp_connections.active.last&.disconnect!
+    current_user.whatsapp_connections.active.order(:created_at, :id).last&.disconnect!
     redirect_to whatsapp_settings_path,
                 notice: t("whatsapp.settings.disconnected", default: "WhatsApp desconectado. Tus gastos no se borraron.")
   end
@@ -52,14 +52,14 @@ class WhatsappSettingsController < ApplicationController
   private
 
   def load_connection
-    @connection = current_user.whatsapp_connections.active.includes(:whatsapp_identity).order(:id).last
+    @connection = current_user.whatsapp_connections.active.includes(:whatsapp_identity).order(:created_at, :id).last
   end
 
   def active_connection
-    current_user.whatsapp_connections.active.order(:id).last
+    current_user.whatsapp_connections.active.order(:created_at, :id).last
   end
 
   def valid_pending
-    current_user.pending_whatsapp_connections.unused.where("expires_at > ?", Time.current).order(:id).last
+    current_user.pending_whatsapp_connections.unused.where("expires_at > ?", Time.current).order(:created_at, :id).last
   end
 end

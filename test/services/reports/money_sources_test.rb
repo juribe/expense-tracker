@@ -6,9 +6,9 @@ class ReportsMoneySourcesTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Sources User", email: "reports_sources_test@example.com", password: "password123")
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
-    @cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true)
+    @cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true, starting_balance: 1_000_000_000)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @other = User.create!(name: "Other", email: "reports_sources_other@example.com", password: "password123")
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))

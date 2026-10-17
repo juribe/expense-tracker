@@ -8,7 +8,7 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(name: "Reports Pages", email: "reports_pages_test@example.com", password: "password123")
     @category = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     sign_in @user
   end
 

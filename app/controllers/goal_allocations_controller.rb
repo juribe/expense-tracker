@@ -33,8 +33,8 @@ class GoalAllocationsController < ApplicationController
   # POST /goal_allocations/reallocate
   def reallocate
     goals = user_goals.where(id: [ params[:from_goal_id], params[:to_goal_id] ])
-    goal_from = goals.find { |g| g.id == params[:from_goal_id].to_i }
-    goal_to = goals.find { |g| g.id == params[:to_goal_id].to_i }
+    goal_from = goals.find { |g| g.id.to_s == params[:from_goal_id].to_s }
+    goal_to = goals.find { |g| g.id.to_s == params[:to_goal_id].to_s }
 
     result = GoalAllocations::Reallocate.call(goal_from: goal_from, goal_to: goal_to, amount: params[:amount], user: current_user)
     if result[:ok]

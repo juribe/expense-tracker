@@ -314,7 +314,7 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def create_source(kind:, name:, sub_kind: nil, starting_balance: 100_000, outstanding: nil)
+  def create_source(kind:, name:, sub_kind: nil, starting_balance: 1_000_000_000, outstanding: nil)
     source = @user.money_sources.create!(name: name, kind: kind, sub_kind: sub_kind, starting_balance: starting_balance)
     source.create_credit_account!(principal_amount: 50_000_000, outstanding_balance: outstanding) if outstanding
     source

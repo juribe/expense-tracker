@@ -35,7 +35,7 @@ module SourceRecognition
 
     def seed_for(groups, source)
       members = groups[key(source)] or return source
-      members.min_by(&:id)
+      members.min_by { |member| [ member.created_at, member.id ] }
     end
   end
 end

@@ -6,7 +6,7 @@ class ReportsLoansTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Loans User", email: "reports_loans_test@example.com", password: "password123")
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @mortgage = @user.money_sources.create!(name: "Mortgage", kind: "loan", active: true)
     @mortgage.create_credit_account!(
       principal_amount: 100_000_000, outstanding_balance: 80_000_000,

@@ -306,7 +306,8 @@ class MoneySource < ApplicationRecord
 
   def assign_institution_ref(ref)
     klass, id = ref.to_s.split(":", 2)
-    if klass.in?(%w[FinancialInstitution CustomFinancialInstitution]) && id.to_s.match?(/\A\d+\z/)
+    id = UuidParams.normalize(id)
+    if klass.in?(%w[FinancialInstitution CustomFinancialInstitution]) && id
       self.institution_type = klass
       self.institution_id = id
     else

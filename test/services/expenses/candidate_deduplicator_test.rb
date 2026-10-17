@@ -4,8 +4,12 @@ require "test_helper"
 
 module Expenses
   class CandidateDeduplicatorTest < ActiveSupport::TestCase
+    SOURCE_A = "11111111-1111-1111-1111-111111111111"
+    SOURCE_B = "22222222-2222-2222-2222-222222222222"
+    CATEGORY_A = "33333333-3333-3333-3333-333333333333"
+
     test "keeps the most complete entry when two share date, amount and money source" do
-      complete = candidate(description: "Comida", category_id: 41)
+      complete = candidate(description: "Comida", category_id: CATEGORY_A)
       incomplete = candidate(description: "Cuenta De Ahorros 7273 a Nequi", category_id: nil)
 
       result = CandidateDeduplicator.call([ complete, incomplete ])
@@ -25,7 +29,7 @@ module Expenses
 
     test "keeps the later entry when it is the more complete one" do
       incomplete = candidate(description: "pago", category_id: nil)
-      complete = candidate(description: "Comida", category_id: 41)
+      complete = candidate(description: "Comida", category_id: CATEGORY_A)
 
       result = CandidateDeduplicator.call([ incomplete, complete ])
 
@@ -52,7 +56,7 @@ module Expenses
     test "keeps entries with different dates, amounts or sources" do
       yesterday = candidate(description: "Comida", date: Date.current - 1)
       other_amount = candidate(description: "Comida", amount: 2000)
-      other_source = candidate(description: "Comida", money_source_id: 8)
+      other_source = candidate(description: "Comida", money_source_id: SOURCE_B)
 
       result = CandidateDeduplicator.call([ yesterday, other_amount, other_source ])
 
@@ -77,7 +81,7 @@ module Expenses
     end
 
     test "preserves text order of the kept entries" do
-      first = candidate(description: "Comida", category_id: 41)
+      first = candidate(description: "Comida", category_id: CATEGORY_A)
       noise = candidate(description: "Transporte", amount: 5000)
       duplicate_of_first = candidate(description: "Cuenta De Ahorros 7273 a Nequi", category_id: nil)
 
@@ -88,7 +92,7 @@ module Expenses
 
     private
 
-    def candidate(description:, date: Date.current, amount: 1000, money_source_id: 21, category_id: nil)
+    def candidate(description:, date: Date.current, amount: 1000, money_source_id: SOURCE_A, category_id: nil)
       ExpenseCandidate.new(
         amount: amount,
         date: date,

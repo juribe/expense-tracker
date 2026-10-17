@@ -10,15 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_16_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
 
-  create_table "activity_classifications", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "activity_classifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "normalized_name", null: false
     t.string "original_name"
-    t.bigint "category_id"
+    t.uuid "category_id"
     t.string "subcategory"
     t.decimal "confidence", precision: 4, scale: 3
     t.string "source", default: "ai", null: false
@@ -28,8 +29,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id", "normalized_name"], name: "index_activity_classifications_on_user_id_and_normalized_name", unique: true
   end
 
-  create_table "ai_requests", force: :cascade do |t|
-    t.bigint "user_id"
+  create_table "ai_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id"
     t.string "task", null: false
     t.string "strategy", null: false
     t.string "provider"
@@ -51,8 +52,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_ai_requests_on_user_id"
   end
 
-  create_table "alert_preferences", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "alert_preferences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.boolean "budget_threshold_enabled", default: true, null: false
     t.boolean "budget_exceeded_enabled", default: true, null: false
     t.boolean "spending_increase_enabled", default: false, null: false
@@ -61,9 +62,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_alert_preferences_on_user_id", unique: true
   end
 
-  create_table "budgets", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "category_id", null: false
+  create_table "budgets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "category_id", null: false
     t.decimal "monthly_amount", precision: 14, scale: 2, null: false
     t.string "period", default: "monthly", null: false
     t.boolean "active", default: true, null: false
@@ -74,16 +75,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_budgets_on_user_id"
   end
 
-  create_table "categories", force: :cascade do |t|
+  create_table "categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "slug", null: false
-    t.bigint "parent_id"
+    t.uuid "parent_id"
     t.boolean "active", default: true, null: false
     t.string "image"
-    t.bigint "user_id"
+    t.uuid "user_id"
     t.boolean "is_default", default: false, null: false
     t.string "category_type"
     t.integer "expenses_count", default: 0, null: false
@@ -95,8 +96,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_categories_on_user_id"
   end
 
-  create_table "credit_accounts", force: :cascade do |t|
-    t.bigint "money_source_id", null: false
+  create_table "credit_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "money_source_id", null: false
     t.decimal "credit_limit", precision: 14, scale: 2
     t.decimal "interest_rate", precision: 8, scale: 4
     t.string "interest_rate_type"
@@ -118,8 +119,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
   end
 
-  create_table "credit_extra_payments", force: :cascade do |t|
-    t.bigint "money_source_id", null: false
+  create_table "credit_extra_payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "money_source_id", null: false
     t.date "date", null: false
     t.decimal "amount", precision: 14, scale: 2, null: false
     t.string "application_type", null: false
@@ -129,10 +130,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "funding_money_source_id"
-    t.bigint "payment_id"
-    t.bigint "expense_id"
-    t.bigint "transfer_id"
+    t.uuid "funding_money_source_id"
+    t.uuid "payment_id"
+    t.uuid "expense_id"
+    t.uuid "transfer_id"
     t.index ["expense_id"], name: "index_credit_extra_payments_on_expense_id"
     t.index ["funding_money_source_id"], name: "index_credit_extra_payments_on_funding_money_source_id"
     t.index ["money_source_id", "date"], name: "index_credit_extra_payments_on_money_source_id_and_date"
@@ -141,8 +142,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["transfer_id"], name: "index_credit_extra_payments_on_transfer_id"
   end
 
-  create_table "credit_projections", force: :cascade do |t|
-    t.bigint "money_source_id", null: false
+  create_table "credit_projections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "money_source_id", null: false
     t.boolean "estimated", default: false, null: false
     t.string "fingerprint", null: false
     t.jsonb "inputs", default: {}, null: false
@@ -155,8 +156,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["money_source_id"], name: "index_credit_projections_on_money_source_id", unique: true
   end
 
-  create_table "credit_scenarios", force: :cascade do |t|
-    t.bigint "money_source_id", null: false
+  create_table "credit_scenarios", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "money_source_id", null: false
     t.string "name", null: false
     t.string "kind", null: false
     t.jsonb "params", default: {}, null: false
@@ -168,8 +169,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["money_source_id"], name: "index_credit_scenarios_on_money_source_id"
   end
 
-  create_table "custom_financial_institutions", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "custom_financial_institutions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "name", null: false
     t.string "institution_type"
     t.datetime "created_at", null: false
@@ -178,8 +179,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_custom_financial_institutions_on_user_id"
   end
 
-  create_table "evaluation_cases", force: :cascade do |t|
-    t.bigint "evaluation_run_id", null: false
+  create_table "evaluation_cases", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "evaluation_run_id", null: false
     t.integer "row_number", null: false
     t.text "message", null: false
     t.jsonb "expected_json", default: {}, null: false
@@ -202,8 +203,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["evaluation_run_id"], name: "index_evaluation_cases_on_evaluation_run_id"
   end
 
-  create_table "evaluation_runs", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "evaluation_runs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "dataset_name"
     t.string "dataset_version"
     t.string "provider"
@@ -220,20 +221,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_evaluation_runs_on_user_id"
   end
 
-  create_table "expense_candidates", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "expense_candidates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.decimal "amount", precision: 10, scale: 2
     t.date "date"
     t.string "description"
-    t.bigint "category_id"
-    t.bigint "money_source_id"
+    t.uuid "category_id"
+    t.uuid "money_source_id"
     t.string "status", default: "needs_review", null: false
     t.string "source", default: "text", null: false
     t.float "confidence"
     t.jsonb "missing_fields", default: [], null: false
     t.text "original_input"
     t.text "original_text"
-    t.bigint "expense_id"
+    t.uuid "expense_id"
     t.jsonb "metadata", default: {}, null: false
     t.datetime "confirmed_at"
     t.datetime "discarded_at"
@@ -248,9 +249,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_expense_candidates_on_user_id"
   end
 
-  create_table "expense_clarification_candidates", force: :cascade do |t|
-    t.bigint "expense_clarification_id", null: false
-    t.bigint "expense_candidate_id", null: false
+  create_table "expense_clarification_candidates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "expense_clarification_id", null: false
+    t.uuid "expense_candidate_id", null: false
     t.jsonb "missing_fields", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -259,8 +260,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["expense_clarification_id"], name: "idx_on_expense_clarification_id_cea0c05a63"
   end
 
-  create_table "expense_clarifications", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "expense_clarifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "phone_number", null: false
     t.string "status", default: "pending", null: false
     t.text "question"
@@ -274,8 +275,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_expense_clarifications_on_user_pending", unique: true, where: "((status)::text = 'pending'::text)"
   end
 
-  create_table "expense_playground_runs", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "expense_playground_runs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "input_type", limit: 20, null: false
     t.string "input_label", limit: 200
     t.string "engine", limit: 30
@@ -285,7 +286,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.jsonb "steps", default: {}, null: false
     t.jsonb "error_messages", default: [], null: false, array: true
     t.jsonb "warnings", default: [], null: false, array: true
-    t.integer "expense_id"
+    t.uuid "expense_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "candidates", default: [], null: false
@@ -294,9 +295,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_expense_playground_runs_on_user_id"
   end
 
-  create_table "expenses", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "category_id", null: false
+  create_table "expenses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "category_id", null: false
     t.decimal "amount", precision: 10, scale: 2, null: false
     t.string "description"
     t.date "date", null: false
@@ -307,8 +308,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_expenses_on_user_id"
   end
 
-  create_table "financial_chat_messages", force: :cascade do |t|
-    t.bigint "financial_chat_id", null: false
+  create_table "financial_chat_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "financial_chat_id", null: false
     t.string "role", null: false
     t.text "content", null: false
     t.string "status", default: "complete", null: false
@@ -323,14 +324,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["financial_chat_id"], name: "index_financial_chat_messages_on_financial_chat_id"
   end
 
-  create_table "financial_chats", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "financial_chats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_financial_chats_on_user_id", unique: true
   end
 
-  create_table "financial_institutions", force: :cascade do |t|
+  create_table "financial_institutions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "canonical_name", null: false
     t.jsonb "aliases", default: [], null: false
     t.jsonb "domains", default: [], null: false
@@ -345,7 +346,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["slug"], name: "index_financial_institutions_on_slug", unique: true
   end
 
-  create_table "financial_keywords", force: :cascade do |t|
+  create_table "financial_keywords", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "value", null: false
     t.string "category", null: false
     t.integer "weight", default: 1, null: false
@@ -355,8 +356,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["value"], name: "index_financial_keywords_on_value", unique: true
   end
 
-  create_table "financial_setups", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "financial_setups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.integer "current_step", default: 0, null: false
     t.string "status", default: "in_progress", null: false
     t.jsonb "data", default: {}, null: false
@@ -366,7 +367,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_financial_setups_on_user_id"
   end
 
-  create_table "financial_subject_patterns", force: :cascade do |t|
+  create_table "financial_subject_patterns", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "value", null: false
     t.integer "weight", default: 2, null: false
     t.datetime "created_at", null: false
@@ -374,8 +375,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["value"], name: "index_financial_subject_patterns_on_value", unique: true
   end
 
-  create_table "gmail_connections", force: :cascade do |t|
-    t.integer "user_id", null: false
+  create_table "gmail_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "email", null: false
     t.string "google_account_id"
     t.string "access_token"
@@ -393,9 +394,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_gmail_connections_on_user_id"
   end
 
-  create_table "goal_allocations", force: :cascade do |t|
-    t.bigint "financial_goal_id", null: false
-    t.bigint "pocket_id", null: false
+  create_table "goal_allocations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "financial_goal_id", null: false
+    t.uuid "pocket_id", null: false
     t.decimal "amount", precision: 14, scale: 2, null: false
     t.date "date", null: false
     t.string "note"
@@ -406,14 +407,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["pocket_id"], name: "index_goal_allocations_on_pocket_id"
   end
 
-  create_table "goals", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "goals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "name", null: false
     t.decimal "target_amount", precision: 14, scale: 2, null: false
     t.date "target_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "pocket_id"
+    t.uuid "pocket_id"
     t.integer "priority", default: 1, null: false
     t.string "category"
     t.string "status", default: "active", null: false
@@ -422,9 +423,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
-  create_table "incomes", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "category_id", null: false
+  create_table "incomes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "category_id", null: false
     t.decimal "amount", precision: 10, scale: 2, null: false
     t.string "description"
     t.date "date", null: false
@@ -435,8 +436,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_incomes_on_user_id"
   end
 
-  create_table "money_source_recognition_identifiers", force: :cascade do |t|
-    t.bigint "money_source_recognition_id", null: false
+  create_table "money_source_recognition_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "money_source_recognition_id", null: false
     t.string "kind", null: false
     t.string "value", null: false
     t.integer "position", default: 0, null: false
@@ -452,19 +453,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["status"], name: "index_money_source_recognition_identifiers_on_status"
   end
 
-  create_table "money_source_recognitions", force: :cascade do |t|
-    t.bigint "money_source_id", null: false
+  create_table "money_source_recognitions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "money_source_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["money_source_id"], name: "index_money_source_recognitions_on_money_source_id", unique: true
   end
 
-  create_table "money_sources", force: :cascade do |t|
-    t.integer "user_id", null: false
+  create_table "money_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "name", null: false
     t.string "kind", null: false
     t.string "bank"
-    t.integer "parent_id"
+    t.uuid "parent_id"
     t.decimal "starting_balance", precision: 12, scale: 2, default: "0.0", null: false
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
@@ -477,7 +478,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.datetime "balance_offset_at"
     t.integer "transactions_count", default: 0, null: false
     t.string "institution_type"
-    t.bigint "institution_id"
+    t.uuid "institution_id"
     t.string "institution_cached_name"
     t.index ["institution_type", "institution_id"], name: "index_money_sources_on_institution"
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
@@ -487,10 +488,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_money_sources_on_user_id"
   end
 
-  create_table "payments", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "expense_id", null: false
-    t.bigint "money_source_id", null: false
+  create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "expense_id", null: false
+    t.uuid "money_source_id", null: false
     t.date "date", null: false
     t.decimal "amount", precision: 14, scale: 2, null: false
     t.decimal "principal_amount", precision: 14, scale: 2, default: "0.0", null: false
@@ -506,8 +507,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
-  create_table "pending_whatsapp_connections", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "pending_whatsapp_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "token_digest", null: false
     t.datetime "expires_at", null: false
     t.datetime "used_at"
@@ -517,9 +518,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_pending_whatsapp_connections_on_user_id"
   end
 
-  create_table "processed_emails", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "expense_id"
+  create_table "processed_emails", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "expense_id"
     t.string "provider", default: "gmail", null: false
     t.string "message_id", null: false
     t.string "status", default: "processed", null: false
@@ -535,9 +536,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_processed_emails_on_user_id"
   end
 
-  create_table "reconciliation_snapshots", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "money_source_id", null: false
+  create_table "reconciliation_snapshots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "money_source_id", null: false
     t.string "period", null: false
     t.decimal "actual_balance", precision: 14, scale: 2, default: "0.0", null: false
     t.string "resolution", default: "unverified", null: false
@@ -549,8 +550,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_reconciliation_snapshots_on_user_id"
   end
 
-  create_table "reconciliation_states", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "reconciliation_states", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "period", null: false
     t.string "status", default: "pending", null: false
     t.integer "pending_payments_count", default: 0, null: false
@@ -565,9 +566,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_reconciliation_states_on_user_id"
   end
 
-  create_table "recurring_templates", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "category_id", null: false
+  create_table "recurring_templates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "category_id", null: false
     t.string "kind", null: false
     t.decimal "amount", precision: 10, scale: 2, null: false
     t.string "description"
@@ -577,7 +578,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.string "source", default: "manual", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "money_source_id"
+    t.uuid "money_source_id"
     t.index ["category_id"], name: "index_recurring_templates_on_category_id"
     t.index ["kind"], name: "index_recurring_templates_on_kind"
     t.index ["money_source_id"], name: "index_recurring_templates_on_money_source_id"
@@ -602,6 +603,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.string "concurrency_key", null: false
     t.datetime "expires_at", null: false
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["concurrency_key", "priority", "job_id"], name: "index_solid_queue_blocked_executions_for_release"
     t.index ["expires_at", "concurrency_key"], name: "index_solid_queue_blocked_executions_for_maintenance"
     t.index ["job_id"], name: "index_solid_queue_blocked_executions_on_job_id", unique: true
@@ -654,6 +656,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.string "hostname"
     t.text "metadata"
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "name", null: false
     t.index ["last_heartbeat_at"], name: "index_solid_queue_processes_on_last_heartbeat_at"
     t.index ["name", "supervisor_id"], name: "index_solid_queue_processes_on_name_and_supervisor_id", unique: true
@@ -716,9 +719,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
-  create_table "spending_alerts", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "category_id", null: false
+  create_table "spending_alerts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "category_id", null: false
     t.string "kind", null: false
     t.string "month", null: false
     t.integer "pct", null: false
@@ -733,8 +736,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_spending_alerts_on_user_id"
   end
 
-  create_table "spreadsheet_format_mappings", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "spreadsheet_format_mappings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "fingerprint", null: false
     t.string "bank"
     t.jsonb "headers", default: [], null: false
@@ -747,8 +750,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_spreadsheet_format_mappings_on_user_id"
   end
 
-  create_table "statement_format_mappings", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "statement_format_mappings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "fingerprint", null: false
     t.string "bank"
     t.jsonb "anchors", default: [], null: false
@@ -761,24 +764,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.datetime "updated_at", null: false
     t.jsonb "summary_spec", default: {}, null: false
     t.integer "recipe_version", default: 0, null: false
-    t.bigint "money_source_id", null: false
+    t.uuid "money_source_id", null: false
     t.index ["money_source_id"], name: "index_statement_format_mappings_on_money_source_id"
     t.index ["user_id", "money_source_id", "fingerprint"], name: "index_statement_format_mappings_source_fingerprint", unique: true
     t.index ["user_id"], name: "index_statement_format_mappings_on_user_id"
   end
 
-  create_table "transaction_rules", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "transaction_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
     t.string "name"
     t.boolean "enabled", default: true, null: false
     t.integer "priority", default: 0, null: false
     t.string "merchant_contains"
     t.string "description_contains"
-    t.bigint "money_source_condition_id"
+    t.uuid "money_source_condition_id"
     t.decimal "amount_gt", precision: 14, scale: 2
     t.decimal "amount_lt", precision: 14, scale: 2
-    t.bigint "category_id"
-    t.bigint "action_money_source_id"
+    t.uuid "category_id"
+    t.uuid "action_money_source_id"
     t.string "tag"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -787,21 +790,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_transaction_rules_on_user_id"
   end
 
-  create_table "transactions", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "category_id"
+  create_table "transactions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "category_id"
     t.date "date", null: false
     t.decimal "amount", precision: 10, scale: 2, null: false
     t.string "kind", null: false
     t.string "description"
     t.string "source", default: "manual", null: false
-    t.integer "recurring_template_id"
+    t.uuid "recurring_template_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "gmail_message_id"
-    t.integer "money_source_id"
+    t.uuid "money_source_id"
     t.jsonb "applied_rule_ids", default: [], null: false
-    t.bigint "rule_id"
+    t.uuid "rule_id"
     t.jsonb "tags", default: [], null: false
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
@@ -814,10 +817,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
 
-  create_table "transfers", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "from_source_id", null: false
-    t.integer "to_source_id", null: false
+  create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "from_source_id", null: false
+    t.uuid "to_source_id", null: false
     t.decimal "amount", precision: 12, scale: 2, null: false
     t.date "date", null: false
     t.string "note"
@@ -829,7 +832,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["user_id"], name: "index_transfers_on_user_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", default: "", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -846,9 +849,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "whatsapp_connections", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "whatsapp_identity_id", null: false
+  create_table "whatsapp_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "whatsapp_identity_id", null: false
     t.datetime "connected_at"
     t.datetime "disconnected_at"
     t.datetime "created_at", null: false
@@ -857,9 +860,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["whatsapp_identity_id"], name: "index_whatsapp_connections_on_identity_active", unique: true, where: "(disconnected_at IS NULL)"
   end
 
-  create_table "whatsapp_identities", force: :cascade do |t|
+  create_table "whatsapp_identities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "phone_number", null: false
-    t.bigint "claimed_by_user_id"
+    t.uuid "claimed_by_user_id"
     t.datetime "claimed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -867,7 +870,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_000100) do
     t.index ["phone_number"], name: "index_whatsapp_identities_on_phone_number", unique: true
   end
 
-  create_table "whatsapp_inbound_messages", force: :cascade do |t|
+  create_table "whatsapp_inbound_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "mid", null: false
     t.datetime "processed_at", null: false
     t.datetime "created_at", null: false

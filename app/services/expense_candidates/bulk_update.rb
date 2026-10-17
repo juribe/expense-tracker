@@ -22,8 +22,8 @@ module ExpenseCandidates
     def initialize(user:, ids:, category_id:, money_source_id:)
       @user = user
       @ids = ids
-      @category_id = category_id.presence
-      @money_source_id = money_source_id.presence
+      @category_id = UuidParams.normalize(category_id)
+      @money_source_id = UuidParams.normalize(money_source_id)
       @updated_count = 0
       @error_key = nil
     end
@@ -57,8 +57,8 @@ module ExpenseCandidates
       end
 
       updates = {}
-      updates[:category_id] = category_id.to_i if category_id.present?
-      updates[:money_source_id] = money_source_id.to_i if money_source_id.present?
+      updates[:category_id] = category_id if category_id.present?
+      updates[:money_source_id] = money_source_id if money_source_id.present?
 
       @updated_count = scope.update_all(updates)
       self
@@ -77,7 +77,7 @@ module ExpenseCandidates
     attr_reader :user, :category_id, :money_source_id
 
     def parsed_ids
-      @parsed_ids ||= Array(@ids).flat_map { |value| value.to_s.split(",") }.map(&:to_i).reject(&:zero?)
+      @parsed_ids ||= UuidParams.parse_ids(@ids)
     end
   end
 end

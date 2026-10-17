@@ -32,7 +32,7 @@ class CompleterTest < ActiveSupport::TestCase
     assert_equal %w[account account], @user.money_sources.reload.pluck(:kind)
     # Row order is preserved at creation time; assert by id — bare .first has
     # no defined order once the association is loaded in memory.
-    sources = @user.money_sources.reload.order(:id)
+    sources = @user.money_sources.reload.order(:created_at, :id)
     assert_equal "Bancolombia Savings", sources.first.name
     assert_equal BigDecimal("1000000"), sources.first.starting_balance
   end

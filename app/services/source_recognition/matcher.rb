@@ -131,7 +131,7 @@ module SourceRecognition
           end
 
       buckets.values.each do |group|
-        group[:seed] = group[:members].min_by(&:id)
+        group[:seed] = group[:members].min_by { |member| [ member.created_at, member.id ] }
         group[:configured] = group[:members].any?(&:recognition_configured?)
       end
 

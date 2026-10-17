@@ -168,7 +168,7 @@ class BalanceEffectTest < ActiveSupport::TestCase
 
   private
 
-  def create_source(kind:, name:, sub_kind: nil, starting_balance: 100_000)
+  def create_source(kind:, name:, sub_kind: nil, starting_balance: 1_000_000_000)
     @user.money_sources.create!(name: name, kind: kind, sub_kind: sub_kind, starting_balance: starting_balance)
   end
 

@@ -48,7 +48,7 @@ class ExpenseClarification < ApplicationRecord
   # Session candidates that still need review: the ones the flow keeps
   # asking about. Confirmed/discarded ones drop out of the pending set.
   def pending_candidates
-    candidates.where(status: "needs_review").order(:id)
+    candidates.where(status: "needs_review").order(:created_at, :id)
   end
 
   def all_candidates_resolved?

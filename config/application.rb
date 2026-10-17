@@ -24,6 +24,11 @@ module ExpenseTracker
     config.load_defaults 8.0
     config.time_zone = "America/Bogota"
 
+    # Use UUID primary keys for all new generated tables.
+    config.generators do |g|
+      g.orm :active_record, primary_key_type: :uuid
+    end
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.

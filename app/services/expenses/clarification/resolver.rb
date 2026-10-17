@@ -161,12 +161,12 @@ module Expenses
 
             discard_pending_category(clarification)
             return follow_up(clarification)
-          when /\Asource:(\d+)\z/
+          when /\Asource:(.+)\z/
             source = clarification.user.money_sources.active.payment_sources.find_by(id: ::Regexp.last_match(1))
             return :tap_ignored unless source
 
             candidate.update!(money_source_id: source.id)
-          when /\Acategory:(\d+)\z/
+          when /\Acategory:(.+)\z/
             category = Category.for_user(clarification.user).expenses.find_by(id: ::Regexp.last_match(1))
             return :tap_ignored unless category
 
@@ -365,7 +365,7 @@ module Expenses
       # the one-line format.
       def complete_session!(clarification)
         confirmed = []
-        clarification.candidates.where(status: "ready", expense_id: nil).find_each do |candidate|
+        clarification.candidates.where(status: "ready", expense_id: nil).order(:created_at, :id).each do |candidate|
           candidate.confirm!
           confirmed << candidate
         end

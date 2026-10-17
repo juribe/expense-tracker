@@ -7,7 +7,7 @@ class GoalsController < ApplicationController
 
   # GET /goals
   def index
-    @goals = current_user.goals.includes([ :pocket, :goal_allocations ]).order(:id)
+    @goals = current_user.goals.includes([ :pocket, :goal_allocations ]).order(:created_at, :id)
   end
 
   # GET /goals/new

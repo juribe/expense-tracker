@@ -196,7 +196,7 @@ module Expenses
                              .order(Arel.sql("COUNT(category_id) DESC"))
                              .limit(suggestion ? 8 : 9).pluck(:category_id)
           if category_ids.empty?
-            category_ids = Category.for_user(user).expenses.limit(9).pluck(:id)
+            category_ids = Category.for_user(user).expenses.order(:created_at, :id).limit(9).pluck(:id)
           end
           categories = Category.expenses.where(id: category_ids).index_by(&:id)
           rows += category_ids.filter_map { |id| { id: "category:#{id}", title: categories[id].name } if categories[id] }

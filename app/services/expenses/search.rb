@@ -134,11 +134,11 @@ module Expenses
       # Append a stable secondary sort key (id) so that rows sharing the same
       # primary sort value produce deterministic pagination across databases.
       if sort == "category"
-        scope.left_joins(:category).order("categories.name #{dir}, #{Expense.table_name}.id #{dir}")
+        scope.left_joins(:category).order(Arel.sql("categories.name #{dir}, #{Expense.table_name}.created_at #{dir}, #{Expense.table_name}.id #{dir}"))
       elsif sort == "amount"
-        scope.order(Arel.sql("ABS(#{Expense.table_name}.amount) #{dir}, #{Expense.table_name}.id #{dir}"))
+        scope.order(Arel.sql("ABS(#{Expense.table_name}.amount) #{dir}, #{Expense.table_name}.created_at #{dir}, #{Expense.table_name}.id #{dir}"))
       else
-        scope.order("#{Expense.table_name}.#{sort} #{dir}, #{Expense.table_name}.id #{dir}")
+        scope.order(Arel.sql("#{Expense.table_name}.#{sort} #{dir}, #{Expense.table_name}.created_at #{dir}, #{Expense.table_name}.id #{dir}"))
       end
     end
   end

@@ -179,7 +179,7 @@ class PaymentTest < ActiveSupport::TestCase
   private
 
   def create_source(kind:, name:, sub_kind: nil)
-    @user.money_sources.create!(name: name, kind: kind, sub_kind: sub_kind, starting_balance: 100_000)
+    @user.money_sources.create!(name: name, kind: kind, sub_kind: sub_kind, starting_balance: 1_000_000_000)
   end
 
   def create_expense(amount:, description: "Payment", money_source: nil)

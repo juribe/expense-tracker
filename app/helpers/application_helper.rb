@@ -51,8 +51,9 @@ module ApplicationHelper
 
   def institution_ref_parts(ref)
     type, id = ref.to_s.split(":", 2)
+    id = UuidParams.normalize(id)
     { institution_type: type }.compact_blank
-                             .merge(id.to_s.match?(/\A\d+\z/) ? { id: id } : {})
+                             .merge(id ? { id: id } : {})
   end
 
   def institution_ref_to(target)
@@ -80,7 +81,7 @@ module ApplicationHelper
   def category_badge(category)
     return tag.span(t("common.uncategorized", default: "Sin categoría"), class: "badge bg-light text-dark border") if category.nil?
 
-    color = CATEGORY_COLORS[(category.id || 0) % CATEGORY_COLORS.length]
+    color = CATEGORY_COLORS[category.id.to_s.bytes.sum % CATEGORY_COLORS.length]
     tag.span(category.name, class: "badge bg-#{color}")
   end
 
@@ -154,7 +155,7 @@ module ApplicationHelper
   # The cash source quick transfers retire into: first active cash source by
   # creation order; nil when the user has none (no implicit creation).
   def quick_cash_destination
-    current_user.money_sources.active.by_kind("cash").order(:id).first
+    current_user.money_sources.active.by_kind("cash").order(:created_at, :id).first
   end
 
   def field_class(object, method)

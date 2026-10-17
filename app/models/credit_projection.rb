@@ -21,7 +21,7 @@ class CreditProjection < ApplicationRecord
       money_source.updated_at.to_f,
       money_source.credit_account&.updated_at.to_f,
       payments.maximum(:updated_at).to_f,
-      payments.maximum(:id).to_i,
+      Digest::MD5.hexdigest(payments.order(:created_at, :id).pluck(:id).join(",")),
       payments.count,
       extras.maximum(:updated_at).to_f,
       extras.count

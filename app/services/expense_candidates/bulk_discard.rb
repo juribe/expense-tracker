@@ -53,7 +53,7 @@ module ExpenseCandidates
     attr_reader :user
 
     def parsed_ids
-      @parsed_ids ||= Array(@ids).flat_map { |value| value.to_s.split(",") }.map(&:to_i).reject(&:zero?)
+      @parsed_ids ||= UuidParams.parse_ids(@ids)
     end
   end
 end

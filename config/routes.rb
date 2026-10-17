@@ -78,7 +78,7 @@ Rails.application.routes.draw do
   # private per-user recognition settings per entity
   get "financial_institutions", to: "financial_institutions#index", as: :financial_institutions
   resources :custom_financial_institutions, only: [ :new, :create, :edit, :update, :destroy ]
-  resources :money_sources, id: /[0-9]+/ do
+  resources :money_sources, id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ do
     member do
       post :reset_adjustment
     end

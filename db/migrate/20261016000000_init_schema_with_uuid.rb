@@ -1,0 +1,992 @@
+# frozen_string_literal: true
+
+# Initial schema migration (squashed history).
+#
+# Recreates the full schema from db/schema.rb with one structural change:
+# every application table uses a UUID primary key (gen_random_uuid(); the
+# pgcrypto extension provides it for PostgreSQL < 13) and every foreign key
+# column between application tables is uuid. Solid Queue / Solid Cable tables
+# are kept on bigint as they are engine-managed.
+#
+# NOTE: this migration defines the structure only; it does not backfill data.
+# Databases created from an older schema must be regenerated (development and
+# test data are disposable). It is safe to run on an empty production
+# database.
+class InitSchemaWithUuid < ActiveRecord::Migration[8.0]
+  APP_TABLES = %w[
+    whatsapp_connections
+    activity_classifications
+    ai_requests
+    alert_preferences
+    budgets
+    credit_accounts
+    credit_extra_payments
+    credit_projections
+    credit_scenarios
+    custom_financial_institutions
+    evaluation_cases
+    evaluation_runs
+    expense_candidates
+    expense_clarification_candidates
+    expense_clarifications
+    expense_playground_runs
+    expenses
+    incomes
+    financial_chat_messages
+    gmail_connections
+    goal_allocations
+    goals
+    money_source_recognition_identifiers
+    money_source_recognitions
+    pending_whatsapp_connections
+    processed_emails
+    reconciliation_snapshots
+    reconciliation_states
+    spending_alerts
+    spreadsheet_format_mappings
+    statement_format_mappings
+    transaction_rules
+    whatsapp_identities
+    financial_chats
+    financial_institutions
+    financial_keywords
+    financial_subject_patterns
+    financial_setups
+    payments
+    transfers
+    transactions
+    recurring_templates
+    money_sources
+    categories
+    users
+  ].freeze
+
+  ENGINE_TABLES = %w[
+    solid_queue_blocked_executions
+    solid_queue_claimed_executions
+    solid_queue_failed_executions
+    solid_queue_ready_executions
+    solid_queue_recurring_executions
+    solid_queue_scheduled_executions
+    solid_queue_jobs
+    solid_queue_processes
+    solid_queue_pauses
+    solid_queue_semaphores
+    solid_queue_recurring_tasks
+    solid_cable_messages
+  ].freeze
+
+  def up
+    enable_extension "pg_catalog.plpgsql"
+    enable_extension "pgcrypto"
+
+    create_app_tables
+    add_app_foreign_keys
+    add_engine_foreign_keys
+  end
+
+  def down
+    (APP_TABLES + ENGINE_TABLES).each do |table|
+      drop_table(table) if table_exists?(table)
+    end
+  end
+
+  private
+
+  def create_app_tables
+    create_table :activity_classifications, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :normalized_name, null: false
+      t.string :original_name
+      t.uuid :category_id
+      t.string :subcategory
+      t.decimal :confidence, precision: 4, scale: 3
+      t.string :source, default: "ai", null: false
+      t.timestamps
+      t.index [ :category_id ], name: "index_activity_classifications_on_category_id"
+      t.index [ :user_id, :normalized_name ], name: "index_activity_classifications_on_user_id_and_normalized_name", unique: true
+    end
+
+    create_table :ai_requests, id: :uuid do |t|
+      t.uuid :user_id
+      t.string :task, null: false
+      t.string :strategy, null: false
+      t.string :provider
+      t.string :model
+      t.string :status, default: "ok", null: false
+      t.integer :input_tokens
+      t.integer :output_tokens
+      t.integer :latency_ms
+      t.decimal :confidence, precision: 4, scale: 3
+      t.boolean :escalated, default: false, null: false
+      t.string :error
+      t.timestamps
+      t.jsonb :prompt
+      t.text :output
+      t.index [ :created_at ], name: "index_ai_requests_on_created_at"
+      t.index [ :strategy ], name: "index_ai_requests_on_strategy"
+      t.index [ :task ], name: "index_ai_requests_on_task"
+      t.index [ :user_id ], name: "index_ai_requests_on_user_id"
+    end
+
+    create_table :alert_preferences, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.boolean :budget_threshold_enabled, default: true, null: false
+      t.boolean :budget_exceeded_enabled, default: true, null: false
+      t.boolean :spending_increase_enabled, default: false, null: false
+      t.timestamps
+      t.index [ :user_id ], name: "index_alert_preferences_on_user_id", unique: true
+    end
+
+    create_table :budgets, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :category_id, null: false
+      t.decimal :monthly_amount, precision: 14, scale: 2, null: false
+      t.string :period, default: "monthly", null: false
+      t.boolean :active, default: true, null: false
+      t.timestamps
+      t.index [ :category_id ], name: "index_budgets_on_category_id"
+      t.index [ :user_id, :category_id ], name: "index_budgets_on_user_id_and_category_id", unique: true
+      t.index [ :user_id ], name: "index_budgets_on_user_id"
+    end
+
+    create_table :categories, id: :uuid do |t|
+      t.string :name, null: false
+      t.text :description
+      t.timestamps
+      t.string :slug, null: false
+      t.uuid :parent_id
+      t.boolean :active, default: true, null: false
+      t.string :image
+      t.uuid :user_id
+      t.boolean :is_default, default: false, null: false
+      t.string :category_type
+      t.integer :expenses_count, default: 0, null: false
+      t.index [ :category_type ], name: "index_categories_on_category_type"
+      t.index [ :is_default ], name: "index_categories_on_is_default"
+      t.index [ :name ], name: "index_categories_on_name"
+      t.index [ :parent_id ], name: "index_categories_on_parent_id"
+      t.index [ :slug ], name: "index_categories_on_slug"
+      t.index [ :user_id ], name: "index_categories_on_user_id"
+    end
+
+    create_table :credit_accounts, id: :uuid do |t|
+      t.uuid :money_source_id, null: false
+      t.decimal :credit_limit, precision: 14, scale: 2
+      t.decimal :interest_rate, precision: 8, scale: 4
+      t.string :interest_rate_type
+      t.string :card_brand
+      t.string :card_last_four
+      t.integer :statement_day
+      t.integer :payment_due_day
+      t.decimal :principal_amount, precision: 14, scale: 2
+      t.decimal :outstanding_balance, precision: 14, scale: 2
+      t.decimal :installment_amount, precision: 14, scale: 2
+      t.integer :installment_count
+      t.string :payment_frequency
+      t.date :start_date
+      t.date :end_date
+      t.timestamps
+      t.integer :installments_paid
+      t.boolean :outstanding_usage_replayed, default: false, null: false
+      t.index [ :money_source_id ], name: "index_credit_accounts_on_money_source_id", unique: true
+    end
+
+    create_table :credit_extra_payments, id: :uuid do |t|
+      t.uuid :money_source_id, null: false
+      t.date :date, null: false
+      t.decimal :amount, precision: 14, scale: 2, null: false
+      t.string :application_type, null: false
+      t.decimal :principal_reduction, precision: 14, scale: 2, default: "0.0", null: false
+      t.integer :installments_affected
+      t.jsonb :effect, default: {}, null: false
+      t.string :note
+      t.timestamps
+      t.uuid :funding_money_source_id
+      t.uuid :payment_id
+      t.uuid :expense_id
+      t.uuid :transfer_id
+      t.index [ :expense_id ], name: "index_credit_extra_payments_on_expense_id"
+      t.index [ :funding_money_source_id ], name: "index_credit_extra_payments_on_funding_money_source_id"
+      t.index [ :money_source_id, :date ], name: "index_credit_extra_payments_on_money_source_id_and_date"
+      t.index [ :money_source_id ], name: "index_credit_extra_payments_on_money_source_id"
+      t.index [ :payment_id ], name: "index_credit_extra_payments_on_payment_id"
+      t.index [ :transfer_id ], name: "index_credit_extra_payments_on_transfer_id"
+    end
+
+    create_table :credit_projections, id: :uuid do |t|
+      t.uuid :money_source_id, null: false
+      t.boolean :estimated, default: false, null: false
+      t.string :fingerprint, null: false
+      t.jsonb :inputs, default: {}, null: false
+      t.jsonb :schedule, default: {}, null: false
+      t.jsonb :summary, default: {}, null: false
+      t.jsonb :assumptions, default: [], null: false
+      t.datetime :computed_at, null: false
+      t.timestamps
+      t.index [ :money_source_id ], name: "index_credit_projections_on_money_source_id", unique: true
+    end
+
+    create_table :credit_scenarios, id: :uuid do |t|
+      t.uuid :money_source_id, null: false
+      t.string :name, null: false
+      t.string :kind, null: false
+      t.jsonb :params, default: {}, null: false
+      t.jsonb :results, default: {}, null: false
+      t.datetime :computed_at, null: false
+      t.timestamps
+      t.index [ :money_source_id, :kind ], name: "index_credit_scenarios_on_money_source_id_and_kind"
+      t.index [ :money_source_id ], name: "index_credit_scenarios_on_money_source_id"
+    end
+
+    create_table :custom_financial_institutions, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :name, null: false
+      t.string :institution_type
+      t.timestamps
+      t.index [ :user_id, :name ], name: "index_custom_financial_institutions_on_user_id_and_name", unique: true
+      t.index [ :user_id ], name: "index_custom_financial_institutions_on_user_id"
+    end
+
+    create_table :evaluation_cases, id: :uuid do |t|
+      t.uuid :evaluation_run_id, null: false
+      t.integer :row_number, null: false
+      t.text :message, null: false
+      t.jsonb :expected_json, default: {}, null: false
+      t.jsonb :actual_json
+      t.jsonb :field_results, default: [], null: false
+      t.string :status, default: "pending", null: false
+      t.boolean :json_valid, default: false, null: false
+      t.integer :latency_ms
+      t.integer :input_tokens
+      t.integer :output_tokens
+      t.decimal :cost, precision: 12, scale: 6
+      t.text :error
+      t.timestamps
+      t.integer :attempts, default: 0, null: false
+      t.decimal :input_cost, precision: 12, scale: 6
+      t.decimal :output_cost, precision: 12, scale: 6
+      t.index [ :evaluation_run_id, :row_number ], name: "index_evaluation_cases_on_evaluation_run_id_and_row_number", unique: true
+      t.index [ :evaluation_run_id, :status ], name: "index_evaluation_cases_on_evaluation_run_id_and_status"
+      t.index [ :evaluation_run_id ], name: "index_evaluation_cases_on_evaluation_run_id"
+    end
+
+    create_table :evaluation_runs, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :dataset_name
+      t.string :dataset_version
+      t.string :provider
+      t.string :model
+      t.string :prompt_version
+      t.string :status, default: "pending", null: false
+      t.integer :total_cases, default: 0, null: false
+      t.jsonb :metrics, default: {}, null: false
+      t.datetime :started_at
+      t.datetime :completed_at
+      t.timestamps
+      t.index [ :user_id, :created_at ], name: "index_evaluation_runs_on_user_id_and_created_at"
+      t.index [ :user_id ], name: "index_evaluation_runs_on_user_id"
+    end
+
+    create_table :expense_candidates, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.decimal :amount, precision: 10, scale: 2
+      t.date :date
+      t.string :description
+      t.uuid :category_id
+      t.uuid :money_source_id
+      t.string :status, default: "needs_review", null: false
+      t.string :source, default: "text", null: false
+      t.float :confidence
+      t.jsonb :missing_fields, default: [], null: false
+      t.text :original_input
+      t.text :original_text
+      t.uuid :expense_id
+      t.jsonb :metadata, default: {}, null: false
+      t.datetime :confirmed_at
+      t.datetime :discarded_at
+      t.timestamps
+      t.string :category_suggestion
+      t.index [ :category_id ], name: "index_expense_candidates_on_category_id"
+      t.index [ :expense_id ], name: "index_expense_candidates_on_expense_id"
+      t.index [ :money_source_id ], name: "index_expense_candidates_on_money_source_id"
+      t.index [ :user_id, :created_at ], name: "index_expense_candidates_on_user_id_and_created_at"
+      t.index [ :user_id, :status ], name: "index_expense_candidates_on_user_id_and_status"
+      t.index [ :user_id ], name: "index_expense_candidates_on_user_id"
+    end
+
+    create_table :expense_clarification_candidates, id: :uuid do |t|
+      t.uuid :expense_clarification_id, null: false
+      t.uuid :expense_candidate_id, null: false
+      t.jsonb :missing_fields, default: [], null: false
+      t.timestamps
+      t.index [ :expense_candidate_id ], name: "index_expense_clarification_candidates_on_expense_candidate_id"
+      t.index [ :expense_clarification_id, :expense_candidate_id ], name: "index_clarification_candidates_unique", unique: true
+      t.index [ :expense_clarification_id ], name: "idx_on_expense_clarification_id_cea0c05a63"
+    end
+
+    create_table :expense_clarifications, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :phone_number, null: false
+      t.string :status, default: "pending", null: false
+      t.text :question
+      t.integer :questions_count, default: 0, null: false
+      t.timestamps
+      t.text :original_message
+      t.string :pending_category_name
+      t.index [ :status ], name: "index_expense_clarifications_on_status"
+      t.index [ :user_id ], name: "index_expense_clarifications_on_user_id"
+      t.index [ :user_id ], name: "index_expense_clarifications_on_user_pending", unique: true, where: "((status)::text = 'pending'::text)"
+    end
+
+    create_table :expense_playground_runs, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :input_type, limit: 20, null: false
+      t.string :input_label, limit: 200
+      t.string :engine, limit: 30
+      t.integer :duration_ms
+      t.string :status, limit: 20, default: "ok", null: false
+      t.jsonb :candidate, default: {}, null: false
+      t.jsonb :steps, default: {}, null: false
+      t.jsonb :error_messages, default: [], null: false, array: true
+      t.jsonb :warnings, default: [], null: false, array: true
+      t.uuid :expense_id
+      t.timestamps
+      t.jsonb :candidates, default: [], null: false
+      t.index [ :created_at ], name: "index_expense_playground_runs_on_created_at"
+      t.index [ :expense_id ], name: "index_expense_playground_runs_on_expense_id"
+      t.index [ :user_id ], name: "index_expense_playground_runs_on_user_id"
+    end
+
+    create_table :expenses, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :category_id, null: false
+      t.decimal :amount, precision: 10, scale: 2, null: false
+      t.string :description
+      t.date :date, null: false
+      t.string :frequency, default: "one_time"
+      t.timestamps
+      t.index [ :category_id ], name: "index_expenses_on_category_id"
+      t.index [ :user_id ], name: "index_expenses_on_user_id"
+    end
+
+    create_table :financial_chat_messages, id: :uuid do |t|
+      t.uuid :financial_chat_id, null: false
+      t.string :role, null: false
+      t.text :content, null: false
+      t.string :status, default: "complete", null: false
+      t.string :error_message
+      t.string :model
+      t.integer :input_tokens
+      t.integer :output_tokens
+      t.integer :latency_ms
+      t.timestamps
+      t.index [ :financial_chat_id, :created_at ], name: "index_financial_chat_messages_on_chat_id_and_created_at"
+      t.index [ :financial_chat_id ], name: "index_financial_chat_messages_on_financial_chat_id"
+    end
+
+    create_table :financial_chats, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.timestamps
+      t.index [ :user_id ], name: "index_financial_chats_on_user_id", unique: true
+    end
+
+    create_table :financial_institutions, id: :uuid do |t|
+      t.string :canonical_name, null: false
+      t.jsonb :aliases, default: [], null: false
+      t.jsonb :domains, default: [], null: false
+      t.jsonb :keywords, default: [], null: false
+      t.boolean :active, default: true, null: false
+      t.timestamps
+      t.string :slug, null: false
+      t.string :institution_type
+      t.index [ :canonical_name ], name: "index_financial_institutions_on_canonical_name", unique: true
+      t.index [ :institution_type ], name: "index_financial_institutions_on_institution_type"
+      t.index [ :slug ], name: "index_financial_institutions_on_slug", unique: true
+    end
+
+    create_table :financial_keywords, id: :uuid do |t|
+      t.string :value, null: false
+      t.string :category, null: false
+      t.integer :weight, default: 1, null: false
+      t.timestamps
+      t.index [ :category ], name: "index_financial_keywords_on_category"
+      t.index [ :value ], name: "index_financial_keywords_on_value", unique: true
+    end
+
+    create_table :financial_setups, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.integer :current_step, default: 0, null: false
+      t.string :status, default: "in_progress", null: false
+      t.jsonb :data, default: {}, null: false
+      t.timestamps
+      t.index [ :user_id, :status ], name: "index_financial_setups_on_user_id_and_status"
+      t.index [ :user_id ], name: "index_financial_setups_on_user_id"
+    end
+
+    create_table :financial_subject_patterns, id: :uuid do |t|
+      t.string :value, null: false
+      t.integer :weight, default: 2, null: false
+      t.timestamps
+      t.index [ :value ], name: "index_financial_subject_patterns_on_value", unique: true
+    end
+
+    create_table :gmail_connections, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :email, null: false
+      t.string :google_account_id
+      t.string :access_token
+      t.string :refresh_token
+      t.datetime :token_expires_at
+      t.json :search_config, default: {}
+      t.datetime :last_synced_at
+      t.boolean :active, default: true, null: false
+      t.timestamps
+      t.datetime :syncing
+      t.json :last_sync_summary
+      t.json :setup_suggestions
+      t.index [ :user_id, :email ], name: "index_gmail_connections_on_user_id_and_email", unique: true
+      t.index [ :user_id ], name: "index_gmail_connections_on_user_id"
+    end
+
+    create_table :goal_allocations, id: :uuid do |t|
+      t.uuid :financial_goal_id, null: false
+      t.uuid :pocket_id, null: false
+      t.decimal :amount, precision: 14, scale: 2, null: false
+      t.date :date, null: false
+      t.string :note
+      t.timestamps
+      t.index [ :financial_goal_id ], name: "index_goal_allocations_on_financial_goal_id"
+      t.index [ :pocket_id, :date ], name: "index_goal_allocations_on_pocket_id_and_date"
+      t.index [ :pocket_id ], name: "index_goal_allocations_on_pocket_id"
+    end
+
+    create_table :goals, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :name, null: false
+      t.decimal :target_amount, precision: 14, scale: 2, null: false
+      t.date :target_date
+      t.timestamps
+      t.uuid :pocket_id
+      t.integer :priority, default: 1, null: false
+      t.string :category
+      t.string :status, default: "active", null: false
+      t.index [ :pocket_id ], name: "index_goals_on_pocket_id"
+      t.index [ :user_id, :name ], name: "index_goals_on_user_id_and_name"
+      t.index [ :user_id ], name: "index_goals_on_user_id"
+    end
+
+    create_table :incomes, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :category_id, null: false
+      t.decimal :amount, precision: 10, scale: 2, null: false
+      t.string :description
+      t.date :date, null: false
+      t.string :frequency, default: "one_time"
+      t.timestamps
+      t.index [ :category_id ], name: "index_incomes_on_category_id"
+      t.index [ :user_id ], name: "index_incomes_on_user_id"
+    end
+
+    create_table :money_source_recognition_identifiers, id: :uuid do |t|
+      t.uuid :money_source_recognition_id, null: false
+      t.string :kind, null: false
+      t.string :value, null: false
+      t.integer :position, default: 0, null: false
+      t.timestamps
+      t.string :status, default: "confirmed", null: false
+      t.string :origin, default: "user", null: false
+      t.integer :observation_count, default: 1, null: false
+      t.datetime :last_seen_at
+      t.index [ :money_source_recognition_id, :kind, :position ], name: "index_mrs_identifiers_on_recognition_kind_position"
+      t.index [ :money_source_recognition_id, :kind, :value ], name: "index_mrs_identifiers_on_recognition_kind_value", unique: true
+      t.index [ :money_source_recognition_id ], name: "idx_on_money_source_recognition_id_39b1679ecd"
+      t.index [ :status ], name: "index_money_source_recognition_identifiers_on_status"
+    end
+
+    create_table :money_source_recognitions, id: :uuid do |t|
+      t.uuid :money_source_id, null: false
+      t.timestamps
+      t.index [ :money_source_id ], name: "index_money_source_recognitions_on_money_source_id", unique: true
+    end
+
+    create_table :money_sources, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :name, null: false
+      t.string :kind, null: false
+      t.string :bank
+      t.uuid :parent_id
+      t.decimal :starting_balance, precision: 12, scale: 2, default: "0.0", null: false
+      t.boolean :active, default: true, null: false
+      t.timestamps
+      t.string :identifier
+      t.string :sub_kind
+      t.decimal :cached_balance, precision: 14, scale: 2, default: "0.0", null: false
+      t.decimal :balance_offset, precision: 14, scale: 2, default: "0.0", null: false
+      t.string :balance_offset_note
+      t.datetime :balance_offset_at
+      t.integer :transactions_count, default: 0, null: false
+      t.string :institution_type
+      t.uuid :institution_id
+      t.string :institution_cached_name
+      t.index [ :institution_type, :institution_id ], name: "index_money_sources_on_institution"
+      t.index [ :kind, :sub_kind ], name: "index_money_sources_on_kind_and_sub_kind"
+      t.index [ :parent_id ], name: "index_money_sources_on_parent_id"
+      t.index [ :user_id, :identifier ], name: "index_money_sources_on_user_id_and_identifier", unique: true
+      t.index [ :user_id, :kind ], name: "index_money_sources_on_user_id_and_kind"
+      t.index [ :user_id ], name: "index_money_sources_on_user_id"
+    end
+
+    create_table :payments, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :expense_id, null: false
+      t.uuid :money_source_id, null: false
+      t.date :date, null: false
+      t.decimal :amount, precision: 14, scale: 2, null: false
+      t.decimal :principal_amount, precision: 14, scale: 2, default: "0.0", null: false
+      t.decimal :interest_amount, precision: 14, scale: 2, default: "0.0", null: false
+      t.decimal :insurance_amount, precision: 14, scale: 2, default: "0.0", null: false
+      t.decimal :other_amount, precision: 14, scale: 2, default: "0.0", null: false
+      t.string :source, default: "manual", null: false
+      t.timestamps
+      t.index [ :expense_id, :money_source_id ], name: "index_payments_on_expense_and_target", unique: true
+      t.index [ :expense_id ], name: "index_payments_on_expense_id"
+      t.index [ :money_source_id ], name: "index_payments_on_money_source_id"
+      t.index [ :user_id ], name: "index_payments_on_user_id"
+    end
+
+    create_table :pending_whatsapp_connections, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :token_digest, null: false
+      t.datetime :expires_at, null: false
+      t.datetime :used_at
+      t.timestamps
+      t.index [ :token_digest ], name: "index_pending_whatsapp_connections_on_token_digest"
+      t.index [ :user_id ], name: "index_pending_whatsapp_connections_on_user_id"
+    end
+
+    create_table :processed_emails, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :expense_id
+      t.string :provider, default: "gmail", null: false
+      t.string :message_id, null: false
+      t.string :status, default: "processed", null: false
+      t.text :payload
+      t.string :failure_reason
+      t.integer :attempts, default: 0, null: false
+      t.datetime :processed_at
+      t.timestamps
+      t.index [ :expense_id ], name: "index_processed_emails_on_expense_id"
+      t.index [ :provider, :message_id ], name: "index_processed_emails_on_provider_and_message_id", unique: true
+      t.index [ :status ], name: "index_processed_emails_on_status"
+      t.index [ :user_id ], name: "index_processed_emails_on_user_id"
+    end
+
+    create_table :reconciliation_snapshots, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :money_source_id, null: false
+      t.string :period, null: false
+      t.decimal :actual_balance, precision: 14, scale: 2, default: "0.0", null: false
+      t.string :resolution, default: "unverified", null: false
+      t.datetime :checked_at
+      t.timestamps
+      t.index [ :money_source_id ], name: "index_reconciliation_snapshots_on_money_source_id"
+      t.index [ :user_id, :money_source_id, :period ], name: "idx_on_user_id_money_source_id_period_c7a140e6c1", unique: true
+      t.index [ :user_id ], name: "index_reconciliation_snapshots_on_user_id"
+    end
+
+    create_table :reconciliation_states, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :period, null: false
+      t.string :status, default: "pending", null: false
+      t.integer :pending_payments_count, default: 0, null: false
+      t.integer :discrepancies_count, default: 0, null: false
+      t.jsonb :snapshot, default: {}, null: false
+      t.datetime :checked_at
+      t.boolean :stale, default: true, null: false
+      t.timestamps
+      t.integer :unverified_count, default: 0, null: false
+      t.index [ :user_id, :period ], name: "index_reconciliation_states_on_user_id_and_period", unique: true
+      t.index [ :user_id ], name: "index_reconciliation_states_on_user_id"
+    end
+
+    create_table :recurring_templates, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :category_id, null: false
+      t.string :kind, null: false
+      t.decimal :amount, precision: 10, scale: 2, null: false
+      t.string :description
+      t.integer :payment_day
+      t.string :frequency, default: "monthly", null: false
+      t.boolean :active, default: true, null: false
+      t.string :source, default: "manual", null: false
+      t.timestamps
+      t.uuid :money_source_id
+      t.index [ :category_id ], name: "index_recurring_templates_on_category_id"
+      t.index [ :kind ], name: "index_recurring_templates_on_kind"
+      t.index [ :money_source_id ], name: "index_recurring_templates_on_money_source_id"
+      t.index [ :user_id, :kind ], name: "index_recurring_templates_on_user_id_and_kind"
+      t.index [ :user_id ], name: "index_recurring_templates_on_user_id"
+    end
+
+    create_table :solid_cable_messages, id: :bigint do |t|
+      t.binary :channel, null: false
+      t.binary :payload, null: false
+      t.datetime :created_at, null: false
+      t.bigint :channel_hash, null: false
+      t.index [ :channel ], name: "index_solid_cable_messages_on_channel"
+      t.index [ :channel_hash ], name: "index_solid_cable_messages_on_channel_hash"
+      t.index [ :created_at ], name: "index_solid_cable_messages_on_created_at"
+    end
+
+    create_table :solid_queue_blocked_executions, id: :bigint do |t|
+      t.bigint :job_id, null: false
+      t.string :queue_name, null: false
+      t.integer :priority, default: 0, null: false
+      t.string :concurrency_key, null: false
+      t.datetime :expires_at, null: false
+      t.timestamps
+      t.index [ :concurrency_key, :priority, :job_id ], name: "index_solid_queue_blocked_executions_for_release"
+      t.index [ :expires_at, :concurrency_key ], name: "index_solid_queue_blocked_executions_for_maintenance"
+      t.index [ :job_id ], name: "index_solid_queue_blocked_executions_on_job_id", unique: true
+    end
+
+    create_table :solid_queue_claimed_executions, id: :bigint do |t|
+      t.bigint :job_id, null: false
+      t.bigint :process_id
+      t.datetime :created_at, null: false
+      t.index [ :job_id ], name: "index_solid_queue_claimed_executions_on_job_id", unique: true
+      t.index [ :process_id, :job_id ], name: "index_solid_queue_claimed_executions_on_process_id_and_job_id"
+    end
+
+    create_table :solid_queue_failed_executions, id: :bigint do |t|
+      t.bigint :job_id, null: false
+      t.text :error
+      t.datetime :created_at, null: false
+      t.index [ :job_id ], name: "index_solid_queue_failed_executions_on_job_id", unique: true
+    end
+
+    create_table :solid_queue_jobs, id: :bigint do |t|
+      t.string :queue_name, null: false
+      t.string :class_name, null: false
+      t.text :arguments
+      t.integer :priority, default: 0, null: false
+      t.string :active_job_id
+      t.datetime :scheduled_at
+      t.datetime :finished_at
+      t.string :concurrency_key
+      t.timestamps
+      t.index [ :active_job_id ], name: "index_solid_queue_jobs_on_active_job_id"
+      t.index [ :class_name ], name: "index_solid_queue_jobs_on_class_name"
+      t.index [ :finished_at ], name: "index_solid_queue_jobs_on_finished_at"
+      t.index [ :queue_name, :finished_at ], name: "index_solid_queue_jobs_for_filtering"
+      t.index [ :scheduled_at, :finished_at ], name: "index_solid_queue_jobs_for_alerting"
+    end
+
+    create_table :solid_queue_pauses, id: :bigint do |t|
+      t.string :queue_name, null: false
+      t.datetime :created_at, null: false
+      t.index [ :queue_name ], name: "index_solid_queue_pauses_on_queue_name", unique: true
+    end
+
+    create_table :solid_queue_processes, id: :bigint do |t|
+      t.string :kind, null: false
+      t.datetime :last_heartbeat_at, null: false
+      t.bigint :supervisor_id
+      t.integer :pid, null: false
+      t.string :hostname
+      t.text :metadata
+      t.timestamps
+      t.string :name, null: false
+      t.index [ :last_heartbeat_at ], name: "index_solid_queue_processes_on_last_heartbeat_at"
+      t.index [ :name, :supervisor_id ], name: "index_solid_queue_processes_on_name_and_supervisor_id", unique: true
+      t.index [ :supervisor_id ], name: "index_solid_queue_processes_on_supervisor_id"
+    end
+
+    create_table :solid_queue_ready_executions, id: :bigint do |t|
+      t.bigint :job_id, null: false
+      t.string :queue_name, null: false
+      t.integer :priority, default: 0, null: false
+      t.datetime :created_at, null: false
+      t.index [ :job_id ], name: "index_solid_queue_ready_executions_on_job_id", unique: true
+      t.index [ :priority, :job_id ], name: "index_solid_queue_poll_all"
+      t.index [ :queue_name, :priority, :job_id ], name: "index_solid_queue_poll_by_queue"
+    end
+
+    create_table :solid_queue_recurring_executions, id: :bigint do |t|
+      t.bigint :job_id, null: false
+      t.string :task_key, null: false
+      t.datetime :run_at, null: false
+      t.datetime :created_at, null: false
+      t.index [ :job_id ], name: "index_solid_queue_recurring_executions_on_job_id", unique: true
+      t.index [ :task_key, :run_at ], name: "index_solid_queue_recurring_executions_on_task_key_and_run_at", unique: true
+    end
+
+    create_table :solid_queue_recurring_tasks, id: :bigint do |t|
+      t.string :key, null: false
+      t.string :schedule, null: false
+      t.string :command, limit: 2048
+      t.string :class_name
+      t.text :arguments
+      t.string :queue_name
+      t.integer :priority, default: 0
+      t.boolean :static, default: true, null: false
+      t.text :description
+      t.timestamps
+      t.index [ :key ], name: "index_solid_queue_recurring_tasks_on_key", unique: true
+      t.index [ :static ], name: "index_solid_queue_recurring_tasks_on_static"
+    end
+
+    create_table :solid_queue_scheduled_executions, id: :bigint do |t|
+      t.bigint :job_id, null: false
+      t.string :queue_name, null: false
+      t.integer :priority, default: 0, null: false
+      t.datetime :scheduled_at, null: false
+      t.datetime :created_at, null: false
+      t.index [ :job_id ], name: "index_solid_queue_scheduled_executions_on_job_id", unique: true
+      t.index [ :scheduled_at, :priority, :job_id ], name: "index_solid_queue_dispatch_all"
+    end
+
+    create_table :solid_queue_semaphores, id: :bigint do |t|
+      t.string :key, null: false
+      t.integer :value, default: 1, null: false
+      t.datetime :expires_at, null: false
+      t.timestamps
+      t.index [ :expires_at ], name: "index_solid_queue_semaphores_on_expires_at"
+      t.index [ :key, :value ], name: "index_solid_queue_semaphores_on_key_and_value"
+      t.index [ :key ], name: "index_solid_queue_semaphores_on_key", unique: true
+    end
+
+    create_table :spending_alerts, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :category_id, null: false
+      t.string :kind, null: false
+      t.string :month, null: false
+      t.integer :pct, null: false
+      t.decimal :amount, precision: 14, scale: 2, null: false
+      t.decimal :previous_amount, precision: 14, scale: 2
+      t.datetime :read_at
+      t.timestamps
+      t.index [ :category_id ], name: "index_spending_alerts_on_category_id"
+      t.index [ :user_id, :kind, :category_id, :month ], name: "index_spending_alerts_on_kind_category_month", unique: true
+      t.index [ :user_id, :read_at ], name: "index_spending_alerts_on_user_id_and_read_at"
+      t.index [ :user_id ], name: "index_spending_alerts_on_user_id"
+    end
+
+    create_table :spreadsheet_format_mappings, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :fingerprint, null: false
+      t.string :bank
+      t.jsonb :headers, default: [], null: false
+      t.jsonb :mapping, default: {}, null: false
+      t.decimal :confidence, precision: 4, scale: 3
+      t.string :source, default: "ai", null: false
+      t.timestamps
+      t.index [ :user_id, :fingerprint ], name: "index_spreadsheet_format_mappings_on_user_id_and_fingerprint", unique: true
+      t.index [ :user_id ], name: "index_spreadsheet_format_mappings_on_user_id"
+    end
+
+    create_table :statement_format_mappings, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :fingerprint, null: false
+      t.string :bank
+      t.jsonb :anchors, default: [], null: false
+      t.jsonb :sections, default: {}, null: false
+      t.jsonb :row_spec, default: {}, null: false
+      t.boolean :skip_income, default: true, null: false
+      t.decimal :confidence, precision: 4, scale: 3
+      t.string :source, default: "ai", null: false
+      t.timestamps
+      t.jsonb :summary_spec, default: {}, null: false
+      t.integer :recipe_version, default: 0, null: false
+      t.uuid :money_source_id, null: false
+      t.index [ :money_source_id ], name: "index_statement_format_mappings_on_money_source_id"
+      t.index [ :user_id, :money_source_id, :fingerprint ], name: "index_statement_format_mappings_source_fingerprint", unique: true
+      t.index [ :user_id ], name: "index_statement_format_mappings_on_user_id"
+    end
+
+    create_table :transaction_rules, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.string :name
+      t.boolean :enabled, default: true, null: false
+      t.integer :priority, default: 0, null: false
+      t.string :merchant_contains
+      t.string :description_contains
+      t.uuid :money_source_condition_id
+      t.decimal :amount_gt, precision: 14, scale: 2
+      t.decimal :amount_lt, precision: 14, scale: 2
+      t.uuid :category_id
+      t.uuid :action_money_source_id
+      t.string :tag
+      t.timestamps
+      t.index [ :category_id ], name: "index_transaction_rules_on_category_id"
+      t.index [ :priority ], name: "index_transaction_rules_on_priority", order: :desc
+      t.index [ :user_id ], name: "index_transaction_rules_on_user_id"
+    end
+
+    create_table :transactions, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :category_id
+      t.date :date, null: false
+      t.decimal :amount, precision: 10, scale: 2, null: false
+      t.string :kind, null: false
+      t.string :description
+      t.string :source, default: "manual", null: false
+      t.uuid :recurring_template_id
+      t.timestamps
+      t.string :gmail_message_id
+      t.uuid :money_source_id
+      t.jsonb :applied_rule_ids, default: [], null: false
+      t.uuid :rule_id
+      t.jsonb :tags, default: [], null: false
+      t.index [ :category_id ], name: "index_transactions_on_category_id"
+      t.index [ :date ], name: "index_transactions_on_date"
+      t.index [ :gmail_message_id ], name: "index_transactions_on_gmail_message_id"
+      t.index [ :kind ], name: "index_transactions_on_kind"
+      t.index [ :money_source_id ], name: "index_transactions_on_money_source_id"
+      t.index [ :recurring_template_id ], name: "index_transactions_on_recurring_template_id"
+      t.index [ :user_id, :gmail_message_id, :amount, :date ], name: "index_transactions_gmail_dedup", unique: true, where: "(gmail_message_id IS NOT NULL)"
+      t.index [ :user_id, :kind, :date ], name: "index_transactions_on_user_id_and_kind_and_date"
+      t.index [ :user_id ], name: "index_transactions_on_user_id"
+    end
+
+    create_table :transfers, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :from_source_id, null: false
+      t.uuid :to_source_id, null: false
+      t.decimal :amount, precision: 12, scale: 2, null: false
+      t.date :date, null: false
+      t.string :note
+      t.timestamps
+      t.index [ :from_source_id ], name: "index_transfers_on_from_source_id"
+      t.index [ :to_source_id ], name: "index_transfers_on_to_source_id"
+      t.index [ :user_id, :date ], name: "index_transfers_on_user_id_and_date"
+      t.index [ :user_id ], name: "index_transfers_on_user_id"
+    end
+
+    create_table :users, id: :uuid do |t|
+      t.string :name, default: "", null: false
+      t.timestamps
+      t.string :email, default: "", null: false
+      t.string :encrypted_password, default: "", null: false
+      t.string :reset_password_token
+      t.datetime :reset_password_sent_at
+      t.datetime :remember_created_at
+      t.jsonb :dismissed_rule_suggestions, default: [], null: false
+      t.integer :financial_cycle_start_day, default: 1, null: false
+      t.decimal :debt_capacity_target_percentage, precision: 5, scale: 2, default: "30.0", null: false
+      t.decimal :debt_capacity_alert_percentage, precision: 5, scale: 2, default: "40.0", null: false
+      t.index [ :email ], name: "index_users_on_email", unique: true
+      t.index [ :reset_password_token ], name: "index_users_on_reset_password_token", unique: true
+    end
+
+    create_table :whatsapp_connections, id: :uuid do |t|
+      t.uuid :user_id, null: false
+      t.uuid :whatsapp_identity_id, null: false
+      t.datetime :connected_at
+      t.datetime :disconnected_at
+      t.timestamps
+      t.index [ :user_id ], name: "index_whatsapp_connections_on_user_id"
+      t.index [ :whatsapp_identity_id ], name: "index_whatsapp_connections_on_identity_active", unique: true, where: "(disconnected_at IS NULL)"
+    end
+
+    create_table :whatsapp_identities, id: :uuid do |t|
+      t.string :phone_number, null: false
+      t.uuid :claimed_by_user_id
+      t.datetime :claimed_at
+      t.timestamps
+      t.index [ :claimed_by_user_id ], name: "index_whatsapp_identities_on_claimed_by_user_id"
+      t.index [ :phone_number ], name: "index_whatsapp_identities_on_phone_number", unique: true
+    end
+
+    create_table :whatsapp_inbound_messages, id: :uuid do |t|
+      t.string :mid, null: false
+      t.datetime :processed_at, null: false
+      t.timestamps
+      t.index [ :mid ], name: "index_whatsapp_inbound_messages_on_mid", unique: true
+    end
+  end
+
+  def add_app_foreign_keys
+    add_foreign_key "activity_classifications", "categories"
+    add_foreign_key "activity_classifications", "users"
+    add_foreign_key "ai_requests", "users"
+    add_foreign_key "alert_preferences", "users"
+    add_foreign_key "budgets", "categories"
+    add_foreign_key "budgets", "users"
+    add_foreign_key "categories", "users"
+    add_foreign_key "credit_accounts", "money_sources"
+    add_foreign_key "credit_extra_payments", "money_sources"
+    add_foreign_key "credit_extra_payments", "money_sources", column: "funding_money_source_id"
+    add_foreign_key "credit_extra_payments", "payments"
+    add_foreign_key "credit_extra_payments", "transactions", column: "expense_id"
+    add_foreign_key "credit_extra_payments", "transfers"
+    add_foreign_key "credit_projections", "money_sources"
+    add_foreign_key "credit_scenarios", "money_sources"
+    add_foreign_key "custom_financial_institutions", "users"
+    add_foreign_key "evaluation_cases", "evaluation_runs"
+    add_foreign_key "evaluation_runs", "users"
+    add_foreign_key "expense_candidates", "categories"
+    add_foreign_key "expense_candidates", "money_sources"
+    add_foreign_key "expense_candidates", "transactions", column: "expense_id"
+    add_foreign_key "expense_candidates", "users"
+    add_foreign_key "expense_clarification_candidates", "expense_candidates"
+    add_foreign_key "expense_clarification_candidates", "expense_clarifications"
+    add_foreign_key "expense_clarifications", "users"
+    add_foreign_key "expense_playground_runs", "users"
+    add_foreign_key "expenses", "categories"
+    add_foreign_key "expenses", "users"
+    add_foreign_key "financial_chat_messages", "financial_chats"
+    add_foreign_key "financial_chats", "users"
+    add_foreign_key "financial_setups", "users"
+    add_foreign_key "gmail_connections", "users"
+    add_foreign_key "goal_allocations", "goals", column: "financial_goal_id"
+    add_foreign_key "goal_allocations", "money_sources", column: "pocket_id"
+    add_foreign_key "goals", "money_sources", column: "pocket_id"
+    add_foreign_key "goals", "users"
+    add_foreign_key "incomes", "categories"
+    add_foreign_key "incomes", "users"
+    add_foreign_key "money_source_recognition_identifiers", "money_source_recognitions"
+    add_foreign_key "money_source_recognitions", "money_sources"
+    add_foreign_key "money_sources", "money_sources", column: "parent_id"
+    add_foreign_key "money_sources", "users"
+    add_foreign_key "payments", "transactions", column: "expense_id"
+    add_foreign_key "pending_whatsapp_connections", "users"
+    add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :nullify
+    add_foreign_key "processed_emails", "users"
+    add_foreign_key "reconciliation_snapshots", "money_sources"
+    add_foreign_key "reconciliation_snapshots", "users"
+    add_foreign_key "reconciliation_states", "users"
+    add_foreign_key "recurring_templates", "categories"
+    add_foreign_key "recurring_templates", "money_sources"
+    add_foreign_key "recurring_templates", "users"
+    add_foreign_key "spending_alerts", "categories"
+    add_foreign_key "spending_alerts", "users"
+    add_foreign_key "spreadsheet_format_mappings", "users"
+    add_foreign_key "statement_format_mappings", "money_sources"
+    add_foreign_key "statement_format_mappings", "users"
+    add_foreign_key "transaction_rules", "categories"
+    add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"
+    add_foreign_key "transaction_rules", "money_sources", column: "money_source_condition_id"
+    add_foreign_key "transaction_rules", "users"
+    add_foreign_key "transactions", "categories"
+    add_foreign_key "transactions", "money_sources"
+    add_foreign_key "transactions", "recurring_templates"
+    add_foreign_key "transactions", "users"
+    add_foreign_key "transfers", "money_sources", column: "from_source_id"
+    add_foreign_key "transfers", "money_sources", column: "to_source_id"
+    add_foreign_key "transfers", "users"
+    add_foreign_key "whatsapp_connections", "users"
+    add_foreign_key "whatsapp_connections", "whatsapp_identities"
+    add_foreign_key "whatsapp_identities", "users", column: "claimed_by_user_id"
+  end
+
+  def add_engine_foreign_keys
+    add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+    add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+    add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+    add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+    add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+    add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  end
+end

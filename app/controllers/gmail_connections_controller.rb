@@ -12,7 +12,7 @@ class GmailConnectionsController < ApplicationController
   end
 
   def index
-    @connection = current_user.gmail_connections.order(:id).last
+    @connection = current_user.gmail_connections.order(:created_at, :id).last
     @configured = Gmail::OauthClient.configured?
     @pending_reviews = current_user.processed_emails.gmail.needs_review.order(created_at: :desc)
     @recent_imports = current_user.expenses.where(source: "gmail").order(date: :desc).limit(10)
@@ -134,7 +134,7 @@ class GmailConnectionsController < ApplicationController
 
   def set_connection
     @connection = current_user.gmail_connections.find_by(id: params[:id]) ||
-                  current_user.gmail_connections.order(:id).last
+                  current_user.gmail_connections.order(:created_at, :id).last
     return if @connection
 
     redirect_to gmail_connection_path, alert: t("gmail_messages.no_connection")

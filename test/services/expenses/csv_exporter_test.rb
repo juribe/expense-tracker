@@ -8,7 +8,7 @@ module Expenses
     setup do
       @user = User.create!(name: "CSV User", email: "csv_exporter@example.com", password: "password123")
       @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
-      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account")
+      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
       Expense.create!(
         user: @user, category: @category, amount: 10_000, description: "Almuerzo",
         date: Date.new(2026, 1, 15), source: "manual", money_source: @account

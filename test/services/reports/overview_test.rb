@@ -8,10 +8,10 @@ class ReportsOverviewTest < ActiveSupport::TestCase
     @other = User.create!(name: "Other", email: "reports_overview_other@example.com", password: "password123")
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
     @salary = Category.create!(name: "Salario", is_default: true, category_type: "income")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
-    @savings = @user.money_sources.create!(name: "Ahorros", kind: "account", active: true)
+    @savings = @user.money_sources.create!(name: "Ahorros", kind: "account", active: true, starting_balance: 1_000_000_000)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
     @filter = Reports::Filter.new(user: @user, period: @period)
   end

@@ -17,7 +17,9 @@ class Reports::CategorySpending < Reports::Base
     {
       period: period,
       total: grand_total,
-      categories: current.map { |category_id, row| category_row(category_id, row, previous[category_id], grand_total) }
+      categories: current
+                    .map { |category_id, row| category_row(category_id, row, previous[category_id], grand_total) }
+                    .sort_by { |row| -row[:total] }
     }
   end
 

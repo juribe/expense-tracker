@@ -82,7 +82,7 @@ class MoneySourcesController < ApplicationController
     # The Gmail criteria card doubles as a manual editor: it renders whenever
     # there is an ACTIVE connection — even before any scan ran — prefilled
     # with the saved search_config plus (when available) the scan suggestions.
-    @gmail_connection = current_user.gmail_connections.order(:id).last
+    @gmail_connection = current_user.gmail_connections.order(:created_at, :id).last
 
     if params[:edit].present? || params[:bank_edit].present?
       group = @bank_groups.find { |element| element[:key] == params[:bank_edit] }
@@ -286,7 +286,7 @@ class MoneySourcesController < ApplicationController
     sources.each { |source| groups[group_key_for_source(source)] << source }
 
     groups.values.map do |members|
-      seed = members.min_by(&:id)
+      seed = members.min_by { |member| [ member.created_at, member.id ] }
       cash_only = members.all? { |source| source.kind == "cash" }
       {
         key: group_key_for_source(members.first),
@@ -364,7 +364,7 @@ class MoneySourcesController < ApplicationController
 
   # Pockets display how their balance is distributed across their goals.
   def load_pocket_context
-    @pocket_goals = @money_source.goals.active.order(:id).includes(:goal_allocations)
+    @pocket_goals = @money_source.goals.active.order(:created_at, :id).includes(:goal_allocations)
     @recent_allocations = @money_source.goal_allocations
                                        .includes(:financial_goal)
                                        .order(date: :desc, created_at: :desc)

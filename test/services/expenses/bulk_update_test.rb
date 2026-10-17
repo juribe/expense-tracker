@@ -9,7 +9,7 @@ module Expenses
       @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
       @new_category = Category.create!(name: "Transporte", user: @user, is_default: false, category_type: "expense")
       @foreign_category = Category.create!(name: "Ajena", is_default: false, category_type: "expense")
-      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account")
+      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
       @card = MoneySource.create!(user: @user, name: "Tarjeta", kind: "credit_card")
       @expense_a = create_expense
       @expense_b = create_expense

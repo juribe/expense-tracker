@@ -60,7 +60,7 @@ module Expenses
     end
 
     def parse_ids
-      Array(@ids).flat_map { |value| value.to_s.split(",") }.map(&:to_i).reject(&:zero?)
+      UuidParams.parse_ids(@ids)
     end
   end
 end

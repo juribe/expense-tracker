@@ -6,7 +6,7 @@ class ExpenseDecoratorTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Deco User", email: "decorator@example.com", password: "password123")
     @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
-    @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account")
+    @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
   end
 
   test "delegates attribute access to the wrapped expense" do

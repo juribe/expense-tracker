@@ -585,7 +585,7 @@ module Expenses
 
         source_rows = lists.flat_map { |(_, rows)| rows }
                            .select { |row| row[:id].start_with?("source:") }
-        offered_ids = source_rows.map { |row| row[:id].sub("source:", "").to_i }
+        offered_ids = source_rows.map { |row| row[:id].sub("source:", "") }
         assert_includes offered_ids, @davibank.id
         assert_includes offered_ids, @nequi.id
         assert_includes offered_ids, @efectivo.id

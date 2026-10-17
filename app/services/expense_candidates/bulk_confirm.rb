@@ -22,8 +22,8 @@ module ExpenseCandidates
     def initialize(user:, ids:, category_id:, money_source_id:)
       @user = user
       @ids = ids
-      @category_id = category_id.present? ? category_id.to_i : nil
-      @money_source_id = money_source_id.present? ? money_source_id.to_i : nil
+      @category_id = UuidParams.normalize(category_id)
+      @money_source_id = UuidParams.normalize(money_source_id)
       @confirmed_count = 0
       @errors = []
       @error_key = nil
@@ -81,7 +81,7 @@ module ExpenseCandidates
     attr_reader :user, :category_id, :money_source_id
 
     def parsed_ids
-      @parsed_ids ||= Array(@ids).flat_map { |value| value.to_s.split(",") }.map(&:to_i).reject(&:zero?)
+      @parsed_ids ||= UuidParams.parse_ids(@ids)
     end
   end
 end

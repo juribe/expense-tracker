@@ -51,7 +51,7 @@ module Institutions
       MoneySource.where(user_id: user_id)
                  .payment_sources
                  .includes(recognition: :recognition_identifiers)
-                 .order(:id)
+                 .order(:created_at, :id)
                  .group_by { |source| group_key(source) }
                  .each { |key, members| consolidate_group(user_id, key, members) }
     end

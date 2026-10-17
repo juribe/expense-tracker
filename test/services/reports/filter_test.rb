@@ -8,7 +8,7 @@ class ReportsFilterTest < ActiveSupport::TestCase
     @other_user = User.create!(name: "Other", email: "reports_filter_other@example.com", password: "password123")
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
     @transport = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))

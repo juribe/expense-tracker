@@ -125,7 +125,7 @@ module SourceRecognition
         groups = BankGrouping.groups_for(user.money_sources.payment_sources.load)
         mapping = {}
         groups.each_value do |members|
-          seed = members.min_by(&:id)
+          seed = members.min_by { |member| [ member.created_at, member.id ] }
           members.each { |member| mapping[member.id] = seed.id }
         end
         mapping

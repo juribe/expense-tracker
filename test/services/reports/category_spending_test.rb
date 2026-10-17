@@ -7,7 +7,7 @@ class ReportsCategorySpendingTest < ActiveSupport::TestCase
     @user = User.create!(name: "Cat User", email: "reports_category_test@example.com", password: "password123")
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
     @transport = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @other = User.create!(name: "Other", email: "reports_category_other@example.com", password: "password123")
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))

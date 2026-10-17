@@ -21,7 +21,7 @@ class ReportsBaseTest < ActiveSupport::TestCase
     @user = User.create!(name: "Base User", email: "reports_base_test@example.com", password: "password123")
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
-    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
+    @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
     @filter = Reports::Filter.new(user: @user, period: @period)

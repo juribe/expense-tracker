@@ -23,7 +23,7 @@ module Expenses
     def call(scope)
       CSV.generate(headers: true) do |rows|
         rows << HEADERS
-        scope.except(:offset, :limit).find_each do |expense|
+        scope.except(:offset, :limit).each do |expense|
           rows << [
             expense.date,
             expense.description.to_s,

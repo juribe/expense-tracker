@@ -99,8 +99,8 @@ module Expenses
     def resolve_category!
       return @category if @category.is_a?(Category)
 
-      if @category.is_a?(Numeric) || @category.to_s.match?(/\A\d+\z/)
-        return Category.find(@category)
+      if (category_id = UuidParams.normalize(@category))
+        return Category.find(category_id)
       end
 
       name = @category.to_s.strip
