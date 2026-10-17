@@ -21,7 +21,7 @@ Bundler.require(*Rails.groups)
 module ExpenseTracker
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 8.0
+    config.load_defaults 8.1
     config.time_zone = "America/Bogota"
 
     # Use UUID primary keys for all new generated tables.
