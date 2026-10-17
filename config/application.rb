@@ -32,7 +32,11 @@ module ExpenseTracker
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
+    #
+    # `will_paginate` holds our custom renderer. It reopens the `WillPaginate`
+    # namespace provided by the gem, so it is loaded explicitly from
+    # config/initializers/will_paginate.rb instead of being autoloaded.
+    config.autoload_lib(ignore: %w[assets tasks will_paginate])
 
     # Configuration for the application, engines, and railties goes here.
     #
