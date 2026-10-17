@@ -67,7 +67,7 @@ test.describe('category budgets are working', () => {
     await createBudget(page, category, 500000);
 
     await page.locator(`a[aria-label="Editar presupuesto de ${category}"]`).click();
-    await expect(page).toHaveURL(/\/budgets\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/budgets\/[0-9a-f-]{36}\/edit/);
 
     await page.locator('#budget_monthly_amount').fill('1000000');
     await page.getByRole('button', { name: 'Actualizar Presupuesto' }).click();

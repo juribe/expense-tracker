@@ -186,7 +186,7 @@ test.describe('expense playground – AI evaluation', () => {
       return;
     }
 
-    const casesMatch = path.match(/^\/expense-evaluations\/\d+\/cases$/);
+    const casesMatch = path.match(/^\/expense-evaluations\/[0-9a-f-]{36}\/cases$/);
     if (req.method() === 'GET' && casesMatch) {
       const cases = filterCases(url.searchParams.get('status'), url.searchParams.get('q'));
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
@@ -197,13 +197,13 @@ test.describe('expense playground – AI evaluation', () => {
       return;
     }
 
-    const retryMatch = path.match(/^\/expense-evaluations\/\d+\/retry$/);
+    const retryMatch = path.match(/^\/expense-evaluations\/[0-9a-f-]{36}\/retry$/);
     if (req.method() === 'POST' && retryMatch) {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, rerun_count: store.retryCount || 2 }) });
       return;
     }
 
-    const detailMatch = path.match(/^\/expense-evaluations\/\d+$/);
+    const detailMatch = path.match(/^\/expense-evaluations\/[0-9a-f-]{36}$/);
     if (req.method() === 'GET' && detailMatch) {
       store.polls = (store.polls || 0) + 1;
       const payload = store.polls >= store.completeAfterPolls ? store.completed : store.running;

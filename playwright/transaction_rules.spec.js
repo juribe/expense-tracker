@@ -66,7 +66,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
     await expect(card.locator('.badge', { hasText: 'Deshabilitada' })).toBeVisible();
 
     await page.locator('.card', { hasText: 'UBER' }).getByRole('link', { name: /Editar/i }).click();
-    await expect(page).toHaveURL(/\/transaction_rules\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/transaction_rules\/[0-9a-f-]{36}\/edit/);
     await page.locator('#transaction_rule_merchant_contains').fill('RAPPI');
     await page.getByRole('button', { name: /Guardar cambios/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);

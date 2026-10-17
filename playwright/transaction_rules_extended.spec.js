@@ -140,7 +140,7 @@ test.describe('automatic rules – extended scenarios', () => {
     await expect(row).toContainText(ruleCategory);
 
     await page.locator('#expenseTable tr', { hasText: 'GASSTATION fill up' }).getByRole('link').click();
-    await expect(page).toHaveURL(/\/expenses\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/expenses\/[0-9a-f-]{36}\/edit/);
 
     await pickCategory(page, 'expense_category_id', manualCategory);
     await page.getByRole('button', { name: 'Guardar' }).click();

@@ -17,7 +17,7 @@ test.describe('category pages are working', () => {
     await page.locator('#category_category_type').selectOption({ label: 'Gasto' });
     await page.getByRole('button', { name: 'Guardar Categoría' }).click();
 
-    await expect(page).toHaveURL(/\/categories\/\d+/);
+    await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}/);
     await expect(page.getByText('La categoría se creó correctamente.')).toBeVisible();
     await expect(page.getByRole('heading', { name })).toBeVisible();
   });
@@ -28,13 +28,13 @@ test.describe('category pages are working', () => {
 
     await page.goto('/categories');
     await page.locator(`a[aria-label="Editar ${name}"]`).click();
-    await expect(page).toHaveURL(/\/categories\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}\/edit/);
 
     await page.locator('#category_name').fill(`${name}-updated`);
     await page.locator('#category_description').fill('All travel related costs');
     await page.getByRole('button', { name: 'Guardar Categoría' }).click();
 
-    await expect(page).toHaveURL(/\/categories\/\d+/);
+    await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}/);
     await expect(page.getByText('La categoría se actualizó correctamente.')).toBeVisible();
     await expect(page.getByRole('heading', { name: `${name}-updated` })).toBeVisible();
   });

@@ -25,7 +25,7 @@ async function pickCategory(page, fieldId, label) {
   await option.click();
 
   await expect(input).toHaveValue(label);
-  await expect(page.locator(`#${fieldId}`)).toHaveValue(/^\d+$/);
+  await expect(page.locator(`#${fieldId}`)).toHaveValue(/^[0-9a-f-]{36}$/);
 }
 
 module.exports = { pickCategory };

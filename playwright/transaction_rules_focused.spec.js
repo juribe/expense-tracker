@@ -95,7 +95,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await expect(row).toBeVisible();
 
     await row.getByRole('link').click();
-    await expect(page).toHaveURL(/\/expenses\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/expenses\/[0-9a-f-]{36}\/edit/);
     await expect(page.locator('#expense_money_source_id')).toHaveValue(await page.locator('#expense_money_source_id option', { hasText: sourceName }).getAttribute('value'));
   });
 
@@ -136,7 +136,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await expect(row).toContainText(category);
 
     await row.getByRole('link').click();
-    await expect(page).toHaveURL(/\/expenses\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/expenses\/[0-9a-f-]{36}\/edit/);
     await pickCategory(page, 'expense_category_id', category);
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses/);
@@ -177,10 +177,10 @@ test.describe('transaction rules – focused scenarios', () => {
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
     await page.locator('.card', { hasText: 'PRE_FILL' }).getByRole('link', { name: /Editar/i }).click();
-    await expect(page).toHaveURL(/\/transaction_rules\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/transaction_rules\/[0-9a-f-]{36}\/edit/);
 
     await expect(page.locator('#transaction_rule_merchant_contains')).toHaveValue('PRE_FILL');
-    await expect(page.locator('#transaction_rule_category_id')).toHaveValue(/[0-9]+/);
+    await expect(page.locator('#transaction_rule_category_id')).toHaveValue(/^[0-9a-f-]{36}$/);
 
     await page.locator('#transaction_rule_merchant_contains').fill('PRE_FILL_V2');
     await pickCategory(page, 'transaction_rule_category_id', categoryB);

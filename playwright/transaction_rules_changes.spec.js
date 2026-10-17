@@ -76,7 +76,7 @@ test.describe('editing a rule – changing condition and action type', () => {
     await expect(card).toBeVisible();
 
     await card.getByRole('link', { name: /Editar/i }).click();
-    await expect(page).toHaveURL(/\/transaction_rules\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/transaction_rules\/[0-9a-f-]{36}\/edit/);
     await page.locator('#condition_field').selectOption('description_contains');
     await page.locator('#transaction_rule_description_contains').fill('renta');
     await page.getByRole('button', { name: /Guardar cambios/i }).click();
@@ -96,7 +96,7 @@ test.describe('editing a rule – changing condition and action type', () => {
 
     const card = page.locator('.card', { hasText: 'UBER' });
     await card.getByRole('link', { name: /Editar/i }).click();
-    await expect(page).toHaveURL(/\/transaction_rules\/\d+\/edit/);
+    await expect(page).toHaveURL(/\/transaction_rules\/[0-9a-f-]{36}\/edit/);
     await page.locator('#action_field').selectOption('tag');
     await page.locator('#transaction_rule_tag').fill('Transporte');
     await page.getByRole('button', { name: /Guardar cambios/i }).click();

@@ -37,7 +37,7 @@ async function createCategory(page, name, description = '') {
   }
   await page.locator('#category_category_type').selectOption({ label: 'Gasto' });
   await page.getByRole('button', { name: 'Guardar Categoría' }).click();
-  await expect(page).toHaveURL(/\/categories\/\d+/);
+  await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}/);
 }
 
 module.exports = { uniqueEmail, signUp, signIn, createCategory };
