@@ -606,45 +606,45 @@
     "semantic_hash": "47a2e6166888f47632334d0608837174"
   },
   "playwright.config.js": {
-    "mtime": 1787964909.9089718,
-    "seen": 1790977684.435337,
-    "ast_hash": "9b974a8d17356c8f5bfcabab9a783070",
-    "semantic_hash": "9b974a8d17356c8f5bfcabab9a783070"
+    "mtime": 1792211008.1191669,
+    "seen": 1792234534.035615,
+    "ast_hash": "07cce7d0c3253f959bd3feba3b78c946",
+    "semantic_hash": ""
   },
   "playwright/ai_entry_turbo.spec.js": {
-    "mtime": 1788723854.0376434,
-    "seen": 1790977684.43534,
-    "ast_hash": "bddc7f442d1ffcb3cd1fb376c020a092",
+    "mtime": 1792216041.0793843,
+    "seen": 1792234534.035618,
+    "ast_hash": "5165e5976e078464238d6848bd9aa259",
     "semantic_hash": ""
   },
   "playwright/ai_money_source_detection.spec.js": {
-    "mtime": 1791760573.1992576,
-    "seen": 1791766165.40401,
-    "ast_hash": "f78f36b8f134b64c30880a93b438ab6a",
+    "mtime": 1792233923.170948,
+    "seen": 1792234534.035619,
+    "ast_hash": "267042583c7d3ddc12f40532509b1d65",
     "semantic_hash": ""
   },
   "playwright/auth.spec.js": {
-    "mtime": 1787970761.481597,
-    "seen": 1790977684.435345,
-    "ast_hash": "60c6f1567c259346c7850eed8c49f90a",
-    "semantic_hash": "60c6f1567c259346c7850eed8c49f90a"
+    "mtime": 1792215352.7603266,
+    "seen": 1792234534.035624,
+    "ast_hash": "9964f36f9be0d2818e732468a1ac64ef",
+    "semantic_hash": ""
   },
   "playwright/categories.spec.js": {
-    "mtime": 1788705237.9311624,
-    "seen": 1790977684.435348,
-    "ast_hash": "4eb7b3d44b7755ec7e57b7c160978ce3",
+    "mtime": 1792212020.3349152,
+    "seen": 1792234534.035626,
+    "ast_hash": "38b6e92681e2e28f573370c98cad0760",
     "semantic_hash": ""
   },
   "playwright/credit_cards_and_loans.spec.js": {
-    "mtime": 1788705237.9318078,
-    "seen": 1790977684.43535,
-    "ast_hash": "b86e5c15c0f7b8e896a05608f0de0c77",
+    "mtime": 1792215017.0427787,
+    "seen": 1792234534.0356271,
+    "ast_hash": "caee8e73bcbb696d01765fb949b4af4b",
     "semantic_hash": ""
   },
   "playwright/dashboard.spec.js": {
-    "mtime": 1790801189.9010446,
-    "seen": 1790977684.4353511,
-    "ast_hash": "7e68d195605a610394d17a589d2ae4bd",
+    "mtime": 1792214908.074622,
+    "seen": 1792234534.035629,
+    "ast_hash": "28deb69ed51089ee581c34a722a2bce0",
     "semantic_hash": ""
   },
   "playwright/expense-bulk-selection.spec.js": {
@@ -654,10 +654,10 @@
     "semantic_hash": ""
   },
   "playwright/expenses.spec.js": {
-    "mtime": 1787970761.4825037,
-    "seen": 1790977684.435358,
-    "ast_hash": "288f3f7675aaa8ead895f49612539580",
-    "semantic_hash": "288f3f7675aaa8ead895f49612539580"
+    "mtime": 1792215353.7003021,
+    "seen": 1792234534.035636,
+    "ast_hash": "50aae2e0ee7b4863c3cbfeefd348effb",
+    "semantic_hash": ""
   },
   "playwright/financial_setup_wizard.spec.js": {
     "mtime": 1788705237.932552,
@@ -666,21 +666,21 @@
     "semantic_hash": ""
   },
   "playwright/helpers/auth.js": {
-    "mtime": 1787970761.4827504,
-    "seen": 1790977684.435361,
-    "ast_hash": "3f52eb06a9e5065c4a0d1f4758ccba3e",
-    "semantic_hash": "3f52eb06a9e5065c4a0d1f4758ccba3e"
+    "mtime": 1792212019.6586616,
+    "seen": 1792234534.035639,
+    "ast_hash": "944a9a0da654b51c087eae8774115803",
+    "semantic_hash": ""
   },
   "playwright/money_source_tags.spec.js": {
-    "mtime": 1791760573.1995,
-    "seen": 1791766165.404035,
-    "ast_hash": "e6155334974f76f3fc34c3ee4896dd83",
+    "mtime": 1792214254.598917,
+    "seen": 1792234534.0356429,
+    "ast_hash": "23a9074af96ee928896a9febab4c32b9",
     "semantic_hash": ""
   },
   "playwright/monthly-reports.spec.js": {
-    "mtime": 1788705237.9333668,
-    "seen": 1790977684.4353652,
-    "ast_hash": "d9e7630cc66830b1d01b7119c6cb0130",
+    "mtime": 1792215354.1510935,
+    "seen": 1792234534.0356438,
+    "ast_hash": "df32b46632927676cd50788881a65e17",
     "semantic_hash": ""
   },
   "playwright/page-ai_powered_expense_entry-working.spec.js": {
@@ -1494,15 +1494,15 @@
     "semantic_hash": ""
   },
   "playwright/alerts.spec.js": {
-    "mtime": 1790801189.8993666,
-    "seen": 1790977684.435343,
-    "ast_hash": "8595a321b80b28059017f940943a9899",
+    "mtime": 1792214823.8166642,
+    "seen": 1792234534.0356212,
+    "ast_hash": "81c47e7fc11fb96ad2ab69fb1c800674",
     "semantic_hash": ""
   },
   "playwright/budgets.spec.js": {
-    "mtime": 1792025375.2656803,
-    "seen": 1792092091.9913752,
-    "ast_hash": "800f2081fbf4f135c60edddd1ae1ec7b",
+    "mtime": 1792215016.2966979,
+    "seen": 1792234534.035625,
+    "ast_hash": "6e2269e539b1a499b4ed4a4e421633df",
     "semantic_hash": ""
   },
   "test/controllers/alert_settings_controller_test.rb": {
@@ -1614,9 +1614,9 @@
     "semantic_hash": ""
   },
   "playwright/transaction_rules.spec.js": {
-    "mtime": 1790801189.9017286,
-    "seen": 1790977684.435379,
-    "ast_hash": "ca64db78e073f76dbd1e1f7015781094",
+    "mtime": 1792212020.2806036,
+    "seen": 1792234534.0356631,
+    "ast_hash": "f6f724a0f9d512167b5d8af0791bd860",
     "semantic_hash": ""
   },
   "test/controllers/transaction_rules_controller_test.rb": {
@@ -1644,33 +1644,33 @@
     "semantic_hash": ""
   },
   "playwright/transaction_rules_extended.spec.js": {
-    "mtime": 1790801189.902745,
-    "seen": 1790977684.4353821,
-    "ast_hash": "428bcfda58f1ccd7f68987d610f8776f",
+    "mtime": 1792212020.290591,
+    "seen": 1792234534.035666,
+    "ast_hash": "186096358abf921e74b459b6544213e2",
     "semantic_hash": ""
   },
   "playwright/ai_entry_rules.spec.js": {
-    "mtime": 1790801189.898884,
-    "seen": 1790977684.435339,
-    "ast_hash": "e1357f669ae3a8bf6a43143260a85d31",
+    "mtime": 1792216062.965043,
+    "seen": 1792234534.035617,
+    "ast_hash": "d6244ccfdbc12dda9c02f6ecc1198b0b",
     "semantic_hash": ""
   },
   "playwright/app-health.spec.js": {
-    "mtime": 1790801189.9004314,
-    "seen": 1790977684.435344,
-    "ast_hash": "b74a61e08da8b32ebe3d02f21589c206",
+    "mtime": 1792215345.0506926,
+    "seen": 1792234534.035622,
+    "ast_hash": "041fee88a964c798895fbc2576066ed7",
     "semantic_hash": ""
   },
   "playwright/transaction_rules_changes.spec.js": {
-    "mtime": 1790801189.902139,
-    "seen": 1790977684.43538,
-    "ast_hash": "79507674d55ee522a3a25569cf6c0d03",
+    "mtime": 1792212020.2912853,
+    "seen": 1792234534.0356648,
+    "ast_hash": "34c863250d05b65c5519dbd6805dc781",
     "semantic_hash": ""
   },
   "playwright/transaction_rules_focused.spec.js": {
-    "mtime": 1790801189.9033265,
-    "seen": 1790977684.435383,
-    "ast_hash": "5d43ae53772d308c38e48aa31628fdbf",
+    "mtime": 1792214461.468008,
+    "seen": 1792234534.035667,
+    "ast_hash": "5804bf200779bcb5993e5c36f71323c7",
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
@@ -1746,9 +1746,9 @@
     "semantic_hash": ""
   },
   "playwright/expense_playground.spec.js": {
-    "mtime": 1788961720.2740674,
-    "seen": 1790977684.435354,
-    "ast_hash": "8e84e46bf2f8a9dcaf39d457104a932a",
+    "mtime": 1792215852.026203,
+    "seen": 1792234534.0356321,
+    "ast_hash": "69d7aa4d713b899b90328c15f440a1aa",
     "semantic_hash": ""
   },
   "test/models/expense_playground_run_test.rb": {
@@ -1764,9 +1764,9 @@
     "semantic_hash": ""
   },
   "app/services/money_sources/detector.rb": {
-    "mtime": 1792192361.2537522,
-    "seen": 1792200893.9465191,
-    "ast_hash": "d099aaf78912acf0a15d3a67a5a5ffcf",
+    "mtime": 1792213635.4851155,
+    "seen": 1792234534.035437,
+    "ast_hash": "d88709a0553626c0b895a1a5ee7b0468",
     "semantic_hash": ""
   },
   "app/services/ocr/local_reader.rb": {
@@ -2166,15 +2166,15 @@
     "semantic_hash": ""
   },
   "playwright/expense_playground_evaluation.spec.js": {
-    "mtime": 1790454777.552514,
-    "seen": 1790977684.435355,
-    "ast_hash": "da3c7b13c9c3d88b5b5ad4bf18a60a22",
+    "mtime": 1792215677.7526793,
+    "seen": 1792234534.0356328,
+    "ast_hash": "93aff5d9ebdb919bfacaa295397ee149",
     "semantic_hash": ""
   },
   "app/services/categories/closest_resolver.rb": {
-    "mtime": 1792199973.8103166,
-    "seen": 1792200893.9460108,
-    "ast_hash": "ce12778246ea1596a5d7eaee74a2d033",
+    "mtime": 1792210958.889404,
+    "seen": 1792234534.035237,
+    "ast_hash": "fb97e21d854645208afa3e87a3062352",
     "semantic_hash": ""
   },
   "test/services/categories/closest_resolver_test.rb": {
@@ -2448,9 +2448,9 @@
     "semantic_hash": ""
   },
   "app/services/expense_resolver/heuristic_resolver.rb": {
-    "mtime": 1790454777.3559215,
-    "seen": 1790977684.43503,
-    "ast_hash": "2b3c8f85d9ad46e254572d3b6af98013",
+    "mtime": 1792210958.8704705,
+    "seen": 1792234534.0353112,
+    "ast_hash": "22d5743213054cccf766861d1fbef8a3",
     "semantic_hash": ""
   },
   "app/services/expenses/confidence_calculator.rb": {
@@ -2628,9 +2628,9 @@
     "semantic_hash": ""
   },
   "test/services/money_sources/detector_test.rb": {
-    "mtime": 1791585433.4231,
-    "seen": 1791588169.745651,
-    "ast_hash": "d2bff1e3edce5ac3d60a9450355ddc7f",
+    "mtime": 1792213620.769935,
+    "seen": 1792234534.0359612,
+    "ast_hash": "5967d7c8d4124859a69d869f454356f4",
     "semantic_hash": ""
   },
   "script/expense_parsing_experiment.rb": {
@@ -3138,9 +3138,9 @@
     "semantic_hash": ""
   },
   "playwright/helpers/category_picker.js": {
-    "mtime": 1790801189.9015074,
-    "seen": 1790977684.435362,
-    "ast_hash": "f4beca080e6f81ea85b23a2ae4d2217b",
+    "mtime": 1792212019.9578538,
+    "seen": 1792234534.03564,
+    "ast_hash": "df0bc5c5ca48013a79990894c79aa636",
     "semantic_hash": ""
   },
   "test/controllers/payments_controller_test.rb": {
@@ -3924,9 +3924,9 @@
     "semantic_hash": ""
   },
   "playwright/reconciliation.spec.js": {
-    "mtime": 1791251411.7448404,
-    "seen": 1791251577.997199,
-    "ast_hash": "ec6ba35578507c4dbd3297828b622fa9",
+    "mtime": 1792214477.010371,
+    "seen": 1792234534.03566,
+    "ast_hash": "60a05f01ca7aa427491f51e43172d27c",
     "semantic_hash": ""
   },
   "test/controllers/reconciliations_controller_test.rb": {
