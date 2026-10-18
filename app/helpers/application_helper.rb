@@ -78,6 +78,17 @@ module ApplicationHelper
 
 
 
+  def savings_potential_label(value)
+    {
+      "low" => "Bajo",
+      "medium" => "Medio",
+      "high" => "Alto",
+      "variable" => "Variable",
+      "none" => "Ninguno",
+      "por_evaluar" => "Por evaluar"
+    }.fetch(value.to_s, value.to_s.humanize)
+  end
+
   def category_badge(category)
     return tag.span(t("common.uncategorized", default: "Sin categoría"), class: "badge bg-light text-dark border") if category.nil?
 

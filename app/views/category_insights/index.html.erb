@@ -1,4 +1,4 @@
-<%= render "shared/page_header", title: "Insight de ahorro" do %>
+<%= render "shared/page_header", title: "Oportunidad de ahorro" do %>
   <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
     <i class="ti ti-arrow-left me-1"></i>Categorías
   <% end %>
@@ -13,11 +13,11 @@
             <div>
               <strong><%= row[:category].name %></strong>
               <small class="text-muted d-block">
-                Potencial: <%= row[:category].savings_potential %> ·
+                Potencial: <%= savings_potential_label(row[:category].savings_potential) %> ·
                 Gasto promedio: <%= MoneyFormat.currency(row[:average]) %>
               </small>
             </div>
-            <%= link_to "Ver insight", category_insight_path(row[:category]), class: "btn btn-outline-primary btn-sm" %>
+            <%= link_to "Ver oportunidad", category_insight_path(row[:category]), class: "btn btn-outline-primary btn-sm" %>
           </li>
         <% end %>
       </ul>
