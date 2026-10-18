@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require Rails.root.join("db/seeds.rb")
 
 # Verifies the default expense category catalog carries the approved suggested
 # savings percentages. The constant is the source of truth for db:seed, so a
 # mismatch here means the seed would silently populate the wrong value.
 class CategoryCatalogTest < ActiveSupport::TestCase
+  setup do
+    require Rails.root.join("db/seeds.rb")
+  end
   EXPECTED_PERCENTAGES = {
     "Mercado" => 5,
     "Restaurantes y cafés" => 10,
