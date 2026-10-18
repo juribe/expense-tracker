@@ -13,10 +13,12 @@ class Category < ApplicationRecord
   has_many :recurring_templates, dependent: :destroy
   has_many :budgets, dependent: :destroy
   has_many :spending_alerts, dependent: :destroy
+  has_many :saving_tips, class_name: "SubcategorySavingTip", foreign_key: :subcategory_id, dependent: :destroy
 
   validates :name, presence: true
   validates :category_type, inclusion: { in: %w[income expense], allow_nil: true }
   validates :savings_potential, inclusion: { in: SAVINGS_POTENTIALS, allow_nil: true }
+  validates :suggested_savings_percentage, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
   validate :parent_must_not_be_self
   validate :default_category_not_owned_by_user
   validate :custom_category_not_named_like_default, on: :create
@@ -52,6 +54,9 @@ class Category < ApplicationRecord
   def tags
     Array(self[:tags])
   end
+
+  alias subcategory_saving_tips saving_tips
+  alias tips saving_tips
 
   private
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_16_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -88,6 +88,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_16_000002) do
     t.integer "expenses_count", default: 0, null: false
     t.jsonb "tags", default: [], null: false
     t.string "savings_potential"
+    t.decimal "suggested_savings_percentage", precision: 5, scale: 2
     t.index ["category_type"], name: "index_categories_on_category_type"
     t.index ["is_default"], name: "index_categories_on_is_default"
     t.index ["name"], name: "index_categories_on_name"
@@ -769,6 +770,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_16_000002) do
     t.index ["user_id"], name: "index_statement_format_mappings_on_user_id"
   end
 
+  create_table "subcategory_saving_tips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "subcategory_id", null: false
+    t.string "title", null: false
+    t.text "body", null: false
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subcategory_id", "active"], name: "index_subcategory_saving_tips_on_subcategory_and_active"
+    t.index ["subcategory_id", "position"], name: "index_subcategory_saving_tips_on_subcategory_and_position"
+    t.index ["subcategory_id"], name: "index_subcategory_saving_tips_on_subcategory_id"
+  end
+
   create_table "transaction_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.string "name"
@@ -940,6 +954,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_16_000002) do
   add_foreign_key "spreadsheet_format_mappings", "users"
   add_foreign_key "statement_format_mappings", "money_sources"
   add_foreign_key "statement_format_mappings", "users"
+  add_foreign_key "subcategory_saving_tips", "categories", column: "subcategory_id"
   add_foreign_key "transaction_rules", "categories"
   add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"
   add_foreign_key "transaction_rules", "money_sources", column: "money_source_condition_id"

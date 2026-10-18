@@ -49,7 +49,10 @@ Rails.application.routes.draw do
     end
   end
   resources :incomes
-  resources :categories
+  resources :categories do
+    resource :insight, only: [:show], controller: "category_insights"
+  end
+  resources :category_insights, only: [:index, :show]
   resources :budgets
   resources :goals
   resources :goal_allocations, only: [ :create, :destroy ] do

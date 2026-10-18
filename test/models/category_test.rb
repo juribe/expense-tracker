@@ -150,4 +150,34 @@ class CategoryTest < ActiveSupport::TestCase
     assert_not cat.valid?
     assert_includes cat.errors[:savings_potential], I18n.t("errors.messages.inclusion")
   end
+
+  test "suggested_savings_percentage can be nil" do
+    cat = Category.new(name: "Test", suggested_savings_percentage: nil)
+    assert cat.valid?
+  end
+
+  test "suggested_savings_percentage accepts valid values" do
+    [ 0, 5, 15, 100 ].each do |value|
+      cat = Category.new(name: "Test #{value}", suggested_savings_percentage: value)
+      assert cat.valid?, "expected #{value.inspect} to be accepted"
+    end
+  end
+
+  test "suggested_savings_percentage rejects negative values" do
+    cat = Category.new(name: "Test", suggested_savings_percentage: -5)
+    assert_not cat.valid?
+    assert_includes cat.errors[:suggested_savings_percentage], I18n.t("errors.messages.greater_than_or_equal_to", count: 0)
+  end
+
+  test "suggested_savings_percentage rejects values above 100" do
+    cat = Category.new(name: "Test", suggested_savings_percentage: 105)
+    assert_not cat.valid?
+    assert_includes cat.errors[:suggested_savings_percentage], I18n.t("errors.messages.less_than_or_equal_to", count: 100)
+  end
+
+  test "suggested_savings_percentage rejects non-numeric values" do
+    cat = Category.new(name: "Test", suggested_savings_percentage: "cinco")
+    assert_not cat.valid?
+    assert_includes cat.errors[:suggested_savings_percentage], I18n.t("errors.messages.not_a_number")
+  end
 end
