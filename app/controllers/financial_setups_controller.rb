@@ -114,7 +114,7 @@ class FinancialSetupsController < ApplicationController
       return render_upload_error(step_key, [ t("wizard.upload.file_required") ])
     end
 
-    pipeline = ImportPipeline.new(user: current_user)
+    pipeline = ImportPipeline.new(user: current_user, include_transactions: false)
     result = pipeline.call(file: params[:file], password: params[:password])
 
     unless result.ok?

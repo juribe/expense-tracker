@@ -15,10 +15,7 @@
         <input type="text" name="sources[<%= index %>][name]" value="<%= row["name"] %>" class="form-control">
       </div>
       <% unless kind == "cash" %>
-        <div class="col-md-6">
-          <label class="form-label"><%= kind == "loan" ? t("wizard.manual.lender") : t("wizard.manual.bank") %></label>
-          <input type="text" name="sources[<%= index %>][bank]" value="<%= row["bank"] %>" class="form-control">
-        </div>
+        <%= render "bank_select", index: index, value: row["bank"], kind: kind %>
       <% end %>
 
        <% if kind == "cash" %>

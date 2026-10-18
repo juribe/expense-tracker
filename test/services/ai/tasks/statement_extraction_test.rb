@@ -33,6 +33,34 @@ module Ai
         assert result.start_with?("H" * Ai::StatementExtractor::STATEMENT_HEAD_CHARS)
         assert result.end_with?("T" * Ai::StatementExtractor::STATEMENT_TAIL_CHARS)
       end
+
+      test "default context uses the full statement prompt" do
+        system = StatementExtraction.new.messages("statement", {})&.first&.dig(:content)
+
+        assert_match(/TRANSACTIONS/i, system)
+        assert_match(/LAYOUT/i, system)
+      end
+
+      test "context include_transactions: false omits operations from messages and parse" do
+        task = StatementExtraction.new
+
+        system = task.messages("statement", { include_transactions: false }).first[:content]
+        assert_no_match(/TRANSACTIONS/i, system)
+        assert_no_match(/LAYOUT/i, system)
+        assert_match(/sources/i, system)
+
+        content = {
+          "sources" => [ { "kind" => "account", "name" => "Savings", "bank" => "Bancolombia",
+                           "balance" => "1000" } ],
+          "transactions" => [ { "date" => "2026-08-23", "description" => "Restaurante",
+                                "amount" => "48.500", "type" => "expense" } ]
+        }.to_json
+
+        parsed = task.parse(content, "statement", { include_transactions: false })
+        assert_equal 1, parsed[:data][:sources].length
+        assert_empty parsed[:data][:transactions]
+        assert_equal 1.0, parsed[:confidence]
+      end
     end
   end
 end

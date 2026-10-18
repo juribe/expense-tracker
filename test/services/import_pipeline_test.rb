@@ -69,6 +69,16 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal csv, extractor.called_with
   end
 
+  test "include_transactions: false drops the transactions from the result" do
+    extractor = successful_extractor
+    result = ImportPipeline.new(user: @user, extractor: extractor, include_transactions: false)
+                           .call(file: uploaded_file("a,b\n1,2\n", "st.csv"))
+
+    assert result.ok?
+    assert_equal [ "Savings" ], result.sources.map(&:name)
+    assert_empty result.transactions
+  end
+
   test "propagates an extraction failure" do
     extractor = FakeExtractor.new({ ok?: false, data: nil, error: "AI extraction is not configured (missing MISTRAL_API_KEY)." })
     result = ImportPipeline.new(user: @user, extractor: extractor).call(file: uploaded_file("a,b\n1,2\n", "st.csv"))

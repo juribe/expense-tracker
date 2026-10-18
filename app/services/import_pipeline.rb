@@ -12,8 +12,9 @@ class ImportPipeline
 
   Result = Struct.new(:ok?, :sources, :transactions, :error, keyword_init: true)
 
-  def initialize(user:, extractor: nil)
+  def initialize(user:, extractor: nil, include_transactions: true)
     @user = user
+    @include_transactions = include_transactions
     @extractor = extractor || default_extractor
   end
 
@@ -38,7 +39,7 @@ class ImportPipeline
     return failure(extraction[:error]) unless extraction[:ok?]
 
     sources = build_sources(extraction.dig(:data, :sources) || [])
-    transactions = extraction.dig(:data, :transactions) || []
+    transactions = @include_transactions ? (extraction.dig(:data, :transactions) || []) : []
 
     Rails.logger.info "[ImportPipeline] Import complete. Sources: #{sources.size}, Transactions: #{transactions.size}"
     Result.new(ok?: true, sources: sources, transactions: transactions, error: nil)
@@ -50,7 +51,7 @@ class ImportPipeline
   private
 
   def default_extractor
-    Ai::StatementExtractor.new
+    Ai::StatementExtractor.new(include_transactions: @include_transactions)
   end
 
   def validate_upload(file)

@@ -226,6 +226,33 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     get financial_setup_manual_screen_path(step: :cash)
     assert_response :success
     assert_select "input[name='sources[0][bank]']", count: 0
+    assert_select "select[name='sources[0][bank]']", count: 0
+  end
+
+  test "GET manual for account renders a bank dropdown with catalog options" do
+    FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+    FinancialInstitution.create!(canonical_name: "Banco Prueba Dos", slug: "banco-prueba-dos", institution_type: "bank")
+
+    get financial_setup_manual_screen_path(step: :accounts)
+    assert_response :success
+    assert_select "select[name='sources[0][bank]']" do
+      assert_select "option[value='Banco Prueba']"
+      assert_select "option[value='Banco Prueba Dos']"
+    end
+    assert_select "input[name='sources[0][bank]']", count: 0
+  end
+
+  test "GET manual keeps a non-catalog bank as the selected option" do
+    setup_record
+    @setup.set_choice("accounts", "manual")
+    @setup.replace_draft_sources("accounts", [
+      { "identifier" => "5986", "name" => "Cuenta X", "bank" => "Banco Extraño", "kind" => "account", "balance" => "608" }
+    ])
+    @setup.save!
+
+    get financial_setup_manual_screen_path(step: :accounts)
+    assert_response :success
+    assert_select "select[name='sources[0][bank]'] option[value='Banco Extraño'][selected='selected']"
   end
 
   test "cash step does not offer the import option" do
@@ -332,6 +359,22 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
       assert_equal "import", @setup.choice_for("accounts")
       assert_empty @setup.draft_sources("accounts")
     end
+  end
+
+  test "POST upload builds the wizard pipeline without operation extraction" do
+    setup_record
+    captured = {}
+    fake_pipeline = Object.new
+    fake_pipeline.define_singleton_method(:call) do |file:, password: nil|
+      ImportPipeline::Result.new(ok?: true, sources: [], transactions: [], error: nil)
+    end
+    stub_method(ImportPipeline, :new, ->(**opts) { captured.merge!(opts); fake_pipeline }) do
+      post financial_setup_upload_path, params: { step: "accounts", file: upload_file("statement.csv") }
+      assert_redirected_to financial_setup_import_review_path(step: :accounts)
+    end
+
+    assert_equal @user, captured[:user]
+    assert_equal false, captured[:include_transactions]
   end
 
   # ---------------------------------------------- AJAX upload (JSON format)

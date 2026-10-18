@@ -432,6 +432,14 @@ module ApplicationHelper
     t("kinds_sub.#{sub_kind}", default: sub_kind.titleize)
   end
 
+  # Bank names for the wizard's bank dropdown: the shared catalog only (custom
+  # institutions are intentionally excluded from the onboarding flow). Any
+  # row's current value is appended by the caller so legacy free-text banks
+  # stay selectable on edit.
+  def bank_dropdown_options
+    FinancialInstitution.active.ordered.map(&:canonical_name)
+  end
+
   # Best-effort next payment date for a loan card, delegated to
   # Loans::NextPayment (recurring template first, then start-date derivation).
   def next_payment_date(loan)

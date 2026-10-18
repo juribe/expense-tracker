@@ -19,21 +19,35 @@ module Ai
         40
       end
 
-      def messages(input, _context)
+      def messages(input, context)
         [
-          { role: "system", content: Ai::StatementExtractor.system_prompt },
+          { role: "system", content: Ai::StatementExtractor.system_prompt(include_transactions: include_transactions?(context)) },
           { role: "user", content: "Statement contents:\n\n#{statement_window(input)}" }
         ]
       end
 
-      def parse(content, input, _context)
-        data = Ai::StatementExtractor.parse(parse_json(content), text: input)
-        { data: data, confidence: mean_transaction_confidence(data) }
+      def parse(content, input, context)
+        include_transactions = include_transactions?(context)
+        data = Ai::StatementExtractor.parse(parse_json(content), text: input,
+                                                                  include_transactions: include_transactions)
+        confidence = include_transactions ? mean_transaction_confidence(data) : source_confidence(data)
+        { data: data, confidence: confidence }
       rescue Ai::StatementExtractor::ExtractionError => e
         raise InvalidResponse, e.message
       end
 
       private
+
+      # The financial-setup wizard import only wants sources and balances, and
+      # the review screen is the gate, so a source present is a strong enough
+      # signal for a cheap-tier result when transactions are not extracted.
+      def include_transactions?(context)
+        context.key?(:include_transactions) ? context[:include_transactions] : true
+      end
+
+      def source_confidence(data)
+        Array(data[:sources]).any? ? 1.0 : nil
+      end
 
       def statement_window(text)
         str = text.to_s

@@ -99,6 +99,7 @@ en:
       remove: "Remove"
       name: "Name"
       bank: "Bank"
+      bank_placeholder: "Select a bank"
       lender: "Lender"
       starting_balance: "Starting balance"
       current_balance: "Current balance"
@@ -289,6 +290,8 @@ en:
         expense: "Expense"
         money_source: "Debt"
         date: "Date"
+      category:
+        suggested_savings_percentage: "Suggested savings percentage"
 
   category_picker:
     search_placeholder: "Type to search a category"

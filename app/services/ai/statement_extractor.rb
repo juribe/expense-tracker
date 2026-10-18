@@ -15,6 +15,13 @@ module Ai
 
     class ExtractionError < StandardError; end
 
+    # include_transactions: false targets the financial-setup wizard import,
+    # which only needs the source plus its balance/debt: the prompt then omits
+    # the TRANSACTIONS and LAYOUT sections and parsing ignores both keys.
+    def initialize(include_transactions: true)
+      @include_transactions = include_transactions
+    end
+
     # The statement body (the transaction table) spans the MIDDLE of the
     # document, so the window must be generous enough to keep it whole: a
     # head+tail split that is too small silently drops rows. Long statements
@@ -25,8 +32,8 @@ module Ai
 
     # The system prompt lives in the extraction task; kept here as a class
     # method so both the task and this service share one definition.
-    def self.system_prompt
-      new.send(:system_prompt)
+    def self.system_prompt(include_transactions: true)
+      new(include_transactions: include_transactions).send(:system_prompt)
     end
 
     ACCOUNT_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?cuenta|cuenta\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|cuenta\s+(?:de\s+)?(?:ahorros?|corriente|n[oó]mina|maestra|electr[oó]nica)\s*(?:no\.?|nro\.?|n[oº°]|\#)?|account\s*(?:number|no\.?|\#)|(?:savings|checking)\s+account/i
@@ -35,12 +42,13 @@ module Ai
     LABELED_NUMBER = /([*\d][\d\s\-*.]{4,32}[\d*])/
 
     class << self
-      def parse(raw, text: nil)
-        new.parse_payload(raw, text: text)
+      def parse(raw, text: nil, include_transactions: true)
+        new(include_transactions: include_transactions).parse_payload(raw, text: text,
+                                                                         include_transactions: include_transactions)
       end
     end
 
-    def parse_payload(raw, text: nil)
+    def parse_payload(raw, text: nil, include_transactions: true)
       raise ExtractionError, "AI response is not a JSON object" unless raw.is_a?(Hash)
 
       sources_raw = raw["sources"]
@@ -52,7 +60,7 @@ module Ai
 
       transactions = []
       raw_transactions = raw["transactions"]
-      if raw_transactions.is_a?(Array)
+      if include_transactions && raw_transactions.is_a?(Array)
         transactions = raw_transactions.filter_map { |entry| normalize_transaction(entry) }
       end
 
@@ -61,11 +69,12 @@ module Ai
       end
 
       { sources: sources, transactions: transactions, summary: normalize_summary(raw["summary"]),
-        layout: normalize_layout(raw["layout"]) }
+        layout: include_transactions ? normalize_layout(raw["layout"]) : nil }
     end
 
     def call(text:, today: Date.current)
-      result = Ai::Router.call(task: :statement_extraction, input: text)
+      result = Ai::Router.call(task: :statement_extraction, input: text,
+                               context: { include_transactions: @include_transactions })
       return failure(result.error || "AI extraction failed.") unless result.ok?
 
       { ok?: true, data: result.data, error: nil }
@@ -77,10 +86,20 @@ module Ai
       { ok?: false, data: nil, error: message }
     end
 
-    def system_prompt
+    def system_prompt(include_transactions: @include_transactions)
+      [
+        sources_section(include_transactions: include_transactions),
+        (transactions_section if include_transactions),
+        (layout_section if include_transactions),
+        response_section(include_transactions: include_transactions)
+      ].compact.join("\n\n")
+    end
+
+    def sources_section(include_transactions:)
+      intro = include_transactions ? "source(s) they belong to, plus any transactions shown." : "source(s) they belong to."
       <<~PROMPT
         You analyze bank, credit-card, or loan statement documents and extract the financial
-        source(s) they belong to, plus any transactions shown.
+        #{intro}
         Identify the institution, account/card/loan type, identifier, balances, credit limits,
         loan balances and payment information.
         Amounts are positive numbers in the smallest published unit shown ("$5.420.000" COP means 5420000).
@@ -164,12 +183,20 @@ module Ai
             Do NOT use the due_date as statement_date.
           - For a simple account statement without a payment summary, return
             "summary": null.
+      PROMPT
+    end
 
+    def transactions_section
+      <<~PROMPT
         TRANSACTIONS — extract only the real purchases/charges:
           - OMIT any row marked as cancelled ("CANCELADA", "ANULADA", "REVERSADA").
           - OMIT payments, credits, refunds and every income/abono row. Never return
             type "income"; only "expense" rows are used.
+      PROMPT
+    end
 
+    def layout_section
+      <<~PROMPT
         LAYOUT — describe how a purchase row is structured so the SAME bank format can
         be parsed later WITHOUT AI. Only include it when you are confident:
           - anchors: 1-3 stable lines (headings/labels) that always appear and identify
@@ -191,29 +218,49 @@ module Ai
             none. Prefer a label on the same line as its value (a "= Total" summary row) over
             a bare column header.
           - confidence between 0 and 1.
-
-        Respond with ONLY JSON of the shape:
-        {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
-          "sub_kind":"savings","card_last_four":"5689","balance":5420000,
-          "credit_limit":null,"outstanding_balance":null,"monthly_payment":null,
-          "interest_rate":null,"interest_rate_type":null,"identifier":"5689"},
-         {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","sub_kind":"personal",
-          "principal_amount":8000000,
-          "outstanding_balance":6000000,"monthly_payment":350000,"installment_count":36}],
-         "summary":{"total_due":1250300,"min_payment":62515,"interest_charged":45200,
-          "due_date":"2026-09-04","statement_date":"2026-08-25"},
-         "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
-          "type":"expense","category":"restaurants","confidence":0.98}],
-         "layout":{"bank":"Davibank","anchors":["Davibank pertenece a Davivienda Group S.A."],
-          "sections":{"expenses":["Transacciones del periodo facturado"]},
-          "row":{"fields":[{"token":"date","format":"DD/MM/YYYY"},
-            {"token":"ref","kind":"digits","length":6},{"token":"description","optional":true},
-            {"token":"amount","currency":"$"},{"token":"ignore"}],"cancelled_pattern":"CANCELADA"},
-          "summary":{"total_due":{"label":"= Pago total"},"min_payment":{"label":"= Pago mínimo"},
-            "interest_charged":{"label":"+ Intereses corrientes"},"due_date":{"label":"Fecha de pago"}},
-          "confidence":0.95}}
-        When a document contains no identifiable financial source, respond with {"sources":[]}.
       PROMPT
+    end
+
+    def response_section(include_transactions:)
+      example =
+        if include_transactions
+          <<~PROMPT
+            Respond with ONLY JSON of the shape:
+            {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
+              "sub_kind":"savings","card_last_four":"5689","balance":5420000,
+              "credit_limit":null,"outstanding_balance":null,"monthly_payment":null,
+              "interest_rate":null,"interest_rate_type":null,"identifier":"5689"},
+             {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","sub_kind":"personal",
+              "principal_amount":8000000,
+              "outstanding_balance":6000000,"monthly_payment":350000,"installment_count":36}],
+             "summary":{"total_due":1250300,"min_payment":62515,"interest_charged":45200,
+              "due_date":"2026-09-04","statement_date":"2026-08-25"},
+             "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
+              "type":"expense","category":"restaurants","confidence":0.98}],
+             "layout":{"bank":"Davibank","anchors":["Davibank pertenece a Davivienda Group S.A."],
+              "sections":{"expenses":["Transacciones del periodo facturado"]},
+              "row":{"fields":[{"token":"date","format":"DD/MM/YYYY"},
+                {"token":"ref","kind":"digits","length":6},{"token":"description","optional":true},
+                {"token":"amount","currency":"$"},{"token":"ignore"}],"cancelled_pattern":"CANCELADA"},
+              "summary":{"total_due":{"label":"= Pago total"},"min_payment":{"label":"= Pago mínimo"},
+                "interest_charged":{"label":"+ Intereses corrientes"},"due_date":{"label":"Fecha de pago"}},
+              "confidence":0.95}}
+          PROMPT
+        else
+          <<~PROMPT
+            Respond with ONLY JSON of the shape:
+            {"sources":[{"kind":"account","name":"Cuenta de Ahorros","bank":"Bancolombia",
+              "sub_kind":"savings","card_last_four":"5689","balance":5420000,
+              "credit_limit":null,"outstanding_balance":null,"monthly_payment":null,
+              "interest_rate":null,"interest_rate_type":null,"identifier":"5689"},
+             {"kind":"loan","name":"Libre Inversión","bank":"Bancolombia","sub_kind":"personal",
+              "principal_amount":8000000,
+              "outstanding_balance":6000000,"monthly_payment":350000,"installment_count":36}],
+             "summary":{"total_due":1250300,"min_payment":62515,"interest_charged":45200,
+              "due_date":"2026-09-04","statement_date":"2026-08-25"}}
+          PROMPT
+        end
+      "#{example.strip}\nWhen a document contains no identifiable financial source, respond with {\"sources\":[]}."
     end
 
     # ------------------------------------------------------------------ normalize

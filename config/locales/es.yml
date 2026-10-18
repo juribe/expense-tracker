@@ -152,6 +152,7 @@ es:
         description: "Descripción"
         slug: "Slug"
         image: "Imagen"
+        suggested_savings_percentage: "Porcentaje de ahorro sugerido"
       money_source:
         name: "Nombre"
         kind: "Tipo"
@@ -430,6 +431,7 @@ es:
       remove: "Eliminar"
       name: "Nombre"
       bank: "Banco"
+      bank_placeholder: "Selecciona un banco"
       lender: "Entidad"
       starting_balance: "Saldo inicial"
       current_balance: "Saldo actual"

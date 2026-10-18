@@ -1,0 +1,22 @@
+<%#
+  Bank dropdown for the financial-setup wizard: lists the shared catalog banks
+  and keeps the row's current value as an option even when it is not part of
+  the catalog (legacy free-text banks from imports), so edits never lose data.
+  Writing the chosen value into sources[INDEX][bank] keeps the legacy free-text
+  column populated, same as before the dropdown.
+  Locals: index (Integer|String), value (String), kind (String), col_class,
+  compact (optional)
+%>
+<% col_class ||= "col-md-6" %>
+<% compact = local_assigns.fetch(:compact, false) %>
+<% label_class = compact ? "form-label small text-muted mb-1" : "form-label" %>
+<% label = kind == "loan" ? t("wizard.manual.lender") : t("wizard.manual.bank") %>
+<% options = bank_dropdown_options %>
+<% options = options | [ value ] if value.present? %>
+<div class="<%= col_class %>">
+  <label class="<%= label_class %>"><%= label %></label>
+  <select name="sources[<%= index %>][bank]" class="form-select">
+    <option value=""><%= t("wizard.manual.bank_placeholder") %></option>
+    <%= options_for_select(options, value) %>
+  </select>
+</div>

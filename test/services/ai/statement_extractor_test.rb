@@ -215,6 +215,49 @@ module Ai
       assert_match(/intereses/i, prompt)
     end
 
+    test "instructs the AI to extract transactions and layout by default" do
+      prompt = Ai::StatementExtractor.new.send(:system_prompt)
+      assert_match(/TRANSACTIONS/i, prompt)
+      assert_match(/LAYOUT/i, prompt)
+    end
+
+    test "source-only prompt omits the TRANSACTIONS and LAYOUT instructions" do
+      prompt = Ai::StatementExtractor.new(include_transactions: false).send(:system_prompt)
+      assert_no_match(/TRANSACTIONS/i, prompt)
+      assert_no_match(/LAYOUT/i, prompt)
+      assert_match(/STATEMENT SUMMARY/i, prompt)
+      assert_match(/sources/i, prompt)
+    end
+
+    test "parse with include_transactions: false keeps sources but no operations" do
+      data = Ai::StatementExtractor.parse(
+        { "sources" => [ { "kind" => "credit_card", "name" => "Visa", "bank" => "Davivienda",
+                           "balance" => "2.180.000", "credit_limit" => "10.000.000" } ],
+          "transactions" => [ { "date" => "2026-08-23", "description" => "Restaurante XYZ",
+                                "amount" => "48.500", "type" => "compra" } ],
+          "layout" => { "bank" => "Davibank", "row" => { "fields" => [] } } },
+        include_transactions: false,
+        text: nil
+      )
+
+      assert_equal 1, data[:sources].length
+      assert_equal BigDecimal("2180000"), data[:sources].first[:balance]
+      assert_empty data[:transactions]
+      assert_nil data[:layout]
+    end
+
+    test "parse with include_transactions: true still parses operations and layout" do
+      data = parse(
+        { "sources" => [ { "kind" => "account", "name" => "Savings", "bank" => "Bancolombia" } ],
+          "transactions" => [ { "date" => "2026-08-23", "description" => "Restaurante",
+                                "amount" => "48.500", "type" => "compra" } ],
+          "layout" => { "bank" => "Davibank" } }
+      )
+
+      assert_equal 1, data[:transactions].length
+      assert_equal({ "bank" => "Davibank" }, data[:layout])
+    end
+
     test "cascades cheap then strong so a cheap model can serve statements" do
       assert_equal %i[cheap strong], Ai::Tasks::StatementExtraction.new.tiers
     end
