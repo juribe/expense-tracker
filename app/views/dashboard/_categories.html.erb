@@ -1,0 +1,42 @@
+<%# Category breakdown donut card. %>
+<%= render "shared/section", title: t("dashboard.category_breakdown", default: "Distribución por categoría") do %>
+  <% if @expense_summary[:by_category].any? %>
+    <% ranked_categories = @expense_summary[:by_category].sort_by { |_name, total| -total }
+                                                  .first(8)
+                                                  .map { |name, total| { name: name, total: total } } %>
+    <% palette = dashboard_category_palette(ranked_categories.size) %>
+    <div class="donut-wrap position-relative mx-auto">
+      <%= pie_chart ranked_categories.map { |category| [ category[:name], category[:total] ] },
+                      **chart_money_options,
+                      height: "170px",
+                      donut: true,
+                      legend: false,
+                      colors: palette,
+                      library: { cutout: "70%" } %>
+      <div class="donut-center text-center">
+        <span class="d-block fw-bold num"><%= number_to_currency(@cycle_summary[:expense_total]) %></span>
+        <span class="text-secondary small"><%= t("dashboard.total_expenses", default: "Total gastos") %></span>
+      </div>
+    </div>
+    <ul class="list-unstyled mb-0 mt-3 donut-legend">
+      <% ranked_categories.each_with_index do |category, index| %>
+        <li class="d-flex align-items-center gap-2 mb-1">
+          <span class="legend-dot" style="background: <%= palette[index] %>"></span>
+          <span class="small flex-grow-1"><%= category[:name] %></span>
+          <span class="small fw-bold num">
+            <% if @cycle_summary[:expense_total].to_f.positive? %>
+              <%= number_with_precision(category[:total] / @cycle_summary[:expense_total] * 100, precision: 0) %>%
+            <% else %>
+              0%
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="text-center text-secondary py-4">
+      <i class="ti ti-chart-pie display-5 d-block mb-2"></i>
+      <span><%= dashboard_no_expenses_label(@cycle) %></span>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,26 @@
+<%# Upcoming payments card. %>
+<div class="card page-section">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title"><i class="ti ti-calendar-event me-1 text-secondary"></i><%= t("dashboard.upcoming_payments", default: "Próximos pagos") %></h5>
+    <%= link_to monthly_expenses_path, class: "small text-decoration-none text-secondary" do %><%= t("dashboard.view_all", default: "Ver todos") %><i class="ti ti-arrow-right"></i><% end %>
+  </div>
+  <div class="card-body pt-0">
+    <% if @cycle_summary[:upcoming_payments].any? %>
+      <% @cycle_summary[:upcoming_payments].each do |payment| %>
+        <div class="upcoming-payment d-flex align-items-center gap-2 py-2 border-bottom">
+          <span class="icon-chip icon-chip-gray icon-chip-sm"><i class="ti ti-repeat"></i></span>
+          <div class="flex-grow-1">
+            <span class="small fw-semibold d-block cell-strong"><%= payment[:label] %></span>
+            <span class="text-secondary small"><%= l(payment[:next_date], format: "%e %b").squeeze(" ") %></span>
+          </div>
+          <div class="text-end">
+            <span class="small fw-bold num d-block"><%= number_to_currency(payment[:amount]) %></span>
+            <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger small"><%= t("dashboard.pending", default: "Pendiente") %></span>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <%= render "shared/empty_state", icon: "calendar-event", title: t("dashboard.no_upcoming_payments", default: "No hay pagos próximos") %>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<%# Recent expenses table card. %>
+<%= render "shared/section", title: t("dashboard.recent_expenses", default: "Gastos recientes"),
+      header: false do %>
+  <div class="table-responsive">
+    <table class="table table-hover ledger-table mb-0" data-testid="dashboard-recent-expenses">
+      <thead>
+        <tr>
+          <th scope="col"><%= t("common.date") %></th>
+          <th scope="col"><%= t("common.category") %></th>
+          <th scope="col"><%= t("common.description") %></th>
+          <th scope="col" class="text-end"><%= t("common.amount") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @expense_summary[:recent_expenses].each do |expense| %>
+          <tr>
+            <td class="cell-muted small"><%= l(expense.date, format: :long) %></td>
+            <td><%= category_badge(expense.category) %></td>
+            <td class="cell-strong"><%= expense.description %></td>
+            <td class="cell-amount text-danger"><%= number_to_currency(expense.amount.abs) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @expense_summary[:recent_expenses].empty? %>
+    <% new_expense_cta = link_to(new_expense_path, class: "btn btn-primary btn-sm") do %><i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %><% end %>
+    <%= render "shared/empty_state", icon: "clipboard-x", title: t("dashboard.no_expenses", default: "No se encontraron gastos"),
+          text: t("dashboard.add_expense_to_start", default: "Agrega un gasto nuevo para comenzar."),
+          cta: new_expense_cta %>
+  <% end %>
+  <div class="d-flex justify-content-end mt-2">
+    <%= link_to expenses_path, class: "btn btn-sm btn-outline-secondary" do %><%= t("dashboard.view_all", default: "Ver todos") %><i class="ti ti-arrow-right ms-1"></i><% end %>
+  </div>
+<% end %>

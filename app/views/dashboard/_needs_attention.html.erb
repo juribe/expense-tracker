@@ -1,0 +1,26 @@
+<%# Needs-attention chips: pending candidates, unread alerts, over/near budget. %>
+<% needs_attention = [] %>
+<% needs_attention << { icon: "inbox", tone: "amber", text: t("dashboard.attention_candidates", count: @pending_candidates.size, default: "%{count} gastos por revisar"), path: expense_candidates_path } if @pending_candidates.any? %>
+<% if current_user.spending_alerts.unread.any? %>
+  <% needs_attention << { icon: "bell", tone: "amber", text: t("dashboard.attention_alerts", default: "%{count} alertas sin leer", count: current_user.spending_alerts.unread.count), path: alerts_path } %>
+<% end %>
+<% if @budgets.any? %>
+  <% attention_counts = budget_summary_counts(@budgets, @budget_period) %>
+  <% if attention_counts[:over_budget].positive? %>
+    <% needs_attention << { icon: "calculator", tone: "red", text: t("budgets.attention_over", count: attention_counts[:over_budget], default: "%{count} presupuestos excedidos"), path: budgets_path } %>
+  <% elsif attention_counts[:near_limit].positive? %>
+    <% needs_attention << { icon: "calculator", tone: "amber", text: t("budgets.attention_near", count: attention_counts[:near_limit], default: "%{count} presupuestos cerca del límite"), path: budgets_path } %>
+  <% end %>
+<% end %>
+<% if needs_attention.any? %>
+  <section class="page-section">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="section-title mb-0"><%= t("dashboard.attention", default: "Requiere atención") %></span>
+      <% needs_attention.each do |item| %>
+        <%= link_to item[:path], class: "filter-chip #{item[:tone] == "red" ? "border-danger text-danger" : "border-warning-subtle text-warning-emphasis"}" do %>
+          <i class="ti ti-<%= item[:icon] %>"></i><%= item[:text] %>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+<% end %>

@@ -1,0 +1,26 @@
+<%# Cash flow (income vs expense) area chart card. %>
+<div class="card page-section">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title"><%= t("dashboard.evolution_title", default: "Evolución de ingresos y gastos") %></h5>
+  </div>
+  <div class="card-body">
+    <% has_evolution = @cycle_summary[:evolution].any? { |point| point[:income].positive? || point[:expense].positive? } %>
+    <% if has_evolution %>
+      <div class="d-flex gap-3 mb-2 small text-secondary">
+        <span><span class="legend-dot" style="background: var(--et-positive)"></span> <%= t("dashboard.incomes", default: "Ingresos") %></span>
+        <span><span class="legend-dot" style="background: var(--et-negative)"></span> <%= t("dashboard.expenses", default: "Gastos") %></span>
+      </div>
+      <%= area_chart [
+                       { name: t("dashboard.incomes", default: "Ingresos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:income] ] } },
+                       { name: t("dashboard.expenses", default: "Gastos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] } }
+                     ],
+                     **chart_money_options,
+                     height: "240px",
+                     colors: [ "#0e9f6e", "#e0254b" ],
+                     legend: false,
+                     library: { scales: { x: { ticks: { maxTicksLimit: 8 } } } } %>
+    <% else %>
+      <%= render "shared/empty_state", icon: "chart-line", title: t("dashboard.no_evolution", default: "Sin movimientos en este período") %>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<%# Budgets summary card. %>
+<% if @budgets.any? %>
+  <% counts = budget_summary_counts(@budgets, @budget_period) %>
+  <div class="card page-section">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="card-title"><i class="ti ti-calculator me-1 text-secondary"></i><%= t("budgets.dashboard_title") %></h5>
+      <%= link_to budgets_path, class: "small text-decoration-none text-secondary" do %><%= t("budgets.dashboard_view_all") %><i class="ti ti-arrow-right"></i><% end %>
+    </div>
+    <div class="card-body">
+      <% @budgets.first(4).each do |budget| %>
+        <% data = budget_progress_data(budget, @budget_period) %>
+        <div class="budget-mini mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
+            <span class="fw-bold small budget-amount num"><%= number_to_percentage(data[:percentage], precision: 0) %></span>
+          </div>
+          <div class="progress dashboard-progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= data[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar <%= budget_status_class(data[:status]) %>" style="width: <%= [ data[:percentage], 100 ].min %>%"></div>
+          </div>
+        </div>
+      <% end %>
+      <p class="text-secondary small mb-0"><%= t("budgets.summary", count: counts[:total], near_limit: counts[:near_limit], over_budget: counts[:over_budget]) %></p>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,40 @@
+<%# Quick-add expense card. %>
+<div class="card" id="quick-add-expense">
+  <div class="card-header">
+    <h5 class="card-title"><i class="ti ti-plus me-1 text-secondary"></i><%= t("dashboard.quick_add_expense", default: "Agregar gasto rápido") %></h5>
+  </div>
+  <div class="card-body">
+    <%= form_with model: Expense.new, local: true do |f| %>
+      <%= f.hidden_field :date, value: Date.today %>
+      <div class="mb-2">
+        <%= f.label :amount, t("dashboard.quick_add_amount", default: "Valor"), class: "form-label small" %>
+        <div class="input-group">
+          <span class="input-group-text">$</span>
+          <%= f.text_field :amount,
+                           value: money_field_value(f.object.amount&.abs),
+                           class: "form-control",
+                           placeholder: t("expenses.placeholder_amount"),
+                           required: true,
+                           inputmode: "decimal",
+                           autocomplete: "off",
+                           data: { money_input: true } %>
+        </div>
+      </div>
+      <div class="mb-2">
+        <%= category_picker f, :category_id, @categories,
+                            label: t("common.category"),
+                            label_class: "form-label small",
+                            required: true,
+                            testid: "dashboard-expense-category-picker" %>
+      </div>
+      <div class="mb-0 small text-secondary">
+        <%= f.label :money_source_id, t("expenses.source"), class: "form-label small" %>
+        <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                                { include_blank: t("common.none") }, class: "form-select" %>
+      </div>
+      <button type="submit" class="btn btn-success w-100 mt-3">
+        <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
+      </button>
+    <% end %>
+  </div>
+</div>

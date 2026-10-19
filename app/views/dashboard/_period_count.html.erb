@@ -1,0 +1,21 @@
+<%# Period expense count + mini chart card. %>
+<div class="card page-section">
+  <div class="card-body">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-md-4">
+        <h5 class="card-title"><%= dashboard_expenses_title(@cycle) %></h5>
+        <p class="summary-value mb-0 text-body"><%= @cycle_summary[:expense_count] %></p>
+        <div class="small text-secondary"><%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %> <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span></div>
+      </div>
+      <div class="col-12 col-md-8 dashboard-mini-chart">
+        <%= column_chart @cycle_summary[:evolution].map { |point| [ point[:date], point[:expense] ] },
+                         **chart_money_options,
+                         height: "120px",
+                         colors: [ "#f2a5b6" ],
+                         legend: false,
+                         library: { plugins: { legend: { display: false } },
+                                    scales: { x: { display: false }, y: { display: false } } } %>
+      </div>
+    </div>
+  </div>
+</div>

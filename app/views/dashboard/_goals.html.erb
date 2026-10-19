@@ -1,0 +1,29 @@
+<%# Financial goals card. %>
+<div class="card page-section">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="card-title"><i class="ti ti-trophy me-1 text-secondary"></i><%= t("dashboard.financial_goals", default: "Metas financieras") %></h5>
+    <%= link_to goals_path, class: "small text-decoration-none text-secondary" do %><%= t("dashboard.view_all", default: "Ver todas") %><i class="ti ti-arrow-right"></i><% end %>
+  </div>
+  <div class="card-body pt-0">
+    <% if @goals.any? %>
+      <% @goals.each do |goal| %>
+        <div class="goal-row py-2 border-bottom">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="icon-chip icon-chip-green icon-chip-sm"><i class="ti ti-pig-money"></i></span>
+            <span class="small fw-semibold flex-grow-1"><%= link_to goal.name, goals_path, class: "text-decoration-none text-reset" %></span>
+            <span class="small fw-bold num"><%= number_to_percentage(goal.progress_percentage, precision: 0) %></span>
+          </div>
+          <div class="progress dashboard-progress mb-1" role="progressbar"
+               aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
+               aria-valuenow="<%= goal.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-primary" style="width: <%= goal.progress_percentage.round %>%"></div>
+          </div>
+          <span class="text-secondary small num"><%= number_to_currency(goal.saved_amount) %> / <%= number_to_currency(goal.target_amount) %></span>
+        </div>
+      <% end %>
+    <% else %>
+      <%= render "shared/empty_state", icon: "pig-money", title: t("dashboard.no_goals", default: "Aún no tienes metas financieras"),
+            cta: link_to(new_goal_path, class: "btn btn-sm btn-outline-primary") { "<i class=\"ti ti-plus me-1\"></i>#{t("goals.new", default: "Nueva meta")}".html_safe } %>
+    <% end %>
+  </div>
+</div>

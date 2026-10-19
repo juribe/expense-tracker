@@ -1,0 +1,89 @@
+<%# Dashboard KPI metric cards. %>
+<%
+  incomes_meta = capture do %>
+    <%= dashboard_delta_badge(@cycle_summary[:income_delta_pct]) %>
+    <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
+  <% end %>
+  <% expenses_meta = capture do %>
+    <%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %>
+    <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
+  <% end %>
+  <% projected_progress = {
+       pct: @cycle_summary[:period_progress_pct],
+       aria_label: t("dashboard.cycle_progress_aria", default: "Progreso del ciclo"),
+       bar_class: @cycle_summary[:on_track] ? "bg-success" : "bg-danger"
+     } %>
+<section class="page-section">
+  <div class="row g-3">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.money_in_accounts", default: "Dinero en cuentas"),
+            value: number_to_currency(@position[:accounts_balance]),
+            description: t("dashboard.money_in_accounts_desc",
+                           default: "Saldo disponible en cuentas, tarjetas débito, efectivo y billeteras."),
+            icon: "wallet", variant: "accounts",
+            href: money_sources_path, testid: "dashboard-kpi-accounts" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.incomes", default: "Ingresos"),
+            value: number_to_currency(@cycle_summary[:income_total]),
+            meta: incomes_meta,
+            icon: "trending-up", variant: "income",
+            href: incomes_path, testid: "dashboard-kpi-incomes" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.expenses", default: "Gastos"),
+            value: number_to_currency(@cycle_summary[:expense_total]),
+            meta: expenses_meta,
+            icon: "receipt", variant: "expense",
+            href: expenses_path, testid: "dashboard-kpi-expenses" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.projected_spend", default: "Gasto proyectado"),
+            value: number_to_currency(@cycle_summary[:projected_spend]),
+            meta: t(@cycle_summary[:on_track] ? "dashboard.on_track_title" : "dashboard.off_track_title",
+                    default: @cycle_summary[:on_track] ? "Estás en línea con tu meta" : "Vas sobre tu meta de gasto"),
+            progress: projected_progress,
+            icon: "target", variant: "expense",
+            href: reports_budgets_path, testid: "dashboard-kpi-projected" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.credit_available", default: "Cupo disponible"),
+            value: number_to_currency(@position[:credit_available]),
+            description: t("dashboard.credit_available_desc",
+                           default: "Saldo disponible en tarjetas de crédito y créditos rotativos."),
+            icon: "credit-card", variant: "credit",
+            href: reports_credit_cards_path, testid: "dashboard-kpi-credit" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.savings", default: "Ahorros"),
+            value: number_to_currency(@position[:savings_balance]),
+            description: t("dashboard.savings_desc", default: "Total de tus bolsillos de ahorro."),
+            icon: "pig-money", variant: "savings",
+            href: money_sources_pockets_path, testid: "dashboard-kpi-savings" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.card_debt", default: "Deuda tarjetas de crédito"),
+            value: number_to_currency(@position[:credit_debt]),
+            description: t("dashboard.card_debt_desc",
+                           default: "Total que debes en tarjetas de crédito."),
+            icon: "credit-card", variant: "debt",
+            href: debt_capacity_path, testid: "dashboard-kpi-credit-debt" %>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <%= render "dashboard/metric_card",
+            label: t("dashboard.normal_debt", default: "Deudas normales"),
+            value: number_to_currency(@position[:loan_debt]),
+            description: t("dashboard.normal_debt_desc",
+                           default: "Total que debes en créditos y préstamos, incluidos los rotativos."),
+            icon: "building-bank", variant: "normal-debt",
+            href: reports_loans_path, testid: "dashboard-kpi-loan-debt" %>
+    </div>
+  </div>
+</section>
