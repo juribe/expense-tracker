@@ -13,46 +13,66 @@
 
 <div class="card">
   <div class="card-body p-4">
-    <h3 class="fw-bold text-primary mb-4"><%= t("wizard.review.title") %></h3>
-
-    <% summary.each do |item| %>
-      <% next if item[:count].zero? %>
-      <div class="card border mb-2">
-        <div class="card-body py-3 d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#collapse<%= item[:step].key %>" style="cursor:pointer;">
-          <span><i class="ti ti-<%= item[:step].icon %> me-2 text-primary"></i><span class="fw-bold"><%= t("wizard.review.#{item[:step].key}", count: item[:count]) %></span></span>
-          <span class="text-muted"><i class="ti ti-chevron-down"></i></span>
-        </div>
-        <div class="collapse" id="collapse<%= item[:step].key %>">
-          <ul class="list-group list-group-flush">
-            <% item[:presenter].added_sources.each do |source| %>
-              <li class="list-group-item d-flex justify-content-between">
-                <span><%= source["name"] %></span>
-                <% amount = item[:presenter].display_amount(source) %>
-                <% if amount.present? %>
-                  <span class="text-muted"><span class="small"><%= item[:presenter].display_label(source) %>:</span> <%= number_to_currency(amount) %></span>
-                <% end %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+      <div>
+        <h3 class="fw-bold text-primary mb-1"><%= t("wizard.review.title") %></h3>
+        <p class="text-muted mb-0"><%= t("wizard.review.confirm_hint") %></p>
       </div>
-    <% end %>
-
-    <hr>
-    <div class="text-center">
-      <p class="fs-4 fw-bold mb-1"><%= t("wizard.review.total_sources", count: total_sources) %></p>
-      <p class="text-muted small"><%= t("wizard.review.confirm_hint") %></p>
+      <span class="badge bg-primary-subtle text-primary border px-3 py-2 fw-bold">
+        <%= total_sources %> <%= total_sources == 1 ? "fuente configurada" : "fuentes configuradas" %>
+      </span>
     </div>
 
-    <div class="d-flex justify-content-between mt-4">
+    <div class="d-grid gap-2">
+      <% summary.each do |item| %>
+        <% next if item[:count].zero? %>
+        <div class="border rounded-3 overflow-hidden">
+          <button class="w-100 d-flex align-items-center gap-3 p-3 border-0 bg-body text-start"
+                  type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= item[:step].key %>"
+                  aria-expanded="false" aria-controls="collapse<%= item[:step].key %>">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary flex-shrink-0" style="width: 40px; height: 40px;">
+              <i class="ti ti-<%= item[:step].icon %> fs-4"></i>
+            </span>
+            <span class="flex-grow-1 min-w-0">
+              <span class="fw-bold d-block"><%= t("wizard.review.#{item[:step].key}", count: item[:count]) %></span>
+              <span class="small text-muted d-block"><%= t("wizard.select.added", count: item[:count]) %></span>
+            </span>
+            <span class="badge bg-light text-dark border"><%= item[:count] %></span>
+            <i class="ti ti-chevron-down text-muted"></i>
+          </button>
+          <div class="collapse" id="collapse<%= item[:step].key %>">
+            <ul class="list-group list-group-flush">
+              <% item[:presenter].added_sources.each do |source| %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span><%= source["name"] %></span>
+                  <% amount = item[:presenter].display_amount(source) %>
+                  <% if amount.present? %>
+                    <span class="text-muted small">
+                      <%= item[:presenter].display_label(source) %>: <%= number_to_currency(amount) %>
+                    </span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="border-top pt-3 mt-4 text-center">
+      <p class="fs-5 fw-bold mb-1"><%= t("wizard.review.total_sources", count: total_sources) %></p>
+      <p class="text-muted small mb-0"><%= t("wizard.review.confirm_hint") %></p>
+    </div>
+
+    <div class="border-top pt-3 mt-4 d-flex justify-content-between align-items-center">
       <div>
         <%= link_to financial_setup_step_path(step: FinancialSetupWizard.source_step_keys.last), class: "btn btn-outline-secondary" do %>
           <i class="ti ti-arrow-left me-1"></i><%= t("wizard.review.back_to_edit") %>
         <% end %>
       </div>
-      <div>
-        <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
-        <%= button_to financial_setup_complete_path, method: :post, class: "btn btn-primary btn-lg", form: { data: { turbo: false } } do %>
+      <div class="d-flex align-items-center gap-2">
+        <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted text-decoration-none" %>
+        <%= button_to financial_setup_complete_path, method: :post, class: "btn btn-primary", form: { data: { turbo: false } } do %>
           <i class="ti ti-circle-check me-1"></i><%= t("wizard.review.complete") %>
         <% end %>
       </div>

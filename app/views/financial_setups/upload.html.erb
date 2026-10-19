@@ -1,93 +1,125 @@
 <% @step_key = @step.key.to_s %>
 <%= render "stepper", step_key: @step_key %>
 
+<%
+  step_idx = FinancialSetupWizard.step_keys.index(@step.key)
+  total_steps = FinancialSetupWizard.steps.length
+%>
 <div class="card">
   <div class="card-body p-4">
-    <h3 class="fw-bold text-primary mb-1"><%= t("wizard.upload.title") %></h3>
-    <p class="text-muted mb-4"><%= t("wizard.upload.hint") %></p>
+<div class="mb-3">
+  <div class="text-muted small text-uppercase fw-bold mb-1"><%= t("wizard.step_of", current: step_idx.to_i + 1, total: total_steps) %></div>
+  <div class="d-flex align-items-start gap-3">
+    <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary flex-shrink-0" style="width: 44px; height: 44px;">
+      <i class="ti ti-cloud-upload fs-4"></i>
+    </span>
+    <div>
+      <h3 class="fw-bold text-primary mb-1"><%= t("wizard.upload.title") %></h3>
+      <p class="text-muted mb-0"><%= t("wizard.upload.hint") %></p>
+    </div>
+  </div>
+</div>
 
-    <% if alert %>
-      <div class="alert alert-danger" role="alert">
-        <i class="ti ti-alert-triangle me-1"></i><%= alert %>
-        <div class="mt-2">
-          <button type="button" class="btn btn-outline-danger btn-sm" onclick="document.getElementById('statementFile').click()">
-            <i class="ti ti-rotate me-1"></i><%= t("wizard.upload.retry") %>
-          </button>
+<% if alert %>
+  <div class="alert alert-danger" role="alert">
+    <i class="ti ti-alert-triangle me-1"></i><%= alert %>
+    <div class="mt-2">
+      <button type="button" class="btn btn-outline-danger btn-sm" onclick="document.getElementById('statementFile').click()">
+        <i class="ti ti-rotate me-1"></i><%= t("wizard.upload.retry") %>
+      </button>
+    </div>
+  </div>
+<% end %>
+
+<div id="uploadError" class="alert alert-danger d-none" role="alert" data-testid="wizard-upload-error"></div>
+
+<div class="card password-card d-none mb-3">
+  <div class="card-body py-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-5">
+        <div class="fw-bold small d-flex align-items-center gap-2">
+          <i class="ti ti-lock text-primary"></i><%= t("wizard.upload.password_title") %>
         </div>
+        <div class="text-muted small"><%= t("wizard.upload.password_hint") %></div>
       </div>
-    <% end %>
-
-    <div id="uploadError" class="alert alert-danger d-none" role="alert" data-testid="wizard-upload-error"></div>
-
-    <div class="card password-card d-none mb-4">
-      <div class="card-body">
-        <h6 class="fw-bold"><i class="ti ti-lock me-1"></i><%= t("wizard.upload.password_title") %></h6>
-        <p class="text-muted small mb-3"><%= t("wizard.upload.password_hint") %></p>
-        <label class="form-label" for="statementPassword"><%= t("wizard.upload.password_label") %></label>
-        <div class="input-group">
-          <input type="password" id="statementPassword" class="form-control" autocomplete="off">
-          <button type="button" class="btn btn-primary" id="unlockBtn"><%= t("wizard.upload.unlock") %></button>
-        </div>
+      <div class="col-12 col-md-5">
+        <label class="visually-hidden" for="statementPassword"><%= t("wizard.upload.password_label") %></label>
+        <input type="password" id="statementPassword" class="form-control form-control-sm" autocomplete="off" placeholder="<%= t("wizard.upload.password_label") %>">
         <div class="invalid-feedback d-block text-danger password-error d-none"><%= t("wizard.upload.password_error") %></div>
       </div>
+      <div class="col-12 col-md-2 text-md-end">
+        <button type="button" class="btn btn-sm btn-primary w-100" id="unlockBtn"><%= t("wizard.upload.unlock") %></button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <%= form_with url: financial_setup_upload_path, method: :post, local: true, data: { turbo: false },
-                  html: { id: "statementForm", multipart: true,
-                          data: { upload_form: true,
-                                  upload_failed: t("wizard.upload.import_failed", message: "") } } do %>
-      <%= hidden_field_tag :step, @step_key %>
-      <input type="hidden" name="password" id="statementPasswordHidden">
+<%= form_with url: financial_setup_upload_path, method: :post, local: true, data: { turbo: false },
+              html: { id: "statementForm", multipart: true,
+                      data: { upload_form: true,
+                              upload_failed: t("wizard.upload.import_failed", message: "") } } do %>
+  <%= hidden_field_tag :step, @step_key %>
+  <input type="hidden" name="password" id="statementPasswordHidden">
 
-      <div class="border border-2 border-dashed rounded p-5 text-center" id="dropzone">
-        <i class="ti ti-cloud-upload display-4 text-primary d-block mb-3"></i>
-        <p class="mb-1"><%= t("wizard.upload.drop") %></p>
-        <button type="button" class="btn btn-sm btn-primary" id="browseBtn"><%= t("wizard.upload.browse") %></button>
-        <input type="file" id="statementFile" name="file" accept=".pdf,.csv,.xlsx" class="d-none">
-        <div class="mt-3 text-muted small"><%= t("wizard.upload.supported") %></div>
+  <div id="uploadSteps" class="d-none mb-3" data-testid="wizard-upload-steps">
+    <ul class="list-unstyled mb-2">
+      <li class="d-flex align-items-center gap-2" data-upload-step="upload">
+        <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
+        <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
+        <i class="ti ti-file-arrow-up text-muted" data-step-idle aria-hidden="true"></i>
+        <span><%= t("wizard.upload.step_upload") %></span>
+        <span class="text-muted small ms-auto" data-step-percent></span>
+      </li>
+      <li class="d-flex align-items-center gap-2" data-upload-step="analyze">
+        <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
+        <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
+        <i class="ti ti-cpu text-muted" data-step-idle aria-hidden="true"></i>
+        <span><%= t("wizard.upload.processing") %></span>
+      </li>
+    </ul>
+  </div>
+
+  <div id="uploadProgress" class="progress d-none mb-3" style="height: 8px;">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" id="uploadProgressBar" style="width: 0%"></div>
+  </div>
+
+  <div class="border border-2 border-dashed rounded-3 p-4 text-center bg-body" id="dropzone" tabindex="0" role="button">
+    <i class="ti ti-cloud-upload display-5 text-primary d-block mb-2"></i>
+    <div class="fw-semibold mb-1"><%= t("wizard.upload.drop") %></div>
+    <div class="small text-muted mb-2">
+      o <span class="text-primary text-decoration-underline" id="browseBtn" style="cursor:pointer"><%= t("wizard.upload.browse").downcase %></span> en tu equipo
+    </div>
+    <div class="text-muted small"><%= t("wizard.upload.supported") %></div>
+    <input type="file" id="statementFile" name="file" accept=".pdf,.csv,.xlsx" class="d-none">
+  </div>
+
+  <div id="fileChip" class="d-none mt-3">
+    <div class="d-flex align-items-center gap-3 p-3 border rounded-3 bg-body">
+      <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-danger-subtle text-danger flex-shrink-0" style="width: 40px; height: 40px;">
+        <i class="ti ti-file-text fs-4"></i>
+      </span>
+      <div class="flex-grow-1 min-w-0">
+        <div class="fw-bold text-truncate small" id="fileName"></div>
+        <div class="text-muted small" id="fileSize"></div>
       </div>
+      <button type="button" class="btn btn-link text-danger p-0 card-more-btn" id="removeFileBtn" aria-label="Quitar archivo">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+  </div>
 
-      <div id="fileChip" class="d-none mt-3">
-        <span class="badge bg-light text-dark border px-3 py-2">
-          <i class="ti ti-file me-1"></i><span id="fileName"></span>
-          <span id="fileSize" class="text-muted ms-1"></span>
-        </span>
-      </div>
-
-      <div id="uploadSteps" class="d-none mt-3" data-testid="wizard-upload-steps">
-        <ul class="list-unstyled mb-2">
-          <li class="d-flex align-items-center gap-2" data-upload-step="upload">
-            <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
-            <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
-            <i class="ti ti-file-arrow-up text-muted" data-step-idle aria-hidden="true"></i>
-            <span><%= t("wizard.upload.step_upload") %></span>
-            <span class="text-muted small ms-auto" data-step-percent></span>
-          </li>
-          <li class="d-flex align-items-center gap-2" data-upload-step="analyze">
-            <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
-            <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
-            <i class="ti ti-cpu text-muted" data-step-idle aria-hidden="true"></i>
-            <span><%= t("wizard.upload.processing") %></span>
-          </li>
-        </ul>
-      </div>
-
-      <div id="uploadProgress" class="progress d-none mt-3" style="height: 8px;">
-        <div class="progress-bar progress-bar-striped progress-bar-animated" id="uploadProgressBar" style="width: 0%"></div>
-      </div>
-
-      <div class="d-flex justify-content-between mt-4">
-        <div>
-          <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
-            <i class="ti ti-x me-1"></i><%= t("wizard.cancel") %>
-          <% end %>
-        </div>
-        <div>
-          <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
-          <%= submit_tag t("wizard.upload.upload"), class: "btn btn-primary", disabled: true, id: "uploadBtn" %>
-        </div>
-      </div>
-    <% end %>
+  <div class="border-top pt-3 mt-4 d-flex justify-content-between align-items-center">
+    <div>
+      <%= link_to financial_setup_step_path(step: @step_key), class: "btn btn-outline-secondary" do %>
+        <i class="ti ti-x me-1"></i><%= t("wizard.cancel") %>
+      <% end %>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted text-decoration-none" %>
+      <%= submit_tag t("wizard.upload.upload"), class: "btn btn-primary", disabled: true, id: "uploadBtn" %>
+    </div>
+  </div>
+<% end %>
   </div>
 </div>
 
@@ -105,14 +137,26 @@ document.addEventListener('DOMContentLoaded', function() {
   var uploadProgress = document.getElementById('uploadProgress');
   var uploadSteps = document.getElementById('uploadSteps');
   var errorBox = document.getElementById('uploadError');
+  var removeFileBtn = document.getElementById('removeFileBtn');
 
   if (!form) return;
 
   var uploadFailed = form.dataset.uploadFailed || '';
   var submitting = false;
 
-  browseBtn.addEventListener('click', function() { fileInput.click(); });
-  dropzone.addEventListener('click', function() { fileInput.click(); });
+  function clearFile() {
+    fileInput.value = '';
+    fileChip.classList.add('d-none');
+    uploadBtn.disabled = true;
+  }
+
+  if (browseBtn) browseBtn.addEventListener('click', function() { fileInput.click(); });
+  if (dropzone) dropzone.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'browseBtn') return;
+    fileInput.click();
+  });
+
+  if (removeFileBtn) removeFileBtn.addEventListener('click', clearFile);
 
   var unlockBtn = document.getElementById('unlockBtn');
   if (unlockBtn) {
@@ -202,7 +246,6 @@ document.addEventListener('DOMContentLoaded', function() {
       progressBar.style.width = pct + '%';
       setStep('upload', 'active', pct);
     });
-
     xhr.upload.addEventListener('load', function() {
       progressBar.style.width = '100%';
       setStep('upload', 'done', 100);
@@ -238,4 +281,3 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-

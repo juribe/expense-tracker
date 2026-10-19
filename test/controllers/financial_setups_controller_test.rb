@@ -235,11 +235,9 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
     get financial_setup_manual_screen_path(step: :accounts)
     assert_response :success
-    assert_select "select[name='sources[0][bank]']" do
-      assert_select "option[value='Banco Prueba']"
-      assert_select "option[value='Banco Prueba Dos']"
-    end
-    assert_select "input[name='sources[0][bank]']", count: 0
+    assert_select "input[name='sources[0][bank]']"
+    assert_select "datalist option[value='Banco Prueba']"
+    assert_select "datalist option[value='Banco Prueba Dos']"
   end
 
   test "GET manual keeps a non-catalog bank as the selected option" do
@@ -252,7 +250,7 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
     get financial_setup_manual_screen_path(step: :accounts)
     assert_response :success
-    assert_select "select[name='sources[0][bank]'] option[value='Banco Extraño'][selected='selected']"
+    assert_select "input[name='sources[0][bank]'][value='Banco Extraño']"
   end
 
   test "cash step does not offer the import option" do

@@ -46,28 +46,47 @@
     return (parts.integer || "0") + "." + parts.decimal;
   }
 
-  function formatValue(value, finalize) {
+  function formatValue(value, finalize, keepTrailingComma) {
+    var raw = String(value == null ? "" : value).trim();
+    // Only show a decimal comma when the user has actually typed one. A dot in
+    // the input is a thousands separator (or a not-yet-decimal), never an
+    // implicit decimal comma.
+    var hasComma = raw.indexOf(",") !== -1;
+    var trailingComma = !!keepTrailingComma && raw.slice(-1) === ",";
+
+    if (!hasComma && !trailingComma) {
+      // Integer-only display: strip any dots, group thousands with dots.
+      var intOnly = raw.replace(/[^\d-]/g, "");
+      if (!intOnly || intOnly === "-" ) return "";
+      var neg = intOnly.charAt(0) === "-";
+      var digits = neg ? intOnly.slice(1) : intOnly;
+      if (!digits) return "";
+      var grouped = String(parseInt(digits, 10) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return neg ? "-" + grouped : grouped;
+    }
+
     var parts = decimalParts(value);
     var integerPart = parts.integer || "";
     var decimalPart = parts.decimal || "";
-    if (!integerPart && !decimalPart) return "";
+    if (!integerPart && !decimalPart && !trailingComma) return "";
 
-    integerPart = String(parseInt(integerPart, 10) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    if (!decimalPart) return integerPart;
-    decimalPart = decimalPart.replace(/[^\d]/g, "").slice(0, 2);
+    integerPart = integerPart ? String(parseInt(integerPart, 10) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "";
+    if (!decimalPart && !trailingComma) return integerPart;
+    decimalPart = (decimalPart || "").replace(/[^\d]/g, "").slice(0, 2);
 
     // Keep the comma while typing so decimals can be entered; on blur drop a
     // trailing comma with no digits after it.
     if (finalize) {
       decimalPart = decimalPart.replace(/0+$/, "");
-      if (!decimalPart) return integerPart;
+      if (!decimalPart && !trailingComma) return integerPart;
     }
+    if (!decimalPart && trailingComma) return (integerPart || "") + ",";
     return integerPart + "," + decimalPart;
   }
 
-  function formatInput(input, finalize) {
+  function formatInput(input, finalize, keepTrailingComma) {
     if (!input || input.readOnly || input.disabled) return;
-    var next = formatValue(input.value, finalize);
+    var next = formatValue(input.value, finalize, keepTrailingComma);
     if (input.value !== next) input.value = next;
   }
 
@@ -76,14 +95,15 @@
     input.dataset.moneyBound = "true";
 
     input.addEventListener("input", function () {
-      formatInput(input, false);
+      var keep = String(input.value).trim().slice(-1) === ",";
+      formatInput(input, false, keep);
     });
 
     input.addEventListener("blur", function () {
-      formatInput(input, true);
+      formatInput(input, true, false);
     });
 
-    formatInput(input, true);
+    formatInput(input, true, false);
   }
 
   function bindForm(form) {

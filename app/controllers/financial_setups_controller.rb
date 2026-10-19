@@ -424,7 +424,7 @@ class FinancialSetupsController < ApplicationController
 
     fields = %w[name bank balance outstanding_balance credit_limit card_last_four
                 interest_rate interest_rate_type monthly_payment principal_amount
-                installment_count installments_paid kind identifier]
+                installment_count installments_paid kind identifier sub_kind]
       .to_h do |key|
         value = raw[key].to_s.strip
         value = normalize_money_string(value) if %w[balance outstanding_balance credit_limit monthly_payment principal_amount].include?(key)

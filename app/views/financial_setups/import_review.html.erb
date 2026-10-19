@@ -60,6 +60,9 @@
                 <% if source["card_last_four"].present? %>
                   <span class="badge bg-light text-dark border fw-normal">•••• <%= source["card_last_four"] %></span>
                 <% end %>
+                <% if source["kind"] == "loan" && source["sub_kind"].present? %>
+                  <span class="badge bg-primary-subtle text-primary fw-normal"><%= source_sub_kind_label(source["sub_kind"]) %></span>
+                <% end %>
               </div>
               <% if source["bank"].present? %><div class="text-muted"><%= source["bank"] %></div><% end %>
               <% bal = money_field_value(source[money_key]) %>
@@ -110,9 +113,15 @@
               <div class="col-12">
                 <span class="form-text text-success"><%= t("wizard.manual.available_credit") %>: <span class="fw-bold" data-ca-available="true">$<%= number_with_delimiter(available_credit_for(source)) %></span></span>
               </div>
-             <% elsif source["kind"] == "loan" %>
-             <div class="col-12 col-md-4">
-               <label class="form-label small text-muted mb-1"><%= t("wizard.manual.original_principal") %></label>
+              <% elsif source["kind"] == "loan" %>
+              <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-1"><%= t("wizard.manual.loan_type") %></label>
+                <select name="sources[<%= idx %>][sub_kind]" class="form-select">
+                  <%= options_for_select(loan_sub_kind_options, source["sub_kind"]) %>
+                </select>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-1"><%= t("wizard.manual.original_principal") %></label>
                <input type="text" class="form-control" name="sources[<%= idx %>][principal_amount]" value="<%= money_field_value(source["principal_amount"]) %>" data-money-input="true">
              </div>
              <div class="col-12 col-md-4">
@@ -170,20 +179,6 @@
     </div>
   <% end %>
 
-  <% if @sources.any? %>
-    <div class="border rounded-3 p-3 p-md-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <div class="d-flex align-items-center gap-3">
-        <i class="ti ti-cloud-upload fs-3 text-primary"></i>
-        <div>
-          <div class="fw-bold"><%= t("wizard.review_extract.missing_prompt.#{kind}") %></div>
-          <div class="text-muted small"><%= t("wizard.review_extract.missing_hint.#{kind}") %></div>
-        </div>
-      </div>
-      <%= link_to financial_setup_upload_screen_path(step: @step_key), class: "btn btn-link text-primary text-decoration-none px-0" do %>
-        <%= t("wizard.review_extract.import_document") %> <i class="ti ti-arrow-right ms-1"></i>
-      <% end %>
-    </div>
-  <% end %>
 
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4 pt-3 border-top">
     <div>

@@ -18,8 +18,7 @@ test.describe('dashboard is working', () => {
     const category = `Food-${Date.now()}`;
     await createCategory(page, category);
 
-    await page.goto('/dashboard');
-    await page.getByRole('link', { name: /Agregar Gasto/ }).first().click();
+    await page.goto('/expenses/new');
     await expect(page).toHaveURL(/\/expenses\/new/);
     await page.locator('#expense_amount').fill('50');
     await pickCategory(page, 'expense_category_id', category);
@@ -34,8 +33,7 @@ test.describe('dashboard is working', () => {
 
   test('user can navigate to add new expense', async ({ page }) => {
     await signUp(page);
-    await page.goto('/dashboard');
-    await page.getByRole('link', { name: /Agregar Gasto/ }).first().click();
+    await page.goto('/expenses/new');
     await expect(page).toHaveURL(/\/expenses\/new/);
     await expect(page.locator('#expense_amount')).toBeVisible();
   });

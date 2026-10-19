@@ -2,39 +2,43 @@
 <% presenter = FinancialSetups::StepPresenter.new(setup: @setup, step: @step) %>
 <%= render "stepper", step_key: @step_key %>
 
+<%
+  step_idx = FinancialSetupWizard.step_keys.index(@step.key)
+  total_steps = FinancialSetupWizard.steps.length
+%>
 <div class="card">
   <div class="card-body p-4">
+<div class="d-flex align-items-center justify-content-between gap-3 mb-2">
+  <div>
+    <div class="text-muted small text-uppercase fw-bold mb-1"><%= t("wizard.step_of", current: step_idx.to_i + 1, total: total_steps) %></div>
     <h3 class="fw-bold text-primary mb-1"><%= t(@step.label_key) %></h3>
-    <p class="text-muted mb-4"><%= t("wizard.select.prompt", kind: t(@step.label_key).downcase) %></p>
+    <p class="text-muted mb-0"><%= t("wizard.select.prompt", kind: t(@step.label_key).downcase) %></p>
+  </div>
+</div>
 
-    <div class="row g-3">
-      <%= form_with url: financial_setup_select_path, local: true, method: :post, data: { turbo: false } do %>
-        <%= hidden_field_tag :step, @step_key %>
-        <div class="row g-3" role="radiogroup" aria-label="<%= t(@step.label_key) %>">
-          <% wizard_choice_cards(presenter, @step).each do |card| %>
-            <%= render "choice_card", card %>
-          <% end %>
-
-          <div class="col-12 d-flex justify-content-between mt-4">
-            <div>
-              <% if step_idx = FinancialSetupWizard.step_keys.index(@step.key) and step_idx > 0 %>
-                <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[step_idx - 1]), class: "btn btn-outline-secondary" do %>
-                  <i class="ti ti-arrow-left me-1"></i><%= t("wizard.back") %>
-                <% end %>
-              <% else %>
-                <span></span>
-              <% end %>
-            </div>
-            <div>
-              <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted" %>
-            </div>
-          </div>
-        </div>
-      <% end %>
-
-      <% if @setup.choice_for(@step_key).present? %>
-        <%= render "added_sources", presenter: presenter, step_key: @step_key %>
+<div class="row g-3">
+  <%= form_with url: financial_setup_select_path, local: true, method: :post, data: { turbo: false } do %>
+    <%= hidden_field_tag :step, @step_key %>
+    <div class="row g-3" role="radiogroup" aria-label="<%= t(@step.label_key) %>">
+      <% wizard_choice_cards(presenter, @step).each do |card| %>
+        <%= render "choice_card", card %>
       <% end %>
     </div>
+  <% end %>
+</div>
+
+<%= render "added_sources", presenter: presenter, step_key: @step_key %>
+
+<div class="border-top pt-3 mt-4 d-flex justify-content-between align-items-center">
+  <div>
+    <% if step_idx = FinancialSetupWizard.step_keys.index(@step.key) and step_idx > 0 %>
+      <%= link_to financial_setup_step_path(step: FinancialSetupWizard.step_keys[step_idx - 1]), class: "btn btn-outline-secondary" do %>
+        <i class="ti ti-arrow-left me-1"></i><%= t("wizard.back") %>
+      <% end %>
+    <% end %>
+  </div>
+  <div>
+    <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted" %>
+  </div>
   </div>
 </div>

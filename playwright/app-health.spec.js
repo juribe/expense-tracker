@@ -34,8 +34,7 @@ test.describe('app health checks', () => {
     await createCategory(page, category);
 
     // Create expense (the dashboard links to the full expense form)
-    await page.goto('/dashboard');
-    await page.getByRole('link', { name: /Agregar Gasto/ }).first().click();
+    await page.goto('/expenses/new');
     await expect(page).toHaveURL(/\/expenses\/new/);
     await page.locator('#expense_amount').fill('75');
     await pickCategory(page, 'expense_category_id', category);

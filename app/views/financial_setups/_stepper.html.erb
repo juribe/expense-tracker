@@ -4,21 +4,15 @@
   <% FinancialSetupWizard.steps.each_with_index do |setup_step, idx| %>
     <% done = idx < step_idx.to_i %>
     <% current = idx == step_idx.to_i %>
-    <div class="d-flex align-items-center gap-2">
-      <% if done %>
-        <span class="badge rounded-pill bg-success"><i class="ti ti-check"></i></span>
-        <span class="text-muted"><%= t(setup_step.label_key) %></span>
-      <% elsif current %>
-        <span class="badge rounded-pill bg-primary" aria-current="step"><%= idx + 1 %></span>
-        <span class="fw-bold"><%= t(setup_step.label_key) %></span>
-      <% else %>
-        <span class="badge rounded-pill bg-light text-muted border"><%= idx + 1 %></span>
-        <span class="text-muted"><%= t(setup_step.label_key) %></span>
-      <% end %>
-      <% if idx < FinancialSetupWizard.steps.length - 1 %>
-        <i class="ti ti-chevron-right text-muted mx-1"></i>
-      <% end %>
-    </div>
+    <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold
+      <%= done ? 'bg-success text-white' : (current ? 'bg-primary text-white' : 'bg-light text-muted border') %>"
+      style="width: 32px; height: 32px;">
+      <% if done %><i class="ti ti-check"></i><% else %><%= idx + 1 %><% end %>
+    </span>
+    <span class="<%= current ? 'fw-bold' : 'text-muted' %>"><%= t(setup_step.label_key) %></span>
+    <% if idx < FinancialSetupWizard.steps.length - 1 %>
+      <span class="d-inline-block <%= done ? 'bg-success' : 'bg-secondary' %>" style="width: clamp(22px,4vw,70px); height: 2px;"></span>
+    <% end %>
   <% end %>
   <span class="ms-auto">
     <%= form_with url: financial_setup_reset_path, method: :post, data: { turbo: false } do %>
