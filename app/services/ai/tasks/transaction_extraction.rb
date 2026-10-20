@@ -7,14 +7,13 @@ module Ai
     # the configured cheap model serves the gmail import instead of failing
     # every email with "AI is not configured".
     #
-    # input:   { subject:, body: }
+    # input:   { subject:, body:, categories: [] }
     # context: { today: Date }
     # data:    { transactions:, should_ignore:, reason: } (see Ai::TransactionExtractor)
     class TransactionExtraction < Base
-
       def messages(input, _context)
         [
-          { role: "system", content: Ai::TransactionExtractor.system_prompt },
+          { role: "system", content: Ai::TransactionExtractor.system_prompt(categories: Array(input[:categories])) },
           { role: "user", content: email_content(input) }
         ]
       end

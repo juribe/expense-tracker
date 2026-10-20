@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expenses_controller_test.rb": {
-    "mtime": 1792452281.3610048,
-    "seen": 1792452445.4123032,
-    "ast_hash": "98ab7446e0be0e94c13d85a3f3136f9c",
+    "mtime": 1792528824.8456702,
+    "seen": 1792528896.2747269,
+    "ast_hash": "9a53dd12d2f7c269d6d08bec78cf4354",
     "semantic_hash": ""
   },
   "test/controllers/financial_setups_controller_test.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1792451509.2261698,
-    "seen": 1792452445.412704,
-    "ast_hash": "2d65a963059ca829b293faefb3e82dca",
+    "mtime": 1792528715.1003509,
+    "seen": 1792528896.2750971,
+    "ast_hash": "d4b20333335114202754ca3134bdf6df",
     "semantic_hash": ""
   },
   "config/queue.yml": {

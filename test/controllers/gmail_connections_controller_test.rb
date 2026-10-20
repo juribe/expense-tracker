@@ -48,7 +48,6 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
                                                        "senders" => [ { "value" => "a@b.com", "count" => 2 } ] })
 
     get gmail_connection_path
-
     assert_select "[data-testid='setup-suggestions-card'] a[href='#{money_sources_recognition_path}']"  end
 
   test "index renders the initial-sync button with a loading spinner for an unconfigured connection" do
@@ -348,6 +347,49 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "gmail", expense.source
     assert_equal category.id, expense.category_id
     assert_equal "msg-review-1", expense.gmail_message_id
+  end
+
+  test "approve creates a reviewable candidate when the category does not resolve" do
+    review = ProcessedEmail.create!(
+      user: @user,
+      provider: "gmail",
+      message_id: "msg-review-candidate",
+      status: "needs_review",
+      payload: {
+        subject: "Compra",
+        transactions: [
+          {
+            "type" => "expense", "amount" => 48_500, "currency" => "COP",
+            "merchant" => "SAO", "category" => "groceries",
+            "occurred_at" => "2026-08-23T14:30:00", "confidence" => 0.4
+          }
+        ]
+      }.to_json
+    )
+
+    assert_no_difference -> { Expense.count } do
+      assert_no_difference -> { Category.count } do
+        assert_difference -> { ExpenseCandidate.count }, 1 do
+          post approve_gmail_review_path(review)
+        end
+      end
+    end
+
+    assert_redirected_to gmail_connection_path
+    assert_equal "processed", review.reload.status
+    assert_nil review.expense_id
+
+    candidate = ExpenseCandidate.last
+    assert_equal "gmail", candidate.source
+    assert_nil candidate.category_id
+    assert_nil candidate.category_suggestion
+    assert_equal "msg-review-candidate", candidate.metadata["gmail_message_id"]
+    assert_equal "groceries", candidate.metadata["category_hint"]
+    assert_equal "Compra", candidate.original_input
+    assert_equal 48_500.to_d, candidate.amount
+    assert_equal Date.new(2026, 8, 23), candidate.date
+    assert_equal "SAO", candidate.description
+    assert_equal "needs_review", candidate.status
   end
 
   test "reject discards a reviewed transaction without creating expenses" do

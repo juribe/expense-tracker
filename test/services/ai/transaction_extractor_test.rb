@@ -64,7 +64,7 @@ module Ai
       data = parse({ "transactions" => [ { "type" => "purchase", "amount" => 5000, "merchant" => "Cafe" } ] }, today)
 
       transaction = data[:transactions].first
-      assert_equal "others", transaction[:category]
+      assert_nil transaction[:category]
       assert_equal 0.5, transaction[:confidence]
       assert_nil transaction[:card_last_four]
       assert_match(/\A\d{4}-\d{2}-\d{2}T/, transaction[:occurred_at])
@@ -78,6 +78,34 @@ module Ai
       assert_raises(Ai::TransactionExtractor::ExtractionError) do
         parse("transactions" => [])
       end
+    end
+
+    test "system prompt lists the user's categories and requires an exact label or null" do
+      prompt = Ai::TransactionExtractor.system_prompt(categories: [ "Mercado", "Transporte" ])
+
+      assert_includes prompt, "Mercado"
+      assert_includes prompt, "Transporte"
+      assert_includes prompt, "null"
+      refute_includes prompt, "groceries"
+    end
+
+    test "call sends the user's categories to the AI system prompt" do
+      payload = {
+        transactions: [ { type: "expense", amount: 48_500, merchant: "SAO" } ],
+        should_ignore: false, reason: nil
+      }.to_json
+      strong = FakeAiProvider.new(responses: [ payload ])
+
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+          result = extractor.call(subject: "Compra", body: "SAO $48.500", categories: [ "Mercado" ])
+        end
+      end
+
+      assert result[:ok?], result[:error].inspect
+      system_prompt = strong.calls.first.find { |message| message[:role] == "system" }[:content]
+      assert_includes system_prompt, "Mercado"
     end
 
     test "call fails cleanly without an API key configured" do

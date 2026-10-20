@@ -11,7 +11,7 @@ module Categories
   #   2. unconditional parking rule: parkeadero/estacionamiento/parking ->
   #      "Transporte" when the user has it
   #   3. the single unconditional housing rule: house maintenance/upkeep/rent and
-   #      condominium fees (excluding utilities) go to "Hogar" when the user has it
+  #      condominium fees (excluding utilities) go to "Hogar" when the user has it
   #   4. exact normalized name match (accent/case insensitive)
   #   5. English seed -> Spanish alias
   #   6. similarity (token Jaccard / containment) above a threshold
@@ -25,7 +25,7 @@ module Categories
   # silent one-off decision.
   #
   #   Categories::ClosestResolver.call(user: user, name: "Mantenimiento del apartamento")
-   #   # => #<struct Result category=Hogar, matched_by=:housing> when the user has Hogar
+  #   # => #<struct Result category=Hogar, matched_by=:housing> when the user has Hogar
   class ClosestResolver
     Result = Struct.new(:category, :matched_by, :similarity, keyword_init: true) do
       def matched?
@@ -33,22 +33,27 @@ module Categories
       end
     end
 
-    # English seed names that exist in the category tree are folded into their
-    # Spanish equivalents so a resolved category always uses the Spanish label.
+    # English seed names are folded into the current Spanish labels so a
+    # resolved category always uses the label the user actually has. Legacy
+    # labels remain as fallbacks for older custom categories.
     # This is label normalization (not classification), so it is not an
     # unconditional rule: it only rewrites the spelling of a name the model or
     # the heuristic parser already chose.
     ALIASES = {
-      "entertainment" => "Entretenimiento", "shopping" => "Compras",
-      "restaurants" => [ "Restaurante", "Comida" ], "groceries" => "Compras",
-      "comida y restaurantes" => [ "Comida" ],
+      "entertainment" => [ "Ocio y salidas", "Entretenimiento" ],
+      "shopping" => [ "Gustos y compras", "Compras" ],
+      "restaurants" => [ "Restaurantes y cafés", "Restaurante", "Comida" ],
+      "groceries" => [ "Mercado", "Compras" ],
+      "comida y restaurantes" => [ "Restaurantes y cafés", "Comida" ],
       "health" => "Salud", "transportation" => "Transporte", "travel" => "Viajes",
-      "utilities" => "Servicios públicos", "others" => "Otros", "other" => "Otros",
-      "housing" => "Hogar", "education" => "Educación", "clothing" => "Compras",
+      "utilities" => [ "Servicios y comunicaciones", "Servicios públicos" ],
+      "others" => "Otros", "other" => "Otros",
+      "housing" => "Hogar", "education" => "Educación",
+      "clothing" => [ "Gustos y compras", "Compras" ],
       "parking" => "Transporte", "gasoline" => "Transporte", "fuel" => "Transporte",
       "parqueadero" => "Transporte", "estacionamiento" => "Transporte",
       "pet care" => "Otros", "pets" => "Otros", "subscriptions" => "Otros",
-      "subscription" => "Otros", "market" => "Compras",
+      "subscription" => "Otros", "market" => [ "Mercado", "Compras" ],
       # Spanish health synonyms (the model often answers these directly).
       "medicinas" => "Salud", "medicina" => "Salud",
       "medicamentos" => "Salud", "medicamento" => "Salud",

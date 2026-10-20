@@ -116,11 +116,11 @@ class GmailConnectionsController < ApplicationController
   # Approves a low-confidence transaction extracted from an email.
   def approve
     review = current_user.processed_emails.gmail.needs_review.find(params[:id])
-    expense_ids = create_expenses_from_review(review)
+    result = create_expenses_from_review(review)
 
-    review.update!(status: "processed", expense_id: expense_ids.first, failure_reason: nil,
+    review.update!(status: "processed", expense_id: result[:expense_ids].first, failure_reason: nil,
                    processed_at: Time.current)
-    redirect_to gmail_connection_path, notice: t("gmail_messages.expenses_created", count: expense_ids.size)
+    redirect_to gmail_connection_path, notice: approval_notice(result)
   end
 
   # Discards a reviewed transaction without creating expenses.
@@ -171,7 +171,15 @@ class GmailConnectionsController < ApplicationController
 
   def create_expenses_from_review(review)
     transactions = review.payload_data["transactions"] || []
-    transactions.filter_map do |transaction|
+    recorder = Gmail::TransactionRecorder.new(
+      user: current_user,
+      gmail_message_id: review.message_id,
+      subject: review.payload_data["subject"]
+    )
+    expense_ids = []
+    candidate_ids = []
+
+    transactions.each do |transaction|
       next unless transaction["type"] == "expense"
 
       matched = MoneySources::Match.call(
@@ -183,16 +191,23 @@ class GmailConnectionsController < ApplicationController
       # auto-assign: leave the expense without a source for manual review.
       money_source = matched if matched.is_a?(MoneySource)
 
-      Expenses::Create.call(
-        user: current_user,
-        amount: transaction["amount"],
-        description: transaction["merchant"],
-        category: transaction["category"],
-        occurred_at: Time.zone.parse(transaction["occurred_at"].to_s) || Time.current,
-        source: :gmail,
-        gmail_message_id: review.message_id,
-        money_source: money_source
-      ).id
+      recorded = recorder.call(transaction, money_source: money_source)
+      if recorded.expense?
+        expense_ids << recorded.expense.id
+      else
+        candidate_ids << recorded.candidate.id
+      end
+    end
+
+    { expense_ids: expense_ids, candidate_ids: candidate_ids }
+  end
+
+  def approval_notice(result)
+    if result[:candidate_ids].any?
+      t("gmail_messages.expenses_and_candidates_created",
+        count: result[:expense_ids].size, candidates: result[:candidate_ids].size)
+    else
+      t("gmail_messages.expenses_created", count: result[:expense_ids].size)
     end
   end
 end

@@ -31,6 +31,7 @@ module Gmail
     #   { id:, from:, subject:, body_text:, internal_date:, snippet:, headers: }
     def call(message)
       @message_id = message[:id].to_s
+      @subject = message[:subject].to_s
       return skipped("already processed") unless claim_message!
 
       run_import_pipeline(message)
@@ -111,7 +112,8 @@ module Gmail
       extraction = @extractor.call(
         subject: message[:subject],
         body: message[:body_text],
-        today: (message[:internal_date] || Time.current).to_date
+        today: (message[:internal_date] || Time.current).to_date,
+        categories: expense_category_names
       )
       return record!(:failed, reason: extraction[:error]) unless extraction[:ok?]
 
@@ -138,8 +140,14 @@ module Gmail
 
     def create_expenses(transactions)
       expense_ids = []
+      candidate_ids = []
       skipped_types = []
       seen_keys = Set.new
+      recorder = Gmail::TransactionRecorder.new(
+        user: @connection.user,
+        gmail_message_id: @message_id,
+        subject: @subject
+      )
 
       ActiveRecord::Base.transaction do
         transactions.each do |transaction|
@@ -164,16 +172,12 @@ module Gmail
           money_source = matched if matched.is_a?(MoneySource)
 
           begin
-            expense_ids << Expenses::Create.call(
-              user: @connection.user,
-              amount: transaction[:amount],
-              description: transaction[:merchant],
-              category: transaction[:category],
-              occurred_at: Time.zone.parse(transaction[:occurred_at]),
-              source: :gmail,
-              gmail_message_id: @message_id,
-              money_source: money_source
-            ).id
+            recorded = recorder.call(transaction, money_source: money_source)
+            if recorded.expense?
+              expense_ids << recorded.expense.id
+            else
+              candidate_ids << recorded.candidate.id
+            end
           rescue Expenses::Create::Invalid => e
             # The DB-level guard rejected this expense as an already-imported
             # (message, amount, date) combination: not a failure, just noise.
@@ -184,10 +188,20 @@ module Gmail
         end
       end
 
-      reason = skipped_types.any? ? "skipped non-expense entries: #{skipped_types.join(', ')}" : nil
-      record!(:processed, expense_ids: expense_ids, reason: reason)
+      record!(:processed, expense_ids: expense_ids, reason: import_reason(skipped_types, candidate_ids))
     rescue Expenses::Create::Invalid, ActiveRecord::RecordInvalid => e
       record!(:failed, reason: e.message)
+    end
+
+    def import_reason(skipped_types, candidate_ids)
+      parts = []
+      parts << "skipped non-expense entries: #{skipped_types.join(', ')}" if skipped_types.any?
+      parts << "#{candidate_ids.size} candidate(s) pending review" if candidate_ids.any?
+      parts.join("; ").presence
+    end
+
+    def expense_category_names
+      Category.for_user_and_type(@connection.user, "expense").pluck(:name)
     end
 
     def duplicate_key(transaction)

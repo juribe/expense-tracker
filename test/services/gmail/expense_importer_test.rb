@@ -54,11 +54,14 @@ module Gmail
     end
 
     class FakeExtractor
+      attr_reader :categories
+
       def initialize(result)
         @result = result
       end
 
-      def call(subject:, body:, today:)
+      def call(subject:, body:, today:, categories: [])
+        @categories = categories
         @result
       end
     end
@@ -139,6 +142,88 @@ module Gmail
       review = ProcessedEmail.gmail.needs_review.last
       stored = review.payload_data["transactions"].first
       assert_in_delta 0.4, stored["confidence"], 0.001
+    end
+
+    test "creates a reviewable candidate instead of a new category when the category does not resolve" do
+      extractor = FakeExtractor.new(
+        { ok?: true, data: { transactions: [ transaction(category: "groceries") ], should_ignore: false, reason: nil }, error: nil }
+      )
+      result = nil
+
+      assert_no_difference -> { Expense.count } do
+        assert_no_difference -> { Category.count } do
+          assert_difference -> { ExpenseCandidate.count }, 1 do
+            result = importer(extractor: extractor).call(@message)
+          end
+        end
+      end
+
+      assert_equal :processed, result.status
+      assert_empty result.expense_ids
+      assert_match(/candidate/i, result.reason)
+
+      candidate = ExpenseCandidate.last
+      assert_equal "gmail", candidate.source
+      assert_nil candidate.category_id
+      assert_nil candidate.category_suggestion
+      assert_equal "msg-100", candidate.metadata["gmail_message_id"]
+      assert_equal "groceries", candidate.metadata["category_hint"]
+      assert_equal "Compra aprobada", candidate.original_input
+      assert_equal "Restaurante XYZ", candidate.description
+      assert_equal BigDecimal("48500"), candidate.amount
+      assert_equal Date.new(2026, 8, 23), candidate.date
+      assert_equal "needs_review", candidate.status
+
+      processed = ProcessedEmail.find_by(provider: "gmail", message_id: "msg-100")
+      assert_equal "processed", processed.status
+      assert_nil processed.expense_id
+    end
+
+    test "creates an expense and a candidate for a mixed email" do
+      extractor = FakeExtractor.new(
+        {
+          ok?: true,
+          data: {
+            transactions: [
+              transaction(category: "restaurants"),
+              transaction(merchant: "SAO", amount: BigDecimal("20000"), category: "groceries")
+            ],
+            should_ignore: false,
+            reason: nil
+          },
+          error: nil
+        }
+      )
+
+      result = importer(extractor: extractor).call(@message)
+
+      assert_equal :processed, result.status
+      assert_equal 1, result.expense_ids.size
+      assert_equal 1, Expense.where(gmail_message_id: "msg-100").count
+      assert_equal 1, ExpenseCandidate.where(user: @user).count
+      assert_equal 0, Category.where(name: "Groceries").count
+      assert_match(/candidate/i, result.reason)
+    end
+
+    test "passes the user's expense categories to the extractor" do
+      extractor = FakeExtractor.new(
+        { ok?: true, data: { transactions: [ transaction ], should_ignore: false, reason: nil }, error: nil }
+      )
+
+      importer(extractor: extractor).call(@message)
+
+      assert_includes extractor.categories, "Restaurants"
+    end
+
+    test "stores the email subject in the low-confidence review payload" do
+      low = importer(
+        extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction(confidence: 0.4) ], should_ignore: false, reason: nil }, error: nil })
+      )
+
+      low.call(@message)
+
+      review = ProcessedEmail.gmail.needs_review.last
+      assert_equal "Compra aprobada", review.payload_data["subject"]
     end
 
     test "records ignored emails without creating expenses" do

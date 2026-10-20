@@ -1872,6 +1872,7 @@ es:
       one: "Encontramos %{count} sugerencia para reconocer tus fuentes: revísala en Reconocimiento de fuentes."
       other: "Encontramos %{count} sugerencias para reconocer tus fuentes: revísalas en Reconocimiento de fuentes."
     expenses_created: "%{count} gasto(s) creado(s) desde la revisión del correo."
+    expenses_and_candidates_created: "%{count} gasto(s) creado(s) y %{candidates} candidato(s) pendiente(s) de revisión."
     transaction_discarded: "Transacción descartada."
     no_connection: "No hay una cuenta de Gmail conectada."
 

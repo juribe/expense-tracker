@@ -28,8 +28,8 @@ module Ai
       end
 
       # Shared prompt definition, used by the routing task.
-      def system_prompt
-        new.send(:system_prompt)
+      def system_prompt(categories: [])
+        new.send(:system_prompt, categories: categories)
       end
     end
 
@@ -55,9 +55,9 @@ module Ai
       }
     end
 
-    def call(subject:, body:, today: Date.current)
+    def call(subject:, body:, today: Date.current, categories: [])
       result = Ai::Router.call(task: :transaction_extraction,
-                               input: { subject: subject, body: body },
+                               input: { subject: subject, body: body, categories: Array(categories) },
                                context: { today: today })
       return failure(result.error || "AI extraction failed.") unless result.ok?
 
@@ -70,7 +70,9 @@ module Ai
       { ok?: false, data: nil, error: message }
     end
 
-    def system_prompt
+    def system_prompt(categories: [])
+      category_list = categories.any? ? categories.join(", ") : "(none)"
+
       <<~PROMPT
         You analyze bank / credit-card notification emails and extract financial transactions.
         Decide whether the email reports money leaving the user's account.
@@ -83,11 +85,12 @@ module Ai
         - One email may contain several transactions; return one entry per transaction.
         - Amounts must be positive numbers in the smallest published unit shown by the bank
           ("$48.500" COP means 48500).
-        - Use ISO datetimes for occurred_at. Category must be a short lowercase english hint such as:
-          restaurants, groceries, transportation, shopping, utilities, health, entertainment.
+        - Use ISO datetimes for occurred_at.
+        - Category must be exactly one of these labels or null: #{category_list}.
+        - Never invent, translate, or pluralize a category name.
         Respond with ONLY JSON of the shape:
         {"transactions":[{"type":"expense","amount":48500,"currency":"COP","merchant":"Restaurante XYZ",
-          "category":"restaurants","occurred_at":"2026-08-23T14:30:00","confidence":0.98,
+          "category":null,"occurred_at":"2026-08-23T14:30:00","confidence":0.98,
           "card_last_four":"1234","bank":"Bancolombia"}],
          "should_ignore":false,"reason":null}
         When nothing applies respond with {"transactions":[],"should_ignore":true,"reason":"..."}.
@@ -113,7 +116,7 @@ module Ai
         amount: amount,
         currency: normalize_currency(entry["currency"]),
         merchant: merchant,
-        category: entry["category"].to_s.strip.presence || "others",
+        category: entry["category"].to_s.strip.presence,
         occurred_at: occurred_at.iso8601,
         confidence: normalize_confidence(entry["confidence"]),
         card_last_four: normalize_card(entry["card_last_four"]),

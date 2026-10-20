@@ -48,6 +48,78 @@ class CategoriesClosestResolverTest < ActiveSupport::TestCase
     assert_equal :alias, result.matched_by
   end
 
+  test "folds groceries into the current Mercado category" do
+    mercado = Category.create!(name: "Mercado", user: @user, is_default: false)
+    result = resolve("groceries")
+
+    assert_equal mercado, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds shopping into the current Gustos y compras category" do
+    gustos = Category.create!(name: "Gustos y compras", user: @user, is_default: false)
+    result = resolve("shopping")
+
+    assert_equal gustos, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds utilities into the current Servicios y comunicaciones category" do
+    servicios = Category.create!(name: "Servicios y comunicaciones", user: @user, is_default: false)
+    result = resolve("utilities")
+
+    assert_equal servicios, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds entertainment into the current Ocio y salidas category" do
+    ocio = Category.create!(name: "Ocio y salidas", user: @user, is_default: false)
+    result = resolve("entertainment")
+
+    assert_equal ocio, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds restaurants into the current Restaurantes y cafés category" do
+    restaurantes = Category.create!(name: "Restaurantes y cafés", user: @user, is_default: false)
+    result = resolve("restaurants")
+
+    assert_equal restaurantes, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds market into the current Mercado category" do
+    mercado = Category.create!(name: "Mercado", user: @user, is_default: false)
+    result = resolve("market")
+
+    assert_equal mercado, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "folds clothing into the current Gustos y compras category" do
+    gustos = Category.create!(name: "Gustos y compras", user: @user, is_default: false)
+    result = resolve("clothing")
+
+    assert_equal gustos, result.category
+    assert_equal :alias, result.matched_by
+  end
+
+  test "prefers the current category when both current and legacy targets exist" do
+    mercado = Category.create!(name: "Mercado", user: @user, is_default: false)
+    Category.create!(name: "Compras", user: @user, is_default: false)
+
+    assert_equal mercado, resolve("groceries").category
+  end
+
+  test "keeps legacy alias targets as fallback" do
+    compras = Category.create!(name: "Compras", user: @user, is_default: false)
+
+    assert_equal compras, resolve("groceries").category
+    assert_equal compras, resolve("shopping").category
+    assert_equal @servicios, resolve("utilities").category
+    assert_equal @entretenimiento, resolve("entertainment").category
+  end
+
   test "folds near-identical labels by token similarity without creating categories" do
     assert_no_difference "Category.count" do
       result = resolve("Restaurante (Rappi)")

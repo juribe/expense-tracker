@@ -65,7 +65,7 @@ module Gmail
         error: nil
       }.freeze
 
-      def call(subject:, body:, today:)
+      def call(subject:, body:, today:, categories: [])
         RESULT
       end
     end

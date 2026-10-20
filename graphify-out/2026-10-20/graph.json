@@ -48791,7 +48791,7 @@
       "file_type": "code",
       "norm_label": ".create_source()",
       "source_file": "test/controllers/expenses_controller_test.rb",
-      "source_location": "L240"
+      "source_location": "L248"
     },
     {
       "id": "test_controllers_expenses_controller_test_expensescontrollertest_template_for",
@@ -158910,7 +158910,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/expenses_controller_test.rb",
-      "source_location": "L240",
+      "source_location": "L248",
       "weight": 1.0
     },
     {
