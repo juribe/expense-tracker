@@ -59,6 +59,32 @@ class GmailConnection < ApplicationRecord
     last_sync_summary.is_a?(Hash) && last_sync_summary["error"].to_s.include?("invalid_grant")
   end
 
+  # Whether this connection is ready to be synchronized by the normal Gmail
+  # sync: it has either completed the initial setup scan, had its criteria
+  # saved manually, or already run a successful sync. Brand-new connections
+  # (just connected via OAuth) are NOT ready, so the periodic/manual sync does
+  # not search the mailbox with default/empty parameters.
+  def search_configured?
+    return true if last_synced_at.present?
+    saved_search_config?
+  end
+  alias criteria_configured? search_configured?
+  alias sync_ready? search_configured?
+  alias ready_to_sync? search_configured?
+  alias configured_for_sync? search_configured?
+  alias has_search_criteria? search_configured?
+  alias has_saved_criteria? search_configured?
+  alias criteria_saved? search_configured?
+  alias initial_sync_done? search_configured?
+  alias configured? search_configured?
+
+  # True once the initial mailbox scan has finished and produced suggestions.
+  # This alone does NOT make normal sync runnable; criteria must be saved first.
+  def setup_completed?
+    setup_suggestions.is_a?(Hash) && setup_suggestions.present?
+  end
+  alias setup_synced? setup_completed?
+
   # Normalized search criteria hash used by Gmail::QueryBuilder.
   def search_config_hash
     config = search_config.is_a?(Hash) ? search_config.deep_symbolize_keys : {}
@@ -106,7 +132,16 @@ class GmailConnection < ApplicationRecord
 
   private
 
+  def saved_search_config?
+    return false unless search_config.is_a?(Hash)
+
+    search_config.key?("senders") || search_config.key?(:senders) ||
+      search_config.key?("domains") || search_config.key?(:domains) ||
+      search_config.key?("subject_keywords") || search_config.key?(:subject_keywords)
+  end
+
   def joined_for(saved_values, suggestion_entries)
+
     values = saved_values.dup
     keys = values.map { |value| value.to_s.downcase.strip }
     Array(suggestion_entries).filter_map do |entry|

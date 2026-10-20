@@ -44,7 +44,7 @@
     values.join(", ").presence
   end
   status_suggestions_count = lambda do |source|
-    source.recognition_identifiers.count(&:suggested?)
+    source.recognition_identifiers.count { |id| id.suggested? && id.keyword? }
   end
 
   keywords = @editing&.recognition_identifiers&.select { |id| id.keyword? && id.confirmed? }&.sort_by(&:position) || []

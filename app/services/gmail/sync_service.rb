@@ -30,7 +30,8 @@ module Gmail
     end
 
     def call
-      return empty_summary unless @connection.active?
+       return empty_summary unless @connection.active?
+       return empty_summary unless @connection.search_configured?
 
       messages = fetch_messages
       summary = import_all(messages)

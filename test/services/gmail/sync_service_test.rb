@@ -8,8 +8,9 @@ module Gmail
     setup do
       @user = User.create!(name: "Sync User", email: "gmail_sync_test@example.com", password: "password123")
       Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
-      @connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
-    end
+      @connection = GmailConnection.create!(user: @user, email: "me@gmail.com",
+                                           search_config: { senders: [ "notifications@bank.com" ],
+                                                            subject_keywords: [ "compra" ] })    end
 
     # Fake Gmail API client returning canned data.
     class FakeClient

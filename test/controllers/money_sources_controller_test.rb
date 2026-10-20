@@ -330,7 +330,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
     source.ensure_recognition.replace_identifiers(keyword: ["davi"])
     source.ensure_recognition.tap(&:save!).recognition_identifiers.create!(
-      kind: "sender", value: "nuevo@davibank.com", status: "suggested", origin: "gmail"
+      kind: "keyword", value: "nuevo", status: "suggested", origin: "gmail"
     )
 
     get money_sources_recognition_path

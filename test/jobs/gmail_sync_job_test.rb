@@ -5,9 +5,10 @@ require "test_helper"
 class GmailSyncJobTest < ActiveJob::TestCase
   setup do
     @user = User.create!(name: "Job User", email: "gmail_job_test@example.com", password: "password123")
-    @active = GmailConnection.create!(user: @user, email: "active@gmail.com")
-    @inactive = GmailConnection.create!(user: @user, email: "inactive@gmail.com", active: false)
-  end
+    @active = GmailConnection.create!(user: @user, email: "active@gmail.com",
+                                      search_config: { senders: [ "notifications@bank.com" ] })
+    @inactive = GmailConnection.create!(user: @user, email: "inactive@gmail.com", active: false,
+                                       search_config: { senders: [ "notifications@bank.com" ] })  end
 
   test "syncs only active connections" do
     synced = []

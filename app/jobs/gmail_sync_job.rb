@@ -26,10 +26,14 @@ class GmailSyncJob < ApplicationJob
   # connection for the UI to poll: sets `syncing` beforehand and clears it
   # (and stores the summary) when done, even on failure.
   def sync_one(connection)
-    # Another sync (normal or setup) already claimed this connection.
-    return if connection.sync_running?
+     # Another sync (normal or setup) already claimed this connection.
+     return if connection.sync_running?
 
-    connection.update!(syncing: Time.current)
+     # Never search a mailbox that has not been configured yet (no initial
+     # setup sync, no saved criteria, no prior successful sync).
+     return unless connection.search_configured?
+
+     connection.update!(syncing: Time.current)
 
     summary = Gmail::SyncService.call(connection)
     Rails.logger.info("[GmailSyncJob] connection=#{connection.id} #{summary.inspect}")
