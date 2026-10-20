@@ -83,9 +83,6 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
 @keyframes wave { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
 
-.drawer-dl dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-gray-400); }
-.drawer-dl dd { margin-bottom: 1rem; }
-
 @media (max-width: 767.98px) {
   .desktop-table { display: none; }
   .mobile-list { display: block; }
@@ -93,4 +90,457 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   .header-actions .btn { width: 100%; }
   .desc-cell { max-width: 100%; }
   .bulk-bar > .btn { flex: 1 1 100%; min-height: 44px; }
+}
+/* Mockup-inspired polish for the expenses list (mockup_ui_gastos_filtros.html) */
+:root {
+  --et-blue: #0785ee;
+  --et-blue-soft: #edf6ff;
+  --et-ink: #19283e;
+  --et-muted: #7f8da0;
+  --et-line: #dfe7f0;
+}
+
+.expenses-panel {
+  background: #fff;
+  border: 1px solid var(--et-line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 12px rgba(27, 54, 91, 0.016);
+}
+
+.expenses-panel .panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 750;
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--et-ink);
+}
+
+.filters-panel { padding: 1.4rem 1.5rem 1.25rem; }
+.filters-panel .card-body { padding: 0; }
+.filters-panel .panel-heading { margin-bottom: 1.1rem; }
+
+.filter-heading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 13px;
+}
+
+.filter-caption { font-size: 11px; color: var(--et-muted); }
+
+/* La grilla del filtro es Bootstrap (.row/.col-md-*) renderizada en la vista. */
+
+.expenses-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 750;
+  color: #35465d;
+  margin-bottom: 7px;
+}
+
+.expenses-field label .hint { font-weight: 500; color: #8a97a8; }
+
+.expenses-control {
+  height: 43px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd7e3;
+  border-radius: 9px;
+  background: #fff;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.expenses-control:focus-within {
+  border-color: #73baf9;
+  box-shadow: 0 0 0 3px #e9f4ff;
+}
+
+.expenses-control input,
+.expenses-control select {
+  border: 0;
+  outline: 0;
+  box-shadow: none !important;
+  background: transparent;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  padding: 0 11px;
+  color: #26374d;
+  font-size: 14px;
+}
+
+/* Custom chevron for selects: the native arrow hugs the border; this keeps
+   the caret at the same distance from the edge as the other controls. */
+.expenses-control select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%2364758b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8 9.5 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 11px;
+  background-color: transparent;
+}
+
+.expenses-control .prefix {
+  height: 100%;
+  min-width: 42px;
+  display: grid;
+  place-items: center;
+  background: #f4f7fa;
+  border-right: 1px solid #d7e0e9;
+  color: #52637a;
+  font-weight: 650;
+}
+
+.expenses-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+}
+
+.expenses-filter-actions .btn {
+  min-width: 104px;
+  height: 43px;
+}
+
+.expenses-filter-actions .btn-outline-secondary {
+  border-color: #dbe4ee;
+  color: #6f7f93;
+}
+
+/* Mockup look for the category picker inside the filters panel: same 43px
+   control height as the rest of the fields, flat icon and caret button. */
+.expenses-filters .category-picker .input-group {
+  height: 43px;
+  border: 1px solid #cbd7e3;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.expenses-filters .category-picker .input-group:focus-within {
+  border-color: #73baf9;
+  box-shadow: 0 0 0 3px #e9f4ff;
+}
+
+.expenses-filters .category-picker .input-group-text {
+  background: #fff;
+  border: 0;
+  color: #71839a;
+}
+
+.expenses-filters .category-picker .input-group input {
+  border: 0;
+  height: 100%;
+  min-width: 0;
+  font-size: 14px;
+  box-shadow: none !important;
+}
+
+.expenses-filters .category-picker .input-group .btn {
+  border: 0;
+  background: transparent;
+  color: #71839a;
+  box-shadow: none !important;
+  /* Match the select caret: chevron ~11px from the control's right edge. */
+  padding: 0 10px !important;
+}
+
+.expenses-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 11px;
+}
+
+.expenses-results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #8b98a8;
+  margin: 20px 0 10px;
+}
+
+.expenses-results-head strong { color: #52637a; }
+
+.expenses-bulk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 11px 13px;
+  border: 1px solid #c9d9ff;
+  background: #edf2ff;
+  border-radius: 10px;
+  margin-bottom: 13px;
+}
+
+.expenses-bulk strong { margin-right: 4px; }
+
+.expenses-table-wrap {
+  background: #fff;
+  border: 1px solid var(--et-line);
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.expenses-table-wrap .table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.expenses-table-wrap .table th {
+  background: #eef2f6;
+  color: #8b98a8;
+  text-transform: uppercase;
+  font-size: 11px;
+  text-align: left;
+  letter-spacing: .2px;
+  padding: 13px 14px;
+  white-space: nowrap;
+}
+
+.expenses-table-wrap .table td {
+  padding: 13px 14px;
+  border-top: 1px solid #edf1f6;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.expenses-table-wrap .table th:first-child,
+.expenses-table-wrap .table td:first-child { width: 42px; }
+
+.cat-pill {
+  display: inline-block;
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: #dcf8e9;
+  color: #129866;
+  font-size: 11px;
+}
+
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f3f7;
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+.row-actions { display: flex; gap: 5px; }
+
+.icon-btn {
+  width: 29px;
+  height: 29px;
+  border: 1px solid #b6dcff;
+  border-radius: 7px;
+  background: #fff;
+  color: #1485e9;
+  display: grid;
+  place-items: center;
+}
+
+.icon-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+.expenses-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #edf6ff;
+  color: #1677cf;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.expenses-toast {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #19283e;
+  color: #fff;
+  padding: 11px 15px;
+  border-radius: 9px;
+  font-size: 12px;
+  z-index: 1080;
+}
+
+/* Drawer de gasto (mockup_drawer_gasto.html): contenido del offcanvas a
+   pantalla completa (expenses/show), compartido con el drawer de Gmail. */
+.expense-drawer { padding: 22px 24px 25px; }
+
+.drawer-amount-card {
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #fff7f4, #fff);
+  border: 1px solid #ffe3dc;
+  border-radius: 13px;
+  margin-bottom: 22px;
+}
+
+.drawer-amount-label {
+  color: #9b716a;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .65px;
+}
+
+.drawer-amount-value {
+  font-size: 29px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -.8px;
+  color: var(--et-red, #f07867);
+  margin-top: 5px;
+}
+
+.drawer-amount-meta { font-size: 11px; color: #a28c89; margin-top: 4px; }
+
+.drawer-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 19px 17px;
+}
+
+.drawer-detail { min-width: 0; }
+.drawer-detail.full { grid-column: 1 / -1; }
+
+.drawer-label {
+  font-size: 10px;
+  letter-spacing: .65px;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #8996a8;
+  margin-bottom: 6px;
+}
+
+.drawer-value {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #24344a;
+  overflow-wrap: anywhere;
+}
+
+.drawer-description { font-size: 16px; font-weight: 650; line-height: 1.45; }
+
+.drawer-recurring { color: #7d899a; font-size: 13px; }
+.drawer-recurring form { display: inline-block; margin-top: 8px; }
+
+.drawer-divider { height: 1px; background: #edf1f6; margin: 22px 0 16px; }
+
+.drawer-meta-title { font-size: 11px; font-weight: 750; color: #8794a5; margin-bottom: 12px; }
+
+.drawer-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.drawer-meta-item {
+  background: #f8fafc;
+  border: 1px solid #eef2f6;
+  border-radius: 9px;
+  padding: 10px 11px;
+}
+
+.drawer-meta-label { font-size: 10px; color: #8996a8; margin-bottom: 4px; }
+.drawer-meta-value { font-size: 12px; color: #526178; font-weight: 600; }
+
+/* Encabezado y pie del offcanvas (shared/_expense_drawer y #detailDrawer). */
+.offcanvas-header.expense-drawer-header {
+  padding: 20px 24px;
+  gap: 14px;
+}
+
+.drawer-heading-icon {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eaf4ff;
+  color: var(--et-blue, #0785ee);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.drawer-title { font-size: 20px; letter-spacing: -.4px; }
+
+.drawer-subtitle { font-size: 12px; color: #77869a; margin-top: 3px; }
+
+.offcanvas-footer.expense-drawer-footer {
+  padding: 14px 20px;
+  gap: 9px;
+  background: var(--bs-body-bg);
+}
+
+.expense-drawer-footer .btn {
+  height: 43px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.expense-drawer-footer .btn-drawer-edit {
+  border-color: var(--bs-primary);
+  color: var(--bs-primary);
+  flex: 1.05;
+}
+
+.expense-drawer-footer .btn-drawer-delete {
+  border-color: #ffd4cc;
+  background: #fff8f6;
+  color: #f17c68;
+  flex: 1;
+}
+
+.expense-drawer-footer .btn-drawer-close {
+  min-width: 85px;
+  border-color: #a5e8f7;
+  color: #17b6dc;
+}
+
+[data-bs-theme="dark"] .expense-drawer {
+  --et-red: #f5988a;
+  --et-blue: #6cb7ff;
+}
+
+[data-bs-theme="dark"] .drawer-amount-card {
+  background: linear-gradient(135deg, rgba(240, 120, 103, .12), transparent);
+  border-color: rgba(240, 120, 103, .35);
+}
+
+[data-bs-theme="dark"] .drawer-amount-label { color: #c29a93; }
+[data-bs-theme="dark"] .drawer-amount-meta { color: #a08e8a; }
+[data-bs-theme="dark"] .drawer-label { color: #7d899a; }
+[data-bs-theme="dark"] .drawer-value { color: #cdd7e3; }
+[data-bs-theme="dark"] .drawer-divider { background: var(--bs-border-color); }
+[data-bs-theme="dark"] .drawer-meta-title { color: #8794a5; }
+
+[data-bs-theme="dark"] .drawer-meta-item {
+  background: var(--bs-tertiary-bg);
+  border-color: var(--bs-border-color);
+}
+
+[data-bs-theme="dark"] .drawer-meta-label { color: #7d899a; }
+[data-bs-theme="dark"] .drawer-meta-value { color: #aeb9c7; }
+[data-bs-theme="dark"] .drawer-heading-icon { background: rgba(7, 133, 238, .15); }
+
+[data-bs-theme="dark"] .expense-drawer-footer .btn-drawer-delete {
+  border-color: rgba(240, 120, 103, .4);
+  background: rgba(240, 120, 103, .08);
+  color: #f5988a;
 }

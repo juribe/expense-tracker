@@ -32,6 +32,16 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /^¡Así puedes mantener tus gastos al día/
   end
 
+  test "index marks imported expenses to open in the expense drawer" do
+    @user.expenses.create!(description: "Compra importada", amount: 12.50, date: Date.today, source: "gmail",
+                           category: Category.create!(user: @user, name: "Otros", category_type: "expense"))
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "a[data-expense-drawer][data-view-url]"
+  end
+
   test "index points the setup suggestions CTA to the recognition page" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
     GmailConnection.first.update!(setup_suggestions: { "opened" => 10, "passed" => 2,
@@ -39,18 +49,16 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     get gmail_connection_path
 
-    assert_select "[data-testid='setup-suggestions-card'] a[href='#{money_sources_recognition_path}']"
-  end
+    assert_select "[data-testid='setup-suggestions-card'] a[href='#{money_sources_recognition_path}']"  end
 
-  test "index renders the sync button with a loading spinner for an active connection" do
+  test "index renders the initial-sync button with a loading spinner for an unconfigured connection" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
 
     get gmail_connection_path
 
     assert_response :success
-    assert_select "button", text: /#{I18n.t("gmail.sync_now")}/
-    assert_select "button[data-turbo-submits-with]"
-    # The initial-sync button carries the status endpoint: the page JS starts
+    assert_select "button", text: /#{I18n.t("gmail.find_notifications")}/
+    assert_select "button[data-turbo-submits-with]"    # The initial-sync button carries the status endpoint: the page JS starts
     # polling right away and keeps it across the redirect to the recognition
     # page, so the results appear without a manual reload.
     assert_select "form.button_to[action='#{setup_sync_gmail_connection_path}'] [data-sync-status-path]",
@@ -261,15 +269,15 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index disables sync buttons and shows the loader while a sync runs" do
-    GmailConnection.create!(user: @user, email: "me@gmail.com", syncing: Time.current)
-
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                           search_config: { senders: [ "notifications@bank.com" ] },
+                           syncing: Time.current)
     get gmail_connection_path
 
     assert_response :success
-    assert_select "button[disabled]", count: 2
+    assert_select "button[disabled]", count: 1
     assert_select "[data-sync-in-progress]"
-    assert_select "[data-testid='sync-running-badge']"
-  end
+    assert_select "[data-testid='sync-running-badge']"  end
 
   test "sync_status reports a running sync" do
     connection = GmailConnection.create!(user: @user, email: "me@gmail.com")
@@ -296,11 +304,11 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "sync runs the job which reports the summary" do
-    GmailConnection.create!(user: @user, email: "me@gmail.com")
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                           search_config: { senders: [ "notifications@bank.com" ] })
     connection = GmailConnection.first
     summary = { fetched: 0, created: 0, ignored: 0, needs_review: 0, failed: 0, skipped: 0 }
     calls = 0
-
     stub_method(Gmail::SyncService, :call, ->(*) { calls += 1; summary }) do
       with_active_job_adapter(:inline) do
         GmailSyncJob.perform_later(connection_id: connection.id)

@@ -1,37 +1,70 @@
-<dl class="drawer-dl mb-4">
-  <dt><%= t("common.date") %></dt>
-  <dd><%= l(@expense.date, format: :short) %></dd>
-  <dt><%= t("common.amount") %></dt>
-  <dd class="amount"><%= number_to_currency(@expense.amount) %></dd>
-  <dt><%= t("common.description") %></dt>
-  <dd>
-    <% if @expense.description.present? %>
-      <%= @expense.description %>
-    <% else %>
-      <span class="text-muted"><%= t("expenses.no_description") %></span>
-    <% end %>
-  </dd>
-  <dt><%= t("common.category") %></dt>
-  <dd><%= category_badge(@expense.category) %></dd>
-  <dt><%= t("expenses.source") %></dt>
-  <dd><%= money_source_badge(@expense.money_source) %></dd>
-  <dt><%= t("expenses.recurring_link.title", default: "Gasto recurrente") %></dt>
-  <dd>
-    <% if (template = @expense.recurring_template) %>
-      <span class="badge bg-info text-dark">
-        <i class="ti ti-repeat me-1"></i><%= template.description.presence || "##{template.id}" %>
-      </span>
-      <%= button_to t("expenses.recurring_link.unlink", default: "Quitar vínculo"),
-                    unassign_recurring_expenses_path(expense_id: @expense.id),
-                    method: :post,
-                    class: "btn btn-sm btn-outline-warning ms-2",
-                    data: { testid: "unlink-recurring" } %>
-    <% else %>
-      <span class="text-muted"><%= t("expenses.recurring_link.none", default: "Sin vínculo") %></span>
-    <% end %>
-  </dd>
-  <dt><%= t("common.created_at", default: "Creado") %></dt>
-  <dd><%= l(@expense.created_at, format: :short) %></dd>
-  <dt><%= t("common.updated_at", default: "Actualizado") %></dt>
-  <dd><%= l(@expense.updated_at, format: :short) %></dd>
-</dl>
+<%# Drawer de gasto (mockup_drawer_gasto.html). Fragmento sin layout: se
+    carga dentro de un offcanvas (shared/_expense_drawer o el drawer de
+    expenses/index). %>
+<div class="expense-drawer">
+  <section class="drawer-amount-card">
+    <div class="drawer-amount-label"><%= t("expenses.drawer.amount_label", default: "Valor del gasto") %></div>
+    <div class="drawer-amount-value"><%= number_to_currency(@expense.amount) %></div>
+    <div class="drawer-amount-meta"><%= t("expenses.drawer.registered_on", default: "Registrado el %{date}", date: l(@expense.date, format: :long)) %></div>
+  </section>
+
+  <div class="drawer-details">
+    <div class="drawer-detail full">
+      <div class="drawer-label"><%= t("common.description") %></div>
+      <div class="drawer-value drawer-description">
+        <% if @expense.description.present? %>
+          <%= @expense.description %>
+        <% else %>
+          <span class="text-muted"><%= t("expenses.no_description") %></span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="drawer-detail">
+      <div class="drawer-label"><%= t("common.date") %></div>
+      <div class="drawer-value"><%= l(@expense.date, format: :long) %></div>
+    </div>
+
+    <div class="drawer-detail">
+      <div class="drawer-label"><%= t("common.category") %></div>
+      <div class="drawer-value"><%= category_badge(@expense.category) %></div>
+    </div>
+
+    <div class="drawer-detail full">
+      <div class="drawer-label"><%= t("expenses.source") %></div>
+      <div class="drawer-value"><%= money_source_badge(@expense.money_source) %></div>
+    </div>
+
+    <div class="drawer-detail full">
+      <div class="drawer-label"><%= t("expenses.recurring_link.title") %></div>
+      <div class="drawer-recurring">
+        <% if (template = @expense.recurring_template) %>
+          <span class="badge bg-info text-dark">
+            <i class="ti ti-repeat me-1"></i><%= template.description.presence || "##{template.id}" %>
+          </span>
+          <%= button_to t("expenses.recurring_link.unlink"),
+                        unassign_recurring_expenses_path(expense_id: @expense.id),
+                        method: :post,
+                        class: "btn btn-sm btn-outline-warning ms-2",
+                        data: { testid: "unlink-recurring" } %>
+        <% else %>
+          <span class="text-muted"><%= t("expenses.recurring_link.none") %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-divider"></div>
+
+  <div class="drawer-meta-title"><%= t("expenses.drawer.metadata_title", default: "Información del registro") %></div>
+  <div class="drawer-meta-grid">
+    <div class="drawer-meta-item">
+      <div class="drawer-meta-label"><%= t("common.created_at", default: "Creado") %></div>
+      <div class="drawer-meta-value"><%= l(@expense.created_at, format: :short) %></div>
+    </div>
+    <div class="drawer-meta-item">
+      <div class="drawer-meta-label"><%= t("common.updated_at", default: "Última actualización") %></div>
+      <div class="drawer-meta-value"><%= l(@expense.updated_at, format: :short) %></div>
+    </div>
+  </div>
+</div>

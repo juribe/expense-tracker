@@ -157,6 +157,15 @@ h4, .h4 { font-size: 1rem; }
 .modal-content { border-radius: 1rem; border: 1px solid var(--bs-border-color); }
 .offcanvas { box-shadow: none; }
 
+/* Shared expense drawer (shared/_expense_drawer): the 300px Bootstrap default
+   is too narrow for the expense detail and the footer buttons overflow, so
+   "Cerrar" ends up cut off. */
+#expenseDrawer { --bs-offcanvas-width: 25rem; }
+#expenseDrawer .offcanvas-footer { flex-wrap: wrap; }
+
+/* Expenses-list drawer: same narrow-default problem. */
+#detailDrawer { --bs-offcanvas-width: 25rem; }
+
 .dropdown-menu { box-shadow: 0 8px 24px rgba(15, 34, 58, 0.12); border-radius: 0.65rem; }
 [data-bs-theme="dark"] .dropdown-menu { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
 

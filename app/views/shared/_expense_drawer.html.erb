@@ -1,0 +1,19 @@
+<%# Drawer compartido: muestra el detalle de un gasto (app/assets/javascripts/expense_drawer.js). %>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="expenseDrawer" aria-labelledby="expenseDrawerTitle">
+  <div class="offcanvas-header expense-drawer-header border-bottom">
+    <div class="d-flex align-items-center gap-3">
+      <span class="drawer-heading-icon"><i class="ti ti-receipt-2"></i></span>
+      <div>
+        <h2 class="offcanvas-title drawer-title mb-0" id="expenseDrawerTitle">Detalle del gasto</h2>
+        <div class="drawer-subtitle">Información del movimiento registrado</div>
+      </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  </div>
+  <div class="offcanvas-body" id="expenseDrawerBody"></div>
+  <div class="offcanvas-footer expense-drawer-footer border-top d-flex flex-wrap">
+    <a href="#" class="btn btn-drawer-edit" id="expenseDrawerEdit"><i class="ti ti-pencil me-1"></i>Editar</a>
+    <button type="button" class="btn btn-drawer-delete" id="expenseDrawerDelete"><i class="ti ti-trash me-1"></i>Eliminar</button>
+    <button type="button" class="btn btn-drawer-close ms-auto" data-bs-dismiss="offcanvas">Cerrar</button>
+  </div>
+</div>

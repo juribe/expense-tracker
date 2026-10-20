@@ -32,7 +32,9 @@
               <input type="text" class="form-control" id="<%= amount_input_id %>" name="amount"
                      inputmode="decimal" autocomplete="off" data-money-input="true" required>
             </div>
-            <div class="form-text"><%= amount_hint %></div>
+            <% if amount_hint.present? %>
+              <div class="form-text"><%= amount_hint %></div>
+            <% end %>
           </div>
         </div>
         <div class="modal-footer">

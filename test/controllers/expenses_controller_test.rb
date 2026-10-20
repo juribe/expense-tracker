@@ -50,8 +50,16 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     expense = create_expense(amount: 20.00, date: Date.today, money_source: source)
     get expense_path(expense)
     assert_response :success
-    assert_select "dd .badge", text: /Nequi/
-    assert_select "dd .ti-wallet"
+    assert_select ".drawer-value .badge", text: /Nequi/
+    assert_select ".drawer-value .ti-wallet"
+  end
+
+  test "GET /expenses/:id renders the highlighted amount card" do
+    expense = create_expense(amount: 63_500, date: Date.today)
+    get expense_path(expense)
+    assert_response :success
+    assert_select ".drawer-amount-card"
+    assert_select ".drawer-amount-value", text: /63\.500/
   end
 
   test "GET /expenses renders the bulk update bar and modal" do
@@ -183,8 +191,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     expense = create_expense(amount: 12.50, date: Date.today)
     get expense_path(expense)
     assert_response :success
-    assert_select "dl.drawer-dl"
-    assert_select "dt", text: I18n.t("common.amount")
+    assert_select ".expense-drawer"
+    assert_select ".drawer-label", text: I18n.t("common.description")
   end
 
   test "GET /expenses/:id drawer shows the recurring link badge and unlink button" do
@@ -193,14 +201,21 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
     get expense_path(expense)
     assert_response :success
-    assert_select "[data-testid=unlink-recurring]"
-    assert_select "dd .badge", text: /Cuota Vehículo/
+    assert_select ".drawer-recurring [data-testid=unlink-recurring]"
+    assert_select ".drawer-recurring .badge", text: /Cuota Vehículo/
+  end
+
+  test "GET /expenses/:id renders the drawer fragment without the application layout" do
+    expense = create_expense(amount: 12.50, date: Date.today)
+    get expense_path(expense)
+    assert_response :success
+    assert_select "aside.left-sidebar", count: 0
   end
 
   test "GET /expenses/:id drawer shows no recurring link for unlinked expenses" do
     expense = create_expense(amount: 12.50, date: Date.today)
     get expense_path(expense)
-    assert_select "dd", text: /Sin asignar/
+    assert_select ".drawer-recurring", text: /Sin asignar/
   end
 
   test "DELETE /expenses/:id destroys and preserves filter query" do

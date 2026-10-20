@@ -45,6 +45,9 @@ class ExpensesController < ApplicationController
   end
 
   def show
+    # This page is a fragment: it is fetched and injected into the expense
+    # drawer (see app/assets/javascripts/expense_drawer.js), never navigated
+    # to directly.
     render layout: false
   end
 
@@ -223,7 +226,7 @@ class ExpensesController < ApplicationController
     # source page — a single-link assign would skip the real Payment. Their
     # templates never appear in the assign modal.
     @recurring_templates = current_user.recurring_templates.active.expense
-                                       .includes(:category, :money_source).ordered
+                                       .includes(:money_source).ordered
                                        .reject { |template| template.money_source&.debt_payment_target? }
     @current_period_range = PayCycle.period_for(current_user).last
     @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: @current_period_range)

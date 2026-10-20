@@ -2,20 +2,16 @@
   <h1 class="page-title mb-0"><i class="ti ti-mail me-2 text-secondary"></i><%= t("gmail.title") %></h1>
   <% if @connection&.active? %>
   <% syncing = @connection.sync_running? %>
+  <% configured = @connection.search_configured? %>
   <div class="d-flex gap-2 align-items-center" <%= tag.attributes(data: { sync_in_progress: true }) if syncing %>>
-    <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-outline-secondary",
-          disabled: syncing,
-          form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
-          data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
-                  sync_status_path: gmail_sync_status_path } do %>
-      <i class="ti ti-wand me-1"></i><%= t("gmail.setup_sync") %>
-    <% end %>
-    <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary",
-          disabled: syncing,
-          form: { data: { turbo_confirm: t("gmail.fetch_confirm") } },
-          data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
-                  sync_status_path: gmail_sync_status_path } do %>
-      <i class="ti ti-repeat me-1"></i><%= t("gmail.sync_now") %>
+    <% if configured %>
+      <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary",
+            disabled: syncing,
+            form: { data: { turbo_confirm: t("gmail.fetch_confirm") } },
+            data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
+                    sync_status_path: gmail_sync_status_path } do %>
+        <i class="ti ti-repeat me-1"></i><%= t("gmail.sync_now") %>
+      <% end %>
     <% end %>
     <% if syncing %>
       <span class="badge bg-info text-dark" data-testid="sync-running-badge">
@@ -36,8 +32,7 @@
 
 <div class="row g-4">
   <div class="col-lg-5">
-    <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.sync_running? %>
-      <div class="card mb-4 border-primary" data-testid="setup-suggestions-card">
+    <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.search_configured? && !@connection.sync_running? %>      <div class="card mb-4 border-primary" data-testid="setup-suggestions-card">
         <div class="card-body">
           <h2 class="h5 card-title"><i class="ti ti-wand me-1"></i><%= t("gmail.setup.review_title") %></h2>
           <p class="text-muted small mb-3"><%= t("gmail.setup.review_help") %></p>
@@ -86,7 +81,52 @@
       </div>
     </div>
 
-    <% if @connection %>
+    <% if @connection&.active? && !@connection.search_configured? && !@connection.setup_completed? && !@connection.sync_running? %>
+      <div class="card mb-4 border-primary" data-testid="initial-sync-card">
+        <div class="card-body">
+          <h2 class="h5 card-title"><i class="ti ti-wand me-1"></i><%= t("gmail.discover_title") %></h2>
+          <p class="text-muted small"><%= t("gmail.discover_body") %></p>
+          <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-primary btn-sm",
+                form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
+                data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
+                        sync_status_path: gmail_sync_status_path } do %>
+            <i class="ti ti-search me-1"></i><%= t("gmail.find_notifications") %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @connection&.active? && @connection.sync_running? %>
+      <div class="card mb-4 border-primary" data-testid="discovering-card">
+        <div class="card-body text-center">
+          <div class="spinner-border text-primary mb-2" role="status"></div>
+          <p class="text-muted small mb-0"><%= t("gmail.discovering") %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @connection&.active? && @connection.setup_completed? && !@connection.search_configured? %>
+      <div class="card mb-4 border-info" data-testid="review-suggestions-card">
+        <div class="card-body">
+          <h2 class="h5 card-title"><i class="ti ti-bulb me-1"></i><%= t("gmail.setup.review_title") %></h2>
+          <p class="text-muted small mb-2"><%= t("gmail.setup.review_help") %></p>
+          <% if @connection.setup_suggestions.values_at("senders", "domains", "subject_keywords", "subject_templates").flatten.blank? %>
+            <div class="alert alert-warning py-2 small"><%= t("gmail.empty_discovery") %></div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @connection&.active? && @connection.search_configured? %>
+      <div class="card mb-4 border-success" data-testid="config-completed-card">
+        <div class="card-body">
+          <h2 class="h5 card-title"><i class="ti ti-circle-check me-1"></i><%= t("gmail.config_completed") %></h2>
+          <p class="text-muted small mb-0"><%= t("gmail.config_completed_help") %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @connection && (@connection.setup_completed? || @connection.search_configured?) %>
       <div class="card">
         <div class="card-body">
           <h2 class="h5 card-title"><i class="ti ti-adjustments me-1"></i><%= t("gmail.criteria") %></h2>
@@ -98,19 +138,22 @@
               <%= f.label :senders, t("gmail.senders"), class: "form-label small mb-1" %>
               <%= f.text_area :senders, rows: 2, class: "form-control form-control-sm",
                     placeholder: "notifications@bancolombia.com.co, alerts@nequi.co",
-                    value: @connection.search_config_hash[:senders].join(", ") %>
+                     value: @connection.criteria_form_values[:senders] %>
+
             </div>
             <div class="mb-2">
               <%= f.label :domains, t("gmail.domains"), class: "form-label small mb-1" %>
               <%= f.text_area :domains, rows: 2, class: "form-control form-control-sm",
                     placeholder: "bank.com, creditcard.bank.com",
-                    value: @connection.search_config_hash[:domains].join(", ") %>
+                     value: @connection.criteria_form_values[:domains] %>
+
             </div>
             <div class="mb-3">
               <%= f.label :subject_keywords, t("gmail.subject_keywords"), class: "form-label small mb-1" %>
               <%= f.text_area :subject_keywords, rows: 2, class: "form-control form-control-sm",
                     placeholder: "compra, transacción, pago",
-                    value: @connection.search_config_hash[:subject_keywords].join(", ") %>
+                     value: @connection.criteria_form_values[:subject_keywords] %>
+
             </div>
             <%= f.submit t("gmail.save_criteria"), class: "btn btn-sm btn-primary" %>
           <% end %>
@@ -178,7 +221,13 @@
             <% @recent_imports.each do |expense| %>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                  <%= link_to expense.description.presence || t("gmail.no_description"), expense_path(expense) %>
+                  <%= link_to "#", class: "text-decoration-none",
+                              data: { expense_drawer: true,
+                                      view_url: expense_path(expense),
+                                      edit_url: edit_expense_path(expense),
+                                      delete_url: expense_path(expense) } do %>
+                    <%= expense.description.presence || t("gmail.no_description") %>
+                  <% end %>
                   <small class="text-muted d-block"><%= expense.date %></small>
                 </span>
                 <strong><%= number_to_currency(expense.amount.to_f, unit: "$ ", delimiter: ",", separator: ".") %></strong>
@@ -204,3 +253,5 @@
     </div>
   </div>
 </div>
+
+<%= render "shared/expense_drawer" %>
