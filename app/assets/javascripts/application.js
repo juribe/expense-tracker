@@ -49,19 +49,28 @@
   function formatValue(value, finalize, keepTrailingComma) {
     var raw = String(value == null ? "" : value).trim();
     // Only show a decimal comma when the user has actually typed one. A dot in
-    // the input is a thousands separator (or a not-yet-decimal), never an
-    // implicit decimal comma.
+    // the input is a thousands separator — except a final dot group of 1-2
+    // digits, which is the dot-decimal typing style ("5.50", "1234.56"); the
+    // live format must mirror the same rule decimalParts applies to the
+    // submitted value or the decimal is swallowed mid-typing ("5.50" → "550").
     var hasComma = raw.indexOf(",") !== -1;
     var trailingComma = !!keepTrailingComma && raw.slice(-1) === ",";
 
     if (!hasComma && !trailingComma) {
+      var parts = decimalParts(value);
+      if (parts.decimal) {
+        // parseInt keeps the sign ("-5,50"), no extra "-" needed.
+        var grouped = String(parseInt(parts.integer, 10) || 0)
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return grouped + "," + parts.decimal;
+      }
+
       // Integer-only display: strip any dots, group thousands with dots.
       var intOnly = raw.replace(/[^\d-]/g, "");
-      if (!intOnly || intOnly === "-" ) return "";
       var neg = intOnly.charAt(0) === "-";
       var digits = neg ? intOnly.slice(1) : intOnly;
-      if (!digits) return "";
-      var grouped = String(parseInt(digits, 10) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      var grouped = digits ? String(parseInt(digits, 10) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "";
+      if (!grouped) return "";
       return neg ? "-" + grouped : grouped;
     }
 
