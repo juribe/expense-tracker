@@ -287,6 +287,7 @@
 
   function rebindReview(scope) {
     if (!scope) return;
+    if (window.CategoryPicker && window.CategoryPicker.bindAll) window.CategoryPicker.bindAll(scope);
     if (window.StatementImports && window.StatementImports.init) window.StatementImports.init(scope);
     if (window.PaymentDistribution && window.PaymentDistribution.init) window.PaymentDistribution.init(scope);
     if (window.MoneyInputs && window.MoneyInputs.init) window.MoneyInputs.init(scope);

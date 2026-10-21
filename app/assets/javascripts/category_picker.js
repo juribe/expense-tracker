@@ -291,8 +291,9 @@
 
   function bindAll(root) {
     var scope = root || document;
-    var containers = scope.querySelectorAll(CONTAINER_SELECTOR);
-    Array.prototype.forEach.call(containers, function (container) {
+    var containers = Array.prototype.slice.call(scope.querySelectorAll(CONTAINER_SELECTOR));
+    if (scope.matches && scope.matches(CONTAINER_SELECTOR)) containers.unshift(scope);
+    containers.forEach(function (container) {
       if (container.dataset.categoryPickerBound === "true") return;
       container.dataset.categoryPickerBound = "true";
       forNode(container).bind();
@@ -304,6 +305,7 @@
   if (document.readyState !== "loading") bindAll();
 
   window.CategoryPicker = {
+    bindAll: bindAll,
     bind: function (container) {
       return forNode(container);
     },
