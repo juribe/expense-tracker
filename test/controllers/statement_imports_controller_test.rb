@@ -58,6 +58,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
         assert_select "[data-payment-total-display]"
         assert_select "[data-payment-amount]"
         assert_select "input[data-payment-component='true']", 4
+        assert_select "select#payment_funding_money_source_id[required]"
       end
     end
   end

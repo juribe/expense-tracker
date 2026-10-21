@@ -35,6 +35,23 @@ class PaymentTest < ActiveSupport::TestCase
     assert_predicate payment.expense, :expense?
   end
 
+  test "rejects a payment whose expense has no money source" do
+    @mortgage.create_credit_account!(principal_amount: 50_000_000, outstanding_balance: 30_000_000)
+    expense = Expense.new(
+      user: @user, amount: 1_500_000, description: "Sin origen",
+      date: Date.current, kind: "expense", source: "manual", money_source: nil
+    )
+
+    payment = Payment.new(
+      user: @user, expense: expense, money_source: @mortgage, date: expense.date,
+      amount: 1_500_000, principal_amount: 1_500_000,
+      interest_amount: 0, insurance_amount: 0, other_amount: 0
+    )
+
+    assert_not payment.valid?
+    assert payment.errors[:expense].present?
+  end
+
   test "components must sum to the payment amount" do
     expense = create_expense(amount: 1_500_000, money_source: @account)
 
@@ -92,7 +109,8 @@ class PaymentTest < ActiveSupport::TestCase
     other_user = User.create!(name: "Other", email: "other-pay@example.com", password: "password123")
     other_expense = Expense.create!(
       user: other_user, amount: 500_000, description: "Pago ajeno",
-      date: Date.current, kind: "expense", source: "manual"
+      date: Date.current, kind: "expense", source: "manual",
+      money_source: other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
     )
 
     payment = Payment.new(

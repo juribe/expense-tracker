@@ -4,12 +4,13 @@ require "test_helper"
 
 module Expenses
   class BulkDestroyTest < ActiveSupport::TestCase
-    setup do
-      @user = User.create!(name: "BD User", email: "bulk_destroy@example.com", password: "password123")
-      @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
-      @expense_a = create_expense(description: "A")
-      @expense_b = create_expense(description: "B")
-    end
+  setup do
+    @user = User.create!(name: "BD User", email: "bulk_destroy@example.com", password: "password123")
+    @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
+    @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 100_000)
+    @expense_a = create_expense(description: "A")
+    @expense_b = create_expense(description: "B")
+  end
 
     test "destroys only the selected ids of the current user" do
       result = BulkDestroy.call(user: @user, ids: [@expense_a.id, @expense_b.id])
@@ -24,7 +25,7 @@ module Expenses
       other = User.create!(name: "Otto", email: "other_bd@example.com", password: "password123")
       foreign = Expense.create!(
         user: other, category: @category, amount: 500, description: "Ajeno",
-        date: Date.current, source: "manual"
+        date: Date.current, source: "manual", money_source: @money_source
       )
 
       result = BulkDestroy.call(user: @user, ids: [foreign.id])
@@ -75,7 +76,7 @@ module Expenses
       Expense.create!(
         {
           user: @user, category: @category, amount: 10_000, description: "Gasto",
-          date: Date.current, source: "manual"
+          date: Date.current, source: "manual", money_source: @money_source
         }.merge(overrides)
       )
     end

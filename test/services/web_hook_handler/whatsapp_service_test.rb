@@ -18,6 +18,7 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
       password: "password123"
     )
     restaurants_category
+    @whatsapp_source = @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 10_000_000)
   end
 
   def message_payload(text: nil, type: nil, caption: nil, sender: OWNER_WA_ID, media_id: "media_1", mime: nil,
@@ -77,7 +78,8 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
       description: "almuerzo",
       source: "whatsapp",
       status: "ready",
-      category: restaurants_category
+      category: restaurants_category,
+      money_source: @whatsapp_source
     )
     review_candidate = @user.expense_candidates.create!(
       amount: 12_000,
@@ -127,7 +129,8 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
       description: "almuerzo",
       source: "whatsapp",
       status: "ready",
-      category: restaurants_category
+      category: restaurants_category,
+      money_source: @whatsapp_source
     )
     review_candidate = @user.expense_candidates.create!(
       amount: 12_000,
@@ -521,14 +524,16 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     connect_user!
     stale_candidate = @user.expense_candidates.create!(amount: 12_000, date: Date.current, description: "compra rara",
                                                        source: "whatsapp", status: "needs_review",
-                                                       category: restaurants_category)
+                                                       category: restaurants_category,
+                                                       money_source: @whatsapp_source)
     session = start_clarification(stale_candidate)
     # The candidate was confirmed outside the conversation (e.g. the web app):
     # the session is pending but has nothing left to clarify.
     stale_candidate.confirm!
     new_candidate = @user.expense_candidates.create!(amount: 80_000, date: Date.current, description: "cine",
                                                      source: "whatsapp", status: "ready",
-                                                     category: restaurants_category)
+                                                     category: restaurants_category,
+                                                     money_source: @whatsapp_source)
     ran_pipeline = false
     texts = []
     stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { texts << [ phone, text ] }) do
@@ -574,7 +579,8 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     session = start_clarification(pending_candidate)
     new_candidate = @user.expense_candidates.create!(amount: 80_000, date: Date.current, description: "cine",
                                                      source: "whatsapp", status: "ready",
-                                                     category: restaurants_category)
+                                                     category: restaurants_category,
+                                                     money_source: @whatsapp_source)
     texts = []
     stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { texts << [ phone, text ] }) do
       stub_method(Whatsapp::ReplySender, :send_list, ->(*_args, **_opts) { true }) do
@@ -608,7 +614,8 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     session = start_clarification(pending_candidate)
     new_candidate = @user.expense_candidates.create!(amount: 80_000, date: Date.current, description: "cine",
                                                      source: "whatsapp", status: "ready",
-                                                     category: restaurants_category)
+                                                     category: restaurants_category,
+                                                     money_source: @whatsapp_source)
     texts = []
     stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { texts << [ phone, text ] }) do
       stub_method(Ai::Router, :call, ->(**_kwargs) {

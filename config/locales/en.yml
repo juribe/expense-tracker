@@ -238,6 +238,8 @@ en:
       dismiss: "Dismiss"
     recurring:
       payment_description: "Payment for %{name}"
+      invalid_payment_source: "The chosen money source is not valid."
+      missing_money_source: "Pick the money source: every real movement leaves from a source or lands in one."
 
   activerecord:
     errors:
@@ -260,6 +262,8 @@ en:
         other_user: "does not belong to this user"
         foreign_or_missing: "does not belong to this user or does not exist"
         insufficient_balance: "has insufficient balance in %{source_name}: available %{available}, missing %{missing}"
+        money_source_required: "is required: name the money source (where the money leaves from or arrives to)"
+        payment_without_money_source: "has no money source; a payment cannot be applied to a source-less expense"
     attributes:
       transfer:
         from_source: "From source"
@@ -747,6 +751,7 @@ en:
     edit: "Edit"
     reverse: "Reverse"
     reverse_confirm: "Reverse this payment? The debt balance returns to its previous value."
+    reverse_confirm_with_expense: "Reverse this payment? It was created together with its expense, so the expense will be deleted too and the debt balance returns to its previous value."
     empty: "No payments applied to this debt yet."
     page: "Page %{current} of %{total}"
     prev: "Previous"

@@ -41,7 +41,9 @@
 
   <div class="mb-3">
     <%= f.label :money_source_id, t("incomes.form.money_source_label"), class: "form-label" %>
-    <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("common.none") }, class: "form-select" %>
+    <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                            { include_blank: t("incomes.form.money_source_placeholder", default: "¿A dónde entra?") },
+                            { required: true, class: "form-select" } %>
   </div>
 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end">

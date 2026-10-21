@@ -22,6 +22,8 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: /Metas/
     assert_select "a[href=?]", new_goal_path
     assert_select "a[href=?]", edit_goal_path(goal)
+    assert_select "div.card-footer div.d-inline-flex a.btn-sm.btn-outline-primary", count: 1
+    assert_select "div.card-footer div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
     assert_select "a[href=?]", money_source_path(@pocket)
   end
 

@@ -8,6 +8,7 @@ module Gmail
     setup do
       @user = User.create!(name: "Sync User", email: "gmail_sync_test@example.com", password: "password123")
       Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+      @user.money_sources.create!(name: "Visa", kind: "credit_card", identifier: "1234")
       @connection = GmailConnection.create!(user: @user, email: "me@gmail.com",
                                            search_config: { senders: [ "notifications@bank.com" ],
                                                             subject_keywords: [ "compra" ] })    end

@@ -31,11 +31,11 @@
   </div>
 
   <div class="card-footer bg-transparent d-flex justify-content-end gap-2">
-    <div class="btn-group btn-group-sm" role="group" aria-label="<%= rule.title %>">
-      <%= link_to edit_transaction_rule_path(rule), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("transaction_rules.edit_aria", name: rule.title) } do %>
+    <div class="d-inline-flex align-items-center gap-2" role="group" aria-label="<%= rule.title %>">
+      <%= link_to edit_transaction_rule_path(rule), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("transaction_rules.edit_aria", name: rule.title) } do %>
         <i class="ti ti-pencil"></i><span class="d-none d-md-inline ms-1"><%= t("transaction_rules.edit") %></span>
       <% end %>
-      <%= button_to transaction_rule_path(rule), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("transaction_rules.delete_aria", name: rule.title) }, data: { confirm: t("transaction_rules.delete_confirm") }, form: { style: "display: inline-block" } do %>
+      <%= button_to transaction_rule_path(rule), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("transaction_rules.delete_aria", name: rule.title) }, data: { confirm: t("transaction_rules.delete_confirm") }, form: { data: { turbo: true } } do %>
         <i class="ti ti-trash"></i><span class="d-none d-md-inline ms-1"><%= t("transaction_rules.delete") %></span>
       <% end %>
     </div>

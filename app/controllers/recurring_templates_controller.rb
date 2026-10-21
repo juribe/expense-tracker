@@ -58,9 +58,11 @@ class RecurringTemplatesController < ApplicationController
       return
     end
 
-    if @recurring_template.income? && money_source.nil? && params[:money_source_id].blank? && @recurring_template.money_source.nil?
+    # The template itself is a reminder without an owning source; the real
+    # transaction this action creates always needs one (Pay or Receive).
+    if money_source.nil? && params[:money_source_id].blank? && @recurring_template.money_source.nil?
       redirect_to recurring_templates_path(kind: @recurring_template.kind),
-                  alert: t("recurring.invalid_payment_source"),
+                  alert: t("recurring.missing_money_source"),
                   status: :see_other
       return
     end

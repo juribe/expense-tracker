@@ -9,10 +9,12 @@ module TransactionRules
       @fitness = Category.create!(name: "Fitness", is_default: true, category_type: "expense")
       @transport = Category.create!(name: "Transportation", is_default: true, category_type: "expense")
       @entertainment = Category.create!(name: "Entertainment", is_default: true, category_type: "expense")
+      @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)
     end
 
     def create_expense(description:, category:)
-      Expense.create!(user: @user, category: category, amount: 50_000, date: Date.current, description: description)
+      Expense.create!(user: @user, category: category, amount: 50_000, date: Date.current, description: description,
+                      money_source: @money_source)
     end
 
     test "detects a pattern when a merchant text shares >= 90% of a category with >= 5 transactions" do

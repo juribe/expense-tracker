@@ -27,6 +27,14 @@ module Expenses
       assert_equal @account.id, @user.expenses.first.money_source_id
     end
 
+    test "rejects a row without a money source and rolls the batch back" do
+      result = BulkCreate.call(user: @user, inputs: [ confirmed_input(money_source_id: nil) ])
+
+      assert result.failure?
+      assert_equal 0, result.created_count
+      assert_match(/fuente de dinero/i, result.error_message)
+    end
+
     test "marks category as locked by the user when the input was edited" do
       result = BulkCreate.call(user: @user, inputs: [ confirmed_input(category_edited: "1") ])
 
@@ -43,7 +51,7 @@ module Expenses
     test "accepts raw params objects and skips blanks" do
       nested = ActionController::Parameters.new(
         "0" => { "amount" => "50000", "description" => "Almuerzo", "transaction_date" => Date.current.iso8601,
-                 "category_id" => @category.id.to_s },
+                 "category_id" => @category.id.to_s, "money_source_id" => @account.id.to_s },
         "1" => ""
       )
 
@@ -99,7 +107,7 @@ module Expenses
         new_category_name: nil,
         category_edited: nil,
         confidence: "0.9",
-        money_source_id: nil
+        money_source_id: @account.id
       }.merge(overrides)
     end
   end

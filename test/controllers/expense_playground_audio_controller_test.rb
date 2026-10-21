@@ -103,7 +103,8 @@ class ExpensePlaygroundAudioControllerTest < ActionDispatch::IntegrationTest
           category_id: @restaurants.id,
           description: "almuerzos",
           date: Date.current.iso8601,
-          source: "playground"
+          source: "playground",
+          money_source_id: @user.money_sources.first&.id || @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000).id
         }
       }
     end

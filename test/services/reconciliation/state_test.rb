@@ -13,6 +13,9 @@ module Reconciliation
         password: "password123"
       )
       @category = Category.create!(user: @user, name: "Servicios")
+      # Inactive so it is not reconcilable: the test verifies @source only.
+      @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 100_000_000,
+                                                   active: false)
       @source = MoneySource.create!(user: @user, name: "Davibank", kind: "account", starting_balance: 8_400_000)
       @template = RecurringTemplate.create!(
         user: @user,
@@ -35,7 +38,8 @@ module Reconciliation
           amount: 180_000,
           kind: "expense",
           source: "manual",
-          date: Date.current
+          date: Date.current,
+          money_source: @money_source
         }.merge(attributes)
       )
     end

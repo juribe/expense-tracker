@@ -11,7 +11,8 @@ module Expenses
   #     category: "restaurants",       # Category, id or name
   #     occurred_at: Time.current,
   #     source: :gmail,
-  #     gmail_message_id: "18f0c2..."
+  #     gmail_message_id: "18f0c2...",
+  #     money_source: funding          # MoneySource — always required
   #   ) => Expense (raises Expenses::Create::Invalid when unusable)
   class Create
     class Invalid < StandardError; end
@@ -34,6 +35,7 @@ module Expenses
 
     def call
       raise_if_gmail_duplicate!
+      raise_if_money_source_blank!
 
       Expense.new(
         user: @user,
@@ -49,6 +51,23 @@ module Expenses
     end
 
     private
+
+    # Expenses always leave from a known source. One exception: an active
+    # rule may fill the money source at create time (rule actions set one),
+    # so extraction paths holding only a text/grid input still resolve.
+    def raise_if_money_source_blank!
+      return if @money_source.is_a?(MoneySource)
+      return if a_matching_rule_sets_the_money_source?
+
+      raise Invalid, "money source is required"
+    end
+
+    def a_matching_rule_sets_the_money_source?
+      probe = Expense.new(user: @user, amount: @amount.to_s,
+                          description: normalize_description)
+      TransactionRule.active.for_user(@user).ordered_by_specificity
+                     .any? { |rule| rule.action_money_source_id.present? && rule.matches?(probe) }
+    end
 
     # Database-level last line of defense (partial unique index
     # index_transactions_gmail_dedup): one gmail email must never produce two

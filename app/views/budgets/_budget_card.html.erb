@@ -9,11 +9,11 @@
         <% unless budget.active %>
           <span class="badge bg-secondary"><%= t("budgets.inactive") %></span>
         <% end %>
-        <div class="btn-group btn-group-sm d-print-none" role="group" aria-label="<%= budget.category.name %>">
-          <%= link_to edit_budget_path(budget), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("budgets.edit_aria", name: budget.category.name) } do %>
+        <div class="d-inline-flex align-items-center gap-2 d-print-none" role="group" aria-label="<%= budget.category.name %>">
+          <%= link_to edit_budget_path(budget), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("budgets.edit_aria", name: budget.category.name) } do %>
             <i class="ti ti-pencil"></i>
           <% end %>
-          <%= button_to budget_path(budget), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("budgets.delete_aria", name: budget.category.name) }, data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
+          <%= button_to budget_path(budget), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("budgets.delete_aria", name: budget.category.name) }, data: { confirm: t("common.confirm") }, form: { data: { turbo: true } } do %>
             <i class="ti ti-trash"></i>
           <% end %>
         </div>

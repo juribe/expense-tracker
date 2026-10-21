@@ -20,9 +20,12 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  def create_expense(amount:, date:, category: @category, description: "Lunch", **extra)
-    @user.expenses.create!({ amount: amount, date: date, category: category,
-                             description: description }.merge(extra))
+  def create_expense(amount:, date:, category: @category, description: "Lunch", user: @user, **extra)
+    source = @user.money_sources.first ||
+             @user.money_sources.create!(name: "Cuenta #{SecureRandom.hex(4)}", kind: "account",
+                                         starting_balance: 100_000_000)
+    user.expenses.create!({ amount: amount, date: date, category: category,
+                            description: description, money_source: source }.merge(extra))
   end
 
   def template_for(amount:, active: true)
@@ -246,7 +249,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def create_source(name: "Credit Card", kind: "credit_card", **opts)
-    @user.money_sources.create!({ name: name, kind: kind, starting_balance: 0 }.merge(opts))
+    @user.money_sources.create!({ name: name, kind: kind, starting_balance: 1_000_000_000 }.merge(opts))
   end
 
   test "POST /expenses with a manual expense above the source balance is rejected" do
@@ -290,6 +293,16 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, loan.reload.name
   end
 
+  test "GET /expenses/new and /incomes/new mark the money source required" do
+    get new_expense_path
+    assert_response :success
+    assert_select "select[name='expense[money_source_id]'][required]"
+
+    get new_income_path
+    assert_response :success
+    assert_select "select[name='income[money_source_id]'][required='required']"
+  end
+
   test "GET /expenses/new defaults the date to the current cycle start with a schedule" do
     @user.update!(financial_cycle_start_day: 20)
     expected = PayCycle.current(@user).starts
@@ -304,10 +317,10 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     @user.update!(financial_cycle_start_day: 20)
     # Inside the cycle opened this month (dated at its start).
     @user.expenses.create!(amount: -500_000, date: PayCycle.current(@user).starts,
-                           category: @category, description: "Arriendo en ciclo")
+                           category: @category, description: "Arriendo en ciclo", money_source: create_source(name: "Cuenta", kind: "account"))
     # Outside it (belongs to the next cycle).
     @user.expenses.create!(amount: -900_000, date: PayCycle.current(@user).ends + 5, category: @category,
-                           description: "Fuera de ciclo")
+                           description: "Fuera de ciclo", money_source: create_source(name: "Cuenta", kind: "account"))
 
     get expenses_path
 
@@ -358,7 +371,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000)
     template.transactions.create!(user: @user, category: @category, amount: 50_000,
-                                  date: Date.today, kind: "expense", source: "recurring_template")
+                                  date: Date.today, kind: "expense", source: "recurring_template",
+                                  money_source: @user.money_sources.first)
 
     post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
 
@@ -448,7 +462,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "POST /expenses/assign_recurring rejects other users' expense and template" do
     other = User.create!(name: "Other", email: "other_assign_recurring@example.com", password: "password123")
-    other_expense = other.expenses.create!(category: @category, amount: 50_000, date: Date.today, source: "gmail")
+    other_expense = other.expenses.create!(category: @category, amount: 50_000, date: Date.today, source: "gmail",
+                                           money_source: @user.money_sources.first || create_source(name: "Cuenta", kind: "account"))
     other_template = other.recurring_templates.create!(
       category: @category, kind: "expense", amount: 50_000, frequency: "monthly", source: "wizard"
     )
@@ -480,7 +495,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
 
     other = User.create!(name: "Other2", email: "other2_assign_recurring@example.com", password: "password123")
-    other_expense = other.expenses.create!(category: @category, amount: 1, date: Date.today, source: "gmail")
+    other_expense = other.expenses.create!(category: @category, amount: 1, date: Date.today, source: "gmail",
+                                           money_source: @user.money_sources.first || create_source(name: "Cuenta", kind: "account"))
     other_expense.update!(recurring_template_id: template_for(amount: 1).id)
     post unassign_recurring_expenses_path, params: { expense_id: other_expense.id }
     assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
@@ -585,7 +601,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "PATCH /expenses/bulk_update ignores expense ids not owned by the current user" do
     other_user = User.create!(name: "Other", email: "bulk_update_other@example.com", password: "password123")
-    other_expense = other_user.expenses.create!(amount: 5, date: Date.today, description: "Theirs", category: @category)
+    other_expense = other_user.expenses.create!(amount: 5, date: Date.today, description: "Theirs", category: @category,
+                                                money_source: @user.money_sources.first || create_source(name: "Cuenta", kind: "account"))
     mine = create_expense(amount: 2, date: Date.today)
     patch bulk_update_expenses_path, params: { expense_ids: [ mine.id, other_expense.id ], category_id: @other_category.id }
     assert_redirected_to expenses_path
@@ -611,9 +628,10 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     other_user = User.create!(name: "Other", email: "bulk_update_src_other@example.com", password: "password123")
     other_source = other_user.money_sources.create!(name: "Other Bank", kind: "account", starting_balance: 0)
     a = create_expense(amount: 1, date: Date.today)
+    original_source = a.reload.money_source_id
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], money_source_id: other_source.id }
     assert_redirected_to expenses_path
-    assert_nil a.reload.money_source_id
+    assert_equal original_source, a.reload.money_source_id
     follow_redirect!
     assert_equal I18n.t("expenses.update_source_not_found"), flash[:alert]
   end

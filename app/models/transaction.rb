@@ -20,6 +20,7 @@ class Transaction < ApplicationRecord
   validates :date, presence: true
   validates :kind, presence: true, inclusion: { in: %w[income expense] }
   validates :source, presence: true
+  validate :money_source_must_be_present
 
   # Manual web-form expenses must not leave the balance owner negative: the
   # operation is rejected with the available balance and the missing amount.
@@ -88,6 +89,15 @@ class Transaction < ApplicationRecord
   end
 
   private
+
+  # Every real movement owns its origin: expenses leave from a source,
+  # incomes arrive to one. Recurring templates are reminders and stay
+  # optional; this rule governs the transactions that move balances.
+  def money_source_must_be_present
+    return if money_source_id.present?
+
+    errors.add(:money_source, :money_source_required)
+  end
 
   def balance_relevant_change?
     (saved_changes.keys & %w[amount money_source_id]).any?

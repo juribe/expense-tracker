@@ -30,7 +30,7 @@ class SidebarIndexesBulletTest < ActionDispatch::IntegrationTest
 
     @categories.each do |category|
       @user.expenses.create!(amount: 50_000, date: Date.current, category: category, money_source: card)
-      @user.incomes.create!(amount: 1_000_000, date: Date.current, category: category)
+      @user.incomes.create!(amount: 1_000_000, date: Date.current, category: category, money_source: account)
       @user.budgets.create!(category: category, monthly_amount: 200_000, period: "monthly")
       @user.spending_alerts.create!(category: category, kind: "budget_threshold", month: Date.current.strftime("%Y-%m"), pct: 85, amount: 150_000)
       @user.transaction_rules.create!(name: "Rule #{category.name}", merchant_contains: category.name, category_id: category.id)
@@ -42,7 +42,7 @@ class SidebarIndexesBulletTest < ActionDispatch::IntegrationTest
     @user.expense_candidates.create!(amount: 40_000, date: Date.current, source: "text", money_source: card)
 
     3.times { |i| @user.recurring_templates.create!(category: @categories[i], kind: i.zero? ? "income" : "expense", amount: 10_000 * (i + 1), frequency: "monthly", source: "wizard", description: "Recurring #{i}") }
-    @user.transactions.create!(category: @categories[0], date: Date.current.beginning_of_month, amount: 10_000, kind: "expense", source: "manual", recurring_template_id: @user.recurring_templates.second.id, description: "Recurring 1")
+    @user.transactions.create!(category: @categories[0], date: Date.current.beginning_of_month, amount: 10_000, kind: "expense", source: "manual", recurring_template_id: @user.recurring_templates.second.id, description: "Recurring 1", money_source: account)
     @user.transactions.create!(category: @categories[0], date: Date.current, amount: 5_000, kind: "expense", source: "manual", money_source: account, description: "Nequi gasto")
     @user.transactions.create!(category: @categories[1], date: Date.current, amount: 8_000, kind: "expense", source: "manual", money_source: account, description: "Nequi gasto 2")
     @user.transactions.create!(category: @categories[1], date: Date.current, amount: 3_000, kind: "expense", source: "manual", money_source: account2, description: "Efectivo gasto")

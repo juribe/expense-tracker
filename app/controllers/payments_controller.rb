@@ -93,7 +93,16 @@ class PaymentsController < ApplicationController
   end
 
   def destroy
-    @payment.destroy
+    # A payment that created its expense reverts everything: destroying the
+    # expense cascades into this payment (Transaction has_many :payments,
+    # dependent: :destroy) and the Transaction callbacks restore the funding
+    # source's balance, re-sync the recurring template and invalidate the
+    # reconciliation. Payments over pre-existing expenses keep the expense.
+    if @payment.created_expense?
+      @payment.expense.destroy
+    else
+      @payment.destroy
+    end
     redirect_to money_source_path(@money_source), notice: t("payments.deleted")
   end
 

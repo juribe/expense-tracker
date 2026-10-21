@@ -8,6 +8,7 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(name: "Playground Controller User", email: "pg-controller@example.com", password: "password123")
     @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+    @pg_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)
     sign_in @user
     @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
@@ -212,7 +213,8 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
         category_id: @restaurants.id,
         description: "Almuerzos",
         date: Date.current.iso8601,
-        source: "playground"
+        source: "playground",
+        money_source_id: @pg_source.id
       }
     }
 
@@ -231,7 +233,8 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
         amount: "50000",
         category_id: @restaurants.id,
         date: Date.current.iso8601,
-        source: "playground"
+        source: "playground",
+        money_source_id: @pg_source.id
       }
     }
 
@@ -263,7 +266,8 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
           merchant: "",
           date: Date.current.iso8601,
           source: "playground",
-          confidence: 0.94
+          confidence: 0.94,
+          money_source_id: @pg_source.id
         }
       }
     end
@@ -289,7 +293,8 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
             category_name: "Streaming",
             description: "Netflix",
             date: Date.current.iso8601,
-            source: "playground"
+            source: "playground",
+            money_source_id: @pg_source.id
           }
         }
       end
@@ -431,9 +436,12 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
       assert_no_difference -> { Category.count } do
         post expense_playground_batch_create_path(format: :json), params: {
           candidates: [
-            { amount: "45000", category_id: @restaurants.id, description: "DIDI FOOD", date: Date.current.iso8601, source: "playground_file" },
-            { amount: "183450", category_id: @restaurants.id, description: "EXITO", date: Date.current.iso8601, source: "playground_file" },
-            { amount: "", category_id: @restaurants.id, description: "BAD ROW", date: Date.current.iso8601, source: "playground_file" }
+            { amount: "45000", category_id: @restaurants.id, description: "DIDI FOOD", date: Date.current.iso8601,
+              source: "playground_file", money_source_id: @pg_source.id },
+            { amount: "183450", category_id: @restaurants.id, description: "EXITO", date: Date.current.iso8601,
+              source: "playground_file", money_source_id: @pg_source.id },
+            { amount: "", category_id: @restaurants.id, description: "BAD ROW", date: Date.current.iso8601,
+              source: "playground_file", money_source_id: @pg_source.id }
           ]
         }
       end
@@ -500,7 +508,8 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
             description: "DIDI FOOD",
             date: Date.current.iso8601,
             classification_source: "ai",
-            suggested_category_name: "Comida y restaurantes"
+            suggested_category_name: "Comida y restaurantes",
+            money_source_id: @pg_source.id
           }
         ]
       }

@@ -49,7 +49,9 @@
               </div>
               <div class="col-md-6 mb-3">
                 <%= f.label :money_source_id, t("expenses.source"), class: "form-label" %>
-                <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("common.none") }, class: "form-select" %>
+                <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                                        { include_blank: t("expenses.money_source_placeholder", default: "¿Con qué se pagó?") },
+                                        { required: true, class: "form-select" } %>
               </div>
             </div>
 

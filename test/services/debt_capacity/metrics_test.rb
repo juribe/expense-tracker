@@ -8,6 +8,7 @@ class DebtCapacityMetricsTest < ActiveSupport::TestCase
     @income_category = Category.create!(name: "Salario", category_type: "income", is_default: true)
     @expense_category = Category.create!(name: "Vivienda", category_type: "expense", is_default: true)
     @month = Date.new(2026, 9, 15)
+    @metrics_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 100_000_000)
     @user.money_sources.create!(name: "Hipotecario", kind: "loan", active: true).create_credit_account!(
       outstanding_balance: 80_000_000, installment_amount: 2_500_000, interest_rate: 12.0,
       interest_rate_type: "effective_annual"
@@ -15,7 +16,7 @@ class DebtCapacityMetricsTest < ActiveSupport::TestCase
   end
 
   test "calculates debt ratio, target margin and alert excess from monthly income" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category, money_source: @metrics_source)
 
     metrics = metrics_with_expenses(monthly_installments: 3_000_000)
 
@@ -29,7 +30,7 @@ class DebtCapacityMetricsTest < ActiveSupport::TestCase
   end
 
   test "classifies ratios between the healthy and alert thresholds as precaution" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category, money_source: @metrics_source)
 
     metrics = metrics_with_expenses(monthly_installments: 3_500_000)
 
@@ -41,7 +42,7 @@ class DebtCapacityMetricsTest < ActiveSupport::TestCase
   end
 
   test "classifies ratios above the alert threshold and reports both excesses" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category, money_source: @metrics_source)
 
     metrics = metrics_with_expenses(monthly_installments: 4_500_000)
 
@@ -65,8 +66,9 @@ class DebtCapacityMetricsTest < ActiveSupport::TestCase
   end
 
   test "keeps the debt margin separate from pressure after essential expenses" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category)
-    @user.expenses.create!(amount: 6_500_000, date: @month, category: @expense_category)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_category, money_source: @metrics_source)
+    @user.expenses.create!(amount: 6_500_000, date: @month, category: @expense_category,
+                           money_source: @metrics_source)
 
     metrics = metrics_with_expenses(monthly_installments: 2_000_000)
 

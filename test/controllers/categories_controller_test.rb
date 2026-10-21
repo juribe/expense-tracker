@@ -15,8 +15,11 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /categories/index renders the page with default and custom sections" do
+    category = Category.create!(name: "Hobby", user: @user, is_default: false, category_type: "expense")
     get categories_path
     assert_response :success
+    assert_select "div.d-inline-flex a.btn-sm.btn-outline-primary", count: 1
+    assert_select "div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
   end
 
   test "GET /categories/new renders the form" do

@@ -7,9 +7,10 @@ module Expenses
     setup do
       @user = User.create!(name: "RA User", email: "recurring_assignment@example.com", password: "password123")
       @category = Category.create!(name: "Vivienda", user: @user, is_default: false, category_type: "expense")
+      @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
       @expense = Expense.create!(
         user: @user, category: @category, amount: 10_000, description: "Alquiler",
-        date: Date.new(2026, 3, 10), source: "manual"
+        date: Date.new(2026, 3, 10), source: "manual", money_source: @money_source
       )
       @template = @user.recurring_templates.create!(
         category: @category, kind: "expense", amount: 10_000,
@@ -186,7 +187,7 @@ module Expenses
       Expense.create!(
         {
           user: @user, category: @category, amount: 10_000, description: "Gasto",
-          date: Date.new(2026, 3, 10), source: "manual"
+          date: Date.new(2026, 3, 10), source: "manual", money_source: @money_source
         }.merge(overrides)
       )
     end

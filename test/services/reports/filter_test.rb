@@ -60,8 +60,10 @@ class ReportsFilterTest < ActiveSupport::TestCase
   end
 
   test "kind filter selects which base scope is non-empty" do
-    Expense.create!(user: @user, category: @food, amount: -100_000, date: @period.range.first, description: "x")
-    Income.create!(user: @user, category: @food, amount: 500_000, date: @period.range.first, description: "x")
+    Expense.create!(user: @user, category: @food, amount: -100_000, date: @period.range.first, description: "x",
+                    money_source: @bank)
+    Income.create!(user: @user, category: @food, amount: 500_000, date: @period.range.first, description: "x",
+                   money_source: @bank)
 
     assert_equal 100_000.to_d, filter(kind: "expense").expense_scope(@period.range).sum(:amount).abs
     assert_equal 500_000.to_d, filter(kind: "income").income_scope(@period.range).sum(:amount)

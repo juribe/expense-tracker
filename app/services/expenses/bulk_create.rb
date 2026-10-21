@@ -12,6 +12,9 @@ module Expenses
   #   result.created_count   # expenses persisted (0 on failure)
   #   result.error_message   # localized reason for the failure
   class BulkCreate
+    # A row failed its validations (e.g. no money source); ActiveRecord's own
+    # RecordInvalid.new waits for a record, a string message would crash it.
+    class RowInvalid < StandardError; end
     def self.call(user:, inputs:)
       new(user: user, inputs: inputs).call
     end
@@ -34,7 +37,7 @@ module Expenses
           begin
             expense = build_expense(input)
             unless expense.save
-              raise ActiveRecord::RecordInvalid, row_error(expense, index)
+              raise RowInvalid, row_error(expense, index)
             end
           rescue ArgumentError => e
             raise ArgumentError, I18n.t("expenses.bulk_row_error", index: index + 1, message: e.message)
@@ -45,7 +48,7 @@ module Expenses
       end
 
       self
-    rescue ArgumentError, ActiveRecord::RecordInvalid => e
+    rescue ArgumentError, ActiveRecord::RecordInvalid, RowInvalid => e
       @created_count = 0
       @expenses = []
       fail(e.message)

@@ -10,6 +10,7 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
       password: "password123"
     )
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
+    @sum_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 100_000_000)
     @housing = Category.create!(name: "Vivienda", is_default: true, category_type: "expense")
     @income_cat = Category.create!(name: "Salario", is_default: true, category_type: "income")
     @month = Date.new(2026, 9, 15)
@@ -20,10 +21,10 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
   end
 
   test "computes income and expenses for current and previous month with deltas" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_cat)
-    @user.incomes.create!(amount: 9_000_000, date: @month << 1, category: @income_cat)
-    @user.expenses.create!(amount: 4_000_000, date: @month, category: @food)
-    @user.expenses.create!(amount: 2_000_000, date: @month << 1, category: @food)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_cat, money_source: @sum_source)
+    @user.incomes.create!(amount: 9_000_000, date: @month << 1, category: @income_cat, money_source: @sum_source)
+    @user.expenses.create!(amount: 4_000_000, date: @month, category: @food, money_source: @sum_source)
+    @user.expenses.create!(amount: 2_000_000, date: @month << 1, category: @food, money_source: @sum_source)
 
     data = summary
 
@@ -36,13 +37,13 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
   end
 
   test "delta is nil when previous month has no data" do
-    @user.expenses.create!(amount: 4_000_000, date: @month, category: @food)
+    @user.expenses.create!(amount: 4_000_000, date: @month, category: @food, money_source: @sum_source)
     assert_nil summary[:expenses][:delta_pct]
   end
 
   test "computes savings and share of income" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_cat)
-    @user.expenses.create!(amount: 7_600_000, date: @month, category: @food)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_cat, money_source: @sum_source)
+    @user.expenses.create!(amount: 7_600_000, date: @month, category: @food, money_source: @sum_source)
 
     savings = summary[:savings]
 
@@ -51,9 +52,9 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
   end
 
   test "computes top expense categories sorted with share percentages" do
-    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_cat)
-    @user.expenses.create!(amount: 4_200_000, date: @month, category: @housing)
-    @user.expenses.create!(amount: 2_300_000, date: @month, category: @food)
+    @user.incomes.create!(amount: 10_000_000, date: @month, category: @income_cat, money_source: @sum_source)
+    @user.expenses.create!(amount: 4_200_000, date: @month, category: @housing, money_source: @sum_source)
+    @user.expenses.create!(amount: 2_300_000, date: @month, category: @food, money_source: @sum_source)
 
     top = summary[:expenses][:top_categories]
 
@@ -65,7 +66,7 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
 
   test "computes debt payments of the month" do
     card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
-    expense = @user.expenses.create!(amount: 1_200_000, date: @month, category: @food)
+    expense = @user.expenses.create!(amount: 1_200_000, date: @month, category: @food, money_source: @sum_source)
     Payment.create!(user: @user, expense: expense, money_source: card, amount: 1_200_000,
                     principal_amount: 1_200_000)
 
@@ -89,11 +90,11 @@ class FinancialSummaryServiceTest < ActiveSupport::TestCase
     @user.update!(financial_cycle_start_day: 20)
     cycle = PayCycle.containing(@user, Date.new(2026, 11, 2))
 
-    @user.incomes.create!(amount: 10_000_000, date: Date.new(2026, 10, 20), category: @income_cat)
-    @user.expenses.create!(amount: 3_000_000, date: Date.new(2026, 11, 3), category: @food)
+    @user.incomes.create!(amount: 10_000_000, date: Date.new(2026, 10, 20), category: @income_cat, money_source: @sum_source)
+    @user.expenses.create!(amount: 3_000_000, date: Date.new(2026, 11, 3), category: @food, money_source: @sum_source)
     # Calendar-month expenses outside the cycle must not count.
-    @user.expenses.create!(amount: 999_000, date: Date.new(2026, 11, 25), category: @food)
-    @user.expenses.create!(amount: 2_000_000, date: Date.new(2026, 10, 5), category: @food)
+    @user.expenses.create!(amount: 999_000, date: Date.new(2026, 11, 25), category: @food, money_source: @sum_source)
+    @user.expenses.create!(amount: 2_000_000, date: Date.new(2026, 10, 5), category: @food, money_source: @sum_source)
 
     data = FinancialSummaryService.new(user: @user, cycle: cycle).call
 

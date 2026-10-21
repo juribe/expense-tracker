@@ -1,35 +1,46 @@
 # frozen_string_literal: true
 
 module Payments
-  # Applies an existing Expense to a debt with a manual distribution.
-  # Never creates an Expense — the Expense already exists; the Payment is
-  # only its accounting application to the debt target.
+  # Applies an expense to a debt with a manual distribution. The Payment is
+  # the accounting application of the expense (an existing Transaction) to
+  # the debt target; it never creates one.
+  #
+  # expense_created marks payments whose expense was born in the same step
+  # (Payments::CreateManual, Statements::Confirmation): they must revert the
+  # expense too when destroyed. Payments over pre-existing expenses keep it
+  # false, so the expense survives the revert.
   #
   #   Payments::Apply.call(
   #     user: user, money_source: mortgage, expense: expense,
-  #     distribution: { principal_amount: "900.000", ... }
+  #     distribution: { principal_amount: "900.000", ... },
+  #     expense_created: true
   #   )
   class Apply
     class << self
       # payment: the already-persisted Payment being edited; nil to create.
-      def call(user:, money_source:, expense:, distribution: {}, payment: nil)
+      def call(user:, money_source:, expense:, distribution: {}, payment: nil,
+               expense_created: false)
         new(user: user, money_source: money_source, expense: expense,
-            distribution: distribution, payment: payment).call
+            distribution: distribution, payment: payment,
+            expense_created: expense_created).call
       end
     end
 
-    def initialize(user:, money_source:, expense:, distribution: {}, payment: nil)
+    def initialize(user:, money_source:, expense:, distribution: {}, payment: nil,
+                   expense_created: false)
       @user = user
       @money_source = money_source
       @expense = expense
       @distribution = (distribution || {}).to_h.stringify_keys
       @payment = payment
+      @expense_created = expense_created
     end
 
     def call
       payment = @payment || Payment.new(user: user, expense: expense,
                                         money_source: money_source, amount: amount)
       payment.assign_attributes(distribution_attributes)
+      payment.created_expense = true if @payment.nil? && @expense_created
       ActiveRecord::Base.transaction do
         payment.save!
         # Keep Día de Cuadre in sync: the cuota paid here is usually the

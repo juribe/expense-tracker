@@ -188,7 +188,8 @@ class GmailConnectionsController < ApplicationController
         bank: transaction["bank"]
       )
       # Match returns an array when several sources share the tag. Do not
-      # auto-assign: leave the expense without a source for manual review.
+      # auto-assign: the recorder routes it to the review candidates instead
+      # of a source-less expense.
       money_source = matched if matched.is_a?(MoneySource)
 
       recorded = recorder.call(transaction, money_source: money_source)

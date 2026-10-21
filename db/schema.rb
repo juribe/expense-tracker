@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_21_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_22_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -501,6 +501,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_200000) do
     t.string "source", default: "manual", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "created_expense", default: false, null: false
     t.index ["expense_id", "money_source_id"], name: "index_payments_on_expense_and_target", unique: true
     t.index ["expense_id"], name: "index_payments_on_expense_id"
     t.index ["money_source_id"], name: "index_payments_on_money_source_id"
@@ -831,6 +832,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_200000) do
     t.index ["user_id", "gmail_message_id", "amount", "date"], name: "index_transactions_gmail_dedup", unique: true, where: "(gmail_message_id IS NOT NULL)"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

@@ -46,6 +46,7 @@
                     MoneySource.payment_origins(current_user).where.not(id: @money_source.id), :id, :display_name
                   ),
                   { include_blank: t("statement_imports.payment_funding_placeholder"),
+                    required: true,
                     class: "form-select", id: "payment_funding_money_source_id" } %>
           </div>
         </div>

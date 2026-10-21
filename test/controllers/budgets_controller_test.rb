@@ -12,6 +12,7 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
       password: "password123"
     )
     @category = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+    @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)
     sign_in @user
   end
 
@@ -22,6 +23,8 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: /Presupuestos/
     assert_select "a[href=?]", new_budget_path
     assert_select "a[href=?]", edit_budget_path(budget)
+    assert_select "div.d-inline-flex a.btn-sm.btn-outline-primary", count: 1
+    assert_select "div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
   end
 
   test "GET /budgets accepts a month param" do
@@ -40,7 +43,7 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     @user.update!(financial_cycle_start_day: 20)
     Budget.create!(user: @user, category: @category, monthly_amount: 500_000)
     Expense.create!(user: @user, category: @category, amount: -200_000, date: Date.new(2026, 11, 2),
-                    description: "cycle expense")
+                    description: "cycle expense", money_source: @money_source)
 
     get budgets_path(cycle: "2026-10-20")
 

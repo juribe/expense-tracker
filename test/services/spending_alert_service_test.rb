@@ -17,8 +17,15 @@ class SpendingAlertServiceTest < ActiveSupport::TestCase
     @current_month = Date.current
   end
 
+  # Tests create expenses for multiple users; each owner needs their own source.
+  def money_source_for(user)
+    user.money_sources.first || user.money_sources.create!(name: "Cuenta #{SecureRandom.hex(4)}",
+                                                           kind: "account", starting_balance: 100_000_000)
+  end
+
   def create_expense(amount, date: @current_month, user: @user, category: @category)
-    Expense.create!(user: user, category: category, amount: amount, date: date, description: "test expense")
+    Expense.create!(user: user, category: category, amount: amount, date: date, description: "test expense",
+                    money_source: money_source_for(user))
   end
 
   def create_budget(monthly_amount)

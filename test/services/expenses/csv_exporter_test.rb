@@ -29,7 +29,8 @@ module Expenses
 
     test "exports every expense of the scope, not only the current page" do
       30.times { |i| Expense.create!(user: @user, category: @category, amount: 1_000,
-                                     description: "Relleno #{i}", date: Date.current, source: "manual") }
+                                     description: "Relleno #{i}", date: Date.current, source: "manual",
+                                     money_source: @account) }
 
       # The controller always passes Expenses::Search#csv_scope, which is the
       # fully filtered relation before limit/offset were applied.
@@ -40,15 +41,15 @@ module Expenses
       assert_equal 32, rows.size
     end
 
-    test "handles nil description, category, and money source" do
+    test "handles nil description and category" do
       Expense.create!(user: @user, category: nil, amount: 5_000, description: nil,
-                      date: Date.new(2026, 1, 20), source: "ai")
+                      date: Date.new(2026, 1, 20), source: "ai", money_source: @account)
 
       rows = parsed_csv
       last = rows.last
       assert_equal "", last[1]
       assert_equal "", last[2]
-      assert_equal "", last[4]
+      assert_equal @account.name, last[4]
     end
 
     test "provides the suggested download filename" do

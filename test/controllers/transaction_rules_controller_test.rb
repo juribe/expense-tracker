@@ -29,6 +29,8 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: /Reglas/
     assert_select "a[href=?]", new_transaction_rule_path
     assert_select "a[href=?]", edit_transaction_rule_path(rule)
+    assert_select "div.d-inline-flex a.btn-sm.btn-outline-primary", count: 1
+    assert_select "div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
   end
 
   test "GET /transaction_rules/new renders the form" do
@@ -134,9 +136,10 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index hides suggestions whose merchant has been dismissed" do
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
     5.times do
       Expense.create!(user: @user, category: @category, amount: 50_000, date: Date.current,
-                      description: "smartfit bogotá")
+                      description: "smartfit bogotá", money_source: source)
     end
     @user.update!(dismissed_rule_suggestions: [ "smartfit bogotá" ])
 

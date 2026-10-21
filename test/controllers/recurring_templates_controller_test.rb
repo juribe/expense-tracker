@@ -70,8 +70,7 @@ class RecurringTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @account.id, transaction.money_source_id
   end
 
-  test "POST process_transaction without an explicit source falls back to the template's source" do
-    template = @user.recurring_templates.create!(
+  test "POST process_transaction without an explicit source falls back to the template's source" do    template = @user.recurring_templates.create!(
       category: Category.create!(name: "Recurring Fallback Cat", is_default: false, category_type: "expense", user: @user),
       kind: "expense", amount: 65_000, frequency: "monthly", source: "wizard", description: "Cuota",
       money_source: @loan
@@ -103,5 +102,40 @@ class RecurringTemplatesControllerTest < ActionDispatch::IntegrationTest
       assert_equal I18n.t("recurring.invalid_payment_source"), flash[:alert]
       assert template.transactions.empty?
     end
+  end
+
+  test "POST process_transaction rejects an expense template left without any money source" do
+    template = @user.recurring_templates.create!(
+      category: Category.create!(name: "Recurring Unlinked Cat", is_default: false, category_type: "expense", user: @user),
+      kind: "expense", amount: 65_000, frequency: "monthly", source: "manual", description: "Recordatorio"
+    )
+    assert_nil template.money_source
+
+    assert_no_difference "Transaction.count" do
+      post process_transaction_recurring_template_path(template), params: {
+        amount: "65000", date: Date.current.to_s
+      }
+    end
+
+    assert_response :see_other
+    assert_equal I18n.t("recurring.missing_money_source"), flash[:alert]
+    assert template.transactions.empty?
+  end
+
+  test "POST process_transaction keeps rejecting an income template left without any money source" do
+    template = @user.recurring_templates.create!(
+      category: Category.create!(name: "Recurring Income Cat", is_default: false, category_type: "income", user: @user),
+      kind: "income", amount: 200_000, frequency: "monthly", source: "manual", description: "Recibo"
+    )
+    assert_nil template.money_source
+
+    assert_no_difference "Transaction.count" do
+      post process_transaction_recurring_template_path(template), params: {
+        amount: "200000", date: Date.current.to_s
+      }
+    end
+
+    assert_response :see_other
+    assert template.transactions.empty?
   end
 end

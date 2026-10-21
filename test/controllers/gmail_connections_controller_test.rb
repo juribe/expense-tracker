@@ -34,7 +34,8 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
   test "index marks imported expenses to open in the expense drawer" do
     @user.expenses.create!(description: "Compra importada", amount: 12.50, date: Date.today, source: "gmail",
-                           category: Category.create!(user: @user, name: "Otros", category_type: "expense"))
+                           category: Category.create!(user: @user, name: "Otros", category_type: "expense"),
+                           money_source: @user.money_sources.first || @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000))
 
     get gmail_connection_path
 
@@ -319,6 +320,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
   test "approve creates expenses from a reviewed transaction" do
     category = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+    payment_source = @user.money_sources.create!(name: "Visa", kind: "credit_card", identifier: "1234")
     review = ProcessedEmail.create!(
       user: @user,
       provider: "gmail",
@@ -330,7 +332,8 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
           {
             "type" => "expense", "amount" => 48_500, "currency" => "COP",
             "merchant" => "Restaurante XYZ", "category" => "restaurants",
-            "occurred_at" => "2026-08-23T14:30:00", "confidence" => 0.4
+            "occurred_at" => "2026-08-23T14:30:00", "confidence" => 0.4,
+            "card_last_four" => "1234"
           }
         ]
       }.to_json
@@ -347,6 +350,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "gmail", expense.source
     assert_equal category.id, expense.category_id
     assert_equal "msg-review-1", expense.gmail_message_id
+    assert_equal payment_source, expense.money_source
   end
 
   test "approve creates a reviewable candidate when the category does not resolve" do

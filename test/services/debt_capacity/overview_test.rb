@@ -65,7 +65,8 @@ class DebtCapacityOverviewTest < ActiveSupport::TestCase
     @user.recurring_templates.create!(
       category: @income_category, amount: 8_200_000, kind: "income", frequency: "monthly", source: "manual", active: true
     )
-    @user.incomes.create!(amount: 12_000_000, date: @month, category: @income_category)
+    @user.incomes.create!(amount: 12_000_000, date: @month, category: @income_category,
+                          money_source: @user.money_sources.first || @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000_000))
 
     assert_equal 8_200_000.to_d, overview[:summary][:monthly_income]
   end

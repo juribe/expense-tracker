@@ -102,6 +102,8 @@ es:
         after_start: "debe ser posterior a la fecha inicial"
         foreign_or_missing: "no pertenece a este usuario o no existe"
         insufficient_balance: "no tiene saldo suficiente en %{source_name}: disponible %{available}, faltan %{missing}"
+        money_source_required: "es obligatoria: indica la fuente de dinero (de dónde sale o a dónde entra)"
+        payment_without_money_source: "no tiene fuente de dinero; no se puede aplicar un pago a un gasto sin origen"
     attributes:
       transfer:
         from_source: "Desde"
@@ -1256,6 +1258,7 @@ es:
     edit: "Editar"
     reverse: "Revertir"
     reverse_confirm: "¿Revertir este pago? El saldo de la deuda volverá a su valor anterior."
+    reverse_confirm_with_expense: "¿Revertir este pago? El gasto se creó junto con el pago, así que se eliminará también y el saldo de la deuda volverá a su valor anterior."
     empty: "Aún no hay pagos aplicados a esta deuda."
     page: "Página %{current} de %{total}"
     prev: "Anterior"
@@ -1575,6 +1578,7 @@ es:
     process_money_source_default: "Usar la fuente de la plantilla"
     process_money_source_hint: "¿De dónde sale (o a dónde llega) el dinero? Se aplaza a la fuente de la plantilla si no eliges una."
     invalid_payment_source: "La fuente de dinero elegida no es válida."
+    missing_money_source: "Selecciona la fuente de dinero: todo movimiento real sale de una fuente o llega a una."
     edit_action: "Editar %{name}"
     delete_action: "Eliminar %{name}"
     activate: "Activar"

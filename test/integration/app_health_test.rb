@@ -41,7 +41,9 @@ class AppHealthTest < ActionDispatch::IntegrationTest
           amount: 50.00,
           date: Date.today,
           category_id: category.id,
-          description: "Pharmacy"
+          description: "Pharmacy",
+          money_source_id: @user.money_sources.first&.id ||
+                           @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000).id
         }
       }
     end

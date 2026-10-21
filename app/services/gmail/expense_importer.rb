@@ -168,7 +168,8 @@ module Gmail
 
           matched = resolve_money_source(transaction)
           # Match returns an array when several sources share the tag. Do not
-          # auto-assign: leave the expense without a source for manual review.
+          # auto-assign: the recorder then routes the transaction to the
+          # review candidates instead of a source-less expense.
           money_source = matched if matched.is_a?(MoneySource)
 
           begin

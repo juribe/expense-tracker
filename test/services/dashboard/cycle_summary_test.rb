@@ -9,6 +9,7 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
     @user = User.create!(name: "Test User", email: "cycle_summary_test@example.com", password: "password123")
     @category = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
     @other_category = Category.create!(name: "Compras", is_default: true, category_type: "expense")
+    @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 100_000_000)
     @span = Date.new(2026, 10, 1)..Date.new(2026, 10, 31)
     @previous_span = Date.new(2026, 9, 1)..Date.new(2026, 9, 30)
   end
@@ -18,11 +19,12 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
   end
 
   def create_expense(amount:, date:, category: @category)
-    Expense.create!(user: @user, category: category, amount: amount, date: date, description: "Gasto")
+    Expense.create!(user: @user, category: category, amount: amount, date: date, description: "Gasto",
+                    money_source: @money_source)
   end
 
   test "reports income, expense and net totals for the span" do
-    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
     create_expense(amount: 869_396, date: Date.new(2026, 10, 6))
 
     result = summary
@@ -39,9 +41,9 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
   end
 
   test "deltas compare against the previous span using absolute values" do
-    Income.create!(user: @user, category: @category, amount: 10_000_000, date: Date.new(2026, 9, 5), description: "Salario")
+Income.create!(user: @user, category: @category, amount: 10_000_000, date: Date.new(2026, 9, 5), description: "Salario", money_source: @money_source)
     create_expense(amount: 1_000_000, date: Date.new(2026, 9, 10))
-    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
     create_expense(amount: 869_396, date: Date.new(2026, 10, 6))
 
     result = summary
@@ -59,21 +61,21 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
   end
 
   test "income delta compares income against the previous span" do
-    Income.create!(user: @user, category: @category, amount: 10_000_000, date: Date.new(2026, 9, 5), description: "Salario")
-    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+Income.create!(user: @user, category: @category, amount: 10_000_000, date: Date.new(2026, 9, 5), description: "Salario", money_source: @money_source)
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
 
     assert_in_delta 24.5, summary[:income_delta_pct], 0.01
   end
 
   test "income delta is nil when the previous span had no income" do
-    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
 
     assert_nil summary[:income_delta_pct]
   end
 
   test "evolution is a zero-filled daily series covering the whole span" do
     create_expense(amount: 220_000, date: Date.new(2026, 10, 5))
-    Income.create!(user: @user, category: @category, amount: 1_000_000, date: Date.new(2026, 10, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 1_000_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
 
     result = summary
 
@@ -115,7 +117,7 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
   end
 
   test "is on track when the projected spend stays under the income" do
-    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
     create_expense(amount: 1_800_000, date: Date.new(2026, 10, 6))
 
     travel_to Date.new(2026, 10, 18) do
@@ -124,7 +126,7 @@ class Dashboard::CycleSummaryTest < ActiveSupport::TestCase
   end
 
   test "is over the meta when the projected spend exceeds the income" do
-    Income.create!(user: @user, category: @category, amount: 500_000, date: Date.new(2026, 10, 5), description: "Salario")
+    Income.create!(user: @user, category: @category, amount: 500_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
     create_expense(amount: 900_000, date: Date.new(2026, 10, 6))
 
     travel_to Date.new(2026, 10, 18) do

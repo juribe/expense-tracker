@@ -9,6 +9,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     @user = User.create!(name: "AI Entry User", email: "ai-entry@example.com", password: "password123")
     @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     @parking = Category.create!(name: "Parking", is_default: true, category_type: "expense")
+    @source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)
     sign_in @user
     @saved_api_key = ENV.delete("MISTRAL_API_KEY")
   end
@@ -86,8 +87,10 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   test "POST /expenses/bulk_create saves several expenses in one action" do
     post bulk_create_expenses_path(format: :json), params: {
       expenses: [
-        { amount: "50000", description: "Restaurante", transaction_date: "2026-08-22", category_id: @restaurants.id },
-        { amount: "20000", description: "Parqueadero", date: "2026-08-21", category_id: @parking.id }
+        { amount: "50000", description: "Restaurante", transaction_date: "2026-08-22", category_id: @restaurants.id,
+          money_source_id: @source.id },
+        { amount: "20000", description: "Parqueadero", date: "2026-08-21", category_id: @parking.id,
+          money_source_id: @source.id }
       ]
     }
 
@@ -130,7 +133,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
       post bulk_create_expenses_path(format: :json), params: {
         expenses: [
           { amount: "30000", description: "Veterinaria", new_category_name: "Pet Care",
-            transaction_date: Date.current.iso8601 }
+            transaction_date: Date.current.iso8601, money_source_id: @source.id }
         ]
       }
     end
@@ -149,7 +152,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
       post bulk_create_expenses_path(format: :json), params: {
         expenses: [
           { amount: "50000", description: "Didi viaje", transaction_date: Date.current.iso8601,
-            new_category_name: "Didi Tarjeta Visa Infinite" }
+            new_category_name: "Didi Tarjeta Visa Infinite", money_source_id: @source.id }
         ]
       }
     end
@@ -168,7 +171,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     post bulk_create_expenses_path(format: :json), params: {
       expenses: [
         { amount: "50000", description: "Didi viaje", transaction_date: Date.current.iso8601,
-          category_id: @parking.id, category_edited: true }
+          category_id: @parking.id, category_edited: true, money_source_id: @source.id }
       ]
     }
 
@@ -182,8 +185,9 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     assert_no_changes -> { Expense.count } do
       post bulk_create_expenses_path(format: :json), params: {
         expenses: [
-          { amount: "1000", description: "Ok", transaction_date: "2026-08-22", category_id: @parking.id },
-          { amount: "", description: "Bad", category_id: @parking.id }
+          { amount: "1000", description: "Ok", transaction_date: "2026-08-22", category_id: @parking.id,
+            money_source_id: @source.id },
+          { amount: "", description: "Bad", category_id: @parking.id, money_source_id: @source.id }
         ]
       }
     end
@@ -198,7 +202,7 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     post bulk_create_expenses_path, params: {
       expenses: [
         { amount: "50000", description: "Almuerzo", transaction_date: Date.current.iso8601,
-          category_id: @restaurants.id }
+          category_id: @restaurants.id, money_source_id: @source.id }
       ]
     }
 

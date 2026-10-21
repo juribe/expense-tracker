@@ -31,7 +31,8 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     other = User.create!(name: "Otro", email: "foreign-payments@example.com", password: "password123")
     foreign_expense = Expense.create!(
       user: other, amount: 500_000, description: "Ajeno",
-      date: Date.current, kind: "expense", source: "manual", money_source_id: nil
+      date: Date.current, kind: "expense", source: "manual",
+      money_source: other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
     )
 
     get new_money_source_payment_path(@mortgage, expense_id: foreign_expense.id)
@@ -232,6 +233,29 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "POST create_manual rejects a blank funding source and creates nothing" do
+    assert_no_difference -> { Expense.count } do
+      assert_no_difference -> { Payment.count } do
+        post create_manual_money_source_payments_path(@mortgage), as: :json, params: {
+          payment: { amount: "1.500.000", date: Date.current.to_s, category_id: create_category.id,
+                     funding_money_source_id: "", principal_amount: "1.500.000" }
+        }
+      end
+    end
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(response.body)
+    assert_equal false, body["ok"]
+    assert body["errors"].any?
+  end
+
+  test "the manual payment modal marks the funding source required" do
+    get money_source_path(@mortgage)
+
+    assert_response :success
+    assert_select "select#manual_funding[required]"
+  end
+
   # ---------------------------------------------------------- update
   test "PATCH update changes the distribution and keeps the balance consistent" do
     expense = create_expense(amount: 1_500_000, money_source: @account)
@@ -259,7 +283,69 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal BigDecimal("30_000_000"), @mortgage.reload.credit_account.outstanding_balance.to_d
   end
 
-  # ---------------------------------------------------------------- show page
+  # ------------------------------------------------- destroy: created expense
+  # A payment whose expense was created in the same step (manual modal or
+  # statement import) reverts together: the expense dies with it and the
+  # funding source's balance is restored. A payment applied over a
+  # pre-existing expense must NOT take the expense down.
+  test "DELETE destroy on a manual payment also deletes the expense created with it" do
+    before_payment = @account.reload.balance
+
+    post create_manual_money_source_payments_path(@mortgage), as: :json, params: {
+      payment: {
+        amount: "1.500.000", date: Date.current.to_s, description: "Cuota hipoteca",
+        category_id: create_category.id, funding_money_source_id: @account.id,
+        principal_amount: "1.500.000"
+      }
+    }
+    assert_response :success
+    payment = Payment.order(:id).last
+    assert payment.created_expense?, "create_manual must mark the payment"
+    assert_equal before_payment - BigDecimal("1_500_000"), @account.reload.balance
+
+    assert_difference -> { Expense.count }, -1 do
+      assert_difference -> { Payment.count }, -1 do
+        delete money_source_payment_path(@mortgage, payment)
+      end
+    end
+
+    assert_redirected_to money_source_path(@mortgage)
+    assert_not Payment.exists?(payment.id)
+    assert_equal before_payment, @account.reload.balance
+  end
+
+  test "DELETE destroy on a payment over a pre-existing expense keeps the expense" do
+    expense = create_expense(amount: 1_500_000, money_source: @account)
+    payment = create_payment(expense, @mortgage, principal: 900_000)
+
+    assert_difference -> { Payment.count }, -1 do
+      assert_no_difference -> { Expense.count } do
+        delete money_source_payment_path(@mortgage, payment)
+      end
+    end
+
+    assert_redirected_to money_source_path(@mortgage)
+    assert Expense.exists?(expense.id)
+  end
+
+  test "DELETE destroy on a statement-import payment also deletes its payment expense" do
+    expense = create_expense(amount: 63_000, money_source: @account, description: "Pago Tarjeta Visa")
+    payment = Payment.create!(
+      user: @user, expense: expense, money_source: @card, date: expense.date,
+      amount: 63_000, principal_amount: 60_000, interest_amount: 3_000,
+      created_expense: true
+    )
+
+    assert_difference -> { Expense.count }, -1 do
+      assert_difference -> { Payment.count }, -1 do
+        delete money_source_payment_path(@card, payment)
+      end
+    end
+
+    assert_redirected_to money_source_path(@card)
+    assert_not Expense.exists?(expense.id)
+  end
+
   test "GET /money_sources/:id lists applied payments and awaiting expenses on a debt page" do
     expense = create_expense(amount: 1_500_000, description: "Mortgage payment", money_source: @account)
     applied = Payment.create!(
@@ -272,6 +358,8 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "table td", text: /Mortgage payment/
     assert_select "td", text: number_to_currency(applied.principal_amount)
+    assert_select "td div.d-inline-flex a.btn-sm.btn-outline-primary", count: 1
+    assert_select "td div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
 
     pending_expense = create_expense(amount: 1_400_000, description: "Pendiente listado", money_source: @account)
     template = @user.recurring_templates.create!(
@@ -310,6 +398,18 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "table.table tbody tr", count: 5
     assert_select "table tbody tr", text: /Cuota 29/
     assert_select "table tbody tr", text: /Cuota 0/, count: 0
+  end
+
+  test "the reverse button warns about the expense deletion only where the payment created its expense" do
+    created = create_payment(create_expense(amount: 600_000, money_source: @account), @card, principal: 600_000)
+    created.update!(created_expense: true)
+    create_payment(create_expense(amount: 500_000, money_source: @account), @card, principal: 500_000)
+
+    get money_source_path(@card)
+
+    assert_response :success
+    assert_select "form button[data-confirm='#{I18n.t("payments.reverse_confirm_with_expense")}']", count: 1
+    assert_select "form button[data-confirm='#{I18n.t("payments.reverse_confirm")}']", count: 1
   end
 
   # -------------------------------------------- email end-to-end flow

@@ -34,7 +34,7 @@ class ExpenseDecoratorTest < ActiveSupport::TestCase
 
   test "source_name falls back to empty string" do
     with_source = ExpenseDecorator.new(create_expense(money_source: @account))
-    without_source = ExpenseDecorator.new(create_expense(money_source: nil))
+    without_source = ExpenseDecorator.new(Expense.new(money_source: nil))
 
     assert_equal "Cuenta", with_source.source_name
     assert_equal "", without_source.source_name

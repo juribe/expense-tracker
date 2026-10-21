@@ -68,12 +68,12 @@
     </div>
 
     <div class="card-footer bg-white d-flex justify-content-end d-print-none">
-      <div class="btn-group btn-group-sm">
-        <%= link_to edit_goal_path(goal), class: "btn btn-outline-primary", title: t("common.edit") do %>
+      <div class="d-inline-flex align-items-center gap-2">
+        <%= link_to edit_goal_path(goal), class: "btn btn-sm btn-outline-primary", title: t("common.edit") do %>
           <i class="ti ti-pencil"></i>
         <% end %>
         <%= button_to goal_path(goal), method: :delete, form: { data: { turbo: true } },
-                      class: "btn btn-outline-danger", data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
+                      class: "btn btn-sm btn-outline-danger", data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
           <i class="ti ti-trash"></i>
         <% end %>
       </div>

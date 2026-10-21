@@ -7,6 +7,7 @@ module Expenses
     setup do
       @user = User.create!(name: "Create User", email: "expenses_create_test@example.com", password: "password123")
       @category = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+      @money_source = @user.money_sources.create!(name: "Visa", kind: "account", starting_balance: 1_000_000)
     end
 
     def create(**overrides)
@@ -17,6 +18,7 @@ module Expenses
         category: "restaurants",
         occurred_at: Time.zone.parse("2026-08-23T14:30:00"),
         source: :gmail,
+        money_source: @money_source,
         **overrides
       )
     end
@@ -32,11 +34,19 @@ module Expenses
       assert_equal "Restaurante XYZ", expense.description
       assert_equal @category.id, expense.category_id
       assert_equal "expense", expense.kind
+      assert_equal @money_source, expense.money_source
     end
 
     test "stores the gmail message reference" do
       expense = create(gmail_message_id: "18f0c2abc")
       assert_equal "18f0c2abc", expense.gmail_message_id
+    end
+
+    test "rejects an expense without a money source" do
+      assert_no_difference -> { Expense.count } do
+        error = assert_raises(Expenses::Create::Invalid) { create(money_source: nil) }
+        assert_equal "money source is required", error.message
+      end
     end
 
     # Last-resort DB guard: one email must never produce two expenses with

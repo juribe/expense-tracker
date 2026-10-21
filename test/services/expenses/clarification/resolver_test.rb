@@ -687,6 +687,7 @@ module Expenses
         )
         # Resolved outside the conversation (e.g. confirmed in the web app):
         # the session stays pending but has nothing left to clarify.
+        candidate.update!(money_source: @davibank)
         candidate.confirm!
 
         outcome = Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "cualquier cosa")

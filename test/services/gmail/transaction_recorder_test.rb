@@ -80,11 +80,27 @@ module Gmail
       ActivityClassification.record!(user: @user, name: "EDS", category: transporte, source: "user")
       transaction = @transaction.merge(category: nil, merchant: "EDS")
 
-      result = recorder.call(transaction)
+      result = recorder.call(transaction, money_source: @money_source)
 
       assert result.expense?
       assert_equal transporte, result.expense.category
       assert_equal 0, ExpenseCandidate.where(user: @user).count
+    end
+
+    test "creates a candidate when no money source can be detected, even with a resolved category" do
+      result = nil
+
+      assert_no_difference -> { Expense.count } do
+        assert_difference -> { ExpenseCandidate.count }, 1 do
+          result = recorder.call(@transaction)
+        end
+      end
+
+      assert result.candidate?
+      assert_nil result.expense
+      assert_nil result.candidate.money_source
+      assert_equal "needs_review", result.candidate.status
+      assert_equal [ "money_source_id" ], result.candidate.missing_fields
     end
 
     test "accepts string-keyed transactions from the review payload" do

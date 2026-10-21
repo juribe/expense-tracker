@@ -12,6 +12,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
       password: "password123"
     )
     @category = Category.create!(user: @user, name: "Servicios")
+    @recon_source = @user.money_sources.create!(name: "Cuenta", kind: "account", active: false, starting_balance: 1_000_000_000)
     @template = RecurringTemplate.create!(
       user: @user,
       category: @category,
@@ -89,8 +90,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     )
     expense = @user.expenses.create!(
       category: @category, description: "Pago cuota", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     sign_in @user
     get reconciliation_path
 
@@ -109,7 +110,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
 
     @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
+      kind: "expense", source: "manual", date: Date.current, money_source: @recon_source
     ).tap do |expense|
       Expenses::RecurringAssignment.assign(user: @user, expense_id: expense.id, recurring_template_id: @template.id)
     end
@@ -152,12 +153,12 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "GET search_expenses returns matching expenses as JSON" do
     expense = @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "gmail", date: Date.current
-    )
+      kind: "expense", source: "gmail", date: Date.current,
+    money_source: @recon_source)
     @user.expenses.create!(
       category: @category, description: "Supermercado", amount: 320_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     sign_in @user
 
     get reconciliation_search_expenses_path, params: { q: "crédito carro", amount: "2818000" }
@@ -171,8 +172,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "search_expenses excludes expenses already linked to a template" do
     expense = @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "gmail", date: Date.current
-    )
+      kind: "expense", source: "gmail", date: Date.current,
+    money_source: @recon_source)
     expense.update!(recurring_template_id: @template.id)
     sign_in @user
 
@@ -185,8 +186,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "POST assign_payment links expense to template and refreshes state" do
     expense = @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     sign_in @user
 
     assert_difference -> { @template.transactions.count }, 1 do
@@ -201,12 +202,12 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "POST assign_payment with a taken period shows failure" do
     expense_one = @user.expenses.create!(
       category: @category, description: "Pago 1", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     expense_two = @user.expenses.create!(
       category: @category, description: "Pago duplicado", amount: 2_800_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     Expenses::RecurringAssignment.assign(user: @user, expense_id: expense_one.id, recurring_template_id: @template.id)
     sign_in @user
 
@@ -219,8 +220,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "POST assign_payment with an expense dated outside the period explains and does not link" do
     expense = @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "gmail", date: 1.month.ago.to_date
-    )
+      kind: "expense", source: "gmail", date: 1.month.ago.to_date,
+      money_source: @recon_source)
     sign_in @user
     get reconciliation_path # the user is already on the cuadre page before assigning
 
@@ -234,8 +235,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     # Retrying eventually with a same-period expense must work — no deadlock.
     in_period = @user.expenses.create!(
       category: @category, description: "Pago crédito carro octubre", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     post reconciliation_assign_payment_path(@template), params: { expense_id: in_period.id }
     assert_redirected_to reconciliation_path(period: Date.current.strftime("%Y-%m"))
     assert_equal @template.id, in_period.reload.recurring_template_id
@@ -245,8 +246,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "POST assign_payment twice with the same expense stays successful (idempotent retry)" do
     expense = @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
-    )
+      kind: "expense", source: "manual", date: Date.current,
+    money_source: @recon_source)
     sign_in @user
 
     2.times do
@@ -262,12 +263,12 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   test "search_expenses only returns expenses dated within the cuadre period" do
     in_period = @user.expenses.create!(
       category: @category, description: "Pago crédito carro", amount: 2_818_000,
-      kind: "expense", source: "gmail", date: Date.current
-    )
+      kind: "expense", source: "gmail", date: Date.current,
+    money_source: @recon_source)
     @user.expenses.create!(
       category: @category, description: "Pago crédito carro anterior", amount: 2_818_000,
-      kind: "expense", source: "gmail", date: 1.month.ago.to_date
-    )
+      kind: "expense", source: "gmail", date: 1.month.ago.to_date,
+      money_source: @recon_source)
     sign_in @user
 
     get reconciliation_search_expenses_path, params: { q: "crédito carro" }

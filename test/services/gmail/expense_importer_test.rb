@@ -66,7 +66,12 @@ module Gmail
       end
     end
 
+    def payment_source
+      @user.money_sources.create!(name: "Visa", kind: "credit_card", identifier: "1234")
+    end
+
     test "creates an expense and marks the email as processed" do
+      payment_source
       result = importer.call(@message)
 
       assert_equal :processed, result.status
@@ -84,6 +89,7 @@ module Gmail
     # Regression: dropping the imported expense used to destroy the marker row
     # (cascade), so the next sync re-imported the same message as a duplicate.
     test "skips a message whose imported expense was deleted by the user" do
+      payment_source
       first = importer.call(@message)
       assert_equal :processed, first.status
 
@@ -98,7 +104,7 @@ module Gmail
     end
 
     test "assigns the money source when exactly one source matches" do
-      source = @user.money_sources.create!(name: "Visa", kind: "credit_card", identifier: "1234")
+      source = payment_source
 
       result = importer.call(@message)
 
@@ -106,7 +112,7 @@ module Gmail
       assert_equal source, Expense.find(result.expense_ids.first).money_source
     end
 
-    test "does not auto-assign a money source when the match is ambiguous" do
+    test "routes an ambiguous money source match to the review candidates" do
       clasica = @user.money_sources.create!(name: "Source A", kind: "credit_card", identifier: "1111")
       clasica.ensure_recognition.replace_identifiers(keyword: [ "davibank" ])
       oro = @user.money_sources.create!(name: "Source B", kind: "credit_card", identifier: "2222")
@@ -117,10 +123,14 @@ module Gmail
       result = importer.call(@message)
 
       assert_equal :processed, result.status
-      assert_nil Expense.find(result.expense_ids.first).money_source
+      assert_empty result.expense_ids
+      candidate = ExpenseCandidate.where(user: @user).last
+      assert_not_nil candidate
+      assert_nil candidate.money_source
     end
 
     test "never processes the same message twice" do
+      payment_source
       importer.call(@message)
 
       result = importer.call(@message)
@@ -180,6 +190,7 @@ module Gmail
     end
 
     test "creates an expense and a candidate for a mixed email" do
+      payment_source
       extractor = FakeExtractor.new(
         {
           ok?: true,
@@ -276,6 +287,7 @@ module Gmail
     end
 
     test "handles multiple transactions in a single email" do
+      payment_source
       multi = importer(
         extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction(merchant: "Cafe X", amount: BigDecimal(9000.to_s)) ], should_ignore: false, reason: nil }, error: nil })
       )
@@ -314,6 +326,7 @@ module Gmail
     # extractor can return the same transaction as two entries. Only one
     # expense may be created per unique (amount, merchant, occurred_at).
     test "creates one expense when extraction returns the same transaction twice" do
+      payment_source
       duplicated = importer(
         extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction ], should_ignore: false, reason: nil }, error: nil })
       )
@@ -324,6 +337,7 @@ module Gmail
     end
 
     test "creates one expense when extraction repeats the transaction with different categories" do
+      payment_source
       duplicated = importer(
         extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction(category: "transportation") ], should_ignore: false, reason: nil }, error: nil })
       )
@@ -334,6 +348,7 @@ module Gmail
     end
 
     test "keeps genuinely distinct transactions in the same email" do
+      payment_source
       multi = importer(
         extractor: FakeExtractor.new({ ok?: true, data: { transactions: [ transaction, transaction(merchant: "Cafe X", amount: BigDecimal(9000.to_s)) ], should_ignore: false, reason: nil }, error: nil })
       )
@@ -355,6 +370,7 @@ module Gmail
     # Even if a duplicate expense somehow got created earlier, a fresh import
     # run must not add more expenses for the same message + amount + date.
     test "does not create a second expense with the same message id, amount and date" do
+      payment_source
       first = importer.call(@message)
       assert_equal :processed, first.status
 
@@ -408,7 +424,7 @@ module Gmail
       assert_equal oro, Expense.find(result.expense_ids.first).money_source
     end
 
-    test "ambiguous recognition without disambiguating digits leaves the expense unassigned" do
+    test "routes an ambiguous recognition without disambiguating digits to the review candidates" do
       clasica = @user.money_sources.create!(name: "Davibank Clásica", kind: "credit_card", identifier: "1111")
       clasica.ensure_recognition.replace_identifiers(domain: [ "davibank.com" ])
       oro = @user.money_sources.create!(name: "Davibank Oro", kind: "credit_card", identifier: "2222")
@@ -418,7 +434,8 @@ module Gmail
       result = importer(extractor: extractor).call(recognized_message)
 
       assert_equal :processed, result.status
-      assert_nil Expense.find(result.expense_ids.first).money_source
+      assert_empty result.expense_ids
+      assert_not_nil ExpenseCandidate.where(user: @user).last
     end
   end
 end

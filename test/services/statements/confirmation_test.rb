@@ -57,6 +57,25 @@ module Statements
       assert_equal "Pago Tarjeta Visa", payment_expense.description
     end
 
+    test "marks the imported payment as the creator of its payment expense" do
+      result = Statements::Confirmation.call(user: @user, money_source: @card,
+                                             movements: @movements, payment: @payment)
+
+      assert result.success?
+      assert result.result[:payment].created_expense?
+    end
+
+    test "rejects the whole import when the payment has no funding source" do
+      @payment["funding_money_source_id"] = ""
+
+      assert_no_difference [ "Expense.count", "Payment.count" ] do
+        result = Statements::Confirmation.call(user: @user, money_source: @card,
+                                               movements: @movements, payment: @payment)
+        assert result.failure?
+        assert result.errors.any?
+      end
+    end
+
     test "skips the payment when not requested" do
       @payment["register"] = "0"
 
@@ -112,14 +131,15 @@ module Statements
       assert result.errors.any?
     end
 
-    test "an unknown funding source id does not break the payment" do
+    test "an unknown funding source id rejects the payment" do
       @payment["funding_money_source_id"] = "999999"
 
       result = Statements::Confirmation.call(user: @user, money_source: @card,
                                              movements: @movements, payment: @payment)
 
-      assert result.success?
-      assert_nil result.result[:payment].expense.money_source_id
+      assert result.failure?
+      assert_equal 0, Payment.count
+      assert result.errors.any?
     end
 
     test "a funding source that cannot pay (a loan) is rejected" do

@@ -170,7 +170,8 @@ module Statements
       )
 
       result = Payments::Apply.call(user: @user, money_source: @money_source,
-                                    expense: expense, distribution: @payment)
+                                    expense: expense, distribution: @payment,
+                                    expense_created: true)
       raise RollbackWithErrors, result.errors unless result.success?
 
       result.result
@@ -188,7 +189,7 @@ module Statements
 
     def funding_source
       id = @payment["funding_money_source_id"].presence
-      return nil if id.nil?
+      raise RollbackWithErrors, [ I18n.t("statement_imports.payment_funding_invalid") ] if id.nil?
 
       source = @user.money_sources.find_by(id: id)
       return nil if source.nil?

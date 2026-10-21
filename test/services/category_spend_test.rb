@@ -14,11 +14,15 @@ class CategorySpendTest < ActiveSupport::TestCase
       category_type: "expense",
       user: @user
     )
+    @income_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 100_000_000)
     @month = Date.current
   end
 
   def create_expense(amount, date: @month, category: @category, user: @user)
-    Expense.create!(user: user, category: category, amount: amount, date: date, description: "test")
+    source = user.money_sources.first || user.money_sources.create!(name: "Cuenta #{SecureRandom.hex(4)}",
+                                                                    kind: "account", starting_balance: 100_000_000)
+    Expense.create!(user: user, category: category, amount: amount, date: date, description: "test",
+                    money_source: source)
   end
 
   test "sums expenses for the user, category and month as a positive value" do
@@ -49,7 +53,8 @@ class CategorySpendTest < ActiveSupport::TestCase
   end
 
   test "ignores income transactions" do
-    Transaction.create!(user: @user, category: @category, amount: 500_000, date: @month, kind: "income", source: "test")
+    Transaction.create!(user: @user, category: @category, amount: 500_000, date: @month, kind: "income",
+                        source: "test", money_source: @income_source)
 
     assert_equal 0.to_d, CategorySpend.call(user: @user, category: @category, month: @month)
   end

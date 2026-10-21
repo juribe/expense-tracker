@@ -488,9 +488,8 @@
     if (processForm) {
       processForm.addEventListener("submit", function (e) {
         var sourceSelect = $("#processMoneySource");
-        var isIncome = currentRow && currentRow.dataset.type === "income";
         var templateSource = currentRow ? (currentRow.dataset.moneySourceId || "") : "";
-        if (isIncome && !sourceSelect.value && !templateSource) {
+        if (!sourceSelect.value && !templateSource) {
           e.preventDefault();
           sourceSelect.classList.add("is-invalid");
         } else {

@@ -26,7 +26,8 @@ class ReportsOverviewTest < ActiveSupport::TestCase
   end
 
   def income(amount, date: Date.new(2026, 9, 5), user: @user)
-    Income.create!(user: user, category: @salary, amount: amount, date: date, description: "x")
+    Income.create!(user: user, category: @salary, amount: amount, date: date, description: "x",
+                   money_source: user.money_sources.first || @bank)
   end
 
   def loan_payment(expense, principal:, interest:, insurance: 0, other: 0)

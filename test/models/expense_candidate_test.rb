@@ -233,6 +233,7 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
   test "confirm! is idempotent" do
     candidate = build_candidate(
       category_id: @category.id,
+      money_source_id: @money_source.id,
       amount: 50_000,
       date: Date.current
     )

@@ -18,7 +18,8 @@ class BudgetsFlowTest < ActionDispatch::IntegrationTest
   end
 
   def create_expense(category, amount, date = @month)
-    Expense.create!(user: @user, category: category, amount: amount, date: date, description: "Test expense")
+    Expense.create!(user: @user, category: category, amount: amount, date: date, description: "Test expense",
+                    money_source: @money_source || (@money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)))
   end
 
   test "index renders budget cards with amounts, progress and on-track status" do

@@ -40,15 +40,15 @@
                 <td class="text-end"><%= number_to_currency(payment.insurance_amount) %></td>
                 <td class="text-end"><%= number_to_currency(payment.other_amount) %></td>
                 <td class="text-end">
-                  <div class="btn-group btn-group-sm">
+                  <div class="d-inline-flex align-items-center gap-2">
                     <%= link_to edit_money_source_payment_path(@money_source, payment),
-                                class: "btn btn-outline-primary", title: t("payments.edit") do %>
+                                class: "btn btn-sm btn-outline-primary", title: t("payments.edit") do %>
                       <i class="ti ti-pencil"></i>
                     <% end %>
                     <%= button_to money_source_payment_path(@money_source, payment), method: :delete,
                                   form_class: "d-inline",
-                                  class: "btn btn-outline-danger", title: t("payments.reverse"),
-                                  data: { confirm: t("payments.reverse_confirm") } do %>
+                                  class: "btn btn-sm btn-outline-danger", title: t("payments.reverse"),
+                                  data: { confirm: payment.created_expense? ? t("payments.reverse_confirm_with_expense") : t("payments.reverse_confirm") } do %>
                       <i class="ti ti-rotate-2"></i>
                     <% end %>
                   </div>

@@ -9,9 +9,10 @@ module Expenses
       @category = Category.create!(name: "Comida", user: @user, is_default: false, category_type: "expense")
       @other_category = Category.create!(name: "Otra", user: @user, is_default: false, category_type: "expense")
       @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
+      @card = MoneySource.create!(user: @user, name: "Tarjeta", kind: "credit_card", starting_balance: 0)
 
-      create_expense(date: Date.new(2026, 1, 15), amount: 50_000, description: "Almuerzo")
-      create_expense(date: Date.new(2026, 2, 10), amount: 80_000, description: "Cena", category: @category)
+      create_expense(date: Date.new(2026, 1, 15), amount: 50_000, description: "Almuerzo", money_source: @card)
+      create_expense(date: Date.new(2026, 2, 10), amount: 80_000, description: "Cena", category: @category, money_source: @card)
       create_expense(date: Date.new(2026, 3, 5), amount: 20_000, description: "Transporte", money_source: @account)
     end
 
@@ -27,7 +28,7 @@ module Expenses
           description: "Gasto",
           date: Date.current,
           source: "manual",
-          money_source: money_source
+          money_source: money_source || @account
         }.merge(overrides)
       )
     end

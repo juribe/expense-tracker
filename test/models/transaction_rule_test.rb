@@ -8,6 +8,7 @@ class TransactionRuleTest < ActiveSupport::TestCase
     @fitness = Category.create!(name: "Fitness", is_default: true, category_type: "expense")
     @transport = Category.create!(name: "Transportation", is_default: true, category_type: "expense")
     @entertainment = Category.create!(name: "Entertainment", is_default: true, category_type: "expense")
+    @default_money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
   end
 
   def create_rule(**overrides)
@@ -16,7 +17,7 @@ class TransactionRuleTest < ActiveSupport::TestCase
     )
   end
 
-  def create_expense(description:, category: @transport, amount: 50_000, user: @user, money_source: nil)
+  def create_expense(description:, category: @transport, amount: 50_000, user: @user, money_source: @default_money_source)
     Expense.create!(user: user, category: category, amount: amount, date: Date.current,
                     description: description, money_source: money_source)
   end
@@ -205,7 +206,7 @@ class TransactionRuleTest < ActiveSupport::TestCase
   test "applicator applies a rule to gmail-imported transactions once" do
     rule = create_rule
     expense = Expense.create!(user: @user, description: "SMARTFIT", amount: 50_000, date: Date.current,
-                              source: "gmail")
+                              source: "gmail", money_source: @default_money_source)
     assert_equal @fitness.id, expense.category_id
     assert_includes expense.applied_rule_ids, rule.id
 
@@ -249,7 +250,8 @@ class TransactionRuleTest < ActiveSupport::TestCase
   test "applicator keeps an ai-source parser category when no rule matches" do
     rule = create_rule(merchant_contains: nil, description_contains: "smartfit")
     expense = Expense.create!(user: @user, description: "Didi viaje", amount: 50_000,
-                              date: Date.current, source: "ai", category: @transport)
+                              date: Date.current, source: "ai", category: @transport,
+                              money_source: @default_money_source)
     assert_equal @transport.id, expense.category_id
     assert_empty expense.applied_rule_ids
   end
@@ -258,7 +260,7 @@ class TransactionRuleTest < ActiveSupport::TestCase
     rule = create_rule(merchant_contains: nil, description_contains: "didi")
     expense = Expense.create!(user: @user, description: "Didi viaje tarjeta visa",
                               amount: 50_000, date: Date.current, source: "ai",
-                              category: @transport)
+                              category: @transport, money_source: @default_money_source)
     assert_equal @fitness.id, expense.category_id
     assert_includes expense.applied_rule_ids, rule.id
   end
@@ -266,7 +268,8 @@ class TransactionRuleTest < ActiveSupport::TestCase
   test "manual-source expenses keep the explicitly chosen category" do
     rule = create_rule(merchant_contains: nil, description_contains: "didi")
     expense = Expense.create!(user: @user, description: "Didi viaje", amount: 50_000,
-                              date: Date.current, source: "manual", category: @transport)
+                              date: Date.current, source: "manual", category: @transport,
+                              money_source: @default_money_source)
     assert_equal @transport.id, expense.category_id
     assert_empty expense.applied_rule_ids
   end

@@ -6,6 +6,7 @@ class BudgetTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Test User", email: "budget_test@example.com", password: "password123")
     @category = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
+    @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)
     @month = Date.new(2026, 9, 1)
   end
 
@@ -15,8 +16,9 @@ class BudgetTest < ActiveSupport::TestCase
     )
   end
 
-  def create_expense(amount:, date:, category: @category)
-    Expense.create!(user: @user, category: category, amount: amount, date: date, description: "Test")
+  def create_expense(amount:, date:, category: @category, user: @user, money_source: @money_source)
+    Expense.create!(user: user, category: category, amount: amount, date: date, description: "Test",
+                    money_source: money_source)
   end
 
   test "is valid with required attributes" do
@@ -123,7 +125,7 @@ class BudgetTest < ActiveSupport::TestCase
   test "spent_for ignores expenses from other users" do
     budget = create_budget
     other_user = User.create!(name: "Other", email: "budget_spent_other@example.com", password: "password123")
-    Expense.create!(user: other_user, category: @category, amount: 900_000, date: @month)
+    Expense.create!(user: other_user, category: @category, amount: 900_000, date: @month, money_source: @money_source)
 
     assert_equal 0, budget.spent_for(@month)
   end

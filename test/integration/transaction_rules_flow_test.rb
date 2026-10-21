@@ -14,6 +14,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     @fitness = Category.create!(name: "Fitness", is_default: true, category_type: "expense")
     @transport = Category.create!(name: "Transportation", is_default: true, category_type: "expense")
     @entertainment = Category.create!(name: "Entertainment", is_default: true, category_type: "expense")
+    @rs = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
     sign_in @user
   end
 
@@ -36,7 +37,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
   test "index shows native suggestion from transaction history" do
     5.times do
       Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
-                      description: "smartfit bogotá")
+                      description: "smartfit bogotá", money_source: @rs)
     end
 
     get transaction_rules_path
@@ -49,7 +50,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
   test "manual expense creation applies an automatic rule to a blank category" do
     create_rule
     post expenses_path, params: {
-      expense: { description: "SMARTFIT Bogotá", amount: 50_000, date: "2026-09-01" }
+      expense: { description: "SMARTFIT Bogotá", amount: 50_000, date: "2026-09-01", money_source_id: @rs.id }
     }
     assert_redirected_to expenses_path
     expense = Expense.last
@@ -61,7 +62,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     create_rule
     post expenses_path, params: {
       expense: { description: "SMARTFIT Bogotá", amount: 50_000, date: "2026-09-01",
-                 category_id: @transport.id }
+                 category_id: @transport.id, money_source_id: @rs.id }
     }
     expense = Expense.last
     assert_equal @transport.id, expense.category_id
@@ -85,20 +86,20 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     create_rule(merchant_contains: "UBER", category_id: @transport.id, priority: 5)
     create_rule(merchant_contains: nil, description_contains: "pago", category_id: @fitness.id, priority: 1)
 
-    expense = Expense.create!(user: @user, description: "UBER pago", amount: 20_000, date: Date.current)
+    expense = Expense.create!(user: @user, description: "UBER pago", amount: 20_000, date: Date.current, money_source: @rs)
 
     assert_equal @transport.id, expense.category_id
   end
 
   test "gmail import path applies rules" do
     create_rule(merchant_contains: "NETFLIX", category_id: @entertainment.id)
-    expense = Expense.create!(user: @user, description: "NETFLIX", amount: 35_000, date: Date.current, source: "gmail")
+    expense = Expense.create!(user: @user, description: "NETFLIX", amount: 35_000, date: Date.current, source: "gmail", money_source: @rs)
     assert_equal @entertainment.id, expense.category_id
   end
 
   test "manual edits are never clobbered after a rule applied" do
     rule = create_rule
-    expense = Expense.create!(user: @user, description: "SMARTFIT", amount: 50_000, date: Date.current)
+    expense = Expense.create!(user: @user, description: "SMARTFIT", amount: 50_000, date: Date.current, money_source: @rs)
     assert_equal @fitness.id, expense.category_id
 
     patch expense_path(expense), params: { expense: { category_id: @entertainment.id } }
@@ -108,7 +109,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
   test "index shows a Dismiss button next to each suggestion" do
     5.times do
       Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
-                      description: "smartfit bogotá")
+                      description: "smartfit bogotá", money_source: @rs)
     end
 
     get transaction_rules_path
@@ -121,7 +122,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
   test "dismissing a suggestion removes it from the index" do
     5.times do
       Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
-                      description: "smartfit bogotá")
+                      description: "smartfit bogotá", money_source: @rs)
     end
 
     post dismiss_suggestion_transaction_rules_path, params: { merchant: "smartfit bogotá" }
@@ -135,7 +136,7 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
   test "creating a rule from a suggestion makes the suggestion disappear" do
     5.times do
       Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,
-                      description: "smartfit bogotá")
+                      description: "smartfit bogotá", money_source: @rs)
     end
 
     post transaction_rules_path, params: {

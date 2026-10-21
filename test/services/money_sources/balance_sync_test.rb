@@ -39,14 +39,6 @@ module MoneySources
       end
     end
 
-    test "expense without money source does not change any cached balance" do
-      source = create_source
-
-      assert_no_difference -> { source.reload.cached_balance } do
-        Transaction.create!(user: @user, category: @category, amount: -10, date: Date.today, kind: "expense", source: "manual")
-      end
-    end
-
     test "destroying an expense reverses the cached balance" do
       source = create_source
       expense = create_expense(source, 40)

@@ -143,7 +143,8 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
       description: "Almuerzo",
       amount: 50_000,
       date: Date.current,
-      category: category
+      category: category,
+      money_source: @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
     )
 
     delete whatsapp_settings_path

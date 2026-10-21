@@ -14,6 +14,7 @@ module Payments
         password: "password123"
       )
       @category = Category.create!(user: @user, name: "Servicios")
+      @account = MoneySource.create!(user: @user, name: "Cuenta", kind: "account", starting_balance: 10_000_000)
       @card = MoneySource.create!(user: @user, name: "TC Davibank", kind: "credit_card", starting_balance: 0)
       CreditAccount.create!(money_source: @card, credit_limit: 8_000_000)
       @loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan", starting_balance: 0)
@@ -40,7 +41,8 @@ module Payments
           amount: amount,
           kind: "expense",
           source: "manual",
-          date: Date.current
+          date: Date.current,
+          money_source: @account
         }.merge(attributes)
       )
     end

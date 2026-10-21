@@ -38,7 +38,8 @@ class WhatsappConnectionTest < ActiveSupport::TestCase
   test "disconnect! keeps the user's expenses" do
     category = Category.find_by(name: "Restaurants") ||
                Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
-    expense = @user.expenses.create!(description: "Almuerzo", amount: 50_000, date: Date.current, category: category)
+    expense = @user.expenses.create!(description: "Almuerzo", amount: 50_000, date: Date.current, category: category,
+                                     money_source: @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000))
     connection = WhatsappConnection.create!(user: @user, whatsapp_identity: @identity, connected_at: Time.current)
 
     connection.disconnect!

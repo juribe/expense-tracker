@@ -12,6 +12,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
       password: "password123"
     )
     @category = Category.create!(name: "Food", is_default: true, category_type: "expense")
+    @default_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
   end
 
   test "GET /dashboard renders for authenticated user" do
@@ -36,14 +37,15 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /dashboard with valid month loads that month's data" do
     sign_in @user
-    @user.expenses.create!(amount: 25.00, date: Date.new(2026, 3, 15), category: @category, description: "Lunch")
+    @user.expenses.create!(amount: 25.00, date: Date.new(2026, 3, 15), category: @category, description: "Lunch",
+                           money_source: @default_source)
     get dashboard_path, params: { month: "2026-03" }
     assert_response :success
   end
 
   test "GET /dashboard includes expense summary and budgets" do
     sign_in @user
-    @user.expenses.create!(amount: 10.00, date: Date.today, category: @category, description: "Coffee")
+    @user.expenses.create!(amount: 10.00, date: Date.today, category: @category, description: "Coffee", money_source: @default_source)
     get dashboard_path
     assert_response :success
     assert_select "[data-testid=table]", count: 0
@@ -53,9 +55,11 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     @user.update!(financial_cycle_start_day: 20)
     # Inside the cycle opened Oct 20 (a bill paid Nov 3).
-    @user.expenses.create!(amount: 500_000, date: Date.new(2026, 11, 3), category: @category, description: "Arriendo")
+    @user.expenses.create!(amount: 500_000, date: Date.new(2026, 11, 3), category: @category, description: "Arriendo",
+                           money_source: @default_source)
     # Calendar-month expense outside the cycle (belongs to the next cycle).
-    @user.expenses.create!(amount: 900_000, date: Date.new(2026, 11, 25), category: @category, description: "Fuera")
+    @user.expenses.create!(amount: 900_000, date: Date.new(2026, 11, 25), category: @category, description: "Fuera",
+                           money_source: @default_source)
 
     get dashboard_path, params: { cycle: "2026-11-2" }
 
@@ -109,7 +113,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /dashboard transactions card counts all the period's expenses, not just the recent 5" do
     sign_in @user
-    7.times { |i| @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "G#{i}") }
+    7.times { |i| @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "G#{i}", money_source: @default_source) }
 
     get dashboard_path
 
@@ -216,7 +220,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "GET /dashboard charts format money values with whole pesos" do
     sign_in @user
     @user.money_sources.create!(name: "Davibank", kind: "account", active: true)
-    @user.expenses.create!(amount: -1_234_567, date: Date.current, category: @category, description: "x")
+    @user.expenses.create!(amount: -1_234_567, date: Date.current, category: @category, description: "x", money_source: @default_source)
 
     get dashboard_path
 

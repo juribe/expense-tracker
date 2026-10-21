@@ -68,7 +68,8 @@ module Payments
           idempotency_key: @idempotency_key
         )
         result = Payments::Apply.call(user: @user, money_source: @money_source,
-                                      expense: expense, distribution: @distribution)
+                                      expense: expense, distribution: @distribution,
+                                      expense_created: true)
         raise Rollback, result.errors unless result.success?
 
         payment = result.result
@@ -111,11 +112,11 @@ module Payments
       Payment.find_by(expense_id: expense.id)
     end
 
-    # nil = no funding source (allowed); :invalid = a posted source that is not
-    # a usable payment source (a debt, an inactive source, or the paid debt).
+    # A payment must always know where its money came from; the missing
+    # source (and a debt / inactive source / the paid debt) both fail.
     def resolve_funding_source
       id = @funding_money_source_id.presence
-      return nil if id.nil?
+      return :invalid if id.nil?
 
       source = @user.money_sources.find_by(id: id)
       return :invalid if source.nil?

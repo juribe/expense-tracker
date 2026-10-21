@@ -47,6 +47,22 @@ module Payments
       assert_equal template.id, expense.reload.recurring_template_id
     end
 
+    test "marks the payment as the creator of its own expense" do
+      result = call
+
+      assert result.success?, result.errors.inspect
+      assert result.result.created_expense?
+    end
+
+    test "rejects a blank funding source without creating anything" do
+      assert_no_difference [ "Expense.count", "Payment.count" ] do
+        result = call(funding_money_source_id: nil)
+
+        assert result.failure?
+        assert result.errors.any?
+      end
+    end
+
     test "rolls back the expense when the distribution does not sum to the amount" do
       assert_no_difference [ "Expense.count", "Payment.count" ] do
         result = call(distribution: { principal_amount: "900.000" })

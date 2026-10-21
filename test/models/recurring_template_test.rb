@@ -6,6 +6,7 @@ require "test_helper"
 class RecurringTemplateTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Template User", email: "recurring_template_test@example.com", password: "password123")
+    @money_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000_000)
     @category = Category.create!(name: "Servicios", is_default: false, category_type: "expense", user: @user)
     @template = @user.recurring_templates.create!(
       category: @category, kind: "expense", amount: 50_000, frequency: "monthly",
@@ -19,7 +20,7 @@ class RecurringTemplateTest < ActiveSupport::TestCase
     assert_equal :pending, @template.status_for(cycle)
 
     @template.transactions.create!(user: @user, category: @category, amount: 50_000, date: Date.new(2026, 11, 3),
-                                   kind: "expense", source: "recurring_template")
+                                   kind: "expense", source: "recurring_template", money_source: @money_source)
 
     assert_equal :completed, @template.status_for(cycle)
   end
@@ -32,14 +33,14 @@ class RecurringTemplateTest < ActiveSupport::TestCase
     assert_equal :pending, @template.status_for(cycle)
 
     @template.transactions.create!(user: @user, category: @category, amount: 50_000, date: Date.new(2026, 11, 4),
-                                   kind: "expense", source: "recurring_template")
+                                   kind: "expense", source: "recurring_template", money_source: @money_source)
 
     assert_equal :completed, @template.status_for(cycle)
   end
 
   test "calendar month status is unaffected by the cycle extension" do
     @template.transactions.create!(user: @user, category: @category, amount: 50_000, date: Date.new(2026, 10, 15),
-                                   kind: "expense", source: "recurring_template")
+                                   kind: "expense", source: "recurring_template", money_source: @money_source)
 
     assert_equal :completed, @template.status_for("2026-10")
     assert_equal :pending, @template.status_for("2026-09")

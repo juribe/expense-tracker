@@ -55,11 +55,11 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <%= link_to category_badge(category), category_path(category), class: "text-decoration-none" %>
-              <div class="btn-group btn-group-sm d-print-none">
-                <%= link_to edit_category_path(category), class: "btn btn-outline-primary", title: t("common.edit"), aria: { label: t("categories.edit_aria", name: category.name) } do %>
+              <div class="d-inline-flex align-items-center gap-2 d-print-none">
+                <%= link_to edit_category_path(category), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("categories.edit_aria", name: category.name) } do %>
                   <i class="ti ti-pencil"></i>
                 <% end %>
-                <%= button_to category_path(category), method: :delete, class: "btn btn-outline-danger", title: t("common.delete"), aria: { label: t("categories.delete_aria", name: category.name) }, data: { confirm: t("common.confirm") }, form: { style: "display: inline-block" } do %>
+                <%= button_to category_path(category), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("categories.delete_aria", name: category.name) }, data: { confirm: t("common.confirm") }, form: { data: { turbo: true } } do %>
                   <i class="ti ti-trash"></i>
                 <% end %>
               </div>

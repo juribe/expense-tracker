@@ -6,6 +6,7 @@ class ProcessedEmailTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(name: "Processed Email User", email: "processed_email_test@example.com", password: "password123")
     @category = Category.create!(name: "Food PE", is_default: true, category_type: "expense")
+    @money_source = @user.money_sources.create!(name: "Cuenta PE", kind: "account", starting_balance: 100_000)
     @email = ProcessedEmail.new(
       user: @user,
       provider: "gmail",
@@ -50,7 +51,7 @@ class ProcessedEmailTest < ActiveSupport::TestCase
     @email.save!
     expense = Expense.create!(
       user: @user, category: @category, amount: 1_000, description: "Temporal",
-      date: Date.current, source: "gmail"
+      date: Date.current, source: "gmail", money_source: @money_source
     )
     @email.update!(expense_id: expense.id)
 

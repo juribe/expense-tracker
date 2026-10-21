@@ -56,11 +56,11 @@ module RecurringTemplateActions
       return
     end
 
-    # Income must land in an account/wallet/cash: without a money source the
-    # money would be recorded but never credited anywhere.
-    if @recurring_template.income? && money_source.nil? && @recurring_template.money_source.nil?
+    # The template is a reminder without an owning source; the real
+    # transaction this action creates (Pay or Receive) always needs one.
+    if money_source.nil? && @recurring_template.money_source.nil?
       redirect_to index_path,
-                  alert: t("recurring.invalid_payment_source"),
+                  alert: t("recurring.missing_money_source"),
                   status: :see_other
       return
     end

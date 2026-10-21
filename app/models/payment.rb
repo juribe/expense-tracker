@@ -26,6 +26,7 @@ class Payment < ApplicationRecord
   validate :expense_belongs_to_user
   validate :target_belongs_to_user
   validate :target_is_debt
+  validate :expense_has_money_source
   validate :amount_matches_expense
   validate :components_sum_to_amount
 
@@ -75,6 +76,15 @@ class Payment < ApplicationRecord
     return if money_source.nil?
 
     errors.add(:money_source, :not_debt) unless money_source.debt_payment_target?
+  end
+
+  # The payment's cash origin is the expense's money source: a payment over
+  # a source-less expense would reverse against an unknown funding account.
+  def expense_has_money_source
+    return if expense.nil?
+    return if expense.money_source_id.present?
+
+    errors.add(:expense, :payment_without_money_source)
   end
 
   def amount_matches_expense
