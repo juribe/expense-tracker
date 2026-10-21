@@ -14,7 +14,10 @@
 // #bulkCategoryModal with [data-movement-bulk-category] / [data-movement-bulk-apply].
 (function () {
   var FORM_SELECTOR = '[data-movement-form="true"]';
-  var PAY_FORM_SELECTOR = '[data-payment-distribution-form="true"]';
+  // The manual payment form (data-manual-payment-form) is owned by payments.js,
+  // which posts it itself; binding it here would send a second identical POST
+  // and duplicate every payment. Exclude it explicitly.
+  var PAY_FORM_SELECTOR = '[data-payment-distribution-form="true"]:not([data-manual-payment-form="true"])';
   var UPLOAD_FORM_SELECTOR = '[data-upload-form="true"]';
 
   function csrfToken() {

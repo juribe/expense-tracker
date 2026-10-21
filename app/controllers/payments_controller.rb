@@ -58,6 +58,7 @@ class PaymentsController < ApplicationController
       description: attributes[:description],
       category_id: attributes[:category_id],
       funding_money_source_id: attributes[:funding_money_source_id],
+      idempotency_key: attributes[:idempotency_key],
       distribution: attributes.slice(:principal_amount, :interest_amount, :insurance_amount, :other_amount)
     )
 
@@ -125,8 +126,9 @@ class PaymentsController < ApplicationController
   # distribution components the payment is split into.
   def manual_payment_params
     params.require(:payment).permit(:amount, :date, :description, :category_id,
-                                    :funding_money_source_id, :principal_amount,
-                                    :interest_amount, :insurance_amount, :other_amount)
+                                    :funding_money_source_id, :idempotency_key,
+                                    :principal_amount, :interest_amount,
+                                    :insurance_amount, :other_amount)
   end
 
   def load_manual_form_data

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -819,9 +819,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_000000) do
     t.jsonb "applied_rule_ids", default: [], null: false
     t.uuid "rule_id"
     t.jsonb "tags", default: [], null: false
+    t.boolean "recurring_paid_in_full", default: false, null: false
+    t.uuid "idempotency_key"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
     t.index ["gmail_message_id"], name: "index_transactions_on_gmail_message_id"
+    t.index ["idempotency_key"], name: "index_transactions_on_idempotency_key", unique: true
     t.index ["kind"], name: "index_transactions_on_kind"
     t.index ["money_source_id"], name: "index_transactions_on_money_source_id"
     t.index ["recurring_template_id"], name: "index_transactions_on_recurring_template_id"

@@ -1,13 +1,16 @@
 <%= form_with url: create_manual_money_source_payments_path(@money_source), method: :post,
       scope: :payment,
-      html: { data: { payment_distribution_form: true,
-                      manual_payment_form: true,
+       html: { data: { turbo: false,
+                       payment_distribution_form: true,
+                       manual_payment_form: true,
                       manual_failed: t("payments.manual.failed"),
                       manual_busy_label: t("payments.manual.processing"),
                       payment_warning_empty: t("payments.form.total_empty"),
                       payment_warning_short: t("payments.form.total_short", missing: "__MISSING__"),
                       payment_warning_over: t("payments.form.total_over", extra: "__EXTRA__") } } do |f| %>
   <div class="alert alert-danger d-none" role="alert" data-manual-error data-testid="manual-payment-error"></div>
+  <%= hidden_field_tag "payment[idempotency_key]", nil, id: "manual_idempotency_key",
+        data: { idempotency_key: true, testid: "manual-idempotency-key" } %>
 
   <div class="row">
     <div class="col-md-6 mb-3">

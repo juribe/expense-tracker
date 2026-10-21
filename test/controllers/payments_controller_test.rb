@@ -168,6 +168,29 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal template.id, expense.recurring_template_id
   end
 
+  test "POST create_manual with the same idempotency key twice creates a single payment" do
+    category = create_category
+    idempotency_key = SecureRandom.uuid
+
+    2.times do
+      post create_manual_money_source_payments_path(@mortgage), as: :json, params: {
+        payment: {
+          amount: "1.500.000", date: Date.current.to_s, description: "Idempotente",
+          category_id: category.id, funding_money_source_id: @account.id,
+          principal_amount: "1.500.000", idempotency_key: idempotency_key
+        }
+      }
+      assert_response :success
+      body = JSON.parse(response.body)
+      assert_equal true, body["ok"]
+      assert_equal money_source_path(@mortgage), body["redirect_url"]
+    end
+
+    assert_equal 1, Payment.where(money_source: @mortgage).count
+    assert_equal 1, Expense.where(description: "Idempotente").count
+    assert_equal idempotency_key, Expense.where(description: "Idempotente").pick(:idempotency_key)
+  end
+
   test "POST create_manual rejects a distribution that does not sum to the amount" do
     assert_no_difference -> { Expense.count } do
       assert_no_difference -> { Payment.count } do

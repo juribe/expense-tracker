@@ -74,5 +74,63 @@ module Payments
         assert result.failure?
       end
     end
+
+    test "is idempotent when the same idempotency key arrives twice" do
+      key = SecureRandom.uuid
+
+      first = call(idempotency_key: key)
+      assert first.success?, first.errors.inspect
+
+      assert_no_difference [ "Expense.count", "Payment.count" ] do
+        second = call(idempotency_key: key)
+
+        assert second.success?, second.errors.inspect
+        assert_equal first.result.id, second.result.id
+      end
+    end
+
+    test "creates separate payments when idempotency keys differ" do
+      assert_difference [ "Expense.count", "Payment.count" ], 2 do
+        first = call(idempotency_key: SecureRandom.uuid)
+        second = call(idempotency_key: SecureRandom.uuid)
+
+        assert first.success?
+        assert second.success?
+        refute_equal first.result.id, second.result.id
+      end
+    end
+
+    test "survives concurrent duplicate requests with the same idempotency key" do
+      self.use_transactional_tests = false
+      key = SecureRandom.uuid
+      results = []
+      start_gate = Queue.new
+
+      threads = Array.new(2) do
+        Thread.new do
+          start_gate.push(1)
+          start_gate.pop
+          results << call(idempotency_key: key)
+        rescue => e
+          results << e
+        end
+      end
+      threads.each(&:join)
+
+      assert_equal 1, Expense.where(idempotency_key: key).count, "exactly one expense per key"
+      assert_equal 1, Payment.count, "exactly one payment per key"
+      errors = results.grep(StandardError)
+      assert_empty errors, "threads raised: #{errors.map(&:message).inspect}"
+      payment_ids = results.map(&:result).map(&:id).uniq
+      assert_equal [ first_payment_id(key) ].uniq, payment_ids, "both requests resolve to the same payment"
+    ensure
+      Payment.where(money_source_id: @mortgage.id).destroy_all
+      Expense.where(idempotency_key: key).destroy_all
+      self.use_transactional_tests = true
+    end
+
+    def first_payment_id(key)
+      Payment.joins(:expense).find_by(expense: { idempotency_key: key })&.id
+    end
   end
 end

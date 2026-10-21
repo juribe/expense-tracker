@@ -18,15 +18,16 @@ module Payments
   class CreateManual
     class << self
       def call(user:, money_source:, amount:, date:, description:, category_id:,
-               distribution: {}, funding_money_source_id: nil)
+               distribution: {}, funding_money_source_id: nil, idempotency_key: nil)
         new(user: user, money_source: money_source, amount: amount, date: date,
             description: description, category_id: category_id, distribution: distribution,
-            funding_money_source_id: funding_money_source_id).call
+            funding_money_source_id: funding_money_source_id,
+            idempotency_key: idempotency_key).call
       end
     end
 
     def initialize(user:, money_source:, amount:, date:, description:, category_id:,
-                   distribution: {}, funding_money_source_id: nil)
+                   distribution: {}, funding_money_source_id: nil, idempotency_key: nil)
       @user = user
       @money_source = money_source
       @amount = amount
@@ -35,6 +36,7 @@ module Payments
       @category_id = category_id
       @distribution = (distribution || {}).to_h
       @funding_money_source_id = funding_money_source_id
+      @idempotency_key = UuidParams.normalize(idempotency_key)
     end
 
     def call
@@ -46,6 +48,13 @@ module Payments
       funding = resolve_funding_source
       return ServiceResult.error([ I18n.t("payments.manual.funding_invalid") ]) if funding == :invalid
 
+      # The browser can repeat this request (double submit, retry, stale JS):
+      # a key already used by this user means the payment is done — return it
+      # instead of charging the same payment twice.
+      if (existing = payment_for_key)
+        return ServiceResult.success(existing)
+      end
+
       payment = nil
       ActiveRecord::Base.transaction do
         expense = Expenses::Create.call(
@@ -55,7 +64,8 @@ module Payments
           category: category,
           occurred_at: @date,
           source: "manual",
-          money_source: funding
+          money_source: funding,
+          idempotency_key: @idempotency_key
         )
         result = Payments::Apply.call(user: @user, money_source: @money_source,
                                       expense: expense, distribution: @distribution)
@@ -68,6 +78,11 @@ module Payments
       ServiceResult.error([ e.message ])
     rescue Rollback => e
       ServiceResult.error(e.errors)
+    rescue ActiveRecord::RecordNotUnique
+      # Two identical concurrent requests: the unique index on
+      # transactions.idempotency_key let only one create the expense.
+      existing = payment_for_key
+      existing ? ServiceResult.success(existing) : raise
     end
 
     private
@@ -83,6 +98,17 @@ module Payments
 
     def description_text
       @description.presence || I18n.t("payments.description_fallback")
+    end
+
+    # The expense (with its payment) created for this idempotency key, if any.
+    # Nothing else can claim the same key: the unique index enforces it.
+    def payment_for_key
+      return nil if @idempotency_key.blank?
+
+      expense = Transaction.find_by(user: @user, idempotency_key: @idempotency_key)
+      return nil unless expense
+
+      Payment.find_by(expense_id: expense.id)
     end
 
     # nil = no funding source (allowed); :invalid = a posted source that is not

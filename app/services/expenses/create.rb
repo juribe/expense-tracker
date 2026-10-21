@@ -20,7 +20,7 @@ module Expenses
       new(**kwargs).call
     end
 
-    def initialize(user:, amount:, description:, category:, occurred_at:, source:, gmail_message_id: nil, money_source: nil)
+    def initialize(user:, amount:, description:, category:, occurred_at:, source:, gmail_message_id: nil, money_source: nil, idempotency_key: nil)
       @user = user
       @amount = amount
       @description = description
@@ -29,6 +29,7 @@ module Expenses
       @source = source
       @gmail_message_id = gmail_message_id
       @money_source = money_source
+      @idempotency_key = idempotency_key
     end
 
     def call
@@ -42,7 +43,8 @@ module Expenses
         date: parse_date!,
         source: normalize_source!,
         gmail_message_id: @gmail_message_id.presence,
-        money_source: @money_source
+        money_source: @money_source,
+        idempotency_key: @idempotency_key
       ).tap(&:save!)
     end
 

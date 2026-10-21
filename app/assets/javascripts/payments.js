@@ -107,6 +107,21 @@
   // The manual payment form creates the expense + payment in the background so
   // the modal can show validation errors inline and only leaves the page on
   // success (where the balance and history refresh).
+  // Idempotency: the server refuses to create the same payment twice when the
+  // same key arrives again (double submit, retry, or a stale script). Each
+  // open of the modal starts a fresh key; retries of one submission keep it.
+  function newIdempotencyKey() {
+    return window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : null;
+  }
+
+  function startIdempotencyKey(form) {
+    var input = form.querySelector("[data-idempotency-key]");
+    if (!input) return null;
+    var key = newIdempotencyKey();
+    if (key) input.value = key;
+    return key;
+  }
+
   function bindManualForm(form) {
     if (form.dataset.manualPaymentBound === "true") return;
     form.dataset.manualPaymentBound = "true";
@@ -118,6 +133,15 @@
     var failed = form.dataset.manualFailed || "";
     var busyLabel = form.dataset.manualBusyLabel || "";
     if (label) label.dataset.idleLabel = label.textContent;
+
+    var modal = form.closest(".modal");
+    if (modal) {
+      modal.addEventListener("show.bs.modal", function () {
+        startIdempotencyKey(form);
+      });
+    } else {
+      startIdempotencyKey(form);
+    }
 
     function setBusy(busy) {
       form.dataset.manualSubmitting = busy ? "true" : "false";
@@ -136,6 +160,10 @@
     }
 
     form.addEventListener("submit", function (event) {
+      if (form.dataset.manualSubmitting === "true") {
+        event.preventDefault();
+        return;
+      }
       if (!window.fetch) return; // progressive enhancement: fall back to a plain submit
       event.preventDefault();
       if (error) error.classList.add("d-none");
