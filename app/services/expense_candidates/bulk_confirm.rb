@@ -45,10 +45,13 @@ module ExpenseCandidates
         return self
       end
 
-      user.expense_candidates.where(id: parsed_ids).find_each do |candidate|
-        candidate.update(category_id: category_id, money_source_id: money_source_id) if category_id || money_source_id
-        candidate.recalculate_missing_fields!
-        candidate.recalculate_status!
+       user.expense_candidates.where(id: parsed_ids).find_each do |candidate|
+         updates = {}
+         updates[:category_id] = category_id if category_id.present?
+         updates[:money_source_id] = money_source_id if money_source_id.present?
+         candidate.update(updates) if updates.any?
+         candidate.recalculate_missing_fields!
+         candidate.recalculate_status!
 
         if candidate.missing_fields.any?
           @errors << {
