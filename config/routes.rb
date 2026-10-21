@@ -149,6 +149,8 @@ Rails.application.routes.draw do
     get "/transactions", to: "reports/transactions#index", as: :transactions
   end
 
+  post "imports/upload", to: "imports#upload", as: :import_upload
+  get "imports/preview", to: "imports#preview", as: :import_preview
   resources :imports, only: [ :new, :create ]
 
   # Gmail expense import

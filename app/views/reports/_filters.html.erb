@@ -1,6 +1,6 @@
 <%# Filters card: title block + two-row chip grid + actions, composable with
     the period. locals: path %>
-<%= form_with url: path, method: :get, local: true do %>
+<%= form_with url: path, method: :get, local: true do |form| %>
   <%= hidden_field_tag :period, params[:period] || "this_month" %>
   <% if params[:period] == "custom" %>
     <%= hidden_field_tag :start_date, params[:start_date] %>
@@ -20,12 +20,13 @@
         <i class="ti ti-tag"></i>
         <div class="flex-grow-1 min-w-0">
           <div class="chip-label"><%= t("common.category") %></div>
-          <%= select_tag :category_id,
-                options_for_select(category_options, params[:category_id]),
-                include_blank: t("reports.filters.all_f", default: "Todas"),
-                class: "form-select" %>
+          <%= category_picker form, :category_id, user_expense_categories,
+                              value: params[:category_id],
+                              include_blank: t("reports.filters.all_f", default: "Todas"),
+                              label: nil,
+                              id: "category_id",
+                              testid: "reports-category-picker" %>
         </div>
-        <i class="ti ti-chevron-down text-muted" style="font-size: 0.7rem;"></i>
       </div>
 
       <div class="filter-chip">

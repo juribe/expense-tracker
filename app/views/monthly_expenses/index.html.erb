@@ -20,9 +20,24 @@
   <div class="card mb-4">
     <div class="card-body">
       <%= form_with url: monthly_expenses_path, method: :get, class: "row g-3 align-items-end", data: { testid: "filter-form" } do |f| %>
+        <%= f.hidden_field :sort, value: @sort %>
+        <%= f.hidden_field :dir, value: @direction %>
         <div class="col-12 col-md-4 col-lg-2">
           <%= f.label :status, t("common.status"), class: "form-label" %>
           <%= f.select :status, options_for_select([[t("common.all"), "all"], [t("monthly_expenses.paid", default: "Pagados"), "completed"], [t("statuses.pending"), "pending"]], @status_filter), {}, class: "form-select" %>
+        </div>
+        <div class="col-12 col-md-4 col-lg-3">
+          <%= f.label :category_id, t("recurring.filter_category", default: "Categoría"), class: "form-label" %>
+          <%= f.select :category_id,
+                       options_from_collection_for_select(@filter_categories, :id, :name, params[:category_id]),
+                       { include_blank: t("common.all") },
+                       class: "form-select", "data-testid": "category-filter" %>
+        </div>
+        <div class="col-12 col-md-4 col-lg-3">
+          <%= f.label :query, t("recurring.filter_description", default: "Descripción"), class: "form-label" %>
+          <%= f.text_field :query, value: params[:query], class: "form-control",
+                                   placeholder: t("recurring.filter_description_hint", default: "Buscar en la descripción…"),
+                                   "data-testid": "description-filter", autocomplete: "off" %>
         </div>
         <div class="col-12 d-flex gap-2">
           <%= f.submit t("common.filter"), class: "btn btn-outline-primary" %>
@@ -59,12 +74,11 @@
         <table class="table table-hover ledger-table align-middle mb-0" data-testid="recurring-table">
           <thead class="table-light">
             <tr>
-              <th scope="col"><%= t("common.category") %></th>
-              <th scope="col"><%= t("common.description") %></th>
-              <th scope="col" class="text-end"><%= t("monthly_incomes.columns.monthly_amount") %></th>
-              <th scope="col" class="d-none d-md-table-cell"><%= t("recurring.expected_payment_day") %></th>
-              <th scope="col" class="d-none d-md-table-cell"><%= t("monthly_expenses.last_paid", default: "Último pago") %></th>
-              <th scope="col"><%= t("common.status") %></th>
+              <th scope="col"><%= recurring_sort_link("category", @sort, @direction) { t("common.category") } %></th>
+              <th scope="col"><%= recurring_sort_link("description", @sort, @direction) { t("common.description") } %></th>
+              <th scope="col" class="text-end"><%= recurring_sort_link("amount", @sort, @direction) { t("monthly_incomes.columns.monthly_amount") } %></th>
+              <th scope="col" class="text-end d-none d-md-table-cell"><%= recurring_sort_link("payment_day", @sort, @direction) { t("recurring.expected_payment_day") } %></th>
+              <th scope="col"><%= recurring_sort_link("status", @sort, @direction) { t("common.status") } %></th>
               <th scope="col" class="text-end"><%= t("common.actions") %></th>
             </tr>
           </thead>
@@ -86,14 +100,7 @@
                 <td><%= category_badge(rt.category) %></td>
                 <td><%= rt.description.presence || content_tag(:span, t("recurring.no_description"), class: "text-muted") %></td>
                 <td class="text-end amount"><%= number_to_currency(rt.signed_amount) %></td>
-                <td class="d-none d-md-table-cell"><%= rt.payment_day %></td>
-                <td class="d-none d-md-table-cell">
-                  <% if (last = rt.last_occurrence) %>
-                    <%= l(last.date, format: :long) %>
-                  <% else %>
-                    <span class="text-secondary">&mdash;</span>
-                  <% end %>
-                </td>
+                <td class="text-end num d-none d-md-table-cell"><%= rt.payment_day %></td>
                 <td data-testid="status">
                   <% case status %>
                   <% when :pending %>
@@ -123,8 +130,10 @@
                   </button>
                   <% if status == :pending %>
                     <button type="button" class="btn btn-primary btn-sm" data-testid="process"
+                            aria-label="<%= t("monthly_expenses.pay", default: "Pagar") %>"
+                            title="<%= t("monthly_expenses.pay", default: "Pagar") %>"
                             onclick="RecurringUI.openProcessModal(this.closest('tr'))">
-                      <i class="ti ti-coin me-1"></i><%= t("monthly_expenses.pay", default: "Pagar") %>
+                      <i class="ti ti-coin"></i>
                     </button>
                   <% elsif status == :completed %>
                     <button type="button" class="btn btn-outline-secondary btn-sm disabled" data-testid="process-disabled"
@@ -211,7 +220,7 @@
 <!-- Pay confirmation modal -->
 <div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processTitle" aria-hidden="true"
      data-testid="process-modal">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog">
     <div class="modal-content">
       <form id="processForm" method="post" data-turbo="false">
         <div class="modal-header">
@@ -219,19 +228,19 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("common.category") %></label>
             <p class="form-control-plaintext fw-bold" id="processCategory"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("common.description") %></label>
             <p class="form-control-plaintext" id="processDescription"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("recurring.configured_amount") %></label>
             <p class="form-control-plaintext" id="processConfiguredAmount"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="processMoneySource" class="form-label"><%= t("recurring.process_money_source") %></label>
             <select class="form-select" id="processMoneySource" name="money_source_id">
               <option value=""><%= t("recurring.process_money_source_default") %></option>
@@ -241,11 +250,11 @@
             </select>
             <div class="form-text"><%= t("recurring.process_money_source_hint") %></div>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="processDate" class="form-label"><%= t("recurring.transaction_date") %></label>
             <input type="date" class="form-control" id="processDate" name="date" required>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="processAmount" class="form-label"><%= t("common.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
@@ -349,7 +358,7 @@
       row.dataset.description || "";
 
     $("#recurring_template_amount").value =
-      row.dataset.amount;
+      String(row.dataset.amount).replace(".", ",");
 
     if (window.MoneyInputs) {
       window.MoneyInputs.formatField(
@@ -386,8 +395,6 @@
       initModals();
       currentRow = row;
 
-      $("#processTitle").textContent = "Confirm Pay";
-      $("#processConfirm").textContent = "Pay";
       $("#processCategory").textContent =
         row.querySelector("td .badge").textContent;
       $("#processDescription").textContent = row.cells[1].textContent.trim();
@@ -396,7 +403,8 @@
       var today = new Date();
       var pad = function (n) { return String(n).padStart(2, "0"); };
       $("#processDate").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
-      $("#processAmount").value = parseFloat(row.dataset.amount).toFixed(2);
+      $("#processAmount").value =
+        Number(row.dataset.amount).toFixed(2).replace(".", ",");
       if (window.MoneyInputs) window.MoneyInputs.formatField($("#processAmount"), true);
 
       // Preselect the template's source, but only when it is one of the

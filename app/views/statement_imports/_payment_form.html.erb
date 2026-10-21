@@ -2,9 +2,10 @@
 <% if suggestion %>
   <%= form_with url: pay_money_source_statement_imports_path(@money_source),
                 local: true,
+                scope: :payment,
                 data: { payment_distribution_form: true,
                         payment_error_message: t("statement_imports.payment_failed"),
-                        payment_busy_label: t("statement_imports.payment_processing") } do %>
+                        payment_busy_label: t("statement_imports.payment_processing") } do |form| %>
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title"><i class="ti ti-coin me-2"></i><%= t("statement_imports.payment_title") %></h5>
@@ -30,11 +31,12 @@
           </div>
 
           <div class="col-12 mb-3">
-            <%= label_tag "payment_category", t("common.category"), class: "form-label" %>
-            <%= select_tag "payment[category_id]",
-                  options_for_select(user_expense_category_options, nil),
-                  { include_blank: t("statement_imports.payment_category_placeholder"),
-                    class: "form-select", id: "payment_category", required: true } %>
+            <%= category_picker form, :category_id, user_expense_categories,
+                                label: t("common.category"),
+                                include_blank: t("statement_imports.payment_category_placeholder"),
+                                required: true,
+                                id: "payment_category",
+                                testid: "statement-payment-category-picker" %>
           </div>
 
           <div class="col-12 mb-3">

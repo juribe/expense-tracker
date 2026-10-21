@@ -69,10 +69,6 @@ module ReportsHelper
     "#{base} (#{cycle.label})"
   end
 
-  def category_options
-    @category_options ||= current_user.present? ? Category.for_user_and_type(current_user, "expense").pluck(:name, :id) : []
-  end
-
   def money_source_options
     @money_source_options ||= current_user.present? ? current_user.money_sources.active.order(:kind, :name).map { |s| [ s.name, s.id ] } : []
   end

@@ -630,6 +630,59 @@
  * ------------------------------------------------- */
 .category-picker {
   position: relative;
+  --category-picker-border: #cbd7e3;
+  --category-picker-bg: #fff;
+  --category-picker-icon: #71839a;
+  --category-picker-focus: #73baf9;
+  --category-picker-focus-shadow: #e9f4ff;
+}
+
+[data-bs-theme="dark"] .category-picker {
+  --category-picker-border: var(--bs-border-color);
+  --category-picker-bg: var(--bs-body-bg);
+  --category-picker-icon: var(--bs-secondary-color);
+  --category-picker-focus: var(--bs-primary);
+  --category-picker-focus-shadow: var(--bs-primary-bg-subtle);
+}
+
+/* Shared look for every category dropdown: 43px control, flat search icon
+   and a borderless caret button, matching the expenses filter. */
+.category-picker .input-group {
+  height: 43px;
+  border: 1px solid var(--category-picker-border);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--category-picker-bg);
+}
+
+.category-picker .input-group:focus-within {
+  border-color: var(--category-picker-focus);
+  box-shadow: 0 0 0 3px var(--category-picker-focus-shadow);
+}
+
+.category-picker .input-group-text {
+  background: var(--category-picker-bg);
+  border: 0;
+  color: var(--category-picker-icon);
+}
+
+.category-picker .input-group input {
+  border: 0;
+  height: 100%;
+  min-width: 0;
+  font-size: 14px;
+  background: transparent;
+  color: var(--bs-body-color);
+  box-shadow: none !important;
+}
+
+.category-picker .input-group .btn {
+  border: 0;
+  background: transparent;
+  color: var(--category-picker-icon);
+  box-shadow: none !important;
+  /* Match the select caret: chevron ~11px from the control's right edge. */
+  padding: 0 10px !important;
 }
 
 /* The prompt ("Todas las Categorías") is a placeholder, so it would sit on
@@ -687,6 +740,12 @@
 
 .category-picker__feedback {
   display: block;
+}
+
+/* Keep the open listbox visible when the picker lives inside a scrollable
+   table; normal horizontal scrolling returns when it closes. */
+.table-responsive--picker-open {
+  overflow: visible;
 }
 
 /* -------------------------------------------------

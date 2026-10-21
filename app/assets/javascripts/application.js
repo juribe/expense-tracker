@@ -1133,6 +1133,13 @@
       form.addEventListener("submit", function (event) {
         if (!self.validate()) event.preventDefault();
       });
+
+      // form.reset() restores the select without firing change, so the
+      // visible label and the highlighted option would keep the category
+      // picked in a previous use of the form (modal create after edit).
+      form.addEventListener("reset", function () {
+        window.setTimeout(function () { self.syncFromSelect(); }, 0);
+      });
     }
 
     this.syncFromSelect();
@@ -1149,6 +1156,7 @@
 
     this.listbox.hidden = false;
     this.input.setAttribute("aria-expanded", "true");
+    this.toggleScrollContainer(true);
     this.renderActive();
   };
 
@@ -1156,7 +1164,15 @@
     this.listbox.hidden = true;
     this.input.setAttribute("aria-expanded", "false");
     this.input.removeAttribute("aria-activedescendant");
+    this.toggleScrollContainer(false);
     this.setActive(-1);
+  };
+
+  // A picker inside a scrollable table would have its listbox clipped by the
+  // wrapper's overflow. Let it escape while open and restore scrolling after.
+  CategoryPicker.prototype.toggleScrollContainer = function (open) {
+    var wrapper = this.container.closest(".table-responsive");
+    if (wrapper) wrapper.classList.toggle("table-responsive--picker-open", open);
   };
 
   // Filters every option by its server-rendered search text. The list keeps

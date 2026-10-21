@@ -109,10 +109,9 @@ module ApplicationHelper
     end
   end
 
-  # The user's expense-type categories as [name, id] option pairs, used by the
-  # statement import review and the payment block.
-  def user_expense_category_options
-    Category.for_user_and_type(current_user, "expense").pluck(:name, :id)
+  # The user's expense categories as records, for the searchable picker.
+  def user_expense_categories
+    @user_expense_categories ||= current_user.present? ? Category.for_user_and_type(current_user, "expense") : []
   end
 
   def active_class(controller)

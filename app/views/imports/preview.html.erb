@@ -1,0 +1,93 @@
+<div class="container-fluid py-4" style="max-width: 960px; margin: 0 auto;" data-testid="import-preview"
+     data-imports-preview="true">
+  <% ready_rows = @rows.select { |row| row["status"] == "ok" } %>
+  <% error_rows = @rows.select { |row| row["status"] == "error" } %>
+
+  <%= form_with url: imports_path, local: true, id: "importPreviewForm" do |form| %>
+    <div class="card border-0">
+      <div class="card-header">
+        <h4 class="mb-0">
+          <i class="ti ti-upload me-2"></i><%= t("imports.preview.title", default: "Vista previa del import") %>
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
+          <div>
+            <span class="me-1"><%= t("imports.preview.summary_ready", default: "Listas para importar:") %></span>
+            <span class="badge bg-success" data-testid="preview-ready-count"><%= ready_rows.size %></span>
+            <span class="ms-3 me-1"><%= t("imports.preview.summary_error", default: "Con error:") %></span>
+            <span class="badge bg-danger" data-testid="preview-error-count"><%= error_rows.size %></span>
+          </div>
+          <small class="text-secondary d-none d-md-inline">
+            <%= t("imports.preview.skip_hint", default: "Las filas con categoría sin resolver se omitirán al confirmar.") %>
+          </small>
+        </div>
+
+        <% unless error_rows.empty? %>
+          <div class="alert alert-warning py-2" role="alert">
+            <i class="ti ti-alert-triangle me-2"></i><%= t("imports.preview.fix_hint", default: "En las filas marcadas elige la categoría correcta antes de confirmar.") %>
+          </div>
+        <% end %>
+
+        <div class="table-responsive">
+          <table class="table table-hover ledger-table align-middle mb-0" data-testid="preview-table">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" class="d-none d-md-table-cell">#</th>
+                <th scope="col"><%= t("common.category") %></th>
+                <th scope="col"><%= t("common.description") %></th>
+                <th scope="col" class="text-end"><%= t("common.amount") %></th>
+                <th scope="col" class="d-none d-md-table-cell"><%= t("imports.fields.payment_day", default: "día de pago") %></th>
+                <th scope="col" class="d-none d-md-table-cell"><%= t("imports.fields.kind", default: "tipo") %></th>
+                <th scope="col"><%= t("imports.preview.status_column", default: "Estado") %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @rows.each do |row| %>
+                <tr data-testid="preview-row"
+                    data-row-id="<%= row["id"] %>"
+                    data-status="<%= row["status"] %>">
+                  <td class="d-none d-md-table-cell text-secondary"><%= row["row_number"] %></td>
+                  <td class="preview-category-cell">
+                    <% if import_category_fixable?(row) %>
+                      <%= select_tag "category_ids[#{row["id"]}]",
+                                     options_for_select(@category_options[row["kind"]], row["category_id"]),
+                                     prompt: t("imports.preview.choose_category", default: "Elegir categoría…"),
+                                     class: "form-select form-select-sm import-category-select",
+                                     "data-testid": "preview-category-select" %>
+                    <% end %>
+                    <% if row["status"] == "error" %>
+                      <div class="small text-danger mt-1"><%= row["error"] %></div>
+                    <% end %>
+                  </td>
+                  <td><%= row["description"] %></td>
+                  <td class="text-end num"><%= import_preview_money(row) %></td>
+                  <td class="d-none d-md-table-cell"><%= row["payment_day"] || "—" %></td>
+                  <td class="d-none d-md-table-cell"><%= import_kind_badge(row) %></td>
+                  <td>
+                    <span data-testid="preview-row-status"
+                          class="badge <%= row["status"] == "ok" ? "bg-success" : "bg-secondary" %>"
+                          data-label-ready="<%= t("imports.preview.status_ready", default: "Lista") %>"
+                          data-label-error="<%= t("imports.preview.status_error", default: "Con error") %>">
+                      <%= row["status"] == "ok" ? t("imports.preview.status_ready", default: "Lista") : t("imports.preview.status_error", default: "Con error") %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <%= link_to new_import_path, class: "btn btn-outline-secondary" do %>
+          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
+        <% end %>
+        <%= form.submit t("imports.preview.import_button", default: "Importar plantillas"),
+                        class: "btn btn-primary",
+                        data: { testid: "confirm-import" } %>
+      </div>
+    </div>
+  <% end %>
+</div>

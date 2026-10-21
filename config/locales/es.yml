@@ -1556,6 +1556,9 @@ es:
     delete_confirmation_body: "La configuración y su historial se eliminarán permanentemente. Esta acción no se puede deshacer."
 
   recurring:
+    filter_category: "Categoría"
+    filter_description: "Descripción"
+    filter_description_hint: "Buscar en la descripción…"
     process: "Procesar"
     confirm_receive: "Confirmar Recibo"
     back: "Volver"
@@ -1856,6 +1859,39 @@ es:
 
   imports:
     file_required: "Selecciona un archivo CSV."
+    review_button: "Revisar importación"
+    default_category_help: "Si una fila no resuelve su categoría con el CSV, se usará esta (si su tipo coincide)."
+    preview:
+      title: "Vista previa del import"
+      summary_ready: "Listas para importar:"
+      summary_error: "Con error:"
+      skip_hint: "Las filas con categoría sin resolver se omitirán al confirmar."
+      fix_hint: "En las filas marcadas elige la categoría correcta antes de confirmar."
+      status_column: "Estado"
+      status_ready: "Lista"
+      status_error: "Con error"
+      choose_category: "Elegir categoría…"
+      import_button: "Importar plantillas"
+      kind_expense: "Gasto"
+      kind_income: "Ingreso"
+    row_error: "Fila %{row}: %{message}"
+    row_error: "Fila %{row}: %{message}"
+    missing_category: "la categoría \"%{name}\" no existe"
+    category_required: "la categoría es requerida"
+    missing_amount: "el monto es requerido"
+    invalid_kind: "el tipo debe ser ingreso o gasto"
+    no_rows: "El archivo no contiene filas para importar."
+    csv_template: "categoría,tipo,monto,descripción,día de pago,activo"
+    fields:
+      category: "categoría"
+      kind: "tipo"
+      amount: "monto"
+      description: "descripción"
+      payment_day: "día de pago"
+      active: "activo"
+    value_hints:
+      kind: "ingreso/gasto"
+      active: "verdadero/falso"
 
   gmail_messages:
     oauth_error: "Error de Google OAuth: %{message}"

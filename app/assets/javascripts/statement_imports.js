@@ -75,7 +75,7 @@
 
     fillTemplate(modal.querySelector("[data-movement-bulk-count]"), selectedRows(scope).length);
     var category = modal.querySelector("[data-movement-bulk-category]");
-    if (category) category.value = "";
+    if (category) window.CategoryPicker.setValue(category, "");
     window.bootstrap.Modal.getOrCreateInstance(modal).show();
   }
 
@@ -88,8 +88,7 @@
       var select = row.querySelector("[data-movement-category='true']");
       if (!select) return;
 
-      select.value = category.value;
-      select.dispatchEvent(new Event("change", { bubbles: true }));
+      window.CategoryPicker.setValue(select, category.value);
     });
 
     window.bootstrap.Modal.getOrCreateInstance(modal).hide();
@@ -133,7 +132,7 @@
         error.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       var firstSelect = invalid[0].querySelector("[data-movement-category='true']");
-      if (firstSelect) firstSelect.focus({ preventScroll: true });
+      if (firstSelect) window.CategoryPicker.focus(firstSelect);
     });
 
     scope.addEventListener("change", function (event) {

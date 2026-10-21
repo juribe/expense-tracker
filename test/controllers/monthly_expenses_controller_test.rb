@@ -83,4 +83,78 @@ class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to monthly_expenses_path
     assert_equal I18n.t("recurring.invalid_payment_source"), flash[:alert]
   end
+
+  test "index sorts by monthly amount when requested" do
+    @user.recurring_templates.create!(category: @category, kind: "expense", amount: 10_000,
+                                      frequency: "monthly", source: "manual", payment_day: 5,
+                                      description: "Netflix")
+    @user.recurring_templates.create!(category: @category, kind: "expense", amount: 90_000,
+                                      frequency: "monthly", source: "manual", payment_day: 2,
+                                      description: "Zapatero")
+
+    get monthly_expenses_path(sort: "amount", dir: "asc")
+    assert_equal ["Netflix", "Cuota Vehículo", "Zapatero"], rendered_descriptions
+
+    get monthly_expenses_path(sort: "amount", dir: "desc")
+    assert_equal ["Zapatero", "Cuota Vehículo", "Netflix"], rendered_descriptions
+  end
+
+  test "index sorts by category, payment day and status" do
+    other_category = Category.create!(name: "Ocio Monthly Exp", is_default: false,
+                                      category_type: "expense", user: @user)
+    @user.recurring_templates.create!(category: other_category, kind: "expense",
+                                      amount: 10_000, frequency: "monthly",
+                                      source: "manual", payment_day: 5,
+                                      description: "Cine")
+    @user.recurring_templates.create!(category: @category, kind: "expense", amount: 33_000,
+                                      frequency: "monthly", source: "manual", payment_day: 28,
+                                      description: "Peluquería")
+
+    get monthly_expenses_path(sort: "category", dir: "asc")
+    rendered = rendered_descriptions
+    assert rendered.index("Cine") < rendered.index("Peluquería"),
+           "category asc should group Ocio entries first: #{rendered.inspect}"
+
+    get monthly_expenses_path(sort: "payment_day", dir: "desc")
+    rendered = rendered_descriptions
+    assert rendered.index("Peluquería") < rendered.index("Cine"),
+           "day desc should list day 28 before day 5: #{rendered.inspect}"
+
+    patch toggle_active_monthly_expense_path(
+      @user.recurring_templates.find_by!(description: "Peluquería")
+    )
+    get monthly_expenses_path(sort: "status", dir: "asc")
+    rendered = rendered_descriptions
+    assert_equal "Peluquería", rendered.last,
+                 "status asc should list the inactive template last: #{rendered.inspect}"
+  end
+
+  test "index filters by category and description" do
+    @user.recurring_templates.create!(category: @category, kind: "expense", amount: 10_000,
+                                      frequency: "monthly", source: "manual", payment_day: 5,
+                                      description: "Netflix")
+
+    get monthly_expenses_path(category_id: @category.id)
+    assert_equal 2, row_ids.size
+
+    get monthly_expenses_path(query: "Vehículo")
+    assert_equal ["Cuota Vehículo"], rendered_descriptions
+
+    get monthly_expenses_path(query: "vEhículo")
+    assert_equal ["Cuota Vehículo"], rendered_descriptions
+
+    get monthly_expenses_path(query: "100%_match")
+    assert_equal [], rendered_descriptions
+  end
+
+  private
+
+  def row_ids
+    css_select('tr[data-testid="recurring-row"]').map { |tr| tr["data-id"] }
+  end
+
+  def rendered_descriptions
+    templates = @user.recurring_templates.index_by(&:id)
+    row_ids.map { |id| templates[id]&.description }
+  end
 end

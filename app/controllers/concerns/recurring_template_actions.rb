@@ -85,16 +85,21 @@ module RecurringTemplateActions
 
   private
 
+  SORTABLE_COLUMNS = %w[category description amount payment_day status].freeze
+
   def set_categories
     @categories = Category.for_user(current_user)
   end
 
   def load_index_data
-    @recurring_templates = current_user.recurring_templates
-                                       .includes(:category)
-                                       .where(kind: template_kind)
-                                       .ordered
+    @sort = params[:sort].presence.in?(SORTABLE_COLUMNS) ? params[:sort] : nil
+    @direction = params[:dir] == "desc" ? "desc" : "asc"
+    @recurring_templates = filtered_sorted_templates
     @current_period = current_listing_period
+
+    if @sort == "status"
+      @recurring_templates = @recurring_templates.to_a.sort_by { |rt| [status_sort_rank(rt), rt.description.to_s, rt.payment_day.to_i, rt.id] }
+    end
 
     # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
     # payment sources — loans are never recipients of an income nor payers.
@@ -105,8 +110,44 @@ module RecurringTemplateActions
       @recurring_templates = @recurring_templates.select { |rt| rt.status_for(@current_period).to_s == @status_filter }
     end
 
+    @filter_categories = Category.for_user_and_type(current_user, template_kind)
     @total_count = @recurring_templates.size
     @filtered_total = @recurring_templates.sum(&:signed_amount)
+  end
+
+  def filtered_sorted_templates
+    scope = current_user.recurring_templates
+                        .includes(:category)
+                        .where(kind: template_kind)
+
+    if params[:category_id].present?
+      scope = scope.where(category_id: params[:category_id])
+    end
+
+    if params[:query].present?
+      scope = scope.where("description ILIKE ?", "%#{like_escape(params[:query])}%")
+    end
+
+    case @sort
+    when "category"
+      scope.order("categories.name #{@direction}").references(:category)
+    when "description"
+      scope.order(description: @direction)
+    when "amount"
+      scope.order(amount: @direction)
+    when "payment_day"
+      scope.order(payment_day: @direction)
+    else
+      scope.ordered
+    end
+  end
+
+  def status_sort_rank(template)
+    { "pending" => 0, "completed" => 1, "inactive" => 2 }.fetch(template.status_for(@current_period).to_s, 3)
+  end
+
+  def like_escape(value)
+    value.gsub(/[%_\\]/) { |char| "\\#{char}" }
   end
 
   # The period the listing judges pending/completed against: a pay cycle

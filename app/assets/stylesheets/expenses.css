@@ -210,49 +210,6 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   height: 43px;
 }
 
-.expenses-filter-actions .btn-outline-secondary {
-  border-color: #dbe4ee;
-  color: #6f7f93;
-}
-
-/* Mockup look for the category picker inside the filters panel: same 43px
-   control height as the rest of the fields, flat icon and caret button. */
-.expenses-filters .category-picker .input-group {
-  height: 43px;
-  border: 1px solid #cbd7e3;
-  border-radius: 9px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.expenses-filters .category-picker .input-group:focus-within {
-  border-color: #73baf9;
-  box-shadow: 0 0 0 3px #e9f4ff;
-}
-
-.expenses-filters .category-picker .input-group-text {
-  background: #fff;
-  border: 0;
-  color: #71839a;
-}
-
-.expenses-filters .category-picker .input-group input {
-  border: 0;
-  height: 100%;
-  min-width: 0;
-  font-size: 14px;
-  box-shadow: none !important;
-}
-
-.expenses-filters .category-picker .input-group .btn {
-  border: 0;
-  background: transparent;
-  color: #71839a;
-  box-shadow: none !important;
-  /* Match the select caret: chevron ~11px from the control's right edge. */
-  padding: 0 10px !important;
-}
-
 .expenses-active-filters {
   display: flex;
   flex-wrap: wrap;

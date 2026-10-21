@@ -32,6 +32,7 @@ class CategoryPickerField
     @describedby = options[:aria_describedby]
     @field_class = options[:class].to_s
     @testid = options[:testid]
+    @select_data = options[:data]
     @field_id = options[:id] || form.field_id(method)
     @value = options[:value]
   end
@@ -70,6 +71,7 @@ class CategoryPickerField
       aria: { hidden: true },
       tabindex: -1
     }
+    options[:data] = @select_data if @select_data.present?
     options[:disabled] = true if disabled
     options
   end

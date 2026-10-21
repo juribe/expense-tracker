@@ -1,6 +1,6 @@
 <%= form_with url: confirm_money_source_statement_imports_path(@money_source),
               local: true,
-              data: { movement_form: true } do %>
+              data: { movement_form: true } do |form| %>
   <div class="card">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-start">
@@ -65,12 +65,13 @@
                     <td><%= candidate.description %></td>
                     <td class="text-end fw-bold"><%= number_to_currency(candidate.amount.to_d.abs) %></td>
                     <td>
-                      <%= select_tag "movements[#{index}][category_id]",
-                            options_for_select(user_expense_category_options, candidate.category_id),
-                            include_blank: t("statement_imports.category_pending"),
-                            aria: { label: t("common.category") },
-                            class: "form-select form-select-sm",
-                            data: { movement_category: true } %>
+                      <%= category_picker form, :"movements[#{index}][category_id]", user_expense_categories,
+                                          value: candidate.category_id,
+                                          include_blank: t("statement_imports.category_pending"),
+                                          label: nil,
+                                          id: "movement_category_#{index}",
+                                          testid: "movement-category-picker-#{index}",
+                                          data: { movement_category: true } %>
                     </td>
                     <td>
                       <% if candidate.duplicate_kind == :in_statement %>
@@ -126,11 +127,12 @@
       <div class="modal-body">
         <p class="text-secondary mb-3" data-movement-bulk-count
            data-template="<%= t("statement_imports.selected_count", count: "__COUNT__") %>"></p>
-        <label for="bulkCategorySelect" class="form-label"><%= t("common.category") %></label>
-        <select id="bulkCategorySelect" class="form-select" data-movement-bulk-category>
-          <option value=""><%= t("statement_imports.bulk_category_placeholder") %></option>
-          <%= options_for_select(user_expense_category_options) %>
-        </select>
+        <%= category_picker_tag user_expense_categories,
+                                label: t("common.category"),
+                                include_blank: t("statement_imports.bulk_category_placeholder"),
+                                id: "bulkCategorySelect",
+                                testid: "movement-bulk-category-picker",
+                                data: { movement_bulk_category: true } %>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
