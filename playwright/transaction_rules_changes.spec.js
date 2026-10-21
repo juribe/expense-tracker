@@ -6,7 +6,7 @@ test.describe('suggested rules – dismiss and create from suggestion', () => {
   async function createExpense(page, category, description) {
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('50.00');
-    await page.locator('#expense_date').fill('2023-11-15');
+    await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill(description);
     await pickCategory(page, 'expense_category_id', category);
     await page.getByRole('button', { name: 'Guardar' }).click();

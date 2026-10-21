@@ -5,7 +5,7 @@ const { pickCategory } = require('./helpers/category_picker');
 async function createExpense(page, { amount, description, date, moneySourceLabel }) {
   await page.goto('/expenses/new');
   await page.locator('#expense_amount').fill(String(amount));
-  await page.locator('#expense_date').fill(date || '2025-07-01');
+  await page.locator('#expense_date').fill(date || '01/07/2025');
   await page.locator('#expense_description').fill(description);
   if (moneySourceLabel) {
     await page.locator('#expense_money_source_id').selectOption({ label: moneySourceLabel });

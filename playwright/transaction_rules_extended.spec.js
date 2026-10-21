@@ -5,7 +5,7 @@ const { pickCategory } = require('./helpers/category_picker');
 async function createExpense(page, { amount, description, date }) {
   await page.goto('/expenses/new');
   await page.locator('#expense_amount').fill(String(amount));
-  await page.locator('#expense_date').fill(date || '2025-06-15');
+  await page.locator('#expense_date').fill(date || '15/06/2025');
   await page.locator('#expense_description').fill(description);
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page).toHaveURL(/\/expenses$/);

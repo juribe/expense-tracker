@@ -16,7 +16,7 @@ test.describe('monthly reports are working', () => {
 
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('1250');
-    await page.locator('#expense_date').fill('2023-01-15');
+    await page.locator('#expense_date').fill('15/01/2023');
     await page.locator('#expense_description').fill('January rent');
     await page.getByRole('button', { name: 'Guardar' }).click();
 

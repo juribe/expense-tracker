@@ -18,9 +18,9 @@ test.describe('expense bulk selection bar', () => {
     await signUp(page);
     const cat = `Food-${Date.now()}`;
     await createCategory(page, cat);
-    await createExpense(page, { amount: '10.00', date: '2025-01-10', description: 'Alpha expense', categoryName: cat });
-    await createExpense(page, { amount: '20.00', date: '2025-01-11', description: 'Beta expense', categoryName: cat });
-    await createExpense(page, { amount: '30.00', date: '2025-01-12', description: 'Gamma expense', categoryName: cat });
+    await createExpense(page, { amount: '10.00', date: '10/01/2025', description: 'Alpha expense', categoryName: cat });
+    await createExpense(page, { amount: '20.00', date: '11/01/2025', description: 'Beta expense', categoryName: cat });
+    await createExpense(page, { amount: '30.00', date: '12/01/2025', description: 'Gamma expense', categoryName: cat });
   });
 
   test('bulk bar is always visible even with nothing selected', async ({ page }) => {

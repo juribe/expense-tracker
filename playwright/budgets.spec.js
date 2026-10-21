@@ -41,7 +41,7 @@ function previousMonthDate() {
   const y = now.getFullYear();
   const m = now.getMonth();
   const last = new Date(y, m, 0);
-  return `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}-01`;
+  return `${String(last.getDate()).padStart(2, '0')}/${String(last.getMonth() + 1).padStart(2, '0')}/${last.getFullYear()}`;
 }
 
 test.describe('category budgets are working', () => {

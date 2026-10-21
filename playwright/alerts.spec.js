@@ -9,12 +9,12 @@ function alertBell(page) {
 function previousMonthDate() {
   const now = new Date();
   const prev = new Date(now.getFullYear(), now.getMonth() - 1, 15);
-  return `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}-15`;
+  return `${String(prev.getDate()).padStart(2, '0')}/${String(prev.getMonth() + 1).padStart(2, '0')}/${prev.getFullYear()}`;
 }
 
 function todayDate() {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 }
 
 async function createExpense(page, { amount, date, category, description }) {

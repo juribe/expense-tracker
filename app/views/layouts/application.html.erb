@@ -33,6 +33,7 @@
     <%= stylesheet_link_tag :playground, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :financial_chat, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :reports, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "flatpickr/flatpickr.min.css", "data-turbo-track": "reload" %>
   </head>
 
   <body>
@@ -96,6 +97,9 @@
     <%= javascript_include_tag "debt_capacity", defer: true %>
     <%= javascript_include_tag "credits", defer: true %>
     <%= javascript_include_tag "application", defer: true %>
+    <%= javascript_include_tag "flatpickr/flatpickr.min.js", defer: true %>
+    <%= javascript_include_tag "flatpickr/es.js", defer: true %>
+    <%= javascript_include_tag "datepicker", defer: true %>
     <%= javascript_include_tag "expense_drawer", defer: true %>
     <%= javascript_include_tag "payments", defer: true %>
     <%= javascript_include_tag "statement_imports", defer: true %>

@@ -10,7 +10,7 @@ test.describe('expense pages are working', () => {
   test('user can create a new expense', async ({ page }) => {
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('45.20');
-    await page.locator('#expense_date').fill('2023-11-15');
+    await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill('Grocery shopping');
     await page.getByRole('button', { name: 'Guardar' }).click();
 
@@ -29,7 +29,7 @@ test.describe('expense pages are working', () => {
   test('user can update an expense', async ({ page }) => {
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('15.50');
-    await page.locator('#expense_date').fill('2023-10-25');
+    await page.locator('#expense_date').fill('25/10/2023');
     await page.locator('#expense_description').fill('Lunch at cafe');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Lunch at cafe');
@@ -47,7 +47,7 @@ test.describe('expense pages are working', () => {
   test('user can delete an expense', async ({ page }) => {
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('15.50');
-    await page.locator('#expense_date').fill('2023-10-25');
+    await page.locator('#expense_date').fill('25/10/2023');
     await page.locator('#expense_description').fill('Lunch at cafe');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Lunch at cafe');

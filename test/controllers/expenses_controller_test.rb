@@ -421,6 +421,20 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_not @controller.view_assigns["recurring_templates"].any? { |t| t.money_source&.debt_payment_target? }
   end
 
+  test "GET /expenses eager loads recurring-template categories (no N+1)" do
+    template_for(amount: 12_000)
+    template_for(amount: 33_000)
+
+    Bullet.enable = true
+    Bullet.raise = true
+    get expenses_path
+
+    assert_response :success
+  ensure
+    Bullet.enable = false
+    Bullet.raise = false
+  end
+
   test "POST /expenses/assign_recurring rejects an inactive template" do
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000, active: false)

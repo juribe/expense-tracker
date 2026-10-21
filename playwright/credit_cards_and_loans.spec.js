@@ -83,8 +83,8 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.locator('#money_source_credit_account_attributes_installment_amount').fill('1800000');
     await page.locator('#money_source_credit_account_attributes_installment_count').fill('72');
     await page.locator('#money_source_credit_account_attributes_payment_frequency').selectOption('monthly');
-    await page.locator('#money_source_credit_account_attributes_start_date').fill('2025-01-01');
-    await page.locator('#money_source_credit_account_attributes_end_date').fill('2030-12-31');
+    await page.locator('#money_source_credit_account_attributes_start_date').fill('01/01/2025');
+    await page.locator('#money_source_credit_account_attributes_end_date').fill('31/12/2030');
     await page.locator('#money_source_active').check();
     await page.locator('form input[type="submit"]').click();
 

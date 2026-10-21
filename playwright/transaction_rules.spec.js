@@ -38,7 +38,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
 
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('45.20');
-    await page.locator('#expense_date').fill('2023-11-15');
+    await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill('SMARTFIT Bogotá');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses$/);
