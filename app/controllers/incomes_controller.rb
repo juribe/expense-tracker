@@ -3,7 +3,7 @@
 class IncomesController < ApplicationController
   # GET /incomes or /incomes.json
   def index
-    @incomes = Income.for_user(current_user).recent(50)
+    @incomes = Income.for_user(current_user).includes(:category).recent(50)
     @cycle_filter = Reports::Period.cycles_enabled?(current_user) ? PayCycle.current(current_user) : nil
   end
 
@@ -27,6 +27,29 @@ class IncomesController < ApplicationController
       @money_sources = money_in_sources
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def edit
+    @income = current_user.incomes.find(params[:id])
+    @categories = Category.for_user(current_user)
+    @money_sources = money_in_sources
+  end
+
+  def update
+    @income = current_user.incomes.find(params[:id])
+    if @income.update(income_params)
+      redirect_to incomes_path, notice: t("incomes.flashes.updated")
+    else
+      @categories = Category.for_user(current_user)
+      @money_sources = money_in_sources
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @income = current_user.incomes.find(params[:id])
+    @income.destroy
+    redirect_to incomes_path, notice: t("incomes.flashes.deleted")
   end
 
   private

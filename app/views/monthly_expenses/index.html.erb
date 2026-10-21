@@ -89,8 +89,9 @@
                   data-id="<%= rt.id %>"
                   data-category-id="<%= rt.category_id %>"
                   data-description="<%= rt.description %>"
-                  data-amount="<%= rt.amount %>"
-                  data-payment-day="<%= rt.payment_day %>"
+                   data-amount="<%= rt.amount %>"
+                   data-paid-amount="<%= rt.paid_amount_for_period(@current_period) %>"
+                   data-payment-day="<%= rt.payment_day %>"
                   data-active="<%= rt.active? %>"
                   data-type="<%= rt.kind %>"
                   data-edit-url="<%= monthly_expense_path(rt) %>"
@@ -252,9 +253,9 @@
           </div>
           <div class="mb-1">
             <label for="processDate" class="form-label"><%= t("recurring.transaction_date") %></label>
-            <input type="date" class="form-control" id="processDate" name="date" required>
+            <input type="date" class="form-control" id="processDate" name="date" value="<%= Date.current %>" required>
           </div>
-          <div class="mb-1">
+           <div class="mb-1">
             <label for="processAmount" class="form-label"><%= t("common.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
@@ -262,6 +263,14 @@
                      inputmode="decimal" autocomplete="off" data-money-input="true" required>
             </div>
             <div class="form-text"><%= t("recurring.amount_hint") %></div>
+          </div>
+          <div class="mb-1">
+            <label class="form-label text-muted small mb-0"><%= t("recurring.paid_so_far", default: "Pagado hasta ahora") %></label>
+            <p class="form-control-plaintext" id="processPaidSoFar">$0</p>
+          </div>
+          <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="processMarkAsPaid" name="mark_as_paid" value="1">
+            <label class="form-check-label small" for="processMarkAsPaid"><%= t("recurring.mark_as_paid", default: "Marcar como pagado") %></label>
           </div>
         </div>
         <div class="modal-footer">
@@ -400,11 +409,19 @@
       $("#processDescription").textContent = row.cells[1].textContent.trim();
       $("#processConfiguredAmount").textContent = row.cells[2].textContent.trim();
 
+      var configuredAmount = Number(row.dataset.amount) || 0;
+      var paidSoFar = Number(row.dataset.paidAmount) || 0;
+      var remaining = Math.max(configuredAmount - paidSoFar, 0);
+      if (remaining <= 0) remaining = configuredAmount;
+      $("#processPaidSoFar").textContent = "$" + paidSoFar.toFixed(2);
+      var markCheckbox = $("#processMarkAsPaid");
+      if (markCheckbox) markCheckbox.checked = false;
+
       var today = new Date();
       var pad = function (n) { return String(n).padStart(2, "0"); };
       $("#processDate").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
       $("#processAmount").value =
-        Number(row.dataset.amount).toFixed(2).replace(".", ",");
+        remaining.toFixed(2).replace(".", ",");
       if (window.MoneyInputs) window.MoneyInputs.formatField($("#processAmount"), true);
 
       // Preselect the template's source, but only when it is one of the

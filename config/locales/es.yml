@@ -1499,6 +1499,8 @@ es:
   incomes:
     flashes:
       created: "Ingreso creado exitosamente."
+      updated: "Ingreso actualizado exitosamente."
+      deleted: "Ingreso eliminado exitosamente."
     count:
       one: "%{count} ingreso"
       other: "%{count} ingresos"

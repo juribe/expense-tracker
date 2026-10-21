@@ -83,13 +83,9 @@ module Payments
     def usable_templates
       candidates = user.recurring_templates.active.expense
 
-      covered = Transaction.where(
-        user_id: user.id,
-        recurring_template_id: candidates,
-        date: month_range
-      ).distinct.pluck(:recurring_template_id)
+      fully_paid_ids = candidates.select { |template| template.fully_paid_for_period?(month_range) }.map(&:id)
 
-      candidates.where.not(id: covered)
+      candidates.where.not(id: fully_paid_ids)
     end
 
     # Same debt source: pick the amount-nearest template, but only when it is

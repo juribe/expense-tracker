@@ -32,9 +32,10 @@
             <tr>
               <th scope="col"><%= t("incomes.index.columns.date") %></th>
               <th scope="col"><%= t("incomes.index.columns.category") %></th>
-              <th scope="col"><%= t("incomes.index.columns.description") %></th>
-              <th scope="col" class="text-end"><%= t("incomes.index.columns.amount") %></th>
-            </tr>
+               <th scope="col"><%= t("incomes.index.columns.description") %></th>
+               <th scope="col" class="text-end"><%= t("incomes.index.columns.amount") %></th>
+               <th scope="col" class="text-end"><%= t("common.actions") %></th>
+             </tr>
           </thead>
           <tbody>
             <% @incomes.each do |income| %>
@@ -48,8 +49,18 @@
                     <span class="text-muted"><%= t("incomes.index.no_description") %></span>
                   <% end %>
                 </td>
-                <td class="text-end fw-bold amount text-success"><%= number_to_currency(income.amount) %></td>
-              </tr>
+                 <td class="text-end fw-bold amount text-success"><%= number_to_currency(income.amount) %></td>
+                 <td class="text-end text-nowrap">
+                   <%= link_to edit_income_path(income), class: "btn btn-sm btn-outline-primary me-1" do %>
+                     <i class="ti ti-pencil"></i>
+                   <% end %>
+                   <%= button_to income_path(income), method: :delete, class: "btn btn-sm btn-outline-danger",
+                                 data: { turbo_confirm: t("incomes.delete_confirm", default: "¿Eliminar este ingreso?") },
+                                 form: { class: "d-inline", data: { turbo: true } } do %>
+                     <i class="ti ti-trash"></i>
+                   <% end %>
+                 </td>
+               </tr>
             <% end %>
           </tbody>
         </table>
@@ -71,7 +82,7 @@
 <%= render "shared/process_recurring_modal",
            modal_id: "incomeProcessModal",
            title_id: "incomeProcessTitle",
-           title: t("recurring.confirm_receive"),
+           title: t("recurring.confirm_receive", default: "Confirmar Recibo"),
            form_id: "incomeProcessForm",
            category_id: "incomeProcessCategory",
            description_id: "incomeProcessDescription",
@@ -80,7 +91,8 @@
            amount_input_id: "incomeProcessAmount",
            confirm_id: "incomeProcessConfirm",
            confirm_testid: "confirm-income-process",
-           confirm_label: t("recurring.confirm_receive"),
+            confirm_label: t("recurring.confirm_receive"),
+            confirm_class: "btn-primary",
            back_label: t("recurring.back"),
            amount_hint: t("recurring.amount_hint"),
            testid: "income-process-modal" %>
@@ -97,17 +109,23 @@
     var category = button.dataset.processCategory || "";
     var description = button.dataset.processDescription || "<%= t('incomes.index.no_description') %>";
     var amount = button.dataset.processAmount || "";
-    var title = button.dataset.processTitle || "<%= t('recurring.confirm_receive') %>";
+    var title = button.dataset.processTitle || "<%= t('recurring.confirm_receive', default: 'Confirmar Recibo') %>";
 
     form.action = button.dataset.processUrl;
 
     document.getElementById("incomeProcessTitle").textContent = title;
     document.getElementById("incomeProcessCategory").textContent = category;
     document.getElementById("incomeProcessDescription").textContent = description;
-    document.getElementById("incomeProcessConfiguredAmount").textContent = "$" + Number(amount).toFixed(2);
-    document.getElementById("incomeProcessDate").value = "<%= Date.current %>";
-    document.getElementById("incomeProcessAmount").value = Number(amount).toFixed(2);
-    if (window.MoneyInputs) window.MoneyInputs.formatField(document.getElementById("incomeProcessAmount"), true);
+     document.getElementById("incomeProcessConfiguredAmount").textContent = "$" + Number(amount).toFixed(2);
+     var paidSoFar = Number(button.dataset.processPaidAmount || 0);
+     var remaining = Math.max(Number(amount) - paidSoFar, 0);
+     if (remaining <= 0) remaining = Number(amount);
+     document.getElementById("processPaidSoFar").textContent = "$" + paidSoFar.toFixed(2);
+     var markCheckbox = document.getElementById("processMarkAsPaid");
+     if (markCheckbox) markCheckbox.checked = false;
+     document.getElementById("incomeProcessDate").value = "<%= Date.current %>";
+     document.getElementById("incomeProcessAmount").value = remaining.toFixed(2);
+     if (window.MoneyInputs) window.MoneyInputs.formatField(document.getElementById("incomeProcessAmount"), true);
 
     (modal || (modal = bootstrap.Modal.getOrCreateInstance("#incomeProcessModal"))).show();
   }

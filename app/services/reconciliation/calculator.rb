@@ -71,10 +71,12 @@ module Reconciliation
       templates = user.recurring_templates.active.expense.includes(:money_source).ordered
       return [] if templates.empty?
 
-      paid_ids = Transaction.where(user_id: user.id, recurring_template_id: templates, date: period_range)
-                            .distinct.pluck(:recurring_template_id)
-
-      templates.reject { |template| paid_ids.include?(template.id) }.map { |template| pending_row(template) }
+      range = period_range
+      templates.reject do |template|
+        transactions = Transaction.where(user_id: user.id, recurring_template_id: template.id, date: range)
+        transactions.where(recurring_paid_in_full: true).exists? ||
+          transactions.sum { |transaction| transaction.amount.to_d.abs } >= template.amount.to_d
+      end.map { |template| pending_row(template) }
     end
 
     def pending_row(template)

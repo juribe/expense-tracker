@@ -23,7 +23,11 @@ class RecurringTemplateProcessor
     # money_source: the source the user picked in the "Pagar"/"Recibir"
     # modal. When omitted (or nil) the template's own money source is used,
     # preserving the wizard-linked behaviour for debt-payment cuotas.
-    def call(recurring_template:, amount:, date:, money_source: nil)
+    # mark_as_paid: when truthy, the payment completes the period even if the
+    # accumulated amount is still below the configured amount.
+    def call(recurring_template:, amount:, date:, money_source: nil, mark_as_paid: false,
+             mark_paid: false, paid_in_full: false, completed: false, fully_paid: false)
+      mark_as_paid = mark_as_paid || mark_paid || paid_in_full || completed || fully_paid
       amount = normalize_amount(amount)
       date = coerce_date(date)
       money_source ||= recurring_template.money_source
@@ -34,9 +38,12 @@ class RecurringTemplateProcessor
 
       period, period_range = period_for(recurring_template.user, date)
 
-      if recurring_template.transactions.where(date: period_range).exists?
+      if recurring_template.fully_paid_for_period?(period_range)
         return failure("Already processed for #{period_label(period, date)}.")
       end
+
+      paid_before = recurring_template.paid_amount_for_period(period_range)
+      completes_period = mark_as_paid || (paid_before + amount >= recurring_template.amount.to_d)
 
       transaction = nil
 
@@ -50,7 +57,8 @@ class RecurringTemplateProcessor
           kind: recurring_template.kind,
           recurring_template: recurring_template,
           source: "recurring_template",
-          money_source: money_source
+          money_source: money_source,
+          recurring_paid_in_full: completes_period
         )
         transaction.save!
       end

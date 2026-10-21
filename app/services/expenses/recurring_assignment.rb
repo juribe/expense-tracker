@@ -74,12 +74,13 @@ module Expenses
       return applied(template) if expense.recurring_template_id == template.id
       return reject("already_linked") if expense.recurring_template_id.present?
 
-      if template.transactions.where(date: PayCycle.period_for(user, expense.date).last).exists?
+      period = PayCycle.period_for(user, expense.date).last
+      if template.fully_paid_for_period?(period)
         @description = template.description
         return reject("period_taken")
       end
 
-      expense.update!(recurring_template_id: template.id)
+      expense.update!(recurring_template_id: template.id, recurring_paid_in_full: true)
       applied(template)
     end
 
@@ -90,7 +91,7 @@ module Expenses
       expense = user.expenses.where.not(recurring_template_id: nil).find_by(id: expense_id)
       return reject("not_linked") if expense.nil?
 
-      expense.update!(recurring_template_id: nil)
+      expense.update!(recurring_template_id: nil, recurring_paid_in_full: false)
       @ok = true
       @message_key = "unlinked"
       self

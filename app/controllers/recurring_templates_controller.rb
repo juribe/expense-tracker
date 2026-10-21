@@ -58,11 +58,23 @@ class RecurringTemplatesController < ApplicationController
       return
     end
 
+    if @recurring_template.income? && money_source.nil? && params[:money_source_id].blank? && @recurring_template.money_source.nil?
+      redirect_to recurring_templates_path(kind: @recurring_template.kind),
+                  alert: t("recurring.invalid_payment_source"),
+                  status: :see_other
+      return
+    end
+
+    mark_as_paid = params[:mark_as_paid].present? || params[:mark_paid].present? ||
+                   params[:paid_in_full].present? || params[:completed].present? ||
+                   params[:fully_paid].present?
+
     result = RecurringTemplateProcessor.call(
       recurring_template: @recurring_template,
       amount: params[:amount],
       date: params[:date],
-      money_source: money_source
+      money_source: money_source,
+      mark_as_paid: mark_as_paid
     )
 
     if result.success?

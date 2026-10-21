@@ -44,13 +44,35 @@ class RecurringTemplate < ApplicationRecord
     transactions.order(date: :desc, created_at: :desc).first
   end
 
+  def paid_amount_for_period(period)
+    transactions.where(date: period_range(period)).sum { |transaction| transaction.amount.to_d.abs }
+  end
+  alias_method :amount_paid_for_period, :paid_amount_for_period
+  alias_method :paid_so_far_for_period, :paid_amount_for_period
+
+  def fully_paid_for_period?(period)
+    return false unless active?
+
+    range = period_range(period)
+    transactions_in_period = transactions.where(date: range)
+    return true if transactions_in_period.where(recurring_paid_in_full: true).exists?
+
+    paid_amount_for_period(range) >= amount.to_d
+  end
+  alias_method :paid_for_period?, :fully_paid_for_period?
+  alias_method :completed_for_period?, :fully_paid_for_period?
+
   def processed_for_period?(period)
+    fully_paid_for_period?(period)
+  end
+
+  def has_payment_for_period?(period)
     transactions.where(date: period_range(period)).exists?
   end
 
   def status_for(period = Date.current.strftime("%Y-%m"))
     return :inactive unless active?
-    return :completed if processed_for_period?(period)
+    return :completed if fully_paid_for_period?(period)
 
     :pending
   end

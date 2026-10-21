@@ -76,6 +76,8 @@
                   data-category-id="<%= rt.category_id %>"
                   data-description="<%= rt.description %>"
                   data-amount="<%= rt.amount %>"
+                  data-paid-amount="<%= rt.paid_amount_for_period(@current_period) %>"
+                  data-money-source-id="<%= rt.money_source_id %>"
                   data-payment-day="<%= rt.payment_day %>"
                   data-active="<%= rt.active? %>"
                   data-type="<%= rt.kind %>"
@@ -211,27 +213,29 @@
 <!-- Receive confirmation modal -->
 <div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processTitle" aria-hidden="true"
      data-testid="process-modal">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog">
     <div class="modal-content">
       <form id="processForm" method="post" data-turbo="false">
         <div class="modal-header">
-          <h5 class="modal-title" id="processTitle"><%= t("recurring.confirm_receive") %></h5>
+          <h5 class="modal-title" id="processTitle"><%= t("recurring.confirm_receive", default: "Confirmar Recibo") %></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label text-muted small mb-0"><%= t("common.category") %></label>
-            <p class="form-control-plaintext fw-bold" id="processCategory"></p>
+          <div class="row g-2 mb-1">
+            <div class="col-md-6">
+              <label class="form-label text-muted small mb-0"><%= t("common.category") %></label>
+              <p class="form-control-plaintext fw-bold" id="processCategory"></p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small mb-0"><%= t("common.description") %></label>
+              <p class="form-control-plaintext" id="processDescription"></p>
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label text-muted small mb-0"><%= t("common.description") %></label>
-            <p class="form-control-plaintext" id="processDescription"></p>
-          </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("recurring.configured_amount") %></label>
             <p class="form-control-plaintext" id="processConfiguredAmount"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="processMoneySource" class="form-label"><%= t("recurring.process_money_source") %></label>
             <select class="form-select" id="processMoneySource" name="money_source_id">
               <option value=""><%= t("recurring.process_money_source_default") %></option>
@@ -240,12 +244,13 @@
               <% end %>
             </select>
             <div class="form-text"><%= t("recurring.process_money_source_hint") %></div>
+            <div class="invalid-feedback"><%= t("recurring.invalid_payment_source") %></div>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="processDate" class="form-label"><%= t("recurring.transaction_date") %></label>
-            <input type="date" class="form-control" id="processDate" name="date" required>
+            <input type="date" class="form-control" id="processDate" name="date" value="<%= Date.current %>" required>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="processAmount" class="form-label"><%= t("common.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
@@ -254,10 +259,18 @@
             </div>
             <div class="form-text"><%= t("recurring.amount_hint") %></div>
           </div>
+          <div class="mb-1">
+            <label class="form-label text-muted small mb-0"><%= t("recurring.paid_so_far", default: "Recibido hasta ahora") %></label>
+            <p class="form-control-plaintext" id="processPaidSoFar">$0</p>
+          </div>
+          <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="processMarkAsPaid" name="mark_as_paid" value="1">
+            <label class="form-check-label small" for="processMarkAsPaid"><%= t("recurring.mark_as_paid", default: "Marcar como recibido") %></label>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("recurring.back") %></button>
-          <button type="submit" class="btn btn-success" id="processConfirm" data-testid="confirm-process"><%= t("monthly_incomes.receive") %></button>
+          <button type="submit" class="btn btn-primary" id="processConfirm" data-testid="confirm-process"><%= t("monthly_incomes.receive") %></button>
         </div>
       </form>
     </div>
@@ -386,17 +399,25 @@
       initModals();
       currentRow = row;
 
-      $("#processTitle").textContent = "Confirm Receive";
-      $("#processConfirm").textContent = "Receive";
+      $("#processTitle").textContent = "<%= t('recurring.confirm_receive', default: 'Confirmar Recibo') %>";
+      $("#processConfirm").textContent = "<%= t('monthly_incomes.receive', default: 'Recibir') %>";
       $("#processCategory").textContent =
         row.querySelector("td .badge").textContent;
       $("#processDescription").textContent = row.cells[1].textContent.trim();
       $("#processConfiguredAmount").textContent = row.cells[2].textContent.trim();
 
+      var configuredAmount = parseFloat(row.dataset.amount) || 0;
+      var paidSoFar = parseFloat(row.dataset.paidAmount) || 0;
+      var remaining = Math.max(configuredAmount - paidSoFar, 0);
+      if (remaining <= 0) remaining = configuredAmount;
+      $("#processPaidSoFar").textContent = "$" + paidSoFar.toFixed(2);
+      var markCheckbox = $("#processMarkAsPaid");
+      if (markCheckbox) markCheckbox.checked = false;
+
       var today = new Date();
       var pad = function (n) { return String(n).padStart(2, "0"); };
       $("#processDate").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
-      $("#processAmount").value = parseFloat(row.dataset.amount).toFixed(2);
+      $("#processAmount").value = remaining.toFixed(2);
       if (window.MoneyInputs) window.MoneyInputs.formatField($("#processAmount"), true);
 
       // Preselect the template's source, but only when it is one of the
@@ -461,6 +482,26 @@
   document.addEventListener("DOMContentLoaded", function () {
     var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltips.forEach(function (el) { new bootstrap.Tooltip(el); });
+
+    var processForm = $("#processForm");
+    if (processForm) {
+      processForm.addEventListener("submit", function (e) {
+        var sourceSelect = $("#processMoneySource");
+        var templateSource = currentRow ? (currentRow.dataset.moneySourceId || "") : "";
+        if (!sourceSelect.value && !templateSource) {
+          e.preventDefault();
+          sourceSelect.classList.add("is-invalid");
+        } else {
+          sourceSelect.classList.remove("is-invalid");
+        }
+      });
+    }
+    var sourceSelect = $("#processMoneySource");
+    if (sourceSelect) {
+      sourceSelect.addEventListener("change", function () {
+        sourceSelect.classList.remove("is-invalid");
+      });
+    }
   });
 })();
 </script>

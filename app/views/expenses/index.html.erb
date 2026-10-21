@@ -595,10 +595,16 @@
     $("#expenseProcessTitle").textContent = button.dataset.processTitle || "Confirmar Pago";
     $("#expenseProcessCategory").textContent = button.dataset.processCategory || "";
     $("#expenseProcessDescription").textContent = button.dataset.processDescription || "Sin descripción";
-    $("#expenseProcessConfiguredAmount").textContent = "$" + Number(amount).toFixed(2);
-    $("#expenseProcessDate").value = "<%= Date.current %>";
-    $("#expenseProcessAmount").value = Number(amount).toFixed(2);
-    if (window.MoneyInputs) window.MoneyInputs.formatField($("#expenseProcessAmount"), true);
+     $("#expenseProcessConfiguredAmount").textContent = "$" + Number(amount).toFixed(2);
+     var paidSoFar = Number(button.dataset.processPaidAmount || 0);
+     var remaining = Math.max(Number(amount) - paidSoFar, 0);
+     if (remaining <= 0) remaining = Number(amount);
+     $("#processPaidSoFar").textContent = "$" + paidSoFar.toFixed(2);
+     var markCheckbox = $("#processMarkAsPaid");
+     if (markCheckbox) markCheckbox.checked = false;
+     $("#expenseProcessDate").value = "<%= Date.current %>";
+     $("#expenseProcessAmount").value = remaining.toFixed(2);
+     if (window.MoneyInputs) window.MoneyInputs.formatField($("#expenseProcessAmount"), true);
     bootstrap.Modal.getOrCreateInstance("#expenseProcessModal").show();
   }
 

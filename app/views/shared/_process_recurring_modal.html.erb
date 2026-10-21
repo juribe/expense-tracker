@@ -1,6 +1,6 @@
 <div class="modal fade" id="<%= modal_id %>" tabindex="-1" aria-labelledby="<%= title_id %>" aria-hidden="true"
      data-testid="<%= testid %>">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog">
     <div class="modal-content">
       <form id="<%= form_id %>" method="post" data-turbo="false">
         <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
@@ -9,23 +9,23 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("common.category") %></label>
             <p class="form-control-plaintext fw-bold" id="<%= category_id %>"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("common.description") %></label>
             <p class="form-control-plaintext" id="<%= description_id %>"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label class="form-label text-muted small mb-0"><%= t("recurring.configured_amount") %></label>
             <p class="form-control-plaintext" id="<%= configured_amount_id %>"></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="<%= date_input_id %>" class="form-label"><%= t("recurring.transaction_date") %></label>
-            <input type="date" class="form-control" id="<%= date_input_id %>" name="date" required>
+            <input type="date" class="form-control" id="<%= date_input_id %>" name="date" value="<%= Date.current %>" required>
           </div>
-          <div class="mb-3">
+          <div class="mb-1">
             <label for="<%= amount_input_id %>" class="form-label"><%= t("common.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
@@ -36,10 +36,18 @@
               <div class="form-text"><%= amount_hint %></div>
             <% end %>
           </div>
+          <div class="mb-1">
+            <label class="form-label text-muted small mb-0"><%= t("recurring.paid_so_far", default: "Pagado hasta ahora") %></label>
+            <p class="form-control-plaintext" id="processPaidSoFar">$0</p>
+          </div>
+          <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="processMarkAsPaid" name="mark_as_paid" value="1">
+            <label class="form-check-label small" for="processMarkAsPaid"><%= t("recurring.mark_as_paid", default: "Marcar como pagado") %></label>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= back_label %></button>
-          <button type="submit" class="btn btn-success" id="<%= confirm_id %>" data-testid="<%= confirm_testid %>"><%= confirm_label %></button>
+          <button type="submit" class="btn <%= local_assigns.fetch(:confirm_class, "btn-success") %>" id="<%= confirm_id %>" data-testid="<%= confirm_testid %>"><%= confirm_label %></button>
         </div>
       </form>
     </div>
