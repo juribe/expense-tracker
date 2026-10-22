@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792626356.3694904,
-    "seen": 1792626385.78283,
+    "mtime": 1792629763.820192,
+    "seen": 1792629814.3887832,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3072,9 +3072,9 @@
     "semantic_hash": ""
   },
   "app/controllers/payments_controller.rb": {
-    "mtime": 1792616260.5581262,
-    "seen": 1792616472.140214,
-    "ast_hash": "c46779aa87e4ba5f57ae37f09a319dee",
+    "mtime": 1792629611.6088006,
+    "seen": 1792629814.387687,
+    "ast_hash": "d469f89059a9d13e05d80d03d6f2ec57",
     "semantic_hash": ""
   },
   "app/helpers/category_picker_helper.rb": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/statement_imports.js": {
-    "mtime": 1792624709.1330724,
-    "seen": 1792624741.4333482,
-    "ast_hash": "c0eed036333657c609af3299e4a2b6a6",
+    "mtime": 1792629606.855342,
+    "seen": 1792629814.3876202,
+    "ast_hash": "6b55fb35b8739f2a9467f16498be80aa",
     "semantic_hash": ""
   },
   "app/services/statements/adapters/summary_compiler.rb": {
@@ -4959,6 +4959,12 @@
     "mtime": 1792617705.572181,
     "seen": 1792622737.5238678,
     "ast_hash": "15ab7f431c09cdde5671a291669836a0",
+    "semantic_hash": ""
+  },
+  "playwright/payments.spec.js": {
+    "mtime": 1792629580.5068793,
+    "seen": 1792629814.388335,
+    "ast_hash": "c18a1e45e6cc105e95e4a24017a2179b",
     "semantic_hash": ""
   }
 }
