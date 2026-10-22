@@ -17,6 +17,7 @@ module Ai
     AUTO_TYPES = %w[expense].freeze
     KNOWN_TYPES = %w[expense refund reversal failed other].freeze
     DEFAULT_CURRENCY = "COP"
+    DEFAULT_MERCHANT = "Transacción bancaria"
 
     class ExtractionError < StandardError; end
 
@@ -83,14 +84,18 @@ module Ai
         - Refunds, reversed transactions and failed/declined charges must be reported with their type
           but they do not create expenses.
         - One email may contain several transactions; return one entry per transaction.
+        - When the email does not name a merchant (e.g. PSE payments, transfers), set merchant to
+          the transaction label shown in the email and also report that label in transaction_type.
+        - card_last_four must be the last four digits of the card or account/product number shown
+          in the email; never the customer's identification number.
         - Amounts must be positive numbers in the smallest published unit shown by the bank
           ("$48.500" COP means 48500).
         - Use ISO datetimes for occurred_at.
-        - Category must be exactly one of these labels or null: #{category_list}.
+        - Category must be exactly one of these labels or null: #{category_list}
         - Never invent, translate, or pluralize a category name.
         Respond with ONLY JSON of the shape:
         {"transactions":[{"type":"expense","amount":48500,"currency":"COP","merchant":"Restaurante XYZ",
-          "category":null,"occurred_at":"2026-08-23T14:30:00","confidence":0.98,
+          "transaction_type":"Pago PSE","category":null,"occurred_at":"2026-08-23T14:30:00","confidence":0.98,
           "card_last_four":"1234","bank":"Bancolombia"}],
          "should_ignore":false,"reason":null}
         When nothing applies respond with {"transactions":[],"should_ignore":true,"reason":"..."}.
@@ -107,9 +112,10 @@ module Ai
       return nil unless entry.is_a?(Hash)
 
       amount = parse_amount(entry["amount"])
-      merchant = entry["merchant"].to_s.strip
+      return nil if amount.nil?
+
+      merchant = normalize_merchant(entry)
       occurred_at = parse_occurred_at(entry["occurred_at"], today)
-      return nil if amount.nil? || merchant.blank?
 
       {
         type: normalize_type(entry["type"]),
@@ -151,6 +157,12 @@ module Ai
       else
         text.gsub(/[^0-9.\-]/, "").to_f
       end
+    end
+
+    def normalize_merchant(entry)
+      entry["merchant"].to_s.strip.presence ||
+        entry["transaction_type"].to_s.strip.presence ||
+        DEFAULT_MERCHANT
     end
 
     def normalize_type(value)

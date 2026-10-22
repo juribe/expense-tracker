@@ -70,10 +70,37 @@ module Ai
       assert_match(/\A\d{4}-\d{2}-\d{2}T/, transaction[:occurred_at])
     end
 
+    # Regression: a PSE payment notification has no merchant name, so the
+    # extractor used to drop it and mark the email as failed.
+    test "accepts a bank payment without a merchant using the transaction type as description" do
+      data = parse(
+        "transactions" => [
+          {
+            "type" => "expense", "amount" => 2_817_668, "currency" => "COP",
+            "merchant" => nil, "transaction_type" => "Pago PSE",
+            "occurred_at" => "2026-10-21T14:52:19", "confidence" => 0.98,
+            "card_last_four" => "4879", "bank" => "DAVIbank"
+          }
+        ],
+        "should_ignore" => false, "reason" => nil
+      )
+
+      transaction = data[:transactions].first
+      assert_equal "Pago PSE", transaction[:merchant]
+      assert_equal BigDecimal(2_817_668.to_s), transaction[:amount]
+      assert_equal false, data[:should_ignore]
+    end
+
+    test "falls back to a generic description when merchant and transaction type are missing" do
+      data = parse("transactions" => [ { "type" => "expense", "amount" => 100 } ])
+
+      assert_equal "Transacción bancaria", data[:transactions].first[:merchant]
+    end
+
     test "raises when transactions are missing or invalid" do
       assert_raises(Ai::TransactionExtractor::ExtractionError) { parse({}) }
       assert_raises(Ai::TransactionExtractor::ExtractionError) do
-        parse("transactions" => [ { "amount" => 100, "merchant" => "" } ])
+        parse("transactions" => [ { "merchant" => "Tienda" } ])
       end
       assert_raises(Ai::TransactionExtractor::ExtractionError) do
         parse("transactions" => [])
@@ -87,6 +114,13 @@ module Ai
       assert_includes prompt, "Transporte"
       assert_includes prompt, "null"
       refute_includes prompt, "groceries"
+    end
+
+    test "system prompt asks for payment labels and account digits" do
+      prompt = Ai::TransactionExtractor.system_prompt
+
+      assert_includes prompt, "transaction_type"
+      assert_includes prompt, "account/product number"
     end
 
     test "call sends the user's categories to the AI system prompt" do
@@ -139,6 +173,27 @@ module Ai
       row = AiRequest.where(task: "transaction_extraction").last
       assert_equal "strong_ai", row.strategy
       assert_equal "ok", row.status
+    end
+
+    test "call succeeds for a payment notification without a merchant" do
+      payload = {
+        transactions: [ { type: "expense", amount: 2_817_668, merchant: nil,
+                          transaction_type: "Pago PSE", occurred_at: "2026-10-21T14:52:19",
+                          confidence: 0.98, card_last_four: "7273", bank: "DAVIbank" } ],
+        should_ignore: false, reason: nil
+      }.to_json
+      strong = FakeAiProvider.new(responses: [ payload ])
+
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+          result = extractor.call(subject: "DAVIbank en Linea", body: "Pago PSE 2,817,668")
+        end
+      end
+
+      assert result[:ok?], result[:error].inspect
+      assert_equal "Pago PSE", result.dig(:data, :transactions, 0, :merchant)
+      assert_equal BigDecimal(2_817_668.to_s), result.dig(:data, :transactions, 0, :amount)
     end
   end
 end
