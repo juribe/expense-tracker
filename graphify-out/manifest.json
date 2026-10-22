@@ -4026,9 +4026,9 @@
     "semantic_hash": ""
   },
   "app/services/dashboard/cycle_summary.rb": {
-    "mtime": 1792083023.2548964,
-    "seen": 1792092091.99074,
-    "ast_hash": "d76e15c1e4e6920f5918abdbc7c77a35",
+    "mtime": 1792706919.8635511,
+    "seen": 1792706982.400477,
+    "ast_hash": "56d68204e2e8d43599506ac77e79e04d",
     "semantic_hash": ""
   },
   "test/controllers/goals_controller_test.rb": {
@@ -4044,9 +4044,9 @@
     "semantic_hash": ""
   },
   "test/services/dashboard/cycle_summary_test.rb": {
-    "mtime": 1792618826.118775,
-    "seen": 1792622737.523925,
-    "ast_hash": "38705b885e6653604a86a5934184b9f6",
+    "mtime": 1792706935.3899925,
+    "seen": 1792706982.401134,
+    "ast_hash": "b498831410ef626507cc98e84aad458d",
     "semantic_hash": ""
   },
   "app/controllers/goal_allocations_controller.rb": {
