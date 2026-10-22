@@ -35,10 +35,12 @@ class MonthlyReportsController < ApplicationController
 
   def show
     @incomes = current_user.incomes
+      .includes(:category)
       .where("TO_CHAR(date, 'YYYY-MM') = ?", @month)
       .order(date: :desc)
 
     @expenses = current_user.expenses
+      .includes(:category)
       .where("TO_CHAR(date, 'YYYY-MM') = ?", @month)
       .order(date: :desc)
 
