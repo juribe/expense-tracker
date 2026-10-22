@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 test.describe('automatic rules (reglas automáticas)', () => {
   test('user can create a rule and it is listed on the rules page', async ({ page }) => {
@@ -36,10 +37,12 @@ test.describe('automatic rules (reglas automáticas)', () => {
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
 
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('45.20');
     await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill('SMARTFIT Bogotá');
+    await page.locator('#expense_money_source_id').selectOption({ label: efectivo });
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses$/);
 

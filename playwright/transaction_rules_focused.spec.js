@@ -9,6 +9,8 @@ async function createExpense(page, { amount, description, date, moneySourceLabel
   await page.locator('#expense_description').fill(description);
   if (moneySourceLabel) {
     await page.locator('#expense_money_source_id').selectOption({ label: moneySourceLabel });
+  } else {
+    await page.locator('#expense_money_source_id').selectOption({ index: 1 });
   }
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page).toHaveURL(/\/expenses$/);
@@ -123,6 +125,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await signUp(page);
     const category = `Dup-${Date.now()}`;
     await createCategory(page, category);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await page.goto('/transaction_rules/new');
     await page.locator('#transaction_rule_merchant_contains').fill('DUP_MERCHANT');

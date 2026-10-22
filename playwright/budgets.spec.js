@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 async function createBudget(page, categoryName, amount) {
   await page.goto('/budgets/new');
@@ -11,7 +12,7 @@ async function createBudget(page, categoryName, amount) {
   await expect(page.getByText('El presupuesto se creó correctamente.')).toBeVisible();
 }
 
-async function createExpense(page, { amount, category, description, date }) {
+async function createExpense(page, { amount, category, description, date, source }) {
   await page.goto('/expenses/new');
   await page.locator('#expense_amount').fill(String(amount));
   if (date) {
@@ -21,6 +22,7 @@ async function createExpense(page, { amount, category, description, date }) {
   if (description) {
     await page.locator('#expense_description').fill(description);
   }
+  await page.locator('#expense_money_source_id').selectOption({ label: source });
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page).not.toHaveURL(/\/expenses\/new$/);
 }
@@ -96,8 +98,9 @@ test.describe('category budgets are working', () => {
     await signUp(page);
     const category = `Restaurants-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 800000);
-    await createExpense(page, { amount: 620000, category, description: 'Dinner' });
+    await createExpense(page, { amount: 620000, category, description: 'Dinner', source: efectivo });
 
     await page.goto('/budgets');
     const card = page.locator('.card', { hasText: category });
@@ -113,8 +116,9 @@ test.describe('category budgets are working', () => {
     await signUp(page);
     const category = `Shopping-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 100000);
-    await createExpense(page, { amount: 85000, category, description: 'Clothes' });
+    await createExpense(page, { amount: 85000, category, description: 'Clothes', source: efectivo });
 
     await page.goto('/budgets');
     const card = page.locator('.card', { hasText: category });
@@ -127,8 +131,9 @@ test.describe('category budgets are working', () => {
     await signUp(page);
     const category = `Overspend-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 500000);
-    await createExpense(page, { amount: 620000, category, description: 'Big purchase' });
+    await createExpense(page, { amount: 620000, category, description: 'Big purchase', source: efectivo });
 
     await page.goto('/budgets');
     const card = page.locator('.card', { hasText: category });
@@ -141,6 +146,7 @@ test.describe('category budgets are working', () => {
     await signUp(page);
     const category = `TransferCheck-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 100000);
 
     const savingsName = `Savings-${Date.now()}`;
@@ -152,7 +158,7 @@ test.describe('category budgets are working', () => {
     // compact modal with the origin fixed, so the form only asks for the
     // destination and the amount.
     await page.goto('/money_sources/cash');
-    const savingsCard = page.locator('.card', { hasText: savingsName });
+    const savingsCard = page.locator('[data-testid="account-card"]', { hasText: savingsName });
     await savingsCard.locator('[data-testid="card-actions-toggle"]').click();
     await savingsCard.locator('[data-testid="quick-action-transfer"]').click();
     const quickForm = page.locator('[data-testid="quick-transfer-form"]');
@@ -162,7 +168,7 @@ test.describe('category budgets are working', () => {
     await quickForm.getByRole('button', { name: 'Crear Transferencia' }).click();
     await expect(page.getByText('La transferencia se creó correctamente.')).toBeVisible();
 
-    await createExpense(page, { amount: 40000, category, description: 'Food' });
+    await createExpense(page, { amount: 40000, category, description: 'Food', source: efectivo });
 
     await page.goto('/budgets');
     const card = page.locator('.card', { hasText: category });
@@ -174,8 +180,9 @@ test.describe('category budgets are working', () => {
     await signUp(page);
     const category = `MonthCheck-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 100000);
-    await createExpense(page, { amount: 40000, category, description: 'Last month', date: previousMonthDate() });
+    await createExpense(page, { amount: 40000, category, description: 'Last month', date: previousMonthDate(), source: efectivo });
 
     await page.goto('/budgets');
     const card = page.locator('.card', { hasText: category });
@@ -192,8 +199,9 @@ test.describe('category budgets are working', () => {
     await signUp(page);
     const category = `Dash-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 100000);
-    await createExpense(page, { amount: 90000, category, description: 'Lunch' });
+    await createExpense(page, { amount: 90000, category, description: 'Lunch', source: efectivo });
 
     await page.goto('/dashboard');
     const section = page.locator('.card', { hasText: 'Presupuestos' });

@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { createMoneySource } = require('./helpers/money_sources');
 const { pickCategory } = require('./helpers/category_picker');
 
 test.describe('suggested rules – dismiss and create from suggestion', () => {
@@ -9,6 +10,7 @@ test.describe('suggested rules – dismiss and create from suggestion', () => {
     await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill(description);
     await pickCategory(page, 'expense_category_id', category);
+    await page.locator('#expense_money_source_id').selectOption({ index: 1 });
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses$/);
   }
@@ -16,6 +18,7 @@ test.describe('suggested rules – dismiss and create from suggestion', () => {
   async function createSuggestionData(page) {
     const category = `Gym-${Date.now()}`;
     await createCategory(page, category);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     for (let i = 0; i < 5; i += 1) {
       await createExpense(page, category, 'smartfit bogotá');
     }

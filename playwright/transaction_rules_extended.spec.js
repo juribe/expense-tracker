@@ -1,12 +1,14 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 async function createExpense(page, { amount, description, date }) {
   await page.goto('/expenses/new');
   await page.locator('#expense_amount').fill(String(amount));
   await page.locator('#expense_date').fill(date || '15/06/2025');
   await page.locator('#expense_description').fill(description);
+  await page.locator('#expense_money_source_id').selectOption({ index: 1 });
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page).toHaveURL(/\/expenses$/);
 }
@@ -15,6 +17,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('rule with description_contains matches expense', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const category = `DescCat-${Date.now()}`;
     await createCategory(page, category);
 
@@ -33,6 +36,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('rule with tag action adds a tag to matching expense', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const category = `TagCat-${Date.now()}`;
     await createCategory(page, category);
 
@@ -55,6 +59,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('rule with amount_gt condition only matches large expenses', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const category = `BigSpend-${Date.now()}`;
     await createCategory(page, category);
 
@@ -76,6 +81,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('rule with amount_lt condition only matches small expenses', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const category = `SmallSpend-${Date.now()}`;
     await createCategory(page, category);
 
@@ -94,6 +100,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('multiple rules can match the same transaction', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const catA = `MultiA-${Date.now()}`;
     const catB = `MultiB-${Date.now()}`;
     await createCategory(page, catA);
@@ -123,6 +130,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('user can manually override a rule-applied category', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const ruleCategory = `Auto-${Date.now()}`;
     const manualCategory = `Manual-${Date.now()}`;
     await createCategory(page, ruleCategory);
@@ -152,6 +160,7 @@ test.describe('automatic rules – extended scenarios', () => {
 
   test('expense with no matching rule remains uncategorized', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     const category = `NoMatch-${Date.now()}`;
     await createCategory(page, category);
 

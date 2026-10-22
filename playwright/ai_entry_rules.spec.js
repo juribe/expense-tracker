@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 // The parser assigns its own category to detected expenses (a guess, not an
 // explicit user choice), so at save time a matching transaction rule must
@@ -36,6 +37,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     // /expenses, the URL assertion alone would pass before the reload happens,
     // racing the rows below under slow test runs. Waiting for the modal to
     // disappear is a deterministic signal that the save committed.
+    await page.getByTestId('ai-row').locator('.ai-field-source').selectOption({ index: 1 });
     await page.getByTestId('ai-save-all').click();
     await expect(page.getByTestId('ai-preview-modal')).not.toBeVisible({ timeout: 15000 });
     await expect(page).toHaveURL(/\/expenses$/);
@@ -45,6 +47,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     await signUp(page);
     const ruleCategory = `Apps-${Date.now()}`;
     await createCategory(page, ruleCategory);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('description_contains');
@@ -80,6 +83,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     await createCategory(page, otherCategory);
     const ruleCategory = `Apps-${Date.now()}`;
     await createCategory(page, ruleCategory);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await page.goto('/transaction_rules/new');
     await page.locator('#condition_field').selectOption('description_contains');
@@ -106,6 +110,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
     // User explicitly changes the category in the confirm card.
     const row = page.getByTestId('ai-row');
     await row.locator('.ai-field-category').selectOption({ label: otherCategory });
+    await page.getByTestId('ai-row').locator('.ai-field-source').selectOption({ index: 1 });
     await page.getByTestId('ai-save-all').click();
     await expect(page.getByTestId('ai-preview-modal')).not.toBeVisible({ timeout: 15000 });
     await expect(page).toHaveURL(/\/expenses$/);
@@ -117,6 +122,7 @@ test.describe('AI entry – transaction rules take precedence over parser catego
 
   test('keeps the parser category when no rule matches', async ({ page }) => {
     await signUp(page);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     mockParse(page, {
       amount: 50000,
@@ -131,6 +137,6 @@ test.describe('AI entry – transaction rules take precedence over parser catego
 
     const row = page.locator('#expenseTable tr', { hasText: 'Didi viaje' });
     await expect(row).toBeVisible();
-    await expect(row).toContainText('Transporte');
+    await expect(row).toContainText('Transportation');
   });
 });

@@ -1,10 +1,12 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { createMoneySource } = require('./helpers/money_sources');
 
 test.describe('expense pages are working', () => {
   test.beforeEach(async ({ page }) => {
     await signUp(page);
     await createCategory(page, `Food-${Date.now()}`);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
   });
 
   test('user can create a new expense', async ({ page }) => {
@@ -12,6 +14,7 @@ test.describe('expense pages are working', () => {
     await page.locator('#expense_amount').fill('45.20');
     await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill('Grocery shopping');
+    await page.locator('#expense_money_source_id').selectOption({ index: 1 });
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page).toHaveURL(/\/expenses/);
@@ -26,11 +29,16 @@ test.describe('expense pages are working', () => {
     await expect(page.getByRole('link', { name: /Agregar Gasto/ }).first()).toBeVisible();
   });
 
+  async function fillExpense(page, amount, date, description) {
+    await page.locator('#expense_amount').fill(amount);
+    await page.locator('#expense_date').fill(date);
+    await page.locator('#expense_description').fill(description);
+    await page.locator('#expense_money_source_id').selectOption({ index: 1 });
+  }
+
   test('user can update an expense', async ({ page }) => {
     await page.goto('/expenses/new');
-    await page.locator('#expense_amount').fill('15.50');
-    await page.locator('#expense_date').fill('25/10/2023');
-    await page.locator('#expense_description').fill('Lunch at cafe');
+    await fillExpense(page, '15.50', '25/10/2023', 'Lunch at cafe');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Lunch at cafe');
 
@@ -46,9 +54,7 @@ test.describe('expense pages are working', () => {
 
   test('user can delete an expense', async ({ page }) => {
     await page.goto('/expenses/new');
-    await page.locator('#expense_amount').fill('15.50');
-    await page.locator('#expense_date').fill('25/10/2023');
-    await page.locator('#expense_description').fill('Lunch at cafe');
+    await fillExpense(page, '15.50', '25/10/2023', 'Lunch at cafe');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Lunch at cafe');
 
