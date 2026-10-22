@@ -126,7 +126,7 @@ class PaymentsController < ApplicationController
   end
 
   def payment_params
-    params.require(:payment).permit(:principal_amount, :interest_amount,
+    params.require(:payment).permit(:expense_id, :principal_amount, :interest_amount,
                                     :insurance_amount, :other_amount)
   end
 

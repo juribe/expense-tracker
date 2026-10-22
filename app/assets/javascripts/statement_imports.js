@@ -14,10 +14,12 @@
 // #bulkCategoryModal with [data-movement-bulk-category] / [data-movement-bulk-apply].
 (function () {
   var FORM_SELECTOR = '[data-movement-form="true"]';
-  // The manual payment form (data-manual-payment-form) is owned by payments.js,
-  // which posts it itself; binding it here would send a second identical POST
-  // and duplicate every payment. Exclude it explicitly.
-  var PAY_FORM_SELECTOR = '[data-payment-distribution-form="true"]:not([data-manual-payment-form="true"])';
+  // Only the statement-import payment form posts here and answers JSON. Other
+  // payment distribution forms (apply an existing expense, manual payment) are
+  // plain HTML forms owned by their controllers and must not be hijacked:
+  // binding them would send an AJAX request whose redirect/render does not
+  // support JSON and fail silently.
+  var PAY_FORM_SELECTOR = '[data-statement-payment-form="true"]';
   var UPLOAD_FORM_SELECTOR = '[data-upload-form="true"]';
 
   function csrfToken() {
