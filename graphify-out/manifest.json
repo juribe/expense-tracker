@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/transaction_extractor.rb": {
-    "mtime": 1792533191.7577395,
-    "seen": 1792533817.6108422,
-    "ast_hash": "4962e1a1310553dff16c0065dc99355f",
+    "mtime": 1792628060.6287405,
+    "seen": 1792628167.1568031,
+    "ast_hash": "d9e7280cc15a0320729f521d21cf0703",
     "semantic_hash": ""
   },
   "app/services/email_transaction_detector.rb": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "test/services/ai/transaction_extractor_test.rb": {
-    "mtime": 1792533015.4550395,
-    "seen": 1792533817.611495,
-    "ast_hash": "e55c07047cc739dba306948fdf45c612",
+    "mtime": 1792628031.7663543,
+    "seen": 1792628167.157467,
+    "ast_hash": "41e558dbeee79542c1ff95204661348a",
     "semantic_hash": ""
   },
   "test/services/email_transaction_detector_test.rb": {
