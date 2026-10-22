@@ -295,6 +295,53 @@ section.page-section { margin-bottom: 1.5rem; }
   --bs-nav-link-hover-color: var(--bs-primary);
 }
 
+/* Financial-cycle control (shared/_topbar): the active cycle as a compact
+ * dropdown trigger, so it reads as the current financial cycle and looks
+ * openable; the menu leads to the start-day settings. */
+.cycle-control {
+  border: 1px solid transparent;
+  border-radius: var(--et-radius-sm);
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cycle-control:hover,
+.cycle-control:focus,
+.cycle-control[aria-expanded="true"] {
+  background: rgba(42, 109, 245, 0.08);
+  border-color: rgba(42, 109, 245, 0.25);
+  color: var(--bs-body-color);
+}
+.cycle-control-copy { line-height: 1.25; text-align: left; }
+.cycle-control-eyebrow {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--et-muted);
+}
+.cycle-control-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+}
+.cycle-control-range {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--et-muted);
+  white-space: nowrap;
+}
+.cycle-control-chevron {
+  font-size: 0.9rem;
+  color: var(--et-muted);
+  transition: transform 0.15s ease;
+}
+.cycle-control[aria-expanded="true"] .cycle-control-chevron { transform: rotate(180deg); }
+@media(max-width: 575.98px) {
+  .cycle-control { padding: 0.25rem; }
+}
+
 /* Compatibility helpers during migration */
 .summary-value { font-size: 1.75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 

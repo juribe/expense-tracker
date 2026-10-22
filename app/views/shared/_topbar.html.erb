@@ -7,11 +7,27 @@
           <i class="ti ti-menu-2 fs-6"></i>
         </a>
         <% cycle_info = financial_cycle_visible %>
-        <%= link_to pay_settings_path, class: "nav-link text-secondary small d-none d-md-flex align-items-center gap-2" do %>
-          <i class="ti ti-calendar-heart"></i>
-          <span class="fw-semibold text-body"><%= cycle_info[:label] %></span>
-          <% if cycle_info[:range] %><span class="d-none d-xl-inline"><%= cycle_info[:range] %></span><% end %>
-        <% end %>
+        <div class="dropdown">
+          <button type="button" class="cycle-control nav-link d-flex align-items-center gap-2 px-2 py-1"
+                  data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+            <span class="icon-chip icon-chip-sm icon-chip-blue"><i class="ti ti-calendar-event"></i></span>
+            <span class="cycle-control-copy d-none d-md-block">
+              <span class="cycle-control-eyebrow"><%= cycle_info[:heading] %></span>
+              <span class="cycle-control-title"><%= cycle_info[:label] %></span>
+              <% if cycle_info[:range] %>
+                <span class="cycle-control-range d-none d-xl-block"><%= cycle_info[:range] %></span>
+              <% end %>
+            </span>
+            <i class="ti ti-chevron-down cycle-control-chevron"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <%= link_to pay_settings_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+                <i class="ti ti-settings fs-5"></i><span><%= t("nav.change_cycle_start", default: "Cambiar día de inicio del ciclo financiero") %></span>
+              <% end %>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <ul class="nav d-flex align-items-center gap-1 ms-auto">
