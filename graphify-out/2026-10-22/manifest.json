@@ -108,9 +108,9 @@
     "semantic_hash": "8035e71c031d78e90d6c1af220891a81"
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1792698334.1303124,
-    "seen": 1792698431.50898,
-    "ast_hash": "7c956aea76a0832ece61952405ff93a6",
+    "mtime": 1792701197.2643495,
+    "seen": 1792701325.148927,
+    "ast_hash": "401cd7765b811354fe7348ba26e0c656",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -636,9 +636,9 @@
     "semantic_hash": ""
   },
   "playwright/credit_cards_and_loans.spec.js": {
-    "mtime": 1792596822.436977,
-    "seen": 1792596960.0197918,
-    "ast_hash": "6c9be6af2029b846563244a94ace93c1",
+    "mtime": 1792701166.796251,
+    "seen": 1792701325.149516,
+    "ast_hash": "27bb8635da18f772995c93ca62ab4060",
     "semantic_hash": ""
   },
   "playwright/dashboard.spec.js": {
@@ -768,9 +768,9 @@
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
-    "mtime": 1792633975.3326135,
-    "seen": 1792634170.605118,
-    "ast_hash": "85a1212170e59706e29f762e0889dd27",
+    "mtime": 1792701490.6079562,
+    "seen": 1792701573.862508,
+    "ast_hash": "b68ebd1fee87ad7cb64d6b2de43442c0",
     "semantic_hash": ""
   },
   "test/controllers/sessions_controller_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1792698310.7530217,
-    "seen": 1792698431.510033,
-    "ast_hash": "8b670c320553598eb773926d04d1dd9a",
+    "mtime": 1792701505.2496011,
+    "seen": 1792701573.8628962,
+    "ast_hash": "96b36c3f2389814f8530205732246c6b",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1792698311.323276,
-    "seen": 1792698431.510035,
-    "ast_hash": "c5dd270e532351357205f6d1269ef5c1",
+    "mtime": 1792701504.8150115,
+    "seen": 1792701573.8628979,
+    "ast_hash": "990bb8d47c14563e16bb61ee7234a51f",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792698392.8083875,
-    "seen": 1792698431.510041,
+    "mtime": 1792701538.321644,
+    "seen": 1792701573.862904,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5001,6 +5001,12 @@
     "mtime": 1792688376.177272,
     "seen": 1792688523.06557,
     "ast_hash": "aab409a7e4807e9aec07ec8c9adcc622",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/money_source_form.js": {
+    "mtime": 1792701221.6781087,
+    "seen": 1792701325.148799,
+    "ast_hash": "42975477c63f2c089cac2add5541c1c6",
     "semantic_hash": ""
   }
 }
