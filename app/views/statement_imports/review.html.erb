@@ -1,7 +1,11 @@
 <div class="container mt-4">
-  <div class="d-flex justify-content-end mb-2">
+  <div class="d-flex justify-content-end gap-2 mb-2">
     <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-link" do %>
       <i class="ti ti-rotate-2 me-1"></i><%= t("statement_imports.back") %>
+    <% end %>
+    <%= link_to money_source_path(@money_source), class: "btn btn-outline-secondary",
+                data: { testid: "statement-done-link" } do %>
+      <i class="ti ti-circle-check me-1"></i><%= t("statement_imports.done_importing") %>
     <% end %>
   </div>
 
@@ -10,7 +14,11 @@
       <%= render "summary" %>
     </div>
     <div class="col-12 col-lg-8" id="statement-payment-form">
-      <%= render "payment_form" %>
+      <% if @registered_payment %>
+        <%= render "payment_registered" %>
+      <% else %>
+        <%= render "payment_form" %>
+      <% end %>
     </div>
   </div>
 

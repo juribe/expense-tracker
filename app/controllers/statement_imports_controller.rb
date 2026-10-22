@@ -29,6 +29,7 @@ class StatementImportsController < ApplicationController
 
     return render_parse_failure(result) unless result.success?
 
+    forget_registered_payment
     @review = Statements::ReviewBuilder.call(user: current_user, document: result.result,
                                              money_source: @money_source)
 
@@ -49,6 +50,7 @@ class StatementImportsController < ApplicationController
                                            movements: movement_rows)
 
     @review = rebuild_review
+    @registered_payment = registered_payment
     if result.success?
       flash.now[:notice] = movement_notice(result.result)
       render :review
@@ -66,12 +68,14 @@ class StatementImportsController < ApplicationController
                                            movements: [], payment: payment_params)
 
     if result.success?
+      remember_registered_payment(result.result[:payment])
       respond_to do |format|
         format.json { render json: { success: true, notice: payment_notice(result.result) } }
         format.html { redirect_to money_source_path(@money_source), notice: payment_notice(result.result) }
       end
     else
       @review = rebuild_review
+      @registered_payment = registered_payment
       respond_to do |format|
         format.json { render json: { success: false, errors: result.errors }, status: :unprocessable_entity }
         format.html do
@@ -150,6 +154,37 @@ class StatementImportsController < ApplicationController
   PERMITTED_PAYMENT_FIELDS = %i[register amount date description category_id
                                 principal_amount interest_amount insurance_amount other_amount
                                 funding_money_source_id].freeze
+  REGISTERED_PAYMENTS_SESSION_KEY = :statement_imports_registered_payments
+
+  # The review survives several requests (confirm re-renders it), while the
+  # payment form hides in the browser after an AJAX pay. Remembering the
+  # registered payment per debt keeps it hidden when the review is re-rendered
+  # server-side, even if the user changed its date or amount.
+  def remember_registered_payment(payment)
+    payments = session[REGISTERED_PAYMENTS_SESSION_KEY] || {}
+    payments[@money_source.id.to_s] = {
+      "amount" => payment.amount.to_s,
+      "date" => payment.date.to_s
+    }
+    session[REGISTERED_PAYMENTS_SESSION_KEY] = payments
+  end
+
+  def forget_registered_payment
+    payments = session[REGISTERED_PAYMENTS_SESSION_KEY]
+    return if payments.blank?
+
+    payments.delete(@money_source.id.to_s)
+    session[REGISTERED_PAYMENTS_SESSION_KEY] = payments
+  end
+
+  def registered_payment
+    data = session.dig(REGISTERED_PAYMENTS_SESSION_KEY, @money_source.id.to_s)
+    return if data.blank?
+
+    { amount: data["amount"].to_d, date: Date.parse(data["date"]) }
+  rescue Date::Error
+    nil
+  end
 
   def rebuild_review
     document = Statements::Document.new(

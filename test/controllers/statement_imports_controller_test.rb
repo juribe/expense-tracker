@@ -291,6 +291,54 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[data-movement-form='true']", 1
   end
 
+  test "confirm after a registered payment keeps the payment form hidden and shows the registered card" do
+    post pay_money_source_statement_imports_path(@card), as: :json, params: {
+      payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
+                 category_id: @category.id, principal_amount: "63000",
+                 funding_money_source_id: @account.id }
+    }
+    assert_response :success
+
+    post confirm_money_source_statement_imports_path(@card), params: {
+      summary: @document.summary.to_h.to_json,
+      engine: "ai",
+      movements: [ { description: "Restaurante XYZ", amount: "48500", date: "2026-09-01",
+                     category_id: @category.id, selected: "1" } ]
+    }
+
+    assert_response :success
+    assert_select "form[data-payment-distribution-form='true']", 0
+    assert_select "[data-testid='payment-registered-card']", 1
+  end
+
+  test "a new statement upload resets the registered payment mark" do
+    post pay_money_source_statement_imports_path(@card), as: :json, params: {
+      payment: { register: "1", amount: "63000", date: "2026-09-05", description: "Pago Visa",
+                 category_id: @category.id, principal_amount: "63000",
+                 funding_money_source_id: @account.id }
+    }
+    assert_response :success
+
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+    end
+
+    assert_response :success
+    assert_select "form[data-payment-distribution-form='true']", 1
+    assert_select "[data-testid='payment-registered-card']", 0
+  end
+
+  test "review offers finishing the import and returning to the money source" do
+    document = @document
+    stub_method(Statements::Parser, :call, ->(**_kwargs) { ServiceResult.success(document) }) do
+      post money_source_statement_imports_path(@card), params: { file: "pdf-bytes", filename: "extracto.pdf" }
+    end
+
+    assert_response :success
+    assert_select "a[data-testid='statement-done-link'][href='#{money_source_path(@card)}']", 2
+  end
+
   test "POST pay responds with JSON success (progressive request)" do
     assert_difference -> { Payment.count }, 1 do
       post pay_money_source_statement_imports_path(@card), as: :json, params: {

@@ -107,8 +107,14 @@
       <%= hidden_field_tag :summary, @review.summary.to_h.to_json, id: nil if @review.summary %>
       <%= hidden_field_tag :engine, @review.engine, id: nil %>
 
-      <div class="d-flex justify-content-end mt-3" data-movement-submit>
-        <%= submit_tag t("statement_imports.confirm"), class: "btn btn-primary" %>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div data-movement-submit>
+          <%= submit_tag t("statement_imports.confirm"), class: "btn btn-primary" %>
+        </div>
+        <%= link_to money_source_path(@money_source), class: "btn btn-outline-secondary",
+                    data: { testid: "statement-done-link" } do %>
+          <i class="ti ti-circle-check me-1"></i><%= t("statement_imports.done_importing") %>
+        <% end %>
       </div>
     </div>
   </div>
