@@ -116,6 +116,103 @@ Income.create!(user: @user, category: @category, amount: 10_000_000, date: Date.
     end
   end
 
+  test "projected spend returns nil until enough cycle days have elapsed" do
+    create_expense(amount: 1_800_000, date: Date.new(2026, 10, 2))
+
+    travel_to Date.new(2026, 10, 4) do
+      result = summary
+      assert_nil result[:projected_spend]
+      assert_nil result[:on_track]
+    end
+  end
+
+  test "projected spend is available once the minimum elapsed days are reached" do
+    create_expense(amount: 1_800_000, date: Date.new(2026, 10, 3))
+
+    travel_to Date.new(2026, 10, 5) do
+      result = summary
+      assert_in_delta 1_800_000 * 31 / 5.0, result[:projected_spend], 0.01
+    end
+  end
+
+  test "uses recurring commitments from day one when there are enough expense templates" do
+    3.times do |i|
+      template = @user.recurring_templates.create!(kind: "expense", amount: 1_000_000, category: @category,
+                                                   description: "Fijo #{i}", frequency: "monthly",
+                                                   payment_day: i * 3 + 1, source: "manual", active: true)
+      next if i == 2
+
+      Expense.create!(user: @user, category: @category, amount: 1_000_000, date: Date.new(2026, 10, i * 3 + 2),
+                      description: template.description, money_source: @money_source, recurring_template: template)
+    end
+    create_expense(amount: 300_000, date: Date.new(2026, 10, 2))
+
+    travel_to Date.new(2026, 10, 3) do
+      result = summary
+
+      # 3 templates are enough to switch modes; 2 are fully paid and not added
+      # again, the unpaid one contributes its full amount. Variable spend still
+      # gets its daily rate (300_000 over 3 elapsed days × remaining 28 days).
+      assert_equal :recurring, result[:projection_basis]
+      projected = 2_300_000 + 1_000_000 + (300_000 / 3.to_d) * 28
+      assert_in_delta projected, result[:projected_spend], 0.01
+    end
+  end
+
+  test "partially paid template only counts its remaining balance" do
+    template = nil
+    3.times do |i|
+      template = @user.recurring_templates.create!(kind: "expense", amount: 1_000_000, category: @category,
+                                                   description: "Fijo #{i}", frequency: "monthly",
+                                                   payment_day: i * 3 + 1, source: "manual", active: true)
+      if i == 2
+        Expense.create!(user: @user, category: @category, amount: 400_000, date: Date.new(2026, 10, 8),
+                        description: "Pago parcial", money_source: @money_source, recurring_template: template)
+      end
+    end
+    create_expense(amount: 100_000, date: Date.new(2026, 10, 2))
+
+    travel_to Date.new(2026, 10, 8) do
+      result = summary
+
+      # Spent: 500_000 (400_000 partial + 100_000 variable). Unpaid fixed:
+      # 1_000_000 + 1_000_000 + 600_000. Variable rate: 100_000 / 8 × 23 days.
+      projected = 500_000 + 2_600_000 + (100_000 / 8.to_d) * 23
+      assert_in_delta projected, result[:projected_spend], 0.01
+      assert_equal :recurring, result[:projection_basis]
+    end
+  end
+
+  test "inactive templates do not feed the recurring projection" do
+    3.times do |i|
+      @user.recurring_templates.create!(kind: "expense", amount: 1_000_000, category: @category,
+                                        description: "Fijo #{i}", frequency: "monthly", payment_day: i * 3 + 1,
+                                        source: "manual", active: i != 2)
+    end
+    create_expense(amount: 250_000, date: Date.new(2026, 10, 2))
+
+    travel_to Date.new(2026, 10, 3) do
+      result = summary
+
+      # Only 2 active templates: back to the daily-rate mode with its minimum days.
+      assert_equal :daily, result[:projection_basis]
+      assert_nil result[:projected_spend]
+    end
+  end
+
+  test "recurring basis with no elapsed days still projects nothing" do
+    3.times do |i|
+      @user.recurring_templates.create!(kind: "expense", amount: 1_000_000, category: @category,
+                                        description: "Fijo #{i}", frequency: "monthly", payment_day: i * 3 + 1,
+                                        source: "manual", active: true)
+    end
+
+    travel_to Date.new(2026, 9, 30) do
+      result = summary
+      assert_nil result[:projected_spend]
+    end
+  end
+
   test "is on track when the projected spend stays under the income" do
     Income.create!(user: @user, category: @category, amount: 12_450_000, date: Date.new(2026, 10, 5), description: "Salario", money_source: @money_source)
     create_expense(amount: 1_800_000, date: Date.new(2026, 10, 6))

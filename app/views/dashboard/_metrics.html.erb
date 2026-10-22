@@ -8,11 +8,21 @@
     <%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %>
     <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
   <% end %>
+  <% projected_available = @cycle_summary[:projected_spend].present? %>
+  <% projected_meta =
+       if projected_available && @cycle_summary[:projection_basis] == :recurring
+         t("dashboard.projection_recurring", default: "Proyección con tus gastos fijos + gasto variable")
+       elsif projected_available
+         t(@cycle_summary[:on_track] ? "dashboard.on_track_title" : "dashboard.off_track_title",
+           default: @cycle_summary[:on_track] ? "Estás en línea con tu meta" : "Vas sobre tu meta de gasto")
+       else
+         t("dashboard.projection_too_early", default: "Muy temprano para proyectar el gasto")
+       end %>
   <% projected_progress = {
-       pct: @cycle_summary[:period_progress_pct],
-       aria_label: t("dashboard.cycle_progress_aria", default: "Progreso del ciclo"),
-       bar_class: @cycle_summary[:on_track] ? "bg-success" : "bg-danger"
-     } %>
+        pct: @cycle_summary[:period_progress_pct],
+        aria_label: t("dashboard.cycle_progress_aria", default: "Progreso del ciclo"),
+        bar_class: projected_available ? (@cycle_summary[:on_track] ? "bg-success" : "bg-danger") : "bg-secondary"
+      } %>
 <section class="page-section">
   <div class="row g-3">
     <div class="col-12 col-sm-6 col-lg-3">
@@ -43,9 +53,8 @@
     <div class="col-12 col-sm-6 col-lg-3">
       <%= render "dashboard/metric_card",
             label: t("dashboard.projected_spend", default: "Gasto proyectado"),
-            value: number_to_currency(@cycle_summary[:projected_spend]),
-            meta: t(@cycle_summary[:on_track] ? "dashboard.on_track_title" : "dashboard.off_track_title",
-                    default: @cycle_summary[:on_track] ? "Estás en línea con tu meta" : "Vas sobre tu meta de gasto"),
+            value: projected_available ? number_to_currency(@cycle_summary[:projected_spend]) : "—",
+            meta: projected_meta,
             progress: projected_progress,
             icon: "target", variant: "expense",
             href: reports_budgets_path, testid: "dashboard-kpi-projected" %>
