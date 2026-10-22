@@ -68,12 +68,6 @@
         <%# Dinero %>
         <li class="nav-small-cap"><i class="ti ti-dots fs-5"></i><span class="hide-menu"><%= t("nav.section_money", default: "Dinero") %></span></li>
         <li class="sidebar-item">
-          <%= link_to money_sources_path, class: "sidebar-link #{'active' if controller_name == 'money_sources' && action_name == 'index' && !@filter || (action_name == 'index' && controller_name == 'money_sources' && @filter.blank?)}" do %>
-            <span class="aside-icon p-2 bg-info-subtle rounded-1"><i class="ti ti-building-bank fs-5"></i></span>
-            <span class="hide-menu ps-1"><%= t("nav.money_sources", default: "Cuentas") %></span>
-          <% end %>
-        </li>
-        <li class="sidebar-item">
           <%= link_to money_sources_pockets_path, class: "sidebar-link #{money_source_filter_active?('pockets')}" do %>
             <span class="aside-icon p-2 bg-info-subtle rounded-1"><i class="ti ti-pig-money fs-5"></i></span>
             <span class="hide-menu ps-1"><%= t("nav.money_sources_pockets", default: "Bolsillos") %></span>

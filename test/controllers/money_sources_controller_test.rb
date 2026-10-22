@@ -31,43 +31,37 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "dd", text: /Saldo del banco/
   end
 
-  test "GET /money_sources renders the index" do
+  test "GET /money_sources redirects to the accounts section" do
     create_source
+
     get money_sources_path
-    assert_response :success
-    assert_select "h1", text: I18n.t("nav.money_sources")
+
+    assert_redirected_to money_sources_cash_path
   end
 
-  test "GET /money_sources shows empty state when no sources" do
-    get money_sources_path
-    assert_response :success
-    assert_select "[data-testid]", count: 0
-  end
-
-  test "GET /money_sources with an unknown type falls back to the plain index" do
+  test "GET /money_sources with an unknown type redirects to the accounts section" do
     create_source
 
     get money_sources_path(type: "bogus")
 
-    assert_response :success
-    assert_select "h1", text: I18n.t("nav.money_sources")
+    assert_redirected_to money_sources_cash_path
   end
 
-  test "GET /money_sources warns when a source balance is negative" do
+  test "GET /money_sources/cash warns when a source balance is negative" do
     source = create_source(name: "Ahorros", kind: "account", starting_balance: 0)
     source.update_column(:cached_balance, -25_000)
 
-    get money_sources_path
+    get money_sources_cash_path
 
     assert_response :success
     assert_select "[data-testid=negative-balance-warning]", count: 1
   end
 
-  test "GET /money_sources does not warn for positive balances or debt sources" do
+  test "GET /money_sources/cash does not warn for positive balances or debt sources" do
     create_source(name: "Ahorros", kind: "account", starting_balance: 50_000)
     create_source(name: "Visa", kind: "credit_card", starting_balance: -3_000_000)
 
-    get money_sources_path
+    get money_sources_cash_path
 
     assert_response :success
     assert_select "[data-testid=negative-balance-warning]", count: 0
@@ -91,10 +85,12 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     create_source(name: "Car Loan", kind: "loan", sub_kind: "vehicle", starting_balance: -2000000)
     create_source(name: "Mortgage", kind: "loan", sub_kind: "mortgage", starting_balance: -50000000)
 
-    get money_sources_path
-    assert_response :success
-    # Only the 3 debt sources (credit card + both loans) carry the button.
-    assert_select "a[title='#{I18n.t('payments.index_button')}']", count: 3
+    get money_sources_credit_cards_path
+    assert_select "a span", text: I18n.t("payments.index_button"), count: 1
+
+    get money_sources_loans_path
+    # Both loans carry the button; the cards and accounts do not.
+    assert_select "a span", text: I18n.t("payments.index_button"), count: 2
   end
 
   test "GET /money_sources/loans offers the savings tool on each loan card" do
@@ -202,20 +198,52 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: I18n.t("money_sources.index.credit_cards_title")
   end
 
-  test "GET /money_sources shows the resume banner for an in-progress setup" do
+  test "GET /money_sources/credit_cards links Nueva tarjeta de crédito to the credit card form" do
+    get money_sources_credit_cards_path
+
+    assert_response :success
+    assert_select "a[href=?]", new_money_source_path(kind: "credit_card"), text: /Nueva tarjeta de crédito/
+  end
+
+  test "GET /money_sources/loans links Nuevo préstamo to the loan form" do
+    get money_sources_loans_path
+
+    assert_response :success
+    assert_select "a[href=?]", new_money_source_path(kind: "loan"), text: /Nuevo préstamo/
+  end
+
+  test "GET /money_sources/pockets links Nuevo bolsillo to the pocket form" do
+    get money_sources_pockets_path
+
+    assert_response :success
+    assert_select "a[href=?]", new_money_source_path(kind: "pocket"), text: /Nuevo bolsillo/
+  end
+
+  test "GET /money_sources/cash offers a new-source menu for every cash-like kind" do
+    get money_sources_cash_path
+
+    assert_response :success
+    %w[account debit_card cash wallet].each do |kind|
+      assert_select "a[href=?]", new_money_source_path(kind: kind),
+                    text: /#{I18n.t("money_sources.form.new_titles.#{kind}")}/
+    end
+    assert_select "a[href=?]", new_money_source_path(kind: "credit_card"), count: 0
+  end
+
+  test "GET /money_sources/cash shows the resume banner for an in-progress setup" do
     setup = @user.financial_setups.create!(status: "in_progress")
     setup.set_choice("accounts", "skip")
     setup.save!
 
-    get money_sources_path
+    get money_sources_cash_path
     assert_response :success
     assert_select "[data-testid='unfinished-setup-banner']", count: 1 do
       assert_select "a[href='#{financial_setup_path}']"
     end
   end
 
-  test "GET /money_sources hides the resume banner for a fresh setup" do
-    get money_sources_path
+  test "GET /money_sources/cash hides the resume banner for a fresh setup" do
+    get money_sources_cash_path
     assert_response :success
     assert_select "[data-testid='unfinished-setup-banner']", count: 0
   end
@@ -762,6 +790,100 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=submit][value='Guardar préstamo']"
   end
 
+  test "GET /money_sources/new for a credit card preselects the kind and hides the selector" do
+    get new_money_source_path(kind: "credit_card")
+
+    assert_response :success
+    assert_select "h4", text: "Nueva tarjeta de crédito"
+    assert_select "input[type=submit][value='Guardar tarjeta de crédito']"
+    assert_select "input[type=hidden][name='money_source[kind]'][value='credit_card']"
+    assert_select "select#money_source_kind", count: 0
+  end
+
+  test "GET /money_sources/new for a loan labels the dates as first and last payment" do
+    get new_money_source_path(kind: "loan")
+
+    assert_response :success
+    assert_select "label[for=money_source_credit_account_attributes_start_date]", text: "Fecha del primer pago"
+    assert_select "label[for=money_source_credit_account_attributes_end_date]", text: "Fecha del último pago"
+  end
+
+  test "GET /money_sources/new uses a name placeholder per kind" do
+    {
+      "account" => "p. ej. Cuenta ahorro Davivienda",
+      "debit_card" => "p. ej. Tarjeta débito Davivienda",
+      "credit_card" => "p. ej. Tarjeta Gold",
+      "cash" => "p. ej. Efectivo",
+      "wallet" => "p. ej. Nequi",
+      "pocket" => "p. ej. Viaje a Cartagena",
+      "loan" => "p. ej. Préstamo libre inversión"
+    }.each do |kind, placeholder|
+      get new_money_source_path(kind: kind)
+
+      assert_select "input#money_source_name[placeholder=?]", placeholder
+    end
+  end
+
+  test "GET /money_sources/new without a kind uses the generic name placeholder" do
+    get new_money_source_path
+
+    assert_select "input#money_source_name[placeholder=?]", "p. ej. Ahorros Bancolombia"
+    assert_select "select#money_source_kind option[data-name-placeholder=?]", "p. ej. Tarjeta Gold"
+  end
+
+  test "GET /money_sources/new for an account preselects the kind and hides the selector" do
+    get new_money_source_path(kind: "account")
+
+    assert_response :success
+    assert_select "h4", text: "Nueva cuenta"
+    assert_select "input[type=submit][value='Guardar cuenta']"
+    assert_select "input[type=hidden][name='money_source[kind]'][value='account']"
+    assert_select "select#money_source_kind", count: 0
+    assert_select "[data-kind-panel='account wallet']" do
+      assert_select "[data-institution-combobox]", count: 1
+      assert_select "input#money_source_identifier", count: 1
+    end
+  end
+
+  test "GET /money_sources/new for cash only asks for the starting balance" do
+    get new_money_source_path(kind: "cash")
+
+    assert_response :success
+    assert_select "h4", text: "Nuevo efectivo"
+    assert_select "[data-kind-panel='cash']" do
+      assert_select "input[name='money_source[starting_balance]']", count: 1
+      assert_select "[data-institution-combobox]", count: 0
+      assert_select "input#money_source_identifier", count: 0
+    end
+  end
+
+  test "GET /money_sources/new for a pocket preselects the kind and hides the selector" do
+    get new_money_source_path(kind: "pocket")
+
+    assert_response :success
+    assert_select "h4", text: "Nuevo bolsillo"
+    assert_select "input[type=submit][value='Guardar bolsillo']"
+    assert_select "input[type=hidden][name='money_source[kind]'][value='pocket']"
+    assert_select "select#money_source_kind", count: 0
+  end
+
+  test "GET /money_sources/new without a kind keeps the selector visible" do
+    get new_money_source_path
+
+    assert_response :success
+    assert_select "select#money_source_kind", count: 1
+    assert_select "input[type=hidden][name='money_source[kind]']", count: 0
+  end
+
+  test "GET /money_sources/new ignores an unknown kind" do
+    get new_money_source_path(kind: "bogus")
+
+    assert_response :success
+    assert_select "h4", text: "Nueva Fuente de Dinero"
+    assert_select "select#money_source_kind", count: 1
+    assert_select "input[type=hidden][name='money_source[kind]']", count: 0
+  end
+
   test "GET /money_sources/:id/edit for a credit card uses the card wording in the title and submit button" do
     card = create_source(name: "Visa", kind: "credit_card")
 
@@ -791,6 +913,25 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to money_sources_cash_path
     follow_redirect!
     assert_equal I18n.t("money_sources.flashes.created"), flash[:notice]
+  end
+
+  test "POST /money_sources redirects a new pocket to the pockets section" do
+    assert_difference "MoneySource.count", 1 do
+      post money_sources_path, params: {
+        money_source: { name: "Bolsillo Viaje", kind: "pocket" }
+      }
+    end
+
+    assert_redirected_to money_sources_pockets_path
+  end
+
+  test "GET show for a pocket links back to the pockets section" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket")
+
+    get money_source_path(pocket)
+
+    assert_response :success
+    assert_select "a[href=?]", money_sources_pockets_path
   end
 
   test "POST /money_sources creates a credit card" do
@@ -959,14 +1100,6 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "GET index groups debt sources" do
-    create_source(name: "Checking", kind: "account")
-    create_source(name: "Visa", kind: "credit_card")
-    get money_sources_path
-    assert_response :success
-    assert_select "h1", text: I18n.t("nav.money_sources")
-  end
-
   test "GET show renders debt panel for a credit card" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Bancolombia")
     source.build_credit_account(credit_limit: 20000000, card_brand: "visa", card_last_four: "1234")
@@ -998,14 +1131,14 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/\$95\.000\.000/, response.body)
   end
 
-  test "GET index renders a loan card without error" do
+  test "GET /money_sources/loans renders a loan card without error" do
     source = create_source(name: "Car Loan", kind: "loan", bank: "Banco")
     source.build_credit_account(principal_amount: 114000000, outstanding_balance: 95000000,
                                 installment_count: 72, installment_amount: 2686800,
                                 payment_frequency: "monthly", interest_rate: 21.27,
                                 interest_rate_type: "effective_annual")
     source.save!
-    get money_sources_path
+    get money_sources_loans_path
     assert_response :success
     assert_match(/Car Loan/, response.body)
   end
@@ -1047,30 +1180,34 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
   # ----- Quick transfer actions on the money source cards -----
 
-  test "GET /money_sources offers each card only the quick actions its kind allows" do
+  test "GET /money_sources/cash offers each card only the quick actions its kind allows" do
     create_source(name: "Checking", kind: "account", starting_balance: 100)
     create_source(name: "Efectivo", kind: "cash", starting_balance: 100)
     create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
     create_source(name: "Bolsillo", kind: "pocket")
     create_source(name: "Prestamo", kind: "loan", sub_kind: "personal")
 
-    get money_sources_path
+    get money_sources_cash_path
     assert_response :success
 
     # Only the bank account can retire cash into the existing cash source.
     assert_select "[data-testid='quick-action-withdraw']", count: 1
     # Transfer offers on bank account + cash (deposit); never on a debt.
     assert_select "[data-testid='quick-action-transfer']", count: 2
-    # The credit card moves money out through its own advance action.
-    assert_select "[data-testid='quick-action-advance']", count: 1
     # Pocket is reachable from bank account + cash (money inside the pocket changes form but is not spent); never from a debt.
     assert_select "[data-testid='quick-action-pocket']", count: 2
+    # Debt cards are not part of the cash section.
+    assert_select "[data-testid='quick-action-advance']", count: 0
+
+    get money_sources_credit_cards_path
+    # The credit card moves money out through its own advance action.
+    assert_select "[data-testid='quick-action-advance']", count: 1
   end
 
   test "the withdraw quick action disappears when no active cash source exists" do
     create_source(name: "Checking", kind: "account", starting_balance: 100)
 
-    get money_sources_path
+    get money_sources_cash_path
     assert_select "[data-testid='quick-action-withdraw']", count: 0
     assert_select "[data-testid='quick-action-transfer']", count: 1
   end
@@ -1079,7 +1216,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     create_source(name: "Checking", kind: "account", starting_balance: 100, active: false)
     create_source(name: "Efectivo", kind: "cash", starting_balance: 100)
 
-    get money_sources_path
+    get money_sources_cash_path
     assert_select "[data-testid='quick-action-withdraw']", count: 0
   end
 

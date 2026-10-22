@@ -111,4 +111,60 @@ test.describe('Credit cards and loans as money sources', () => {
     await expect(page.locator('[data-kind-panel="credit_card"]')).toBeHidden();
     await expect(page.locator('[data-kind-panel="loan"]')).toBeHidden();
   });
+
+  test('credit cards section opens the form with the card kind preselected and hidden', async ({ page }) => {
+    await page.goto('/money_sources/credit_cards');
+
+    await page.getByRole('link', { name: 'Nueva tarjeta de crédito' }).first().click();
+
+    await expect(page).toHaveURL(/\/money_sources\/new\?kind=credit_card$/);
+    await expect(page.getByRole('heading', { name: 'Nueva tarjeta de crédito' })).toBeVisible();
+    const kind = page.locator('#money_source_kind');
+    await expect(kind).toHaveAttribute('type', 'hidden');
+    await expect(kind).toHaveValue('credit_card');
+    await expect(page.locator('[data-kind-panel="credit_card"]')).toBeVisible();
+    await expect(page.locator('[data-kind-panel="loan"]')).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Guardar tarjeta de crédito' })).toBeVisible();
+  });
+
+  test('cash section menu opens the form with the chosen kind preselected', async ({ page }) => {
+    await page.goto('/money_sources/cash');
+
+    await page.getByTestId('new-source-menu').first().click();
+    await page.getByTestId('new-source-kind-account').first().click();
+
+    await expect(page).toHaveURL(/\/money_sources\/new\?kind=account$/);
+    await expect(page.getByRole('heading', { name: 'Nueva cuenta' })).toBeVisible();
+    await expect(page.locator('#money_source_kind')).toHaveValue('account');
+    await expect(page.locator('[data-kind-panel="account wallet"]')).toBeVisible();
+    await expect(page.locator('[data-kind-panel="credit_card"]')).toBeHidden();
+  });
+
+  test('cash money source only asks for the starting balance', async ({ page }) => {
+    await page.goto('/money_sources/cash');
+
+    await page.getByTestId('new-source-menu').first().click();
+    await page.getByTestId('new-source-kind-cash').first().click();
+
+    await expect(page).toHaveURL(/\/money_sources\/new\?kind=cash$/);
+    await expect(page.getByRole('heading', { name: 'Nuevo efectivo' })).toBeVisible();
+    await expect(page.locator('#money_source_name')).toHaveAttribute('placeholder', 'p. ej. Efectivo');
+    const cashPanel = page.locator('[data-kind-panel="cash"]');
+    await expect(cashPanel.locator('#money_source_starting_balance')).toBeVisible();
+    await expect(cashPanel.locator('[data-institution-combobox]')).toHaveCount(0);
+    await expect(cashPanel.locator('#money_source_identifier')).toHaveCount(0);
+  });
+
+  test('name placeholder follows the selected kind in the generic form', async ({ page }) => {
+    await page.goto('/money_sources/new');
+
+    const name = page.locator('#money_source_name');
+    await expect(name).toHaveAttribute('placeholder', 'p. ej. Ahorros Bancolombia');
+
+    await page.locator('#money_source_kind').selectOption('credit_card');
+    await expect(name).toHaveAttribute('placeholder', 'p. ej. Tarjeta Gold');
+
+    await page.locator('#money_source_kind').selectOption('cash');
+    await expect(name).toHaveAttribute('placeholder', 'p. ej. Efectivo');
+  });
 });

@@ -186,7 +186,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     hrefs = css_select("a.metric-card").map { |node| node["href"] }
     assert_equal [
-      money_sources_path,
+      money_sources_cash_path,
       incomes_path,
       expenses_path,
       reports_budgets_path,

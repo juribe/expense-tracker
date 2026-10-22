@@ -8,7 +8,7 @@
   </div>
   <div class="loans-actions flex-wrap">
     <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-primary" do %>
-      <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new_pocket", default: "Crear bolsillo") %>
+      <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new_pocket", default: "Nuevo bolsillo") %>
     <% end %>
   </div>
 </header>
@@ -26,7 +26,7 @@
       <h4 class="mb-2"><%= t("money_sources.index.pockets_empty_title", default: "Aún no tienes bolsillos") %></h4>
       <p class="text-muted"><%= t("money_sources.index.pockets_empty_body", default: "Crea un bolsillo para separar dinero: Viaje, Emergencias, Impuestos...") %></p>
       <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new_pocket", default: "Crear bolsillo") %>
+        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new_pocket", default: "Nuevo bolsillo") %>
       <% end %>
     </div>
   </div>

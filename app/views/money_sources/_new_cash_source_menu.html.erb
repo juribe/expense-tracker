@@ -1,0 +1,21 @@
+<%#
+  The cash section groups accounts, debit cards, cash, and wallets; each menu
+  option opens the new-source form with its kind preselected by URL (the form
+  then keeps it in a hidden field). Locals: extra_class (optional).
+%>
+<div class="dropdown">
+  <button type="button" class="btn btn-primary dropdown-toggle <%= local_assigns[:extra_class] %>"
+          data-bs-toggle="dropdown" aria-expanded="false" data-testid="new-source-menu">
+    <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new") %>
+  </button>
+  <div class="dropdown-menu dropdown-menu-end">
+    <% %w[account debit_card cash wallet].each do |kind| %>
+      <%= link_to new_money_source_path(kind: kind),
+                  class: "dropdown-item d-flex align-items-center gap-2",
+                  data: { testid: "new-source-kind-#{kind}" } do %>
+        <i class="ti ti-<%= source_kind_icon(kind) %>" aria-hidden="true"></i>
+        <span><%= t("money_sources.form.new_titles.#{kind}") %></span>
+      <% end %>
+    <% end %>
+  </div>
+</div>

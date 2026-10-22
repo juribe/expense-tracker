@@ -6,7 +6,10 @@
           <h4 class="mb-0"><%= money_source_form_title(@money_source) %></h4>
         </div>
         <div class="card-body">
-          <%= form_with model: @money_source, local: true do |f| %>
+          <%# A new source opened from a section arrives with its kind set by
+              URL: the type is fixed (hidden) and only its panel is shown. %>
+          <% fixed_kind = @money_source.new_record? && @money_source.kind.present? %>
+          <%= form_with model: @money_source, local: true, data: { money_source_form: true } do |f| %>
             <% if @money_source.errors.any? %>
               <div class="alert alert-danger">
                 <h6><%= t("money_sources.form.error_prohibited", count: @money_source.errors.count) %></h6>
@@ -19,25 +22,32 @@
             <% end %>
 
             <div class="row">
-              <div class="col-md-6 mb-3">
+              <div class="<%= fixed_kind ? "col-12" : "col-md-6" %> mb-3">
                 <%= f.label :name, class: "form-label" %>
-                <%= f.text_field :name, class: "form-control #{field_class(f.object, :name)}", placeholder: t("money_sources.form.placeholder_name") %>
+                <%= f.text_field :name, class: "form-control #{field_class(f.object, :name)}", placeholder: money_source_name_placeholder(@money_source) %>
                 <div class="invalid-feedback"><%= field_error(f.object, :name) %></div>
               </div>
-              <div class="col-md-6 mb-3">
-                <%= f.label :kind, t("common.type", default: "Tipo"), class: "form-label" %>
-                <%= f.select :kind,
-                    options_for_select(
-                      source_kind_options,
-                      @money_source.kind
-                    ),
-                    {},
-                    class: "form-select",
-                    id: "money_source_kind" %>
-              </div>
+              <% unless fixed_kind %>
+                <div class="col-md-6 mb-3">
+                  <%= f.label :kind, t("common.type", default: "Tipo"), class: "form-label" %>
+                  <%= f.select :kind,
+                      options_for_select(
+                        source_kind_options,
+                        @money_source.kind
+                      ),
+                      {},
+                      class: "form-select",
+                      id: "money_source_kind" %>
+                </div>
+              <% else %>
+                <%# Kind was preselected by the section that opened this form
+                    (e.g. Nueva tarjeta de crédito). Keep the same id so the panel script below
+                    still finds the value and disables the other panels. %>
+                <%= f.hidden_field :kind, id: "money_source_kind" %>
+              <% end %>
             </div>
 
-            <div data-kind-panel="account cash wallet">
+            <div data-kind-panel="account wallet">
               <div class="row">
                 <%= render "institution_select", f: f %>
                 <div class="col-md-6 mb-3">
@@ -64,6 +74,25 @@
                       inputmode: "numeric",
                       placeholder: t("money_sources.form.last_four_hint") %>
                   <div class="form-text"><%= t("money_sources.form.account_last4_hint") %></div>
+                </div>
+              </div>
+            </div>
+
+            <%# Cash has no bank or account number: only the starting balance. %>
+            <div data-kind-panel="cash">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= f.label :starting_balance, t("money_sources.form.starting_balance", default: "Saldo inicial"), class: "form-label" %>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <%= f.text_field :starting_balance,
+                        value: money_field_value(@money_source.starting_balance),
+                        class: "form-control",
+                        placeholder: t("money_sources.form.placeholder_balance"),
+                        inputmode: "decimal",
+                        autocomplete: "off",
+                        data: { money_input: true } %>
+                  </div>
                 </div>
               </div>
             </div>
@@ -275,26 +304,3 @@
   </div>
 </div>
 
-<script>
-(function() {
-  function applyKind(kind) {
-    document.querySelectorAll('[data-kind-panel]').forEach(function(el) {
-      var panelKinds = el.getAttribute('data-kind-panel').split(' ');
-      var active = panelKinds.indexOf(kind) !== -1;
-      el.hidden = !active;
-      // Disable inputs in inactive panels so their duplicate field names
-      // (e.g. credit_account interest_rate appears in both credit_card and
-      // loan panels) don't overwrite the active panel's values on submit.
-      el.querySelectorAll('input, select, textarea').forEach(function(input) {
-        input.disabled = !active;
-      });
-    });
-  }
-
-  var kindSelect = document.getElementById('money_source_kind');
-  if (kindSelect) {
-    applyKind(kindSelect.value);
-    kindSelect.addEventListener('change', function() { applyKind(kindSelect.value); });
-  }
-})();
-</script>

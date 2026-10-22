@@ -114,7 +114,7 @@ test.describe('día de cuadre', () => {
     await expect(page.getByText('Saldo registrado.')).toBeVisible();
     await page.waitForLoadState('load');
 
-    await page.goto('/money_sources');
+    await page.goto('/money_sources/cash');
     await page.locator('a[href^="/money_sources/"]').filter({ hasText: 'AllGood Bank' }).first().click();
     await expect(page.getByText('Ajuste manual', { exact: true })).toBeVisible();
     await expect(page.getByText('Pago por fuera de la app')).toBeVisible();

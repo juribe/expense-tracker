@@ -7,8 +7,8 @@
     <p class="loans-subtitle"><%= t("money_sources.loans.subtitle") %></p>
   </div>
   <div class="loans-actions flex-wrap">
-    <%= link_to new_money_source_path, class: "btn btn-primary" do %>
-      <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new") %>
+    <%= link_to new_money_source_path(kind: "loan"), class: "btn btn-primary" do %>
+      <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new_loan") %>
     <% end %>
   </div>
 </header>
@@ -27,8 +27,8 @@
       <i class="ti ti-coin display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("money_sources.index.loans_empty_title") %></h4>
       <p class="text-muted"><%= t("money_sources.index.loans_empty_body") %></p>
-      <%= link_to new_money_source_path, class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new") %>
+      <%= link_to new_money_source_path(kind: "loan"), class: "btn btn-primary mt-3" do %>
+        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new_loan") %>
       <% end %>
     </div>
   </div>

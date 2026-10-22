@@ -227,6 +227,18 @@ module ApplicationHelper
     end
   end
 
+  # Every source belongs to exactly one index section; show/edit flows and
+  # card redirects send the user back to their kind's section. The accounts
+  # section is the fallback (cash/wallet/debit cards kind group).
+  def money_sources_section_path(source)
+    case source.kind
+    when "credit_card" then money_sources_credit_cards_path
+    when "loan" then money_sources_loans_path
+    when "pocket" then money_sources_pockets_path
+    else money_sources_cash_path
+    end
+  end
+
   private
 
   def sidebar_cycle
@@ -289,6 +301,8 @@ module ApplicationHelper
   # "Editar tarjeta de crédito" and a "Guardar cuenta" submit button.
   def money_source_form_title(money_source)
     if money_source.new_record?
+      return t("money_sources.form.title_new") if money_source.kind.blank?
+
       t("money_sources.form.new_titles.#{money_source.kind}", default: t("money_sources.form.title_new"))
     else
       t("money_sources.form.title_edit", kind: money_source_kind_label(money_source))
@@ -302,6 +316,19 @@ module ApplicationHelper
 
   def money_source_kind_label(money_source)
     money_source.kind.present? ? source_kind_label(money_source.kind).downcase : nil
+  end
+
+  # Sample name that matches what the user is creating ("Tarjeta Gold",
+  # "Cuenta ahorro Davivienda", "Efectivo"...), with a generic fallback for
+  # forms opened without a preselected kind.
+  def money_source_name_placeholder(money_source)
+    money_source_name_placeholder_for_kind(money_source.kind)
+  end
+
+  def money_source_name_placeholder_for_kind(kind)
+    return t("money_sources.form.placeholder_name") if kind.blank?
+
+    t("money_sources.form.placeholder_names.#{kind}", default: t("money_sources.form.placeholder_name"))
   end
 
   # Compact dd/mm/yyyy label for iso dates stored in credit projections.
@@ -332,7 +359,10 @@ module ApplicationHelper
   end
 
   def source_kind_options
-    MoneySource::KINDS.map { |kind| [ source_kind_label(kind), kind ] }
+    MoneySource::KINDS.map do |kind|
+      [ source_kind_label(kind), kind,
+        { "data-name-placeholder" => money_source_name_placeholder_for_kind(kind) } ]
+    end
   end
 
   # ----- Financial goals / pockets -----

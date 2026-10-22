@@ -12,6 +12,12 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.getByRole('button', { name: 'Comenzar configuración' }).click();
   }
 
+  async function pickBank(page, rowIndex, name) {
+    const combobox = page.locator('[data-institution-combobox]').nth(rowIndex);
+    await combobox.locator('[data-institution-search]').fill(name);
+    await combobox.locator('[data-institution-option][value]:not([value=""])').filter({ hasText: name }).first().click();
+  }
+
   async function choose(page, title) {
     await page.locator('label.choice-card', { hasText: title }).click();
   }
@@ -39,7 +45,7 @@ test.describe('Hybrid financial setup wizard', () => {
     // Manual entry
     const name = `Ahorros Wizard-${Date.now()}`;
     await page.locator('input[name="sources[0][name]"]').fill(name);
-    await page.locator('input[name="sources[0][bank]"]').fill('Bancolombia');
+    await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('5420000');
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
 
@@ -59,7 +65,7 @@ test.describe('Hybrid financial setup wizard', () => {
 
     // Source persisted
     await page.getByRole('link', { name: /Ir al panel/ }).click();
-    await page.goto('/money_sources');
+    await page.goto('/money_sources/cash');
     await expect(page.getByText(name)).toBeVisible();
   });
 
@@ -74,12 +80,12 @@ test.describe('Hybrid financial setup wizard', () => {
     const accountA = `Ahorros A-${Date.now()}`;
     const accountB = `Ahorros B-${Date.now()}`;
     await page.locator('input[name="sources[0][name]"]').fill(accountA);
-    await page.locator('input[name="sources[0][bank]"]').fill('Bancolombia');
+    await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('5420000');
 
     await page.getByRole('button', { name: 'Agregar otra' }).click();
     await page.locator('input[name="sources[1][name]"]').fill(accountB);
-    await page.locator('input[name="sources[1][bank]"]').fill('Davivienda');
+    await pickBank(page, 1, 'Davivienda');
     await page.locator('input[name="sources[1][balance]"]').fill('2180000');
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
 
@@ -89,7 +95,7 @@ test.describe('Hybrid financial setup wizard', () => {
 
     const card = `Visa Oro-${Date.now()}`;
     await page.locator('input[name="sources[0][name]"]').fill(card);
-    await page.locator('input[name="sources[0][bank]"]').fill('Bancolombia');
+    await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][identifier]"]').fill('1234');
     await page.locator('input[name="sources[0][balance]"]').fill('1200000');
     await page.locator('input[name="sources[0][credit_limit]"]').fill('8000000');
@@ -103,7 +109,7 @@ test.describe('Hybrid financial setup wizard', () => {
 
     const loan = `Hipoteca-${Date.now()}`;
     await page.locator('input[name="sources[0][name]"]').fill(loan);
-    await page.locator('input[name="sources[0][bank]"]').fill('Banco de Bogotá');
+    await pickBank(page, 0, 'Banco de Bogotá');
     await page.locator('input[name="sources[0][principal_amount]"]').fill('450000000');
     await page.locator('input[name="sources[0][outstanding_balance]"]').fill('450000000');
     await page.locator('input[name="sources[0][monthly_payment]"]').fill('3100000');
@@ -121,10 +127,15 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.getByRole('button', { name: 'Finalizar configuración' }).click();
     await expect(page.getByRole('heading', { name: 'Tus finanzas están listas' })).toBeVisible();
     await page.getByRole('link', { name: /Ir al panel/ }).click();
-    await page.goto('/money_sources');
-    for (const source of [ accountA, accountB, card, loan ]) {
+    await page.goto('/money_sources/cash');
+    for (const source of [ accountA, accountB ]) {
       await expect(page.getByText(source)).toBeVisible();
     }
+
+    await page.goto('/money_sources/credit_cards');
+    await expect(page.getByText(card)).toBeVisible();
+    await page.goto('/money_sources/loans');
+    await expect(page.getByText(loan)).toBeVisible();
   });
 
   test('user can save a step, dismiss the setup, and resume later without losing progress', async ({ page }) => {
@@ -136,7 +147,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await choose(page, 'Agregar manualmente');
     const name = `Corriente Dismiss-${Date.now()}`;
     await page.locator('input[name="sources[0][name]"]').fill(name);
-    await page.locator('input[name="sources[0][bank]"]').fill('Bancolombia');
+    await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('100000');
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
     await expect(page.getByText('¿Cómo quieres agregar tus tarjetas de crédito?')).toBeVisible();
@@ -144,7 +155,7 @@ test.describe('Hybrid financial setup wizard', () => {
     // Leave from the credit cards step
     await page.getByRole('link', { name: 'Continuar después' }).click();
 
-    await page.goto('/money_sources');
+    await page.goto('/money_sources/cash');
     await expect(page.getByTestId('unfinished-setup-banner')).toBeVisible();
     await page.getByRole('link', { name: 'Retomar configuración' }).click();
 
@@ -166,7 +177,7 @@ test.describe('Hybrid financial setup wizard', () => {
 
     const original = `Ahorros Original-${Date.now()}`;
     await page.locator('input[name="sources[0][name]"]').fill(original);
-    await page.locator('input[name="sources[0][bank]"]').fill('Bancolombia');
+    await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('100000');
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
 

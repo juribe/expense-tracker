@@ -151,7 +151,7 @@ test.describe('category budgets are working', () => {
     // Transfers are quick actions: the origin account card's menu opens the
     // compact modal with the origin fixed, so the form only asks for the
     // destination and the amount.
-    await page.goto('/money_sources');
+    await page.goto('/money_sources/cash');
     const savingsCard = page.locator('.card', { hasText: savingsName });
     await savingsCard.locator('[data-testid="card-actions-toggle"]').click();
     await savingsCard.locator('[data-testid="quick-action-transfer"]').click();

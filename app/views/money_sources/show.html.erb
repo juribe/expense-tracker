@@ -15,7 +15,7 @@
       <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
         <i class="ti ti-pencil me-1"></i><%= t("common.edit") %>
       <% end %>
-      <%= link_to money_sources_path, class: "btn btn-outline-secondary" do %>
+      <%= link_to money_sources_section_path(@money_source), class: "btn btn-outline-secondary" do %>
         <i class="ti ti-arrow-left me-1"></i><%= t("common.back") %>
       <% end %>
     </div>

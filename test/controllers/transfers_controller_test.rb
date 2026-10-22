@@ -307,12 +307,12 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Expense.count" do
       assert_difference "Transfer.count", 1 do
         post transfers_path, params: {
-          quick: "1", mode: "withdraw", return_to: money_sources_path,
+          quick: "1", mode: "withdraw", return_to: money_sources_cash_path,
           transfer: { from_source_id: @savings.id, to_source_id: cash.id, amount: 100, date: Date.current.to_s }
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_cash_path
     follow_redirect!
     assert_equal I18n.t("transfers.flashes.created"), flash[:notice]
     assert_equal BigDecimal("900"), @savings.reload.balance
@@ -371,13 +371,13 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
       assert_no_difference "Expense.count" do
         post transfers_path, params: {
-          quick: "1", mode: "pocket", return_to: money_sources_path,
+          quick: "1", mode: "pocket", return_to: money_sources_pockets_path,
           transfer: { from_source_id: @savings.id, to_source_id: pocket.id, amount: "500.000",
                       date: Date.current.to_s, assign_goal_id: goal.id }
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_pockets_path
     allocation = GoalAllocation.last
     assert_equal goal, allocation.financial_goal
     assert_equal 500_000, allocation.amount
@@ -461,12 +461,12 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Expense.count" do
       assert_difference "Transfer.count", 1 do
         post transfers_path, params: {
-          quick: "1", mode: "advance", return_to: money_sources_path,
+          quick: "1", mode: "advance", return_to: money_sources_credit_cards_path,
           transfer: { from_source_id: card.id, to_source_id: @checking.id, amount: 300_000, date: Date.current.to_s }
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_credit_cards_path
     assert_equal BigDecimal("1_300_000"), card.reload.used_credit
     assert_equal BigDecimal("300_000"), @checking.reload.balance
   end
@@ -493,12 +493,12 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Expense.count" do
       assert_difference "Transfer.count", 1 do
         post transfers_path, params: {
-          quick: "1", mode: "disburse", return_to: money_sources_path,
+          quick: "1", mode: "disburse", return_to: money_sources_credit_cards_path,
           transfer: { from_source_id: revolving.id, to_source_id: @checking.id, amount: 400_000, date: Date.current.to_s }
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_credit_cards_path
     assert_equal BigDecimal("1_400_000"), revolving.reload.credit_account.outstanding_balance.to_d
     assert_equal BigDecimal("400_000"), @checking.reload.balance
   end
@@ -525,12 +525,12 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Expense.count" do
       assert_difference "Transfer.count", 1 do
         post transfers_path, params: {
-          quick: "1", mode: "release", return_to: money_sources_path,
+          quick: "1", mode: "release", return_to: money_sources_pockets_path,
           transfer: { from_source_id: pocket.id, to_source_id: @savings.id, amount: "200.000", date: Date.current.to_s }
         }
       end
     end
-    assert_redirected_to money_sources_path
+    assert_redirected_to money_sources_pockets_path
     assert_equal BigDecimal("300_000"), pocket.reload.balance
     assert_equal BigDecimal("201_000"), @savings.reload.balance
   end

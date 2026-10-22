@@ -40,7 +40,7 @@ test.describe('Debt payments', () => {
     await expect(page).toHaveURL(/\/expenses/);
     await expect(page.locator('#expenseTable', { hasText: expenseDescription })).toBeVisible();
 
-    await page.goto('/money_sources');
+    await page.goto('/money_sources/cash');
     await page.getByRole('link', { name: cardName }).click();
     await page.locator('[data-tab-slug="pagos"]').click();
 

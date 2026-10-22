@@ -17,7 +17,6 @@ class MoneySourcesController < ApplicationController
   # preloading only what the rendered partial touches keeps Bullet quiet for
   # both N+1 (USE) and unused eager loading (AVOID) per page.
   INDEX_INCLUDES = {
-    nil => %i[parent children recognition_identifiers credit_account],
     "cash" => %i[parent children recognition_identifiers],
     "pockets" => %i[],
     "credit_cards" => %i[credit_account],
@@ -25,19 +24,22 @@ class MoneySourcesController < ApplicationController
   }.freeze
 
   # GET /money_sources
+  #
+  # The general "all sources" index no longer exists: every card belongs to
+  # exactly one section. A missing or unknown type goes to the default
+  # accounts/cash section.
   def index
-    # An unknown type is treated as no filter at all: it must never reach the
-    # renderer as a template name (see index_template).
-    @filter = FILTERS.key?(params[:type]) ? params[:type] : nil
+    unless FILTERS.key?(params[:type])
+      redirect_to money_sources_cash_path and return
+    end
+    @filter = params[:type]
     scope = current_user.money_sources
     # Pockets touch no associations; includes() without arguments would raise.
     if INDEX_INCLUDES[@filter].present?
       scope = scope.includes(*INDEX_INCLUDES[@filter])
     end
 
-    if @filter
-      scope = scope.where(kind: FILTERS[@filter])
-    end
+    scope = scope.where(kind: FILTERS[@filter])
 
     @money_sources = scope.order(:kind, :name)
     @counts = FILTERS.each_with_object({}) do |(key, kinds), out|
@@ -282,7 +284,6 @@ class MoneySourcesController < ApplicationController
     when "pockets" then "index_pockets"
     when "credit_cards" then "index_credit_cards"
     when "loans" then "index_loans"
-    else "index"
     end
   end
 
@@ -322,12 +323,11 @@ class MoneySourcesController < ApplicationController
     SourceRecognition::BankGrouping.key(source)
   end
 
+  # The section redirect after create/update/destroy mirrors the helper used
+  # by the views, so back links and post-action redirects always land on the
+  # same section.
   def kind_index_path(source)
-    case source.kind
-    when "credit_card" then money_sources_credit_cards_path
-    when "loan" then money_sources_loans_path
-    else money_sources_cash_path
-    end
+    helpers.money_sources_section_path(source)
   end
 
   # `dismissed` arrives as { "keywords" => [...], "senders" => [...],
