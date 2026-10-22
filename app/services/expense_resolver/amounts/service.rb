@@ -18,17 +18,19 @@ module ExpenseResolver
       NUMBER_WORD_ALTERNATION = NUMBER_WORDS.keys.sort_by(&:length).reverse.join("|")
 
       # Matches amounts such as: 50.000 | 50,000 | 1'200.000 (grouped thousands),
-      # medio millon, cuarto de millon, "50 mil", "cincuenta mil", "50 lucas",
-      # "80k", "500 pesos" and plain integers or decimals.
+      # 22.209,60 (grouped thousands plus decimals), medio millon, cuarto de
+      # millon, "50 mil", "cincuenta mil", "50 lucas", "80k", "500 pesos" and
+      # plain integers or decimals. A separator followed by one or two digits
+      # is a decimal separator; followed by three digits it groups thousands.
       AMOUNT_REGEX = /
         (?<amount>
-            \d{1,3}(?:['.,]\s?\d{3})+                                     |
+            \d{1,3}(?:['.,]\s?\d{3})+(?:[.,]\d{1,2})?                     |
             medio\s+millon                                                |
             (?:un\s+)?cuarto\s+de\s+millon                                |
             (?:\d+(?:[.,]\d+)?|(?:#{NUMBER_WORD_ALTERNATION})(?:\s+y\s+(?:#{NUMBER_WORD_ALTERNATION}))*)\s*(?:mil|lucas|luca)\b |
             \d+\s*k\b                                                     |
             \d+(?:[.,]\d+)?\s*(?:pesos|cop)\b                             |
-            \d+(?:\.\d{1,2})?
+            \d+(?:[.,]\d{1,2})?
         )
       /x.freeze
 
@@ -51,7 +53,10 @@ module ExpenseResolver
       def self.interpret_amount(raw, colloquial: false)
         text = raw.gsub(/\s+/, " ").strip
 
-        if text.match?(/\A\d{1,3}(?:['.,]\s?\d{3})+\z/)
+        if (grouped = text.match(/\A(\d{1,3}(?:['.,]\s?\d{3})+)([.,])(\d{1,2})\z/))
+          integer = grouped[1].delete("'.,").gsub(/\s+/, "")
+          return [ BigDecimal("#{integer}.#{grouped[3]}"), 0.95 ]
+        elsif text.match?(/\A\d{1,3}(?:['.,]\s?\d{3})+\z/)
           return [ text.delete("'.,").to_d, 0.95 ]
         elsif text.match?(/\Amedio\s+millon\z/)
           return [ 500_000, 0.95 ]
@@ -66,7 +71,7 @@ module ExpenseResolver
         elsif (plain = text.match(/\A(\d+)(?:[.,](\d{1,2}))?\s*(pesos|cop)?\z/))
           cents = plain[2]
           value = plain[1].to_d
-          value += cents.to_d / 100 if cents
+          value += cents.to_d / (cents.length == 1 ? 10 : 100) if cents
           unit = plain[3]
 
           if colloquial && unit.nil? && cents.nil? && value.positive? && value < 1_000

@@ -29,21 +29,24 @@ module ExpenseResolver
 
     def call
       normalized = Text::Service.normalize_text(@text)
-      matches = Amounts::Service.scan_amounts(normalized)
+      explicit_date = Dates::Service.detect_explicit_date(normalized, today: @today)
+      masked = Dates::Service.mask_dates_and_times(normalized)
+      matches = reject_foreign_currency_equivalents(Amounts::Service.scan_amounts(masked), masked)
       return [] if matches.empty?
 
       # A date expression scopes every expense that follows it until a new
       # one appears ("Ayer gasté 45.000 en almuerzo, 18.000 en un taxi").
-      carried_date = nil
+      # An explicit calendar date from the receipt outranks weekday words.
+      carried_date = explicit_date
       entries = []
 
       matches.each_with_index do |match, index|
         previous_end = index.zero? ? 0 : matches[index - 1][:end]
-        prefix = normalized[previous_end...match[:start]].to_s
-        window_end = index == matches.length - 1 ? normalized.length : matches[index + 1][:start]
-        segment = normalized[match[:end]...window_end].to_s
+        prefix = masked[previous_end...match[:start]].to_s
+        window_end = index == matches.length - 1 ? masked.length : matches[index + 1][:start]
+        segment = masked[match[:end]...window_end].to_s
         window = expense_window(segment)
-        original_text = normalized[previous_end...window_end].to_s
+        original_text = masked[previous_end...window_end].to_s
 
         date_info = detect_date(prefix) || detect_date(window)
         carried_date = date_info if date_info
@@ -66,6 +69,18 @@ module ExpenseResolver
     end
 
     private
+
+    # Foreign-currency equivalents ("US$ 7,02" under a "$22.209,60" total) are
+    # the same movement shown in another currency, not a second expense. They
+    # are only dropped when a local amount remains to represent the movement.
+    FOREIGN_CURRENCY_REGEX = /(?:\bus\$|\busd\b|\bu\$s\b|\beur\b|€)\s*\z/
+
+    def reject_foreign_currency_equivalents(matches, text)
+      filtered = matches.reject do |match|
+        text[0...match[:start]].to_s.match?(FOREIGN_CURRENCY_REGEX)
+      end
+      filtered.presence || matches
+    end
 
     # "en realidad fueron 110.000", "bueno 90.000", "perdón, 65.000",
     # "revisando el recibo fueron 76.500" — a correction clause in the gap

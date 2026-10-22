@@ -52,6 +52,29 @@ module Ai
       assert_nil entry[:merchant]
     end
 
+    test "normalizes a mixed thousands and decimal amount from the model" do
+      data = parse({ "ocr_text" => "$22.209,60", "expenses" => [ { "amount" => "22.209,60" } ] })
+
+      assert_equal BigDecimal("22209.60"), data[:expenses].first[:amount]
+    end
+
+    test "normalizes a Spanish calendar date returned by the model" do
+      data = parse(
+        { "ocr_text" => "", "expenses" => [ { "amount" => 22_209.60, "transaction_date" => "22 de Octubre de 2026" } ] },
+        Date.new(2026, 10, 1)
+      )
+
+      assert_equal "2026-10-22", data[:expenses].first[:transaction_date]
+    end
+
+    test "the vision prompt documents mixed separators and prefers the local currency total" do
+      prompt = extractor.send(:system_prompt)
+
+      assert_includes prompt, "22.209,60"
+      assert_match(/local currency/, prompt)
+      assert_match(/US\$/, prompt)
+    end
+
     test "keeps an ocr-only response without expenses" do
       data = parse({ "ocr_text" => "ticket", "expenses" => [] })
       assert_equal "ticket", data[:ocr_text]

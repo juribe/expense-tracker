@@ -59,7 +59,8 @@ module Ai
           Rules:
           - One input may contain multiple expenses; return one entry per expense.
           - Interpret Colombian amounts: "50 mil"/"50 lucas"/"50k" = 50000, "50.000 pesos" = 50000, "medio millon" = 500000.
-          - Resolve relative dates ("hoy", "ayer", "anteayer", "el lunes") to an ISO date (YYYY-MM-DD).
+          - A comma or dot followed by 1-2 digits is decimal ("7,02" = 7.02, "7.02" = 7.02); followed by 3 digits it groups thousands ("5,400" and "5.400" = 5400). "22.209,60" = 22209.60.
+          - Resolve relative dates ("hoy", "ayer", "anteayer", "el lunes") and printed dates ("22 de octubre de 2026" = 2026-10-22) to an ISO date (YYYY-MM-DD).
           - Category: use one of the user's existing categories (SPANISH label) when it clearly fits; when the closest existing category differs only in wording, prefer it; otherwise set "create_category": true and suggest a short SPANISH category name.
           - UNASSIGNED CATEGORY: return "category": null (with "create_category": false) ONLY when the message gives no basis to determine or propose ANY category (truly empty/gibberish input). When a product or service IS identifiable but fits none of the user's categories, you MUST propose a new category with "create_category": true and a short Spanish name. Do NOT force ambiguous cases into "Otros".
           - "Otros" is ONLY for expenses that are known but fit none of the specific categories. "Otros" is NEVER an automatic fallback for uncertain classifications.

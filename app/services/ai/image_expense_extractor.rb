@@ -163,10 +163,11 @@ module Ai
           "confidence":0.9}
 
         Rules:
-        - Interpret Colombian amounts: "87.500" = 87500, "8,500" = 8500.
+        - Read amounts with either separator style. A comma or dot followed by 1-2 digits is the decimal part ("7,02" = 7.02, "7.02" = 7.02). A comma or dot followed by 3 digits groups thousands ("5,400" = 5400, "5.400" = 5400). Mixed formats keep both: "22.209,60" = 22209.60.
+        - When the screenshot shows a total in the local currency and a foreign-currency equivalent line (e.g. "$22.209,60" and "US$ 7,02"), use the local currency total; never use the US$ equivalent as the amount.
         - Prefer the TOTAL line when a receipt shows items plus a total; for transfer / payment confirmations use the transferred amount.
         - A money-transfer or payment-confirmation screen (e.g. Nequi, Bancolombia) IS an expense.
-        - Resolve the date to an ISO date (YYYY-MM-DD); when no date is visible use #{@today.iso8601}.
+        - Resolve the date to an ISO date (YYYY-MM-DD); when no date is visible use #{@today.iso8601}. Read printed dates as written: "Jueves, 22 de Octubre de 2026" = 2026-10-22; a weekday never replaces the printed date.
         - Category must be a short english hint such as: groceries, restaurants, transportation, shopping, utilities, health, entertainment.
         - Output only valid JSON: no markdown, no explanations, no extra keys.
       PROMPT
@@ -216,28 +217,11 @@ module Ai
       nil
     end
 
-    def parse_amount_text(text)
-      return 0.0 if text.blank?
-
-      if text.match?(/\A\d{1,3}(?:\.\d{3})+\z/)
-        text.delete(".").to_f
-      elsif text.match?(/\A\d+(?:,\d{1,2})\z/)
-        text.tr(",", ".").to_f
-      else
-        text.gsub(/[^0-9.\-]/, "").to_f
-      end
-    end
-
     def parse_date(value)
       return @today if value.blank?
 
-      begin
-        Date.iso8601(value.to_s)
-      rescue ArgumentError, Date::Error, TypeError
-        Date.parse(value.to_s)
-      end
-    rescue ArgumentError, Date::Error, TypeError
-      nil
+      ExpenseResolver::Dates::Service.parse_explicit_date(value, today: @today) ||
+        ExpenseResolver::Dates::Service.parse_iso_date(value)
     end
 
     def normalize_currency(value)

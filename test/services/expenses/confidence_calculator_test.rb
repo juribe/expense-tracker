@@ -98,8 +98,10 @@ module Expenses
     test "future dates take a fixed penalty" do
       result = calculate(expense(date: @today + 5), input: "gasté 50 mil en almuerzos el 24 de septiembre")
 
-      # All signals except date-in-text fire (0.90); the future date takes -0.10.
-      assert_equal 0.80, result.score
+      # Every signal fires (1.00, including "24 de septiembre" as an explicit
+      # date); the future date then takes -0.10.
+      assert_equal 0.90, result.score
+      assert result.reasons.any? { |reason| reason.include?("date resolved from the original text") }
       assert result.reasons.any? { |reason| reason.include?("date is in the future") }
     end
 

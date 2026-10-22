@@ -20,19 +20,28 @@ module Expenses
     end
 
     def parse_amount_text(text)
-      return 0.0 if text.blank?
-
-      cleaned = text.gsub(/[^0-9.,\-]/, "")
+      cleaned = text.to_s.gsub(/[^0-9.,'\-]/, "")
       return 0.0 if cleaned.blank? || cleaned == "-"
 
-      if cleaned.match?(/\A-?\d{1,3}(?:\.\d{3})+,\d+\z/)
-        cleaned.delete(".").tr(",", ".").to_f
-      elsif cleaned.match?(/\A-?\d{1,3}(?:\.\d{3})+\z/)
-        cleaned.delete(".").to_f
-      elsif cleaned.match?(/\A-?\d+,\d+\z/)
-        cleaned.tr(",", ".").to_f
+      negative = cleaned.start_with?("-")
+      value = normalize_amount_text(cleaned.delete("-"))
+      return 0.0 if value.nil?
+
+      negative ? -value : value
+    end
+
+    # A separator followed by one or two digits is a decimal separator;
+    # followed by three digits it groups thousands, with either comma or dot.
+    # "22.209,60" => 22209.60, "5,400" and "5.400" => 5400.
+    def normalize_amount_text(text)
+      if (match = text.match(/\A(\d{1,3}(?:['.,]\s?\d{3})+)([.,])(\d{1,2})\z/))
+        "#{match[1].delete("'.,").gsub(/\s+/, "")}.#{match[3]}".to_f
+      elsif text.match?(/\A\d{1,3}(?:['.,]\s?\d{3})+\z/)
+        text.delete("'.,").gsub(/\s+/, "").to_f
+      elsif text.match?(/\A\d+[.,]\d{1,2}\z/)
+        text.tr(",", ".").to_f
       else
-        cleaned.to_f
+        text.delete("'").tr(",", ".").to_f
       end
     end
 

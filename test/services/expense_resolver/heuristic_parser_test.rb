@@ -185,4 +185,26 @@ class ExpenseResolverHeuristicParserTest < ActiveSupport::TestCase
     assert_equal BigDecimal("25000"), entries.last.amount
     assert_includes entries.last.description.downcase, "parqueadero"
   end
+
+  test "reads a payment screenshot OCR as one expense with its real date" do
+    ocr_text = <<~TEXT
+      Cba*Syntevo
+      $22.209,60
+      US$ 7,02
+      10:38, Jueves, 22 de Octubre de 2026
+    TEXT
+
+    entries = parse(ocr_text, today: Date.new(2026, 10, 22))
+
+    assert_equal 1, entries.size
+    assert_equal BigDecimal("22209.60"), entries.first.amount
+    assert_equal Date.new(2026, 10, 22), entries.first.date
+    assert_equal "Cba Syntevo", entries.first.description
+  end
+
+  test "times and dates never become phantom amounts" do
+    entries = parse("10:38, Jueves, 22 de Octubre de 2026", today: Date.new(2026, 10, 22))
+
+    assert_empty entries
+  end
 end
