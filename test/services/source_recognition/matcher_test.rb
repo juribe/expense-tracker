@@ -168,6 +168,65 @@ module SourceRecognition
       assert_not_equal lifemiles, result
     end
 
+    test "bank sender on the seed never outranks a sibling card's product keywords" do
+      @clasica.destroy
+      cuenta = create_configured_source(
+        name: "Cuenta de Ahorros", keywords: [ "davibank" ],
+        senders: [ "davibankinforma@davibank.com" ], domains: [ "davibank.com" ]
+      )
+      visa = create_configured_source(
+        name: "Tarjeta Visa Infinite", kind: "credit_card",
+        keywords: [ "davibank", "infinite", "tarjeta Visa Infinite" ]
+      )
+
+      # Regression: the seed keeps the bank's sender/domain, so those signals
+      # are shared by the whole group and cannot identify WHICH product paid.
+      # The card must win through its own product keywords.
+      result = match(
+        from: "DAVIbank <davibankinforma@davibank.com>",
+        body: "DAVIbank te notifica que el día de hoy realizaste con tu tarjeta Visa Infinite " \
+              "la siguiente transacción: Comercio DiDi CO Food Monto 35,000 Fecha 2026/10/21"
+      )
+
+      assert_equal visa, result
+      assert_not_equal cuenta, result
+    end
+
+    test "a debit email still picks the account through its product keywords" do
+      @clasica.destroy
+      cuenta = create_configured_source(
+        name: "Cuenta de Ahorros", keywords: [ "davibank", "tarjeta clasica" ],
+        senders: [ "davibankinforma@davibank.com" ], domains: [ "davibank.com" ]
+      )
+      create_configured_source(
+        name: "Tarjeta Visa Infinite", kind: "credit_card",
+        keywords: [ "davibank", "infinite" ]
+      )
+
+      result = match(
+        from: "DAVIbank <davibankinforma@davibank.com>",
+        body: "DAVIbank te notifica que realizaste con tu tarjeta Clasica una transacción de 20,300"
+      )
+
+      assert_equal cuenta, result
+    end
+
+    test "dismissed identifiers never drive matching" do
+      @clasica.recognition.recognition_identifiers.create!(
+        kind: "keyword", value: "infinite", status: "dismissed", origin: "gmail"
+      )
+
+      assert_nil match(from: "otro@otro.com", subject: "sin señales", body: "tarjeta Infinite")
+    end
+
+    test "dismissed sender identifiers never drive matching" do
+      @clasica.recognition.recognition_identifiers.create!(
+        kind: "sender", value: "avisos@otro.com", status: "dismissed", origin: "gmail"
+      )
+
+      assert_nil match(from: "Avisos <avisos@otro.com>", subject: "sin señales", body: "nada relevante")
+    end
+
     test "same-bank cards with no product evidence stay ambiguous" do
       @clasica.destroy
       create_configured_source(

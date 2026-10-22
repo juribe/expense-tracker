@@ -19,11 +19,14 @@ module SourceRecognition
   # A bare 4-digit token in the body (an amount, a date) never matches.
   #
   # Institution signals (sender/domain/subject/header) identify the BANK, not
-  # the product: every card of the same bank shares them. When two or more
-  # configured sources match the message at institution level, those signals
-  # are zeroed out for everyone and only product evidence (keywords, anchored
-  # last-four) may pick a winner; with no product evidence the result stays
-  # ambiguous instead of rewarding whoever confirmed more bank boilerplate.
+  # the product: every card of the same bank shares them. They are zeroed out
+  # for everyone when two different bank groups match at institution level, or
+  # when the matched group has several configured members and one of them
+  # matched product evidence. Only product evidence (keywords, anchored
+  # last-four) may then pick a winner; without it the result stays ambiguous
+  # instead of rewarding whoever confirmed more bank boilerplate, and the
+  # seed's sender/domain cannot keep the email away from the card that
+  # provably paid.
   #
   #   Matcher.call(user: user, message: gmail_message_hash)
   #     => MoneySource            when exactly one source wins
@@ -31,7 +34,8 @@ module SourceRecognition
   #     => nil                    when nothing matches
   #
   # Only CONFIRMED identifiers participate: persisted suggestions
-  # (status "suggested") are awaiting user review and must never drive
+  # (status "suggested") are awaiting user review and dismissed identifiers
+  # (status "dismissed") were rejected by the user; neither must drive
   # automatic matching.
   class Matcher
     WEIGHTS = { "sender" => 3, "domain" => 3, "subject" => 2, "header" => 2, "keyword" => 1 }.freeze
@@ -155,7 +159,7 @@ module SourceRecognition
 
     def per_source_score(source)
       source.recognition_identifiers
-            .reject(&:suggested?)
+            .select { |id| active_identifier?(id) }
             .sum { |id| identifier_score(id, source) }
     end
 
@@ -196,7 +200,7 @@ module SourceRecognition
     def shared_bank_evidence(source)
       seed = bank_group_for(source)[:seed]
       seed.recognition_identifiers
-          .reject(&:suggested?)
+          .select { |id| active_identifier?(id) }
           .select { |id| INSTITUTION_KINDS.include?(id.kind) && shared_bank_match?(id) }
           .sum { |id| SHARED_WEIGHTS[id.kind] }
     end
@@ -216,22 +220,48 @@ module SourceRecognition
     def institution_ambiguous?
       return @institution_ambiguous if defined?(@institution_ambiguous)
 
-      # Bank-level evidence identifies a BANK GROUP, not a product: it is
-      # ambiguous only when TWO DIFFERENT groups matched at bank level.
-      # Within one group the shared sender/domain/subject boilerplate is
-      # expected on every card — product evidence (keywords, last-four)
-      # picks the member.
-      own_bank_matches = bank_groups.values
-                                    .flat_map { |group| group[:members] }
-                                    .select(&:recognition_configured?)
-                                    .count { |source| institution_match?(source) }
-      @institution_ambiguous = own_bank_matches >= 2
+      # Bank-level evidence identifies a BANK GROUP, not a product. It is
+      # ambiguous when:
+      #   - TWO DIFFERENT groups matched at bank level (one relay email may
+      #     name several banks), or
+      #   - the matched group has SEVERAL configured members (account plus
+      #     cards of the same bank) AND at least one of them matched product
+      #     evidence in the message. The seed holds the shared sender/domain/
+      #     subject boilerplate, so it must not single out a product when a
+      #     sibling can prove it was the one used.
+      matched_groups = bank_groups.values.select do |group|
+        group[:members]
+             .select(&:recognition_configured?)
+             .any? { |source| institution_match?(source) }
+      end
+      @institution_ambiguous = matched_groups.size >= 2 ||
+                               matched_groups.any? do |group|
+                                 group[:members].count(&:recognition_configured?) >= 2 &&
+                                   group[:members].any? { |source| product_match?(source) }
+                               end
+    end
+
+    # Product evidence (a matching keyword, including anchored last-four)
+    # proves WHICH member of a bank group was used. It does not depend on
+    # institution_ambiguous?, so it is safe to evaluate while deciding it.
+    def product_match?(source)
+      source.recognition_identifiers.any? do |id|
+        next false unless active_identifier?(id) && id.kind == "keyword"
+
+        keyword_score(id, source).positive?
+      end
     end
 
     def institution_match?(source)
       source.recognition_identifiers
-            .reject(&:suggested?)
+            .select { |id| active_identifier?(id) }
             .any? { |id| INSTITUTION_KINDS.include?(id.kind) && institution_kind_match?(id) }
+    end
+
+    # Suggestions await user review; dismissed identifiers were rejected by
+    # the user. Neither may drive automatic matching.
+    def active_identifier?(id)
+      !id.suggested? && !id.dismissed?
     end
 
     def institution_kind_match?(id)
