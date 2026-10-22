@@ -18,6 +18,19 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     @user.money_sources.create!({ name: name, kind: kind, starting_balance: 0 }.merge(opts))
   end
 
+  test "GET /money_sources/:id shows the manual adjustment trace on a loan" do
+    loan = create_source(name: "Crédito carro", kind: "loan")
+    loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+    Reconciliation::CheckBalance.call(user: @user, money_source: loan, actual_balance: "30.500.000",
+                                      adjust: true, note: "Saldo del banco")
+
+    get money_source_path(loan)
+
+    assert_response :success
+    assert_select "dt", text: I18n.t("money_sources.show.manual_adjustment")
+    assert_select "dd", text: /Saldo del banco/
+  end
+
   test "GET /money_sources renders the index" do
     create_source
     get money_sources_path

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "test_helper"
+
 module Reconciliation
   # CheckBalance + MoneySources::BalanceAdjust: recording the real balance,
   # resolving ok/difference, the no-transaction balance adjustment, and
@@ -67,6 +69,77 @@ module Reconciliation
 
       assert_equal 1_500_000.to_d, @card.reload.used_credit
       assert_equal "300000.0", @card.balance_offset.to_s
+    end
+
+    test "adjusting a credit card with a positive balance lands on the exact owed amount" do
+      # Payments above the recorded spending left the card "a favor": the raw
+      # balance is positive, so used_credit reads zero.
+      @card.update!(starting_balance: 156_676)
+      assert_equal 0.to_d, @card.reload.used_credit
+
+      result = CheckBalance.call(user: @user, money_source: @card, actual_balance: "41485", adjust: true)
+
+      assert_equal 41_485.to_d, @card.reload.used_credit
+      assert_equal 0.to_d, result.difference
+      assert_equal "ok", result.snapshot.resolution
+    end
+
+    test "adjusting a credit card with a positive balance to zero clears it" do
+      @card.update!(starting_balance: 156_676)
+
+      result = CheckBalance.call(user: @user, money_source: @card, actual_balance: "0", adjust: true)
+
+      assert_equal 0.to_d, @card.reload.used_credit
+      assert_equal 0.to_d, @card.reload.balance
+      assert_equal 0.to_d, result.difference
+      assert_equal "ok", result.snapshot.resolution
+    end
+
+    test "a loan is reconciled through its outstanding balance" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+
+      result = CheckBalance.call(user: @user, money_source: loan, actual_balance: "32000000")
+
+      assert_equal 32_000_000.to_d, result.app_balance
+      assert_equal 0.to_d, result.difference
+      assert_equal "ok", result.snapshot.resolution
+    end
+
+    test "adjusting a loan lands the outstanding balance on the declared value" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+
+      result = nil
+      assert_no_difference -> { Transaction.count } do
+        result = CheckBalance.call(user: @user, money_source: loan, actual_balance: "30.500.000",
+                                   adjust: true, note: "Saldo del banco")
+      end
+
+      assert_equal 30_500_000.to_d, loan.credit_account.reload.outstanding_balance
+      assert_equal 0.to_d, result.difference
+      assert_equal "ok", result.snapshot.resolution
+      assert_equal "Saldo del banco", loan.reload.balance_offset_note
+      assert loan.reload.balance_offset_at.present?
+      assert_equal 0.to_d, loan.balance_offset
+    end
+
+    test "a later payment keeps reducing the adjusted loan outstanding" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+      CheckBalance.call(user: @user, money_source: loan, actual_balance: "30.500.000", adjust: true)
+
+      category = Category.create!(user: @user, name: "Pagos")
+      expense = @user.expenses.create!(
+        category: category, description: "Cuota carro", amount: 1_000_000,
+        kind: "expense", source: "manual", date: Date.current, money_source: @source
+      )
+      Payment.create!(
+        user: @user, expense: expense, money_source: loan,
+        amount: 1_000_000, principal_amount: 900_000, interest_amount: 100_000
+      )
+
+      assert_equal 29_600_000.to_d, loan.credit_account.reload.outstanding_balance
     end
 
     test "leave_pending marks the source without resolving the difference" do

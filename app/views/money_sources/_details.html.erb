@@ -24,13 +24,18 @@
       <% end %>
       <dt class="col-sm-5"><%= t("money_sources.show.status") %></dt>
       <dd class="col-sm-7"><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %></dd>
-      <% if @money_source.balance_offset.to_d.nonzero? %>
+      <% loan_adjustment = @money_source.loan? && @money_source.balance_offset_note.present? %>
+      <% if @money_source.balance_offset.to_d.nonzero? || loan_adjustment %>
         <dt class="col-sm-5"><%= t("money_sources.show.manual_adjustment") %></dt>
         <dd class="col-sm-7">
           <div>
-            <span class="fw-semibold <%= @money_source.balance_offset.to_d.positive? ? "text-success" : "text-danger" %>">
-              <%= reconciliation_signed_money(@money_source.balance_offset) %>
-            </span>
+            <% if loan_adjustment %>
+              <span class="fw-semibold"><%= number_to_currency(@money_source.outstanding_balance) %></span>
+            <% else %>
+              <span class="fw-semibold <%= @money_source.balance_offset.to_d.positive? ? "text-success" : "text-danger" %>">
+                <%= reconciliation_signed_money(@money_source.balance_offset) %>
+              </span>
+            <% end %>
             <% if @money_source.balance_offset_at %>
               <span class="text-secondary small">— <%= I18n.l(@money_source.balance_offset_at.to_date, format: :long) %></span>
             <% end %>

@@ -9,7 +9,9 @@ class ReconciliationSnapshot < ApplicationRecord
   belongs_to :user
   belongs_to :money_source
 
-  validates :period, presence: true, format: { with: /\A\d{4}-\d{2}\z/ }
+  # Calendar month ("YYYY-MM") or pay cycle start date ("YYYY-MM-DD"); the
+  # dashboard looks snapshots up with whatever key PayCycle.period_for returns.
+  validates :period, presence: true, format: { with: /\A\d{4}-\d{2}(-\d{2})?\z/ }
   validates :resolution, inclusion: { in: RESOLUTIONS }
   validates :actual_balance, numericality: true
 

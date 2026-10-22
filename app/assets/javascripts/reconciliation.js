@@ -242,6 +242,12 @@
     // anything — otherwise they keep href="#" and the first click is dead.
     updatePrefillLinks();
 
+    // A loan difference is resolved by registering the real Payment from the
+    // loan page, so the expense/income shortcuts would be misleading there.
+    var isLoan = reconcileState.kind === "loan";
+    modal.querySelector("#reconcileCreateExpense").classList.toggle("d-none", isLoan);
+    modal.querySelector("#reconcileCreateIncome").classList.toggle("d-none", isLoan);
+
     bootstrap.Modal.getOrCreateInstance(modal).show();
   }
 

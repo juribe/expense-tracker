@@ -18,10 +18,10 @@ module Reconciliation
     # with an older shape are recalculated transparently on the next visit.
     SNAPSHOT_VERSION = "2"
 
-    # Loans are reconciled through their own payment flow; the cuadre covers
-    # money positions: accounts, cash, wallets, standalone debit cards and
-    # credit-card debt.
-    RECONCILABLE_KINDS = %w[account cash wallet debit_card credit_card].freeze
+    # Loans are included through their outstanding balance: the user compares
+    # it against the bank figure and can adjust it. Loans without a
+    # credit_account have no debt figure to reconcile and are left out.
+    RECONCILABLE_KINDS = %w[account cash wallet debit_card credit_card loan].freeze
 
     class << self
       def call(user:, period: Date.current.strftime("%Y-%m"))
@@ -29,8 +29,11 @@ module Reconciliation
       end
 
       # The magnitude the user compares against reality for each kind of
-      # source: cash for accounts/wallets, owed amount for credit cards.
+      # source: cash for accounts/wallets, owed amount for credit cards, and
+      # the outstanding balance for loans.
       def reconcilable_balance(source)
+        return source.outstanding_balance.to_d if source.loan?
+
         source.credit_card? ? source.used_credit : source.balance
       end
     end
@@ -136,10 +139,12 @@ module Reconciliation
 
     # Debit cards roll their movements into the parent account, so only
     # parentless debit cards get their own row. credit_account is eager loaded
-    # because display_name touches it for every credit card.
+    # because display_name touches it for every credit card and loans read
+    # their debt from it.
     def reconcilable_sources
       user.money_sources.active.where(kind: RECONCILABLE_KINDS).includes(:credit_account)
           .reject { |source| source.debit_card? && source.parent_id.present? }
+          .reject { |source| source.loan? && source.credit_account.nil? }
           .sort_by { |source| [ source.kind, source.name.downcase ] }
     end
 

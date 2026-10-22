@@ -81,7 +81,8 @@ class ReconciliationsController < ApplicationController
       actual_balance: params[:actual_balance],
       adjust: ActiveModel::Type::Boolean.new.cast(params[:adjust]),
       mark_ok: ActiveModel::Type::Boolean.new.cast(params[:mark_ok]),
-      note: params[:note]
+      note: params[:note],
+      period: @period
     )
     Reconciliation::State.refresh!(current_user, period: @period)
 

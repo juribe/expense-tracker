@@ -177,6 +177,38 @@ module Reconciliation
       assert_equal 1, state.discrepancies_count
     end
 
+    test "a loan with a credit account appears in the balances section" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+
+      state = State.refresh!(@user)
+      row = state.snapshot["balances"].find { |balance| balance["source_id"] == loan.id }
+
+      assert_not_nil row
+      assert_equal "loan", row["kind"]
+      assert_equal "32000000.0", row["app_balance"]
+      assert_equal "unverified", row["status"]
+    end
+
+    test "a verified loan stops counting as unverified" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+      CheckBalance.call(user: @user, money_source: loan, actual_balance: "32000000")
+
+      state = State.refresh!(@user)
+      row = state.snapshot["balances"].find { |balance| balance["source_id"] == loan.id }
+
+      assert_equal "ok", row["status"]
+    end
+
+    test "a loan without a credit account is left out of the balances section" do
+      loan = MoneySource.create!(user: @user, name: "Préstamo informal", kind: "loan")
+
+      state = State.refresh!(@user)
+
+      assert_nil state.snapshot["balances"].find { |balance| balance["source_id"] == loan.id }
+    end
+
     test "cycle period keys group pending payments by pay cycle" do
       @user.update!(financial_cycle_start_day: 20)
       # Nov 7 falls inside the cycle opened Oct 20 (oct 20 – nov 19).

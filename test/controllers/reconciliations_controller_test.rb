@@ -291,6 +291,78 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ok", snapshot.resolution
   end
 
+  test "POST actual_balance on a loan updates its outstanding balance" do
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+    sign_in @user
+
+    post reconciliation_actual_balance_path(loan),
+         params: { actual_balance: "30.500.000", adjust: "true" }
+
+    assert_redirected_to reconciliation_path
+    assert_equal 30_500_000.to_d, loan.credit_account.reload.outstanding_balance
+    snapshot = ReconciliationSnapshot.find_by(user: @user, money_source: loan)
+    assert_equal "ok", snapshot.resolution
+  end
+
+  test "reset_adjustment on a loan clears the trace and keeps the adjusted outstanding" do
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+    Reconciliation::CheckBalance.call(user: @user, money_source: loan, actual_balance: "30.500.000",
+                                      adjust: true, note: "Saldo del banco")
+    sign_in @user
+
+    post reset_adjustment_money_source_path(loan)
+
+    assert_redirected_to money_source_path(loan)
+    assert_equal 30_500_000.to_d, loan.credit_account.reload.outstanding_balance
+    assert_nil loan.reload.balance_offset_note
+    assert_nil loan.balance_offset_at
+  end
+
+  test "POST actual_balance with a pay cycle stores the snapshot under the cycle period" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.current)
+    sign_in @user
+
+    post reconciliation_actual_balance_path(@account),
+         params: { actual_balance: "8.400.000", adjust: "true" }
+
+    assert_redirected_to reconciliation_path
+    snapshot = ReconciliationSnapshot.find_by(user: @user, money_source: @account)
+    assert_equal cycle.starts.iso8601, snapshot.period
+    assert_equal "ok", snapshot.resolution
+  end
+
+  test "dashboard shows the reconciled row instead of Sin verificar when cycles are enabled" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.current)
+    sign_in @user
+
+    post reconciliation_actual_balance_path(@account),
+         params: { actual_balance: "8.400.000", adjust: "true" }
+    get reconciliation_path(period: cycle.starts.iso8601)
+
+    assert_response :success
+    row = css_select("li.list-group-item").find { |item| item.text.include?(@account.name) }
+    assert_not_nil row, "the account row should be rendered"
+    assert_includes row.text, "Cuadrado"
+    refute_includes row.text, "Sin verificar"
+  end
+
+  test "POST leave_pending works with a pay cycle period" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.current)
+    sign_in @user
+
+    post reconciliation_leave_pending_path(@account)
+
+    assert_redirected_to reconciliation_path
+    snapshot = ReconciliationSnapshot.find_by(user: @user, money_source: @account)
+    assert_equal cycle.starts.iso8601, snapshot.period
+    assert_equal "left_pending", snapshot.resolution
+  end
+
   test "POST actual_balance with mark_ok confirms the balance without changing it" do
     sign_in @user
 
