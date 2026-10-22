@@ -86,7 +86,8 @@
             <label class="form-label small text-muted mb-1"><%= t("wizard.manual.name") %></label>
             <input type="text" class="form-control" name="sources[<%= idx %>][name]" value="<%= source["name"] %>">
           </div>
-          <%= render "bank_select", index: idx, value: source["bank"], kind: kind, col_class: "col-12 col-md-4", compact: true %>
+          <%= render "bank_select", index: idx, value: source["bank"], kind: kind, col_class: "col-12 col-md-4", compact: true,
+                                     institution_ref: source["institution_ref"] %>
            <div class="col-12 col-md-4">
              <label class="form-label small text-muted mb-1"><%= balance_label %></label>
              <input type="text" class="form-control" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>" data-money-input="true" <%= source["kind"] == "credit_card" ? 'data-ca-balance="true"' : "" %>>

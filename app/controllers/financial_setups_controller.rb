@@ -367,7 +367,7 @@ class FinancialSetupsController < ApplicationController
   def clean_rows(rows)
     rows = rows.values if rows.respond_to?(:values)
     rows.filter_map do |row|
-      row = row.permit(:name, :bank, :kind, :sub_kind, :starting_balance, :balance,
+      row = row.permit(:name, :bank, :institution_ref, :kind, :sub_kind, :starting_balance, :balance,
                        :credit_limit, :interest_rate, :interest_rate_type,
                        :card_brand, :card_last_four, :identifier, :principal_amount,
                        :outstanding_balance, :monthly_payment, :installment_count, :installments_paid, :payment_frequency,
@@ -384,7 +384,7 @@ class FinancialSetupsController < ApplicationController
   def clean_edit_rows(rows)
     rows = rows.values if rows.respond_to?(:values)
     rows.filter_map do |row|
-      row = row.permit(:origin, :orig_key, :name, :bank, :kind, :sub_kind, :starting_balance, :balance,
+      row = row.permit(:origin, :orig_key, :name, :bank, :institution_ref, :kind, :sub_kind, :starting_balance, :balance,
                        :credit_limit, :interest_rate, :interest_rate_type,
                        :card_brand, :card_last_four, :identifier, :principal_amount,
                        :outstanding_balance, :monthly_payment, :installment_count, :installments_paid, :payment_frequency,
@@ -422,7 +422,7 @@ class FinancialSetupsController < ApplicationController
     raw = params[:sources] && params[:sources][idx.to_s]
     return {} if raw.blank?
 
-    fields = %w[name bank balance outstanding_balance credit_limit card_last_four
+    fields = %w[name bank institution_ref balance outstanding_balance credit_limit card_last_four
                 interest_rate interest_rate_type monthly_payment principal_amount
                 installment_count installments_paid kind identifier sub_kind]
       .to_h do |key|

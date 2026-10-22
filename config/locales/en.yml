@@ -646,6 +646,18 @@ en:
       last_four_cta: "Add last 4 digits"
       gmail_blocked: "Create at least one money source before connecting Gmail: the first sync will use it to discover how to recognize your sources."
     form:
+      title_new: "New Money Source"
+      title_edit: "Edit %{kind}"
+      new_titles:
+        account: "New account"
+        debit_card: "New debit card"
+        credit_card: "New credit card"
+        cash: "New cash source"
+        wallet: "New wallet"
+        pocket: "New pocket"
+        loan: "New loan"
+      submit: "Save %{kind}"
+      submit_generic: "Save"
       last_four_hint: "Never store the full card number, CVV or PIN."
       account_number_last4: "Last 4 digits of the account"
       account_last4_hint: "Only the last 4 digits of the account number are saved for privacy."

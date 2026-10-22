@@ -12,8 +12,9 @@
 <div class="col-md-6 mb-3">
   <%= f.label :institution_ref, local_assigns[:label_text] || t("money_sources.form.institution"), class: "form-label" %>
   <%= f.hidden_field :institution_ref %>
-  <div class="position-relative" data-institution-combobox data-options="<%= institution_autocomplete_data(f.object.institution_ref).to_json %>">
+  <div class="category-picker" data-institution-combobox data-options="<%= institution_autocomplete_data(f.object.institution_ref).to_json %>">
     <div class="input-group">
+      <span class="input-group-text"><i class="ti ti-search" aria-hidden="true"></i></span>
       <input type="text" class="form-control"
              data-institution-search
              placeholder="<%= t('money_sources.form.institution_search') %>"
@@ -25,7 +26,7 @@
         <i class="ti ti-x" aria-hidden="true"></i>
       </button>
     </div>
-    <div class="institution-autocomplete dropdown-menu w-100 border shadow-sm" data-institution-list hidden></div>
+    <div class="institution-autocomplete category-picker__list" data-institution-list hidden></div>
     <div class="form-text d-none" data-institution-hint></div>
   </div>
   <div class="form-text">

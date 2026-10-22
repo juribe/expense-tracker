@@ -754,6 +754,34 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form"
   end
 
+  test "GET /money_sources/new for a loan uses the loan wording in the title and submit button" do
+    get new_money_source_path(kind: "loan")
+
+    assert_response :success
+    assert_select "h4", text: "Nuevo préstamo"
+    assert_select "input[type=submit][value='Guardar préstamo']"
+  end
+
+  test "GET /money_sources/:id/edit for a credit card uses the card wording in the title and submit button" do
+    card = create_source(name: "Visa", kind: "credit_card")
+
+    get edit_money_source_path(card)
+
+    assert_response :success
+    assert_select "h4", text: "Editar tarjeta de crédito"
+    assert_select "input[type=submit][value='Guardar tarjeta de crédito']"
+  end
+
+  test "GET /money_sources/:id/edit for an account uses the account wording in the title and submit button" do
+    account = create_source(name: "Ahorros", kind: "account")
+
+    get edit_money_source_path(account)
+
+    assert_response :success
+    assert_select "h4", text: "Editar cuenta"
+    assert_select "input[type=submit][value='Guardar cuenta']"
+  end
+
   test "POST /money_sources creates a money source" do
     assert_difference "MoneySource.count", 1 do
       post money_sources_path, params: {

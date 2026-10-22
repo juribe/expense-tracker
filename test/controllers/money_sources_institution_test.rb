@@ -59,7 +59,7 @@ class MoneySourcesInstitutionTest < ActionDispatch::IntegrationTest
     assert_not_nil options_json
     payload = JSON.parse(CGI.unescapeHTML(options_json))
     assert payload["options"].any? { |option| option["value"] == "FinancialInstitution:#{@bancolombia.id}" }
-    assert payload["options"].any? { |option| option["group"] == "custom" } if @user.custom_financial_institutions.any?
+    assert_not payload.key?("groups")
     assert_equal "Banco", payload["types"]["bank"]
   end
 

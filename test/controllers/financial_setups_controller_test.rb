@@ -229,18 +229,29 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='sources[0][bank]']", count: 0
   end
 
-  test "GET manual for account renders a bank dropdown with catalog options" do
+  test "GET manual for account renders the institution combobox with catalog options" do
     FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
     FinancialInstitution.create!(canonical_name: "Banco Prueba Dos", slug: "banco-prueba-dos", institution_type: "bank")
 
     get financial_setup_manual_screen_path(step: :accounts)
     assert_response :success
-    assert_select "input[name='sources[0][bank]']"
-    assert_select "datalist option[value='Banco Prueba']"
-    assert_select "datalist option[value='Banco Prueba Dos']"
+    assert_select "[data-institution-combobox]"
+    assert_select "input[type='hidden'][name='sources[0][institution_ref]']"
+    assert_select "input[type='hidden'][name='sources[0][bank]']"
+    assert_match(/Banco Prueba/, response.body)
+    assert_no_match(/translation missing/, response.body)
   end
 
-  test "GET manual keeps a non-catalog bank as the selected option" do
+  test "GET manual starts the institution combobox empty" do
+    FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+
+    get financial_setup_manual_screen_path(step: :accounts)
+    assert_response :success
+    assert_select "input[type='hidden'][name='sources[0][institution_ref]'][value='']"
+    assert_select "[data-institution-combobox] input[data-institution-search][value]", count: 0
+  end
+
+  test "GET manual keeps a non-catalog bank as the hidden legacy value" do
     setup_record
     @setup.set_choice("accounts", "manual")
     @setup.replace_draft_sources("accounts", [
@@ -250,7 +261,8 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
     get financial_setup_manual_screen_path(step: :accounts)
     assert_response :success
-    assert_select "input[name='sources[0][bank]'][value='Banco Extraño']"
+    assert_select "input[type='hidden'][name='sources[0][bank]'][value='Banco Extraño']"
+    assert_select "input[type='hidden'][name='sources[0][institution_ref]'][value='']"
   end
 
   test "cash step does not offer the import option" do
@@ -299,6 +311,41 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to financial_setup_step_path(step: :review)
     row = @setup.reload.draft_sources("loans").first
     assert_equal "vehicle", row["sub_kind"]
+  end
+
+  test "POST manual keeps the chosen institution reference in the draft row" do
+    setup_record
+    institution = FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+
+    post financial_setup_manual_path, params: {
+      step: "loans",
+      sources: {
+        "0" => { name: "Crédito Vehículo", bank: "Banco Prueba", sub_kind: "vehicle",
+                 institution_ref: "FinancialInstitution:#{institution.id}" }
+      }
+    }
+
+    assert_redirected_to financial_setup_step_path(step: :review)
+    row = @setup.reload.draft_sources("loans").first
+    assert_equal "FinancialInstitution:#{institution.id}", row["institution_ref"]
+  end
+
+  test "POST complete attaches the institution chosen for a loan" do
+    setup_record
+    institution = FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+    @setup.set_choice("loans", "manual")
+    @setup.current_step = 3
+    @setup.replace_draft_sources("loans", [
+      { "name" => "Crédito Libre Inversión", "bank" => "Banco Prueba", "sub_kind" => "personal",
+        "institution_ref" => "FinancialInstitution:#{institution.id}" }
+    ])
+    @setup.save!
+
+    post financial_setup_complete_path
+
+    loan = @user.money_sources.find_by(name: "Crédito Libre Inversión")
+    assert_equal "FinancialInstitution", loan.institution_type
+    assert_equal institution.id, loan.institution_id
   end
 
   test "POST complete persists the loan subtype on the created source" do
@@ -588,6 +635,25 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "12000000", source["credit_limit"]
     assert_equal "20", source["interest_rate"]
     assert_equal "monthly", source["interest_rate_type"]
+  end
+
+  test "POST import_confirm merges the chosen institution reference" do
+    setup_record
+    institution = FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+    @setup.set_import_state("accounts", {
+      "sources" => [ { "identifier" => "1234", "name" => "Bancolombia Savings", "bank" => "Bancolombia", "kind" => "account", "balance" => "5420000" } ],
+      "duplicates" => { "1234" => { "choice" => "create" } }
+    })
+    @setup.save!
+
+    post financial_setup_import_confirm_path, params: {
+      step: "accounts",
+      sources: { "0" => { name: "Bancolombia Savings", bank: "Bancolombia", balance: "5420000",
+                          institution_ref: "FinancialInstitution:#{institution.id}" } }
+    }
+    assert_redirected_to financial_setup_step_path(step: :credit_cards)
+    source = @setup.reload.import_state("accounts")["sources"].first
+    assert_equal "FinancialInstitution:#{institution.id}", source["institution_ref"]
   end
 
   test "POST import_confirm merges inline edits" do

@@ -1,27 +1,36 @@
 <%#
-  Bank autocomplete for the financial-setup wizard: a searchable input backed by
-  a <datalist> of the shared catalog banks, keeping the row's current value even
-  when it is not part of the catalog (legacy free-text banks from imports).
-  Writing the chosen value into sources[INDEX][bank] keeps the legacy free-text
-  column populated, same as before.
-  Locals: index (Integer|String), value (String), kind (String), col_class,
-  compact (optional)
+  Institution combobox for the financial-setup wizard: searchable list of the
+  active catalog entities plus the user's own entities. The chosen polymorphic
+  reference ("FinancialInstitution:ID") travels in institution_ref and is
+  attached to the created source by FinancialSetups::Completer. The legacy
+  free-text bank is kept as a hidden field so imported rows never lose it.
+  Starts empty on purpose: the user always picks the entity explicitly.
+  Locals: index (Integer|String), value (legacy bank text), kind (String),
+  col_class, compact (optional), institution_ref (optional previous choice).
 %>
 <% col_class ||= "col-md-6" %>
 <% compact = local_assigns.fetch(:compact, false) %>
+<% selected_ref = local_assigns.fetch(:institution_ref, "") %>
 <% label_class = compact ? "form-label small text-muted mb-1" : "form-label" %>
 <% label = kind == "loan" ? t("wizard.manual.lender") : t("wizard.manual.bank") %>
-<% options = bank_dropdown_options %>
-<% options = options | [ value ] if value.present? %>
-<% list_id = "bank-options-#{index}" %>
-<div class="<%= col_class %>">
+<div class="<%= col_class %> mb-3">
   <label class="<%= label_class %>"><%= label %></label>
-  <input type="text" name="sources[<%= index %>][bank]" value="<%= value %>"
-         class="form-control" list="<%= list_id %>"
-         placeholder="<%= t("wizard.manual.bank_placeholder") %>" autocomplete="off">
-  <datalist id="<%= list_id %>">
-    <% options.each do |bank| %>
-      <option value="<%= bank %>"></option>
-    <% end %>
-  </datalist>
+  <input type="hidden" name="sources[<%= index %>][bank]" value="<%= value %>">
+  <input type="hidden" name="sources[<%= index %>][institution_ref]" value="<%= selected_ref %>">
+  <div class="category-picker" data-institution-combobox data-options="<%= institution_autocomplete_data(selected_ref).to_json %>">
+    <div class="input-group">
+      <span class="input-group-text"><i class="ti ti-search" aria-hidden="true"></i></span>
+      <input type="text" class="form-control"
+             data-institution-search
+             placeholder="<%= t('wizard.manual.bank_placeholder') %>"
+             autocomplete="off" spellcheck="false"
+             role="combobox" aria-autocomplete="list" aria-expanded="false"
+             aria-haspopup="listbox" aria-label="<%= label %>">
+      <button type="button" class="btn btn-outline-secondary" data-institution-clear
+              aria-label="<%= t('money_sources.form.institution_none') %>" hidden>
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="institution-autocomplete category-picker__list" data-institution-list hidden></div>
+  </div>
 </div>

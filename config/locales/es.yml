@@ -987,7 +987,17 @@ es:
       available: "Disponible"
     form:
       title_new: "Nueva Fuente de Dinero"
-      title_edit: "Editar Fuente de Dinero"
+      title_edit: "Editar %{kind}"
+      new_titles:
+        account: "Nueva cuenta"
+        debit_card: "Nueva tarjeta débito"
+        credit_card: "Nueva tarjeta de crédito"
+        cash: "Nuevo efectivo"
+        wallet: "Nuevo monedero"
+        pocket: "Nuevo bolsillo"
+        loan: "Nuevo préstamo"
+      submit: "Guardar %{kind}"
+      submit_generic: "Guardar"
       error_prohibited:
         one: "%{count} error impidió guardar la fuente de dinero:"
         other: "%{count} errores impidieron guardar la fuente de dinero:"

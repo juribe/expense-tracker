@@ -12,25 +12,21 @@ module ApplicationHelper
   # ("FinancialInstitution:12") parsed by MoneySource#assign_institution_ref.
   def institution_autocomplete_data(selected_ref)
     catalog = FinancialInstitution.active.order(:canonical_name).map do |i|
-      institution_autocomplete_option(i, "catalog")
+      institution_autocomplete_option(i)
     end
     if selected_ref.to_s.include?(":")
       attached = FinancialInstitution.find_by(institution_ref_parts(selected_ref))
       if attached && !attached.active? && !catalog.any? { |o| o[:value] == institution_ref_to(attached) }
-        catalog << institution_autocomplete_option(attached, "catalog")
+        catalog << institution_autocomplete_option(attached)
       end
     end
 
     customs = current_user.custom_financial_institutions.ordered.map do |c|
-      institution_autocomplete_option(c, "custom")
+      institution_autocomplete_option(c)
     end
 
     {
       options: catalog + customs,
-      groups: {
-        "catalog" => t("financial_institutions.catalog"),
-        "custom" => t("financial_institutions.my_entities")
-      },
       types: FinancialInstitution::TYPES.index_with { |type| t("financial_institutions.types.#{type}") }
                                          .stringify_keys,
       inactive_marker: t("financial_institutions.inactive_marker"),
@@ -39,11 +35,10 @@ module ApplicationHelper
     }
   end
 
-  def institution_autocomplete_option(institution, group)
+  def institution_autocomplete_option(institution)
     {
       value: institution_ref_to(institution),
       label: institution.display_name,
-      group: group,
       type: institution.respond_to?(:institution_type) ? institution.institution_type : nil,
       inactive: !institution.try(:active)
     }
@@ -290,6 +285,25 @@ module ApplicationHelper
     t("kinds.#{kind}", default: kind.to_s.titleize)
   end
 
+  # Kind-aware copy for the money source form, e.g. "Nuevo préstamo",
+  # "Editar tarjeta de crédito" and a "Guardar cuenta" submit button.
+  def money_source_form_title(money_source)
+    if money_source.new_record?
+      t("money_sources.form.new_titles.#{money_source.kind}", default: t("money_sources.form.title_new"))
+    else
+      t("money_sources.form.title_edit", kind: money_source_kind_label(money_source))
+    end
+  end
+
+  def money_source_submit_label(money_source)
+    kind = money_source_kind_label(money_source)
+    kind ? t("money_sources.form.submit", kind: kind) : t("money_sources.form.submit_generic")
+  end
+
+  def money_source_kind_label(money_source)
+    money_source.kind.present? ? source_kind_label(money_source.kind).downcase : nil
+  end
+
   # Compact dd/mm/yyyy label for iso dates stored in credit projections.
   def date_label(value)
     return "—" if value.blank?
@@ -440,14 +454,6 @@ module ApplicationHelper
 
   def source_sub_kind_label(sub_kind)
     t("kinds_sub.#{sub_kind}", default: sub_kind.titleize)
-  end
-
-  # Bank names for the wizard's bank dropdown: the shared catalog only (custom
-  # institutions are intentionally excluded from the onboarding flow). Any
-  # row's current value is appended by the caller so legacy free-text banks
-  # stay selectable on edit.
-  def bank_dropdown_options
-    FinancialInstitution.active.ordered.map(&:canonical_name)
   end
 
   # Best-effort next payment date for a loan card, delegated to

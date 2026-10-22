@@ -69,6 +69,7 @@ module FinancialSetups
         starting_balance: starting_balance_for(kind, row),
         identifier: row["identifier"].presence
       )
+      assign_institution(source, row)
 
       if %w[credit_card loan].include?(kind)
         build_credit_account(source, row)
@@ -77,6 +78,14 @@ module FinancialSetups
       source.save!
       create_payment_recurrence(source, row)
       source
+    end
+
+    # The wizard sends the chosen polymorphic reference
+    # ("FinancialInstitution:ID" / "CustomFinancialInstitution:ID"); ownership
+    # of a custom entity is re-checked by MoneySource's own validation.
+    def assign_institution(source, row)
+      ref = row["institution_ref"].presence
+      source.assign_institution_ref(ref) if ref
     end
 
     def build_credit_account(source, row)
@@ -138,6 +147,10 @@ module FinancialSetups
       return [] if source.nil?
 
       source.update!(name: entry["name"], bank: entry["bank"]) if entry["name"].present?
+      return source if entry["institution_ref"].blank?
+
+      source.assign_institution_ref(entry["institution_ref"])
+      source.save!
       source
     end
 
@@ -150,6 +163,7 @@ module FinancialSetups
         starting_balance: starting_balance_for(kind, entry),
         identifier: entry["identifier"].presence
       )
+      assign_institution(source, entry)
 
       if %w[credit_card loan].include?(kind)
         build_credit_account(source, entry)

@@ -85,6 +85,58 @@ class CompleterTest < ActiveSupport::TestCase
     assert_equal 12, source.credit_account.installments_paid
   end
 
+  test "attaches the institution chosen for a manually entered loan" do
+    institution = FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+    setup = setup_for("loans", choice: "manual")
+    setup.replace_draft_sources("loans", [
+      {
+        "name" => "Crédito Vehículo", "bank" => "Banco Prueba", "kind" => "loan",
+        "institution_ref" => "FinancialInstitution:#{institution.id}"
+      }
+    ])
+    setup.save!
+
+    result = complete(setup)
+    assert result.ok?
+    source = @user.money_sources.first
+    assert_equal "FinancialInstitution", source.institution_type
+    assert_equal institution.id, source.institution_id
+    assert_equal "Banco Prueba", source.institution_cached_name
+  end
+
+  test "attaches the institution chosen during import review" do
+    institution = FinancialInstitution.create!(canonical_name: "Banco Prueba", slug: "banco-prueba", institution_type: "bank")
+    setup = setup_for(choice: "import")
+    setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "1234", "name" => "Cuenta Prueba", "bank" => "Banco Prueba",
+          "kind" => "account", "balance" => "5420000",
+          "institution_ref" => "FinancialInstitution:#{institution.id}" }
+      ],
+      "duplicates" => { "1234" => { "choice" => "create" } }
+    })
+    setup.save!
+
+    result = complete(setup)
+    assert result.ok?
+    source = @user.money_sources.first
+    assert_equal institution.id, source.institution_id
+  end
+
+  test "keeps the legacy bank text when no institution was chosen" do
+    setup = setup_for(choice: "manual")
+    setup.replace_draft_sources("accounts", [
+      { "name" => "Ahorros", "bank" => "Banco Extraño", "balance" => "100" }
+    ])
+    setup.save!
+
+    result = complete(setup)
+    assert result.ok?
+    source = @user.money_sources.first
+    assert_nil source.institution_id
+    assert_equal "Banco Extraño", source.bank
+  end
+
   test "creates a recurring expense for a loan with a monthly payment" do
     setup = setup_for("loans", choice: "manual")
     setup.replace_draft_sources("loans", [

@@ -15,7 +15,8 @@
         <input type="text" name="sources[<%= index %>][name]" value="<%= row["name"] %>" class="form-control">
       </div>
       <% unless kind == "cash" %>
-        <%= render "bank_select", index: index, value: row["bank"], kind: kind %>
+        <%= render "bank_select", index: index, value: row["bank"], kind: kind,
+                                   institution_ref: row["institution_ref"] %>
       <% end %>
 
        <% if kind == "cash" %>

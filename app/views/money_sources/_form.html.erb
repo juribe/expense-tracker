@@ -3,7 +3,7 @@
     <div class="col-md-8">
       <div class="card">
         <div class="card-header">
-          <h4 class="mb-0"><%= @money_source.new_record? ? t("money_sources.form.title_new") : t("money_sources.form.title_edit") %></h4>
+          <h4 class="mb-0"><%= money_source_form_title(@money_source) %></h4>
         </div>
         <div class="card-body">
           <%= form_with model: @money_source, local: true do |f| %>
@@ -266,7 +266,7 @@
             <% end %>
 
             <div class="d-grid mt-3">
-              <%= f.submit class: "btn btn-primary" %>
+              <%= f.submit money_source_submit_label(@money_source), class: "btn btn-primary" %>
             </div>
           <% end %>
         </div>

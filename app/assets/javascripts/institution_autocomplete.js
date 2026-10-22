@@ -54,7 +54,6 @@
   }
 
   function institutionItemHtml(data, option, highlighted) {
-    var group = data.groups && data.groups[option.group];
     var badge = "";
     if (option.type && data.types && data.types[option.type]) {
       badge = '<span class="badge bg-light text-dark border ms-1">' +
@@ -64,13 +63,11 @@
       badge += ' <span class="badge bg-secondary-subtle text-secondary-emphasis">' +
         escapeInstitutionHtml(data.inactive_marker || "") + "</span>";
     }
-    var prefix = group ? '<span class="text-secondary small">' +
-      escapeInstitutionHtml(group) + " · </span>" : "";
 
-    var classes = "dropdown-item" + (highlighted ? " active" : "") +
+    var classes = "category-picker__option" + (highlighted ? " category-picker__option--active" : "") +
       (option.inactive ? " text-secondary" : "");
     return '<button type="button" class="' + classes + '" data-institution-option value="' +
-      escapeInstitutionHtml(option.value) + '">' + prefix +
+      escapeInstitutionHtml(option.value) + '">' +
       escapeInstitutionHtml(option.label) + badge + "</button>";
   }
 
@@ -91,24 +88,18 @@
     var options = institutionOptions(combobox);
     var chosen = combobox.dataset.selectedRef || "";
 
-    var html = '<button type="button" class="dropdown-item text-secondary' +
-      (chosen === "" ? " active" : "") + '" data-institution-option value="">';
+    var html = '<button type="button" class="category-picker__option text-secondary' +
+      (chosen === "" ? " category-picker__option--active" : "") + '" data-institution-option value="">';
     html += escapeInstitutionHtml(data.none_label || "—") + "</button>";
 
-    var lastGroup = null;
     var allowed = options.filter(function (option) { return institutionMatchesSearch(option, query); })
                          .slice(0, INSTITUTION_MAX_SUGGESTIONS);
     allowed.forEach(function (option) {
-      if (option.group !== lastGroup) {
-        lastGroup = option.group;
-        var heading = data.groups && data.groups[lastGroup];
-        html += '<h6 class="dropdown-header">' + escapeInstitutionHtml(heading || "") + "</h6>";
-      }
       html += institutionItemHtml(data, option, option.value === chosen);
     });
     if (allowed.length === 0) {
-      html += '<span class="dropdown-item text-secondary disabled">' +
-        escapeInstitutionHtml(data.no_match || "—") + "</span>";
+      html += '<div class="category-picker__empty">' +
+        escapeInstitutionHtml(data.no_match || "—") + "</div>";
     }
 
     list.innerHTML = html;
@@ -167,7 +158,7 @@
     if (index > items.length - 1) index = items.length - 1;
     if (index < 0) index = 0;
     combobox.dataset.highlightIndex = String(index);
-    items.forEach(function (item, i) { item.classList.toggle("active", i === index); });
+    items.forEach(function (item, i) { item.classList.toggle("category-picker__option--active", i === index); });
     return items[index];
   }
 
