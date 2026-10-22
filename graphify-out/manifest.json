@@ -396,9 +396,9 @@
     "semantic_hash": "57fbab964703cce5d30fa4dd77057388"
   },
   "app/services/source_recognition/matcher.rb": {
-    "mtime": 1792193070.5165632,
-    "seen": 1792200893.9466681,
-    "ast_hash": "20407e9e12a4932605e143372c022e70",
+    "mtime": 1792631657.3095484,
+    "seen": 1792631743.5200682,
+    "ast_hash": "7bf6e36d9b2b79e5fcf31abe0d374361",
     "semantic_hash": ""
   },
   "app/services/source_recognition/suggestion_engine.rb": {
@@ -954,9 +954,9 @@
     "semantic_hash": "9eda3e3594c5be50b51c1bacf109da7e"
   },
   "test/services/source_recognition/matcher_test.rb": {
-    "mtime": 1791585433.4250054,
-    "seen": 1791588169.745693,
-    "ast_hash": "bdc280727575d76a0329aac703f06c89",
+    "mtime": 1792631364.5911644,
+    "seen": 1792631560.436576,
+    "ast_hash": "f71ac46ff2b0095ea61a9bcc07562fd6",
     "semantic_hash": ""
   },
   "test/services/source_recognition/suggestion_engine_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792629763.820192,
-    "seen": 1792629814.3887832,
+    "mtime": 1792631728.4850457,
+    "seen": 1792631743.520761,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4965,6 +4965,12 @@
     "mtime": 1792629580.5068793,
     "seen": 1792629814.388335,
     "ast_hash": "c18a1e45e6cc105e95e4a24017a2179b",
+    "semantic_hash": ""
+  },
+  ".opencode/plans/visa-infinite-email-source-assignment.md": {
+    "mtime": 1792631300.0732872,
+    "seen": 1792631560.436627,
+    "ast_hash": "86dc2d05b6fd9366bd351cf5cad7b0a6",
     "semantic_hash": ""
   }
 }
