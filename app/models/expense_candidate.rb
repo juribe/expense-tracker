@@ -28,6 +28,7 @@ class ExpenseCandidate < ApplicationRecord
   belongs_to :category, optional: true
   belongs_to :money_source, optional: true
   belongs_to :expense, optional: true
+  has_many :expense_clarification_candidates, dependent: :destroy
 
   def warnings
     @warnings ||= []

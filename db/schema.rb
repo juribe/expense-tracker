@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_22_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_22_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -916,9 +916,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_22_000000) do
   add_foreign_key "evaluation_runs", "users"
   add_foreign_key "expense_candidates", "categories"
   add_foreign_key "expense_candidates", "money_sources"
-  add_foreign_key "expense_candidates", "transactions", column: "expense_id"
+  add_foreign_key "expense_candidates", "transactions", column: "expense_id", on_delete: :cascade
   add_foreign_key "expense_candidates", "users"
-  add_foreign_key "expense_clarification_candidates", "expense_candidates"
+  add_foreign_key "expense_clarification_candidates", "expense_candidates", on_delete: :cascade
   add_foreign_key "expense_clarification_candidates", "expense_clarifications"
   add_foreign_key "expense_clarifications", "users"
   add_foreign_key "expense_playground_runs", "users"

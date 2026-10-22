@@ -230,6 +230,19 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("expenses.deleted"), flash[:notice]
   end
 
+  test "DELETE /expenses/:id also removes the confirmed candidate" do
+    expense = create_expense(amount: 12.50, date: Date.today)
+    candidate = @user.expense_candidates.create!(
+      amount: 12.50, date: Date.today, source: "whatsapp",
+      status: "confirmed", expense_id: expense.id
+    )
+
+    delete expense_path(expense)
+
+    assert_redirected_to expenses_path
+    assert_not ExpenseCandidate.exists?(candidate.id)
+  end
+
   test "DELETE /expenses/bulk_destroy removes selected expenses" do
     a = create_expense(amount: 1, date: Date.today, description: "A")
     b = create_expense(amount: 2, date: Date.today, description: "B")

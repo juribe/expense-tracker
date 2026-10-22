@@ -192,6 +192,51 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
 
   # --- confirm! ---
 
+  test "destroying the confirmed expense destroys its candidate" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "Transferencia a Juan"
+    )
+    candidate.save!
+    candidate.confirm!
+    expense = candidate.expense
+
+    assert_difference -> { ExpenseCandidate.count }, -1 do
+      expense.destroy!
+    end
+
+    assert_not ExpenseCandidate.exists?(candidate.id)
+  end
+
+  test "destroying the confirmed expense removes its clarification links" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "Transferencia a Juan"
+    )
+    candidate.save!
+    candidate.confirm!
+
+    clarification = ExpenseClarification.create!(
+      user: @user, phone_number: "+573001112233", status: "pending"
+    )
+    link = ExpenseClarificationCandidate.create!(
+      expense_clarification: clarification, expense_candidate: candidate
+    )
+
+    assert_difference -> { ExpenseCandidate.count }, -1 do
+      candidate.expense.destroy!
+    end
+
+    assert_not ExpenseClarificationCandidate.exists?(link.id)
+    assert ExpenseClarification.exists?(clarification.id)
+  end
+
   test "confirm! creates an Expense and marks candidate as confirmed" do
     candidate = build_candidate(
       category_id: @category.id,
