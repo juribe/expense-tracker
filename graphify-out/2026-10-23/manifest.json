@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
-    "mtime": 1792620593.7187102,
-    "seen": 1792622737.52302,
-    "ast_hash": "414fbac05374f891f8b1931b9c26eee4",
+    "mtime": 1792777100.898285,
+    "seen": 1792777535.9548328,
+    "ast_hash": "975ec370ced436dec8fe984414a93699",
     "semantic_hash": ""
   },
   "app/controllers/imports_controller.rb": {
@@ -96,10 +96,10 @@
     "semantic_hash": ""
   },
   "app/controllers/users/passwords_controller.rb": {
-    "mtime": 1787694826.7520816,
-    "seen": 1790977684.43486,
-    "ast_hash": "4e810617e7c9b1f3ea017e6c42c878b1",
-    "semantic_hash": "4e810617e7c9b1f3ea017e6c42c878b1"
+    "mtime": 1792776990.3659732,
+    "seen": 1792777535.9548821,
+    "ast_hash": "662a43c99aa4cae2c7fa991c3190af1f",
+    "semantic_hash": ""
   },
   "app/controllers/users/registrations_controller.rb": {
     "mtime": 1787694826.7521522,
@@ -1698,9 +1698,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_playground_controller.rb": {
-    "mtime": 1792776263.0683305,
-    "seen": 1792776430.2072399,
-    "ast_hash": "c79f15956d112eb6b8f32db63599cd5d",
+    "mtime": 1792777067.6926997,
+    "seen": 1792777535.954819,
+    "ast_hash": "d90e29a8aedfb50d55bd9b7ea38aa004",
     "semantic_hash": ""
   },
   "app/models/expense_candidate.rb": {
@@ -2364,9 +2364,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_evaluations_controller.rb": {
-    "mtime": 1792759122.415816,
-    "seen": 1792761500.411107,
-    "ast_hash": "12b7741eb8458959de402acd6d3a372b",
+    "mtime": 1792777043.5921884,
+    "seen": 1792777535.954817,
+    "ast_hash": "b113271465272d8c116298219b9427b7",
     "semantic_hash": ""
   },
   "app/services/ai/tasks/parsed_expense.rb": {
@@ -2832,9 +2832,9 @@
     "semantic_hash": ""
   },
   "app/controllers/webhooks/whatsapp_controller.rb": {
-    "mtime": 1792776400.3166323,
-    "seen": 1792776430.2073028,
-    "ast_hash": "6856cbff30809471a79d3ce79f38b14e",
+    "mtime": 1792776961.7992537,
+    "seen": 1792777535.954886,
+    "ast_hash": "0feb816db6e6fa2f5085face6ea38073",
     "semantic_hash": ""
   },
   "app/jobs/whatsapp_webhook_job.rb": {
@@ -2862,9 +2862,9 @@
     "semantic_hash": ""
   },
   "test/controllers/webhooks/whatsapp_controller_test.rb": {
-    "mtime": 1792776403.8903248,
-    "seen": 1792776430.208025,
-    "ast_hash": "c453b11cb516abb8d34f314ccdec0716",
+    "mtime": 1792776837.251873,
+    "seen": 1792777535.955627,
+    "ast_hash": "4467a06ab21d3a9628cffd44ab86e36e",
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
@@ -3366,9 +3366,9 @@
     "semantic_hash": ""
   },
   "app/controllers/financial_chats/messages_controller.rb": {
-    "mtime": 1790891497.8436055,
-    "seen": 1790977684.43484,
-    "ast_hash": "c1d9ae41793ea6476e51c21ee6e36b75",
+    "mtime": 1792776990.3607152,
+    "seen": 1792777535.9548259,
+    "ast_hash": "ee992792bd00dc1bbebf0094da253c7f",
     "semantic_hash": ""
   },
   "app/controllers/financial_summary_controller.rb": {
@@ -3432,9 +3432,9 @@
     "semantic_hash": ""
   },
   "test/controllers/financial_chats/messages_controller_test.rb": {
-    "mtime": 1790891497.9154716,
-    "seen": 1790977684.4354181,
-    "ast_hash": "84fe1f66eb0125a4d484fd4f456967f9",
+    "mtime": 1792776888.8447547,
+    "seen": 1792777535.955586,
+    "ast_hash": "2127f8a811500255358c730b9fa578dc",
     "semantic_hash": ""
   },
   "test/controllers/financial_summary_controller_test.rb": {
@@ -5034,9 +5034,21 @@
     "semantic_hash": ""
   },
   "security_problems.md": {
-    "mtime": 1792775155.2964075,
-    "seen": 1792775173.3077178,
-    "ast_hash": "2d6919ea20fc60978ac19ed3c32a4cf5",
+    "mtime": 1792777522.9518342,
+    "seen": 1792777535.956109,
+    "ast_hash": "215f56978be213ae65aafe1257f68fb8",
+    "semantic_hash": ""
+  },
+  "lib/rate_limit_proxy.rb": {
+    "mtime": 1792777156.0380828,
+    "seen": 1792777535.955456,
+    "ast_hash": "043a95c27a1e60d28fd35a3d4044a5f5",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/passwords_controller_test.rb": {
+    "mtime": 1792776914.2497406,
+    "seen": 1792777535.955626,
+    "ast_hash": "4cbe4d90049c3f902ec0b24eedf62a2c",
     "semantic_hash": ""
   }
 }
