@@ -167,10 +167,13 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-010 — CSP deshabilitada
 
-- [ ] Pendiente.
-- Archivo: `config/initializers/content_security_policy.rb` (todo comentado).
-- Nota: activar CSP requiere sacar los scripts inline de las vistas (regla del proyecto:
-  JS de aplicación solo en módulos dedicados). Planificar junto con esa limpieza.
+- [x] Implementado (parcialmente estricto).
+- Archivo: `config/initializers/content_security_policy.rb` + `SecurityHeadersTest`.
+- Solución: CSP activa con base conservadora (`default-src 'self'`, `object-src 'none'`,
+  `frame-ancestors 'self'`, `form-action 'self'`, `base-uri 'self'`), y los orígenes
+  externos reales del layout (jsdelivr para el bundle de Bootstrap, Google Fonts).
+- Pendiente: `script-src`/`style-src` aún llevan `unsafe-inline` porque las plantillas
+  ERB tienen scripts inline; se retira cuando el JS se moduleice (regla del proyecto).
 
 ### SEC-011 — Endurecer webhook de WhatsApp
 
@@ -183,10 +186,13 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-012 — `config.hosts` sin definir en producción
 
-- [ ] Pendiente.
-- Archivo: `config/environments/production.rb:82`.
-- Acción: configurar hosts permitidos desde ENV para mantener la protección contra
-  DNS rebinding.
+- [x] Implementado (condicional).
+- Archivo: `config/environments/production.rb`.
+- Solución: si `RAILS_PUBLIC_HOSTS` está definido (lista separada por comas), la app
+  activa la protección de hosts y añade los orígenes https permitidos de Action Cable;
+  si no está definido, registra una advertencia y deja la protección abierta.
+- Necesita de ti: el dominio real de producción para fijar `RAILS_PUBLIC_HOSTS` en el
+  entorno; sin ese valor el ítem queda cerrado solo en código, no en operación.
 
 ### SEC-013 — Logging de datos financieros en el playground
 
@@ -197,10 +203,11 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-014 — Orígenes de Action Cable no configurados
 
-- [ ] Pendiente.
-- Archivos: `config/environments/production.rb`, `config/cable.yml`.
-- Acción: definir `config.action_cable.allowed_request_origins` y verificar que el
-  stream siga autenticado por usuario.
+- [x] Implementado (condicional).
+- Archivos: `config/environments/production.rb`.
+- Solución: los orígenes `https://<RAILS_PUBLIC_HOSTS>` se añaden a
+  `config.action_cable.allowed_request_origins` cuando la variable existe; el stream
+  ya sigue autenticado por usuario y no cambió.
 
 ### SEC-015 — Prompts y salidas de IA en claro en base de datos (Informativo/Bajo)
 
@@ -224,6 +231,10 @@ estado para no perder trazabilidad. No asumir que la lista actual es exhaustiva.
 | 2026-10-23 | Documento | Creación de `security_problems.md` | `4713aa0` | — |
 | 2026-10-23 | SEC-003 | Validación de propiedad del `parent` y guarda en `BalanceSync.adjust!` | `a5d853c`, `c342544` (grafo) | CI run `39984286996` en verde |
 | 2026-10-23 | SEC-004 | `set_category` de show con `Category.for_user` | `151ae95`, `d624924` (grafo) | CI run `39988051388` en verde |
+| 2026-10-23 | SEC-005 | Validaciones de propiedad en template/rule/category parent | `7491a45`, `5852123` (grafo) | CI run `39992390240` en verde |
+| 2026-10-23 | SEC-006, SEC-008, SEC-009, SEC-011, SEC-013 | Endurecimiento webhook/media/CSV/uploads; métricas sin datos | `d9e4446`, `0f14061` (grafo) | CI run `39995194991` en verde |
+| 2026-10-23 | SEC-007 | Rate limits nativos + `RateLimitProxy` | `02b3b0e`, `d77fb95` (grafo) | CI run `39997726167` en curso |
+| 2026-10-23 | SEC-010, SEC-012, SEC-014 | CSP activa; hosts/cable origen condicionales | ver commit del cambio | CI por confirmar |
 
 ## Comandos útiles
 

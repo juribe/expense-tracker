@@ -78,11 +78,17 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
+  # Enable DNS rebinding protection and other `Host` header attacks. The
+  # public host list comes from ops: set RAILS_PUBLIC_HOSTS="domain.com,www..."
+  # comma-separated; while unset the check stays open and prints a warning.
+  public_hosts = ENV["RAILS_PUBLIC_HOSTS"].to_s.split(",").map(&:strip).compact_blank
+  if public_hosts.any?
+    config.hosts += public_hosts
+    config.action_cable.allowed_request_origins =
+      (config.action_cable.allowed_request_origins || []) + public_hosts.map { |host| "https://#{host}" }
+  else
+    Rails.logger&.warn "RAILS_PUBLIC_HOSTS is unset: DNS rebinding and Action Cable origin protections stay open."
+  end
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
