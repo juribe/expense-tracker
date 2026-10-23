@@ -79,7 +79,8 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
     ante un enlace ajeno ya persistido, cae en la propia fuente.
 - Pruebas: 8 escenarios (4 controlador, 3 modelo, 1 servicio), rojo confirmado antes
   de implementar y verificados en verde; suite completa en CI.
-- Estado: hecho, pendiente de confirmar CI en verde; ver registro de cambios.
+- Evidencia: commit `a5d853c`; CI run `39984286996` en verde (MiniTest, Playwright,
+  Brakeman; el job de Playwright se re-corrío por un flake del category picker).
 
 ### SEC-004 — IDOR de lectura en `CategoriesController#show` (Media)
 
@@ -211,7 +212,8 @@ estado para no perder trazabilidad. No asumir que la lista actual es exhaustiva.
 | Fecha | Ítem | Cambio | Commit | Pruebas / CI |
 | --- | --- | --- | --- | --- |
 | 2026-10-23 | SEC-001, SEC-002 | Validaciones de propiedad en `Transaction` y `Transfer`; fixtures corregidas | `48096a3`, `f454d74` | PR #1, run `39980111648` en verde |
-| 2026-10-23 | Documento | Creación de `security_problems.md` | — | — |
+| 2026-10-23 | Documento | Creación de `security_problems.md` | `4713aa0` | — |
+| 2026-10-23 | SEC-003 | Validación de propiedad del `parent` y guarda en `BalanceSync.adjust!` | `a5d853c`, `c342544` (grafo) | CI run `39984286996` en verde |
 
 ## Comandos útiles
 
