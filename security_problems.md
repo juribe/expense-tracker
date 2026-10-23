@@ -24,7 +24,7 @@ Leyenda:
 | Fase | Alcance | Estado | Evidencia |
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
-| Fase 2 | 1 High nuevo + medios de integridad/autorización | Completada (SEC-003 a SEC-009; SEC-007 parcial: falta login) | CI en verde (ver registro) |
+| Fase 2 | 1 High nuevo + medios de integridad/autorización | Completada (SEC-003 a SEC-009; SEC-007 + login) | CI en verde (ver registro) |
 | Fase 3 | Endurecimiento (bajos/informativos) | Hecha salvo SEC-015 (requiere decisión) | CI en verde (ver registro) |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
@@ -135,10 +135,21 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
   `RateLimitProxy` que resuelve `Rails.cache` en tiempo de ejecución (Solid Cache en
   producción; no-op con el `null_store` de testing). Límites: webhook 30/min,
   chat 20/min, reset 5/min, evaluaciones 10/min, playground 30/min, Gmail sync 5/min.
-- Pendiente: rate limit del login de Devise requiere un `SessionsController` propio
-  (riesgo de romper los flujos e2e con límites por IP); sugerir al usuario si lo aplica.
+- Pendiente: nada; el login entró en el mismo esquema (ver SEC-007-B).
 - Pruebas: webhook 31 requests -> 429, chat 21 -> 429, reset 6 -> 429.
 - Evidencia: commit `02b3b0e`; CI run `39997726167` y `39999729133` en verde.
+
+### SEC-007-B — Rate limit al login de Devise (Media)
+
+- [x] Implementado y verificado.
+- Archivos: `app/controllers/users/sessions_controller.rb` (nuevo, hereda de
+  Devise::SessionsController), `config/routes.rb` (sessions + fallback GET de
+  sign_out), `test/controllers/users/sessions_controller_test.rb`.
+- Solución: `rate_limit to: 100/min` fuera de producción y `to: 10/min` en producción,
+  ambos por IP con `name: "login"` y la misma cond per-env; contador corre antes de
+  que Devise valide credenciales y no depende del usuario (no hay lockout dirigido).
+- Pruebas: 101 intentos -> 429; login correcto sigue funcionando.
+- Evidencia: commit del cierre; CI run por confirmar.
 
 ### SEC-008 — Subida de extractos sin límite explícito de tamaño (Media)
 
