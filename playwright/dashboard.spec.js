@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 test.describe('dashboard is working', () => {
   test('user can view dashboard summary', async ({ page }) => {
@@ -17,12 +18,14 @@ test.describe('dashboard is working', () => {
     await signUp(page);
     const category = `Food-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await page.goto('/expenses/new');
     await expect(page).toHaveURL(/\/expenses\/new/);
     await page.locator('#expense_amount').fill('50');
     await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Grocery Store');
+    await page.locator('#expense_money_source_id').selectOption({ label: efectivo });
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page.getByText('El gasto se creó correctamente.')).toBeVisible();

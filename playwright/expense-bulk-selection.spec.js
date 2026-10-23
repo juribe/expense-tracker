@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 async function createExpense(page, { amount, date, description, categoryName }) {
   await page.goto('/expenses/new');
@@ -8,6 +9,7 @@ async function createExpense(page, { amount, date, description, categoryName }) 
   await page.locator('#expense_date').fill(date);
   await page.locator('#expense_description').fill(description);
   await pickCategory(page, 'expense_category_id', categoryName);
+  await page.locator('#expense_money_source_id').selectOption({ index: 1 });
   await page.getByRole('button', { name: 'Guardar' }).click();
   const row = page.locator('#expenseTable tr[data-id]', { hasText: description });
   await expect(row.locator('td.desc-cell')).toHaveText(description);
@@ -18,6 +20,7 @@ test.describe('expense bulk selection bar', () => {
     await signUp(page);
     const cat = `Food-${Date.now()}`;
     await createCategory(page, cat);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createExpense(page, { amount: '10.00', date: '10/01/2025', description: 'Alpha expense', categoryName: cat });
     await createExpense(page, { amount: '20.00', date: '11/01/2025', description: 'Beta expense', categoryName: cat });
     await createExpense(page, { amount: '30.00', date: '12/01/2025', description: 'Gamma expense', categoryName: cat });

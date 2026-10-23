@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { createMoneySource } = require('./helpers/money_sources');
 const { pickCategory } = require('./helpers/category_picker');
 
 test.describe('app health checks', () => {
@@ -32,6 +33,7 @@ test.describe('app health checks', () => {
     await signUp(page);
     const category = `Food-${Date.now()}`;
     await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     // Create expense (the dashboard links to the full expense form)
     await page.goto('/expenses/new');
@@ -39,6 +41,7 @@ test.describe('app health checks', () => {
     await page.locator('#expense_amount').fill('75');
     await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Grocery Store');
+    await page.locator('#expense_money_source_id').selectOption({ label: efectivo });
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('El gasto se creó correctamente.')).toBeVisible();
 

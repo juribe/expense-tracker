@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { createMoneySource } = require('./helpers/money_sources');
 
 // es-CO money parsing: comma = decimals, dot = thousands. But a final dot
 // group of 1-2 digits means the user typed dot decimals ("5.50" — the rule
@@ -50,10 +51,12 @@ test.describe('money input parsing rules', () => {
   test('an expense of 5.50 is stored as 5.50 so amount rules can match it', async ({ page }) => {
     await signUp(page);
     await createCategory(page, `Food-${Date.now()}`);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('5.50');
     await page.locator('#expense_description').fill('Café barra');
+    await page.locator('#expense_money_source_id').selectOption({ label: efectivo });
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page).toHaveURL(/\/expenses/);

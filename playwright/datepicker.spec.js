@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { createMoneySource } = require('./helpers/money_sources');
 
 // Flatpickr replaces the native browser date widget: the calendar must speak
 // Spanish and display dd/MM/yyyy, while the hidden original input keeps the
@@ -8,6 +9,7 @@ test.describe('date pickers render in Spanish', () => {
   test.beforeEach(async ({ page }) => {
     await signUp(page);
     await createCategory(page, `Food-${Date.now()}`);
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
   });
 
   test('the expense form calendar shows Spanish months and weekdays', async ({ page }) => {
@@ -39,6 +41,7 @@ test.describe('date pickers render in Spanish', () => {
 
     await page.locator('#expense_amount').fill('120.00');
     await page.locator('#expense_description').fill('Paseo');
+    await page.locator('#expense_money_source_id').selectOption({ index: 1 });
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page).toHaveURL(/\/expenses/);
@@ -51,6 +54,7 @@ test.describe('date pickers render in Spanish', () => {
     await page.locator('#expense_amount').fill('45.20');
     await page.locator('#expense_date').fill('15/11/2023');
     await page.locator('#expense_description').fill('Regression dd/MM');
+    await page.locator('#expense_money_source_id').selectOption({ index: 1 });
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page).toHaveURL(/\/expenses/);

@@ -43,7 +43,7 @@ test.describe('recognition page dark mode', () => {
     await page.locator('#money_source_name').fill(`Banco ${Date.now()}`);
     await page.locator('#money_source_kind').selectOption('credit_card');
     await page.locator('#money_source_active').check();
-    await page.getByRole('button', { name: 'Create Money source' }).click();
+    await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
     await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
 
     await page.goto('/money_sources/recognition');
