@@ -137,6 +137,8 @@ test.describe('AI entry – transaction rules take precedence over parser catego
 
     const row = page.locator('#expenseTable tr', { hasText: 'Didi viaje' });
     await expect(row).toBeVisible();
-    await expect(row).toContainText('Transportation');
+    // The parser category is kept (aliased to the seeded "Transporte" default
+    // when it exists, otherwise stored as-is).
+    await expect(row).toContainText(/Transport(e|ation)/);
   });
 });

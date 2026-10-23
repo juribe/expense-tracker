@@ -152,6 +152,8 @@ test.describe('expense playground', () => {
 
   test('user can edit the candidate and create the expense', async ({ page }) => {
     await signUp(page);
+    const { createMoneySource } = require('./helpers/money_sources');
+    await createMoneySource(page, `Efectivo-${Date.now()}`);
     mockProcess(page, okPayload());
     await page.goto('/expense-playground');
 
@@ -162,6 +164,7 @@ test.describe('expense playground', () => {
     // Edit before creating
     await page.getByTestId('edit-amount').fill('51000');
     await page.getByTestId('edit-description').fill('Almuerzo del equipo');
+    await page.getByTestId('edit-source').selectOption({ index: 1 });
     await page.getByTestId('playground-create-button').click();
 
     await expect(page.getByTestId('playground-success')).toBeVisible();

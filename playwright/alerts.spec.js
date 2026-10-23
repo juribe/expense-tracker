@@ -87,6 +87,7 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await signUp(page);
     const category = `Restaurantes-${Date.now()}`;
     await createCategory(page, category);
+    await enableSpendingIncreaseAlerts(page);
     const sourceLabel = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await createExpense(page, { amount: 100, date: previousMonthDate(), category, description: 'Almuerzo mes pasado' });
@@ -106,6 +107,7 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await signUp(page);
     const category = `Restaurantes-${Date.now()}`;
     await createCategory(page, category);
+    await enableSpendingIncreaseAlerts(page);
     const sourceLabel = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await createExpense(page, { amount: 100, date: previousMonthDate(), category, description: 'Almuerzo mes pasado' });
@@ -127,6 +129,7 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await signUp(page);
     const category = `Restaurantes-${Date.now()}`;
     await createCategory(page, category);
+    await enableSpendingIncreaseAlerts(page);
     const sourceLabel = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await createExpense(page, { amount: 100, date: previousMonthDate(), category, description: 'Almuerzo mes pasado' });

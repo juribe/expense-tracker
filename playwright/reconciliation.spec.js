@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
 const { pickCategory } = require('./helpers/category_picker');
+const { createMoneySource } = require('./helpers/money_sources');
 
 async function createAccount(page, name, startingBalance) {
   await page.goto('/money_sources/new');
@@ -68,10 +69,13 @@ test.describe('día de cuadre', () => {
     await createExpenseTemplate(page, category, { description: 'Crédito carro Cuadre', amount: '2818000', day: 5 });
 
     // Create the matching expense via the normal creation flow.
+    // The expense of this flow is ~2.8M, above the default helper balance.
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`, 'cash', { startingBalance: '5000000' });
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('2818000');
     await pickCategory(page, 'expense_category_id', category);
     await page.locator('#expense_description').fill('Pago crédito carro Cuadre');
+    await page.locator('#expense_money_source_id').selectOption({ label: efectivo });
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses/);
 
@@ -90,6 +94,14 @@ test.describe('día de cuadre', () => {
 
     await expect(page).toHaveURL(/\/reconciliation/);
     await expect(page.locator('li.list-group-item').filter({ hasText: 'Crédito carro Cuadre' })).not.toBeVisible();
+
+    // The status only reaches "Todo cuadrado" after every source balance is
+    // verified: open the Conciliar modal for the cash source and confirm it.
+    await page.locator('.js-reconcile').first().click();
+    await expect(page.locator('#reconcileModal')).toBeVisible();
+    await page.locator('#reconcileAllGood').click();
+    await page.waitForURL(/\/reconciliation/);
+
     await expect(page.getByText(/Todo cuadrado/).first()).toBeVisible();
   });
 

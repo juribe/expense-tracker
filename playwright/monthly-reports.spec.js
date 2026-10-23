@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { signUp, createCategory } = require('./helpers/auth');
+const { createMoneySource } = require('./helpers/money_sources');
 
 test.describe('monthly reports are working', () => {
   test('user can view monthly reports with no data', async ({ page }) => {
@@ -13,11 +14,13 @@ test.describe('monthly reports are working', () => {
   test('user can view a monthly report after adding an expense', async ({ page }) => {
     await signUp(page);
     await createCategory(page, `Food-${Date.now()}`);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
 
     await page.goto('/expenses/new');
     await page.locator('#expense_amount').fill('1250');
     await page.locator('#expense_date').fill('15/01/2023');
     await page.locator('#expense_description').fill('January rent');
+    await page.locator('#expense_money_source_id').selectOption({ label: efectivo });
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await page.goto('/monthly_reports');
