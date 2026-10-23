@@ -504,10 +504,10 @@
     "semantic_hash": ""
   },
   "config/environments/production.rb": {
-    "mtime": 1787964909.908291,
-    "seen": 1790977684.435193,
-    "ast_hash": "64688dde233657ed84213bf72be8b66e",
-    "semantic_hash": "64688dde233657ed84213bf72be8b66e"
+    "mtime": 1792777748.864895,
+    "seen": 1792778414.472797,
+    "ast_hash": "085f1c4805b82a70c50962f9ddf29989",
+    "semantic_hash": ""
   },
   "config/environments/test.rb": {
     "mtime": 1792207294.7868803,
@@ -522,10 +522,10 @@
     "semantic_hash": ""
   },
   "config/initializers/content_security_policy.rb": {
-    "mtime": 1787694826.7616515,
-    "seen": 1790977684.435199,
-    "ast_hash": "5d156e71b6b6e6ccafebaa0494875799",
-    "semantic_hash": "5d156e71b6b6e6ccafebaa0494875799"
+    "mtime": 1792778081.9770997,
+    "seen": 1792778414.472804,
+    "ast_hash": "de54d6a449ba855913a0f99db22e7c7a",
+    "semantic_hash": ""
   },
   "config/initializers/devise.rb": {
     "mtime": 1788991771.7070553,
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792767821.074055,
-    "seen": 1792771684.739854,
+    "mtime": 1792778260.3487623,
+    "seen": 1792778414.4733891,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5034,9 +5034,9 @@
     "semantic_hash": ""
   },
   "security_problems.md": {
-    "mtime": 1792777522.9518342,
-    "seen": 1792777535.956109,
-    "ast_hash": "215f56978be213ae65aafe1257f68fb8",
+    "mtime": 1792778356.2362037,
+    "seen": 1792778414.473493,
+    "ast_hash": "18e2c6f740722b32616d7ef9f94c3429",
     "semantic_hash": ""
   },
   "lib/rate_limit_proxy.rb": {
@@ -5049,6 +5049,12 @@
     "mtime": 1792776914.2497406,
     "seen": 1792777535.955626,
     "ast_hash": "4cbe4d90049c3f902ec0b24eedf62a2c",
+    "semantic_hash": ""
+  },
+  "test/controllers/security_headers_test.rb": {
+    "mtime": 1792778039.9180467,
+    "seen": 1792778414.4730072,
+    "ast_hash": "9e10ecc4f285720f6e215e0189ffca0d",
     "semantic_hash": ""
   }
 }
