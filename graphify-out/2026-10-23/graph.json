@@ -25130,7 +25130,7 @@
       "file_type": "code",
       "norm_label": ".category_params()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L90"
+      "source_location": "L89"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_create",
@@ -25142,7 +25142,7 @@
       "file_type": "code",
       "norm_label": ".create()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L30"
+      "source_location": "L29"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_destroy",
@@ -25154,7 +25154,7 @@
       "file_type": "code",
       "norm_label": ".destroy()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L64"
+      "source_location": "L63"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_edit",
@@ -25202,7 +25202,7 @@
       "file_type": "code",
       "norm_label": ".set_category()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L79"
+      "source_location": "L78"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_set_parent_categories",
@@ -25214,7 +25214,7 @@
       "file_type": "code",
       "norm_label": ".set_parent_categories()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L86"
+      "source_location": "L85"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_show",
@@ -25238,7 +25238,7 @@
       "file_type": "code",
       "norm_label": ".update()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L46"
+      "source_location": "L45"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_user_expense_categories",
@@ -80996,7 +80996,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L31",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -81032,7 +81032,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L80",
+      "source_location": "L79",
       "weight": 1.0
     },
     {
@@ -81044,7 +81044,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L87",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -138773,7 +138773,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L30",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -138784,7 +138784,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L46",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -138806,7 +138806,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L64",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -138817,7 +138817,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L79",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
@@ -138828,7 +138828,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L86",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -138839,7 +138839,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L90",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -171421,7 +171421,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L37",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -171433,7 +171433,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L55",
+      "source_location": "L54",
       "weight": 1.0
     },
     {
