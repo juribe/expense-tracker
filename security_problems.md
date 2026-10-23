@@ -24,7 +24,7 @@ Leyenda:
 | Fase | Alcance | Estado | Evidencia |
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
-| Fase 2 | 1 High nuevo + medios de integridad/autorización | Pendiente | — |
+| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 hecha; SEC-004 a SEC-009 pendientes | Ver registro de cambios |
 | Fase 3 | Endurecimiento (bajos/informativos) | Pendiente | — |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
@@ -61,27 +61,25 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
   aserciones: expenses, incomes, transfers, reports, budgets, búsquedas, alertas,
   insights, balance sync y bulk destroy.
 
-## Fase 2 — Alta/Media (pendiente)
+## Fase 2 — Alta/Media (en curso)
 
 ### SEC-003 — `MoneySource#parent_id` permite apuntar a una cuenta de otro usuario (Alta)
 
-- [ ] Pendiente.
-- Archivos: `app/controllers/money_sources_controller.rb:389`,
-  `app/models/money_source.rb:39,71-75`,
-  `app/services/money_sources/balance_sync.rb:17-30`.
-- Riesgo: `parent_id` se acepta sin validar dueño. Si la fuente es `debit_card`,
-  `BalanceSync.adjust!` escribe `cached_balance` sobre el padre. Un usuario podría
-  mover el saldo de otra persona (requiere conocer el UUID ajeno).
-- Solución propuesta:
-  - Validar que `parent` pertenezca al mismo `user_id` (o sea `nil`).
-  - Rechazar `parent_id == id`.
-  - Revisar si el tipo de padre debe restringirse (p. ej. cuenta, no deuda).
-- Pruebas requeridas:
-  - Modelo: padre ajeno inválido; padre propio válido; auto-padre inválido.
-  - Servicio/transacción: un gasto en débito con padre ajeno no altera el saldo ajeno.
-  - Controlador: create/update con `parent_id` ajeno responde con error de validación.
-- Criterio de aceptación: ninguna operación puede modificar `cached_balance` de un
-  `MoneySource` cuyo `user_id` no sea el del actor.
+- [x] Implementado y verificado.
+- Archivos: `app/models/money_source.rb`, `app/services/money_sources/balance_sync.rb`,
+  `test/models/money_source_test.rb`, `test/services/money_sources/balance_sync_test.rb`,
+  `test/controllers/money_sources_controller_test.rb`.
+- Riesgo: `parent_id` se aceptaba sin validar dueño; con una fuente `debit_card`,
+  `BalanceSync.adjust!` escribía `cached_balance` sobre el padre. Un usuario podía
+  mover el saldo de otra persona.
+- Solución:
+  - Validación `parent_belongs_to_user` (padre ajeno invalido con `:other_user`) y
+    `parent_must_not_be_self` en `MoneySource`.
+  - Guarda en `BalanceSync.adjust!`: el delta va al padre solo si es del mismo dueño;
+    ante un enlace ajeno ya persistido, cae en la propia fuente.
+- Pruebas: 8 escenarios (4 controlador, 3 modelo, 1 servicio), rojo confirmado antes
+  de implementar y verificados en verde; suite completa en CI.
+- Estado: hecho, pendiente de confirmar CI en verde; ver registro de cambios.
 
 ### SEC-004 — IDOR de lectura en `CategoriesController#show` (Media)
 

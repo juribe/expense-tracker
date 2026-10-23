@@ -1339,4 +1339,66 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".nav-tabs", count: 0
   end
+
+  test "POST /money_sources rejects a parent owned by another user" do
+    other_user = User.create!(name: "Other", email: "money_sources_foreign_parent@example.com",
+                              password: "password123")
+    foreign_account = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account",
+                                                       starting_balance: 1_000_000)
+
+    assert_no_difference "MoneySource.count" do
+      post money_sources_path, params: {
+        money_source: { name: "Débito Ajeno", kind: "debit_card", parent_id: foreign_account.id,
+                        starting_balance: 0 }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "PATCH /money_sources/:id rejects changing the parent to another user's account" do
+    own_account = create_source(name: "Cuenta Propia", kind: "account")
+    card = create_source(name: "Débito Propio", kind: "debit_card", parent: own_account)
+    other_user = User.create!(name: "Other", email: "money_sources_foreign_parent_update@example.com",
+                              password: "password123")
+    foreign_account = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account",
+                                                       starting_balance: 1_000_000)
+
+    patch money_source_path(card), params: { money_source: { parent_id: foreign_account.id } }
+
+    assert_response :unprocessable_entity
+    assert_equal own_account, card.reload.parent
+  end
+
+  test "POST /money_sources accepts a parent owned by the same user" do
+    account = create_source(name: "Cuenta Propia", kind: "account")
+
+    assert_difference "MoneySource.count", 1 do
+      post money_sources_path, params: {
+        money_source: { name: "Débito Propio", kind: "debit_card", parent_id: account.id,
+                        starting_balance: 0 }
+      }
+    end
+
+    assert_redirected_to money_sources_cash_path
+    assert_equal account, MoneySource.find_by(name: "Débito Propio").parent
+  end
+
+  test "rejected foreign parent attempts leave the other user's cached balance untouched" do
+    other_user = User.create!(name: "Other", email: "money_sources_foreign_balance@example.com",
+                              password: "password123")
+    foreign_account = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account",
+                                                       starting_balance: 2_500_000)
+    balance_before = foreign_account.reload.cached_balance
+
+    assert_no_difference "MoneySource.count" do
+      post money_sources_path, params: {
+        money_source: { name: "Débito Ajeno", kind: "debit_card", parent_id: foreign_account.id,
+                        starting_balance: 0 }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal balance_before, foreign_account.reload.cached_balance
+  end
 end
