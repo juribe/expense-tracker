@@ -24987,7 +24987,7 @@
       "file_type": "code",
       "norm_label": ".category_params()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L89"
+      "source_location": "L91"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_create",
@@ -25059,7 +25059,7 @@
       "file_type": "code",
       "norm_label": ".set_category()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L78"
+      "source_location": "L80"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_set_parent_categories",
@@ -25071,7 +25071,7 @@
       "file_type": "code",
       "norm_label": ".set_parent_categories()",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L85"
+      "source_location": "L87"
     },
     {
       "id": "app_controllers_categories_controller_categoriescontroller_show",
@@ -56484,7 +56484,7 @@
       "node_kind": "heading",
       "norm_label": "comandos utiles",
       "source_file": "security_problems.md",
-      "source_location": "L216"
+      "source_location": "L220"
     },
     {
       "id": "security_problems_convenciones",
@@ -56496,7 +56496,7 @@
       "node_kind": "heading",
       "norm_label": "convenciones",
       "source_file": "security_problems.md",
-      "source_location": "L233"
+      "source_location": "L237"
     },
     {
       "id": "security_problems_c\u00f3mo_usar_este_documento",
@@ -56556,7 +56556,7 @@
       "node_kind": "heading",
       "norm_label": "fase 3 \u2014 endurecimiento (bajos/informativos)",
       "source_file": "security_problems.md",
-      "source_location": "L157"
+      "source_location": "L160"
     },
     {
       "id": "security_problems_fixtures_corregidas_en_fase_1",
@@ -56580,7 +56580,7 @@
       "node_kind": "heading",
       "norm_label": "reconciliacion con la auditoria original",
       "source_file": "security_problems.md",
-      "source_location": "L202"
+      "source_location": "L205"
     },
     {
       "id": "security_problems_registro_de_cambios",
@@ -56592,7 +56592,7 @@
       "node_kind": "heading",
       "norm_label": "registro de cambios",
       "source_file": "security_problems.md",
-      "source_location": "L209"
+      "source_location": "L212"
     },
     {
       "id": "security_problems_sec_001_transacciones_pod\u00edan_referenciar_money_sources_y_categor\u00edas_de_otro_usuario",
@@ -56640,7 +56640,7 @@
       "node_kind": "heading",
       "norm_label": "sec-004 \u2014 idor de lectura en `categoriescontroller#show` (media)",
       "source_file": "security_problems.md",
-      "source_location": "L84"
+      "source_location": "L85"
     },
     {
       "id": "security_problems_sec_005_referencias_ajenas_en_registros_secundarios_media",
@@ -56652,7 +56652,7 @@
       "node_kind": "heading",
       "norm_label": "sec-005 \u2014 referencias ajenas en registros secundarios (media)",
       "source_file": "security_problems.md",
-      "source_location": "L95"
+      "source_location": "L98"
     },
     {
       "id": "security_problems_sec_006_csv_injection_en_la_exportaci\u00f3n_de_gastos_media",
@@ -56664,7 +56664,7 @@
       "node_kind": "heading",
       "norm_label": "sec-006 \u2014 csv injection en la exportacion de gastos (media)",
       "source_file": "security_problems.md",
-      "source_location": "L113"
+      "source_location": "L116"
     },
     {
       "id": "security_problems_sec_007_sin_rate_limiting_en_autenticaci\u00f3n_webhooks_y_endpoints_de_ia_media",
@@ -56676,7 +56676,7 @@
       "node_kind": "heading",
       "norm_label": "sec-007 \u2014 sin rate limiting en autenticacion, webhooks y endpoints de ia (media)",
       "source_file": "security_problems.md",
-      "source_location": "L124"
+      "source_location": "L127"
     },
     {
       "id": "security_problems_sec_008_subida_de_extractos_sin_l\u00edmite_expl\u00edcito_de_tama\u00f1o_media",
@@ -56688,7 +56688,7 @@
       "node_kind": "heading",
       "norm_label": "sec-008 \u2014 subida de extractos sin limite explicito de tamano (media)",
       "source_file": "security_problems.md",
-      "source_location": "L135"
+      "source_location": "L138"
     },
     {
       "id": "security_problems_sec_009_descarga_de_media_de_whatsapp_sin_allowlist_de_host_media_baja",
@@ -56700,7 +56700,7 @@
       "node_kind": "heading",
       "norm_label": "sec-009 \u2014 descarga de media de whatsapp sin allowlist de host (media/baja)",
       "source_file": "security_problems.md",
-      "source_location": "L147"
+      "source_location": "L150"
     },
     {
       "id": "security_problems_sec_010_csp_deshabilitada",
@@ -56712,7 +56712,7 @@
       "node_kind": "heading",
       "norm_label": "sec-010 \u2014 csp deshabilitada",
       "source_file": "security_problems.md",
-      "source_location": "L159"
+      "source_location": "L162"
     },
     {
       "id": "security_problems_sec_011_endurecer_webhook_de_whatsapp",
@@ -56724,7 +56724,7 @@
       "node_kind": "heading",
       "norm_label": "sec-011 \u2014 endurecer webhook de whatsapp",
       "source_file": "security_problems.md",
-      "source_location": "L166"
+      "source_location": "L169"
     },
     {
       "id": "security_problems_sec_012_config_hosts_sin_definir_en_producci\u00f3n",
@@ -56736,7 +56736,7 @@
       "node_kind": "heading",
       "norm_label": "sec-012 \u2014 `config.hosts` sin definir en produccion",
       "source_file": "security_problems.md",
-      "source_location": "L174"
+      "source_location": "L177"
     },
     {
       "id": "security_problems_sec_013_logging_de_datos_financieros_en_el_playground",
@@ -56748,7 +56748,7 @@
       "node_kind": "heading",
       "norm_label": "sec-013 \u2014 logging de datos financieros en el playground",
       "source_file": "security_problems.md",
-      "source_location": "L181"
+      "source_location": "L184"
     },
     {
       "id": "security_problems_sec_014_or\u00edgenes_de_action_cable_no_configurados",
@@ -56760,7 +56760,7 @@
       "node_kind": "heading",
       "norm_label": "sec-014 \u2014 origenes de action cable no configurados",
       "source_file": "security_problems.md",
-      "source_location": "L188"
+      "source_location": "L191"
     },
     {
       "id": "security_problems_sec_015_prompts_y_salidas_de_ia_en_claro_en_base_de_datos_informativo_bajo",
@@ -56772,7 +56772,7 @@
       "node_kind": "heading",
       "norm_label": "sec-015 \u2014 prompts y salidas de ia en claro en base de datos (informativo/bajo)",
       "source_file": "security_problems.md",
-      "source_location": "L195"
+      "source_location": "L198"
     },
     {
       "id": "security_problems_security_problems_expense_tracker",
@@ -81463,7 +81463,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L79",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -81475,7 +81475,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L86",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -129338,7 +129338,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L113",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -129349,7 +129349,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L124",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -129360,7 +129360,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L135",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
@@ -129371,7 +129371,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L147",
+      "source_location": "L150",
       "weight": 1.0
     },
     {
@@ -129393,7 +129393,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L84",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -129404,7 +129404,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L95",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -129415,7 +129415,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L159",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -129426,7 +129426,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L166",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -129437,7 +129437,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L174",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -129448,7 +129448,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L181",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -129459,7 +129459,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L188",
+      "source_location": "L191",
       "weight": 1.0
     },
     {
@@ -129470,7 +129470,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L195",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -129481,7 +129481,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L157",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -129492,7 +129492,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L202",
+      "source_location": "L205",
       "weight": 1.0
     },
     {
@@ -129503,18 +129503,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L209",
-      "weight": 1.0
-    },
-    {
-      "source": "security_problems_security_problems_expense_tracker",
-      "target": "security_problems_comandos_\u00fatiles",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "security_problems.md",
-      "source_location": "L216",
+      "source_location": "L212",
       "weight": 1.0
     },
     {
@@ -129530,13 +129519,24 @@
     },
     {
       "source": "security_problems_security_problems_expense_tracker",
+      "target": "security_problems_comandos_\u00fatiles",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "security_problems.md",
+      "source_location": "L220",
+      "weight": 1.0
+    },
+    {
+      "source": "security_problems_security_problems_expense_tracker",
       "target": "security_problems_convenciones",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "security_problems.md",
-      "source_location": "L233",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -139568,7 +139568,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L78",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -139579,7 +139579,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L85",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -139590,7 +139590,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/categories_controller.rb",
-      "source_location": "L89",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -177138,5 +177138,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "a5d853cdaa402b1e1989946226b670f9a876db83"
+  "built_at_commit": "151ae95d68eca0c75f069b8a4bee43ad4670872c"
 }

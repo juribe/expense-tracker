@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
-    "mtime": 1792761579.9914682,
-    "seen": 1792761689.109578,
-    "ast_hash": "8b73c638768dd005006e890c42eefc30",
+    "mtime": 1792773196.0251,
+    "seen": 1792773320.754318,
+    "ast_hash": "2c5523fe07fafda381eb917dc5e09acd",
     "semantic_hash": ""
   },
   "app/controllers/concerns/recurring_template_actions.rb": {
@@ -738,9 +738,9 @@
     "semantic_hash": "bc920d9ceaea89b475b08e3d23850939"
   },
   "test/controllers/categories_controller_test.rb": {
-    "mtime": 1792760566.5994327,
-    "seen": 1792761500.411881,
-    "ast_hash": "7f71779c58aaed8189caf097f9c661e3",
+    "mtime": 1792773036.9517856,
+    "seen": 1792773320.755095,
+    "ast_hash": "7371adb63e171500aae7e1e87d7f6b37",
     "semantic_hash": ""
   },
   "test/controllers/expenses_ai_entry_test.rb": {
@@ -5034,9 +5034,9 @@
     "semantic_hash": ""
   },
   "security_problems.md": {
-    "mtime": 1792771659.6274664,
-    "seen": 1792771684.739965,
-    "ast_hash": "f9fc2965aa16a02535136d3fae339a1d",
+    "mtime": 1792773302.2565753,
+    "seen": 1792773320.755616,
+    "ast_hash": "b6b517354e79ea5bf0db83a55b924cae",
     "semantic_hash": ""
   }
 }
