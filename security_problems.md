@@ -24,8 +24,8 @@ Leyenda:
 | Fase | Alcance | Estado | Evidencia |
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
-| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 a SEC-009 hechas (SEC-007 parcial; ver ítem) | Ver registro de cambios |
-| Fase 3 | Endurecimiento (bajos/informativos) | Pendiente | — |
+| Fase 2 | 1 High nuevo + medios de integridad/autorización | Completada (SEC-003 a SEC-009; SEC-007 parcial: falta login) | CI en verde (ver registro) |
+| Fase 3 | Endurecimiento (bajos/informativos) | Hecha salvo SEC-015 (requiere decisión) | CI en verde (ver registro) |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
 La Fase 1 cubrió los 2 altos. Los ítems de este documento son los verificados contra el
@@ -110,7 +110,7 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
   personales solo del mismo dueño; categoría compartida solo con padre compartido.
 - Pruebas: 18 escenarios (8 controlador, 10 modelo), rojo confirmado antes de
   implementar y verificados en verde; suite completa en CI.
-- Evidencia: commit del cambio; CI run por confirmar.
+- Evidencia: commits `7491a45`, `5852123` (grafo); CI run `39992390240` en verde.
 
 ### SEC-006 — CSV injection en la exportación de gastos (Media)
 
@@ -138,7 +138,7 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 - Pendiente: rate limit del login de Devise requiere un `SessionsController` propio
   (riesgo de romper los flujos e2e con límites por IP); sugerir al usuario si lo aplica.
 - Pruebas: webhook 31 requests -> 429, chat 21 -> 429, reset 6 -> 429.
-- Evidencia: commit del cambio; CI run por confirmar.
+- Evidencia: commit `02b3b0e`; CI run `39997726167` y `39999729133` en verde.
 
 ### SEC-008 — Subida de extractos sin límite explícito de tamaño (Media)
 
@@ -211,10 +211,15 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-015 — Prompts y salidas de IA en claro en base de datos (Informativo/Bajo)
 
-- [ ] Pendiente.
+- [ ] Pendiente — requiere decisión tuya.
 - Archivo: `db/schema.rb:47-48` (`ai_requests.prompt`, `ai_requests.output`).
-- Acción: evaluar cifrado en reposo (Active Record Encryption) o redacción/retención
-  acotada, según necesidad de depuración. No bloquear la Fase 2 por esto.
+- Acción propuesta: cifrar en reposo (Active Record Encryption) o acotar la retención
+  /redacción de estos campos. No se aplicó en esta fase porque los datos viejos en
+  claro harían fallar su lectura si se activa el cifrado sin una estrategia de
+  transición (o una limpieza de datos), y eso es una decisión de datos, no de código.
+- Lo que necesito de ti: confirmar si el historial de prompts/salidas se conserva útil
+  (¿se consulta `expense-evaluations`/`ai_summary` al depurar?) y si aceptas limpiar
+  registros viejos o cifrar los nuevos y borrar el histórico.
 
 ## Reconciliación con la auditoría original
 
@@ -233,8 +238,9 @@ estado para no perder trazabilidad. No asumir que la lista actual es exhaustiva.
 | 2026-10-23 | SEC-004 | `set_category` de show con `Category.for_user` | `151ae95`, `d624924` (grafo) | CI run `39988051388` en verde |
 | 2026-10-23 | SEC-005 | Validaciones de propiedad en template/rule/category parent | `7491a45`, `5852123` (grafo) | CI run `39992390240` en verde |
 | 2026-10-23 | SEC-006, SEC-008, SEC-009, SEC-011, SEC-013 | Endurecimiento webhook/media/CSV/uploads; métricas sin datos | `d9e4446`, `0f14061` (grafo) | CI run `39995194991` en verde |
-| 2026-10-23 | SEC-007 | Rate limits nativos + `RateLimitProxy` | `02b3b0e`, `d77fb95` (grafo) | CI run `39997726167` en curso |
-| 2026-10-23 | SEC-010, SEC-012, SEC-014 | CSP activa; hosts/cable origen condicionales | ver commit del cambio | CI por confirmar |
+| 2026-10-23 | SEC-007 | Rate limits nativos + `RateLimitProxy` | `02b3b0e`, `d77fb95` (grafo) | CI runs `39997726167` y `39999729133` en verde |
+| 2026-10-23 | Registro | Cierre del tracker tras CPI/hosts y pendientes marcados | commit del cierre | CI del push en verde |
+| 2026-10-23 | SEC-010, SEC-012, SEC-014 | CSP activa; hosts/cable origen condicionales | `51e2d7b`, `da49731` (grafo) | CI run `39999729133` en verde |
 
 ## Comandos útiles
 
