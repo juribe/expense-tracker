@@ -34,6 +34,7 @@ module Statements
     def call
       binary = Expenses::Inputs::File.binary(@file_data)
       return failure("Could not decode file data.") if binary.nil?
+      return failure(I18n.t("wizard.upload.file_too_large")) if binary.bytesize > Expenses::Inputs::Rules::File::FILE_MAX_BYTES
 
       extension = Expenses::Inputs::File.extension(@file_data, @filename)
       unless extension.in?(Expenses::FileImport::Pipeline::SUPPORTED_EXTENSIONS)

@@ -30,6 +30,7 @@ module Expenses
 
         binary = Expenses::Inputs::File.binary(@file_data)
         return failure("Could not decode file data.") if binary.nil?
+        return failure(I18n.t("wizard.upload.file_too_large")) if oversize?(binary)
 
         ext = Expenses::Inputs::File.extension(@file_data, @filename)
         return failure(I18n.t("wizard.upload.unsupported_type")) unless ext.in?(SUPPORTED_EXTENSIONS)
@@ -67,6 +68,10 @@ module Expenses
       end
 
       private
+
+      def oversize?(binary)
+        binary.bytesize > Expenses::Inputs::Rules::File::FILE_MAX_BYTES
+      end
 
       def read_file(binary, ext)
         reader = Readers.for(ext)

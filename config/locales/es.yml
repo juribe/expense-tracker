@@ -468,6 +468,7 @@ es:
       upload: "Subir y procesar"
       retry: "Intentar de nuevo"
       file_required: "Elige un archivo para subir."
+      file_too_large: "El archivo es demasiado grande (máximo 20 MB)."
       processing: "Procesando tu extracto…"
       step_upload: "Cargando archivo…"
       password_title: "Este documento está protegido con contraseña"

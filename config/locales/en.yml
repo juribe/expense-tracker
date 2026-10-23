@@ -132,6 +132,7 @@ en:
       upload: "Upload & process"
       retry: "Try again"
       file_required: "Please choose a file to upload."
+      file_too_large: "File is too large (max 20 MB)."
       processing: "Processing your statement…"
       step_upload: "Uploading file…"
       password_title: "This document is password protected"

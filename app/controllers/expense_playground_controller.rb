@@ -22,7 +22,8 @@ class ExpensePlaygroundController < ApplicationController
     return render_invalid_input(input) unless input.valid?
 
     result = Expenses::Processor.call(user: current_user, input: input, recording: Expenses::Processors::Recording.new, source: "playground")
-    puts "[expense_playground] run result: ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{result.candidates&.as_json} errors=#{result.errors} warnings=#{result.warnings}"
+    # Metrics only: never log the candidates (financial data) nor the raw input.
+    Rails.logger.info "[expense_playground] run ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{(result.candidates || []).size}"
     run_record = persist_run(input, result)
 
     candidates = result.candidates || []

@@ -11,6 +11,8 @@ module Expenses
   #   Expenses::CsvExporter.filename                 # -> "expenses-YYYY-MM-DD.csv"
   class CsvExporter
     HEADERS = %w[date description category amount source].freeze
+    # Excel/LibreOffice treat these leading characters as formulas.
+    FORMULA_PREFIXES = %w[= + - @ \t \r].freeze
 
     def self.call(scope)
       new.call(scope)
@@ -26,13 +28,25 @@ module Expenses
         scope.except(:offset, :limit).each do |expense|
           rows << [
             expense.date,
-            expense.description.to_s,
-            expense.category&.name.to_s,
+            safe_text(expense.description),
+            safe_text(expense.category&.name),
             expense.amount.to_s,
-            expense.money_source&.name.to_s
+            safe_text(expense.money_source&.name)
           ]
         end
       end
+    end
+
+    private
+
+    # A crafted description/category/source could execute as a formula when
+    # the export is opened in a spreadsheet; the leading apostrophe neutralizes it.
+    def safe_text(value)
+      text = value.to_s
+      return text if text.empty?
+      return text unless FORMULA_PREFIXES.any? { |prefix| text.start_with?(prefix) }
+
+      "'#{text}"
     end
   end
 end

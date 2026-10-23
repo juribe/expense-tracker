@@ -37,7 +37,6 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
 
   test "GET new redirects a non-debt source back to its page" do
     get new_money_source_statement_import_path(@account)
-
     assert_redirected_to money_source_path(@account)
   end
 

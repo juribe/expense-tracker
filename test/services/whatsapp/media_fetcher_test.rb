@@ -97,4 +97,26 @@ class Whatsapp::MediaFetcherTest < ActiveSupport::TestCase
 
     assert_nil Whatsapp::MediaFetcher.call(media_id: MEDIA_ID, mime_type: "audio/ogg")
   end
+
+  test "accepts only HTTPS Meta media hosts" do
+    assert Whatsapp::MediaFetcher.safe_media_url?(MEDIA_URL)
+    assert Whatsapp::MediaFetcher.safe_media_url?("https://video.fna.fbcdn.net/att.mp4")
+    assert_not Whatsapp::MediaFetcher.safe_media_url?("http://lookaside.fbsbx.com/file")
+    assert_not Whatsapp::MediaFetcher.safe_media_url?("https://evil.attacker.example/file")
+    assert_not Whatsapp::MediaFetcher.safe_media_url?("not a url")
+  end
+
+  test "returns nil when Graph returns a non-Meta media URL" do
+    response = nil
+    stub_http(
+      media_url_response: "200",
+      media_url_body: { url: "https://evil.attacker.example/media.mp4" }.to_json,
+      download_response: "200",
+      download_body: "should-not-download"
+    ) do
+      response = Whatsapp::MediaFetcher.call(media_id: MEDIA_ID, mime_type: "audio/ogg")
+    end
+
+    assert_nil response
+  end
 end

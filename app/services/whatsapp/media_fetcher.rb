@@ -12,6 +12,10 @@ require "net/http"
 module Whatsapp
   class MediaFetcher
     GRAPH_URL = "https://graph.facebook.com/v23.0"
+    # The Graph media URL is always one of Meta's delivery hosts; anything
+    # else would turn the webhook into a server-side request to arbitrary
+    # hosts (SSRF).
+    MEDIA_HOST_SUFFIXES = %w[lookaside.fbsbx.com .fbsbx.com .fbcdn.net].freeze
 
       # WhatsApp reports voice notes as "audio/ogg; codecs=opus": the mime
       # parameters break the Expenses data-URI parser (data:<mime>;base64,),
@@ -32,6 +36,21 @@ module Whatsapp
       nil
     end
 
+    def self.safe_media_url?(url)
+      uri = URI.parse(url.to_s)
+      host = uri.host.to_s.downcase
+
+      return false unless uri.is_a?(URI::HTTPS)
+
+      MEDIA_HOST_SUFFIXES.any? do |suffix|
+        next host.end_with?(suffix) if suffix.start_with?(".")
+
+        host == suffix || host.end_with?(".#{suffix}")
+      end
+    rescue URI::InvalidURIError
+      false
+    end
+
     class << self
       private
 
@@ -47,6 +66,11 @@ module Whatsapp
 
       def download(media_url, token)
         uri = URI(media_url)
+        unless safe_media_url?(media_url)
+          Rails.logger.error "[MediaFetcher] Refusing non-Meta media host: #{uri.host}"
+          return nil
+        end
+
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
         request = Net::HTTP::Get.new(uri, "Authorization" => "Bearer #{token}")
