@@ -146,7 +146,9 @@ module Expenses
 
     test "isolates expenses per user" do
       other = User.create!(name: "Otro", email: "other-search@example.com", password: "password123")
-      create_expense(user: other, description: "Ajeno")
+      other_category = Category.create!(name: "Ajena", user: other, is_default: false, category_type: "expense")
+      other_account = other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
+      create_expense(user: other, category: other_category, money_source: other_account, description: "Ajeno")
 
       result = search
       assert_equal 3, result.total_count

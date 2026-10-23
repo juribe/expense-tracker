@@ -11,6 +11,8 @@ class ReportsMoneySourcesTest < ActiveSupport::TestCase
     @cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true, starting_balance: 1_000_000_000)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @other = User.create!(name: "Other", email: "reports_sources_other@example.com", password: "password123")
+    @other_bank = @other.money_sources.create!(name: "Other Bank", kind: "account", active: true,
+                                               starting_balance: 1_000_000_000)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
     @filter = Reports::Filter.new(user: @user, period: @period)
   end
@@ -28,7 +30,7 @@ class ReportsMoneySourcesTest < ActiveSupport::TestCase
     expense(-420_000, source: @bank)
     expense(-310_000, source: @card)
     expense(-180_000, source: @cash)
-    expense(-90_000, source: @cash, user: @other)
+    expense(-90_000, source: @other_bank, user: @other)
 
     data = report
     kinds = data[:kinds].index_by { |k| k[:kind] }
