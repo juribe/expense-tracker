@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class GmailConnectionsController < ApplicationController
+  # A sync scans a live mailbox and bills AI work: one trigger per minute is
+  # generous for a human, hostile for a script.
+  rate_limit to: 5, within: 1.minute, only: [ :sync, :setup_sync ], store: RateLimitProxy.new
+
   before_action :set_connection, only: %i[update destroy sync sync_status setup_sync]
 
   rescue_from ActiveRecord::RecordNotFound do

@@ -2,6 +2,11 @@ module FinancialChats
   class MessagesController < ApplicationController
     before_action :authenticate_user!
 
+    # Every AI message costs money: a per-user ceiling for the assistant.
+    # The limit counts per IP; per-user identity would leak message identity
+    # into the rate-limit key, so keep it coarse.
+    rate_limit to: 20, within: 1.minute, only: :create, store: RateLimitProxy.new
+
     def create
       chat = FinancialChat.for_user(current_user)
       message = chat.messages.new(role: "user", content: content)

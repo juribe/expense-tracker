@@ -24,7 +24,7 @@ Leyenda:
 | Fase | Alcance | Estado | Evidencia |
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
-| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 a SEC-005 hechas; SEC-006 a SEC-009 pendientes | Ver registro de cambios |
+| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 a SEC-009 hechas (SEC-007 parcial; ver ítem) | Ver registro de cambios |
 | Fase 3 | Endurecimiento (bajos/informativos) | Pendiente | — |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
@@ -114,47 +114,54 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-006 — CSV injection en la exportación de gastos (Media)
 
-- [ ] Pendiente.
-- Archivos: `app/services/expenses/csv_exporter.rb:25-31`.
-- Riesgo: descripción/categoría/fuente se escriben sin neutralizar; una celda que
-  empiece con `=`, `+`, `-` o `@` puede ejecutarse como fórmula al abrir el CSV.
-- Solución propuesta: prefijar con `'` (o tab) las celdas que empiecen con esos
-  caracteres, incluidos `\t` y `\r`; aplicar a todos los campos de texto.
-- Pruebas requeridas: descripción/categoría/fuente con fórmulas quedan neutralizadas;
-  exportación normal no cambia.
+- [x] Implementado y verificado.
+- Archivo: `app/services/expenses/csv_exporter.rb` + pruebas.
+- Riesgo: descripción/categoría/fuente se escribían sin neutralizar; una celda que
+  empieza con `=`, `+`, `-`, `@`, tab o CR se ejecuta como fórmula al abrir el CSV.
+- Solución: `safe_text` antepone `'` a las celdas de texto con esos prefixes; el importe
+  y la fecha no se tocan.
 
 ### SEC-007 — Sin rate limiting en autenticación, webhooks y endpoints de IA (Media)
 
-- [ ] Pendiente.
-- Archivos: `config/routes.rb` (login/password, webhooks, playground, evaluaciones,
-  financial chat), `app/controllers/users/*`, `app/controllers/webhooks/whatsapp_controller.rb`.
+- [x] Implementado y verificado (parcial: sin login de Devise).
+- Archivos: `lib/rate_limit_proxy.rb`, `app/controllers/webhooks/whatsapp_controller.rb`,
+  `app/controllers/financial_chats/messages_controller.rb`,
+  `app/controllers/users/passwords_controller.rb`,
+  `app/controllers/expense_evaluations_controller.rb`,
+  `app/controllers/expense_playground_controller.rb`,
+  `app/controllers/gmail_connections_controller.rb` + sus pruebas.
 - Riesgo: fuerza bruta de credenciales, abuso de costo de IA y saturación de jobs.
-- Solución propuesta: usar el `rate_limit` nativo de Rails 8 en los controladores
-  afectados (sin agregar dependencias), con `solid_cache` en producción. Evaluar
-  límites por IP y por usuario.
-- Pruebas requeridas: exceder el límite responde `429`; uso normal no se bloquea.
+- Solución: `rate_limit` nativo de Rails 8 (sin dependencias nuevas) con
+  `RateLimitProxy` que resuelve `Rails.cache` en tiempo de ejecución (Solid Cache en
+  producción; no-op con el `null_store` de testing). Límites: webhook 30/min,
+  chat 20/min, reset 5/min, evaluaciones 10/min, playground 30/min, Gmail sync 5/min.
+- Pendiente: rate limit del login de Devise requiere un `SessionsController` propio
+  (riesgo de romper los flujos e2e con límites por IP); sugerir al usuario si lo aplica.
+- Pruebas: webhook 31 requests -> 429, chat 21 -> 429, reset 6 -> 429.
+- Evidencia: commit del cambio; CI run por confirmar.
 
 ### SEC-008 — Subida de extractos sin límite explícito de tamaño (Media)
 
-- [ ] Pendiente.
-- Archivos: `app/controllers/statement_imports_controller.rb:120-125`,
-  `app/services/statements/parser.rb:35`.
-- Riesgo: el archivo completo se lee y se base64-codifica en memoria sin límite
-  explícito; un archivo grande puede agotar memoria.
-- Solución propuesta: rechazar archivos por encima de un máximo explícito (alineado con
-  `Expenses::Inputs::Rules::File::FILE_MAX_BYTES`, 20 MB) antes de leer/converter.
-- Pruebas requeridas: archivo sobre el límite responde error sin procesar; archivo
-  válido sigue funcionando.
+- [x] Implementado y verificado.
+- Archivos: `app/controllers/statement_imports_controller.rb`,
+  `app/services/statements/parser.rb`,
+  `app/services/expenses/file_import/pipeline.rb`, locales `wizard.upload.file_too_large`.
+- Riesgo: el archivo completo se leía y base64-codificaba en memoria sin límite.
+- Solución: `oversize_upload?` en el controlador con `request.content_length` (barato y
+  pre-lectura) + guardas equivalentes en `Statements::Parser` y en el pipeline del
+  playground después de decodificar; máximo alineado con `FILE_MAX_BYTES` (20 MB).
+- Nota de prueba: la guarda del controlador no es comprobable en el stack de
+  integración (el compositor multipart de Rack deforma el part); la cobertura real
+  vive en `Statements::ParserTest` y `FileProcessorTest`.
 
 ### SEC-009 — Descarga de media de WhatsApp sin allowlist de host (Media/Baja)
 
-- [ ] Pendiente.
-- Archivos: `app/services/whatsapp/media_fetcher.rb:50-58`.
-- Riesgo: se descarga cualquier URL devuelta por Graph API sin validar host/esquema;
-  un response manipulado podría inducir peticiones internas (SSRF acotado).
-- Solución propuesta: exigir `https`, allowlist de dominios de Meta y/o bloquear rangos
-  privados/reservados; validar también el `media_id`.
-- Pruebas requeridas: URL con host no permitido se rechaza; URL válida (stub) funciona.
+- [x] Implementado y verificado.
+- Archivos: `app/services/whatsapp/media_fetcher.rb` + pruebas.
+- Riesgo: se descargaba cualquier URL devuelta por Graph API (SSRF acotado).
+- Solución: `safe_media_url?` público exige HTTPS y hosts de Meta
+  (`lookaside.fbsbx.com`/`.fbsbx.com`/`.fbcdn.net`); `download` rechaza lo demás y lo
+  registra sin hacer la petición.
 
 ## Fase 3 — Endurecimiento (bajos/informativos)
 
@@ -167,11 +174,12 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-011 — Endurecer webhook de WhatsApp
 
-- [ ] Pendiente.
-- Archivo: `app/controllers/webhooks/whatsapp_controller.rb`.
-- Acciones: comparación de verify token en tiempo constante (`secure_compare`), manejo
-  explícito de `WHATSAPP_VERIFY_TOKEN`/`FB_APP_SECRET` ausentes (no 500), y límite de
-  tamaño del payload antes de encolar el job.
+- [x] Implementado y verificado.
+- Archivo: `app/controllers/webhooks/whatsapp_controller.rb` + pruebas.
+- Acciones: comparación del verify token en tiempo constante (`secure_compare`), `403`
+  claro cuando el token no está configurado (antes se filtraba por igualdad), `401`
+  cuando `FB_APP_SECRET` no está configurado (antes 500 por HMAC con clave nula), y
+  `413 antes de leer para payloads > 1 MB + rate limit 30/min sobre el POST.
 
 ### SEC-012 — `config.hosts` sin definir en producción
 
@@ -182,10 +190,10 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-013 — Logging de datos financieros en el playground
 
-- [ ] Pendiente.
-- Archivo: `app/controllers/expense_playground_controller.rb:29`.
-- Acción: quitar el `puts` con candidatos completos (montos/descripciones); si se
-  necesita observabilidad, registrar solo métricas no sensibles.
+- [x] Implementado y verificado.
+- Archivo: `app/controllers/expense_playground_controller.rb`.
+- Acción: el `puts` de candidatos completos (montos/descripciones) quedó reemplazado
+  por una línea de métricas sin datos financieros ni payloads.
 
 ### SEC-014 — Orígenes de Action Cable no configurados
 

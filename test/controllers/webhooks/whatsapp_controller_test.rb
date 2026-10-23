@@ -93,6 +93,35 @@ class WhatsappWebhookControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test "POST webhook rate limits after 30 posts in a minute" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    signature = "sha256=" + OpenSSL::HMAC.hexdigest("SHA256", APP_SECRET, @payload)
+
+    begin
+      with_env("FB_APP_SECRET" => APP_SECRET) do
+        with_active_job_adapter(:test) do
+          30.times do
+            post webhooks_whatsapp_path, params: @payload, headers: {
+              "Content-Type" => "application/json",
+              "X-Hub-Signature-256" => signature
+            }
+            assert_response :ok
+          end
+
+          post webhooks_whatsapp_path, params: @payload, headers: {
+            "Content-Type" => "application/json",
+            "X-Hub-Signature-256" => signature
+          }
+        end
+      end
+
+      assert_equal 429, response.status
+    ensure
+      Rails.cache = original_cache
+    end
+  end
+
   test "POST webhook with valid signature enqueues the raw body and returns 200" do
     with_env("FB_APP_SECRET" => APP_SECRET, "WHATSAPP_VERIFY_TOKEN" => VERIFY_TOKEN) do
       signature = "sha256=" + OpenSSL::HMAC.hexdigest("SHA256", APP_SECRET, @payload)

@@ -11,6 +11,12 @@
 class ExpensePlaygroundController < ApplicationController
   before_action :set_categories, only: :show
 
+  # AI-billed pipeline: keep a per-IP ceiling on every processing trigger so
+  # costs stay bounded; create/batch_create stay below the same limit.
+  rate_limit to: 30, within: 1.minute,
+              only: [ :run, :process_file, :batch_create, :create ],
+              store: RateLimitProxy.new
+
   def show; end
 
   # POST /expense-playground/process

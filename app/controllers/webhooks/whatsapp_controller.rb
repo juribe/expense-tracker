@@ -4,6 +4,10 @@ module Webhooks
   class WhatsappController < ActionController::Base
     MAX_PAYLOAD_BYTES = 1_000_000
 
+    # Public endpoint: signature-verified but still flood-able; a rough
+    # per-IP ceiling keeps a compromised sender from stacking webhook jobs.
+    rate_limit to: 30, within: 1.minute, only: :webhook, store: RateLimitProxy.new
+
     skip_before_action :verify_authenticity_token, only: [ :webhook, :verify ]
 
     def webhook
