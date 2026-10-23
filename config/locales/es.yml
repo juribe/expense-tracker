@@ -1865,6 +1865,7 @@ es:
     category_type_mismatch: "debe ser de tipo compatible (gasto/ingreso)"
     source_inactive: "debe estar activa"
     transfer_sources: "debe ser diferente de la fuente de origen"
+    category_parent_owner: "debe ser compartida o del mismo dueño"
 
   category_messages:
     only_own_edit: "Solo puedes editar tus propias categorías."

@@ -160,4 +160,49 @@ class RecurringTemplatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert template.transactions.empty?
   end
+
+  test "POST /recurring_templates rejects a foreign money source" do
+    other_user = User.create!(name: "Other", email: "recurring_foreign_source@example.com", password: "password123")
+    foreign_account = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account")
+    category = Category.create!(name: "Servicios Ctrl", is_default: false, category_type: "expense", user: @user)
+
+    assert_no_difference "RecurringTemplate.count" do
+      post recurring_templates_path, params: {
+        recurring_template: { category_id: category.id, kind: "expense", amount: 65_000,
+                              description: "Cuota", payment_day: 5, money_source_id: foreign_account.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "POST /recurring_templates rejects a foreign category" do
+    other_user = User.create!(name: "Other", email: "recurring_foreign_category@example.com", password: "password123")
+    foreign_category = Category.create!(name: "Ajena Ctrl", is_default: false, category_type: "expense",
+                                        user: other_user)
+
+    assert_no_difference "RecurringTemplate.count" do
+      post recurring_templates_path, params: {
+        recurring_template: { category_id: foreign_category.id, kind: "expense", amount: 65_000,
+                              description: "Cuota", payment_day: 5 }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "POST /recurring_templates accepts a shared category with an own money source" do
+    category = Category.create!(name: "Cuota Ctrl", is_default: true, category_type: "expense")
+
+    assert_difference "RecurringTemplate.count", 1 do
+      post recurring_templates_path, params: {
+        recurring_template: { category_id: category.id, kind: "expense", amount: 50_000,
+                              description: "Cuota", payment_day: 5, money_source_id: @account.id }
+      }
+    end
+
+    assert_redirected_to recurring_templates_path(kind: "expense")
+    assert_equal category, RecurringTemplate.last.category
+    assert_equal @account, RecurringTemplate.last.money_source
+  end
 end

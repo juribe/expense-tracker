@@ -24,7 +24,7 @@ Leyenda:
 | Fase | Alcance | Estado | Evidencia |
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
-| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 y SEC-004 hechas; SEC-005 a SEC-009 pendientes | Ver registro de cambios |
+| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 a SEC-005 hechas; SEC-006 a SEC-009 pendientes | Ver registro de cambios |
 | Fase 3 | Endurecimiento (bajos/informativos) | Pendiente | — |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
@@ -98,21 +98,19 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-005 — Referencias ajenas en registros secundarios (Media)
 
-- [ ] Pendiente.
-- Archivos:
-  - `app/models/recurring_template.rb:9-10` y
-    `app/controllers/concerns/recurring_template_actions.rb:167,174`.
-  - `app/models/transaction_rule.rb:12-15` y
-    `app/controllers/transaction_rules_controller.rb:93-102`.
-  - `app/models/category.rb:62-76` y `app/controllers/categories_controller.rb:90`.
-- Riesgo: plantillas recurrentes, reglas y categorías padre pueden referenciar
-  `category_id`/`money_source_id`/`parent_id` de otro usuario. La Fase 1 ya impide la
-  mutación de saldo al crear la transacción, pero los registros siguen aceptando y
-  mostrando referencias ajenas (integridad y fuga de metadatos).
-- Solución propuesta: validaciones de propiedad en cada modelo (mismo patrón que
-  `Payment#target_belongs_to_user` y `MoneySource#institution_belongs_to_owner`).
-- Pruebas requeridas: por modelo, referencia ajena inválida y propia/default válida;
-  controladores rechazan create/update con ids ajenos.
+- [x] Implementado y verificado.
+- Archivos: `app/models/recurring_template.rb`, `app/models/transaction_rule.rb`,
+  `app/models/category.rb`, `config/locales/es.yml` (llave
+  `validation.category_parent_owner`), tests de modelo y controlador de los 3 recursos.
+- Riesgo: plantillas recurrentes, reglas de transacción y padre de categoría podían
+  referenciar `category_id`/`money_source_id` de otro usuario. La Fase 1 ya impedía la
+  mutación de saldo, pero los registros aceptaban y mostraban referencias ajenas.
+- Solución: validaciones de propiedad al nivel de modelo (mismo patrón que
+  `Payment#target_belongs_to_user`); compartidas (sin dueño) permitidas para todos,
+  personales solo del mismo dueño; categoría compartida solo con padre compartido.
+- Pruebas: 18 escenarios (8 controlador, 10 modelo), rojo confirmado antes de
+  implementar y verificados en verde; suite completa en CI.
+- Evidencia: commit del cambio; CI run por confirmar.
 
 ### SEC-006 — CSV injection en la exportación de gastos (Media)
 

@@ -229,4 +229,51 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to transaction_rules_path
     assert_equal I18n.t("transaction_rules.not_found"), flash[:alert]
   end
+
+  test "POST /transaction_rules rejects a foreign category" do
+    other_user = User.create!(name: "Other", email: "rules_foreign_category@example.com", password: "password123")
+    foreign_category = Category.create!(name: "Ajena Rules", is_default: false, category_type: "expense",
+                                        user: other_user)
+
+    assert_no_difference "TransactionRule.count" do
+      post transaction_rules_path, params: {
+        transaction_rule: { merchant_contains: "AJENA", category_id: foreign_category.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "POST /transaction_rules rejects foreign money sources" do
+    other_user = User.create!(name: "Other", email: "rules_foreign_source@example.com", password: "password123")
+    foreign_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account")
+    foreign_source_two = other_user.money_sources.create!(name: "Tarjeta Ajena", kind: "credit_card")
+
+    assert_no_difference "TransactionRule.count" do
+      post transaction_rules_path, params: {
+        transaction_rule: { merchant_contains: "X", money_source_condition_id: foreign_source.id,
+                            action_money_source_id: foreign_source_two.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "POST /transaction_rules accepts shared category with own money sources" do
+    own_account = @user.money_sources.create!(name: "Cuenta Propia", kind: "account")
+    own_card = @user.money_sources.create!(name: "Tarjeta Propia", kind: "credit_card")
+
+    assert_difference "TransactionRule.count", 1 do
+      post transaction_rules_path, params: {
+        transaction_rule: { merchant_contains: "NETFLIX", category_id: @category.id,
+                            money_source_condition_id: own_card.id, action_money_source_id: own_account.id }
+      }
+    end
+
+    rule = TransactionRule.last
+    assert_equal @category, rule.category
+    assert_equal own_card, rule.money_source_condition
+    assert_equal own_account, rule.action_money_source
+    assert_redirected_to transaction_rules_path
+  end
 end
