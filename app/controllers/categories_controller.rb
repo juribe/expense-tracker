@@ -75,8 +75,10 @@ class CategoriesController < ApplicationController
 
   private
 
+  # Only the user's own custom categories and the shared defaults load here;
+  # a foreign custom render is an information leak, not a missing record.
   def set_category
-    @category = Category.find(params[:id])
+    @category = Category.for_user(current_user).find(params[:id])
   rescue ActiveRecord::RecordNotFound
     flash[:alert] = t("category_messages.not_found")
     redirect_to categories_path

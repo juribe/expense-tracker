@@ -145,4 +145,33 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     post categories_path, params: { category: { name: "Phones", parent_id: parent.id, category_type: "expense" } }
     assert_equal parent, Category.last.parent
   end
+
+  test "GET /categories/:id renders the show of an own custom category" do
+    category = Category.create!(name: "Propia", user: @user, is_default: false, category_type: "expense")
+
+    get category_path(category)
+
+    assert_response :success
+    assert_select "h4", text: /Propia/
+  end
+
+  test "GET /categories/:id renders a shared default category" do
+    category = Category.create!(name: "Compartida", is_default: true, category_type: "expense")
+
+    get category_path(category)
+
+    assert_response :success
+    assert_select "h4", text: /Compartida/
+  end
+
+  test "GET /categories/:id does not reveal another user's custom category" do
+    other = User.create!(name: "Other", email: "categories_foreign_show@example.com", password: "password123")
+    foreign = Category.create!(name: "Privada Ajena", user: other, is_default: false,
+                               category_type: "expense")
+
+    get category_path(foreign)
+
+    assert_redirected_to categories_path
+    assert_equal I18n.t("category_messages.not_found"), flash[:alert]
+  end
 end

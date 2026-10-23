@@ -24,7 +24,7 @@ Leyenda:
 | Fase | Alcance | Estado | Evidencia |
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
-| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 hecha; SEC-004 a SEC-009 pendientes | Ver registro de cambios |
+| Fase 2 | 1 High nuevo + medios de integridad/autorización | En curso: SEC-003 y SEC-004 hechas; SEC-005 a SEC-009 pendientes | Ver registro de cambios |
 | Fase 3 | Endurecimiento (bajos/informativos) | Pendiente | — |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
@@ -84,14 +84,16 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-004 — IDOR de lectura en `CategoriesController#show` (Media)
 
-- [ ] Pendiente.
-- Archivos: `app/controllers/categories_controller.rb:79`.
-- Riesgo: `Category.find(params[:id])` no filtra por usuario; el `show` expone nombre,
+- [x] Implementado y verificado.
+- Archivos: `app/controllers/categories_controller.rb`, `test/controllers/categories_controller_test.rb`.
+- Riesgo: `Category.find(params[:id])` no filtraba por usuario; el `show` exponía nombre,
   descripción, padre y conteo de gastos de una categoría personalizada ajena.
-- Solución propuesta: cargar con `Category.for_user(current_user).find(...)` o verificar
-  `default? || user_id == current_user.id` antes de renderizar; mantener acceso a default.
-- Pruebas requeridas: categoría propia/default accesible; categoría ajena responde
-  `404`/redirect sin renderizar datos.
+- Solución: `set_category` carga con `Category.for_user(current_user).find(...)`; una
+  categoría personalizada ajena cae en el `rescue` existente y redirige con
+  `category_messages.not_found`. Las compartidas (default) siguen accesibles.
+- Pruebas: 3 escenarios de controlador (propia, compartida y ajena), rojo confirmado
+  antes de implementar y verificados en verde; suite completa en CI.
+- Evidencia: commit del cambio; CI run por confirmar.
 
 ### SEC-005 — Referencias ajenas en registros secundarios (Media)
 
