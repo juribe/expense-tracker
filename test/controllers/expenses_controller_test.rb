@@ -316,14 +316,13 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='income[money_source_id]'][required='required']"
   end
 
-  test "GET /expenses/new defaults the date to the current cycle start with a schedule" do
+  test "GET /expenses/new defaults the date to today even with a cycle schedule" do
     @user.update!(financial_cycle_start_day: 20)
-    expected = PayCycle.current(@user).starts
 
     get new_expense_path
 
     assert_response :success
-    assert_select "input[name='expense[date]'][value=?]", expected.to_s
+    assert_select "input[name='expense[date]'][value=?]", Date.current.to_s
   end
 
   test "GET /expenses prefills the current cycle when no date filter is given" do

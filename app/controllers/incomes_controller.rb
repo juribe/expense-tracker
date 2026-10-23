@@ -9,7 +9,7 @@ class IncomesController < ApplicationController
 
   # GET /incomes/new
   def new
-    @income = Income.new(date: default_record_date)
+    @income = Income.new(date: Date.current)
     assign_income_prefill
     @categories = Category.for_user(current_user)
     @money_sources = money_in_sources

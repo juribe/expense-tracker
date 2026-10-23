@@ -45,13 +45,12 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=cycle-badge]", count: 0
   end
 
-  test "GET /incomes/new defaults the date to the current cycle start with a schedule" do
+  test "GET /incomes/new defaults the date to today even with a cycle schedule" do
     @user.update!(financial_cycle_start_day: 20)
-    expected = PayCycle.current(@user).starts
 
     get new_income_path
 
     assert_response :success
-    assert_select "input[name='income[date]'][value=?]", expected.to_s
+    assert_select "input[name='income[date]'][value=?]", Date.current.to_s
   end
 end

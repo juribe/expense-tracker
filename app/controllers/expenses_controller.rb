@@ -52,7 +52,7 @@ class ExpensesController < ApplicationController
   end
 
   def new
-    @expense = current_user.expenses.build(date: default_record_date)
+    @expense = current_user.expenses.build(date: Date.current)
     assign_expense_prefill
   end
 
