@@ -67,7 +67,8 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     get expense_playground_path
     assert_response :success
     assert_match "playground-ai-analysis", response.body
-    assert_match "playground-ai-call-detail", response.body
+    assert_match "data-playground-payload", response.body
+    assert_match "aiCallPrompt", response.body
     assert_match "playground-steps-toggle", response.body
     assert_match "playground-result-toggle", response.body
   end

@@ -1,4 +1,7 @@
-<div data-testid="monthly-expenses-page">
+<div data-testid="monthly-expenses-page" data-auto-open-form-modal="<%= @recurring_template.persisted? ? "edit" : "create" %>">
+<%= tag.div class: "d-none", data: { monthly_expenses_ui_payload: {
+  create_url: monthly_expenses_path
+} } %>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
       <li class="breadcrumb-item"><%= link_to t("nav.dashboard"), dashboard_path %></li>
@@ -11,7 +14,7 @@
       <i class="ti ti-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
     <% end %>
     <button type="button" class="btn btn-primary" data-testid="add-recurring"
-            onclick="RecurringUI.openFormModal('create')">
+            data-rt-action="create"">
       <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
     </button>
 <% end %>
@@ -64,7 +67,7 @@
         <% else %>
           <h5><%= t("monthly_expenses.empty.title", default: "Aún no hay plantillas de gastos mensuales") %></h5>
           <p class="text-secondary"><%= t("monthly_expenses.empty.body", default: "Configura un pago recurrente para registrarlo aquí.") %></p>
-          <button type="button" class="btn btn-outline-primary" onclick="RecurringUI.openFormModal('create')">
+          <button type="button" class="btn btn-outline-primary" data-rt-action="create"">
             <%= t("monthly_incomes.empty.add_first") %>
           </button>
         <% end %>
@@ -115,25 +118,25 @@
                 <td class="text-end text-nowrap">
                   <button type="button" class="btn btn-outline-primary btn-sm me-1" data-testid="edit"
                           aria-label="<%= t("recurring.edit_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
-                          onclick="RecurringUI.openFormModal('edit', this.closest('tr'))">
+                          data-rt-action="edit"">
                     <i class="ti ti-pencil"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="deactivate"
                           aria-label="<%= rt.active? ? t("recurring.deactivate_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) : t("recurring.activate_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
                           title="<%= rt.active? ? t("recurring.deactivate") : t("recurring.activate") %>"
-                          onclick="RecurringUI.toggleActive(this)">
+                          data-rt-action="toggle"">
                     <i class="ti ti-power"></i>
                   </button>
                   <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="delete"
                           aria-label="<%= t("recurring.delete_action", name: rt.description.presence || t("monthly_expenses.template_name", default: "gasto recurrente")) %>"
-                          onclick="RecurringUI.confirmDelete(this)">
+                          data-rt-action="delete"">
                     <i class="ti ti-trash"></i>
                   </button>
                   <% if status == :pending %>
                     <button type="button" class="btn btn-primary btn-sm" data-testid="process"
                             aria-label="<%= t("monthly_expenses.pay", default: "Pagar") %>"
                             title="<%= t("monthly_expenses.pay", default: "Pagar") %>"
-                            onclick="RecurringUI.openProcessModal(this.closest('tr'))">
+                            data-rt-action="process"">
                       <i class="ti ti-coin"></i>
                     </button>
                   <% elsif status == :completed %>
@@ -300,192 +303,7 @@
 </div>
 
 <% if @open_form_modal %>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      RecurringUI.openFormModal(<%= @recurring_template.persisted? ? "'edit'" : "'create'" %>);
-    });
-  </script>
-<% end %>
+  <% end %>
 
-<script>
-(function () {
-  if (window.RecurringUI) return;
+<%= javascript_include_tag "monthly_expenses_ui", defer: true %>
 
-  var formModal, processModal, deleteModal;
-  var currentRow = null;
-
-  function $(sel) { return document.querySelector(sel); }
-
-  function initModals() {
-    formModal = bootstrap.Modal.getOrCreateInstance("#recurringFormModal");
-    processModal = bootstrap.Modal.getOrCreateInstance("#processModal");
-    deleteModal = bootstrap.Modal.getOrCreateInstance("#deleteRtModal");
-  }
-
-  function setFormMode(mode, row) {
-  var isEdit = mode === "edit";
-  var form = $("#recurringForm");
-
-  $("#recurringFormTitle").textContent =
-    isEdit ? "Edit Monthly Expense" : "Add Monthly Expense";
-
-  // Always refresh CSRF token
-  var csrfMeta = document.querySelector('meta[name="csrf-token"]');
-  var csrfInput = form.querySelector('input[name="authenticity_token"]');
-
-  if (csrfMeta) {
-    if (!csrfInput) {
-      csrfInput = document.createElement("input");
-      csrfInput.type = "hidden";
-      csrfInput.name = "authenticity_token";
-      form.appendChild(csrfInput);
-    }
-
-    csrfInput.value = csrfMeta.content;
-  }
-
-  var methodInput = form.querySelector('input[name="_method"]');
-
-  if (isEdit) {
-    if (!methodInput) {
-      methodInput = document.createElement("input");
-      methodInput.type = "hidden";
-      methodInput.name = "_method";
-      form.appendChild(methodInput);
-    }
-
-    methodInput.value = "patch";
-
-    form.action = row.dataset.editUrl;
-
-    CategoryPicker.setValue(
-      $("#recurring_template_category_id"),
-      row.dataset.categoryId
-    );
-
-    $("#recurring_template_description").value =
-      row.dataset.description || "";
-
-    $("#recurring_template_amount").value =
-      String(row.dataset.amount).replace(".", ",");
-
-    if (window.MoneyInputs) {
-      window.MoneyInputs.formatField(
-        $("#recurring_template_amount"),
-        true
-      );
-    }
-
-    $("#recurring_template_payment_day").value =
-      row.dataset.paymentDay;
-
-    $("#recurring_active_switch").checked =
-      row.dataset.active === "true";
-
-  } else {
-    if (methodInput) {
-      methodInput.remove();
-    }
-
-    form.action = "<%= monthly_expenses_path %>";
-    form.reset();
-    $("#recurring_active_switch").checked = true;
-  }
-}
-
-  window.RecurringUI = {
-    openFormModal: function (mode, row) {
-      initModals();
-      setFormMode(mode, row);
-      formModal.show();
-    },
-
-    openProcessModal: function (row) {
-      initModals();
-      currentRow = row;
-
-      $("#processCategory").textContent =
-        row.querySelector("td .badge").textContent;
-      $("#processDescription").textContent = row.cells[1].textContent.trim();
-      $("#processConfiguredAmount").textContent = row.cells[2].textContent.trim();
-
-      var configuredAmount = Number(row.dataset.amount) || 0;
-      var paidSoFar = Number(row.dataset.paidAmount) || 0;
-      var remaining = Math.max(configuredAmount - paidSoFar, 0);
-      if (remaining <= 0) remaining = configuredAmount;
-      $("#processPaidSoFar").textContent = "$" + paidSoFar.toFixed(2);
-      var markCheckbox = $("#processMarkAsPaid");
-      if (markCheckbox) markCheckbox.checked = false;
-
-      var today = new Date();
-      var pad = function (n) { return String(n).padStart(2, "0"); };
-      $("#processDate").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
-      $("#processAmount").value =
-        remaining.toFixed(2).replace(".", ",");
-      if (window.MoneyInputs) window.MoneyInputs.formatField($("#processAmount"), true);
-
-      // Preselect the template's source, but only when it is one of the
-      // payment sources offered (debt cuota sources — loans — stay blank so
-      // the user must pick where the money comes from).
-      var sourceSelect = $("#processMoneySource");
-      var templateSource = row.dataset.moneySourceId || "";
-      sourceSelect.value = Array.prototype.slice.call(sourceSelect.options)
-                                           .some(function (o) { return o.value === templateSource; })
-        ? templateSource
-        : "";
-
-      var form = $("#processForm");
-      form.action = row.dataset.processUrl;
-
-      if (!form.querySelector('input[name="authenticity_token"]')) {
-        var token = document.querySelector('meta[name="csrf-token"]');
-        var input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "authenticity_token";
-        input.value = token ? token.content : "";
-        form.appendChild(input);
-      }
-
-      processModal.show();
-    },
-
-    confirmDelete: function (button) {
-      initModals();
-      currentRow = button.closest("tr");
-      deleteModal.show();
-    },
-
-    toggleActive: function (button) {
-      var row = button.closest("tr");
-      var form = document.createElement("form");
-      form.method = "post";
-      form.action = row.dataset.toggleUrl;
-      form.innerHTML =
-        '<input type="hidden" name="_method" value="patch">' +
-        '<input type="hidden" name="authenticity_token" value="' +
-        (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
-      document.body.appendChild(form);
-      form.submit();
-    }
-  };
-
-  document.addEventListener("click", function (e) {
-    if (e.target.id !== "confirmDeleteRt" || !currentRow) return;
-    var form = document.createElement("form");
-    form.method = "post";
-    form.action = currentRow.dataset.deleteUrl;
-    form.innerHTML =
-      '<input type="hidden" name="_method" value="delete">' +
-      '<input type="hidden" name="authenticity_token" value="' +
-      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
-    document.body.appendChild(form);
-    deleteModal.hide();
-    form.submit();
-  });
-
-  document.addEventListener("DOMContentLoaded", function () {
-    var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltips.forEach(function (el) { new bootstrap.Tooltip(el); });
-  });
-})();
-</script>

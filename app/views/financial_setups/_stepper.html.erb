@@ -17,7 +17,7 @@
   <span class="ms-auto">
     <%= form_with url: financial_setup_reset_path, method: :post, data: { turbo: false } do %>
       <button type="submit" class="btn btn-sm btn-link text-muted text-decoration-none"
-              onclick="return confirm(<%= t('wizard.reset.confirm').to_json %>)" title="<%= t("wizard.reset.button") %>">
+              data-reset-confirm="<%= t('wizard.reset.confirm') %>" title="<%= t("wizard.reset.button") %>">
         <i class="ti ti-rotate-2 me-1"></i><%= t("wizard.reset.button") %>
       </button>
     <% end %>
@@ -27,7 +27,7 @@
   <span class="text-muted"><%= t("wizard.step_of", current: step_idx.to_i + 1, total: FinancialSetupWizard.steps.length) %></span>
   <%= form_with url: financial_setup_reset_path, method: :post, data: { turbo: false } do %>
     <button type="submit" class="btn btn-sm btn-link text-muted text-decoration-none"
-            onclick="return confirm(<%= t('wizard.reset.confirm').to_json %>)" title="<%= t("wizard.reset.button") %>">
+            data-reset-confirm="<%= t('wizard.reset.confirm') %>" title="<%= t("wizard.reset.button") %>">
       <i class="ti ti-rotate-2"></i>
     </button>
   <% end %>
