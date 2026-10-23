@@ -10,6 +10,7 @@ class Transfer < ApplicationRecord
   validates :amount, presence: true, numericality: { greater_than: 0 }
   validates :date, presence: true
   validate :different_sources
+  validate :sources_belong_to_user
   validate :pocket_flow_rules
   validate :from_pocket_cannot_break_allocations
   # Manual transfers, cash withdrawals and pocket assignments must not leave
@@ -52,6 +53,15 @@ class Transfer < ApplicationRecord
     return if from_source_id.blank? || to_source_id.blank?
 
     errors.add(:to_source, I18n.t("validation.transfer_sources")) if from_source_id == to_source_id
+  end
+
+  # Both ends must belong to the transfer's owner: the after_commit hooks
+  # mutate their cached balances.
+  def sources_belong_to_user
+    return if user_id.nil?
+
+    errors.add(:from_source, :other_user) if from_source && from_source.user_id != user_id
+    errors.add(:to_source, :other_user) if to_source && to_source.user_id != user_id
   end
 
   # Manual origin guard: the transfer (or withdraw) may consume up to the

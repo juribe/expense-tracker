@@ -237,4 +237,43 @@ class TransferTest < ActiveSupport::TestCase
     assert_equal BigDecimal("600"), @savings.reload.balance.to_i
     assert_equal BigDecimal("400"), @checking.reload.balance.to_i
   end
+
+  # ----- Ownership -----
+
+  test "is invalid when the origin source belongs to another user" do
+    other_user = User.create!(name: "Other", email: "transfer_origin_owner@example.com", password: "password123")
+    foreign = other_user.money_sources.create!(name: "Ajena", kind: "account", starting_balance: 1000)
+    balance_before = foreign.reload.cached_balance
+
+    transfer = Transfer.new(user: @user, from_source: foreign, to_source: @checking, amount: 100, date: Date.today)
+
+    assert_not transfer.valid?
+    assert_includes transfer.errors[:from_source], I18n.t("activerecord.errors.messages.other_user")
+    assert_equal balance_before, foreign.reload.cached_balance
+  end
+
+  test "is invalid when the destination source belongs to another user" do
+    other_user = User.create!(name: "Other", email: "transfer_destination_owner@example.com", password: "password123")
+    foreign = other_user.money_sources.create!(name: "Ajena", kind: "account", starting_balance: 0)
+
+    transfer = Transfer.new(user: @user, from_source: @savings, to_source: foreign, amount: 100, date: Date.today)
+
+    assert_not transfer.valid?
+    assert_includes transfer.errors[:to_source], I18n.t("activerecord.errors.messages.other_user")
+  end
+
+  test "an invalid cross-user transfer leaves every cached balance untouched" do
+    other_user = User.create!(name: "Other", email: "transfer_balance_owner@example.com", password: "password123")
+    foreign = other_user.money_sources.create!(name: "Ajena", kind: "account", starting_balance: 500)
+    savings_before = @savings.reload.cached_balance
+    checking_before = @checking.reload.cached_balance
+    foreign_before = foreign.reload.cached_balance
+
+    transfer = Transfer.new(user: @user, from_source: foreign, to_source: @checking, amount: 100, date: Date.today)
+
+    assert_not transfer.save
+    assert_equal savings_before, @savings.reload.cached_balance
+    assert_equal checking_before, @checking.reload.cached_balance
+    assert_equal foreign_before, foreign.reload.cached_balance
+  end
 end

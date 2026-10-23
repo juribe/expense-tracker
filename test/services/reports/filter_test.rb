@@ -12,6 +12,9 @@ class ReportsFilterTest < ActiveSupport::TestCase
     @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
+    @other_bank = @other_user.money_sources.create!(name: "Otro Banco", kind: "account", active: true,
+                                                    starting_balance: 1_000_000_000)
+    @other_card = @other_user.money_sources.create!(name: "Otra Visa", kind: "credit_card", active: true)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
   end
 
@@ -26,7 +29,7 @@ class ReportsFilterTest < ActiveSupport::TestCase
   test "unscoped filter returns every user expense inside the period" do
     expense(-100_000, date: Date.new(2026, 9, 5))
     expense(-200_000, date: Date.new(2026, 8, 5))
-    expense(-300_000, date: Date.new(2026, 9, 20), user: @other_user)
+    expense(-300_000, date: Date.new(2026, 9, 20), user: @other_user, source: @other_bank)
 
     assert_equal [ -100_000.to_d ], filter.expense_scope(@period.range).pluck(:amount)
   end
@@ -34,7 +37,8 @@ class ReportsFilterTest < ActiveSupport::TestCase
   test "category filter narrows expenses and ignores foreign categories" do
     expense(-100_000, category: @food)
     expense(-200_000, category: @transport)
-    expense(-300_000, category: Category.create!(name: "Otro", category_type: "expense", user: @other_user))
+    expense(-300_000, category: Category.create!(name: "Otro", category_type: "expense", user: @other_user),
+            user: @other_user, source: @other_bank)
 
     assert_equal [ -100_000.to_d ], filter(category_id: @food.id).expense_scope(@period.range).pluck(:amount)
   end
@@ -75,7 +79,7 @@ class ReportsFilterTest < ActiveSupport::TestCase
   test "transfer scope covers transfers touching the filtered source" do
     @user.transfers.create!(from_source: @bank, to_source: @card, amount: 500_000, date: Date.new(2026, 9, 5))
     @user.transfers.create!(from_source: @loan, to_source: @bank, amount: 300_000, date: Date.new(2026, 9, 6))
-    @other_user.transfers.create!(from_source: @bank, to_source: @card, amount: 900_000, date: Date.new(2026, 9, 5))
+    @other_user.transfers.create!(from_source: @other_bank, to_source: @other_card, amount: 900_000, date: Date.new(2026, 9, 5))
 
     assert_equal 2, filter.transfer_scope(@period.range).count
     assert_equal 1, filter(money_source_id: @card.id).transfer_scope(@period.range).count

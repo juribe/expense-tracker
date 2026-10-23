@@ -474,8 +474,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "POST /expenses/assign_recurring rejects other users' expense and template" do
     other = User.create!(name: "Other", email: "other_assign_recurring@example.com", password: "password123")
+    other_source = other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
     other_expense = other.expenses.create!(category: @category, amount: 50_000, date: Date.today, source: "gmail",
-                                           money_source: @user.money_sources.first || create_source(name: "Cuenta", kind: "account"))
+                                           money_source: other_source)
     other_template = other.recurring_templates.create!(
       category: @category, kind: "expense", amount: 50_000, frequency: "monthly", source: "wizard"
     )
@@ -507,8 +508,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
 
     other = User.create!(name: "Other2", email: "other2_assign_recurring@example.com", password: "password123")
+    other_source = other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
     other_expense = other.expenses.create!(category: @category, amount: 1, date: Date.today, source: "gmail",
-                                           money_source: @user.money_sources.first || create_source(name: "Cuenta", kind: "account"))
+                                           money_source: other_source)
     other_expense.update!(recurring_template_id: template_for(amount: 1).id)
     post unassign_recurring_expenses_path, params: { expense_id: other_expense.id }
     assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
@@ -613,8 +615,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "PATCH /expenses/bulk_update ignores expense ids not owned by the current user" do
     other_user = User.create!(name: "Other", email: "bulk_update_other@example.com", password: "password123")
+    other_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
     other_expense = other_user.expenses.create!(amount: 5, date: Date.today, description: "Theirs", category: @category,
-                                                money_source: @user.money_sources.first || create_source(name: "Cuenta", kind: "account"))
+                                                money_source: other_source)
     mine = create_expense(amount: 2, date: Date.today)
     patch bulk_update_expenses_path, params: { expense_ids: [ mine.id, other_expense.id ], category_id: @other_category.id }
     assert_redirected_to expenses_path
@@ -694,5 +697,38 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
       assert_operator count, :<=, 1,
         "expected at most one #{table} query, got #{count}: #{queries.join(' | ')}"
     end
+  end
+
+  test "POST /expenses rejects a money source owned by another user" do
+    other_user = User.create!(name: "Other", email: "create_foreign_source@example.com", password: "password123")
+    foreign_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 500_000)
+    balance_before = foreign_source.reload.cached_balance
+
+    assert_no_difference "Expense.count" do
+      post expenses_path, params: { expense: {
+        amount: 10_000, description: "Gasto cruzado", date: Date.current.to_s,
+        category_id: @category.id, money_source_id: foreign_source.id
+      } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal balance_before, foreign_source.reload.cached_balance
+  end
+
+  test "POST /expenses rejects a custom category owned by another user" do
+    other_user = User.create!(name: "Other", email: "create_foreign_category@example.com", password: "password123")
+    foreign_category = Category.create!(name: "Categoría Ajena", user: other_user, is_default: false,
+                                        category_type: "expense")
+    source = create_source(name: "Cuenta Propia", kind: "account")
+
+    assert_no_difference "Expense.count" do
+      post expenses_path, params: { expense: {
+        amount: 10_000, description: "Categoría cruzada", date: Date.current.to_s,
+        category_id: foreign_category.id, money_source_id: source.id
+      } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal 0, foreign_category.reload.expenses_count
   end
 end

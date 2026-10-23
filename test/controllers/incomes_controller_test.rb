@@ -64,4 +64,21 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[name='income[date]'][value=?]", Date.current.to_s
   end
+
+  test "POST /incomes rejects a money source owned by another user" do
+    other_user = User.create!(name: "Other", email: "create_income_foreign_source@example.com", password: "password123")
+    foreign_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 500_000)
+    category = Category.create!(name: "Salario", is_default: true, category_type: "income")
+    balance_before = foreign_source.reload.cached_balance
+
+    assert_no_difference "Income.count" do
+      post incomes_path, params: { income: {
+        amount: 100_000, description: "Ingreso cruzado", date: Date.current.to_s,
+        category_id: category.id, money_source_id: foreign_source.id
+      } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal balance_before, foreign_source.reload.cached_balance
+  end
 end

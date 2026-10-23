@@ -22,6 +22,8 @@ class Transaction < ApplicationRecord
   validates :kind, presence: true, inclusion: { in: %w[income expense] }
   validates :source, presence: true
   validate :money_source_must_be_present
+  validate :money_source_belongs_to_user
+  validate :category_belongs_to_user
   validate :category_type_matches_kind, on: :create
 
   # Manual web-form expenses must not leave the balance owner negative: the
@@ -105,6 +107,22 @@ class Transaction < ApplicationRecord
     return if money_source_id.present?
 
     errors.add(:money_source, :money_source_required)
+  end
+
+  # Money only moves through the user's own sources: a foreign id would
+  # mutate another account's cached balance through BalanceSync.
+  def money_source_belongs_to_user
+    return if user_id.nil? || money_source.nil?
+
+    errors.add(:money_source, :other_user) if money_source.user_id != user_id
+  end
+
+  # Shared categories (no owner, e.g. defaults) are allowed; only another
+  # user's custom category is rejected.
+  def category_belongs_to_user
+    return if user_id.nil? || category.nil? || category.user_id.nil?
+
+    errors.add(:category, :other_user) if category.user_id != user_id
   end
 
   def balance_relevant_change?
