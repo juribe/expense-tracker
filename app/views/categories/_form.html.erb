@@ -1,4 +1,4 @@
-<div class="app-container category-form mx-auto" style="max-width: 960px;">
+<div class="app-container category-form mx-auto" style="max-width: 960px;" data-new-record="<%= category.new_record? %>">
   <%= form_with(model: category, local: true, html: { novalidate: false }) do |form| %>
     <div class="card">
       <div class="card-header">
@@ -27,10 +27,11 @@
               <%= form.label :category_type, Category.human_attribute_name(:category_type), class: "form-label" %>
               <%= form.select :category_type,
                     [[t("types.expense"), "expense"], [t("types.income"), "income"]],
-                    { prompt: t("categories.select_type") },
-                    class: "form-select #{field_class(category, :category_type)}",
-                    aria_describedby: "typeHelp" %>
-              <div id="typeHelp" class="form-text"><%= t("categories.type_help") %></div>
+                     { prompt: t("categories.select_type") },
+                     class: "form-select #{field_class(category, :category_type)}",
+                     aria_describedby: "typeHelp",
+                     disabled: category.persisted? %>
+              <div id="typeHelp" class="form-text"><%= t(category.persisted? ? "categories.type_help_locked" : "categories.type_help") %></div>
               <% if category.errors[:category_type].any? %>
                 <div class="invalid-feedback d-block"><i class="ti ti-alert-circle me-1"></i><%= field_error(category, :category_type) %></div>
               <% end %>
@@ -103,35 +104,6 @@
       </div>
     </div>
 
-    <script>
-      (function () {
-        var form = document.querySelector(".category-form form");
-        var saveBtn = document.getElementById("save-category-btn");
-        var nameInput = document.getElementById("category_name");
 
-        function refreshSaveState() {
-          if (!saveBtn) return;
-          var isNew = <%= category.new_record? ? "true" : "false" %>;
-          var hasName = nameInput && nameInput.value.trim().length > 0;
-          saveBtn.disabled = isNew ? !hasName : false;
-        }
-
-        if (form) {
-          form.addEventListener("input", function () {
-            form.dataset.dirty = "true";
-            refreshSaveState();
-          });
-          form.addEventListener("submit", function () {
-            var summary = document.getElementById("error-summary");
-            var invalid = form.querySelectorAll(".is-invalid").length > 0;
-            if (summary && invalid) {
-              summary.classList.remove("d-none");
-            }
-          });
-        }
-
-        refreshSaveState();
-      })();
-    </script>
   <% end %>
 </div>

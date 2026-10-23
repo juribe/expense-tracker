@@ -12,15 +12,15 @@
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
-    "mtime": 1792198999.1408944,
-    "seen": 1792200893.944701,
-    "ast_hash": "e2002601d5298574954a708e92a9095a",
+    "mtime": 1792761579.9914682,
+    "seen": 1792761689.109578,
+    "ast_hash": "8b73c638768dd005006e890c42eefc30",
     "semantic_hash": ""
   },
   "app/controllers/concerns/recurring_template_actions.rb": {
-    "mtime": 1792618193.4508889,
-    "seen": 1792622737.5229938,
-    "ast_hash": "2d15134961cb1e5ae50be44b305451b2",
+    "mtime": 1792761428.0365546,
+    "seen": 1792761500.411094,
+    "ast_hash": "f2ecc69f496b229eda454ddf447566ab",
     "semantic_hash": ""
   },
   "app/controllers/dashboard_controller.rb": {
@@ -30,15 +30,15 @@
     "semantic_hash": ""
   },
   "app/controllers/expenses_controller.rb": {
-    "mtime": 1792717426.2685103,
-    "seen": 1792717509.6098938,
-    "ast_hash": "51623c4c0c9e42f2a4cab5cd8e2f7267",
+    "mtime": 1792759114.6793303,
+    "seen": 1792761500.41111,
+    "ast_hash": "a6a4885bbb265730b385c42bafc8d4e3",
     "semantic_hash": ""
   },
   "app/controllers/financial_setups_controller.rb": {
-    "mtime": 1792697143.8139133,
-    "seen": 1792697328.2349749,
-    "ast_hash": "e218d78cea08d791810b152f382d5fbf",
+    "mtime": 1792759128.094191,
+    "seen": 1792761500.411118,
+    "ast_hash": "3f45bed5ffeaca60b004d77c892accca",
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
@@ -54,15 +54,15 @@
     "semantic_hash": ""
   },
   "app/controllers/incomes_controller.rb": {
-    "mtime": 1792717425.6325676,
-    "seen": 1792717509.609913,
-    "ast_hash": "c710e490c9eceb039f32c8ebadbcf8b1",
+    "mtime": 1792759108.1847858,
+    "seen": 1792761500.411128,
+    "ast_hash": "1aea3db25315de85a9db1066977a58f0",
     "semantic_hash": ""
   },
   "app/controllers/money_sources_controller.rb": {
-    "mtime": 1792703593.1670072,
-    "seen": 1792704220.281137,
-    "ast_hash": "029cfa13823f58c6e5455c695cf9e63a",
+    "mtime": 1792759114.7389145,
+    "seen": 1792761500.4111302,
+    "ast_hash": "f57c1bcf54de1b10039d991259611567",
     "semantic_hash": ""
   },
   "app/controllers/monthly_expenses_controller.rb": {
@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "app/controllers/recurring_templates_controller.rb": {
-    "mtime": 1792618047.7445772,
-    "seen": 1792622737.523041,
-    "ast_hash": "da889eb0a7870aa29ca525aaeb6204fd",
+    "mtime": 1792761305.543778,
+    "seen": 1792761500.411148,
+    "ast_hash": "53a97345abfe8caf0dc834093fea69a8",
     "semantic_hash": ""
   },
   "app/controllers/transfers_controller.rb": {
@@ -150,9 +150,9 @@
     "semantic_hash": "8061f2304feb5db0f90c9086b9c30377"
   },
   "app/models/category.rb": {
-    "mtime": 1792335173.9009566,
-    "seen": 1792335269.5119932,
-    "ast_hash": "883c0f1fc52fe9c65cf3462d79f60818",
+    "mtime": 1792759064.6957045,
+    "seen": 1792761500.411232,
+    "ast_hash": "6cbad44968dfb552bbb73f7bd0e1eaa4",
     "semantic_hash": ""
   },
   "app/models/concerns/encrypted_secret.rb": {
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "app/models/money_source.rb": {
-    "mtime": 1792180958.4950924,
-    "seen": 1792200893.9457421,
-    "ast_hash": "1ffeef4857d6d9cedd45bb81c6f034e5",
+    "mtime": 1792753116.7293408,
+    "seen": 1792753187.886805,
+    "ast_hash": "8d8fb5d0084662ce879273765646fdf5",
     "semantic_hash": ""
   },
   "app/models/money_source_recognition.rb": {
@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "app/models/transaction.rb": {
-    "mtime": 1792688382.0079484,
-    "seen": 1792688523.0650911,
-    "ast_hash": "63c6f6a9a65e75ffa88b445e1b2fa0dd",
+    "mtime": 1792759100.0419946,
+    "seen": 1792761500.411296,
+    "ast_hash": "c5a22acab54fd0ffb46a218b8105b96c",
     "semantic_hash": ""
   },
   "app/models/transfer.rb": {
@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "playwright/categories.spec.js": {
-    "mtime": 1792212020.3349152,
-    "seen": 1792234534.035626,
-    "ast_hash": "38b6e92681e2e28f573370c98cad0760",
+    "mtime": 1792761097.473302,
+    "seen": 1792761500.411799,
+    "ast_hash": "994725f0d08ba97f123b01c1213a9347",
     "semantic_hash": ""
   },
   "playwright/credit_cards_and_loans.spec.js": {
@@ -738,9 +738,9 @@
     "semantic_hash": "bc920d9ceaea89b475b08e3d23850939"
   },
   "test/controllers/categories_controller_test.rb": {
-    "mtime": 1792614990.2994263,
-    "seen": 1792615040.714578,
-    "ast_hash": "2cf86243b3500b742fdbbd9bcf75cf9e",
+    "mtime": 1792760566.5994327,
+    "seen": 1792761500.411881,
+    "ast_hash": "7f71779c58aaed8189caf097f9c661e3",
     "semantic_hash": ""
   },
   "test/controllers/expenses_ai_entry_test.rb": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "test/models/category_test.rb": {
-    "mtime": 1792256059.0023158,
-    "seen": 1792256088.76442,
-    "ast_hash": "68c056083907de897c699f500ee1d0c2",
+    "mtime": 1792760530.9410336,
+    "seen": 1792761500.411974,
+    "ast_hash": "2ac110711ff1299d41d9e8a0eaecf90d",
     "semantic_hash": ""
   },
   "test/models/credit_account_test.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1792703593.1742404,
-    "seen": 1792704220.28229,
-    "ast_hash": "c1ea4b27cf78bd92622c73a4d5488eb7",
+    "mtime": 1792761579.9924216,
+    "seen": 1792761689.110765,
+    "ast_hash": "94ed7e981b93a1d414560aeb667e446d",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792717477.8980877,
-    "seen": 1792717509.611073,
+    "mtime": 1792761631.3698597,
+    "seen": 1792761689.110772,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1548,9 +1548,9 @@
     "semantic_hash": ""
   },
   "test/services/category_spend_test.rb": {
-    "mtime": 1792619327.9459834,
-    "seen": 1792622737.523912,
-    "ast_hash": "ad5346b7125f2a89ca8d66a9ee38fc8e",
+    "mtime": 1792760755.3855653,
+    "seen": 1792761500.412066,
+    "ast_hash": "0a60b5ad4591156c6acb3fa5cedd80c1",
     "semantic_hash": ""
   },
   "test/services/spending_alert_service_test.rb": {
@@ -1698,9 +1698,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_playground_controller.rb": {
-    "mtime": 1790638450.8697917,
-    "seen": 1790977684.434836,
-    "ast_hash": "dad5ed530bf25899ea78a77441028069",
+    "mtime": 1792759117.5018013,
+    "seen": 1792761500.4111092,
+    "ast_hash": "d597eebd044f0bbdcc7b0281e029ac4c",
     "semantic_hash": ""
   },
   "app/models/expense_candidate.rb": {
@@ -1764,9 +1764,9 @@
     "semantic_hash": ""
   },
   "app/services/money_sources/detector.rb": {
-    "mtime": 1792213635.4851155,
-    "seen": 1792234534.035437,
-    "ast_hash": "d88709a0553626c0b895a1a5ee7b0468",
+    "mtime": 1792753198.8733356,
+    "seen": 1792753217.38195,
+    "ast_hash": "f15e731da8d545be731ff00b896c298b",
     "semantic_hash": ""
   },
   "app/services/ocr/local_reader.rb": {
@@ -2172,9 +2172,9 @@
     "semantic_hash": ""
   },
   "app/services/categories/closest_resolver.rb": {
-    "mtime": 1792533390.774321,
-    "seen": 1792533817.610844,
-    "ast_hash": "2ecc98020a78f6b86d4a6ee6d88c3a86",
+    "mtime": 1792759131.4350562,
+    "seen": 1792761500.411366,
+    "ast_hash": "539c196282a0822ec5d755d9dab15e82",
     "semantic_hash": ""
   },
   "test/services/categories/closest_resolver_test.rb": {
@@ -2364,9 +2364,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_evaluations_controller.rb": {
-    "mtime": 1790560256.3550248,
-    "seen": 1790977684.434834,
-    "ast_hash": "ba4152b120712c62d1cc030e0ae694aa",
+    "mtime": 1792759122.415816,
+    "seen": 1792761500.411107,
+    "ast_hash": "12b7741eb8458959de402acd6d3a372b",
     "semantic_hash": ""
   },
   "app/services/ai/tasks/parsed_expense.rb": {
@@ -2376,9 +2376,9 @@
     "semantic_hash": ""
   },
   "app/services/categories/heuristic_resolver.rb": {
-    "mtime": 1790454777.3520145,
-    "seen": 1790977684.434995,
-    "ast_hash": "6fc899b00058f73af06601d200a389f6",
+    "mtime": 1792759131.4357524,
+    "seen": 1792761500.4113688,
+    "ast_hash": "db7a75976a7ad2bccaf75cc34135ab09",
     "semantic_hash": ""
   },
   "app/services/expense_resolver/amount_result.rb": {
@@ -2436,9 +2436,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expense_evaluations_controller_test.rb": {
-    "mtime": 1790454777.5596607,
-    "seen": 1790977684.4354088,
-    "ast_hash": "483cbef930f25a39079f710f2f81b753",
+    "mtime": 1792760755.3859725,
+    "seen": 1792761500.411891,
+    "ast_hash": "295c9e09cbcb068f0e28b1a5b977f104",
     "semantic_hash": ""
   },
   "app/services/expense_resolver/heuristic_parser.rb": {
@@ -3036,15 +3036,15 @@
     "semantic_hash": ""
   },
   "test/controllers/incomes_controller_test.rb": {
-    "mtime": 1792717389.949317,
-    "seen": 1792717509.6106648,
-    "ast_hash": "75eb4a34fa1619103f62507bb747bf50",
+    "mtime": 1792760571.8820145,
+    "seen": 1792761500.4119139,
+    "ast_hash": "08b207257611b36cfe63ca85e6494d5c",
     "semantic_hash": ""
   },
   "test/controllers/recurring_templates_controller_test.rb": {
-    "mtime": 1792618110.1874268,
-    "seen": 1792622737.523784,
-    "ast_hash": "707479fd98229148a23ca38b0847a0e8",
+    "mtime": 1792761326.915691,
+    "seen": 1792761500.411927,
+    "ast_hash": "ff1421178b19933df96d135c0d7ad4cb",
     "semantic_hash": ""
   },
   "test/controllers/monthly_expenses_controller_test.rb": {
@@ -3066,15 +3066,15 @@
     "semantic_hash": ""
   },
   "test/integration/sidebar_indexes_bullet_test.rb": {
-    "mtime": 1792621027.2859242,
-    "seen": 1792622737.523812,
-    "ast_hash": "57ecf22d4ffaa2a69aa5adaac30608df",
+    "mtime": 1792760755.3836799,
+    "seen": 1792761500.4119601,
+    "ast_hash": "622a33faa22df54bc3db8d155f7a86b7",
     "semantic_hash": ""
   },
   "app/controllers/payments_controller.rb": {
-    "mtime": 1792629611.6088006,
-    "seen": 1792629814.387687,
-    "ast_hash": "d469f89059a9d13e05d80d03d6f2ec57",
+    "mtime": 1792759114.7215083,
+    "seen": 1792761500.411144,
+    "ast_hash": "9b8197b98bf7673a2101bef85e50a26d",
     "semantic_hash": ""
   },
   "app/helpers/category_picker_helper.rb": {
@@ -3090,9 +3090,9 @@
     "semantic_hash": ""
   },
   "app/poro/category_option.rb": {
-    "mtime": 1792199007.0950544,
-    "seen": 1792200893.945844,
-    "ast_hash": "77d710a4fad459e8b211c5cb575ef339",
+    "mtime": 1792759155.3610399,
+    "seen": 1792761500.411307,
+    "ast_hash": "be5b2cd980d17a4bc921c55af1fefe8a",
     "semantic_hash": ""
   },
   "app/poro/category_option_list.rb": {
@@ -3252,9 +3252,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/bulk_update.rb": {
-    "mtime": 1792158739.773766,
-    "seen": 1792161543.182579,
-    "ast_hash": "8d974e3c5161be81fedba35b7eb1fa7a",
+    "mtime": 1792761427.9946225,
+    "seen": 1792761500.411458,
+    "ast_hash": "92d84e179007411b18b943f8577188bf",
     "semantic_hash": ""
   },
   "app/services/expenses/csv_exporter.rb": {
@@ -3456,9 +3456,9 @@
     "semantic_hash": ""
   },
   "test/services/financial_analysis_service_test.rb": {
-    "mtime": 1792621667.0154767,
-    "seen": 1792622737.5239942,
-    "ast_hash": "8c3997067ecd357ba6ba9aabbaab946f",
+    "mtime": 1792760755.3851874,
+    "seen": 1792761500.4121568,
+    "ast_hash": "ee867f90dfaf5df731d9cefaccf5ccd0",
     "semantic_hash": ""
   },
   "test/services/financial_chat_markdown_renderer_test.rb": {
@@ -3768,9 +3768,9 @@
     "semantic_hash": ""
   },
   "test/services/reports/filter_test.rb": {
-    "mtime": 1792619359.2766027,
-    "seen": 1792622737.524045,
-    "ast_hash": "a4661fca64ac7d01893610cabf861b93",
+    "mtime": 1792760755.3848088,
+    "seen": 1792761500.412211,
+    "ast_hash": "696c5a4acbe328bb81003a3c30336083",
     "semantic_hash": ""
   },
   "test/services/reports/insights_test.rb": {
@@ -4044,9 +4044,9 @@
     "semantic_hash": ""
   },
   "test/services/dashboard/cycle_summary_test.rb": {
-    "mtime": 1792706935.3899925,
-    "seen": 1792706982.401134,
-    "ast_hash": "b498831410ef626507cc98e84aad458d",
+    "mtime": 1792760755.3843162,
+    "seen": 1792761500.412079,
+    "ast_hash": "6b8fdd43fa42fbd63838d97babb3026d",
     "semantic_hash": ""
   },
   "app/controllers/goal_allocations_controller.rb": {
@@ -5013,6 +5013,18 @@
     "mtime": 1792711200.8718112,
     "seen": 1792717509.610572,
     "ast_hash": "38f2097ff5e843e9e770bc91af5d6a24",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/categories_form.js": {
+    "mtime": 1792761381.4329252,
+    "seen": 1792761500.411036,
+    "ast_hash": "0c0afb597f8996da011bb41ca6944501",
+    "semantic_hash": ""
+  },
+  "test/models/transaction_category_type_test.rb": {
+    "mtime": 1792760591.1183193,
+    "seen": 1792761500.412019,
+    "ast_hash": "887f783c44f917a8bc9e0240c3862873",
     "semantic_hash": ""
   }
 }

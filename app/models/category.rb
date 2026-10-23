@@ -20,6 +20,7 @@ class Category < ApplicationRecord
   validates :savings_potential, inclusion: { in: SAVINGS_POTENTIALS, allow_nil: true }
   validates :suggested_savings_percentage, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
   validate :parent_must_not_be_self
+  validate :parent_must_share_category_type
   validate :default_category_not_owned_by_user
   validate :custom_category_not_named_like_default, on: :create
   validate :unique_custom_category_per_user_and_type
@@ -64,6 +65,13 @@ class Category < ApplicationRecord
     return if parent_id.blank? || id.blank?
 
     errors.add(:parent_id, I18n.t("validation.category_self_parent")) if parent_id == id
+  end
+
+  def parent_must_share_category_type
+    return if parent_id.blank?
+    return unless parent
+    return if category_type == parent.category_type
+    errors.add(:parent_id, I18n.t("validation.category_parent_type"))
   end
 
   def default_category_not_owned_by_user

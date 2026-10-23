@@ -90,10 +90,11 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
   test "includes expense, income and budget data in the system prompt" do
     @fake.responses << { content: "ok" }
     category = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")
+    income_category = Category.create!(name: "Salario", is_default: true, category_type: "income")
     source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
     @user.expenses.create!(amount: 85_000, date: Date.today, category: category, description: "Almuerzo",
                            money_source: source)
-    @user.incomes.create!(amount: 4_500_000, date: Date.today, category: category, description: "Salario",
+    @user.incomes.create!(amount: 4_500_000, date: Date.today, category: income_category, description: "Salario",
                           money_source: source)
     @user.budgets.create!(category: category, monthly_amount: 500_000)
 

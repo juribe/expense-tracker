@@ -49,7 +49,7 @@ module Categories
     # exact normalized name, learned activity mappings (ActivityClassification),
     # English -> Spanish aliases and a similarity fold.
     def resolve_category(category_name, category_id, activity: nil)
-      categories = Category.for_user(user)
+      categories = Category.for_user(user).where("category_type IS NULL OR category_type = ?", "expense")
       @category_resolution = nil
       @rejected_category_name = false
 

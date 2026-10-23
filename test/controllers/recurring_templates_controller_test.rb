@@ -56,6 +56,28 @@ class RecurringTemplatesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "GET /recurring_templates (income) offers only income categories" do
+    income = Category.create!(name: "Salario Recurrente", is_default: false, category_type: "income", user: @user)
+    expense = Category.create!(name: "Servicios Recurrente", is_default: false, category_type: "expense", user: @user)
+
+    get recurring_templates_path(kind: "income")
+
+    assert_response :success
+    assert_select "[data-testid=recurring-template-category-picker] [role=option][data-value=?]", income.id.to_s
+    assert_select "[data-testid=recurring-template-category-picker] [role=option][data-value=?]", expense.id.to_s, count: 0
+  end
+
+  test "GET /recurring_templates (expense) offers only expense categories" do
+    income = Category.create!(name: "Salario Recurrente", is_default: false, category_type: "income", user: @user)
+    expense = Category.create!(name: "Servicios Recurrente", is_default: false, category_type: "expense", user: @user)
+
+    get recurring_templates_path(kind: "expense")
+
+    assert_response :success
+    assert_select "[data-testid=recurring-template-category-picker] [role=option][data-value=?]", expense.id.to_s
+    assert_select "[data-testid=recurring-template-category-picker] [role=option][data-value=?]", income.id.to_s, count: 0
+  end
+
   test "POST process_transaction records the payment with the chosen money source" do
     template = @user.recurring_templates.create!(
       category: @category || Category.create!(name: "Recurring Ctrl Cat", is_default: false, category_type: "expense", user: @user),

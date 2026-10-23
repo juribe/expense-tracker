@@ -198,7 +198,7 @@ class ExpensePlaygroundController < ApplicationController
   def resolve_mapping_category!(case_record, action)
     case action
     when "use_existing"
-      Category.for_user(current_user).find(params[:category_id])
+      Category.for_user(current_user).expenses.find(params[:category_id])
     when "create"
       name = params[:new_category_name].to_s.strip
       raise ArgumentError, "category name required" if name.blank?
@@ -217,7 +217,7 @@ class ExpensePlaygroundController < ApplicationController
   end
 
   def set_categories
-    @categories = Category.for_user(current_user)
+    @categories = Category.for_user(current_user).expenses.order(:name)
     @money_sources = current_user.money_sources.active.includes(:credit_account).order(:name)
   end
 

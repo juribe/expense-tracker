@@ -37,7 +37,7 @@ module Expenses
         return self
       end
 
-      if category_id.present? && !Category.for_user(user).where(id: category_id).exists?
+      if category_id.present? && !Category.for_user(user).where(id: category_id, category_type: [ "expense", nil ]).exists?
         @error_key = :category_not_found
         return self
       end

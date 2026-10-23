@@ -187,7 +187,7 @@ run = ExpensePlayground::Evaluations::Runner.start(
   end
 
   test "POST mapping with use_existing binds the case activity to the chosen category" do
-    category = Category.create!(name: "Entretenimiento", user: @user, is_default: false)
+    category = Category.create!(name: "Entretenimiento", user: @user, is_default: false, category_type: "expense")
     run, case_record = run_with_case("activity" => "Pago de Netflix", "category" => "Entretenimiento")
 
     post expense_evaluation_map_case_path(run, case_record, format: :json),

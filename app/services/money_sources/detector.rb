@@ -33,9 +33,18 @@ module MoneySources
       # The default pool is scoped to the user's own sources so another user's
       # identically named source can never be detected.
       pool = user ? user.money_sources : MoneySource
-      @sources = sources || pool.active.payment_sources
-                         .includes(:recognition_identifiers, { recognition: :recognition_identifiers })
-                         .order(:created_at, :id).to_a
+      if sources
+        @sources = sources.to_a
+      else
+        # Institution is only eager-loaded for sources that actually have one
+        # attached: Bullet flags the association as unused when an included
+        # association is never read, and unattached sources never read it.
+        attached = pool.active.payment_sources.where.not(institution_id: nil, institution_type: nil)
+                    .includes(:institution, :recognition_identifiers, { recognition: :recognition_identifiers })
+        unattached = pool.active.payment_sources.where(institution_id: nil).or(pool.active.payment_sources.where(institution_type: nil))
+                       .includes(:recognition_identifiers, { recognition: :recognition_identifiers })
+        @sources = (attached.to_a + unattached.to_a).sort_by { |source| [source.created_at, source.id] }
+      end
     end
 
     def call(text)

@@ -22,6 +22,7 @@ class Transaction < ApplicationRecord
   validates :kind, presence: true, inclusion: { in: %w[income expense] }
   validates :source, presence: true
   validate :money_source_must_be_present
+  validate :category_type_matches_kind, on: :create
 
   # Manual web-form expenses must not leave the balance owner negative: the
   # operation is rejected with the available balance and the missing amount.
@@ -90,6 +91,12 @@ class Transaction < ApplicationRecord
   end
 
   private
+
+  def category_type_matches_kind
+    return if category.nil? || category.category_type.blank?
+    return if category.category_type == kind
+    errors.add(:category_id, I18n.t("validation.category_type_mismatch"))
+  end
 
   # Every real movement owns its origin: expenses leave from a source,
   # incomes arrive to one. Recurring templates are reminders and stay

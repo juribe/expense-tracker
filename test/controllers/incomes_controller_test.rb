@@ -27,6 +27,17 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     assert account.persisted?
   end
 
+  test "GET /incomes/new offers only income categories" do
+    income = Category.create!(name: "Salario", user: @user, is_default: false, category_type: "income")
+    expense = Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+
+    get new_income_path
+
+    assert_response :success
+    assert_select "[data-testid=income-category-picker] [role=option][data-value=?]", income.id.to_s
+    assert_select "[data-testid=income-category-picker] [role=option][data-value=?]", expense.id.to_s, count: 0
+  end
+
   test "GET /incomes shows the financial cycle badge in the title with a schedule" do
     @user.update!(financial_cycle_start_day: 20)
     cycle = PayCycle.current(@user)

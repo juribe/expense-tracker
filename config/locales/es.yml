@@ -327,6 +327,7 @@ es:
     select_type: "Selecciona el tipo..."
     type: "Tipo"
     type_help: "Indica si la categoría es para gastos o ingresos."
+    type_help_locked: "El tipo no se puede cambiar después de crear la categoría."
     form_errors: "Por favor corrige los siguientes errores:"
     name_placeholder: "ej., Electrónica"
     name_help: "Un nombre corto y único para la categoría."
@@ -1856,10 +1857,12 @@ es:
 
   validation:
     category_self_parent: "no puede ser la misma categoría"
+    category_parent_type: "debe ser del mismo tipo (gasto/ingreso)"
     default_user: "no se puede asignar a categorías por defecto"
     default_name: "ya es una categoría por defecto para este tipo"
     duplicate_type: "ya está en uso para este tipo de categoría"
     duplicate: "ya está en uso"
+    category_type_mismatch: "debe ser de tipo compatible (gasto/ingreso)"
     source_inactive: "debe estar activa"
     transfer_sources: "debe ser diferente de la fuente de origen"
 

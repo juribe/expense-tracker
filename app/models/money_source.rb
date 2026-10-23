@@ -325,7 +325,8 @@ class MoneySource < ApplicationRecord
   def institution_aliases
     tokens = []
     if institution?
-      tokens.concat(institution.folded_aliases) if institution.is_a?(FinancialInstitution)
+      attached = institution
+      tokens.concat(attached.folded_aliases) if attached.is_a?(FinancialInstitution)
       tokens << SourceRecognition::TextNormalizer.fold(institution_name)
     else
       tokens << SourceRecognition::TextNormalizer.fold(bank) if bank.present?

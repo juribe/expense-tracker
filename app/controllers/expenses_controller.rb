@@ -211,7 +211,7 @@ class ExpensesController < ApplicationController
   end
 
   def set_categories
-    @categories = Category.for_user(current_user)
+    @categories = Category.for_user(current_user).expenses.order(:name)
   end
 
   def set_money_sources
@@ -225,9 +225,9 @@ class ExpensesController < ApplicationController
     # Debt payments (credit cards / loans) are applied from their money
     # source page — a single-link assign would skip the real Payment. Their
     # templates never appear in the assign modal.
-    @recurring_templates = current_user.recurring_templates.active.expense
-                                       .includes(:money_source, :category).ordered
-                                       .reject { |template| template.money_source&.debt_payment_target? }
+    relation = current_user.recurring_templates.active.expense.includes(:money_source).ordered
+relation = relation.includes(:category) if request.format.html?
+@recurring_templates = relation.to_a.reject { |template| template.money_source&.debt_payment_target? }
     @current_period_range = PayCycle.period_for(current_user).last
     @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: @current_period_range)
                                     .distinct.pluck(:recurring_template_id)

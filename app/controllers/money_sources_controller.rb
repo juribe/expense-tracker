@@ -372,7 +372,7 @@ class MoneySourcesController < ApplicationController
                                                                            .where(money_source_id: @money_source.id)).limit(10)
     @pickable_expenses = unapplied.limit(20)
     # Data for the "Crear pago manual" modal on the payments tab.
-    @categories = Category.for_user(current_user).order(:name)
+    @categories = Category.for_user(current_user).expenses.order(:name)
     @funding_sources = MoneySource.payment_origins(current_user).where.not(id: @money_source.id)
   end
 

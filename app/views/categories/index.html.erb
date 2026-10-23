@@ -19,10 +19,23 @@
 <% end %>
 
 <%= render "shared/page_header", title: t("categories.title") do %>
-  <%= link_to new_category_path, class: "btn btn-primary" do %>
+  <%= link_to new_category_path(type: @category_type), class: "btn btn-primary" do %>
     <i class="ti ti-plus me-1"></i><%= t("categories.new") %>
   <% end %>
 <% end %>
+
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <%= link_to categories_path(type: "expense"), class: "nav-link #{@category_type == 'expense' ? 'active' : ''}" do %>
+      <i class="ti ti-arrow-up-circle me-1"></i><%= t("types.expense_plural") %>
+    <% end %>
+  </li>
+  <li class="nav-item">
+    <%= link_to categories_path(type: "income"), class: "nav-link #{@category_type == 'income' ? 'active' : ''}" do %>
+      <i class="ti ti-arrow-down-circle me-1"></i><%= t("types.income_plural") %>
+    <% end %>
+  </li>
+</ul>
 
 <% if @default_categories.any? %>
   <h5 class="section-title"><i class="ti ti-shield-lock me-1"></i><%= t("categories.default_section") %></h5>
@@ -68,9 +81,11 @@
             <small class="text-secondary d-block">
               <i class="ti ti-sitemap me-1"></i><%= category.parent&.name || t("categories.root") %>
             </small>
-            <small class="text-secondary">
-              <%= t("categories.expenses_count", count: category.expenses_count) %>
-            </small>
+            <% if @category_type == "expense" %>
+              <small class="text-secondary">
+                <%= t("categories.expenses_count", count: category.expenses_count) %>
+              </small>
+            <% end %>
             <small class="text-secondary d-block">
               <%= category_type_label(category.category_type) %>
             </small>
@@ -90,7 +105,7 @@
       <i class="ti ti-tags display-4 text-muted mb-3 d-block"></i>
       <h4 class="mb-2"><%= t("categories.empty_title") %></h4>
       <p class="text-muted"><%= t("categories.empty_body") %></p>
-      <%= link_to new_category_path, class: "btn btn-primary mt-3" do %>
+      <%= link_to new_category_path(type: @category_type), class: "btn btn-primary mt-3" do %>
         <i class="ti ti-plus me-1"></i><%= t("categories.new") %>
       <% end %>
     </div>

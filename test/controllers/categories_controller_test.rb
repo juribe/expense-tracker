@@ -31,6 +31,44 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#category_description"
   end
 
+  test "GET /categories defaults to the expense tab" do
+    expense = Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+    income = Category.create!(name: "Salario", user: @user, is_default: false, category_type: "income")
+
+    get categories_path
+
+    assert_response :success
+    assert_select "ul.nav-tabs a.nav-link.active", text: /#{I18n.t("types.expense_plural")}/
+    assert_select "a[href=?]", category_path(expense)
+    assert_select "a[href=?]", category_path(income), count: 0
+  end
+
+  test "GET /categories with type=income shows only income categories" do
+    expense = Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+    income = Category.create!(name: "Salario", user: @user, is_default: false, category_type: "income")
+
+    get categories_path(type: "income")
+
+    assert_response :success
+    assert_select "ul.nav-tabs a.nav-link.active", text: /#{I18n.t("types.income_plural")}/
+    assert_select "a[href=?]", category_path(income)
+    assert_select "a[href=?]", category_path(expense), count: 0
+  end
+
+  test "GET /categories falls back to expense for an unknown type" do
+    get categories_path(type: "transfer")
+
+    assert_response :success
+    assert_select "ul.nav-tabs a.nav-link.active", text: /#{I18n.t("types.expense_plural")}/
+  end
+
+  test "GET /categories/new preselects the requested type" do
+    get new_category_path(type: "income")
+
+    assert_response :success
+    assert_select "select#category_category_type option[selected][value=income]"
+  end
+
   test "GET /categories/new offers a searchable parent category picker" do
     parent = Category.create!(name: "Comida", is_default: true, category_type: "expense")
     get new_category_path
@@ -68,6 +106,14 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Transportation", category.name
     assert_not category.active?
     assert_redirected_to category_path(category)
+  end
+
+  test "PATCH /categories does not change the category type" do
+    category = Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+
+    patch category_path(category), params: { category: { category_type: "income" } }
+
+    assert_equal "expense", category.reload.category_type
   end
 
   test "DELETE /categories destroys a custom category" do

@@ -87,7 +87,7 @@ module Categories
     end
 
     def resolve
-      categories = Category.for_user(user).to_a
+      categories = Category.for_user(user).where("category_type IS NULL OR category_type = ?", "expense").to_a
       return Result.new(category: nil, matched_by: nil) if categories.empty?
 
       if name.blank?

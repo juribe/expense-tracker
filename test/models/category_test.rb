@@ -33,6 +33,21 @@ class CategoryTest < ActiveSupport::TestCase
     assert_includes category.errors[:parent_id], I18n.t("validation.category_self_parent")
   end
 
+  test "parent must share the category type" do
+    parent = Category.create!(name: "Salario", category_type: "income")
+    child = Category.new(name: "Mercado", category_type: "expense", parent: parent)
+
+    assert_not child.valid?
+    assert_includes child.errors[:parent_id], I18n.t("validation.category_parent_type")
+  end
+
+  test "parent with the same category type is valid" do
+    parent = Category.create!(name: "Mercado", category_type: "expense")
+    child = Category.new(name: "Verduras", category_type: "expense", parent: parent)
+
+    assert child.valid?
+  end
+
   test "description is optional" do
     category = Category.new(name: "Food", description: nil)
     assert category.valid?

@@ -102,7 +102,7 @@ module RecurringTemplateActions
   SORTABLE_COLUMNS = %w[category description amount payment_day status].freeze
 
   def set_categories
-    @categories = Category.for_user(current_user)
+    @categories = Category.for_user_and_type(current_user, template_kind)
   end
 
   def load_index_data
@@ -112,7 +112,7 @@ module RecurringTemplateActions
     @current_period = current_listing_period
 
     if @sort == "status"
-      @recurring_templates = @recurring_templates.to_a.sort_by { |rt| [status_sort_rank(rt), rt.description.to_s, rt.payment_day.to_i, rt.id] }
+      @recurring_templates = @recurring_templates.to_a.sort_by { |rt| [ status_sort_rank(rt), rt.description.to_s, rt.payment_day.to_i, rt.id ] }
     end
 
     # "Pagar"/"Recibir" modal: where the money comes from / lands. Only

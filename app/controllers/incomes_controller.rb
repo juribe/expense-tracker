@@ -11,7 +11,7 @@ class IncomesController < ApplicationController
   def new
     @income = Income.new(date: Date.current)
     assign_income_prefill
-    @categories = Category.for_user(current_user)
+    @categories = Category.for_user_and_type(current_user, "income")
     @money_sources = money_in_sources
   end
 
@@ -23,7 +23,7 @@ class IncomesController < ApplicationController
     if @income.save
       redirect_to incomes_path, notice: t("incomes.flashes.created")
     else
-      @categories = Category.for_user(current_user)
+      @categories = Category.for_user_and_type(current_user, "income")
       @money_sources = money_in_sources
       render :new, status: :unprocessable_entity
     end
@@ -31,7 +31,7 @@ class IncomesController < ApplicationController
 
   def edit
     @income = current_user.incomes.find(params[:id])
-    @categories = Category.for_user(current_user)
+    @categories = Category.for_user_and_type(current_user, "income")
     @money_sources = money_in_sources
   end
 
@@ -40,7 +40,7 @@ class IncomesController < ApplicationController
     if @income.update(income_params)
       redirect_to incomes_path, notice: t("incomes.flashes.updated")
     else
-      @categories = Category.for_user(current_user)
+      @categories = Category.for_user_and_type(current_user, "income")
       @money_sources = money_in_sources
       render :edit, status: :unprocessable_entity
     end

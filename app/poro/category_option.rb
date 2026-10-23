@@ -20,6 +20,10 @@ class CategoryOption
     category.name
   end
 
+  def category_type
+    category.category_type
+  end
+
   def label
     name
   end

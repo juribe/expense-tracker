@@ -6,6 +6,7 @@
 class ExpenseEvaluationsController < ApplicationController
   # GET /expense-evaluations
   def index
+    @categories = Category.for_user(current_user).expenses.order(:name)
     @runs = current_user.evaluation_runs.recent_first.limit(10)
     @runs = @runs.where(dataset_name: params[:dataset]) if params[:dataset].present?
 
@@ -145,7 +146,7 @@ class ExpenseEvaluationsController < ApplicationController
   def resolve_mapping_category!(case_record, action)
     case action
     when "use_existing"
-      Category.for_user(current_user).find(params[:category_id])
+      Category.for_user(current_user).expenses.find(params[:category_id])
     when "create"
       name = params[:new_category_name].to_s.strip
       raise ArgumentError, "category name required" if name.blank?

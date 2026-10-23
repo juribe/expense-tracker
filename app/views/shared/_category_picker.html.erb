@@ -39,6 +39,7 @@
           role="option"
           data-value="<%= item.id %>"
           data-search="<%= item.search_text %>"
+          data-category-type="<%= item.category_type %>"
           aria-selected="<%= field.selected?(item.id) %>">
         <span class="category-picker__label"><%= item.label %></span>
       </li>

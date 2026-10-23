@@ -4,10 +4,10 @@ class RecurringTemplatesController < ApplicationController
   include ActionView::Helpers::NumberHelper
 
   # Categories are needed whenever the index page (and its form modal) renders.
+  before_action :set_recurring_template, only: [ :update, :destroy, :process_transaction, :toggle_active ]
   before_action :set_categories, only: [ :index, :create, :update ]
   before_action :set_money_sources, only: [ :index, :create, :update ]
   before_action :load_index_data, only: [ :index ]
-  before_action :set_recurring_template, only: [ :update, :destroy, :process_transaction, :toggle_active ]
 
   def index
     @recurring_template ||= current_user.recurring_templates.build(
@@ -103,7 +103,15 @@ class RecurringTemplatesController < ApplicationController
   private
 
   def set_categories
-    @categories = Category.for_user(current_user)
+    @categories = Category.for_user_and_type(current_user, category_kind)
+  end
+
+  def category_kind
+    @kind ||
+      @recurring_template&.kind ||
+      params[:kind].to_s.presence ||
+      params.dig(:recurring_template, :kind).to_s.presence ||
+      "income"
   end
 
   def set_money_sources

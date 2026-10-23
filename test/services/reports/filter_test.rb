@@ -8,6 +8,7 @@ class ReportsFilterTest < ActiveSupport::TestCase
     @other_user = User.create!(name: "Other", email: "reports_filter_other@example.com", password: "password123")
     @food = Category.create!(name: "Alimentación", is_default: true, category_type: "expense")
     @transport = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+    @salary = Category.create!(name: "Salario", is_default: true, category_type: "income")
     @bank = @user.money_sources.create!(name: "Davibank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
@@ -62,7 +63,7 @@ class ReportsFilterTest < ActiveSupport::TestCase
   test "kind filter selects which base scope is non-empty" do
     Expense.create!(user: @user, category: @food, amount: -100_000, date: @period.range.first, description: "x",
                     money_source: @bank)
-    Income.create!(user: @user, category: @food, amount: 500_000, date: @period.range.first, description: "x",
+    Income.create!(user: @user, category: @salary, amount: 500_000, date: @period.range.first, description: "x",
                    money_source: @bank)
 
     assert_equal 100_000.to_d, filter(kind: "expense").expense_scope(@period.range).sum(:amount).abs

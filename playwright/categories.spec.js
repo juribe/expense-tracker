@@ -22,6 +22,49 @@ test.describe('category pages are working', () => {
     await expect(page.getByRole('heading', { name })).toBeVisible();
   });
 
+
+  test('categories page switches between expense and income tabs', async ({ page }) => {
+    const expenseName = `Expense-${Date.now()}`;
+    const incomeName = `Income-${Date.now()}`;
+
+    await createCategory(page, expenseName, 'Expense category');
+
+    await page.goto('/categories/new?type=income');
+    await page.locator('#category_name').fill(incomeName);
+    await page.locator('#category_category_type').selectOption({ label: 'Ingreso' });
+    await page.getByRole('button', { name: 'Guardar Categoría' }).click();
+    await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}/);
+
+    await page.goto('/categories');
+    await expect(page.locator('ul.nav-tabs a.nav-link.active')).toContainText('Gastos');
+    await expect(page.getByText(expenseName)).toBeVisible();
+    await expect(page.getByText(incomeName)).toHaveCount(0);
+
+    await page.locator('ul.nav-tabs').getByRole('link', { name: 'Ingresos' }).click();
+    await expect(page).toHaveURL(/type=income/);
+    await expect(page.locator('ul.nav-tabs a.nav-link.active')).toContainText('Ingresos');
+    await expect(page.getByText(incomeName)).toBeVisible();
+    await expect(page.getByText(expenseName)).toHaveCount(0);
+  });
+
+  test('income form only offers income categories', async ({ page }) => {
+    const expenseName = `ExpenseOnly-${Date.now()}`;
+    const incomeName = `IncomeOnly-${Date.now()}`;
+
+    await createCategory(page, expenseName, 'Expense category');
+
+    await page.goto('/categories/new?type=income');
+    await page.locator('#category_name').fill(incomeName);
+    await page.locator('#category_category_type').selectOption({ label: 'Ingreso' });
+    await page.getByRole('button', { name: 'Guardar Categoría' }).click();
+    await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}/);
+
+    await page.goto('/incomes/new');
+    const picker = page.locator('[data-testid=income-category-picker]');
+    await expect(picker.locator(`[role=option][data-value]`, { hasText: incomeName })).toHaveCount(1);
+    await expect(picker.locator(`[role=option][data-value]`, { hasText: expenseName })).toHaveCount(0);
+  });
+
   test('user can edit a category', async ({ page }) => {
     const name = `Transport-${Date.now()}`;
     await createCategory(page, name, 'Travel expenses');

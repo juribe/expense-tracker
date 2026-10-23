@@ -247,8 +247,6 @@ class FinancialSetupsController < ApplicationController
     @transactions = @import["transactions"] || []
     @sources = @import["sources"] || []
     @duplicates = @import["duplicates"] || {}
-    @categories = Category.for_user(current_user)
-    @steps = FinancialSetupWizard.steps
     render :import_review
   end
 

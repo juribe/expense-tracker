@@ -1,11 +1,12 @@
 class CategoriesController < ApplicationController
-  before_action :set_category, only: [:show, :edit, :update, :destroy]
-  before_action :set_parent_categories, only: [:new, :create, :edit, :update]
+  before_action :set_category, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_parent_categories, only: [ :new, :create, :edit, :update ]
 
   # GET /categories
   def index
-    @default_categories = Category.defaults
-    @custom_categories = Category.custom_for_user(current_user).includes(:parent)
+    @category_type = %w[expense income].include?(params[:type]) ? params[:type] : "expense"
+    @default_categories = Category.defaults.where(category_type: @category_type)
+    @custom_categories = Category.custom_for_user(current_user).includes(:parent).where(category_type: @category_type)
   end
 
   # GET /categories/1
@@ -14,15 +15,14 @@ class CategoriesController < ApplicationController
 
   # GET /categories/new
   def new
-    @category = Category.new(is_default: false)
+    @category = Category.new(is_default: false, category_type: %w[expense income].include?(params[:type]) ? params[:type] : "expense")
   end
 
   # GET /categories/1/edit
   def edit
-    unless @category.editable_by?(current_user)
-      redirect_to categories_path, alert: t("category_messages.only_own_edit")
-      return
-    end
+    return if @category.editable_by?(current_user)
+
+    redirect_to categories_path, alert: t("category_messages.only_own_edit")
   end
 
   # POST /categories
@@ -49,7 +49,7 @@ class CategoriesController < ApplicationController
     end
 
     respond_to do |format|
-      if @category.update(category_params)
+      if @category.update(category_params.except(:category_type))
         format.html { redirect_to @category, flash: { success: t("category_messages.updated") } }
         format.json { render :show, status: :ok, location: @category }
       else
