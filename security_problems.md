@@ -93,7 +93,8 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
   `category_messages.not_found`. Las compartidas (default) siguen accesibles.
 - Pruebas: 3 escenarios de controlador (propia, compartida y ajena), rojo confirmado
   antes de implementar y verificados en verde; suite completa en CI.
-- Evidencia: commit del cambio; CI run por confirmar.
+- Evidencia: commit `151ae95`; CI run `39988051388` en verde (MiniTest, Playwright,
+  Brakeman).
 
 ### SEC-005 — Referencias ajenas en registros secundarios (Media)
 
@@ -216,6 +217,7 @@ estado para no perder trazabilidad. No asumir que la lista actual es exhaustiva.
 | 2026-10-23 | SEC-001, SEC-002 | Validaciones de propiedad en `Transaction` y `Transfer`; fixtures corregidas | `48096a3`, `f454d74` | PR #1, run `39980111648` en verde |
 | 2026-10-23 | Documento | Creación de `security_problems.md` | `4713aa0` | — |
 | 2026-10-23 | SEC-003 | Validación de propiedad del `parent` y guarda en `BalanceSync.adjust!` | `a5d853c`, `c342544` (grafo) | CI run `39984286996` en verde |
+| 2026-10-23 | SEC-004 | `set_category` de show con `Category.for_user` | `151ae95`, `d624924` (grafo) | CI run `39988051388` en verde |
 
 ## Comandos útiles
 
