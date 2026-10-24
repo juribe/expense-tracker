@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1792548754.7342544,
-    "seen": 1792549430.911514,
-    "ast_hash": "e79a74367409862394f758b53fc2b99e",
+    "mtime": 1792788581.0713208,
+    "seen": 1792788692.598604,
+    "ast_hash": "b7bccf8f910100d6989df5f56b1d4474",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -5034,9 +5034,9 @@
     "semantic_hash": ""
   },
   "security_problems.md": {
-    "mtime": 1792781403.0061755,
-    "seen": 1792783856.404851,
-    "ast_hash": "0c32c65cf791e9a0ab5858401bc033b5",
+    "mtime": 1792788679.1878273,
+    "seen": 1792788692.5992541,
+    "ast_hash": "e7dabf82ba4c35240168b2c58bf26f65",
     "semantic_hash": ""
   },
   "lib/rate_limit_proxy.rb": {
@@ -5067,6 +5067,18 @@
     "mtime": 1792783737.5971663,
     "seen": 1792783856.4044049,
     "ast_hash": "3e499d0d1a55e9d95143a292c57ab7a2",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/sessions_controller.rb": {
+    "mtime": 1792788579.505024,
+    "seen": 1792788692.598083,
+    "ast_hash": "28761c6abc3db6fa109eee45f3adc8b1",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/sessions_controller_test.rb": {
+    "mtime": 1792788546.8354025,
+    "seen": 1792788692.598794,
+    "ast_hash": "ceb2ad7c6939721ee4c78dee4d6c6660",
     "semantic_hash": ""
   }
 }
