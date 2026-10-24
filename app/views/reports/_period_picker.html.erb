@@ -11,7 +11,7 @@
     <%= select_tag :period,
           options_for_select(period_presets, params[:period] || "this_month"),
           class: "form-select", id: "report-period-select",
-          onchange: "this.form.submit()" %>
+          "data-auto-submit": true %>
     <%= submit_tag t("common.apply", default: "Aplicar"), class: "btn btn-light" %>
   </div>
 

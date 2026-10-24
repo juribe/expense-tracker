@@ -30,6 +30,13 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_match(/sign_in/, response.location)
   end
 
+  test "report period select submits through data-auto-submit, not inline handlers" do
+    get reports_overview_path
+
+    assert_select "select[data-auto-submit]"
+    assert_not response.body.include?("onchange=\"this.form.submit()\"")
+  end
+
   test "GET /reports/by_category renders" do
     get reports_by_category_path
     assert_response :success

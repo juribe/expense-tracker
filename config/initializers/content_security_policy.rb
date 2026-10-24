@@ -1,16 +1,16 @@
 # Be sure to restart your server when you modify this file.
 
 Rails.application.configure do
-  # Defense-in-depth baseline. 'unsafe-inline' stays for script/style because
-  # the ERB templates still carry legacy inline scripts; it must be dropped
-  # once the application JavaScript is fully moved into modules.
+  # 'unsafe-inline' remains in style-src only because the views still carry
+  # inline style= attributes; the script-src directive is fully strict now
+  # that all application JavaScript lives in modules.
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.base_uri :self
     policy.img_src :self, :data, :https
     policy.font_src :self, "https://fonts.gstatic.com"
     policy.style_src :self, "https://fonts.googleapis.com", :unsafe_inline
-    policy.script_src :self, "https://cdn.jsdelivr.net", :unsafe_inline
+    policy.script_src :self, "https://cdn.jsdelivr.net"
     policy.connect_src :self
     policy.object_src :none
     policy.form_action :self

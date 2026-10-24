@@ -9,7 +9,7 @@
       </div>
       <div class="form-check form-switch">
         <%= form_with model: rule, url: toggle_active_transaction_rule_path(rule), method: :patch, local: true do |form| %>
-          <%= form.check_box :enabled, class: "form-check-input", role: "switch", checked: rule.enabled?, onchange: "this.form.submit()", aria: { label: t("transaction_rules.toggle_aria", name: rule.title) } %>
+          <%= form.check_box :enabled, class: "form-check-input", role: "switch", checked: rule.enabled?, data: { auto_submit: true }, aria: { label: t("transaction_rules.toggle_aria", name: rule.title) } %>
         <% end %>
       </div>
     </div>
