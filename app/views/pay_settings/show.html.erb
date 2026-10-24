@@ -12,7 +12,7 @@
     </p>
 
     <%= form_with(model: current_user, url: pay_settings_path, method: :patch, local: true) do |form| %>
-      <div class="mb-3" style="max-width: 16rem;">
+      <div class="mb-3 et-maxw-16rem">
         <%= form.label :financial_cycle_start_day, t("pay_settings.start_day", default: "El ciclo financiero comienza el"), class: "form-label" %>
         <%= form.select :financial_cycle_start_day,
                         (1..28).map { |day| [ day.to_s.rjust(2, "0"), day ] },

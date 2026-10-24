@@ -468,6 +468,7 @@ es:
       upload: "Subir y procesar"
       retry: "Intentar de nuevo"
       file_required: "Elige un archivo para subir."
+      file_too_large: "El archivo es demasiado grande (máximo 20 MB)."
       processing: "Procesando tu extracto…"
       step_upload: "Cargando archivo…"
       password_title: "Este documento está protegido con contraseña"
@@ -1865,6 +1866,7 @@ es:
     category_type_mismatch: "debe ser de tipo compatible (gasto/ingreso)"
     source_inactive: "debe estar activa"
     transfer_sources: "debe ser diferente de la fuente de origen"
+    category_parent_owner: "debe ser compartida o del mismo dueño"
 
   category_messages:
     only_own_edit: "Solo puedes editar tus propias categorías."

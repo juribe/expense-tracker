@@ -195,4 +195,42 @@ class CategoryTest < ActiveSupport::TestCase
     assert_not cat.valid?
     assert_includes cat.errors[:suggested_savings_percentage], I18n.t("errors.messages.not_a_number")
   end
+
+  test "a custom parent of another user is invalid" do
+    owner = User.create!(name: "Owner", email: "category_foreign_parent@example.com", password: "password123")
+    other = User.create!(name: "Other", email: "category_foreign_parent_other@example.com", password: "password123")
+    foreign_parent = Category.create!(name: "Padre Ajeno", user: other, is_default: false,
+                                      category_type: "expense")
+    child = Category.new(name: "Hija", user: owner, is_default: false, category_type: "expense",
+                         parent: foreign_parent)
+
+    assert_not child.valid?
+    assert_includes child.errors[:parent_id], I18n.t("validation.category_parent_owner")
+  end
+
+  test "a shared default parent or an own parent is valid" do
+    owner = User.create!(name: "Owner", email: "category_shared_parent@example.com", password: "password123")
+    default_parent = Category.create!(name: "Electrónica", is_default: true, category_type: "expense")
+    own_parent = Category.create!(name: "Padre Propio", user: owner, is_default: false,
+                                  category_type: "expense")
+
+    child_default = Category.new(name: "Hija Default", user: owner, is_default: false,
+                                 category_type: "expense", parent: default_parent)
+    child_own = Category.new(name: "Hija Propia", user: owner, is_default: false,
+                             category_type: "expense", parent: own_parent)
+
+    assert child_default.valid?
+    assert child_own.valid?
+  end
+
+  test "a shared category only accepts a shared parent" do
+    other = User.create!(name: "Other", email: "category_shared_parent_other@example.com", password: "password123")
+    custom_parent = Category.create!(name: "Padre Privado", user: other, is_default: false,
+                                     category_type: "expense")
+    shared_child = Category.new(name: "Hija Compartida", is_default: false, category_type: "expense",
+                                parent: custom_parent)
+
+    assert_not shared_child.valid?
+    assert_includes shared_child.errors[:parent_id], I18n.t("validation.category_parent_owner")
+  end
 end

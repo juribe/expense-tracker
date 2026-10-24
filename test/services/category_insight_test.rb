@@ -9,11 +9,14 @@ class CategoryInsightTest < ActiveSupport::TestCase
     @category = Category.create!(name: "Insight Svc Cat", is_default: true, category_type: "expense", suggested_savings_percentage: 15)
     @bank = @user.money_sources.create!(name: "Bank", kind: "account", active: true, starting_balance: 1_000_000_000)
     @loan = @user.money_sources.create!(name: "Loan", kind: "loan", active: true)
+    @other_bank = @other.money_sources.create!(name: "Other Bank", kind: "account", active: true,
+                                               starting_balance: 1_000_000_000)
     @anchor = Date.current
   end
 
-  def expense(amount, date:, user: @user, category: @category)
-    Expense.create!(user: user, category: category, money_source: @bank, amount: amount, date: date, description: "x")
+  def expense(amount, date:, user: @user, category: @category, money_source: @bank)
+    Expense.create!(user: user, category: category, money_source: money_source, amount: amount, date: date,
+                    description: "x")
   end
 
   def insight
@@ -45,7 +48,7 @@ class CategoryInsightTest < ActiveSupport::TestCase
   end
 
   test "user isolation" do
-    expense(-100_000, date: @anchor.prev_month, user: @other)
+    expense(-100_000, date: @anchor.prev_month, user: @other, money_source: @other_bank)
     data = insight
     assert_nil data[:average_spending]
   end

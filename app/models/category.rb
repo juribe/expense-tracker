@@ -21,6 +21,7 @@ class Category < ApplicationRecord
   validates :suggested_savings_percentage, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
   validate :parent_must_not_be_self
   validate :parent_must_share_category_type
+  validate :parent_belongs_to_scope
   validate :default_category_not_owned_by_user
   validate :custom_category_not_named_like_default, on: :create
   validate :unique_custom_category_per_user_and_type
@@ -72,6 +73,16 @@ class Category < ApplicationRecord
     return unless parent
     return if category_type == parent.category_type
     errors.add(:parent_id, I18n.t("validation.category_parent_type"))
+  end
+
+  # A shared category may only hang from shared parents; a custom one from
+  # shared parents or its owner's own categories, so no one records their
+  # subcategories under another account's private tree.
+  def parent_belongs_to_scope
+    return if parent_id.blank? || parent.nil?
+    return if parent.user_id.nil? || parent.user_id == user_id
+
+    errors.add(:parent_id, I18n.t("validation.category_parent_owner"))
   end
 
   def default_category_not_owned_by_user

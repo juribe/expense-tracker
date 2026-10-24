@@ -52,4 +52,37 @@ class RecurringTemplateTest < ActiveSupport::TestCase
     assert_equal :inactive, @template.status_for(Date.new(2026, 10, 20)..Date.new(2026, 11, 19))
     assert_equal :inactive, @template.status_for("2026-10")
   end
+
+  test "a foreign category is invalid" do
+    other_user = User.create!(name: "Other", email: "recurring_foreign_category_model@example.com",
+                              password: "password123")
+    foreign_category = Category.create!(name: "Ajena Modelo", is_default: false, category_type: "expense",
+                                        user: other_user)
+    template = @user.recurring_templates.build(category: foreign_category, kind: "expense", amount: 50_000,
+                                               frequency: "monthly", source: "manual")
+
+    assert_not template.valid?
+    assert_includes template.errors[:category], I18n.t("activerecord.errors.messages.other_user")
+  end
+
+  test "a foreign money source is invalid" do
+    other_user = User.create!(name: "Other", email: "recurring_foreign_source_model@example.com",
+                              password: "password123")
+    foreign_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account")
+    template = @user.recurring_templates.build(category: @category, kind: "expense", amount: 50_000,
+                                               frequency: "monthly", source: "manual",
+                                               money_source: foreign_source)
+
+    assert_not template.valid?
+    assert_includes template.errors[:money_source], I18n.t("activerecord.errors.messages.other_user")
+  end
+
+  test "a shared category with an own money source is valid" do
+    shared_category = Category.create!(name: "Arriendo Compartido", is_default: true, category_type: "expense")
+    template = @user.recurring_templates.build(category: shared_category, kind: "expense", amount: 50_000,
+                                               frequency: "monthly", source: "manual",
+                                               money_source: @money_source)
+
+    assert template.valid?
+  end
 end

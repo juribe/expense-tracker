@@ -22,6 +22,11 @@ class StatementImportsController < ApplicationController
 
   # POST — parses the upload and renders the review; never persists.
   def create
+    if oversize_upload?
+      return redirect_to new_money_source_statement_import_path(@money_source),
+                         alert: I18n.t("wizard.upload.file_too_large")
+    end
+
     result = Statements::Parser.call(user: current_user, file_data: file_data,
                                      filename: upload_filename, password: params[:password],
                                      money_source: @money_source,
@@ -115,6 +120,14 @@ class StatementImportsController < ApplicationController
 
   # The browser sends a real multipart file; the pipeline consumes a base64
   # data URI, so the upload is decoded here and used in memory only.
+  # The upload must never be duplicated in memory: check the raw request size
+  # up front so an oversized payload fails cheaply.
+  # The upload must never be duplicated in memory: check the raw request size
+  # up front so an oversized payload fails cheaply.
+  def oversize_upload?
+    request.content_length.to_i > Expenses::Inputs::Rules::File::FILE_MAX_BYTES
+  end
+
   def file_data
     upload = params[:file]
     return if upload.blank?

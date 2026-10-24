@@ -621,4 +621,40 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to transfers_path
     assert flash[:alert].present?
   end
+
+  test "POST /transfers rejects an origin source owned by another user" do
+    other_user = User.create!(name: "Other", email: "transfer_foreign_origin@example.com", password: "password123")
+    foreign_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000)
+    balance_before = foreign_source.reload.cached_balance
+
+    assert_no_difference "Transfer.count" do
+      post transfers_path, params: { transfer: {
+        from_source_id: foreign_source.id, to_source_id: @checking.id,
+        amount: 100, date: Date.today.to_s
+      } }
+    end
+
+    assert_redirected_to transfers_path
+    assert flash[:alert].present?
+    assert_equal balance_before, foreign_source.reload.cached_balance
+  end
+
+  test "POST /transfers rejects a destination source owned by another user" do
+    other_user = User.create!(name: "Other", email: "transfer_foreign_destination@example.com", password: "password123")
+    foreign_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 0)
+    origin_before = @savings.reload.cached_balance
+    destination_before = foreign_source.reload.cached_balance
+
+    assert_no_difference "Transfer.count" do
+      post transfers_path, params: { transfer: {
+        from_source_id: @savings.id, to_source_id: foreign_source.id,
+        amount: 100, date: Date.today.to_s
+      } }
+    end
+
+    assert_redirected_to transfers_path
+    assert flash[:alert].present?
+    assert_equal origin_before, @savings.reload.cached_balance
+    assert_equal destination_before, foreign_source.reload.cached_balance
+  end
 end

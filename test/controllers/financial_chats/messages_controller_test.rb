@@ -66,5 +66,23 @@ module FinancialChats
       assert_response :unauthorized
       assert_equal 0, FinancialChatMessage.count
     end
+
+    test "POST rate limits after 20 posts in a minute" do
+      original_cache = Rails.cache
+      Rails.cache = ActiveSupport::Cache::MemoryStore.new
+      sign_in @user
+
+      begin
+        20.times do
+          post financial_chat_messages_path, params: { content: "Gasto #{rand(100)}" }, as: :json
+        end
+
+        post financial_chat_messages_path, params: { content: "Uno más" }, as: :json
+
+        assert_equal 429, response.status
+      ensure
+        Rails.cache = original_cache
+      end
+    end
   end
 end

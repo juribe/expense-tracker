@@ -38,10 +38,10 @@
                 · <%= number_to_percentage(goal.progress_percentage, precision: 1) %>
               </span>
             </div>
-            <div class="progress" style="height: 6px;" role="progressbar"
+            <div class="progress et-progress-6" role="progressbar"
                  aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
                  aria-valuenow="<%= goal.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100">
-              <div class="progress-bar <%= goal_health_progress_class(goal) %>" style="width: <%= goal.progress_percentage.round %>%"></div>
+              <div class="progress-bar <%= goal_health_progress_class(goal) %> et-w-<%= goal.progress_percentage.round %>"></div>
             </div>
             <div class="d-flex gap-2 mt-2 d-print-none">
               <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path, local: true, class: "d-flex gap-2 align-items-center" do |f| %>
@@ -146,15 +146,5 @@
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var modal = document.getElementById('reallocate-modal');
-  if (!modal) return;
-  modal.addEventListener('show.bs.modal', function(event) {
-    var button = event.relatedTarget;
-    if (!button) return;
-    document.getElementById('reallocate-from-id').value = button.getAttribute('data-reallocate-from');
-    document.getElementById('reallocate-from-name').textContent = button.getAttribute('data-reallocate-from-name');
-  });
-});
-</script>
+<%= javascript_include_tag "pocket_breakdown", defer: true %>
+

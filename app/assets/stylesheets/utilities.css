@@ -1,0 +1,301 @@
+/*
+ * CSP-safe replacements for the former inline style= attributes in views.
+ * Kept next to the views that consume them until the strict style-src
+ * rollout (security tracker SEC-010) is fully closed.
+ */
+
+/* ---- Dynamic progress bar widths: .et-w-0 .. .et-w-100 ---- */
+.et-w-0 { width: 0% !important; }
+.et-w-1 { width: 1% !important; }
+.et-w-2 { width: 2% !important; }
+.et-w-3 { width: 3% !important; }
+.et-w-4 { width: 4% !important; }
+.et-w-5 { width: 5% !important; }
+.et-w-6 { width: 6% !important; }
+.et-w-7 { width: 7% !important; }
+.et-w-8 { width: 8% !important; }
+.et-w-9 { width: 9% !important; }
+.et-w-10 { width: 10% !important; }
+.et-w-11 { width: 11% !important; }
+.et-w-12 { width: 12% !important; }
+.et-w-13 { width: 13% !important; }
+.et-w-14 { width: 14% !important; }
+.et-w-15 { width: 15% !important; }
+.et-w-16 { width: 16% !important; }
+.et-w-17 { width: 17% !important; }
+.et-w-18 { width: 18% !important; }
+.et-w-19 { width: 19% !important; }
+.et-w-20 { width: 20% !important; }
+.et-w-21 { width: 21% !important; }
+.et-w-22 { width: 22% !important; }
+.et-w-23 { width: 23% !important; }
+.et-w-24 { width: 24% !important; }
+.et-w-25 { width: 25% !important; }
+.et-w-26 { width: 26% !important; }
+.et-w-27 { width: 27% !important; }
+.et-w-28 { width: 28% !important; }
+.et-w-29 { width: 29% !important; }
+.et-w-30 { width: 30% !important; }
+.et-w-31 { width: 31% !important; }
+.et-w-32 { width: 32% !important; }
+.et-w-33 { width: 33% !important; }
+.et-w-34 { width: 34% !important; }
+.et-w-35 { width: 35% !important; }
+.et-w-36 { width: 36% !important; }
+.et-w-37 { width: 37% !important; }
+.et-w-38 { width: 38% !important; }
+.et-w-39 { width: 39% !important; }
+.et-w-40 { width: 40% !important; }
+.et-w-41 { width: 41% !important; }
+.et-w-42 { width: 42% !important; }
+.et-w-43 { width: 43% !important; }
+.et-w-44 { width: 44% !important; }
+.et-w-45 { width: 45% !important; }
+.et-w-46 { width: 46% !important; }
+.et-w-47 { width: 47% !important; }
+.et-w-48 { width: 48% !important; }
+.et-w-49 { width: 49% !important; }
+.et-w-50 { width: 50% !important; }
+.et-w-51 { width: 51% !important; }
+.et-w-52 { width: 52% !important; }
+.et-w-53 { width: 53% !important; }
+.et-w-54 { width: 54% !important; }
+.et-w-55 { width: 55% !important; }
+.et-w-56 { width: 56% !important; }
+.et-w-57 { width: 57% !important; }
+.et-w-58 { width: 58% !important; }
+.et-w-59 { width: 59% !important; }
+.et-w-60 { width: 60% !important; }
+.et-w-61 { width: 61% !important; }
+.et-w-62 { width: 62% !important; }
+.et-w-63 { width: 63% !important; }
+.et-w-64 { width: 64% !important; }
+.et-w-65 { width: 65% !important; }
+.et-w-66 { width: 66% !important; }
+.et-w-67 { width: 67% !important; }
+.et-w-68 { width: 68% !important; }
+.et-w-69 { width: 69% !important; }
+.et-w-70 { width: 70% !important; }
+.et-w-71 { width: 71% !important; }
+.et-w-72 { width: 72% !important; }
+.et-w-73 { width: 73% !important; }
+.et-w-74 { width: 74% !important; }
+.et-w-75 { width: 75% !important; }
+.et-w-76 { width: 76% !important; }
+.et-w-77 { width: 77% !important; }
+.et-w-78 { width: 78% !important; }
+.et-w-79 { width: 79% !important; }
+.et-w-80 { width: 80% !important; }
+.et-w-81 { width: 81% !important; }
+.et-w-82 { width: 82% !important; }
+.et-w-83 { width: 83% !important; }
+.et-w-84 { width: 84% !important; }
+.et-w-85 { width: 85% !important; }
+.et-w-86 { width: 86% !important; }
+.et-w-87 { width: 87% !important; }
+.et-w-88 { width: 88% !important; }
+.et-w-89 { width: 89% !important; }
+.et-w-90 { width: 90% !important; }
+.et-w-91 { width: 91% !important; }
+.et-w-92 { width: 92% !important; }
+.et-w-93 { width: 93% !important; }
+.et-w-94 { width: 94% !important; }
+.et-w-95 { width: 95% !important; }
+.et-w-96 { width: 96% !important; }
+.et-w-97 { width: 97% !important; }
+.et-w-98 { width: 98% !important; }
+.et-w-99 { width: 99% !important; }
+.et-w-100 { width: 100% !important; }
+
+/* Left-position marker (debt capacity meter) */
+.et-left-0 { left: 0%; }
+.et-left-1 { left: 1%; }
+.et-left-2 { left: 2%; }
+.et-left-3 { left: 3%; }
+.et-left-4 { left: 4%; }
+.et-left-5 { left: 5%; }
+.et-left-6 { left: 6%; }
+.et-left-7 { left: 7%; }
+.et-left-8 { left: 8%; }
+.et-left-9 { left: 9%; }
+.et-left-10 { left: 10%; }
+.et-left-11 { left: 11%; }
+.et-left-12 { left: 12%; }
+.et-left-13 { left: 13%; }
+.et-left-14 { left: 14%; }
+.et-left-15 { left: 15%; }
+.et-left-16 { left: 16%; }
+.et-left-17 { left: 17%; }
+.et-left-18 { left: 18%; }
+.et-left-19 { left: 19%; }
+.et-left-20 { left: 20%; }
+.et-left-21 { left: 21%; }
+.et-left-22 { left: 22%; }
+.et-left-23 { left: 23%; }
+.et-left-24 { left: 24%; }
+.et-left-25 { left: 25%; }
+.et-left-26 { left: 26%; }
+.et-left-27 { left: 27%; }
+.et-left-28 { left: 28%; }
+.et-left-29 { left: 29%; }
+.et-left-30 { left: 30%; }
+.et-left-31 { left: 31%; }
+.et-left-32 { left: 32%; }
+.et-left-33 { left: 33%; }
+.et-left-34 { left: 34%; }
+.et-left-35 { left: 35%; }
+.et-left-36 { left: 36%; }
+.et-left-37 { left: 37%; }
+.et-left-38 { left: 38%; }
+.et-left-39 { left: 39%; }
+.et-left-40 { left: 40%; }
+.et-left-41 { left: 41%; }
+.et-left-42 { left: 42%; }
+.et-left-43 { left: 43%; }
+.et-left-44 { left: 44%; }
+.et-left-45 { left: 45%; }
+.et-left-46 { left: 46%; }
+.et-left-47 { left: 47%; }
+.et-left-48 { left: 48%; }
+.et-left-49 { left: 49%; }
+.et-left-50 { left: 50%; }
+.et-left-51 { left: 51%; }
+.et-left-52 { left: 52%; }
+.et-left-53 { left: 53%; }
+.et-left-54 { left: 54%; }
+.et-left-55 { left: 55%; }
+.et-left-56 { left: 56%; }
+.et-left-57 { left: 57%; }
+.et-left-58 { left: 58%; }
+.et-left-59 { left: 59%; }
+.et-left-60 { left: 60%; }
+.et-left-61 { left: 61%; }
+.et-left-62 { left: 62%; }
+.et-left-63 { left: 63%; }
+.et-left-64 { left: 64%; }
+.et-left-65 { left: 65%; }
+.et-left-66 { left: 66%; }
+.et-left-67 { left: 67%; }
+.et-left-68 { left: 68%; }
+.et-left-69 { left: 69%; }
+.et-left-70 { left: 70%; }
+.et-left-71 { left: 71%; }
+.et-left-72 { left: 72%; }
+.et-left-73 { left: 73%; }
+.et-left-74 { left: 74%; }
+.et-left-75 { left: 75%; }
+.et-left-76 { left: 76%; }
+.et-left-77 { left: 77%; }
+.et-left-78 { left: 78%; }
+.et-left-79 { left: 79%; }
+.et-left-80 { left: 80%; }
+.et-left-81 { left: 81%; }
+.et-left-82 { left: 82%; }
+.et-left-83 { left: 83%; }
+.et-left-84 { left: 84%; }
+.et-left-85 { left: 85%; }
+.et-left-86 { left: 86%; }
+.et-left-87 { left: 87%; }
+.et-left-88 { left: 88%; }
+.et-left-89 { left: 89%; }
+.et-left-90 { left: 90%; }
+.et-left-91 { left: 91%; }
+.et-left-92 { left: 92%; }
+.et-left-93 { left: 93%; }
+.et-left-94 { left: 94%; }
+.et-left-95 { left: 95%; }
+.et-left-96 { left: 96%; }
+.et-left-97 { left: 97%; }
+.et-left-98 { left: 98%; }
+.et-left-99 { left: 99%; }
+.et-left-100 { left: 100%; }
+
+/* ---- Fixed-size chips and dots (icon placeholders, badges) ---- */
+.et-chip-7 { width: 7px; height: 7px; }
+.et-chip-2rem { width: 2rem; height: 2rem; }
+.et-chip-32 { width: 32px; height: 32px; }
+.et-chip-40 { width: 40px; height: 40px; }
+.et-chip-44 { width: 44px; height: 44px; }
+.et-chip-48 { width: 48px; height: 48px; }
+.et-chip-56 { width: 56px; height: 56px; }
+.et-chip-88 { width: 88px; height: 88px; }
+.et-icon-chip-brand { width: 2.75rem; height: 2.75rem; }
+
+/* ---- Progress heights ---- */
+.et-progress-6 { height: 6px; }
+.et-progress-8 { height: 8px; }
+.et-progress-10 { height: 10px; }
+
+/* ---- Fixed and min/max widths for columns and rows ---- */
+.et-w-auto { width: auto; }
+.et-w-40px { width: 40px; }
+.et-w-2-5rem { width: 2.5rem; }
+.et-minw-7rem { min-width: 7rem; }
+.et-minw-7-5rem { min-width: 7.5rem; }
+.et-minw-8-5rem { min-width: 8.5rem; }
+.et-minw-12rem { min-width: 12rem; }
+.et-minw-140px { min-width: 140px; }
+.et-maxw-14rem { max-width: 14rem; }
+.et-maxw-16rem { max-width: 16rem; }
+.et-maxw-220px { max-width: 220px; }
+.et-maxw-640 { max-width: 640px; }
+.et-maxw-720 { max-width: 720px; }
+.et-maxw-760 { max-width: 760px; }
+.et-maxw-800 { max-width: 800px; margin: 0 auto; }
+.et-maxw-960 { max-width: 960px; margin: 0 auto; }
+
+/* Scrollable result lists inside modals */
+.et-scroll-box { overflow-y: auto; }
+.et-scroll-14 { max-height: 14rem; }
+.et-scroll-16 { max-height: 16rem; }
+
+/* ---- Skeleton placeholders ---- */
+.et-skel-70 { width: 70%; }
+.et-skel-80 { width: 80%; }
+.et-skel-85 { width: 85%; }
+.et-skel-90 { width: 90%; }
+
+/* ---- Financial setup stepper ---- */
+.et-stepper-bar { width: clamp(22px, 4vw, 70px); height: 2px; }
+
+/* ---- Small font sizes for badges and icons ---- */
+.et-fs-05 { font-size: 0.5rem; }
+.et-fs-055 { font-size: 0.55rem; }
+.et-fs-07 { font-size: 0.7rem; }
+
+/* ---- Pointers ---- */
+.et-click { cursor: pointer; }
+
+/* ---- Legend and swatch colors (fixed palettes) ---- */
+.et-dot-income { background: var(--et-positive); }
+.et-dot-expense { background: var(--et-negative); }
+
+/* Swatches follow the fixed chart palettes. Dashboard palette comes from
+   DashboardHelper::DASHBOARD_CHART_COLORS (8 entries); the reports one from
+   ReportsHelper::CHART_COLORS (15 entries). Update both places together. */
+.et-swatch-d0 { background-color: #3b82f6; }
+.et-swatch-d1 { background-color: #f97316; }
+.et-swatch-d2 { background-color: #eab308; }
+.et-swatch-d3 { background-color: #16a34a; }
+.et-swatch-d4 { background-color: #a855f7; }
+.et-swatch-d5 { background-color: #ec4899; }
+.et-swatch-d6 { background-color: #06b6d4; }
+.et-swatch-d7 { background-color: #6b7280; }
+.et-swatch-r0 { background-color: #7FA7D8; }
+.et-swatch-r1 { background-color: #9B8BC4; }
+.et-swatch-r2 { background-color: #D48FA8; }
+.et-swatch-r3 { background-color: #D99A72; }
+.et-swatch-r4 { background-color: #D8B45C; }
+.et-swatch-r5 { background-color: #75B89B; }
+.et-swatch-r6 { background-color: #70B8C5; }
+.et-swatch-r7 { background-color: #8299C7; }
+.et-swatch-r8 { background-color: #8EAF8B; }
+.et-swatch-r9 { background-color: #B08FC2; }
+.et-swatch-r10 { background-color: #C8877D; }
+.et-swatch-r11 { background-color: #7FAFA8; }
+.et-swatch-r12 { background-color: #B59A7A; }
+.et-swatch-r13 { background-color: #8D9BB8; }
+.et-swatch-r14 { background-color: #C19A6B; }
+
+/* ---- Debt capacity meter thresholds (formerly inline custom props) ---- */
+.debt-capacity-meter { --debt-target: 30%; --debt-alert: 40%; }

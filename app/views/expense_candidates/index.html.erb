@@ -20,7 +20,7 @@
 </ul>
 
 <!-- Bulk action bar -->
-<div class="bulk-bar" id="bulkBar" role="region" aria-label="Acciones en lote" data-testid="bulk-bar" style="display: none;">
+<div class="bulk-bar d-none" id="bulkBar" role="region" aria-label="Acciones en lote" data-testid="bulk-bar">
   <strong id="bulkCount" aria-live="polite">0 <%= t("expense_candidates.selected", default: "seleccionados") %></strong>
   <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
     <i class="ti ti-tags me-1"></i><%= t("expense_candidates.change_category", default: "Cambiar Categoría") %>
@@ -42,7 +42,7 @@
       <table class="table table-hover ledger-table mb-0" data-testid="candidates-table">
         <thead class="table-light">
           <tr>
-            <th scope="col" style="width: 40px;">
+            <th scope="col" class="et-w-40px">
               <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all">
             </th>
             <th scope="col"><%= t("common.source", default: "Source") %></th>
@@ -167,104 +167,13 @@
   </div>
 </div>
 
-<script>
-  (function() {
-    var $ = function(sel) { return document.querySelector(sel); };
-    var $$ = function(sel) { return document.querySelectorAll(sel); };
+<%= tag.div class: "d-none", data: { candidates_table_payload: {
+      selected_label: t("expense_candidates.selected", default: "seleccionados"),
+      will_be_confirmed: t("expense_candidates.will_be_confirmed", default: "serán confirmados como gastos."),
+      will_be_discarded: t("expense_candidates.will_be_discarded", default: "serán descartados."),
+      discard_undo_hint: t("expense_candidates.discard_undo_hint", default: "Podrás verlos en la pestaña Descartados."),
+      bulk_discard_url: bulk_discard_expense_candidates_path,
+      creating_label: t("common.creating", default: "Creando...")
+} } %>
+<%= javascript_include_tag "expense_candidates_table", defer: true %>
 
-    function selectedIds() {
-      var seen = {};
-      Array.from($$("tr[data-id]"))
-        .filter(function(el) { var cb = el.querySelector(".row-check"); return cb && cb.checked; })
-        .forEach(function(el) { seen[el.dataset.id] = true; });
-      return Object.keys(seen);
-    }
-
-    function updateBulk() {
-      var n = selectedIds().length;
-      var has = n > 0;
-      var bar = $("#bulkBar");
-      if (bar) bar.style.display = has ? "flex" : "none";
-      if ($("#bulkCount")) $("#bulkCount").textContent = n + " <%= t('expense_candidates.selected', default: 'seleccionados') %>";
-      ["bulkCategory", "bulkSource", "bulkConfirm", "bulkDiscard"].forEach(function(id) {
-        var el = $("#" + id);
-        if (el) el.disabled = !has;
-      });
-    }
-
-    function openBulkConfirmModal(focusField) {
-      var ids = selectedIds();
-      if (!ids.length) return;
-      var n = ids.length;
-      var word = n === 1 ? "candidato" : "candidatos";
-      $("#bulkCandidateIds").value = ids.join(",");
-      $("#bulkConfirmDescription").textContent = n + " " + word + " <%= t('expense_candidates.will_be_confirmed', default: 'serán confirmados como gastos.') %>";
-      CategoryPicker.setValue($("#bulkCategorySelect"), "");
-      $("#bulkSourceSelect").value = "";
-      $("#confirmBulkSubmit").disabled = false;
-      var modal = bootstrap.Modal.getOrCreateInstance("#bulkConfirmModal");
-      modal.show();
-      if (focusField === "bulkCategorySelect") {
-        CategoryPicker.focus($("#bulkCategorySelect"));
-      } else if (focusField) {
-        document.getElementById(focusField).focus();
-      }
-    }
-
-    document.addEventListener("change", function(e) {
-      if (e.target.matches(".row-check, #selectAll")) {
-        if (e.target.id === "selectAll") {
-          Array.from($$(".row-check")).forEach(function(c) { c.checked = e.target.checked; });
-        }
-        updateBulk();
-      }
-    });
-
-    function bulkDiscardSelected() {
-      var ids = selectedIds();
-      if (!ids.length) return;
-      var n = ids.length;
-      var word = n === 1 ? "candidato" : "candidatos";
-      var message = n + " " + word + " <%= t('expense_candidates.will_be_discarded', default: 'serán descartados.') %> <%= t('expense_candidates.discard_undo_hint', default: 'Podrás verlos en la pestaña Descartados.') %>";
-      if (!window.confirm(message)) return;
-      var form = document.createElement("form");
-      form.method = "post";
-      form.action = "<%= bulk_discard_expense_candidates_path %>";
-      var csrf = document.querySelector('meta[name="csrf-token"]');
-      if (csrf) {
-        var csrfInput = document.createElement("input");
-        csrfInput.type = "hidden";
-        csrfInput.name = "authenticity_token";
-        csrfInput.value = csrf.content;
-        form.appendChild(csrfInput);
-      }
-      var idsInput = document.createElement("input");
-      idsInput.type = "hidden";
-      idsInput.name = "candidate_ids";
-      idsInput.value = ids.join(",");
-      form.appendChild(idsInput);
-      document.body.appendChild(form);
-      form.submit();
-    }
-
-    document.addEventListener("click", function(e) {
-      if (e.target.id === "bulkConfirm" || e.target.closest("#bulkConfirm")) {
-        openBulkConfirmModal();
-      } else if (e.target.id === "bulkCategory" || e.target.closest("#bulkCategory")) {
-        openBulkConfirmModal("bulkCategorySelect");
-      } else if (e.target.id === "bulkSource" || e.target.closest("#bulkSource")) {
-        openBulkConfirmModal("bulkSourceSelect");
-      } else if (e.target.id === "bulkDiscard" || e.target.closest("#bulkDiscard")) {
-        bulkDiscardSelected();
-      }
-    });
-
-    $("#bulkConfirmForm").addEventListener("submit", function() {
-      var btn = $("#confirmBulkSubmit");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><%= t("common.creating", default: "Creando...") %>';
-    });
-
-    updateBulk();
-  })();
-</script>

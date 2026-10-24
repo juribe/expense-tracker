@@ -16,7 +16,7 @@
           <div class="progress dashboard-progress mb-1" role="progressbar"
                aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
                aria-valuenow="<%= goal.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar bg-primary" style="width: <%= goal.progress_percentage.round %>%"></div>
+            <div class="progress-bar bg-primary et-w-<% goal.progress_percentage.round %>"></div>
           </div>
           <span class="text-secondary small num"><%= number_to_currency(goal.saved_amount) %> / <%= number_to_currency(goal.target_amount) %></span>
         </div>

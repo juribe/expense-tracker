@@ -10,13 +10,7 @@
 
     <%= yield :head %>
 
-    <script>
-      /* Back-paint the stored theme before CSS to avoid a light flash. */
-      try {
-        var t = localStorage.getItem("etTheme");
-        if (t) document.documentElement.setAttribute("data-bs-theme", t);
-      } catch (e) { /* noop */ }
-    </script>
+    <%= javascript_include_tag "theme_back_paint" %>
 
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -34,6 +28,7 @@
     <%= stylesheet_link_tag :financial_chat, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :reports, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "flatpickr/flatpickr.min.css", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :utilities, "data-turbo-track": "reload" %>
   </head>
 
   <body>
@@ -112,6 +107,8 @@
     <%= javascript_include_tag "statement_imports", defer: true %>
     <%= javascript_include_tag "imports_preview", defer: true %>
     <%= javascript_include_tag "extras", defer: true %>
+    <%= javascript_include_tag "click_delegates", defer: true %>
+    <%= javascript_include_tag "auto_submit", defer: true %>
     <%= javascript_include_tag "shell", defer: true %>
     <%= javascript_include_tag "actioncable", defer: true %>
     <%= javascript_include_tag "financial_chat", defer: true %>

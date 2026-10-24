@@ -18,8 +18,7 @@ module Statements
       @extractor = FakeExtractor.new({ ok?: true, data: default_data, error: nil })
     end
 
-    test "parses through the AI fallback and returns a canonical document" do
-      result = Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n2026-09-01,100"),
+    test "parses through the AI fallback and returns a canonical document" do      result = Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n2026-09-01,100"),
                                        filename: "extracto.csv", extractor: @extractor)
 
       assert result.success?
@@ -113,6 +112,16 @@ module Statements
       Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n1,2"),
                               filename: "extracto.csv", extractor: @extractor)
       assert_equal before, [ MoneySource.count, Transaction.count, ExpenseCandidate.count ]
+    end
+
+    test "rejects a file larger than the size limit" do
+      payload = "x" * (Expenses::Inputs::Rules::File::FILE_MAX_BYTES + 10)
+
+      result = Statements::Parser.call(user: @user, file_data: data_uri(payload),
+                                       filename: "extracto.csv", extractor: @extractor)
+
+      assert_not result.success?
+      assert_equal [ I18n.t("wizard.upload.file_too_large") ], result.errors
     end
 
     private

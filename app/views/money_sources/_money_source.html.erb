@@ -64,8 +64,8 @@
               <%= number_to_currency(source.used_credit) %>
               <span class="text-muted fw-normal fs-6"><%= t("money_sources.index.credit_of", limit: number_to_currency(source.credit_limit)) %></span>
             </div>
-            <div class="progress mt-2" role="progressbar" aria-label="<%= t("money_sources.index.used_credit") %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
-              <div class="progress-bar <%= credit_utilization_class(source.credit_utilization) %>" style="width: <%= [ source.credit_utilization, 100 ].min %>%"></div>
+            <div class="progress mt-2 et-progress-8" role="progressbar" aria-label="<%= t("money_sources.index.used_credit") %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar <%= credit_utilization_class(source.credit_utilization) %> et-w-<%= [ source.credit_utilization, 100 ].min.round %>"></div>
             </div>
             <div class="d-flex justify-content-between mt-2 small">
               <span class="text-muted"><%= t("money_sources.index.available_credit") %> <%= number_to_currency(source.available_credit) %></span>
@@ -89,8 +89,8 @@
           <div class="small text-muted mb-1"><%= t("money_sources.index.outstanding_balance") %></div>
           <div class="fs-5 fw-bold text-danger"><%= number_to_currency(source.outstanding_balance) %></div>
           <% if source.principal_amount.to_i > 0 %>
-            <div class="progress mt-2" role="progressbar" aria-label="<%= t("money_sources.index.outstanding_balance") %>" aria-valuenow="<%= source.repayment_progress %>" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
-              <div class="progress-bar bg-success" style="width: <%= [ 100 - source.repayment_progress, 0 ].max %>%"></div>
+            <div class="progress mt-2 et-progress-8" role="progressbar" aria-label="<%= t("money_sources.index.outstanding_balance") %>" aria-valuenow="<%= source.repayment_progress %>" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-success et-w-<%= [ 100 - source.repayment_progress, 0 ].max.round %>"></div>
             </div>
             <div class="d-flex justify-content-between mt-2 small">
               <span class="text-muted"><%= t("money_sources.index.original_amount") %> <%= number_to_currency(source.principal_amount) %></span>

@@ -35,8 +35,8 @@
               <strong class="stat-value-sm amt-pos"><%= money_amount(summary[:monthly_income].positive? ? summary[:monthly_income] : nil) %></strong>
             </div>
             <% if summary[:debt_ratio] %>
-              <div class="debt-capacity-meter" style="--debt-ratio: <%= [summary[:debt_ratio].to_f, 100].min %>%; --debt-target: 30%; --debt-alert: 40%" role="img" aria-label="Endeudamiento de <%= summary[:debt_ratio] %> por ciento">
-                <span class="debt-capacity-current" data-testid="debt-capacity-current" style="left: <%= [summary[:debt_ratio].to_f, 100].min %>%"><strong>Estás aquí: <%= number_to_percentage(summary[:debt_ratio], precision: 1) %></strong><i></i></span>
+              <div class="debt-capacity-meter" role="img" aria-label="Endeudamiento de <%= summary[:debt_ratio] %> por ciento">
+                <span class="debt-capacity-current et-left-<%= [summary[:debt_ratio].to_f, 100].min.round %>" data-testid="debt-capacity-current"><strong>Estás aquí: <%= number_to_percentage(summary[:debt_ratio], precision: 1) %></strong><i></i></span>
               </div>
               <div class="d-flex justify-content-between small text-secondary mt-2"><span class="amt-pos">Saludable ≤ 30%</span><span class="amt-attention">Precaución 30–40%</span><span class="amt-debt">Elevado &gt; 40%</span></div>
               <div class="debt-capacity-cash-flow mt-4" data-testid="debt-capacity-cash-flow">

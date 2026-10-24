@@ -56,6 +56,17 @@ module Expenses
       assert_equal "expenses-#{Date.today}.csv", CsvExporter.filename
     end
 
+    test "escapes text cells that could be interpreted as spreadsheet formulas" do
+      Expense.create!(user: @user, category: @category, amount: 5_000,
+                      description: '=HYPERLINK("https://evil.example")', date: Date.current,
+                      source: "manual", money_source: @account)
+
+      row = parsed_csv.last
+
+      assert_equal '\'=HYPERLINK("https://evil.example")', row[1]
+      assert_equal "Cuenta", row[4]
+    end
+
     private
 
     def parsed_csv

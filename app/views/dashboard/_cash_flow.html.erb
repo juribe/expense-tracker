@@ -7,8 +7,8 @@
     <% has_evolution = @cycle_summary[:evolution].any? { |point| point[:income].positive? || point[:expense].positive? } %>
     <% if has_evolution %>
       <div class="d-flex gap-3 mb-2 small text-secondary">
-        <span><span class="legend-dot" style="background: var(--et-positive)"></span> <%= t("dashboard.incomes", default: "Ingresos") %></span>
-        <span><span class="legend-dot" style="background: var(--et-negative)"></span> <%= t("dashboard.expenses", default: "Gastos") %></span>
+        <span><span class="legend-dot et-dot-income"></span> <%= t("dashboard.incomes", default: "Ingresos") %></span>
+        <span><span class="legend-dot et-dot-expense"></span> <%= t("dashboard.expenses", default: "Gastos") %></span>
       </div>
       <%= area_chart [
                        { name: t("dashboard.incomes", default: "Ingresos"), data: @cycle_summary[:evolution].map { |point| [ point[:date], point[:income] ] } },

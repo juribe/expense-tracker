@@ -9,6 +9,25 @@ class AiRequest < ApplicationRecord
 
   belongs_to :user, optional: true
 
+  include EncryptedSecret
+  # Telemetry rows carry full conversation content: encrypted at rest with
+  # the app secret, same scheme as the OAuth tokens. The prompt keeps its
+  # array-of-messages shape through a JSON roundtrip (jsonb typing).
+  encrypts_secret :output
+
+  def prompt
+    raw = decrypt_secret(self[:prompt])
+    return nil if raw.blank?
+
+    JSON.parse(raw)
+  rescue JSON::ParserError
+    raw
+  end
+
+  def prompt=(value)
+    self[:prompt] = value.nil? ? nil : encrypt_secret(JSON.generate(value))
+  end
+
   validates :task, presence: true
   validates :strategy, presence: true, inclusion: { in: STRATEGIES }
   validates :status, presence: true, inclusion: { in: STATUSES }

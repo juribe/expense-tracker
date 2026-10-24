@@ -73,6 +73,8 @@ class MoneySource < ApplicationRecord
   validates :sub_kind, inclusion: { in: SUB_KINDS }, allow_blank: true
   validates :starting_balance, numericality: true
   validate :institution_belongs_to_owner, if: :institution?
+  validate :parent_belongs_to_user
+  validate :parent_must_not_be_self
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
@@ -393,6 +395,21 @@ class MoneySource < ApplicationRecord
     return if institution_type == "CustomFinancialInstitution" && institution&.user_id == user_id
 
     errors.add(:institution, :foreign_or_missing)
+  end
+
+  # A debit card rolls its movements up to the parent account: a foreign
+  # parent would route BalanceSync writes into another user's balance.
+  def parent_belongs_to_user
+    return if user_id.nil? || parent.nil?
+    return if parent.user_id == user_id
+
+    errors.add(:parent, :other_user)
+  end
+
+  def parent_must_not_be_self
+    return if parent_id.blank? || id.blank?
+
+    errors.add(:parent, :invalid) if parent_id == id
   end
 
   def init_cached_balance_from_starting_balance

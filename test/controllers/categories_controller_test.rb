@@ -145,4 +145,62 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     post categories_path, params: { category: { name: "Phones", parent_id: parent.id, category_type: "expense" } }
     assert_equal parent, Category.last.parent
   end
+
+  test "GET /categories/:id renders the show of an own custom category" do
+    category = Category.create!(name: "Propia", user: @user, is_default: false, category_type: "expense")
+
+    get category_path(category)
+
+    assert_response :success
+    assert_select "h4", text: /Propia/
+  end
+
+  test "GET /categories/:id renders a shared default category" do
+    category = Category.create!(name: "Compartida", is_default: true, category_type: "expense")
+
+    get category_path(category)
+
+    assert_response :success
+    assert_select "h4", text: /Compartida/
+  end
+
+  test "GET /categories/:id does not reveal another user's custom category" do
+    other = User.create!(name: "Other", email: "categories_foreign_show@example.com", password: "password123")
+    foreign = Category.create!(name: "Privada Ajena", user: other, is_default: false,
+                               category_type: "expense")
+
+    get category_path(foreign)
+
+    assert_redirected_to categories_path
+    assert_equal I18n.t("category_messages.not_found"), flash[:alert]
+  end
+
+  test "POST /categories rejects a foreign custom parent" do
+    other_user = User.create!(name: "Other", email: "categories_foreign_parent@example.com", password: "password123")
+    foreign_parent = Category.create!(name: "Padre Ajeno", user: other_user, is_default: false,
+                                      category_type: "expense")
+
+    assert_no_difference "Category.count" do
+      post categories_path, params: {
+        category: { name: "Hija", parent_id: foreign_parent.id, category_type: "expense" }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "PATCH /categories/:id rejects changing the parent to a foreign category" do
+    own_parent = Category.create!(name: "Padre Propio", user: @user, is_default: false, category_type: "expense")
+    child = Category.create!(name: "Hija", user: @user, is_default: false, category_type: "expense",
+                             parent: own_parent)
+    other_user = User.create!(name: "Other", email: "categories_foreign_parent_update@example.com",
+                              password: "password123")
+    foreign_parent = Category.create!(name: "Padre Ajeno", user: other_user, is_default: false,
+                                      category_type: "expense")
+
+    patch category_path(child), params: { category: { parent_id: foreign_parent.id } }
+
+    assert_response :unprocessable_entity
+    assert_equal own_parent, child.reload.parent
+  end
 end

@@ -79,8 +79,8 @@
         <div class="text-secondary small mb-1"><%= t("financial_summary.card_utilization") %></div>
         <% if @summary[:debt][:utilization_pct] %>
           <div class="d-flex align-items-center gap-2">
-            <div class="progress flex-grow-1" style="height: 8px;">
-              <div class="progress-bar bg-primary" style="width: <%= @summary[:debt][:utilization_pct] %>%;" role="progressbar"
+            <div class="progress flex-grow-1 et-progress-8">
+              <div class="progress-bar bg-primary et-w-<%= @summary[:debt][:utilization_pct].round %>" role="progressbar"
                    aria-valuenow="<%= @summary[:debt][:utilization_pct] %>" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
             <span class="fw-semibold small"><%= @summary[:debt][:utilization_pct] %>%</span>

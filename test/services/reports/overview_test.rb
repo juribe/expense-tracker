@@ -12,6 +12,8 @@ class ReportsOverviewTest < ActiveSupport::TestCase
     @card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @savings = @user.money_sources.create!(name: "Ahorros", kind: "account", active: true, starting_balance: 1_000_000_000)
+    @other_bank = @other.money_sources.create!(name: "Other Bank", kind: "account", active: true,
+                                               starting_balance: 1_000_000_000)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
     @filter = Reports::Filter.new(user: @user, period: @period)
   end
@@ -41,7 +43,7 @@ class ReportsOverviewTest < ActiveSupport::TestCase
     income(2_000_000, date: Date.new(2026, 8, 5))
     expense(-1_200_000)
     expense(-300_000)
-    expense(-999, user: @other)
+    expense(-999, user: @other, source: @other_bank)
 
     data = overview
 

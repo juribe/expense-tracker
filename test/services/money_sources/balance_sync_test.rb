@@ -138,5 +138,20 @@ module MoneySources
 
       assert_equal BigDecimal("270"), source.reload.cached_balance
     end
+
+    test "does not write to a parent owned by another user" do
+      other_user = User.create!(name: "Other", email: "balance_sync_foreign_parent@example.com",
+                                password: "password123")
+      foreign_account = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account",
+                                                         starting_balance: 5_000_000)
+      card = create_source(name: "Débito", kind: "debit_card")
+      card.update_column(:parent_id, foreign_account.id)
+      foreign_before = foreign_account.reload.cached_balance
+
+      create_expense(card, 250)
+
+      assert_equal foreign_before, foreign_account.reload.cached_balance
+      assert_equal 750.to_d, card.reload.cached_balance
+    end
   end
 end

@@ -19,6 +19,8 @@ class TransactionRule < ApplicationRecord
   validate :at_least_one_condition
   validate :at_least_one_action
   validate :condition_and_action_values_valid
+  validate :category_belongs_to_user
+  validate :money_sources_belong_to_user
 
   scope :active, -> { where(enabled: true) }
   scope :for_user, ->(user) { where(user_id: user.id) }
@@ -137,5 +139,27 @@ class TransactionRule < ApplicationRecord
   def condition_and_action_values_valid
     errors.add(:merchant_contains, "can't be blank") if merchant_contains.present? && merchant_contains.strip.blank?
     errors.add(:description_contains, "can't be blank") if description_contains.present? && description_contains.strip.blank?
+  end
+
+  # Shared categories carry no owner (defaults) and belong to both scopes.
+  def category_belongs_to_user
+    return if user_id.nil? || category.nil? || category.user_id.nil?
+    return if category.user_id == user_id
+
+    errors.add(:category, :other_user)
+  end
+
+  # Both rule references act on the user's transactions: a foreign source
+  # would route BalanceSync writes into another account when applied.
+  def money_sources_belong_to_user
+    return if user_id.nil?
+
+    if money_source_condition && money_source_condition.user_id != user_id
+      errors.add(:money_source_condition, :other_user)
+    end
+
+    return if action_money_source.nil? || action_money_source.user_id == user_id
+
+    errors.add(:action_money_source, :other_user)
   end
 end

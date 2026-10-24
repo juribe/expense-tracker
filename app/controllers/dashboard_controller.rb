@@ -1,6 +1,12 @@
 class DashboardController < ApplicationController
   before_action :authenticate_user!
 
+  # Chartkick/Chart.js render charts with inline styles; only the chart
+  # dashboard relaxes the strict global style-src (see the CSP initializer).
+  content_security_policy do |policy|
+    policy.style_src :self, "https://fonts.googleapis.com", :unsafe_inline
+  end
+
   def index
     load_dashboard
   rescue ArgumentError

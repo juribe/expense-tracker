@@ -23,9 +23,11 @@ module Expenses
 
     test "never touches another user's expense even if its id is passed" do
       other = User.create!(name: "Otto", email: "other_bd@example.com", password: "password123")
+      other_category = Category.create!(name: "Ajena", user: other, is_default: false, category_type: "expense")
+      other_source = other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 100_000)
       foreign = Expense.create!(
-        user: other, category: @category, amount: 500, description: "Ajeno",
-        date: Date.current, source: "manual", money_source: @money_source
+        user: other, category: other_category, amount: 500, description: "Ajeno",
+        date: Date.current, source: "manual", money_source: other_source
       )
 
       result = BulkDestroy.call(user: @user, ids: [foreign.id])

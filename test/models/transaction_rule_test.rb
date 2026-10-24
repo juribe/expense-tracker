@@ -273,4 +273,45 @@ class TransactionRuleTest < ActiveSupport::TestCase
     assert_equal @transport.id, expense.category_id
     assert_empty expense.applied_rule_ids
   end
+
+  test "a foreign category is invalid" do
+    other_user = User.create!(name: "Other", email: "rule_foreign_category@example.com", password: "password123")
+    foreign_category = Category.create!(name: "Ajena Regla", is_default: false, category_type: "expense",
+                                        user: other_user)
+    rule = TransactionRule.new(user: @user, merchant_contains: "AJENA", category_id: foreign_category.id)
+
+    assert_not rule.valid?
+    assert_includes rule.errors[:category], I18n.t("activerecord.errors.messages.other_user")
+  end
+
+  test "a shared category is valid" do
+    rule = create_rule
+
+    assert rule.valid?
+    assert_equal @fitness, rule.category
+  end
+
+  test "foreign money sources are invalid" do
+    other_user = User.create!(name: "Other", email: "rule_foreign_source@example.com", password: "password123")
+    foreign_condition = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account")
+    foreign_action = other_user.money_sources.create!(name: "Tarjeta Ajena", kind: "credit_card")
+    rule = TransactionRule.new(user: @user, merchant_contains: "X",
+                               money_source_condition_id: foreign_condition.id,
+                               action_money_source_id: foreign_action.id)
+
+    assert_not rule.valid?
+    assert_includes rule.errors[:money_source_condition], I18n.t("activerecord.errors.messages.other_user")
+    assert_includes rule.errors[:action_money_source], I18n.t("activerecord.errors.messages.other_user")
+  end
+
+  test "an own category with own money sources is valid" do
+    own_category = Category.create!(name: "Propia Regla", is_default: false, category_type: "expense", user: @user)
+    own_condition = @user.money_sources.create!(name: "Cuenta Regla", kind: "account")
+    own_action = @user.money_sources.create!(name: "Tarjeta Regla", kind: "credit_card")
+    rule = TransactionRule.new(user: @user, merchant_contains: "PROPIA", category_id: own_category.id,
+                               money_source_condition_id: own_condition.id,
+                               action_money_source_id: own_action.id)
+
+    assert rule.valid?
+  end
 end

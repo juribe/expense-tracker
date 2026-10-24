@@ -51,7 +51,7 @@
       <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-start gap-3">
           <div class="d-flex align-items-center gap-3">
-            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 56px; height: 56px;">
+            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0 et-chip-56">
               <i class="ti ti-<%= source_kind_icon(source["kind"]) %> fs-4"></i>
             </div>
             <div>
@@ -197,28 +197,5 @@
   </div>
 <% end %>
 
-<script>
-(function () {
-  // Delegated on document so it works no matter how the page was rendered
-  // (full load or Turbo visit) — per-element DOMContentLoaded listeners were
-  // missing the first click after Turbo restores/renders the page. The window
-  // guard keeps the handler from being attached twice.
-  if (window.__importRemoveBound) return;
-  window.__importRemoveBound = true;
+<%= javascript_include_tag "financial_setup_import_review", defer: true %>
 
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.import-remove');
-    if (!btn) return;
-
-    var msg = btn.dataset.confirm || 'Remove this account?';
-    if (!window.confirm(msg)) return;
-
-    // Hide the account card and clear its keep field so it's dropped on confirm.
-    var card = btn.closest('.card');
-    if (!card) return;
-    card.classList.add('d-none');
-    var keepInput = card.querySelector('input[name^="keep["]');
-    if (keepInput) keepInput.value = '';
-  });
-})();
-</script>

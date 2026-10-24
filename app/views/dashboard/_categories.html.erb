@@ -21,7 +21,7 @@
     <ul class="list-unstyled mb-0 mt-3 donut-legend">
       <% ranked_categories.each_with_index do |category, index| %>
         <li class="d-flex align-items-center gap-2 mb-1">
-          <span class="legend-dot" style="background: <%= palette[index] %>"></span>
+          <span class="legend-dot et-swatch-d<%= index %>"></span>
           <span class="small flex-grow-1"><%= category[:name] %></span>
           <span class="small fw-bold num">
             <% if @cycle_summary[:expense_total].to_f.positive? %>

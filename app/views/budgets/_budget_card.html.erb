@@ -41,7 +41,7 @@
 
     <div class="budget-progress mb-3">
       <div class="progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= pct.round %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= budget_status_class(status) %>" style="width: <%= [ pct, 100 ].min %>%"></div>
+        <div class="progress-bar <%= budget_status_class(status) %> et-w-<% [ pct, 100 ].min.round %>"></div>
       </div>
     </div>
 

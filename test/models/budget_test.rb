@@ -125,7 +125,10 @@ class BudgetTest < ActiveSupport::TestCase
   test "spent_for ignores expenses from other users" do
     budget = create_budget
     other_user = User.create!(name: "Other", email: "budget_spent_other@example.com", password: "password123")
-    Expense.create!(user: other_user, category: @category, amount: 900_000, date: @month, money_source: @money_source)
+    other_category = Category.create!(name: "Ajena", user: other_user, is_default: false, category_type: "expense")
+    other_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
+    Expense.create!(user: other_user, category: other_category, amount: 900_000, date: @month,
+                    money_source: other_source)
 
     assert_equal 0, budget.spent_for(@month)
   end

@@ -17,6 +17,8 @@ class RecurringTemplate < ApplicationRecord
   validates :payment_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 31 },
             allow_nil: true
+  validate :category_belongs_to_user
+  validate :money_source_belongs_to_user
 
   scope :for_user, ->(user) { where(user_id: user.id) }
   scope :active, -> { where(active: true) }
@@ -103,6 +105,24 @@ class RecurringTemplate < ApplicationRecord
     return if amount.nil?
 
     self.amount = amount.to_s.delete(",").to_d.abs
+  end
+
+  # Shared categories carry no owner (defaults) and belong to both scopes:
+  # a foreign custom category would leak the other account's data here.
+  def category_belongs_to_user
+    return if user_id.nil? || category.nil? || category.user_id.nil?
+    return if category.user_id == user_id
+
+    errors.add(:category, :other_user)
+  end
+
+  # Only the owner's sources may be remembered: processing the template
+  # would otherwise route the transaction at a foreign account.
+  def money_source_belongs_to_user
+    return if user_id.nil? || money_source.nil?
+    return if money_source.user_id == user_id
+
+    errors.add(:money_source, :other_user)
   end
 
   # Periods come in three shapes: a pay cycle (PayCycle::Cycle), an explicit

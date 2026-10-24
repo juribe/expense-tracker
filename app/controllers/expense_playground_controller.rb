@@ -11,6 +11,12 @@
 class ExpensePlaygroundController < ApplicationController
   before_action :set_categories, only: :show
 
+  # AI-billed pipeline: keep a per-IP ceiling on every processing trigger so
+  # costs stay bounded; create/batch_create stay below the same limit.
+  rate_limit to: 30, within: 1.minute,
+              only: [ :run, :process_file, :batch_create, :create ],
+              store: RateLimitProxy.new
+
   def show; end
 
   # POST /expense-playground/process
@@ -22,7 +28,8 @@ class ExpensePlaygroundController < ApplicationController
     return render_invalid_input(input) unless input.valid?
 
     result = Expenses::Processor.call(user: current_user, input: input, recording: Expenses::Processors::Recording.new, source: "playground")
-    puts "[expense_playground] run result: ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{result.candidates&.as_json} errors=#{result.errors} warnings=#{result.warnings}"
+    # Metrics only: never log the candidates (financial data) nor the raw input.
+    Rails.logger.info "[expense_playground] run ok=#{result.ok?} engine=#{result.engine} duration_ms=#{result.duration_ms} candidates=#{(result.candidates || []).size}"
     run_record = persist_run(input, result)
 
     candidates = result.candidates || []

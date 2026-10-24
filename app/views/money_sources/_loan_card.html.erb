@@ -64,7 +64,7 @@
         <span class="loan-progress-pct"><%= t("money_sources.loans.repaid", pct: paid_pct) %></span>
       </div>
       <div class="progress" role="progressbar" aria-label="<%= t("money_sources.loans.repaid", pct: paid_pct) %>" aria-valuenow="<%= paid_pct %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar" style="width: <%= [ paid_pct, 100 ].min %>%"></div>
+        <div class="progress-bar et-w-<% [ paid_pct, 100 ].min.round %>"></div>
       </div>
     </div>
   <% end %>

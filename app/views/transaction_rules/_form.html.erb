@@ -1,4 +1,4 @@
-<div class="container py-4" style="max-width: 720px;">
+<div class="container py-4 et-maxw-720">
   <%= form_with(model: rule, local: true, html: { novalidate: false }) do |form| %>
     <div class="card border-0">
       <div class="card-header">
@@ -130,34 +130,4 @@
   <% end %>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var conditionField = document.getElementById('condition_field');
-    var actionField = document.getElementById('action_field');
-    var conditionInputs = document.querySelectorAll('[data-condition-input]');
-    var actionInputs = document.querySelectorAll('[data-action-input]');
-
-    function syncCondition() {
-      if (!conditionField) return;
-      var active = conditionField.value;
-      conditionInputs.forEach(function(el) {
-        var on = el.getAttribute('data-condition-input') === active;
-        el.classList.toggle('d-none', !on);
-      });
-    }
-
-    function syncAction() {
-      if (!actionField) return;
-      var active = actionField.value;
-      actionInputs.forEach(function(el) {
-        var on = el.getAttribute('data-action-input') === active;
-        el.classList.toggle('d-none', !on);
-      });
-    }
-
-    if (conditionField) conditionField.addEventListener('change', syncCondition);
-    if (actionField) actionField.addEventListener('change', syncAction);
-    syncCondition();
-    syncAction();
-  });
-</script>
+<%= javascript_include_tag "transaction_rule_form", defer: true %>

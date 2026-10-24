@@ -41,7 +41,9 @@ class SpendingAlertServiceTest < ActiveSupport::TestCase
     create_expense(400_000, date: @current_month.beginning_of_month)
     create_expense(1_000, category: Category.create!(name: "Otra_#{SecureRandom.hex(4)}", category_type: "expense", user: @user))
     create_expense(1_000, date: @current_month.prev_month)
-    create_expense(1_000, user: User.create!(name: "Other", email: "other_#{SecureRandom.hex(4)}@example.com", password: "password123"))
+    other = User.create!(name: "Other", email: "other_#{SecureRandom.hex(4)}@example.com", password: "password123")
+    other_category = Category.create!(name: "Otra_#{SecureRandom.hex(4)}", category_type: "expense", user: other)
+    create_expense(1_000, user: other, category: other_category)
 
     assert_equal 800_000.to_d, CategorySpend.call(user: @user, category: @category, month: @current_month)
   end

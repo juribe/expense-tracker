@@ -18,7 +18,7 @@
       <div class="progress mb-1" role="progressbar"
            aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
            aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= goal_health_progress_class(goal) %>" style="width: <%= progress %>%"></div>
+        <div class="progress-bar <%= goal_health_progress_class(goal) %> et-w-<% progress.round %>"></div>
       </div>
       <p class="text-muted small mb-3"><%= number_to_percentage(progress, precision: 0) %></p>
 

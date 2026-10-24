@@ -11,6 +11,7 @@ class ReportsTransfersTest < ActiveSupport::TestCase
     @loan = @user.money_sources.create!(name: "Rotativo", kind: "loan", active: true)
     @other = User.create!(name: "Other", email: "reports_transfers_other@example.com", password: "password123")
     @other_bank = @other.money_sources.create!(name: "Other Bank", kind: "account", active: true, starting_balance: 1_000_000_000)
+    @other_card = @other.money_sources.create!(name: "Other Card", kind: "credit_card", active: true)
     @period = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
     @filter = Reports::Filter.new(user: @user, period: @period)
   end
@@ -27,7 +28,7 @@ class ReportsTransfersTest < ActiveSupport::TestCase
     transfer(from: @bank, to: @savings, amount: 1_000_000)
     transfer(from: @loan, to: @bank, amount: 3_000_000)
     transfer(from: @bank, to: @card, amount: 2_000_000)
-    transfer(from: @other_bank, to: @card, amount: 7_000_000, user: @other)
+    transfer(from: @other_bank, to: @other_card, amount: 7_000_000, user: @other)
 
     data = report
 

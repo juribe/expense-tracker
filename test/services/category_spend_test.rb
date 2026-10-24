@@ -45,9 +45,11 @@ class CategorySpendTest < ActiveSupport::TestCase
   test "ignores expenses of other users and categories" do
     other_user = User.create!(name: "Other", email: "spend_other_#{SecureRandom.hex(4)}@example.com", password: "password123")
     other_category = Category.create!(name: "Otro_#{SecureRandom.hex(4)}", category_type: "expense", user: @user)
+    other_user_category = Category.create!(name: "OtroUsuario_#{SecureRandom.hex(4)}", category_type: "expense",
+                                           user: other_user)
 
     create_expense(100_000)
-    create_expense(777_777, user: other_user)
+    create_expense(777_777, user: other_user, category: other_user_category)
     create_expense(888_888, category: other_category)
 
     assert_equal 100_000.to_d, CategorySpend.call(user: @user, category: @category, month: @month)

@@ -34,6 +34,14 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     assert_match /reglas? habilitad/, response.body
   end
 
+  test "rule toggle switches submit through data-auto-submit, not inline handlers" do
+    create_rule
+    get transaction_rules_path
+
+    assert_select "input[type=checkbox][data-auto-submit]"
+    assert_not response.body.include?("onchange=\"this.form.submit()\"")
+  end
+
   test "index shows native suggestion from transaction history" do
     5.times do
       Expense.create!(user: @user, category: @fitness, amount: 50_000, date: Date.current,

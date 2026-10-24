@@ -43,6 +43,37 @@ class WhatsappWebhookControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "GET verify fails without a configured token" do
+    with_env("WHATSAPP_VERIFY_TOKEN" => nil) do
+      get webhooks_whatsapp_path, params: {
+        "hub.mode" => "subscribe",
+        "hub.verify_token" => "anything",
+        "hub.challenge" => "challenge_abc"
+      }
+    end
+
+    assert_response :forbidden
+  end
+
+  test "POST webhook returns 401 without a configured secret" do
+    with_env("FB_APP_SECRET" => nil) do
+      post webhooks_whatsapp_path, params: @payload, headers: { "Content-Type" => "application/json" }
+    end
+
+    assert_response :unauthorized
+  end
+
+  test "POST webhook rejects an oversized payload" do
+    oversized = "x" * 1_100_000
+
+    with_env("FB_APP_SECRET" => APP_SECRET) do
+      post webhooks_whatsapp_path, params: oversized,
+                                   headers: { "Content-Type" => "application/json" }
+    end
+
+    assert_equal 413, response.status
+  end
+
   test "POST webhook returns 401 without signature header" do
     with_env("FB_APP_SECRET" => APP_SECRET) do
       post webhooks_whatsapp_path, params: @payload, headers: { "Content-Type" => "application/json" }
@@ -62,12 +93,41 @@ class WhatsappWebhookControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test "POST webhook rate limits after 30 posts in a minute" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    signature = "sha256=" + OpenSSL::HMAC.hexdigest("SHA256", APP_SECRET, @payload)
+
+    begin
+      with_env("FB_APP_SECRET" => APP_SECRET) do
+        with_active_job_adapter(:test) do
+          30.times do
+            post webhooks_whatsapp_path, params: @payload, headers: {
+              "Content-Type" => "application/json",
+              "X-Hub-Signature-256" => signature
+            }
+            assert_response :ok
+          end
+
+          post webhooks_whatsapp_path, params: @payload, headers: {
+            "Content-Type" => "application/json",
+            "X-Hub-Signature-256" => signature
+          }
+        end
+      end
+
+      assert_equal 429, response.status
+    ensure
+      Rails.cache = original_cache
+    end
+  end
+
   test "POST webhook with valid signature enqueues the raw body and returns 200" do
     with_env("FB_APP_SECRET" => APP_SECRET, "WHATSAPP_VERIFY_TOKEN" => VERIFY_TOKEN) do
       signature = "sha256=" + OpenSSL::HMAC.hexdigest("SHA256", APP_SECRET, @payload)
 
       with_active_job_adapter(:test) do
-        assert_enqueued_with(job: WhatsappWebhookJob, args: [@payload]) do
+        assert_enqueued_with(job: WhatsappWebhookJob, args: [ @payload ]) do
           post webhooks_whatsapp_path, params: @payload, headers: {
             "Content-Type" => "application/json",
             "X-Hub-Signature-256" => signature

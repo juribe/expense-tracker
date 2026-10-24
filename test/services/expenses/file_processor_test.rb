@@ -58,13 +58,22 @@ module Expenses
       "data:application/pdf;base64,#{Base64.strict_encode64(out)}"
     end
 
-    def stub_pdf_extraction(sources:, transactions:)
-      fake_extractor = Class.new do
-        define_method(:call) { |text:, today: nil| { ok?: true, data: { sources: sources, transactions: transactions }, error: nil } }
-      end.new
+  def stub_pdf_extraction(sources:, transactions:)
+    fake_extractor = Class.new do
+      define_method(:call) { |text:, today: nil| { ok?: true, data: { sources: sources, transactions: transactions }, error: nil } }
+    end.new
 
-      stub_method(Ai::StatementExtractor, :new, ->(*) { fake_extractor }) { yield }
-    end
+    stub_method(Ai::StatementExtractor, :new, ->(*) { fake_extractor }) { yield }
+  end
+
+  test "rejects a file larger than the size limit" do
+    payload = "data:text/csv;base64,#{Base64.strict_encode64('x' * (Expenses::Inputs::Rules::File::FILE_MAX_BYTES + 10))}"
+
+    result = FileProcessor.call(user: @user, file_data: payload, filename: "big.csv")
+
+    assert_not result.ok?
+    assert_includes result.errors, I18n.t("wizard.upload.file_too_large")
+  end
 
     test "assigns the statement source to every candidate when its account number matches a money source" do
       source = MoneySource.create!(user: @user, name: "Cuenta Davibank", kind: "account",

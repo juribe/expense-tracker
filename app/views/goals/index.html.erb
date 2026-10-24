@@ -26,7 +26,8 @@
 <%# Assign-to-goal modal: reserves pocket money for one goal. It is not a
     money movement — the amount stays inside the pocket, only its purpose
     changes. Fed by the per-card buttons. %>
-<div class="modal fade" id="assign-to-goal-modal" tabindex="-1" aria-labelledby="assign-to-goal-modal-title" aria-hidden="true">
+<div class="modal fade" id="assign-to-goal-modal" tabindex="-1" aria-labelledby="assign-to-goal-modal-title" aria-hidden="true"
+     data-unallocated-label="<%= t("goals.unallocated_label", default: "No asignado") %>">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path, local: true do |f| %>
@@ -73,19 +74,4 @@
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var modal = document.getElementById('assign-to-goal-modal');
-  if (!modal) return;
-  modal.addEventListener('show.bs.modal', function(event) {
-    var button = event.relatedTarget;
-    if (!button) return;
-    document.getElementById('assign-to-goal-id').value = button.getAttribute('data-assign-goal');
-    document.getElementById('assign-to-goal-pocket-name').textContent = button.getAttribute('data-assign-pocket-name');
-    document.getElementById('assign-to-goal-unallocated').textContent =
-      '<%= t("goals.unallocated_label", default: "No asignado") %>: ' + button.getAttribute('data-assign-unallocated');
-    document.getElementById('assign-to-goal-modal-title').innerHTML =
-      '<i class="ti ti-pig-money me-2"></i>' + button.getAttribute('data-assign-goal-name');
-  });
-});
-</script>
+  <%= javascript_include_tag "goal_assignments", defer: true %>

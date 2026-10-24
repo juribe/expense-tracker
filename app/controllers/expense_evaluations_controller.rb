@@ -4,6 +4,10 @@
 # datasets through the existing Expense Playground pipeline with a single
 # provider/model override and record results for review.
 class ExpenseEvaluationsController < ApplicationController
+  # Each run bills AI calls across the whole dataset: keep the trigger rate
+  # slow, retries flow through the same endpoint.
+  rate_limit to: 10, within: 1.minute, only: :start, store: RateLimitProxy.new
+
   # GET /expense-evaluations
   def index
     @categories = Category.for_user(current_user).expenses.order(:name)

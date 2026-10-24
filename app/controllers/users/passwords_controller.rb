@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Users::PasswordsController < Devise::PasswordsController
+  # Recovery mail is free to trigger: a per-IP ceiling stops an email flood.
+  rate_limit to: 5, within: 1.minute, only: :create, store: RateLimitProxy.new
   # Keep Devise's email-sending/token logic but render an inline success
   # confirmation on the Forgot Password screen instead of redirecting.
   def create

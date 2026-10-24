@@ -180,6 +180,33 @@ class MoneySourceTest < ActiveSupport::TestCase
     assert_nil card.reload.parent_id
   end
 
+  test "a parent owned by another user is invalid" do
+    other_user = User.create!(name: "Other", email: "money_source_foreign_parent@example.com",
+                              password: "password123")
+    foreign_account = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account",
+                                                       starting_balance: 1_000_000)
+
+    card = MoneySource.new(user: @user, name: "Débito", kind: "debit_card", parent: foreign_account)
+
+    assert_not card.valid?
+    assert_includes card.errors[:parent], I18n.t("activerecord.errors.messages.other_user")
+  end
+
+  test "a parent owned by the same user is valid" do
+    account = create_source(name: "Cuenta Propia", kind: "account")
+    card = create_source(name: "Débito", kind: "debit_card", parent: account)
+
+    assert card.valid?
+    assert_equal account, card.parent
+  end
+
+  test "a money source cannot be its own parent" do
+    source = create_source(name: "Solo", kind: "account")
+    source.parent_id = source.id
+
+    assert_not source.valid?
+  end
+
   test "loan is a supported kind" do
     assert_includes MoneySource::KINDS, "loan"
     loan = create_source(name: "Car Loan", kind: "loan")

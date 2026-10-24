@@ -17,7 +17,11 @@ module MoneySources
 
         delta = delta.to_d
         # Debit cards are not independent: their movements live on the parent.
-        targets = source.debit_card? && source.parent ? [ source.parent ] : [ source ]
+        # Only the owner's parent ever receives the delta; a legacy or forged
+        # foreign parent link falls back to the source itself so another
+        # user's balance is never written.
+        parent = source.parent
+        targets = source.debit_card? && parent && parent.user_id == source.user_id ? [ parent ] : [ source ]
 
         MoneySource.where(id: targets.map(&:id))
                    .update_all([ "cached_balance = cached_balance + ?", delta ])
