@@ -35,6 +35,16 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "profile chrome shows the user name once with the email below it" do
+    @user.update!(name: "José Uribe")
+
+    get transfers_path
+    assert_response :success
+    assert_select ".sidebar-profile-name", text: "José Uribe"
+    assert_select ".sidebar-profile-email", text: @user.email
+    assert_select ".et-maxw-14rem", text: "José Uribe"
+  end
+
   test "GET /transfers shows empty state when no transfers" do
     get transfers_path
     assert_response :success

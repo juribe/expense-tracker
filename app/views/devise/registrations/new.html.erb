@@ -62,3 +62,7 @@
   <%= t("auth.sign_in_prompt") %>
   <%= link_to t("auth.log_in"), new_session_path(resource_name) %>
 </p>
+
+<div class="auth-links">
+  <%= render "devise/shared/secondary_links" %>
+</div>

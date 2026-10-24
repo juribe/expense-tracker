@@ -7,6 +7,7 @@ require "test_helper"
 class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(name: "Login User", email: "users_sessions_test@example.com", password: "password123")
+    @user.confirm
   end
 
   test "POST rate limits the sign-in attempt after 100 posts in a minute" do

@@ -101,6 +101,7 @@ module ActiveSupport
     prepend SlowTestTiming if ENV["SLOW_PROBE"] == "1"
 
     def sign_in_as(user)
+      user.confirm if user.respond_to?(:confirm) && user.respond_to?(:confirmed?) && !user.confirmed?
       post user_session_path, params: { user: { email: user.email, password: "password123" } }
     end
 
@@ -169,5 +170,22 @@ end
 module ActionDispatch
   class IntegrationTest
     prepend BulletIntegrationHook
+  end
+end
+
+# With email confirmation enabled, test users created in setups must be confirmed
+# before they can authenticate. Confirm them transparently when tests call
+# Devise's sign_in helper so existing suites keep passing; direct session POSTs
+# (which exercise the real authentication path) are unaffected.
+module Devise
+  module Test
+    module IntegrationHelpers
+      alias_method :__original_sign_in, :sign_in unless method_defined?(:__original_sign_in)
+
+      def sign_in(resource, scope: nil)
+        resource.confirm if resource.respond_to?(:confirm) && resource.respond_to?(:confirmed?) && !resource.confirmed?
+        __original_sign_in(resource, scope: scope)
+      end
+    end
   end
 end

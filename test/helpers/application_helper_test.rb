@@ -25,6 +25,23 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal({ prefix: "$", thousands: ".", decimal: ",", round: 0 }, chart_money_options)
   end
 
+  test "user_display_name prefers the stored name over the email local part" do
+    assert_equal "José Uribe", user_display_name(User.new(name: "José Uribe", email: "jse.uribe@gmail.com"))
+  end
+
+  test "user_display_name falls back to the email local part when the name is blank" do
+    assert_equal "jse.uribe", user_display_name(User.new(name: "", email: "jse.uribe@gmail.com"))
+  end
+
+  test "user_initials takes the first letters of the first two name words" do
+    assert_equal "JU", user_initials(User.new(name: "José Uribe", email: "jse.uribe@gmail.com"))
+    assert_equal "J", user_initials(User.new(name: "Josefa", email: "jse.uribe@gmail.com"))
+  end
+
+  test "user_initials falls back to the first two email characters without a name" do
+    assert_equal "JS", user_initials(User.new(name: "", email: "jse.uribe@gmail.com"))
+  end
+
   setup do
     @user = User.create!(name: "Test User", email: "app_helper_loans@example.com", password: "password123")
     @loan = @user.money_sources.create!(name: "Crédito Hipotecario en Pesos", kind: "loan", bank: "Davibank", active: true)

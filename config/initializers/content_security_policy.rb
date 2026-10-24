@@ -13,7 +13,7 @@ Rails.application.configure do
     policy.font_src :self, "https://fonts.gstatic.com"
     policy.style_src :self, "https://fonts.googleapis.com"
     policy.script_src :self, "https://cdn.jsdelivr.net"
-    policy.connect_src :self
+    policy.connect_src :self, "https://cdn.jsdelivr.net"
     policy.object_src :none
     policy.form_action :self
     policy.frame_src :self

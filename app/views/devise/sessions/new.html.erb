@@ -51,3 +51,7 @@
   <%= t("auth.sign_up_prompt") %>
   <%= link_to t("auth.sign_up"), new_registration_path(resource_name) %>
 </p>
+
+<div class="auth-links">
+  <%= render "devise/shared/secondary_links" %>
+</div>

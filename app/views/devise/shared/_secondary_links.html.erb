@@ -1,0 +1,11 @@
+<%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+  <p>
+    <%= link_to t("auth.resend_confirmation"), new_confirmation_path(resource_name) %>
+  </p>
+<% end %>
+
+<%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>
+  <p>
+    <%= link_to t("auth.resend_unlock"), new_unlock_path(resource_name) %>
+  </p>
+<% end %>

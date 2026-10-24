@@ -111,6 +111,9 @@ es:
         password: "Contraseña"
         password_confirmation: "Confirmar contraseña"
         current_password: "Contraseña actual"
+        financial_cycle_start_day: "Día de inicio del ciclo financiero"
+        debt_capacity_target_percentage: "Porcentaje objetivo de capacidad de deuda"
+        debt_capacity_alert_percentage: "Porcentaje de alerta de capacidad de deuda"
       transfer:
         from_source: "Desde"
         to_source: "Hacia"
@@ -1898,6 +1901,7 @@ es:
     back_to_sign_in: "Volver a iniciar sesión"
     account_confirmation_waiting: "Actualmente esperando confirmación para: %{email}"
     password_change_blank: "deja en blanco si no quieres cambiarla"
+    remember_me: "Recuérdame"
     current_password_required: "necesitamos tu contraseña actual para confirmar los cambios"
     sign_in_with_provider: "Iniciar sesión con %{provider}"
     new_password_label: "Nueva contraseña"
