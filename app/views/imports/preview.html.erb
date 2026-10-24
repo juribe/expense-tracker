@@ -1,4 +1,4 @@
-<div class="container-fluid py-4" style="max-width: 960px; margin: 0 auto;" data-testid="import-preview"
+<div class="container-fluid py-4 et-maxw-960" data-testid="import-preview"
      data-imports-preview="true">
   <% ready_rows = @rows.select { |row| row["status"] == "ok" } %>
   <% error_rows = @rows.select { |row| row["status"] == "error" } %>

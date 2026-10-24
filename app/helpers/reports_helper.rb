@@ -42,9 +42,8 @@ module ReportsHelper
   def usage_progress(pct_used)
     pct = [ [ pct_used.to_f, 0 ].max, 100 ].min
     variant = pct_used.to_f > 100 ? "danger" : (pct_used.to_f >= Budget::NEAR_LIMIT_PERCENT ? "warning" : "success")
-    content_tag(:div, class: "progress", style: "height: 8px;") do
-      content_tag(:div, "", class: "progress-bar bg-#{variant}",
-                        style: "width: #{pct}%;",
+    content_tag(:div, class: "progress et-progress-8") do
+      content_tag(:div, "", class: "progress-bar bg-#{variant} et-w-#{pct.round}",
                         role: "progressbar", "aria-valuenow": pct_used, "aria-valuemin": 0, "aria-valuemax": 100)
     end
   end

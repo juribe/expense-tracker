@@ -30,7 +30,7 @@
       <div class="progress dashboard-progress mt-2" role="progressbar"
            aria-label="<%= progress[:aria_label] %>"
            aria-valuenow="<%= progress[:pct].round %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= progress[:bar_class] %>" style="width: <%= progress[:pct].round %>%"></div>
+        <div class="progress-bar <%= progress[:bar_class] %> et-w-<% progress[:pct].round %>"></div>
       </div>
     <% end %>
   </div>

@@ -130,9 +130,8 @@
         </div>
         <div class="card-body">
           <div class="d-flex align-items-center">
-            <div class="progress flex-grow-1 me-3" style="height: 8px;">
-              <div class="progress-bar <%= @candidate.confidence >= 0.8 ? 'bg-success' : @candidate.confidence >= 0.5 ? 'bg-warning' : 'bg-danger' %>"
-                   style="width: <%= (@candidate.confidence * 100).round %>%"></div>
+            <div class="progress flex-grow-1 me-3 et-progress-8">
+              <div class="progress-bar <%= @candidate.confidence >= 0.8 ? 'bg-success' : @candidate.confidence >= 0.5 ? 'bg-warning' : 'bg-danger' %> et-w-<%= (@candidate.confidence * 100).round %>"></div>
             </div>
             <span class="fw-bold"><%= (@candidate.confidence * 100).round %>%</span>
           </div>
@@ -150,7 +149,7 @@
           <ul class="list-unstyled mb-0">
             <% @candidate.missing_fields.each do |field| %>
               <li class="mb-1">
-                <i class="ti ti-circle-dot text-warning me-2" style="font-size: 0.5rem;"></i>
+                <i class="ti ti-circle-dot text-warning me-2 et-fs-05"></i>
                 <%= field.titleize %>
               </li>
             <% end %>

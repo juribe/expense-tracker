@@ -1163,7 +1163,7 @@ function initializePlayground() {
       if (entry.expense_id) result += ' <i class="ti ti-circle-check text-success" title="expense created"></i>';
       row.innerHTML =
         '<td class="small">' + escapeHtml(new Date(entry.ts).toLocaleDateString()) + "</td>" +
-        '<td class="small text-truncate" style="max-width:220px">"' + escapeHtml(entry.label || "") + '"</td>' +
+        '<td class="small text-truncate et-maxw-220px">"' + escapeHtml(entry.label || "") + '"</td>' +
         '<td class="small">' + escapeHtml(entry.type) + "</td>" +
         '<td class="small">' + result + "</td>" +
         '<td class="small text-end">' + escapeHtml(formatConfidence(entry.confidence)) + "</td>";

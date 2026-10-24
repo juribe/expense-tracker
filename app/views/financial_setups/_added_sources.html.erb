@@ -16,7 +16,7 @@
     <div class="wizard-added-list">
       <% presenter.added_sources.each_with_index do |source, idx| %>
         <div class="wizard-card-row d-flex align-items-center gap-3 p-3 border rounded-3 mb-2 bg-body">
-          <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary flex-shrink-0" style="width: 44px; height: 44px;">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary flex-shrink-0 et-chip-44">
             <i class="ti ti-<%= source_kind_icon(source["kind"]) %> fs-4"></i>
           </span>
           <div class="flex-grow-1 min-w-0">

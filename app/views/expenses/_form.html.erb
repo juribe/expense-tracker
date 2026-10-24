@@ -1,6 +1,6 @@
 <% content_for(:title) { (@expense.new_record? ? t("common.new") : t("common.edit")) + " - " + t("expenses.page_title") } rescue nil %>
 <%= render "shared/page_header", title: (@expense.new_record? ? t("common.new") : t("common.edit")) + " " + t("expenses.page_title").downcase %>
-<div class="app-container mx-auto" style="max-width: 760px;">
+<div class="app-container mx-auto et-maxw-760">
   <div class="card">
     <div class="card-body p-4">
           <%= form_with model: @expense, local: true do |f| %>

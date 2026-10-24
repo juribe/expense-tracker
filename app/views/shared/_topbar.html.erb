@@ -36,7 +36,7 @@
             <i class="ti ti-bell fs-5"></i>
             <% unread = current_user.spending_alerts.unread.count %>
             <% if unread.positive? %>
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1" style="font-size: 0.55rem;">
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 et-fs-055">
                 <%= unread > 9 ? "9+" : unread %>
               </span>
             <% end %>
@@ -49,7 +49,7 @@
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-            <span class="avatar-sm rounded-circle text-bg-primary d-inline-flex align-items-center justify-content-center fw-bold" style="width: 2rem; height: 2rem;">
+            <span class="avatar-sm rounded-circle text-bg-primary d-inline-flex align-items-center justify-content-center fw-bold et-chip-2rem">
               <%= current_user.email[0].upcase %>
             </span>
             <i class="ti ti-chevron-down fs-4 d-none d-lg-inline"></i>
@@ -57,7 +57,7 @@
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
               <div class="px-3 py-2">
-                <div class="fw-semibold small text-truncate" style="max-width: 14rem;"><%= current_user.email %></div>
+                <div class="fw-semibold small text-truncate et-maxw-14rem"><%= current_user.email %></div>
               </div>
             </li>
             <li><div class="dropdown-divider"></div></li>

@@ -30,8 +30,8 @@
           <div class="small text-muted"><%= t("money_sources.show.available") %></div>
         </div>
       </div>
-      <div class="progress mt-3" role="progressbar" aria-label="<%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
-        <div class="progress-bar <%= credit_utilization_class(source.credit_utilization) %>" style="width: <%= [ source.credit_utilization, 100 ].min %>%"></div>
+      <div class="progress mt-3 et-progress-10" role="progressbar" aria-label="<%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar <%= credit_utilization_class(source.credit_utilization) %> et-w-<%= [ source.credit_utilization, 100 ].min.round %>"></div>
       </div>
       <div class="small text-muted mt-2"><%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %></div>
 
@@ -80,8 +80,8 @@
           <div class="small text-muted"><%= t("money_sources.index.installment_amount") %></div>
         </div>
       </div>
-      <div class="progress mt-3" role="progressbar" aria-label="<%= t("money_sources.index.repaid", pct: 100 - source.repayment_progress) %>" aria-valuenow="<%= 100 - source.repayment_progress %>" aria-valuemin="0" aria-valuemax="100" style="height: 10px;">
-        <div class="progress-bar bg-success" style="width: <%= [ 100 - source.repayment_progress, 0 ].max %>%"></div>
+      <div class="progress mt-3 et-progress-10" role="progressbar" aria-label="<%= t("money_sources.index.repaid", pct: 100 - source.repayment_progress) %>" aria-valuenow="<%= 100 - source.repayment_progress %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success et-w-<%= [ 100 - source.repayment_progress, 0 ].max.round %>"></div>
       </div>
       <div class="small text-muted mt-2">
         <%= t("money_sources.index.repaid", pct: 100 - source.repayment_progress) %>

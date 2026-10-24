@@ -181,7 +181,7 @@
             <caption class="visually-hidden"><%= t("expenses.table_caption") %></caption>
             <thead class="table-light">
               <tr>
-                <th scope="col" style="width:2.5rem">
+                <th scope="col" class="et-w-2-5rem">
                   <input type="checkbox" class="form-check-input" id="selectAll" aria-label="<%= t('expenses.select_all') %>">
                 </th>
                 <%= sortable_column_header(t("common.date"), "date", current_sort: @sort, current_dir: @dir) %>
@@ -307,12 +307,12 @@
 <div id="loadingState" class="d-none" aria-busy="true" data-testid="loading">
   <div class="card p-3">
     <div class="skel mb-3"></div>
-    <div class="skel mb-3" style="width:90%"></div>
-    <div class="skel mb-3" style="width:80%"></div>
+    <div class="skel mb-3 et-skel-90"></div>
+    <div class="skel mb-3 et-skel-80"></div>
     <div class="skel mb-3"></div>
-    <div class="skel mb-3" style="width:70%"></div>
+    <div class="skel mb-3 et-skel-70"></div>
     <div class="skel mb-3"></div>
-    <div class="skel" style="width:85%"></div>
+    <div class="skel et-skel-85"></div>
   </div>
 </div>
 

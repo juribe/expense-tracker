@@ -20,7 +20,7 @@
 </ul>
 
 <!-- Bulk action bar -->
-<div class="bulk-bar" id="bulkBar" role="region" aria-label="Acciones en lote" data-testid="bulk-bar" style="display: none;">
+<div class="bulk-bar d-none" id="bulkBar" role="region" aria-label="Acciones en lote" data-testid="bulk-bar">
   <strong id="bulkCount" aria-live="polite">0 <%= t("expense_candidates.selected", default: "seleccionados") %></strong>
   <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
     <i class="ti ti-tags me-1"></i><%= t("expense_candidates.change_category", default: "Cambiar Categoría") %>
@@ -42,7 +42,7 @@
       <table class="table table-hover ledger-table mb-0" data-testid="candidates-table">
         <thead class="table-light">
           <tr>
-            <th scope="col" style="width: 40px;">
+            <th scope="col" class="et-w-40px">
               <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all">
             </th>
             <th scope="col"><%= t("common.source", default: "Source") %></th>

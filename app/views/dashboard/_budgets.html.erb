@@ -15,7 +15,7 @@
             <span class="fw-bold small budget-amount num"><%= number_to_percentage(data[:percentage], precision: 0) %></span>
           </div>
           <div class="progress dashboard-progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= data[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar <%= budget_status_class(data[:status]) %>" style="width: <%= [ data[:percentage], 100 ].min %>%"></div>
+            <div class="progress-bar <%= budget_status_class(data[:status]) %> et-w-<% [ data[:percentage], 100 ].min.round %>"></div>
           </div>
         </div>
       <% end %>

@@ -66,7 +66,7 @@
         <span class="cc-progress-pct"><%= utilization %>%</span>
       </div>
       <div class="progress" role="progressbar" aria-label="<%= t("money_sources.credit_cards.utilization") %>" aria-valuenow="<%= utilization %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= credit_utilization_class(utilization) %>" style="width: <%= [ utilization, 100 ].min %>%"></div>
+        <div class="progress-bar <%= credit_utilization_class(utilization) %> et-w-<% [ utilization, 100 ].min.round %>"></div>
       </div>
     </div>
   <% end %>

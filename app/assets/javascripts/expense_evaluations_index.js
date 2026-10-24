@@ -86,7 +86,7 @@
       line.className = (idx ? "mt-2 " : "") + "d-flex justify-content-between align-items-center gap-2";
       line.innerHTML =
         '<span class="text-capitalize text-muted">' + field + "</span>" +
-        '<div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width:' + pct + '%"></div></div>' +
+        '<div class="progress flex-grow-1 et-progress-6"><div class="progress-bar et-w-' + pct + '"></div></div>' +
         '<span class="text-muted">' + (compared && compared > 0 ? String(pct) + "%" : "—") + "</span>";
       fa.appendChild(line);
     });
@@ -95,7 +95,7 @@
     var fr = document.createElement("div");
     fr.className = "mt-3 fw-semibold";
     fr.innerHTML = "Full Record (todos los campos) " +
-      '<div class="progress" style="height:6px"><div class="progress-bar" style="width:' + frPct + '%"></div></div>' +
+      '<div class="progress et-progress-6"><div class="progress-bar et-w-' + frPct + '"></div></div>' +
       '<span class="fw-normal text-muted">' + (compared && compared > 0 ? String(frPct) + "%" : "—") + "</span>";
     fa.appendChild(fr);
 
@@ -238,11 +238,11 @@
     return '<div class="d-flex flex-wrap align-items-center gap-2">' +
       '<button type="button" class="btn btn-sm btn-outline-success btn-map" data-map-action="accept_received">Aceptar asignación</button>' +
       '<span class="text-muted">o</span>' +
-      '<select class="form-select form-select-sm pg-exist" style="width:auto" title="Usar categoría existente">' +
+      '<select class="form-select form-select-sm pg-exist et-w-auto" title="Usar categoría existente">' +
       '<option value="">Usar categoría existente…</option>' + options + "</select>" +
       '<button type="button" class="btn btn-sm btn-outline-primary btn-map" data-map-action="use_existing">Usar</button>' +
       '<span class="text-muted">o</span>' +
-      '<input type="text" class="form-control form-control-sm pg-new" style="width:auto" placeholder="Nueva categoría…">' +
+      '<input type="text" class="form-control form-control-sm pg-new et-w-auto" placeholder="Nueva categoría…">' +
       '<button type="button" class="btn btn-sm btn-outline-dark btn-map" data-map-action="create">Crear</button>' +
       "</div>";
   }

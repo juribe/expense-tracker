@@ -4,14 +4,14 @@
   <% FinancialSetupWizard.steps.each_with_index do |setup_step, idx| %>
     <% done = idx < step_idx.to_i %>
     <% current = idx == step_idx.to_i %>
-    <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold
+    <span       class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold et-chip-32
       <%= done ? 'bg-success text-white' : (current ? 'bg-primary text-white' : 'bg-light text-muted border') %>"
-      style="width: 32px; height: 32px;">
+      >
       <% if done %><i class="ti ti-check"></i><% else %><%= idx + 1 %><% end %>
     </span>
     <span class="<%= current ? 'fw-bold' : 'text-muted' %>"><%= t(setup_step.label_key) %></span>
     <% if idx < FinancialSetupWizard.steps.length - 1 %>
-      <span class="d-inline-block <%= done ? 'bg-success' : 'bg-secondary' %>" style="width: clamp(22px,4vw,70px); height: 2px;"></span>
+      <span class="d-inline-block <%= done ? 'bg-success' : 'bg-secondary' %> et-stepper-bar"></span>
     <% end %>
   <% end %>
   <span class="ms-auto">

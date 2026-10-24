@@ -73,8 +73,8 @@
             <h5 class="mb-0"><i class="ti ti-chart-bar me-2"></i><%= t("evaluations.results", default: "Resultados de la Evaluación") %><span class="badge bg-warning-subtle text-warning ms-2" id="pgEvalRunStatus"><%= t("evaluations.in_progress", default: "En progreso") %></span></h5>
             <div class="text-end small text-muted" id="pgEvalRunMeta"></div>
           </div>
-          <div class="progress mb-3" style="height: 8px;">
-            <div class="progress-bar" id="pgEvalRunProgress" role="progressbar" style="width:0%"></div>
+          <div class="progress mb-3 et-progress-8">
+            <div class="progress-bar et-w-0" id="pgEvalRunProgress" role="progressbar"></div>
           </div>
           <div class="text-muted small mb-3" id="pgEvalRunCaption"></div>
 
@@ -114,12 +114,12 @@
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="small fw-semibold"><i class="ti ti-alert-triangle text-danger me-1"></i><%= t("evaluations.failed_cases", default: "Casos fallidos") %> <span class="badge bg-danger" id="pgEvalFailedCount">0</span></div>
             <div class="d-flex gap-2">
-              <select class="form-select form-select-sm" style="width:auto" id="pgEvalFailedStatus" data-testid="evaluation-failed-status">
+              <select class="form-select form-select-sm et-w-auto" id="pgEvalFailedStatus" data-testid="evaluation-failed-status">
                 <option value="failed"><%= t("evaluations.failed_status", default: "Fallidos") %></option>
                 <option value="error"><%= t("evaluations.error_status", default: "Error") %></option>
                 <option value="passed"><%= t("evaluations.passed_status", default: "Exitosos") %></option>
               </select>
-              <input type="search" class="form-control form-control-sm" style="width:auto" placeholder="<%= t('evaluations.search_placeholder', default: 'Buscar por mensaje…') %>" id="pgEvalFailedQuery" data-testid="evaluation-failed-query">
+              <input type="search" class="form-control form-control-sm et-w-auto" placeholder="<%= t('evaluations.search_placeholder', default: 'Buscar por mensaje…') %>" id="pgEvalFailedQuery" data-testid="evaluation-failed-query">
               <button class="btn btn-sm btn-outline-secondary" id="pgEvalFailedRefresh"><%= t("evaluations.filter", default: "Filtrar") %></button>
             </div>
           </div>

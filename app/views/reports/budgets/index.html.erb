@@ -26,7 +26,7 @@
                 <td class="text-end fw-bold <%= row[:remaining].negative? ? 'text-danger' : 'text-danger' %>"><%= money_amount(row[:actual]) %></td>
                 <td class="text-end <%= row[:remaining].negative? ? 'text-danger' : 'text-success' %>"><%= money_amount(row[:remaining]) %></td>
                 <td class="text-end"><%= number_to_percentage(row[:pct_used], precision: 1) %></td>
-                <td style="min-width: 140px;"><%= usage_progress(row[:pct_used]) %></td>
+                <td class="et-minw-140px"><%= usage_progress(row[:pct_used]) %></td>
               </tr>
             <% end %>
           </tbody>
