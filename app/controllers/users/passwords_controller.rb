@@ -10,7 +10,7 @@ class Users::PasswordsController < Devise::PasswordsController
     yield resource if block_given?
 
     if successfully_sent?(resource)
-      @success_notice = "We've emailed a reset link. Check your inbox."
+      @success_notice = "Te enviamos un enlace para restablecer tu contraseña. Revisa tu correo."
       render :new
     else
       respond_with(resource)
@@ -34,7 +34,7 @@ class Users::PasswordsController < Devise::PasswordsController
         set_flash_message!(:notice, :updated_not_active)
       end
 
-      @success_notice = "Your password has been updated."
+      @success_notice = "Tu contraseña ha sido actualizada."
       render :edit
     else
       set_minimum_password_length
