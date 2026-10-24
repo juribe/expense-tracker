@@ -1,36 +1,41 @@
-<div class="row justify-content-center">
-  <div class="col-12 col-md-5 col-lg-4">
-    <%= render "devise/shared/brand" %>
-    <div class="card my-5">
-      <div class="card-body p-4 p-md-5">
-        <% if @success_notice %>
-          <h1 class="h3 mb-3 text-center fw-bold"><%= t("devise.passwords.check_inbox_title", default: "Revisa tu bandeja de entrada") %></h1>
-          <div class="alert alert-success" role="alert">
-            <i class="ti ti-mail-opened me-2"></i><%= @success_notice %>
-          </div>
-          <p class="text-center mb-0">
-            <%= link_to t("auth.back_to_sign_in"), new_session_path(resource_name), class: "link-secondary" %>
-          </p>
-        <% else %>
-          <h1 class="h3 mb-1 text-center fw-bold"><%= t("auth.forgot_password") %></h1>
-          <p class="text-muted text-center mb-4"><%= t("devise.passwords.reset_prompt", default: "Escribe tu correo y te enviaremos un enlace para restablecer la contraseña.") %></p>
+<% content_for :title, "#{t("auth.forgot_password")} | #{t("layout.app_title")}" %>
 
-          <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
-            <%= render "devise/shared/error_messages", resource: resource %>
-
-            <div class="mb-3">
-              <%= f.label :email, class: "form-label" %>
-              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control form-control-lg", placeholder: t("auth.email_placeholder") %>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg w-100"><%= t("devise.passwords.send_reset", default: "Enviar enlace de restablecimiento") %></button>
-          <% end %>
-
-          <p class="text-center mt-3 mb-0">
-            <%= t("devise.passwords.remembered", default: "¿Ya la recordaste?") %> <%= link_to t("auth.back_to_sign_in"), new_session_path(resource_name), class: "link-secondary" %>
-          </p>
-        <% end %>
-      </div>
-    </div>
+<% if @success_notice %>
+  <div class="auth-heading">
+    <h1><%= t("devise.passwords.check_inbox_title", default: "Revisa tu bandeja de entrada") %></h1>
+    <p><%= t("devise.passwords.check_inbox_subtitle", default: "Te enviamos las instrucciones para recuperar tu cuenta.") %></p>
   </div>
-</div>
+
+  <div class="alert alert-success auth-alert" role="alert">
+    <i class="ti ti-mail-opened" aria-hidden="true"></i>
+    <%= @success_notice %>
+  </div>
+
+  <p class="auth-footer-link">
+    <%= link_to t("auth.back_to_sign_in"), new_session_path(resource_name) %>
+  </p>
+<% else %>
+  <div class="auth-heading">
+    <h1><%= t("auth.forgot_password") %></h1>
+    <p><%= t("auth.forgot_password_subtitle") %></p>
+  </div>
+
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div class="auth-field">
+      <%= f.label :email, class: "auth-label" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "auth-input", placeholder: t("auth.email_placeholder") %>
+    </div>
+
+    <button type="submit" class="auth-submit">
+      <span><%= t("devise.passwords.send_reset", default: "Enviar enlace de restablecimiento") %></span>
+      <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </button>
+  <% end %>
+
+  <p class="auth-footer-link">
+    <%= t("devise.passwords.remembered", default: "¿Ya la recordaste?") %>
+    <%= link_to t("auth.back_to_sign_in"), new_session_path(resource_name) %>
+  </p>
+<% end %>

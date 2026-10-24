@@ -105,6 +105,12 @@ es:
         money_source_required: "es obligatoria: indica la fuente de dinero (de dónde sale o a dónde entra)"
         payment_without_money_source: "no tiene fuente de dinero; no se puede aplicar un pago a un gasto sin origen"
     attributes:
+      user:
+        name: "Nombre completo"
+        email: "Correo electrónico"
+        password: "Contraseña"
+        password_confirmation: "Confirmar contraseña"
+        current_password: "Contraseña actual"
       transfer:
         from_source: "Desde"
         to_source: "Hacia"
@@ -1829,6 +1835,49 @@ es:
     sign_in: "Iniciar sesión"
     sign_up_prompt: "¿No tienes una cuenta?"
     sign_in_prompt: "¿Ya tienes una cuenta?"
+    sign_in_subtitle: "Ingresa para ver el panorama de tus finanzas."
+    sign_up_subtitle: "Empieza a organizar tus finanzas hoy."
+    forgot_password_subtitle: "Escribe tu correo y te enviaremos un enlace para restablecer la contraseña."
+    reset_password_subtitle: "Elige una nueva contraseña para tu cuenta."
+    privacy: "Tus datos financieros son privados y seguros."
+    reset_link_sent: "Revisa tu correo: te enviamos el enlace para restablecer tu contraseña."
+    password_updated: "Tu contraseña se actualizó correctamente."
+    intro:
+      aria_label: "Beneficios de Control de Gastos"
+      form_aria_label: "Acceso a tu cuenta"
+      brand_tag: "Finanzas personales, con claridad"
+      kicker: "Tus finanzas, en un solo lugar"
+      title_html: "Toma el control<br>de <span>tu dinero.</span>"
+      lead: "Organiza tus gastos, entiende tus hábitos y avanza hacia tus metas financieras."
+      features:
+        reports:
+          title: "Reportes claros"
+          copy: "Visualiza tus gastos e ingresos con gráficos simples y fáciles de entender."
+        ai:
+          title: "Automatiza con IA"
+          copy: "Crea tus gastos automáticamente desde correos de bancos, mensajes de WhatsApp, archivos y más."
+        goals:
+          title: "Alcanza tus metas"
+          copy: "Planifica, ahorra y logra lo que te propongas."
+      preview:
+        period: "Octubre 2026"
+        expenses_label: "Gastos del mes"
+        expenses_total: "$ 2.650.000"
+        months: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct"]
+        nav:
+          dashboard: "Panel"
+          expenses: "Gastos"
+          incomes: "Ingresos"
+          transfers: "Transferencias"
+          categories: "Categorías"
+          reports: "Reportes"
+        categories:
+          food: "Comida y restaurantes"
+          transport: "Transporte"
+          housing: "Vivienda"
+          entertainment: "Entretenimiento"
+      foot: "Una forma más clara de relacionarte con tu dinero."
+
     forgot_password: "¿Olvidaste tu contraseña?"
     resend_confirmation: "Reenviar instrucciones de confirmación"
     resend_unlock: "Reenviar instrucciones de desbloqueo"

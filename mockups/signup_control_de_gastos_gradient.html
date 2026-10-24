@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eaf2ff">
+<title>Crear cuenta | Control de Gastos</title>
+<style>
+:root{--ink:#14223a;--muted:#7d8eaa;--blue:#176bfa;--line:#dce5f1;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:#edf3ff;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer}
+.page{min-height:100vh;position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 45% 5%,rgba(81,169,255,.55),transparent 31%),radial-gradient(ellipse at 85% 12%,rgba(172,158,255,.48),transparent 27%),radial-gradient(ellipse at 18% 70%,rgba(73,155,255,.48),transparent 34%),radial-gradient(ellipse at 66% 83%,rgba(190,174,255,.38),transparent 30%),linear-gradient(125deg,#fff 0%,#f4f8ff 34%,#e3edff 65%,#f8f6ff 100%)}
+.blob{position:absolute;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(1px);opacity:.55}
+.blob.one{width:430px;height:430px;left:-250px;top:22%;background:radial-gradient(circle,#8fc7ff 0%,#b7d9ff 48%,transparent 72%)}
+.blob.two{width:560px;height:560px;right:-260px;top:29%;background:radial-gradient(circle,#9cbaff 0%,#c9d2ff 48%,transparent 72%)}
+.blob.three{width:430px;height:430px;left:35%;bottom:-310px;background:radial-gradient(circle,#c7c4ff 0%,#e3ddff 48%,transparent 72%)}
+.top-login{position:absolute;top:28px;right:5.5%;z-index:2;font-size:12px;color:#33435d}.top-login a,.terms a{color:var(--blue);font-weight:750;text-decoration:none}.top-login a:hover,.terms a:hover{text-decoration:underline}
+.shell{width:min(1190px,calc(100% - 64px));min-height:100vh;margin:auto;display:grid;grid-template-columns:minmax(0,1.04fr) minmax(440px,.96fr);gap:clamp(42px,6vw,92px);align-items:center;padding:54px 0 42px}
+.intro{align-self:stretch;display:flex;flex-direction:column;padding:0 0 2px;min-width:0}
+.brand{display:flex;align-items:center;gap:12px;margin:0 0 clamp(42px,6vh,70px)}
+.brand-icon{width:48px;height:48px;border-radius:14px;background:#dce8ff;color:#176bfa;display:grid;place-items:center;box-shadow:0 8px 22px #5688ee18}
+.brand-icon svg{width:27px;height:27px}.brand-name{font-size:18px;font-weight:780;letter-spacing:-.45px}.brand-tag{font-size:11px;color:#8293ae;margin-top:3px}
+.kicker{display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.12em;color:#467fda;font-weight:800;font-size:10px;margin-bottom:17px}.kicker:before{content:"";height:2px;width:21px;border-radius:2px;background:#458aff}
+h1{font-size:clamp(38px,4.1vw,58px);line-height:1.05;letter-spacing:-2px;margin:0;font-weight:800;color:#13213a}h1 span{color:#176bfa}
+.lead{font-size:16px;line-height:1.65;color:#7385a3;max-width:455px;margin:18px 0 0}
+.features{display:grid;gap:18px;margin-top:29px;max-width:510px}
+.feature{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:center}
+.feature-icon{height:48px;width:48px;border-radius:14px;display:grid;place-items:center;background:#e0efff;color:#2f8df5}.feature-icon svg{width:24px;height:24px}
+.feature:nth-child(2) .feature-icon{background:#eee8ff;color:#8053ed}.feature:nth-child(3) .feature-icon{background:#ddf9ee;color:#0bb77c}
+.feature-title{font-size:14px;font-weight:760;line-height:1.35}.feature-copy{font-size:12px;line-height:1.5;color:#7d8eaa;margin-top:3px}
+.preview{margin-top:auto;padding-top:34px;perspective:900px}
+.preview-window{max-width:580px;border:1px solid #ffffffd9;border-radius:19px;overflow:hidden;background:rgba(255,255,255,.79);box-shadow:0 20px 55px #3f70c41c;backdrop-filter:blur(14px);transform:rotate(-3deg);transform-origin:bottom left}
+.preview-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid #e8eef8}.preview-brand{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:780}.mini-icon{width:23px;height:23px;border-radius:7px;background:#176bfa;color:white;display:grid;place-items:center}.period{font-size:9px;color:#536782;background:#f5f8ff;border:1px solid #e2eaf5;padding:6px 8px;border-radius:7px}
+.preview-body{display:grid;grid-template-columns:112px 1fr;min-height:205px}.preview-nav{padding:13px 9px;border-right:1px solid #e8eef8}.navrow{font-size:9px;color:#71829c;padding:8px 7px;border-radius:7px;margin-bottom:3px}.navrow.active{color:#176bfa;background:#e9f1ff;font-weight:700}
+.dash{padding:15px 16px}.small-label{font-size:9px;color:#8191aa}.total{font-size:21px;font-weight:800;margin-top:5px;letter-spacing:-.5px}.change{font-size:9px;color:#08a878;background:#e0fff2;border-radius:5px;padding:4px 6px;margin-left:5px;vertical-align:middle}
+.chart{height:61px;display:flex;align-items:end;gap:7px;margin-top:10px;border-bottom:1px solid #e2eaf5;padding:0 3px 2px}.bar{flex:1;min-width:4px;border-radius:4px 4px 0 0;background:linear-gradient(#b8d9ff,#4c98ff)}.bar:nth-child(9){background:linear-gradient(#58a5ff,#176bfa)}.months{display:flex;justify-content:space-between;font-size:7px;color:#8999b1;margin-top:5px}
+.categories{display:grid;gap:8px;margin-top:13px}.cat{display:grid;grid-template-columns:minmax(90px,1fr) minmax(45px,40%) 22px;gap:7px;align-items:center;font-size:8px;color:#52647d}.track{height:7px;background:#edf1f7;border-radius:9px;overflow:hidden}.fill{height:100%;border-radius:9px;background:#ff8a5b}.cat:nth-child(2) .fill{background:#4caeff}.cat:nth-child(3) .fill{background:#8b71f5}.cat:nth-child(4) .fill{background:#31c99a}.pct{text-align:right;color:#71829a}
+.intro-foot{font-size:10px;color:#7c8da8;margin-top:22px}
+.form-area{display:flex;align-items:center;justify-content:center;min-width:0}
+.card{width:100%;max-width:500px;border:1px solid rgba(255,255,255,.9);border-radius:23px;padding:clamp(27px,3.2vw,42px);background:rgba(255,255,255,.86);box-shadow:0 22px 65px rgba(55,90,150,.12);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.form-heading{text-align:center;margin-bottom:25px}.form-heading h2{font-size:29px;letter-spacing:-.9px;margin:0;font-weight:790}.form-heading p{margin:8px 0 0;color:#8393ad;font-size:14px}
+.notice{display:none;margin-bottom:19px;padding:12px 14px;border-radius:11px;font-size:12px;line-height:1.5}.notice.error{display:block;color:#a92520;background:#fff0ee;border:1px solid #ffd2cc}.notice.success{display:block;color:#087f5b;background:#e8fff4;border:1px solid #b4f0d3}.notice strong{display:block;margin-bottom:3px}
+.field{margin-top:16px}.field label{display:block;font-size:12px;font-weight:750;margin-bottom:7px;color:#1e2d45}.hint{font-size:11px;color:#8797ae;margin:-2px 0 7px}.input-wrap{position:relative}
+.field input{display:block;width:100%;min-height:47px;border:1px solid #d1dce9;border-radius:10px;padding:12px 14px;background:rgba(255,255,255,.8);outline:none;font-size:13px;color:#1b2940;transition:border-color .15s,box-shadow .15s}
+.field input::placeholder{color:#9aa8bd}.field input:focus{border-color:#3b87ff;box-shadow:0 0 0 3px #428aff27}.field input[aria-invalid=true]{border-color:#e56b5d}.password-input{padding-right:47px!important}
+.field-error{display:none;font-size:11px;color:#b42318;margin-top:5px}.field-error.show{display:block}
+.toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:#8191a8}.toggle:hover{background:#edf3fb}.toggle svg{width:19px;height:19px}
+.submit{margin-top:22px;width:100%;min-height:49px;border:0;border-radius:10px;background:linear-gradient(100deg,#0965f5,#2d83ff);box-shadow:0 8px 18px #2475f42b;color:white;font-size:14px;font-weight:780;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s,box-shadow .15s}.submit:hover{transform:translateY(-1px);box-shadow:0 11px 23px #2475f43d}.submit:disabled{opacity:.7;cursor:wait}.submit svg{width:18px;height:18px}
+.privacy{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:16px;text-align:center;font-size:10px;color:#8595ad}.privacy svg{width:14px;height:14px;flex:0 0 auto}
+.terms{margin:15px 0 0;text-align:center;font-size:10px;line-height:1.6;color:#8b9ab0}.terms a{color:#176bfa;text-decoration:none;font-weight:650}.terms a:hover{text-decoration:underline}
+.divider{height:1px;background:#e7edf5;margin:22px 0 18px}.login{text-align:center;font-size:12px;color:#52637b;margin:0}.login a{color:#176bfa;font-weight:750;text-decoration:none}.login a:hover{text-decoration:underline}
+@media(min-width:1500px){.shell{width:min(1280px,calc(100% - 90px));grid-template-columns:minmax(0,1.1fr) minmax(460px,.9fr)}}
+@media(max-width:1050px){.shell{width:calc(100% - 44px);grid-template-columns:minmax(0,.95fr) minmax(400px,1.05fr);gap:35px}.preview-body{grid-template-columns:88px 1fr}.preview-nav{padding:10px 5px}.navrow{padding:7px 4px}.feature-copy{font-size:11px}.card{padding:28px}}
+@media(max-width:780px){.top-login{top:23px;right:20px;font-size:11px}.shell{width:100%;display:flex;flex-direction:column;gap:25px;padding:22px 16px 35px;align-items:stretch}.intro{padding:0 7px}.brand{margin-bottom:31px}.brand-icon{width:42px;height:42px;flex-basis:42px}.brand-name{font-size:16px}.brand-tag{font-size:10px}.pitch{margin-top:0;padding-top:9px}h1{font-size:clamp(36px,9vw,48px);letter-spacing:-1.5px}.lead{font-size:14px;line-height:1.6;margin-top:13px}.features{gap:13px;margin-top:22px}.feature{grid-template-columns:41px 1fr;gap:11px}.feature-icon{height:41px;width:41px;border-radius:12px}.feature-title{font-size:13px}.feature-copy{font-size:11px}.preview{display:none}.intro-foot{margin-top:20px}.form-area{width:100%}.card{max-width:520px;padding:27px 22px;border-radius:19px}.form-heading{margin-bottom:21px}.form-heading h2{font-size:26px}.page{background:radial-gradient(ellipse at 48% 7%,rgba(91,174,255,.5),transparent 33%),radial-gradient(ellipse at 92% 40%,rgba(181,167,255,.43),transparent 35%),radial-gradient(ellipse at 15% 70%,rgba(84,158,255,.35),transparent 38%),linear-gradient(140deg,#fff,#eaf2ff 62%,#f6f3ff)}}
+@media(max-width:380px){.shell{padding-left:11px;padding-right:11px}.card{padding:24px 17px}.top-login{font-size:10px}.brand-name{font-size:15px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="blob one"></div><div class="blob two"></div><div class="blob three"></div>
+<div class="top-login">¿Ya tienes una cuenta? <a href="/users/sign_in">Inicia sesión</a></div>
+<main class="shell">
+<section class="intro" aria-label="Beneficios de Control de Gastos">
+ <div class="brand"><div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h14a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/><path d="M4 8h14"/><path d="M15 12h6v4h-6a2 2 0 0 1 0-4Z"/><path d="M16.5 14h.01"/></svg></div><div><div class="brand-name">Control de Gastos</div><div class="brand-tag">Finanzas personales, con claridad</div></div></div>
+ <div class="pitch"><div class="kicker">Tus finanzas, en un solo lugar</div><h1>Toma el control<br>de <span>tu dinero.</span></h1><p class="lead">Organiza tus gastos, entiende tus hábitos y avanza hacia tus metas financieras.</p></div>
+ <div class="features">
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V12h5v8M10 20V5h5v15M16 20V9h5v11Z"/></svg></div><div><div class="feature-title">Reportes claros</div><div class="feature-copy">Visualiza tus gastos e ingresos con gráficos simples y fáciles de entender.</div></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 4 5 5M13 6l5 5M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/><path d="m5 4 .7 2.3L8 7l-2.3.7L5 10l-.7-2.3L2 7l2.3-.7L5 4Z"/></svg></div><div><div class="feature-title">Automatiza con IA</div><div class="feature-copy">Crea tus gastos automáticamente desde correos de bancos, mensajes de WhatsApp, archivos y más.</div></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="13" r="8"/><circle cx="11" cy="13" r="4"/><path d="m14 10 7-7M16 3h5v5"/></svg></div><div><div class="feature-title">Alcanza tus metas</div><div class="feature-copy">Planifica, ahorra y logra lo que te propongas.</div></div></div>
+ </div>
+ <div class="preview" aria-hidden="true"><div class="preview-window">
+  <div class="preview-head"><div class="preview-brand"><span class="mini-icon">▣</span>Control de Gastos</div><div class="period">Octubre 2026&nbsp;⌄</div></div>
+  <div class="preview-body"><div class="preview-nav"><div class="navrow active">▦ &nbsp; Panel</div><div class="navrow">▤ &nbsp; Gastos</div><div class="navrow">▣ &nbsp; Ingresos</div><div class="navrow">⇄ &nbsp; Transferencias</div><div class="navrow">◇ &nbsp; Categorías</div><div class="navrow">▥ &nbsp; Reportes</div></div>
+   <div class="dash"><div class="small-label">Gastos del mes</div><div class="total">$ 2.650.000 <span class="change">↑ 12%</span></div><div class="chart"><div class="bar" style="height:38%"></div><div class="bar" style="height:46%"></div><div class="bar" style="height:63%"></div><div class="bar" style="height:40%"></div><div class="bar" style="height:52%"></div><div class="bar" style="height:44%"></div><div class="bar" style="height:60%"></div><div class="bar" style="height:69%"></div><div class="bar" style="height:92%"></div><div class="bar" style="height:75%"></div></div><div class="months"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span></div><div class="categories"><div class="cat"><span>Comida y restaurantes</span><div class="track"><div class="fill" style="width:76%"></div></div><span class="pct">38%</span></div><div class="cat"><span>Transporte</span><div class="track"><div class="fill" style="width:44%"></div></div><span class="pct">22%</span></div><div class="cat"><span>Vivienda</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="pct">15%</span></div><div class="cat"><span>Entretenimiento</span><div class="track"><div class="fill" style="width:16%"></div></div><span class="pct">8%</span></div></div></div>
+  </div>
+ </div></div>
+ <div class="intro-foot">Una forma más clara de relacionarte con tu dinero.</div>
+</section>
+<section class="form-area" aria-label="Crear una cuenta"><div class="card">
+ <div class="form-heading"><h2>Crea tu cuenta</h2><p>Empieza a organizar tus finanzas hoy.</p></div>
+ <div class="notice" id="notice" role="alert" aria-live="polite"></div>
+ <form id="signupForm" novalidate>
+  <div class="field"><label for="name">Nombre completo</label><input id="name" name="name" type="text" placeholder="Tu nombre" autocomplete="name" required autofocus><div class="field-error" id="nameError"></div></div>
+  <div class="field"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" placeholder="tu@ejemplo.com" autocomplete="email" required><div class="field-error" id="emailError"></div></div>
+  <div class="field"><label for="password">Contraseña</label><div class="hint">Mínimo 6 caracteres</div><div class="input-wrap"><input class="password-input" id="password" name="password" type="password" placeholder="Crea una contraseña" autocomplete="new-password" minlength="6" required><button class="toggle" type="button" data-target="password" aria-label="Mostrar contraseña" title="Mostrar contraseña"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div><div class="field-error" id="passwordError"></div></div>
+  <div class="field"><label for="confirmation">Confirmar contraseña</label><div class="input-wrap"><input class="password-input" id="confirmation" name="password_confirmation" type="password" placeholder="Repite tu contraseña" autocomplete="new-password" required><button class="toggle" type="button" data-target="confirmation" aria-label="Mostrar confirmación de contraseña" title="Mostrar contraseña"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div><div class="field-error" id="confirmationError"></div></div>
+  <button class="submit" id="submit" type="submit"><span>Crear cuenta</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+ </form>
+ <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><circle cx="12" cy="15" r="1"/></svg><span>Tus datos financieros son privados y seguros.</span></div>
+ <p class="terms">Al crear una cuenta aceptas nuestros <a href="/terms">Términos de servicio</a> y <a href="/privacy">Política de privacidad</a>.</p>
+ <div class="divider"></div><p class="login">¿Ya tienes una cuenta? <a href="/users/sign_in">Inicia sesión</a></p>
+</div></section>
+</main>
+</div>
+<script>
+(()=>{const form=document.getElementById('signupForm'),notice=document.getElementById('notice'),submit=document.getElementById('submit');
+const fields={name:document.getElementById('name'),email:document.getElementById('email'),password:document.getElementById('password'),confirmation:document.getElementById('confirmation')};
+const errors={name:document.getElementById('nameError'),email:document.getElementById('emailError'),password:document.getElementById('passwordError'),confirmation:document.getElementById('confirmationError')};
+function setError(k,msg){errors[k].textContent=msg||'';errors[k].classList.toggle('show',!!msg);fields[k].setAttribute('aria-invalid',msg?'true':'false')}
+function clear(){Object.keys(errors).forEach(k=>setError(k,''));notice.className='notice';notice.textContent=''}
+function message(type,title,copy){notice.className='notice '+type;notice.replaceChildren();const strong=document.createElement('strong');strong.textContent=title;notice.append(strong,document.createTextNode(copy))}
+document.querySelectorAll('.toggle').forEach(btn=>btn.addEventListener('click',()=>{const input=document.getElementById(btn.dataset.target),show=input.type==='password';input.type=show?'text':'password';btn.title=show?'Ocultar contraseña':'Mostrar contraseña';btn.setAttribute('aria-label',btn.title)}));
+Object.entries(fields).forEach(([k,input])=>input.addEventListener('input',()=>{setError(k,'');notice.className='notice';if(k==='password'&&fields.confirmation.value)setError('confirmation','')}));
+form.addEventListener('submit',e=>{e.preventDefault();clear();const name=fields.name.value.trim(),email=fields.email.value.trim(),password=fields.password.value,confirmation=fields.confirmation.value;
+if(!name)setError('name','Escribe tu nombre completo.');
+if(!email)setError('email','Escribe tu correo electrónico.');else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))setError('email','Ingresa un correo electrónico válido.');
+if(!password)setError('password','Crea una contraseña.');else if(password.length<6)setError('password','La contraseña debe tener al menos 6 caracteres.');
+if(!confirmation)setError('confirmation','Confirma tu contraseña.');else if(password!==confirmation)setError('confirmation','Las contraseñas no coinciden.');
+const first=Object.keys(fields).find(k=>errors[k].classList.contains('show'));if(first){message('error','Revisa los campos marcados.','Corrige los datos para continuar.');fields[first].focus();return}
+message('success','Formulario validado correctamente.','Para crear una cuenta real, conecta este formulario al endpoint de registro de tu aplicación Rails.');submit.querySelector('span').textContent='Datos validados';submit.disabled=true;setTimeout(()=>{submit.querySelector('span').textContent='Crear cuenta';submit.disabled=false},2200);
+});
+})();
+</script>
+</body>
+</html>

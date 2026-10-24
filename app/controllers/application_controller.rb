@@ -5,6 +5,8 @@ class ApplicationController < ActionController::Base
 
   include Chartkick::Helper
 
+  layout :layout_for_request
+
   before_action :authenticate_user!
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -20,4 +22,17 @@ class ApplicationController < ActionController::Base
   # rescue_from StandardError do |exception|
   #   render json: { status: 'error', message: exception.message }, status: :internal_server_error
   # end
+
+  private
+
+  # Signed-out Devise screens (sign in/up, password recovery, confirmations)
+  # use the branded auth layout. Profile management stays in the application
+  # shell; the password reset action also signs the user in before rendering
+  # its success state, so session state is not a reliable discriminator.
+  def layout_for_request
+    return "application" unless devise_controller?
+    return "application" if controller_name == "registrations" && %w[edit update destroy].include?(action_name)
+
+    "auth"
+  end
 end

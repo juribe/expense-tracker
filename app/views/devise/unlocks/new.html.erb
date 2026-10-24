@@ -1,25 +1,24 @@
-<div class="row justify-content-center">
-  <div class="col-12 col-md-6 col-lg-4">
-    <div class="card my-5">
-      <div class="card-body p-4 p-md-5">
-        <h1 class="h3 mb-1 text-center fw-bold"><%= t("auth.resend_unlock") %></h1>
-        <p class="text-muted text-center mb-4"><%= t("auth.unlock_prompt", default: "Te enviaremos instrucciones para desbloquear tu cuenta.") %></p>
+<% content_for :title, "#{t("auth.resend_unlock")} | #{t("layout.app_title")}" %>
 
-        <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
-          <%= render "devise/shared/error_messages", resource: resource %>
-
-          <div class="mb-3">
-            <%= f.label :email, class: "form-label" %>
-            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control form-control-lg", placeholder: t("auth.email_placeholder") %>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-lg w-100"><%= t("auth.resend_unlock") %></button>
-        <% end %>
-
-        <%= render "devise/shared/links" %>
-      </div>
-    </div>
-  </div>
+<div class="auth-heading">
+  <h1><%= t("auth.resend_unlock") %></h1>
+  <p><%= t("auth.unlock_prompt", default: "Te enviaremos instrucciones para desbloquear tu cuenta.") %></p>
 </div>
 
-<%= render "devise/shared/auth_scripts" %>
+<%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="auth-field">
+    <%= f.label :email, class: "auth-label" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "auth-input", placeholder: t("auth.email_placeholder") %>
+  </div>
+
+  <button type="submit" class="auth-submit">
+    <span><%= t("auth.resend_unlock") %></span>
+    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+  </button>
+<% end %>
+
+<div class="auth-links">
+  <%= render "devise/shared/links" %>
+</div>

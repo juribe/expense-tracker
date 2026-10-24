@@ -25,6 +25,54 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{new_user_session_path}']", text: I18n.t("auth.log_in")
   end
 
+  test "sign up page renders inside the dedicated auth layout" do
+    get new_user_registration_path
+
+    assert_response :success
+    assert_select "[data-testid='auth-page']", count: 1
+    assert_select ".auth-intro"
+    assert_select ".auth-card form.auth-form"
+    assert_select "#main-wrapper", count: 0
+  end
+
+  test "sign in page renders inside the dedicated auth layout" do
+    get new_user_session_path
+
+    assert_response :success
+    assert_select "[data-testid='auth-page']", count: 1
+    assert_select ".auth-intro"
+    assert_select ".auth-card form.auth-form"
+    assert_select "#main-wrapper", count: 0
+  end
+
+  test "forgot password page renders inside the dedicated auth layout" do
+    get new_user_password_path
+
+    assert_response :success
+    assert_select "[data-testid='auth-page']", count: 1
+    assert_select ".auth-card form.auth-form"
+    assert_select "#main-wrapper", count: 0
+  end
+
+  test "reset password page renders inside the dedicated auth layout" do
+    token = @user.send_reset_password_instructions
+    get edit_user_password_path(reset_password_token: token)
+
+    assert_response :success
+    assert_select "[data-testid='auth-page']", count: 1
+    assert_select ".auth-card form.auth-form"
+    assert_select "#main-wrapper", count: 0
+  end
+
+  test "registration edit keeps the signed-in application shell" do
+    sign_in @user
+    get edit_user_registration_path
+
+    assert_response :success
+    assert_select "#main-wrapper", count: 1
+    assert_select "[data-testid='auth-page']", count: 0
+  end
+
   test "sign up creates a user with name and signs them in" do
     assert_difference("User.count", 1) do
       post user_registration_path, params: {
@@ -57,6 +105,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_select "#error_explanation"
     assert_select ".alert-danger"
+    assert_select "[data-testid='auth-page']", count: 1
   end
 
   test "sign in page renders fields, remember me, forgot password and sign up link" do
@@ -85,6 +134,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     }
     assert_response :unprocessable_entity
     assert_select ".alert-danger"
+    assert_select "[data-testid='auth-page']", count: 1
   end
 
   test "forgot password page renders email field and back to sign in link" do
@@ -103,6 +153,8 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: I18n.t("devise.passwords.sent_title", default: "Revisa tu bandeja de entrada")
     assert_select ".alert-success", /correo/
+    assert_select ".auth-card .alert-success", count: 1
+    assert_select "[data-testid='auth-page']", count: 1
     assert_equal @user.email, ActionMailer::Base.deliveries.last.to.first
   end
 
@@ -136,7 +188,9 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: I18n.t("devise.passwords.updated_title", default: "Contraseña actualizada")
     assert_select ".alert-success", /contraseña/
+    assert_select ".auth-card .alert-success", count: 1
     assert_select "[data-auto-redirect-to='#{root_path}']"
+    assert_select "[data-testid='auth-page']", count: 1
     assert @user.reload.valid_password?("newpassword456")
     assert_equal @user.id, session["warden.user.user.key"].first.first
   end

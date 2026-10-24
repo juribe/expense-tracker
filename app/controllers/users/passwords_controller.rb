@@ -10,7 +10,10 @@ class Users::PasswordsController < Devise::PasswordsController
     yield resource if block_given?
 
     if successfully_sent?(resource)
-      @success_notice = "We've emailed a reset link. Check your inbox."
+      # The screen renders its own inline confirmation; drop Devise's flash so
+      # the same message is not shown twice inside the card.
+      flash.delete(:notice)
+      @success_notice = t("auth.reset_link_sent")
       render :new
     else
       respond_with(resource)
@@ -34,7 +37,8 @@ class Users::PasswordsController < Devise::PasswordsController
         set_flash_message!(:notice, :updated_not_active)
       end
 
-      @success_notice = "Your password has been updated."
+      flash.delete(:notice)
+      @success_notice = t("auth.password_updated")
       render :edit
     else
       set_minimum_password_length

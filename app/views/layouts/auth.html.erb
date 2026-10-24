@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+  <head>
+    <title><%= content_for(:title) || t("layout.app_title") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#eaf2ff">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%= javascript_include_tag "theme_back_paint" %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <%= stylesheet_link_tag "themes/spike", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :theme, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :auth, "data-turbo-track": "reload" %>
+  </head>
+
+  <body class="auth-body">
+    <div class="auth-page" data-testid="auth-page">
+      <div class="auth-blob auth-blob-one" aria-hidden="true"></div>
+      <div class="auth-blob auth-blob-two" aria-hidden="true"></div>
+      <div class="auth-blob auth-blob-three" aria-hidden="true"></div>
+
+      <div class="auth-top-login">
+        <% if controller_name == "sessions" %>
+          <%= t("auth.sign_up_prompt") %>
+          <%= link_to t("auth.sign_up"), new_registration_path(resource_name) %>
+        <% else %>
+          <%= t("auth.sign_in_prompt") %>
+          <%= link_to t("auth.log_in"), new_session_path(resource_name) %>
+        <% end %>
+      </div>
+
+      <main class="auth-shell">
+        <section class="auth-intro" aria-label="<%= t("auth.intro.aria_label") %>">
+          <div class="auth-brand">
+            <span class="auth-brand-icon" aria-hidden="true"><i class="ti ti-wallet"></i></span>
+            <div>
+              <div class="auth-brand-name"><%= t("layout.app_title") %></div>
+              <div class="auth-brand-tag"><%= t("auth.intro.brand_tag") %></div>
+            </div>
+          </div>
+
+          <div class="auth-pitch">
+            <div class="auth-kicker"><%= t("auth.intro.kicker") %></div>
+            <h1 class="auth-title"><%= t("auth.intro.title_html") %></h1>
+            <p class="auth-lead"><%= t("auth.intro.lead") %></p>
+          </div>
+
+          <div class="auth-features">
+            <div class="auth-feature">
+              <span class="auth-feature-icon" aria-hidden="true"><i class="ti ti-chart-bar"></i></span>
+              <div>
+                <div class="auth-feature-title"><%= t("auth.intro.features.reports.title") %></div>
+                <div class="auth-feature-copy"><%= t("auth.intro.features.reports.copy") %></div>
+              </div>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon" aria-hidden="true"><i class="ti ti-wand"></i></span>
+              <div>
+                <div class="auth-feature-title"><%= t("auth.intro.features.ai.title") %></div>
+                <div class="auth-feature-copy"><%= t("auth.intro.features.ai.copy") %></div>
+              </div>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon" aria-hidden="true"><i class="ti ti-target-arrow"></i></span>
+              <div>
+                <div class="auth-feature-title"><%= t("auth.intro.features.goals.title") %></div>
+                <div class="auth-feature-copy"><%= t("auth.intro.features.goals.copy") %></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-preview" aria-hidden="true">
+            <div class="auth-preview-window">
+              <div class="auth-preview-head">
+                <div class="auth-preview-brand">
+                  <span class="auth-mini-icon"><i class="ti ti-wallet"></i></span>
+                  <%= t("layout.app_title") %>
+                </div>
+                <div class="auth-period">
+                  <%= t("auth.intro.preview.period") %>
+                  <i class="ti ti-chevron-down"></i>
+                </div>
+              </div>
+
+              <div class="auth-preview-body">
+                <div class="auth-preview-nav">
+                  <div class="auth-navrow auth-navrow-active"><i class="ti ti-layout-dashboard"></i> <%= t("auth.intro.preview.nav.dashboard") %></div>
+                  <div class="auth-navrow"><i class="ti ti-receipt"></i> <%= t("auth.intro.preview.nav.expenses") %></div>
+                  <div class="auth-navrow"><i class="ti ti-download"></i> <%= t("auth.intro.preview.nav.incomes") %></div>
+                  <div class="auth-navrow"><i class="ti ti-arrows-exchange"></i> <%= t("auth.intro.preview.nav.transfers") %></div>
+                  <div class="auth-navrow"><i class="ti ti-tags"></i> <%= t("auth.intro.preview.nav.categories") %></div>
+                  <div class="auth-navrow"><i class="ti ti-chart-pie"></i> <%= t("auth.intro.preview.nav.reports") %></div>
+                </div>
+
+                <div class="auth-dash">
+                  <div class="auth-small-label"><%= t("auth.intro.preview.expenses_label") %></div>
+                  <div class="auth-total">
+                    <%= t("auth.intro.preview.expenses_total") %>
+                    <span class="auth-change"><i class="ti ti-arrow-up-right"></i> 12%</span>
+                  </div>
+
+                  <div class="auth-chart">
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                    <div class="auth-bar"></div>
+                  </div>
+                  <div class="auth-months">
+                    <% t("auth.intro.preview.months").each do |month| %>
+                      <span><%= month %></span>
+                    <% end %>
+                  </div>
+
+                  <div class="auth-categories">
+                    <div class="auth-cat">
+                      <span><%= t("auth.intro.preview.categories.food") %></span>
+                      <div class="auth-track"><div class="auth-fill"></div></div>
+                      <span class="auth-pct">38%</span>
+                    </div>
+                    <div class="auth-cat">
+                      <span><%= t("auth.intro.preview.categories.transport") %></span>
+                      <div class="auth-track"><div class="auth-fill"></div></div>
+                      <span class="auth-pct">22%</span>
+                    </div>
+                    <div class="auth-cat">
+                      <span><%= t("auth.intro.preview.categories.housing") %></span>
+                      <div class="auth-track"><div class="auth-fill"></div></div>
+                      <span class="auth-pct">15%</span>
+                    </div>
+                    <div class="auth-cat">
+                      <span><%= t("auth.intro.preview.categories.entertainment") %></span>
+                      <div class="auth-track"><div class="auth-fill"></div></div>
+                      <span class="auth-pct">8%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-intro-foot"><%= t("auth.intro.foot") %></div>
+        </section>
+
+        <section class="auth-form-area" aria-label="<%= t("auth.intro.form_aria_label") %>">
+          <div class="auth-card">
+            <% if notice %>
+              <div class="alert alert-success auth-alert" role="alert"><%= notice %></div>
+            <% end %>
+            <% if alert %>
+              <div class="alert alert-danger auth-alert" role="alert"><%= alert %></div>
+            <% end %>
+
+            <%= yield %>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <%= javascript_include_tag "auth_form", defer: true %>
+  </body>
+</html>
