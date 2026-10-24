@@ -54,7 +54,7 @@
         <% @onboarding.pending_steps.each_with_index do |step, index| %>
           <div class="col-12 col-lg-4">
             <article class="card h-100 onboarding-card <%= "onboarding-card--initial" if step.key == "initial" %>"
-                     data-testid="onboarding-card-<%= step.key %>">
+                     data-testid="onboarding-card-<%= step.key %>" data-onboarding-card="<%= step.key %>">
               <div class="card-body d-flex flex-column">
                 <div class="d-flex align-items-center gap-2 mb-3">
                   <span class="onboarding-card-number"><%= index + 1 %></span>
