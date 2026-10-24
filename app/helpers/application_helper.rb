@@ -109,6 +109,22 @@ module ApplicationHelper
     @user_expense_categories ||= current_user.present? ? Category.for_user_and_type(current_user, "expense") : []
   end
 
+  # Friendly user label for the app chrome (sidebar profile, topbar menu):
+  # stored name when present, email local part as fallback so the label is
+  # never empty.
+  def user_display_name(user)
+    name = user.name.presence
+    return name.titleize if name
+
+    user.email.sub(/@.*\z/, "")
+  end
+
+  # Up to two initials for avatar chips, taken from the display name's words.
+  def user_initials(user)
+    initials = user.name.to_s.split(/\s+/).first(2).map { |part| part.chars.first.to_s }.join
+    initials.present? ? initials.upcase : user.email[0, 2].upcase
+  end
+
   def active_class(controller)
     controller_name == controller ? "active" : ""
   end
