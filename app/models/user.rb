@@ -37,6 +37,7 @@ class User < ApplicationRecord
   has_many :expense_clarifications, dependent: :destroy
   has_many :custom_financial_institutions, dependent: :destroy
   has_one :alert_preference, dependent: :destroy
+  has_one :onboarding_progress, dependent: :destroy
 
   # WhatsApp linking: connections and pending tokens die with the account;
   # identities only nullify their claim so the historical row survives.

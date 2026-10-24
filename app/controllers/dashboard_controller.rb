@@ -28,6 +28,7 @@ class DashboardController < ApplicationController
     @categories = Category.for_user_and_type(current_user, "expense")
     @money_sources = MoneySource.payment_origins(current_user)
     @position = Dashboard::PositionSnapshot.call(user: current_user)
+    @onboarding = Dashboard::Onboarding.new(user: current_user)
   end
 
   # The equivalent previous window (a month back, or the prior cycle), so the

@@ -230,4 +230,81 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, '"decimal":","'
     assert_includes response.body, '"round":0'
   end
+
+  # ------------------------------------------------- onboarding setup banner
+
+  test "GET /dashboard shows the onboarding banner with the three setup cards for a new user" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "section[data-testid=onboarding]" do
+      assert_select "h2.card-title", text: I18n.t("onboarding.title")
+    end
+    %w[initial gmail whatsapp].each do |step|
+      assert_select "[data-testid='onboarding-card-#{step}']"
+    end
+    assert_select "[data-testid=onboarding-dismiss]"
+    assert_select "[data-testid=onboarding-skip-all]", count: 1
+  end
+
+  test "GET /dashboard hides a permanently skipped card and keeps the others" do
+    OnboardingProgress.for_user(@user).skip!(:initial)
+
+    sign_in @user
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=onboarding-card-initial]", count: 0
+    assert_select "[data-testid=onboarding-card-gmail]"
+    assert_select "[data-testid=onboarding-card-whatsapp]"
+  end
+
+  test "GET /dashboard hides the whole banner when every step is skipped" do
+    OnboardingProgress.for_user(@user).skip_all!([ "initial", "gmail", "whatsapp" ])
+
+    sign_in @user
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=onboarding]", count: 0
+  end
+
+  test "GET /dashboard hides the initial card once the financial setup is completed" do
+    @user.financial_setups.create!(status: "completed")
+
+    sign_in @user
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=onboarding-card-initial]", count: 0
+    assert_select "[data-testid=onboarding-card-gmail]"
+    assert_select "[data-testid=onboarding-card-whatsapp]"
+  end
+
+  test "GET /dashboard hides the gmail card with an active connection" do
+    @user.gmail_connections.create!(email: "dashboard_setup@example.com", active: true)
+
+    sign_in @user
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=onboarding-card-gmail]", count: 0
+    assert_select "[data-testid=onboarding-card-initial]"
+    assert_select "[data-testid=onboarding-card-whatsapp]"
+  end
+
+  test "GET /dashboard hides the whatsapp card when connected" do
+    identity = WhatsappIdentity.create!(phone_number: "573001234567", claimed_by_user: @user, claimed_at: Time.current)
+    @user.whatsapp_connections.create!(whatsapp_identity: identity, connected_at: Time.current)
+
+    sign_in @user
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=onboarding-card-whatsapp]", count: 0
+    assert_select "[data-testid=onboarding-card-initial]"
+    assert_select "[data-testid=onboarding-card-gmail]"
+  end
 end

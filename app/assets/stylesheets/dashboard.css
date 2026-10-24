@@ -110,3 +110,302 @@
 [data-bs-theme="dark"] .metric-card--credit .icon-chip { background: rgba(42, 109, 245, 0.22); }
 [data-bs-theme="dark"] .metric-card--savings .icon-chip { background: rgba(121, 41, 232, 0.28); }
 [data-bs-theme="dark"] .metric-card--normal-debt .icon-chip { background: rgba(178, 106, 0, 0.26); }
+
+/* ---------------------------------------------------- Onboarding banner
+ * Setup banner at the top of the dashboard: soft blue hero surface with
+ * up to three step cards (initial setup / Gmail / WhatsApp). */
+.onboarding-banner {
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(42, 109, 245, 0.10), transparent 45%),
+    linear-gradient(130deg, #f2f8ff, #fff 58%, #edf4ff);
+}
+[data-bs-theme="dark"] .onboarding-banner {
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(42, 109, 245, 0.16), transparent 45%),
+    linear-gradient(130deg, rgba(42, 109, 245, 0.08), transparent 60%);
+}
+
+/* Hero: eyebrow pill, big title, subtitle + decorative art (desktop only) */
+.onboarding-hero { position: relative; padding-bottom: 1.6rem; }
+.onboarding-hero-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+.onboarding-close {
+  border: 0;
+  background: transparent;
+  color: var(--et-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.3rem;
+  line-height: 1;
+}
+.onboarding-close:hover { color: var(--bs-body-color); background: rgba(15, 34, 58, 0.05); }
+[data-bs-theme="dark"] .onboarding-close:hover { background: rgba(255, 255, 255, 0.08); }
+
+.onboarding-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(42, 109, 245, 0.10);
+  color: var(--et-balance);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.onboarding-title {
+  font-size: 1.9rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-top: 0.6rem;
+}
+@media (min-width: 992px) { .onboarding-title { font-size: 2.25rem; } }
+.onboarding-subtitle {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--et-muted);
+  max-width: 46rem;
+}
+.onboarding-pending-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(42, 109, 245, 0.10);
+  color: var(--et-balance);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Decorative hero art: orbit + floating tiles + progress checklist */
+.onboarding-hero-art {
+  position: relative;
+  height: 11rem;
+  align-items: center;
+  justify-content: center;
+}
+.onboarding-orbit {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 15rem;
+  height: 10rem;
+  border: 2px dashed rgba(42, 109, 245, 0.35);
+  border-radius: 50%;
+}
+.onboarding-hero-art .float-icon {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 1.1rem;
+  background: #fff;
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 8px 18px rgba(9, 42, 89, 0.08);
+  color: var(--et-balance);
+  font-size: 1.4rem;
+}
+[data-bs-theme="dark"] .onboarding-hero-art .float-icon { background: var(--et-surface); }
+.onboarding-hero-art .float-icon:nth-of-type(2) { top: 1.4rem; left: 1rem; }
+.onboarding-hero-art .float-icon.doc { bottom: 1rem; left: 2.4rem; font-size: 1.15rem; }
+.onboarding-hero-art .float-icon.chart { top: 4.5rem; right: -0.25rem; font-size: 1.15rem; }
+.onboarding-checklist {
+  position: relative;
+  z-index: 1;
+  margin-left: 4.5rem;
+  min-width: 13.5rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1.1rem;
+  background: #fff;
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 14px 30px rgba(9, 42, 89, 0.10);
+  font-size: 0.8125rem;
+}
+[data-bs-theme="dark"] .onboarding-checklist { background: var(--et-surface); }
+.checklist-head {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 8px 18px rgba(9, 42, 89, 0.10);
+  color: var(--et-balance);
+}
+[data-bs-theme="dark"] .checklist-head { background: var(--et-surface); }
+.checkrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  color: var(--et-muted);
+  font-weight: 600;
+}
+.checkrow .dot {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  border: 2px solid rgba(109, 125, 140, 0.55);
+  color: #fff;
+  font-size: 0.62rem;
+  flex-shrink: 0;
+}
+.checkrow .dot.done { background: var(--et-positive); border-color: var(--et-positive); }
+.checkrow .dot.done ~ * { color: var(--bs-body-color); }
+
+/* Step card number: solid blue circle */
+.onboarding-card-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  background: var(--et-balance);
+  color: #fff;
+}
+
+/* Pills: amber "Recomendado", gray-blue "Opcional" */
+.pill-recommended,
+.pill-optional {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.pill-recommended { background: rgba(255, 190, 53, 0.22); color: var(--et-attention); }
+[data-bs-theme="dark"] .pill-recommended { background: rgba(178, 106, 0, 0.3); color: #ffc861; }
+.pill-optional { background: rgba(42, 109, 245, 0.10); color: var(--et-balance); }
+[data-bs-theme="dark"] .pill-optional { background: rgba(42, 109, 245, 0.2); color: #7fa7f7; }
+
+/* The recommended first step gets a solid accent; the optional ones stay calm */
+.onboarding-card--initial { border-color: rgba(42, 109, 245, 0.45); }
+[data-bs-theme="dark"] .onboarding-card--initial { border-color: rgba(42, 109, 245, 0.55); }
+
+.onboarding-card-desc {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--et-muted);
+  margin-bottom: 0.9rem;
+}
+
+/* Decorative mini illustration inside each card */
+.onboarding-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.15rem 0 0.9rem;
+}
+.illustration-tile {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.85rem;
+  background: var(--et-balance);
+  color: #fff;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.illustration-tile.purple { background: var(--et-saving); color: #f4efff; }
+.illustration-tile.green  { background: #25d366; color: #fff; }
+.mini-note {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--et-muted);
+  white-space: nowrap;
+}
+.mini-note strong {
+  display: block;
+  color: var(--et-negative);
+  font-variant-numeric: tabular-nums;
+}
+.illustration-tile.green + .mini-note strong { color: var(--et-positive); }
+
+/* Benefits list with green tick chips */
+.onboarding-benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--et-muted);
+  display: grid;
+  gap: 0.42rem;
+}
+.benefit-tick {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  background: rgba(14, 159, 110, 0.14);
+  color: var(--et-positive);
+  font-size: 0.62rem;
+  margin-right: 0.45rem;
+  vertical-align: -0.15em;
+}
+
+/* Card actions: big CTA + small secondary actions */
+.onboarding-cta {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  font-weight: 700;
+}
+.onboarding-cta--primary { background: var(--et-balance); border-color: var(--et-balance); color: #fff; }
+.onboarding-cta--primary:hover, .onboarding-cta--primary:focus { background: #1c5be0; border-color: #1c5be0; color: #fff; }
+.onboarding-cta--primary .ti { font-size: 1rem; }
+.onboarding-cta--primary .ti-arrow-right { justify-self: end; }
+.onboarding-cta--outline { border: 1px solid rgba(42, 109, 245, 0.35); color: var(--et-balance); background: transparent; }
+.onboarding-cta--outline:hover, .onboarding-cta--outline:focus { background: rgba(42, 109, 245, 0.06); color: var(--et-balance); border-color: rgba(42, 109, 245, 0.55); }
+.onboarding-cta--green { border: 1px solid rgba(37, 211, 102, 0.5); color: #128c55; background: rgba(37, 211, 102, 0.10); }
+[data-bs-theme="dark"] .onboarding-cta--green { color: #4ade80; }
+.onboarding-cta--green:hover, .onboarding-cta--green:focus { background: rgba(37, 211, 102, 0.18); color: #128c55; border-color: rgba(37, 211, 102, 0.7); }
+.onboarding-skip-btn { border-radius: 999px; border: 1px solid rgba(42, 109, 245, 0.35); color: var(--et-balance); }
+.onboarding-skip-btn:hover, .onboarding-skip-btn:focus { background: rgba(42, 109, 245, 0.06); color: var(--et-balance); border-color: rgba(42, 109, 245, 0.55); }
+.text-underline-hover:hover { text-decoration: underline !important; }
+
+/* Bottom note with bulb chip */
+.onboarding-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--et-card-radius);
+  background: rgba(42, 109, 245, 0.05);
+  font-size: 0.8125rem;
+  color: var(--et-muted);
+}
+[data-bs-theme="dark"] .onboarding-note { background: rgba(42, 109, 245, 0.10); }
+.onboarding-bulb {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--bs-border-color);
+  color: var(--et-attention);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+[data-bs-theme="dark"] .onboarding-bulb { background: var(--et-surface); }

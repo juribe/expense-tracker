@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "app/controllers/dashboard_controller.rb": {
-    "mtime": 1792849928.1674585,
-    "seen": 1792857266.808356,
-    "ast_hash": "ec14dfa108efb97dbd452b4164e989cf",
+    "mtime": 1792860214.0956173,
+    "seen": 1792861214.242773,
+    "ast_hash": "21a374b2902a1a92d16a7eefbe129690",
     "semantic_hash": ""
   },
   "app/controllers/expenses_controller.rb": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
-    "mtime": 1791498216.1995857,
-    "seen": 1792857266.808432,
-    "ast_hash": "42c562a7a2d5361b3cabb9ad5e9ff930",
+    "mtime": 1792860695.1391423,
+    "seen": 1792861214.2428632,
+    "ast_hash": "ec73bbee29c1c52da4a142d73770e200",
     "semantic_hash": ""
   },
   "app/helpers/expenses_helper.rb": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "app/models/user.rb": {
-    "mtime": 1792854101.8585987,
-    "seen": 1792857266.808528,
-    "ast_hash": "6a3ad56177b12c64d63d1a9a24f82cf0",
+    "mtime": 1792860200.7479944,
+    "seen": 1792861214.2429628,
+    "ast_hash": "34d2edd26add68bf8964012ca8d68526",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1792858721.9370065,
-    "seen": 1792859241.787775,
-    "ast_hash": "8f37d5286dfd2dac89b6957a2e64a23a",
+    "mtime": 1792860208.3857083,
+    "seen": 1792861214.243368,
+    "ast_hash": "dcc94c51fccbcaa56e9b4a8e393f0330",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1792858683.2153792,
-    "seen": 1792859241.7877991,
-    "ast_hash": "76f5bd89d76bb4fd357ee4d0a78df820",
+    "mtime": 1792860856.8237405,
+    "seen": 1792861214.243392,
+    "ast_hash": "28f17d244f1f904a3ee8f5737b26c53b",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1792849928.2057483,
-    "seen": 1792857266.8093922,
-    "ast_hash": "95300af6abf646faa8c3b1e0882efad9",
+    "mtime": 1792861730.3950868,
+    "seen": 1792862591.202877,
+    "ast_hash": "fe8ca9a967e9875304d4ad4f5b5f49c8",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1792856875.9960487,
-    "seen": 1792857266.809393,
-    "ast_hash": "f68231c38788d074599a4edcb6250c6a",
+    "mtime": 1792861776.7836206,
+    "seen": 1792862591.20288,
+    "ast_hash": "d436d303aa0f8974ec19bae4ac37a7ab",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792859168.7659507,
-    "seen": 1792859241.7883499,
+    "mtime": 1792862531.0755548,
+    "seen": 1792862591.2028859,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1674,9 +1674,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1792703593.228153,
-    "seen": 1792857266.8090198,
-    "ast_hash": "71ba1168eb422ae0c6af92035538b2bc",
+    "mtime": 1792860612.385433,
+    "seen": 1792861214.243511,
+    "ast_hash": "6b223b639de4d92a6546c2c20e25d82a",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
@@ -5253,6 +5253,54 @@
     "mtime": 1792858721.9370615,
     "seen": 1792859241.787222,
     "ast_hash": "3a9ec0f3ba930e4d6a2a14b0ee0bb302",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/onboarding.js": {
+    "mtime": 1792860519.5942254,
+    "seen": 1792861214.242721,
+    "ast_hash": "488f6565cf8ec8bd7810d8a40f994f42",
+    "semantic_hash": ""
+  },
+  "app/controllers/onboarding_controller.rb": {
+    "mtime": 1792860208.3839989,
+    "seen": 1792861214.24281,
+    "ast_hash": "da50cd227bb960a19369cc20bb982a0d",
+    "semantic_hash": ""
+  },
+  "app/models/onboarding_progress.rb": {
+    "mtime": 1792860192.3283458,
+    "seen": 1792861214.242941,
+    "ast_hash": "6aba993a676672aae67a6e91a6239d52",
+    "semantic_hash": ""
+  },
+  "app/services/dashboard/onboarding.rb": {
+    "mtime": 1792860200.7480736,
+    "seen": 1792861214.243047,
+    "ast_hash": "5517aa0cc8664ba23da343911bbbfde8",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261024130000_create_onboarding_progresses.rb": {
+    "mtime": 1792860192.328308,
+    "seen": 1792861214.243389,
+    "ast_hash": "b1b96146b3b08743df6d5b184dd53458",
+    "semantic_hash": ""
+  },
+  "playwright/onboarding.spec.js": {
+    "mtime": 1792860888.811792,
+    "seen": 1792861214.2434518,
+    "ast_hash": "9bc648792861c03ec07ddf5e74a1b5fc",
+    "semantic_hash": ""
+  },
+  "test/controllers/onboarding_controller_test.rb": {
+    "mtime": 1792860141.364246,
+    "seen": 1792861214.2435431,
+    "ast_hash": "00602f7420bfc0181988618c3633068d",
+    "semantic_hash": ""
+  },
+  "test/models/onboarding_progress_test.rb": {
+    "mtime": 1792860364.330645,
+    "seen": 1792861214.243629,
+    "ast_hash": "e8de08dbdff3e1b9f4c9362744ef782e",
     "semantic_hash": ""
   }
 }

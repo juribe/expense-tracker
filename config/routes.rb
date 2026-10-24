@@ -225,6 +225,11 @@ Rails.application.routes.draw do
   root "dashboard#index"
   get "dashboard", to: "dashboard#index", as: :dashboard
 
+  # Dashboard setup banner (onboarding): per-user permanent skips. «No ahora»
+  # and the banner close button never reach the server.
+  post "onboarding/skip/:step", to: "onboarding#skip", as: :onboarding_skip
+  post "onboarding/skip_all", to: "onboarding#skip_all", as: :onboarding_skip_all
+
   # Hybrid financial setup wizard
   get "financial_setup", to: "financial_setups#show", as: :financial_setup
   get "financial_setup/done", to: "financial_setups#done", as: :financial_setup_done

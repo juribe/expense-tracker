@@ -62,4 +62,20 @@ module DashboardHelper
   def dashboard_category_palette(count)
     DASHBOARD_CHART_COLORS.first(count)
   end
+
+  def onboarding_step_path(step)
+    case step
+    when "initial" then financial_setup_path
+    when "gmail" then gmail_connection_path
+    when "whatsapp" then whatsapp_settings_path
+    end
+  end
+
+  def onboarding_step_icon(step)
+    case step
+    when "initial" then "ti-building-bank"
+    when "gmail" then "ti-mail"
+    when "whatsapp" then "ti-brand-whatsapp"
+    end
+  end
 end
