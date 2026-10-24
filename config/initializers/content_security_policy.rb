@@ -2,8 +2,10 @@
 
 Rails.application.configure do
   # 'unsafe-inline' remains in style-src only because the views still carry
-  # inline style= attributes; the script-src directive is fully strict now
-  # that all application JavaScript lives in modules.
+  # inline style= attributes and Chartkick charts; the script-src directive is
+  # fully strict now that all application JavaScript lives in modules. The
+  # nonce generator lets Chartkick's generated inline chart scripts execute
+  # (the gem adds nonce= to them automatically when it is configured).
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.base_uri :self
@@ -17,4 +19,7 @@ Rails.application.configure do
     policy.frame_src :self
     policy.frame_ancestors :self
   end
+
+  config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
+  config.content_security_policy_nonce_directives = %w[script-src]
 end

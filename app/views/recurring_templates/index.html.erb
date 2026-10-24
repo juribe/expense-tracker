@@ -1,4 +1,5 @@
-<div data-testid="recurring-page" data-auto-open-form-modal="<%= @recurring_template.persisted? ? "edit" : "create" %>">
+<% page_attrs = @open_form_modal ? { data: { auto_open_form_modal: (@recurring_template.persisted? ? "edit" : "create") } } : {} %>
+<div data-testid="recurring-page"<%= tag.attributes(page_attrs) %>>
 <%= tag.div class: "d-none", data: { recurring_ui_payload: {
   edit_title: t("monthly_incomes.form.edit_title"),
   add_title: t("monthly_incomes.form.add_title"),

@@ -199,10 +199,10 @@ function initializeAiEntry() {
     dateField.className = "form-control form-control-sm ai-field-date";
     dateField.value = expense.transaction_date || todayISO();
     dateField.setAttribute("aria-label", T.common_date);
-    grid.appendChild(labeledField(<%= raw(t("common.date").to_json) %>, dateField, "col-6 col-md-2"));
+    grid.appendChild(labeledField(T.common_date, dateField, "col-6 col-md-2"));
 
     if (MONEY_SOURCES.length > 0) {
-      grid.appendChild(labeledField(<%= raw(t("expenses.ai_source").to_json) %>, buildSourceSelect(expense), "col-6 col-md-2"));
+      grid.appendChild(labeledField(T.ai_source, buildSourceSelect(expense), "col-6 col-md-2"));
     }
 
     var actions = document.createElement("div");
@@ -211,7 +211,7 @@ function initializeAiEntry() {
     remove.type = "button";
     remove.className = "btn btn-outline-danger btn-sm ai-remove";
     remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
-    remove.setAttribute("aria-label", <%= raw(t("expenses.ai_remove_expense").to_json) %>);
+    remove.setAttribute("aria-label", T.ai_remove_expense);
     actions.appendChild(remove);
     grid.appendChild(actions);
 

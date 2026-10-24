@@ -4,6 +4,6 @@
   document.addEventListener("change", function (e) {
     var el = e.target.closest("[data-auto-submit]");
     if (!el) return;
-    if (el.form) el.form.requestSubmit(el);
+    if (el.form) el.form.requestSubmit();
   });
 })();
