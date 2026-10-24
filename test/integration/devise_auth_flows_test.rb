@@ -120,7 +120,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "#user_remember_me"
     assert_select "a[href='#{new_user_password_path}']", text: I18n.t("auth.forgot_password")
     assert_select "a[href='#{new_user_registration_path}']", text: I18n.t("auth.sign_up")
-    assert_select "a[href='#{new_user_confirmation_path}']", text: I18n.t("auth.resend_confirmation")
+    assert_select "a[href='#{new_user_confirmation_path}']", count: 0
   end
 
   test "sign in with valid credentials redirects to the dashboard" do
