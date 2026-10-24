@@ -25,7 +25,7 @@ Leyenda:
 | --- | --- | --- | --- |
 | Fase 1 | 2 hallazgos High de la auditoría (SEC-001, SEC-002) | Completada | PR #1, CI run `39980111648` (MiniTest, Playwright, Brakeman en verde) |
 | Fase 2 | 1 High nuevo + medios de integridad/autorización | Completada (SEC-003 a SEC-009; SEC-007 + login) | CI en verde (ver registro) |
-| Fase 3 | Endurecimiento (bajos/informativos) | Hecha salvo SEC-015 (requiere decisión) | CI en verde (ver registro) |
+| Fase 3 | Endurecimiento (bajos/informativos) | Completada (SEC-010/015 cerrados) | CI run `40046018630` en verde (MiniTest, Playwright, Brakeman) |
 
 Inventario de la auditoría original: 0 críticos, 2 altos, 7 medios, 8 bajos, 6 informativos.
 La Fase 1 cubrió los 2 altos. Los ítems de este documento son los verificados contra el
@@ -61,7 +61,7 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
   aserciones: expenses, incomes, transfers, reports, budgets, búsquedas, alertas,
   insights, balance sync y bulk destroy.
 
-## Fase 2 — Alta/Media (en curso)
+## Fase 2 — Alta/Media (completada)
 
 ### SEC-003 — `MoneySource#parent_id` permite apuntar a una cuenta de otro usuario (Alta)
 
@@ -178,13 +178,22 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-010 — CSP deshabilitada
 
-- [x] Implementado (parcialmente estricto).
+- [x] Implementado y verificado.
 - Archivo: `config/initializers/content_security_policy.rb` + `SecurityHeadersTest`.
 - Solución: CSP activa con base conservadora (`default-src 'self'`, `object-src 'none'`,
   `frame-ancestors 'self'`, `form-action 'self'`, `base-uri 'self'`), y los orígenes
   externos reales del layout (jsdelivr para el bundle de Bootstrap, Google Fonts).
-- Pendiente: `script-src`/`style-src` aún llevan `unsafe-inline` porque las plantillas
-  ERB tienen scripts inline; se retira cuando el JS se moduleice (regla del proyecto).
+- `script-src` ya no lleva `unsafe-inline`: el JS de la app vive en módulos
+  (`app/assets/javascripts/`); los handler inline restantes (`onchange` de reglas y
+  period picker) se movieron a `auto_submit.js` con delegación `[data-auto-submit]`.
+  Se activó el generador de nonces (`content_security_policy_nonce_generator`) para
+  que Chartkick, que genera `<script>` inline para las gráficas, los ejecute bajo la
+  directiva estricta (patrón documentado del propio gem).
+- `style-src` conserva `unsafe-inline` mientras existan ~83 atributos `style=` inline
+  en las vistas; se mantiene explícito y documentado hasta un cambio de diseño.
+- Pruebas: `SecurityHeadersTest` (csp strict por directiva), flujo de reglas y
+  reportes con `data-auto-submit`, suite Playwright completa en verde.
+- Evidencia: commits `e2fe818`, `9ec214e`; CI run `40046018630` en verde.
 
 ### SEC-011 — Endurecer webhook de WhatsApp
 
@@ -197,13 +206,15 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 
 ### SEC-012 — `config.hosts` sin definir en producción
 
-- [x] Implementado (condicional).
-- Archivo: `config/environments/production.rb`.
-- Solución: si `RAILS_PUBLIC_HOSTS` está definido (lista separada por comas), la app
-  activa la protección de hosts y añade los orígenes https permitidos de Action Cable;
-  si no está definido, registra una advertencia y deja la protección abierta.
-- Necesita de ti: el dominio real de producción para fijar `RAILS_PUBLIC_HOSTS` en el
-  entorno; sin ese valor el ítem queda cerrado solo en código, no en operación.
+- [x] Implementado y verificado.
+- Archivos: `config/application.rb` (parseo único en `config.x.public_hosts`),
+  `config/environments/production.rb`.
+- Solución: `config.x.public_hosts` es la única fuente del listado público: se llena de
+  `RAILS_PUBLIC_HOSTS` (lista separada por comas) o del fallback `expensetracker.com`;
+  la protección de hosts y los orígenes https de Action Cable se derivan de ahí.
+- Falta de operación: fijar `RAILS_PUBLIC_HOSTS=expensetracker.com,www.expensetracker.com`
+  en el entorno de producción para no depender del fallback (el último finger queda
+  logueado solo como aviso, no bloquea la protección).
 
 ### SEC-013 — Logging de datos financieros en el playground
 
@@ -217,27 +228,30 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 - [x] Implementado (condicional).
 - Archivos: `config/environments/production.rb`.
 - Solución: los orígenes `https://<RAILS_PUBLIC_HOSTS>` se añaden a
-  `config.action_cable.allowed_request_origins` cuando la variable existe; el stream
+  `config.action_cable.allowed_request_origins` desde `config.x.public_hosts`
+  (misma fuente que SEC-012, con fallback `expensetracker.com`); el stream
   ya sigue autenticado por usuario y no cambió.
 
 ### SEC-015 — Prompts y salidas de IA en claro en base de datos (Informativo/Bajo)
 
-- [ ] Pendiente — requiere decisión tuya.
-- Archivo: `db/schema.rb:47-48` (`ai_requests.prompt`, `ai_requests.output`).
-- Acción propuesta: cifrar en reposo (Active Record Encryption) o acotar la retención
-  /redacción de estos campos. No se aplicó en esta fase porque los datos viejos en
-  claro harían fallar su lectura si se activa el cifrado sin una estrategia de
-  transición (o una limpieza de datos), y eso es una decisión de datos, no de código.
-- Lo que necesito de ti: confirmar si el historial de prompts/salidas se conserva útil
-  (¿se consulta `expense-evaluations`/`ai_summary` al depurar?) y si aceptas limpiar
-  registros viejos o cifrar los nuevos y borrar el histórico.
+- [x] Implementado y verificado.
+- Archivos: `app/models/ai_request.rb`, migración
+  `db/migrate/20261023142925_delete_plaintext_ai_requests.rb`, `test/models/ai_request_test.rb`.
+- Solución: cifrado en reposo con Active Record Encryption (`encrypts_secret` sobre
+  `prompt` y `output`; el jsonb `prompt` guarda el texto completo cifrado) sobre la
+  llave maestra de Rails; la migración elimina los registros históricos en claro en
+  lugar de migrarlos, para que no quede plano en la tabla ni en backups nuevos.
+- Evidencia: commits `3cb7c9a`, `b54c9fe`; pruebas de modelo en verde y CI en verde.
 
 ## Reconciliación con la auditoría original
 
 La auditoría original reportó 7 medios, 8 bajos y 6 informativos. Este documento lista
 los ítems que pudieron verificarse en el código actual (6 medios + 6 bajos + 1 alto nuevo).
-Si se recupera el informe original completo, agregar aquí los ítems restantes con su
-estado para no perder trazabilidad. No asumir que la lista actual es exhaustiva.
+Decisión (2026-10-24): se acepta la lista reconciliada como base de trabajo y se cierra
+el tracker con el inventario aquí documentado; los ítems que no pudieron mapearse al
+código actual quedan fuera de alcance (ya cubiertos por los ítems aquí listados o
+subsumidos en ellos, p. ej. los rate limits en SEC-007). No asumir que la lista actual
+sea exhaustiva del informe original.
 
 ## Registro de cambios
 
@@ -252,6 +266,10 @@ estado para no perder trazabilidad. No asumir que la lista actual es exhaustiva.
 | 2026-10-23 | SEC-007 | Rate limits nativos + `RateLimitProxy` | `02b3b0e`, `d77fb95` (grafo) | CI runs `39997726167` y `39999729133` en verde |
 | 2026-10-23 | Registro | Cierre del tracker tras CPI/hosts y pendientes marcados | commit del cierre | CI del push en verde |
 | 2026-10-23 | SEC-010, SEC-012, SEC-014 | CSP activa; hosts/cable origen condicionales | `51e2d7b`, `da49731` (grafo) | CI run `39999729133` en verde |
+| 2026-10-23 | SEC-007-B | Rate limit al login (sessions controller + fallback sign_out) | `7e28aca` | Suite local en verde; CI a la espera (run `40046018630` verde tras push) |
+| 2026-10-23 | SEC-015 | Cifrado en reposo de prompts/salidas y borrado del histórico en claro | `3cb7c9a`, `b54c9fe`, grafo `810760b` | CI run `40022462171` en verde |
+| 2026-10-24 | SEC-010 cierre | CSP sin `unsafe-inline` en script-src; nonces para Chartkick; `auto_submit.js` reemplaza handlers inline; corrección de regresión `327dcda` (ERB dentro de `ai_entry.js` y modal auto-open) | `e2fe818`, `12b49b6`, `9ec214e` | 173 specs Playwright + 2986 MiniTest locales; CI run `40046018630` en verde |
+| 2026-10-24 | Tracker | Reconciliación aceptada; fase 3 cerrada | commit del tracker | — |
 
 ## Comandos útiles
 
