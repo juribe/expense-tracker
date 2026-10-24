@@ -18,7 +18,21 @@ async function signUp(page, overrides = {}) {
   await expect(page.locator('body')).toBeVisible();
   await expect(page).not.toHaveURL(/sign_up/);
 
+  // Accounts must confirm their email before signing in. Specs cannot open the
+  // confirmation email, so the test-only endpoint confirms the account.
+  await confirmUser(page, email);
+  await signIn(page, email, password);
+
   return { email, password, name };
+}
+
+async function confirmUser(page, email) {
+  const response = await page.request.post('/test_support/confirm_user', {
+    form: { email }
+  });
+  if (!response.ok()) {
+    throw new Error(`Could not confirm ${email}: ${response.status()}`);
+  }
 }
 
 async function signIn(page, email, password) {

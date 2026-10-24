@@ -14,6 +14,12 @@ Rails.application.routes.draw do
   delete "settings/whatsapp/pending", to: "whatsapp_settings#cancel", as: :cancel_whatsapp_settings
   delete "settings/whatsapp", to: "whatsapp_settings#destroy", as: :disconnect_whatsapp_settings
 
+  # Playwright support: confirm users created through the sign-up form without
+  # opening the confirmation email. Only available in the test environment.
+  if Rails.env.test?
+    post "test_support/confirm_user", to: "test_support/confirmations#create"
+  end
+
   # Devise authentication
   devise_for :users, controllers: {
     registrations: "users/registrations",
