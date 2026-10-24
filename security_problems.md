@@ -186,14 +186,20 @@ código actual; al final hay una nota sobre la reconciliación con el informe or
 - `script-src` ya no lleva `unsafe-inline`: el JS de la app vive en módulos
   (`app/assets/javascripts/`); los handler inline restantes (`onchange` de reglas y
   period picker) se movieron a `auto_submit.js` con delegación `[data-auto-submit]`.
-  Se activó el generador de nonces (`content_security_policy_nonce_generator`) para
+- `style-src` quedó estricto a nivel global: los 83 `style=` inline de las vistas y del
+  helper `usage_progress`/módulos JS se migraron a clases utilitarias
+  (`app/assets/stylesheets/utilities.css`: anchos .et-w-0..100, chips de tamaño,
+  swatches de paletas fijas, contenedores, alturas de progreso). Solo las páginas con
+  gráficas Chartkick/Chart.js (dashboard, `Reports::CategorySpending`,
+  `Reports::SpendingTrend`) relajan `style-src` por acción, porque la librería
+  genera markup con estilos inline; patrón documentado por el propio gem.
+- Se activó el generador de nonces (`content_security_policy_nonce_generator`) para
   que Chartkick, que genera `<script>` inline para las gráficas, los ejecute bajo la
-  directiva estricta (patrón documentado del propio gem).
-- `style-src` conserva `unsafe-inline` mientras existan ~83 atributos `style=` inline
-  en las vistas; se mantiene explícito y documentado hasta un cambio de diseño.
-- Pruebas: `SecurityHeadersTest` (csp strict por directiva), flujo de reglas y
-  reportes con `data-auto-submit`, suite Playwright completa en verde.
-- Evidencia: commits `e2fe818`, `9ec214e`; CI run `40046018630` en verde.
+  directiva estricta de scripts.
+- Pruebas: `SecurityHeadersTest` (CSP por directiva, relajada solo en páginas de
+  gráficas), suite MiniTest y Playwright completas en verde.
+- Evidencia: commits `e2fe818`, `9ec214e`, `1dbaf83`; CI run `40053414594` en verde
+  (re-run tras un flake de infraestructura).
 
 ### SEC-011 — Endurecer webhook de WhatsApp
 
@@ -270,6 +276,7 @@ sea exhaustiva del informe original.
 | 2026-10-23 | SEC-015 | Cifrado en reposo de prompts/salidas y borrado del histórico en claro | `3cb7c9a`, `b54c9fe`, grafo `810760b` | CI run `40022462171` en verde |
 | 2026-10-24 | SEC-010 cierre | CSP sin `unsafe-inline` en script-src; nonces para Chartkick; `auto_submit.js` reemplaza handlers inline; corrección de regresión `327dcda` (ERB dentro de `ai_entry.js` y modal auto-open) | `e2fe818`, `12b49b6`, `9ec214e` | 173 specs Playwright + 2986 MiniTest locales; CI run `40046018630` en verde |
 | 2026-10-24 | Tracker | Reconciliación aceptada; fase 3 cerrada | commit del tracker | — |
+| 2026-10-24 | SEC-010 cierre total | `style-src` estricto global; 83 estilos inline → `utilities.css`; relaxed por acción solo en páginas de gráficas | `1dbaf83` | 173 Playwright + 2988 MiniTest locales; CI run `40053414594` en verde |
 
 ## Comandos útiles
 
