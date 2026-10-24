@@ -72,6 +72,9 @@ group :development do
   # Use console on exceptions pages [https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem]
   gem "web-console"
   gem "foreman"
+
+  # Preview emails in the browser instead of sending them in development.
+  gem "letter_opener"
 end
 
 group :test do
