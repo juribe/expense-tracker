@@ -2,7 +2,7 @@
 
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable, :confirmable
 
   validates :financial_cycle_start_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }

@@ -11,6 +11,7 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
       email: "auth_flow@example.com",
       password: "password123"
     )
+    @user.confirm
   end
 
   test "sign up page renders the required fields and navigation links" do
@@ -25,22 +26,23 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{new_user_session_path}']", text: I18n.t("auth.log_in")
   end
 
-  test "sign up creates a user with name and signs them in" do
+  test "sign up creates an unconfirmed user and sends a confirmation email" do
     assert_difference("User.count", 1) do
-      post user_registration_path, params: {
-        user: {
-          name: "Jane Doe",
-          email: "jane@example.com",
-          password: "password123",
-          password_confirmation: "password123"
+      assert_emails 1 do
+        post user_registration_path, params: {
+          user: {
+            name: "Jane Doe",
+            email: "jane@example.com",
+            password: "password123",
+            password_confirmation: "password123"
+          }
         }
-      }
+      end
     end
     user = User.find_by(email: "jane@example.com")
     assert_equal "Jane Doe", user.name
+    assert_not user.confirmed?
     assert_redirected_to root_path
-    follow_redirect!
-    assert_select ".logo-img .fs-5", I18n.t("layout.app_title")
   end
 
   test "sign up with mismatched passwords re-renders the form with errors" do
