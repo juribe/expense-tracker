@@ -46,6 +46,13 @@ module ExpenseTracker
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Single source of truth for the app's public hosts. Ops defines it in
+    # production with RAILS_PUBLIC_HOSTS="domain.com,www..."; while unset it
+    # falls back to expensetracker.com. Consumed by host protection in
+    # production.rb and Action Cable request origins.
+    public_hosts = ENV["RAILS_PUBLIC_HOSTS"].to_s.split(",").map(&:strip).compact_blank
+    config.x.public_hosts = public_hosts.any? ? public_hosts : [ "expensetracker.com" ]
+
     # Don't generate system test files.
     config.generators.system_tests = nil
   end
