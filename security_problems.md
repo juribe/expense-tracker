@@ -276,7 +276,7 @@ sea exhaustiva del informe original.
 | 2026-10-23 | SEC-015 | Cifrado en reposo de prompts/salidas y borrado del histórico en claro | `3cb7c9a`, `b54c9fe`, grafo `810760b` | CI run `40022462171` en verde |
 | 2026-10-24 | SEC-010 cierre | CSP sin `unsafe-inline` en script-src; nonces para Chartkick; `auto_submit.js` reemplaza handlers inline; corrección de regresión `327dcda` (ERB dentro de `ai_entry.js` y modal auto-open) | `e2fe818`, `12b49b6`, `9ec214e` | 173 specs Playwright + 2986 MiniTest locales; CI run `40046018630` en verde |
 | 2026-10-24 | Tracker | Reconciliación aceptada; fase 3 cerrada | commit del tracker | — |
-| 2026-10-24 | SEC-010 cierre total | `style-src` estricto global; 83 estilos inline → `utilities.css`; relaxed por acción solo en páginas de gráficas | `1dbaf83` | 173 Playwright + 2988 MiniTest locales; CI run `40053414594` en verde |
+| 2026-10-24 | SEC-010 cierre total | `style-src` estricto global; 83 estilos inline → `utilities.css`; relaxed por acción solo en páginas de gráficas; aserción de filtro de gastos acotada a celdas (falso positivo del nonce base64) | `1dbaf83`, `e262eb0` | 173 Playwright + 2988 MiniTest locales; CI run `40054814362` en verde |
 
 ## Comandos útiles
 
