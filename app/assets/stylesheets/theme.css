@@ -378,10 +378,182 @@ section.page-section { margin-bottom: 1.5rem; }
 .fs-7 { font-size: 0.8125rem !important; }
 .fs-8 { font-size: 0.75rem !important; }
 
-/* Sidebar footer link */
-.sidebar-footer { padding: 0.75rem 1rem; }
-.sidebar-user-link { border-radius: 0.5rem; }
-.sidebar-user-link:hover { background: rgba(42, 109, 245, 0.08); }
+/* ---------------------------------------------------------------- sidebar */
+/* Mockup sidebar language: white surface with a soft right border, grouped
+ * quiet-blue labels, 43px rounded items, plain hover, soft-blue active state
+ * with a 3px rail, and a profile footer. Mockup palette: line #e5ebf4,
+ * item #27364c, hover #f5f7fc, active bg #eaf0ff / text #245be4 / rail #356dff. */
+.left-sidebar {
+  /* Flex column so the profile footer sits flush at the bottom: the scroll
+   * area takes the leftover space instead of leaving a dead gap under it. */
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-right: 1px solid #e5ebf4;
+  box-shadow: 5px 0 22px rgba(33, 61, 110, 0.035);
+}
+.left-sidebar .scroll-sidebar {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  padding: 10px 16px 16px;
+}
+.left-sidebar .brand-logo {
+  min-height: 66px;
+  padding: 14px 7px 20px;
+  border-bottom: 1px solid #e5ebf4;
+}
+.left-sidebar .brand-logo .icon-chip {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+}
+.left-sidebar .brand-logo .icon-chip .ti { font-size: 25px; }
+
+.left-sidebar .sidebar-nav .nav-small-cap {
+  padding: 0 12px;
+  margin: 16px 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: #8493aa;
+}
+
+.left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link,
+.left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item > .sidebar-link {
+  color: #27364c;
+  opacity: 1;
+  font-size: 14px;
+  gap: 13px;
+  min-height: 43px;
+  margin: 3px 0;
+  padding: 0 12px;
+  border-radius: 11px;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.left-sidebar .sidebar-nav .aside-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+}
+.left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link:hover,
+.left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item > .sidebar-link:hover {
+  background: #f5f7fc;
+  color: #27364c;
+  opacity: 1;
+}
+.left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link.active,
+.left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item .sidebar-link.active {
+  background: #eaf0ff;
+  color: #245be4;
+  font-weight: 650;
+  opacity: 1;
+}
+.left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link.active::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: #356dff;
+}
+/* Spike's collapsed (mini) sidebar keeps its own 65px geometry; mockup only
+ * needs label alignment + centered icon so the rail stays on the item edge. */
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .sidebar-link {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
+}
+/* Spike recovers its calc()-based scroll height in mini mode, which would
+ * reopen the dead gap; the flex layout takes over in every sidebar state. */
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .scroll-sidebar {
+  height: auto;
+}
+
+/* Sidebar footer — mockup profile block (avatar, name, email) pinned to the
+ * bottom edge; account options live in the topbar user menu. */
+.sidebar-footer { padding: 8px 7px 12px; }
+.bottom-rule {
+  height: 1px;
+  background: #e5ebf4;
+  margin: 0 7px 14px;
+}
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 7px;
+  border-radius: 12px;
+  min-width: 0;
+}
+.sidebar-profile-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #dfe8ff;
+  color: #285ee8;
+  font-weight: 700;
+  font-size: 13px;
+}
+.sidebar-profile-copy { min-width: 0; flex: 1; }
+.sidebar-profile-name {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #27364c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-profile-email {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.6875rem;
+  color: #8292ab;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .left-sidebar {
+  border-right-color: var(--bs-border-color);
+  box-shadow: none;
+}
+[data-bs-theme="dark"] .left-sidebar .brand-logo { border-bottom-color: var(--bs-border-color); }
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav .nav-small-cap { color: var(--et-muted); }
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link {
+  color: var(--bs-body-color);
+}
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link:hover,
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item > .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--bs-body-color);
+}
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link.active,
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item .sidebar-link.active {
+  background: rgba(42, 109, 245, 0.22);
+  color: #9db9ff;
+}
+[data-bs-theme="dark"] .bottom-rule { background: var(--bs-border-color); }
+[data-bs-theme="dark"] .sidebar-profile-name { color: var(--bs-body-color); }
+[data-bs-theme="dark"] .sidebar-profile-email { color: var(--et-muted); }
+[data-bs-theme="dark"] .sidebar-avatar { background: rgba(42, 109, 245, 0.25); color: #9db9ff; }
 
 /* Flatpickr (Spanish date pickers) — surface it like a Bootstrap card and
    adapt it to the Spike dark theme; the vendored flatpickr.min.css keeps its
