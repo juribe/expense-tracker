@@ -103,7 +103,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "tr[data-testid=row]", count: 1
     assert_select "td", text: "Lunch"
-    assert_no_match(/Bus/, response.body)
+    assert_select "td", { text: "Bus", count: 0 }
   end
 
   test "GET /expenses filters by amount range" do
