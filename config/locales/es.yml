@@ -1019,6 +1019,7 @@ es:
         payments: "Pagos"
         extras: "Abonos"
         recognition: "Reconocimiento"
+        movements: "Movimientos"
       details: "Detalles"
       current_balance: "Saldo actual"
       status: "Estado"

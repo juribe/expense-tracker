@@ -34,6 +34,16 @@ module MoneySources
           end
         source.save!
 
+        if delta.to_d.nonzero?
+          BalanceAdjustment.create!(
+            user: source.user,
+            money_source: source,
+            effective_date: Time.current.to_date,
+            delta: delta,
+            note: note.presence
+          )
+        end
+
         { balance: Reconciliation::Calculator.reconcilable_balance(source.reload), delta: delta }
       end
 

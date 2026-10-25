@@ -22,16 +22,7 @@
 <% end %>
 <%= render "shared/page_header", title: (@money_source.name.presence || @money_source.display_name), actions: source_actions %>
 
-<% if @money_source.pocket? %>
-  <div class="row g-4">
-    <div class="col-lg-7">
-      <%= render "pocket_breakdown" %>
-    </div>
-    <div class="col-lg-5">
-      <%= render "details" %>
-    </div>
-  </div>
-<% else %>
+<% if @money_source.debt? %>
   <%
     tabs = [
       { slug: "resumen", label: t("money_sources.show.tabs.summary"), icon: "ti-layout-dashboard" }
@@ -119,6 +110,90 @@
           </div>
         </div>
       <% end %>
+    </div>
+  </div>
+<% else %>
+  <div data-source-tabs="<%= @money_source.id %>">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link<%= " active" unless @active_tab == "movimientos" %>"
+                id="source-tab-resumen-btn"
+                data-bs-toggle="tab"
+                data-bs-target="#source-tab-resumen"
+                data-tab-slug="resumen"
+                type="button"
+                role="tab"
+                aria-controls="source-tab-resumen"
+                aria-selected="<%= @active_tab != "movimientos" %>">
+          <i class="ti ti-layout-dashboard me-1"></i><%= t("money_sources.show.tabs.summary") %>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link<%= " active" if @active_tab == "movimientos" %>"
+                id="source-tab-movimientos-btn"
+                data-bs-toggle="tab"
+                data-bs-target="#source-tab-movimientos"
+                data-tab-slug="movimientos"
+                type="button"
+                role="tab"
+                aria-controls="source-tab-movimientos"
+                aria-selected="<%= @active_tab == "movimientos" %>">
+          <i class="ti ti-list me-1"></i><%= t("money_sources.show.tabs.movements", default: "Movimientos") %>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade <%= "show active" unless @active_tab == "movimientos" %>" id="source-tab-resumen" role="tabpanel" aria-labelledby="source-tab-resumen-btn" tabindex="0">
+        <div class="row g-4 pt-4">
+          <% if @money_source.pocket? %>
+            <div class="col-lg-7">
+              <%= render "pocket_breakdown" %>
+            </div>
+            <div class="col-lg-5">
+              <%= render "details" %>
+            </div>
+          <% else %>
+            <div class="col-lg-7">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
+                  <div class="fs-4 fw-bold text-success"><%= @money_source.balance_label %></div>
+                  <% if @money_source.negative_balance_warning? %>
+                    <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
+                      <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              <% if @money_source.payment_source? %>
+                <div class="card mt-3">
+                  <div class="card-body">
+                    <h5 class="card-title"><%= t("money_sources.show.recognition") %></h5>
+                    <% recognition_keywords = @money_source.recognition_identifiers.select(&:keyword?).map(&:value) %>
+                    <% if recognition_keywords.any? %>
+                      <% recognition_keywords.each do |keyword| %>
+                        <span class="badge bg-light text-dark me-1 mb-1">
+                          <%= keyword %>
+                        </span>
+                      <% end %>
+                    <% else %>
+                      <p class="text-secondary mb-0"><%= t("money_sources.recognition.status_unconfigured") %></p>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <div class="col-lg-5">
+              <%= render "details" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="tab-pane fade <%= "show active" if @active_tab == "movimientos" %>" id="source-tab-movimientos" role="tabpanel" aria-labelledby="source-tab-movimientos-btn" tabindex="0">
+        <%= render "statement", source: @money_source, statement: @statement %>
+      </div>
     </div>
   </div>
 <% end %>

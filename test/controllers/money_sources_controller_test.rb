@@ -1321,23 +1321,24 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".nav-tabs [data-tab-slug='abonos']", count: 1
   end
 
-  test "a non-debt payment source show page renders summary and recognition tabs" do
+  test "a non-debt payment source show page renders summary and movements tabs" do
     account = create_source(name: "Checking", kind: "account", starting_balance: 100)
 
     get money_source_path(account)
     assert_response :success
     assert_select ".nav-tabs [data-tab-slug='resumen']", count: 1
-    assert_select ".nav-tabs [data-tab-slug='reconocimiento']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='movimientos']", count: 1
     assert_select ".nav-tabs [data-tab-slug='pagos']", count: 0
     assert_select ".nav-tabs [data-tab-slug='abonos']", count: 0
   end
 
-  test "a pocket show page renders no tabs" do
+  test "a pocket show page renders summary and movements tabs" do
     pocket = create_source(name: "Bolsillo", kind: "pocket")
 
     get money_source_path(pocket)
     assert_response :success
-    assert_select ".nav-tabs", count: 0
+    assert_select ".nav-tabs [data-tab-slug='resumen']", count: 1
+    assert_select ".nav-tabs [data-tab-slug='movimientos']", count: 1
   end
 
   test "POST /money_sources rejects a parent owned by another user" do

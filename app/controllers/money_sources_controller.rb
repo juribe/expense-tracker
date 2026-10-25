@@ -2,7 +2,7 @@
 
 class MoneySourcesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_money_source, only: [ :show, :edit, :update, :destroy, :reset_adjustment ]
+  before_action :set_money_source, only: [ :show, :statement, :movements, :extracto, :edit, :update, :destroy, :reset_adjustment ]
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -57,6 +57,24 @@ class MoneySourcesController < ApplicationController
   def show
     load_payment_context if @money_source.debt?
     load_pocket_context if @money_source.pocket?
+    load_statement_context if @money_source.statement_supported?
+    @active_tab = statement_tab_active? ? "movimientos" : "resumen"
+  end
+
+  # GET /money_sources/1/statement (alias of show, focused on Movimientos)
+  def statement
+    show
+    render :show
+  end
+
+  # GET /money_sources/1/movements (alias)
+  def movements
+    statement
+  end
+
+  # GET /money_sources/1/extracto (alias)
+  def extracto
+    statement
   end
 
   # GET /money_sources/recognition
@@ -383,6 +401,29 @@ class MoneySourcesController < ApplicationController
                                        .includes(:financial_goal)
                                        .order(date: :desc, created_at: :desc)
                                        .limit(5)
+  end
+
+  def load_statement_context
+    @statement = MoneySources::Statement.new(
+      user: current_user,
+      source: @money_source,
+      period: params[:period],
+      start_date: params[:start_date],
+      end_date: params[:end_date],
+      kind: params[:kind],
+      query: params[:q],
+      page: params[:page],
+      per_page: params[:per_page]
+    ).call
+  end
+
+  def statement_tab_active?
+    return false unless @money_source.statement_supported?
+
+    params[:tab].to_s == "movimientos" ||
+      params[:period].present? || params[:kind].present? ||
+      params[:q].present? || params[:page].present? ||
+      params[:start_date].present? || params[:end_date].present?
   end
 
   def money_source_params

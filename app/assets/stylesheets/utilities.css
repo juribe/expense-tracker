@@ -299,3 +299,6 @@
 
 /* ---- Debt capacity meter thresholds (formerly inline custom props) ---- */
 .debt-capacity-meter { --debt-target: 30%; --debt-alert: 40%; }
+
+/* statement search input */
+.statement-search { min-width: 220px; }

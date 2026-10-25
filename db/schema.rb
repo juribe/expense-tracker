@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_24_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_25_183802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -60,6 +60,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_alert_preferences_on_user_id", unique: true
+  end
+
+  create_table "balance_adjustments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "money_source_id", null: false
+    t.date "effective_date", null: false
+    t.decimal "delta", precision: 14, scale: 2, null: false
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["money_source_id"], name: "index_balance_adjustments_on_money_source_id"
+    t.index ["user_id", "money_source_id", "effective_date"], name: "index_balance_adjustments_on_user_source_date"
+    t.index ["user_id"], name: "index_balance_adjustments_on_user_id"
   end
 
   create_table "budgets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -840,7 +853,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_130000) do
     t.index ["user_id", "gmail_message_id", "amount", "date"], name: "index_transactions_gmail_dedup", unique: true, where: "(gmail_message_id IS NOT NULL)"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -913,6 +926,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_130000) do
   add_foreign_key "activity_classifications", "users"
   add_foreign_key "ai_requests", "users"
   add_foreign_key "alert_preferences", "users"
+  add_foreign_key "balance_adjustments", "money_sources"
+  add_foreign_key "balance_adjustments", "users"
   add_foreign_key "budgets", "categories"
   add_foreign_key "budgets", "users"
   add_foreign_key "categories", "users"

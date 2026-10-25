@@ -1,0 +1,217 @@
+<% s = statement %>
+<% selected_period = params[:period].presence || "current" %>
+<% current_page = (params[:page].presence || 1).to_i %>
+<% per_page = s.per_page %>
+<% total_pages = (s.total_count.to_f / per_page).ceil %>
+<% total_pages = 1 if total_pages < 1 %>
+
+<%= form_with url: money_source_path(source), method: :get, local: true, class: "statement-form" do %>
+  <%= hidden_field_tag :tab, "movimientos" %>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+          <h5 class="card-title mb-0">Resumen del período</h5>
+          <small class="text-muted" id="periodLabel"><%= s.period_label %> · <%= selected_period == "current" ? "Ciclo actual" : "" %></small>
+        </div>
+        <select name="period" class="form-select form-select-sm w-auto" data-auto-submit aria-label="Seleccionar período">
+          <option value="current" <%= "selected" if selected_period == "current" %>>Ciclo actual</option>
+          <option value="previous" <%= "selected" if selected_period == "previous" %>>Ciclo anterior</option>
+          <option value="month" <%= "selected" if selected_period == "month" %>>Este mes</option>
+          <option value="lastmonth" <%= "selected" if selected_period == "lastmonth" %>>Mes anterior</option>
+          <option value="7days" <%= "selected" if selected_period == "7days" %>>Últimos 7 días</option>
+          <option value="30days" <%= "selected" if selected_period == "30days" %>>Últimos 30 días</option>
+          <option value="custom" <%= "selected" if selected_period == "custom" %>>Rango personalizado…</option>
+        </select>
+      </div>
+
+      <div id="customDates" class="d-flex gap-2 flex-wrap mb-3 <%= "d-none" unless selected_period == "custom" %>">
+        <label class="form-label mb-0 align-self-center">Desde</label>
+        <input class="form-control w-auto" type="date" name="start_date" value="<%= params[:start_date] %>">
+        <label class="form-label mb-0 align-self-center">Hasta</label>
+        <input class="form-control w-auto" type="date" name="end_date" value="<%= params[:end_date] %>">
+        <button type="submit" class="btn btn-outline-primary">Aplicar</button>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="text-muted small">Saldo inicial</div>
+          <div class="fs-4 fw-bold"><%= MoneyFormat.currency(s.opening_balance) %></div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="text-muted small">Entradas</div>
+          <div class="fs-4 fw-bold text-success">+<%= MoneyFormat.currency(s.entries_total) %></div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="text-muted small">Salidas</div>
+          <div class="fs-4 fw-bold text-danger">−<%= MoneyFormat.currency(s.exits_total) %></div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3 bg-body-tertiary rounded p-2">
+          <div class="text-muted small">Saldo calculado al final de período</div>
+          <div class="fs-4 fw-bold"><%= MoneyFormat.currency(s.closing_balance) %></div>
+        </div>
+      </div>
+
+      <% net_change = s.entries_total - s.exits_total %>
+      <hr class="my-3">
+      <div class="d-flex flex-wrap align-items-baseline gap-2">
+        <span class="text-muted">Cambio neto del período</span>
+        <span class="fs-4 fw-bold <%= net_change >= 0 ? "text-success" : "text-danger" %>">
+          <%= net_change >= 0 ? "+" : "−" %><%= MoneyFormat.currency(net_change.abs) %>
+        </span>
+      </div>
+      <small class="text-muted d-block mt-1">
+        Entradas menos salidas. Tu saldo <%= net_change >= 0 ? "aumentó" : "disminuyó" %> durante este período.
+      </small>
+      <small class="text-muted d-block mt-2">
+        <%= MoneyFormat.currency(s.opening_balance) %> + <%= MoneyFormat.currency(s.entries_total) %> − <%= MoneyFormat.currency(s.exits_total) %> = <%= MoneyFormat.currency(s.closing_balance) %>
+      </small>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <div class="btn-group" role="group" aria-label="Filtrar movimientos">
+          <% [
+               ["all", "Todos"],
+               ["in", "Entradas"],
+               ["out", "Salidas"]
+             ].each do |value, label| %>
+            <button type="submit" name="kind" value="<%= value %>" class="btn btn-sm <%= (params[:kind].blank? ? "all" : params[:kind]) == value ? "btn-dark" : "btn-outline-secondary" %>">
+              <%= label %>
+            </button>
+          <% end %>
+        </div>
+        <div class="ms-auto d-flex gap-2">
+          <input type="search" name="q" value="<%= params[:q] %>" class="form-control form-control-sm w-auto statement-search" placeholder="Buscar movimientos…" aria-label="Buscar movimientos">
+          <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Buscar movimientos">
+            <i class="ti ti-search"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Descripción</th>
+              <th>Categoría</th>
+              <th>Tipo</th>
+              <th class="text-end">Monto</th>
+            </tr>
+          </thead>
+          <tbody id="movementRows">
+            <% if s.movements.empty? %>
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <% if params[:q].present? || params[:kind].present? %>
+                    No hay movimientos que coincidan con estos filtros.
+                  <% else %>
+                    No hay movimientos en este período.
+                  <% end %>
+                </td>
+              </tr>
+            <% else %>
+              <% s.movements.each do |m| %>
+                <tr class="statement-row"
+                    data-direction="<%= m.direction %>"
+                    data-date="<%= m.date %>"
+                    data-amount="<%= m.amount %>"
+                    data-description="<%= m.description %>"
+                    data-secondary="<%= m.secondary %>"
+                    data-category="<%= m.category&.name %>"
+                    data-type="<%= m.movement_type %>"
+                    data-related="<%= m.related_source&.name %>"
+                    data-reference="<%= m.reference %>">
+                  <td class="date">
+                    <%= m.date.strftime("%d") %>
+                    <span class="text-muted small d-block"><%= I18n.l(m.date, format: "%b %Y") %></span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="movement-icon <%= m.movement_type == "Ajuste de saldo" ? "bg-secondary-subtle text-secondary" : (m.direction == "in" ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger") %> rounded-3 d-inline-flex align-items-center justify-content-center p-2">
+                        <i class="ti <%= m.direction == "in" ? "ti-arrow-down-left" : "ti-arrow-up-right" %>"></i>
+                      </div>
+                      <div>
+                        <div class="fw-semibold"><%= m.description %></div>
+                        <% if m.secondary.present? %>
+                          <div class="text-muted small"><%= m.secondary %></div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <% if m.category.present? %>
+                      <span class="badge bg-light text-dark"><%= m.category.name %></span>
+                    <% elsif m.movement_type.include?("Transferencia") %>
+                      <span class="badge bg-light text-dark">Transferencia</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if m.movement_type == "Ajuste de saldo" %>
+                      <span class="badge text-bg-secondary">Ajuste</span>
+                    <% else %>
+                      <span class="badge <%= m.direction == "in" ? "text-bg-success" : "text-bg-danger" %>">
+                        <%= m.direction == "in" ? "Entrada" : "Salida" %>
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="text-end fw-bold <%= m.direction == "in" ? "text-success" : "text-danger" %>">
+                    <%= m.direction == "in" ? "+" : "−" %><%= MoneyFormat.currency(m.amount) %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+          Mostrando <%= s.movements.size %> de <%= s.total_count %>
+        </small>
+        <% if total_pages > 1 %>
+          <nav>
+            <ul class="pagination pagination-sm mb-0 gap-2">
+              <% (1..total_pages).each do |p| %>
+                <li class="page-item <%= "active" if p == current_page %>">
+                  <%= link_to p, money_source_path(source, request.query_parameters.merge(page: p)), class: "page-link" %>
+                </li>
+              <% end %>
+            </ul>
+          </nav>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="movementDetailModal" tabindex="-1" aria-labelledby="movementDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="movementDetailModalLabel">Detalle del movimiento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Descripción</dt>
+            <dd class="col-sm-8" id="detailDescription"></dd>
+            <dt class="col-sm-4">Fecha</dt>
+            <dd class="col-sm-8" id="detailDate"></dd>
+            <dt class="col-sm-4">Monto</dt>
+            <dd class="col-sm-8" id="detailAmount"></dd>
+            <dt class="col-sm-4">Tipo</dt>
+            <dd class="col-sm-8" id="detailType"></dd>
+            <dt class="col-sm-4">Categoría</dt>
+            <dd class="col-sm-8" id="detailCategory"></dd>
+            <dt class="col-sm-4">Fuente relacionada</dt>
+            <dd class="col-sm-8" id="detailRelated"></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

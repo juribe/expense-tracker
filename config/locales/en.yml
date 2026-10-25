@@ -423,6 +423,7 @@ en:
         payments: "Payments"
         extras: "Extra payments"
         recognition: "Recognition"
+        movements: "Movements"
     pocket:
       distribution_title: "Money distribution"
       add_money: "Add money"
