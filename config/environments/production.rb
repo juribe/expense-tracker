@@ -86,7 +86,7 @@ Rails.application.configure do
   config.action_cable.allowed_request_origins =
     (config.action_cable.allowed_request_origins || []) + public_hosts.map { |host| "https://#{host}" }
   unless ENV["RAILS_PUBLIC_HOSTS"]
-    Rails.logger&.warn "RAILS_PUBLIC_HOSTS is unset: using the default public host list (expensetracker.com)."
+    Rails.logger&.warn "RAILS_PUBLIC_HOSTS is unset: using the default public host list (expensetracker.com, samyreplies.com)."
   end
   #
   # Skip DNS rebinding protection for the default health check endpoint.

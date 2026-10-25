@@ -5,10 +5,10 @@ require "test_helper"
 # The public host list is parsed once into config.x.public_hosts so host
 # protection, Action Cable origins and future consumers share one source.
 class PublicHostsConfigTest < ActiveSupport::TestCase
-  test "defaults to expensetracker.com when RAILS_PUBLIC_HOSTS is unset" do
+  test "defaults to expensetracker.com and samyreplies.com when RAILS_PUBLIC_HOSTS is unset" do
     public_hosts = Rails.application.config.x.public_hosts
 
-    assert_equal [ "expensetracker.com" ], public_hosts
+    assert_equal [ "expensetracker.com", "samyreplies.com" ], public_hosts
   end
 
   test "is exposed as an array so consumers can map origins" do
