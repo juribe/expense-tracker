@@ -36,4 +36,43 @@ async function createMoneySource(page, name, kind = 'cash', extra = {}) {
   return name;
 }
 
-module.exports = { createMoneySource };
+async function createCreditCard(page, name, extra = {}) {
+  await page.goto('/money_sources/new');
+  await page.locator('#money_source_name').fill(name);
+  await page.locator('#money_source_kind').selectOption('credit_card');
+  await page.locator('#money_source_credit_account_attributes_card_last_four')
+            .fill(extra.lastFour || '1234');
+  await page.locator('#money_source_credit_account_attributes_credit_limit')
+            .fill(extra.creditLimit || '20000000');
+
+  if (extra.fill) {
+    await extra.fill(page);
+  }
+
+  await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+  await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
+  return name;
+}
+
+async function createLoan(page, name, extra = {}) {
+  await page.goto('/money_sources/new');
+  await page.locator('#money_source_name').fill(name);
+  await page.locator('#money_source_kind').selectOption('loan');
+
+  if (extra.subKind) {
+    await page.locator('#money_source_sub_kind').selectOption(extra.subKind);
+  }
+
+  await page.locator('#money_source_credit_account_attributes_principal_amount')
+            .fill(extra.principal || '5000000');
+
+  if (extra.fill) {
+    await extra.fill(page);
+  }
+
+  await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+  await expect(page).toHaveURL(/\/money_sources\/loans$/);
+  return name;
+}
+
+module.exports = { createMoneySource, createCreditCard, createLoan };

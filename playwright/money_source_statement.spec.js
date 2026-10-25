@@ -15,6 +15,7 @@ test.describe('Money source statement (extracto)', () => {
     await page.locator('a[href^="/money_sources/"]').filter({ hasText: name }).first().click();
 
     await page.getByRole('tab', { name: /Movimientos/i }).click();
+    await expect(page).toHaveURL(/\/money_sources\/[0-9a-f-]+\/extractos$/);
     await expect(page.locator('#movementRows')).toBeVisible();
 
     // empty state allowed; if rows exist, open modal
