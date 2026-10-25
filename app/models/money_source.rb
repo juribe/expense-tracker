@@ -213,12 +213,6 @@ class MoneySource < ApplicationRecord
     credit_card? || loan?
   end
 
-  # Sources whose movements can be listed in the statement (extracto) view.
-  # Credit cards and loans keep their specialized tabs.
-  def statement_supported?
-    !debt?
-  end
-
   def credit_account?
     credit_account.present?
   end

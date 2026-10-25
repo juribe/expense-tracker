@@ -25,38 +25,50 @@
 <% if @money_source.debt? %>
   <%
     tabs = [
-      { slug: "resumen", label: t("money_sources.show.tabs.summary"), icon: "ti-layout-dashboard" }
+      { slug: "resumen", label: t("money_sources.show.tabs.summary"), icon: "ti-layout-dashboard" },
+      { slug: "movimientos", label: t("money_sources.show.tabs.movements", default: "Movimientos"), icon: "ti-list" }
     ]
     tabs << { slug: "pagos", label: t("money_sources.show.tabs.payments"), icon: "ti-coin" } if @money_source.debt?
     tabs << { slug: "abonos", label: t("money_sources.show.tabs.extras"), icon: "ti-notebook" } if @money_source.loan? || @money_source.credit_card?
     tabs << { slug: "reconocimiento", label: t("money_sources.show.tabs.recognition"), icon: "ti-scan" } if @money_source.payment_source?
   %>
 
-  <div data-source-tabs="<%= @money_source.id %>">
+  <div data-source-tabs="<%= @money_source.id %>"<%= %( data-source-tabs-force="movimientos") if @active_tab == "movimientos" %>>
     <ul class="nav nav-tabs" role="tablist">
-      <% tabs.each_with_index do |tab, index| %>
+      <% tabs.each do |tab| %>
         <li class="nav-item" role="presentation">
-          <button class="nav-link<%= " active" if index.zero? %>"
-                  id="source-tab-<%= tab[:slug] %>-btn"
-                  data-bs-toggle="tab"
-                  data-bs-target="#source-tab-<%= tab[:slug] %>"
-                  data-tab-slug="<%= tab[:slug] %>"
-                  type="button"
-                  role="tab"
-                  aria-controls="source-tab-<%= tab[:slug] %>"
-                  aria-selected="<%= index.zero? %>">
-            <i class="ti <%= tab[:icon] %> me-1"></i><%= tab[:label] %>
-          </button>
+          <% if tab[:slug] == "movimientos" %>
+            <%= link_to extractos_money_source_path(@money_source),
+                        class: "nav-link#{' active' if @active_tab == 'movimientos'}",
+                        id: "source-tab-movimientos-btn",
+                        data: { tab_slug: "movimientos" },
+                        role: "tab",
+                        aria: { controls: "source-tab-movimientos", selected: @active_tab == "movimientos" } do %>
+              <i class="ti <%= tab[:icon] %> me-1"></i><%= tab[:label] %>
+            <% end %>
+          <% else %>
+            <button class="nav-link<%= " active" if tab[:slug] == @active_tab %>"
+                    id="source-tab-<%= tab[:slug] %>-btn"
+                    data-bs-toggle="tab"
+                    data-bs-target="#source-tab-<%= tab[:slug] %>"
+                    data-tab-slug="<%= tab[:slug] %>"
+                    type="button"
+                    role="tab"
+                    aria-controls="source-tab-<%= tab[:slug] %>"
+                    aria-selected="<%= tab[:slug] == @active_tab %>">
+              <i class="ti <%= tab[:icon] %> me-1"></i><%= tab[:label] %>
+            </button>
+          <% end %>
         </li>
       <% end %>
     </ul>
 
     <div class="tab-content">
-      <div class="tab-pane fade show active" id="source-tab-resumen" role="tabpanel" aria-labelledby="source-tab-resumen-btn" tabindex="0">
+      <div class="tab-pane fade <%= "show active" if @active_tab != "movimientos" %>" id="source-tab-resumen" role="tabpanel" aria-labelledby="source-tab-resumen-btn" tabindex="0">
         <div class="row g-4 pt-4">
           <div class="col-lg-7">
             <% if @money_source.debt? %>
-              <%= render "debt_panel", source: @money_source %>
+              <%= render "money_sources/debt_panel", source: @money_source %>
             <% else %>
               <div class="card">
                 <div class="card-body">
@@ -72,20 +84,26 @@
             <% end %>
           </div>
           <div class="col-lg-5">
-            <%= render "details" %>
+            <%= render "money_sources/details" %>
           </div>
         </div>
       </div>
 
+      <% if @statement.present? %>
+        <div class="tab-pane fade <%= "show active" if @active_tab == "movimientos" %>" id="source-tab-movimientos" role="tabpanel" aria-labelledby="source-tab-movimientos-btn" tabindex="0">
+          <%= render "money_sources/statement", source: @money_source, statement: @statement %>
+        </div>
+      <% end %>
+
       <% if @money_source.debt? %>
         <div class="tab-pane fade" id="source-tab-pagos" role="tabpanel" aria-labelledby="source-tab-pagos-btn" tabindex="0">
-          <%= render "payments" %>
+          <%= render "money_sources/payments" %>
         </div>
       <% end %>
 
       <% if @money_source.loan? || @money_source.credit_card? %>
         <div class="tab-pane fade" id="source-tab-abonos" role="tabpanel" aria-labelledby="source-tab-abonos-btn" tabindex="0">
-          <%= render "extra_payments", source: @money_source,
+          <%= render "money_sources/extra_payments", source: @money_source,
                      simple: @money_source.credit_card? || @money_source.revolving?,
                      funding_sources: current_user.money_sources.payment_sources.order(:kind, :name).where.not(id: @money_source.id) %>
         </div>
@@ -113,7 +131,7 @@
     </div>
   </div>
 <% else %>
-  <div data-source-tabs="<%= @money_source.id %>">
+  <div data-source-tabs="<%= @money_source.id %>"<%= %( data-source-tabs-force="movimientos") if @active_tab == "movimientos" %>>
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link<%= " active" unless @active_tab == "movimientos" %>"
@@ -129,17 +147,14 @@
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link<%= " active" if @active_tab == "movimientos" %>"
-                id="source-tab-movimientos-btn"
-                data-bs-toggle="tab"
-                data-bs-target="#source-tab-movimientos"
-                data-tab-slug="movimientos"
-                type="button"
-                role="tab"
-                aria-controls="source-tab-movimientos"
-                aria-selected="<%= @active_tab == "movimientos" %>">
+        <%= link_to extractos_money_source_path(@money_source),
+                    class: "nav-link#{' active' if @active_tab == 'movimientos'}",
+                    id: "source-tab-movimientos-btn",
+                    data: { tab_slug: "movimientos" },
+                    role: "tab",
+                    aria: { controls: "source-tab-movimientos", selected: @active_tab == "movimientos" } do %>
           <i class="ti ti-list me-1"></i><%= t("money_sources.show.tabs.movements", default: "Movimientos") %>
-        </button>
+        <% end %>
       </li>
     </ul>
 
@@ -148,10 +163,10 @@
         <div class="row g-4 pt-4">
           <% if @money_source.pocket? %>
             <div class="col-lg-7">
-              <%= render "pocket_breakdown" %>
+              <%= render "money_sources/pocket_breakdown" %>
             </div>
             <div class="col-lg-5">
-              <%= render "details" %>
+              <%= render "money_sources/details" %>
             </div>
           <% else %>
             <div class="col-lg-7">
@@ -185,15 +200,17 @@
               <% end %>
             </div>
             <div class="col-lg-5">
-              <%= render "details" %>
+              <%= render "money_sources/details" %>
             </div>
           <% end %>
         </div>
       </div>
 
-      <div class="tab-pane fade <%= "show active" if @active_tab == "movimientos" %>" id="source-tab-movimientos" role="tabpanel" aria-labelledby="source-tab-movimientos-btn" tabindex="0">
-        <%= render "statement", source: @money_source, statement: @statement %>
-      </div>
+      <% if @statement.present? %>
+        <div class="tab-pane fade <%= "show active" if @active_tab == "movimientos" %>" id="source-tab-movimientos" role="tabpanel" aria-labelledby="source-tab-movimientos-btn" tabindex="0">
+          <%= render "money_sources/statement", source: @money_source, statement: @statement %>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>

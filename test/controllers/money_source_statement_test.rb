@@ -15,12 +15,11 @@ class MoneySourceStatementTest < ActionDispatch::IntegrationTest
     get money_source_path(@source)
     assert_response :success
     assert_select "[data-tab-slug='movimientos']"
-    assert_select "#movementRows"
   end
 
-  test "GET show with period param activates movements and filters" do
+  test "GET extractos with period param activates movements and filters" do
     @user.expenses.create!(money_source: @source, amount: 100, date: Date.current, description: "Gasto", source: "manual")
-    get money_source_path(@source), params: { period: "7days", kind: "out", q: "Gasto" }
+    get extractos_money_source_path(@source), params: { period: "7days", kind: "out", q: "Gasto" }
     assert_response :success
     assert_match(/Gasto/, response.body)
   end
@@ -38,6 +37,46 @@ class MoneySourceStatementTest < ActionDispatch::IntegrationTest
   test "GET extracto alias renders" do
     get extracto_money_source_path(@source)
     assert_response :success
+  end
+
+  test "GET nested extractos route renders the statement" do
+    get extractos_money_source_path(@source)
+    assert_response :success
+    assert_select "#movementRows"
+  end
+
+  test "debt source shows the movements tab and renders its extracto" do
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card", starting_balance: 0)
+
+    get money_source_path(card)
+    assert_response :success
+    assert_select "[data-tab-slug='movimientos']"
+
+    get extractos_money_source_path(card)
+    assert_response :success
+    assert_select "#movementRows"
+  end
+
+  test "debt extract uses payment and purchase terminology" do
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card", starting_balance: 0)
+    @user.expenses.create!(money_source: card, amount: 100, date: Date.current,
+                           description: "Compra", source: "manual")
+
+    get extractos_money_source_path(card)
+
+    assert_response :success
+    assert_match(/Pagos/, response.body)
+    assert_match(/Compras/, response.body)
+    assert_match(/Compra/, response.body)
+  end
+
+  test "user cannot access another user's nested extractos route" do
+    other = User.create!(name: "Other", email: "other_extractos_ctrl@example.com", password: "password123")
+    other_source = other.money_sources.create!(name: "Otra", kind: "account")
+
+    get extractos_money_source_path(other_source)
+
+    assert_response :not_found
   end
 
   test "user cannot access other user statement" do

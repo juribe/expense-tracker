@@ -90,9 +90,10 @@ Rails.application.routes.draw do
   resources :custom_financial_institutions, only: [ :new, :create, :edit, :update, :destroy ]
   resources :money_sources, id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/ do
     member do
-      get :statement
-      get :movements
-      get :extracto
+      get :extractos, to: "money_source_extracts#show", as: :extractos
+      get :statement, to: "money_source_extracts#show"
+      get :movements, to: "money_source_extracts#show"
+      get :extracto, to: "money_source_extracts#show"
     end
     member do
       post :reset_adjustment

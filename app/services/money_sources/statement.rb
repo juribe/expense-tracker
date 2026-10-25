@@ -96,6 +96,7 @@ module MoneySources
       movements = []
       movements.concat(transaction_movements(range))
       movements.concat(transfer_movements(range))
+      movements.concat(payment_movements(range))
       movements.concat(adjustment_movements(range))
       movements.sort_by { |m| [ m.date, m.created_at || Time.at(0) ] }.reverse
     end
@@ -113,10 +114,22 @@ module MoneySources
           description: transaction.description.presence || transaction.kind.humanize,
           secondary: nil,
           category: transaction.category,
-          movement_type: transaction.kind == "income" ? "Ingreso" : "Gasto",
+          movement_type: transaction_movement_type(transaction),
           related_source: nil,
           reference: transaction.id
         )
+      end
+    end
+
+    def transaction_movement_type(transaction)
+      return transaction.kind == "income" ? "Ingreso" : "Gasto" unless source.debt?
+
+      if source.credit_card?
+        transaction.kind == "income" ? "Pago" : "Compra"
+      elsif source.revolving?
+        transaction.kind == "income" ? "Pago" : "Uso"
+      else
+        transaction.kind == "income" ? "Pago" : "Cargo"
       end
     end
 
@@ -134,7 +147,7 @@ module MoneySources
           description: transfer.note.presence || "Transferencia",
           secondary: transfer.to_source&.name,
           category: nil,
-          movement_type: "Transferencia enviada",
+          movement_type: transfer_movement_type(transfer, incoming: false),
           related_source: transfer.to_source,
           reference: transfer.id
         )
@@ -151,12 +164,89 @@ module MoneySources
           description: transfer.note.presence || "Transferencia",
           secondary: transfer.from_source&.name,
           category: nil,
-          movement_type: "Transferencia recibida",
+          movement_type: transfer_movement_type(transfer, incoming: true),
           related_source: transfer.from_source,
           reference: transfer.id
         )
       end
       movements
+    end
+
+    def transfer_movement_type(transfer, incoming:)
+      return incoming ? "Transferencia recibida" : "Transferencia enviada" unless source.debt?
+
+      if incoming
+        extra_transfer_ids.include?(transfer.id) ? "Abono" : "Pago"
+      elsif source.credit_card?
+        "Avance"
+      elsif source.revolving?
+        "Transferencia"
+      else
+        "Desembolso"
+      end
+    end
+
+    def payment_movements(range)
+      return [] unless source.debt?
+
+      source.payments.where(date: range).includes(:expense).filter_map do |payment|
+        principal = effective_principal(payment)
+        # A payment that never moved the debt (same-card payment or
+        # interest-only) is still in the Payments tab and in the funding
+        # source statement, but it is not a movement of this debt.
+        next if principal.zero?
+
+        Movement.new(
+          date: payment.date,
+          created_at: payment.created_at,
+          direction: "in",
+          amount: principal,
+          description: payment.expense.description.presence || "Pago de deuda",
+          secondary: payment_secondary(payment),
+          category: payment.expense.category,
+          movement_type: extra_payment_ids.include?(payment.id) ? "Abono" : "Pago",
+          related_source: payment.expense.money_source,
+          reference: payment.id
+        )
+      end
+    end
+
+    def effective_principal(payment)
+      return 0.to_d if source.credit_card? && payment.expense_money_source_id == source.id
+
+      payment.principal_amount.to_d
+    end
+
+    def payment_secondary(payment)
+      components = [
+        [ "Capital", payment.principal_amount ],
+        [ "Intereses", payment.interest_amount ],
+        [ "Seguros", payment.insurance_amount ],
+        [ "Otros", payment.other_amount ]
+      ].filter_map do |label, value|
+        next if value.to_d.zero?
+
+        "#{label}: #{MoneyFormat.currency(value)}"
+      end
+
+      [ payment.expense.money_source&.name, *components ].compact.join(" · ")
+    end
+
+    # Extra payments are not separate ledger rows: an amortizing abono is a
+    # Payment and a revolving abono is a Transfer. The link only relabels the
+    # derived movement so the extracto distinguishes it without duplicating it.
+    def extra_payment_ids
+      @extra_payment_ids ||= CreditExtraPayment.where(money_source_id: source.id)
+                                                .where.not(payment_id: nil)
+                                                .pluck(:payment_id)
+                                                .to_set
+    end
+
+    def extra_transfer_ids
+      @extra_transfer_ids ||= CreditExtraPayment.where(money_source_id: source.id)
+                                                 .where.not(transfer_id: nil)
+                                                 .pluck(:transfer_id)
+                                                 .to_set
     end
 
     def adjustment_movements(range)
@@ -167,7 +257,7 @@ module MoneySources
         Movement.new(
           date: adjustment.effective_date,
           created_at: adjustment.created_at,
-          direction: adjustment.delta.to_d.positive? ? "in" : "out",
+          direction: adjustment_direction(adjustment),
           amount: adjustment.delta.to_d.abs,
           description: adjustment.note.presence || "Ajuste de saldo",
           secondary: nil,
@@ -177,6 +267,18 @@ module MoneySources
           reference: adjustment.id
         )
       end
+    end
+
+    # Debt adjustments are stored with different signs per product:
+    # cards keep the correction in the negative cash balance, while loans keep
+    # it in the positive outstanding balance. Normalize both to the statement's
+    # direction (in = debt reduction, out = debt increase).
+    def adjustment_direction(adjustment)
+      delta = adjustment.delta.to_d
+      return delta.positive? ? "in" : "out" unless source.debt?
+
+      debt_change = source.credit_card? ? -delta : delta
+      debt_change.positive? ? "out" : "in"
     end
 
     def adjustment_records
@@ -206,6 +308,8 @@ module MoneySources
     end
 
     def opening_balance(range)
+      return opening_balance_for_loan(range) if source.loan?
+
       total = source.starting_balance.to_d
 
       total += Transaction.where(user_id: user.id, money_source_id: source.id)
@@ -227,7 +331,44 @@ module MoneySources
         total += source.balance_offset.to_d
       end
 
+      # Card payments move the cached balance through Payments::BalanceEffect
+      # without creating a transaction on the card, so the statement's opening
+      # balance must add their principal to stay aligned with the real debt.
+      total += card_payment_principal_before(range) if source.credit_card?
+
       total
+    end
+
+    # Loans keep their debt on credit_account.outstanding_balance (positive),
+    # so the statement uses the equivalent signed balance (negative). The
+    # current outstanding is the anchor: reversing every operation from the
+    # period start onwards yields the opening debt, including any initial
+    # outstanding entered on the loan form and historical adjustments.
+    def opening_balance_for_loan(range)
+      -(source.outstanding_balance.to_d - loan_debt_change_since(range.begin))
+    end
+
+    def loan_debt_change_since(date)
+      change = -Transaction.where(user_id: user.id, money_source_id: source.id)
+                           .where("date >= ?", date)
+                           .sum(:amount).to_d
+      change += Transfer.where(user_id: user.id, from_source_id: source.id)
+                        .where("date >= ?", date)
+                        .sum(:amount).to_d
+      change -= Transfer.where(user_id: user.id, to_source_id: source.id)
+                        .where("date >= ?", date)
+                        .sum(:amount).to_d
+      change -= Payment.where(user_id: user.id, money_source_id: source.id)
+                       .where("date >= ?", date)
+                       .sum(:principal_amount).to_d
+      change += adjustment_records.where("effective_date >= ?", date).sum(:delta).to_d
+      change
+    end
+
+    def card_payment_principal_before(range)
+      source.payments.includes(:expense).where("date < ?", range.begin).sum do |payment|
+        effective_principal(payment)
+      end.to_d
     end
   end
 end

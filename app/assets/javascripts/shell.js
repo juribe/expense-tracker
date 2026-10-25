@@ -119,6 +119,11 @@
           if (slug) { saveSession(key, slug); }
         });
       }
+      var forced = container.getAttribute("data-source-tabs-force");
+      if (forced) {
+        activateSourceTab(container, forced);
+        return;
+      }
       var saved = storedSession(key, "");
       if (saved) { activateSourceTab(container, saved); }
     });

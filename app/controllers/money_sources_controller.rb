@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 class MoneySourcesController < ApplicationController
+  include MoneySourceShowContext
+
   before_action :authenticate_user!
-  before_action :set_money_source, only: [ :show, :statement, :movements, :extracto, :edit, :update, :destroy, :reset_adjustment ]
+  before_action :set_money_source, only: [ :show, :edit, :update, :destroy, :reset_adjustment ]
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -57,24 +59,7 @@ class MoneySourcesController < ApplicationController
   def show
     load_payment_context if @money_source.debt?
     load_pocket_context if @money_source.pocket?
-    load_statement_context if @money_source.statement_supported?
-    @active_tab = statement_tab_active? ? "movimientos" : "resumen"
-  end
-
-  # GET /money_sources/1/statement (alias of show, focused on Movimientos)
-  def statement
-    show
-    render :show
-  end
-
-  # GET /money_sources/1/movements (alias)
-  def movements
-    statement
-  end
-
-  # GET /money_sources/1/extracto (alias)
-  def extracto
-    statement
+    @active_tab = "resumen"
   end
 
   # GET /money_sources/recognition
@@ -370,61 +355,6 @@ class MoneySourcesController < ApplicationController
 
   def set_money_source
     @money_source = current_user.money_sources.find(params[:id])
-  end
-
-  # Applied payments paginate on the debt show page: a long mortgage history
-  # must stay one click away without flooding the card.
-  def load_payment_context
-    payments_scope = @money_source.payments.order(date: :desc, id: :desc)
-    # The list renders the expense description/date of every payment.
-    @payments = payments_scope.includes(:expense).paginate(
-      page: params[:payments_page], per_page: ApplicationController::PER_PAGE
-    )
-
-    unapplied = current_user.expenses
-                            .where.not(id: @money_source.payments.select(:expense_id))
-                            .order(date: :desc, id: :desc)
-    # Only the awaiting list renders the template hint; the picker does not,
-    # so the eager load stays scoped to what is used (keeps Bullet quiet).
-    @awaiting_expenses = unapplied.includes(:recurring_template)
-                                  .where(recurring_template_id: current_user.recurring_templates
-                                                                           .where(money_source_id: @money_source.id)).limit(10)
-    @pickable_expenses = unapplied.limit(20)
-    # Data for the "Crear pago manual" modal on the payments tab.
-    @categories = Category.for_user(current_user).expenses.order(:name)
-    @funding_sources = MoneySource.payment_origins(current_user).where.not(id: @money_source.id)
-  end
-
-  # Pockets display how their balance is distributed across their goals.
-  def load_pocket_context
-    @pocket_goals = @money_source.goals.active.order(:created_at, :id).includes(:goal_allocations)
-    @recent_allocations = @money_source.goal_allocations
-                                       .includes(:financial_goal)
-                                       .order(date: :desc, created_at: :desc)
-                                       .limit(5)
-  end
-
-  def load_statement_context
-    @statement = MoneySources::Statement.new(
-      user: current_user,
-      source: @money_source,
-      period: params[:period],
-      start_date: params[:start_date],
-      end_date: params[:end_date],
-      kind: params[:kind],
-      query: params[:q],
-      page: params[:page],
-      per_page: params[:per_page]
-    ).call
-  end
-
-  def statement_tab_active?
-    return false unless @money_source.statement_supported?
-
-    params[:tab].to_s == "movimientos" ||
-      params[:period].present? || params[:kind].present? ||
-      params[:q].present? || params[:page].present? ||
-      params[:start_date].present? || params[:end_date].present?
   end
 
   def money_source_params
