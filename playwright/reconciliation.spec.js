@@ -129,7 +129,7 @@ test.describe('día de cuadre', () => {
     await page.goto('/money_sources/cash');
     await page.locator('a[href^="/money_sources/"]').filter({ hasText: 'AllGood Bank' }).first().click();
     await expect(page.getByText('Ajuste manual', { exact: true })).toBeVisible();
-    await expect(page.getByText('Pago por fuera de la app')).toBeVisible();
+    await expect(page.getByText('Pago por fuera de la app').first()).toBeVisible();
 
     // Reverting restores the original balance and hides the trace.
     page.once('dialog', d => d.accept());

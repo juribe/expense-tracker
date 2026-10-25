@@ -135,6 +135,7 @@ class MoneySourcesController < ApplicationController
   # invalidated by the model's invalidation hook on update.
   def reset_adjustment
     @money_source.update!(balance_offset: 0, balance_offset_note: nil, balance_offset_at: nil)
+    BalanceAdjustment.where(money_source_id: @money_source.id).delete_all
     redirect_to money_source_path(@money_source), notice: t("money_sources.flashes.adjustment_reset")
   end
 
