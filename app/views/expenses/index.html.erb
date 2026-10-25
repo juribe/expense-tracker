@@ -50,7 +50,7 @@
         <div class="col-md-4 expenses-field">
           <%= f.label :money_source_id, t("expenses.source_label"), class: "form-label" %>
           <div class="expenses-control">
-            <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("expenses.all_sources") } %>
+            <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("expenses.all_sources"), selected: params[:money_source_id] } %>
           </div>
         </div>
         <div class="col-md-2 expenses-field">

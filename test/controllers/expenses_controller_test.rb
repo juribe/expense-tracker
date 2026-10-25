@@ -106,6 +106,20 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", { text: "Bus", count: 0 }
   end
 
+  test "GET /expenses filters by money source and keeps it selected in the filter form" do
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
+    other_source = create_source(name: "Cuenta", kind: "account")
+    create_expense(amount: 12.50, date: Date.today, money_source: source, description: "Visa lunch")
+    create_expense(amount: 9.00, date: Date.today, money_source: other_source, description: "Cash lunch")
+
+    get expenses_path, params: { money_source_id: source.id }
+
+    assert_response :success
+    assert_select "tr[data-testid=row]", count: 1
+    assert_select "td", text: "Visa lunch"
+    assert_select "select[name='money_source_id'] option[value='#{source.id}'][selected]"
+  end
+
   test "GET /expenses filters by amount range" do
     create_expense(amount: 10.00, date: Date.today, description: "Low")
     create_expense(amount: 50.00, date: Date.today, description: "Mid")
