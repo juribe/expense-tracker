@@ -5,6 +5,11 @@ require "test_helper"
 class MailInboundProcessJobTest < ActiveJob::TestCase
   setup do
     @user = User.create!(name: "Mail Process Job", email: "mail_process_job@example.com", password: "password123")
+    @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "notificaciones@bank.example",
+      status: "active"
+    )
     @record = ProcessedEmail.create!(
       user: @user,
       provider: "cloudflare",

@@ -167,6 +167,23 @@ Rails.application.routes.draw do
   get "imports/preview", to: "imports#preview", as: :import_preview
   resources :imports, only: [ :new, :create ]
 
+  # Email source onboarding and configuration
+  resources :email_sources, only: [:index, :create, :destroy] do
+    member do
+      post :confirm
+      post :retry
+    end
+    collection do
+      post :connect_gmail
+    end
+  end
+  post "email_sources/verifications/:id/confirm", to: "email_sources#confirm_verification", as: :confirm_email_verification
+  get "email_sources/setup_status", to: "email_sources#setup_status", as: :email_sources_setup_status
+  get "settings/email", to: "email_sources#index", as: :settings_email
+  get "settings/emails", to: "email_sources#index", as: :settings_emails
+  get "settings/email_sources", to: "email_sources#index", as: :settings_email_sources
+  get "conecta_tus_correos", to: "email_sources#index", as: :conecta_tus_correos
+
   # Gmail expense import
   get "settings/gmail", to: "gmail_connections#index", as: :gmail_connection
   patch "settings/gmail", to: "gmail_connections#update"
@@ -174,7 +191,7 @@ Rails.application.routes.draw do
   post "settings/gmail/sync", to: "gmail_connections#sync", as: :sync_gmail_connection
   get "settings/gmail/sync_status", to: "gmail_connections#sync_status", as: :gmail_sync_status
   post "settings/gmail/setup_sync", to: "gmail_connections#setup_sync", as: :setup_sync_gmail_connection
-  post "settings/gmail/auth/start", to: "gmail_connections#start_auth", as: :start_gmail_auth
+  match "settings/gmail/auth/start", to: "gmail_connections#start_auth", via: [:get, :post], as: :start_gmail_auth
   get "auth/google/callback", to: "gmail_connections#callback", as: :google_callback
   scope "gmail/reviews" do
     post ":id/approve", to: "gmail_connections#approve", as: :approve_gmail_review

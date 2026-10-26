@@ -50,7 +50,7 @@
           <% if @connection.active? && @connection.authorization_expired? %>
             <div class="alert alert-warning py-2" data-testid="reauth-alert">
               <p class="small mb-2"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.reauth_alert") %></p>
-              <%= button_to start_gmail_auth_path, method: :post, class: "btn btn-warning btn-sm" do %>
+              <%= link_to start_gmail_auth_path, class: "btn btn-warning btn-sm" do %>
                 <i class="ti ti-rotate me-1"></i><%= t("gmail.reconnect") %>
               <% end %>
             </div>
@@ -73,9 +73,14 @@
           </div>
         <% else %>
           <p class="text-muted"><%= t("gmail.connect_help") %></p>
-          <%= button_to start_gmail_auth_path, method: :post, class: "btn btn-primary",
-                disabled: !@configured do %>
-            <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
+          <% if @configured %>
+            <%= link_to start_gmail_auth_path, class: "btn btn-primary" do %>
+              <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
+            <% end %>
+          <% else %>
+            <button type="button" class="btn btn-primary" disabled>
+              <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
+            </button>
           <% end %>
         <% end %>
       </div>

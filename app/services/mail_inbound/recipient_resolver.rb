@@ -20,6 +20,13 @@ module MailInbound
       raise ConfigurationError, "INBOUND_EMAIL_RECIPIENT is not configured" if @base_recipient.blank?
       raise UnknownRecipient, "recipient is not configured" if token.nil?
 
+      # User-specific alias: a plus token that matches a user's stored inbound
+      # token identifies that user directly.
+      if token.present?
+        user_by_token = User.find_by(inbound_email_token: token)
+        return user_by_token if user_by_token
+      end
+
       email = mapped_email
       raise UnknownRecipient, "recipient token is not configured" if email.blank? && token.present? && @user_map.any?
       raise ConfigurationError, "INBOUND_EMAIL_USER_EMAIL is not configured" if email.blank?

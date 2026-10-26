@@ -18,7 +18,15 @@ module MailInbound
     def call(message)
       raise ArgumentError, "message is required" if message.blank?
 
-      importer.call(normalize(message))
+      normalized = normalize(message)
+      if MailInbound::ForwardingVerificationDetector.verification_message?(normalized)
+        MailInbound::ForwardingVerificationDetector.store!(user: @user, message: normalized)
+        return Gmail::ExpenseImporter::Result.new(
+          status: :ignored, processed_email: nil, expense_ids: [], reason: "gmail forwarding verification"
+        )
+      end
+
+      importer.call(normalized)
     end
 
     private

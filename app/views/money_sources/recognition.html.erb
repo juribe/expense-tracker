@@ -71,6 +71,16 @@
     </button>
   </div>
 </header>
+<% if current_user.email_sources.active.exists? %>
+  <div class="alert alert-info d-flex align-items-center gap-2 mt-3" role="alert">
+    <i class="ti ti-mail-forward"></i>
+    <div>
+      Reenvío de correos activo (<%= current_user.email_sources.active.count %> fuente(s)).
+      Los correos reenviados se reconocerán con los identificadores configurados aquí.
+      <a href="<%= email_sources_path %>" class="alert-link">Ver redirecciones</a>
+    </div>
+  </div>
+<% end %>
 
 <% if @gmail_connection&.active? %>
   <%# Gmail criteria: three recognition inputs (senders / domains / subjects),

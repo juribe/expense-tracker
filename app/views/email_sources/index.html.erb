@@ -1,0 +1,227 @@
+<% delete_confirm = t("email_sources.delete_confirm", default: "¿Eliminar esta redirección? Esta acción no se puede deshacer.") %>
+<div class="email-sources-page" data-delete-confirm="<%= delete_confirm %>">
+  <div class="es-topline">
+    <div>
+      <div class="es-eyebrow">Fuentes de datos</div>
+      <h1 class="es-title">Conecta tus correos</h1>
+      <p class="es-subtitle">Importa automáticamente las notificaciones de tus bancos y registra tus gastos.</p>
+    </div>
+  </div>
+
+  <div class="es-steps" aria-label="Progreso de configuración">
+    <div class="es-step active" id="step1"><span class="es-num">1</span><span>Agregar correo</span></div>
+    <div class="es-connector"></div>
+    <div class="es-step" id="step2"><span class="es-num">2</span><span>Verificar reenvío</span></div>
+    <div class="es-connector"></div>
+    <div class="es-step" id="step3"><span class="es-num">3</span><span>Listo</span></div>
+  </div>
+
+  <div class="es-layout">
+    <section class="es-card" id="setupCard">
+      <div id="intro">
+        <h2>Paso 1 · Agrega una dirección de reenvío</h2>
+        <p class="es-muted">Usaremos una dirección única para recibir las notificaciones de tus bancos.</p>
+
+        <div class="es-address-box" id="addressBox">
+          <div class="es-address-title">Tu dirección personalizada</div>
+          <div class="es-address-row">
+            <div class="es-address" id="forwardAddress" data-testid="forwarding-address"><%= @forwarding_address %></div>
+            <button class="es-copy" id="copyBtn" type="button">
+              <i class="ti ti-copy" aria-hidden="true"></i> Copiar dirección
+            </button>
+          </div>
+          <p class="es-address-help">Agrégala como destino de reenvío en Gmail, Outlook u otro proveedor. Es única para tu cuenta.</p>
+        </div>
+
+        <div class="es-actions" id="initialActions">
+          <button class="es-btn es-btn-primary" id="addBtn" type="button">
+            <i class="ti ti-plus" aria-hidden="true"></i> Agregar redirección
+          </button>
+        </div>
+
+        <div class="es-setup-instructions" id="setupInstructions" hidden>
+          <h3>Configura el reenvío de correos</h3>
+
+          <section class="es-instruction-group" aria-labelledby="gmailInstructionsTitle">
+            <h4 id="gmailInstructionsTitle">Si usas Gmail</h4>
+            <ol class="es-instruction-list">
+              <li><strong>Copia tu dirección personalizada</strong> y agrégala en Gmail, en Configuración → Reenvío y correo POP/IMAP.</li>
+              <li><strong>Guarda la configuración del reenvío.</strong> Gmail enviará automáticamente un correo de verificación a nuestra aplicación.</li>
+              <li><strong>Nosotros detectamos el correo y te mostramos el enlace de confirmación.</strong> Solo tendrás que abrirlo para aceptar la redirección.</li>
+            </ol>
+            <p class="es-instruction-note">Cuando termines, pulsa <strong>«Ya configuré el reenvío · Buscar correo»</strong> para que busquemos el mensaje de verificación.</p>
+            <a class="es-help-link" href="https://support.google.com/mail/answer/10957" target="_blank" rel="noopener">
+              <i class="ti ti-info-circle" aria-hidden="true"></i> Ayuda oficial de Gmail
+              <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          </section>
+
+          <section class="es-instruction-group" aria-labelledby="otherProviderInstructionsTitle">
+            <h4 id="otherProviderInstructionsTitle">Si usas otro proveedor</h4>
+            <ol class="es-instruction-list">
+              <li><strong>Copia tu dirección personalizada</strong> y configúrala como destino del reenvío automático en tu proveedor de correo.</li>
+              <li><strong>Acepta o activa el reenvío</strong> siguiendo las instrucciones de tu proveedor, si te lo solicita.</li>
+              <li><strong>Envíanos un correo de prueba</strong> desde esa misma dirección a la dirección personalizada de la aplicación. Así comprobaremos que tienes acceso a esa cuenta y que los mensajes llegan correctamente.</li>
+            </ol>
+            <p class="es-instruction-note">Después de enviar el correo de prueba, pulsa <strong>«Ya configuré el reenvío · Buscar correo»</strong> para que comprobemos su recepción.</p>
+            <p class="es-instruction-important"><strong>Importante:</strong> el correo de prueba debe enviarse desde la cuenta que quieres registrar, no desde otra dirección.</p>
+          </section>
+        </div>
+
+        <div class="es-actions" id="nextActions" hidden>
+          <button class="es-btn es-btn-primary" id="scanBtn" type="button">
+            <i class="ti ti-search" aria-hidden="true"></i> Ya configuré el reenvío · Buscar correo
+          </button>
+        </div>
+      </div>
+
+      <div class="es-status-panel" id="statusPanel" aria-live="polite">
+        <div class="es-status-head">
+          <div class="es-spinner" id="statusSpinner" role="status" aria-label="Buscando correo de verificación"></div>
+          <div>
+            <div class="es-status-title" id="statusTitle">Buscando correo de verificación…</div>
+            <p class="es-status-detail" id="statusDetail">Deja esta ventana abierta mientras completas la confirmación en Gmail. Revisamos automáticamente si llegó el mensaje.</p>
+          </div>
+        </div>
+        <p class="es-check-time" id="lastCheck" aria-live="polite">Última comprobación: —</p>
+
+        <div class="es-detected" id="detected">
+          <p class="es-muted">Correo de verificación detectado</p>
+          <div class="es-detected-mail" id="detectedEmail"></div>
+          <p class="es-muted" id="detectedDetail">Encontramos el mensaje. Revisa el enlace de confirmación extraído del correo.</p>
+          <p class="es-address-help">Abre el enlace y completa la verificación en Gmail. Después vuelve aquí y pulsa “Ya completé la confirmación”.</p>
+
+          <div class="es-link-preview">
+            <div class="es-link-preview-label">Enlace de confirmación enviado por Gmail</div>
+            <div class="es-link-preview-url" id="gmailLinkUrl"></div>
+            <div class="es-link-preview-actions">
+              <button class="es-btn es-btn-primary" id="openLinkBtn" type="button">
+                <i class="ti ti-external-link" aria-hidden="true"></i> Abrir enlace de confirmación
+              </button>
+              <button class="es-btn es-btn-secondary" id="copyLinkBtn" type="button">
+                <i class="ti ti-copy" aria-hidden="true"></i> Copiar enlace
+              </button>
+            </div>
+          </div>
+
+          <div class="es-scan-controls">
+            <button class="es-btn es-btn-secondary" id="confirmBtn" type="button">
+              <i class="ti ti-check" aria-hidden="true"></i> Ya completé la confirmación
+            </button>
+            <button class="es-btn es-btn-secondary" id="retryBtn" type="button">
+              <i class="ti ti-refresh" aria-hidden="true"></i> Seguir buscando
+            </button>
+          </div>
+        </div>
+
+        <div class="es-detected" id="sourceDetected">
+          <p class="es-muted">Correo reenviado detectado</p>
+          <div class="es-detected-mail" id="detectedSourceEmail"></div>
+          <p class="es-muted" id="detectedSourceDetail">Acepta el remitente para empezar a importar sus notificaciones.</p>
+          <p class="es-address-help">El mensaje actual se descartó porque el remitente aún no estaba aceptado.</p>
+
+          <div class="es-scan-controls">
+            <button class="es-btn es-btn-primary" id="acceptSourceBtn" type="button">
+              <i class="ti ti-check" aria-hidden="true"></i> Aceptar remitente
+            </button>
+            <button class="es-btn es-btn-secondary" id="retrySourceBtn" type="button">
+              <i class="ti ti-refresh" aria-hidden="true"></i> Seguir buscando
+            </button>
+          </div>
+        </div>
+
+        <div class="es-scan-controls" id="scanControls">
+          <button class="es-btn es-btn-secondary" id="checkBtn" type="button">
+            <i class="ti ti-refresh" aria-hidden="true"></i> Volver a comprobar
+          </button>
+          <button class="es-btn es-btn-secondary" id="stopBtn" type="button">
+            <i class="ti ti-player-stop" aria-hidden="true"></i> Cancelar escaneo
+          </button>
+        </div>
+      </div>
+
+      <p class="es-small-note">Los estados de detección y confirmación se actualizan automáticamente.</p>
+    </section>
+
+    <aside class="es-card es-howto">
+      <h2>¿Necesitas ayuda?</h2>
+      <p class="es-muted">Solo necesitas configurar el reenvío una vez por cada dirección de correo.</p>
+      <p class="es-muted">En Gmail, abre Configuración → Reenvío y correo POP/IMAP. Si usas otro proveedor, busca una opción equivalente.</p>
+      <p class="es-muted">Gmail enviará un correo de verificación. Si llega a tu bandeja de entrada, ábrelo y completa la confirmación.</p>
+
+      <a class="es-help-link" href="https://support.google.com/mail/answer/10957" target="_blank" rel="noopener">
+        <i class="ti ti-info-circle" aria-hidden="true"></i> Ayuda oficial de Gmail
+        <i class="ti ti-external-link" aria-hidden="true"></i>
+      </a>
+    </aside>
+  </div>
+
+  <% active_source_count = @email_sources.count(&:active?) + @gmail_connections.count(&:active?) %>
+  <section class="es-card es-sources">
+    <div class="es-sources-head">
+      <div>
+        <h2>Tus redirecciones</h2>
+        <p class="es-muted">Aquí aparecen las direcciones que ya confirmaste.</p>
+      </div>
+      <span class="es-pill es-pill-active" id="sourceCount">
+        <span class="es-dot"></span><%= active_source_count %> <%= active_source_count == 1 ? "activa" : "activas" %>
+      </span>
+    </div>
+
+    <div id="sourcesList">
+      <% if @email_sources.empty? && @gmail_connections.empty? %>
+        <div class="es-empty" id="emptySources">No hay redirecciones configuradas.</div>
+      <% else %>
+        <% @gmail_connections.each do |connection| %>
+          <div class="es-source-row source-row">
+            <div class="es-gmail-icon">M</div>
+            <div class="es-source-main">
+              <div class="es-source-email"><%= connection.email %></div>
+              <div class="es-source-sub">Gmail conectado directamente</div>
+            </div>
+            <span class="es-pill <%= connection.active? ? "es-pill-active" : "es-pill-pending" %>">
+              <span class="es-dot"></span><%= connection.active? ? "Gmail" : "Pendiente" %>
+            </span>
+          </div>
+        <% end %>
+
+        <% @email_sources.each do |source| %>
+          <% active = source.active? %>
+          <div class="es-source-row source-row" data-source-id="<%= source.id %>">
+            <div class="es-gmail-icon">@</div>
+            <div class="es-source-main">
+              <div class="es-source-email"><%= source.email.presence || "Reenvío" %></div>
+              <div class="es-source-sub">
+                <%= active ? "Conectada correctamente" : "Esperando confirmación" %>
+                · <%= source.created_at.strftime("%d/%m/%Y") %>
+              </div>
+            </div>
+            <span class="es-pill <%= active ? "es-pill-active" : "es-pill-pending" %>">
+              <span class="es-dot"></span>
+              <%= case source.status
+                  when "pending_setup" then "Pendiente"
+                  when "pending_verification" then "Pendiente de verificación"
+                  when "active" then "Activa"
+                  when "error" then "Error"
+                  when "disconnected" then "Desconectada"
+                  else source.status
+                  end %>
+            </span>
+            <% if source.pending_setup? || source.pending_verification? %>
+              <%= button_to "Aceptar", confirm_email_source_path(source),
+                    method: :post,
+                    class: "es-btn es-btn-primary es-btn-sm",
+                    form: { class: "es-delete-form", data: { accept_form: true } } %>
+            <% end %>
+            <%= button_to "Eliminar", email_source_path(source),
+                  method: :delete,
+                  class: "es-btn es-btn-danger es-btn-sm",
+                  form: { class: "es-delete-form", data: { turbo_confirm: delete_confirm } } %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="es-toast" id="toast" role="status" aria-live="polite"></div>
+</div>

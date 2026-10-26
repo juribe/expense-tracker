@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -190,6 +190,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "name"], name: "index_custom_financial_institutions_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_custom_financial_institutions_on_user_id"
+  end
+
+  create_table "email_forwarding_verifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "email_source_id"
+    t.string "code"
+    t.text "confirmation_url"
+    t.string "sender_email"
+    t.string "subject"
+    t.string "message_id"
+    t.datetime "expires_at", null: false
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_source_id"], name: "index_email_forwarding_verifications_on_email_source_id"
+    t.index ["user_id", "expires_at"], name: "index_email_forwarding_verifications_on_user_id_and_expires_at"
+    t.index ["user_id"], name: "index_email_forwarding_verifications_on_user_id"
+  end
+
+  create_table "email_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "source_type", default: "forwarding", null: false
+    t.string "email"
+    t.string "status", default: "pending_setup", null: false
+    t.text "last_error"
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "status"], name: "index_email_sources_on_user_id_and_status"
+    t.index ["user_id"], name: "index_email_sources_on_user_id"
   end
 
   create_table "evaluation_cases", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -908,8 +938,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
+    t.string "inbound_email_token"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["inbound_email_token"], name: "index_users_on_inbound_email_token", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
@@ -960,6 +992,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
   add_foreign_key "credit_projections", "money_sources"
   add_foreign_key "credit_scenarios", "money_sources"
   add_foreign_key "custom_financial_institutions", "users"
+  add_foreign_key "email_forwarding_verifications", "email_sources"
+  add_foreign_key "email_forwarding_verifications", "users"
+  add_foreign_key "email_sources", "users"
   add_foreign_key "evaluation_cases", "evaluation_runs"
   add_foreign_key "evaluation_runs", "users"
   add_foreign_key "expense_candidates", "categories"

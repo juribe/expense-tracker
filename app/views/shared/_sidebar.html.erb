@@ -214,6 +214,12 @@
             <span class="hide-menu"><%= t("nav.whatsapp", default: "WhatsApp") %></span>
           <% end %>
         </li>
+        <li class="sidebar-item">
+          <%= link_to email_sources_path, class: "sidebar-link #{active_class('email_sources')}" do %>
+            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-mail-forward fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.email_redirect", default: "Redirección email") %></span>
+          <% end %>
+        </li>
       </ul>
     </nav>
   </div>

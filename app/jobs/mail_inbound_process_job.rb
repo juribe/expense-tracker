@@ -21,6 +21,34 @@ class MailInboundProcessJob < ApplicationJob
       return
     end
 
+    if MailInbound::ForwardingVerificationDetector.verification_message?(message)
+      MailInbound::ForwardingVerificationDetector.store!(
+        user: email.user,
+        message: message,
+        processed_email: email
+      )
+      email.update!(
+        status: "ignored",
+        failure_reason: "gmail forwarding verification",
+        processed_at: Time.current
+      )
+      Rails.logger.info("[MailInboundProcessJob] id=#{email.id} status=ignored reason=forwarding_verification")
+      return
+    end
+
+    origin = MailInbound::SourceRegistrar.origin_email(message)
+    source = MailInbound::SourceRegistrar.find_or_register(email.user, origin)
+
+    unless source&.active?
+      email.update!(
+        status: "ignored",
+        failure_reason: "email source not accepted",
+        processed_at: Time.current
+      )
+      Rails.logger.info("[MailInboundProcessJob] id=#{email.id} status=ignored reason=source_not_accepted")
+      return
+    end
+
     result = MailInbound::Processor.new(
       user: email.user,
       provider: email.provider,
