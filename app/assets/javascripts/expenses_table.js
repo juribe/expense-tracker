@@ -106,11 +106,42 @@
       select.insertBefore(group, select.options[1]);
     }
 
+    select.dataset.expenseAmount = row.dataset.amount || "0";
     select.value = "";
     $("#recurringExpenseId").value = row.dataset.id;
     $("#bulkRecurringForm").action = urlWithState(payload.assign_recurring_url);
     $("#confirmBulkRecurring").disabled = true;
+    var details = $("#recurringTemplateDetails");
+    if (details) details.classList.add("d-none");
+    var checkbox = $("#recurringCompleted");
+    if (checkbox) checkbox.checked = true;
     bootstrap.Modal.getOrCreateInstance("#bulkRecurringModal").show();
+  }
+
+  function renderRecurringDetails(select) {
+    var panel = $("#recurringTemplateDetails");
+    if (!panel) return;
+    if (!select.value) {
+      panel.classList.add("d-none");
+      $("#confirmBulkRecurring").disabled = true;
+      return;
+    }
+    var option = select.options[select.selectedIndex];
+    var expectedEl = $("#recurringExpectedAmount");
+    if (expectedEl) expectedEl.textContent = option.dataset.expectedLabel || "";
+    var paidEl = $("#recurringPaidAmount");
+    if (paidEl) paidEl.textContent = option.dataset.paidLabel || "";
+    var remainingEl = $("#recurringRemainingAmount");
+    if (remainingEl) remainingEl.textContent = option.dataset.remainingLabel || "";
+
+    var expected = Number(option.dataset.amount || 0);
+    var paid = Number(option.dataset.paid || 0);
+    var expenseAmount = Number(select.dataset.expenseAmount || 0);
+    var checkbox = $("#recurringCompleted");
+    if (checkbox) checkbox.checked = (paid + expenseAmount >= expected);
+
+    panel.classList.remove("d-none");
+    $("#confirmBulkRecurring").disabled = false;
   }
 
   function openDrawer(url, editUrl, deleteUrl) {
@@ -165,7 +196,7 @@
       updateBulkEdit();
     }
     if (e.target.matches("#bulkRecurringSelect")) {
-      $("#confirmBulkRecurring").disabled = !e.target.value;
+      renderRecurringDetails(e.target);
     }
   });
 

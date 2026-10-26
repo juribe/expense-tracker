@@ -89,15 +89,22 @@ class ExpensesController < ApplicationController
   # This is only the template association: no Payment is created and no
   # credit balance changes (apply payments from the credit/loan page).
   def assign_recurring
+    completed = if params.key?(:completed)
+                  params[:completed].to_s == "1" || params[:completed].to_s == "true"
+                else
+                  true
+                end
+
     result = Expenses::RecurringAssignment.assign(
       user: current_user,
       expense_id: params[:expense_id],
-      recurring_template_id: params[:recurring_template_id]
+      recurring_template_id: params[:recurring_template_id],
+      completed: completed
     )
 
     if result.success?
       redirect_to expenses_path(bulk_update_state),
-                  notice: t("expenses.assign_recurring.applied", description: result.description)
+                  notice: t("expenses.assign_recurring.#{result.message_key}", description: result.description)
     else
       redirect_to expenses_path(bulk_update_state),
                   alert: t("expenses.assign_recurring.#{result.message_key}", description: result.description)
@@ -229,8 +236,26 @@ class ExpensesController < ApplicationController
 relation = relation.includes(:category) if request.format.html?
 @recurring_templates = relation.to_a.reject { |template| template.money_source&.debt_payment_target? }
     @current_period_range = PayCycle.period_for(current_user).last
-    @paid_template_ids = Transaction.where(recurring_template_id: @recurring_templates, date: @current_period_range)
-                                    .distinct.pluck(:recurring_template_id)
+    template_ids = @recurring_templates.map(&:id)
+
+    # Accumulated amount per template for the current period. A single grouped
+    # query avoids N+1 (Bullet-tested on this action).
+    @recurring_template_paid_totals = Transaction
+      .where(recurring_template_id: template_ids, date: @current_period_range)
+      .group(:recurring_template_id)
+      .sum(Arel.sql("ABS(amount)"))
+
+    # A template is "already paid" only when the period is genuinely
+    # complete: either an assignment was flagged as completed, or the
+    # accumulated amount covers the expected amount. Partial assignments
+    # keep the template selectable so several expenses can accumulate.
+    flagged_ids = Transaction
+      .where(recurring_template_id: template_ids, date: @current_period_range, recurring_paid_in_full: true)
+      .distinct.pluck(:recurring_template_id)
+    by_sum_ids = @recurring_templates
+      .select { |template| @recurring_template_paid_totals[template.id].to_d >= template.amount.to_d }
+      .map(&:id)
+    @paid_template_ids = (flagged_ids | by_sum_ids)
   end
 
   # The expenses list is prefilled with the current financial cycle (badge on

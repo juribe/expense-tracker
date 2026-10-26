@@ -198,6 +198,7 @@
                 <tr data-id="<%= expense.id %>" tabindex="0" data-testid="row"
                     data-category-id="<%= expense.category_id %>"
                     data-recurring-id="<%= expense.recurring_template_id %>"
+                    data-amount="<%= expense.amount.to_d.to_s("F") %>"
                     data-view-url="<%= expense_path(expense) %>"
                     data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                     data-delete-url="<%= expense_path(expense, state_query) %>">
@@ -250,6 +251,7 @@
             <div class="mobile-item" data-id="<%= expense.id %>" tabindex="0" data-testid="row"
                  data-category-id="<%= expense.category_id %>"
                  data-recurring-id="<%= expense.recurring_template_id %>"
+                 data-amount="<%= expense.amount.to_d.to_s("F") %>"
                  data-view-url="<%= expense_path(expense) %>"
                  data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                  data-delete-url="<%= expense_path(expense, state_query) %>">
@@ -434,13 +436,43 @@
               <option value=""><%= t("expenses.assign_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
               <% @recurring_templates.each do |template| %>
                 <% paid = @paid_template_ids.include?(template.id) %>
+                <% paid_total = @recurring_template_paid_totals[template.id].to_d %>
+                <% remaining = [template.amount.to_d - paid_total, BigDecimal("0")].max %>
                 <option value="<%= template.id %>"
                         data-category-id="<%= template.category_id %>"
+                        data-amount="<%= template.amount.to_d.to_s("F") %>"
+                        data-paid="<%= paid_total.to_s("F") %>"
+                        data-expected-label="<%= number_to_currency(template.amount) %>"
+                        data-paid-label="<%= number_to_currency(paid_total) %>"
+                        data-remaining-label="<%= number_to_currency(remaining) %>"
                         <%= "disabled" if paid %>>
                   <%= recurring_template_option_label(template) %><%= t("expenses.assign_recurring.paid_suffix") if paid %>
                 </option>
               <% end %>
             </select>
+          </div>
+
+          <div id="recurringTemplateDetails" class="border rounded p-3 mt-3 d-none" data-testid="recurring-template-details">
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="text-muted"><%= t("expenses.assign_recurring.expected_amount", default: "Monto esperado") %></span>
+              <strong id="recurringExpectedAmount"></strong>
+            </div>
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="text-muted"><%= t("expenses.assign_recurring.already_registered", default: "Ya registrado este período") %></span>
+              <span id="recurringPaidAmount"></span>
+            </div>
+            <div class="d-flex justify-content-between small mb-2">
+              <span class="text-muted"><%= t("expenses.assign_recurring.remaining", default: "Restante") %></span>
+              <span id="recurringRemainingAmount"></span>
+            </div>
+            <%= hidden_field_tag :completed, "0", id: "recurringCompletedHidden" %>
+            <div class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" id="recurringCompleted" name="completed" value="1" checked>
+              <label class="form-check-label small" for="recurringCompleted">
+                <%= t("expenses.assign_recurring.completed_label", default: "Este gasto completa el período") %>
+              </label>
+              <div class="form-text small"><%= t("expenses.assign_recurring.completed_hint", default: "Desmárcalo para un pago parcial y asignar más gastos al mismo período.") %></div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">

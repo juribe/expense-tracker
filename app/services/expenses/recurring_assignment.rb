@@ -26,8 +26,8 @@ module Expenses
   # with allow_debt_target: true. Netflix-like recurring expenses stay
   # freely assignable.
   class RecurringAssignment
-    def self.assign(user:, expense_id:, recurring_template_id:, period: nil, allow_debt_target: false)
-      new(user: user).send(:assign, expense_id, recurring_template_id, period, allow_debt_target)
+    def self.assign(user:, expense_id:, recurring_template_id:, period: nil, allow_debt_target: false, completed: true)
+      new(user: user).send(:assign, expense_id, recurring_template_id, period, allow_debt_target, completed)
     end
 
     def self.unassign(user:, expense_id:)
@@ -57,7 +57,7 @@ module Expenses
 
     attr_reader :user
 
-    def assign(expense_id, recurring_template_id, period = nil, allow_debt_target = false)
+    def assign(expense_id, recurring_template_id, period = nil, allow_debt_target = false, completed = true)
       expense = user.expenses.find_by(id: expense_id)
       template = user.recurring_templates.find_by(id: recurring_template_id)
 
@@ -71,7 +71,13 @@ module Expenses
         return reject("period_mismatch")
       end
 
-      return applied(template) if expense.recurring_template_id == template.id
+      # Re-assigning to the same template lets the caller toggle the
+      # "completes the period" flag without unlinking first.
+      if expense.recurring_template_id == template.id
+        expense.update!(recurring_paid_in_full: completed)
+        return applied(template, completed: completed)
+      end
+
       return reject("already_linked") if expense.recurring_template_id.present?
 
       period = PayCycle.period_for(user, expense.date).last
@@ -80,8 +86,11 @@ module Expenses
         return reject("period_taken")
       end
 
-      expense.update!(recurring_template_id: template.id, recurring_paid_in_full: true)
-      applied(template)
+      paid_before = template.paid_amount_for_period(period)
+      effective_completed = completed || (paid_before + expense.amount.to_d.abs >= template.amount.to_d)
+
+      expense.update!(recurring_template_id: template.id, recurring_paid_in_full: effective_completed)
+      applied(template, completed: effective_completed)
     end
 
     # Clears the recurring-template assignment of a single expense; the
@@ -102,9 +111,9 @@ module Expenses
       self
     end
 
-    def applied(template)
+    def applied(template, completed: true)
       @ok = true
-      @message_key = "applied"
+      @message_key = completed ? "applied" : "applied_partial"
       @description = template.description
       self
     end

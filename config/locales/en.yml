@@ -874,13 +874,14 @@ en:
     assign_recurring:
       row_button_aria: "Assign to recurring template: %{description}"
       modal_title: "Assign to recurring template"
-      modal_hint: "The selected expense becomes the recurring payment for its month (the template will show as \"Paid\")."
+      modal_hint: "The selected expense is linked to the template. If you don't mark it as completed, you can assign more expenses to the same period until the expected amount is covered."
       template_label: "Recurring template"
       choose_template: "Select a template..."
       same_category_group: "Same category"
       apply_button: "Assign"
       paid_suffix: " (Paid)"
       applied: "Expense assigned to \"%{description}\". The template is Paid for that month."
+      applied_partial: "Expense assigned to \"%{description}\". The template stays pending until the expected amount is covered."
       unlinked: "Recurring template assignment removed."
       not_found: "Expense or recurring template not found for this user."
       not_linked: "The expense has no recurring template assignment."
@@ -890,6 +891,11 @@ en:
       period_mismatch: "The expense is dated %{description}; it can't count as this period's payment. Use an expense dated within the cuadre month (edit its date or create a new one)."
       debt_target: "Debt payments are applied from the account page: the real payment (quota split into principal and interest) is registered there and the cuadre clears on its own."
       period_taken: "\"%{description}\" already has its payment registered for that month."
+      expected_amount: "Expected amount"
+      already_registered: "Already registered this period"
+      remaining: "Remaining"
+      completed_label: "This expense completes the period"
+      completed_hint: "Uncheck it for a partial payment and assign more expenses to the same period."
 
     recurring_link:
       title: "Recurring template"

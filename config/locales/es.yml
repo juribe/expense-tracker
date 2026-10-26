@@ -1492,13 +1492,14 @@ es:
     assign_recurring:
       row_button_aria: "Asignar a plantilla recurrente: %{description}"
       modal_title: "Asignar a plantilla recurrente"
-      modal_hint: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\")."
+      modal_hint: "El gasto seleccionado queda vinculado a la plantilla. Si no marcas la plantilla como completada, puedes asignar más gastos al mismo período hasta cubrir el monto esperado."
       template_label: "Plantilla recurrente"
       choose_template: "Selecciona una plantilla..."
       same_category_group: "Misma categoría"
       apply_button: "Asignar"
       paid_suffix: " (Pagado)"
       applied: "Gasto asignado a \"%{description}\". La plantilla queda Pagada para ese mes."
+      applied_partial: "Gasto asignado a \"%{description}\". La plantilla sigue pendiente hasta completar el monto esperado."
       unlinked: "Se quitó el vínculo con la plantilla recurrente."
       not_found: "No se encontró el gasto o la plantilla recurrente para este usuario."
       not_linked: "El gasto no tiene vínculo con una plantilla recurrente."
@@ -1508,6 +1509,11 @@ es:
       debt_target: "Los pagos a crédito se aplican desde la página de la cuenta: allí se registra el pago real (cuota dividida en capital e intereses) y el cuadre se limpia solo."
       period_mismatch: "El gasto tiene fecha de %{description}; no puede contar como el pago de este período. Usa un gasto con fecha dentro del mes del cuadre (edita su fecha o crea uno nuevo)."
       period_taken: "\"%{description}\" ya registra el pago de ese mes."
+      expected_amount: "Monto esperado"
+      already_registered: "Ya registrado este período"
+      remaining: "Restante"
+      completed_label: "Este gasto completa el período"
+      completed_hint: "Desmárcalo para un pago parcial y asignar más gastos al mismo período."
 
     recurring_link:
       title: "Plantilla recurrente"

@@ -393,6 +393,70 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("expenses.assign_recurring.applied", description: template.description), flash[:notice]
   end
 
+  test "POST /expenses/assign_recurring with completed=0 links the expense but keeps the template pending" do
+    expense = create_expense(amount: 30_000, date: Date.today)
+    template = template_for(amount: 65_000)
+
+    post assign_recurring_expenses_path,
+         params: { expense_id: expense.id, recurring_template_id: template.id, completed: "0" }
+
+    assert_redirected_to expenses_path
+    assert_equal template.id, expense.reload.recurring_template_id
+    refute expense.recurring_paid_in_full
+    assert_equal :pending, template.status_for(Date.current.strftime("%Y-%m"))
+    follow_redirect!
+    assert_equal I18n.t("expenses.assign_recurring.applied_partial", description: template.description),
+                 flash[:notice]
+  end
+
+  test "POST /expenses/assign_recurring accepts several partial expenses for the same period" do
+    template = template_for(amount: 65_000)
+    first = create_expense(amount: 20_000, date: Date.today)
+    second = create_expense(amount: 25_000, date: Date.today)
+
+    post assign_recurring_expenses_path,
+         params: { expense_id: first.id, recurring_template_id: template.id, completed: "0" }
+    assert_redirected_to expenses_path
+
+    post assign_recurring_expenses_path,
+         params: { expense_id: second.id, recurring_template_id: template.id, completed: "0" }
+
+    assert_redirected_to expenses_path
+    assert_equal template.id, first.reload.recurring_template_id
+    assert_equal template.id, second.reload.recurring_template_id
+    assert_equal :pending, template.status_for(Date.current.strftime("%Y-%m"))
+  end
+
+  test "POST /expenses/assign_recurring completes the period when partials reach the expected amount" do
+    template = template_for(amount: 65_000)
+    first = create_expense(amount: 30_000, date: Date.today)
+    second = create_expense(amount: 35_000, date: Date.today)
+
+    post assign_recurring_expenses_path,
+         params: { expense_id: first.id, recurring_template_id: template.id, completed: "0" }
+    post assign_recurring_expenses_path,
+         params: { expense_id: second.id, recurring_template_id: template.id, completed: "0" }
+
+    assert_redirected_to expenses_path
+    assert_equal :completed, template.status_for(Date.current.strftime("%Y-%m"))
+  end
+
+  test "GET /expenses exposes expected and accumulated amounts for partial templates" do
+    paid = create_expense(amount: 20_000, date: Date.today)
+    paid.update!(recurring_template_id: @template.id, recurring_paid_in_full: false)
+    create_expense(amount: 10_000, date: Date.today)
+
+    get expenses_path
+
+    assert_response :success
+    assert_select "select#bulkRecurringSelect option[value='#{@template.id}']:not([disabled])"
+    assert_select "select#bulkRecurringSelect option[value='#{@template.id}'][data-amount]"
+    assert_select "select#bulkRecurringSelect option[value='#{@template.id}'][data-paid='20000.0']"
+    assert_select "select#bulkRecurringSelect option[value='#{@template.id}'][data-remaining-label]"
+    assert_select "#bulkRecurringModal [data-testid='recurring-template-details']"
+    assert_select "#bulkRecurringModal input[name='completed'][type='checkbox']"
+  end
+
   test "POST /expenses/assign_recurring rejects when the template already paid that period" do
     expense = create_expense(amount: 50_000, date: Date.today)
     template = template_for(amount: 50_000)

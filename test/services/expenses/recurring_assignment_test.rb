@@ -183,6 +183,84 @@ module Expenses
       assert_equal "not_linked", result.message_key
     end
 
+    test "completed: false stores recurring_paid_in_full false and keeps the template pending" do
+      expense = create_expense(amount: 4_000, date: Date.new(2026, 3, 10))
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: expense.id, recurring_template_id: @template.id, completed: false
+      )
+
+      assert result.success?
+      assert_equal @template.id, expense.reload.recurring_template_id
+      refute expense.reload.recurring_paid_in_full
+      assert_equal :pending, @template.status_for("2026-03")
+    end
+
+    test "completed: true stores recurring_paid_in_full true and completes the period" do
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id, completed: true
+      )
+
+      assert result.success?
+      assert @expense.reload.recurring_paid_in_full
+      assert_equal :completed, @template.status_for("2026-03")
+    end
+
+    test "completed defaults to true for backwards compatibility" do
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id
+      )
+
+      assert result.success?
+      assert @expense.reload.recurring_paid_in_full
+    end
+
+    test "a partial assignment followed by enough partials completes the period automatically" do
+      first = create_expense(amount: 4_000, date: Date.new(2026, 3, 10))
+      second = create_expense(amount: 6_000, date: Date.new(2026, 3, 11))
+
+      first_result = RecurringAssignment.assign(
+        user: @user, expense_id: first.id, recurring_template_id: @template.id, completed: false
+      )
+      second_result = RecurringAssignment.assign(
+        user: @user, expense_id: second.id, recurring_template_id: @template.id, completed: false
+      )
+
+      assert first_result.success?
+      assert second_result.success?
+      assert_equal :completed, @template.status_for("2026-03")
+      refute first.reload.recurring_paid_in_full
+      assert second.reload.recurring_paid_in_full
+    end
+
+    test "completed: false does not bypass the period_taken guard" do
+      create_expense(recurring_template_id: @template.id, date: Date.new(2026, 3, 20))
+
+      result = RecurringAssignment.assign(
+        user: @user, expense_id: @expense.id, recurring_template_id: @template.id, completed: false
+      )
+
+      assert result.failure?
+      assert_equal "period_taken", result.message_key
+      assert_nil @expense.reload.recurring_template_id
+    end
+
+    test "reassigning the same expense with completed changes the flag" do
+      expense = create_expense(amount: 4_000, date: Date.new(2026, 3, 10))
+
+      result_one = RecurringAssignment.assign(
+        user: @user, expense_id: expense.id, recurring_template_id: @template.id, completed: false
+      )
+      assert result_one.success?
+      refute expense.reload.recurring_paid_in_full
+
+      result_two = RecurringAssignment.assign(
+        user: @user, expense_id: expense.id, recurring_template_id: @template.id, completed: true
+      )
+      assert result_two.success?
+      assert expense.reload.recurring_paid_in_full
+    end
+
     def create_expense(**overrides)
       Expense.create!(
         {
