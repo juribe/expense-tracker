@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "app/models/processed_email.rb": {
-    "mtime": 1790974312.5934954,
-    "seen": 1792857266.808511,
-    "ast_hash": "634ba5ff372822f7a9e23ee861f96c57",
+    "mtime": 1792977698.4474573,
+    "seen": 1792978717.6717708,
+    "ast_hash": "6b323f097c50a50507ab70667839c122",
     "semantic_hash": ""
   },
   "app/models/recurring_template.rb": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "app/models/user.rb": {
-    "mtime": 1792860200.7479944,
-    "seen": 1792861214.2429628,
-    "ast_hash": "34d2edd26add68bf8964012ca8d68526",
+    "mtime": 1792977463.2902749,
+    "seen": 1792978717.671788,
+    "ast_hash": "f57b0de5721e19bff961886d16b1ea66",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -282,9 +282,9 @@
     "semantic_hash": "13b4a2fcf24b12bd12d35db669f38f9f"
   },
   "app/services/expenses/create.rb": {
-    "mtime": 1792620475.5017757,
-    "seen": 1792857266.808665,
-    "ast_hash": "39eb3f9d8d8ab665b89218739409297a",
+    "mtime": 1792977703.5429327,
+    "seen": 1792978717.67194,
+    "ast_hash": "d30a8f3e4ed3d27cabcc5976ed1b50ae",
     "semantic_hash": ""
   },
   "app/services/financial_setup_wizard.rb": {
@@ -312,9 +312,9 @@
     "semantic_hash": "d433dbcbb161277529d867a6378f165e"
   },
   "app/services/gmail/expense_importer.rb": {
-    "mtime": 1792618017.0760481,
-    "seen": 1792857266.808738,
-    "ast_hash": "82b7e1dd02fdf18d5a3b6fd1085c4534",
+    "mtime": 1792972915.3422782,
+    "seen": 1792973699.65842,
+    "ast_hash": "71c803793a4461e998bac786ab2f1ef9",
     "semantic_hash": ""
   },
   "app/services/gmail/oauth_client.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1792957512.9137018,
-    "seen": 1792958906.6211252,
-    "ast_hash": "bdd1d598aa809e52ca8afdcde6b36435",
+    "mtime": 1792973579.7862155,
+    "seen": 1792973699.658606,
+    "ast_hash": "feaf77eeac239b345de67bf50b6d0498",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1792958889.066151,
-    "seen": 1792958906.621152,
-    "ast_hash": "9d13e042428559c2358f872387811aff",
+    "mtime": 1792977448.7827568,
+    "seen": 1792978717.672242,
+    "ast_hash": "b904be329c93ee03bf00a29fd352be95",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -846,9 +846,9 @@
     "semantic_hash": ""
   },
   "test/models/processed_email_test.rb": {
-    "mtime": 1792621395.321497,
-    "seen": 1792857266.809128,
-    "ast_hash": "b713d38351b8a671f4570ec78c0b81ac",
+    "mtime": 1792977862.1202323,
+    "seen": 1792978717.672496,
+    "ast_hash": "dc5a8bd8bc00eb0dd3225cc0b6ba5e5d",
     "semantic_hash": ""
   },
   "test/models/transfer_test.rb": {
@@ -876,9 +876,9 @@
     "semantic_hash": "ffb18141a80541b7d10a829ff826672a"
   },
   "test/services/expenses/create_test.rb": {
-    "mtime": 1792617819.3006868,
-    "seen": 1792857266.809242,
-    "ast_hash": "35ee3baa040e504a0f204c5470a397f2",
+    "mtime": 1792977870.4696338,
+    "seen": 1792978717.672619,
+    "ast_hash": "a9a7d79dae2f1f181d0e1c19620e249d",
     "semantic_hash": ""
   },
   "test/services/financial_setup_wizard_test.rb": {
@@ -900,9 +900,9 @@
     "semantic_hash": "efaa10682baa8ebed14a050c8e60500c"
   },
   "test/services/gmail/expense_importer_test.rb": {
-    "mtime": 1792618768.026185,
-    "seen": 1792857266.809265,
-    "ast_hash": "dbc5ef4a166e637d035df8981bed5e6a",
+    "mtime": 1792972710.5873406,
+    "seen": 1792973699.6590452,
+    "ast_hash": "1a7b242ebef5edacfaed3e488cf27996",
     "semantic_hash": ""
   },
   "test/services/gmail/query_builder_test.rb": {
@@ -972,9 +972,9 @@
     "semantic_hash": "8e38e13dc85bb5b17d7d7bf2d5868aa3"
   },
   "test/test_helper.rb": {
-    "mtime": 1792854465.9571054,
-    "seen": 1792857266.809363,
-    "ast_hash": "24fdd4c34f29e490c189712acc2beabf",
+    "mtime": 1792978272.3274999,
+    "seen": 1792978717.6727622,
+    "ast_hash": "7487f1b76a1736d1df3580e9cfa42fe8",
     "semantic_hash": ""
   },
   ".rubocop.yml": {
@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1788991433.0095704,
-    "seen": 1792857266.809385,
-    "ast_hash": "c64769fca81c9bd5edeb62d857d88fe3",
+    "mtime": 1792978215.6061547,
+    "seen": 1792978717.6727848,
+    "ast_hash": "a42b41a0dd1f142f011dd0fcf47562d2",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1792959892.4221995,
-    "seen": 1792959983.133881,
+    "mtime": 1792978582.275777,
+    "seen": 1792978717.672802,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4812,9 +4812,9 @@
     "semantic_hash": ""
   },
   "app/services/gmail/transaction_recorder.rb": {
-    "mtime": 1792622627.854107,
-    "seen": 1792857266.808745,
-    "ast_hash": "4611d86b2812ad7d2344b52014bb55b6",
+    "mtime": 1792972951.1463172,
+    "seen": 1792973699.658428,
+    "ast_hash": "f68298eec5927690813625b45874e5f2",
     "semantic_hash": ""
   },
   "test/services/gmail/transaction_recorder_test.rb": {
@@ -5010,9 +5010,9 @@
     "semantic_hash": ""
   },
   "playwright/helpers/money_sources.js": {
-    "mtime": 1792711200.8718112,
-    "seen": 1792857266.80896,
-    "ast_hash": "38f2097ff5e843e9e770bc91af5d6a24",
+    "mtime": 1792960708.194195,
+    "seen": 1792964577.341702,
+    "ast_hash": "881d92525dca14e3c2735844cbd9e216",
     "semantic_hash": ""
   },
   "app/assets/javascripts/categories_form.js": {
@@ -5352,9 +5352,231 @@
     "semantic_hash": ""
   },
   "playwright/money_source_statement.spec.js": {
-    "mtime": 1792955193.1964214,
-    "seen": 1792958906.621212,
-    "ast_hash": "e5c3ca8b4468547cf754348a158a0589",
+    "mtime": 1792960734.4202833,
+    "seen": 1792964577.3417048,
+    "ast_hash": "f8131700d84f7567965a3066a3f84738",
+    "semantic_hash": ""
+  },
+  "app/controllers/webhooks/email_controller.rb": {
+    "mtime": 1792977684.3709211,
+    "seen": 1792978717.671663,
+    "ast_hash": "05a335e370593c5386c2936646b33ef5",
+    "semantic_hash": ""
+  },
+  "playwright/credits.spec.js": {
+    "mtime": 1792962502.4552925,
+    "seen": 1792964577.341682,
+    "ast_hash": "f853442b963ed567e9c385ff7e3c6770",
+    "semantic_hash": ""
+  },
+  "playwright/debt_statement.spec.js": {
+    "mtime": 1792960880.8340623,
+    "seen": 1792964577.341687,
+    "ast_hash": "24859786576f717c064d09a41335b2d3",
+    "semantic_hash": ""
+  },
+  "test/controllers/webhooks/email_controller_test.rb": {
+    "mtime": 1792978032.1522064,
+    "seen": 1792978717.672427,
+    "ast_hash": "0c95f99b7c1975fffb8e897699751d7b",
+    "semantic_hash": ""
+  },
+  "app/jobs/inbound_email_process_job.rb": {
+    "mtime": 1792977665.4732196,
+    "seen": 1792978717.671701,
+    "ast_hash": "a68a0e7633144a72fddd3496c12d1643",
+    "semantic_hash": ""
+  },
+  "cloudflare/email-router/package.json": {
+    "mtime": 1792973843.8611972,
+    "seen": 1792974081.808053,
+    "ast_hash": "82fbe2f59186c3bf4f70a2fd16284b4d",
+    "semantic_hash": ""
+  },
+  "cloudflare/email-router/src/index.js": {
+    "mtime": 1792975354.2330117,
+    "seen": 1792975770.001315,
+    "ast_hash": "b5ba00c5cdc031a862f8e6e0296180df",
+    "semantic_hash": ""
+  },
+  "cloudflare/email-router/README.md": {
+    "mtime": 1792978257.686084,
+    "seen": 1792978717.672787,
+    "ast_hash": "9e1aac9cb1d7bc02dbf25ea402c3caae",
+    "semantic_hash": ""
+  },
+  "cloudflare/email-router/test/worker.test.mjs": {
+    "mtime": 1792976052.9156027,
+    "seen": 1792978717.6721878,
+    "ast_hash": "0625280d8468d1a7263cead5c8653919",
+    "semantic_hash": ""
+  },
+  "app/jobs/mail_inbound_handle_job.rb": {
+    "mtime": 1792977647.0376835,
+    "seen": 1792978717.671703,
+    "ast_hash": "1c4a8bf06d4e6ab5775461de59cda036",
+    "semantic_hash": ""
+  },
+  "app/jobs/mail_inbound_process_job.rb": {
+    "mtime": 1792977657.5749738,
+    "seen": 1792978717.671705,
+    "ast_hash": "d7950d8560f95b0574ebe3b43d870c4e",
+    "semantic_hash": ""
+  },
+  "app/models/mail_inbound_delivery.rb": {
+    "mtime": 1792977457.2971687,
+    "seen": 1792978717.6717598,
+    "ast_hash": "82ca9b9fd817624ad233c6e3c3305b4f",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound.rb": {
+    "mtime": 1792977563.6262174,
+    "seen": 1792978717.672035,
+    "ast_hash": "f09995bf50aedbf6863bd5a5afec0577",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/acceptance.rb": {
+    "mtime": 1792977627.298204,
+    "seen": 1792978717.6720362,
+    "ast_hash": "183a770cd0338adb2e4239162a18f594",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/delivery_draft.rb": {
+    "mtime": 1792977547.290607,
+    "seen": 1792978717.6720371,
+    "ast_hash": "82b00bc3fb27956571bf32b90d63c813",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/message.rb": {
+    "mtime": 1792978488.7496321,
+    "seen": 1792978717.6720388,
+    "ast_hash": "fc83c5bc91fa6b76e6474e1097510664",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/message_parser.rb": {
+    "mtime": 1792978097.786397,
+    "seen": 1792978717.67204,
+    "ast_hash": "6d40af774fcff6cb7a61ca256617ec12",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/processor.rb": {
+    "mtime": 1792978496.8967443,
+    "seen": 1792978717.672041,
+    "ast_hash": "adddeccb0d77eb3b5a2923648467c041",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/providers/base.rb": {
+    "mtime": 1792977554.6509607,
+    "seen": 1792978717.672043,
+    "ast_hash": "f009b56c519ed756890d70edfa404ba4",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/providers/cloudflare.rb": {
+    "mtime": 1792977573.6802905,
+    "seen": 1792978717.672044,
+    "ast_hash": "5a018991242b9e34fe60bebf7541a698",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/providers/cloudflare/signature_verifier.rb": {
+    "mtime": 1792977914.5380921,
+    "seen": 1792978717.672045,
+    "ast_hash": "d862ac4592ec224be8e6d65bcf1ec2a4",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/providers/resend.rb": {
+    "mtime": 1792977594.9450302,
+    "seen": 1792978717.6720462,
+    "ast_hash": "dd2d0c4675edbdd61d074ca768d3f7ef",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/providers/resend/receiving_client.rb": {
+    "mtime": 1792978018.3941162,
+    "seen": 1792978717.6720471,
+    "ast_hash": "286299b34f25f14df12a92cf69af9fbc",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/recipient_resolver.rb": {
+    "mtime": 1792977500.7857995,
+    "seen": 1792978717.6720488,
+    "ast_hash": "c050cd1f1ddd95b35b6b5dfe431a468a",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/request.rb": {
+    "mtime": 1792978062.2636826,
+    "seen": 1792978717.67205,
+    "ast_hash": "48d6905d8f54cdd5622b7a7cc65321a4",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/result.rb": {
+    "mtime": 1792977492.4516206,
+    "seen": 1792978717.672051,
+    "ast_hash": "18a4ca11fd9654e2e0377101c5878964",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound_service.rb": {
+    "mtime": 1792978010.2233853,
+    "seen": 1792978717.672052,
+    "ast_hash": "74382491d4db0d251ab4b8a79df5dd26",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261026010000_create_mail_inbound_deliveries.rb": {
+    "mtime": 1792977439.329876,
+    "seen": 1792978717.672239,
+    "ast_hash": "a4f4eb8daf2bc3457c7692289363a5ea",
+    "semantic_hash": ""
+  },
+  "test/jobs/mail_inbound_handle_job_test.rb": {
+    "mtime": 1792978506.229531,
+    "seen": 1792978717.67245,
+    "ast_hash": "d0c4656d4722de05a96e540fbbc6583c",
+    "semantic_hash": ""
+  },
+  "test/jobs/mail_inbound_process_job_test.rb": {
+    "mtime": 1792977840.1206355,
+    "seen": 1792978717.672451,
+    "ast_hash": "ce9145748c38b4f6c1e13e0a3cd5cda3",
+    "semantic_hash": ""
+  },
+  "test/models/mail_inbound_delivery_test.rb": {
+    "mtime": 1792977729.7828596,
+    "seen": 1792978717.672483,
+    "ast_hash": "e5ae45aee90d0ebafd2f949401e3a33c",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound/message_parser_test.rb": {
+    "mtime": 1792977735.850498,
+    "seen": 1792978717.6726599,
+    "ast_hash": "7d6d8a046b011e74bb3d100775b0c42c",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound/processor_test.rb": {
+    "mtime": 1792977786.0643017,
+    "seen": 1792978717.672661,
+    "ast_hash": "d2aa652ec92c1cb426949ae9fe21c54d",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound/providers/cloudflare_test.rb": {
+    "mtime": 1792977743.967709,
+    "seen": 1792978717.672662,
+    "ast_hash": "c761d4455535022de89a4ec2e8403ce8",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound/providers/resend_test.rb": {
+    "mtime": 1792978025.0245655,
+    "seen": 1792978717.6726642,
+    "ast_hash": "c0e477e4ec66488b32653585fd75e9c8",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound_service_test.rb": {
+    "mtime": 1792977961.272936,
+    "seen": 1792978717.672665,
+    "ast_hash": "5165e0fcdc6d48f413b1d72dc68d6b18",
+    "semantic_hash": ""
+  },
+  "docs/mail_inbound.md": {
+    "mtime": 1792978206.771762,
+    "seen": 1792978717.67285,
+    "ast_hash": "9fc6341d6352424e89036d7f109a72b5",
     "semantic_hash": ""
   }
 }

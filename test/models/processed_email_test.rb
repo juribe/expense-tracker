@@ -19,6 +19,26 @@ class ProcessedEmailTest < ActiveSupport::TestCase
     assert @email.valid?
   end
 
+  test "accepts the cloudflare provider and queued status" do
+    @email.provider = "cloudflare"
+    @email.status = "queued"
+
+    assert @email.valid?
+  end
+
+  test "accepts the resend provider" do
+    @email.provider = "resend"
+
+    assert @email.valid?
+  end
+
+  test "cloudflare scope filters by provider" do
+    @email.update!(provider: "cloudflare")
+
+    assert_includes ProcessedEmail.cloudflare, @email
+    assert_not_includes ProcessedEmail.gmail, @email
+  end
+
   test "requires message id" do
     @email.message_id = ""
     assert_not @email.valid?

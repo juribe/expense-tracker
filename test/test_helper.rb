@@ -27,6 +27,10 @@ require_relative "support/fake_ai_provider"
 # stubbing ENV.[]).
 %w[WHATSAPP_ACCESS_TOKEN WHATSAPP_BUSINESS_PHONE_NUMBER_ID].each { |key| ENV.delete(key) }
 
+# Never inherit inbound provider credentials from the developer's .env. Tests
+# that exercise Resend set the keys they need explicitly and stub the API.
+%w[MAIL_INBOUND_PROVIDER RESEND_API_KEY RESEND_WEBHOOK_SECRET].each { |key| ENV.delete(key) }
+
 # Chooses how many forked workers run the suite. Each worker boots a full
 # Rails app (~2 GB), so grading workers only by CPU count makes small machines
 # thrash (GC/swap) instead of speeding up. Cap by available RAM; set

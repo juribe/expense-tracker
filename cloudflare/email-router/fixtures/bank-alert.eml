@@ -1,0 +1,12 @@
+Return-Path: <notificaciones@bank.example>
+Received: from smtp.bank.example by cloudflare-email.com; Sun, 25 Oct 2026 14:30:00 +0000
+From: Banco <notificaciones@bank.example>
+To: receive+user1@samyreplies.com
+Subject: Compra aprobada
+Date: Sun, 25 Oct 2026 09:30:00 -0500
+Message-ID: <bank-alert-test@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Compra aprobada por $48.500 en RESTAURANTE XYZ con tu tarjeta terminada en 1234.

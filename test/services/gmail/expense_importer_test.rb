@@ -35,9 +35,11 @@ module Gmail
       EmailTransactionDetector::Result.new(transactional?: transactional, reason: reason)
     end
 
-    def importer(detector: nil, extractor: nil)
+    def importer(detector: nil, extractor: nil, provider: Gmail::ExpenseImporter::PROVIDER, source: "gmail")
       Gmail::ExpenseImporter.new(
         connection: @connection,
+        provider: provider,
+        source: source,
         detector: detector || FakeDetector.new(detector_result(transactional: true)),
         extractor: extractor || FakeExtractor.new({ ok?: true, data: { transactions: [ transaction ], should_ignore: false, reason: nil }, error: nil })
       )
@@ -84,6 +86,17 @@ module Gmail
       assert_not_nil processed
       assert_equal "processed", processed.status
       assert_equal expense.id, processed.expense_id
+    end
+
+    test "uses the configured provider and source for non-gmail email imports" do
+      payment_source
+      result = importer(provider: "cloudflare", source: "cloudflare").call(@message)
+
+      assert_equal :processed, result.status
+      expense = Expense.find(result.expense_ids.first)
+      assert_equal "cloudflare", expense.source
+      assert_equal "msg-100", expense.gmail_message_id
+      assert ProcessedEmail.exists?(provider: "cloudflare", message_id: "msg-100", status: "processed")
     end
 
     # Regression: dropping the imported expense used to destroy the marker row

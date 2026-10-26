@@ -19,10 +19,11 @@ module Gmail
       end
     end
 
-    def initialize(user:, gmail_message_id:, subject: nil)
+    def initialize(user:, gmail_message_id:, subject: nil, source: "gmail")
       @user = user
       @gmail_message_id = gmail_message_id.to_s
       @subject = subject.to_s
+      @source = source.to_s
     end
 
     def call(transaction, money_source: nil)
@@ -54,7 +55,7 @@ module Gmail
         description: transaction[:merchant],
         category: category,
         occurred_at: occurred_at_for(transaction),
-        source: :gmail,
+        source: @source,
         gmail_message_id: @gmail_message_id,
         money_source: money_source
       )
@@ -69,7 +70,7 @@ module Gmail
         description: transaction[:merchant],
         category: category,
         money_source: money_source,
-        source: "gmail",
+        source: @source,
         confidence: transaction[:confidence],
         original_input: @subject.presence,
         metadata: candidate_metadata(transaction)

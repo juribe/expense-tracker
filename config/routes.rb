@@ -2,10 +2,11 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # WhatsApp Cloud API webhooks (public, signature-verified)
+  # Public webhooks (signature-verified): WhatsApp Cloud API and Cloudflare Email Worker
   namespace :webhooks do
     get "whatsapp", to: "whatsapp#verify"
     post "whatsapp", to: "whatsapp#webhook"
+    post "email", to: "email#create"
   end
 
   # WhatsApp linking (Settings → WhatsApp)

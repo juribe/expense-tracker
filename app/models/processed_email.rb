@@ -6,17 +6,18 @@
 # creating its row in "processing" state BEFORE doing extraction, so
 # concurrent syncs see the claim and skip.
 class ProcessedEmail < ApplicationRecord
-  STATUSES = %w[processing processed ignored needs_review failed].freeze
+  STATUSES = %w[queued processing processed ignored needs_review failed].freeze
 
   belongs_to :user
   belongs_to :expense, optional: true
 
-  validates :provider, presence: true, inclusion: { in: %w[gmail] }
+  validates :provider, presence: true, inclusion: { in: %w[gmail cloudflare resend] }
   validates :message_id, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :message_id, uniqueness: { scope: :provider }
 
   scope :gmail, -> { where(provider: "gmail") }
+  scope :cloudflare, -> { where(provider: "cloudflare") }
   scope :needs_review, -> { where(status: "needs_review") }
   scope :failed, -> { where(status: "failed") }
   scope :imported, -> { processed.where.not(expense_id: nil) }

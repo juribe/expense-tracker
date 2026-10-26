@@ -44,6 +44,8 @@ gem "thruster", require: false
 
 gem "devise"
 gem "pdf-reader"
+gem "resend"
+gem "svix"
 gem "will_paginate", "~> 4.0"
 
 # Loads environment variables from .env in development and test.

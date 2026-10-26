@@ -1,0 +1,21 @@
+name = "expense-tracker-inbound-email"
+main = "src/index.js"
+compatibility_date = "2026-10-25"
+upload_source_maps = true
+
+# Public Rails endpoint. Replace with the production domain/tunnel URL.
+[vars]
+RAILS_INBOUND_EMAIL_URL = "https://whatsapp.samyreplies.com/webhooks/email"
+ALLOWED_RECIPIENTS = "receive@samyreplies.com,receive+*@samyreplies.com"
+MAX_EMAIL_BYTES = "10485760"
+REQUEST_TIMEOUT_MS = "15000"
+
+# The shared secret is stored with:
+#   npx wrangler secret put INBOUND_EMAIL_SECRET
+#
+# If you prefer Wrangler to manage the Email Routing rule, confirm first that
+# no existing rule uses this address, then uncomment:
+# addresses = ["receive@samyreplies.com"]
+
+[observability]
+enabled = true

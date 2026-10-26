@@ -73,6 +73,33 @@ a worker with:
 bin/rails solid_queue:start
 ```
 
+### Inbound email
+
+`POST /webhooks/email` receives inbound email through a provider-neutral
+`MailInboundService`. The selected provider validates the signature, persists a
+`MailInboundDelivery`, and enqueues `MailInboundHandleJob`. That job normalizes
+the email and enqueues `MailInboundProcessJob`, which reuses the existing expense
+import pipeline.
+
+```sh
+export MAIL_INBOUND_PROVIDER="cloudflare" # or resend
+export INBOUND_EMAIL_RECIPIENT="receive@samyreplies.com"
+export INBOUND_EMAIL_USER_EMAIL="your-user@example.com"
+export INBOUND_EMAIL_USER_MAP="user1=your-user@example.com"
+```
+
+Cloudflare additionally needs `INBOUND_EMAIL_SECRET`; Resend needs
+`RESEND_WEBHOOK_SECRET` and `RESEND_API_KEY`.
+
+`INBOUND_EMAIL_RECIPIENT` is the base address. With Cloudflare subaddressing
+enabled, any `receive+<token>@samyreplies.com` is accepted. If
+`INBOUND_EMAIL_USER_MAP` is present, `<token>` selects the user; for example,
+`receive+user1@samyreplies.com` maps through `user1=your-user@example.com`.
+If no map is configured, all tokens use `INBOUND_EMAIL_USER_EMAIL`.
+
+Full setup, deployment, local testing and limitations are documented in
+[docs/mail_inbound.md](docs/mail_inbound.md).
+
 ### Local Speech-to-Text (faster-whisper)
 
 Audio notes in the Expense Playground are transcribed LOCALLY with

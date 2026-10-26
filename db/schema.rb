@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_25_183802) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -447,6 +447,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_183802) do
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_incomes_on_category_id"
     t.index ["user_id"], name: "index_incomes_on_user_id"
+  end
+
+  create_table "mail_inbound_deliveries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "external_id", null: false
+    t.string "status", default: "received", null: false
+    t.text "raw_body"
+    t.jsonb "headers", default: {}, null: false
+    t.jsonb "params", default: {}, null: false
+    t.uuid "user_id", null: false
+    t.uuid "processed_email_id"
+    t.integer "attempts", default: 0, null: false
+    t.string "last_error"
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["processed_email_id"], name: "index_mail_inbound_deliveries_on_processed_email_id"
+    t.index ["provider", "external_id"], name: "index_mail_inbound_deliveries_on_provider_and_external_id", unique: true
+    t.index ["status"], name: "index_mail_inbound_deliveries_on_status"
+    t.index ["user_id"], name: "index_mail_inbound_deliveries_on_user_id"
   end
 
   create_table "money_source_recognition_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -962,6 +982,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_183802) do
   add_foreign_key "goals", "users"
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
+  add_foreign_key "mail_inbound_deliveries", "processed_emails"
+  add_foreign_key "mail_inbound_deliveries", "users"
   add_foreign_key "money_source_recognition_identifiers", "money_source_recognitions"
   add_foreign_key "money_source_recognitions", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"

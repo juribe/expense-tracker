@@ -21,10 +21,13 @@ module Gmail
 
     Result = Struct.new(:status, :processed_email, :expense_ids, :reason, keyword_init: true)
 
-    def initialize(connection:, detector: EmailTransactionDetector.new, extractor: Ai::TransactionExtractor.new)
+    def initialize(connection:, detector: EmailTransactionDetector.new, extractor: Ai::TransactionExtractor.new,
+                   provider: PROVIDER, source: "gmail")
       @connection = connection
       @detector = detector
       @extractor = extractor
+      @provider = provider.to_s
+      @source = source.to_s
     end
 
     # `message` is the normalized hash produced by Gmail::Client#get_message:
@@ -67,7 +70,7 @@ module Gmail
     # racing runs can never both win: Postgres re-evaluates the predicate
     # after the row lock and only one UPDATE matches.
     def claim_message!
-      row = ProcessedEmail.find_or_initialize_by(provider: PROVIDER, message_id: @message_id)
+      row = ProcessedEmail.find_or_initialize_by(provider: @provider, message_id: @message_id)
       row.user ||= @connection.user
 
       if row.new_record?
@@ -85,6 +88,8 @@ module Gmail
     end
 
     def terminal_claim?(row)
+      return false if row.status == "queued"
+
       !row.failed? && !stale_claim?(row)
     end
 
@@ -93,8 +98,8 @@ module Gmail
     end
 
     def take_over(row)
-      claimed = ProcessedEmail.where(id: row.id, status: [ "failed", "processing" ])
-                              .where("status = ? OR updated_at < ?", "failed", STALE_CLAIM_TIMEOUT.ago)
+      claimed = ProcessedEmail.where(id: row.id, status: [ "failed", "processing", "queued" ])
+                              .where("status IN (?) OR updated_at < ?", %w[failed queued], STALE_CLAIM_TIMEOUT.ago)
                               .update_all(status: "processing", failure_reason: nil,
                                           processed_at: nil, updated_at: Time.current)
       claimed == 1
@@ -103,7 +108,7 @@ module Gmail
     # A run that dies mid-pipeline must not leave a live claim: downgrade it
     # to "failed" so the next sync can retry.
     def release_claim
-      ProcessedEmail.where(provider: PROVIDER, message_id: @message_id, status: "processing")
+      ProcessedEmail.where(provider: @provider, message_id: @message_id, status: "processing")
                     .update_all(status: "failed", failure_reason: "import raised unexpectedly",
                                 updated_at: Time.current)
     end
@@ -146,7 +151,8 @@ module Gmail
       recorder = Gmail::TransactionRecorder.new(
         user: @connection.user,
         gmail_message_id: @message_id,
-        subject: @subject
+        subject: @subject,
+        source: @source
       )
 
       ActiveRecord::Base.transaction do
@@ -236,12 +242,16 @@ module Gmail
     end
 
     def record!(status, expense_ids: [], reason: nil, payload: nil)
-      processed_email = ProcessedEmail.find_or_initialize_by(provider: PROVIDER, message_id: @message_id)
+      processed_email = ProcessedEmail.find_or_initialize_by(provider: @provider, message_id: @message_id)
       processed_email.user ||= @connection.user
       processed_email.status = status.to_s
       processed_email.expense_id = expense_ids.first
       processed_email.failure_reason = reason.presence
-      processed_email.payload = payload ? JSON.generate(payload) : processed_email.payload
+      if payload
+        processed_email.payload = JSON.generate(
+          processed_email.payload_data.merge(payload.deep_stringify_keys)
+        )
+      end
       processed_email.attempts += 1
       processed_email.processed_at = Time.current
       processed_email.save!

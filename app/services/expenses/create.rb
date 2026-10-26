@@ -17,6 +17,8 @@ module Expenses
   class Create
     class Invalid < StandardError; end
 
+    EMAIL_SOURCES = %w[gmail cloudflare resend].freeze
+
     def self.call(**kwargs)
       new(**kwargs).call
     end
@@ -70,13 +72,15 @@ module Expenses
     end
 
     # Database-level last line of defense (partial unique index
-    # index_transactions_gmail_dedup): one gmail email must never produce two
-    # expenses with the same amount and date, even when import runs race.
+    # index_transactions_gmail_dedup): one imported email must never produce
+    # two expenses with the same amount and date, even when import runs race.
+    # The legacy gmail_message_id column stores the external email id for
+    # every email source, including Cloudflare inbound mail.
     def raise_if_gmail_duplicate!
       return if @gmail_message_id.blank?
 
       normalized = normalize_source!
-      return unless normalized == "gmail"
+      return unless EMAIL_SOURCES.include?(normalized)
 
       amount = parse_amount!
       date = parse_date!

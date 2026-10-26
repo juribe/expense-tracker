@@ -61,6 +61,24 @@ module Expenses
       assert_equal 1, Expense.where(gmail_message_id: "18f0c2abc").count
     end
 
+    test "rejects a duplicate cloudflare email expense with the same message id, amount and date" do
+      create(source: :cloudflare, gmail_message_id: "inbound-msg-1")
+
+      assert_raises(Expenses::Create::Invalid) do
+        create(source: :cloudflare, gmail_message_id: "inbound-msg-1")
+      end
+      assert_equal 1, Expense.where(gmail_message_id: "inbound-msg-1").count
+    end
+
+    test "rejects a duplicate resend email expense with the same message id, amount and date" do
+      create(source: :resend, gmail_message_id: "resend-msg-1")
+
+      assert_raises(Expenses::Create::Invalid) do
+        create(source: :resend, gmail_message_id: "resend-msg-1")
+      end
+      assert_equal 1, Expense.where(gmail_message_id: "resend-msg-1").count
+    end
+
     test "allows the same amount on different gmail messages" do
       create(gmail_message_id: "msg-a")
 
