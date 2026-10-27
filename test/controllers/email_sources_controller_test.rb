@@ -136,6 +136,77 @@ class EmailSourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "active", payload.dig("source", "status")
   end
 
+  test "shows the recognition next step when an active redirect exists and recognition is pending" do
+    @user.email_sources.create!(source_type: "forwarding", email: "bank@example.com", status: "active")
+
+    get email_sources_path
+
+    assert_select "[data-testid='recognition-next-step']" do
+      assert_select "h2", text: "Siguiente paso: configura tus bancos"
+      assert_select "[data-testid='next-step-redirect-status']", text: /completada/i
+      assert_select "[data-testid='next-step-recognition-status']", text: /pendiente/i
+      assert_select "a[href='#{money_sources_recognition_path}']", text: /Configurar reconocimiento de fuentes/
+    end
+  end
+
+  test "marks recognition as completed when a confirmed identifier exists" do
+    @user.email_sources.create!(source_type: "forwarding", email: "bank@example.com", status: "active")
+    source = @user.money_sources.create!(name: "Cuenta principal", kind: "account")
+    source.ensure_recognition.replace_identifiers(keyword: [ "banco" ])
+
+    get email_sources_path
+
+    assert_select "[data-testid='recognition-next-step']" do
+      assert_select "[data-testid='next-step-redirect-status']", text: /completada/i
+      assert_select "[data-testid='next-step-recognition-status']", text: /completado/i
+    end
+  end
+
+  test "does not treat suggested identifiers as completed recognition" do
+    @user.email_sources.create!(source_type: "forwarding", email: "bank@example.com", status: "active")
+    source = @user.money_sources.create!(name: "Cuenta principal", kind: "account")
+    recognition = source.ensure_recognition.tap(&:save!)
+    recognition.recognition_identifiers.create!(
+      kind: "sender", value: "notificaciones@banco.com", status: "suggested",
+      origin: "gmail", observation_count: 2
+    )
+
+    get email_sources_path
+
+    assert_select "[data-testid='next-step-recognition-status']", text: /pendiente/i
+  end
+
+  test "does not count another user's recognition as completed" do
+    @user.email_sources.create!(source_type: "forwarding", email: "bank@example.com", status: "active")
+    other_user = User.create!(
+      name: "Other",
+      email: "other_#{SecureRandom.hex(4)}@example.com",
+      password: "password123"
+    )
+    other_source = other_user.money_sources.create!(name: "Cuenta ajena", kind: "account")
+    other_source.ensure_recognition.replace_identifiers(keyword: [ "otro-banco" ])
+
+    get email_sources_path
+
+    assert_select "[data-testid='next-step-recognition-status']", text: /pendiente/i
+  end
+
+  test "does not show the recognition next step without an active redirect" do
+    @user.email_sources.create!(source_type: "forwarding", email: "bank@example.com", status: "pending_setup")
+
+    get email_sources_path
+
+    assert_select "[data-testid='recognition-next-step']", count: 0
+  end
+
+  test "counts an active Gmail connection as an active redirect" do
+    @user.gmail_connections.create!(email: "user@gmail.com", active: true)
+
+    get email_sources_path
+
+    assert_select "[data-testid='recognition-next-step']"
+  end
+
   test "confirming a gmail verification does not activate an unrelated pending source" do
     unrelated = @user.email_sources.create!(
       source_type: "forwarding",

@@ -113,6 +113,26 @@ class EmailSourcesSetupFlowTest < ApplicationSystemTestCase
     assert_selector "#step3.active"
   end
 
+  test "guides an active forwarding source to the recognition setup" do
+    @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "bank@example.com",
+      status: "active"
+    )
+
+    sign_in @user
+    visit email_sources_path
+
+    within "[data-testid='recognition-next-step']" do
+      assert_text "Siguiente paso: configura tus bancos"
+      assert_text "Redirección de correo: completada"
+      assert_text "Reconocimiento de fuentes: pendiente"
+      click_link "Configurar reconocimiento de fuentes"
+    end
+
+    assert_current_path money_sources_recognition_path
+  end
+
   test "asks for confirmation before deleting a source" do
     source = @user.email_sources.create!(
       source_type: "forwarding",

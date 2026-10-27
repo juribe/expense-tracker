@@ -156,7 +156,40 @@
     </aside>
   </div>
 
-  <% active_source_count = @email_sources.count(&:active?) + @gmail_connections.count(&:active?) %>
+  <% if @active_redirect_count.positive? %>
+    <section class="es-card es-next-step <%= "es-next-step-complete" if @recognition_configured %>"
+             data-testid="recognition-next-step" aria-labelledby="nextStepTitle">
+      <div class="es-next-step-head">
+        <span class="es-next-step-icon" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
+        <div>
+          <h2 id="nextStepTitle">Siguiente paso: configura tus bancos</h2>
+          <p class="es-muted">Configurar el reenvío permite recibir los correos, pero también debes indicar cómo reconocer los remitentes, asuntos e identificadores de tus bancos y productos para asociar cada mensaje a la fuente correcta.</p>
+        </div>
+      </div>
+
+      <ol class="es-next-step-progress" aria-label="Progreso de la configuración de correos">
+        <li class="es-next-step-done" data-testid="next-step-redirect-status">
+          <span class="es-next-step-marker"><i class="ti ti-check" aria-hidden="true"></i></span>
+          <span>Redirección de correo: <strong>completada</strong></span>
+        </li>
+        <li class="<%= @recognition_configured ? "es-next-step-done" : "es-next-step-pending" %>"
+            data-testid="next-step-recognition-status">
+          <span class="es-next-step-marker">
+            <i class="ti <%= @recognition_configured ? "ti-check" : "ti-clock" %>" aria-hidden="true"></i>
+          </span>
+          <span>Reconocimiento de fuentes: <strong><%= @recognition_configured ? "completado" : "pendiente" %></strong></span>
+        </li>
+      </ol>
+
+      <div class="es-next-step-actions">
+        <%= link_to money_sources_recognition_path, class: "es-btn es-btn-primary", data: { testid: "configure-recognition" } do %>
+          <i class="ti ti-settings" aria-hidden="true"></i> Configurar reconocimiento de fuentes
+        <% end %>
+      </div>
+      <p class="es-address-help">Puedes continuar más tarde desde el menú Automatización → Reconocimiento de fuentes.</p>
+    </section>
+  <% end %>
+
   <section class="es-card es-sources">
     <div class="es-sources-head">
       <div>
@@ -164,7 +197,7 @@
         <p class="es-muted">Aquí aparecen las direcciones que ya confirmaste.</p>
       </div>
       <span class="es-pill es-pill-active" id="sourceCount">
-        <span class="es-dot"></span><%= active_source_count %> <%= active_source_count == 1 ? "activa" : "activas" %>
+        <span class="es-dot"></span><%= @active_redirect_count %> <%= @active_redirect_count == 1 ? "activa" : "activas" %>
       </span>
     </div>
 

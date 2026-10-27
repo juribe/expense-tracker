@@ -8,6 +8,14 @@ class EmailSourcesController < ApplicationController
     @gmail_connections = current_user.gmail_connections.order(:created_at, :id)
     @email_sources = current_user.email_sources.order(:created_at, :id)
     @verifications = current_user.email_forwarding_verifications.active.order(created_at: :desc)
+    @active_redirect_count = @email_sources.count(&:active?) + @gmail_connections.count(&:active?)
+    # Initial recognition is done once a payment source has at least one
+    # CONFIRMED identifier. Persisted suggestions never count (same rule as
+    # MoneySource#recognition_configured?), only the review/accept step does.
+    @recognition_configured = current_user.money_sources.payment_sources
+                                           .joins(:recognition_identifiers)
+                                           .merge(MoneySourceRecognitionIdentifier.confirmed)
+                                           .exists?
   end
 
   def create
