@@ -562,4 +562,71 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "confirmed", candidate.reload.status
     assert_equal "discarded", other.reload.status
   end
+
+  # --- category learning ----------------------------------------------------
+
+  test "PATCH /expense_candidates/:id remembers the category for the merchant" do
+    candidate = create_candidate(category_id: nil, description: "PRICESMART COLOMBIA")
+
+    patch expense_candidate_path(candidate), params: {
+      expense_candidate: { category_id: @category.id }
+    }
+
+    classification = ActivityClassification.lookup(user: @user, name: "PRICESMART COLOMBIA")
+    assert_not_nil classification
+    assert_equal @category, classification.category
+    assert_equal "user", classification.source
+  end
+
+  test "PATCH /expense_candidates/:id without a category does not remember knowledge" do
+    candidate = create_candidate(category_id: nil, description: "EDS SANTA MARIA")
+
+    assert_no_difference -> { ActivityClassification.count } do
+      patch expense_candidate_path(candidate), params: {
+        expense_candidate: { money_source_id: @money_source.id }
+      }
+    end
+  end
+
+  test "PATCH /expense_candidates/bulk_update remembers the category for every selected merchant" do
+    multiplex = create_candidate(category_id: nil, description: "MULTIPLEX BUENAVISTA")
+    farmatodo = create_candidate(category_id: nil, description: "FARMATODO MALL PLAZA")
+
+    patch bulk_update_expense_candidates_path, params: {
+      candidate_ids: [ multiplex.id, farmatodo.id ],
+      category_id: @category.id
+    }
+
+    assert_equal @category, ActivityClassification.lookup(user: @user, name: "MULTIPLEX BUENAVISTA")&.category
+    assert_equal @category, ActivityClassification.lookup(user: @user, name: "FARMATODO MALL PLAZA")&.category
+  end
+
+  test "POST /expense_candidates/:id/accept_suggestion remembers the accepted category" do
+    candidate = create_candidate(category_id: nil, money_source_id: @money_source.id, description: "SWEET BITES BY SAS")
+    candidate.update_column(:category_suggestion, @category.name)
+
+    post accept_suggestion_expense_candidate_path(candidate)
+
+    classification = ActivityClassification.lookup(user: @user, name: "SWEET BITES BY SAS")
+    assert_equal @category, classification&.category
+    assert_equal "user", classification&.source
+  end
+
+  test "POST /expense_candidates/:id/confirm remembers the confirmed category" do
+    candidate = create_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "MOVISTAR_EPAYCO_PREPAG"
+    )
+
+    assert_difference -> { Expense.count }, 1 do
+      post confirm_expense_candidate_path(candidate)
+    end
+
+    classification = ActivityClassification.lookup(user: @user, name: "MOVISTAR_EPAYCO_PREPAG")
+    assert_equal @category, classification&.category
+    assert_equal "user", classification&.source
+  end
 end

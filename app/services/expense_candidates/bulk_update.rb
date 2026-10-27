@@ -61,6 +61,7 @@ module ExpenseCandidates
       updates[:money_source_id] = money_source_id if money_source_id.present?
 
       @updated_count = scope.update_all(updates)
+      remember_categories(scope) if category_id.present?
       self
     end
 
@@ -75,6 +76,12 @@ module ExpenseCandidates
     private
 
     attr_reader :user, :category_id, :money_source_id
+
+    # update_all skips model callbacks, so the learned knowledge for every
+    # selected merchant is stored here to match the single-candidate edit.
+    def remember_categories(scope)
+      scope.includes(:category).find_each(&:remember_category!)
+    end
 
     def parsed_ids
       @parsed_ids ||= UuidParams.parse_ids(@ids)

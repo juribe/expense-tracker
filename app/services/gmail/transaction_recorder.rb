@@ -4,10 +4,12 @@ module Gmail
   # Persists one extracted Gmail transaction as an Expense only when both its
   # category resolves to an existing user category AND the money source is
   # known; anything without either lands as a reviewable ExpenseCandidate.
-  # Never creates categories.
+  # Never creates categories. A `prefill` (Gmail::CategoryPrefill::Prefill)
+  # carries the category already resolved for the email, so the recorder does
+  # not resolve it twice.
   #
   #   Gmail::TransactionRecorder.new(user: user, gmail_message_id: id, subject: subject)
-  #     .call(transaction, money_source: source)
+  #     .call(transaction, money_source: source, prefill: prefill)
   class TransactionRecorder
     Result = Struct.new(:expense, :candidate, keyword_init: true) do
       def expense?
@@ -26,13 +28,14 @@ module Gmail
       @source = source.to_s
     end
 
-    def call(transaction, money_source: nil)
+    def call(transaction, money_source: nil, prefill: nil)
       transaction = transaction.to_h.symbolize_keys
-      category = resolve_category(transaction)
+      category = prefill ? prefill.category : resolve_category(transaction)
+      suggestion = prefill&.suggestion
       # A real expense without a funding source would breach the money-source
       # rule; the candidate pipeline collects these for review instead.
       if money_source.blank? || category.nil?
-        return create_candidate(transaction, money_source, category)
+        return create_candidate(transaction, money_source, category, suggestion)
       end
 
       create_expense(transaction, category, money_source)
@@ -62,7 +65,7 @@ module Gmail
       Result.new(expense: expense)
     end
 
-    def create_candidate(transaction, money_source, category = nil)
+    def create_candidate(transaction, money_source, category = nil, suggestion = nil)
       candidate = ExpenseCandidate.create!(
         user: @user,
         amount: transaction[:amount],
@@ -72,6 +75,7 @@ module Gmail
         money_source: money_source,
         source: @source,
         confidence: transaction[:confidence],
+        category_suggestion: suggestion.presence,
         original_input: @subject.presence,
         metadata: candidate_metadata(transaction)
       )

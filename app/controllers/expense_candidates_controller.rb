@@ -26,6 +26,7 @@ class ExpenseCandidatesController < ApplicationController
     if @candidate.update(candidate_params)
       @candidate.recalculate_missing_fields!
       @candidate.recalculate_status!
+      @candidate.remember_category!
       redirect_to expense_candidate_path(@candidate), notice: t("expense_candidates.updated", default: "Candidato actualizado.")
     else
       render :show, status: :unprocessable_entity
@@ -69,6 +70,7 @@ class ExpenseCandidatesController < ApplicationController
     @candidate.update!(category_id: category.id, category_suggestion: nil)
     @candidate.recalculate_missing_fields!
     @candidate.recalculate_status!
+    @candidate.remember_category!
 
     redirect_to expense_candidate_path(@candidate),
                 notice: t("expense_candidates.suggestion_accepted",

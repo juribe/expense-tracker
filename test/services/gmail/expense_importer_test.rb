@@ -35,13 +35,15 @@ module Gmail
       EmailTransactionDetector::Result.new(transactional?: transactional, reason: reason)
     end
 
-    def importer(detector: nil, extractor: nil, provider: Gmail::ExpenseImporter::PROVIDER, source: "gmail")
+    def importer(detector: nil, extractor: nil, provider: Gmail::ExpenseImporter::PROVIDER, source: "gmail",
+                 category_prefill: nil)
       Gmail::ExpenseImporter.new(
         connection: @connection,
         provider: provider,
         source: source,
         detector: detector || FakeDetector.new(detector_result(transactional: true)),
-        extractor: extractor || FakeExtractor.new({ ok?: true, data: { transactions: [ transaction ], should_ignore: false, reason: nil }, error: nil })
+        extractor: extractor || FakeExtractor.new({ ok?: true, data: { transactions: [ transaction ], should_ignore: false, reason: nil }, error: nil }),
+        category_prefill: category_prefill
       )
     end
 
@@ -65,6 +67,26 @@ module Gmail
       def call(subject:, body:, today:, categories: [])
         @categories = categories
         @result
+      end
+    end
+
+    class FakeSuggester
+      attr_reader :calls
+
+      def initialize(data)
+        @data = data
+        @calls = []
+      end
+
+      def call(items)
+        @calls << items
+        Ai::Router::Result.new(ok?: true, data: @data, confidence: 0.9, strategy: "cheap_ai", error: nil)
+      end
+    end
+
+    class FailingSuggester
+      def call(_items)
+        Ai::Router::Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: "AI down")
       end
     end
 
@@ -449,6 +471,76 @@ module Gmail
       assert_equal :processed, result.status
       assert_empty result.expense_ids
       assert_not_nil ExpenseCandidate.where(user: @user).last
+    end
+
+    # --- category prefill -----------------------------------------------------
+
+    def unresolved_extractor(merchant: "PRICESMART COLOMBIA")
+      FakeExtractor.new(
+        {
+          ok?: true,
+          data: { transactions: [ transaction(merchant: merchant, category: nil) ], should_ignore: false, reason: nil },
+          error: nil
+        }
+      )
+    end
+
+    def prefill_with(suggester)
+      Gmail::CategoryPrefill.new(user: @user, suggester: suggester)
+    end
+
+    test "creates the expense when the suggested category already exists" do
+      mercado = Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+      payment_source
+      suggester = FakeSuggester.new({ "0" => "Mercado" })
+
+      result = importer(extractor: unresolved_extractor,
+                        category_prefill: prefill_with(suggester)).call(@message)
+
+      assert_equal :processed, result.status
+      expense = Expense.find(result.expense_ids.first)
+      assert_equal mercado, expense.category
+      assert_equal "PRICESMART COLOMBIA", expense.description
+      assert_equal 1, suggester.calls.size
+    end
+
+    test "keeps the transaction as a candidate when the suggestion matches no existing category" do
+      payment_source
+      suggester = FakeSuggester.new({ "0" => "Videojuegos" })
+      result = nil
+
+      assert_no_difference -> { Category.count } do
+        result = importer(extractor: unresolved_extractor,
+                          category_prefill: prefill_with(suggester)).call(@message)
+      end
+
+      assert_equal :processed, result.status
+      assert_empty result.expense_ids
+      candidate = ExpenseCandidate.where(user: @user).last
+      assert_nil candidate.category_id
+      assert_equal "Videojuegos", candidate.category_suggestion
+      assert_equal 0, Expense.count
+    end
+
+    test "does not request suggestions when every transaction has a category" do
+      payment_source
+      suggester = FakeSuggester.new({})
+
+      result = importer(category_prefill: prefill_with(suggester)).call(@message)
+
+      assert_equal :processed, result.status
+      assert_empty suggester.calls
+    end
+
+    test "keeps importing when the suggestion call fails" do
+      payment_source
+
+      result = importer(extractor: unresolved_extractor,
+                        category_prefill: prefill_with(FailingSuggester.new)).call(@message)
+
+      assert_equal :processed, result.status
+      assert_empty result.expense_ids
+      assert_nil ExpenseCandidate.where(user: @user).last.category_suggestion
     end
   end
 end

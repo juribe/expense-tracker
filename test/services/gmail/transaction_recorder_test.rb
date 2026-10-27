@@ -109,5 +109,29 @@ module Gmail
       assert result.expense?
       assert_equal @mercado, result.expense.category
     end
+
+    test "uses the prefilled category without resolving again" do
+      transporte = Category.create!(name: "Transporte", user: @user, is_default: false, category_type: "expense")
+      prefill = Gmail::CategoryPrefill::Prefill.new(category: transporte, suggestion: nil)
+
+      result = recorder.call(@transaction.merge(category: nil, merchant: "PRICESMART COLOMBIA"),
+                             money_source: @money_source, prefill: prefill)
+
+      assert result.expense?
+      assert_equal transporte, result.expense.category
+    end
+
+    test "stores the prefilled suggestion on the candidate" do
+      prefill = Gmail::CategoryPrefill::Prefill.new(category: nil, suggestion: "Videojuegos")
+
+      assert_no_difference -> { Category.count } do
+        result = recorder.call(@transaction.merge(category: nil, merchant: "STEAM GAMES"),
+                               money_source: @money_source, prefill: prefill)
+
+        assert result.candidate?
+        assert_nil result.candidate.category_id
+        assert_equal "Videojuegos", result.candidate.category_suggestion
+      end
+    end
   end
 end

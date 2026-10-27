@@ -639,6 +639,84 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     assert_equal existing.id, candidate.expense.category_id
   end
 
+  # --- category learning ----------------------------------------------------
+
+  test "remember_category! stores the description as user knowledge" do
+    candidate = build_candidate(description: "PRICESMART COLOMBIA", category_id: @category.id)
+    candidate.save!
+
+    assert_difference -> { ActivityClassification.count }, 1 do
+      candidate.remember_category!
+    end
+
+    classification = ActivityClassification.lookup(user: @user, name: "PRICESMART COLOMBIA")
+    assert_equal @category, classification.category
+    assert_equal "user", classification.source
+  end
+
+  test "remember_category! overrides previous AI knowledge" do
+    otros = Category.create!(name: "Otros test", is_default: false, category_type: "expense", user: @user)
+    ActivityClassification.record!(user: @user, name: "FARMATODO MALL PLAZA", category: otros, source: "ai")
+    candidate = build_candidate(description: "FARMATODO MALL PLAZA", category_id: @category.id)
+    candidate.save!
+
+    candidate.remember_category!
+
+    classification = ActivityClassification.lookup(user: @user, name: "FARMATODO MALL PLAZA")
+    assert_equal @category, classification.category
+    assert_equal "user", classification.source
+  end
+
+  test "remember_category! does nothing without a description or category" do
+    without_description = build_candidate(description: nil, category_id: @category.id)
+    without_description.save!
+    without_category = build_candidate(description: "SAO", category_id: nil)
+    without_category.save!
+
+    assert_no_difference -> { ActivityClassification.count } do
+      without_description.remember_category!
+      without_category.remember_category!
+    end
+  end
+
+  test "confirm! remembers the confirmed category for the merchant" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "MOVISTAR_EPAYCO_PREPAG"
+    )
+    candidate.save!
+
+    assert_difference -> { ActivityClassification.count }, 1 do
+      candidate.confirm!
+    end
+
+    classification = ActivityClassification.lookup(user: @user, name: "MOVISTAR_EPAYCO_PREPAG")
+    assert_equal @category, classification.category
+    assert_equal "user", classification.source
+  end
+
+  test "confirm! remembers a resolved suggestion as user knowledge" do
+    mascotas = Category.create!(name: "Mascotas", is_default: false, category_type: "expense", user: @user)
+    candidate = build_candidate(
+      category_id: nil,
+      money_source_id: @money_source.id,
+      amount: 80_000,
+      date: Date.current,
+      description: "Comida para mascota",
+      category_suggestion: "Mascotas"
+    )
+    candidate.save!
+
+    candidate.confirm!
+
+    classification = ActivityClassification.lookup(user: @user, name: "Comida para mascota")
+    assert_equal mascotas, classification&.category
+    assert_equal "user", classification&.source
+  end
+
   # --- category_suggestion persistence ---
 
   test "category_suggestion persists in the database" do

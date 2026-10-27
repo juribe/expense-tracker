@@ -177,6 +177,22 @@ class ExpenseCandidate < ApplicationRecord
         category_suggestion: nil
       )
     end
+    remember_category!
+    self
+  end
+
+  # Stores the human decision for this candidate's merchant so the next import
+  # of the same merchant resolves without another AI look-up.
+  # No-op when the description or the category is missing.
+  def remember_category!
+    ActivityClassification.record!(
+      user: user,
+      name: description.presence || merchant,
+      category: category,
+      source: "user"
+    )
+  rescue ActiveRecord::RecordInvalid, ArgumentError
+    nil
   end
 
   # Mark as discarded.

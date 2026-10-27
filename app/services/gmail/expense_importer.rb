@@ -22,12 +22,13 @@ module Gmail
     Result = Struct.new(:status, :processed_email, :expense_ids, :reason, keyword_init: true)
 
     def initialize(connection:, detector: EmailTransactionDetector.new, extractor: Ai::TransactionExtractor.new,
-                   provider: PROVIDER, source: "gmail")
+                   provider: PROVIDER, source: "gmail", category_prefill: nil)
       @connection = connection
       @detector = detector
       @extractor = extractor
       @provider = provider.to_s
       @source = source.to_s
+      @category_prefill = category_prefill
     end
 
     # `message` is the normalized hash produced by Gmail::Client#get_message:
@@ -154,9 +155,12 @@ module Gmail
         subject: @subject,
         source: @source
       )
+      # One batched suggestion call for this email, only for the entries the
+      # deterministic resolver could not classify.
+      prefills = category_prefill.call(transactions)
 
       ActiveRecord::Base.transaction do
-        transactions.each do |transaction|
+        transactions.each_with_index do |transaction, index|
           unless transaction[:type] == "expense"
             skipped_types << "#{transaction[:type]} from #{transaction[:merchant]}"
             next
@@ -179,7 +183,7 @@ module Gmail
           money_source = matched if matched.is_a?(MoneySource)
 
           begin
-            recorded = recorder.call(transaction, money_source: money_source)
+            recorded = recorder.call(transaction, money_source: money_source, prefill: prefills[index])
             if recorded.expense?
               expense_ids << recorded.expense.id
             else
@@ -209,6 +213,10 @@ module Gmail
 
     def expense_category_names
       Category.for_user_and_type(@connection.user, "expense").pluck(:name)
+    end
+
+    def category_prefill
+      @category_prefill ||= Gmail::CategoryPrefill.new(user: @connection.user)
     end
 
     def duplicate_key(transaction)
