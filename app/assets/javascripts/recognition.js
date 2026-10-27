@@ -141,7 +141,9 @@
     var focusBtn = e.target.closest("[data-recognition-accept-suggestion]");
     if (focusBtn) {
       var chip = focusBtn.closest(".recognition-chip-suggested");
-      var panel = focusBtn.closest(".recognition-drawer");
+      // The manual drawer and the bank wizard both use the same chip markup;
+      // scope the acceptance to the section that owns the suggestion.
+      var panel = focusBtn.closest("[data-recognition-panel], .recognition-drawer");
       if (chip && panel) recognitionAcceptChip(chip, panel);
       if (chip) chip.remove();
       recognitionMarkDirty();
@@ -150,7 +152,8 @@
     var dismissBtn = e.target.closest("[data-recognition-dismiss-suggestion]");
     if (dismissBtn) {
       var suggested = dismissBtn.closest(".recognition-chip-suggested");
-      if (suggested) recognitionDismissChip(suggested, recognitionForm());
+      // Dismissals belong to the enclosing form (wizard bank form or drawer).
+      if (suggested) recognitionDismissChip(suggested, suggested.closest("form") || recognitionForm());
       if (suggested) suggested.remove();
       recognitionMarkDirty();
       return;

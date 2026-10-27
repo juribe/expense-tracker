@@ -606,6 +606,134 @@
 }
 
 /* -------------------------------------------------
+ * Bank setup wizard
+ * ------------------------------------------------- */
+.recognition-wizard-btn { border-radius: 999px; font-size: .8125rem; font-weight: 700; display: inline-flex; align-items: center; gap: .4rem; }
+.bank-wizard-modal .modal-content { border: 0; border-radius: 1rem; overflow: hidden; box-shadow: 0 24px 80px rgba(16, 24, 40, .25); }
+.bank-wizard-shell { max-height: calc(100vh - 3rem); }
+.bank-wizard-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.15rem 1.4rem; border-bottom: 1px solid var(--loan-card-border); background: var(--loan-card-bg); }
+.bank-wizard-head-main { display: flex; align-items: flex-start; gap: .85rem; min-width: 0; }
+.bank-wizard-head-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: .85rem; font-size: 1.2rem; color: #7B61E0; background: rgba(123, 97, 224, .12); }
+.bank-wizard-title { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--loan-strong); }
+.bank-wizard-subtitle { margin: .2rem 0 0; font-size: .8125rem; color: var(--loan-muted); max-width: 46rem; }
+.bank-wizard-body { display: grid; grid-template-columns: 250px minmax(0, 1fr); flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.bank-wizard-nav { display: flex; flex-direction: column; gap: .35rem; padding: 1rem .85rem; border-right: 1px solid var(--loan-card-border); background: #fafbfc; overflow-y: auto; }
+.bank-wizard-nav-title { margin: .1rem .55rem .35rem; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--loan-muted); }
+.bank-wizard-nav-item { display: flex; align-items: center; gap: .6rem; width: 100%; padding: .6rem .65rem; border: 1px solid transparent; border-radius: .7rem; background: transparent; text-align: left; color: var(--loan-strong); }
+.bank-wizard-nav-item:hover { background: rgba(93, 135, 255, .07); }
+.bank-wizard-nav-item.is-active { border-color: rgba(93, 135, 255, .35); background: var(--loan-accent-soft); }
+.bank-wizard-nav-item-important { margin-top: auto; border-style: dashed; border-color: rgba(232, 145, 45, .5); background: rgba(232, 145, 45, .06); }
+.bank-wizard-nav-item-important .bank-wizard-nav-num { color: #E8912D; background: rgba(232, 145, 45, .14); }
+.bank-wizard-nav-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex-shrink: 0; border-radius: .55rem; font-size: .75rem; font-weight: 800; color: var(--loan-accent); background: var(--loan-accent-soft); }
+.bank-wizard-nav-copy { display: flex; flex-direction: column; gap: .05rem; min-width: 0; }
+.bank-wizard-nav-label { font-size: .8125rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bank-wizard-nav-state { font-size: .6875rem; color: var(--loan-muted); }
+.bank-wizard-content { min-width: 0; padding: 1.15rem 1.4rem 1.4rem; overflow-y: auto; }
+.bank-wizard-progress-wrap { margin-bottom: 1.1rem; }
+.bank-wizard-progress { height: 6px; overflow: hidden; border-radius: 999px; background: var(--loan-track); }
+.bank-wizard-progress-bar { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5D87FF, #16a34a); transition: width .2s ease; }
+.bank-wizard-progress-text { margin: .35rem 0 0; font-size: .75rem; color: var(--loan-muted); font-weight: 600; }
+.bank-wizard-panel[hidden] { display: none !important; }
+.bank-wizard-bank-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.bank-wizard-bank-identity { display: flex; align-items: flex-start; gap: .75rem; min-width: 0; }
+.bank-wizard-bank-logo { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: .85rem; font-size: 1rem; font-weight: 800; color: #2A3547; background: #eef2ff; }
+.bank-wizard-bank-logo.is-important { color: #E8912D; background: rgba(232, 145, 45, .14); }
+.bank-wizard-bank-title { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--loan-strong); }
+.bank-wizard-bank-desc { margin: .15rem 0 0; font-size: .8125rem; color: var(--loan-muted); }
+.bank-wizard-bank-meta { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; flex-shrink: 0; }
+.bank-wizard-counter { font-size: .75rem; font-weight: 700; color: var(--loan-muted); white-space: nowrap; }
+.bank-wizard-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.bank-wizard-field { border: 1px solid var(--loan-card-border); border-radius: .85rem; padding: 1rem; background: var(--loan-card-bg); }
+.bank-wizard-field-title { margin: 0 0 .3rem; font-size: .95rem; font-weight: 800; color: var(--loan-strong); }
+.bank-wizard-help { margin: 0 0 .75rem; font-size: .8125rem; line-height: 1.45; color: var(--loan-muted); }
+.bank-wizard-mail { overflow: hidden; margin-bottom: .85rem; border: 1px solid var(--loan-card-border); border-radius: .7rem; background: #fff; }
+.bank-wizard-mail-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .4rem .6rem; border-bottom: 1px solid var(--loan-card-border); background: #f4f6f9; }
+.bank-wizard-mail-brand { display: inline-flex; align-items: center; gap: .3rem; font-size: .72rem; font-weight: 700; color: #5f6368; }
+.bank-wizard-mail-brand .ti-brand-gmail { color: #EA4335; }
+.bank-wizard-mail-search { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 20px; border-radius: .35rem; background: #fff; color: var(--loan-muted); font-size: .7rem; }
+.bank-wizard-mail-body { padding: .65rem .7rem .75rem; }
+.bank-wizard-mail-row { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-size: .75rem; color: var(--loan-strong); }
+.bank-wizard-mail-avatar { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: .7rem; font-weight: 800; color: #fff; background: #5D87FF; }
+.bank-wizard-mail-muted { color: var(--loan-muted); }
+.bank-wizard-mail-annotation { display: inline-flex; align-items: center; gap: .2rem; margin-left: auto; font-size: .6875rem; font-weight: 700; color: #7B61E0; white-space: nowrap; }
+.bank-wizard-mail-highlight { display: inline-block; margin-top: .4rem; padding: .15rem .35rem; border-radius: .3rem; font-size: .78rem; font-weight: 700; color: var(--loan-strong); background: #fff3bf; }
+.bank-wizard-mail-subject-line { margin-top: .55rem; padding-top: .5rem; border-top: 1px dashed var(--loan-card-border); font-size: .75rem; color: var(--loan-muted); }
+.bank-wizard-field-label { margin: .7rem 0 .1rem; font-size: .8125rem; font-weight: 800; color: var(--loan-strong); }
+.bank-wizard-field-desc { margin: 0 0 .5rem; font-size: .72rem; color: var(--loan-muted); }
+.bank-wizard-input-row { display: flex; align-items: center; gap: .4rem; margin-bottom: .55rem; }
+.bank-wizard-input-row .form-control { min-width: 0; }
+.bank-wizard-input-row .btn { flex-shrink: 0; white-space: nowrap; display: inline-flex; align-items: center; gap: .25rem; }
+.bank-wizard-field .recognition-chips { gap: .4rem; }
+.bank-wizard-field .recognition-chip { background: #fff; }
+.bank-wizard-field .recognition-suggested-block { margin-top: .6rem; }
+.bank-wizard-field-example { margin: .55rem 0 0; font-size: .7rem; color: var(--loan-muted); }
+.bank-wizard-callout { display: flex; align-items: flex-start; gap: .75rem; margin-top: 1rem; padding: .85rem 1rem; border: 1px solid rgba(232, 145, 45, .45); border-radius: .8rem; background: rgba(232, 145, 45, .07); }
+.bank-wizard-callout-icon { color: #E8912D; font-size: 1.1rem; line-height: 1; margin-top: .1rem; }
+.bank-wizard-callout-copy { flex: 1 1 auto; min-width: 0; }
+.bank-wizard-callout-copy strong { display: block; font-size: .8125rem; color: var(--loan-strong); }
+.bank-wizard-callout-copy p { margin: .15rem 0 0; font-size: .75rem; line-height: 1.45; color: var(--loan-muted); }
+.bank-wizard-callout .btn { flex-shrink: 0; white-space: nowrap; }
+.bank-wizard-error { margin-top: .85rem; padding: .7rem .85rem; border: 1px solid rgba(220, 53, 69, .45); border-radius: .7rem; background: rgba(220, 53, 69, .08); color: #b02a37; font-size: .8125rem; font-weight: 600; }
+.bank-wizard-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 12rem; padding: 2rem; text-align: center; color: var(--loan-muted); }
+.bank-wizard-empty .ti { font-size: 2rem; margin-bottom: .5rem; }
+.bank-wizard-empty h3 { margin: 0 0 .25rem; font-size: 1rem; font-weight: 800; color: var(--loan-strong); }
+.bank-wizard-empty p { margin: 0; font-size: .85rem; }
+.bank-wizard-filter-card { padding: 1.1rem; border: 1px solid var(--loan-card-border); border-radius: .85rem; background: var(--loan-card-bg); }
+.bank-wizard-filter-heading { display: block; margin-bottom: .35rem; font-size: 1rem; color: var(--loan-strong); }
+.bank-wizard-filter-card p { font-size: .8125rem; line-height: 1.5; color: var(--loan-muted); }
+.bank-wizard-filter-card h4 { margin: 1rem 0 .25rem; font-size: .875rem; font-weight: 800; color: var(--loan-strong); }
+.bank-wizard-filter-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin-top: .75rem; }
+.bank-wizard-filter-step { display: flex; align-items: flex-start; gap: .5rem; padding: .7rem; border: 1px solid var(--loan-card-border); border-radius: .7rem; background: #fafbfc; }
+.bank-wizard-filter-step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; font-size: .72rem; font-weight: 800; color: #fff; background: #5D87FF; }
+.bank-wizard-filter-step strong { display: block; font-size: .78rem; color: var(--loan-strong); }
+.bank-wizard-filter-step p { margin: .1rem 0 0; font-size: .72rem; line-height: 1.4; }
+.bank-wizard-filter-note { display: flex; align-items: flex-start; gap: .5rem; margin-top: .9rem; padding: .65rem .75rem; border: 1px solid rgba(232, 145, 45, .45); border-radius: .65rem; background: rgba(232, 145, 45, .08); font-size: .78rem; font-weight: 600; color: var(--loan-strong); }
+.bank-wizard-filter-note .ti { color: #E8912D; margin-top: .1rem; }
+.bank-wizard-filter-limitation { margin: .6rem 0 0; font-size: .75rem !important; }
+.bank-wizard-filter-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+.bank-wizard-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.4rem; border-top: 1px solid var(--loan-card-border); background: var(--loan-card-bg); }
+.bank-wizard-skip { padding-left: 0; font-size: .8125rem; font-weight: 700; color: var(--loan-muted); text-decoration: none; display: inline-flex; align-items: center; gap: .35rem; }
+.bank-wizard-skip:hover { color: #E8912D; }
+.bank-wizard-foot-actions { display: flex; align-items: center; gap: .5rem; }
+.bank-wizard-foot-actions .btn { border-radius: .7rem; font-weight: 700; }
+[data-bs-theme="dark"] .bank-wizard-nav,
+[data-bs-theme="dark"] .bank-wizard-mail-toolbar,
+[data-bs-theme="dark"] .bank-wizard-filter-step { background: rgba(255, 255, 255, .03); }
+[data-bs-theme="dark"] .bank-wizard-field,
+[data-bs-theme="dark"] .bank-wizard-mail,
+[data-bs-theme="dark"] .bank-wizard-filter-card,
+[data-bs-theme="dark"] .bank-wizard-field .recognition-chip { background: rgba(255, 255, 255, .03); }
+[data-bs-theme="dark"] .bank-wizard-bank-logo { background: rgba(93, 135, 255, .18); color: #c7d7ff; }
+[data-bs-theme="dark"] .bank-wizard-mail-highlight { background: rgba(255, 214, 10, .2); color: #f3f4f6; }
+@media (max-width: 991.98px) {
+  .bank-wizard-body { grid-template-columns: 1fr; overflow-y: auto; }
+  .bank-wizard-nav { flex-direction: row; align-items: stretch; gap: .35rem; padding: .6rem; border-right: 0; border-bottom: 1px solid var(--loan-card-border); overflow-x: auto; overflow-y: hidden; }
+  .bank-wizard-nav-title { display: none; }
+  .bank-wizard-nav-item { min-width: 150px; width: auto; min-height: 52px; }
+  .bank-wizard-nav-item-important { margin-top: 0; margin-left: auto; }
+  .bank-wizard-content { overflow: visible; }
+  .bank-wizard-fields { grid-template-columns: 1fr; }
+  .bank-wizard-filter-steps { grid-template-columns: 1fr; }
+  .bank-wizard-bank-head { flex-direction: column; }
+  .bank-wizard-bank-meta { flex-direction: row; align-items: center; }
+}
+@media (max-width: 575.98px) {
+  .bank-wizard-modal { padding: .35rem !important; }
+  .bank-wizard-shell { max-height: calc(100vh - .7rem); }
+  .bank-wizard-head { padding: .9rem; }
+  .bank-wizard-title { font-size: 1rem; }
+  .bank-wizard-subtitle { font-size: .75rem; }
+  .bank-wizard-content { padding: .9rem; }
+  .bank-wizard-foot { flex-direction: column; align-items: stretch; padding: .85rem .9rem; }
+  .bank-wizard-foot-actions { width: 100%; }
+  .bank-wizard-foot-actions .btn { flex: 1; }
+  .bank-wizard-skip { justify-content: center; }
+  .bank-wizard-callout { flex-direction: column; }
+  .bank-wizard-callout .btn { width: 100%; }
+  .bank-wizard-mail-annotation { margin-left: 0; }
+}
+
+/* -------------------------------------------------
  * Choice Cards (Wizard Selection)
  * ------------------------------------------------- */
 .choice-card {

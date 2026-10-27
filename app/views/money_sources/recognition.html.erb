@@ -69,6 +69,11 @@
             data-bs-toggle="modal" data-bs-target="#recognition-help-modal">
       <i class="ti ti-help" aria-hidden="true"></i><%= t("money_sources.recognition.how_it_works") %>
     </button>
+    <%= link_to money_sources_recognition_path(wizard: 1),
+                class: "btn btn-primary recognition-wizard-btn",
+                data: { testid: "bank-wizard-open", bank_wizard_open: true } do %>
+      <i class="ti ti-wand" aria-hidden="true"></i><%= t("money_sources.recognition.wizard.open") %>
+    <% end %>
   </div>
 </header>
 <% if current_user.email_sources.active.exists? %>
@@ -477,3 +482,4 @@
 <% end %>
 
 <%= render "recognition_help_modal" %>
+<%= render "bank_setup_wizard", wizard: @wizard if @wizard %>

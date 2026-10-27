@@ -85,6 +85,7 @@ class MoneySourcesController < ApplicationController
                    .transform_values { |account| MoneySource.last_four_from(account.card_last_four) }
     end
     @bank_groups = build_bank_groups(sources)
+    @wizard = SourceRecognition::BankSetupWizard.new(@bank_groups) if params[:wizard].present?
 
     # The Gmail criteria card doubles as a manual editor: it renders whenever
     # there is an ACTIVE connection — even before any scan ran — prefilled
@@ -182,7 +183,28 @@ class MoneySourcesController < ApplicationController
 
     # Back to the BASE recognition URL: the drawer URL carries ?edit=/?bank_edit=
     # params, so redirecting to the referer would reopen the just-saved drawer.
-    redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved")
+    respond_to do |format|
+      format.html { redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved") }
+      # The bank wizard saves one bank at a time without leaving the modal.
+      # It receives the persisted state so it can show the correct status.
+      format.json { render json: recognition_payload(source) }
+    end
+  rescue ActiveRecord::RecordInvalid => e
+    respond_to do |format|
+      format.html do
+        redirect_to money_sources_recognition_path,
+                    alert: e.record.errors.full_messages.to_sentence
+      end
+      format.json do
+        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+  rescue ActiveRecord::RecordNotUnique
+    message = t("money_sources.recognition.wizard.save_error")
+    respond_to do |format|
+      format.html { redirect_to money_sources_recognition_path, alert: message }
+      format.json { render json: { errors: [ message ] }, status: :unprocessable_entity }
+    end
   end
 
   # Removes the members' bank-level SUGGESTED rows that the just-reviewed
@@ -339,6 +361,17 @@ class MoneySourcesController < ApplicationController
   def dismissed_suggestions
     raw = params[:dismissed]
     raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : {}
+  end
+
+  # Persisted bank-level state returned to the wizard after a JSON save.
+  def recognition_payload(source)
+    source.reload
+    wizard = SourceRecognition::BankSetupWizard
+    {
+      configured: wizard.bank_configured?(source),
+      senders: wizard.confirmed_values(source, %w[sender domain]),
+      subjects: wizard.confirmed_values(source, %w[subject header])
+    }
   end
 
   # The senders section mixes real addresses (sender) and bare domains
