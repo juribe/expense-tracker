@@ -5592,9 +5592,9 @@
     "semantic_hash": ""
   },
   "app/controllers/email_sources_controller.rb": {
-    "mtime": 1793050858.795572,
-    "seen": 1793051504.254383,
-    "ast_hash": "038c0cf32b0c11bdd2a614b1b74f677d",
+    "mtime": 1793138814.2558563,
+    "seen": 1793139051.46228,
+    "ast_hash": "6bc00780387deb2f89ffbae8a4bdf5ad",
     "semantic_hash": ""
   },
   "app/models/email_forwarding_verification.rb": {
@@ -5622,9 +5622,9 @@
     "semantic_hash": ""
   },
   "test/controllers/email_sources_controller_test.rb": {
-    "mtime": 1793050640.4274724,
-    "seen": 1793050849.5954099,
-    "ast_hash": "a472476925900121382cc88c0e521435",
+    "mtime": 1793138849.8090334,
+    "seen": 1793139051.463187,
+    "ast_hash": "a10ae7c7d1aacc8422ff147381ef245b",
     "semantic_hash": ""
   },
   "test/jobs/mail_inbound_process_job_verification_test.rb": {
@@ -5694,9 +5694,9 @@
     "semantic_hash": ""
   },
   "test/system/email_sources_setup_flow_test.rb": {
-    "mtime": 1793052485.2028058,
-    "seen": 1793052634.379068,
-    "ast_hash": "31ed8e10a6bc7a74fe63303d223cdfe2",
+    "mtime": 1793138951.2630389,
+    "seen": 1793139051.463646,
+    "ast_hash": "249af21367815601faaa2e47dc0c867e",
     "semantic_hash": ""
   },
   "app/services/gmail/category_prefill.rb": {

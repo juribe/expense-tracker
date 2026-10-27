@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793132966.6630173,
-    "seen": 1793134083.519786,
-    "ast_hash": "9638bc255b0257e2f75933ed063eb254",
+    "mtime": 1793135183.8152,
+    "seen": 1793135424.444354,
+    "ast_hash": "02db172720f78bb8b2583d43dd93003d",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793134052.391515,
-    "seen": 1793134083.519792,
+    "mtime": 1793135381.0816853,
+    "seen": 1793135424.44436,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5718,9 +5718,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/bank_setup_wizard.js": {
-    "mtime": 1793133992.7422633,
-    "seen": 1793134083.518348,
-    "ast_hash": "c838eb6b807b7e082163b6629fe6047c",
+    "mtime": 1793135213.882736,
+    "seen": 1793135424.442564,
+    "ast_hash": "76f08aa9736de94a138c369840cb2e0b",
     "semantic_hash": ""
   },
   "app/services/source_recognition/bank_setup_wizard.rb": {
@@ -5742,9 +5742,9 @@
     "semantic_hash": ""
   },
   "test/system/bank_setup_wizard_test.rb": {
-    "mtime": 1793134007.2805314,
-    "seen": 1793134083.5197399,
-    "ast_hash": "736f7ae9d3c9edf0ab9550396c3b3077",
+    "mtime": 1793135228.991607,
+    "seen": 1793135424.444303,
+    "ast_hash": "045513e1679526ed6325be7f609d9185",
     "semantic_hash": ""
   }
 }
