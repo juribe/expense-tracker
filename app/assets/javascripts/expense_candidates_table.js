@@ -16,7 +16,9 @@
       var n = selectedIds().length;
       var has = n > 0;
       var bar = $("#bulkBar");
-      if (bar) bar.style.display = has ? "flex" : "none";
+      // d-none uses display:none !important, so toggling inline styles cannot
+      // reveal the bar. Remove the class instead; .bulk-bar provides display.
+      if (bar) bar.classList.toggle("d-none", !has);
       if ($("#bulkCount")) $("#bulkCount").textContent = n + " " + payload.selected_label;
       ["bulkCategory", "bulkSource", "bulkConfirm", "bulkDiscard"].forEach(function(id) {
         var el = $("#" + id);
