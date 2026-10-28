@@ -134,7 +134,6 @@
               <th class="available-amount-cell"><%= t("reports.available_cycle.original", default: "Valor original") %></th>
               <th class="available-amount-cell"><%= t("reports.available_cycle.paid", default: "Abonado") %></th>
               <th class="available-amount-cell"><%= t("reports.available_cycle.missing", default: "Faltante") %></th>
-              <th class="available-row-action" aria-label="<%= t("reports.available_cycle.actions", default: "Acciones") %>"></th>
             </tr>
           </thead>
           <tbody data-available-cycle-rows>
@@ -165,14 +164,6 @@
                 <td class="available-amount-cell"><%= money_amount(expense[:original]) %></td>
                 <td class="available-amount-cell"><%= money_amount(expense[:paid]) %></td>
                 <td class="available-amount-cell"><span class="available-missing"><%= money_amount(expense[:missing]) %></span></td>
-                <td class="available-row-action">
-                  <%= link_to monthly_expenses_path,
-                              class: "available-row-action-link",
-                              title: t("reports.available_cycle.manage_expense", default: "Gestionar gasto mensual"),
-                              aria: { label: t("reports.available_cycle.manage_expense", default: "Gestionar gasto mensual") } do %>
-                    <i class="ti ti-dots-vertical" aria-hidden="true"></i>
-                  <% end %>
-                </td>
               </tr>
             <% end %>
           </tbody>

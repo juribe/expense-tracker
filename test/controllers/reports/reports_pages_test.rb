@@ -127,6 +127,7 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select ".available-expense-name", text: "Internet"
     assert_select ".available-missing"
     assert_select ".available-due-tag"
+    assert_select ".available-row-action-link", 0
   end
 
   test "GET /reports/available_cycle renders a single cycle summary bar" do

@@ -1019,35 +1019,6 @@
   white-space: nowrap;
 }
 
-.available-row-action {
-  width: 2.25rem;
-  text-align: right !important;
-}
-
-.available-row-action-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 0.5rem;
-  color: #a1a7c1;
-  font-size: 1.15rem;
-}
-
-.available-row-action-link:hover,
-.available-row-action-link:focus-visible {
-  background: #f0f1ff;
-  color: var(--available-purple-dark);
-  outline: none;
-}
-
-[data-bs-theme="dark"] .available-row-action-link:hover,
-[data-bs-theme="dark"] .available-row-action-link:focus-visible {
-  background: rgba(119, 120, 247, 0.16);
-  color: #b8baff;
-}
-
 .available-missing {
   display: inline-block;
   padding: 0.5rem 0.65rem;
