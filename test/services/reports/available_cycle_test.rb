@@ -26,9 +26,47 @@ class ReportsAvailableCycleTest < ActiveSupport::TestCase
     end
   end
 
-  test "current money includes accounts and cash but excludes pockets cards loans" do
+  test "current money includes accounts cash and wallets but excludes pockets cards loans" do
+    @user.money_sources.create!(name: "Monedero", kind: "wallet", active: true, starting_balance: 250_000)
+
     data = report
-    assert_equal 8_000_000.to_d, data[:current_money]
+    assert_equal 8_250_000.to_d, data[:current_money]
+  end
+
+  test "pending expenses are sorted by due date with no-date rows last" do
+    @user.update!(financial_cycle_start_day: 20)
+    template(name: "Later", amount: 100_000, payment_day: 10)
+    template(name: "Sooner", amount: 100_000, payment_day: 28)
+    template(name: "No date", amount: 100_000, payment_day: nil)
+
+    names = report[:pending_expenses].map { |expense| expense[:name] }
+
+    assert_equal [ "Sooner", "Later", "No date" ], names
+  end
+
+  test "due date metadata marks overdue today soon and no date rows" do
+    @user.update!(financial_cycle_start_day: 20)
+    template(name: "Overdue", amount: 100_000, payment_day: 20)
+    template(name: "Today", amount: 100_000, payment_day: 28)
+    template(name: "Soon", amount: 100_000, payment_day: 30)
+    template(name: "No date", amount: 100_000, payment_day: nil)
+
+    rows = report[:pending_expenses].index_by { |expense| expense[:name] }
+
+    assert rows["Overdue"][:overdue]
+    assert rows["Today"][:due_today]
+    assert rows["Soon"][:due_soon]
+    assert_nil rows["No date"][:due_date]
+  end
+
+  test "days remaining uses a configured cycle crossing into the next month" do
+    @user.update!(financial_cycle_start_day: 20)
+
+    data = report
+
+    assert_equal Date.new(2026, 10, 20), data[:cycle].starts
+    assert_equal Date.new(2026, 11, 19), data[:cycle].ends
+    assert_equal 22, data[:days_remaining]
   end
 
   test "pending expense without payments" do

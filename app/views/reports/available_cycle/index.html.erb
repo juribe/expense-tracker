@@ -1,139 +1,258 @@
-<%= render "reports/page_header", title: t("reports.nav.available_cycle", default: "Disponible del ciclo"), subtitle: t("reports.available_cycle.subtitle", default: "Una visión clara de tu dinero, lo que falta por pagar y lo que te quedará disponible."), path: reports_available_cycle_path %>
+<% pending_share = available_cycle_share(@report[:pending_total], @report[:current_money]) %>
+<% remaining_share = available_cycle_share(@report[:remaining], @report[:current_money]) %>
+<% pending_percentage = available_cycle_percentage(@report[:pending_total], @report[:current_money]) %>
+<% remaining_percentage = available_cycle_percentage(@report[:remaining], @report[:current_money]) %>
+<% pending_count = @report[:pending_expenses].size %>
 
-<div class="row g-3 mb-4" data-testid="available-cycle">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-          <div>
-            <div class="text-muted small fw-semibold mb-1"><%= t("reports.available_cycle.current_cycle", default: "Tu ciclo actual") %></div>
-            <div class="fw-bold" data-testid="cycle-dates"><%= l(@report[:cycle].starts, format: :long) %> → <%= l(@report[:cycle].ends, format: :long) %></div>
-          </div>
-          <div class="text-md-end">
-            <div class="text-muted small fw-semibold mb-1"><%= t("reports.available_cycle.days_remaining", default: "Días restantes") %></div>
-            <div class="fw-bold" data-testid="days-remaining"><%= @report[:days_remaining] %></div>
-          </div>
-        </div>
-        <div class="progress mt-3" style="height: 8px;">
-          <div class="progress-bar" role="progressbar" style="width: <%= @report[:progress_percent] %>%;" aria-valuenow="<%= @report[:progress_percent] %>" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <div class="text-muted small mt-2"><%= @report[:elapsed_days] %> de <%= @report[:total_days] %> días transcurridos</div>
+<div class="available-cycle-page" data-available-cycle data-testid="available-cycle">
+  <header class="available-heading">
+    <div class="available-heading-main">
+      <span class="available-heading-icon" aria-hidden="true"><i class="ti ti-wallet"></i></span>
+      <div>
+        <h1 class="reports-title"><%= t("reports.nav.available_cycle", default: "Disponible del ciclo") %></h1>
+        <p class="reports-subtitle"><%= t("reports.available_cycle.subtitle", default: "Una visión clara de tu dinero, lo que falta por pagar y lo que te quedará disponible.") %></p>
       </div>
     </div>
-  </div>
-</div>
+    <div class="available-heading-period">
+      <span class="available-eyebrow"><%= t("reports.available_cycle.active_cycle", default: "Ciclo activo") %></span>
+      <strong><%= @report[:cycle].label %></strong>
+    </div>
+  </header>
 
-<div class="row g-3 mb-4">
-  <div class="col-12">
-    <div class="card border-success">
-      <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.available_cycle.remaining", default: "Dinero restante después de pagar todo") %></div>
-        <div class="summary-value <%= @report[:remaining] >= 0 ? 'text-success' : 'text-danger' %>" data-testid="remaining-money">
+  <section class="available-cycle-card" aria-label="<%= t("reports.available_cycle.current_cycle", default: "Tu ciclo actual") %>">
+    <div class="available-cycle-identity">
+      <span class="available-round-icon" aria-hidden="true"><i class="ti ti-calendar-event"></i></span>
+      <div>
+        <div class="available-eyebrow"><%= t("reports.available_cycle.current_cycle", default: "Tu ciclo actual") %></div>
+        <div class="available-cycle-date" data-testid="cycle-dates">
+          <%= l(@report[:cycle].starts, format: :long) %>
+          <span class="available-cycle-arrow">→</span>
+          <%= l(@report[:cycle].ends, format: :long) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="available-cycle-progress">
+      <div class="available-progress-head">
+        <strong><i class="ti ti-clock" aria-hidden="true"></i> <%= @report[:days_remaining] %> <%= t("reports.available_cycle.days_remaining_label", default: "días restantes") %></strong>
+        <span><%= t("reports.available_cycle.of_days", default: "de %{count} días", count: @report[:total_days]) %></span>
+      </div>
+      <div class="available-track">
+        <span class="available-track-fill et-w-<%= @report[:progress_percent] %>"></span>
+      </div>
+      <div class="available-progress-foot">
+        <span><%= @report[:days_remaining].positive? ? t("reports.available_cycle.on_track", default: "¡Vas por buen camino!") : t("reports.available_cycle.cycle_ending", default: "El ciclo está por terminar") %></span>
+        <span><%= @report[:progress_percent] %>% <%= t("reports.available_cycle.elapsed", default: "transcurrido") %></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="available-summary">
+    <div class="available-remaining-card <%= @report[:remaining].negative? ? 'is-negative' : 'is-positive' %>">
+      <span class="available-round-icon" aria-hidden="true"><i class="ti ti-wallet"></i></span>
+      <div class="available-remaining-body">
+        <div class="available-label"><%= t("reports.available_cycle.remaining", default: "Dinero restante después de pagar todo") %></div>
+        <div class="available-amount" data-testid="remaining-money">
           <%= money_amount(@report[:remaining]) %>
+          <span class="available-pill <%= @report[:remaining].negative? ? 'is-negative' : 'is-positive' %>">
+            <%= @report[:remaining].negative? ? t("reports.available_cycle.remaining_short", default: "Te falta dinero") : t("reports.available_cycle.remaining_ok", default: "¡Vas bien!") %>
+          </span>
         </div>
-        <div class="text-muted small mt-2">
-          <%= @report[:remaining] >= 0 ? t("reports.available_cycle.remaining_positive", default: "Esto es lo que te quedaría después de cubrir todos los gastos pendientes del ciclo.") : t("reports.available_cycle.remaining_negative", default: "Existe un déficit para cubrir todos los gastos pendientes del ciclo.") %>
+        <div class="available-subcopy">
+          <%= @report[:remaining].negative? ? t("reports.available_cycle.remaining_negative", default: "Existe un déficit para cubrir todos los gastos pendientes del ciclo.") : t("reports.available_cycle.remaining_positive", default: "Esto es lo que te quedaría después de cubrir todos los gastos pendientes del ciclo.") %>
         </div>
       </div>
+      <span class="available-sparkle" aria-hidden="true">✦</span>
     </div>
-  </div>
-</div>
 
-<div class="row g-3 mb-4">
-  <div class="col-12 col-md-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.available_cycle.current_money", default: "Dinero actual") %></div>
-        <div class="summary-value" data-testid="current-money"><%= money_amount(@report[:current_money]) %></div>
-        <div class="text-muted small mt-2"><%= t("reports.available_cycle.current_money_hint", default: "Cuentas de ahorro + efectivo (bolsillos excluidos)") %></div>
+    <div class="available-stats">
+      <div class="available-stat is-money">
+        <span class="available-round-icon" aria-hidden="true"><i class="ti ti-building-bank"></i></span>
+        <div class="available-stat-body">
+          <div class="available-label"><%= t("reports.available_cycle.current_money", default: "Dinero actual") %></div>
+          <div class="available-stat-amount" data-testid="current-money"><%= money_amount(@report[:current_money]) %></div>
+          <div class="available-subcopy">
+            <%= t("reports.available_cycle.current_money_hint", default: "Cuentas + efectivo + monederos") %>
+            <span class="available-muted-accent">· <%= t("reports.available_cycle.pockets_excluded", default: "bolsillos excluidos") %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="available-stat is-due">
+        <span class="available-round-icon" aria-hidden="true"><i class="ti ti-receipt"></i></span>
+        <div class="available-stat-body">
+          <div class="available-label"><%= t("reports.available_cycle.pending", default: "Por pagar") %></div>
+          <div class="available-stat-amount" data-testid="pending-total"><%= money_amount(@report[:pending_total]) %></div>
+          <div class="available-subcopy"><%= t("reports.available_cycle.pending_hint", default: "Gastos mensuales pendientes") %></div>
+        </div>
+        <i class="ti ti-chevron-right available-stat-arrow" aria-hidden="true"></i>
       </div>
     </div>
-  </div>
-  <div class="col-12 col-md-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.available_cycle.pending", default: "Por pagar") %></div>
-        <div class="summary-value text-danger" data-testid="pending-total"><%= money_amount(@report[:pending_total]) %></div>
-        <div class="text-muted small mt-2"><%= t("reports.available_cycle.pending_hint", default: "Gastos mensuales pendientes") %></div>
+  </section>
+
+  <section class="available-panel" aria-labelledby="available-pending-title">
+    <div class="available-panel-head">
+      <div class="available-panel-title">
+        <span class="available-round-icon" aria-hidden="true"><i class="ti ti-list-details"></i></span>
+        <div>
+          <h2 id="available-pending-title"><%= t("reports.available_cycle.pending_title", default: "Gastos por pagar") %></h2>
+          <p><%= t("reports.available_cycle.pending_subtitle", default: "Lo que todavía falta pagar en este ciclo, descontando tus abonos.") %></p>
+        </div>
+      </div>
+      <div class="available-total-box">
+        <span><%= t("reports.available_cycle.total_pending", default: "Total por pagar") %></span>
+        <strong data-testid="pending-total-list"><%= money_amount(@report[:pending_total]) %></strong>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="card mb-4">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <div>
-      <h5 class="mb-0"><%= t("reports.available_cycle.pending_title", default: "Gastos por pagar") %></h5>
-      <div class="text-muted small"><%= t("reports.available_cycle.pending_subtitle", default: "Lo que todavía falta pagar en este ciclo, descontando tus abonos.") %></div>
+    <div class="available-toolbar">
+      <label class="available-search">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="search"
+               placeholder="<%= t("reports.available_cycle.search_placeholder", default: "Buscar un gasto...") %>"
+               aria-label="<%= t("reports.available_cycle.search_label", default: "Buscar un gasto") %>"
+               data-available-cycle-search>
+      </label>
+      <button type="button"
+              class="available-sort"
+              data-available-cycle-sort
+              data-label-asc="<%= t("reports.available_cycle.sort_asc", default: "Ordenar por fecha") %>"
+              data-label-desc="<%= t("reports.available_cycle.sort_desc", default: "Fecha inversa") %>"
+              aria-pressed="false">
+        <i class="ti ti-arrows-sort" aria-hidden="true"></i>
+        <span data-available-cycle-sort-label><%= t("reports.available_cycle.sort_asc", default: "Ordenar por fecha") %></span>
+      </button>
     </div>
-    <div class="text-end">
-      <div class="text-muted small"><%= t("reports.available_cycle.total_pending", default: "Total por pagar") %></div>
-      <div class="fw-bold text-danger" data-testid="pending-total-list"><%= money_amount(@report[:pending_total]) %></div>
-    </div>
-  </div>
-  <div class="card-body">
+
     <% if @report[:pending_expenses].any? %>
-      <div class="table-responsive">
-        <table class="table table-sm align-middle" data-testid="pending-expenses">
+      <div class="available-table-wrap">
+        <table class="available-table" data-testid="pending-expenses">
           <thead>
             <tr>
               <th><%= t("reports.available_cycle.expense", default: "Gasto") %></th>
               <th><%= t("reports.available_cycle.due_date", default: "Vencimiento") %></th>
-              <th class="text-end"><%= t("reports.available_cycle.original", default: "Valor original") %></th>
-              <th class="text-end"><%= t("reports.available_cycle.paid", default: "Abonado") %></th>
-              <th class="text-end"><%= t("reports.available_cycle.missing", default: "Faltante") %></th>
+              <th class="available-amount-cell"><%= t("reports.available_cycle.original", default: "Valor original") %></th>
+              <th class="available-amount-cell"><%= t("reports.available_cycle.paid", default: "Abonado") %></th>
+              <th class="available-amount-cell"><%= t("reports.available_cycle.missing", default: "Faltante") %></th>
+              <th class="available-row-action" aria-label="<%= t("reports.available_cycle.actions", default: "Acciones") %>"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody data-available-cycle-rows>
             <% @report[:pending_expenses].each do |expense| %>
-              <tr data-testid="pending-expense-row">
+              <tr data-available-cycle-row
+                  data-due-date="<%= expense[:due_date]&.iso8601 %>"
+                  data-search="<%= [expense[:name], expense[:category]].compact.join(' ') %>"
+                  data-testid="pending-expense-row">
                 <td>
-                  <div class="fw-semibold"><%= expense[:name] %></div>
-                  <div class="text-muted small"><%= expense[:category] %></div>
+                  <div class="available-expense">
+                    <span class="available-expense-icon is-<%= available_cycle_category_tone(expense[:category]) %>" aria-hidden="true">
+                      <i class="ti <%= available_cycle_category_icon(expense[:category]) %>"></i>
+                    </span>
+                    <div>
+                      <div class="available-expense-name"><%= expense[:name] %></div>
+                      <div class="available-expense-category"><%= expense[:category].presence || t("reports.available_cycle.no_category", default: "Sin categoría") %></div>
+                    </div>
+                  </div>
                 </td>
                 <td>
                   <% if expense[:due_date].present? %>
-                    <div><%= l(expense[:due_date], format: :long) %></div>
-                    <% if expense[:overdue] %>
-                      <span class="badge bg-danger-subtle text-danger"><%= t("reports.available_cycle.overdue", default: "Vencido") %></span>
-                    <% elsif expense[:due_today] %>
-                      <span class="badge bg-warning-subtle text-warning"><%= t("reports.available_cycle.due_today", default: "Hoy") %></span>
-                    <% end %>
+                    <div class="available-due-date"><%= l(expense[:due_date], format: :long) %></div>
                   <% else %>
-                    <span class="text-muted"><%= t("reports.available_cycle.no_date", default: "Sin fecha") %></span>
+                    <div class="available-due-date is-empty"><%= t("reports.available_cycle.no_date", default: "Sin fecha") %></div>
+                  <% end %>
+                  <span class="available-due-tag <%= available_cycle_due_class(expense) %>"><%= available_cycle_due_label(expense) %></span>
+                </td>
+                <td class="available-amount-cell"><%= money_amount(expense[:original]) %></td>
+                <td class="available-amount-cell"><%= money_amount(expense[:paid]) %></td>
+                <td class="available-amount-cell"><span class="available-missing"><%= money_amount(expense[:missing]) %></span></td>
+                <td class="available-row-action">
+                  <%= link_to monthly_expenses_path,
+                              class: "available-row-action-link",
+                              title: t("reports.available_cycle.manage_expense", default: "Gestionar gasto mensual"),
+                              aria: { label: t("reports.available_cycle.manage_expense", default: "Gestionar gasto mensual") } do %>
+                    <i class="ti ti-dots-vertical" aria-hidden="true"></i>
                   <% end %>
                 </td>
-                <td class="text-end"><%= money_amount(expense[:original]) %></td>
-                <td class="text-end"><%= money_amount(expense[:paid]) %></td>
-                <td class="text-end fw-bold text-danger"><%= money_amount(expense[:missing]) %></td>
               </tr>
             <% end %>
           </tbody>
         </table>
       </div>
-      <div class="text-muted small mt-2"><%= @report[:pending_expenses].size %> <%= t("reports.available_cycle.pending_count", default: "gastos pendientes") %></div>
+      <div class="available-table-foot">
+        <span data-available-cycle-count
+              data-singular="<%= t("reports.available_cycle.pending_count_one", default: "gasto pendiente") %>"
+              data-plural="<%= t("reports.available_cycle.pending_count_other", default: "gastos pendientes") %>"><%= pending_count %> <%= pending_count == 1 ? t("reports.available_cycle.pending_count_one", default: "gasto pendiente") : t("reports.available_cycle.pending_count_other", default: "gastos pendientes") %></span>
+        <span><%= t("reports.available_cycle.pending_footnote", default: "Los abonos se descuentan del faltante automáticamente.") %></span>
+      </div>
     <% else %>
-      <p class="text-muted mb-0"><%= t("reports.available_cycle.empty", default: "No hay gastos pendientes para el ciclo actual.") %></p>
+      <div class="available-empty">
+        <span class="available-empty-icon" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+        <p><%= t("reports.available_cycle.empty", default: "No hay gastos pendientes para el ciclo actual.") %></p>
+      </div>
     <% end %>
-  </div>
-</div>
+  </section>
 
-<div class="card mb-4">
-  <div class="card-header">
-    <h5 class="mb-0"><%= t("reports.available_cycle.summary_title", default: "Resumen del ciclo") %></h5>
-  </div>
-  <div class="card-body">
-    <% total = @report[:current_money].to_d %>
-    <% pending_pct = total.zero? ? 0 : [(@report[:pending_total].to_d / total * 100), 100].min %>
-    <% remaining_pct = total.zero? ? 0 : [(@report[:remaining].to_d / total * 100), 100].min %>
-    <div class="progress mb-3" style="height: 16px;">
-      <div class="progress-bar bg-danger" style="width: <%= pending_pct %>%"></div>
-      <div class="progress-bar bg-success" style="width: <%= remaining_pct %>%"></div>
+  <section class="available-panel available-cycle-summary" aria-labelledby="available-summary-title">
+    <div class="available-panel-head">
+      <div class="available-panel-title">
+        <span class="available-round-icon" aria-hidden="true"><i class="ti ti-chart-pie"></i></span>
+        <div>
+          <h2 id="available-summary-title"><%= t("reports.available_cycle.summary_title", default: "Resumen del ciclo") %></h2>
+          <p><%= t("reports.available_cycle.summary_subtitle", default: "Así se compara tu dinero actual con los pagos pendientes.") %></p>
+        </div>
+      </div>
+      <div class="available-segmented" role="group" aria-label="<%= t("reports.available_cycle.summary_mode", default: "Formato del resumen") %>">
+        <button type="button" class="is-active" data-available-cycle-mode="values" aria-pressed="true"><%= t("reports.available_cycle.values", default: "Valores") %></button>
+        <button type="button" data-available-cycle-mode="percent" aria-pressed="false"><%= t("reports.available_cycle.percent", default: "Porcentaje") %></button>
+      </div>
     </div>
-    <div class="row g-2">
-      <div class="col-12 col-md-4"><strong><%= t("reports.available_cycle.current_money", default: "Dinero actual") %></strong>: <%= money_amount(@report[:current_money]) %></div>
-      <div class="col-12 col-md-4"><strong><%= t("reports.available_cycle.pending", default: "Por pagar") %></strong>: <%= money_amount(@report[:pending_total]) %></div>
-      <div class="col-12 col-md-4"><strong><%= t("reports.available_cycle.remaining", default: "Dinero restante") %></strong>: <%= money_amount(@report[:remaining]) %></div>
+
+    <div class="available-summary-current-track" aria-hidden="true">
+      <span class="available-summary-current-fill"></span>
     </div>
-  </div>
+    <div class="available-summary-bar <%= @report[:remaining].negative? ? 'is-deficit' : '' %>" aria-hidden="true">
+      <span class="available-summary-due et-w-<%= pending_share %>"></span>
+      <span class="available-summary-left et-w-<%= remaining_share %>"></span>
+    </div>
+
+    <div class="available-legend">
+      <div class="available-legend-item">
+        <div class="available-legend-top"><span class="available-dot is-current"></span><%= t("reports.available_cycle.current_money", default: "Dinero actual") %></div>
+        <strong>
+          <span data-available-cycle-values><%= money_amount(@report[:current_money]) %></span>
+          <span data-available-cycle-percent hidden><%= @report[:current_money].zero? ? "—" : "100%" %></span>
+        </strong>
+        <small><%= t("reports.available_cycle.current_money_base", default: "Base de comparación") %></small>
+      </div>
+      <div class="available-legend-item">
+        <div class="available-legend-top"><span class="available-dot is-due"></span><%= t("reports.available_cycle.pending", default: "Por pagar") %></div>
+        <strong>
+          <span data-available-cycle-values><%= money_amount(@report[:pending_total]) %></span>
+          <span data-available-cycle-percent hidden><%= pending_percentage %></span>
+        </strong>
+        <small>
+          <span data-available-cycle-values><%= pending_percentage %> <%= t("reports.available_cycle.of_current_money", default: "del dinero actual") %></span>
+          <span data-available-cycle-percent hidden><%= t("reports.available_cycle.of_current_money", default: "del dinero actual") %></span>
+        </small>
+      </div>
+      <div class="available-legend-item">
+        <div class="available-legend-top"><span class="available-dot is-left"></span><%= t("reports.available_cycle.remaining", default: "Dinero restante") %></div>
+        <strong>
+          <span data-available-cycle-values><%= money_amount(@report[:remaining]) %></span>
+          <span data-available-cycle-percent hidden><%= remaining_percentage %></span>
+        </strong>
+        <small>
+          <span data-available-cycle-values><%= remaining_percentage %> <%= t("reports.available_cycle.of_current_money", default: "del dinero actual") %></span>
+          <span data-available-cycle-percent hidden><%= t("reports.available_cycle.of_current_money", default: "del dinero actual") %></span>
+        </small>
+      </div>
+    </div>
+
+    <% if @report[:remaining].negative? %>
+      <div class="available-deficit-note">
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <span><%= t("reports.available_cycle.deficit_note", default: "Tus gastos pendientes superan el dinero actual; el déficit se muestra sin ocultarse.") %></span>
+      </div>
+    <% end %>
+  </section>
 </div>

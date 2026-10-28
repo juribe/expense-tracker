@@ -45,23 +45,27 @@ class Reports::AvailableCycle
       next if missing <= 0
 
       due_date = due_date_for(template, cycle)
+      days_until_due = due_date && (due_date - Date.current).to_i
       {
         template: template,
         name: template.description.presence || template.category&.name,
         category: template.category&.name,
         due_date: due_date,
+        days_until_due: days_until_due,
         original: template.amount.to_d,
         paid: paid,
         missing: missing,
-        overdue: due_date.present? && due_date < Date.current,
-        due_today: due_date.present? && due_date == Date.current
+        overdue: days_until_due&.negative? || false,
+        due_today: days_until_due&.zero? || false,
+        due_soon: days_until_due.present? && days_until_due.between?(1, 5)
       }
     end.sort_by { |expense| sort_key(expense) }
   end
 
   def due_date_for(template, cycle)
-    day = template.payment_day.presence || cycle.starts.day
-    day = [day.to_i, cycle.starts.end_of_month.day].min
+    return nil if template.payment_day.blank?
+
+    day = [ template.payment_day.to_i, cycle.starts.end_of_month.day ].min
     date = Date.new(cycle.starts.year, cycle.starts.month, day)
     date += 1.month if date < cycle.starts
     return nil if date > cycle.ends
@@ -72,11 +76,11 @@ class Reports::AvailableCycle
   end
 
   def sort_key(expense)
-    [expense[:due_date].nil? ? 1 : 0, expense[:due_date] || Date.new(9999, 12, 31)]
+    [ expense[:due_date].nil? ? 1 : 0, expense[:due_date] || Date.new(9999, 12, 31) ]
   end
 
   def days_remaining(cycle)
-    [(cycle.ends - Date.current).to_i, 0].max
+    [ (cycle.ends - Date.current).to_i, 0 ].max
   end
 
   def total_days(cycle)

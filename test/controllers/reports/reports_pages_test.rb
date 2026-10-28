@@ -105,10 +105,28 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert scripts.any? { |src| src.include?("reports") && src.end_with?(".js") || src.include?("reports-") }
   end
 
-  test "GET /reports/available_cycle renders" do
+  test "GET /reports/available_cycle renders the report tools" do
     get reports_available_cycle_path
     assert_response :success
     assert_select "[data-testid=available-cycle]"
+    assert_select "[data-available-cycle-search]"
+    assert_select "[data-available-cycle-sort]"
+    assert_select "[data-available-cycle-mode=values]"
+    assert_select "[data-available-cycle-mode=percent]"
+  end
+
+  test "GET /reports/available_cycle renders pending expense rows with due metadata" do
+    @user.recurring_templates.create!(category: @category, kind: "expense", amount: 100_000,
+                                      frequency: "monthly", payment_day: 28, active: true,
+                                      description: "Internet", money_source: @bank)
+
+    get reports_available_cycle_path
+
+    assert_response :success
+    assert_select "[data-available-cycle-row]", 1
+    assert_select ".available-expense-name", text: "Internet"
+    assert_select ".available-missing"
+    assert_select ".available-due-tag"
   end
 
   test "GET /reports/transactions renders drill-down with filters" do

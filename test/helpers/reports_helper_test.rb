@@ -33,4 +33,20 @@ class ReportsHelperTest < ActionView::TestCase
     assert_equal "Ciclo pasado (#{PayCycle.previous(@user).label})", last_label
     assert_match(/20\d\d/, this_label)
   end
+
+  test "available cycle due labels reflect the due date state" do
+    travel_to Date.new(2026, 10, 28) do
+      assert_equal "Vencido", available_cycle_due_label(due_date: Date.new(2026, 10, 20), overdue: true)
+      assert_equal "Hoy", available_cycle_due_label(due_date: Date.current, due_today: true)
+      assert_equal "En 3 días", available_cycle_due_label(due_date: Date.new(2026, 10, 31), days_until_due: 3)
+      assert_equal "Sin fecha", available_cycle_due_label(due_date: nil)
+    end
+  end
+
+  test "available cycle share and percentage keep deficits visible" do
+    assert_equal 35, available_cycle_share(3_500_000, 10_000_000)
+    assert_equal 100, available_cycle_share(12_000_000, 10_000_000)
+    assert_equal "-20%", available_cycle_percentage(-2_000_000, 10_000_000)
+    assert_equal "—", available_cycle_percentage(1, 0)
+  end
 end

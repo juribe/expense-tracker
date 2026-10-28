@@ -3,10 +3,12 @@
 # ReportsHelper
 # Presentation helpers for the Reports section.
 #
-# Methods: money_amount, delta_badge, progress_usage
+# Methods: money_amount, delta_badge, progress_usage, available_cycle_*
 #
 # Example: delta_badge(delta_pct, good_when_positive: false) # => "↑ 12.4% vs periodo anterior"
 module ReportsHelper
+  AVAILABLE_CYCLE_TONES = %w[purple blue orange green pink].freeze
+
   def money_amount(value)
     return content_tag(:span, "—", class: "text-muted") if value.blank?
 
@@ -110,5 +112,68 @@ module ReportsHelper
     candidate
   rescue Date::Error, ArgumentError, TypeError
     Date.current.end_of_month
+  end
+
+  # Available-cycle report: category icon/tone is derived from the real
+  # category name, so the table stays consistent with the user's data.
+  def available_cycle_category_icon(category_name)
+    name = category_name.to_s.downcase
+    case name
+    when /vivienda|arriendo|administraci/
+      "ti-home"
+    when /servicio|internet|energ|agua|celular|luz/
+      "ti-bolt"
+    when /transporte|carro|soat|gasolina|moto/
+      "ti-car"
+    when /salud|gimnasio|médic|medic|seguro/
+      "ti-heartbeat"
+    when /educaci|colegio|universidad|estudio/
+      "ti-school"
+    when /comida|mercado|restaurante|supermercado/
+      "ti-shopping-cart"
+    else
+      "ti-receipt"
+    end
+  end
+
+  def available_cycle_category_tone(category_name)
+    name = category_name.to_s
+    return "purple" if name.blank?
+
+    AVAILABLE_CYCLE_TONES[name.bytes.sum % AVAILABLE_CYCLE_TONES.size]
+  end
+
+  def available_cycle_due_label(expense)
+    return t("reports.available_cycle.no_date", default: "Sin fecha") if expense[:due_date].blank?
+    return t("reports.available_cycle.overdue", default: "Vencido") if expense[:overdue]
+    return t("reports.available_cycle.due_today", default: "Hoy") if expense[:due_today]
+
+    days = expense[:days_until_due].to_i
+    "En #{days} #{days == 1 ? 'día' : 'días'}"
+  end
+
+  def available_cycle_due_class(expense)
+    return "is-none" if expense[:due_date].blank?
+    return "is-late" if expense[:overdue]
+    return "is-today" if expense[:due_today]
+    return "is-soon" if expense[:due_soon]
+
+    "is-upcoming"
+  end
+
+  def available_cycle_share(value, total)
+    total = total.to_d
+    value = value.to_d
+    return (value.positive? ? 100 : 0) if total.zero?
+
+    [ [ (value / total * 100).round, 0 ].max, 100 ].min
+  end
+
+  def available_cycle_percentage(value, total)
+    total = total.to_d
+    return "0%" if total.zero? && value.to_d.zero?
+    return "—" if total.zero?
+
+    "#{(value.to_d / total * 100).round}%"
   end
 end
