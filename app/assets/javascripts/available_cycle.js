@@ -21,11 +21,19 @@
   }
 
   function sortRows(root, rows) {
+    var mode = root.dataset.availableCycleSortMode || "due_date";
     var direction = root.dataset.availableCycleSortDirection || "asc";
     var tbody = root.querySelector("[data-available-cycle-rows]");
     if (!tbody) return;
 
     rows.sort(function (left, right) {
+      if (mode === "missing") {
+        var leftAmount = parseFloat(left.dataset.missing || "0");
+        var rightAmount = parseFloat(right.dataset.missing || "0");
+
+        return direction === "desc" ? rightAmount - leftAmount : leftAmount - rightAmount;
+      }
+
       var leftDate = left.dataset.dueDate || "";
       var rightDate = right.dataset.dueDate || "";
 
@@ -72,14 +80,30 @@
       var sortRoot = rootFor(sortButton);
       if (!sortRoot) return;
 
-      var nextDirection = sortRoot.dataset.availableCycleSortDirection === "desc" ? "asc" : "desc";
-      sortRoot.dataset.availableCycleSortDirection = nextDirection;
-      sortButton.setAttribute("aria-pressed", nextDirection === "desc" ? "true" : "false");
-
-      var label = sortButton.querySelector("[data-available-cycle-sort-label]");
-      if (label) {
-        label.textContent = nextDirection === "desc" ? sortButton.dataset.labelDesc : sortButton.dataset.labelAsc;
+      var mode = sortButton.dataset.availableCycleSort;
+      var nextDirection;
+      if (sortRoot.dataset.availableCycleSortMode === mode) {
+        nextDirection = sortRoot.dataset.availableCycleSortDirection === "desc" ? "asc" : "desc";
+      } else {
+        nextDirection = sortButton.dataset.firstDirection || "asc";
       }
+
+      sortRoot.dataset.availableCycleSortMode = mode;
+      sortRoot.dataset.availableCycleSortDirection = nextDirection;
+
+      sortRoot.querySelectorAll("[data-available-cycle-sort]").forEach(function (button) {
+        var active = button === sortButton;
+        var buttonDirection = active ? nextDirection : (button.dataset.firstDirection || "asc");
+
+        button.classList.toggle("is-active", active);
+        button.classList.toggle("is-desc", buttonDirection === "desc");
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+
+        var label = button.querySelector("[data-available-cycle-sort-label]");
+        if (label) {
+          label.textContent = buttonDirection === "desc" ? button.dataset.labelDesc : button.dataset.labelAsc;
+        }
+      });
 
       applyFilter(sortRoot);
       return;

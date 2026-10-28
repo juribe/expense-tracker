@@ -4,7 +4,11 @@
 <% remaining_percentage = available_cycle_percentage(@report[:remaining], @report[:current_money]) %>
 <% pending_count = @report[:pending_expenses].size %>
 
-<div class="available-cycle-page" data-available-cycle data-testid="available-cycle">
+<div class="available-cycle-page"
+     data-available-cycle
+     data-testid="available-cycle"
+     data-available-cycle-sort-mode="due_date"
+     data-available-cycle-sort-direction="asc">
   <header class="available-heading">
     <div class="available-heading-main">
       <span class="available-heading-icon" aria-hidden="true"><i class="ti ti-wallet"></i></span>
@@ -113,15 +117,28 @@
                aria-label="<%= t("reports.available_cycle.search_label", default: "Buscar un gasto") %>"
                data-available-cycle-search>
       </label>
-      <button type="button"
-              class="available-sort"
-              data-available-cycle-sort
-              data-label-asc="<%= t("reports.available_cycle.sort_asc", default: "Ordenar por fecha") %>"
-              data-label-desc="<%= t("reports.available_cycle.sort_desc", default: "Fecha inversa") %>"
-              aria-pressed="false">
-        <i class="ti ti-arrows-sort" aria-hidden="true"></i>
-        <span data-available-cycle-sort-label><%= t("reports.available_cycle.sort_asc", default: "Ordenar por fecha") %></span>
-      </button>
+      <div class="available-sorts">
+        <button type="button"
+                class="available-sort is-active"
+                data-available-cycle-sort="due_date"
+                data-first-direction="asc"
+                data-label-asc="<%= t("reports.available_cycle.sort_date_asc", default: "Ordenar por fecha") %>"
+                data-label-desc="<%= t("reports.available_cycle.sort_date_desc", default: "Fecha inversa") %>"
+                aria-pressed="true">
+          <i class="ti ti-arrows-sort" aria-hidden="true"></i>
+          <span data-available-cycle-sort-label><%= t("reports.available_cycle.sort_date_asc", default: "Ordenar por fecha") %></span>
+        </button>
+        <button type="button"
+                class="available-sort"
+                data-available-cycle-sort="missing"
+                data-first-direction="desc"
+                data-label-asc="<%= t("reports.available_cycle.sort_missing_asc", default: "Menor faltante") %>"
+                data-label-desc="<%= t("reports.available_cycle.sort_missing_desc", default: "Mayor faltante") %>"
+                aria-pressed="false">
+          <i class="ti ti-arrows-sort" aria-hidden="true"></i>
+          <span data-available-cycle-sort-label><%= t("reports.available_cycle.sort_missing_desc", default: "Mayor faltante") %></span>
+        </button>
+      </div>
     </div>
 
     <% if @report[:pending_expenses].any? %>
@@ -140,6 +157,7 @@
             <% @report[:pending_expenses].each do |expense| %>
               <tr data-available-cycle-row
                   data-due-date="<%= expense[:due_date]&.iso8601 %>"
+                  data-missing="<%= expense[:missing].to_s("F") %>"
                   data-search="<%= [expense[:name], expense[:category]].compact.join(' ') %>"
                   data-testid="pending-expense-row">
                 <td>

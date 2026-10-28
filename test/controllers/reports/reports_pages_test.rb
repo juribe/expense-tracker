@@ -110,7 +110,8 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-testid=available-cycle]"
     assert_select "[data-available-cycle-search]"
-    assert_select "[data-available-cycle-sort]"
+    assert_select "button[data-available-cycle-sort=due_date]"
+    assert_select "button[data-available-cycle-sort=missing]"
     assert_select "[data-available-cycle-mode=values]"
     assert_select "[data-available-cycle-mode=percent]"
   end
@@ -124,6 +125,7 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-available-cycle-row]", 1
+    assert_select "tr[data-available-cycle-row][data-missing]"
     assert_select ".available-expense-name", text: "Internet"
     assert_select ".available-missing"
     assert_select ".available-due-tag"

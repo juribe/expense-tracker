@@ -33,14 +33,24 @@ class AvailableCycleReportTest < ApplicationSystemTestCase
     assert_equal [ "Internet Servicios" ], visible_rows
     assert_text "1 gasto pendiente"
 
-    find("[data-available-cycle-sort]").click
-    assert_equal "Fecha inversa", find("[data-available-cycle-sort-label]").text
+    find("[data-available-cycle-search]").set("")
+    assert_text "3 gastos pendientes"
+
+    find("button[data-available-cycle-sort='due_date']").click
+    assert_equal "Fecha inversa", find("button[data-available-cycle-sort='due_date'] [data-available-cycle-sort-label]").text
     order = page.evaluate_script(
       "Array.from(document.querySelectorAll('[data-available-cycle-row]')).map((row) => row.dataset.dueDate || 'none')"
     )
     assert_equal "none", order.last
     dated_order = order[0..-2]
     assert_equal dated_order.sort.reverse, dated_order
+
+    find("button[data-available-cycle-sort='missing']").click
+    assert_equal "Mayor faltante", find("button[data-available-cycle-sort='missing'] [data-available-cycle-sort-label]").text
+    missing_order = page.evaluate_script(
+      "Array.from(document.querySelectorAll('[data-available-cycle-row]')).map((row) => parseFloat(row.dataset.missing))"
+    )
+    assert_equal missing_order.sort.reverse, missing_order
 
     page.execute_script(%q{document.querySelector("[data-available-cycle-mode='percent']").click()})
     assert_selector "[data-available-cycle-mode='percent'].is-active"
