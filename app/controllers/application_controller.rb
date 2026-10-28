@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  helper :mailer
   # Shared page size for every paginated list (expenses, expense candidates,
   # applied payments) so pagination behaves consistently app-wide.
   PER_PAGE = 25

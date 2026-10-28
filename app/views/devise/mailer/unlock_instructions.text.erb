@@ -1,0 +1,9 @@
+Desbloquea tu cuenta
+
+¡Hola, <%= MailerHelper.greeting_name(@resource) %>!
+
+<%= t("devise.mailer.unlock_body", default: "Tu cuenta se bloqueó debido a demasiados intentos fallidos de acceso.") %>
+
+<%= t("devise.mailer.unlock_prompt", default: "Haz clic en el enlace de abajo para desbloquear tu cuenta:") %>
+
+<%= t("devise.mailer.unlock_account", default: "Desbloquear mi cuenta") %>: <%= unlock_url(@resource, unlock_token: @token) %>

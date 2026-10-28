@@ -1,7 +1,24 @@
-<p><%= t("devise.mailer.greeting", email: @resource.email, default: "¡Hola %{email}!") %></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+  <tr>
+    <td align="center" style="text-align:center;font-family:Arial,Helvetica,sans-serif;">
+      <h1 align="center" style="margin:0 0 16px;text-align:center;font-size:29px;line-height:1.22;letter-spacing:-1px;font-weight:750;color:#252746;font-family:Arial,Helvetica,sans-serif;">Desbloquea tu cuenta</h1>
+      <p align="center" style="margin:0 0 13px;text-align:center;font-size:16px;line-height:1.6;color:#4F5270;font-family:Arial,Helvetica,sans-serif;">¡Hola, <%= MailerHelper.greeting_name(@resource) %>!</p>
+      <p align="center" style="margin:0 auto 27px;max-width:410px;text-align:center;color:#777B98;font-size:15px;line-height:1.75;font-family:Arial,Helvetica,sans-serif;">
+        <%= t("devise.mailer.unlock_body", default: "Tu cuenta se bloqueó debido a demasiados intentos fallidos de acceso.") %>
+      </p>
+      <p align="center" style="margin:0 auto 27px;max-width:410px;text-align:center;color:#777B98;font-size:15px;line-height:1.75;font-family:Arial,Helvetica,sans-serif;">
+        <%= t("devise.mailer.unlock_prompt", default: "Haz clic en el enlace de abajo para desbloquear tu cuenta:") %>
+      </p>
 
-<p><%= t("devise.mailer.unlock_body", default: "Tu cuenta se bloqueó debido a demasiados intentos fallidos de acceso.") %></p>
-
-<p><%= t("devise.mailer.unlock_prompt", default: "Haz clic en el enlace de abajo para desbloquear tu cuenta:") %></p>
-
-<p><%= link_to t("devise.mailer.unlock_account", default: "Desbloquear mi cuenta"), unlock_url(@resource, unlock_token: @token) %></p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;">
+        <tr>
+          <td align="center" bgcolor="#7867E8" style="background-color:#7867E8;border-radius:12px;">
+            <a href="<%= unlock_url(@resource, unlock_token: @token) %>" style="display:inline-block;min-width:240px;padding:15px 25px;border-radius:12px;background-color:#7867E8;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;font-family:Arial,Helvetica,sans-serif;">
+              <%= t("devise.mailer.unlock_account", default: "Desbloquear mi cuenta") %>
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

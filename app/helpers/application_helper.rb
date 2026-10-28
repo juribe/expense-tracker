@@ -1,4 +1,11 @@
 module ApplicationHelper
+  def greeting_name(resource)
+    MailerHelper.greeting_name(resource)
+  end
+
+  def greeting(resource)
+    MailerHelper.greeting(resource)
+  end
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
   BANK_ICON_TONES = 8
   # Chartkick understands these options natively and uses them to format both
