@@ -67,7 +67,7 @@ test.describe('Credit cards and loans as money sources', () => {
     await expect(page.getByRole('heading', { name })).toBeVisible();
     await expect(page.getByText('Aprobado', { exact: true })).toBeVisible();
     await expect(page.getByText('Usado', { exact: true })).toBeVisible();
-    await expect(page.getByText('Disponible').first()).toBeVisible();
+    await expect(page.getByText('Disponible', { exact: true }).first()).toBeVisible();
     await expect(page.getByText('$20.000.000', { exact: true }).first()).toBeVisible();
     await expect(page.getByText(/Próxima factura el día 15, pago vence el día 30/)).toBeVisible();
   });
