@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793228207.4271674,
-    "seen": 1793228254.601758,
+    "mtime": 1793230442.395566,
+    "seen": 1793230479.144994,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3642,9 +3642,9 @@
     "semantic_hash": ""
   },
   "app/helpers/reports_helper.rb": {
-    "mtime": 1793227687.5468142,
-    "seen": 1793228254.600477,
-    "ast_hash": "e3d040d7342b2643d7046fb06976a635",
+    "mtime": 1793228265.5383868,
+    "seen": 1793229294.086705,
+    "ast_hash": "548bb8dea4e6561f8eabfad8c14f8264",
     "semantic_hash": ""
   },
   "app/services/loans/next_payment.rb": {
@@ -3738,9 +3738,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/reports_pages_test.rb": {
-    "mtime": 1793227745.8741066,
-    "seen": 1793228254.601299,
-    "ast_hash": "57ba2d614e570950938e8414d038b0f2",
+    "mtime": 1793230160.441802,
+    "seen": 1793230479.144518,
+    "ast_hash": "c9f2cbbabec5c9689ae0becb1164acbf",
     "semantic_hash": ""
   },
   "test/services/reports/base_test.rb": {
@@ -5784,9 +5784,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/available_cycle.js": {
-    "mtime": 1793227902.274379,
-    "seen": 1793228254.600252,
-    "ast_hash": "89a295da49546725c9cdb4975178c86b",
+    "mtime": 1793230199.1027625,
+    "seen": 1793230479.14341,
+    "ast_hash": "bb93088f53fa9c0536ab5084e1f8966c",
     "semantic_hash": ""
   },
   "app/controllers/reports/available_cycle_controller.rb": {
@@ -5814,9 +5814,9 @@
     "semantic_hash": ""
   },
   "test/system/available_cycle_report_test.rb": {
-    "mtime": 1793228088.606712,
-    "seen": 1793228254.601701,
-    "ast_hash": "e76d522a2f0440611820652f94d81cd9",
+    "mtime": 1793230167.9821029,
+    "seen": 1793230479.1449332,
+    "ast_hash": "8cb8d95ae0c8054eace5bedf7f0f1c1f",
     "semantic_hash": ""
   }
 }

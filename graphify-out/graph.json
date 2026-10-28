@@ -32248,7 +32248,7 @@
       "file_type": "code",
       "norm_label": ".create_template()",
       "source_file": "test/system/available_cycle_report_test.rb",
-      "source_location": "L53"
+      "source_location": "L63"
     },
     {
       "id": "test_system_available_cycle_report_test_availablecyclereporttest_sign_in",
@@ -32260,7 +32260,7 @@
       "file_type": "code",
       "norm_label": ".sign_in()",
       "source_file": "test/system/available_cycle_report_test.rb",
-      "source_location": "L61"
+      "source_location": "L71"
     },
     {
       "id": "test_system_bank_setup_wizard_test_banksetupwizardsystemtest_add_chip",
@@ -50140,7 +50140,7 @@
       "file_type": "code",
       "norm_label": "applyfilter()",
       "source_file": "app/assets/javascripts/available_cycle.js",
-      "source_location": "L44"
+      "source_location": "L52"
     },
     {
       "id": "app_assets_javascripts_available_cycle_rootfor",
@@ -89181,7 +89181,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/available_cycle.js",
-      "source_location": "L47",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -89193,7 +89193,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/available_cycle.js",
-      "source_location": "L54",
+      "source_location": "L62",
       "weight": 1.0
     },
     {
@@ -89205,7 +89205,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/available_cycle.js",
-      "source_location": "L59",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -132334,17 +132334,6 @@
     },
     {
       "source": "app_assets_javascripts_available_cycle",
-      "target": "app_assets_javascripts_available_cycle_applyfilter",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/assets/javascripts/available_cycle.js",
-      "source_location": "L44",
-      "weight": 1.0
-    },
-    {
-      "source": "app_assets_javascripts_available_cycle",
       "target": "app_assets_javascripts_available_cycle_rootfor",
       "relation": "contains",
       "_origin": "ast",
@@ -132352,6 +132341,17 @@
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/available_cycle.js",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "app_assets_javascripts_available_cycle",
+      "target": "app_assets_javascripts_available_cycle_applyfilter",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/assets/javascripts/available_cycle.js",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -199330,7 +199330,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/available_cycle_report_test.rb",
-      "source_location": "L53",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -199341,7 +199341,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/available_cycle_report_test.rb",
-      "source_location": "L61",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -205326,5 +205326,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "4e80f9f23452850601bdb2e40cf77e6ea0adc408"
+  "built_at_commit": "f35b5f7bd26a0e3b76c9951d9a616633f5ab56fa"
 }
