@@ -14,7 +14,14 @@
     <nav class="sidebar-nav">
       <ul id="sidebarnav" class="mb-0">
 
-        <%# Candidatos (al inicio) %>
+        <%# Inicio %>
+        <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_home", default: "Inicio") %></span></li>
+        <li class="sidebar-item">
+          <%= link_to dashboard_path, class: "sidebar-link #{active_class('dashboard')}" do %>
+            <span class="aside-icon p-2 bg-primary-subtle rounded-1"><i class="ti ti-layout-dashboard fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.dashboard") %></span>
+          <% end %>
+        </li>
         <li class="sidebar-item">
           <%= link_to expense_candidates_path, class: "sidebar-link #{active_class('expense_candidates')}" do %>
             <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-inbox fs-5"></i></span>
@@ -23,15 +30,6 @@
             <% if pending_count.positive? %>
               <span class="badge bg-warning text-dark rounded-pill ms-auto"><%= pending_count %></span>
             <% end %>
-          <% end %>
-        </li>
-
-        <%# Inicio %>
-        <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_home", default: "Inicio") %></span></li>
-        <li class="sidebar-item">
-          <%= link_to dashboard_path, class: "sidebar-link #{active_class('dashboard')}" do %>
-            <span class="aside-icon p-2 bg-primary-subtle rounded-1"><i class="ti ti-layout-dashboard fs-5"></i></span>
-            <span class="hide-menu"><%= t("nav.dashboard") %></span>
           <% end %>
         </li>
         <li class="sidebar-item">
