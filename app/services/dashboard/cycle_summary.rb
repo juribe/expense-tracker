@@ -239,16 +239,22 @@ class Dashboard::CycleSummary
   def upcoming_payments
     templates = RecurringTemplate.for_user(@user).expense.active.where.not(payment_day: nil)
 
-    templates.map do |template|
-      next_date = self.class.next_occurrence_date(template.payment_day)
-      next unless next_date <= Date.current + UPCOMING_DAYS
+    templates.filter_map do |template|
+      next_date = self.class.next_occurrence_date(template.payment_day, from: @span.first)
+      paid_amount = recurring_payments_by_template.fetch(template.id, 0)
+      paid = paid_amount >= template.amount.to_d
+
+      # Show payments of this cycle even when they have already been paid, but
+      # do not turn overdue unpaid payments into "upcoming" items.
+      next unless @span.cover?(next_date) && (next_date >= Date.current || paid)
 
       {
         template: template,
         label: template.description.presence || template.category.name,
         amount: template.amount,
-        next_date: next_date
+        next_date: next_date,
+        paid: paid
       }
-    end.compact.sort_by { |payment| payment[:next_date] }
+    end.sort_by { |payment| payment[:next_date] }
   end
 end

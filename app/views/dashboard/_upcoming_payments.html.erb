@@ -15,7 +15,11 @@
           </div>
           <div class="text-end">
             <span class="small fw-bold num d-block"><%= number_to_currency(payment[:amount]) %></span>
-            <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger small"><%= t("dashboard.pending", default: "Pendiente") %></span>
+            <% if payment[:paid] %>
+              <span class="badge rounded-pill bg-success bg-opacity-10 text-success small"><%= t("dashboard.paid", default: "Pagado") %></span>
+            <% else %>
+              <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger small"><%= t("dashboard.pending", default: "Pendiente") %></span>
+            <% end %>
           </div>
         </div>
       <% end %>
