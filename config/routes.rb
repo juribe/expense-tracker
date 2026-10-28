@@ -161,6 +161,7 @@ Rails.application.routes.draw do
     get "/transfers", to: "reports/transfers#index", as: :transfers
     get "/insights", to: "reports/insights#index", as: :insights
     get "/transactions", to: "reports/transactions#index", as: :transactions
+    get "/available_cycle", to: "reports/available_cycle#index", as: :available_cycle
   end
 
   post "imports/upload", to: "imports#upload", as: :import_upload

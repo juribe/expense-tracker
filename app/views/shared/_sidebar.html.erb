@@ -147,6 +147,7 @@
           </a>
           <ul class="collapse <%= 'show' if reports_section_active? %> first-level" id="reportsSubmenu">
             <li class="sidebar-item"><%= link_to reports_overview_path, class: "sidebar-link #{exact_active_class('reports/overview')}" do %><span class="hide-menu"><%= t("reports.nav.overview") %></span><% end %></li>
+            <li class="sidebar-item"><%= link_to reports_available_cycle_path, class: "sidebar-link #{exact_active_class('reports/available_cycle')}" do %><span class="hide-menu"><%= t("reports.nav.available_cycle", default: "Disponible del ciclo") %></span><% end %></li>
             <li class="sidebar-item"><%= link_to reports_by_category_path, class: "sidebar-link #{exact_active_class('reports/category_spending')}" do %><span class="hide-menu"><%= t("reports.nav.by_category") %></span><% end %></li>
             <li class="sidebar-item"><%= link_to reports_trends_path, class: "sidebar-link #{exact_active_class('reports/spending_trend')}" do %><span class="hide-menu"><%= t("reports.nav.trends") %></span><% end %></li>
             <li class="sidebar-item"><%= link_to reports_budgets_path, class: "sidebar-link #{exact_active_class('reports/budgets')}" do %><span class="hide-menu"><%= t("reports.nav.budgets") %></span><% end %></li>

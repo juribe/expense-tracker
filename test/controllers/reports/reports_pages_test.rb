@@ -105,6 +105,12 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert scripts.any? { |src| src.include?("reports") && src.end_with?(".js") || src.include?("reports-") }
   end
 
+  test "GET /reports/available_cycle renders" do
+    get reports_available_cycle_path
+    assert_response :success
+    assert_select "[data-testid=available-cycle]"
+  end
+
   test "GET /reports/transactions renders drill-down with filters" do
     @user.expenses.create!(amount: -100_000, date: Date.current, category: @category, money_source: @bank, description: "coffee")
 
