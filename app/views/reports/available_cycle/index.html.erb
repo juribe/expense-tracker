@@ -207,10 +207,14 @@
       </div>
     </div>
 
-    <div class="available-summary-current-track" aria-hidden="true">
-      <span class="available-summary-current-fill"></span>
-    </div>
-    <div class="available-summary-bar <%= @report[:remaining].negative? ? 'is-deficit' : '' %>" aria-hidden="true">
+    <%# The bar itself is the current money (base, 100%); the por-pagar and
+        remaining segments are carved out of it, so shares never exceed the
+        money they were computed from. %>
+    <div class="available-summary-bar <%= @report[:remaining].negative? ? 'is-deficit' : '' %>"
+         role="img"
+         title="<%= t("reports.available_cycle.summary_bar_title", default: "Toda la barra equivale a tu dinero actual") %>"
+         aria-label="<%= t("reports.available_cycle.summary_bar_label", default: "Distribución de tu dinero actual entre lo que falta por pagar y lo que queda") %>">
+      <span class="available-summary-base"></span>
       <span class="available-summary-due et-w-<%= pending_share %>"></span>
       <span class="available-summary-left et-w-<%= remaining_share %>"></span>
     </div>

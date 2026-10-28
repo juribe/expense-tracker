@@ -129,6 +129,16 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select ".available-due-tag"
   end
 
+  test "GET /reports/available_cycle renders a single cycle summary bar" do
+    get reports_available_cycle_path
+
+    assert_response :success
+    assert_select ".available-summary-bar .available-summary-base"
+    assert_select ".available-summary-bar .available-summary-due"
+    assert_select ".available-summary-bar .available-summary-left"
+    assert_select ".available-summary-current-track", 0
+  end
+
   test "GET /reports/transactions renders drill-down with filters" do
     @user.expenses.create!(amount: -100_000, date: Date.current, category: @category, money_source: @bank, description: "coffee")
 
