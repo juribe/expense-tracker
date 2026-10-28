@@ -1,9 +1,5 @@
 class ApplicationController < ActionController::Base
   helper :mailer
-
-  def default_url_options
-    { host: (Rails.application.config.action_mailer.default_url_options&.fetch(:host, request.host) rescue "example.com") }
-  end
   # Shared page size for every paginated list (expenses, expense candidates,
   # applied payments) so pagination behaves consistently app-wide.
   PER_PAGE = 25

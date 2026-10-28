@@ -4,7 +4,7 @@ class ApplicationMailer < ActionMailer::Base
   layout "mailer"
 
   def default_url_options
-    { host: (Rails.application.config.action_mailer.default_url_options&.fetch(:host, "example.com") || "example.com") }
+    Rails.application.config.action_mailer.default_url_options || { host: "localhost", port: 3000 }
   end
 
   def greeting_name(resource)

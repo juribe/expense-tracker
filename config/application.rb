@@ -23,7 +23,6 @@ module ExpenseTracker
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
     config.time_zone = "America/Bogota"
-    config.action_mailer.default_url_options = { host: "example.com" } if Rails.env.test?
 
     # Use UUID primary keys for all new generated tables.
     config.generators do |g|
