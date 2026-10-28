@@ -247,21 +247,17 @@ Income.create!(user: @user, category: @income_category, amount: 10_000_000, date
     assert_equal [ soon.id ], result[:upcoming_payments].map { |p| p[:template].id }
     assert_in_delta 820_000, result[:upcoming_payments].first[:amount], 0.01
     assert_equal Date.current + 3, result[:upcoming_payments].first[:next_date]
-    assert_not result[:upcoming_payments].first[:paid]
   end
 
-  test "upcoming payments includes cycle payments already made" do
+  test "upcoming payments hides payments already made in the cycle" do
     template = @user.recurring_templates.create!(kind: "expense", amount: 500_000, category: @category, description: "Servicio",
-                                                frequency: "monthly", payment_day: 24, source: "manual", active: true)
-    Expense.create!(user: @user, category: @category, amount: 500_000, date: Date.new(2026, 10, 24),
+                                                frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: true)
+    Expense.create!(user: @user, category: @category, amount: 500_000, date: Date.current + 3,
                     description: "Servicio", money_source: @money_source, recurring_template_id: template.id)
 
     result = summary
 
-    payment = result[:upcoming_payments].find { |item| item[:template].id == template.id }
-    assert payment
-    assert_equal Date.new(2026, 10, 24), payment[:next_date]
-    assert payment[:paid]
+    assert_not result[:upcoming_payments].any? { |payment| payment[:template].id == template.id }
   end
 
   test "next_occurrence_date clamps payment days beyond the month end" do
