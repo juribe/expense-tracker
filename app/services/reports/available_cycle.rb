@@ -6,7 +6,7 @@
 #
 # Example: Reports::AvailableCycle.new(user: user).call
 class Reports::AvailableCycle
-  CURRENT_MONEY_KINDS = %w[account cash].freeze
+  CURRENT_MONEY_KINDS = %w[account cash wallet].freeze
 
   attr_reader :user
 
