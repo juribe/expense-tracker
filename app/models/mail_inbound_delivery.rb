@@ -27,11 +27,27 @@ class MailInboundDelivery < ApplicationRecord
     update!(status: "handling", attempts: attempts + 1, last_error: nil)
   end
 
+  # A handled delivery no longer needs the raw MIME or provider payload: the
+  # normalized message lives in the linked ProcessedEmail. Routing and dedup
+  # columns (provider, external_id, user, status) stay intact.
   def handled!(processed_email)
-    update!(status: "handled", processed_email: processed_email, processed_at: Time.current, last_error: nil)
+    update!(
+      status: "handled",
+      processed_email: processed_email,
+      processed_at: Time.current,
+      last_error: nil,
+      raw_body: nil,
+      headers: {},
+      params: {}
+    )
   end
 
   def failed!(error)
     update!(status: "failed", last_error: error.to_s.truncate(500), processed_at: Time.current)
+  end
+
+  # Drops stored email content without changing the delivery lifecycle state.
+  def purge_email_content!
+    update_columns(raw_body: nil, headers: {}, params: {}, updated_at: Time.current)
   end
 end

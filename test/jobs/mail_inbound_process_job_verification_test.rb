@@ -28,5 +28,6 @@ class MailInboundProcessJobVerificationTest < ActiveJob::TestCase
     email.reload
     assert_equal "ignored", email.status
     assert @user.email_forwarding_verifications.exists?
+    assert_nil email.payload_data["email"]
   end
 end

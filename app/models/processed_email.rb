@@ -31,6 +31,19 @@ class ProcessedEmail < ApplicationRecord
     {}
   end
 
+  # Removes the normalized email from the payload once it has been processed.
+  # Derived data needed later (subject/transactions of a needs_review row) is
+  # preserved. Idempotent and safe for Gmail rows, which never store the email.
+  def purge_email_content!
+    return if payload.blank?
+
+    data = payload_data
+    return unless data.key?("email")
+
+    data.delete("email")
+    update_columns(payload: data.presence && JSON.generate(data), updated_at: Time.current)
+  end
+
   def failed?
     status == "failed"
   end

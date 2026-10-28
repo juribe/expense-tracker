@@ -61,6 +61,9 @@ class MailInboundHandleJobTest < ActiveJob::TestCase
     assert_equal "queued", @delivery.processed_email.status
     assert_equal "cloudflare", @delivery.processed_email.provider
     assert_equal @delivery.external_id, @delivery.processed_email.payload_data.dig("email", "id")
+    assert_nil @delivery.raw_body
+    assert_equal({}, @delivery.headers)
+    assert_equal({}, @delivery.params)
   end
 
   test "marks a permanent parse failure as failed without processing" do
@@ -74,6 +77,25 @@ class MailInboundHandleJobTest < ActiveJob::TestCase
 
     assert_equal "failed", @delivery.reload.status
     assert_match(/empty|parse/i, @delivery.last_error)
+  end
+
+  test "purges stored content on a permanent failure" do
+    fake_service = Object.new
+    fake_service.define_singleton_method(:handle_email) do |_delivery|
+      raise MailInbound::InvalidPayload, "unsupported payload"
+    end
+
+    with_env do
+      stub_method(MailInboundService, :new, ->(*, **) { fake_service }) do
+        MailInboundHandleJob.perform_now(@delivery.id)
+      end
+    end
+
+    @delivery.reload
+    assert_equal "failed", @delivery.status
+    assert_nil @delivery.raw_body
+    assert_equal({}, @delivery.headers)
+    assert_equal({}, @delivery.params)
   end
 
   test "retries provider failures and leaves an observable failure" do
@@ -94,5 +116,42 @@ class MailInboundHandleJobTest < ActiveJob::TestCase
 
     assert_equal "failed", @delivery.reload.status
     assert_match(/upstream down/, @delivery.last_error)
+    assert @delivery.raw_body.present?
+    assert @delivery.headers.present?
+  end
+
+  test "purges leftover content when a handled delivery is re-enqueued" do
+    processed = ProcessedEmail.create!(
+      user: @user, provider: "cloudflare", message_id: "handle-job-replayed", status: "queued"
+    )
+    @delivery.update!(status: "handled", processed_email: processed)
+
+    MailInboundHandleJob.perform_now(@delivery.id)
+
+    @delivery.reload
+    assert_nil @delivery.raw_body
+    assert_equal({}, @delivery.headers)
+    assert_equal({}, @delivery.params)
+  end
+
+  test "purges stored content after the final retry" do
+    fake_service = Object.new
+    fake_service.define_singleton_method(:handle_email) do |_delivery|
+      raise MailInbound::ProviderError, "upstream down"
+    end
+
+    with_env do
+      stub_method(MailInboundService, :new, ->(*, **) { fake_service }) do
+        job = MailInboundHandleJob.new(@delivery.id)
+        job.exception_executions = { "[StandardError]" => 4 }
+        job.perform_now
+      end
+    end
+
+    @delivery.reload
+    assert_equal "failed", @delivery.status
+    assert_nil @delivery.raw_body
+    assert_equal({}, @delivery.headers)
+    assert_equal({}, @delivery.params)
   end
 end

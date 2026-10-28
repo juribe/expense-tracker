@@ -54,4 +54,38 @@ class MailInboundDeliveryTest < ActiveSupport::TestCase
     assert_equal "failed", @delivery.status
     assert_equal "boom", @delivery.last_error
   end
+
+  test "handled! removes the raw email while keeping routing data" do
+    @delivery.headers = { "from" => "bank@example.com" }
+    @delivery.params = { "body" => "Compra" }
+    @delivery.save!
+    processed = ProcessedEmail.create!(
+      user: @user, provider: "cloudflare", message_id: "abc123", status: "queued"
+    )
+
+    @delivery.handled!(processed)
+
+    @delivery.reload
+    assert_nil @delivery.raw_body
+    assert_equal({}, @delivery.headers)
+    assert_equal({}, @delivery.params)
+    assert_equal "abc123", @delivery.external_id
+    assert_equal processed, @delivery.processed_email
+    assert_equal "handled", @delivery.status
+  end
+
+  test "purge_email_content! clears stored content and is idempotent" do
+    @delivery.headers = { "from" => "bank@example.com" }
+    @delivery.params = { "body" => "Compra" }
+    @delivery.save!
+
+    @delivery.purge_email_content!
+    @delivery.purge_email_content!
+
+    @delivery.reload
+    assert_nil @delivery.raw_body
+    assert_equal({}, @delivery.headers)
+    assert_equal({}, @delivery.params)
+    assert_equal "abc123", @delivery.external_id
+  end
 end

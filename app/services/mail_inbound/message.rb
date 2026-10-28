@@ -18,7 +18,10 @@ module MailInbound
     :user
   ) do
     def to_payload
-      to_h.merge(id: external_id).deep_stringify_keys.as_json
+      # The user is the processing owner, not part of the email; serializing it
+      # would persist account data (including the inbound token) in the job
+      # payload.
+      to_h.except(:user).merge(id: external_id).deep_stringify_keys.as_json
     end
   end
 end

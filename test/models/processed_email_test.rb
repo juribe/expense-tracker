@@ -57,6 +57,41 @@ class ProcessedEmailTest < ActiveSupport::TestCase
     assert_equal({ "transactions" => [ { "amount" => 100 } ] }, @email.payload_data)
   end
 
+  test "purge_email_content! removes the stored email and keeps review data" do
+    @email.payload = JSON.generate(
+      "email" => { "subject" => "Compra", "body_text" => "Detalle", "html" => "<p>Detalle</p>" },
+      "subject" => "Compra",
+      "transactions" => [ { "amount" => 100 } ]
+    )
+    @email.save!
+
+    @email.purge_email_content!
+
+    @email.reload
+    assert_nil @email.payload_data["email"]
+    assert_equal "Compra", @email.payload_data["subject"]
+    assert_equal [ { "amount" => 100 } ], @email.payload_data["transactions"]
+  end
+
+  test "purge_email_content! clears the payload when only the email remains" do
+    @email.payload = JSON.generate("email" => { "body_text" => "Detalle" })
+    @email.save!
+
+    @email.purge_email_content!
+
+    assert_nil @email.reload.payload
+  end
+
+  test "purge_email_content! is idempotent and ignores payloads without email" do
+    @email.payload = JSON.generate("subject" => "Compra", "transactions" => [])
+    @email.save!
+
+    @email.purge_email_content!
+    @email.purge_email_content!
+
+    assert_equal({ "subject" => "Compra", "transactions" => [] }, @email.reload.payload_data)
+  end
+
   test "scopes filter by status" do
     @email.status = "needs_review"
     @email.save!
