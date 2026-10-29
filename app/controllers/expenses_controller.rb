@@ -290,7 +290,7 @@ relation = relation.includes(:category) if request.format.html?
   end
 
   def filter_query
-    params.permit(:category_id, :start_date, :end_date, :min_amount, :max_amount, :money_source_id).to_h
+    params.permit(:q, :category_id, :start_date, :end_date, :min_amount, :max_amount, :money_source_id).to_h
   end
 
   def redirect_params
@@ -306,7 +306,7 @@ relation = relation.includes(:category) if request.format.html?
   # money_source_id) never collide with the preserved filter values.
   def bulk_update_state
     request.query_parameters.slice(
-      "category_id", "money_source_id", "start_date", "end_date",
+      "q", "category_id", "money_source_id", "start_date", "end_date",
       "min_amount", "max_amount", "sort", "dir", "page"
     ).compact_blank
   end

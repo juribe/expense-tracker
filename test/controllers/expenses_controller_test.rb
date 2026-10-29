@@ -130,6 +130,27 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "Mid"
   end
 
+  test "GET /expenses filters by description text and keeps it in the filter state" do
+    create_expense(amount: 12.50, date: Date.today, description: "Café con leche")
+    create_expense(amount: 9.00, date: Date.today, description: "Bus")
+
+    get expenses_path, params: { q: "café" }
+
+    assert_response :success
+    assert_select "tr[data-testid=row]", count: 1
+    assert_select "td", text: "Café con leche"
+    assert_select "input[name=q][value='café']"
+    assert_select "a[data-testid=chip-q]"
+    # Sorting must not drop the text search.
+    assert_select "a[data-testid=sort-amount][href*='q=caf']"
+  end
+
+  test "DELETE /expenses/:id preserves the text search" do
+    expense = create_expense(amount: 12.50, date: Date.today)
+    delete expense_path(expense), params: { q: "lunch" }
+    assert_redirected_to expenses_path(q: "lunch")
+  end
+
   test "GET /expenses filters by date range" do
     create_expense(amount: 10.00, date: Date.new(2026, 1, 10), description: "Old")
     create_expense(amount: 20.00, date: Date.new(2026, 3, 15), description: "Rent")

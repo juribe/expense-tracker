@@ -34,6 +34,7 @@ module ExpensesHelper
 
   def filter_params
     {
+      q: params[:q],
       category_id: params[:category_id],
       start_date: params[:start_date],
       end_date: params[:end_date],
@@ -43,7 +44,7 @@ module ExpensesHelper
   end
 
   def sort_params
-    filter_params.slice(:category_id, :start_date, :end_date, :min_amount, :max_amount)
+    filter_params.slice(:q, :category_id, :start_date, :end_date, :min_amount, :max_amount)
   end
 
   def page_params

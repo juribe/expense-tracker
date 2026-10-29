@@ -121,6 +121,7 @@ module Expenses
 
     def apply_filters(scope)
       scope = scope.where(date: @period_range) if @period_range
+      scope = scope.where("transactions.description ILIKE ?", "%#{like_term}%") if text_search.present?
       scope = scope.in_category(params[:category_id]) if params[:category_id].present?
       scope = scope.where("date >= ?", params[:start_date]) if params[:start_date].present?
       scope = scope.where("date <= ?", params[:end_date]) if params[:end_date].present?
@@ -128,6 +129,17 @@ module Expenses
       scope = scope.where("ABS(amount) <= ?", money_value(params[:max_amount])) if params[:max_amount].present?
       scope = scope.where(money_source_id: params[:money_source_id]) if params[:money_source_id].present?
       scope
+    end
+
+    # Free-text search over the description. Surrounding whitespace is
+    # ignored and LIKE wildcards are escaped so a literal "%" or "_" typed by
+    # the user matches itself instead of widening the query.
+    def text_search
+      params[:q].to_s.strip
+    end
+
+    def like_term
+      text_search.gsub(/[\\%_]/) { |char| "\\#{char}" }
     end
 
     def apply_sort(scope)

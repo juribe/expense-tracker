@@ -872,6 +872,8 @@ en:
 
   expenses:
     automatic_rules: "Auto-categorize"
+    search_label: "Description"
+    search_placeholder: "Search by description…"
 
     assign_recurring:
       row_button_aria: "Assign to recurring template: %{description}"

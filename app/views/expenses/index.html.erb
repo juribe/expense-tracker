@@ -53,6 +53,17 @@
             <%= f.collection_select :money_source_id, @money_sources, :id, :display_name, { include_blank: t("expenses.all_sources"), selected: params[:money_source_id] } %>
           </div>
         </div>
+        <div class="col-md-4 expenses-field">
+          <%= f.label :q, t("expenses.search_label"), class: "form-label" %>
+          <div class="expenses-control">
+            <%= f.search_field :q,
+                               value: params[:q],
+                               placeholder: t("expenses.search_placeholder"),
+                               class: "form-control",
+                               autocomplete: "off",
+                               data: { testid: "expense-search" } %>
+          </div>
+        </div>
         <div class="col-md-2 expenses-field">
           <%= f.label :start_date, t("expenses.from"), class: "form-label" %>
           <div class="expenses-control">
@@ -99,7 +110,7 @@
                              data: { money_input: true } %>
           </div>
         </div>
-        <div class="col-md-6 d-flex align-items-end">
+        <div class="col-md-4 d-flex align-items-end">
           <div class="expenses-filter-actions">
             <%= f.submit t("expenses.apply_filters"), class: "btn btn-outline-primary" %>
             <%= link_to t("expenses.clear_filters"), expenses_path, class: "btn btn-outline-secondary" %>
@@ -116,7 +127,7 @@
 
       <% if filter_params.any? { |_k, v| v.present? } %>
         <div id="chips" class="mt-3">
-          <% { category_id: t("common.category"), money_source_id: t("expenses.source_label"), start_date: t("expenses.from"), end_date: t("expenses.to"), min_amount: t("expenses.min_amount_label"), max_amount: t("expenses.max_amount_label") }.each do |key, label| %>
+          <% { q: t("expenses.search_label"), category_id: t("common.category"), money_source_id: t("expenses.source_label"), start_date: t("expenses.from"), end_date: t("expenses.to"), min_amount: t("expenses.min_amount_label"), max_amount: t("expenses.max_amount_label") }.each do |key, label| %>
             <% value = params[key] %>
             <% next if value.blank? %>
             <% chip_label = key == :category_id ? @categories.find { |c| c.id.to_s == value.to_s }&.name : key == :money_source_id ? @money_sources.find { |s| s.id.to_s == value.to_s }&.name : value %>

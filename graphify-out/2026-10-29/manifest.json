@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793285643.3552606,
-    "seen": 1793288239.781087,
-    "ast_hash": "35b79f7ea00f69da2ef550bafd4e3363",
+    "mtime": 1793305176.5370588,
+    "seen": 1793305397.4332879,
+    "ast_hash": "dee646d3431ed968eef14043880c63ca",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expenses_controller_test.rb": {
-    "mtime": 1793032083.3439903,
-    "seen": 1793032590.958955,
-    "ast_hash": "b50cba7fa32889b35003a0c2ba037549",
+    "mtime": 1793305012.463799,
+    "seen": 1793305397.4334269,
+    "ast_hash": "6fcb7ede7c33de9e556181a0ff326648",
     "semantic_hash": ""
   },
   "test/controllers/financial_setups_controller_test.rb": {
@@ -780,9 +780,9 @@
     "semantic_hash": "4e9fe7974e10fc547acff04c6aa70b05"
   },
   "test/controllers/transfers_controller_test.rb": {
-    "mtime": 1792851509.3072326,
-    "seen": 1792857266.809066,
-    "ast_hash": "6cd5dc750ea1492e45ea496b241fada2",
+    "mtime": 1793305007.881945,
+    "seen": 1793305397.433472,
+    "ast_hash": "75cb600955c667dac9370672d5fd9666",
     "semantic_hash": ""
   },
   "test/helpers/application_helper_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1793287202.621586,
-    "seen": 1793288239.781688,
-    "ast_hash": "1950f9128efbb2e67a8e50b75227d236",
+    "mtime": 1793305592.9901204,
+    "seen": 1793305888.8780968,
+    "ast_hash": "a0e37764640877a1e297eeaef542c52d",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793295803.761335,
-    "seen": 1793296203.060616,
-    "ast_hash": "f617ec6a6c445231b5d72eef2e5cf87e",
+    "mtime": 1793305592.9902234,
+    "seen": 1793305888.878099,
+    "ast_hash": "466624b3e13ea17c55eee8730e34bc8b",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793303557.5540576,
-    "seen": 1793304000.1714408,
+    "mtime": 1793305657.7323835,
+    "seen": 1793305888.8781052,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "test/controllers/alert_settings_controller_test.rb": {
-    "mtime": 1788722062.8511987,
-    "seen": 1792857266.80901,
-    "ast_hash": "5d90069d3c4027f84bdf889447a1cc14",
+    "mtime": 1793305579.62142,
+    "seen": 1793305888.8776078,
+    "ast_hash": "f1ef3ff937c8da3f2c782f6b8cdf8ab0",
     "semantic_hash": ""
   },
   "test/controllers/alerts_controller_test.rb": {
@@ -5859,6 +5859,12 @@
     "mtime": 1793295223.9682138,
     "seen": 1793295744.708072,
     "ast_hash": "a4a5dc98a00b1fe465478e2127aac319",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261029120000_cascade_credit_extra_payments_on_source_deletion.rb": {
+    "mtime": 1793305098.2916064,
+    "seen": 1793305397.433284,
+    "ast_hash": "f079e0ccf5baa4b08cce95c289400217",
     "semantic_hash": ""
   }
 }

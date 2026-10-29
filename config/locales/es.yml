@@ -1464,6 +1464,8 @@ es:
     source_label: "Fuente de dinero"
     filter_heading: "Filtrar gastos"
     filter_caption: "Combina filtros para encontrar un gasto específico."
+    search_label: "Descripción"
+    search_placeholder: "Buscar por descripción…"
     apply_filters: "Filtrar gastos"
     amount_hint: "(COP)"
     min_placeholder: "Sin mínimo"

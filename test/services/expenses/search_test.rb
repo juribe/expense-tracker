@@ -86,6 +86,24 @@ module Expenses
       assert_equal [ "Transporte" ], descriptions_of(result)
     end
 
+    test "filters by description text ignoring case" do
+      result = search(q: "cena")
+      assert_equal [ "Cena" ], descriptions_of(result)
+      assert_equal 1, result.total_count
+    end
+
+    test "trims the text search and returns everything when blank" do
+      assert_equal 3, search(q: "   ").total_count
+      assert_equal [ "Cena" ], descriptions_of(search(q: "  cena  "))
+    end
+
+    test "treats LIKE wildcards in the text search literally" do
+      create_expense(description: "Dcto 100% real")
+      create_expense(description: "Dcto 1000 real")
+
+      assert_equal [ "Dcto 100% real" ], descriptions_of(search(q: "100%"))
+    end
+
     test "applies amount filters with comma thousand separators" do
       result = search(min_amount: "70,000")
       assert_equal [ "Cena" ], descriptions_of(result)

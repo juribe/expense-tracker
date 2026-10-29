@@ -65,4 +65,25 @@ test.describe('expense pages are working', () => {
     await expect(page.getByText('El gasto se eliminó correctamente.')).toBeVisible();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(0);
   });
+
+  test('user can search expenses by description text', async ({ page }) => {
+    for (const description of [ 'Cafe con leche', 'Bus ticket' ]) {
+      await page.goto('/expenses/new');
+      await fillExpense(page, '10.00', '25/10/2023', description);
+      await page.getByRole('button', { name: 'Guardar' }).click();
+      await expect(page.locator('#expenseTable td.desc-cell').filter({ hasText: description })).toHaveCount(1);
+    }
+
+    await page.goto('/expenses');
+    await page.getByTestId('expense-search').fill('cafe');
+    await page.getByRole('button', { name: 'Filtrar gastos' }).click();
+
+    await expect(page).toHaveURL(/q=cafe/);
+    await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(1);
+    await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Cafe con leche');
+
+    // Removing the text chip brings the full list back.
+    await page.getByTestId('chip-q').click();
+    await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(2);
+  });
 });
