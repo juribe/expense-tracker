@@ -75,8 +75,11 @@ test.describe('expense pages are working', () => {
     }
 
     await page.goto('/expenses');
+    // Filters start collapsed: expand the panel before searching.
+    await expect(page.getByTestId('filter-panel')).toBeHidden();
+    await page.getByTestId('filter-toggle').click();
     await page.getByTestId('expense-search').fill('cafe');
-    await page.getByRole('button', { name: 'Filtrar gastos' }).click();
+    await page.getByTestId('filter-form').getByRole('button', { name: 'Filtrar gastos' }).click();
 
     await expect(page).toHaveURL(/q=cafe/);
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(1);
@@ -85,5 +88,21 @@ test.describe('expense pages are working', () => {
     // Removing the text chip brings the full list back.
     await page.getByTestId('chip-q').click();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(2);
+  });
+
+  test('filters start collapsed and keep their values when toggled', async ({ page }) => {
+    await page.goto('/expenses');
+
+    await expect(page.getByTestId('filter-panel')).toBeHidden();
+    await page.getByTestId('filter-toggle').click();
+    await expect(page.getByTestId('filter-panel')).toBeVisible();
+    await page.getByTestId('expense-search').fill('cafe');
+
+    await page.getByTestId('filter-toggle').click();
+    await expect(page.getByTestId('filter-panel')).toBeHidden();
+    await expect(page).toHaveURL(/\/expenses$/);
+
+    await page.getByTestId('filter-toggle').click();
+    await expect(page.getByTestId('expense-search')).toHaveValue('cafe');
   });
 });

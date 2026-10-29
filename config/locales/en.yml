@@ -874,6 +874,23 @@ en:
     automatic_rules: "Auto-categorize"
     search_label: "Description"
     search_placeholder: "Search by description…"
+    filter_heading: "Filter expenses"
+    filter_caption: "Combine filters to find a specific expense."
+    filter_summary_count:
+      one: "%{count} filter applied"
+      other: "%{count} filters applied"
+    ai_title: "Your expense assistant"
+    ai_badge: "With AI"
+    ai_subtitle: "Log your expenses in seconds. The AI takes care of organizing them."
+    ai_examples_label: "Expense examples"
+    ai_helper: "Detects amounts, categories, dates and money sources."
+    ai_review_subtitle: "Review the details before saving them."
+    ai_detected_by: "Detected by AI"
+    ai_found_count:
+      one: "The AI found 1 movement"
+      other: "The AI found %{count} movements"
+    ai_detect: "Detect expenses with AI"
+    ai_detected_title: "Review your expenses"
 
     assign_recurring:
       row_button_aria: "Assign to recurring template: %{description}"

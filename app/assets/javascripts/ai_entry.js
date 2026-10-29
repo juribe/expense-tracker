@@ -23,7 +23,19 @@ function initializeAiEntry() {
   var modalEl = $("#aiPreviewModal");
   var rowsEl = $("#aiPreviewRows");
   var totalEl = $("#aiPreviewTotal");
+  var badgeEl = $("#aiDetectedBadge");
   var errorEl = $("#aiPreviewError");
+
+  // Example chips only fill the textarea. Detection stays on the regular
+  // submit button so the user always confirms before calling the AI.
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ai-example]"), function (button) {
+    if (button.dataset.exampleBound === "true") return;
+    button.dataset.exampleBound = "true";
+    button.addEventListener("click", function () {
+      textarea.value = button.dataset.aiExample || "";
+      textarea.focus();
+    });
+  });
 
   function csrfToken() {
     var meta = document.querySelector('meta[name="csrf-token"]');
@@ -43,7 +55,7 @@ function initializeAiEntry() {
   function money(value) {
     var n = Number(value);
     if (!isFinite(n)) n = 0;
-    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    return "$" + n.toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   }
 
   function todayISO() {
@@ -151,16 +163,39 @@ function initializeAiEntry() {
   function buildRow(expense) {
     expense = expense || {};
     var row = document.createElement("div");
-    row.className = "card mb-2 ai-expense-row";
+    row.className = "ai-expense-row";
     row.setAttribute("data-testid", "ai-row");
-    if (expense.low_confidence) row.classList.add("border-warning");
+    if (expense.low_confidence) row.classList.add("is-uncertain");
+
+    var head = document.createElement("div");
+    head.className = "ai-row-head";
+
+    var number = document.createElement("span");
+    number.className = "ai-row-number";
+    number.setAttribute("aria-hidden", "true");
+    head.appendChild(number);
+
+    var badge = document.createElement("span");
+    badge.className = "ai-row-badge";
+    badge.innerHTML = '<i class="ti ti-stars" aria-hidden="true"></i>';
+    badge.appendChild(document.createTextNode(T.ai_detected_by || "Detectado por IA"));
+    head.appendChild(badge);
+
+    var remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "ai-remove";
+    remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
+    remove.setAttribute("aria-label", T.ai_remove_expense);
+    head.appendChild(remove);
+
+    row.appendChild(head);
 
     var body = document.createElement("div");
-    body.className = "card-body p-2";
+    body.className = "ai-row-body";
 
     if ((expense.warnings && expense.warnings.length) || expense.low_confidence) {
       var warning = document.createElement("div");
-      warning.className = "alert alert-warning py-1 px-2 small mb-2";
+      warning.className = "ai-row-note";
       warning.setAttribute("role", "alert");
       warning.textContent = "⚠️ " + ((expense.warnings && expense.warnings.join(" ")) ||
         T.uncertain);
@@ -168,17 +203,17 @@ function initializeAiEntry() {
     }
 
     var grid = document.createElement("div");
-    grid.className = "row g-2 align-items-end";
+    grid.className = "ai-row-fields";
 
     var description = document.createElement("input");
     description.type = "text";
-    description.className = "form-control form-control-sm ai-field-description";
+    description.className = "form-control ai-field-description";
     description.value = expense.description || "";
     description.setAttribute("aria-label", T.common_description);
-    grid.appendChild(labeledField(T.common_description, description, "col-md-4"));
+    grid.appendChild(labeledField(T.common_description, description, "ai-field ai-field-description-wrap"));
 
     var categorySelect = buildSelect(expense);
-    grid.appendChild(labeledField(T.common_category, categorySelect, "col-md-3"));
+    grid.appendChild(labeledField(T.common_category, categorySelect, "ai-field ai-field-category-wrap"));
     // Only a user change marks the category as explicit; the parser's guess
     // stays overridable by transaction rules at save time.
     categorySelect.addEventListener("change", function () {
@@ -189,31 +224,21 @@ function initializeAiEntry() {
     amount.type = "number";
     amount.min = "0";
     amount.step = "any";
-    amount.className = "form-control form-control-sm ai-field-amount";
+    amount.className = "form-control ai-field-amount";
     amount.value = expense.amount != null ? expense.amount : "";
     amount.setAttribute("aria-label", T.common_amount);
-    grid.appendChild(labeledField(T.common_amount, amount, "col-6 col-md-2"));
+    grid.appendChild(labeledField(T.common_amount, amount, "ai-field"));
 
     var dateField = document.createElement("input");
     dateField.type = "date";
-    dateField.className = "form-control form-control-sm ai-field-date";
+    dateField.className = "form-control ai-field-date";
     dateField.value = expense.transaction_date || todayISO();
     dateField.setAttribute("aria-label", T.common_date);
-    grid.appendChild(labeledField(T.common_date, dateField, "col-6 col-md-2"));
+    grid.appendChild(labeledField(T.common_date, dateField, "ai-field"));
 
     if (MONEY_SOURCES.length > 0) {
-      grid.appendChild(labeledField(T.ai_source, buildSourceSelect(expense), "col-6 col-md-2"));
+      grid.appendChild(labeledField(T.ai_source, buildSourceSelect(expense), "ai-field ai-field-source-wrap"));
     }
-
-    var actions = document.createElement("div");
-    actions.className = "col-md-1 d-grid";
-    var remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "btn btn-outline-danger btn-sm ai-remove";
-    remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
-    remove.setAttribute("aria-label", T.ai_remove_expense);
-    actions.appendChild(remove);
-    grid.appendChild(actions);
 
     body.appendChild(grid);
     row.appendChild(body);
@@ -237,11 +262,18 @@ function initializeAiEntry() {
   }
 
   function updateTotal() {
+    var rows = rowsEl.querySelectorAll(".ai-expense-row");
     var total = 0;
-    rowsEl.querySelectorAll(".ai-expense-row").forEach(function (row) {
+    Array.prototype.forEach.call(rows, function (row) {
       total += Number(row.querySelector(".ai-field-amount").value) || 0;
     });
     totalEl.textContent = "Total: " + money(total);
+
+    if (badgeEl) {
+      var message = rows.length === 1 ? T.found_count_one : T.found_count_many;
+      badgeEl.innerHTML = '<i class="ti ti-stars" aria-hidden="true"></i>';
+      badgeEl.appendChild(document.createTextNode(message));
+    }
   }
 
   function showModalError(message) {

@@ -43,6 +43,20 @@ module ExpensesHelper
     }.compact_blank
   end
 
+  ACTIVE_FILTER_KEYS = %i[q category_id money_source_id start_date end_date min_amount max_amount].freeze
+
+  # Number of filters currently applied (the compact header summary).
+  def active_expense_filters_count
+    ACTIVE_FILTER_KEYS.count { |key| params[key].present? }
+  end
+
+  def expenses_filter_summary
+    count = active_expense_filters_count
+    return t("expenses.filter_caption") if count.zero?
+
+    t("expenses.filter_summary_count", count: count)
+  end
+
   def sort_params
     filter_params.slice(:q, :category_id, :start_date, :end_date, :min_amount, :max_amount)
   end

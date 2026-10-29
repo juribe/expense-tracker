@@ -1,56 +1,99 @@
-<div class="card mb-4" data-testid="ai-entry-card">
-  <div class="card-body">
-    <h5 class="card-title mb-3"><i class="ti ti-stars me-2 text-secondary" aria-hidden="true"></i><%= t("expenses.ai_what_did_you_spend") %></h5>
-    <form id="aiParseForm" data-testid="ai-form" data-turbo="false"
-          data-parse-url="<%= parse_expenses_path(format: :json) %>"
-          data-bulk-create-url="<%= bulk_create_expenses_path(format: :json) %>"
-          data-today="<%= Date.current.iso8601 %>">
-      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+<div class="ai-entry-card" data-testid="ai-entry-card">
+  <div class="ai-entry-head">
+    <span class="ai-entry-icon" aria-hidden="true"><i class="ti ti-stars"></i></span>
+    <div class="ai-entry-copy">
+      <div class="ai-entry-titleline">
+        <h2 class="ai-entry-title"><%= t("expenses.ai_title", default: "Tu asistente de gastos") %></h2>
+        <span class="ai-entry-badge">
+          <i class="ti ti-stars" aria-hidden="true"></i><%= t("expenses.ai_badge", default: "Con IA") %>
+        </span>
+      </div>
+      <p class="ai-entry-subtitle">
+        <%= t("expenses.ai_subtitle", default: "Registra tus gastos en segundos. La IA se encarga de organizarlos.") %>
+      </p>
+    </div>
+  </div>
+
+  <form id="aiParseForm" data-testid="ai-form" data-turbo="false"
+        data-parse-url="<%= parse_expenses_path(format: :json) %>"
+        data-bulk-create-url="<%= bulk_create_expenses_path(format: :json) %>"
+        data-today="<%= Date.current.iso8601 %>">
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+    <div class="ai-entry-examples" role="group" aria-label="<%= t('expenses.ai_examples_label', default: 'Ejemplos') %>">
+      <button type="button" class="ai-example" data-ai-example="Almorcé por $35.000 pagando con la tarjeta Nu">
+        <span class="ai-example-icon" aria-hidden="true"><i class="ti ti-tools-kitchen-2"></i></span>
+        Almorcé por $35.000 con tarjeta Nu
+      </button>
+      <button type="button" class="ai-example" data-ai-example="Pagué $10.000 de parqueadero en efectivo">
+        <span class="ai-example-icon" aria-hidden="true"><i class="ti ti-car"></i></span>
+        Parqueadero por $10.000 en efectivo
+      </button>
+      <button type="button" class="ai-example" data-ai-example="Pedí Didi Food por $18.500 pagando con la tarjeta Nu">
+        <span class="ai-example-icon" aria-hidden="true"><i class="ti ti-shopping-cart"></i></span>
+        Didi Food por $18.500 con tarjeta Nu
+      </button>
+    </div>
+
+    <div class="ai-prompt">
       <label class="form-label visually-hidden" for="aiExpenseText"><%= t("expenses.ai_describe") %></label>
-      <textarea id="aiExpenseText" name="text" class="form-control" rows="2"
+      <textarea id="aiExpenseText" name="text" class="form-control ai-prompt-input" rows="3"
                 placeholder="<%= t('expenses.ai_placeholder') %>"
                 data-testid="ai-text-input"></textarea>
+      <button type="button" class="btn ai-mic" id="aiMicButton" data-testid="ai-mic-button"
+              aria-label="<%= t('expenses.ai_record_voice') %>" title="<%= t('expenses.ai_record_voice') %>">
+        <i class="ti ti-microphone" aria-hidden="true"></i><%= t("expenses.ai_dictate") %>
+      </button>
+    </div>
 
-      <div class="d-flex gap-2 mt-2 align-items-center flex-wrap">
-        <button type="button" class="btn btn-outline-secondary" id="aiMicButton" data-testid="ai-mic-button"
-                aria-label="<%= t('expenses.ai_record_voice') %>" title="<%= t('expenses.ai_record_voice') %>">
-          <i class="ti ti-microphone" aria-hidden="true"></i> <%= t("expenses.ai_dictate") %>
-        </button>
-        <button type="submit" class="btn btn-primary" id="aiParseButton" data-testid="ai-parse-button">
-          <i class="ti ti-bolt me-1" aria-hidden="true"></i><%= t("expenses.ai_detect") %>
-        </button>
-        <span id="aiStatus" class="small text-secondary ms-1" role="status" aria-live="polite"></span>
-      </div>
+    <div class="ai-entry-footer">
+      <button type="submit" class="btn ai-detect-btn" id="aiParseButton" data-testid="ai-parse-button">
+        <i class="ti ti-stars" aria-hidden="true"></i><%= t("expenses.ai_detect") %>
+      </button>
+      <span class="ai-entry-helper">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <%= t("expenses.ai_helper", default: "Detecta montos, categorías, fechas y fuentes de dinero.") %>
+      </span>
+      <span id="aiStatus" class="ai-entry-status" role="status" aria-live="polite"></span>
+    </div>
 
-      <div id="aiTranscriptionWrap" class="alert alert-info mt-3 mb-0 d-none" data-testid="ai-transcription">
-        <i class="ti ti-wave-sine me-1" aria-hidden="true"></i><strong><%= t("expenses.ai_transcription") %></strong>
-        <span id="aiTranscriptionText"></span>
-      </div>
-    </form>
-  </div>
+    <div id="aiTranscriptionWrap" class="alert alert-info mt-3 mb-0 d-none" data-testid="ai-transcription">
+      <i class="ti ti-wave-sine me-1" aria-hidden="true"></i><strong><%= t("expenses.ai_transcription") %></strong>
+      <span id="aiTranscriptionText"></span>
+    </div>
+  </form>
 </div>
 
 <!-- Modal de vista previa / confirmación -->
-<div class="modal fade" id="aiPreviewModal" tabindex="-1" aria-labelledby="aiPreviewTitle" aria-hidden="true"
+<div class="modal fade ai-preview-modal" id="aiPreviewModal" tabindex="-1" aria-labelledby="aiPreviewTitle" aria-hidden="true"
      data-testid="ai-preview-modal">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="aiPreviewTitle"><%= t("expenses.ai_detected_title") %></h5>
+      <div class="modal-header ai-preview-head">
+        <span class="ai-preview-spark" aria-hidden="true"><i class="ti ti-stars"></i></span>
+        <div class="ai-preview-heading">
+          <div class="ai-preview-titleline">
+            <h5 class="modal-title" id="aiPreviewTitle"><%= t("expenses.ai_detected_title") %></h5>
+            <span class="ai-entry-badge" id="aiDetectedBadge"></span>
+          </div>
+          <p class="ai-preview-subtitle">
+            <%= t("expenses.ai_review_subtitle", default: "Verifica los datos antes de guardarlos.") %>
+          </p>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body ai-preview-body">
         <div id="aiPreviewError" class="alert alert-danger d-none" role="alert"></div>
         <div id="aiPreviewRows"></div>
       </div>
-      <div class="modal-footer justify-content-between align-items-center flex-wrap gap-2">
-        <button type="button" class="btn btn-outline-primary btn-sm" id="aiAddRow" data-testid="ai-add-row">
+      <div class="modal-footer ai-preview-foot">
+        <button type="button" class="btn btn-outline-primary btn-sm ai-preview-add" id="aiAddRow" data-testid="ai-add-row">
           <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("expenses.ai_add_expense") %>
         </button>
-        <div class="d-flex align-items-center gap-3">
-          <strong id="aiPreviewTotal" data-testid="ai-total"><%= t("common.total") %>: 0</strong>
+        <strong id="aiPreviewTotal" class="ai-preview-total" data-testid="ai-total"><%= t("common.total") %>: 0</strong>
+        <div class="ai-preview-foot-actions">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
-          <button type="button" class="btn btn-success" id="aiSaveAll" data-testid="ai-save-all">
+          <button type="button" class="btn ai-save-btn" id="aiSaveAll" data-testid="ai-save-all">
             <i class="ti ti-check me-1" aria-hidden="true"></i><%= t("expenses.save_expenses") %>
           </button>
         </div>
@@ -65,6 +108,8 @@
   texts: {
     detected_count_one: t("expenses.ai_detected_count", count: 1),
     detected_count_many: t("expenses.ai_detected_count", count: 2),
+    found_count_one: t("expenses.ai_found_count", count: 1),
+    found_count_many: t("expenses.ai_found_count", count: 2),
     write_first: t("expenses.ai_write_first"),
     detecting: t("expenses.ai_detecting"),
     no_expenses: t("expenses.ai_no_expenses_detected"),
@@ -78,8 +123,8 @@
     common_amount: t("common.amount"),
     common_date: t("common.date"),
     ai_source: t("expenses.ai_source"),
-    ai_remove_expense: t("expenses.ai_remove_expense")
+    ai_remove_expense: t("expenses.ai_remove_expense"),
+    ai_detected_by: t("expenses.ai_detected_by", default: "Detectado por IA")
   }
 } } %>
 <%= javascript_include_tag "ai_entry", defer: true %>
-
