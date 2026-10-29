@@ -323,6 +323,10 @@ es:
     required: "Elige una categoría"
 
   categories:
+    decision:
+      unmatched: 'No pudimos encontrar la categoría "%{name}". Puedes crearla o elegir una existente al confirmar.'
+      suggested_new: 'No encontramos una categoría que coincida. Se sugiere crear "%{name}"; confirma para crearla o elige una existente.'
+      undetermined: "No pudimos determinar una categoría para este gasto. Puedes asignarla al confirmar."
     title: "Categorías"
     new: "Nueva categoría"
     edit: "Editar categoría"
@@ -1445,6 +1449,40 @@ es:
       total_over: "La distribución supera el pago en %{extra}."
       apply: "Aplicar pago"
 
+  expense_candidate:
+    checks:
+      amount_present: "Monto presente"
+      currency_detected: "Moneda detectada"
+      description_present: "Descripción presente"
+      category_assigned: "Categoría asignada"
+      money_source_detected: "Fuente de dinero detectada"
+      valid_date: "Fecha válida"
+
+  speech_to_text:
+    whisper:
+      failure: "Falló el reconocimiento de voz. Whisper no pudo transcribir este audio%{detail}."
+      timeout: "Whisper tardó más de %{seconds} segundos y se detuvo."
+      unreadable_response: "Whisper devolvió una respuesta ilegible."
+      unreadable_audio: "No se pudo leer el audio (formato no compatible o archivo dañado)."
+      decode_failed: "No se pudo decodificar el audio."
+      unsupported_format: "Formato de audio no compatible. Usa OGG, OPUS, M4A, MP3, WAV o WEBM."
+    ffmpeg:
+      failure: "ffmpeg no pudo procesar el audio."
+      missing: "FFmpeg no está disponible (%{bin})."
+
+  expense_resolver:
+    detected_source: "la fuente detectada"
+    warnings:
+      amount_mismatch: "El monto %{amount} no coincide con los valores detallados en el texto (esperado %{expected}); revísalo."
+      refund_amount: "El texto menciona una devolución o ajuste de %{amount}; confirma que el monto sea el precio total de la compra antes de confirmar."
+      refund_generic: "El texto menciona una devolución o ajuste; confirma que el monto sea el precio total de la compra antes de confirmar."
+      money_source_tight_match: 'La fuente de dinero "%{name}" se sugirió por una coincidencia ajustada; revísala antes de confirmar.'
+      money_source_unsplit: "Este registro puede contener varias transacciones pagadas con fuentes de dinero distintas; revisa la división."
+      duplicate_skipped: "Otra entrada del mismo mensaje compartía fecha, monto y fuente de dinero; se omitió por duplicada."
+      row_amount_mismatch: "El texto de la fila indica %{text_amount} pero el valor de la columna es %{column_amount}; revísalo."
+      row_money_source_ambiguous: "La fuente de dinero es ambigua: la fila nombra un banco cubierto por varias fuentes registradas; revísala."
+      tabular_fallback: "No se pudo interpretar la tabla de forma fiable; se usará la extracción con IA."
+
   expenses:
     page_title: "Gastos"
     monthly: "Gasto Mensual"
@@ -1467,6 +1505,22 @@ es:
     filter_summary_count:
       one: "%{count} filtro aplicado"
       other: "%{count} filtros aplicados"
+    inputs:
+      image:
+        too_large: "La imagen es demasiado grande (máx. %{max} MB)."
+        unsupported_format: "Formato de imagen no compatible. Usa JPEG, PNG, WebP o GIF."
+      audio:
+        too_large: "El audio es demasiado grande (máx. %{max} MB)."
+        unsupported_format: "Formato de audio no compatible. Usa OGG, OPUS, M4A, MP3, WAV o WEBM."
+      file:
+        too_large: "El archivo es demasiado grande (máx. %{max} MB)."
+        unsupported_format: "Formato de archivo no compatible. Usa PDF, CSV o Excel."
+    processors:
+      image:
+        invalid_response: "No se pudo extraer el gasto. El servicio de extracción devolvió una respuesta no válida. (%{error})"
+        no_expense_detected: "No se pudo extraer un gasto de esta imagen: no se detectó ningún gasto."
+      audio:
+        empty_transcript: "La transcripción de voz quedó vacía. El audio puede estar en silencio o ser demasiado corto."
     search_label: "Descripción"
     search_placeholder: "Buscar por descripción…"
     apply_filters: "Filtrar gastos"
@@ -2164,6 +2218,15 @@ es:
     audio_upload_hint: "OGG, OPUS, M4A, MP3, WAV o WEBM — hasta 15 MB"
     audio_upload_change: "Cambiar audio"
     audio_seconds: "%{seconds} s"
+    image_unsupported: "Formato de imagen no compatible. Usa JPEG, PNG, WebP o GIF."
+    image_too_large: "La imagen es demasiado grande (máx. %{max} MB)."
+    audio_unsupported: "Formato de audio no compatible. Usa OGG, OPUS, M4A, MP3, WAV o WEBM."
+    audio_too_large: "El audio es demasiado grande (máx. %{max} MB)."
+    row_label: "Fila %{index}: "
+    some_expenses_failed: "Algunos gastos no se pudieron crear."
+    create_failed: "No se pudieron crear los gastos. Inténtalo de nuevo."
+    create_one_failed: "No se pudo crear el gasto. Inténtalo de nuevo."
+    extract_failed: "No se pudo extraer un gasto de esta entrada."
     transcript_title: "Transcripción"
     stt_title: "Speech-to-Text"
     provider: "Proveedor"

@@ -331,7 +331,7 @@ test.describe('expense playground – file import', () => {
     await page.getByTestId('playground-file-create-button').click();
 
     await expect(page.getByTestId('playground-result-errors')).toBeVisible();
-    await expect(page.getByTestId('playground-result-errors')).toContainText('Row 0');
+    await expect(page.getByTestId('playground-result-errors')).toContainText('Fila 0');
   });
 
   // ---- File processing error ----

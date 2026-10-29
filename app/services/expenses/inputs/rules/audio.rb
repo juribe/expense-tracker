@@ -12,9 +12,9 @@ module Expenses
         def audio_errors(input)
           errors = []
           if extension(input.audio_data, input.filename).in?(SUPPORTED_EXTENSIONS)
-            errors << "Audio is too large (max #{AUDIO_MAX_BYTES / 1.megabyte} MB)." if decoded_audio_size(input) > AUDIO_MAX_BYTES
+            errors << I18n.t("expenses.inputs.audio.too_large", max: AUDIO_MAX_BYTES / 1.megabyte) if decoded_audio_size(input) > AUDIO_MAX_BYTES
           else
-            errors << "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM."
+            errors << I18n.t("expenses.inputs.audio.unsupported_format")
           end
           errors
         end

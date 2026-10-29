@@ -47,7 +47,7 @@ module SpeechToText
       output
     rescue Errno::ENOENT
       cleanup(output)
-      raise PreprocessingError, "FFmpeg is not available (#{self.class.bin})."
+      raise PreprocessingError, I18n.t("speech_to_text.ffmpeg.missing", bin: self.class.bin)
     rescue StandardError
       cleanup(output)
       raise
@@ -85,7 +85,7 @@ module SpeechToText
     def ffmpeg_failure_message(stderr)
       Rails.logger.warn("[speech_to_text] ffmpeg preprocessing failed:\n#{stderr}")
       reason = stderr.to_s.strip.lines.last.to_s.strip
-      reason.presence || "ffmpeg could not process the audio."
+      reason.presence || I18n.t("speech_to_text.ffmpeg.failure")
     end
   end
 end

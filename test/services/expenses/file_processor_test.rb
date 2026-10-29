@@ -296,7 +296,7 @@ module Expenses
         assert_equal 3, result.candidates.length
         # All rows carry the resolver-grade ambiguity warning...
         result.candidates.each do |candidate|
-          assert candidate.warnings.any? { |warning| warning.downcase.include?("ambiguous") }
+          assert candidate.warnings.any? { |warning| warning.downcase.include?("ambigua") }
         end
         # ...and the money-source resolution was reused across the batch.
         reused = result.candidates.map(&:money_source_source)

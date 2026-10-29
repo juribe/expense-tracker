@@ -150,9 +150,9 @@ module SpeechToText
         JSON.parse(stdout, symbolize_names: true)
       end
     rescue Timeout::Error
-      raise TranscriptionError, "Whisper took longer than #{timeout_seconds} seconds and was stopped."
+      raise TranscriptionError, I18n.t("speech_to_text.whisper.timeout", seconds: timeout_seconds)
     rescue JSON::ParserError
-      raise TranscriptionError, "Whisper returned an unreadable response."
+      raise TranscriptionError, I18n.t("speech_to_text.whisper.unreadable_response")
     end
 
     def python_args(audio_path)
@@ -170,8 +170,8 @@ module SpeechToText
 
     def whisper_failure_message(stderr)
       reason = stderr.to_s.strip.lines.last.to_s.strip
-      "Speech-to-text failed. Whisper could not transcribe this audio" +
-        (reason.present? ? " (#{reason.first(160)})." : ".")
+      detail = reason.present? ? " (#{reason.first(160)})" : ""
+      I18n.t("speech_to_text.whisper.failure", detail: detail)
     end
 
     # ---------------------------------------------------------------- input
@@ -187,7 +187,7 @@ module SpeechToText
       raise
     rescue StandardError
       cleanup(file)
-      raise UnsupportedFormatError, "Could not read the audio payload (unsupported or corrupted audio)."
+      raise UnsupportedFormatError, I18n.t("speech_to_text.whisper.unreadable_audio")
     end
 
     def decoded_audio
@@ -195,7 +195,7 @@ module SpeechToText
       payload = match ? match[:payload] : @audio_data
       Base64.strict_decode64(payload)
     rescue ArgumentError
-      raise UnsupportedFormatError, "Could not decode the audio payload."
+      raise UnsupportedFormatError, I18n.t("speech_to_text.whisper.decode_failed")
     end
 
     # The input extension for the temp file: from the data-URI mime type when
@@ -206,7 +206,7 @@ module SpeechToText
       key = MIME_EXTENSIONS[mime.to_s] || File.extname(@filename).delete(".").downcase.presence
       extension = SUPPORTED_EXTENSIONS[key]
       extension || raise(UnsupportedFormatError,
-        "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM.")
+        I18n.t("speech_to_text.whisper.unsupported_format"))
     end
   end
 end

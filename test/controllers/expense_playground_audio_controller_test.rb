@@ -117,7 +117,7 @@ class ExpensePlaygroundAudioControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     errors = JSON.parse(response.body)["errors"]
-    assert errors.any? { |error| error.include?("Unsupported audio format") }
+    assert errors.any? { |error| error.include?("Formato de audio no compatible") }
   end
 
   private

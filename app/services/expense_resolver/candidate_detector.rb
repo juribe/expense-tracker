@@ -76,7 +76,7 @@ module ExpenseResolver
 
       model_amount = format_money(validation.model_amount)
       expected = format_money(validation.expected_total)
-      [ "Amount #{model_amount} doesn't match the itemized amounts in the text (expected #{expected}) — review it." ]
+      [ I18n.t("expense_resolver.warnings.amount_mismatch", amount: model_amount, expected: expected) ]
     end
 
     def format_money(value)
@@ -113,11 +113,11 @@ module ExpenseResolver
       if match
         value, = ExpenseResolver::Amounts::Service.interpret_amount(match[1], colloquial: false)
         if value && value != expense.amount
-          return "Text mentions a refund or adjustment of #{format_money(value)} — confirm the amount is the full purchase price before confirming."
+          return I18n.t("expense_resolver.warnings.refund_amount", amount: format_money(value))
         end
       end
 
-      "Text mentions a refund or adjustment — confirm the amount is the full purchase price before confirming." if slice.match?(REFUND_PHRASE_REGEX)
+      I18n.t("expense_resolver.warnings.refund_generic") if slice.match?(REFUND_PHRASE_REGEX)
     end
 
     def category_result
@@ -156,8 +156,9 @@ module ExpenseResolver
     def money_source_warnings
       warnings = []
       if money_source_result.review
-        name = money_source_result.money_source_name.presence || "the detected source"
-        warnings << "Money source \"#{name}\" suggested from a tight match — review it before confirming."
+        name = money_source_result.money_source_name.presence ||
+               I18n.t("expense_resolver.detected_source")
+        warnings << I18n.t("expense_resolver.warnings.money_source_tight_match", name: name)
       end
 
       warnings + unsplit_transaction_warnings
@@ -180,7 +181,7 @@ module ExpenseResolver
                                    .map(&:first).map(&:id).uniq
       return [] unless identifier_sources.size > 1
 
-      [ "This entry may contain several transactions paid with different money sources — review the split." ]
+      [ I18n.t("expense_resolver.warnings.money_source_unsplit") ]
     end
 
     # The preview must reflect what will actually be saved: when a transaction

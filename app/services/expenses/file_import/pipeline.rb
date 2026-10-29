@@ -88,7 +88,7 @@ module Expenses
           deterministic = build_deterministic_candidates(extraction)
           return [ deterministic, [], :deterministic ] if deterministic.any?
 
-          @warnings << "Tabular parsing could not be matched reliably; falling back to AI extraction."
+          @warnings << I18n.t("expense_resolver.warnings.tabular_fallback")
         end
 
         ai_candidates(extraction)

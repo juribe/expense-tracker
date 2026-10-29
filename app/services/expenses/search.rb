@@ -85,21 +85,21 @@ module Expenses
       errors = {}
       if params[:start_date].present? && params[:end_date].present?
         if !valid_date?(params[:start_date])
-          errors[:start_date] = "Enter a valid From date."
+          errors[:start_date] = I18n.t("expenses.error_valid_from")
         elsif !valid_date?(params[:end_date])
-          errors[:end_date] = "Enter a valid To date."
+          errors[:end_date] = I18n.t("expenses.error_valid_to")
         elsif params[:start_date] > params[:end_date]
-          errors[:start_date] = "From cannot be after To."
+          errors[:start_date] = I18n.t("expenses.error_from_after_to")
         end
       elsif params[:start_date].present? && !valid_date?(params[:start_date])
-        errors[:start_date] = "Enter a valid From date."
+        errors[:start_date] = I18n.t("expenses.error_valid_from")
       elsif params[:end_date].present? && !valid_date?(params[:end_date])
-        errors[:end_date] = "Enter a valid To date."
+        errors[:end_date] = I18n.t("expenses.error_valid_to")
       end
 
       if params[:min_amount].present? && params[:max_amount].present? &&
          money_value(params[:min_amount]) > money_value(params[:max_amount])
-        errors[:min_amount] = "Min amount cannot exceed Max amount."
+        errors[:min_amount] = I18n.t("expenses.error_min_exceeds_max")
       end
       errors
     end

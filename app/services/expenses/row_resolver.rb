@@ -144,7 +144,9 @@ module Expenses
       validation = ExpenseResolver::Amounts::SumValidator.call(amount: @column_amount, text: cleaned_text)
       return [] unless validation.mismatch?
 
-      [ "Amount $#{validation.model_amount.to_i} doesn't match the itemized amounts in the text (expected $#{validation.expected_total.to_i}) — review it." ]
+      [ I18n.t("expense_resolver.warnings.row_amount_mismatch",
+               text_amount: "$#{validation.model_amount.to_i}",
+               column_amount: "$#{validation.expected_total.to_i}") ]
     end
 
     def source_warnings(description)
@@ -152,11 +154,13 @@ module Expenses
       return [] if matches.size < 2
       return [] if matches.any? { |_, score| score >= MoneySources::Detector::IDENTIFIER_POINTS }
 
-      [ "Money source is ambiguous: the row names a bank covered by several registered sources — review it." ]
+      [ I18n.t("expense_resolver.warnings.row_money_source_ambiguous") ]
     end
 
     def format_conflict_warning(text_value, column_value)
-      "The row text names $#{text_value.to_i} but the column value is $#{column_value.to_i} — review it."
+      I18n.t("expense_resolver.warnings.row_amount_mismatch",
+             text_amount: "$#{text_value.to_i}",
+             column_amount: "$#{column_value.to_i}")
     end
 
     def scanned_amounts

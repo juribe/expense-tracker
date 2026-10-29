@@ -479,40 +479,40 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     )
     labels = candidate.checks.map { |c| c[:label] }
 
-    assert labels.any? { |l| l.include?("Amount") }
-    assert labels.any? { |l| l.downcase.include?("date") }
-    assert labels.any? { |l| l.include?("Description") }
-    assert labels.any? { |l| l.include?("Category") }
-    assert labels.any? { |l| l.include?("Money") }
+    assert labels.any? { |l| l.include?("Monto") }
+    assert labels.any? { |l| l.downcase.include?("fecha") }
+    assert labels.any? { |l| l.include?("Descripción") }
+    assert labels.any? { |l| l.include?("Categoría") }
+    assert labels.any? { |l| l.include?("Fuente de dinero") }
   end
 
   test "checks passes money source when money_source_id present" do
     candidate = build_candidate(money_source_id: @money_source.id)
-    money_check = candidate.checks.find { |c| c[:label].include?("Money") }
+    money_check = candidate.checks.find { |c| c[:label].include?("Fuente de dinero") }
     assert money_check[:passed]
   end
 
   test "checks passes money source when money_source_name present" do
     candidate = build_candidate(money_source_id: nil, money_source_name: "Davibank")
-    money_check = candidate.checks.find { |c| c[:label].include?("Money") }
+    money_check = candidate.checks.find { |c| c[:label].include?("Fuente de dinero") }
     assert money_check[:passed]
   end
 
   test "checks fails money source when both nil" do
     candidate = build_candidate(money_source_id: nil, money_source_name: nil)
-    money_check = candidate.checks.find { |c| c[:label].include?("Money") }
+    money_check = candidate.checks.find { |c| c[:label].include?("Fuente de dinero") }
     assert_not money_check[:passed]
   end
 
   test "checks passes description when present" do
     candidate = build_candidate(description: "Gasolina")
-    desc_check = candidate.checks.find { |c| c[:label].include?("Description") }
+    desc_check = candidate.checks.find { |c| c[:label].include?("Descripción") }
     assert desc_check[:passed]
   end
 
   test "checks fails description when nil" do
     candidate = build_candidate(description: nil)
-    desc_check = candidate.checks.find { |c| c[:label].include?("Description") }
+    desc_check = candidate.checks.find { |c| c[:label].include?("Descripción") }
     assert_not desc_check[:passed]
   end
 

@@ -55,7 +55,7 @@ module Expenses
     test "rejects from date after to date" do
       result = search(start_date: "2026-03-01", end_date: "2026-01-01")
       assert result.failure?
-      assert_equal "From cannot be after To.", result.filter_errors[:start_date]
+      assert_equal "Desde no puede ser posterior a Hasta.", result.filter_errors[:start_date]
     end
 
     test "rejects min amount greater than max amount" do

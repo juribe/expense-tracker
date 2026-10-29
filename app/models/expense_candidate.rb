@@ -122,12 +122,12 @@ class ExpenseCandidate < ApplicationRecord
   # yields a valid candidate (the user assigns the source before saving).
   def checks
     [
-      { label: "Amount present", passed: amount.is_a?(Numeric) && amount.positive? },
-      { label: "Currency detected", passed: currency.present? },
-      { label: "Description present", passed: description.present? },
-      { label: "Category assigned", passed: category_id.present? || category_name.present? },
-      { label: "Money source detected", passed: money_source_id.present? || money_source_name.present?, informational: true },
-      { label: "Valid date", passed: date.present? }
+      { label: I18n.t("expense_candidate.checks.amount_present"), passed: amount.is_a?(Numeric) && amount.positive? },
+      { label: I18n.t("expense_candidate.checks.currency_detected"), passed: currency.present? },
+      { label: I18n.t("expense_candidate.checks.description_present"), passed: description.present? },
+      { label: I18n.t("expense_candidate.checks.category_assigned"), passed: category_id.present? || category_name.present? },
+      { label: I18n.t("expense_candidate.checks.money_source_detected"), passed: money_source_id.present? || money_source_name.present?, informational: true },
+      { label: I18n.t("expense_candidate.checks.valid_date"), passed: date.present? }
     ]
   end
 

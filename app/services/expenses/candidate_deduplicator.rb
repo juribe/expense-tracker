@@ -14,8 +14,9 @@ module Expenses
   #
   # Example: Expenses::CandidateDeduplicator.call(candidates)
   class CandidateDeduplicator
-    DUPLICATE_SKIPPED_WARNING = "Another entry in the same message shared its date, amount and " \
-                                "money source; it was skipped as a duplicate."
+    def self.duplicate_skipped_warning
+      I18n.t("expense_resolver.warnings.duplicate_skipped")
+    end
 
     def self.call(candidates)
       new(candidates).call
@@ -71,7 +72,7 @@ module Expenses
     def mark_skipped_duplicate(candidate)
       return unless candidate.warnings.is_a?(Array)
 
-      candidate.warnings << DUPLICATE_SKIPPED_WARNING
+      candidate.warnings << self.class.duplicate_skipped_warning
     end
   end
 end

@@ -46,7 +46,7 @@ module Expenses
 
       bad = Inputs::Audio.to_input({ "audio_data" => "data:audio/x-flac;base64,ZmxsYWM=" })
       assert_not bad.valid?
-      assert_includes bad.errors, "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM."
+      assert_includes bad.errors, "Formato de audio no compatible. Usa OGG, OPUS, M4A, MP3, WAV o WEBM."
     end
 
     test "file to_input carries filename and password in metadata" do
@@ -75,13 +75,13 @@ module Expenses
     test "image typed input owns format rules (rejects unsupported formats)" do
       input = Inputs::Image.to_input({ "image_data" => "data:image/bmp;base64,Zm9v" })
       assert_not input.valid?
-      assert_includes input.errors, "Unsupported image format. Use JPEG, PNG, WebP or GIF."
+      assert_includes input.errors, "Formato de imagen no compatible. Usa JPEG, PNG, WebP o GIF."
     end
 
     test "file typed input owns format rules (rejects unknown extensions)" do
       input = Inputs::File.to_input({ "file_data" => "data:text/plain;base64,cGxhaW4=", "filename" => "notes.txt" })
       assert_not input.valid?
-      assert_includes input.errors, "Unsupported file format. Use PDF, CSV, or Excel."
+      assert_includes input.errors, "Formato de archivo no compatible. Usa PDF, CSV o Excel."
     end
 
     test "typed inputs own their information methods" do
@@ -103,7 +103,7 @@ module Expenses
     test "the canonical Input delegates validity to the typed input" do
       input = Input.from_params("image", { "image_data" => "data:image/bmp;base64,Zm9v" })
       assert_not input.valid?
-      assert_includes input.errors, "Unsupported image format. Use JPEG, PNG, WebP or GIF."
+      assert_includes input.errors, "Formato de imagen no compatible. Usa JPEG, PNG, WebP o GIF."
     end
 
     test "each typed input holds one payload and destructures it into its own readers" do

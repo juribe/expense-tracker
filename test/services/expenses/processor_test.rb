@@ -155,7 +155,7 @@ module Expenses
 
         assert_not result.ok?
         assert_nil result.candidate
-        assert result.errors.any? { |error| error.include?("extraction service") }
+        assert result.errors.any? { |error| error.include?("servicio de extracción") }
         assert_equal "vision", result.steps[:extraction][:engine]
       end
     end
@@ -221,7 +221,7 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
 
       result = process(Expenses::Input.from_params("image", image_data: "data:text/html;base64,PGI+"))
       assert_not result.ok?
-      assert result.errors.any? { |error| error.include?("Unsupported image format") }
+      assert result.errors.any? { |error| error.include?("Formato de imagen no compatible") }
     end
 
     test "processing never creates a real expense" do
@@ -351,12 +351,12 @@ result = process(Expenses::Input.from_params("text_image", text: "Este fue el re
 
               assert_equal 1, result.candidates.size
               assert_equal "Comida", result.candidates.first.description
-              assert_includes result.candidates.first.warnings.join(" "), "skipped as a duplicate"
+              assert_includes result.candidates.first.warnings.join(" "), "se omitió por duplicada"
             end
 
             persisted = ExpenseCandidate.last
             assert_equal source.id, persisted.money_source_id
-            assert_includes persisted.metadata["warnings"].join(" "), "skipped as a duplicate"
+            assert_includes persisted.metadata["warnings"].join(" "), "se omitió por duplicada"
           end
         end
       end

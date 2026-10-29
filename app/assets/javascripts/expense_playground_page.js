@@ -112,11 +112,11 @@ function initializePlayground() {
   function acceptFile(file) {
     if (!file) return;
     if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
-      showError("Unsupported image format. Use JPEG, PNG, WebP or GIF.");
+      showError(T.imageUnsupported || "Unsupported image format. Use JPEG, PNG, WebP or GIF.");
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      showError("Image is too large (max 6 MB).");
+      showError((T.imageTooLarge || "Image is too large (max %{max} MB).").replace("%{max}", MAX_IMAGE_BYTES / (1024 * 1024)));
       return;
     }
     var reader = new FileReader();
@@ -179,11 +179,11 @@ function initializePlayground() {
     if (!file) return;
     var type = file.type || "";
     if (!/^audio\//.test(type) && [ "ogg", "opus", "m4a", "mp3", "wav", "webm" ].indexOf(audioExtension(file.name)) === -1) {
-      showError("Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM.");
+      showError(T.audioUnsupported || "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM.");
       return;
     }
     if (file.size > MAX_AUDIO_BYTES) {
-      showError("Audio is too large (max 15 MB).");
+      showError((T.audioTooLarge || "Audio is too large (max %{max} MB).").replace("%{max}", MAX_AUDIO_BYTES / (1024 * 1024)));
       return;
     }
     var reader = new FileReader();
@@ -423,14 +423,14 @@ function initializePlayground() {
       } else {
         var errs = (result.data.errors || []);
         var msg = errs.length ? errs.map(function (e) {
-          return (e.index != null ? "Row " + e.index + ": " : "") + (Array.isArray(e.errors) ? e.errors.join(" ") : "");
-        }).join("; ") : "Some expenses could not be created.";
+          return (e.index != null ? (T.rowLabel || "Row %{index}: ").replace("%{index}", e.index) : "") + (Array.isArray(e.errors) ? e.errors.join(" ") : "");
+        }).join("; ") : (T.someExpensesFailed || "Some expenses could not be created.");
         showError(msg);
       }
     }).catch(function () {
       setLoading($("#pgFileCreateButton"), $("#pgFileCreateSpinner"), $(".pg-file-create-icon"), $("#pgFileCreateLabel"),
         false, T.fileCreating, T.fileCreateAll);
-      showError("The expenses could not be created. Please try again.");
+      showError(T.createFailed || "The expenses could not be created. Please try again.");
     });
   }
 
@@ -489,7 +489,7 @@ function initializePlayground() {
 
     var errors = (data.errors || []).join(" ");
     if (!state.candidates.length) {
-      showError(errors || "Could not extract an expense from this input.");
+      showError(errors || (T.extractFailed || "Could not extract an expense from this input."));
       return;
     }
     if (errors) showError(errors); else $("#pgResultErrors").classList.add("d-none");
@@ -857,13 +857,13 @@ function initializePlayground() {
       if (result.ok) {
         markCardCreated(index, result.data.message || T.expenseCreated);
       } else {
-        showError((result.data.errors || []).join(" ") || "The expense could not be created.");
+        showError((result.data.errors || []).join(" ") || (T.createOneFailed || "The expense could not be created."));
       }
     }).catch(function () {
       setLoading(card.querySelector(".pg-create-button"), card.querySelector(".pg-create-spinner"),
         card.querySelector(".pg-create-icon"), card.querySelector(".pg-create-label"),
         false, T.creating, T.createExpense);
-      showError("The expense could not be created. Please try again.");
+      showError(T.createOneFailed || "The expense could not be created. Please try again.");
     });
   }
 
@@ -893,8 +893,8 @@ function initializePlayground() {
       } else {
         var errs = (result.data.errors || []);
         var msg = errs.length ? errs.map(function (e) {
-          return (e.index != null ? "Row " + e.index + ": " : "") + (Array.isArray(e.errors) ? e.errors.join(" ") : "");
-        }).join("; ") : "Some expenses could not be created.";
+          return (e.index != null ? (T.rowLabel || "Row %{index}: ").replace("%{index}", e.index) : "") + (Array.isArray(e.errors) ? e.errors.join(" ") : "");
+        }).join("; ") : (T.someExpensesFailed || "Some expenses could not be created.");
         showError(msg);
       }
       updateCreateAllButton();
@@ -902,7 +902,7 @@ function initializePlayground() {
       setLoading($("#pgCreateAllButton"), $("#pgCreateAllSpinner"),
         $("#pgCreateAllButton .pg-create-all-icon"), $("#pgCreateAllLabel"),
         false, T.fileCreating, T.createAll);
-      showError("The expenses could not be created. Please try again.");
+      showError(T.createFailed || "The expenses could not be created. Please try again.");
     });
   }
 

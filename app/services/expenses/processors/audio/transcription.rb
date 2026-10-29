@@ -32,7 +32,7 @@ class Expenses::Processors::Audio
       })
 
       if result.empty_transcript?
-        @recording&.add_errors([ "Speech-to-text produced an empty transcript. The audio may be silent or too short." ])
+        @recording&.add_errors([ I18n.t("expenses.processors.audio.empty_transcript") ])
         return Result.new(ok?: false, text: nil)
       end
 

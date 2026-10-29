@@ -37,7 +37,7 @@ module Categories
       elsif @name.present? && !resolver.rejected_category_name
         # An unmatched but plausible name: keep it so the user can create or
         # pick it when confirming.
-        warnings << "We could not match the category \"#{@name}\". You can create it or pick an existing one when you confirm."
+        warnings << I18n.t("categories.decision.unmatched", name: @name)
         Result.new(category: nil, category_name: @name,
                    suggested_category_name: @name, warnings: warnings)
       elsif (suggested = fallback_suggestion).present?
@@ -47,12 +47,12 @@ module Categories
           Result.new(category: reconciled, category_name: reconciled.name,
                      suggested_category_name: nil, warnings: warnings)
         else
-          warnings << "No matching category found. Suggesting the new category \"#{suggested}\"; confirm to create it or pick an existing one."
+          warnings << I18n.t("categories.decision.suggested_new", name: suggested)
           Result.new(category: nil, category_name: suggested,
                      suggested_category_name: suggested, warnings: warnings)
         end
       else
-        warnings << "We could not determine a category for this expense. You can assign it when you confirm."
+        warnings << I18n.t("categories.decision.undetermined")
         Result.new(category: nil, category_name: nil,
                    suggested_category_name: nil, warnings: warnings)
       end

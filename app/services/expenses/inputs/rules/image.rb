@@ -25,11 +25,11 @@ module Expenses
         end
 
         def image_errors(input)
-          return [ "Unsupported image format. Use JPEG, PNG, WebP or GIF." ] if mime_type(input.image_data).nil?
+          return [ I18n.t("expenses.inputs.image.unsupported_format") ] if mime_type(input.image_data).nil?
 
           errors = []
           if decoded_image_size(input) > IMAGE_MAX_BYTES
-            errors << "Image is too large (max #{IMAGE_MAX_BYTES / 1.megabyte} MB)."
+            errors << I18n.t("expenses.inputs.image.too_large", max: IMAGE_MAX_BYTES / 1.megabyte)
           end
           errors
         end

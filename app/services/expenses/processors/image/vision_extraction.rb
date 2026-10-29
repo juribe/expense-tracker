@@ -28,7 +28,7 @@ class Expenses::Processors::Image
       )
 
       unless result[:ok?]
-        @recording&.add_errors([ "Expense extraction failed. The extraction service returned an invalid response. (#{result[:error]})" ])
+        @recording&.add_errors([ I18n.t("expenses.processors.image.invalid_response", error: result[:error]) ])
         @recording&.add_step(:extraction, { engine: "vision", raw: nil, errors: [ result[:error] ] })
         return Result.new(ok?: false, candidate: nil, engine: "vision")
       end
@@ -39,7 +39,7 @@ class Expenses::Processors::Image
       @recording&.add_step(:extraction, { engine: "vision", raw: result.dig(:data, :expenses), detected_count: entries.length })
 
       if entries.empty?
-        @recording&.add_errors([ "Could not extract an expense from this input. Reason: no expense could be detected in the image." ])
+        @recording&.add_errors([ I18n.t("expenses.processors.image.no_expense_detected") ])
         return Result.new(ok?: false, candidate: nil, engine: "vision")
       end
 

@@ -14,9 +14,9 @@ module Expenses
           errors = []
           ext = extension(input.file_data, input.filename)
           if ext.blank? || !ext.in?(SUPPORTED_EXTENSIONS)
-            errors << "Unsupported file format. Use PDF, CSV, or Excel."
+            errors << I18n.t("expenses.inputs.file.unsupported_format")
           elsif decoded_file_size(input) > FILE_MAX_BYTES
-            errors << "File is too large (max #{FILE_MAX_BYTES / 1.megabyte} MB)."
+            errors << I18n.t("expenses.inputs.file.too_large", max: FILE_MAX_BYTES / 1.megabyte)
           end
           errors
         end

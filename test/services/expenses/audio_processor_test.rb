@@ -86,18 +86,18 @@ result = process(Expenses::Input.from_params("audio", audio_data: AUDIO_DATA,
 
         assert_not result.ok?
         assert_nil result.candidate
-        assert result.errors.any? { |error| error.include?("empty transcript") }
+        assert result.errors.any? { |error| error.include?("vacía") }
       end
     end
 
     test "speech-to-text failures become pipeline errors, not crashes" do
       stub_method(SpeechToText, :transcribe,
-        ->(**_kwargs) { raise SpeechToText::TranscriptionError, "Speech-to-text failed. Whisper could not transcribe this audio." }) do
+        ->(**_kwargs) { raise SpeechToText::TranscriptionError, "Falló el reconocimiento de voz. Whisper no pudo transcribir este audio." }) do
         result = process(Expenses::Input.from_params("audio", audio_data: AUDIO_DATA))
 
         assert_not result.ok?
         assert_nil result.candidate
-        assert result.errors.any? { |error| error.include?("Whisper could not transcribe") }
+        assert result.errors.any? { |error| error.include?("Whisper no pudo transcribir") }
         assert_equal "whisper", result.steps[:stt][:provider]
         assert result.steps[:stt][:error].present?
       end
@@ -108,7 +108,7 @@ result = process(Expenses::Input.from_params("audio", audio_data: AUDIO_DATA,
 
       assert_not result.ok?
       assert_nil result.candidate
-      assert result.errors.any? { |error| error.include?("Unsupported audio format") }
+      assert result.errors.any? { |error| error.include?("Formato de audio no compatible") }
     end
 
     test "non-audio inputs keep the speech-to-text step marked as not applicable" do

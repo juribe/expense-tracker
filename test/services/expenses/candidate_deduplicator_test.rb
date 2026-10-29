@@ -15,7 +15,7 @@ module Expenses
       result = CandidateDeduplicator.call([ complete, incomplete ])
 
       assert_equal [ complete ], result
-      assert_includes complete.warnings, CandidateDeduplicator::DUPLICATE_SKIPPED_WARNING
+      assert_includes complete.warnings, CandidateDeduplicator.duplicate_skipped_warning
     end
 
     test "keeps the earlier entry when both are equally complete" do
@@ -34,7 +34,7 @@ module Expenses
       result = CandidateDeduplicator.call([ incomplete, complete ])
 
       assert_equal [ complete ], result
-      assert_includes complete.warnings, CandidateDeduplicator::DUPLICATE_SKIPPED_WARNING
+      assert_includes complete.warnings, CandidateDeduplicator.duplicate_skipped_warning
     end
 
     test "keeps entries that only differ in description but share signature" do

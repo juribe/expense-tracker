@@ -69,7 +69,7 @@ module Expenses
       result = resolve(description: "COMPRA POS DAVIBANK 45000", amount: 45_000)
 
       assert_equal "COMPRA POS DAVIBANK", result.description
-      assert result.warnings.any? { |warning| warning.downcase.include?("ambiguous") }
+      assert result.warnings.any? { |warning| warning.downcase.include?("ambigua") }
     end
 
     test "an amount echoed in the description is dropped from the cleaned description" do

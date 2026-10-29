@@ -205,7 +205,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     candidate = result.result.first
     assert_equal "cuenta davibank", candidate.money_source_name
     assert_equal "suggested", candidate.money_source_source
-    assert candidate.warnings.any? { |warning| warning.include?("tight match") }
+    assert candidate.warnings.any? { |warning| warning.include?("coincidencia ajustada") }
   end
 
   test "an AI hint grounded in the fragment resolves without a flag" do
@@ -226,7 +226,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     candidate = result.result.first
     assert_equal "cuenta davibank", candidate.money_source_name
     assert_nil candidate.money_source_source
-    assert_empty candidate.warnings.grep(/tight match/)
+    assert_empty candidate.warnings.grep(/coincidencia ajustada/)
   end
 
   test "a hint naming an unknown source is still dropped entirely" do
@@ -278,7 +278,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_equal [ davibank.id ] * 3, result.result.map(&:money_source_id)
     # Clean data + weights resolve the clause decisively: no review flag.
     result.result.each do |candidate|
-      assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+      assert candidate.warnings.none? { |warning| warning.include?("coincidencia ajustada") }
     end
   end
 
@@ -293,7 +293,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
 
     assert result.success?
     candidate = result.result.first
-    assert candidate.warnings.any? { |warning| warning.include?("doesn't match the itemized amounts") }
+    assert candidate.warnings.any? { |warning| warning.include?("no coincide con los valores detallados") }
   end
 
   test "a merged amount matching the itemized text raises no warning" do
@@ -306,7 +306,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     result = with_forced_ai(entries: [ entry ], text: "Almuerzo 72.000 más 10.000 de propina, pagado con tarjeta.")
 
     assert result.success?
-    assert_empty result.result.first.warnings.grep(/itemized amounts/)
+    assert_empty result.result.first.warnings.grep(/valores detallados/)
   end
 
   test "the AI date is reconciled with the weekday expression of the full message" do
@@ -398,7 +398,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
       expenses = result.result
       assert_equal [ "cuenta davibank", "efectivo", "efectivo" ], expenses.map(&:money_source_name)
       expenses.each do |candidate|
-        assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+        assert candidate.warnings.none? { |warning| warning.include?("coincidencia ajustada") }
       end
     end
   end
@@ -446,7 +446,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     candidate = result.result.first
     assert_equal "tarjeta davibank", candidate.money_source_name
-    assert candidate.warnings.any? { |warning| warning.include?("several transactions paid with different money sources") }
+    assert candidate.warnings.any? { |warning| warning.include?("fuentes de dinero distintas") }
   end
 
   test "several distinct sources in the full text keep silent entries empty and flag tied slices" do
@@ -464,7 +464,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert_nil result.result.first.money_source_id
     # Second entry's slice mentions both sources: first wins, flagged for review.
     assert_equal first_source.id, result.result.last.money_source_id
-    assert result.result.last.warnings.any? { |warning| warning.include?("tight match") }
+    assert result.result.last.warnings.any? { |warning| warning.include?("coincidencia ajustada") }
   end
 
   test "a registered keyword beats bank-only matches of sibling sources" do
@@ -709,7 +709,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     candidate = result.result.first
     assert_equal 120_000, candidate.amount
-    assert candidate.warnings.any? { |warning| warning.include?("refund") && warning.include?("30000") }
+    assert candidate.warnings.any? { |warning| warning.include?("devolución") && warning.include?("30000") }
   end
 
   test "a refund mention without its own amount still flags review" do
@@ -727,7 +727,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     candidate = result.result.first
     assert_equal 200_000, candidate.amount
-    assert candidate.warnings.any? { |warning| warning.include?("refund") }
+    assert candidate.warnings.any? { |warning| warning.include?("devolución") }
   end
 
   test "a transfer destination account never grounds the resolved source silently" do
@@ -751,7 +751,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     candidate = result.result.first
     assert_equal "cuenta davibank", candidate.money_source_name
     assert candidate.money_source_source == "suggested" ||
-           candidate.warnings.any? { |warning| warning.include?("tight match") },
+           candidate.warnings.any? { |warning| warning.include?("coincidencia ajustada") },
            "expected a review flag for a destination-grounded source"
   end
 
@@ -776,7 +776,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     candidate = result.result.first
     assert_equal "cuenta davibank", candidate.money_source_name
     assert_nil candidate.money_source_source
-    assert candidate.warnings.none? { |warning| warning.include?("tight match") }
+    assert candidate.warnings.none? { |warning| warning.include?("coincidencia ajustada") }
   end
 
   test "a refund dropped from the entry fragment is still caught from the full message" do
@@ -799,7 +799,7 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     first = result.result.first
     assert_equal 200_000, first.amount
-    assert first.warnings.any? { |warning| warning.include?("refund") }
+    assert first.warnings.any? { |warning| warning.include?("devolución") }
   end
 
   test "a quantity total missing from the fragment is flagged from the full message" do
@@ -814,6 +814,6 @@ class ExpenseResolverServiceTest < ActiveSupport::TestCase
     assert result.success?
     candidate = result.result.first
     assert_equal 8_500, candidate.amount
-    assert candidate.warnings.any? { |warning| warning.include?("itemized amounts") && warning.include?("25500") }
+    assert candidate.warnings.any? { |warning| warning.include?("valores detallados") && warning.include?("25500") }
   end
 end

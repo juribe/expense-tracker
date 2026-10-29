@@ -60,7 +60,7 @@ module Categories
       assert_nil result.category
       assert_nil result.category_name
       assert_nil result.suggested_category_name
-      assert result.warnings.any? { |warning| warning.include?("could not determine") }
+      assert result.warnings.any? { |warning| warning.include?("determinar") }
     end
 
     test "an external suggestion replaces the heuristic-derived name" do

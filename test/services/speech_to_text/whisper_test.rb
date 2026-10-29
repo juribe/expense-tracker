@@ -96,7 +96,7 @@ module SpeechToText
         error = assert_raises(UnsupportedFormatError) do
           Whisper.call(audio_data: "data:video/mp4;base64,AAAA", filename: "clip.mp4")
         end
-        assert_match(/Unsupported audio format/, error.message)
+        assert_match(/Formato de audio no compatible/, error.message)
       end
     end
 
@@ -105,7 +105,7 @@ module SpeechToText
         error = assert_raises(UnsupportedFormatError) do
           Whisper.call(audio_data: "data:application/octet-stream;base64,AAAA", filename: "voice.aac")
         end
-        assert_match(/Unsupported audio format/, error.message)
+        assert_match(/Formato de audio no compatible/, error.message)
       end
     end
 
@@ -127,7 +127,7 @@ module SpeechToText
     test "a failing python process raises TranscriptionError without raw stack traces" do
       stub_pipeline(exit_status: 1, stderr: "Traceback (most recent call last):\n  File ...\nValueError: boom") do
         error = assert_raises(TranscriptionError) { Whisper.call(audio_data: AUDIO, filename: "note.ogg") }
-        assert_match(/Whisper could not transcribe/, error.message)
+        assert_match(/Whisper no pudo transcribir/, error.message)
         refute_match(/Traceback/, error.message)
       end
     end

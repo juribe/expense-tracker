@@ -306,6 +306,10 @@ en:
 
   categories:
     debt_payments: "Debt payments"
+    decision:
+      unmatched: 'We could not match the category "%{name}". You can create it or pick an existing one when you confirm.'
+      suggested_new: 'No matching category found. Suggesting the new category "%{name}"; confirm to create it or pick an existing one.'
+      undetermined: "We could not determine a category for this expense. You can assign it when you confirm."
   # Dashboard setup banner (onboarding)
   onboarding:
     title: "Complete your initial setup"
@@ -870,6 +874,40 @@ en:
       total_over: "The distribution exceeds the payment by %{extra}."
       apply: "Apply payment"
 
+  expense_candidate:
+    checks:
+      amount_present: "Amount present"
+      currency_detected: "Currency detected"
+      description_present: "Description present"
+      category_assigned: "Category assigned"
+      money_source_detected: "Money source detected"
+      valid_date: "Valid date"
+
+  speech_to_text:
+    whisper:
+      failure: "Speech-to-text failed. Whisper could not transcribe this audio%{detail}."
+      timeout: "Whisper took longer than %{seconds} seconds and was stopped."
+      unreadable_response: "Whisper returned an unreadable response."
+      unreadable_audio: "Could not read the audio payload (unsupported or corrupted audio)."
+      decode_failed: "Could not decode the audio payload."
+      unsupported_format: "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM."
+    ffmpeg:
+      failure: "ffmpeg could not process the audio."
+      missing: "FFmpeg is not available (%{bin})."
+
+  expense_resolver:
+    detected_source: "the detected source"
+    warnings:
+      amount_mismatch: "Amount %{amount} doesn't match the itemized amounts in the text (expected %{expected}) — review it."
+      refund_amount: "Text mentions a refund or adjustment of %{amount} — confirm the amount is the full purchase price before confirming."
+      refund_generic: "Text mentions a refund or adjustment — confirm the amount is the full purchase price before confirming."
+      money_source_tight_match: 'Money source "%{name}" suggested from a tight match — review it before confirming.'
+      money_source_unsplit: "This entry may contain several transactions paid with different money sources — review the split."
+      duplicate_skipped: "Another entry in the same message shared its date, amount and money source; it was skipped as a duplicate."
+      row_amount_mismatch: "The row text names %{text_amount} but the column value is %{column_amount} — review it."
+      row_money_source_ambiguous: "Money source is ambiguous: the row names a bank covered by several registered sources — review it."
+      tabular_fallback: "Tabular parsing could not be matched reliably; falling back to AI extraction."
+
   expenses:
     automatic_rules: "Auto-categorize"
     search_label: "Description"
@@ -879,6 +917,26 @@ en:
     filter_summary_count:
       one: "%{count} filter applied"
       other: "%{count} filters applied"
+    error_valid_from: "Enter a valid From date."
+    error_valid_to: "Enter a valid To date."
+    error_from_after_to: "From cannot be after To."
+    error_min_exceeds_max: "Min amount cannot exceed Max amount."
+    inputs:
+      image:
+        too_large: "Image is too large (max %{max} MB)."
+        unsupported_format: "Unsupported image format. Use JPEG, PNG, WebP or GIF."
+      audio:
+        too_large: "Audio is too large (max %{max} MB)."
+        unsupported_format: "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM."
+      file:
+        too_large: "File is too large (max %{max} MB)."
+        unsupported_format: "Unsupported file format. Use PDF, CSV, or Excel."
+    processors:
+      image:
+        invalid_response: "Expense extraction failed. The extraction service returned an invalid response. (%{error})"
+        no_expense_detected: "Could not extract an expense from this input. Reason: no expense could be detected in the image."
+      audio:
+        empty_transcript: "Speech-to-text produced an empty transcript. The audio may be silent or too short."
     ai_title: "Your expense assistant"
     ai_badge: "With AI"
     ai_subtitle: "Log your expenses in seconds. The AI takes care of organizing them."
