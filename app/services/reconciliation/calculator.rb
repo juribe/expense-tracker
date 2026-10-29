@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Reconciliation
-  # Computes the raw "Día de Cuadre" data for one user and period:
+  # Computes the raw "Día de Balance" data for one user and period:
   # - Pagos pendientes: active expense recurring templates without a linked
   #   transaction in the period (same semantics as
   #   RecurringTemplate#processed_for_period?, batched into one query).

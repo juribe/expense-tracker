@@ -3,7 +3,7 @@
 require "test_helper"
 
 module Payments
-  # The payments flow must also satisfy the Día de Cuadre dashboard: a
+  # The payments flow must also satisfy the Día de Balance dashboard: a
   # registered cuota closes its recurring payment template when the match is
   # unambiguous, and stays untouched otherwise.
   class RecurringLinkTest < ActiveSupport::TestCase

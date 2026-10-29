@@ -115,7 +115,7 @@ class MoneySourcesController < ApplicationController
 
   # POST /money_sources/:id/reset_adjustment
   #
-  # Undoes the manual "Ajustar saldo" correction from the Día de Cuadre
+  # Undoes the manual "Ajustar saldo" correction from the Día de Balance
   # dashboard: balance_offset goes back to zero (the balance returns to what
   # its transactions explain) and the trace is cleared. The cuadre state is
   # invalidated by the model's invalidation hook on update.

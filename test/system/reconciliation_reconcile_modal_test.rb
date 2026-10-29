@@ -2,7 +2,7 @@
 
 require "application_system_test_case"
 
-# The Conciliar modal on the Día de Cuadre: the "Crear gasto"/"Crear ingreso"
+# The Conciliar modal on the Día de Balance: the "Crear gasto"/"Crear ingreso"
 # shortcuts are meaningful for money positions and cards, but a loan
 # difference is resolved by registering the real Payment from the loan page.
 class ReconciliationReconcileModalTest < ApplicationSystemTestCase

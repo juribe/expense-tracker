@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Persisted "Día de Cuadre" state for one user and period. The period key is
+# Persisted "Día de Balance" state for one user and period. The period key is
 # the calendar month ("YYYY-MM", the historical shape) or — for users with a
 # configured pay schedule — the pay cycle's start date ("YYYY-MM-DD").
 #

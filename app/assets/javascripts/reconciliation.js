@@ -1,4 +1,4 @@
-// Día de Cuadre — reconciliation dashboard interactions.
+// Día de Balance — reconciliation dashboard interactions.
 // Two Bootstrap modals driven by the data-* attributes of the buttons that
 // open them:
 //   .js-assign-payment  → "Asignar pago"   (search/assign an existing expense)

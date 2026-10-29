@@ -681,13 +681,13 @@ es:
     gmail: "Integración Gmail"
     whatsapp: "WhatsApp"
     source_recognition: "Reconocimiento de fuentes"
-    entities: "Entidades"
+    entities: "Entidades bancarias"
     playground: "Playground"
     evaluations: "Evaluaciones"
     assistant: "Asistente"
     financial_chat: "Chat Financiero"
     financial_summary: "Resumen"
-    reconciliation: "Día de Cuadre"
+    reconciliation: "Día de Balance"
     sign_out: "Cerrar sesión"
     toggle_sidebar: "Alternar barra lateral"
     close_sidebar: "Cerrar barra lateral"
@@ -699,8 +699,8 @@ es:
     section_planning: "Planificación"
     section_debt: "Deudas"
     section_insights: "Análisis"
-    section_review: "Por revisar"
     section_automation: "Automatización"
+    section_settings: "Configuración"
     candidates: "Candidatos"
 
   evaluations:
@@ -1236,7 +1236,7 @@ es:
 
   pay_settings:
     title: "Ciclo financiero"
-    intro: "Tu mes financiero comienza el día que elijas. Esto afecta cómo se agrupan ingresos y gastos en ciclos financieros en reportes, presupuestos y el cuadre."
+    intro: "Tu mes financiero comienza el día que elijas. Esto afecta cómo se agrupan ingresos y gastos en ciclos financieros en reportes, presupuestos y el Día de Balance."
     start_day: "El ciclo financiero comienza el"
     start_day_help: "Días 29–31 no están disponibles para que el ciclo quepa en cualquier mes."
     example: "Ejemplo: empieza el 20 → \"Octubre\" va del 20 de octubre al 19 de noviembre; lo que pagues el 1–5 de noviembre pertenece al ciclo de octubre."
@@ -1568,8 +1568,8 @@ es:
       not_expense: "Solo puedes asignar gastos a plantillas de gasto recurrente."
       inactive: "La plantilla recurrente está inactiva."
       already_linked: "El gasto ya está asignado a otra plantilla recurrente. Quítalo primero si quieres reasignarlo."
-      debt_target: "Los pagos a crédito se aplican desde la página de la cuenta: allí se registra el pago real (cuota dividida en capital e intereses) y el cuadre se limpia solo."
-      period_mismatch: "El gasto tiene fecha de %{description}; no puede contar como el pago de este período. Usa un gasto con fecha dentro del mes del cuadre (edita su fecha o crea uno nuevo)."
+      debt_target: "Los pagos a crédito se aplican desde la página de la cuenta: allí se registra el pago real (cuota dividida en capital e intereses) y el Día de Balance se limpia solo."
+      period_mismatch: "El gasto tiene fecha de %{description}; no puede contar como el pago de este período. Usa un gasto con fecha dentro del mes del Día de Balance (edita su fecha o crea uno nuevo)."
       period_taken: "\"%{description}\" ya registra el pago de ese mes."
       expected_amount: "Monto esperado"
       already_registered: "Ya registrado este período"
@@ -2277,7 +2277,7 @@ es:
     no_expenses: "Sin gastos registrados este mes"
 
   reconciliation:
-    title: "Día de Cuadre"
+    title: "Día de Balance"
     subtitle: "Revisa pagos y saldos para dejar tus finanzas al día."
     checked_today: "Última revisión: Hoy, %{time}"
     checked_on: "Última revisión: %{date}"
@@ -2790,7 +2790,7 @@ es:
       button: "Simular pago extraordinario"
     extras:
       title: "Abonos extraordinarios"
-      hint: "Un pago de verdad: la plata sale de la fuente que elijas (gasto real) y se aplica a la deuda como solo capital. Aparece en los pagos del crédito, en reportes y en el Día de Cuadre. Para probar qué pasaría sin mover nada, usa el simulador de arriba."
+      hint: "Un pago de verdad: la plata sale de la fuente que elijas (gasto real) y se aplica a la deuda como solo capital. Aparece en los pagos del crédito, en reportes y en el Día de Balance. Para probar qué pasaría sin mover nada, usa el simulador de arriba."
       funding: "¿De dónde sale la plata?"
       funding_blank: "Selecciona la fuente de dinero…"
       expense_description: "Abono extraordinario"

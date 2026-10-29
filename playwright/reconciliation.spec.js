@@ -25,13 +25,13 @@ async function createExpenseTemplate(page, category, { description, amount, day 
   await expect(page.getByTestId('recurring-row').filter({ hasText: description })).toBeVisible();
 }
 
-test.describe('día de cuadre', () => {
+test.describe('día de balance', () => {
   test('dashboard loads from the sidebar and unverified accounts are neutral', async ({ page }) => {
     await signUp(page);
     await createAccount(page, 'Davibank Cuadre Primer', '500.000');
     await page.goto('/reconciliation');
     await expect(page).toHaveURL(/\/reconciliation/);
-    await expect(page.getByRole('heading', { name: 'Día de Cuadre' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Día de Balance' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Pagos pendientes' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Saldos por conciliar' })).toBeVisible();
     const row = page.locator('li.list-group-item').filter({ hasText: 'Davibank Cuadre Primer' });

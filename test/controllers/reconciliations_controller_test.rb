@@ -31,7 +31,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     get reconciliation_path
 
     assert_response :success
-    assert_select "h1", text: "Día de Cuadre"
+    assert_select "h1", text: "Día de Balance"
     assert_select "h2", text: "Pagos pendientes"
     assert_select "h2", text: "Saldos por conciliar"
     assert_select "li.list-group-item", minimum: 1
@@ -141,7 +141,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/sign_in/, response.location)
   end
 
-  test "sidebar includes the Día de Cuadre link" do
+  test "sidebar includes the Día de Balance link" do
     sign_in @user
     get dashboard_path
     assert_select "a[href='#{reconciliation_path}']"

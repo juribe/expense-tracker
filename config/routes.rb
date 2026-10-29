@@ -234,7 +234,7 @@ Rails.application.routes.draw do
   get "debt_capacity", to: "debt_capacity#show", as: :debt_capacity
   get "debt_capacity/comparison", to: "debt_capacity#comparison", as: :debt_capacity_comparison
 
-  # Día de Cuadre (reconciliation dashboard)
+  # Día de Balance (reconciliation dashboard)
   get "reconciliation", to: "reconciliations#show", as: :reconciliation
   get "reconciliation/search_expenses", to: "reconciliations#search_expenses", as: :reconciliation_search_expenses
   get "reconciliation/search_movements", to: "reconciliations#search_movements", as: :reconciliation_search_movements

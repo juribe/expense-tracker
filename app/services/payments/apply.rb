@@ -43,7 +43,7 @@ module Payments
       payment.created_expense = true if @payment.nil? && @expense_created
       ActiveRecord::Base.transaction do
         payment.save!
-        # Keep Día de Cuadre in sync: the cuota paid here is usually the
+        # Keep Día de Balance in sync: the cuota paid here is usually the
         # expense of its recurring template. Non-blocking — if the
         # assignment is ambiguous it is skipped and stays pending in the
         # cuadre's manual "Asignar" flow.

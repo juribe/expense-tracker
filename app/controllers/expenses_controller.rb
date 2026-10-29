@@ -273,7 +273,7 @@ relation = relation.includes(:category) if request.format.html?
   end
 
   # Optional prefill for the standard new-expense form, used when it is opened
-  # from the Día de Cuadre reconciliation modals (amount/money source of the
+  # from the Día de Balance reconciliation modals (amount/money source of the
   # difference). Only fills the form; creation still goes through create.
   def assign_expense_prefill
     prefill = params.permit(:amount, :description, :money_source_id, :date)

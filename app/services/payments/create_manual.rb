@@ -4,7 +4,7 @@ module Payments
   # Creates a manual debt payment in one step: the Expense (the cash out from
   # the funding source) plus its application to the debt via Payments::Apply,
   # which also links the expense to the debt's recurring payment template
-  # (RecurringLink) so Día de Cuadre stops listing the cuota as pending.
+  # (RecurringLink) so Día de Balance stops listing the cuota as pending.
   #
   # Mirrors the statement import's payment (Statements::Confirmation#apply_payment)
   # but from user-entered data. The distribution must sum to the amount; any

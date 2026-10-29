@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# "Día de Cuadre" — reconciliation workspace for reaching "Todo cuadrado":
+# "Día de Balance" — reconciliation workspace for reaching "Todo cuadrado":
 # pending recurring payments assigned to real expenses, and account/card
 # balances verified against reality. Reads the persisted state, never
 # recomputes per request (Reconciliation::State).

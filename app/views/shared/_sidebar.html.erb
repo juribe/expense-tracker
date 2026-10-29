@@ -33,9 +33,9 @@
           <% end %>
         </li>
         <li class="sidebar-item">
-          <%= link_to financial_summary_path, class: "sidebar-link #{active_class('financial_summary')}" do %>
-            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-clipboard-data fs-5"></i></span>
-            <span class="hide-menu"><%= t("nav.financial_summary") %></span>
+          <%= link_to reconciliation_path, class: "sidebar-link #{active_class('reconciliations')}" do %>
+            <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-circle-check fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.reconciliation", default: "Día de Balance") %></span>
           <% end %>
         </li>
 
@@ -68,13 +68,6 @@
             <span class="hide-menu"><%= t("nav.transfers", default: "Transferencias") %></span>
           <% end %>
         </li>
-        <li class="sidebar-item">
-          <%= link_to categories_path, class: "sidebar-link #{active_class('categories')}" do %>
-            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-tags fs-5"></i></span>
-            <span class="hide-menu"><%= t("nav.categories") %></span>
-          <% end %>
-        </li>
-
         <%# Dinero %>
         <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_money", default: "Dinero") %></span></li>
         <li class="sidebar-item">
@@ -141,6 +134,12 @@
         <%# Análisis %>
         <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_insights", default: "Análisis") %></span></li>
         <li class="sidebar-item">
+          <%= link_to financial_summary_path, class: "sidebar-link #{active_class('financial_summary')}" do %>
+            <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-clipboard-data fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.financial_summary") %></span>
+          <% end %>
+        </li>
+        <li class="sidebar-item">
           <a class="sidebar-link has-arrow <%= 'active' if reports_section_active? %>" data-bs-toggle="collapse" href="#reportsSubmenu" role="button" aria-expanded="<%= reports_section_active? %>" aria-controls="reportsSubmenu">
             <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-chart-bar fs-5"></i></span>
             <span class="hide-menu"><%= t("reports.title") %></span>
@@ -174,27 +173,12 @@
           <% end %>
         </li>
 
-        <%# Por revisar %>
-        <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_review", default: "Por revisar") %></span></li>
-        <li class="sidebar-item">
-          <%= link_to reconciliation_path, class: "sidebar-link #{active_class('reconciliations')}" do %>
-            <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-circle-check fs-5"></i></span>
-            <span class="hide-menu"><%= t("nav.reconciliation", default: "Día de Cuadre") %></span>
-          <% end %>
-        </li>
-
         <%# Automatización %>
         <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_automation", default: "Automatización") %></span></li>
         <li class="sidebar-item">
           <%= link_to transaction_rules_path, class: "sidebar-link #{exact_active_class('transaction_rules')}" do %>
             <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-wand fs-5"></i></span>
             <span class="hide-menu"><%= t("nav.rules") %></span>
-          <% end %>
-        </li>
-        <li class="sidebar-item">
-          <%= link_to financial_institutions_path, class: "sidebar-link #{'active' if %w[financial_institutions custom_financial_institutions].include?(controller_name)}" do %>
-            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-buildings fs-5"></i></span>
-            <span class="hide-menu"><%= t("nav.entities", default: "Entidades") %></span>
           <% end %>
         </li>
         <li class="sidebar-item">
@@ -219,6 +203,21 @@
           <%= link_to email_sources_path, class: "sidebar-link #{active_class('email_sources')}" do %>
             <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-mail-forward fs-5"></i></span>
             <span class="hide-menu"><%= t("nav.email_redirect", default: "Redirección email") %></span>
+          <% end %>
+        </li>
+
+        <%# Configuración %>
+        <li class="nav-small-cap"><span class="hide-menu"><%= t("nav.section_settings", default: "Configuración") %></span></li>
+        <li class="sidebar-item">
+          <%= link_to categories_path, class: "sidebar-link #{active_class('categories')}" do %>
+            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-tags fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.categories") %></span>
+          <% end %>
+        </li>
+        <li class="sidebar-item">
+          <%= link_to financial_institutions_path, class: "sidebar-link #{'active' if %w[financial_institutions custom_financial_institutions].include?(controller_name)}" do %>
+            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-buildings fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.entities", default: "Entidades bancarias") %></span>
           <% end %>
         </li>
       </ul>

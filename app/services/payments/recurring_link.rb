@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Payments
-  # Bridges the payments flow with the Día de Cuadre dashboard: registering a
+  # Bridges the payments flow with the Día de Balance dashboard: registering a
   # debt payment should also assign the expense to the recurring payment
   # template it corresponds to, otherwise the cuadre keeps listing that
   # recurring payment as pending.

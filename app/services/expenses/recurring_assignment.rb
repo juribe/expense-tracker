@@ -15,7 +15,7 @@ module Expenses
   #
   # `period` (optional) is the persisted period key — the calendar month
   # "YYYY-MM" or, with a configured pay schedule, the pay cycle's start date.
-  # It is used by the Día de Cuadre assign flow: the expense must be dated
+  # It is used by the Día de Balance assign flow: the expense must be dated
   # inside that period, otherwise the linked transaction would never clear
   # the period's pending row. Re-assigning an
   # expense to the template it is already linked to is a no-op success.

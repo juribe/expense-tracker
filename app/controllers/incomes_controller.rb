@@ -67,7 +67,7 @@ class IncomesController < ApplicationController
   end
 
   # Optional prefill for the standard new-income form, used when it is opened
-  # from the Día de Cuadre reconciliation modal (amount/money source of the
+  # from the Día de Balance reconciliation modal (amount/money source of the
   # difference). Only fills the form; creation still goes through create.
   def assign_income_prefill
     prefill = params.permit(:amount, :description, :money_source_id, :date)

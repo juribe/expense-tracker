@@ -9,7 +9,7 @@ module Credits
     # source and the payment is applied to the debt through the standard
     # store machinery (Payments::Apply → Payments::BalanceEffect), so the
     # loan's real balance moves and the payment shows up in the loan's
-    # payment list, reports and Día de Cuadre.
+    # payment list, reports and Día de Balance.
     #
     #   reduce_term / reduce_installment → the applied amount is pure capital
     #   prepay_installments            → covers the ruled installments at

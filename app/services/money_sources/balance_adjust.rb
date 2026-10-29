@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MoneySources
-  # "Ajustar saldo" from the Día de Cuadre dashboard: makes the reconciled
+  # "Ajustar saldo" from the Día de Balance dashboard: makes the reconciled
   # balance match the real balance WITHOUT creating an expense or income.
   #
   # - Accounts, cash, wallets and cards: the correction is stored in
