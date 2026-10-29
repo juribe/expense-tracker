@@ -116,6 +116,28 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to transfers_path
   end
 
+  # A revolving abono is a Transfer from the funding source to the debt, and
+  # the CreditExtraPayment history row points at it. Deleting that movement
+  # from the transfers page must remove the abono record too (never raise a
+  # foreign key error) and revert both balances.
+  test "DELETE /transfers/:id removes the revolving abono the transfer funds" do
+    funding = @user.money_sources.create!(name: "Abono funding", kind: "account", starting_balance: 5_000_000)
+    card = @user.money_sources.create!(name: "Abono card", kind: "credit_card", starting_balance: -2_000_000)
+    card.create_credit_account!(credit_limit: 10_000_000)
+    extra = Credits::ExtraPayments::Create.call(
+      money_source: card, funding_money_source: funding, date: Date.today,
+      amount: "1000000", application_type: "reduce_balance"
+    ).result
+
+    assert_difference [ "Transfer.count", "CreditExtraPayment.count" ], -1 do
+      delete transfer_path(extra.transfer)
+    end
+
+    assert_redirected_to transfers_path
+    assert_equal BigDecimal("5_000_000"), funding.reload.balance
+    assert_equal BigDecimal("2_000_000"), card.reload.used_credit
+  end
+
   test "POST /transfers above the origin balance redirects with the balance message" do
     assert_no_difference "Transfer.count" do
       post transfers_path, params: { transfer: {

@@ -257,6 +257,32 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_not ExpenseCandidate.exists?(candidate.id)
   end
 
+  # An amortizing abono creates the cash Expense plus a Payment, and the
+  # CreditExtraPayment history row points at both. Deleting the expense from
+  # the expenses page must remove that history row too instead of raising a
+  # foreign key error, and the payment callback still reverts the balance.
+  test "DELETE /expenses/:id removes the extraordinary payment that owns the expense" do
+    loan = @user.money_sources.create!(name: "Abono mortgage", kind: "loan", sub_kind: "mortgage")
+    loan.create_credit_account!(
+      outstanding_balance: 1_200_000, interest_rate: 1.0, interest_rate_type: "monthly",
+      installment_amount: 300_000, installment_count: 5, installments_paid: 0,
+      start_date: Date.new(2026, 1, 5), payment_frequency: "monthly"
+    )
+    Credits::Projection::Builder.call(money_source: loan).result
+    funding = @user.money_sources.create!(name: "Abono funding", kind: "account", starting_balance: 500_000)
+    extra = Credits::ExtraPayments::Create.call(
+      money_source: loan, funding_money_source: funding, date: Date.today,
+      amount: "300000", application_type: "reduce_term"
+    ).result
+
+    assert_difference "CreditExtraPayment.count", -1 do
+      delete expense_path(extra.expense)
+    end
+
+    assert_redirected_to expenses_path
+    assert_equal BigDecimal("1_200_000"), loan.credit_account.reload.outstanding_balance.to_d
+  end
+
   test "DELETE /expenses/bulk_destroy removes selected expenses" do
     a = create_expense(amount: 1, date: Date.today, description: "A")
     b = create_expense(amount: 2, date: Date.today, description: "B")

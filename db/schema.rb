@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_29_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -986,9 +986,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_000000) do
   add_foreign_key "credit_accounts", "money_sources"
   add_foreign_key "credit_extra_payments", "money_sources"
   add_foreign_key "credit_extra_payments", "money_sources", column: "funding_money_source_id"
-  add_foreign_key "credit_extra_payments", "payments"
-  add_foreign_key "credit_extra_payments", "transactions", column: "expense_id"
-  add_foreign_key "credit_extra_payments", "transfers"
+  add_foreign_key "credit_extra_payments", "payments", on_delete: :cascade
+  add_foreign_key "credit_extra_payments", "transactions", column: "expense_id", on_delete: :cascade
+  add_foreign_key "credit_extra_payments", "transfers", on_delete: :cascade
   add_foreign_key "credit_projections", "money_sources"
   add_foreign_key "credit_scenarios", "money_sources"
   add_foreign_key "custom_financial_institutions", "users"
