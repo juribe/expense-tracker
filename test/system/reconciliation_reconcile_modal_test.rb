@@ -22,7 +22,7 @@ class ReconciliationReconcileModalTest < ApplicationSystemTestCase
     sign_in @user
     visit reconciliation_path
 
-    find("li.list-group-item", text: @loan.name).find("button.js-reconcile").click
+    scroll_and_click(find("li.list-group-item", text: @loan.name).find("button.js-reconcile", text: "Verificar saldo"))
     assert_selector "#reconcileModal.show"
     wait_for_modal_transition "#reconcileModal"
     assert_no_selector "#reconcileCreateExpense", visible: true
@@ -31,7 +31,7 @@ class ReconciliationReconcileModalTest < ApplicationSystemTestCase
     find("#reconcileModal .btn-close").click
     assert_no_selector "#reconcileModal.show", wait: 5 # wait for the hide transition
 
-    find("li.list-group-item", text: @account.name).find("button.js-reconcile").click
+    scroll_and_click(find("li.list-group-item", text: @account.name).find("button.js-reconcile", text: "Verificar saldo"))
     assert_selector "#reconcileModal.show"
     assert_selector "#reconcileCreateExpense", visible: true
     assert_selector "#reconcileCreateIncome", visible: true

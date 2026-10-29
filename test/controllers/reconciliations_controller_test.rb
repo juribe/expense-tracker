@@ -31,12 +31,20 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     get reconciliation_path
 
     assert_response :success
-    assert_select "h1", text: "Día de Balance"
-    assert_select "h2", text: "Pagos pendientes"
-    assert_select "h2", text: "Saldos por conciliar"
+    assert_select "h1", text: /Día de Balance/
+    assert_select "h2", text: /Verifica tus saldos/
+    assert_select "h3", text: "Saldos de tus cuentas"
+    assert_select "h3", text: "Pagos recurrentes sin pagar"
+    assert_select "h2", text: /Confirma tus deudas/
+    assert_select "h3", text: "Obligaciones por verificar"
     assert_select "li.list-group-item", minimum: 1
     assert_select("button.js-assign-payment", minimum: 1)
-    assert_select("button.js-reconcile", minimum: 1)
+    assert_select("button.js-reconcile", minimum: 2)
+    assert_select ".rec-hero"
+    assert_select ".rec-metrics"
+    assert_select "#reconciliationGuideModal"
+    assert_select "#reconcileModal #reconcileSearchResults"
+    assert_select "#reconcileModal #reconcileLoadMore"
   end
 
   test "GET /reconciliation balance rows omit the real balance and difference and say Pendiente" do
@@ -46,8 +54,9 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     row = css_select("li.list-group-item").find { |item| item.text.include?(@account.name) }
     assert_not_nil row, "the account row should be rendered"
-    assert_includes row.text, "Pendiente"
-    assert_includes row.text, "Conciliar"
+    assert_includes row.text, "Por verificar"
+    assert_includes row.text, "Verificar saldo"
+    assert_includes row.text, "Movimientos"
     refute_includes row.text, "Saldo real"
     refute_includes row.text, "Diferencia"
     refute_includes row.text, "Sin verificar"
@@ -343,8 +352,9 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     row = css_select("li.list-group-item").find { |item| item.text.include?(@account.name) }
     assert_not_nil row, "the account row should be rendered"
-    assert_includes row.text, "Conciliado"
-    refute_includes row.text, "Pendiente"
+    assert_includes row.text, "Verificada"
+    assert_includes row.text, "Cambiar saldo"
+    refute_includes row.text, "Por verificar"
   end
 
   test "POST leave_pending works with a pay cycle period" do
@@ -430,5 +440,153 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "input[value*='500.000']"
+  end
+
+  test "search_expenses filters results by the recurring template category" do
+    other_category = Category.create!(user: @user, name: "Transporte")
+    matching = @user.expenses.create!(
+      category: @category, description: "Pago crédito carro", amount: 2_818_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: @recon_source
+    )
+    @user.expenses.create!(
+      category: other_category, description: "Pago crédito carro transporte", amount: 2_818_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: @recon_source
+    )
+    sign_in @user
+
+    get reconciliation_search_expenses_path, params: { q: "Pago crédito carro", template_id: @template.id }
+
+    results = JSON.parse(response.body)["expenses"]
+    assert_equal [ matching.id ], results.map { |row| row["id"] }
+  end
+
+  test "search_expenses matches a numeric query against the amount" do
+    matching = @user.expenses.create!(
+      category: @category, description: "Pago crédito carro", amount: 2_818_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: @recon_source
+    )
+    @user.expenses.create!(
+      category: @category, description: "Otro pago", amount: 500_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: @recon_source
+    )
+    sign_in @user
+
+    get reconciliation_search_expenses_path, params: { q: "2818000", template_id: @template.id }
+
+    results = JSON.parse(response.body)["expenses"]
+    assert_equal [ matching.id ], results.map { |row| row["id"] }
+  end
+
+  test "search_expenses payload includes the open link and category metadata" do
+    expense = @user.expenses.create!(
+      category: @category, description: "Pago crédito carro", amount: 2_818_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: @recon_source
+    )
+    sign_in @user
+
+    get reconciliation_search_expenses_path, params: { q: "Pago crédito carro", template_id: @template.id }
+
+    row = JSON.parse(response.body)["expenses"].first
+    assert_equal edit_expense_path(expense), row["edit_url"]
+    assert_equal "expense", row["kind"]
+    assert_equal @category.name, row["category_name"]
+  end
+
+  test "search_movements returns only movements for the requested source" do
+    other_source = MoneySource.create!(user: @user, name: "Otra cuenta", kind: "account", starting_balance: 1_000_000)
+    own_movement = @user.expenses.create!(
+      category: @category, description: "Movimiento propio", amount: 100_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: @account
+    )
+    @user.expenses.create!(
+      category: @category, description: "Movimiento ajeno", amount: 100_000,
+      kind: "expense", source: "manual", date: Date.current, money_source: other_source
+    )
+    sign_in @user
+
+    get reconciliation_search_movements_path, params: { money_source_id: @account.id }
+
+    body = JSON.parse(response.body)
+    assert_equal [ own_movement.id ], body["movements"].map { |row| row["id"] }
+    assert_equal edit_expense_path(own_movement), body["movements"].first["edit_url"]
+    refute body["has_more"]
+  end
+
+  test "search_movements paginates with the existing statement pagination" do
+    9.times do |index|
+      @user.expenses.create!(
+        category: @category, description: "Movimiento #{index}", amount: 10_000 + index,
+        kind: "expense", source: "manual", date: Date.current, money_source: @account
+      )
+    end
+    sign_in @user
+
+    get reconciliation_search_movements_path,
+        params: { money_source_id: @account.id, page: 1, per_page: 5 }
+
+    first_page = JSON.parse(response.body)
+    assert_equal 5, first_page["movements"].size
+    assert_equal 9, first_page["total_count"]
+    assert first_page["has_more"]
+
+    get reconciliation_search_movements_path,
+        params: { money_source_id: @account.id, page: 2, per_page: 5 }
+
+    second_page = JSON.parse(response.body)
+    assert_equal 4, second_page["movements"].size
+    refute second_page["has_more"]
+  end
+
+  test "assign modal no longer shows the Gmail sync action" do
+    sign_in @user
+    get reconciliation_path
+
+    assert_response :success
+    assert_select "#assignPaymentModal", text: /Sync Gmail/, count: 0
+    assert_select "#assignPaymentModal a[href*='gmail']", count: 0
+  end
+
+  test "pending payment rows use the recurring category icon" do
+    @category.update!(icon: "ti-bus")
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    assert_select "[data-testid='pending-payment-row'] i.ti-bus"
+  end
+
+  test "debt sources render in the obligations section with debt-specific labels" do
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    debt_row = css_select("[data-testid='debt-row']").find { |item| item.text.include?(loan.name) }
+    assert_not_nil debt_row
+    assert_includes debt_row.text, "Deuda en Yogasto"
+    assert_includes debt_row.text, "Verificar saldo"
+    assert_includes debt_row.text, "Movimientos"
+
+    accounts_panel = css_select(".rec-panel").find { |panel| panel.text.include?("Saldos de tus cuentas") }
+    debts_panel = css_select(".rec-panel").find { |panel| panel.text.include?("Obligaciones por verificar") }
+    refute_includes accounts_panel.text, loan.name
+    assert_includes debts_panel.text, loan.name
+  end
+
+  test "a verified source can be changed again in the same cycle" do
+    sign_in @user
+
+    post reconciliation_actual_balance_path(@account), params: { mark_ok: "true" }
+    assert_equal "ok", ReconciliationSnapshot.find_by(user: @user, money_source: @account).resolution
+
+    post reconciliation_actual_balance_path(@account),
+         params: { actual_balance: "8.500.000", adjust: "true", note: "Corrección" }
+
+    assert_equal 8_500_000.to_d, @account.reload.balance
+    assert_equal "ok", ReconciliationSnapshot.find_by(user: @user, money_source: @account).resolution
+    assert_equal 1, ReconciliationSnapshot.for_period(@user, Date.current.strftime("%Y-%m")).count
   end
 end

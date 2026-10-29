@@ -1,0 +1,34 @@
+<div class="modal fade" id="reconciliationGuideModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered rec-guide-modal">
+    <div class="modal-content">
+      <div class="modal-header rec-modal-header">
+        <div>
+          <h5 class="modal-title"><%= t("reconciliation.guide.title") %></h5>
+          <p class="rec-modal-subtitle"><%= t("reconciliation.guide.intro") %></p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+      <div class="modal-body rec-guide-body">
+        <% [
+             [ "1", t("reconciliation.guide.step_accounts_title"), t("reconciliation.guide.step_accounts_body") ],
+             [ "2", t("reconciliation.guide.step_payments_title"), t("reconciliation.guide.step_payments_body") ],
+             [ "3", t("reconciliation.guide.step_debts_title"), t("reconciliation.guide.step_debts_body") ],
+             [ "4", t("reconciliation.guide.step_cycle_title"), t("reconciliation.guide.step_cycle_body") ]
+           ].each do |number, title, body| %>
+          <div class="rec-guide-step">
+            <span class="rec-guide-number"><%= number %></span>
+            <div>
+              <b><%= title %></b>
+              <p><%= body %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="rec-modal-footer rec-guide-footer">
+        <button type="button" class="btn rec-btn-primary" data-bs-dismiss="modal">
+          <%= t("reconciliation.guide.close") %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

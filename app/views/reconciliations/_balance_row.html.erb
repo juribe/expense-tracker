@@ -1,0 +1,53 @@
+<%# One account or debt row in the Día de Balance lists. Locals: balance (hash). %>
+<% debt = reconciliation_debt_balance?(balance) %>
+<li class="list-group-item rec-row <%= "rec-row-debt" if debt %>"
+    data-testid="<%= debt ? "debt-row" : "account-row" %>"
+    data-source-id="<%= balance["source_id"] %>">
+  <div class="rec-row-main">
+    <span class="rec-row-icon <%= "rec-row-icon-debt" if debt %>">
+      <i class="ti ti-<%= source_kind_icon(balance["kind"]) %>"></i>
+    </span>
+    <div class="rec-row-copy">
+      <div class="rec-row-name"><%= reconciliation_balance_name(balance) %></div>
+      <div class="rec-row-meta"><%= reconciliation_balance_meta(balance) %></div>
+    </div>
+  </div>
+
+  <div class="rec-row-balance">
+    <small><%= reconciliation_balance_label(balance) %></small>
+    <strong class="num"><%= reconciliation_money(balance["app_balance"]) %></strong>
+  </div>
+
+  <%= reconciliation_status_pill(balance["status"]) %>
+
+  <div class="rec-row-actions">
+    <button type="button"
+            class="btn rec-btn-soft js-reconcile"
+            data-mode="movements"
+            data-source-id="<%= balance["source_id"] %>"
+            data-name="<%= reconciliation_balance_name(balance) %>"
+            data-meta="<%= reconciliation_balance_meta(balance) %>"
+            data-app-balance="<%= balance["app_balance"] %>"
+            data-app-balance-formatted="<%= reconciliation_money(balance["app_balance"]) %>"
+            data-kind="<%= balance["kind"] %>"
+            data-modal-title="<%= reconciliation_modal_title(balance, "movements") %>"
+            data-movements-title="<%= reconciliation_movements_title(balance) %>"
+            data-balance-label="<%= reconciliation_balance_label(balance) %>">
+      <i class="ti ti-list me-1"></i><%= t("reconciliation.balances.movements") %>
+    </button>
+    <button type="button"
+            class="btn rec-btn-outline js-reconcile"
+            data-mode="balance"
+            data-source-id="<%= balance["source_id"] %>"
+            data-name="<%= reconciliation_balance_name(balance) %>"
+            data-meta="<%= reconciliation_balance_meta(balance) %>"
+            data-app-balance="<%= balance["app_balance"] %>"
+            data-app-balance-formatted="<%= reconciliation_money(balance["app_balance"]) %>"
+            data-kind="<%= balance["kind"] %>"
+            data-modal-title="<%= reconciliation_modal_title(balance, "balance") %>"
+            data-movements-title="<%= reconciliation_movements_title(balance) %>"
+            data-balance-label="<%= reconciliation_balance_label(balance) %>">
+      <%= reconciliation_balance_action_label(balance) %>
+    </button>
+  </div>
+</li>

@@ -211,5 +211,30 @@ module Reconciliation
       assert_equal "ok", snapshot.resolution
       assert snapshot.checked_at.present?
     end
+
+    test "mark_ok on a credit card verifies it without a payment or balance change" do
+      assert_no_difference -> { Payment.count } do
+        assert_no_difference -> { Transaction.count } do
+          assert_no_difference -> { @card.reload.balance } do
+            CheckBalance.call(user: @user, money_source: @card, mark_ok: true)
+          end
+        end
+      end
+
+      assert_equal "ok", ReconciliationSnapshot.find_by(user: @user, money_source: @card).resolution
+    end
+
+    test "mark_ok on a loan verifies it without changing the outstanding balance" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+
+      assert_no_difference -> { Payment.count } do
+        assert_no_difference -> { loan.credit_account.reload.outstanding_balance } do
+          CheckBalance.call(user: @user, money_source: loan, mark_ok: true)
+        end
+      end
+
+      assert_equal "ok", ReconciliationSnapshot.find_by(user: @user, money_source: loan).resolution
+    end
   end
 end

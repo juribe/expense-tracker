@@ -1,150 +1,227 @@
 <% content_for :title, t("reconciliation.title") %>
 
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
-  <div>
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <h1 class="fw-bold mb-0"><%= t("reconciliation.title") %></h1>
-      <span class="badge bg-light text-dark border" data-testid="cycle-badge">
-        <i class="ti ti-calendar-plus me-1"></i><%= @period_label %><%= " (#{@cycle.range_label})" if @cycle %>
-      </span>
-    </div>
-    <p class="text-secondary mb-0 mt-1"><%= t("reconciliation.subtitle") %></p>
-  </div>
-  <div class="text-md-end">
-    <% checked_label = reconciliation_checked_at_label(@state.checked_at&.iso8601) %>
-    <% if checked_label %>
-      <div class="text-secondary small">
-        <i class="ti ti-history me-1"></i><%= checked_label %>
-      </div>
-    <% end %>
-  </div>
-</div>
+<div class="reconciliation-page">
+  <nav class="breadcrumb rec-breadcrumb" aria-label="<%= t("reconciliation.breadcrumb") %>">
+    <span><%= t("reconciliation.breadcrumb") %></span>
+    <span aria-hidden="true">›</span>
+    <strong><%= t("reconciliation.title") %></strong>
+  </nav>
 
-<%# ---- Overall status strip ------------------------------------------------ %>
-<div class="card border-0 mb-4">
-  <div class="card-body py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <div class="d-flex align-items-center gap-2">
-      <% if @state.reconciled? %>
-        <%= reconciliation_status_badge("reconciled", t("reconciliation.status.all_set")) %>
-        <span class="text-secondary small"><%= t("reconciliation.status.all_set_subtitle") %></span>
-      <% else %>
-        <%= reconciliation_status_badge("pending", t("reconciliation.status.pending_count", count: @state.pending_payments_count)) %>
-        <span class="text-secondary small">·</span>
-        <span class="small"><%= t("reconciliation.status.unverified_count", count: @state.unverified_count) %></span>
-        <% if @state.discrepancies_count.positive? %>
-          <span class="text-secondary small">·</span>
+  <div class="rec-page-head">
+    <div>
+      <h1 class="rec-page-title"><%= t("reconciliation.title") %> <span aria-hidden="true">✦</span></h1>
+      <p class="rec-page-subtitle"><%= t("reconciliation.subtitle") %></p>
+    </div>
+    <div class="rec-period" data-testid="cycle-badge">
+      <i class="ti ti-calendar-plus" aria-hidden="true"></i>
+      <span><%= @period_label %><%= " (#{@cycle.range_label})" if @cycle %></span>
+    </div>
+  </div>
+
+  <section class="rec-hero">
+    <div class="rec-hero-copy">
+      <div class="rec-hero-kicker"><i class="ti ti-sparkles" aria-hidden="true"></i><%= t("reconciliation.hero.kicker") %></div>
+      <h2><%= t("reconciliation.hero.title") %></h2>
+      <p><%= t("reconciliation.hero.body") %></p>
+      <div class="rec-hero-actions">
+        <%= link_to "#rec-accounts", class: "btn rec-btn-white" do %>
+          <%= t("reconciliation.hero.continue") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        <% end %>
+        <button type="button" class="btn rec-btn-glass" data-bs-toggle="modal" data-bs-target="#reconciliationGuideModal">
+          <%= t("reconciliation.hero.how_it_works") %>
+        </button>
+      </div>
+      <div class="rec-hero-status">
+        <% if @state.reconciled? %>
+          <%= reconciliation_status_badge("reconciled", t("reconciliation.status.all_set")) %>
+          <span><%= t("reconciliation.status.all_set_subtitle") %></span>
+        <% elsif @state.pending_payments_count.positive? %>
+          <%= reconciliation_status_badge("pending", t("reconciliation.status.pending_count", count: @state.pending_payments_count)) %>
+          <span><%= t("reconciliation.status.unverified_count", count: @state.unverified_count) %></span>
+        <% elsif @state.unverified_count.positive? %>
+          <%= reconciliation_status_badge("todo", t("reconciliation.status.unverified_count", count: @state.unverified_count)) %>
+        <% else %>
           <%= reconciliation_status_badge("warning", t("reconciliation.status.differences_count", count: @state.discrepancies_count)) %>
         <% end %>
-      <% end %>
+        <% checked_label = reconciliation_checked_at_label(@state.checked_at&.iso8601) %>
+        <% if checked_label %>
+          <span class="rec-checked-at"><i class="ti ti-history" aria-hidden="true"></i><%= checked_label %></span>
+        <% end %>
+      </div>
     </div>
-    <div class="text-secondary small">
-      <%= [ t("reconciliation.status.pending_count", count: @state.pending_payments_count),
-            t("reconciliation.status.unverified_count", count: @state.unverified_count),
-            t("reconciliation.status.differences_count", count: @state.discrepancies_count) ].join(" · ") %>
+
+    <div class="rec-hero-progress">
+      <div class="rec-progress-top">
+        <span><%= t("reconciliation.hero.progress_title") %></span>
+        <strong><%= t("reconciliation.hero.progress_count", verified: @state.verified_sources_count, total: @state.total_sources_count) %></strong>
+      </div>
+      <div class="progress rec-progress-track">
+        <div class="progress-bar rec-progress-fill" style="width: <%= @state.progress_percentage %>%"></div>
+      </div>
+      <div class="rec-progress-foot">
+        <span><%= reconciliation_progress_caption(@state) %></span>
+        <span><%= t("reconciliation.hero.progress_percent", percent: @state.progress_percentage) %></span>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
 
-<% pending_payments = @state.snapshot["pending_payments"] || [] %>
-<% balances = @state.snapshot["balances"] || [] %>
-
-<%# ---- Section 1: Saldos por conciliar ------------------------------------ %>
-<div class="card mb-4">
-  <div class="card-header bg-body">
-    <h2 class="h5 fw-bold mb-0"><%= t("reconciliation.balances.title") %></h2>
-    <p class="text-secondary small mb-0"><%= t("reconciliation.balances.subtitle") %></p>
-  </div>
-
-  <% if balances.empty? %>
-    <div class="card-body py-4 text-center">
-      <p class="text-secondary mb-0"><%= t("reconciliation.balances.empty") %></p>
+  <section class="rec-metrics" aria-label="<%= t("reconciliation.title") %>">
+    <div class="rec-metric">
+      <div class="rec-metric-head">
+        <span><%= t("reconciliation.metrics.accounts_title") %></span>
+        <span class="rec-metric-icon rec-icon-blue"><i class="ti ti-wallet" aria-hidden="true"></i></span>
+      </div>
+      <div class="rec-metric-value">
+        <%= @state.unverified_accounts_count %> <span>/ <%= @accounts.size %></span>
+      </div>
+      <div class="rec-metric-foot">
+        <% if @accounts.empty? %>
+          <%= t("reconciliation.metrics.accounts_empty") %>
+        <% elsif @state.unverified_accounts_count.zero? %>
+          <%= t("reconciliation.metrics.accounts_done") %>
+        <% elsif @state.unverified_accounts_count == @accounts.size %>
+          <%= t("reconciliation.metrics.accounts_pending") %>
+        <% else %>
+          <%= t("reconciliation.metrics.accounts_partial") %>
+        <% end %>
+      </div>
     </div>
-  <% else %>
-    <ul class="list-group list-group-flush">
-      <% balances.each do |balance| %>
-        <li class="list-group-item d-flex align-items-center flex-wrap gap-3 py-3">
-          <div class="flex-grow-1 et-minw-12rem">
-            <div class="fw-semibold"><%= balance["name"] %></div>
-            <div class="text-secondary small text-capitalize"><%= t("reconciliation.balances.kinds.#{balance["kind"]}", default: balance["kind"].humanize) %></div>
-          </div>
-          <div class="text-nowrap text-end et-minw-8-5rem">
-            <div class="text-secondary small"><%= t("reconciliation.balances.app_balance") %></div>
-            <div class="fw-semibold"><%= reconciliation_money(balance["app_balance"]) %></div>
-          </div>
-          <%= reconciliation_status_badge(balance["status"], t("reconciliation.balances.statuses.#{balance["status"]}")) %>
-          <button type="button"
-                  class="btn <%= balance["status"] == "ok" ? "btn-outline-secondary" : "btn-primary" %> btn-sm js-reconcile flex-shrink-0"
-                  data-source-id="<%= balance["source_id"] %>"
-                  data-name="<%= balance["name"] %>"
-                  data-app-balance="<%= balance["app_balance"] %>"
-                  data-app-balance-formatted="<%= reconciliation_money(balance["app_balance"]) %>"
-                  data-kind="<%= balance["kind"] %>">
-            <%= t("reconciliation.balances.reconcile") %>
-          </button>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-</div>
 
-<%# ---- Section 2: Pagos pendientes ---------------------------------------- %>
-<div class="card mb-4">
-  <div class="card-header bg-body d-flex justify-content-between align-items-center">
+    <div class="rec-metric">
+      <div class="rec-metric-head">
+        <span><%= t("reconciliation.metrics.payments_title") %></span>
+        <span class="rec-metric-icon rec-icon-purple"><i class="ti ti-list-check" aria-hidden="true"></i></span>
+      </div>
+      <div class="rec-metric-value"><%= @state.pending_payments_count %></div>
+      <div class="rec-metric-foot">
+        <span class="<%= @state.pending_payments_count.positive? ? "warn" : "good" %>">
+          <%= @state.pending_payments_count.positive? ? t("reconciliation.metrics.payments_pending") : t("reconciliation.metrics.payments_done") %>
+        </span>
+      </div>
+    </div>
+
+    <div class="rec-metric">
+      <div class="rec-metric-head">
+        <span><%= t("reconciliation.metrics.debts_title") %></span>
+        <span class="rec-metric-icon rec-icon-green"><i class="ti ti-credit-card" aria-hidden="true"></i></span>
+      </div>
+      <div class="rec-metric-value">
+        <%= @state.unverified_debts_count %> <span>/ <%= @debts.size %></span>
+      </div>
+      <div class="rec-metric-foot">
+        <% if @debts.empty? %>
+          <%= t("reconciliation.metrics.debts_empty") %>
+        <% elsif @state.unverified_debts_count.zero? %>
+          <%= t("reconciliation.metrics.debts_done") %>
+        <% else %>
+          <%= t("reconciliation.metrics.debts_pending") %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <div class="rec-section-head" id="rec-accounts">
     <div>
-      <h2 class="h5 fw-bold mb-0"><%= t("reconciliation.payments.title") %></h2>
-      <p class="text-secondary small mb-0"><%= t("reconciliation.payments.subtitle") %></p>
+      <h2><%= t("reconciliation.sections.accounts_title") %></h2>
+      <p><%= t("reconciliation.sections.accounts_subtitle") %></p>
     </div>
-    <% if pending_payments.any? %>
-      <span class="badge bg-danger-subtle text-danger rounded-pill"><%= pending_payments.size %></span>
+    <%= link_to money_sources_cash_path, class: "rec-link" do %>
+      <%= t("reconciliation.sections.accounts_link") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>
     <% end %>
   </div>
 
-  <% if pending_payments.empty? %>
-    <div class="card-body py-4 text-center">
-      <i class="ti ti-circle-check text-success fs-4"></i>
-      <p class="text-secondary mb-0 mt-2"><%= t("reconciliation.payments.empty") %></p>
-    </div>
-  <% else %>
-    <ul class="list-group list-group-flush">
-      <% pending_payments.each do |payment| %>
-        <li class="list-group-item d-flex align-items-center flex-wrap gap-3 py-3">
-          <div class="flex-grow-1 et-minw-12rem">
-            <div class="fw-semibold"><%= payment["name"] %></div>
-            <div class="text-secondary small"><%= t("reconciliation.payments.account") %>: <%= payment["source_label"] %></div>
-          </div>
-          <div class="text-nowrap et-minw-7rem">
-            <div class="text-secondary small"><%= t("reconciliation.payments.due") %></div>
-            <div class="small fw-semibold"><%= reconciliation_due_date_label(payment["due_date"]) || "—" %></div>
-          </div>
-          <div class="text-nowrap text-end et-minw-8-5rem">
-            <div class="text-secondary small"><%= t("reconciliation.payments.expected") %></div>
-            <div class="fw-semibold"><%= reconciliation_money(payment["amount"]) %></div>
-          </div>
-          <%= reconciliation_status_badge("pending", t("reconciliation.payments.status_pending")) %>
-          <% if payment["debt"] %>
-            <%# Debt cuotas are applied from the money source page: that flow
-                registers the real Payment (and clears this row via the
-                recurring link), the assign modal only relabels a template. %>
-            <%= link_to money_source_path(payment["money_source_id"]),
-                        class: "btn btn-primary btn-sm flex-shrink-0" do %>
-              <i class="ti ti-external-link me-1"></i><%= t("reconciliation.payments.go_to_source") %>
-            <% end %>
-          <% else %>
-            <button type="button"
-                    class="btn btn-primary btn-sm js-assign-payment flex-shrink-0"
-                    data-template-id="<%= payment["template_id"] %>"
-                    data-name="<%= payment["name"] %>"
-                    data-amount="<%= payment["amount"] %>"
-                    data-amount-formatted="<%= reconciliation_money(payment["amount"]) %>"
-                    data-due="<%= payment["due_date"] %>">
-              <%= t("reconciliation.payments.assign") %>
-            </button>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-</div>
+  <div class="rec-content-grid">
+    <section class="rec-panel">
+      <div class="rec-panel-head">
+        <div>
+          <h3><%= t("reconciliation.balances.title") %></h3>
+          <p><%= t("reconciliation.balances.subtitle") %></p>
+        </div>
+        <span class="rec-count"><%= t("reconciliation.status.verify_count", count: @state.unverified_accounts_count) %></span>
+      </div>
 
-<%= render "reconciliations/assign_modal" %>
-<%= render "reconciliations/reconcile_modal" %>
+      <% if @accounts.empty? %>
+        <%= render "shared/empty_state",
+                   icon: "wallet",
+                   title: t("reconciliation.balances.empty_title"),
+                   text: t("reconciliation.balances.empty"),
+                   cta: link_to(t("reconciliation.sections.accounts_link"), money_sources_cash_path, class: "btn btn-primary btn-sm") %>
+      <% else %>
+        <ul class="list-group list-group-flush rec-list">
+          <% @accounts.each do |balance| %>
+            <%= render "reconciliations/balance_row", balance: balance %>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+
+    <section class="rec-panel">
+      <div class="rec-panel-head">
+        <div>
+          <h3><%= t("reconciliation.payments.title") %></h3>
+          <p><%= t("reconciliation.payments.subtitle") %></p>
+        </div>
+        <span class="rec-count"><%= t("reconciliation.status.pending_count", count: @state.pending_payments_count) %></span>
+      </div>
+
+      <% if @pending_payments.empty? %>
+        <%= render "shared/empty_state",
+                   icon: "circle-check",
+                   title: t("reconciliation.payments.empty_title"),
+                   text: t("reconciliation.payments.empty") %>
+      <% else %>
+        <ul class="list-group list-group-flush rec-list">
+          <% @pending_payments.each do |payment| %>
+            <%= render "reconciliations/payment_row", payment: payment %>
+          <% end %>
+        </ul>
+      <% end %>
+    </section>
+  </div>
+
+  <div class="rec-tip">
+    <span class="rec-tip-icon" aria-hidden="true">💡</span>
+    <div>
+      <b><%= t("reconciliation.tip.title") %></b>
+      <p><%= t("reconciliation.tip.body") %></p>
+    </div>
+  </div>
+
+  <div class="rec-section-head" id="rec-debts">
+    <div>
+      <h2><%= t("reconciliation.sections.debts_title") %></h2>
+      <p><%= t("reconciliation.sections.debts_subtitle") %></p>
+    </div>
+    <%= link_to money_sources_loans_path, class: "rec-link" do %>
+      <%= t("reconciliation.sections.debts_link") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    <% end %>
+  </div>
+
+  <section class="rec-panel">
+    <div class="rec-panel-head">
+      <div>
+        <h3><%= t("reconciliation.debts.title") %></h3>
+        <p><%= t("reconciliation.debts.subtitle") %></p>
+      </div>
+      <span class="rec-count"><%= t("reconciliation.status.verify_count", count: @state.unverified_debts_count) %></span>
+    </div>
+
+    <% if @debts.empty? %>
+      <%= render "shared/empty_state",
+                 icon: "credit-card",
+                 title: t("reconciliation.debts.empty_title"),
+                 text: t("reconciliation.debts.empty"),
+                 cta: link_to(t("reconciliation.sections.debts_link"), money_sources_loans_path, class: "btn btn-primary btn-sm") %>
+    <% else %>
+      <ul class="list-group list-group-flush rec-list">
+        <% @debts.each do |balance| %>
+          <%= render "reconciliations/balance_row", balance: balance %>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <%= render "reconciliations/assign_modal" %>
+  <%= render "reconciliations/reconcile_modal" %>
+  <%= render "reconciliations/guide_modal" %>
+</div>

@@ -4,7 +4,7 @@ module MoneySources
   class Statement
     Movement = Struct.new(:date, :created_at, :direction, :amount, :description,
                          :secondary, :category, :movement_type, :related_source,
-                         :reference, keyword_init: true)
+                         :reference, :record, keyword_init: true)
 
     Result = Struct.new(:source, :range, :period_label, :opening_balance,
                         :entries_total, :exits_total, :closing_balance,
@@ -116,7 +116,8 @@ module MoneySources
           category: transaction.category,
           movement_type: transaction_movement_type(transaction),
           related_source: nil,
-          reference: transaction.id
+          reference: transaction.id,
+          record: transaction
         )
       end
     end
@@ -149,7 +150,8 @@ module MoneySources
           category: nil,
           movement_type: transfer_movement_type(transfer, incoming: false),
           related_source: transfer.to_source,
-          reference: transfer.id
+          reference: transfer.id,
+          record: transfer
         )
       end
       Transfer.where(user_id: user.id, to_source_id: source.id)
@@ -166,7 +168,8 @@ module MoneySources
           category: nil,
           movement_type: transfer_movement_type(transfer, incoming: true),
           related_source: transfer.from_source,
-          reference: transfer.id
+          reference: transfer.id,
+          record: transfer
         )
       end
       movements
@@ -206,7 +209,8 @@ module MoneySources
           category: payment.expense.category,
           movement_type: extra_payment_ids.include?(payment.id) ? "Abono" : "Pago",
           related_source: payment.expense.money_source,
-          reference: payment.id
+          reference: payment.id,
+          record: payment
         )
       end
     end
@@ -264,7 +268,8 @@ module MoneySources
           category: nil,
           movement_type: "Ajuste de saldo",
           related_source: nil,
-          reference: adjustment.id
+          reference: adjustment.id,
+          record: adjustment
         )
       end
     end

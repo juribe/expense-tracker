@@ -1,0 +1,45 @@
+<%# One pending recurring payment row. Locals: payment (hash). %>
+<li class="list-group-item rec-row rec-payment-row" data-testid="pending-payment-row">
+  <div class="rec-row-main">
+    <span class="rec-row-icon rec-row-icon-payment"><i class="<%= reconciliation_payment_icon(payment) %>"></i></span>
+    <div class="rec-row-copy">
+      <div class="rec-row-name">
+        <span><%= payment["name"] %></span>
+        <span class="rec-status todo"><%= t("reconciliation.payments.status_pending") %></span>
+      </div>
+      <div class="rec-row-meta">
+        <%= t("reconciliation.payments.due_on", date: reconciliation_due_date_label(payment["due_date"]) || "—") %>
+        · <%= t("reconciliation.payments.account") %>: <%= payment["source_label"] %>
+      </div>
+      <% if payment["category_name"].present? %>
+        <div class="rec-row-meta">
+          <%= t("reconciliation.payments.category") %>: <%= payment["category_name"] %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="rec-row-balance">
+    <small><%= t("reconciliation.payments.pending_amount") %></small>
+    <strong class="num"><%= reconciliation_money(payment["amount"]) %></strong>
+  </div>
+
+  <div class="rec-row-actions">
+    <% if payment["debt"] %>
+      <%= link_to money_source_path(payment["money_source_id"]), class: "btn rec-btn-outline" do %>
+        <i class="ti ti-external-link me-1"></i><%= t("reconciliation.payments.go_to_source") %>
+      <% end %>
+    <% else %>
+      <button type="button"
+              class="btn rec-btn-outline js-assign-payment"
+              data-template-id="<%= payment["template_id"] %>"
+              data-name="<%= payment["name"] %>"
+              data-amount="<%= payment["amount"] %>"
+              data-amount-formatted="<%= reconciliation_money(payment["amount"]) %>"
+              data-due="<%= payment["due_date"] %>"
+              data-category-name="<%= payment["category_name"] %>">
+        <%= t("reconciliation.payments.assign") %>
+      </button>
+    <% end %>
+  </div>
+</li>

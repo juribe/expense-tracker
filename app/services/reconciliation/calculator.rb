@@ -16,7 +16,7 @@ module Reconciliation
 
     # Bump whenever the snapshot payload shape changes: persisted states built
     # with an older shape are recalculated transparently on the next visit.
-    SNAPSHOT_VERSION = "3"
+    SNAPSHOT_VERSION = "5"
 
     # Loans are included through their outstanding balance: the user compares
     # it against the bank figure and can adjust it. Loans without a
@@ -71,7 +71,7 @@ module Reconciliation
     end
 
     def build_pending_payments
-      templates = user.recurring_templates.active.expense.includes(:money_source).ordered
+      templates = user.recurring_templates.active.expense.includes(:money_source, :category).ordered
       return [] if templates.empty?
 
       range = period_range
@@ -89,6 +89,8 @@ module Reconciliation
         source_label: template.money_source&.name || template.source.to_s.humanize,
         due_date: due_date_for(template)&.iso8601,
         amount: template.amount.to_s,
+        category_name: template.category&.name,
+        category_icon: template.category&.icon.presence || "ti-tag",
         debt: template.money_source&.debt_payment_target? || false,
         money_source_id: template.money_source_id
       }
@@ -154,7 +156,10 @@ module Reconciliation
     def balance_row(source, snapshot, app_balance)
       status = snapshot&.resolution || "unverified"
 
-      { source_id: source.id, name: source.display_name, kind: source.kind,
+      { source_id: source.id, name: source.display_name, account_name: source.name,
+        institution_name: source.institution_name,
+        identifier: source.identifier.presence || source.credit_account&.card_last_four,
+        sub_kind: source.sub_kind, kind: source.kind,
         app_balance: app_balance.to_s, status: status,
         checked_at: snapshot&.checked_at&.iso8601 }
     end

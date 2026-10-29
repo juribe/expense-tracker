@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793287202.622854,
-    "seen": 1793288239.7816892,
-    "ast_hash": "036b1b7760d4eccb33eaa29da5cef5bf",
+    "mtime": 1793295803.761335,
+    "seen": 1793296203.060616,
+    "ast_hash": "f617ec6a6c445231b5d72eef2e5cf87e",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793286888.8173888,
-    "seen": 1793288239.781696,
+    "mtime": 1793295933.3589857,
+    "seen": 1793296203.060622,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3840,21 +3840,21 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/reconciliation.js": {
-    "mtime": 1793288255.940972,
-    "seen": 1793288275.6941051,
-    "ast_hash": "b1018b0b51f22855f287569cbf50ca79",
+    "mtime": 1793294957.2623448,
+    "seen": 1793295744.7066722,
+    "ast_hash": "cf729589a3589e5f4960a66c5f7e3d4e",
     "semantic_hash": ""
   },
   "app/controllers/reconciliations_controller.rb": {
-    "mtime": 1793288255.927411,
-    "seen": 1793288275.6941922,
-    "ast_hash": "9cb6ce709f6636ab66f9df729b93f6d1",
+    "mtime": 1793293065.4632876,
+    "seen": 1793295744.706764,
+    "ast_hash": "9d06fa0f81eb80023ecb6491b44dac57",
     "semantic_hash": ""
   },
   "app/helpers/reconciliations_helper.rb": {
-    "mtime": 1791498216.198834,
-    "seen": 1792857266.808436,
-    "ast_hash": "520445ea06ec3ad04cbb2c59f61c71a6",
+    "mtime": 1793295889.674178,
+    "seen": 1793296203.059408,
+    "ast_hash": "165b4554236f9cfaf3abb352cbdfbee1",
     "semantic_hash": ""
   },
   "app/models/concerns/reconciliation/invalidatable.rb": {
@@ -3870,9 +3870,9 @@
     "semantic_hash": ""
   },
   "app/models/reconciliation_state.rb": {
-    "mtime": 1793288255.9228456,
-    "seen": 1793288275.694348,
-    "ast_hash": "adbea3036345422b4bb4b5700a5e8359",
+    "mtime": 1793294987.1621802,
+    "seen": 1793295744.706929,
+    "ast_hash": "310f1db0ecad99c08909fcea506550df",
     "semantic_hash": ""
   },
   "app/services/money_sources/balance_adjust.rb": {
@@ -3882,9 +3882,9 @@
     "semantic_hash": ""
   },
   "app/services/reconciliation/calculator.rb": {
-    "mtime": 1793288255.9449928,
-    "seen": 1793288275.6946719,
-    "ast_hash": "31e18817efebd0dd5337f2e41abf0951",
+    "mtime": 1793292650.9434767,
+    "seen": 1793295744.707264,
+    "ast_hash": "47df222ca5b96115b121f9b05c8c4417",
     "semantic_hash": ""
   },
   "app/services/reconciliation/check_balance.rb": {
@@ -3894,9 +3894,9 @@
     "semantic_hash": ""
   },
   "app/services/reconciliation/expense_search.rb": {
-    "mtime": 1791329785.7288468,
-    "seen": 1792857266.808774,
-    "ast_hash": "b847dd737ffd9c4ed06c6708b011c59d",
+    "mtime": 1793293831.573782,
+    "seen": 1793295744.707267,
+    "ast_hash": "8edf329a81f4fff81d91986a174ca115",
     "semantic_hash": ""
   },
   "app/services/reconciliation/invalidate.rb": {
@@ -3911,40 +3911,34 @@
     "ast_hash": "b0d4aade367858bfeb6f395f2c115d27",
     "semantic_hash": ""
   },
-  "app/services/reconciliation/movement_search.rb": {
-    "mtime": 1791251411.7107975,
-    "seen": 1792857266.808779,
-    "ast_hash": "ad8c5e45a28a2825d61eb2a3a946e016",
-    "semantic_hash": ""
-  },
   "app/services/reconciliation/state.rb": {
-    "mtime": 1793284273.6813376,
-    "seen": 1793284671.282578,
+    "mtime": 1793293041.1882372,
+    "seen": 1793295744.707272,
     "ast_hash": "0c7aed79a05efd99c25b11d565a5f865",
     "semantic_hash": ""
   },
   "playwright/reconciliation.spec.js": {
-    "mtime": 1793288255.9759953,
-    "seen": 1793288275.694939,
-    "ast_hash": "3228cda0f0298dd5deb08648f48b06e3",
+    "mtime": 1793299535.665269,
+    "seen": 1793299744.862936,
+    "ast_hash": "70858b8575f51e852db289ed50ff32cc",
     "semantic_hash": ""
   },
   "test/controllers/reconciliations_controller_test.rb": {
-    "mtime": 1793287202.6235375,
-    "seen": 1793288239.781255,
-    "ast_hash": "86f6a61ffddedd1ab5ea3e910ce65df0",
+    "mtime": 1793294928.065265,
+    "seen": 1793295744.707644,
+    "ast_hash": "977c9db2c0584dd86d1ba75a1d7b9854",
     "semantic_hash": ""
   },
   "test/services/reconciliation/check_balance_test.rb": {
-    "mtime": 1793278579.5703115,
-    "seen": 1793278658.598607,
-    "ast_hash": "0c2abf15691722da425671a31ca24d4a",
+    "mtime": 1793292533.2304943,
+    "seen": 1793295744.707975,
+    "ast_hash": "82156e95002f6fbb40e995c7cf938e05",
     "semantic_hash": ""
   },
   "test/services/reconciliation/state_test.rb": {
-    "mtime": 1793279599.7120156,
-    "seen": 1793281381.356339,
-    "ast_hash": "2f37e83356216aadb1fe45fde3f01bb2",
+    "mtime": 1793292525.5773728,
+    "seen": 1793295744.70798,
+    "ast_hash": "ee8c28bf123148e785684ad79e0a9e00",
     "semantic_hash": ""
   },
   "app/services/payments/recurring_link.rb": {
@@ -3966,15 +3960,15 @@
     "semantic_hash": ""
   },
   "test/application_system_test_case.rb": {
-    "mtime": 1793280518.4881473,
-    "seen": 1793281381.3559659,
-    "ast_hash": "573f56642562f10833c9552f9528b915",
+    "mtime": 1793295212.0459535,
+    "seen": 1793295744.707564,
+    "ast_hash": "537e4e762e269130abea154b9b0c23ab",
     "semantic_hash": ""
   },
   "test/system/reconciliation_assign_modal_test.rb": {
-    "mtime": 1793280807.9839184,
-    "seen": 1793281381.3564239,
-    "ast_hash": "fb964cd992b039b45f8c6db81466c0eb",
+    "mtime": 1793295223.9666631,
+    "seen": 1793295744.708069,
+    "ast_hash": "8f389afd4c2316449d2e19600ced70ff",
     "semantic_hash": ""
   },
   "app/controllers/pay_settings_controller.rb": {
@@ -4974,9 +4968,9 @@
     "semantic_hash": ""
   },
   "test/system/reconciliation_reconcile_modal_test.rb": {
-    "mtime": 1793288255.9683397,
-    "seen": 1793288275.695425,
-    "ast_hash": "fb9fea2447b58e23a5aa166c527760af",
+    "mtime": 1793295223.965845,
+    "seen": 1793295744.7080698,
+    "ast_hash": "0bcd2c443b8016e98e631ac03a21f615",
     "semantic_hash": ""
   },
   "test/controllers/monthly_reports_controller_test.rb": {
@@ -5310,9 +5304,9 @@
     "semantic_hash": ""
   },
   "app/services/money_sources/statement.rb": {
-    "mtime": 1792959751.2576392,
-    "seen": 1792959983.132712,
-    "ast_hash": "1867ccbdcb13283b63661bf2f6e2bb91",
+    "mtime": 1793292633.3869236,
+    "seen": 1793295744.7072508,
+    "ast_hash": "8c5ed1994f6ad7b3067a96c556178ed1",
     "semantic_hash": ""
   },
   "test/controllers/money_source_statement_test.rb": {
@@ -5847,6 +5841,24 @@
     "mtime": 1793278215.025024,
     "seen": 1793278658.598072,
     "ast_hash": "e29034c2e6a80f269c5af57845efa220",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/bootstrap.bundle.min.js": {
+    "mtime": 1793288426.1596909,
+    "seen": 1793288722.936689,
+    "ast_hash": "6baf57f25796c332144ed58a2a0cd9ee",
+    "semantic_hash": ""
+  },
+  "test/services/reconciliation/expense_search_test.rb": {
+    "mtime": 1793292541.8039455,
+    "seen": 1793295744.707978,
+    "ast_hash": "39099197ae9774ff3a9824bdb721d61d",
+    "semantic_hash": ""
+  },
+  "test/system/reconciliation_ui_test.rb": {
+    "mtime": 1793295223.9682138,
+    "seen": 1793295744.708072,
+    "ast_hash": "a4a5dc98a00b1fe465478e2127aac319",
     "semantic_hash": ""
   }
 }

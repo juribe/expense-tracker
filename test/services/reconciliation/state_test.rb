@@ -254,5 +254,39 @@ module Reconciliation
       state = State.call(@user, period: "2026-10-20")
       assert_equal 0, state.pending_payments_count
     end
+
+    test "pending payments include the recurring template category name" do
+      state = State.call(@user)
+
+      row = state.pending_payments.first
+      assert_equal @category.name, row["category_name"]
+    end
+
+    test "balances are grouped into accounts and debts" do
+      card = MoneySource.create!(user: @user, name: "TC Davibank", kind: "credit_card", starting_balance: 0)
+      card.create_credit_account!(credit_limit: 8_000_000)
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+
+      state = State.call(@user)
+
+      assert_equal [ @source.id ], state.account_balances.map { |row| row["source_id"] }
+      assert_equal [ card.id, loan.id ].sort, state.debt_balances.map { |row| row["source_id"] }.sort
+    end
+
+    test "progress counts only verified balances" do
+      card = MoneySource.create!(user: @user, name: "TC Davibank", kind: "credit_card", starting_balance: 0)
+      card.create_credit_account!(credit_limit: 8_000_000)
+      @template.update!(active: false)
+
+      CheckBalance.call(user: @user, money_source: @source, mark_ok: true)
+      state = State.call(@user)
+
+      assert_equal 1, state.verified_sources_count
+      assert_equal 2, state.total_sources_count
+      assert_equal 50, state.progress_percentage
+      assert_equal 0, state.unverified_accounts_count
+      assert_equal 1, state.unverified_debts_count
+    end
   end
 end

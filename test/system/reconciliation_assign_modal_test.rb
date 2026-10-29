@@ -21,13 +21,13 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
     sign_in @user
     visit reconciliation_path
 
-    find("button.js-assign-payment").click
+    scroll_and_click(find("button.js-assign-payment"))
     assert_selector "#assignPaymentModal.show"
     wait_for_modal_transition "#assignPaymentModal"
     find("#assignPaymentModal .btn-close").click
     assert_no_selector "#assignPaymentModal.show", wait: 5 # wait for the hide transition
 
-    find("button.js-assign-payment").click
+    scroll_and_click(find("button.js-assign-payment"))
     assert_selector "#assignPaymentModal.show"
   end
 
@@ -45,7 +45,7 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
     assert_selector "button.js-assign-payment" # row still pending
 
     # Out-of-period expense no longer appears: search is scoped to the period.
-    find("button.js-assign-payment").click
+    scroll_and_click(find("button.js-assign-payment"))
     assert_selector "#assignPaymentModal.show"
     fill_in "assignExpenseSearch", with: "crédito"
     assert_no_selector "#assignExpenseResults .js-assign-result", wait: 3
@@ -54,7 +54,7 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
     assert_no_selector "#assignPaymentModal.show", wait: 5
 
     # Retry opens the modal again.
-    find("button.js-assign-payment").click
+    scroll_and_click(find("button.js-assign-payment"))
     assert_selector "#assignPaymentModal.show"
     wait_for_modal_transition "#assignPaymentModal"
     find("#assignPaymentModal .btn-close").click
@@ -67,10 +67,10 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
       kind: "expense", source: "manual", date: Date.current, money_source: @account
     )
     visit reconciliation_path
-    find("button.js-assign-payment").click
+    scroll_and_click(find("button.js-assign-payment"))
     fill_in "assignExpenseSearch", with: "octubre"
     find("#assignExpenseResults .js-assign-result").click
-    click_button I18n.t("reconciliation.assign.submit", default: "Asignar pago")
+    find("#assignPaymentSubmit").click
 
     assert_text I18n.t("reconciliation.flashes.assigned", description: @template.description), wait: 5
     refute_selector "button.js-assign-payment", wait: 5 # pending row gone after reload

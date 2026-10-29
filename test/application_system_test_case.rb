@@ -23,4 +23,12 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
       raise Capybara::ElementNotFound, "modal #{selector} is not fully shown" unless ready
     end
   end
+
+  # The Día de Balance page is taller than the test viewport. Selenium does
+  # not always scroll a row action into view before clicking, so center it
+  # first to avoid the sticky topbar intercepting the click.
+  def scroll_and_click(element)
+    page.execute_script("arguments[0].scrollIntoView({ block: 'center' })", element)
+    element.click
+  end
 end

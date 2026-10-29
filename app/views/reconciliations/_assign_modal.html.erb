@@ -1,70 +1,76 @@
 <%# Asignar pago modal — populated by app/assets/javascripts/reconciliation.js
-    from the data-* attributes of the clicked "Asignar" button. %>
+    from the data-* attributes of the clicked "Asignar pago" button. %>
 <div class="modal fade" id="assignPaymentModal" tabindex="-1" aria-hidden="true"
      data-search-url="<%= reconciliation_search_expenses_path %>"
      data-assign-url="<%= reconciliation_assign_payment_path("TEMPLATE_ID") %>"
      data-create-expense-url="<%= new_expense_path %>"
      data-period="<%= @period %>"
-     data-results-empty-label="<%= t("reconciliation.assign.no_results") %>"
-     data-error-label="<%= t("reconciliation.assign.error") %>">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+     data-error-label="<%= t("reconciliation.assign.error") %>"
+     data-loading-label="<%= t("reconciliation.assign.loading") %>"
+     data-select-hint="<%= t("reconciliation.assign.select_hint") %>"
+     data-open-label="<%= t("reconciliation.assign.open") %>"
+     data-selected-label="<%= t("reconciliation.assign.selected", description: "%{description}", amount: "%{amount}") %>">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable rec-payment-modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold"><%= t("reconciliation.assign.title") %></h5>
+      <div class="modal-header rec-modal-header">
+        <div>
+          <h5 class="modal-title"><%= t("reconciliation.assign.title") %></h5>
+          <p class="rec-modal-subtitle"><%= t("reconciliation.assign.subtitle") %></p>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
       </div>
-      <div class="modal-body">
-        <div class="card bg-body-tertiary border-0 mb-3">
-          <div class="card-body py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-              <div class="fw-bold fs-5 js-payment-name">—</div>
-              <div class="text-muted small">
-                <%= t("reconciliation.assign.due") %>: <span class="js-payment-due">—</span>
-              </div>
-            </div>
-            <div class="fw-bold fs-4 text-primary js-payment-amount">—</div>
+
+      <div class="modal-body rec-payment-body">
+        <div class="rec-payment-summary">
+          <div>
+            <h4 class="js-payment-name">—</h4>
+            <p>
+              <span><%= t("reconciliation.assign.due") %>: <span class="js-payment-due">—</span></span>
+              · <span><%= t("reconciliation.assign.category") %>: <span class="js-payment-category">—</span></span>
+            </p>
           </div>
+          <div class="rec-payment-amount js-payment-amount">—</div>
         </div>
 
-        <label class="fw-semibold mb-2" for="assignExpenseSearch">
+        <label class="rec-field-label" for="assignExpenseSearch">
           <%= t("reconciliation.assign.search_label") %>
         </label>
         <input type="search"
                id="assignExpenseSearch"
-               class="form-control mb-2"
+               class="form-control rec-search-input"
                placeholder="<%= t("reconciliation.assign.search_placeholder") %>"
                autocomplete="off">
-        <div id="assignExpenseResults" class="list-group list-group-flush border rounded-3 mb-1 et-scroll-16 et-scroll-box">
-          <div class="list-group-item text-muted small js-search-empty">
-            <%= t("reconciliation.assign.search_hint") %>
-          </div>
+        <div id="assignExpenseResults"
+             class="rec-payment-results"
+             role="list"
+             aria-live="polite"
+             data-hint="<%= t("reconciliation.assign.search_hint") %>"
+             data-empty-label="<%= t("reconciliation.assign.no_results", category: "%{category}") %>"
+             data-empty-generic="<%= t("reconciliation.assign.no_results_generic") %>">
+          <div class="rec-payment-empty js-search-empty"><%= t("reconciliation.assign.search_hint") %></div>
         </div>
 
-        <div class="d-flex align-items-center gap-2 mt-3">
-          <%= button_to sync_gmail_connection_path,
-                        method: :post,
-                        form_class: "d-inline",
-                        class: "btn btn-outline-secondary btn-sm",
-                        data: { turbo: false } do %>
-            <i class="ti ti-mail-forward me-1"></i><%= t("reconciliation.assign.sync_gmail") %>
+        <div class="rec-payment-create">
+          <span><%= t("reconciliation.assign.create_hint") %></span>
+          <%= link_to "#",
+                      id: "assignCreateExpenseLink",
+                      target: "_blank",
+                      rel: "noopener" do %>
+            <i class="ti ti-plus" aria-hidden="true"></i><%= t("reconciliation.assign.create_expense") %>
           <% end %>
-          <span class="text-muted small"><%= t("reconciliation.assign.sync_helper") %></span>
         </div>
       </div>
-      <div class="modal-footer justify-content-between align-items-center">
-        <%= link_to "#",
-                    class: "btn btn-outline-primary btn-sm",
-                    id: "assignCreateExpenseLink",
-                    target: "_blank",
-                    rel: "noopener" do %>
-          <i class="ti ti-plus me-1"></i><%= t("reconciliation.assign.create_expense") %>
-        <% end %>
-        <button type="button"
-                id="assignPaymentSubmit"
-                class="btn btn-primary"
-                disabled>
-          <i class="ti ti-check me-1"></i><%= t("reconciliation.assign.submit") %>
-        </button>
+
+      <div class="rec-payment-footer">
+        <span class="rec-payment-note" id="assignSelectedLabel"><%= t("reconciliation.assign.select_hint") %></span>
+        <div class="rec-payment-actions">
+          <button type="button" class="btn rec-btn-soft" data-bs-dismiss="modal">
+            <%= t("reconciliation.assign.cancel") %>
+          </button>
+          <button type="button" id="assignPaymentSubmit" class="btn rec-btn-primary" disabled>
+            <i class="ti ti-check me-1" aria-hidden="true"></i><%= t("reconciliation.assign.submit") %>
+          </button>
+        </div>
       </div>
     </div>
   </div>

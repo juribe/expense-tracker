@@ -7,10 +7,13 @@
 class ReconciliationsController < ApplicationController
   before_action :set_period
   before_action :set_template, only: [ :assign_payment ]
-  before_action :set_source, only: [ :set_actual_balance, :leave_pending ]
+  before_action :set_source, only: [ :set_actual_balance, :leave_pending, :search_movements ]
 
   def show
     @state = Reconciliation::State.call(current_user, period: @period)
+    @accounts = @state.account_balances
+    @debts = @state.debt_balances
+    @pending_payments = @state.pending_payments
   end
 
   # POST — assigns ONE existing expense to a recurring template. Reuses the
@@ -51,17 +54,31 @@ class ReconciliationsController < ApplicationController
     render json: { expenses: expenses.map { |expense| expense_payload(expense) } }
   end
 
-  # GET — JSON search of movements (expenses + incomes) that could explain a
-  # balance difference, for the "Buscar movimiento" action of the Conciliar
-  # modal.
+  # GET — JSON movements for the "Movimientos" list in the Conciliar modal.
+  # Reuses MoneySources::Statement (the same query as the money source
+  # statement page): transactions, transfers, debt payments and adjustments,
+  # scoped to the source and to the reconciliation period, with the existing
+  # pagination.
   def search_movements
-    movements = Reconciliation::MovementSearch.call(
+    range = PayCycle.key_range(current_user, @period)
+    result = MoneySources::Statement.new(
       user: current_user,
+      source: @source,
+      period: "custom",
+      start_date: range.begin.iso8601,
+      end_date: range.end.iso8601,
       query: params[:q],
-      amount: params[:amount]
-    )
+      page: params[:page] || 1,
+      per_page: params[:per_page] || 8
+    ).call
 
-    render json: { movements: movements.map { |movement| movement_payload(movement) } }
+    render json: {
+      movements: result.movements.map { |movement| movement_payload(movement) },
+      total_count: result.total_count,
+      page: result.page,
+      per_page: result.per_page,
+      has_more: result.page * result.per_page < result.total_count
+    }
   end
 
   # POST — records the real balance entered in the Conciliar modal; when
@@ -135,18 +152,34 @@ class ReconciliationsController < ApplicationController
       id: expense.id,
       description: expense.description,
       amount: expense.amount.abs.to_s,
-      date: expense.date.iso8601
+      date: expense.date.iso8601,
+      kind: "expense",
+      kind_label: t("reconciliation.movements.expense"),
+      category_name: expense.category&.name,
+      edit_url: edit_expense_path(expense)
     }
   end
 
   def movement_payload(movement)
     {
-      id: movement.id,
-      kind: movement.kind,
+      id: movement.reference,
+      kind: movement.direction == "in" ? "income" : "expense",
+      kind_label: movement.movement_type,
       description: movement.description,
       amount: movement.amount.abs.to_s,
       date: movement.date.iso8601,
-      edit_url: movement.kind == "income" ? edit_income_path(movement) : edit_expense_path(movement)
+      secondary: movement.secondary,
+      category_name: movement.category&.name,
+      edit_url: movement_edit_url(movement)
     }
+  end
+
+  def movement_edit_url(movement)
+    case movement.record
+    when Transaction
+      movement.record.kind == "income" ? edit_income_path(movement.record) : edit_expense_path(movement.record)
+    else
+      money_source_path(@source)
+    end
   end
 end

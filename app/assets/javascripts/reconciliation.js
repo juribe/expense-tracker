@@ -9,6 +9,7 @@
   "use strict";
 
   var money = window.MoneyInputs;
+  var movementState = { page: 1, perPage: 8, hasMore: false, loading: false };
 
   function csrfToken() {
     var meta = document.querySelector("meta[name='csrf-token']");
@@ -55,6 +56,22 @@
     return negative ? -parsed : parsed;
   }
 
+  function validUserMoney(value) {
+    var raw = String(value == null ? "" : value).trim();
+    if (!raw) return false;
+    var negative = raw.charAt(0) === "-";
+    var sanitized = money ? money.sanitizeValue(negative ? raw.slice(1) : raw) : raw;
+    return sanitized !== "" && sanitized !== "-" && isFinite(parseFloat(sanitized));
+  }
+
+  function formatMoney(value) {
+    var number = typeof value === "number" ? value : parseFloat(value);
+    if (isNaN(number)) return String(value == null ? "" : value);
+    return number.toLocaleString("es-CO", {
+      style: "currency", currency: "COP", maximumFractionDigits: 0
+    });
+  }
+
   function formatDate(iso) {
     if (!iso) return "—";
     var date = new Date(iso + (iso.length === 10 ? "T00:00:00" : ""));
@@ -80,12 +97,15 @@
 
   function getJSON(url) {
     return fetch(url, { headers: { "Accept": "application/json" } })
-      .then(function (response) { return response.ok ? response.json() : { }; });
+      .then(function (response) {
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        return response.json();
+      });
   }
 
   // ---------------------------------------------------------------- Assign
 
-  var assignState = { templateId: null, expenseId: null };
+  var assignState = { templateId: null, expenseId: null, categoryName: "", description: "", amount: "" };
 
   function assignModal() {
     return document.getElementById("assignPaymentModal");
@@ -100,13 +120,20 @@
   }
 
   function openAssign(button) {
-    assignState = { templateId: button.dataset.templateId, expenseId: null };
+    assignState = {
+      templateId: button.dataset.templateId,
+      expenseId: null,
+      categoryName: button.dataset.categoryName || "",
+      description: "",
+      amount: ""
+    };
 
     var modal = assignModal();
     modal.querySelector(".js-payment-name").textContent = button.dataset.name;
     modal.querySelector(".js-payment-amount").textContent = button.dataset.amountFormatted ||
-      button.dataset.amount;
+      formatMoney(button.dataset.amount);
     modal.querySelector(".js-payment-due").textContent = formatDate(button.dataset.due);
+    modal.querySelector(".js-payment-category").textContent = assignState.categoryName || "—";
 
     var search = modal.querySelector("#assignExpenseSearch");
     search.value = "";
@@ -121,74 +148,96 @@
       }).toString();
     }
 
-    modal.querySelector("#assignPaymentSubmit").disabled = true;
-
+    resetAssignSelection();
     bootstrap.Modal.getOrCreateInstance(modal).show();
     fetchAssignResults("");
   }
 
-  // The placeholder row is rebuilt from the labels stashed on the list by
-  // the DOMContentLoaded wiring: the first fetch wipes the original
-  // .js-search-empty node, and openAssign must not crash on the second open.
   function resetAssignResults() {
     var list = document.getElementById("assignExpenseResults");
     list.innerHTML = emptyRow(list.dataset.hint);
   }
 
+  function resetAssignSelection() {
+    var modal = assignModal();
+    var label = modal.querySelector("#assignSelectedLabel");
+    label.textContent = modal.dataset.selectHint || label.dataset.selectHint || "";
+    modal.querySelector("#assignPaymentSubmit").disabled = true;
+    assignState.expenseId = null;
+    assignState.description = "";
+    assignState.amount = "";
+  }
+
   function emptyRow(label) {
-    return "<div class='list-group-item text-muted small'>" + escapeHtml(label || "—") + "</div>";
+    return "<div class='rec-payment-empty'>" + escapeHtml(label || "—") + "</div>";
+  }
+
+  function assignEmptyMessage() {
+    var list = document.getElementById("assignExpenseResults");
+    if (assignState.categoryName && list.dataset.emptyLabel) {
+      return list.dataset.emptyLabel.replace("%{category}", assignState.categoryName);
+    }
+    return list.dataset.emptyGeneric || list.dataset.emptyLabel || "";
   }
 
   function fetchAssignResults(query) {
-    // Scoped to the cuadre period shown on screen: only an expense dated in
-    // that month can clear the pending row, so both the search and the
-    // assign post carry the period.
-    var period = assignModal().dataset.period || "";
+    var modal = assignModal();
+    var period = modal.dataset.period || "";
     var params = new URLSearchParams({
       q: query || "",
       template_id: assignState.templateId || "",
       period: period
     });
-    var amountField = document.querySelector(".js-assign-payment.active") || document.querySelector(".js-assign-payment");
-    if (amountField) params.set("amount", amountField.dataset.amount);
+    var list = document.getElementById("assignExpenseResults");
+    list.innerHTML = emptyRow(modal.dataset.loadingLabel || "…");
 
     getJSON(assignSearchUrl() + "?" + params.toString()).then(function (data) {
-      var list = document.getElementById("assignExpenseResults");
       list.innerHTML = "";
       var expenses = (data && data.expenses) || [];
       if (!expenses.length) {
-        list.innerHTML = emptyRow(list.dataset.emptyLabel);
+        list.innerHTML = emptyRow(assignEmptyMessage());
         return;
       }
       expenses.forEach(function (expense) {
         list.insertAdjacentHTML("beforeend", assignResultRow(expense));
       });
+    }).catch(function () {
+      list.innerHTML = emptyRow(modal.dataset.errorLabel || "");
     });
   }
 
   function assignResultRow(expense) {
     var date = formatDate(expense.date);
-    return "<button type='button' class='list-group-item list-group-item-action d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 js-assign-result' data-expense-id='" +
-      expense.id + "' data-description='" + escapeHtml(expense.description) + "'>" +
-      "<span class='d-flex align-items-center gap-2'>" +
-      "<i class='ti ti-circle text-secondary small'></i>" +
-      "<span>" + escapeHtml(expense.description) + "</span>" +
-      "</span>" +
-      "<span class='text-muted small'>" + escapeHtml(expense.amount) + " · " + escapeHtml(date) + "</span>" +
-      "</button>";
+    var amount = formatMoney(expense.amount);
+    return "<div class='rec-payment-result js-assign-result' role='button' tabindex='0' aria-selected='false' data-expense-id='" +
+      escapeHtml(expense.id) + "' data-description='" + escapeHtml(expense.description) +
+      "' data-amount='" + escapeHtml(amount) + "'>" +
+      "<span class='rec-payment-kind'>" + escapeHtml(expense.kind_label || "Gasto") + "</span>" +
+      "<span class='rec-payment-name'>" + escapeHtml(expense.description) + "</span>" +
+      "<span class='rec-payment-meta'>" + escapeHtml(amount) + " · " + escapeHtml(date) + "</span>" +
+      "<a class='rec-payment-open' href='" + escapeHtml(expense.edit_url) +
+      "' target='_blank' rel='noopener'>" + escapeHtml(assignModal().dataset.openLabel || "Abrir") + "</a>" +
+      "</div>";
   }
 
-  function selectAssignResult(button) {
-    assignState.expenseId = button.dataset.expenseId;
-    document.querySelectorAll("#assignExpenseResults .js-assign-result").forEach(function (row) {
-      row.classList.remove("active");
-      row.querySelector(".ti-circle") && row.querySelector(".ti-circle").classList.remove("text-primary");
+  function selectAssignResult(row) {
+    assignState.expenseId = row.dataset.expenseId;
+    assignState.description = row.dataset.description;
+    assignState.amount = row.dataset.amount;
+
+    document.querySelectorAll("#assignExpenseResults .js-assign-result").forEach(function (item) {
+      item.classList.remove("selected");
+      item.setAttribute("aria-selected", "false");
     });
-    button.classList.add("active");
-    var dot = button.querySelector(".ti-circle");
-    if (dot) dot.classList.replace("ti-circle", "ti-circle-check");
-    if (dot) dot.classList.add("text-primary");
-    document.getElementById("assignPaymentSubmit").disabled = false;
+    row.classList.add("selected");
+    row.setAttribute("aria-selected", "true");
+
+    var modal = assignModal();
+    var template = modal.dataset.selectedLabel || "Seleccionado: %{description} · %{amount}";
+    modal.querySelector("#assignSelectedLabel").textContent = template
+      .replace("%{description}", assignState.description)
+      .replace("%{amount}", assignState.amount);
+    modal.querySelector("#assignPaymentSubmit").disabled = false;
   }
 
   function submitAssign() {
@@ -196,7 +245,7 @@
     var button = document.getElementById("assignPaymentSubmit");
     button.disabled = true;
 
-    post(document.getElementById("assignPaymentModal").dataset.assignUrl
+    post(assignModal().dataset.assignUrl
       .replace("TEMPLATE_ID", assignState.templateId),
       { expense_id: assignState.expenseId, period: assignModal().dataset.period || "" })
       .then(function () {
@@ -205,37 +254,48 @@
       })
       .catch(function () {
         button.disabled = false;
-        window.alert(button.dataset.errorLabel || "No se pudo asignar el pago.");
+        window.alert(button.dataset.errorLabel || assignModal().dataset.errorLabel || "No se pudo asignar el pago.");
       });
   }
 
   // -------------------------------------------------------------- Reconcile
 
-  var reconcileState = { sourceId: null, kind: null, appBalance: 0 };
+  var reconcileState = { sourceId: null, kind: null, appBalance: 0, isDebt: false };
 
   function reconcileModal() {
     return document.getElementById("reconcileModal");
   }
 
   function openReconcile(button) {
+    var modal = reconcileModal();
+    var kind = button.dataset.kind || "account";
     reconcileState = {
       sourceId: button.dataset.sourceId,
-      kind: button.dataset.kind,
-      appBalance: parseMoney(button.dataset.appBalance)
+      kind: kind,
+      appBalance: parseMoney(button.dataset.appBalance),
+      isDebt: kind === "credit_card" || kind === "loan"
     };
 
-    var modal = reconcileModal();
+    modal.querySelector(".js-modal-title").textContent = button.dataset.modalTitle ||
+      modal.dataset.accountModalTitle || "Conciliar";
     modal.querySelector(".js-source-name").textContent = button.dataset.name;
+    modal.querySelector(".js-source-meta").textContent = button.dataset.meta || "—";
+    modal.querySelector(".js-balance-label").textContent = button.dataset.balanceLabel ||
+      (reconcileState.isDebt ? modal.dataset.debtBalanceLabel : modal.dataset.accountBalanceLabel);
+    modal.querySelector(".js-movements-title").textContent = button.dataset.movementsTitle ||
+      (reconcileState.isDebt ? modal.dataset.debtMovementsTitle : modal.dataset.accountMovementsTitle);
     modal.querySelector(".js-app-balance").textContent = button.dataset.appBalanceFormatted ||
-      button.dataset.appBalance;
+      formatMoney(reconcileState.appBalance);
+    modal.querySelector(".js-movement-count").textContent = "";
 
     // The real balance is intentionally not remembered: every reconciliation
     // starts from the current app balance and an empty input.
     var actual = modal.querySelector("#reconcileActualBalance");
     actual.value = "";
+    actual.classList.remove("is-invalid");
+    modal.querySelector("#reconcileBalanceError").textContent = "";
     updateDifference();
 
-    modal.querySelector("#reconcileSearchBlock").classList.add("d-none");
     modal.querySelector("#reconcileSearchInput").value = "";
     resetMovementResults();
     noteInput().value = "";
@@ -246,31 +306,50 @@
 
     // A loan difference is resolved by registering the real Payment from the
     // loan page, so the expense/income shortcuts would be misleading there.
-    var isLoan = reconcileState.kind === "loan";
+    var isLoan = kind === "loan";
     modal.querySelector("#reconcileCreateExpense").classList.toggle("d-none", isLoan);
     modal.querySelector("#reconcileCreateIncome").classList.toggle("d-none", isLoan);
 
+    movementState = { page: 1, perPage: 8, hasMore: false, loading: false };
     bootstrap.Modal.getOrCreateInstance(modal).show();
+    fetchMovements();
+
+    var mode = button.dataset.mode || "balance";
+    setTimeout(function () {
+      if (mode === "movements") {
+        modal.querySelector("#reconcileSearchInput").focus();
+      } else {
+        actual.focus();
+      }
+    }, 120);
   }
 
   function updateDifference() {
     var modal = reconcileModal();
-    var actual = parseUserMoney(modal.querySelector("#reconcileActualBalance").value);
-    var difference = actual - reconcileState.appBalance;
+    var input = modal.querySelector("#reconcileActualBalance");
     var target = modal.querySelector(".js-difference");
+    var hint = modal.querySelector(".js-difference-hint");
 
-    if (modal.querySelector("#reconcileActualBalance").value.trim() === "") {
+    if (input.value.trim() === "") {
       target.textContent = "—";
-      target.classList.remove("text-success", "text-warning-emphasis");
+      target.classList.remove("is-zero", "is-positive", "is-negative");
+      hint.textContent = modal.dataset.differenceHint || "";
       return;
     }
 
-    var prefix = difference > 0 ? "+" : "";
-    target.textContent = prefix + difference.toLocaleString(document.documentElement.lang || "es-CO", {
-      minimumFractionDigits: 2, maximumFractionDigits: 2
-    });
-    target.classList.toggle("text-success", difference === 0);
-    target.classList.toggle("text-warning-emphasis", difference !== 0);
+    var difference = parseUserMoney(input.value) - reconcileState.appBalance;
+    var prefix = difference > 0 ? "+ " : difference < 0 ? "− " : "";
+    target.textContent = prefix + formatMoney(Math.abs(difference));
+    target.classList.toggle("is-zero", difference === 0);
+    target.classList.toggle("is-positive", difference !== 0);
+    target.classList.remove("is-negative");
+    if (difference === 0) {
+      hint.textContent = modal.dataset.differenceZero || "";
+    } else if (difference > 0) {
+      hint.textContent = modal.dataset.differencePositive || "";
+    } else {
+      hint.textContent = modal.dataset.differenceNegative || "";
+    }
   }
 
   // Raw text as typed — the server normalizes es-CO money with
@@ -279,9 +358,27 @@
     return reconcileModal().querySelector("#reconcileActualBalance").value.trim();
   }
 
+  function showBalanceError(message) {
+    var modal = reconcileModal();
+    var input = modal.querySelector("#reconcileActualBalance");
+    input.classList.add("is-invalid");
+    modal.querySelector("#reconcileBalanceError").textContent = message;
+    input.focus();
+  }
+
+  function clearBalanceError() {
+    var modal = reconcileModal();
+    modal.querySelector("#reconcileActualBalance").classList.remove("is-invalid");
+    modal.querySelector("#reconcileBalanceError").textContent = "";
+  }
+
   function submitAdjust() {
     var value = rawActualBalance();
-    if (value === "") return;
+    if (!validUserMoney(value)) {
+      showBalanceError(reconcileModal().dataset.invalidBalance || "Ingresa un saldo válido.");
+      return;
+    }
+    clearBalanceError();
 
     var button = document.getElementById("reconcileAdjust");
     button.disabled = true;
@@ -289,7 +386,8 @@
     post(reconcileModal().dataset.balanceUrl.replace("SOURCE_ID", reconcileState.sourceId), {
       actual_balance: value,
       adjust: true,
-      note: noteInput().value.trim()
+      note: noteInput().value.trim(),
+      period: reconcileModal().dataset.period || ""
     }).then(function () {
       bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
       window.location.reload();
@@ -299,13 +397,14 @@
   }
 
   // "Todo está bien": no balance change, no note — the current balance is
-  // confirmed as the real one and the row turns reconciled (Conciliado).
+  // confirmed as the real one and the row turns verified.
   function submitAllGood() {
     var button = document.getElementById("reconcileAllGood");
     button.disabled = true;
 
     post(reconcileModal().dataset.balanceUrl.replace("SOURCE_ID", reconcileState.sourceId), {
-      mark_ok: true
+      mark_ok: true,
+      period: reconcileModal().dataset.period || ""
     }).then(function () {
       bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
       window.location.reload();
@@ -322,14 +421,14 @@
     var button = document.getElementById("reconcileLeavePending");
     button.disabled = true;
 
-    post(reconcileModal().dataset.leaveUrl.replace("SOURCE_ID", reconcileState.sourceId), {})
-      .then(function () {
-        bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
-        window.location.reload();
-      })
-      .catch(function () {
-        button.disabled = false;
-      });
+    post(reconcileModal().dataset.leaveUrl.replace("SOURCE_ID", reconcileState.sourceId), {
+      period: reconcileModal().dataset.period || ""
+    }).then(function () {
+      bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
+      window.location.reload();
+    }).catch(function () {
+      button.disabled = false;
+    });
   }
 
   function updatePrefillLinks() {
@@ -358,51 +457,106 @@
 
   function resetMovementResults() {
     var list = document.getElementById("reconcileSearchResults");
-    list.innerHTML = emptyRow(list.dataset.hint);
+    list.innerHTML = "<div class='rec-movement-empty js-search-empty'>" +
+      escapeHtml(list.dataset.hint || "") + "</div>";
   }
 
   function movementResultRow(movement) {
-    var kindLabel = movement.kind === "income" ? "Ingreso" : "Gasto";
-    var kindClass = movement.kind === "income" ? "text-success" : "text-danger";
-    return "<div class='list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-2'>" +
-      "<span class='d-flex align-items-center gap-2'>" +
-      "<span class='badge rounded-pill " + kindClass + "'>" + escapeHtml(kindLabel) + "</span>" +
-      "<span>" + escapeHtml(movement.description) + "</span>" +
-      "</span>" +
-      "<span class='text-muted small'>" + escapeHtml(movement.amount) + " · " +
-      escapeHtml(formatDate(movement.date)) +
-      " <a href='" + movement.edit_url + "' target='_blank' rel='noopener' class='ms-2'>" +
-      escapeHtml(movement.editLabel || "Abrir") + "</a></span>" +
+    var kindLabel = movement.kind_label || (movement.kind === "income" ? "Ingreso" : "Gasto");
+    var directionClass = movement.kind === "income" ? "is-in" : "is-out";
+    var secondary = movement.secondary ? "<span class='rec-movement-secondary'>" + escapeHtml(movement.secondary) + "</span>" : "";
+    return "<div class='rec-movement-item' role='listitem'>" +
+      "<span class='rec-movement-kind " + directionClass + "'>" + escapeHtml(kindLabel) + "</span>" +
+      "<span class='rec-movement-name'>" + escapeHtml(movement.description) + secondary + "</span>" +
+      "<span class='rec-movement-meta'>" + escapeHtml(formatMoney(movement.amount)) + " · " +
+      escapeHtml(formatDate(movement.date)) + "</span>" +
+      "<a class='rec-movement-open' href='" + escapeHtml(movement.edit_url) +
+      "' target='_blank' rel='noopener'>" + escapeHtml(reconcileModal().dataset.openLabel || "Abrir") + "</a>" +
       "</div>";
   }
 
-  function differenceMagnitude() {
-    var actual = rawActualBalance();
-    if (actual === "") return "0";
-    return Math.abs(parseUserMoney(actual) - reconcileState.appBalance).toString();
+  function fetchMovements(append) {
+    if (movementState.loading) return;
+    movementState.loading = true;
+
+    var modal = reconcileModal();
+    var list = document.getElementById("reconcileSearchResults");
+    var loadMore = document.getElementById("reconcileLoadMore");
+    var query = modal.querySelector("#reconcileSearchInput").value.trim();
+
+    if (!append) {
+      movementState.page = 1;
+      list.innerHTML = "<div class='rec-movement-empty'>" + escapeHtml(modal.dataset.loading || "") + "</div>";
+    } else {
+      loadMore.disabled = true;
+    }
+
+    var params = new URLSearchParams({
+      q: query,
+      money_source_id: reconcileState.sourceId,
+      period: modal.dataset.period || "",
+      page: movementState.page,
+      per_page: movementState.perPage
+    });
+
+    getJSON(modal.dataset.movementsUrl + "?" + params.toString()).then(function (data) {
+      var movements = (data && data.movements) || [];
+      if (!append) list.innerHTML = "";
+
+      if (!movements.length && !append) {
+        list.innerHTML = "<div class='rec-movement-empty'>" + escapeHtml(modal.dataset.noMovements || "") + "</div>";
+      } else {
+        movements.forEach(function (movement) {
+          list.insertAdjacentHTML("beforeend", movementResultRow(movement));
+        });
+      }
+
+      movementState.page = data.page || movementState.page;
+      movementState.hasMore = !!data.has_more;
+      var total = data.total_count || 0;
+      var count = modal.querySelector(".js-movement-count");
+      if (total > 0) {
+        var template = total === 1 ? modal.dataset.countOne : modal.dataset.countOther;
+        count.textContent = (template || "%{count}").replace("%{count}", total);
+      } else {
+        count.textContent = "";
+      }
+
+      if (movementState.hasMore) {
+        loadMore.classList.remove("d-none");
+        loadMore.disabled = false;
+        loadMore.innerHTML = escapeHtml(modal.dataset.loadMore || "") + " <i class='ti ti-arrow-down' aria-hidden='true'></i>";
+      } else if (list.querySelector(".rec-movement-item")) {
+        loadMore.classList.remove("d-none");
+        loadMore.disabled = true;
+        loadMore.textContent = modal.dataset.noMore || "";
+      } else {
+        loadMore.classList.add("d-none");
+      }
+    }).catch(function () {
+      if (append) movementState.page -= 1;
+      if (!append) {
+        list.innerHTML = "<div class='rec-movement-empty is-error'>" +
+          escapeHtml(modal.dataset.movementError || "") + "</div>";
+      }
+      loadMore.classList.add("d-none");
+    }).finally(function () {
+      movementState.loading = false;
+      loadMore.disabled = false;
+    });
   }
 
-  function fetchMovements() {
-    var query = reconcileModal().querySelector("#reconcileSearchInput").value;
-    var params = new URLSearchParams({ q: query, amount: differenceMagnitude() });
-
-    getJSON(reconcileModal().dataset.movementsUrl + "?" + params.toString()).then(function (data) {
-      var list = document.getElementById("reconcileSearchResults");
-      list.innerHTML = "";
-      var movements = (data && data.movements) || [];
-      if (!movements.length) {
-        list.innerHTML = emptyRow(list.dataset.emptyLabel);
-        return;
-      }
-      movements.forEach(function (movement) {
-        list.insertAdjacentHTML("beforeend", movementResultRow(movement));
-      });
-    });
+  function loadMoreMovements() {
+    if (!movementState.hasMore) return;
+    movementState.page += 1;
+    fetchMovements(true);
   }
 
   // ------------------------------------------------------------------ Wiring
 
   document.addEventListener("click", function (event) {
+    if (event.target.closest(".rec-payment-open")) return;
+
     var assignButton = event.target.closest(".js-assign-payment");
     if (assignButton) {
       document.querySelectorAll(".js-assign-payment").forEach(function (b) { b.classList.remove("active"); });
@@ -443,17 +597,22 @@
       return;
     }
 
-    if (event.target.closest("#reconcileSearchToggle")) {
-      var block = document.getElementById("reconcileSearchBlock");
-      block.classList.toggle("d-none");
-      if (!block.classList.contains("d-none")) {
-        reconcileModal().querySelector("#reconcileSearchInput").focus();
-      }
+    if (event.target.closest("#reconcileLoadMore")) {
+      loadMoreMovements();
     }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    var result = event.target.closest("#assignExpenseResults .js-assign-result");
+    if (!result) return;
+    event.preventDefault();
+    selectAssignResult(result);
   });
 
   document.addEventListener("input", function (event) {
     if (event.target.id === "reconcileActualBalance") {
+      clearBalanceError();
       updateDifference();
       updatePrefillLinks();
     }
@@ -465,28 +624,8 @@
     }
   });
 
-  var debounceFetchMovements = debounce(fetchMovements, 300);
-
-  document.addEventListener("DOMContentLoaded", function () {
-    ["assignPaymentModal", "reconcileModal"].forEach(function (id) {
-      var modal = document.getElementById(id);
-      if (!modal) return;
-      if (id === "assignPaymentModal") {
-        stashListHint(modal, "assignExpenseResults", "resultsEmptyLabel");
-      } else {
-        stashListHint(modal, "reconcileSearchResults", "movementEmptyLabel");
-      }
-    });
-  });
-
-  // Keeps the initial hint text (the placeholder row rendered by the server)
-  // on the list's dataset: the row is destroyed by the first fetch, and the
-  // modals need it every time they are reopened.
-  function stashListHint(modal, listId, emptyLabelKey) {
-    var list = document.getElementById(listId);
-    if (!list) return;
-    var hintNode = list.querySelector(".js-search-empty");
-    list.dataset.hint = hintNode ? hintNode.textContent : (modal.dataset[emptyLabelKey] || "");
-    list.dataset.emptyLabel = modal.dataset[emptyLabelKey] || "";
-  }
+  var debounceFetchMovements = debounce(function () {
+    movementState.page = 1;
+    fetchMovements(false);
+  }, 300);
 })();
