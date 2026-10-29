@@ -163,7 +163,7 @@
                 <td>
                   <div class="available-expense">
                     <span class="available-expense-icon is-<%= available_cycle_category_tone(expense[:category]) %>" aria-hidden="true">
-                      <i class="ti <%= available_cycle_category_icon(expense[:category]) %>"></i>
+                      <i class="ti <%= available_cycle_category_icon(expense[:category], expense[:category_icon]) %>"></i>
                     </span>
                     <div>
                       <div class="available-expense-name"><%= expense[:name] %></div>

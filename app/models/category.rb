@@ -19,6 +19,7 @@ class Category < ApplicationRecord
   validates :category_type, inclusion: { in: %w[income expense], allow_nil: true }
   validates :savings_potential, inclusion: { in: SAVINGS_POTENTIALS, allow_nil: true }
   validates :suggested_savings_percentage, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :icon, format: { with: /\Ati-[a-z0-9-]+\z/ }, allow_nil: true
   validate :parent_must_not_be_self
   validate :parent_must_share_category_type
   validate :parent_belongs_to_scope
@@ -26,6 +27,8 @@ class Category < ApplicationRecord
   validate :custom_category_not_named_like_default, on: :create
   validate :unique_custom_category_per_user_and_type
   validate :unique_name_within_scope
+
+  before_validation :set_default_icon
 
   scope :active, -> { where(active: true) }
   scope :roots, -> { where(parent_id: nil) }
@@ -61,6 +64,10 @@ class Category < ApplicationRecord
   alias tips saving_tips
 
   private
+
+  def set_default_icon
+    self.icon = "ti-tag" if icon.blank?
+  end
 
   def parent_must_not_be_self
     return if parent_id.blank? || id.blank?

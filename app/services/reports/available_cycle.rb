@@ -50,6 +50,7 @@ class Reports::AvailableCycle
         template: template,
         name: template.description.presence || template.category&.name,
         category: template.category&.name,
+        category_icon: template.category&.icon,
         due_date: due_date,
         days_until_due: days_until_due,
         original: template.amount.to_d,

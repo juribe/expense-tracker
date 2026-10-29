@@ -114,9 +114,14 @@ module ReportsHelper
     Date.current.end_of_month
   end
 
-  # Available-cycle report: category icon/tone is derived from the real
-  # category name, so the table stays consistent with the user's data.
-  def available_cycle_category_icon(category_name)
+  # Available-cycle report: prefer the category's own icon (from the
+  # `categories.icon` field) so the table stays consistent with the rest of
+  # the app; fall back to a name-based heuristic for legacy categories
+  # without a stored icon.
+  def available_cycle_category_icon(category_name, icon = nil)
+    stored = icon.to_s.strip
+    return stored if stored.match?(/\Ati-[a-z0-9-]+\z/)
+
     name = category_name.to_s.downcase
     case name
     when /vivienda|arriendo|administraci/

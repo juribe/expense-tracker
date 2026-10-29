@@ -58,9 +58,52 @@ class CategoryCatalogTest < ActiveSupport::TestCase
     end
   end
 
+  EXPECTED_ICONS = {
+    "Mercado" => "ti-shopping-cart",
+    "Restaurantes y cafés" => "ti-chef-hat",
+    "Domicilios y antojos" => "ti-truck-delivery",
+    "Vivienda y básicos" => "ti-home",
+    "Hogar y mejoras" => "ti-sofa",
+    "Servicios y comunicaciones" => "ti-plug",
+    "Transporte" => "ti-car",
+    "Taxis y apps" => "ti-directions",
+    "Salud" => "ti-stethoscope",
+    "Cuidado personal" => "ti-yoga",
+    "Ocio y salidas" => "ti-ticket",
+    "Suscripciones" => "ti-repeat",
+    "Compras necesarias" => "ti-shirt",
+    "Gustos y compras" => "ti-diamond",
+    "Educación" => "ti-school",
+    "Viajes" => "ti-plane",
+    "Familia" => "ti-baby-carriage",
+    "Mascotas" => "ti-paw",
+    "Deudas y cuotas" => "ti-file-invoice",
+    "Abonos a capital" => "ti-circle-minus",
+    "Seguros" => "ti-shield",
+    "Impuestos y trámites" => "ti-receipt-tax",
+    "Trabajo" => "ti-briefcase",
+    "Donaciones y regalos" => "ti-gift",
+    "Otros" => "ti-dots"
+  }.freeze
+
   test "seed entries do not include unexpected categories beyond the table" do
     seeded_names = EXPENSE_CATEGORY_SEEDS.map { |attrs| attrs[:name] }
     assert_equal EXPECTED_PERCENTAGES.keys.sort, seeded_names.sort
+  end
+
+  test "every seed entry declares an icon" do
+    missing = EXPENSE_CATEGORY_SEEDS.reject { |attrs| attrs.key?(:icon) }
+    assert_empty missing.map { |attrs| attrs[:name] }
+  end
+
+  test "seed icons match the approved icon table" do
+    by_name = EXPENSE_CATEGORY_SEEDS.index_by { |attrs| attrs[:name] }
+
+    EXPECTED_ICONS.each do |name, icon|
+      entry = by_name[name]
+      assert entry, "expected a seed entry for #{name.inspect}"
+      assert_equal icon, entry[:icon], "expected #{name.inspect} to carry #{icon.inspect}, got #{entry[:icon].inspect}"
+    end
   end
 
   test "seeding writes the percentage to persisted default categories" do
@@ -69,12 +112,18 @@ class CategoryCatalogTest < ActiveSupport::TestCase
       category.tags = attrs[:tags]
       category.savings_potential = attrs[:savings_potential]
       category.suggested_savings_percentage = attrs[:suggested_savings_percentage]
+      category.icon = attrs[:icon]
       category.save!
     end
 
     EXPECTED_PERCENTAGES.each do |name, percentage|
       persisted = Category.find_by(name: name, is_default: true).suggested_savings_percentage
       percentage.nil? ? assert_nil(persisted, "expected #{name.inspect} to be nil") : assert_equal(percentage, persisted)
+    end
+
+    EXPECTED_ICONS.each do |name, icon|
+      persisted = Category.find_by(name: name, is_default: true).icon
+      assert_equal icon, persisted, "expected #{name.inspect} icon to persist"
     end
   end
 end

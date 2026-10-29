@@ -233,4 +233,27 @@ class CategoryTest < ActiveSupport::TestCase
     assert_not shared_child.valid?
     assert_includes shared_child.errors[:parent_id], I18n.t("validation.category_parent_owner")
   end
+
+  # --- Icon ---
+
+  test "icon defaults to the standard label icon for new categories" do
+    cat = Category.create!(name: "Icon Default")
+    assert_equal "ti-tag", cat.icon
+  end
+
+  test "icon can be nil" do
+    cat = Category.new(name: "Icon Nil", icon: nil)
+    assert cat.valid?
+  end
+
+  test "icon accepts a valid ti class" do
+    cat = Category.new(name: "Icon Valid", icon: "ti-star")
+    assert cat.valid?
+  end
+
+  test "icon rejects malformed values" do
+    cat = Category.new(name: "Icon Bad", icon: "not-a-ti-icon")
+    assert_not cat.valid?
+    assert_includes cat.errors[:icon], I18n.t("errors.messages.invalid")
+  end
 end

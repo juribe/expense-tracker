@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -102,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_000000) do
     t.jsonb "tags", default: [], null: false
     t.string "savings_potential"
     t.decimal "suggested_savings_percentage", precision: 5, scale: 2
+    t.string "icon"
     t.index ["category_type"], name: "index_categories_on_category_type"
     t.index ["is_default"], name: "index_categories_on_is_default"
     t.index ["name"], name: "index_categories_on_name"

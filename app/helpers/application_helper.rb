@@ -1,4 +1,5 @@
 module ApplicationHelper
+  include CategoriesHelper
   def greeting_name(resource)
     MailerHelper.greeting_name(resource)
   end
@@ -95,7 +96,12 @@ module ApplicationHelper
     return tag.span(t("common.uncategorized", default: "Sin categoría"), class: "badge bg-light text-dark border") if category.nil?
 
     color = CATEGORY_COLORS[category.id.to_s.bytes.sum % CATEGORY_COLORS.length]
-    tag.span(category.name, class: "badge bg-#{color}")
+    tag.span(class: "badge bg-#{color}") do
+      safe_join([
+                  tag.i(nil, class: "#{category_icon_klass(category)} me-1", "aria-hidden": true),
+                  category.name
+                ])
+    end
   end
 
   # Money source with its kind icon; em dash placeholder when unset so table
