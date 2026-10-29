@@ -107,6 +107,22 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     assert_match(/500\.000/, system_prompt)
   end
 
+  test "includes pending recurring expenses and their total in the system prompt" do
+    @fake.responses << { content: "ok" }
+    category = Category.create!(name: "Servicios", is_default: true, category_type: "expense")
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    RecurringTemplate.create!(user: @user, category: category, kind: "expense", amount: 100_000,
+                             frequency: "monthly", payment_day: 28, active: true,
+                             description: "Internet", money_source: source)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Internet/, system_prompt)
+    assert_match(/100\.000/, system_prompt)
+    assert_match(/pendientes/i, system_prompt)
+  end
+
   test "provider failure broadcasts assistant_failed and persists nothing" do
     @fake.responses << Ai::Provider::Error.new("LLM timeout")
 

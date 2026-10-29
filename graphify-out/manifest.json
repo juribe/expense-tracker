@@ -3396,9 +3396,9 @@
     "semantic_hash": ""
   },
   "app/services/financial_analysis_service.rb": {
-    "mtime": 1791319139.711491,
-    "seen": 1792857266.808728,
-    "ast_hash": "7e18f16ba65ce4e995a58ea49bac3e65",
+    "mtime": 1793271938.595578,
+    "seen": 1793271980.832329,
+    "ast_hash": "828c80a89560a15ed206bfcbd9a4d512",
     "semantic_hash": ""
   },
   "app/services/financial_chat_markdown_renderer.rb": {
@@ -3456,9 +3456,9 @@
     "semantic_hash": ""
   },
   "test/services/financial_analysis_service_test.rb": {
-    "mtime": 1792760755.3851874,
-    "seen": 1792857266.809257,
-    "ast_hash": "ee867f90dfaf5df731d9cefaccf5ccd0",
+    "mtime": 1793271958.5461564,
+    "seen": 1793271980.8330932,
+    "ast_hash": "6b15e8203cdc6e5bba81f0d339797f79",
     "semantic_hash": ""
   },
   "test/services/financial_chat_markdown_renderer_test.rb": {

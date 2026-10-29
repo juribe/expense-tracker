@@ -166,6 +166,9 @@ class FinancialAnalysisService
 
       Tarjetas de crédito (saldo actual):
       #{credit_card_lines}
+
+      Gastos recurrentes pendientes de pago:
+      #{recurring_pending_lines}
     CONTEXT
   end
 
@@ -194,6 +197,16 @@ class FinancialAnalysisService
     return "- (sin tarjetas de crédito registradas)" if cards.blank?
 
     cards.map { |card| "- #{card.name}: #{money(card.cached_balance)}" }.join("\n")
+  end
+
+  def recurring_pending_lines
+    report = Reports::AvailableCycle.new(user: @user).call
+    expenses = report[:pending_expenses]
+    return "- (sin gastos recurrentes pendientes)" if expenses.blank?
+
+    lines = expenses.map { |expense| "- #{expense[:name]}: #{money(expense[:missing])}" }
+    lines << "Total gastos recurrentes pendientes: #{money(report[:pending_total])}"
+    lines.join("\n")
   end
 
   def money(value)
