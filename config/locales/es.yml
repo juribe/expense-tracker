@@ -693,6 +693,7 @@ es:
     close_sidebar: "Cerrar barra lateral"
     profile: "Mi perfil"
     alert_settings: "Preferencias de alertas"
+    configure_alerts: "Configurar alertas"
     section_home: "Inicio"
     section_activity: "Actividad"
     section_money: "Dinero"

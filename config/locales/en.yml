@@ -380,6 +380,7 @@ en:
     close_sidebar: "Close sidebar"
     profile: "My profile"
     alert_settings: "Alert preferences"
+    configure_alerts: "Configure alerts"
     section_home: "Home"
     section_activity: "Activity"
     section_money: "Money"

@@ -59,4 +59,18 @@ class AlertSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert prefs.reload.budget_threshold_enabled?
   end
+
+  test "the sidebar links to the alert settings page from the settings section" do
+    get alert_settings_path
+
+    assert_select "aside.left-sidebar a[href='#{alert_settings_path}'] span",
+                  text: I18n.t("nav.configure_alerts", default: "Configurar alertas")
+  end
+
+  test "the alert preferences page no longer links to the WhatsApp configuration" do
+    get alert_settings_path
+
+    # The sidebar keeps its own WhatsApp entry; the page itself must not.
+    assert_select "a[href='#{whatsapp_settings_path}']", count: 1
+  end
 end

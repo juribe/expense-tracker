@@ -215,6 +215,12 @@
           <% end %>
         </li>
         <li class="sidebar-item">
+          <%= link_to alert_settings_path, class: "sidebar-link #{active_class('alert_settings')}" do %>
+            <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-bell fs-5"></i></span>
+            <span class="hide-menu"><%= t("nav.configure_alerts", default: "Configurar alertas") %></span>
+          <% end %>
+        </li>
+        <li class="sidebar-item">
           <%= link_to financial_institutions_path, class: "sidebar-link #{'active' if %w[financial_institutions custom_financial_institutions].include?(controller_name)}" do %>
             <span class="aside-icon p-2 bg-secondary-subtle rounded-1"><i class="ti ti-building-bank fs-5"></i></span>
             <span class="hide-menu"><%= t("nav.entities", default: "Entidades bancarias") %></span>
