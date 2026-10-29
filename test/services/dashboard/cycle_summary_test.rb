@@ -250,14 +250,16 @@ Income.create!(user: @user, category: @income_category, amount: 10_000_000, date
   end
 
   test "upcoming payments hides payments already made in the cycle" do
-    template = @user.recurring_templates.create!(kind: "expense", amount: 500_000, category: @category, description: "Servicio",
-                                                frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: true)
-    Expense.create!(user: @user, category: @category, amount: 500_000, date: Date.current + 3,
-                    description: "Servicio", money_source: @money_source, recurring_template_id: template.id)
+    travel_to Date.new(2026, 10, 10) do
+      template = @user.recurring_templates.create!(kind: "expense", amount: 500_000, category: @category, description: "Servicio",
+                                                  frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: true)
+      Expense.create!(user: @user, category: @category, amount: 500_000, date: Date.current + 3,
+                      description: "Servicio", money_source: @money_source, recurring_template_id: template.id)
 
-    result = summary
+      result = summary
 
-    assert_not result[:upcoming_payments].any? { |payment| payment[:template].id == template.id }
+      assert_not result[:upcoming_payments].any? { |payment| payment[:template].id == template.id }
+    end
   end
 
   test "next_occurrence_date clamps payment days beyond the month end" do
