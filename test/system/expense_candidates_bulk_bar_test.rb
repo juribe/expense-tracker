@@ -47,6 +47,6 @@ class ExpenseCandidatesBulkBarTest < ApplicationSystemTestCase
     fill_in "user_email", with: user.email
     fill_in "user_password", with: "password123"
     click_button I18n.t("auth.sign_in", default: "Iniciar sesión")
-    assert_selector "body"
+    assert_selector "aside.left-sidebar", wait: 10
   end
 end

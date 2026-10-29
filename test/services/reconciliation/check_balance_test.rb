@@ -47,6 +47,18 @@ module Reconciliation
       assert_equal "ok", snapshot.resolution
     end
 
+    test "adjust creates a value adjustment for the difference" do
+      assert_difference -> { BalanceAdjustment.count }, 1 do
+        CheckBalance.call(user: @user, money_source: @source, actual_balance: "8450000", adjust: true,
+                          note: "Saldo del banco")
+      end
+
+      adjustment = BalanceAdjustment.last
+      assert_equal @source, adjustment.money_source
+      assert_equal 50_000.to_d, adjustment.delta
+      assert_equal "Saldo del banco", adjustment.note
+    end
+
     test "balance offset survives BalanceSync.rebuild!" do
       CheckBalance.call(user: @user, money_source: @source, actual_balance: "8450000", adjust: true)
 
@@ -146,7 +158,6 @@ module Reconciliation
       snapshot = LeavePending.call(user: @user, money_source: @source, period: Date.current.strftime("%Y-%m"))
 
       assert_equal "left_pending", snapshot.resolution
-      assert_equal "8400000.0", snapshot.actual_balance.to_s
 
       state = State.call(@user)
       assert_equal "left_pending", state.snapshot["balances"].first["status"]
@@ -186,6 +197,19 @@ module Reconciliation
       assert_equal 8_400_000.to_d, @source.reload.balance
       assert_nil @source.balance_offset_note
       assert @source.balance_offset_at.present?
+    end
+
+    test "reconciling several times in the same period keeps a single snapshot" do
+      period = Date.current.strftime("%Y-%m")
+
+      assert_difference -> { ReconciliationSnapshot.count }, 1 do
+        CheckBalance.call(user: @user, money_source: @source, actual_balance: "8450000", adjust: true)
+        CheckBalance.call(user: @user, money_source: @source, mark_ok: true)
+      end
+
+      snapshot = ReconciliationSnapshot.for_period(@user, period).find_by(money_source: @source)
+      assert_equal "ok", snapshot.resolution
+      assert snapshot.checked_at.present?
     end
   end
 end

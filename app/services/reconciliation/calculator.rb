@@ -5,8 +5,8 @@ module Reconciliation
   # - Pagos pendientes: active expense recurring templates without a linked
   #   transaction in the period (same semantics as
   #   RecurringTemplate#processed_for_period?, batched into one query).
-  # - Saldos por conciliar: app balance vs. the last "real" balance entered
-  #   per source, with ok / difference / left_pending / unverified status.
+  # - Saldos por conciliar: current app balance per source plus whether it was
+  #   reconciled in the period (ok / difference / left_pending / unverified).
   #
   # Payloads are plain hashes with string amounts/dates, used both for the
   # view and for the persisted ReconciliationState#snapshot.
@@ -16,7 +16,7 @@ module Reconciliation
 
     # Bump whenever the snapshot payload shape changes: persisted states built
     # with an older shape are recalculated transparently on the next visit.
-    SNAPSHOT_VERSION = "2"
+    SNAPSHOT_VERSION = "3"
 
     # Loans are included through their outstanding balance: the user compares
     # it against the bank figure and can adjust it. Loans without a
@@ -148,19 +148,15 @@ module Reconciliation
           .sort_by { |source| [ source.kind, source.name.downcase ] }
     end
 
+    # Only the current app balance and whether the source was reconciled in
+    # this period are shown. The real balance and its difference are entered
+    # inside the Conciliar modal and never persisted.
     def balance_row(source, snapshot, app_balance)
-      if snapshot.nil?
-        return { source_id: source.id, name: source.display_name, kind: source.kind,
-                 app_balance: app_balance.to_s, actual_balance: nil, difference: nil,
-                 status: "unverified", checked_at: nil }
-      end
-
-      difference = snapshot.actual_balance - app_balance
-      status = snapshot.resolution == "left_pending" ? "left_pending" : (difference.zero? ? "ok" : "difference")
+      status = snapshot&.resolution || "unverified"
 
       { source_id: source.id, name: source.display_name, kind: source.kind,
-        app_balance: app_balance.to_s, actual_balance: snapshot.actual_balance.to_s,
-        difference: difference.to_s, status: status, checked_at: snapshot.checked_at&.iso8601 }
+        app_balance: app_balance.to_s, status: status,
+        checked_at: snapshot&.checked_at&.iso8601 }
     end
   end
 end

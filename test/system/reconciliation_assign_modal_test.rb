@@ -7,13 +7,14 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
 
   setup do
     @user = User.create!(name: "Cuadre Modal User", email: "cuadre_modal@example.com", password: "password123")
+    @user.confirm
     @category = Category.create!(user: @user, name: "Servicios")
     @template = RecurringTemplate.create!(
       user: @user, category: @category, kind: "expense",
       description: "Crédito carro", amount: 2_818_000, frequency: "monthly",
       source: "manual", payment_day: 5
     )
-    MoneySource.create!(user: @user, name: "Davibank", kind: "account", starting_balance: 8_400_000)
+    @account = MoneySource.create!(user: @user, name: "Davibank", kind: "account", starting_balance: 8_400_000)
   end
 
   test "assign modal reopens after being closed" do
@@ -22,8 +23,9 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
 
     find("button.js-assign-payment").click
     assert_selector "#assignPaymentModal.show"
+    wait_for_modal_transition "#assignPaymentModal"
     find("#assignPaymentModal .btn-close").click
-    assert_no_selector "#assignPaymentModal.show" # wait for the hide transition
+    assert_no_selector "#assignPaymentModal.show", wait: 5 # wait for the hide transition
 
     find("button.js-assign-payment").click
     assert_selector "#assignPaymentModal.show"
@@ -34,7 +36,7 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
     # outside the cuadre period, so the row stays pending.
     expense = @user.expenses.create!(
       category: @category, description: "Pago crédito carro pasado", amount: 2_818_000,
-      kind: "expense", source: "gmail", date: 1.month.ago.to_date
+      kind: "expense", source: "gmail", date: 1.month.ago.to_date, money_source: @account
     )
     Expenses::RecurringAssignment.assign(user: @user, expense_id: expense.id, recurring_template_id: @template.id)
 
@@ -47,18 +49,22 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
     assert_selector "#assignPaymentModal.show"
     fill_in "assignExpenseSearch", with: "crédito"
     assert_no_selector "#assignExpenseResults .js-assign-result", wait: 3
+    wait_for_modal_transition "#assignPaymentModal"
     find("#assignPaymentModal .btn-close").click
+    assert_no_selector "#assignPaymentModal.show", wait: 5
 
     # Retry opens the modal again.
     find("button.js-assign-payment").click
     assert_selector "#assignPaymentModal.show"
+    wait_for_modal_transition "#assignPaymentModal"
     find("#assignPaymentModal .btn-close").click
+    assert_no_selector "#assignPaymentModal.show", wait: 5
 
     # Assigning a valid in-period expense clears the row after the reload,
     # and the modal keeps working on the fresh page.
     in_period = @user.expenses.create!(
       category: @category, description: "Pago crédito carro octubre", amount: 2_818_000,
-      kind: "expense", source: "manual", date: Date.current
+      kind: "expense", source: "manual", date: Date.current, money_source: @account
     )
     visit reconciliation_path
     find("button.js-assign-payment").click
@@ -76,9 +82,9 @@ class ReconciliationAssignModalTest < ApplicationSystemTestCase
 
   def sign_in(user)
     visit new_user_session_path
-    fill_in "Email", with: user.email, match: :first
-    fill_in "Password", with: "password123", match: :first
+    fill_in "user_email", with: user.email
+    fill_in "user_password", with: "password123"
     click_button I18n.t("auth.sign_in", default: "Iniciar sesión")
-    assert_selector "body"
+    assert_selector "aside.left-sidebar", wait: 10
   end
 end

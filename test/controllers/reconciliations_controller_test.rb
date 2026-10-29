@@ -39,6 +39,20 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_select("button.js-reconcile", minimum: 1)
   end
 
+  test "GET /reconciliation balance rows omit the real balance and difference and say Pendiente" do
+    sign_in @user
+    get reconciliation_path
+
+    assert_response :success
+    row = css_select("li.list-group-item").find { |item| item.text.include?(@account.name) }
+    assert_not_nil row, "the account row should be rendered"
+    assert_includes row.text, "Pendiente"
+    assert_includes row.text, "Conciliar"
+    refute_includes row.text, "Saldo real"
+    refute_includes row.text, "Diferencia"
+    refute_includes row.text, "Sin verificar"
+  end
+
   test "GET /reconciliation shows the financial cycle badge in the title when cycles are enabled" do
     @user.update!(financial_cycle_start_day: 20)
     cycle = PayCycle.containing(@user, Date.current)
@@ -131,23 +145,6 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     get dashboard_path
     assert_select "a[href='#{reconciliation_path}']"
-  end
-
-  test "POST refresh recalculates and persists the state" do
-    sign_in @user
-    prior = Time.zone.now - 1.minute
-    ReconciliationState.create!(
-      user: @user, period: Date.current.strftime("%Y-%m"), status: "reconciled",
-      pending_payments_count: 0, discrepancies_count: 0, snapshot: {}, checked_at: prior, stale: false
-    )
-
-    post reconciliation_refresh_path
-    assert_redirected_to reconciliation_path
-    assert flash[:notice].present?
-
-    state = ReconciliationState.for_period(@user, Date.current.strftime("%Y-%m"))
-    assert_equal 1, state.pending_payments_count
-    assert_operator state.checked_at, :>, prior
   end
 
   test "GET search_expenses returns matching expenses as JSON" do
@@ -334,7 +331,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ok", snapshot.resolution
   end
 
-  test "dashboard shows the reconciled row instead of Sin verificar when cycles are enabled" do
+  test "dashboard shows the reconciled row instead of Pendiente when cycles are enabled" do
     @user.update!(financial_cycle_start_day: 20)
     cycle = PayCycle.containing(@user, Date.current)
     sign_in @user
@@ -346,8 +343,8 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     row = css_select("li.list-group-item").find { |item| item.text.include?(@account.name) }
     assert_not_nil row, "the account row should be rendered"
-    assert_includes row.text, "Cuadrado"
-    refute_includes row.text, "Sin verificar"
+    assert_includes row.text, "Conciliado"
+    refute_includes row.text, "Pendiente"
   end
 
   test "POST leave_pending works with a pay cycle period" do
@@ -375,7 +372,6 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to reconciliation_path
     snapshot = ReconciliationSnapshot.find_by(user: @user, money_source: @account)
     assert_equal "ok", snapshot.resolution
-    assert_equal 8_400_000.to_d, snapshot.actual_balance
     state = ReconciliationState.for_period(@user, Date.current.strftime("%Y-%m"))
     assert_equal 0, state.discrepancies_count
     assert_equal 0, state.unverified_count

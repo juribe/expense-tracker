@@ -11,6 +11,7 @@ class ReconciliationReconcileModalTest < ApplicationSystemTestCase
   setup do
     @user = User.create!(name: "Cuadre Loan Modal", email: "cuadre_loan_modal@example.com",
                          password: "password123")
+    @user.confirm
     @account = MoneySource.create!(user: @user, name: "Davibank Ahorros", kind: "account",
                                    starting_balance: 8_400_000)
     @loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
@@ -23,11 +24,12 @@ class ReconciliationReconcileModalTest < ApplicationSystemTestCase
 
     find("li.list-group-item", text: @loan.name).find("button.js-reconcile").click
     assert_selector "#reconcileModal.show"
+    wait_for_modal_transition "#reconcileModal"
     assert_no_selector "#reconcileCreateExpense", visible: true
     assert_no_selector "#reconcileCreateIncome", visible: true
 
     find("#reconcileModal .btn-close").click
-    assert_no_selector "#reconcileModal.show" # wait for the hide transition
+    assert_no_selector "#reconcileModal.show", wait: 5 # wait for the hide transition
 
     find("li.list-group-item", text: @account.name).find("button.js-reconcile").click
     assert_selector "#reconcileModal.show"
@@ -39,9 +41,9 @@ class ReconciliationReconcileModalTest < ApplicationSystemTestCase
 
   def sign_in(user)
     visit new_user_session_path
-    fill_in "Email", with: user.email, match: :first
-    fill_in "Password", with: "password123", match: :first
+    fill_in "user_email", with: user.email
+    fill_in "user_password", with: "password123"
     click_button I18n.t("auth.sign_in", default: "Iniciar sesión")
-    assert_selector "body"
+    assert_selector "aside.left-sidebar", wait: 10
   end
 end

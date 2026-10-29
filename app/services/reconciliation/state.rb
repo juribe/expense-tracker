@@ -4,7 +4,7 @@ module Reconciliation
   # Loads (and recalculates when stale) the persisted dashboard state.
   #
   #   Reconciliation::State.call(user)                     # auto: recompute if stale/missing
-  #   Reconciliation::State.refresh!(user)                 # explicit Refresh button
+  #   Reconciliation::State.refresh!(user)                 # force a recalculation (writes)
   class State
     def self.call(user, period: Date.current.strftime("%Y-%m"))
       state = ReconciliationState.for_period(user, period)

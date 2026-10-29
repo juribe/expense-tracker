@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -613,7 +613,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_000000) do
     t.uuid "user_id", null: false
     t.uuid "money_source_id", null: false
     t.string "period", null: false
-    t.decimal "actual_balance", precision: 14, scale: 2, default: "0.0", null: false
     t.string "resolution", default: "unverified", null: false
     t.datetime "checked_at"
     t.datetime "created_at", null: false
@@ -904,7 +903,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_000000) do
     t.index ["user_id", "gmail_message_id", "amount", "date"], name: "index_transactions_gmail_dedup", unique: true, where: "(gmail_message_id IS NOT NULL)"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

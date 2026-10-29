@@ -13,15 +13,9 @@
   <div class="text-md-end">
     <% checked_label = reconciliation_checked_at_label(@state.checked_at&.iso8601) %>
     <% if checked_label %>
-      <div class="text-secondary small mb-2">
+      <div class="text-secondary small">
         <i class="ti ti-history me-1"></i><%= checked_label %>
       </div>
-    <% end %>
-    <%= button_to reconciliation_refresh_path,
-                  method: :post,
-                  class: "btn btn-outline-primary btn-sm",
-                  data: { turbo: false } do %>
-      <i class="ti ti-rotate me-1"></i><%= t("reconciliation.refresh") %>
     <% end %>
   </div>
 </div>
@@ -77,22 +71,6 @@
             <div class="text-secondary small"><%= t("reconciliation.balances.app_balance") %></div>
             <div class="fw-semibold"><%= reconciliation_money(balance["app_balance"]) %></div>
           </div>
-          <div class="text-nowrap text-end et-minw-8-5rem">
-            <div class="text-secondary small"><%= t("reconciliation.balances.actual_balance") %></div>
-            <div class="fw-semibold">
-              <%= balance["actual_balance"] ? reconciliation_money(balance["actual_balance"]) : content_tag(:span, t("reconciliation.balances.unverified"), class: "text-muted fw-normal") %>
-            </div>
-          </div>
-          <div class="text-nowrap text-end et-minw-7-5rem">
-            <div class="text-secondary small"><%= t("reconciliation.balances.difference") %></div>
-            <% if balance["difference"] %>
-              <div class="fw-semibold <%= balance["difference"].to_d.zero? ? "" : "text-warning-emphasis" %>">
-                <%= reconciliation_signed_money(balance["difference"]) %>
-              </div>
-            <% else %>
-              <div class="fw-semibold text-muted">—</div>
-            <% end %>
-          </div>
           <%= reconciliation_status_badge(balance["status"], t("reconciliation.balances.statuses.#{balance["status"]}")) %>
           <button type="button"
                   class="btn <%= balance["status"] == "ok" ? "btn-outline-secondary" : "btn-primary" %> btn-sm js-reconcile flex-shrink-0"
@@ -100,7 +78,6 @@
                   data-name="<%= balance["name"] %>"
                   data-app-balance="<%= balance["app_balance"] %>"
                   data-app-balance-formatted="<%= reconciliation_money(balance["app_balance"]) %>"
-                  data-actual-balance="<%= balance["actual_balance"] %>"
                   data-kind="<%= balance["kind"] %>">
             <%= t("reconciliation.balances.reconcile") %>
           </button>

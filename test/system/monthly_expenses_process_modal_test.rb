@@ -12,7 +12,9 @@ class MonthlyExpensesProcessModalTest < ApplicationSystemTestCase
 
   setup do
     @user = User.create!(name: "Monthly Pay User", email: "monthly_pay@example.com", password: "password123")
+    @user.confirm
     @services = Category.create!(user: @user, name: "Servicios", category_type: "expense", is_default: false)
+    @account = MoneySource.create!(user: @user, name: "Davibank", kind: "account", starting_balance: 1_000_000)
     @template = create_template("Internet hogar", 120_000)
   end
 
@@ -46,21 +48,23 @@ class MonthlyExpensesProcessModalTest < ApplicationSystemTestCase
   def create_template(description, amount)
     @user.recurring_templates.create!(
       category: @services, kind: "expense", description: description,
-      amount: amount, frequency: "monthly", source: "manual", payment_day: 10
+      amount: amount, frequency: "monthly", source: "manual", payment_day: 10,
+      money_source: @account
     )
   end
 
   def sign_in(user)
     visit new_user_session_path
-    fill_in "Email", with: user.email, match: :first
-    fill_in "Password", with: "password123", match: :first
+    fill_in "user_email", with: user.email
+    fill_in "user_password", with: "password123"
     click_button I18n.t("auth.sign_in")
+    assert_selector "aside.left-sidebar", wait: 10
   end
 
   def open_process_modal(template)
     within "tr[data-testid='recurring-row'][data-id='#{template.id}']" do
       find('[data-testid="process"]').click
     end
-    assert_selector "#processModal.show"
+    assert_selector "#processModal.show", wait: 5
   end
 end

@@ -150,7 +150,7 @@ class EmailSourcesSetupFlowTest < ApplicationSystemTestCase
 
     dismiss_confirm message do
       within row_selector do
-        click_button "Eliminar"
+        execute_script("arguments[0].click()", find("button", text: "Eliminar"))
       end
     end
 
@@ -159,7 +159,7 @@ class EmailSourcesSetupFlowTest < ApplicationSystemTestCase
 
     accept_confirm message do
       within row_selector do
-        click_button "Eliminar"
+        execute_script("arguments[0].click()", find("button", text: "Eliminar"))
       end
     end
 
@@ -174,5 +174,6 @@ class EmailSourcesSetupFlowTest < ApplicationSystemTestCase
     fill_in "user_email", with: user.email
     fill_in "user_password", with: "password123"
     click_button I18n.t("auth.sign_in")
+    assert_selector "aside.left-sidebar", wait: 10
   end
 end

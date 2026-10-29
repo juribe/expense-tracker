@@ -236,7 +236,6 @@ Rails.application.routes.draw do
 
   # Día de Cuadre (reconciliation dashboard)
   get "reconciliation", to: "reconciliations#show", as: :reconciliation
-  post "reconciliation/refresh", to: "reconciliations#refresh", as: :reconciliation_refresh
   get "reconciliation/search_expenses", to: "reconciliations#search_expenses", as: :reconciliation_search_expenses
   get "reconciliation/search_movements", to: "reconciliations#search_movements", as: :reconciliation_search_movements
   post "reconciliation/payments/:recurring_template_id/assign",

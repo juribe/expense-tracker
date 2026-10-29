@@ -2279,7 +2279,6 @@ es:
   reconciliation:
     title: "Día de Cuadre"
     subtitle: "Revisa pagos y saldos para dejar tus finanzas al día."
-    refresh: "Actualizar"
     checked_today: "Última revisión: Hoy, %{time}"
     checked_on: "Última revisión: %{date}"
     status:
@@ -2330,9 +2329,9 @@ es:
         debit_card: "Tarjeta débito"
         credit_card: "Tarjeta de crédito"
       statuses:
-        unverified: "Sin verificar"
-        ok: "Cuadrado"
-        difference: "Diferencia"
+        unverified: "Pendiente"
+        ok: "Conciliado"
+        difference: "Pendiente"
         left_pending: "Pendiente"
     reconcile:
       title: "Conciliar"
@@ -2354,11 +2353,10 @@ es:
       income: "Ingreso"
       expense: "Gasto"
     flashes:
-      refreshed: "Cuadre recalculado."
       assigned: "Pago asignado a %{description}."
       assign_failed: "No se pudo asignar el pago: %{reason}"
       balance_checked: "Saldo registrado."
-      reconciled_ok: "Confirmado: el saldo está cuadrado."
+      reconciled_ok: "Confirmado: la cuenta quedó conciliada."
       left_pending: "Diferencia dejada pendiente."
 
   statement_imports:

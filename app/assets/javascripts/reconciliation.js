@@ -229,8 +229,10 @@
     modal.querySelector(".js-app-balance").textContent = button.dataset.appBalanceFormatted ||
       button.dataset.appBalance;
 
+    // The real balance is intentionally not remembered: every reconciliation
+    // starts from the current app balance and an empty input.
     var actual = modal.querySelector("#reconcileActualBalance");
-    actual.value = button.dataset.actualBalance || "";
+    actual.value = "";
     updateDifference();
 
     modal.querySelector("#reconcileSearchBlock").classList.add("d-none");
@@ -297,7 +299,7 @@
   }
 
   // "Todo está bien": no balance change, no note — the current balance is
-  // confirmed as the real one and the row turns reconciled (Cuadrado).
+  // confirmed as the real one and the row turns reconciled (Conciliado).
   function submitAllGood() {
     var button = document.getElementById("reconcileAllGood");
     button.disabled = true;

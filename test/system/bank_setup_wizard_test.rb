@@ -231,11 +231,11 @@ class BankSetupWizardSystemTest < ApplicationSystemTestCase
 
   def sign_in(user)
     visit new_user_session_path
-    fill_in "Correo electrónico", with: user.email, match: :first
-    fill_in "Contraseña", with: "password123", match: :first
+    fill_in "user_email", with: user.email
+    fill_in "user_password", with: "password123"
     click_button "Iniciar sesión"
     # The Devise redirect and the following visit must not race each other.
-    assert_no_selector "input[name='user[email]']", wait: 10
+    assert_selector "aside.left-sidebar", wait: 10
   end
 
   def open_wizard

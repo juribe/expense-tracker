@@ -35,7 +35,7 @@ test.describe('día de cuadre', () => {
     await expect(page.getByRole('heading', { name: 'Pagos pendientes' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Saldos por conciliar' })).toBeVisible();
     const row = page.locator('li.list-group-item').filter({ hasText: 'Davibank Cuadre Primer' });
-    await expect(row.getByText('Sin verificar').first()).toBeVisible();
+    await expect(row.getByText('Pendiente').first()).toBeVisible();
   });
 
   test('reconcile modal records the real balance and resolves the row', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('día de cuadre', () => {
     await page.goto('/reconciliation');
     const row = page.locator('li.list-group-item').filter({ hasText: 'Davibank Cuadre' });
     await expect(row).toBeVisible();
-    await expect(row.getByText('Sin verificar').first()).toBeVisible();
+    await expect(row.getByText('Pendiente').first()).toBeVisible();
 
     await row.getByRole('button', { name: 'Conciliar' }).click();
     await expect(page.locator('#reconcileModal')).toBeVisible();
@@ -58,7 +58,7 @@ test.describe('día de cuadre', () => {
 
     await expect(page).toHaveURL(/\/reconciliation/);
     const settledRow = page.locator('li.list-group-item').filter({ hasText: 'Davibank Cuadre' });
-    await expect(settledRow.getByText('Cuadrado')).toBeVisible();
+    await expect(settledRow.getByText('Conciliado')).toBeVisible();
     await expect(settledRow.getByText('$8.450.000').first()).toBeVisible();
   });
 
@@ -115,7 +115,7 @@ test.describe('día de cuadre', () => {
     // "Todo está bien" marks the row reconciled without any balance change.
     await row.getByRole('button', { name: 'Conciliar' }).click();
     await page.locator('#reconcileAllGood').click();
-    await expect(row.getByText('Cuadrado')).toBeVisible();
+    await expect(row.getByText('Conciliado')).toBeVisible();
 
     // A real adjustment with a note shows the audit trace on the account page.
     await row.getByRole('button', { name: 'Conciliar' }).click();

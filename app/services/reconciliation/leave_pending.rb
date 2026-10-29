@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module Reconciliation
-  # "Dejar pendiente": records that the user reviewed the difference and
-  # chose to defer. The row stays flagged (amber) instead of forcing a
-  # resolution — a balance discrepancy is not necessarily an expense.
+  # "Dejar pendiente": records that the user reviewed the source and chose to
+  # defer. The row stays pending instead of forcing a resolution — a balance
+  # discrepancy is not necessarily an expense. The reviewed real balance is
+  # not stored.
   class LeavePending
     class << self
       def call(user:, money_source:, period: Date.current.strftime("%Y-%m"))
@@ -11,7 +12,6 @@ module Reconciliation
           user: user,
           money_source: money_source,
           period: period,
-          actual_balance: Calculator.reconcilable_balance(money_source),
           resolution: "left_pending"
         )
         Invalidate.call(user_id: user.id)

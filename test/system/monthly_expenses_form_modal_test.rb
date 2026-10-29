@@ -11,6 +11,7 @@ class MonthlyExpensesFormModalTest < ApplicationSystemTestCase
 
   setup do
     @user = User.create!(name: "Monthly Form User", email: "monthly_form@example.com", password: "password123")
+    @user.confirm
     @services = Category.create!(user: @user, name: "Servicios", category_type: "expense", is_default: false)
     @transport = Category.create!(user: @user, name: "Transporte", category_type: "expense", is_default: false)
     @first_template = create_template("Internet hogar", @services)
@@ -71,21 +72,24 @@ class MonthlyExpensesFormModalTest < ApplicationSystemTestCase
 
   def sign_in(user)
     visit new_user_session_path
-    fill_in "Email", with: user.email, match: :first
-    fill_in "Password", with: "password123", match: :first
+    fill_in "user_email", with: user.email
+    fill_in "user_password", with: "password123"
     click_button I18n.t("auth.sign_in")
+    assert_selector "aside.left-sidebar", wait: 10
   end
 
   def open_edit_modal(template)
     within "tr[data-testid='recurring-row'][data-id='#{template.id}']" do
       find('[data-testid="edit"]').click
     end
-    assert_selector "#recurringFormModal.show"
+    assert_selector "#recurringFormModal.show", wait: 5
+    wait_for_modal_transition "#recurringFormModal"
   end
 
   def close_form_modal
+    wait_for_modal_transition "#recurringFormModal"
     find("#recurringFormModal .btn-close").click
-    assert_no_selector "#recurringFormModal.show"
+    assert_no_selector "#recurringFormModal.show", wait: 5
   end
 
   def category_search

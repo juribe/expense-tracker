@@ -73,5 +73,6 @@ class AvailableCycleReportTest < ApplicationSystemTestCase
     fill_in "Correo electrónico", with: user.email, match: :first
     fill_in "Contraseña", with: "password123", match: :first
     click_button I18n.t("auth.sign_in")
+    assert_selector "aside.left-sidebar", wait: 10
   end
 end

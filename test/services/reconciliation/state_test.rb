@@ -127,7 +127,7 @@ module Reconciliation
       state = ReconciliationState.for_period(@user, Date.current.strftime("%Y-%m"))
       row = state.snapshot["balances"].first
       assert_equal "difference", row["status"]
-      assert_equal "50000.0", BigDecimal(row["difference"]).to_s
+      assert_nil row["difference"]
       assert_equal "warning", state.status
     end
 
@@ -153,6 +153,18 @@ module Reconciliation
       state = State.call(@user)
       assert_equal 0, state.unverified_count
       assert_equal "reconciled", state.status
+    end
+
+    test "a new cycle starts unverified even when the previous cycle was reconciled" do
+      @template.update!(active: false)
+      CheckBalance.call(user: @user, money_source: @source, actual_balance: "8400000", period: "2026-09")
+
+      previous = State.call(@user, period: "2026-09")
+      assert_equal "ok", previous.snapshot["balances"].first["status"]
+
+      current = State.call(@user, period: "2026-10")
+      row = current.snapshot["balances"].find { |balance| balance["source_id"] == @source.id }
+      assert_equal "unverified", row["status"]
     end
 
     test "explicit refresh updates checked_at and clears staleness" do

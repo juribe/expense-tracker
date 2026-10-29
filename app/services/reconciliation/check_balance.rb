@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module Reconciliation
-  # Records the "real" balance the user enters for a source in the Conciliar
-  # modal and resolves the check. When the user chooses "Ajustar saldo" the
-  # app balance is corrected via MoneySources::BalanceAdjust (never by
-  # inventing a "Descuadre" expense — a discrepancy is not necessarily an
-  # expense).
+  # Uses the "real" balance the user enters for a source in the Conciliar
+  # modal to resolve the check. The real balance and its difference are
+  # ephemeral; only whether the source was reconciled in the period is
+  # persisted. When the user chooses "Ajustar saldo" the app balance is
+  # corrected via MoneySources::BalanceAdjust (never by inventing a
+  # "Descuadre" expense — a discrepancy is not necessarily an expense).
   class CheckBalance
     Result = Struct.new(:snapshot, :app_balance, :difference, keyword_init: true)
 
@@ -44,7 +45,7 @@ module Reconciliation
       resolution = difference.zero? ? "ok" : "difference"
       snapshot = ReconciliationSnapshot.upsert_for!(
         user: @user, money_source: @money_source, period: @period,
-        actual_balance: @actual_balance, resolution: resolution
+        resolution: resolution
       )
 
       Result.new(snapshot: snapshot, app_balance: app_balance, difference: difference)

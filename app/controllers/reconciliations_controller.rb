@@ -13,12 +13,6 @@ class ReconciliationsController < ApplicationController
     @state = Reconciliation::State.call(current_user, period: @period)
   end
 
-  # Explicit "Refresh" action: force recalculation and persist it.
-  def refresh
-    Reconciliation::State.refresh!(current_user, period: @period)
-    redirect_to reconciliation_path, notice: t("reconciliation.flashes.refreshed")
-  end
-
   # POST — assigns ONE existing expense to a recurring template. Reuses the
   # same service (and guards) as the expenses page assign flow. The cuadre
   # period is enforced: only an expense dated inside the period can clear the
