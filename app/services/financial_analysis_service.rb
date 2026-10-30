@@ -25,6 +25,11 @@ class FinancialAnalysisService
   # low while the answer still feels streamed.
   DEFAULT_BROADCAST_INTERVAL = 0.25
   MAX_BUFFER_CHARS = 200
+  # Kinds holding money the user can spend from a bank: accounts, their debit
+  # cards and digital wallets. Cash has its own block; pockets are assigned
+  # savings and never count as immediately available money.
+  BANK_KINDS = %w[account debit_card wallet].freeze
+  CASH_KINDS = %w[cash].freeze
 
   def initialize(chat_id:, message_id:, broadcast_interval: DEFAULT_BROADCAST_INTERVAL)
     @chat = FinancialChat.find_by(id: chat_id)
@@ -164,6 +169,10 @@ class FinancialAnalysisService
       Presupuestos del mes:
       #{budget_lines(month)}
 
+      #{bank_account_lines}
+
+      #{cash_lines}
+
       Tarjetas de crédito (saldo actual):
       #{credit_card_lines}
 
@@ -199,6 +208,39 @@ class FinancialAnalysisService
     cards.map { |card| "- #{card.name}: #{money(card.cached_balance)}" }.join("\n")
   end
 
+  # Immediately available money held at a bank: the requested total on the
+  # header line plus one line per active source so the assistant can answer
+  # about a specific account too.
+  def bank_account_lines
+    liquid_lines(BANK_KINDS, "Saldo en cuentas bancarias (cuentas, tarjetas débito y billeteras)",
+                 "- (sin cuentas bancarias registradas)")
+  end
+
+  def cash_lines
+    liquid_lines(CASH_KINDS, "Efectivo en mano", "- (sin efectivo registrado)")
+  end
+
+  def liquid_lines(kinds, label, empty_line)
+    sources = active_sources.select { |source| kinds.include?(source.kind) }
+    lines = [ "#{label}: #{money(sources.sum { |source| source.balance.to_d })}" ]
+    if sources.empty?
+      lines << empty_line
+    else
+      sources.sort_by { |source| source.name.downcase }.each do |source|
+        lines << "- #{source.name} (#{kind_label(source)}): #{money(source.balance)}"
+      end
+    end
+    lines.join("\n")
+  end
+
+  def active_sources
+    @active_sources ||= @user.money_sources.active.to_a
+  end
+
+  def kind_label(source)
+    I18n.t("kinds.#{source.kind}", default: source.kind.titleize)
+  end
+
   def recurring_pending_lines
     report = Reports::AvailableCycle.new(user: @user).call
     expenses = report[:pending_expenses]
@@ -209,8 +251,10 @@ class FinancialAnalysisService
     lines.join("\n")
   end
 
+  # COP has no practical use for cents in this snapshot; whole pesos match
+  # the format the prompt asks the assistant to use.
   def money(value)
-    "COP #{ActiveSupport::NumberHelper.number_to_delimited(value.to_d)}"
+    "COP #{ActiveSupport::NumberHelper.number_to_delimited(value.to_d.round)}"
   end
 
   # Buffers streamed deltas and flushes them through the given callback at

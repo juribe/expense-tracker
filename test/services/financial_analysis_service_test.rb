@@ -123,6 +123,40 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     assert_match(/pendientes/i, system_prompt)
   end
 
+  test "includes bank account and cash balances in the system prompt" do
+    @fake.responses << { content: "ok" }
+    @user.money_sources.create!(name: "Davivienda", kind: "account", starting_balance: 500_000)
+    @user.money_sources.create!(name: "Débito BBVA", kind: "debit_card", starting_balance: 300_000)
+    @user.money_sources.create!(name: "Nequi", kind: "wallet", starting_balance: 50_000)
+    @user.money_sources.create!(name: "Efectivo", kind: "cash", starting_balance: 100_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Saldo en cuentas bancarias.*COP 850\.000/, system_prompt)
+    assert_match(/Efectivo en mano.*COP 100\.000/, system_prompt)
+    assert_includes system_prompt, "Davivienda"
+    assert_includes system_prompt, "Nequi"
+  end
+
+  test "bank and cash balances use the reconciled balance and exclude inactive, savings and debt sources" do
+    @fake.responses << { content: "ok" }
+    account = @user.money_sources.create!(name: "Cuenta activa", kind: "account", starting_balance: 400_000)
+    account.update!(balance_offset: 40_000)
+    @user.money_sources.create!(name: "Cuenta inactiva", kind: "account", starting_balance: 900_000, active: false)
+    @user.money_sources.create!(name: "Bolsillo viaje", kind: "pocket", starting_balance: 700_000)
+    @user.money_sources.create!(name: "Visa", kind: "credit_card", starting_balance: -8_000_000)
+    @user.money_sources.create!(name: "Hipotecario", kind: "loan", starting_balance: -1_000_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Saldo en cuentas bancarias.*COP 440\.000/, system_prompt)
+    refute_match(/Efectivo en mano.*COP [1-9]/, system_prompt)
+    refute_includes system_prompt, "Cuenta inactiva"
+    refute_includes system_prompt, "Bolsillo viaje"
+  end
+
   test "provider failure broadcasts assistant_failed and persists nothing" do
     @fake.responses << Ai::Provider::Error.new("LLM timeout")
 
