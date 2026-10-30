@@ -30,7 +30,7 @@ async function createMoneySource(page, name, kind = 'cash', extra = {}) {
     await extra.fill(page);
   }
 
-  await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+  await page.locator('.card button[type="submit"], .card input[type="submit"]').first().click();
   const section = SECTION_BY_KIND[kind] || 'cash';
   await expect(page).toHaveURL(new RegExp(`/money_sources/${section}$`));
   return name;
@@ -49,7 +49,7 @@ async function createCreditCard(page, name, extra = {}) {
     await extra.fill(page);
   }
 
-  await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+  await page.locator('.card button[type="submit"], .card input[type="submit"]').first().click();
   await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
   return name;
 }
@@ -70,7 +70,7 @@ async function createLoan(page, name, extra = {}) {
     await extra.fill(page);
   }
 
-  await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+  await page.locator('.card button[type="submit"], .card input[type="submit"]').first().click();
   await expect(page).toHaveURL(/\/money_sources\/loans$/);
   return name;
 }

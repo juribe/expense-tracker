@@ -12,7 +12,7 @@ test.describe('Money source show page tabs', () => {
     await page.locator('#money_source_kind').selectOption('loan');
     await page.locator('#money_source_sub_kind').selectOption('revolving');
     await page.locator('#money_source_credit_account_attributes_principal_amount').fill('5000000');
-    await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+    await page.locator('.card button[type="submit"], .card input[type="submit"]').first().click();
     await expect(page).toHaveURL(/\/money_sources\/loans$/);
   }
 
@@ -68,7 +68,7 @@ test.describe('Money source show page tabs', () => {
     await page.locator('#money_source_kind').selectOption('credit_card');
     await page.locator('#money_source_credit_account_attributes_card_last_four').fill('1234');
     await page.locator('#money_source_credit_account_attributes_credit_limit').fill('20000000');
-    await page.locator('.card form button[type="submit"], .card form input[type="submit"]').first().click();
+    await page.locator('.card button[type="submit"], .card input[type="submit"]').first().click();
     await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
 
     const card = page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
