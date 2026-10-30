@@ -52,7 +52,7 @@
       <div class="text-center">
         <% if @connect_code %>
           <%= link_to wa_connect_url(@connect_code), target: "_blank", rel: "noopener",
-                      class: "btn btn-success btn-lg fw-bold", style: "letter-spacing: 1px;",
+                      class: "btn btn-success btn-lg fw-bold btn-letter-spacing-1",
                       data: { connect_action: true } do %>
             <i class="ti ti-brand-whatsapp me-2"></i>CONNECT <%= @connect_code %>
           <% end %>

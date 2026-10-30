@@ -85,8 +85,7 @@
                  aria-valuenow="<%= wizard_steps.count(&:configured) %>"
                  aria-label="<%= t("money_sources.recognition.wizard.progress", reviewed: wizard_steps.count(&:configured), total: wizard_steps.size) %>"
                  data-bank-wizard-progress>
-              <span class="bank-wizard-progress-bar" data-bank-wizard-progress-bar
-                    style="width: <%= wizard_steps.empty? ? 0 : (wizard_steps.count(&:configured) * 100.0 / wizard_steps.size).round %>%"></span>
+              <span class="bank-wizard-progress-bar" data-bank-wizard-progress-bar></span>
             </div>
             <p class="bank-wizard-progress-text" data-bank-wizard-progress-text>
               <%= t("money_sources.recognition.wizard.progress", reviewed: wizard_steps.count(&:configured), total: wizard_steps.size) %>

@@ -134,7 +134,7 @@
 .auth-brand-logo {
   display: block;
   width: auto;
-  height: 38px;
+  height: 55px;
 }
 
 .auth-brand-logo-dark { display: none; }
@@ -291,6 +291,11 @@
   background: var(--auth-blue);
   color: #fff;
   font-size: 13px;
+}
+
+.auth-mini-icon img {
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .auth-period {

@@ -58,7 +58,7 @@
                 <%= transfer.note.presence || "—" %>
               </td>
               <td class="text-end">
-                <%= button_to transfer_path(transfer), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: t("transfers.index.delete_confirm") }, form: { style: "display: inline-block" } do %>
+                <%= button_to transfer_path(transfer), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: t("transfers.index.delete_confirm") }, form: { class: "d-inline-block" } do %>
                   <i class="ti ti-trash"></i>
                 <% end %>
               </td>

@@ -628,4 +628,10 @@
     movementState.page = 1;
     fetchMovements(false);
   }, 300);
+
+  // CSP-safe: set the progress bar width from its data attribute instead of
+  // an inline style="width: ...%" attribute in the markup.
+  document.querySelectorAll(".rec-progress-fill[data-progress]").forEach(function (bar) {
+    bar.style.width = (bar.getAttribute("data-progress") || 0) + "%";
+  });
 })();

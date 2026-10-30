@@ -308,7 +308,7 @@
                   <i class="ti ti-pencil" aria-hidden="true"></i>
                 <% end %>
                 <% if source.recognition_configured? %>
-                  <%= button_to money_source_recognition_destroy_path(source.id), method: :delete, class: "btn recognition-icon-btn btn-delete", title: t("money_sources.recognition.delete_config"), aria: { label: t("money_sources.recognition.delete_config") }, data: { confirm: t("money_sources.recognition.delete_confirm_title") }, form: { style: "display:inline-block", data: { turbo_confirm: "#{t('money_sources.recognition.delete_confirm_title')} #{t('money_sources.recognition.delete_confirm_body')}" } } do %>
+                  <%= button_to money_source_recognition_destroy_path(source.id), method: :delete, class: "btn recognition-icon-btn btn-delete", title: t("money_sources.recognition.delete_config"), aria: { label: t("money_sources.recognition.delete_config") }, data: { confirm: t("money_sources.recognition.delete_confirm_title") }, form: { class: "d-inline-block", data: { turbo_confirm: "#{t('money_sources.recognition.delete_confirm_title')} #{t('money_sources.recognition.delete_confirm_body')}" } } do %>
                     <i class="ti ti-trash" aria-hidden="true"></i>
                   <% end %>
                 <% end %>

@@ -4,6 +4,12 @@
  * rollout (security tracker SEC-010) is fully closed.
  */
 
+/* ---- CSP-safe: pocket amount input max width ---- */
+.pocket-amount-input { max-width: 140px; }
+
+/* ---- CSP-safe: button letter spacing ---- */
+.btn-letter-spacing-1 { letter-spacing: 1px; }
+
 /* ---- Dynamic progress bar widths: .et-w-0 .. .et-w-100 ---- */
 .et-w-0 { width: 0% !important; }
 .et-w-1 { width: 1% !important; }

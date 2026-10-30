@@ -40,7 +40,7 @@
           <%= link_to edit_money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2", href: edit_money_source_path(source) do %>
             <i class="ti ti-pencil me-2" aria-hidden="true"></i><span><%= t("common.edit") %></span>
           <% end %>
-          <%= button_to money_source_path(source), method: :delete, class: "dropdown-item d-flex align-items-center gap-2", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { style: "display:block" } do %>
+          <%= button_to money_source_path(source), method: :delete, class: "dropdown-item d-flex align-items-center gap-2", title: t("common.delete"), data: { confirm: t("common.confirm") }, form: { class: "d-block" } do %>
             <i class="ti ti-trash me-2" aria-hidden="true"></i><span><%= t("common.delete") %></span>
           <% end %>
         </div>

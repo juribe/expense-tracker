@@ -56,7 +56,7 @@
         <strong><%= t("reconciliation.hero.progress_count", verified: @state.verified_sources_count, total: @state.total_sources_count) %></strong>
       </div>
       <div class="progress rec-progress-track">
-        <div class="progress-bar rec-progress-fill" style="width: <%= @state.progress_percentage %>%"></div>
+        <div class="progress-bar rec-progress-fill" data-progress="<%= @state.progress_percentage %>"></div>
       </div>
       <div class="rec-progress-foot">
         <span><%= reconciliation_progress_caption(@state) %></span>

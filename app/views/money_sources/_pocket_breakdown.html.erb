@@ -47,7 +47,7 @@
               <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path, local: true, class: "d-flex gap-2 align-items-center" do |f| %>
                 <%= f.hidden_field :financial_goal_id, value: goal.id %>
                 <%= f.hidden_field :date, value: Date.current %>
-                <%= f.text_field :amount, class: "form-control form-control-sm", style: "max-width: 140px;",
+                <%= f.text_field :amount, class: "form-control form-control-sm pocket-amount-input",
                       placeholder: t("common.amount", default: "Monto"), inputmode: "decimal",
                       autocomplete: "off", data: { money_input: true }, required: true %>
                 <%= f.submit t("goals.assign_to_goal", default: "Asignar"), class: "btn btn-sm btn-outline-primary" %>
@@ -93,7 +93,7 @@
                 <%= reconciliation_signed_money(allocation.amount) %>
               </span>
               <%= button_to goal_allocation_path(allocation), method: :delete,
-                            form: { style: "display: inline-block" },
+                            form: { class: "d-inline-block" },
                             class: "btn btn-sm btn-link text-muted p-0", title: t("goals.delete_allocation", default: "Eliminar asignación"),
                             data: { confirm: t("money_sources.pocket.delete_allocation_confirm") } do %>
                 <i class="ti ti-x small"></i>
