@@ -32,6 +32,14 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # Admin-only areas redirect regular users to the dashboard instead of
+  # revealing their contents.
+  def require_admin!
+    return if current_user&.admin?
+
+    redirect_to root_path, alert: t("errors.not_authorized")
+  end
+
   # Signed-out Devise screens (sign in/up, password recovery, confirmations)
   # use the branded auth layout. Profile management stays in the application
   # shell; the password reset action also signs the user in before rendering

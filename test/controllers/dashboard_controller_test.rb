@@ -22,6 +22,34 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".summary-value"
   end
 
+  test "sidebar shows the admin section to admin users" do
+    admin = User.create!(
+      name: "Admin User",
+      email: "dashboard_admin@example.com",
+      password: "password123",
+      admin: true
+    )
+    sign_in admin
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a[href='#{expense_playground_path}']", count: 1
+    assert_select "a[href='#{expense_evaluations_path}']", count: 1
+    assert_match I18n.t("nav.section_admin"), response.body
+  end
+
+  test "sidebar hides the admin section from regular users" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a[href='#{expense_playground_path}']", count: 0
+    assert_select "a[href='#{expense_evaluations_path}']", count: 0
+    assert_no_match I18n.t("nav.section_admin"), response.body
+  end
+
   test "GET /dashboard redirects unauthenticated user to sign in" do
     get dashboard_path
     assert_response :redirect

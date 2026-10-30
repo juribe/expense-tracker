@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1793223425.3401284,
-    "seen": 1793228254.6003468,
-    "ast_hash": "c9c3152a0a275885c9749d7ae62b83fa",
+    "mtime": 1793398154.6542387,
+    "seen": 1793398266.551583,
+    "ast_hash": "a068304db15356fe559179e6536d1ae7",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793394114.9687026,
-    "seen": 1793394196.6903949,
-    "ast_hash": "5178d259b63f5db9cff6f69db5e69d2d",
+    "mtime": 1793398445.6378698,
+    "seen": 1793398546.0295339,
+    "ast_hash": "3cc83bbdde9e1c5551e6be4b92ab8b2a",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1182,15 +1182,15 @@
     "semantic_hash": "6363df73ea6632db60772abc7d2014d1"
   },
   "public/icon.png": {
-    "mtime": 1793392853.2750978,
-    "seen": 1793393287.0234072,
-    "ast_hash": "6486664b6cd0c33e00297a38888f9552",
+    "mtime": 1793397409.2110085,
+    "seen": 1793398266.55316,
+    "ast_hash": "8661ff8b5cfae7fa4fb4b8a8345d80af",
     "semantic_hash": ""
   },
   "public/icon.svg": {
-    "mtime": 1793392853.276791,
-    "seen": 1793393287.023409,
-    "ast_hash": "512a123b8570b093beba83f4917d7623",
+    "mtime": 1793397418.9670987,
+    "seen": 1793398266.553161,
+    "ast_hash": "44700f63334cd6292b1ebc50275884da",
     "semantic_hash": ""
   },
   ".opencode/opencode.json": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/reconciliation.js": {
-    "mtime": 1793377149.880873,
-    "seen": 1793378995.284173,
-    "ast_hash": "c822f42c301a4c2dc21db2b7a0e433a4",
+    "mtime": 1793396478.712248,
+    "seen": 1793398266.5515552,
+    "ast_hash": "4a8ae930c859c4f8e55ad24ceebfe2e7",
     "semantic_hash": ""
   },
   "app/controllers/reconciliations_controller.rb": {
@@ -5652,33 +5652,33 @@
     "semantic_hash": ""
   },
   "public/apple-touch-icon.png": {
-    "mtime": 1793392853.2722793,
-    "seen": 1793393287.023371,
-    "ast_hash": "d1099b35366e8fe195af3cfa6571923b",
+    "mtime": 1793397410.2359,
+    "seen": 1793398266.55312,
+    "ast_hash": "283be69a80a6167138fad2661126386a",
     "semantic_hash": ""
   },
   "public/brand/apple-touch-icon.png": {
-    "mtime": 1793392853.251081,
-    "seen": 1793393287.023372,
-    "ast_hash": "d1099b35366e8fe195af3cfa6571923b",
+    "mtime": 1793397409.0800524,
+    "seen": 1793398266.553121,
+    "ast_hash": "283be69a80a6167138fad2661126386a",
     "semantic_hash": ""
   },
   "public/brand/favicon-16.png": {
-    "mtime": 1793392853.2514815,
-    "seen": 1793393287.023374,
-    "ast_hash": "9c49338babe66bb0c6b4402d42e852ac",
+    "mtime": 1793397409.3229134,
+    "seen": 1793398266.553123,
+    "ast_hash": "048c3a173cd2efe58aec7bec77aa3d69",
     "semantic_hash": ""
   },
   "public/brand/favicon-32.png": {
-    "mtime": 1793392853.2519383,
-    "seen": 1793393287.023375,
-    "ast_hash": "8c27dede5c1f0c3c8d6d455947161b1f",
+    "mtime": 1793397409.2694397,
+    "seen": 1793398266.5531242,
+    "ast_hash": "41e68b4ca88dbda8ba3c96dae9704ec4",
     "semantic_hash": ""
   },
   "public/brand/vista-previa-yogasto.jpg": {
-    "mtime": 1793392853.2553577,
-    "seen": 1793393287.023377,
-    "ast_hash": "f89bee27e69d9d4d7640d1ad3dca50de",
+    "mtime": 1793396293.844559,
+    "seen": 1793398266.5531268,
+    "ast_hash": "6b648e48bf26ecd17ee2510bf15badba",
     "semantic_hash": ""
   },
   "public/brand/yogasto-app-icon-512.png": {
@@ -5694,9 +5694,9 @@
     "semantic_hash": ""
   },
   "public/brand/yogasto-icono-app-claro.png": {
-    "mtime": 1793392853.2572637,
-    "seen": 1793393287.023381,
-    "ast_hash": "7017b19934c554748a05f69b5b6cc157",
+    "mtime": 1793396293.8351681,
+    "seen": 1793398266.553131,
+    "ast_hash": "0e26516d92ff0e6de5ab517b3d315ef7",
     "semantic_hash": ""
   },
   "public/brand/yogasto-icono-app-claro.svg": {
@@ -5706,9 +5706,9 @@
     "semantic_hash": ""
   },
   "public/brand/yogasto-icono-app-oscuro.png": {
-    "mtime": 1793392853.2584083,
-    "seen": 1793393287.023384,
-    "ast_hash": "ec832fc793c24c857b89e7611320bb33",
+    "mtime": 1793396293.8357909,
+    "seen": 1793398266.5531352,
+    "ast_hash": "25eea8ba3ed67d4072a575192634515e",
     "semantic_hash": ""
   },
   "public/brand/yogasto-icono-app-oscuro.svg": {
@@ -5718,15 +5718,15 @@
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-claro.png": {
-    "mtime": 1793392853.259308,
-    "seen": 1793393287.023387,
-    "ast_hash": "6b7d4679de6d407dd27cf05453eb4e12",
+    "mtime": 1793396293.8372815,
+    "seen": 1793398266.553138,
+    "ast_hash": "6f00cbf6d784d0587039103bd70a450c",
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-claro.svg": {
-    "mtime": 1793392853.259522,
-    "seen": 1793393287.0233889,
-    "ast_hash": "13f8d0f3822bd136e53a5bbb2240f0ff",
+    "mtime": 1793396293.841472,
+    "seen": 1793398266.553139,
+    "ast_hash": "f1535173d56d95b9a41c7078c176a2b1",
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-con-eslogan-oscuro.png": {
@@ -5754,51 +5754,303 @@
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-fondo-blanco.jpg": {
-    "mtime": 1793392853.262604,
-    "seen": 1793393287.023396,
-    "ast_hash": "a27bfad3096be8c9f8f13457f6ee4c4a",
+    "mtime": 1793396293.845666,
+    "seen": 1793398266.5531468,
+    "ast_hash": "fabacff501d9bd01876a0ed0ccbe3e14",
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-fondo-negro.jpg": {
-    "mtime": 1793392853.265399,
-    "seen": 1793393287.0233972,
-    "ast_hash": "c64c1eed822089395967cd73b24c422f",
+    "mtime": 1793396293.8462954,
+    "seen": 1793398266.5531478,
+    "ast_hash": "af86f1f1dd474e77f481be8dd2a67f3d",
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-fondo-oscuro.png": {
-    "mtime": 1793392853.2662802,
-    "seen": 1793393287.0233989,
-    "ast_hash": "72a3dce9bd34de5fe1e33b2c1dc7015e",
+    "mtime": 1793396293.8383877,
+    "seen": 1793398266.55315,
+    "ast_hash": "0581e6acb82983d017676165c8b5437f",
     "semantic_hash": ""
   },
   "public/brand/yogasto-logo-fondo-oscuro.svg": {
-    "mtime": 1793392853.2666235,
-    "seen": 1793393287.0233998,
-    "ast_hash": "bf9aec7d4ef4f440c83c6d727a5920b4",
+    "mtime": 1793396293.842336,
+    "seen": 1793398266.553151,
+    "ast_hash": "77e7ca2e42dfb2e7322a36eaf5de15ac",
     "semantic_hash": ""
   },
   "public/brand/yogasto-simbolo.png": {
-    "mtime": 1793392853.2671154,
-    "seen": 1793393287.023402,
-    "ast_hash": "02faf84b877be6a112ff7c891042581d",
+    "mtime": 1793396293.8393316,
+    "seen": 1793398266.553153,
+    "ast_hash": "286a1b252f3cfcd1ce85cfa9353bb46e",
     "semantic_hash": ""
   },
   "public/brand/yogasto-simbolo.svg": {
-    "mtime": 1793392853.267341,
-    "seen": 1793393287.023403,
-    "ast_hash": "c316f906c874253484fb7408901388f8",
+    "mtime": 1793396293.843262,
+    "seen": 1793398266.553154,
+    "ast_hash": "44700f63334cd6292b1ebc50275884da",
     "semantic_hash": ""
   },
   "public/favicon-16.png": {
-    "mtime": 1793392853.271427,
-    "seen": 1793393287.023405,
-    "ast_hash": "9c49338babe66bb0c6b4402d42e852ac",
+    "mtime": 1793397409.4426947,
+    "seen": 1793398266.5531552,
+    "ast_hash": "048c3a173cd2efe58aec7bec77aa3d69",
     "semantic_hash": ""
   },
   "public/favicon-32.png": {
-    "mtime": 1793392853.2717905,
-    "seen": 1793393287.023406,
-    "ast_hash": "8c27dede5c1f0c3c8d6d455947161b1f",
+    "mtime": 1793397409.3877628,
+    "seen": 1793398266.553157,
+    "ast_hash": "41e68b4ca88dbda8ba3c96dae9704ec4",
+    "semantic_hash": ""
+  },
+  "test/controllers/page_titles_test.rb": {
+    "mtime": 1793398483.8557105,
+    "seen": 1793398546.029078,
+    "ast_hash": "2bc43eacef293aa9dbe1a51844bc7de0",
+    "semantic_hash": ""
+  },
+  "designs/alertas_de_gasto.md": {
+    "mtime": 1793395136.2676487,
+    "seen": 1793398266.5529962,
+    "ast_hash": "23cbe6b69b4a235fb582c1c13c61bc5f",
+    "semantic_hash": ""
+  },
+  "designs/bulk_update_expense_category_and_money_source.md": {
+    "mtime": 1793395136.267972,
+    "seen": 1793398266.552997,
+    "ast_hash": "d0eba1e2cbefeca423bdb400d3b19a98",
+    "semantic_hash": ""
+  },
+  "designs/category_form_design_and_implementation.md": {
+    "mtime": 1793395136.268095,
+    "seen": 1793398266.5529978,
+    "ast_hash": "d59f745204599d9bc98c307150393716",
+    "semantic_hash": ""
+  },
+  "designs/clickup_task_support_monthly_income_and_payments.md": {
+    "mtime": 1793395136.2681909,
+    "seen": 1793398266.553,
+    "ast_hash": "88d5e67ddd527b99a81adc73cc167717",
+    "semantic_hash": ""
+  },
+  "designs/clickup_task_support_monthly_recurring_expenses.md": {
+    "mtime": 1793395136.2682838,
+    "seen": 1793398266.5530019,
+    "ast_hash": "ca42eb88809f14d2ef6c91144182af03",
+    "semantic_hash": ""
+  },
+  "designs/credit_cards_and_loans.md": {
+    "mtime": 1793395136.2685444,
+    "seen": 1793398266.553003,
+    "ast_hash": "2143e92455e7ae20ecb3d7be0c81aa63",
+    "semantic_hash": ""
+  },
+  "designs/debt_capacity_mockup.html": {
+    "mtime": 1793395136.2687867,
+    "seen": 1793398266.553004,
+    "ast_hash": "377e9763c513f18a134662a82badc2fe",
+    "semantic_hash": ""
+  },
+  "designs/design_add_expense_form.md": {
+    "mtime": 1793395136.26889,
+    "seen": 1793398266.5530062,
+    "ast_hash": "61dbc3360fc9525e9652a31180d5e416",
+    "semantic_hash": ""
+  },
+  "designs/design_and_implementation_devise_authentication_forms.md": {
+    "mtime": 1793395136.2690413,
+    "seen": 1793398266.5530071,
+    "ast_hash": "aa905d947851b4a5aed504f4b68d8307",
+    "semantic_hash": ""
+  },
+  "designs/design_category_management.md": {
+    "mtime": 1793395136.2691247,
+    "seen": 1793398266.5530088,
+    "ast_hash": "f9f4a827cb212c8d3e6e00980f60b333",
+    "semantic_hash": ""
+  },
+  "designs/design_dashboard_ui_ux.md": {
+    "mtime": 1793395136.2692127,
+    "seen": 1793398266.55301,
+    "ast_hash": "ac374af6f6433025712e7db91b7ec712",
+    "semantic_hash": ""
+  },
+  "designs/design_definition_money_sources_accounts_cards_wallets_transfers_matching.md": {
+    "mtime": 1793395136.269386,
+    "seen": 1793398266.553011,
+    "ast_hash": "f40348bdfc574856b2a345f6aac41abf",
+    "semantic_hash": ""
+  },
+  "designs/design_develop_hybrid_financial_setup_wizard.md": {
+    "mtime": 1793395136.269555,
+    "seen": 1793398266.553013,
+    "ast_hash": "c7ed9165fbc74b2f59eb9beca52f165d",
+    "semantic_hash": ""
+  },
+  "designs/design_expense_list_filters.md": {
+    "mtime": 1793395136.2696545,
+    "seen": 1793398266.553014,
+    "ast_hash": "4900cd5d4edbdc0d12c7b5a9b9497e42",
+    "semantic_hash": ""
+  },
+  "designs/design_expense_views_table.md": {
+    "mtime": 1793395136.2699184,
+    "seen": 1793398266.553015,
+    "ast_hash": "060ea69bdc0fd0d7535da101a0d2b446",
+    "semantic_hash": ""
+  },
+  "designs/design_gmail_setup_sync.md": {
+    "mtime": 1793395136.2700377,
+    "seen": 1793398266.5530171,
+    "ast_hash": "a91f56a29a9cbd230149a8541fc47c28",
+    "semantic_hash": ""
+  },
+  "designs/presupuesto_por_categor_a.md": {
+    "mtime": 1793395136.2702944,
+    "seen": 1793398266.5530188,
+    "ast_hash": "4e0a25d3c5d4b78253007d3aae6f161f",
+    "semantic_hash": ""
+  },
+  "designs/reglas_autom_ticas.md": {
+    "mtime": 1793395136.2705488,
+    "seen": 1793398266.55302,
+    "ast_hash": "dfb8f6b5bae2fa4c07775208c703e78c",
+    "semantic_hash": ""
+  },
+  "designs/review_dashboard_design.md": {
+    "mtime": 1793395136.2706325,
+    "seen": 1793398266.553021,
+    "ast_hash": "16db55dfea986113856fd1eedaa25fb3",
+    "semantic_hash": ""
+  },
+  "designs/review_expense_form_design.md": {
+    "mtime": 1793395136.2707121,
+    "seen": 1793398266.5530229,
+    "ast_hash": "be9274d4e4f75f945b04e493231de0e2",
+    "semantic_hash": ""
+  },
+  "mockups/alertas_de_gasto.html": {
+    "mtime": 1793395136.2708986,
+    "seen": 1793398266.5530581,
+    "ast_hash": "c1ea2d219ac65e600cdeb336d9b93186",
+    "semantic_hash": ""
+  },
+  "mockups/bulk_update_expense_category_and_money_source.html": {
+    "mtime": 1793395136.2710423,
+    "seen": 1793398266.553059,
+    "ast_hash": "57c554958c7630316bb3624cf7d5ff30",
+    "semantic_hash": ""
+  },
+  "mockups/category_form_design_and_implementation.html": {
+    "mtime": 1793395136.2712297,
+    "seen": 1793398266.55306,
+    "ast_hash": "d78dd5ecea58cd4b400c17e00aa0b501",
+    "semantic_hash": ""
+  },
+  "mockups/clickup_task_support_monthly_income_and_payments.html": {
+    "mtime": 1793395136.271456,
+    "seen": 1793398266.553062,
+    "ast_hash": "f3a49230903b3a04d6202557ecbada93",
+    "semantic_hash": ""
+  },
+  "mockups/clickup_task_support_monthly_recurring_expenses.html": {
+    "mtime": 1793395136.2716017,
+    "seen": 1793398266.553063,
+    "ast_hash": "e8f58ac8cf8fafbe4d28f473bf75481c",
+    "semantic_hash": ""
+  },
+  "mockups/credit_cards_and_loans.html": {
+    "mtime": 1793395136.271743,
+    "seen": 1793398266.553065,
+    "ast_hash": "3754a830fc8c05dcbc2e9258bfc71dba",
+    "semantic_hash": ""
+  },
+  "mockups/dashboard_example.html": {
+    "mtime": 1793395136.2719269,
+    "seen": 1793398266.553066,
+    "ast_hash": "bb759437e659dbfccddcbaa3988fdf4b",
+    "semantic_hash": ""
+  },
+  "mockups/design_add_expense_form.html": {
+    "mtime": 1793395136.2720494,
+    "seen": 1793398266.553067,
+    "ast_hash": "1976701ea88f411ec2f6c1c589cfaeba",
+    "semantic_hash": ""
+  },
+  "mockups/design_and_implementation_devise_authentication_forms.html": {
+    "mtime": 1793395136.2722895,
+    "seen": 1793398266.553068,
+    "ast_hash": "7b3ed91e415e10c19723248aa033fa97",
+    "semantic_hash": ""
+  },
+  "mockups/design_category_management.html": {
+    "mtime": 1793395136.2725284,
+    "seen": 1793398266.55307,
+    "ast_hash": "c8d87708535c33747b78aed285252079",
+    "semantic_hash": ""
+  },
+  "mockups/design_dashboard_ui_ux.html": {
+    "mtime": 1793395136.2726605,
+    "seen": 1793398266.553071,
+    "ast_hash": "a41f2db31f44c1078158efcf289af2dd",
+    "semantic_hash": ""
+  },
+  "mockups/design_definition_money_sources_accounts_cards_wallets_transfers_matching.html": {
+    "mtime": 1793395136.272896,
+    "seen": 1793398266.5530722,
+    "ast_hash": "a85889cb309ec9286099a101a8056e08",
+    "semantic_hash": ""
+  },
+  "mockups/design_develop_hybrid_financial_setup_wizard.html": {
+    "mtime": 1793395136.2730165,
+    "seen": 1793398266.553074,
+    "ast_hash": "f9a7486ec0a55f7e319351b7c047bd39",
+    "semantic_hash": ""
+  },
+  "mockups/design_expense_list_filters.html": {
+    "mtime": 1793395136.273164,
+    "seen": 1793398266.5530748,
+    "ast_hash": "fd9bef5a26227753447763a895e7e536",
+    "semantic_hash": ""
+  },
+  "mockups/design_expense_views_table.html": {
+    "mtime": 1793395136.273288,
+    "seen": 1793398266.553076,
+    "ast_hash": "ba819dd687681f563b4b008b00d0e153",
+    "semantic_hash": ""
+  },
+  "mockups/presupuesto_por_categor_a.html": {
+    "mtime": 1793395136.2734303,
+    "seen": 1793398266.553077,
+    "ast_hash": "b383065e3eaa307d138f3294a6bbbc4d",
+    "semantic_hash": ""
+  },
+  "mockups/reglas_autom_ticas.html": {
+    "mtime": 1793395136.2735536,
+    "seen": 1793398266.5530791,
+    "ast_hash": "b56feabb68dfde8bfd5b48e0d4fb0dee",
+    "semantic_hash": ""
+  },
+  "mockups/review_expense_form_design.html": {
+    "mtime": 1793395136.2736847,
+    "seen": 1793398266.55308,
+    "ast_hash": "5bd1964731e6d0a3849fa2d37f2134f1",
+    "semantic_hash": ""
+  },
+  "mockups/signup_control_de_gastos_gradient.html": {
+    "mtime": 1793395136.2738357,
+    "seen": 1793398266.553081,
+    "ast_hash": "ccc3b5893a7f9f8e17b40d10de1df5a1",
+    "semantic_hash": ""
+  },
+  "public/brand/favicon-512.png": {
+    "mtime": 1793397409.0201478,
+    "seen": 1793398266.5531251,
+    "ast_hash": "94cd347478ef0fbf1ea0d3e7218c141b",
+    "semantic_hash": ""
+  },
+  "public/favicon-512.png": {
+    "mtime": 1793397410.2384167,
+    "seen": 1793398266.5531578,
+    "ast_hash": "94cd347478ef0fbf1ea0d3e7218c141b",
     "semantic_hash": ""
   }
 }

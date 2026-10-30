@@ -393,6 +393,7 @@ en:
     section_insights: "Insights"
     section_automation: "Automation"
     section_settings: "Settings"
+    section_admin: "Admin"
     reconciliation: "Balance Day"
     candidates: "Candidates"
 
@@ -1714,3 +1715,6 @@ en:
       updated: "Entity updated."
       deleted: "Entity deleted."
       blocked_by_sources: "Cannot delete: money sources still use it. Re-link them first."
+
+  errors:
+    not_authorized: "You do not have permission to access this section."

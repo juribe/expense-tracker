@@ -6,7 +6,7 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    @user = User.create!(name: "Playground Controller User", email: "pg-controller@example.com", password: "password123")
+    @user = User.create!(name: "Playground Controller User", email: "pg-controller@example.com", password: "password123", admin: true)
     @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     @pg_source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 10_000_000)
     sign_in @user
@@ -23,7 +23,28 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
-  test "GET /expense-playground renders the page for signed-in users" do
+  test "GET /expense-playground redirects non-admin users" do
+    sign_out :user
+    sign_in regular_user
+
+    get expense_playground_path
+
+    assert_redirected_to root_path
+    assert_equal I18n.t("errors.not_authorized"), flash[:alert]
+  end
+
+  test "POST /expense-playground/process redirects non-admin users without running the pipeline" do
+    sign_out :user
+    sign_in regular_user
+
+    assert_no_difference -> { ExpensePlaygroundRun.count } do
+      post expense_playground_process_path, params: { type: "text", text: "gasté 1000 en café" }
+    end
+
+    assert_redirected_to root_path
+  end
+
+  test "GET /expense-playground renders the page for admin users" do
     get expense_playground_path
     assert_response :success
     assert_match "Expense Playground", response.body
@@ -534,6 +555,14 @@ class ExpensePlaygroundControllerTest < ActionDispatch::IntegrationTest
       category: category,
       money_source_hint: money_source_hint,
       confidence: confidence
+    )
+  end
+
+  def regular_user
+    @regular_user ||= User.create!(
+      name: "Regular Playground User",
+      email: "pg-regular-#{SecureRandom.hex(6)}@example.com",
+      password: "password123"
     )
   end
 

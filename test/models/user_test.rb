@@ -3,6 +3,16 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  test "users are not admins by default" do
+    user = User.create!(
+      name: "Regular User",
+      email: "regular-#{SecureRandom.hex(6)}@example.com",
+      password: "password123"
+    )
+
+    refute user.admin?
+  end
+
   # Form labels for User fields render through human_attribute_name; without
   # es translations they fall back to English ("Name", "Current password").
   test "user attribute labels are translated to Spanish" do

@@ -9,6 +9,7 @@
 # raw image payloads) so the history survives sessions and future evaluation
 # features can compare runs against expected results.
 class ExpensePlaygroundController < ApplicationController
+  before_action :require_admin!
   before_action :set_categories, only: :show
 
   # AI-billed pipeline: keep a per-IP ceiling on every processing trigger so

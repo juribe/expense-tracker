@@ -17,6 +17,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   private
 
+  # `admin` is intentionally never permitted here or in account_update_params:
+  # the role is not assignable through public sign-up or profile updates.
   def sign_up_params
     params.require(:user).permit(:name, :email, :password, :password_confirmation)
   end

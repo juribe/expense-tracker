@@ -194,6 +194,7 @@ es:
         user_id: "Usuario"
 
   errors:
+    not_authorized: "No tienes permiso para acceder a esta sección."
     format: "%{attribute} %{message}"
     messages:
       model_invalid: "La validación falló: %{errors}"
@@ -844,6 +845,7 @@ es:
     section_insights: "Análisis"
     section_automation: "Automatización"
     section_settings: "Configuración"
+    section_admin: "Admin"
     candidates: "Candidatos"
 
   evaluations:

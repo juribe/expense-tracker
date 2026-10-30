@@ -31,6 +31,42 @@ class Users::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Nuevo Nombre", @user.name
   end
 
+  test "sign up ignores an admin parameter" do
+    sign_out :user
+
+    assert_difference("User.count") do
+      assert_emails 1 do
+        post user_registration_path, params: {
+          user: {
+            name: "Sneaky Admin",
+            email: "sneaky-admin@example.com",
+            password: "password123",
+            password_confirmation: "password123",
+            admin: true
+          }
+        }
+      end
+    end
+
+    refute User.find_by(email: "sneaky-admin@example.com").admin?
+  end
+
+  test "profile update ignores an admin parameter" do
+    put user_registration_path, params: {
+      user: {
+        name: @user.name,
+        email: @user.email,
+        password: "",
+        password_confirmation: "",
+        current_password: "",
+        admin: true
+      }
+    }
+
+    assert_redirected_to root_path
+    refute @user.reload.admin?
+  end
+
   test "email change without the current password is rejected" do
     put user_registration_path, params: {
       user: {

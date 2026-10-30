@@ -8,7 +8,8 @@ class SidebarIndexesBulletTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   setup do
-    @user = User.create!(name: "Test User", email: "sidebar_bullet_test@example.com", password: "password123")
+    # Admin so the walk also covers the admin-only sidebar entries.
+    @user = User.create!(name: "Test User", email: "sidebar_bullet_test@example.com", password: "password123", admin: true)
     sign_in @user
 
     @categories = 3.times.map do |i|

@@ -12,7 +12,7 @@ class ExpensePlaygroundAudioControllerTest < ActionDispatch::IntegrationTest
   AUDIO_DATA = "data:audio/ogg;base64,#{Base64.strict_encode64('OGGDATABYTES')}"
 
   setup do
-    @user = User.create!(name: "Audio Playground Controller User", email: "pg-audio@example.com", password: "password123")
+    @user = User.create!(name: "Audio Playground Controller User", email: "pg-audio@example.com", password: "password123", admin: true)
     @restaurants = Category.create!(name: "Restaurants", is_default: true, category_type: "expense")
     sign_in @user
     @saved_api_key = ENV.delete("MISTRAL_API_KEY")

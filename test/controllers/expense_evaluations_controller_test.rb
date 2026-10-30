@@ -10,7 +10,8 @@ class ExpenseEvaluationsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(name: "PG Evaluation User",
                          email: "pg-eval-controller-#{SecureRandom.hex(6)}@example.com",
-                         password: "password123")
+                         password: "password123",
+                         admin: true)
     sign_in @user
   end
 
@@ -26,7 +27,28 @@ class ExpenseEvaluationsControllerTest < ActionDispatch::IntegrationTest
     { filename: "gastos.csv", dataset: dataset_csv, provider: "openrouter", model: "mistral/mistral-small-latest" }
   end
 
-  test "GET /expense-evaluations lists runs recent first" do
+  test "GET /expense-evaluations redirects non-admin users" do
+    sign_out :user
+    sign_in regular_user
+
+    get expense_evaluations_path(format: :json)
+
+    assert_redirected_to root_path
+    assert_equal I18n.t("errors.not_authorized"), flash[:alert]
+  end
+
+  test "POST /expense-evaluations/start redirects non-admin users without creating a run" do
+    sign_out :user
+    sign_in regular_user
+
+    assert_no_difference -> { EvaluationRun.count } do
+      post expense_evaluations_start_path(format: :json), params: start_params
+    end
+
+    assert_redirected_to root_path
+  end
+
+  test "GET /expense-evaluations lists runs recent first for admins" do
     EvaluationRun.create!(user: @user, dataset_name: "a.csv", dataset_version: "v1",
                           provider: "openrouter", model: "m", status: "completed", total_cases: 1)
 
@@ -266,5 +288,13 @@ run = ExpensePlayground::Evaluations::Runner.start(
 
     assert_equal true, JSON.parse(response.body)["cases"].first["mapped"]
     assert_equal existing.id, existing.id
+  end
+
+  def regular_user
+    @regular_user ||= User.create!(
+      name: "Regular Evaluation User",
+      email: "pg-eval-regular-#{SecureRandom.hex(6)}@example.com",
+      password: "password123"
+    )
   end
 end
