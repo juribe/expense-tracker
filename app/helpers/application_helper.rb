@@ -347,6 +347,16 @@ module ApplicationHelper
     t("money_sources.form.subtitles.#{kind}", default: t("money_sources.form.subtitle"))
   end
 
+  # Status pill label for the source form: state + concrete product, so the
+  # switch reads "Cuenta activa" instead of a generic "Activo".
+  def money_source_status_label(money_source, active:)
+    state = active ? "active" : "inactive"
+    kind = money_source.kind
+    return t("money_sources.form.status.#{state}.generic") if kind.blank? || !kind.in?(MoneySource::KINDS)
+
+    t("money_sources.form.status.#{state}.#{kind}", default: t("money_sources.form.status.#{state}.generic"))
+  end
+
   def money_source_submit_label(money_source)
     kind = money_source_kind_label(money_source)
     kind ? t("money_sources.form.submit", kind: kind) : t("money_sources.form.submit_generic")

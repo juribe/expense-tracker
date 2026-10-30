@@ -360,6 +360,85 @@
 
 .recognition-row-active td { background: var(--loan-accent-soft) !important; }
 
+/* -------------------------------------------------
+ * Money source form: status pill + recognition callout
+ * ------------------------------------------------- */
+.money-source-status {
+  display: inline-flex;
+  align-items: center;
+  margin-top: .25rem;
+  padding: .55rem .8rem;
+  border: 1px solid rgba(14, 159, 110, .35);
+  border-radius: .625rem;
+  background: rgba(14, 159, 110, .08);
+  color: var(--et-positive);
+}
+.money-source-status .form-check { min-height: 0; margin: 0; }
+.money-source-status .form-check-input { margin-top: 0; cursor: pointer; }
+.money-source-status .form-check-label {
+  margin: 0;
+  color: inherit;
+  font-size: .8125rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.money-source-status .money-source-status-off { display: none; }
+.money-source-status:has(.form-check-input:not(:checked)) {
+  border-color: var(--bs-border-color);
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+}
+.money-source-status:has(.form-check-input:not(:checked)) .money-source-status-on { display: none; }
+.money-source-status:has(.form-check-input:not(:checked)) .money-source-status-off { display: inline; }
+[data-bs-theme="dark"] .money-source-status {
+  border-color: rgba(14, 159, 110, .45);
+  background: rgba(14, 159, 110, .16);
+}
+
+.money-source-recognition {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  margin-top: 1.25rem;
+  padding: .95rem 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .75rem;
+  background: var(--bs-tertiary-bg);
+}
+.money-source-recognition .icon-chip { width: 2.125rem; height: 2.125rem; }
+.money-source-recognition-copy { flex: 1; min-width: 0; }
+.money-source-recognition-title {
+  margin: 0 0 .2rem;
+  font-size: .875rem;
+  font-weight: 700;
+  color: var(--bs-heading-color);
+}
+.money-source-recognition-hint {
+  margin: 0 0 .7rem;
+  font-size: .75rem;
+  line-height: 1.45;
+  color: var(--bs-secondary-color);
+}
+.money-source-recognition-btn {
+  padding: .4rem .7rem;
+  border: 1px solid #65ccef;
+  border-radius: .5rem;
+  background: transparent;
+  color: #14b5df;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.money-source-recognition-btn:hover {
+  border-color: #65ccef;
+  background: rgba(20, 181, 223, .1);
+  color: #0f9fc4;
+}
+[data-bs-theme="dark"] .money-source-recognition-btn { border-color: #2b8fae; color: #5fd6f2; }
+[data-bs-theme="dark"] .money-source-recognition-btn:hover {
+  background: rgba(95, 214, 242, .12);
+  color: #7fe3ff;
+}
+
 /* Gmail criteria card: manual editor + scan suggestions for the three
    recognition inputs (senders, domains, subjects). */
 .recognition-criteria { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }

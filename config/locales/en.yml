@@ -709,6 +709,25 @@ en:
         wallet: "Fill in the details of your wallet."
         pocket: "Fill in the details of your pocket."
         loan: "Fill in the details of your loan."
+      status:
+        active:
+          generic: "Source active"
+          account: "Account active"
+          debit_card: "Debit card active"
+          credit_card: "Credit card active"
+          cash: "Cash active"
+          wallet: "Wallet active"
+          pocket: "Pocket active"
+          loan: "Loan active"
+        inactive:
+          generic: "Source inactive"
+          account: "Account inactive"
+          debit_card: "Debit card inactive"
+          credit_card: "Credit card inactive"
+          cash: "Cash inactive"
+          wallet: "Wallet inactive"
+          pocket: "Pocket inactive"
+          loan: "Loan inactive"
       new_titles:
         account: "New account"
         debit_card: "New debit card"

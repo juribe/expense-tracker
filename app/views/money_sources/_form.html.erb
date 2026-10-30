@@ -272,24 +272,27 @@
               </div>
             <% end %>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <div class="form-check mt-4 pt-2">
-                  <%= f.check_box :active, class: "form-check-input" %>
-                  <%= f.label :active, t("common.active"), class: "form-check-label" %>
-                </div>
+            <div class="money-source-status">
+              <div class="form-check form-switch mb-0">
+                <%= f.check_box :active, class: "form-check-input", role: "switch" %>
+                <%= f.label(:active, class: "form-check-label") do %>
+                  <span class="money-source-status-on"><%= money_source_status_label(@money_source, active: true) %></span>
+                  <span class="money-source-status-off"><%= money_source_status_label(@money_source, active: false) %></span>
+                <% end %>
               </div>
             </div>
 
-            <hr>
             <%# Recognition only applies to payment sources (see MoneySourceRecognition):
                 loans and pockets never hold recognition. %>
             <% if @money_source.payment_source? %>
-              <div class="mb-3">
-                <h6 class="mb-1"><%= t("money_sources.form.recognition_title") %></h6>
-                <p class="text-muted small mb-2"><%= t("money_sources.form.recognition_hint") %></p>
-                <div class="d-flex gap-2 flex-wrap">
-                  <%= link_to money_sources_recognition_path, class: "btn btn-sm btn-outline-secondary" do %>
+              <div class="money-source-recognition">
+                <span class="icon-chip icon-chip-blue" aria-hidden="true">
+                  <i class="ti ti-mail"></i>
+                </span>
+                <div class="money-source-recognition-copy">
+                  <h6 class="money-source-recognition-title"><%= t("money_sources.form.recognition_title") %></h6>
+                  <p class="money-source-recognition-hint"><%= t("money_sources.form.recognition_hint") %></p>
+                  <%= link_to money_sources_recognition_path, class: "btn btn-sm money-source-recognition-btn" do %>
                     <i class="ti ti-mail me-1"></i><%= t("money_sources.form.recognition_link") %>
                   <% end %>
                 </div>

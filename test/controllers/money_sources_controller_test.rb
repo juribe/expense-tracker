@@ -919,6 +919,59 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-header .card-subtitle", text: "Completa los datos de tu fuente de dinero."
   end
 
+  test "GET /money_sources/new renders the active status pill" do
+    get new_money_source_path(kind: "account")
+
+    assert_response :success
+    assert_select ".money-source-status" do
+      assert_select "input#money_source_active[type=checkbox][role=switch][checked]"
+      assert_select ".money-source-status-on", text: "Cuenta activa"
+      assert_select ".money-source-status-off", text: "Cuenta inactiva"
+    end
+  end
+
+  test "GET /money_sources/new labels the status per kind" do
+    {
+      "account" => "Cuenta activa",
+      "debit_card" => "Tarjeta débito activa",
+      "credit_card" => "Tarjeta de crédito activa",
+      "cash" => "Efectivo activo",
+      "wallet" => "Monedero activo",
+      "pocket" => "Bolsillo activo",
+      "loan" => "Deuda activa"
+    }.each do |kind, label|
+      get new_money_source_path(kind: kind)
+
+      assert_select ".money-source-status .money-source-status-on", text: label
+    end
+  end
+
+  test "GET /money_sources/:id/edit renders an unchecked status pill when the source is inactive" do
+    source = create_source(name: "Cuenta apagada", kind: "account", active: false)
+
+    get edit_money_source_path(source)
+
+    assert_response :success
+    assert_select ".money-source-status" do
+      assert_select "input#money_source_active[type=checkbox]:not([checked])"
+      assert_select ".money-source-status-on", text: "Cuenta activa"
+      assert_select ".money-source-status-off", text: "Cuenta inactiva"
+    end
+  end
+
+  test "payment source form renders the recognition callout" do
+    source = create_source(name: "Cuenta", kind: "account")
+
+    get edit_money_source_path(source)
+
+    assert_response :success
+    assert_select ".money-source-recognition" do
+      assert_select ".money-source-recognition-title", text: I18n.t("money_sources.form.recognition_title")
+      assert_select ".money-source-recognition-hint", text: I18n.t("money_sources.form.recognition_hint")
+      assert_select "a.money-source-recognition-btn[href=?]", money_sources_recognition_path
+    end
+  end
+
   test "GET /money_sources/:id/edit cancel returns to the source section" do
     card = create_source(name: "Visa", kind: "credit_card")
 

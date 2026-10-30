@@ -1121,6 +1121,25 @@ es:
         wallet: "Completa los datos de tu monedero."
         pocket: "Completa los datos de tu bolsillo."
         loan: "Completa los datos de tu deuda."
+      status:
+        active:
+          generic: "Fuente activa"
+          account: "Cuenta activa"
+          debit_card: "Tarjeta débito activa"
+          credit_card: "Tarjeta de crédito activa"
+          cash: "Efectivo activo"
+          wallet: "Monedero activo"
+          pocket: "Bolsillo activo"
+          loan: "Deuda activa"
+        inactive:
+          generic: "Fuente inactiva"
+          account: "Cuenta inactiva"
+          debit_card: "Tarjeta débito inactiva"
+          credit_card: "Tarjeta de crédito inactiva"
+          cash: "Efectivo inactivo"
+          wallet: "Monedero inactivo"
+          pocket: "Bolsillo inactivo"
+          loan: "Deuda inactiva"
       new_titles:
         account: "Nueva cuenta"
         debit_card: "Nueva tarjeta débito"
