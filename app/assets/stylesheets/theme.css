@@ -409,12 +409,45 @@ section.page-section { margin-bottom: 1.5rem; }
   padding: 14px 7px 20px;
   border-bottom: 1px solid #e5ebf4;
 }
-.left-sidebar .brand-logo .icon-chip {
-  width: 46px;
-  height: 46px;
-  border-radius: 15px;
+/* Brand: full horizontal logo in the expanded sidebar (light/dark variants)
+ * and the standalone Y mark when the sidebar is collapsed to the mini rail. */
+.left-sidebar .brand-logo .brand-logo-link {
+  gap: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
-.left-sidebar .brand-logo .icon-chip .ti { font-size: 25px; }
+.left-sidebar .brand-logo .brand-logo-full {
+  display: block;
+  width: auto;
+  height: 55px;
+  max-width: 100%;
+  margin-top: 7px;
+  margin-left: 9px;
+}
+.left-sidebar .brand-logo .brand-logo-mark {
+  display: none;
+  width: 34px;
+  height: 34px;
+}
+.left-sidebar .brand-logo .brand-logo-full-dark,
+.left-sidebar .brand-logo .brand-logo-mark-dark { display: none; }
+
+[data-bs-theme="dark"] .left-sidebar .brand-logo .brand-logo-full-light { display: none; }
+[data-bs-theme="dark"] .left-sidebar .brand-logo .brand-logo-full-dark { display: block; }
+[data-bs-theme="dark"] .left-sidebar .brand-logo .brand-logo-mark-light { display: none; }
+
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .brand-logo .brand-logo-full { display: none; }
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .brand-logo .brand-logo-mark-light { display: block; }
+
+[data-bs-theme="dark"][data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .brand-logo .brand-logo-full { display: none; }
+[data-bs-theme="dark"][data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .brand-logo .brand-logo-mark-light { display: none; }
+[data-bs-theme="dark"][data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .brand-logo .brand-logo-mark-dark { display: block; }
+
+/* Spike expands the mini rail on hover; the brand follows that state. */
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:hover .brand-logo .brand-logo-mark { display: none !important; }
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:hover .brand-logo .brand-logo-full-light { display: block !important; }
+[data-bs-theme="dark"][data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:hover .brand-logo .brand-logo-full-light { display: none !important; }
+[data-bs-theme="dark"][data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:hover .brand-logo .brand-logo-full-dark { display: block !important; }
 
 .left-sidebar .sidebar-nav .nav-small-cap {
   padding: 0 12px;
@@ -501,8 +534,10 @@ section.page-section { margin-bottom: 1.5rem; }
   background: #356dff;
 }
 /* Spike's collapsed (mini) sidebar keeps its own 65px geometry; mockup only
- * needs label alignment + centered icon so the rail stays on the item edge. */
-[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar .sidebar-link {
+ * needs label alignment + centered icon so the rail stays on the item edge.
+ * On hover the rail expands back to 270px, so links return to their normal
+ * left-aligned padding instead of staying centered. */
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:not(:hover) .sidebar-link {
   justify-content: center;
   padding: 0;
   gap: 0;

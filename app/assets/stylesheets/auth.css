@@ -125,32 +125,22 @@
 
 .auth-brand {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
   margin-bottom: clamp(42px, 6vh, 70px);
 }
 
-.auth-brand-icon {
-  width: 48px;
-  height: 48px;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: #dce8ff;
-  color: var(--auth-blue);
-  box-shadow: 0 8px 22px rgba(86, 136, 238, 0.09);
+.auth-brand-logo {
+  display: block;
+  width: auto;
+  height: 38px;
 }
 
-.auth-brand-icon .ti {
-  font-size: 27px;
-}
+.auth-brand-logo-dark { display: none; }
 
-.auth-brand-name {
-  font-size: 1.125rem;
-  font-weight: 780;
-  letter-spacing: -0.028em;
-}
+[data-bs-theme="dark"] .auth-brand-logo-light { display: none; }
+[data-bs-theme="dark"] .auth-brand-logo-dark { display: block; }
 
 .auth-brand-tag {
   margin-top: 3px;
@@ -784,16 +774,6 @@
     margin-bottom: 31px;
   }
 
-  .auth-brand-icon {
-    width: 42px;
-    height: 42px;
-    flex-basis: 42px;
-  }
-
-  .auth-brand-name {
-    font-size: 1rem;
-  }
-
   .auth-brand-tag {
     font-size: 0.625rem;
   }
@@ -882,10 +862,6 @@
   .auth-card {
     padding: 24px 17px;
   }
-
-  .auth-brand-name {
-    font-size: 0.9375rem;
-  }
 }
 
 /* --------------------------------------------------------------- dark mode */
@@ -927,11 +903,6 @@
 
 [data-bs-theme="dark"] .auth-page .auth-title {
   color: var(--auth-ink);
-}
-
-[data-bs-theme="dark"] .auth-brand-icon {
-  background: rgba(110, 168, 255, 0.16);
-  box-shadow: none;
 }
 
 [data-bs-theme="dark"] .auth-brand-tag,

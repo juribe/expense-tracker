@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Yogasto logo">
+<rect width="128" height="128" rx="22" fill="#EEF2FF"/><g transform="translate(12,12) scale(1.0)">
+<defs>
+  <linearGradient id="gradLeft" x1="8" y1="5" x2="57" y2="58" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#A855F7"/>
+    <stop offset="0.52" stop-color="#6652FF"/>
+    <stop offset="1" stop-color="#2764FF"/>
+  </linearGradient>
+  <linearGradient id="gradRight" x1="51" y1="54" x2="100" y2="5" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#2764FF"/>
+    <stop offset="0.55" stop-color="#19C8E8"/>
+    <stop offset="1" stop-color="#19DCC5"/>
+  </linearGradient>
+  <linearGradient id="gradStem" x1="39" y1="49" x2="62" y2="100" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#3567FF"/>
+    <stop offset="1" stop-color="#168FEA"/>
+  </linearGradient>
+</defs>
+<g>
+  <path d="M48.8 51.8C40.5 43.4 27.2 31.1 14.1 17.5C7.3 10.4 10.4 3.1 18.2 4.2C32.1 6.2 46.2 22.1 54.7 39.1C59.2 48.2 55.7 56.2 50.6 58.4C47.6 59.6 45.6 55.4 48.8 51.8Z" fill="url(#gradLeft)"/>
+  <path d="M51.5 51.5C60.6 40.1 74.1 24.2 86.4 11.7C93.3 4.7 100.6 8.4 97.8 16.4C91.8 33.4 75.4 49.5 58.1 60.2C51.6 64.2 47.4 57.5 51.5 51.5Z" fill="url(#gradRight)"/>
+  <path d="M46.2 46.6C50.2 43.3 55.1 46.3 56.2 52.2L62.1 81.2C64.1 91.2 58.1 99.1 50 99.1C41.9 99.1 36 92 38 82.7L43.2 56.3C43.9 51.8 44.4 48.6 46.2 46.6Z" fill="url(#gradStem)"/>
+</g></g>
+</svg>

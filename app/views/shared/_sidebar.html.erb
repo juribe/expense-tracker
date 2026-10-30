@@ -1,9 +1,11 @@
 <%# Application sidebar — Spike shell classes, Expense Tracker domain grouping %>
 <aside class="left-sidebar with-vertical">
   <div class="brand-logo d-flex align-items-center justify-content-between">
-    <%= link_to dashboard_path, class: "text-nowrap logo-img d-flex align-items-center gap-2 text-decoration-none" do %>
-      <span class="icon-chip icon-chip-blue"><i class="ti ti-wallet fs-4"></i></span>
-      <span class="fs-5 fw-bold text-body"><%= t("layout.app_title") %></span>
+    <%= link_to dashboard_path, class: "text-nowrap logo-img brand-logo-link d-flex align-items-center text-decoration-none" do %>
+      <img src="/brand/yogasto-logo-claro.svg" alt="Yogasto" class="brand-logo-full brand-logo-full-light">
+      <img src="/brand/yogasto-logo-fondo-oscuro.svg" alt="Yogasto" class="brand-logo-full brand-logo-full-dark">
+      <img src="/brand/yogasto-simbolo.svg" alt="Yogasto" class="brand-logo-mark brand-logo-mark-light">
+      <img src="/brand/yogasto-icono-app-oscuro.svg" alt="Yogasto" class="brand-logo-mark brand-logo-mark-dark">
     <% end %>
     <a href="#" class="sidebartoggler text-decoration-none fs-5 d-block d-xl-none" aria-label="<%= t('nav.close_sidebar') %>">
       <i class="ti ti-x"></i>

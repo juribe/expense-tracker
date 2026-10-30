@@ -230,8 +230,8 @@ es:
       missing_projection: "requiere la proyección del crédito (genera primero)"
 
   layout:
-    app_title: "Control de Gastos"
-    footer: "© %{year} Control de Gastos"
+    app_title: "Yogasto"
+    footer: "© %{year} Yogasto"
 
   common:
     cancel: "Cancelar"
@@ -2077,7 +2077,7 @@ es:
     reset_link_sent: "Revisa tu correo: te enviamos el enlace para restablecer tu contraseña."
     password_updated: "Tu contraseña se actualizó correctamente."
     intro:
-      aria_label: "Beneficios de Control de Gastos"
+      aria_label: "Beneficios de Yogasto"
       form_aria_label: "Acceso a tu cuenta"
       brand_tag: "Finanzas personales, con claridad"
       kicker: "Tus finanzas, en un solo lugar"

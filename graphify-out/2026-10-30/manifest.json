@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "playwright/expenses.spec.js": {
-    "mtime": 1793309806.5637066,
-    "seen": 1793310283.928923,
-    "ast_hash": "e47fbc3e4a4bba7ee587622fadd6a7a6",
+    "mtime": 1793379206.785794,
+    "seen": 1793379325.600357,
+    "ast_hash": "acd0fc573bd894470f2ca7cb7854871b",
     "semantic_hash": ""
   },
   "playwright/financial_setup_wizard.spec.js": {
@@ -1356,16 +1356,16 @@
     "semantic_hash": "6363df73ea6632db60772abc7d2014d1"
   },
   "public/icon.png": {
-    "mtime": 1787694826.7712715,
-    "seen": 1792857266.809514,
-    "ast_hash": "a437696465ac551d699c4171c4095dea",
-    "semantic_hash": "a437696465ac551d699c4171c4095dea"
+    "mtime": 1793392853.2750978,
+    "seen": 1793393287.0234072,
+    "ast_hash": "6486664b6cd0c33e00297a38888f9552",
+    "semantic_hash": ""
   },
   "public/icon.svg": {
-    "mtime": 1787694826.7714236,
-    "seen": 1792857266.809515,
-    "ast_hash": "2add52a0cba32f1b7f42233d99f8226e",
-    "semantic_hash": "2add52a0cba32f1b7f42233d99f8226e"
+    "mtime": 1793392853.276791,
+    "seen": 1793393287.023409,
+    "ast_hash": "512a123b8570b093beba83f4917d7623",
+    "semantic_hash": ""
   },
   ".opencode/opencode.json": {
     "mtime": 1790560256.3534832,
@@ -5118,9 +5118,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/expenses_table.js": {
-    "mtime": 1793032339.2972994,
-    "seen": 1793032590.958007,
-    "ast_hash": "10e0b3cb140da79b2d2eccf2c53e966b",
+    "mtime": 1793379198.3554485,
+    "seen": 1793379325.599516,
+    "ast_hash": "3998d89fac4028166f867e53ef1bd28e",
     "semantic_hash": ""
   },
   "app/assets/javascripts/financial_setup_edit_all.js": {
@@ -5160,15 +5160,15 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/monthly_expenses_ui.js": {
-    "mtime": 1792849928.1632526,
-    "seen": 1792857266.80831,
-    "ast_hash": "cd70ad0b8443edd4f2f47972c2b0da3b",
+    "mtime": 1793379224.3524556,
+    "seen": 1793379325.599541,
+    "ast_hash": "fd3a17652fe15455afb03bac68aef66a",
     "semantic_hash": ""
   },
   "app/assets/javascripts/monthly_incomes_ui.js": {
-    "mtime": 1792849928.163632,
-    "seen": 1792857266.808311,
-    "ast_hash": "1d8281d6da9ec4a00bc76ce9a204a1cd",
+    "mtime": 1793379230.8166943,
+    "seen": 1793379325.599543,
+    "ast_hash": "50d112ca7a652df5e9742df46b0686bd",
     "semantic_hash": ""
   },
   "app/assets/javascripts/pocket_breakdown.js": {
@@ -5190,9 +5190,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/recurring_ui.js": {
-    "mtime": 1792849928.1649714,
-    "seen": 1792857266.808322,
-    "ast_hash": "6fd4c14c1fca471cb4b42067fc76cef6",
+    "mtime": 1793379239.1510642,
+    "seen": 1793379325.5995562,
+    "ast_hash": "68054a157b740f441c08f1b4ddf0dc7b",
     "semantic_hash": ""
   },
   "app/assets/javascripts/theme_back_paint.js": {
@@ -5874,9 +5874,165 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/dialog.js": {
-    "mtime": 1793377813.234461,
-    "seen": 1793378995.284124,
-    "ast_hash": "e7b2622e75ff4e616c5d8c2d53fc1497",
+    "mtime": 1793379243.25151,
+    "seen": 1793379325.599503,
+    "ast_hash": "4d60d2109bf4b9bdc17a2e6a9480efa2",
+    "semantic_hash": ""
+  },
+  "public/brand/LEEME.md": {
+    "mtime": 1793392853.2504468,
+    "seen": 1793393287.023343,
+    "ast_hash": "076c45f1bfd13336bc28e68e96980044",
+    "semantic_hash": ""
+  },
+  "public/apple-touch-icon.png": {
+    "mtime": 1793392853.2722793,
+    "seen": 1793393287.023371,
+    "ast_hash": "d1099b35366e8fe195af3cfa6571923b",
+    "semantic_hash": ""
+  },
+  "public/brand/apple-touch-icon.png": {
+    "mtime": 1793392853.251081,
+    "seen": 1793393287.023372,
+    "ast_hash": "d1099b35366e8fe195af3cfa6571923b",
+    "semantic_hash": ""
+  },
+  "public/brand/favicon-16.png": {
+    "mtime": 1793392853.2514815,
+    "seen": 1793393287.023374,
+    "ast_hash": "9c49338babe66bb0c6b4402d42e852ac",
+    "semantic_hash": ""
+  },
+  "public/brand/favicon-32.png": {
+    "mtime": 1793392853.2519383,
+    "seen": 1793393287.023375,
+    "ast_hash": "8c27dede5c1f0c3c8d6d455947161b1f",
+    "semantic_hash": ""
+  },
+  "public/brand/vista-previa-yogasto.jpg": {
+    "mtime": 1793392853.2553577,
+    "seen": 1793393287.023377,
+    "ast_hash": "f89bee27e69d9d4d7640d1ad3dca50de",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-app-icon-512.png": {
+    "mtime": 1793392853.2561548,
+    "seen": 1793393287.023378,
+    "ast_hash": "6486664b6cd0c33e00297a38888f9552",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-app-icon-dark-512.png": {
+    "mtime": 1793392853.256766,
+    "seen": 1793393287.02338,
+    "ast_hash": "3bb77ba4f5855db0dabbfd5fe216b470",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-icono-app-claro.png": {
+    "mtime": 1793392853.2572637,
+    "seen": 1793393287.023381,
+    "ast_hash": "7017b19934c554748a05f69b5b6cc157",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-icono-app-claro.svg": {
+    "mtime": 1793392853.2575972,
+    "seen": 1793393287.0233831,
+    "ast_hash": "512a123b8570b093beba83f4917d7623",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-icono-app-oscuro.png": {
+    "mtime": 1793392853.2584083,
+    "seen": 1793393287.023384,
+    "ast_hash": "ec832fc793c24c857b89e7611320bb33",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-icono-app-oscuro.svg": {
+    "mtime": 1793392853.2586792,
+    "seen": 1793393287.023386,
+    "ast_hash": "42f5b4afac0314a6131f85e0dcfdc71a",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-claro.png": {
+    "mtime": 1793392853.259308,
+    "seen": 1793393287.023387,
+    "ast_hash": "6b7d4679de6d407dd27cf05453eb4e12",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-claro.svg": {
+    "mtime": 1793392853.259522,
+    "seen": 1793393287.0233889,
+    "ast_hash": "13f8d0f3822bd136e53a5bbb2240f0ff",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-con-eslogan-oscuro.png": {
+    "mtime": 1793392853.2600074,
+    "seen": 1793393287.02339,
+    "ast_hash": "af2c79cec931df88dce4b78ee94b306f",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-con-eslogan-oscuro.svg": {
+    "mtime": 1793392853.2604222,
+    "seen": 1793393287.023392,
+    "ast_hash": "9debb990bacdc04d54584173014de512",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-con-eslogan.png": {
+    "mtime": 1793392853.2611775,
+    "seen": 1793393287.023393,
+    "ast_hash": "314a8bd2ca9a5b8ae5c3691cedd2061e",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-con-eslogan.svg": {
+    "mtime": 1793392853.2616637,
+    "seen": 1793393287.023394,
+    "ast_hash": "fa01c86ce4a2015dcf0d1386961fb6be",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-fondo-blanco.jpg": {
+    "mtime": 1793392853.262604,
+    "seen": 1793393287.023396,
+    "ast_hash": "a27bfad3096be8c9f8f13457f6ee4c4a",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-fondo-negro.jpg": {
+    "mtime": 1793392853.265399,
+    "seen": 1793393287.0233972,
+    "ast_hash": "c64c1eed822089395967cd73b24c422f",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-fondo-oscuro.png": {
+    "mtime": 1793392853.2662802,
+    "seen": 1793393287.0233989,
+    "ast_hash": "72a3dce9bd34de5fe1e33b2c1dc7015e",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-logo-fondo-oscuro.svg": {
+    "mtime": 1793392853.2666235,
+    "seen": 1793393287.0233998,
+    "ast_hash": "bf9aec7d4ef4f440c83c6d727a5920b4",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-simbolo.png": {
+    "mtime": 1793392853.2671154,
+    "seen": 1793393287.023402,
+    "ast_hash": "02faf84b877be6a112ff7c891042581d",
+    "semantic_hash": ""
+  },
+  "public/brand/yogasto-simbolo.svg": {
+    "mtime": 1793392853.267341,
+    "seen": 1793393287.023403,
+    "ast_hash": "c316f906c874253484fb7408901388f8",
+    "semantic_hash": ""
+  },
+  "public/favicon-16.png": {
+    "mtime": 1793392853.271427,
+    "seen": 1793393287.023405,
+    "ast_hash": "9c49338babe66bb0c6b4402d42e852ac",
+    "semantic_hash": ""
+  },
+  "public/favicon-32.png": {
+    "mtime": 1793392853.2717905,
+    "seen": 1793393287.023406,
+    "ast_hash": "8c27dede5c1f0c3c8d6d455947161b1f",
     "semantic_hash": ""
   }
 }
