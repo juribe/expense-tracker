@@ -84,9 +84,10 @@
 
     if (e.target.id === "expenseDrawerDelete") {
       var url = e.target.dataset.deleteUrl;
-      if (url && window.confirm("¿Eliminar gasto? Esta acción no se puede deshacer.")) {
-        submitDelete(url);
-      }
+      if (!url) return;
+      Dialog.confirm("¿Eliminar gasto? Esta acción no se puede deshacer.", { title: "¿Eliminar gasto?", confirmLabel: "Eliminar", variant: "danger" }).then(function (confirmed) {
+        if (confirmed) submitDelete(url);
+      });
     }
   });
 

@@ -11,13 +11,15 @@
     if (!btn) return;
 
     var msg = btn.dataset.confirm || 'Remove this account?';
-    if (!window.confirm(msg)) return;
-
-    // Hide the account card and clear its keep field so it's dropped on confirm.
-    var card = btn.closest('.card');
-    if (!card) return;
-    card.classList.add('d-none');
-    var keepInput = card.querySelector('input[name^="keep["]');
-    if (keepInput) keepInput.value = '';
+    e.preventDefault();
+    Dialog.confirm(msg, { title: "Confirmar", confirmLabel: "Eliminar", variant: "danger" }).then(function (confirmed) {
+      if (!confirmed) return;
+      // Hide the account card and clear its keep field so it's dropped on confirm.
+      var card = btn.closest('.card');
+      if (!card) return;
+      card.classList.add('d-none');
+      var keepInput = card.querySelector('input[name^="keep["]');
+      if (keepInput) keepInput.value = '';
+    });
   });
 })();

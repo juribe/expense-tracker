@@ -230,22 +230,42 @@
 
     e.preventDefault();
     var submitter = e.submitter;
-    if (!window.confirm(message)) return;
 
-    delete form.dataset.turboConfirm;
-    delete form.dataset.confirm;
-    if (submitter) {
-      delete submitter.dataset.turboConfirm;
-      delete submitter.dataset.confirm;
+    var title = (form.dataset.confirmTitle || (submitter && submitter.dataset.confirmTitle) || "").trim();
+    var confirmLabel = (form.dataset.confirmLabel || (submitter && submitter.dataset.confirmLabel) || "").trim();
+    var variant = (form.dataset.confirmVariant || (submitter && submitter.dataset.confirmVariant) || "").trim();
+    if (!variant) {
+      var methodInput = form.querySelector('input[name="_method"]');
+      variant = methodInput && methodInput.value === "delete" ? "danger" : "primary";
     }
+    if (!confirmLabel) {
+      var methodInput2 = form.querySelector('input[name="_method"]');
+      confirmLabel = methodInput2 && methodInput2.value === "delete" ? "Eliminar" : "Confirmar";
+    }
+    if (!title) title = "Confirmar";
 
-    // Deferring avoids a Chrome quirk: requestSubmit() called reentrantly
-    // from a submit handler that called preventDefault() re-dispatches a
-    // submit event whose defaultPrevented flag is already true, so the
-    // form never actually submits.
-    setTimeout(function () {
-      form.requestSubmit(submitter || undefined);
-    }, 0);
+    var confirmFn = (window.Dialog && typeof window.Dialog.confirm === "function")
+      ? window.Dialog.confirm.bind(window.Dialog)
+      : function (msg, opts) { return Promise.resolve(window.confirm(msg)); };
+
+    confirmFn(message, { title: title, confirmLabel: confirmLabel, variant: variant }).then(function (confirmed) {
+      if (!confirmed) return;
+
+      delete form.dataset.turboConfirm;
+      delete form.dataset.confirm;
+      if (submitter) {
+        delete submitter.dataset.turboConfirm;
+        delete submitter.dataset.confirm;
+      }
+
+      // Deferring avoids a Chrome quirk: requestSubmit() called reentrantly
+      // from a submit handler that called preventDefault() re-dispatches a
+      // submit event whose defaultPrevented flag is already true, so the
+      // form never actually submits.
+      setTimeout(function () {
+        form.requestSubmit(submitter || undefined);
+      }, 0);
+    });
   }, true);
 
 })();

@@ -87,8 +87,8 @@ test.describe('category budgets are working', () => {
     await createCategory(page, category);
     await createBudget(page, category, 100000);
 
-    page.on('dialog', (dialog) => dialog.accept());
     await page.locator(`button[aria-label="Eliminar presupuesto de ${category}"]`).click();
+    await page.locator('[data-testid="dialog-accept"]').click();
 
     await expect(page.getByText('El presupuesto se eliminó correctamente.')).toBeVisible();
     await expect(page.getByText(category)).toHaveCount(0);

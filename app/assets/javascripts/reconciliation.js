@@ -254,7 +254,7 @@
       })
       .catch(function () {
         button.disabled = false;
-        window.alert(button.dataset.errorLabel || assignModal().dataset.errorLabel || "No se pudo asignar el pago.");
+        Dialog.alert(button.dataset.errorLabel || assignModal().dataset.errorLabel || "No se pudo asignar el pago.", { title: "Error", variant: "danger" });
       });
   }
 

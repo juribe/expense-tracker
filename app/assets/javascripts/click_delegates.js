@@ -11,9 +11,17 @@
   document.addEventListener("click", function (e) {
     var el = e.target.closest("[data-reset-confirm]");
     if (!el) return;
-    if (!window.confirm(el.dataset.resetConfirm)) {
-      e.preventDefault();
-      e.stopPropagation();
+    if (el.dataset.resetConfirmBypass === "true") {
+      delete el.dataset.resetConfirmBypass;
+      return;
     }
+    e.preventDefault();
+    e.stopPropagation();
+    var msg = el.dataset.resetConfirm;
+    Dialog.confirm(msg, { title: "Confirmar", confirmLabel: "Confirmar", variant: "warning" }).then(function (confirmed) {
+      if (!confirmed) return;
+      el.dataset.resetConfirmBypass = "true";
+      el.click();
+    });
   });
 })();

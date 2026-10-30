@@ -159,10 +159,32 @@
   }
 
   function openDelete(url, count) {
-    $("#deleteTitle").textContent = count > 1 ? "¿Eliminar " + count + " gastos?" : "¿Eliminar gasto?";
-    $("#deleteBody").textContent = count > 1 ? "¿Eliminar " + count + " gastos? Esta acción no se puede deshacer." : "Esta acción no se puede deshacer.";
-    $("#deleteForm").action = url;
-    bootstrap.Modal.getOrCreateInstance("#deleteModal").show();
+    var title = count > 1 ? "¿Eliminar " + count + " gastos?" : "¿Eliminar gasto?";
+    var body = count > 1 ? "¿Eliminar " + count + " gastos? Esta acción no se puede deshacer." : "Esta acción no se puede deshacer.";
+    var form = $("#deleteForm");
+    form.action = url;
+    var idsValue = (form.querySelector("#deleteIds") || {}).value || "";
+    Dialog.confirm(body, { title: title, confirmLabel: "Eliminar", variant: "danger" }).then(function (confirmed) {
+      if (!confirmed) return;
+      var currentForm = $("#deleteForm");
+      var action = currentForm.action || "";
+      if (action === "" || action === location.href.split("#")[0]) return;
+      var methodInput = currentForm.querySelector("input[name=_method]");
+      if (!methodInput) {
+        methodInput = document.createElement("input");
+        methodInput.type = "hidden";
+        methodInput.name = "_method";
+        methodInput.value = "delete";
+        currentForm.appendChild(methodInput);
+      }
+      currentForm.innerHTML =
+        '<input type="hidden" name="_method" value="delete">' +
+        '<input type="hidden" name="authenticity_token" value="' +
+        (document.querySelector('meta[name="csrf-token"]') || {}).content + '">' +
+        '<input type="hidden" name="ids" id="deleteIds" value="' + idsValue + '">';
+      bootstrap.Offcanvas.getInstance("#detailDrawer") && bootstrap.Offcanvas.getInstance("#detailDrawer").hide();
+      currentForm.requestSubmit();
+    });
   }
 
   function openProcessModal(button) {
@@ -237,27 +259,6 @@
         $("#deleteIds").value = ids.join(",");
         openDelete(payload.bulk_destroy_url + stateQuery(), ids.length);
       }
-    }
-    if (e.target.id === "confirmDelete") {
-      var form = $("#deleteForm");
-      var action = form.action || "";
-      if (action === "" || action === location.href.split("#")[0]) return;
-      var methodInput = form.querySelector("input[name=_method]");
-      if (!methodInput) {
-        methodInput = document.createElement("input");
-        methodInput.type = "hidden";
-        methodInput.name = "_method";
-        methodInput.value = "delete";
-        form.appendChild(methodInput);
-      }
-      form.innerHTML =
-      '<input type="hidden" name="_method" value="delete">' +
-      '<input type="hidden" name="authenticity_token" value="' +
-      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">' +
-      '<input type="hidden" name="ids" value="' + form.querySelector("#deleteIds").value + '">';
-      bootstrap.Modal.getInstance("#deleteModal").hide();
-      bootstrap.Offcanvas.getInstance("#detailDrawer") && bootstrap.Offcanvas.getInstance("#detailDrawer").hide();
-      form.requestSubmit();
     }
   });
 

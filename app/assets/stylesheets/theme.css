@@ -159,6 +159,8 @@ h4, .h4 { font-size: 1rem; }
 .badge.rounded-pill { border-radius: 999px; }
 
 .modal-content { border-radius: 1rem; border: 1px solid var(--bs-border-color); }
+.confirmation-modal .modal-content { box-shadow: 0 20px 60px rgba(16, 24, 40, 0.18); }
+.confirmation-modal .modal-title i { vertical-align: -0.125em; }
 .offcanvas { box-shadow: none; }
 
 /* Shared expense drawer (shared/_expense_drawer): the 300px Bootstrap default

@@ -8,7 +8,9 @@
   confirm_receive: t("recurring.confirm_receive", default: "Confirmar Recibo"),
   confirm_pay: t("recurring.confirm_pay", default: "Confirmar pago"),
   receive: t("monthly_incomes.receive", default: "Recibir"),
-  pay: t("monthly_expenses.pay", default: "Pagar")
+  pay: t("monthly_expenses.pay", default: "Pagar"),
+  delete_title: t("monthly_incomes.delete_confirmation_title"),
+  delete_body: t("monthly_incomes.delete_confirmation_body")
 } } %>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
@@ -316,22 +318,6 @@
   </div>
 </div>
 
-<!-- Delete confirmation modal -->
-<div class="modal fade" id="deleteRtModal" tabindex="-1" aria-labelledby="deleteRtTitle" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteRtTitle"><%= t("monthly_incomes.delete_confirmation_title") %></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close") %>"></button>
-      </div>
-      <div class="modal-body"><%= t("monthly_incomes.delete_confirmation_body") %></div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteRt" data-testid="confirm-delete"><%= t("common.delete") %></button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <% if @open_form_modal %>
 <% end %>

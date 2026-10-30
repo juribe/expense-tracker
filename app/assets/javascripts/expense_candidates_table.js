@@ -60,7 +60,8 @@
       var n = ids.length;
       var word = n === 1 ? "candidato" : "candidatos";
       var message = n + " " + word + " " + payload.will_be_discarded + " " + payload.discard_undo_hint;
-      if (!window.confirm(message)) return;
+      Dialog.confirm(message, { title: "Confirmar", confirmLabel: "Descartar", variant: "danger" }).then(function (confirmed) {
+        if (!confirmed) return;
       var form = document.createElement("form");
       form.method = "post";
       form.action = payload.bulk_discard_url;
@@ -79,6 +80,7 @@
       form.appendChild(idsInput);
       document.body.appendChild(form);
       form.submit();
+      });
     }
 
     document.addEventListener("click", function(e) {

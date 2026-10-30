@@ -169,8 +169,8 @@ test.describe('día de balance', () => {
     await expect(page.getByText('Pago por fuera de la app').first()).toBeVisible();
 
     // Reverting restores the original balance and hides the trace.
-    page.once('dialog', d => d.accept());
     await page.getByRole('button', { name: /Revertir ajuste/ }).click();
+    await page.locator('[data-testid="dialog-accept"]').click();
     await expect(page.getByText('Ajuste manual revertido')).toBeVisible();
     await expect(page.getByText('Ajuste manual', { exact: true })).not.toBeVisible();
     await expect(page.getByText('$2.000.000').first()).toBeVisible();

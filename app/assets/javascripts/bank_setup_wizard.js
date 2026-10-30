@@ -325,8 +325,13 @@
     }
 
     function finish() {
-      if (hasDirtyBanks() && !window.confirm(modal.dataset.unsavedMessage)) return;
-      window.location.assign(modal.dataset.finishUrl);
+      if (!hasDirtyBanks()) {
+        window.location.assign(modal.dataset.finishUrl);
+        return;
+      }
+      Dialog.confirm(modal.dataset.unsavedMessage, { title: "Confirmar", confirmLabel: "Salir", variant: "warning" }).then(function (confirmed) {
+        if (confirmed) window.location.assign(modal.dataset.finishUrl);
+      });
     }
 
     function saveCurrent() {
@@ -443,14 +448,25 @@
       clearError(panelFor(current));
     });
 
+    var allowHide = false;
     modal.addEventListener("hide.bs.modal", function (event) {
       if (saving) {
         event.preventDefault();
         return;
       }
-      if (hasDirtyBanks() && !window.confirm(modal.dataset.unsavedMessage)) {
-        event.preventDefault();
+      if (allowHide) {
+        allowHide = false;
+        return;
       }
+      if (!hasDirtyBanks()) return;
+      event.preventDefault();
+      Dialog.confirm(modal.dataset.unsavedMessage, { title: "Confirmar", confirmLabel: "Salir", variant: "warning" }).then(function (confirmed) {
+        if (confirmed) {
+          allowHide = true;
+          var instance = (window.bootstrap && window.bootstrap.Modal) ? window.bootstrap.Modal.getInstance(modal) : null;
+          if (instance) instance.hide();
+        }
+      });
     });
 
     updateNavStates();

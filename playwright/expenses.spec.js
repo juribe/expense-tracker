@@ -60,7 +60,7 @@ test.describe('expense pages are working', () => {
 
     const deleteRow = page.locator('#expenseTable tr', { hasText: 'Lunch at cafe' });
     await deleteRow.getByRole('button', { name: /Eliminar/i }).click();
-    await page.locator('#confirmDelete').click();
+    await page.locator('[data-testid="dialog-accept"]').click();
 
     await expect(page.getByText('El gasto se eliminó correctamente.')).toBeVisible();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(0);

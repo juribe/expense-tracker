@@ -353,23 +353,6 @@
   </div>
 </div>
 
-<!-- Modal de confirmación de eliminación (individual o en lote) -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title h5" id="deleteTitle">¿Eliminar gasto?</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body" id="deleteBody">Esta acción no se puede deshacer.</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <%= form_with url: "#", method: :delete, id: "deleteForm", class: "d-none" do %>
   <input type="hidden" name="ids" id="deleteIds">
 <% end %>

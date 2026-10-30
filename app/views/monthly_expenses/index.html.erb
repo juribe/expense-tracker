@@ -1,7 +1,9 @@
 <% page_attrs = @open_form_modal ? { data: { auto_open_form_modal: (@recurring_template.persisted? ? "edit" : "create") } } : {} %>
 <div data-testid="monthly-expenses-page"<%= tag.attributes(page_attrs) %>>
 <%= tag.div class: "d-none", data: { monthly_expenses_ui_payload: {
-  create_url: monthly_expenses_path
+  create_url: monthly_expenses_path,
+  delete_title: t("monthly_expenses.delete_title", default: "¿Eliminar gasto recurrente?"),
+  delete_body: t("monthly_incomes.delete_confirmation_body")
 } } %>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-3">
@@ -286,22 +288,6 @@
   </div>
 </div>
 
-<!-- Delete confirmation modal -->
-<div class="modal fade" id="deleteRtModal" tabindex="-1" aria-labelledby="deleteRtTitle" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteRtTitle"><%= t("monthly_expenses.delete_title", default: "¿Eliminar gasto recurrente?") %></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body"><%= t("monthly_incomes.delete_confirmation_body") %></div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteRt" data-testid="confirm-delete"><%= t("common.delete") %></button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <% if @open_form_modal %>
   <% end %>

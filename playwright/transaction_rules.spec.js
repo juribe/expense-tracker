@@ -75,8 +75,8 @@ test.describe('automatic rules (reglas automáticas)', () => {
     await expect(page).toHaveURL(/\/transaction_rules$/);
     await expect(page.locator('.card', { hasText: 'RAPPI' })).toBeVisible();
 
-    page.on('dialog', (dialog) => dialog.accept());
     await page.locator('.card', { hasText: 'RAPPI' }).getByRole('button', { name: /Eliminar/i }).click();
+    await page.locator('[data-testid="dialog-accept"]').click();
     await expect(page.getByText('La regla se eliminó correctamente.')).toBeVisible();
     await expect(page.locator('.card', { hasText: 'RAPPI' })).toHaveCount(0);
   });

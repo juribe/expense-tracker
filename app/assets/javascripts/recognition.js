@@ -111,23 +111,28 @@
     var cancel = document.querySelector(".recognition-drawer-foot [data-recognition-close]");
     return cancel ? cancel.getAttribute("href") : window.location.pathname;
   }
-  function recognitionConfirmLeave() {
-    var form = recognitionForm();
-    var message = (form && form.dataset.unsavedMessage) || "Are you sure?";
-    return !recognitionIsDirty() || window.confirm(message);
-  }
-
   // Delegate: pick up any chips rendered on the page (also after form edits).
   document.addEventListener("click", function (e) {
     var closer = e.target.closest("[data-recognition-close]");
     if (closer) {
-      if (!recognitionConfirmLeave()) { e.preventDefault(); return; }
-      showRecognitionVeil(closer);
-      if (closer.tagName !== "A") {
-        e.preventDefault();
-        var url = closer.dataset.closeUrl || recognitionLeaveUrl();
-        if (window.Turbo) { window.Turbo.visit(url); } else { window.location.href = url; }
+      if (!recognitionIsDirty()) {
+        showRecognitionVeil(closer);
+        if (closer.tagName !== "A") {
+          e.preventDefault();
+          var cleanUrl = closer.dataset.closeUrl || recognitionLeaveUrl();
+          if (window.Turbo) { window.Turbo.visit(cleanUrl); } else { window.location.href = cleanUrl; }
+        }
+        return;
       }
+      e.preventDefault();
+      var form = recognitionForm();
+      var message = (form && form.dataset.unsavedMessage) || "Are you sure?";
+      Dialog.confirm(message, { title: "Confirmar", confirmLabel: "Salir", variant: "warning" }).then(function (confirmed) {
+        if (!confirmed) return;
+        showRecognitionVeil(closer);
+        var dirtyUrl = closer.dataset.closeUrl || recognitionLeaveUrl();
+        if (window.Turbo) { window.Turbo.visit(dirtyUrl); } else { window.location.href = dirtyUrl; }
+      });
       return;
     }
     var remove = e.target.closest("[data-recognition-remove]");
@@ -170,10 +175,20 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape" || !document.querySelector(".recognition-drawer")) return;
-    if (!recognitionConfirmLeave()) return;
-    showRecognitionVeil();
-    var url = recognitionLeaveUrl();
-    if (window.Turbo) { window.Turbo.visit(url); } else { window.location.href = url; }
+    if (!recognitionIsDirty()) {
+      showRecognitionVeil();
+      var cleanUrl = recognitionLeaveUrl();
+      if (window.Turbo) { window.Turbo.visit(cleanUrl); } else { window.location.href = cleanUrl; }
+      return;
+    }
+    var form = recognitionForm();
+    var message = (form && form.dataset.unsavedMessage) || "Are you sure?";
+    Dialog.confirm(message, { title: "Confirmar", confirmLabel: "Salir", variant: "warning" }).then(function (confirmed) {
+      if (!confirmed) return;
+      showRecognitionVeil();
+      var dirtyUrl = recognitionLeaveUrl();
+      if (window.Turbo) { window.Turbo.visit(dirtyUrl); } else { window.location.href = dirtyUrl; }
+    });
   });
 
   window.addEventListener("beforeunload", function (e) {

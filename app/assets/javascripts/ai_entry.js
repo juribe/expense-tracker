@@ -93,7 +93,7 @@ function initializeAiEntry() {
       if (!result.ok || !result.data.expenses || !result.data.expenses.length) {
         setStatus("");
         var message = (result.data.errors && result.data.errors[0]) || T.no_expenses;
-        window.alert(message);
+        Dialog.alert(message, { title: "Aviso", variant: "danger" });
         return;
       }
       setStatus(detectedCountMessage(result.data.expenses.length));

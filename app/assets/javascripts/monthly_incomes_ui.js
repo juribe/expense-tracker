@@ -4,7 +4,7 @@
 (function () {
   if (window.RecurringUI) return;
 
-  var formModal, processModal, deleteModal;
+  var formModal, processModal;
   var currentRow = null;
 
   function $(sel) { return document.querySelector(sel); }
@@ -12,7 +12,6 @@
   function initModals() {
     formModal = bootstrap.Modal.getOrCreateInstance("#recurringFormModal");
     processModal = bootstrap.Modal.getOrCreateInstance("#processModal");
-    deleteModal = bootstrap.Modal.getOrCreateInstance("#deleteRtModal");
   }
 
   function setFormMode(mode, row) {
@@ -146,7 +145,20 @@
     confirmDelete: function (button) {
       initModals();
       currentRow = button.closest("tr");
-      deleteModal.show();
+      var title = (P.delete_title || "¿Eliminar ingreso recurrente?");
+      var message = (P.delete_body || "¿Estás seguro?");
+      Dialog.confirm(message, { title: title, confirmLabel: "Eliminar", variant: "danger" }).then(function (confirmed) {
+        if (!confirmed || !currentRow) return;
+        var form = document.createElement("form");
+        form.method = "post";
+        form.action = currentRow.dataset.deleteUrl;
+        form.innerHTML =
+          '<input type="hidden" name="_method" value="delete">' +
+          '<input type="hidden" name="authenticity_token" value="' +
+          (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
+        document.body.appendChild(form);
+        form.submit();
+      });
     },
 
     toggleActive: function (button) {
@@ -162,20 +174,6 @@
       form.submit();
     }
   };
-
-  document.addEventListener("click", function (e) {
-    if (e.target.id !== "confirmDeleteRt" || !currentRow) return;
-    var form = document.createElement("form");
-    form.method = "post";
-    form.action = currentRow.dataset.deleteUrl;
-    form.innerHTML =
-      '<input type="hidden" name="_method" value="delete">' +
-      '<input type="hidden" name="authenticity_token" value="' +
-      (document.querySelector('meta[name="csrf-token"]') || {}).content + '">';
-    document.body.appendChild(form);
-    deleteModal.hide();
-    form.submit();
-  });
 
   document.addEventListener("DOMContentLoaded", function () {
     var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
