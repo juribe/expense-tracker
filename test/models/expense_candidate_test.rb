@@ -266,6 +266,23 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     assert_equal "text", expense.source
   end
 
+  test "confirm! propagates gmail_message_id from metadata to the expense" do
+    candidate = build_candidate(
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      amount: 50_000,
+      date: Date.current,
+      description: "COMERCIALIZADORA INTER",
+      source: "gmail",
+      metadata: { "gmail_message_id" => "msg-123" }
+    )
+    candidate.save!
+
+    candidate.confirm!
+
+    assert_equal "msg-123", candidate.expense.gmail_message_id
+  end
+
   test "confirm! raises when required fields are missing" do
     candidate = build_candidate(amount: nil, category_id: nil)
     candidate.save!

@@ -251,6 +251,7 @@ class ExpenseCandidate < ApplicationRecord
       category: resolve_category,
       occurred_at: date,
       source: source.presence || "ai",
+      gmail_message_id: metadata&.dig("gmail_message_id"),
       money_source: money_source
     )
   rescue Expenses::Create::Invalid => e
