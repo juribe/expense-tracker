@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
   layout :layout_for_request
 
   before_action :authenticate_user!
+  before_action :set_page_title, if: -> { request.get? }
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
@@ -23,6 +24,11 @@ class ApplicationController < ActionController::Base
   # rescue_from StandardError do |exception|
   #   render json: { status: 'error', message: exception.message }, status: :internal_server_error
   # end
+
+  def set_page_title
+    key = "#{controller_name}-#{action_name}"
+    @page_title = I18n.t("page.titles.#{key}", default: nil)
+  end
 
   private
 

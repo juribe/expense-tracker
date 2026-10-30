@@ -233,6 +233,143 @@ es:
     app_title: "Yogasto"
     footer: "© %{year} Yogasto"
 
+  page:
+    titles:
+      # Público / inicio
+      home-index: "Controla tus finanzas personales"
+      dashboard-index: "Resumen financiero"
+
+      # Autenticación
+      sessions-new: "Iniciar sesión"
+      sessions-destroy: "Cerrar sesión"
+      passwords-new: "Recuperar contraseña"
+      passwords-edit: "Restablecer contraseña"
+      registrations-new: "Crear cuenta"
+      registrations-edit: "Editar perfil"
+      registrations-cancel: "Cancelar cuenta"
+      confirmations-new: "Reenviar confirmación"
+      confirmations-show: "Confirmar cuenta"
+
+      # Gastos e ingresos
+      expenses-index: "Gastos"
+      expenses-new: "Nuevo Gasto"
+      expenses-edit: "Editar Gasto"
+      expenses-show: "Detalle del gasto"
+      expense_candidates-index: "Candidatos de gastos"
+      expense_candidates-show: "Revisar candidato"
+      incomes-index: "Ingresos"
+      incomes-new: "Nuevo Ingreso"
+      incomes-edit: "Editar Ingreso"
+      incomes-show: "Detalle del ingreso"
+
+      # Categorías y presupuestos
+      categories-index: "Categorías"
+      categories-new: "Nueva categoría"
+      categories-edit: "Editar categoría"
+      categories-show: "Detalle de la categoría"
+      category_insights-index: "Oportunidad de ahorro"
+      category_insights-show: "Oportunidad de ahorro"
+      budgets-index: "Presupuestos"
+      budgets-new: "Nuevo presupuesto"
+      budgets-edit: "Editar presupuesto"
+      budgets-show: "Detalle del presupuesto"
+
+      # Metas y reglas
+      goals-index: "Metas financieras"
+      goals-new: "Nueva meta"
+      goals-edit: "Editar meta"
+      goals-show: "Detalle de la meta"
+      transaction_rules-index: "Reglas automáticas"
+      transaction_rules-new: "Nueva regla"
+      transaction_rules-edit: "Editar regla"
+      transaction_rules-show: "Detalle de la regla"
+
+      # Fuentes de dinero y entidades
+      money_sources-index: "Fuentes de dinero"
+      money_sources-new: "Nueva fuente de dinero"
+      money_sources-edit: "Editar fuente de dinero"
+      money_sources-show: "Detalle de la fuente de dinero"
+      money_sources-recognition: "Reconocimiento de fuentes"
+      money_source_extracts-show: "Movimientos de la fuente"
+      financial_institutions-index: "Mis entidades"
+      custom_financial_institutions-new: "Nueva entidad propia"
+      custom_financial_institutions-edit: "Editar entidad propia"
+
+      # Créditos, pagos e importaciones
+      credits-show: "Ayúdame a ahorrar"
+      credits-reconstruct: "Ayúdame a ahorrar"
+      payments-manual: "Pago manual"
+      payments-new: "Nuevo pago"
+      payments-edit: "Editar pago"
+      statement_imports-new: "Importar un extracto"
+      imports-new: "Importar plantillas"
+      imports-preview: "Vista previa del import"
+
+      # Transferencias y recurrentes
+      transfers-index: "Transferencias"
+      transfers-quick_new: "Transferencia rápida"
+      recurring_templates-index: "Recurrentes"
+      recurring_templates-new: "Nuevo recurrente"
+      recurring_templates-edit: "Editar recurrente"
+      recurring_templates-show: "Detalle del recurrente"
+      monthly_incomes-index: "Ingresos mensuales"
+      monthly_expenses-index: "Gastos mensuales"
+      monthly_reports-index: "Balance mensual"
+      monthly_reports-show: "Balance mensual"
+
+      # Reportes
+      reports-index: "Reportes financieros"
+      overview-index: "Reportes financieros"
+      category_spending-index: "Gasto por categoría"
+      spending_trend-index: "Tendencia de gasto"
+      credit_cards-index: "Tarjetas de crédito"
+      loans-index: "Préstamos y deuda"
+      recurring-index: "Pagos recurrentes"
+      insights-index: "Perspectivas financieras"
+      transactions-index: "Transacciones"
+      available_cycle-index: "Disponible del ciclo"
+
+      # Correo, alertas y configuración
+      email_sources-index: "Conecta tus correos"
+      email_sources-setup_status: "Estado de conexión de correos"
+      gmail_connections-index: "Importación de gastos desde Gmail"
+      gmail_connections-sync_status: "Estado de sincronización de Gmail"
+      gmail_connections-callback: "Conexión con Gmail"
+      alerts-index: "Alertas"
+      alert_settings-show: "Preferencias de alertas"
+      pay_settings-show: "Ciclo financiero"
+      whatsapp_settings-show: "WhatsApp"
+      whatsapp_settings-status: "Estado de WhatsApp"
+
+      # Herramientas y análisis
+      expense_playground-show: "Expense Playground"
+      expense_playground-history: "Historial del playground"
+      expense_playground-ai_summary: "Resumen IA del playground"
+      expense_evaluations-index: "Evaluaciones"
+      expense_evaluations-show: "Resultado de la evaluación"
+      expense_evaluations-cases: "Casos de la evaluación"
+      financial_chat-show: "Chat Financiero"
+      financial_summary-show: "Resumen Financiero"
+      debt_capacity-show: "Deudas y capacidad de endeudamiento"
+      debt_capacity-comparison: "Comparación de capacidad de endeudamiento"
+      reconciliations-show: "Día de Balance"
+      reconciliations-search_expenses: "Buscar gastos"
+      reconciliations-search_movements: "Buscar movimientos"
+
+      # Configuración financiera guiada
+      financial_setups-show: "Configuración financiera"
+      financial_setups-done: "Configuración completada"
+      financial_setups-step: "Configuración financiera"
+      financial_setups-manual: "Configuración manual"
+      financial_setups-upload: "Cargar extracto"
+      financial_setups-import_review: "Revisar importación"
+      financial_setups-edit_all: "Editar fuentes financieras"
+
+      # Nombres de ejemplo conservados para compatibilidad
+      accounts-index: "Cuentas"
+      accounts-new: "Nueva Cuenta"
+      accounts-edit: "Editar Cuenta"
+
   common:
     cancel: "Cancelar"
     save: "Guardar"

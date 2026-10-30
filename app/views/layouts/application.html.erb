@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="vertical">
   <head>
-    <title><%= content_for(:title) || t("layout.app_title") %></title>
+    <title><%= @page_title.present? ? "#{@page_title} | Yogasto" : (content_for(:title) || t("layout.app_title")) %></title>
+    <meta name="robots" content="<%= (controller_name == "home" && action_name == "index") ? "index, follow" : "noindex, nofollow" %>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
