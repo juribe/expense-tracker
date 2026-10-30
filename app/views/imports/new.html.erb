@@ -1,11 +1,11 @@
 <div class="container-fluid py-4 import-recurring-templates et-maxw-800">
   <%= form_with(url: import_upload_path, local: true, html: { multipart: true }) do |form| %>
     <div class="card border-0">
-      <div class="card-header">
-        <h4 class="mb-0">
-          <i class="ti ti-upload me-2"></i><%= t("imports.title", default: "Importar plantillas recurrentes") %>
-        </h4>
-      </div>
+      <%= render "shared/form_card_header",
+                 title: t("imports.title", default: "Importar plantillas recurrentes"),
+                 subtitle: t("imports.subtitle"),
+                 icon: "upload",
+                 tone: "blue" %>
 
       <div class="card-body">
         <div class="alert alert-info" role="alert">
@@ -49,12 +49,9 @@
         <% end %>
       </div>
 
-      <div class="card-footer d-flex justify-content-end gap-2">
-        <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
-        <% end %>
+      <%= render "shared/form_actions", cancel_path: categories_path do %>
         <%= form.submit t("imports.review_button", default: "Revisar importación"), class: "btn btn-primary", id: "import-btn" %>
-      </div>
+      <% end %>
     </div>
   <% end %>
 </div>

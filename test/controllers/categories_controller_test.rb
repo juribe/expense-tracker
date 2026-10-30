@@ -31,6 +31,25 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#category_description"
   end
 
+  test "GET /categories/new renders the shared card header and footer" do
+    category = Category.create!(name: "Hobby", user: @user, is_default: false, category_type: "expense")
+
+    get new_category_path
+    assert_response :success
+    assert_select "form[action='#{categories_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-tags"
+      assert_select ".card-header h4", text: "Crear Categoría"
+      assert_select ".card-header .card-subtitle", text: /Agrupa tus gastos e ingresos/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", categories_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary#save-category-btn"
+    end
+
+    get edit_category_path(category)
+    assert_response :success
+    assert_select "form[action='#{category_path(category)}'] .card .card-header h4", text: "Editar Categoría"
+    assert_select "form[action='#{category_path(category)}'] .card .card-footer input[type=submit].btn.btn-primary#save-category-btn"
+  end
+
   test "GET /categories defaults to the expense tab" do
     expense = Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
     income = Category.create!(name: "Salario", user: @user, is_default: false, category_type: "income")

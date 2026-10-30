@@ -1,53 +1,73 @@
-<%= form_with model: @income, local: true do |f| %>
-  <% if @income.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= t("incomes.form.errors", count: @income.errors.count) %></h2>
+<% form_title = @income.new_record? ? t("incomes.form.new_title") : t("incomes.form.edit_title") %>
+<% content_for(:title) { "#{form_title} - #{t("incomes.index.title")}" } %>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <%= form_with model: @income, local: true do |f| %>
+        <div class="card">
+          <%= render "shared/form_card_header",
+                     title: form_title,
+                     subtitle: t("incomes.form.subtitle"),
+                     icon: "cash-banknote",
+                     tone: "green" %>
+          <div class="card-body">
+            <% if @income.errors.any? %>
+              <div class="alert alert-danger">
+                <h6><%= t("incomes.form.errors", count: @income.errors.count) %></h6>
+                <ul>
+                  <% @income.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
 
-      <ul>
-        <% @income.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= f.label :amount, t("incomes.form.amount_label"), class: "form-label" %>
+                <div class="input-group">
+                  <span class="input-group-text"><%= t("number.currency.format.unit") %></span>
+                  <%= f.text_field :amount,
+                                   value: money_field_value(@income.amount),
+                                   class: "form-control",
+                                   placeholder: "0.00",
+                                   inputmode: "decimal",
+                                   autocomplete: "off",
+                                   data: { money_input: true } %>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :date, t("incomes.form.date_label"), class: "form-label" %>
+                <%= f.date_field :date, value: @income.date || Date.current, class: "form-control" %>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :description, t("activerecord.attributes.income.description"), class: "form-label" %>
+              <%= f.text_field :description, class: "form-control", placeholder: t("incomes.form.description_placeholder") %>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= category_picker f, :category_id, @categories,
+                                    label: t("activerecord.attributes.income.category_id"),
+                                    include_blank: t("common.none"),
+                                    testid: "income-category-picker" %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= f.label :money_source_id, t("incomes.form.money_source_label"), class: "form-label" %>
+                <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
+                                        { include_blank: t("incomes.form.money_source_placeholder", default: "¿A dónde entra?") },
+                                        { required: true, class: "form-select" } %>
+              </div>
+            </div>
+          </div>
+
+          <%= render "shared/form_actions", cancel_path: incomes_path do %>
+            <%= f.submit t("incomes.form.submit"), class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
-  <% end %>
-
-  <div class="mb-3">
-    <%= f.label :amount, t("incomes.form.amount_label"), class: "form-label" %>
-    <%= f.text_field :amount,
-                     value: money_field_value(@income.amount),
-                     class: "form-control",
-                     placeholder: "0.00",
-                     inputmode: "decimal",
-                     autocomplete: "off",
-                     data: { money_input: true } %>
   </div>
-
-  <div class="mb-3">
-    <%= f.label :description, t("activerecord.attributes.income.description"), class: "form-label" %>
-    <%= f.text_field :description, class: "form-control", placeholder: t("incomes.form.description_placeholder") %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :date, t("incomes.form.date_label"), class: "form-label" %>
-    <%= f.date_field :date, value: @income.date || Date.current, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= category_picker f, :category_id, @categories,
-                        label: t("activerecord.attributes.income.category_id"),
-                        include_blank: t("common.none"),
-                        testid: "income-category-picker" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :money_source_id, t("incomes.form.money_source_label"), class: "form-label" %>
-    <%= f.collection_select :money_source_id, @money_sources, :id, :display_name,
-                            { include_blank: t("incomes.form.money_source_placeholder", default: "¿A dónde entra?") },
-                            { required: true, class: "form-select" } %>
-  </div>
-
-  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <%= f.submit t("incomes.form.submit"), class: "btn btn-primary" %>
-    <%= link_to t("common.cancel"), incomes_path, class: "btn btn-outline-secondary" %>
-  </div>
-<% end %>
+</div>

@@ -35,6 +35,20 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type='password']"
   end
 
+  test "GET new renders the shared card header and footer" do
+    get new_money_source_statement_import_path(@card)
+
+    assert_response :success
+    assert_select "form[action*='statement_imports'] .card" do
+      assert_select ".card-header .icon-chip i.ti-file-upload"
+      assert_select ".card-header h4", text: "Importar un extracto"
+      assert_select ".card-header .card-subtitle", text: /Sube el extracto/
+      assert_select ".card-header .badge", text: @card.name
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_source_path(@card), text: "Volver"
+      assert_select ".card-footer input[type=submit].btn.btn-primary#statementImportSubmit"
+    end
+  end
+
   test "GET new redirects a non-debt source back to its page" do
     get new_money_source_statement_import_path(@account)
     assert_redirected_to money_source_path(@account)

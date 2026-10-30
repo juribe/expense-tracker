@@ -1,0 +1,8 @@
+<%# Shared form card footer: optional hint, cancel link and the primary submit block. %>
+<div class="card-footer form-card-actions d-flex flex-wrap align-items-center justify-content-end gap-2 d-print-none">
+  <% if local_assigns[:hint].present? %>
+    <span class="small text-muted me-auto"><%= hint %></span>
+  <% end %>
+  <%= link_to local_assigns.fetch(:cancel_label, t("common.cancel")), cancel_path, class: "btn btn-outline-secondary" %>
+  <%= yield %>
+</div>

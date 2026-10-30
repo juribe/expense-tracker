@@ -338,6 +338,15 @@ module ApplicationHelper
     end
   end
 
+  # Subtitle for the money source form: the copy names the concrete product
+  # ("tu cuenta", "tu deuda") so the form does not read like a generic one.
+  def money_source_form_subtitle(money_source)
+    kind = money_source.kind
+    return t("money_sources.form.subtitle") if kind.blank? || !kind.in?(MoneySource::KINDS)
+
+    t("money_sources.form.subtitles.#{kind}", default: t("money_sources.form.subtitle"))
+  end
+
   def money_source_submit_label(money_source)
     kind = money_source_kind_label(money_source)
     kind ? t("money_sources.form.submit", kind: kind) : t("money_sources.form.submit_generic")

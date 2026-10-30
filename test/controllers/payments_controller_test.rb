@@ -41,6 +41,27 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("payments.not_found"), flash[:alert]
   end
 
+  test "GET new and edit render the shared card header and footer" do
+    expense = create_expense(amount: 1_500_000, money_source: @account)
+
+    get new_money_source_payment_path(@mortgage, expense_id: expense.id)
+    assert_response :success
+    assert_select "form[action='#{money_source_payments_path(@mortgage)}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-coin"
+      assert_select ".card-header h4", text: "Aplicar pago"
+      assert_select ".card-header .card-subtitle", text: /Distribuye el pago/
+      assert_select ".card-header .badge", text: @mortgage.name
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_source_path(@mortgage), text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+
+    payment = create_payment(expense, @mortgage, principal: 1_500_000)
+    get edit_money_source_payment_path(@mortgage, payment)
+    assert_response :success
+    assert_select "form[action='#{money_source_payment_path(@mortgage, payment)}'] .card .card-header h4", text: "Editar pago"
+    assert_select "form[action='#{money_source_payment_path(@mortgage, payment)}'] .card .card-footer a.btn.btn-outline-secondary[href=?]", money_source_path(@mortgage)
+  end
+
   # ---------------------------------------------------------- create
   # The real form posts the hidden field payment[expense_id] (payments/_form),
   # not a top-level param — the controller must read it from there.

@@ -1,0 +1,15 @@
+<%# Shared form card header: icon chip + title + optional subtitle and badge. %>
+<div class="card-header d-flex align-items-center gap-3">
+  <span class="icon-chip icon-chip-<%= local_assigns.fetch(:tone, "blue") %>" aria-hidden="true">
+    <i class="ti ti-<%= local_assigns.fetch(:icon, "forms") %>"></i>
+  </span>
+  <div class="flex-grow-1 min-w-0">
+    <h4 class="mb-0"><%= title %></h4>
+    <% if local_assigns[:subtitle].present? %>
+      <div class="card-subtitle mt-1"><%= subtitle %></div>
+    <% end %>
+  </div>
+  <% if local_assigns[:badge].present? %>
+    <span class="badge bg-light text-dark border d-none d-sm-inline"><%= badge %></span>
+  <% end %>
+</div>

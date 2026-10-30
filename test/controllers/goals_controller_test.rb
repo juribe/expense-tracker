@@ -40,6 +40,26 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name=?] option", "goal[pocket_id]", text: @pocket.name
   end
 
+  test "GET /goals/new and edit render the shared card header and footer" do
+    goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 1_000_000)
+
+    get new_goal_path
+    assert_response :success
+    assert_select "form[action='#{goals_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-target"
+      assert_select ".card-header h4", text: "Nueva meta"
+      assert_select ".card-header .card-subtitle", text: /Define cuánto quieres ahorrar/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", goals_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+
+    get edit_goal_path(goal)
+    assert_response :success
+    assert_select "form[action='#{goal_path(goal)}'] .card .card-header h4", text: "Editar meta"
+    assert_select "form[action='#{goal_path(goal)}'] .card .card-footer a.btn.btn-outline-secondary[href=?]", goals_path
+    assert_select "form[action='#{goal_path(goal)}'] .card .card-footer input[type=submit].btn.btn-primary"
+  end
+
   test "GET /goals/new offers to create a pocket when the user has none" do
     @pocket.destroy!
     get new_goal_path

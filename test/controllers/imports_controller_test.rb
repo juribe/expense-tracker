@@ -30,6 +30,19 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "category,kind,amount,description,payment_day,active"
   end
 
+  test "new renders the shared card header and footer" do
+    get new_import_path
+
+    assert_response :success
+    assert_select "form[action='#{import_upload_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-upload"
+      assert_select ".card-header h4", text: "Importar plantillas recurrentes"
+      assert_select ".card-header .card-subtitle", text: /Sube un archivo CSV/
+      assert_select ".card-footer a.btn.btn-outline-secondary", text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary#import-btn"
+    end
+  end
+
   test "upload redirects to the preview with the draft parsed" do
     upload_csv(<<~CSV)
       categoría,tipo,monto,descripción,día de pago,activo

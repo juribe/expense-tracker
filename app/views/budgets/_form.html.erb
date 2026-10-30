@@ -1,11 +1,11 @@
 <div class="container py-4 et-maxw-640">
   <%= form_with(model: budget, local: true, html: { novalidate: false }) do |form| %>
     <div class="card border-0">
-      <div class="card-header">
-        <h4 class="mb-0">
-          <i class="ti ti-target me-2"></i><%= budget.new_record? ? t("budgets.form.create_title") : t("budgets.form.edit_title") %>
-        </h4>
-      </div>
+      <%= render "shared/form_card_header",
+                 title: budget.new_record? ? t("budgets.form.create_title") : t("budgets.form.edit_title"),
+                 subtitle: t("budgets.form.subtitle"),
+                 icon: "target",
+                 tone: "amber" %>
 
       <div class="card-body">
         <div class="alert alert-danger <%= budget.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
@@ -72,12 +72,9 @@
         </div>
       </div>
 
-      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
-        <%= link_to budgets_path, class: "btn btn-outline-secondary" do %>
-          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
-        <% end %>
+      <%= render "shared/form_actions", cancel_path: budgets_path do %>
         <%= form.submit budget.new_record? ? t("budgets.form.submit_create") : t("budgets.form.submit_update"), class: "btn btn-primary" %>
-      </div>
+      <% end %>
     </div>
   <% end %>
 </div>

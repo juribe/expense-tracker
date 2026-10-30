@@ -73,6 +73,26 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=budget-category-picker] [role=option][data-value=?]", @category.id.to_s
   end
 
+  test "GET /budgets/new and edit render the shared card header and footer" do
+    budget = Budget.create!(user: @user, category: @category, monthly_amount: 800_000)
+
+    get new_budget_path
+    assert_response :success
+    assert_select "form[action='#{budgets_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-target"
+      assert_select ".card-header h4", text: "Nuevo presupuesto"
+      assert_select ".card-header .card-subtitle", text: /Define cuánto quieres gastar/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", budgets_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+
+    get edit_budget_path(budget)
+    assert_response :success
+    assert_select "form[action='#{budget_path(budget)}'] .card .card-header h4", text: "Editar presupuesto"
+    assert_select "form[action='#{budget_path(budget)}'] .card .card-footer a.btn.btn-outline-secondary[href=?]", budgets_path
+    assert_select "form[action='#{budget_path(budget)}'] .card .card-footer input[type=submit].btn.btn-primary"
+  end
+
   test "POST /budgets creates a budget for the current user" do
     assert_difference("Budget.count", 1) do
       post budgets_path, params: { budget: { category_id: @category.id, monthly_amount: "800000" } }

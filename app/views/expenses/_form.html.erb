@@ -1,9 +1,16 @@
-<% content_for(:title) { (@expense.new_record? ? t("common.new") : t("common.edit")) + " - " + t("expenses.page_title") } rescue nil %>
-<%= render "shared/page_header", title: (@expense.new_record? ? t("common.new") : t("common.edit")) + " " + t("expenses.page_title").downcase %>
-<div class="app-container mx-auto et-maxw-760">
-  <div class="card">
-    <div class="card-body p-4">
-          <%= form_with model: @expense, local: true do |f| %>
+<% form_title = @expense.new_record? ? t("expenses.new_title") : t("expenses.edit_title") %>
+<% content_for(:title) { "#{form_title} - #{t("expenses.page_title")}" } %>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <%= form_with model: @expense, local: true do |f| %>
+        <div class="card">
+          <%= render "shared/form_card_header",
+                     title: form_title,
+                     subtitle: t("expenses.form_subtitle"),
+                     icon: "receipt",
+                     tone: "red" %>
+          <div class="card-body">
             <% if @expense.errors.any? %>
               <div class="alert alert-danger">
                 <h6><%= t("expenses.form_errors_heading", count: @expense.errors.count) %></h6>
@@ -36,8 +43,8 @@
             </div>
 
             <div class="mb-3">
-                <%= f.label :description, class: "form-label" %>
-                <%= f.text_area :description, class: "form-control", rows: 2, placeholder: t("expenses.description_placeholder") %>
+              <%= f.label :description, class: "form-label" %>
+              <%= f.text_area :description, class: "form-control", rows: 2, placeholder: t("expenses.description_placeholder") %>
             </div>
 
             <div class="row">
@@ -54,12 +61,13 @@
                                         { required: true, class: "form-select" } %>
               </div>
             </div>
+          </div>
 
-            <div class="d-flex gap-2">
-              <%= f.submit t("common.save"), class: "btn btn-primary" %>
-              <%= link_to t("common.cancel", default: "Cancelar"), expenses_path, class: "btn btn-outline-secondary" %>
-            </div>
-        <% end %>
+          <%= render "shared/form_actions", cancel_path: expenses_path do %>
+            <%= f.submit t("common.save"), class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

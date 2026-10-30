@@ -1,11 +1,11 @@
 <div class="container py-4 et-maxw-640">
   <%= form_with(model: goal, local: true) do |form| %>
     <div class="card border-0">
-      <div class="card-header">
-        <h4 class="mb-0">
-          <i class="ti ti-target me-2"></i><%= goal.new_record? ? t("goals.form.create_title", default: "Nueva meta") : t("goals.form.edit_title", default: "Editar meta") %>
-        </h4>
-      </div>
+      <%= render "shared/form_card_header",
+                 title: goal.new_record? ? t("goals.form.create_title", default: "Nueva meta") : t("goals.form.edit_title", default: "Editar meta"),
+                 subtitle: t("goals.form.subtitle"),
+                 icon: "target",
+                 tone: "green" %>
 
       <div class="card-body">
         <div class="mb-3">
@@ -94,12 +94,9 @@
         <% end %>
       </div>
 
-      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
-        <%= link_to goals_path, class: "btn btn-outline-secondary" do %>
-          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
-        <% end %>
+      <%= render "shared/form_actions", cancel_path: goals_path do %>
         <%= form.submit goal.new_record? ? t("goals.form.submit_create", default: "Crear meta") : t("goals.form.submit_update", default: "Guardar cambios"), class: "btn btn-primary" %>
-      </div>
+      <% end %>
     </div>
   <% end %>
 </div>

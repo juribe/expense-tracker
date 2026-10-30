@@ -27,6 +27,25 @@ class CustomFinancialInstitutionsControllerTest < ActionDispatch::IntegrationTes
     assert_empty @other.custom_financial_institutions.where(name: "Mi Cooperativa")
   end
 
+  test "new and edit render the shared card header and footer" do
+    institution = @user.custom_financial_institutions.create!(name: "Mi Cooperativa", institution_type: "other")
+
+    get new_custom_financial_institution_path
+    assert_response :success
+    assert_select "form[action='#{custom_financial_institutions_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-building-bank"
+      assert_select ".card-header h4", text: "Nueva entidad propia"
+      assert_select ".card-header .card-subtitle", text: /Agrega una entidad/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", financial_institutions_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+
+    get edit_custom_financial_institution_path(institution)
+    assert_response :success
+    assert_select "form[action='#{custom_financial_institution_path(institution)}'] .card .card-header h4", text: "Editar entidad propia"
+    assert_select "form[action='#{custom_financial_institution_path(institution)}'] .card .card-footer a.btn.btn-outline-secondary[href=?]", financial_institutions_path
+  end
+
   test "another user's entity 404s" do
     foreign = @other.custom_financial_institutions.create!(name: "Cada Ajena")
 

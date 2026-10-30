@@ -1,11 +1,11 @@
 <div class="container py-4 et-maxw-720">
   <%= form_with(model: rule, local: true, html: { novalidate: false }) do |form| %>
     <div class="card border-0">
-      <div class="card-header">
-        <h4 class="mb-0">
-          <i class="ti ti-wand me-2"></i><%= rule.new_record? ? t("transaction_rules.new") : t("transaction_rules.edit") %>
-        </h4>
-      </div>
+      <%= render "shared/form_card_header",
+                 title: rule.new_record? ? t("transaction_rules.new") : t("transaction_rules.edit_title"),
+                 subtitle: t("transaction_rules.form_subtitle"),
+                 icon: "wand",
+                 tone: "blue" %>
 
       <div class="card-body">
         <div class="alert alert-danger <%= rule.errors.any? ? "" : "d-none" %>" role="alert" id="error-summary">
@@ -120,12 +120,9 @@
         </div>
       </div>
 
-      <div class="card-footer d-flex justify-content-end gap-2 d-print-none">
-        <%= link_to transaction_rules_path, class: "btn btn-outline-secondary" do %>
-          <i class="ti ti-x me-1"></i><%= t("common.cancel") %>
-        <% end %>
+      <%= render "shared/form_actions", cancel_path: transaction_rules_path do %>
         <%= form.submit rule.new_record? ? t("transaction_rules.submit_create") : t("transaction_rules.submit_update"), class: "btn btn-primary" %>
-      </div>
+      <% end %>
     </div>
   <% end %>
 </div>

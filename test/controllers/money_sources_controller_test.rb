@@ -884,6 +884,56 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=hidden][name='money_source[kind]']", count: 0
   end
 
+  test "GET /money_sources/new shows save and cancel buttons instead of a full-width submit" do
+    get new_money_source_path(kind: "pocket")
+
+    assert_response :success
+    assert_select "form[action='#{money_sources_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-pig-money"
+      assert_select ".card-header h4", text: "Nuevo bolsillo"
+      assert_select ".card-header .card-subtitle", text: "Completa los datos de tu bolsillo."
+      assert_select ".card-footer input[type=submit].btn.btn-primary[value='Guardar bolsillo']"
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_sources_pockets_path, text: "Cancelar"
+    end
+    assert_select ".d-grid", count: 0
+  end
+
+  test "GET /money_sources/new uses a subtitle per kind" do
+    {
+      "account" => "Completa los datos de tu cuenta.",
+      "debit_card" => "Completa los datos de tu tarjeta débito.",
+      "credit_card" => "Completa los datos de tu tarjeta de crédito.",
+      "cash" => "Completa los datos de tu efectivo.",
+      "wallet" => "Completa los datos de tu monedero.",
+      "pocket" => "Completa los datos de tu bolsillo.",
+      "loan" => "Completa los datos de tu deuda."
+    }.each do |kind, subtitle|
+      get new_money_source_path(kind: kind)
+
+      assert_response :success
+      assert_select ".card-header .card-subtitle", text: subtitle
+    end
+
+    get new_money_source_path
+    assert_response :success
+    assert_select ".card-header .card-subtitle", text: "Completa los datos de tu fuente de dinero."
+  end
+
+  test "GET /money_sources/:id/edit cancel returns to the source section" do
+    card = create_source(name: "Visa", kind: "credit_card")
+
+    get edit_money_source_path(card)
+
+    assert_response :success
+    assert_select "form[action='#{money_source_path(card)}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-credit-card"
+      assert_select ".card-header .card-subtitle", text: "Completa los datos de tu tarjeta de crédito."
+      assert_select ".card-footer input[type=submit].btn.btn-primary[value='Guardar tarjeta de crédito']"
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_sources_credit_cards_path, text: "Cancelar"
+    end
+    assert_select ".d-grid", count: 0
+  end
+
   test "GET /money_sources/:id/edit for a credit card uses the card wording in the title and submit button" do
     card = create_source(name: "Visa", kind: "credit_card")
 

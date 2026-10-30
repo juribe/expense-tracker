@@ -1,37 +1,40 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title"><i class="ti ti-coin me-2 text-secondary"></i><%= t("payments.form.title") %></h5>
-        </div>
-        <div class="card-body">
-          <p class="text-muted mb-3">
-            <%= t("payments.form.hint", target: @money_source.name) %>
-          </p>
-          <p class="text-muted mb-3">
-            <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
-              <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
-            <% end %>
-          </p>
+      <%= form_with model: [@money_source, @payment], local: true,
+            data: { payment_distribution_form: true } do |f| %>
+        <div class="card">
+          <%= render "shared/form_card_header",
+                     title: @payment.new_record? ? t("payments.form.title") : t("payments.form.edit_title"),
+                     subtitle: t("payments.form.subtitle"),
+                     icon: "coin",
+                     tone: "blue",
+                     badge: @money_source.name %>
+          <div class="card-body">
+            <p class="text-muted mb-3">
+              <%= t("payments.form.hint", target: @money_source.name) %>
+            </p>
+            <p class="text-muted mb-3">
+              <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
+                <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
+              <% end %>
+            </p>
 
-          <div class="bg-light rounded p-3 mb-3">
-            <div class="d-flex justify-content-between">
-              <div>
-                <div class="small text-muted"><%= t("payments.form.expense") %></div>
-                <div class="fw-bold"><%= @expense.description.presence || t("payments.form.expense_default") %></div>
-                <div class="small text-muted"><%= l(@expense.date, format: :long) %>
-                  <% if @expense.money_source.present? %> · <%= @expense.money_source.name %><% end %></div>
-              </div>
-              <div class="text-end">
-                <div class="small text-muted"><%= t("payments.form.payment_amount") %></div>
-                <div class="fs-4 fw-bold text-danger"><%= number_to_currency(@expense.amount.to_d.abs) %></div>
+            <div class="bg-light rounded p-3 mb-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="small text-muted"><%= t("payments.form.expense") %></div>
+                  <div class="fw-bold"><%= @expense.description.presence || t("payments.form.expense_default") %></div>
+                  <div class="small text-muted"><%= l(@expense.date, format: :long) %>
+                    <% if @expense.money_source.present? %> · <%= @expense.money_source.name %><% end %></div>
+                </div>
+                <div class="text-end">
+                  <div class="small text-muted"><%= t("payments.form.payment_amount") %></div>
+                  <div class="fs-4 fw-bold text-danger"><%= number_to_currency(@expense.amount.to_d.abs) %></div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <%= form_with model: [@money_source, @payment], local: true,
-                data: { payment_distribution_form: true } do |f| %>
             <% if @payment.errors.any? || flash[:alert].present? %>
               <div class="alert alert-danger">
                 <% if @payment.errors.any? %>
@@ -107,17 +110,13 @@
               <i class="ti ti-alert-triangle me-1"></i>
               <span data-payment-warning-text></span>
             </div>
+          </div>
 
-            <div class="d-flex gap-2 justify-content-end">
-              <%= link_to money_source_path(@money_source), class: "btn btn-outline-secondary" do %>
-                <%= t("common.cancel", default: "Cancelar") %>
-              <% end %>
-              <%= f.submit t("payments.form.apply"), class: "btn btn-primary" %>
-            </div>
+          <%= render "shared/form_actions", cancel_path: money_source_path(@money_source) do %>
+            <%= f.submit t("payments.form.apply"), class: "btn btn-primary" %>
           <% end %>
         </div>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>
-

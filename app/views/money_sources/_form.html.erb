@@ -1,15 +1,17 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="mb-0"><%= money_source_form_title(@money_source) %></h4>
-        </div>
-        <div class="card-body">
-          <%# A new source opened from a section arrives with its kind set by
-              URL: the type is fixed (hidden) and only its panel is shown. %>
-          <% fixed_kind = @money_source.new_record? && @money_source.kind.present? %>
-          <%= form_with model: @money_source, local: true, data: { money_source_form: true } do |f| %>
+      <%# A new source opened from a section arrives with its kind set by
+          URL: the type is fixed (hidden) and only its panel is shown. %>
+      <% fixed_kind = @money_source.new_record? && @money_source.kind.present? %>
+      <%= form_with model: @money_source, local: true, data: { money_source_form: true } do |f| %>
+        <div class="card">
+          <%= render "shared/form_card_header",
+                     title: money_source_form_title(@money_source),
+                     subtitle: money_source_form_subtitle(@money_source),
+                     icon: source_kind_icon(@money_source.kind),
+                     tone: "blue" %>
+          <div class="card-body">
             <% if @money_source.errors.any? %>
               <div class="alert alert-danger">
                 <h6><%= t("money_sources.form.error_prohibited", count: @money_source.errors.count) %></h6>
@@ -293,14 +295,13 @@
                 </div>
               </div>
             <% end %>
+          </div>
 
-            <div class="d-grid mt-3">
-              <%= f.submit money_source_submit_label(@money_source), class: "btn btn-primary" %>
-            </div>
+          <%= render "shared/form_actions", cancel_path: money_sources_section_path(@money_source) do %>
+            <%= f.submit money_source_submit_label(@money_source), class: "btn btn-primary" %>
           <% end %>
         </div>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>
-

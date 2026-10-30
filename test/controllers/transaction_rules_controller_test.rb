@@ -50,6 +50,25 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
                   @category.id.to_s
   end
 
+  test "GET /transaction_rules/new and edit render the shared card header and footer" do
+    rule = create_rule
+
+    get new_transaction_rule_path
+    assert_response :success
+    assert_select "form[action='#{transaction_rules_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-wand"
+      assert_select ".card-header h4", text: "Nueva regla"
+      assert_select ".card-header .card-subtitle", text: /Aplica categorías o fuentes/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", transaction_rules_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary[value='Guardar regla']"
+    end
+
+    get edit_transaction_rule_path(rule)
+    assert_response :success
+    assert_select "form[action='#{transaction_rule_path(rule)}'] .card .card-header h4", text: "Editar regla"
+    assert_select "form[action='#{transaction_rule_path(rule)}'] .card .card-footer input[type=submit].btn.btn-primary[value='Guardar cambios']"
+  end
+
   test "POST /transaction_rules creates a rule for the current user" do
     assert_difference("TransactionRule.count", 1) do
       post transaction_rules_path, params: {

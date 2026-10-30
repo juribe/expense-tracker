@@ -386,6 +386,37 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='expense[date]'][value=?]", Date.current.to_s
   end
 
+  test "GET /expenses/new renders the form inside a card with header and footer" do
+    get new_expense_path
+
+    assert_response :success
+    assert_select "form[action='#{expenses_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-receipt"
+      assert_select ".card-header h4", text: "Nuevo gasto"
+      assert_select ".card-header .card-subtitle", text: /Registra tu gasto/
+      assert_select ".card-body input[name='expense[amount]']"
+      assert_select ".card-body input[name='expense[date]']"
+      assert_select ".card-body textarea[name='expense[description]']"
+      assert_select ".card-body select[name='expense[money_source_id]']"
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", expenses_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+  end
+
+  test "GET /expenses/:id/edit renders the form inside a card with header and footer" do
+    expense = create_expense(amount: -20_000, date: Date.current)
+
+    get edit_expense_path(expense)
+
+    assert_response :success
+    assert_select "form[action='#{expense_path(expense)}'] .card" do
+      assert_select ".card-header h4", text: "Editar gasto"
+      assert_select ".card-header .card-subtitle", text: /Registra tu gasto/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", expenses_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+  end
+
   test "GET /expenses prefills the current cycle when no date filter is given" do
     @user.update!(financial_cycle_start_day: 20)
     # Inside the cycle opened this month (dated at its start).

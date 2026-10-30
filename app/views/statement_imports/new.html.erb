@@ -1,42 +1,43 @@
 <div class="container mt-4" id="statement-import-root" data-statement-import-root="true">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title"><i class="ti ti-file-upload me-2 text-secondary"></i><%= t("statement_imports.new_title") %></h5>
-        </div>
-        <div class="card-body">
-          <p class="text-muted mb-3"><%= t("statement_imports.new_hint") %></p>
+      <%= form_with url: money_source_statement_imports_path(@money_source),
+                    local: true, multipart: true,
+                    html: { id: "statementImportForm",
+                            data: { upload_form: true,
+                                    upload_failed: t("statement_imports.upload_failed") } } do |f| %>
+        <div class="card">
+          <%= render "shared/form_card_header",
+                     title: t("statement_imports.new_title"),
+                     subtitle: t("statement_imports.new_hint"),
+                     icon: "file-upload",
+                     tone: "blue",
+                     badge: @money_source.display_name %>
+          <div class="card-body">
+            <div id="statementImportError" class="alert alert-danger d-none" role="alert" data-testid="statement-import-error"></div>
 
-          <div id="statementImportError" class="alert alert-danger d-none" role="alert" data-testid="statement-import-error"></div>
-
-          <div id="statementImportProgress" class="d-none mb-3" data-testid="statement-import-progress">
-            <ul class="list-unstyled mb-2" data-statement-import-steps>
-              <li class="d-flex align-items-center gap-2" data-step="upload">
-                <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
-                <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
-                <i class="ti ti-file-arrow-up text-muted" data-step-idle aria-hidden="true"></i>
-                <span data-step-label><%= t("statement_imports.step_upload") %></span>
-                <span class="text-muted small ms-auto" data-step-percent></span>
-              </li>
-              <li class="d-flex align-items-center gap-2" data-step="analyze">
-                <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
-                <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
-                <i class="ti ti-cpu text-muted" data-step-idle aria-hidden="true"></i>
-                <span data-step-label><%= t("statement_imports.step_analyzing") %></span>
-              </li>
-            </ul>
-            <div class="progress et-progress-6">
-              <div class="progress-bar progress-bar-striped progress-bar-animated et-w-0" role="progressbar"
-                   aria-valuemin="0" aria-valuemax="100" data-step-bar></div>
+            <div id="statementImportProgress" class="d-none mb-3" data-testid="statement-import-progress">
+              <ul class="list-unstyled mb-2" data-statement-import-steps>
+                <li class="d-flex align-items-center gap-2" data-step="upload">
+                  <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
+                  <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
+                  <i class="ti ti-file-arrow-up text-muted" data-step-idle aria-hidden="true"></i>
+                  <span data-step-label><%= t("statement_imports.step_upload") %></span>
+                  <span class="text-muted small ms-auto" data-step-percent></span>
+                </li>
+                <li class="d-flex align-items-center gap-2" data-step="analyze">
+                  <span class="spinner-border spinner-border-sm text-primary d-none" data-step-spinner role="status" aria-hidden="true"></span>
+                  <i class="ti ti-circle-check text-success d-none" data-step-done aria-hidden="true"></i>
+                  <i class="ti ti-cpu text-muted" data-step-idle aria-hidden="true"></i>
+                  <span data-step-label><%= t("statement_imports.step_analyzing") %></span>
+                </li>
+              </ul>
+              <div class="progress et-progress-6">
+                <div class="progress-bar progress-bar-striped progress-bar-animated et-w-0" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="100" data-step-bar></div>
+              </div>
             </div>
-          </div>
 
-          <%= form_with url: money_source_statement_imports_path(@money_source),
-                        local: true, multipart: true,
-                        html: { id: "statementImportForm",
-                                data: { upload_form: true,
-                                        upload_failed: t("statement_imports.upload_failed") } } do |f| %>
             <% if flash[:alert].present? %>
               <div class="alert alert-danger"><%= flash[:alert] %></div>
             <% end %>
@@ -54,16 +55,15 @@
                     autocomplete: "off", id: "statement_password" %>
               <div class="form-text"><%= t("statement_imports.password_hint") %></div>
             </div>
+          </div>
 
-            <div class="d-flex gap-2 justify-content-end">
-              <%= link_to money_source_path(@money_source), class: "btn btn-outline-secondary" do %>
-                <%= t("statement_imports.back") %>
-              <% end %>
-              <%= f.submit t("statement_imports.submit"), class: "btn btn-primary", id: "statementImportSubmit" %>
-            </div>
+          <%= render "shared/form_actions",
+                     cancel_path: money_source_path(@money_source),
+                     cancel_label: t("statement_imports.back") do %>
+            <%= f.submit t("statement_imports.submit"), class: "btn btn-primary", id: "statementImportSubmit" %>
           <% end %>
         </div>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>

@@ -139,6 +139,10 @@ h4, .h4 { font-size: 1rem; }
 .card-subtitle { font-size: 0.8125rem; color: var(--et-muted); }
 .card-body { padding: 1.1rem; }
 .card-footer { padding: 0.75rem 1.1rem; }
+/* Spike sets --bs-card-border-width: 0, which removes the footer divider.
+   Form cards rely on it to separate their actions from the fields. */
+.card > .card-footer { border-top: 1px solid var(--bs-border-color); }
+.card > .card-footer.form-card-actions { padding-top: 1rem; padding-bottom: 1rem; }
 
 /* Interactive cards get one consistent hover affordance */
 .card-hover { transition: box-shadow 0.15s ease, transform 0.15s ease; }

@@ -700,6 +700,15 @@ en:
     form:
       title_new: "New Money Source"
       title_edit: "Edit %{kind}"
+      subtitle: "Fill in the details of your money source."
+      subtitles:
+        account: "Fill in the details of your account."
+        debit_card: "Fill in the details of your debit card."
+        credit_card: "Fill in the details of your credit card."
+        cash: "Fill in the details of your cash source."
+        wallet: "Fill in the details of your wallet."
+        pocket: "Fill in the details of your pocket."
+        loan: "Fill in the details of your loan."
       new_titles:
         account: "New account"
         debit_card: "New debit card"
@@ -750,6 +759,8 @@ en:
     title: "Automatic rules"
     header_title: "Rules"
     new: "New rule"
+    edit_title: "Edit rule"
+    form_subtitle: "Apply categories or sources automatically to your transactions."
     add_action: "Add action"
     remove_action: "Remove action"
     when: "When"
@@ -859,6 +870,8 @@ en:
       invalid_target: "Manual payments can only be registered for credit cards and loans."
     form:
       title: "Apply payment"
+      edit_title: "Edit payment"
+      subtitle: "Split the payment across principal, interest and other charges."
       hint: "Distribute this expense's payment across %{target}. Only the principal you enter reduces the debt."
       expense: "Expense"
       expense_default: "Expense without description"
@@ -910,6 +923,7 @@ en:
 
   expenses:
     automatic_rules: "Auto-categorize"
+    form_subtitle: "Record your expense and keep your finances up to date."
     search_label: "Description"
     search_placeholder: "Search by description…"
     filter_heading: "Filter expenses"
@@ -1349,6 +1363,7 @@ en:
     form:
       create_title: "New goal"
       edit_title: "Edit goal"
+      subtitle: "Set how much you want to save and by when."
       submit_create: "Create goal"
       submit_update: "Save changes"
       pocket_prompt: "Select a pocket"
@@ -1671,6 +1686,7 @@ en:
   custom_financial_institutions:
     new_title: "New custom entity"
     edit_title: "Edit custom entity"
+    form_subtitle: "Add an entity that is not in the catalog."
     name: "Name"
     name_hint: "e.g. My employer's cooperative"
     delete_confirm: "Delete this entity? Its money sources must be re-linked first."

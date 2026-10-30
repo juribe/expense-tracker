@@ -38,6 +38,41 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=income-category-picker] [role=option][data-value=?]", expense.id.to_s, count: 0
   end
 
+  test "GET /incomes/new renders the form inside a card with header and footer" do
+    get new_income_path
+
+    assert_response :success
+    assert_select "form[action='#{incomes_path}'] .card" do
+      assert_select ".card-header .icon-chip i.ti-cash-banknote"
+      assert_select ".card-header h4", text: "Nuevo ingreso"
+      assert_select ".card-header .card-subtitle", text: /Registra el dinero que entra/
+      assert_select ".card-body input[name='income[amount]']"
+      assert_select ".card-body input[name='income[description]']"
+      assert_select ".card-body input[name='income[date]']"
+      assert_select ".card-body select[name='income[money_source_id]']"
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", incomes_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+  end
+
+  test "GET /incomes/:id/edit renders the form inside a card with header and footer" do
+    income = @user.incomes.create!(
+      amount: 1_500_000, description: "Salario", date: Date.current,
+      category: Category.create!(name: "Salario edición", user: @user, is_default: false, category_type: "income"),
+      money_source: @user.money_sources.create!(name: "Cuenta edición", kind: "account")
+    )
+
+    get edit_income_path(income)
+
+    assert_response :success
+    assert_select "form[action='#{income_path(income)}'] .card" do
+      assert_select ".card-header h4", text: "Editar ingreso"
+      assert_select ".card-header .card-subtitle", text: /Registra el dinero que entra/
+      assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", incomes_path, text: "Cancelar"
+      assert_select ".card-footer input[type=submit].btn.btn-primary"
+    end
+  end
+
   test "GET /incomes shows the financial cycle badge in the title with a schedule" do
     @user.update!(financial_cycle_start_day: 20)
     cycle = PayCycle.current(@user)
