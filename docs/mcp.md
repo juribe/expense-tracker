@@ -206,6 +206,10 @@ registros.
   Para sacar dinero real usa `withdraw_from_pocket`.
 - **Presupuestos**: solo período `monthly`; la categoría debe ser de gasto y
   estar disponible para el usuario.
+- **Deudas y saldos**: en un préstamo, `balance` es el saldo de caja (normalmente
+  `0` porque el desembolso entró a una cuenta) y `outstanding_balance` es la
+  deuda pendiente. En tarjetas, `used_credit` coincide con esa deuda. Usa
+  `outstanding_balance` para cualquier pasivo.
 
 ## Idempotencia y auditoría
 
