@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="vertical">
   <head>
-    <title><%= @page_title.present? ? "#{@page_title} | Yogasto" : (content_for(:title) || t("layout.app_title")) %></title>
+    <title><%= @page_title.present? ? "#{@page_title} | #{AppName.current}" : (content_for(:title) || AppName.current) %></title>
     <meta name="robots" content="<%= (controller_name == "home" && action_name == "index") ? "index, follow" : "noindex, nofollow" %>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -62,7 +62,7 @@
             </div>
 
             <footer class="text-center py-3 mt-4">
-              <small class="text-secondary"><%= t("layout.footer", year: Date.today.year) %></small>
+              <small class="text-secondary"><%= t("layout.footer", year: Date.today.year, app_name: AppName.current) %></small>
             </footer>
           </div>
         </div>

@@ -87,6 +87,29 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     assert_equal "¿Cuánto gasté este mes?", history.last[:content]
   end
 
+  test "the system prompt names the application using APP_NAME" do
+    @fake.responses << { content: "ok" }
+
+    with_env("APP_NAME" => "Mis Gastos") do
+      run_service
+    end
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt, "(Mis Gastos)"
+    refute_includes system_prompt, "MyExpenses"
+  end
+
+  test "the system prompt falls back to the default application name when APP_NAME is missing" do
+    @fake.responses << { content: "ok" }
+
+    with_env("APP_NAME" => nil) do
+      run_service
+    end
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt, "(Yogasto)"
+  end
+
   test "includes expense, income and budget data in the system prompt" do
     @fake.responses << { content: "ok" }
     category = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")

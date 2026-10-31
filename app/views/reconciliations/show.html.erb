@@ -123,7 +123,7 @@
   <div class="rec-section-head" id="rec-accounts">
     <div>
       <h2><%= t("reconciliation.sections.accounts_title") %></h2>
-      <p><%= t("reconciliation.sections.accounts_subtitle") %></p>
+      <p><%= t("reconciliation.sections.accounts_subtitle", app_name: AppName.current) %></p>
     </div>
     <%= link_to money_sources_cash_path, class: "rec-link" do %>
       <%= t("reconciliation.sections.accounts_link") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>

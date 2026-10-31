@@ -47,7 +47,11 @@ module ReconciliationsHelper
   end
 
   def reconciliation_balance_label(balance)
-    reconciliation_debt_balance?(balance) ? t("reconciliation.balances.debt_balance") : t("reconciliation.balances.app_balance")
+    if reconciliation_debt_balance?(balance)
+      t("reconciliation.balances.debt_balance", app_name: AppName.current)
+    else
+      t("reconciliation.balances.app_balance", app_name: AppName.current)
+    end
   end
 
   def reconciliation_balance_kind_label(balance)

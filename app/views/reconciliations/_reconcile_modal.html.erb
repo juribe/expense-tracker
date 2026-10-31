@@ -12,14 +12,14 @@
      data-account-modal-title="<%= t("reconciliation.reconcile.title") %>"
      data-debt-modal-title="<%= t("reconciliation.reconcile.debt_title") %>"
      data-movements-modal-title="<%= t("reconciliation.reconcile.movements_title_mode") %>"
-     data-account-balance-label="<%= t("reconciliation.balances.app_balance") %>"
-     data-debt-balance-label="<%= t("reconciliation.balances.debt_balance") %>"
+     data-account-balance-label="<%= t("reconciliation.balances.app_balance", app_name: AppName.current) %>"
+     data-debt-balance-label="<%= t("reconciliation.balances.debt_balance", app_name: AppName.current) %>"
      data-account-movements-title="<%= t("reconciliation.reconcile.movements_title") %>"
      data-debt-movements-title="<%= t("reconciliation.reconcile.debt_movements_title") %>"
      data-difference-hint="<%= t("reconciliation.reconcile.difference_hint") %>"
      data-difference-zero="<%= t("reconciliation.reconcile.difference_zero") %>"
-     data-difference-positive="<%= t("reconciliation.reconcile.difference_positive") %>"
-     data-difference-negative="<%= t("reconciliation.reconcile.difference_negative") %>"
+     data-difference-positive="<%= t("reconciliation.reconcile.difference_positive", app_name: AppName.current) %>"
+     data-difference-negative="<%= t("reconciliation.reconcile.difference_negative", app_name: AppName.current) %>"
      data-invalid-balance="<%= t("reconciliation.reconcile.invalid_balance") %>"
      data-no-movements="<%= t("reconciliation.reconcile.no_movements") %>"
      data-movement-error="<%= t("reconciliation.reconcile.movement_error") %>"
@@ -46,7 +46,7 @@
       <div class="modal-body rec-reconcile-body">
         <div class="rec-balance-grid">
           <div class="rec-balance-cell">
-            <label class="js-balance-label"><%= t("reconciliation.reconcile.app_balance") %></label>
+            <label class="js-balance-label"><%= t("reconciliation.reconcile.app_balance", app_name: AppName.current) %></label>
             <strong class="js-app-balance">—</strong>
           </div>
           <div class="rec-balance-cell">

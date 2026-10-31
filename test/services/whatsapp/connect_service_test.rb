@@ -84,6 +84,16 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "the invalid token rejection names the app using APP_NAME" do
+    with_env("APP_NAME" => "Mis Gastos") do
+      with_reply_stub do
+        Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT ZZZZZ"))
+      end
+    end
+
+    assert @sent_replies.any? { |(_, text)| text.include?("Mis Gastos") }
+  end
+
   test "3. expired token is rejected" do
     code = nil
     travel_to 15.minutes.ago do

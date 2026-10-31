@@ -522,6 +522,23 @@ module Expenses
         assert replies.any? { |text| text.include?("revisión manual") }
       end
 
+      test "the abandonment notice names the app using APP_NAME" do
+        exito = create_candidate(amount: 40_000, date: Date.current, description: "Éxito")
+        session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,
+                                                                   candidates: [ exito ])
+        session.update!(questions_count: ExpenseClarification::MAX_QUESTIONS)
+
+        replies = with_env("APP_NAME" => "Mis Gastos") do
+          capture_replies do
+            stub_llm(resolutions: [ { "index" => 1, "unresolved" => true } ], new_expense_text: nil) do
+              Expenses::Clarification::Resolver.handle_reply(clarification: session, reply_text: "pues no sé")
+            end
+          end
+        end
+
+        assert replies.any? { |text| text.include?("Mis Gastos") }
+      end
+
       test "LLM failures keep the session pending without consuming follow-ups" do
         exito = create_candidate(amount: 40_000, date: Date.current, description: "Éxito")
         session = Expenses::Clarification::Resolver.start_session!(user: @user, phone_number: @phone,

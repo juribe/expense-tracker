@@ -279,6 +279,17 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     assert replies.any? { |(_, text)| text.include?("Conecta") || text.include?("conecta") }
   end
 
+  test "the unconnected number instructions name the app using APP_NAME" do
+    replies = []
+    with_env("APP_NAME" => "Mis Gastos") do
+      stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { replies << [ phone, text ] }) do
+        WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "gasté 50 mil en almuerzo"))
+      end
+    end
+
+    assert replies.any? { |(_, text)| text.include?("Mis Gastos") }
+  end
+
   test "a message from a number with only a disconnected connection is not processed" do
     connection = connect_user!
     connection.disconnect!

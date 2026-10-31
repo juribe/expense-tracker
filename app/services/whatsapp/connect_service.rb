@@ -29,7 +29,7 @@ module Whatsapp
 
       pending = PendingWhatsappConnection.valid_pending_for(code)
       unless pending
-        reject(sender, "Ese código no es válido o ya expiró. Genera uno nuevo en Configuración → WhatsApp del Expense Tracker.")
+        reject(sender, "Ese código no es válido o ya expiró. Genera uno nuevo en Configuración → WhatsApp de #{AppName.current}.")
         return ServiceResult.error([ "Invalid, expired or already-used connect token." ])
       end
 
