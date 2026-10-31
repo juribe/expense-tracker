@@ -102,5 +102,17 @@ module Mcp
     def record_error_code(record)
       record.errors.of_kind?(:money_source, :insufficient_balance) ? "INSUFFICIENT_FUNDS" : "INVALID_ARGUMENT"
     end
+
+    # Credit data is only meaningful for debt sources. Loading it lazily for
+    # just those records avoids both an N+1 and an unused eager load when the
+    # list is filtered to accounts or pockets.
+    def preload_credit_accounts(records)
+      debt_records = records.select(&:debt?)
+      return if debt_records.empty?
+
+      ActiveRecord::Associations::Preloader.new(
+        records: debt_records, associations: :credit_account
+      ).call
+    end
   end
 end

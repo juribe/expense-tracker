@@ -67,8 +67,9 @@ module Mcp
         end
 
         def money_sources
-          user.money_sources.active.includes(:credit_account).order(:kind, :name)
-              .map { |source| Mcp::Presenters::MoneySourcePresenter.new(source).as_json }
+          records = user.money_sources.active.order(:kind, :name).to_a
+          preload_credit_accounts(records)
+          records.map { |source| Mcp::Presenters::MoneySourcePresenter.new(source).as_json }
         end
 
         def accounts
@@ -100,9 +101,7 @@ module Mcp
         end
 
         def budgets
-          range = date_range
-          user.budgets.active.includes(:category).order(:created_at)
-              .map { |budget| Mcp::Presenters::BudgetPresenter.new(budget, range).as_json }
+          Mcp::BudgetProgress.new(user: user, range: date_range).call
         end
 
         def savings_goals

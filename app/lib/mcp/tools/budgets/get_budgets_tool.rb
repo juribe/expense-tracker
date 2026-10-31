@@ -18,8 +18,7 @@ module Mcp
 
         def call(month: nil, start_date: nil, end_date: nil)
           range = date_range(start_date: start_date, end_date: end_date, month: month)
-          budgets = user.budgets.active.includes(:category).order(:created_at)
-                        .map { |budget| Mcp::Presenters::BudgetPresenter.new(budget, range).as_json }
+          budgets = Mcp::BudgetProgress.new(user: user, range: range).call
 
           success(budgets: budgets, period: { start_date: range.begin.iso8601, end_date: range.end.iso8601 })
         end

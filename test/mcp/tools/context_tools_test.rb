@@ -97,4 +97,18 @@ class ContextToolsTest < ActiveSupport::TestCase
 
     assert_equal [ @pocket.id ], payload.dig("data", "money_sources").map { |source| source["id"] }
   end
+
+  test "does not load credit data when filtering to accounts" do
+    queries = count_queries { invoke_tool(Mcp::Tools::Context::GetMoneySourcesTool, user: @user, kind: "account") }
+
+    assert_equal 1, queries
+  end
+
+  test "preloads credit data in one query when debt sources are present" do
+    @user.money_sources.create!(name: "Visa Contexto", kind: "credit_card", starting_balance: 0)
+
+    queries = count_queries { invoke_tool(Mcp::Tools::Context::GetMoneySourcesTool, user: @user) }
+
+    assert_equal 2, queries
+  end
 end

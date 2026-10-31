@@ -46,6 +46,26 @@ class AccountToolsTest < ActiveSupport::TestCase
     assert_equal "2000000.0", balances.dig(@account.id, "balance")
   end
 
+  test "does not issue one query per account when listing balances" do
+    4.times do |index|
+      @user.money_sources.create!(name: "Cuenta #{index}", kind: "account", starting_balance: 1_000)
+    end
+
+    queries = count_queries { invoke_tool(Mcp::Tools::Accounts::GetAccountBalancesTool, user: @user) }
+
+    assert_equal 1, queries
+  end
+
+  test "does not issue one query per account when listing accounts" do
+    4.times do |index|
+      @user.money_sources.create!(name: "Cuenta #{index}", kind: "account", starting_balance: 1_000)
+    end
+
+    queries = count_queries { invoke_tool(Mcp::Tools::Accounts::GetAccountsTool, user: @user) }
+
+    assert_equal 1, queries
+  end
+
   test "lists credit cards with limit, usage and dates" do
     payload = invoke_tool(Mcp::Tools::CreditCards::GetCreditCardsTool, user: @user)
     cards = payload.dig("data", "credit_cards")

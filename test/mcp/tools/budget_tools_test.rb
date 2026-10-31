@@ -46,6 +46,28 @@ class BudgetToolsTest < ActiveSupport::TestCase
     assert_equal [ @budget.id ], payload.dig("data", "budgets").map { |row| row["id"] }
   end
 
+  test "does not issue one query per budget when listing" do
+    3.times do |index|
+      category = Category.create!(name: "Categoría #{index}", is_default: true, category_type: "expense")
+      Budget.create!(user: @user, category: category, monthly_amount: 100_000)
+    end
+
+    queries = count_queries { invoke_tool(Mcp::Tools::Budgets::GetBudgetsTool, user: @user) }
+
+    assert_equal 3, queries
+  end
+
+  test "does not issue one query per budget when returning progress" do
+    3.times do |index|
+      category = Category.create!(name: "Categoría #{index}", is_default: true, category_type: "expense")
+      Budget.create!(user: @user, category: category, monthly_amount: 100_000)
+    end
+
+    queries = count_queries { invoke_tool(Mcp::Tools::Budgets::GetBudgetProgressTool, user: @user) }
+
+    assert_equal 3, queries
+  end
+
   test "does not find another user's budget" do
     payload = invoke_tool(Mcp::Tools::Budgets::GetBudgetDetailsTool, user: @user, budget_id: @foreign_budget.id)
 
