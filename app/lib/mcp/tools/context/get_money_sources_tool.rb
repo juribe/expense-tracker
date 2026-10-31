@@ -22,8 +22,9 @@ module Mcp
           scope = active_only ? user.money_sources.active : user.money_sources
           scope = scope.where(kind: kind) if kind
 
-          sources = scope.includes(:credit_account).order(:kind, :name)
-                         .map { |source| Mcp::Presenters::MoneySourcePresenter.new(source).as_json }
+          records = scope.order(:kind, :name).to_a
+          preload_credit_accounts(records)
+          sources = records.map { |source| Mcp::Presenters::MoneySourcePresenter.new(source).as_json }
 
           success(money_sources: sources, total: sources.size)
         end

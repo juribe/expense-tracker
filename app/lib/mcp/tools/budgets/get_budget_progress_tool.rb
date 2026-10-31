@@ -22,12 +22,10 @@ module Mcp
           budgets =
             if budget_id.present?
               [ user.budgets.includes(:category).find(UuidParams.normalize(budget_id)) ]
-            else
-              user.budgets.active.includes(:category).order(:created_at).to_a
             end
 
           success(
-            budgets: budgets.map { |budget| Mcp::Presenters::BudgetPresenter.new(budget, range).as_json },
+            budgets: Mcp::BudgetProgress.new(user: user, range: range, budgets: budgets).call,
             period: { start_date: range.begin.iso8601, end_date: range.end.iso8601 }
           )
         end
