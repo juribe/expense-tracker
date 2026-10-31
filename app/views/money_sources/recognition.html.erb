@@ -74,6 +74,11 @@
                 data: { testid: "bank-wizard-open", bank_wizard_open: true } do %>
       <i class="ti ti-wand" aria-hidden="true"></i><%= t("money_sources.recognition.wizard.open") %>
     <% end %>
+    <%= link_to money_sources_recognition_path(guided: 1),
+                class: "btn btn-outline-primary recognition-guided-btn",
+                data: { testid: "guided-recognition-open", guided_wizard_open: true } do %>
+      <i class="ti ti-route" aria-hidden="true"></i><%= t("money_sources.recognition.guided.open") %>
+    <% end %>
   </div>
 </header>
 <% if current_user.email_sources.active.exists? %>
@@ -483,3 +488,4 @@
 
 <%= render "recognition_help_modal" %>
 <%= render "bank_setup_wizard", wizard: @wizard if @wizard %>
+<%= render "guided_wizard", steps: @guided_steps if @guided_steps %>

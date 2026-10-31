@@ -258,12 +258,36 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='recognition-edit-panel']", count: 0
   end
 
-  test "GET /money_sources/recognition shows configured status and delete action" do
+  test "GET /money_sources/recognition shows pending suggestions without opening a drawer" do
+    source = create_source(name: "Ahorros Davibank", kind: "account", bank: "Davibank")
+
+    get money_sources_recognition_path
+
+    assert_response :success
+    suggestions = source.reload.recognition_identifiers.suggested
+    assert suggestions.any?, "the page should persist the deterministic suggestions"
+    keyword_suggestions = suggestions.count(&:keyword?)
+
+    assert_select "[data-testid='recognition-row'] [data-testid='recognition-status']",
+                  text: /#{I18n.t('money_sources.recognition.status_pending')}/
+    assert_select "[data-testid='recognition-row-pending-count']",
+                  text: I18n.t("money_sources.recognition.source_pending", count: keyword_suggestions)
+    assert_select "[data-testid='recognition-suggestion-count']",
+                  text: I18n.t("money_sources.recognition.group_pending", count: suggestions.count)
+  end
+
+  test "GET /money_sources/recognition shows pending review and delete action for a configured source" do
     source = create_source(name: "Davibank", kind: "account", bank: "Davibank")
     source.ensure_recognition.replace_identifiers(keyword: ["davi"])
+
     get money_sources_recognition_path
     assert_response :success
-    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_configured')}/
+    keyword_suggestions = source.reload.recognition_identifiers.suggested.count(&:keyword?)
+    assert keyword_suggestions.positive?
+
+    assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_pending')}/
+    assert_select "[data-testid='recognition-row-pending-count']",
+                  text: I18n.t("money_sources.recognition.source_pending", count: keyword_suggestions)
     assert_select "[data-testid='recognition-row'] form[action='#{money_source_recognition_destroy_path(source.id)}']"
     expected_confirm = "#{I18n.t('money_sources.recognition.delete_confirm_title')} #{I18n.t('money_sources.recognition.delete_confirm_body')}"
     assert_select "[data-testid='recognition-row'] form[data-turbo-confirm='#{expected_confirm}']"
@@ -363,8 +387,9 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to money_sources_recognition_path
 
     member.reload
-    assert_empty member.recognition_identifiers.suggested
-    assert_nil member.reload.recognition # nothing left → record dropped
+    # The dismissed bank-level sender is swept; the member may still have its
+    # own product suggestions persisted by the page render.
+    assert_not member.recognition_identifiers.suggested.exists?(kind: "sender", value: "mail@procesador.co")
   end
 
   test "GET /money_sources/recognition shows pending review for configured sources with suggestions" do
@@ -376,11 +401,14 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     get money_sources_recognition_path
 
+    suggestions = source.reload.recognition_identifiers.suggested
+    keyword_suggestions = suggestions.count(&:keyword?)
+
     assert_select "[data-testid='recognition-status']", text: /#{I18n.t('money_sources.recognition.status_pending')}/
     assert_select "[data-testid='recognition-row-pending-count']",
-                  text: I18n.t("money_sources.recognition.source_pending", count: 1)
+                  text: I18n.t("money_sources.recognition.source_pending", count: keyword_suggestions)
     assert_select "[data-testid='recognition-suggestion-count']",
-                  text: I18n.t("money_sources.recognition.group_pending", count: 1)
+                  text: I18n.t("money_sources.recognition.group_pending", count: suggestions.count)
   end
 
   # --- Own suggestions: persisted, counted, dismissible ----------------------
@@ -548,13 +576,16 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_select "a[data-testid='recognition-add-source'][href='#{new_money_source_path}']"
+    pending = source.reload.recognition_identifiers.suggested.count
     assert_select "a[data-testid='recognition-view-suggestions'][href='#{money_sources_recognition_path(bank_edit: 'legacy:davibank')}']",
-                  text: I18n.t("money_sources.recognition.view_pending", count: 1)
+                  text: I18n.t("money_sources.recognition.view_pending", count: pending)
   end
 
   test "GET /money_sources/recognition shows bank header status badges" do
     create_source(name: "Davibank", kind: "account", bank: "Davibank").ensure_recognition.replace_identifiers(keyword: ["davi"])
-    create_source(name: "Ahorros Nu", kind: "account", bank: "Bancolombia")
+    # A source with no usable name/institution tokens generates no suggestions,
+    # so its group keeps the "Sin configurar" state.
+    create_source(name: "Cuenta", kind: "account")
 
     get money_sources_recognition_path
     assert_response :success

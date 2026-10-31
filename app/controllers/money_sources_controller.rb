@@ -74,6 +74,10 @@ class MoneySourcesController < ApplicationController
                           .payment_sources
                           .includes(:recognition_identifiers, recognition: :recognition_identifiers)
                           .order(:kind, :name)
+    # The main page must surface pending suggestions without requiring the
+    # user to open each drawer first. The guided modal computes its own
+    # suggestions per step, so it keeps the page free of extra writes.
+    persist_pending_suggestions(sources) unless params[:guided].present?
     # Children are loaded per KIND, only where the page reads them: the
     # identifiers cell shows each source's last four. Cards that carry their
     # own denormalized identifier never need the child; blank ones resolve it
@@ -86,7 +90,12 @@ class MoneySourcesController < ApplicationController
     end
     @bank_groups = build_bank_groups(sources)
     @wizard = SourceRecognition::BankSetupWizard.new(@bank_groups) if params[:wizard].present?
-
+    # The guided modal is only built when opened: it renders every payment
+    # source as a step of the same modal, reusing the existing identifiers.
+    if params[:guided].present?
+      @guided_steps = SourceRecognition::GuidedWizard.for_user(current_user)
+      @email_redirect_active = current_user.email_sources.active.exists?
+    end
     # The Gmail criteria card doubles as a manual editor: it renders whenever
     # there is an ACTIVE connection — even before any scan ran — prefilled
     # with the saved search_config plus (when available) the scan suggestions.
@@ -187,7 +196,10 @@ class MoneySourcesController < ApplicationController
       format.html { redirect_to money_sources_recognition_path, notice: t("money_sources.recognition.saved") }
       # The bank wizard saves one bank at a time without leaving the modal.
       # It receives the persisted state so it can show the correct status.
-      format.json { render json: recognition_payload(source) }
+      # The guided modal gets its own compact payload to update the step.
+      format.json do
+        render json: params[:guided].present? ? guided_recognition_payload(source) : recognition_payload(source)
+      end
     end
   rescue ActiveRecord::RecordInvalid => e
     respond_to do |format|
@@ -313,6 +325,16 @@ class MoneySourcesController < ApplicationController
     end
   end
 
+  # Persists the deterministic suggestions for every listed source so the
+  # recognition page shows its pending items without opening each drawer
+  # first. Suggestions stay pending: nothing is confirmed here.
+  def persist_pending_suggestions(sources)
+    sources.each do |source|
+      SourceRecognition::SuggestionEngine.new(source: source).persist!
+      source.recognition_identifiers.reset
+    end
+  end
+
   # Groups payment sources by their entity for the recognition page. The
   # attached polymorphic entity wins; unattached rows fall back to the folded
   # legacy bank token ("legacy:..."), and rows without any bank stay as
@@ -419,6 +441,16 @@ class MoneySourcesController < ApplicationController
       credit_account[field] = MoneyFormat.normalize(credit_account[field]) if credit_account[field].present?
     end
     money_source
+  end
+
+  # Persisted state returned to the guided modal after a JSON save: the
+  # sidebar only needs the configured flag and the confirmed keywords.
+  def guided_recognition_payload(source)
+    source.reload
+    {
+      configured: source.recognition_configured?,
+      keywords: source.recognition_identifiers.confirmed.where(kind: "keyword").order(:position).pluck(:value)
+    }
   end
 
   def not_found
