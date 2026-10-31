@@ -17,7 +17,7 @@ module Mcp
           name: source.name,
           kind: source.kind,
           type: debt_type,
-          outstanding_balance: money(outstanding_balance),
+          outstanding_balance: money(Mcp::Presenters::DebtBalance.for(source)),
           installment_amount: money(source.installment_amount),
           installment_count: source.installment_count,
           remaining_installments: source.remaining_installments,
@@ -36,13 +36,6 @@ module Mcp
         return "credit_card" if source.credit_card?
 
         source.sub_kind.presence || "loan"
-      end
-
-      def outstanding_balance
-        return source.outstanding_balance if source.revolving?
-        return source.outstanding_balance || [ -source.balance, 0 ].max if source.loan?
-
-        source.used_credit
       end
     end
   end

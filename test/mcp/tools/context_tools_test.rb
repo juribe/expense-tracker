@@ -111,4 +111,16 @@ class ContextToolsTest < ActiveSupport::TestCase
 
     assert_equal 2, queries
   end
+
+  test "reports a loan's debt separately from its cash balance" do
+    loan = @user.money_sources.create!(name: "Hipoteca Contexto", kind: "loan", starting_balance: 0)
+    CreditAccount.create!(money_source: loan, principal_amount: 95_000_000, outstanding_balance: 65_000_000)
+
+    payload = invoke_tool(Mcp::Tools::Context::GetMoneySourcesTool, user: @user)
+    loan_json = payload.dig("data", "money_sources").find { |source| source["id"] == loan.id }
+
+    assert_equal "0.0", loan_json["balance"]
+    assert_equal "65000000.0", loan_json["outstanding_balance"]
+    assert_nil loan_json["used_credit"]
+  end
 end

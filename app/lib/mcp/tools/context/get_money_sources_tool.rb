@@ -8,7 +8,7 @@ module Mcp
       # payment, including balances and their payment/funding capabilities.
       class GetMoneySourcesTool < Mcp::ApplicationTool
         tool_name "get_money_sources"
-        description "List the user's money sources with balances and whether they can pay, receive or fund money."
+        description "List the user's money sources with balances and payment capabilities. For loans, balance is the cash balance; outstanding_balance is the debt."
         requires_scope :read
 
         arguments do
