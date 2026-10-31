@@ -1,0 +1,517 @@
+<%#
+  Guided money-source recognition MODAL.
+  Opened from "Reconocimiento de fuentes" with ?guided=1. Every payment
+  source is rendered as one step of the same modal, so switching sources keeps
+  unsaved edits and the wizard behaves like a popup instead of a page.
+
+  Each step posts to the existing PATCH recognition endpoint (JSON), reusing
+  the same chips, suggestions and persistence rules as the manual page.
+  Email criteria and natural-language aliases are presented in separate
+  sections but share the app's single confirmed-keyword vocabulary.
+%>
+<%
+  total = steps.size
+  configured_count = steps.count { |step| step.configured? }
+  progress = total.zero? ? 0 : (configured_count.to_f / total * 100).round
+%>
+<div class="modal fade guided-wizard-modal" id="guided-wizard-modal" tabindex="-1"
+     role="dialog" aria-labelledby="guided-wizard-title" aria-hidden="true"
+     data-guided-wizard
+     data-auto-open="true"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     data-finish-url="<%= money_sources_recognition_path %>"
+     data-label-save="<%= t("money_sources.recognition.guided.save_continue") %>"
+     data-label-finish="<%= t("money_sources.recognition.guided.finish") %>"
+     data-label-start="<%= t("money_sources.recognition.guided.start") %>"
+     data-label-saving="<%= t("money_sources.recognition.guided.saving") %>"
+     data-state-configured="<%= t("money_sources.recognition.guided.state_configured") %>"
+     data-state-pending="<%= t("money_sources.recognition.guided.state_pending") %>"
+     data-progress-template="<%= t("money_sources.recognition.guided.progress", configured: "%{configured}", total: "%{total}") %>"
+     data-error-generic="<%= t("money_sources.recognition.guided.save_error") %>"
+     data-unsaved-message="<%= t("money_sources.recognition.guided.unsaved") %>"
+     data-testid="guided-wizard-modal">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content guided-shell">
+      <h2 id="guided-wizard-title" class="visually-hidden"><%= t("money_sources.recognition.guided.intro_title") %></h2>
+
+      <header class="guided-topbar">
+        <div class="guided-brand">
+          <span class="guided-brandmark" aria-hidden="true">Y</span>
+          <div>
+            <strong><%= AppName.current %></strong>
+            <small><%= t("money_sources.recognition.guided.eyebrow") %></small>
+          </div>
+        </div>
+        <div class="guided-topbar-actions">
+          <% unless steps.empty? %>
+            <button type="button" class="guided-quiet-link" data-guided-save-exit
+                    data-testid="guided-exit-save">
+              <%= t("money_sources.recognition.guided.exit") %>
+            </button>
+          <% end %>
+          <button type="button" class="guided-close" data-guided-dismiss
+                  aria-label="<%= t("common.close") %>" data-testid="guided-close">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="guided-body">
+        <aside class="guided-sidebar">
+          <p class="guided-side-label"><%= t("money_sources.recognition.guided.sidebar_title") %></p>
+
+          <% unless steps.empty? %>
+            <div class="guided-progress-card">
+              <div class="guided-progress-top">
+                <span><%= t("money_sources.recognition.guided.progress_title") %></span>
+                <span data-guided-progress-text data-testid="guided-progress-text">
+                  <%= t("money_sources.recognition.guided.progress",
+                        configured: configured_count, total: total) %>
+                </span>
+              </div>
+              <div class="guided-progress-track" role="progressbar"
+                   aria-valuemin="0" aria-valuemax="<%= total %>"
+                   aria-valuenow="<%= configured_count %>"
+                   aria-label="<%= t('money_sources.recognition.guided.progress_aria',
+                                     configured: configured_count, total: total) %>">
+                <span class="et-w-<%= progress %>" data-guided-progress-bar></span>
+              </div>
+            </div>
+
+            <nav class="guided-source-list"
+                 aria-label="<%= t("money_sources.recognition.guided.source_list_aria") %>"
+                 data-guided-source-list>
+              <% steps.each_with_index do |step, index| %>
+                <% source = step.current %>
+                <% configured = step.configured? %>
+                <button type="button"
+                        class="guided-source <%= "is-configured" if configured %>"
+                        data-guided-go="<%= index %>"
+                        data-guided-source-item
+                        data-configured="<%= configured %>"
+                        data-testid="guided-source-item"
+                        aria-current="false">
+                  <span class="guided-source-icon" aria-hidden="true">
+                    <i class="ti ti-<%= source_kind_icon(source.kind) %>"></i>
+                  </span>
+                  <span class="guided-source-copy">
+                    <span class="guided-source-name" data-testid="guided-source-item-name"><%= source.name %></span>
+                    <span class="guided-source-type">
+                      <%= t("kinds.#{source.kind}") %> ·
+                      <span data-testid="guided-source-state"
+                            class="<%= configured ? "guided-source-ok" : "guided-source-pending" %>">
+                        <%= configured ? t("money_sources.recognition.guided.state_configured")
+                                       : t("money_sources.recognition.guided.state_pending") %>
+                      </span>
+                    </span>
+                  </span>
+                  <span class="guided-source-tick <%= "d-none" unless configured %>"
+                        data-guided-tick aria-hidden="true">✓</span>
+                </button>
+              <% end %>
+            </nav>
+          <% end %>
+
+          <div class="guided-sidebar-note">
+            <b><%= t("money_sources.recognition.guided.sidebar_note_title") %></b>
+            <p><%= t("money_sources.recognition.guided.sidebar_note_body") %></p>
+          </div>
+        </aside>
+
+        <main class="guided-main" data-guided-main>
+          <div class="guided-wizard-error" data-guided-error role="alert" hidden></div>
+
+          <% if steps.empty? %>
+            <div class="guided-empty" data-testid="guided-empty">
+              <span class="guided-empty-icon" aria-hidden="true"><i class="ti ti-wallet"></i></span>
+              <h2><%= t("money_sources.recognition.guided.empty_title") %></h2>
+              <p><%= t("money_sources.recognition.guided.empty_body") %></p>
+              <%= link_to new_money_source_path, class: "btn btn-primary" do %>
+                <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.guided.empty_cta") %>
+              <% end %>
+            </div>
+          <% else %>
+            <section class="guided-intro" data-guided-intro>
+              <p class="guided-eyebrow">
+                <span aria-hidden="true">✦</span><%= t("money_sources.recognition.guided.eyebrow") %>
+              </p>
+              <div class="guided-heading">
+                <div>
+                  <h1 class="guided-title"><%= t("money_sources.recognition.guided.intro_page_title") %></h1>
+                  <p class="guided-subtitle"><%= t("money_sources.recognition.guided.intro_page_desc") %></p>
+                </div>
+              </div>
+
+              <div class="guided-two-col">
+                <article class="guided-panel">
+                  <div class="guided-panel-head">
+                    <b><%= t("money_sources.recognition.guided.intro_email_card_title") %></b>
+                    <span class="guided-tag"><%= t("money_sources.recognition.guided.email_tag") %></span>
+                  </div>
+                  <p class="guided-panel-desc"><%= t("money_sources.recognition.guided.intro_email_card_desc") %></p>
+
+                  <div class="guided-mail">
+                    <div class="guided-mail-bar">
+                      <span class="guided-mail-icon" aria-hidden="true"><i class="ti ti-brand-gmail"></i></span>
+                      Gmail
+                      <span class="guided-mail-bar-meta" aria-hidden="true">•••</span>
+                    </div>
+                    <div class="guided-mail-body">
+                      <div class="guided-mail-sender">
+                        <strong><%= t("money_sources.recognition.guided.intro_email_sender") %></strong>
+                        <span>· <%= t("money_sources.recognition.guided.intro_email_address") %></span>
+                      </div>
+                      <div class="guided-mail-subject"><%= t("money_sources.recognition.guided.intro_email_subject") %></div>
+                      <p class="guided-mail-text">
+                        <%= recognition_highlight(t("money_sources.recognition.guided.intro_email_body"), %w[GOLD 7273]) %>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="guided-intro-add">
+                    <span><%= t("money_sources.recognition.guided.intro_add_criteria") %></span>
+                    <div class="guided-intro-tags"><i>GOLD</i><i>7273</i></div>
+                  </div>
+                </article>
+
+                <article class="guided-panel">
+                  <div class="guided-panel-head">
+                    <b><%= t("money_sources.recognition.guided.intro_nl_card_title") %></b>
+                    <span class="guided-tag is-green"><%= t("money_sources.recognition.guided.whatsapp_channel") %></span>
+                  </div>
+                  <p class="guided-panel-desc"><%= t("money_sources.recognition.guided.intro_nl_card_desc") %></p>
+
+                  <div class="guided-chat is-whatsapp">
+                    <div class="guided-chat-top">
+                      <span class="guided-chat-icon"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></span>
+                      <%= t("money_sources.recognition.guided.whatsapp_channel") %>
+                    </div>
+                    <div class="guided-chat-body">
+                      <p class="guided-bubble">
+                        <%= recognition_highlight(t("money_sources.recognition.guided.intro_whatsapp_text"),
+                                                  [ t("money_sources.recognition.guided.intro_whatsapp_alias") ]) %>
+                      </p>
+                      <p class="guided-detected">
+                        <i class="ti ti-check" aria-hidden="true"></i>
+                        <%= t("money_sources.recognition.guided.whatsapp_detected") %>
+                        <strong><%= t("money_sources.recognition.guided.intro_detected_source") %></strong>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="guided-intro-add">
+                    <span><%= t("money_sources.recognition.guided.intro_add_alias") %></span>
+                    <div class="guided-intro-tags">
+                      <i><%= t("money_sources.recognition.guided.intro_whatsapp_alias") %></i>
+                    </div>
+                  </div>
+
+                  <div class="guided-chat is-ai guided-intro-ai">
+                    <div class="guided-chat-top">
+                      <span class="guided-chat-icon"><i class="ti ti-sparkles" aria-hidden="true"></i></span>
+                      <%= t("money_sources.recognition.guided.ai_channel") %>
+                    </div>
+                    <div class="guided-chat-body">
+                      <p class="guided-bubble is-ai">
+                        <%= recognition_highlight(t("money_sources.recognition.guided.intro_ai_text"),
+                                                  [ t("money_sources.recognition.guided.intro_ai_alias") ],
+                                                  css_class: "guided-highlight guided-highlight-ai") %>
+                      </p>
+                      <div class="guided-intro-add is-inline">
+                        <span><%= t("money_sources.recognition.guided.intro_also_alias") %></span>
+                        <div class="guided-intro-tags">
+                          <i><%= t("money_sources.recognition.guided.intro_ai_alias") %></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+
+              <div class="guided-inline-note guided-intro-why">
+                <span aria-hidden="true">💡</span>
+                <p>
+                  <strong><%= t("money_sources.recognition.guided.intro_why_label") %></strong>
+                  <%= t("money_sources.recognition.guided.intro_why") %>
+                </p>
+              </div>
+
+              <div class="guided-panel guided-intro-tips">
+                <div class="guided-panel-head">
+                  <b><%= t("money_sources.recognition.guided.tips_title") %></b>
+                  <span class="guided-tag is-green"><%= t("money_sources.recognition.guided.tips_tag") %></span>
+                </div>
+                <div class="guided-tips-list guided-tips-row">
+                  <div class="guided-tip">
+                    <span aria-hidden="true">🎯</span>
+                    <div>
+                      <b><%= t("money_sources.recognition.guided.tip_specific_title") %></b>
+                      <p><%= t("money_sources.recognition.guided.tip_specific_body") %></p>
+                    </div>
+                  </div>
+                  <div class="guided-tip">
+                    <span aria-hidden="true">✉️</span>
+                    <div>
+                      <b><%= t("money_sources.recognition.guided.tip_no_email_title") %></b>
+                      <p><%= t("money_sources.recognition.guided.tip_no_email_body") %></p>
+                    </div>
+                  </div>
+                  <div class="guided-tip">
+                    <span aria-hidden="true">✨</span>
+                    <div>
+                      <b><%= t("money_sources.recognition.guided.tip_gmail_title") %></b>
+                      <p><%= t("money_sources.recognition.guided.tip_gmail_body") %></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <% steps.each_with_index do |step, index| %>
+              <% source = step.current %>
+              <% keywords = step.alias_values %>
+              <% suggestions = step.suggestions %>
+              <% email_preview = step.email_preview %>
+              <% email_section = step.email_applicable? && email_preview.present? %>
+
+              <%= form_with url: money_source_recognition_path(source.id), method: :patch,
+                            class: "guided-step-form d-none",
+                            data: {
+                              guided_step_form: true,
+                              guided_step_index: index,
+                              guided_source_id: source.id,
+                              configured: step.configured?,
+                              step_total: total,
+                              label_remove: t("money_sources.recognition.guided.remove")
+                            } do %>
+                <input type="hidden" name="guided" value="1">
+                <p class="guided-eyebrow">
+                  <span aria-hidden="true">✦</span><%= t("money_sources.recognition.guided.source_eyebrow") %>
+                </p>
+                <div class="guided-heading">
+                  <div>
+                    <h1 class="guided-title"><%= source.name %></h1>
+                    <p class="guided-subtitle"><%= t("money_sources.recognition.guided.source_desc") %></p>
+                  </div>
+                  <span class="guided-step-count" data-testid="guided-step-count">
+                    <%= t("money_sources.recognition.guided.step_count",
+                          current: index + 1, total: total) %>
+                  </span>
+                </div>
+
+                <div class="guided-source-hero">
+                  <span class="guided-source-art kind-<%= source.kind %>" aria-hidden="true">
+                    <i class="ti ti-<%= source_kind_icon(source.kind) %>"></i>
+                  </span>
+                  <div class="guided-hero-info">
+                    <b data-testid="guided-source-name"><%= source.name %></b>
+                    <p>
+                      <%= t("kinds.#{source.kind}") %>
+                      <% if step.last_four.present? %>
+                        · <%= t("money_sources.recognition.guided.last_four_meta", digits: step.last_four) %>
+                      <% end %>
+                      <% if source.institution_name.present? %>
+                        · <%= source.institution_name %>
+                      <% end %>
+                    </p>
+                  </div>
+                  <span class="guided-pill"><%= t("kinds.#{source.kind}") %></span>
+                </div>
+
+                <div class="guided-two-col <%= "is-single" unless email_section %>">
+                  <% if email_section %>
+                    <section class="guided-panel" data-testid="guided-email-section" data-recognition-panel>
+                      <div class="guided-panel-head">
+                        <b><span class="guided-mini-num">1</span><%= t("money_sources.recognition.guided.email_config_title") %></b>
+                        <span class="guided-tag"><%= t("money_sources.recognition.guided.email_tag") %></span>
+                      </div>
+                      <p class="guided-panel-desc"><%= t("money_sources.recognition.guided.email_config_desc") %></p>
+
+                      <div class="guided-example">
+                        <div class="guided-mail">
+                          <div class="guided-mail-bar">
+                            <span class="guided-mail-icon" aria-hidden="true"><i class="ti ti-brand-gmail"></i></span>
+                            Gmail
+                            <span class="guided-mail-bar-meta" aria-hidden="true">•••</span>
+                          </div>
+                          <div class="guided-mail-body">
+                            <div class="guided-mail-sender">
+                              <strong><%= email_preview[:sender_name] %></strong>
+                              <span>· <%= email_preview[:sender_address] %></span>
+                            </div>
+                            <div class="guided-mail-subject"><%= email_preview[:subject] %></div>
+                            <p class="guided-mail-text" data-testid="guided-email-body"
+                               data-guided-highlight data-highlight-source="keywords"
+                               data-mark-class="guided-highlight"
+                               data-fallback-highlight="<%= email_preview[:fallback_highlight] %>"
+                               data-text="<%= email_preview[:body] %>">
+                              <%= recognition_highlight(email_preview[:body], email_preview[:highlights]) %>
+                            </p>
+                            <div class="guided-mail-caption">
+                              <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
+                              <span data-guided-caption-example class="<%= "d-none" if email_preview[:configured_match] %>">
+                                <%= t("money_sources.recognition.guided.email_caption_example") %>
+                              </span>
+                              <span data-guided-caption-configured class="<%= "d-none" unless email_preview[:configured_match] %>">
+                                <%= t("money_sources.recognition.guided.email_caption") %>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="guided-intro-add guided-add-values">
+                        <span><%= t("money_sources.recognition.guided.criteria_to_add") %></span>
+                        <div class="recognition-chips guided-chips" data-recognition-chips="keywords">
+                          <input type="hidden" name="keywords[]" value="">
+                          <% keywords.each do |value| %>
+                            <span class="recognition-chip" data-testid="recognition-chip" data-chip-value="<%= value %>">
+                              <%= value %>
+                              <input type="hidden" name="keywords[]" value="<%= value %>">
+                              <button type="button" class="recognition-chip-remove" data-recognition-remove
+                                      aria-label="<%= t('money_sources.recognition.guided.remove') %>"><i class="ti ti-x"></i></button>
+                            </span>
+                          <% end %>
+                        </div>
+                      </div>
+
+                      <div class="guided-add-row">
+                        <input type="text" class="form-control form-control-sm" data-guided-keyword-input
+                               placeholder="<%= t('money_sources.recognition.guided.keyword_placeholder') %>"
+                               aria-label="<%= t('money_sources.recognition.guided.criteria_to_add') %>">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-guided-keyword-add>
+                          <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.guided.add") %>
+                        </button>
+                      </div>
+
+                      <p class="guided-hint"><%= t("money_sources.recognition.guided.email_hint") %></p>
+
+                      <%= render "recognition_suggested", section: "keywords", suggestions: Array(suggestions[:keywords]) %>
+
+                      <div class="guided-context-badges">
+                        <% if @gmail_connection&.active? %>
+                          <span class="guided-context-badge is-gmail">
+                            <i class="ti ti-brand-gmail" aria-hidden="true"></i><%= t("money_sources.recognition.guided.gmail_connected") %>
+                          </span>
+                        <% end %>
+                        <% if @email_redirect_active %>
+                          <span class="guided-context-badge">
+                            <i class="ti ti-mail-forward" aria-hidden="true"></i><%= t("money_sources.recognition.guided.email_redirect_active") %>
+                          </span>
+                        <% end %>
+                      </div>
+                    </section>
+                  <% end %>
+
+                  <section class="guided-panel" data-testid="guided-alias-section" data-recognition-panel>
+                    <div class="guided-panel-head">
+                      <b><span class="guided-mini-num"><%= email_section ? 2 : 1 %></span><%= t("money_sources.recognition.guided.alias_config_title") %></b>
+                      <span class="guided-tag is-green"><%= t("money_sources.recognition.guided.alias_tag") %></span>
+                    </div>
+                    <p class="guided-panel-desc"><%= t("money_sources.recognition.guided.alias_config_desc") %></p>
+
+                    <% unless email_section %>
+                      <div class="recognition-chips guided-chips-hidden" data-recognition-chips="keywords">
+                        <input type="hidden" name="keywords[]" value="">
+                        <% keywords.each do |value| %>
+                          <span class="recognition-chip" data-testid="recognition-chip" data-chip-value="<%= value %>">
+                            <%= value %>
+                            <input type="hidden" name="keywords[]" value="<%= value %>">
+                            <button type="button" class="recognition-chip-remove" data-recognition-remove
+                                    aria-label="<%= t('money_sources.recognition.guided.remove') %>"><i class="ti ti-x"></i></button>
+                          </span>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <% whatsapp = step.whatsapp_example %>
+                    <% if whatsapp %>
+                      <% chat_prefix, chat_suffix = whatsapp[:text].split(whatsapp[:highlight], 2) %>
+                      <div class="guided-example">
+                        <div class="guided-chat is-whatsapp">
+                          <div class="guided-chat-top">
+                            <span class="guided-chat-icon"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></span>
+                            <%= whatsapp[:label] %>
+                          </div>
+                          <div class="guided-chat-body">
+                            <p class="guided-bubble"
+                               data-testid="guided-whatsapp-example"
+                               data-guided-highlight data-highlight-source="alias"
+                               data-alias-index="0"
+                               data-fallback-alias="<%= source.name.downcase %>"
+                               data-prefix="<%= chat_prefix %>"
+                               data-suffix="<%= chat_suffix %>"
+                               data-mark-class="guided-highlight"
+                               data-text="<%= whatsapp[:text] %>">
+                              <%= recognition_highlight(whatsapp[:text], [ whatsapp[:highlight] ]) %>
+                            </p>
+                            <p class="guided-detected" data-testid="guided-whatsapp-detected">
+                              <i class="ti ti-check" aria-hidden="true"></i>
+                              <%= t("money_sources.recognition.guided.whatsapp_detected") %>
+                              <strong><%= source.name %></strong>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+
+                    <div class="guided-intro-add guided-add-values">
+                      <span><%= t("money_sources.recognition.guided.alias_to_add") %></span>
+                      <div class="guided-alias-chips" data-testid="guided-alias-chips" data-guided-alias-chips>
+                        <% keywords.each do |value| %>
+                          <span class="recognition-chip guided-alias-chip" data-testid="guided-alias-chip"
+                                data-alias-value="<%= value %>">
+                            <%= value %>
+                            <button type="button" class="recognition-chip-remove" data-guided-alias-remove
+                                    aria-label="<%= t('money_sources.recognition.guided.remove') %>"><i class="ti ti-x"></i></button>
+                          </span>
+                        <% end %>
+                      </div>
+                    </div>
+
+                    <div class="guided-add-row">
+                      <input type="text" class="form-control form-control-sm" data-guided-alias-input
+                             placeholder="<%= t('money_sources.recognition.guided.alias_placeholder') %>"
+                             aria-label="<%= t('money_sources.recognition.guided.alias_to_add') %>">
+                      <button type="button" class="btn btn-sm btn-outline-primary" data-guided-alias-add>
+                        <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.recognition.guided.add") %>
+                      </button>
+                    </div>
+
+                    <p class="guided-hint"><%= t("money_sources.recognition.guided.alias_hint") %></p>
+
+                    <% unless email_section %>
+                      <%= render "recognition_suggested", section: "keywords", suggestions: Array(suggestions[:keywords]) %>
+                    <% end %>
+                  </section>
+                </div>
+
+              <% end %>
+            <% end %>
+          <% end %>
+        </main>
+      </div>
+
+      <footer class="guided-foot">
+        <p class="guided-foot-tip"><%= t("money_sources.recognition.guided.footer_tip") %></p>
+        <div class="guided-foot-actions">
+          <% unless steps.empty? %>
+            <button type="button" class="btn btn-outline-primary d-none" data-guided-previous
+                    data-testid="guided-previous" disabled>
+              <i class="ti ti-arrow-left" aria-hidden="true"></i><%= t("money_sources.recognition.guided.previous") %>
+            </button>
+            <button type="button" class="btn btn-primary" data-guided-save data-testid="guided-save">
+              <span data-guided-save-label><%= t("money_sources.recognition.guided.start") %></span>
+              <i class="ti ti-arrow-right" aria-hidden="true"></i>
+            </button>
+          <% else %>
+            <button type="button" class="btn btn-primary" data-guided-dismiss>
+              <%= t("common.close") %>
+            </button>
+          <% end %>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>

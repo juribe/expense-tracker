@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "app/controllers/money_sources_controller.rb": {
-    "mtime": 1793288255.9369946,
-    "seen": 1793288275.694179,
-    "ast_hash": "449d50ab9418ae887b1c969b4e82984d",
+    "mtime": 1793475256.195655,
+    "seen": 1793476179.1335812,
+    "ast_hash": "f822e4c808f9255c44933a477c2a9bc8",
     "semantic_hash": ""
   },
   "app/controllers/monthly_expenses_controller.rb": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1793323088.7985473,
-    "seen": 1793323191.090483,
-    "ast_hash": "c7f572c1b4c8a1389da57e48c3afde6d",
+    "mtime": 1793468801.319841,
+    "seen": 1793470640.34606,
+    "ast_hash": "9bd35a1e3fdb3f6fc08c0d3262f1deda",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -558,8 +558,8 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1793457538.425878,
-    "seen": 1793457644.0081348,
+    "mtime": 1793475178.4173195,
+    "seen": 1793476179.1342468,
     "ast_hash": "fe434e00e861bd41f869215e0b204795",
     "semantic_hash": ""
   },
@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1793463274.5185885,
-    "seen": 1793463690.068397,
-    "ast_hash": "b2b85faa2bd2446390d0786dfa411de1",
+    "mtime": 1793480620.438379,
+    "seen": 1793480897.034765,
+    "ast_hash": "0e17a1c085f97d90c41de9355b46fdf3",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793465370.6809304,
-    "seen": 1793466295.5769541,
-    "ast_hash": "f0c5e7fcca144c7e6ddead3fff5b86b5",
+    "mtime": 1793480620.437773,
+    "seen": 1793480897.0347672,
+    "ast_hash": "4d89f0be90f136ff04be5c9a8db83b1a",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793466502.6660793,
-    "seen": 1793466553.6746812,
+    "mtime": 1793483103.871906,
+    "seen": 1793483146.6016939,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -6069,6 +6069,36 @@
     "mtime": 1793466446.8687265,
     "seen": 1793466553.673462,
     "ast_hash": "ab3e5b25821ff240a4b676c52048ec29",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/recognition_wizard.js": {
+    "mtime": 1793482501.0727167,
+    "seen": 1793482721.721784,
+    "ast_hash": "5bd157f749a9428bf021074669a9852e",
+    "semantic_hash": ""
+  },
+  "app/services/source_recognition/guided_wizard.rb": {
+    "mtime": 1793479415.9072185,
+    "seen": 1793479919.021834,
+    "ast_hash": "b94ec2687a13d341d870b659e91c0733",
+    "semantic_hash": ""
+  },
+  "test/controllers/guided_recognition_controller_test.rb": {
+    "mtime": 1793482899.2153397,
+    "seen": 1793483146.601134,
+    "ast_hash": "5ef464689bc198d7b53de2ad866eefda",
+    "semantic_hash": ""
+  },
+  "test/services/source_recognition/guided_wizard_test.rb": {
+    "mtime": 1793479429.3328211,
+    "seen": 1793479919.022523,
+    "ast_hash": "bec05a5cae1b048e4e37a10e410a892d",
+    "semantic_hash": ""
+  },
+  "test/system/guided_recognition_wizard_test.rb": {
+    "mtime": 1793482933.8722615,
+    "seen": 1793483146.6016378,
+    "ast_hash": "292adcebb5bc20aa232bc53e4924418a",
     "semantic_hash": ""
   }
 }

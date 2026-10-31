@@ -652,5 +652,33 @@ module ApplicationHelper
     end
   end
 
+  # Highlights configured recognition values inside illustrative text
+  # (email/chat examples). Values and text are escaped; longer values win so
+  # a multi-word alias is not split by one of its own words.
+  #
+  # Example: recognition_highlight("Compra con mi tarjeta GOLD", ["gold"])
+  #          # => "Compra con mi tarjeta <mark>GOLD</mark>"
+  def recognition_highlight(text, values, css_class: "guided-highlight")
+    raw = Array(values).compact_blank.map(&:to_s).uniq
+    return h(text.to_s) if raw.empty?
+
+    pattern = Regexp.union(
+      raw.sort_by { |value| -value.length }
+         .map { |value| Regexp.new(Regexp.escape(value), Regexp::IGNORECASE) }
+    )
+
+    fragments = []
+    cursor = 0
+    text.to_s.to_enum(:scan, pattern).each do
+      match = Regexp.last_match
+      fragments << h(text[cursor...match.begin(0)])
+      fragments << tag.mark(match[0], class: css_class)
+      cursor = match.end(0)
+    end
+    fragments << h(text[cursor..])
+
+    safe_join(fragments)
+  end
+
   # --- private helpers for the loans dashboard ---
 end
