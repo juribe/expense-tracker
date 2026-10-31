@@ -419,7 +419,7 @@ module Expenses
                           "(follow-up limit reached); candidates stay needs_review"
         Whatsapp::ReplySender.send_to(
           clarification.phone_number,
-          "Dejé la aclaración pendiente; los gastos quedaron guardados para revisión manual en el Expense Tracker."
+          "Dejé la aclaración pendiente; los gastos quedaron guardados para revisión manual en #{AppName.current}."
         )
       end
 

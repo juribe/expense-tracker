@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>yogasto</title>
+    <title><%= AppName.current %></title>
   </head>
   <body style="margin:0;padding:0;background-color:#F5F6FC;font-family:Arial,Helvetica,sans-serif;color:#252746;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F5F6FC" style="background-color:#F5F6FC;">
@@ -12,7 +12,7 @@
           <table role="presentation" width="580" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="#ffffff" style="width:580px;max-width:100%;background-color:#ffffff;border:1px solid #E8E8F4;border-radius:22px;">
             <tr>
               <td align="center" style="padding:34px 28px 27px;background-color:#ffffff;">
-                <img src="<%= "#{root_url}brand/yogasto-logo-claro.png" %>" alt="Yogasto" width="200" style="display:block;max-width:100%;height:auto;margin:0 auto;border:0;">
+                <img src="<%= "#{root_url}brand/yogasto-logo-claro.png" %>" alt="<%= AppName.current %>" width="200" style="display:block;max-width:100%;height:auto;margin:0 auto;border:0;">
                 <div align="center" style="margin-top:7px;color:#9295AE;font-size:12px;letter-spacing:0.025em;font-family:Arial,Helvetica,sans-serif;">
                   Tus finanzas, más claras.
                 </div>
@@ -36,7 +36,7 @@
             <tr>
               <td align="center" style="padding:23px 25px 28px;text-align:center;background-color:#FCFCFF;font-family:Arial,Helvetica,sans-serif;">
                 <p align="center" style="margin:0 0 7px;text-align:center;color:#777B98;font-size:12px;font-family:Arial,Helvetica,sans-serif;">
-                  © <%= Date.current.year %> yogasto · Tus finanzas, más claras.
+                  © <%= Date.current.year %> <%= AppName.current %> · Tus finanzas, más claras.
                 </p>
                 <p align="center" style="margin:0;text-align:center;color:#A0A2B7;font-size:11px;line-height:1.7;font-family:Arial,Helvetica,sans-serif;">
                   Este es un correo automático; por favor, no respondas a este mensaje.

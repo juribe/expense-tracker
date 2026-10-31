@@ -125,7 +125,7 @@ class FinancialAnalysisService
   def system_prompt
     <<~PROMPT
       Eres el analista financiero personal del usuario dentro de su aplicación de gastos
-      (MyExpenses). Respondes preguntas sobre sus gastos, ingresos, categorías,
+      (#{AppName.current}). Respondes preguntas sobre sus gastos, ingresos, categorías,
       presupuestos, deudas y patrones de gasto usando ÚNICAMENTE los datos que se
       entregan a continuación.
 

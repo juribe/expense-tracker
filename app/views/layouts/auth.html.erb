@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
   <head>
-    <title><%= @page_title.present? ? "#{@page_title} | Yogasto" : (content_for(:title) || t("layout.app_title")) %></title>
+    <title><%= @page_title.present? ? "#{@page_title} | #{AppName.current}" : (content_for(:title) || AppName.current) %></title>
     <meta name="robots" content="<%= (controller_name == "home" && action_name == "index") ? "index, follow" : "noindex, nofollow" %>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,10 +46,10 @@
       </div>
 
       <main class="auth-shell">
-        <section class="auth-intro" aria-label="<%= t("auth.intro.aria_label") %>">
+        <section class="auth-intro" aria-label="<%= t("auth.intro.aria_label", app_name: AppName.current) %>">
           <div class="auth-brand">
-            <img src="/brand/yogasto-logo-claro.svg" alt="Yogasto" class="auth-brand-logo auth-brand-logo-light">
-            <img src="/brand/yogasto-logo-fondo-oscuro.svg" alt="Yogasto" class="auth-brand-logo auth-brand-logo-dark">
+            <img src="/brand/yogasto-logo-claro.svg" alt="<%= AppName.current %>" class="auth-brand-logo auth-brand-logo-light">
+            <img src="/brand/yogasto-logo-fondo-oscuro.svg" alt="<%= AppName.current %>" class="auth-brand-logo auth-brand-logo-dark">
             <div class="auth-brand-tag"><%= t("auth.intro.brand_tag") %></div>
           </div>
 
@@ -88,7 +88,7 @@
               <div class="auth-preview-head">
                 <div class="auth-preview-brand">
                   <span class="auth-mini-icon"><img src="/brand/yogasto-simbolo.png" alt="" width="14" height="14"></span>
-                  <%= t("layout.app_title") %>
+                  <%= AppName.current %>
                 </div>
                 <div class="auth-period">
                   <%= t("auth.intro.preview.period") %>

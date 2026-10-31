@@ -566,7 +566,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     debt_row = css_select("[data-testid='debt-row']").find { |item| item.text.include?(loan.name) }
     assert_not_nil debt_row
-    assert_includes debt_row.text, "Deuda en Yogasto"
+    assert_includes debt_row.text, "Deuda en #{AppName.current}"
     assert_includes debt_row.text, "Verificar saldo"
     assert_includes debt_row.text, "Movimientos"
 
@@ -574,6 +574,20 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     debts_panel = css_select(".rec-panel").find { |panel| panel.text.include?("Obligaciones por verificar") }
     refute_includes accounts_panel.text, loan.name
     assert_includes debts_panel.text, loan.name
+  end
+
+  test "balance labels use APP_NAME for branding" do
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)
+    sign_in @user
+
+    with_env("APP_NAME" => "Mis Gastos") do
+      get reconciliation_path
+    end
+
+    assert_response :success
+    debt_row = css_select("[data-testid='debt-row']").find { |item| item.text.include?(loan.name) }
+    assert_includes debt_row.text, "Deuda en Mis Gastos"
   end
 
   test "a verified source can be changed again in the same cycle" do

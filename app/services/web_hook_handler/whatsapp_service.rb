@@ -77,7 +77,7 @@ module WebHookHandler
         Rails.logger.info "[WhatsappService] Unconnected number #{event.sender_id}; sending connect instructions"
         Whatsapp::ReplySender.send_to(
           event.sender_id,
-          "Hola 👋 Conecta tu WhatsApp desde Configuración → WhatsApp del Expense Tracker para registrar gastos por este chat."
+          "Hola 👋 Conecta tu WhatsApp desde Configuración → WhatsApp de #{AppName.current} para registrar gastos por este chat."
         )
         return
       end
@@ -152,7 +152,7 @@ module WebHookHandler
         session.close!(:cancelled)
         Whatsapp::ReplySender.send_to(
           session.phone_number,
-          "Listo, cancelé la aclaración. Los gastos quedaron guardados para revisión manual en #{app_name}."
+          "Listo, cancelé la aclaración. Los gastos quedaron guardados para revisión manual en #{AppName.current}."
         )
         Rails.logger.info "[WhatsappService] Clarification cancelled for session #{session.id}"
         return [ :handled, nil ]
@@ -294,7 +294,7 @@ module WebHookHandler
 
       candidates.select { |c| c.status == "needs_review" }.each do |candidate|
         what = candidate.description.presence || event.text.to_s.strip.presence || "tu gasto"
-        lines << "🟡 Registré \"#{what}\" para revisión en #{app_name}#{missing_note(candidate)}."
+        lines << "🟡 Registré \"#{what}\" para revisión en #{AppName.current}#{missing_note(candidate)}."
       end
       return if lines.empty?
 
@@ -310,12 +310,6 @@ module WebHookHandler
     def format_candidate_amount(candidate)
       ActionController::Base.helpers.number_to_currency(candidate.amount, unit: "$", delimiter: ".", separator: ",",
                                                         precision: 0)
-    end
-
-    # APP_NAME lets deployments rebrand the replies without code changes
-    # (defaults to "Expense Tracker").
-    def app_name
-      ENV.fetch("APP_NAME", "Expense Tracker")
     end
 
     MISSING_FIELD_LABELS = {

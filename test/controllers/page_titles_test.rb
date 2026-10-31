@@ -17,7 +17,7 @@ class PageTitlesTest < ActionDispatch::IntegrationTest
     get dashboard_path
     assert_response :success
     assert_equal "Resumen financiero", @controller.instance_variable_get(:@page_title)
-    assert_select "title", "Resumen financiero | Yogasto"
+    assert_select "title", "Resumen financiero | #{AppName.current}"
   end
 
   test "GET expenses index resolves the I18n title" do
@@ -25,21 +25,32 @@ class PageTitlesTest < ActionDispatch::IntegrationTest
     get expenses_path
     assert_response :success
     assert_equal "Gastos", @controller.instance_variable_get(:@page_title)
-    assert_select "title", "Gastos | Yogasto"
+    assert_select "title", "Gastos | #{AppName.current}"
   end
 
   test "GET reports overview resolves the I18n title" do
     sign_in @user
     get reports_overview_path
     assert_response :success
-    assert_select "title", "Reportes financieros | Yogasto"
+    assert_select "title", "Reportes financieros | #{AppName.current}"
   end
 
   test "GET money sources index resolves the I18n title" do
     sign_in @user
     get money_sources_cash_path
     assert_response :success
-    assert_select "title", "Fuentes de dinero | Yogasto"
+    assert_select "title", "Fuentes de dinero | #{AppName.current}"
+  end
+
+  test "titles and the footer use APP_NAME for branding" do
+    sign_in @user
+    with_env("APP_NAME" => "Mis Gastos") do
+      get dashboard_path
+    end
+
+    assert_response :success
+    assert_select "title", "Resumen financiero | Mis Gastos"
+    assert_select "footer", text: /© #{Date.today.year} Mis Gastos/
   end
 
   test "missing translation does not raise and leaves the title nil" do

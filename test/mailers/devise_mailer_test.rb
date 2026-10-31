@@ -28,13 +28,22 @@ class DeviseMailerTest < ActionMailer::TestCase
     assert_includes text, "¡Hola, José Uribe!"
   end
 
+  test "the footer uses APP_NAME for branding" do
+    html = nil
+    with_env("APP_NAME" => "Mis Gastos") do
+      html = Devise::Mailer.reset_password_instructions(@user, @token).html_part.body.to_s
+    end
+
+    assert_includes html, "© #{Date.current.year} Mis Gastos · Tus finanzas, más claras."
+  end
+
   test "reset password contains required content" do
     html = @mail.html_part.body.to_s
     assert_includes html, "Restablece tu contraseña"
     assert_includes html, "Recibimos una solicitud para cambiar la contraseña de tu cuenta. Haz clic en el botón para crear una nueva."
     assert_includes html, "Cambiar mi contraseña"
     assert_includes html, "Si no solicitaste este cambio, puedes ignorar este correo. Tu contraseña seguirá siendo la misma."
-    assert_includes html, "© #{Date.current.year} yogasto · Tus finanzas, más claras."
+    assert_includes html, "© #{Date.current.year} #{AppName.current} · Tus finanzas, más claras."
     assert_includes html, "Este es un correo automático; por favor, no respondas a este mensaje."
   end
 

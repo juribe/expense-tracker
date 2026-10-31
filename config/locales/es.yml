@@ -231,8 +231,7 @@ es:
       missing_projection: "requiere la proyección del crédito (genera primero)"
 
   layout:
-    app_title: "Yogasto"
-    footer: "© %{year} Yogasto"
+    footer: "© %{year} %{app_name}"
 
   page:
     titles:
@@ -2217,7 +2216,7 @@ es:
     reset_link_sent: "Revisa tu correo: te enviamos el enlace para restablecer tu contraseña."
     password_updated: "Tu contraseña se actualizó correctamente."
     intro:
-      aria_label: "Beneficios de Yogasto"
+      aria_label: "Beneficios de %{app_name}"
       form_aria_label: "Acceso a tu cuenta"
       brand_tag: "Finanzas personales, con claridad"
       kicker: "Tus finanzas, en un solo lugar"
@@ -2573,7 +2572,7 @@ es:
       debts_empty: "Sin deudas registradas"
     sections:
       accounts_title: "1. Verifica tus saldos"
-      accounts_subtitle: "Compara lo que dice Yogasto con el saldo real de cada cuenta."
+      accounts_subtitle: "Compara lo que dice %{app_name} con el saldo real de cada cuenta."
       accounts_link: "Ver todas las cuentas"
       payments_title: "2. Asigna tus pagos pendientes"
       payments_subtitle: "Solo aparecen los gastos recurrentes que siguen pendientes de pago."
@@ -2585,7 +2584,7 @@ es:
       body: "Puede haber un gasto que olvidaste registrar, una comisión o un movimiento pendiente. Investiga la diferencia antes de ajustar: así evitas duplicar gastos o alterar tus deudas por error."
     guide:
       title: "¿Cómo funciona el Día de Balance?"
-      intro: "Día de Balance te ayuda a comparar lo que registra Yogasto con la realidad de tus cuentas y deudas."
+      intro: "Día de Balance te ayuda a comparar lo que registra %{app_name} con la realidad de tus cuentas y deudas."
       step_accounts_title: "Verifica tus saldos"
       step_accounts_body: "Abre cada cuenta, revisa sus movimientos y marca «Todo está bien» o guarda el saldo real."
       step_payments_title: "Asigna tus pagos"
@@ -2647,8 +2646,8 @@ es:
       subtitle: "Marca cada cuenta cuando hayas comprobado su saldo."
       empty_title: "Sin cuentas por verificar"
       empty: "No tienes cuentas activas para verificar."
-      app_balance: "Saldo en Yogasto"
-      debt_balance: "Deuda en Yogasto"
+      app_balance: "Saldo en %{app_name}"
+      debt_balance: "Deuda en %{app_name}"
       actual_balance: "Saldo real"
       difference: "Diferencia"
       unverified: "Por verificar"
@@ -2682,15 +2681,15 @@ es:
       movements_title: "Movimientos de esta cuenta"
       debt_movements_title: "Movimientos de esta deuda"
       movements_title_mode: "Movimientos"
-      app_balance: "Saldo en Yogasto"
-      debt_balance: "Deuda en Yogasto"
+      app_balance: "Saldo en %{app_name}"
+      debt_balance: "Deuda en %{app_name}"
       actual_balance: "Saldo real"
       actual_balance_placeholder: "Ingresa el saldo real"
       difference: "Diferencia"
       difference_hint: "Ingresa el saldo real para comparar"
       difference_zero: "Los saldos coinciden"
-      difference_positive: "El saldo real es mayor que el de Yogasto"
-      difference_negative: "El saldo real es menor que el de Yogasto"
+      difference_positive: "El saldo real es mayor que el de %{app_name}"
+      difference_negative: "El saldo real es menor que el de %{app_name}"
       invalid_balance: "Ingresa un saldo válido para guardar la verificación."
       search_placeholder: "Buscar por descripción, tipo o categoría..."
       search_hint: "Busca un gasto, ingreso o movimiento que explique la diferencia."
