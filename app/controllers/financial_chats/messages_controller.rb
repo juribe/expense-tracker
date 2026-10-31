@@ -22,6 +22,14 @@ module FinancialChats
       render json: { message: message.client_payload }, status: :created
     end
 
+    # Removes the whole conversation so the user can start over. Scoped
+    # through the current user's chat: no other conversation is reachable.
+    def destroy
+      current_user.financial_chat&.messages&.destroy_all
+
+      redirect_to financial_chat_path, notice: t("financial_chat.cleared"), status: :see_other
+    end
+
     private
 
     def content

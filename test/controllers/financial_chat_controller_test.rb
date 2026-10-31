@@ -26,6 +26,27 @@ class FinancialChatControllerTest < ActionDispatch::IntegrationTest
     assert_match(/sign_in/, response.location)
   end
 
+  test "GET /financial_chat shows the clear conversation button when there are messages" do
+    sign_in @user
+    FinancialChat.for_user(@user).messages.create!(role: "user", content: "Hola", status: "sent")
+
+    get financial_chat_path
+
+    assert_select "form[action='#{clear_financial_chat_messages_path}']" do
+      assert_select "input[name='_method'][value='delete']"
+    end
+    assert_select "form[action='#{clear_financial_chat_messages_path}'][data-turbo-confirm]"
+  end
+
+  test "GET /financial_chat hides the clear conversation button on an empty chat" do
+    sign_in @user
+    FinancialChat.for_user(@user)
+
+    get financial_chat_path
+
+    assert_select "form[action='#{clear_financial_chat_messages_path}']", count: 0
+  end
+
   test "sidebar includes financial chat link" do
     sign_in @user
     get dashboard_path

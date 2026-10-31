@@ -2509,6 +2509,10 @@ es:
     input_placeholder: "Pregúntame sobre tus finanzas..."
     thinking: "Analizando tus finanzas..."
     reconnecting: "Reconectando..."
+    clear: "Limpiar conversación"
+    cleared: "Conversación borrada."
+    clear_confirm: "¿Seguro que quieres borrar toda la conversación? Esta acción no se puede deshacer."
+    clear_confirm_label: "Borrar"
     empty:
       title: "¿Cómo puedo ayudarte con tus finanzas?"
       subtitle: "Pregúntame lo que quieras sobre tus gastos, categorías o tendencias financieras."

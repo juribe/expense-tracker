@@ -135,6 +135,10 @@ class FinancialAnalysisService
       REGLAS
       - Responde siempre en español, de forma breve, clara y profesional.
       - Usa solo los datos entregados; si falta información, dilo sin inventar cifras.
+      - Los DATOS DEL USUARIO son la fuente de verdad y están actualizados al momento
+        de esta pregunta: si respuestas anteriores de la conversación muestran cifras
+        distintas (por ejemplo, deudas ya pagadas), usa los datos actuales y no
+        repitas las cifras viejas.
       - Formato de dinero: COP 1.234.567 (sin decimales).
       - Escribe markdown: párrafos cortos, listas cuando ayuden, y **negrilla** en las cifras clave.
       - Cuando un resumen numérico compacto ayude, añade UNA tarjeta insight:
@@ -173,7 +177,7 @@ class FinancialAnalysisService
 
       #{cash_lines}
 
-      Tarjetas de crédito (saldo actual):
+      Tarjetas de crédito (deuda actual):
       #{credit_card_lines}
 
       Gastos recurrentes pendientes de pago:
@@ -201,11 +205,18 @@ class FinancialAnalysisService
     end.join("\n")
   end
 
+  # Card debt is the reconciled, canonical figure the rest of the app shows:
+  # used_credit is the outstanding balance including balance_offset, so it
+  # reflects reconciliation adjustments and recorded payments. cached_balance
+  # alone would surface stale pre-reconciliation numbers.
   def credit_card_lines
     cards = @user.money_sources.where(kind: "credit_card", active: true)
     return "- (sin tarjetas de crédito registradas)" if cards.blank?
 
-    cards.map { |card| "- #{card.name}: #{money(card.cached_balance)}" }.join("\n")
+    lines = cards.sort_by { |card| card.name.downcase }
+                 .map { |card| "- #{card.name}: #{money(card.used_credit)}" }
+    lines << "Total deuda tarjetas de crédito: #{money(cards.sum { |card| card.used_credit.to_d })}"
+    lines.join("\n")
   end
 
   # Immediately available money held at a bank: the requested total on the

@@ -1160,6 +1160,10 @@ en:
     input_placeholder: "Ask about your finances..."
     thinking: "Analyzing your finances..."
     reconnecting: "Reconnecting..."
+    clear: "Clear conversation"
+    cleared: "Conversation cleared."
+    clear_confirm: "Are you sure you want to delete the whole conversation? This cannot be undone."
+    clear_confirm_label: "Delete"
     empty:
       title: "How can I help with your finances?"
       subtitle: "Ask me anything about your spending, expenses, categories, or financial trends."

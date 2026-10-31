@@ -67,6 +67,51 @@ module FinancialChats
       assert_equal 0, FinancialChatMessage.count
     end
 
+    test "DELETE clears every message in the user's conversation" do
+      sign_in @user
+      chat = FinancialChat.for_user(@user)
+      chat.messages.create!(role: "user", content: "Hola", status: "sent")
+      chat.messages.create!(role: "assistant", content: "Respuesta", status: "complete")
+
+      assert_difference -> { FinancialChatMessage.count }, -2 do
+        delete clear_financial_chat_messages_path
+      end
+
+      assert_redirected_to financial_chat_path
+      assert_equal I18n.t("financial_chat.cleared"), flash[:notice]
+      assert_empty chat.messages.reload
+    end
+
+    test "DELETE keeps other users' conversations untouched" do
+      other_user = User.create!(
+        name: "Other User",
+        email: "chat_messages_other_test@example.com",
+        password: "password123"
+      )
+      other_chat = FinancialChat.for_user(other_user)
+      other_chat.messages.create!(role: "user", content: "Conversación ajena", status: "sent")
+
+      sign_in @user
+      chat = FinancialChat.for_user(@user)
+      chat.messages.create!(role: "user", content: "Mi conversación", status: "sent")
+
+      delete clear_financial_chat_messages_path
+
+      assert_empty chat.messages.reload
+      assert_equal 1, other_chat.messages.reload.count
+    end
+
+    test "DELETE requires authentication" do
+      chat = FinancialChat.for_user(@user)
+      chat.messages.create!(role: "user", content: "Hola", status: "sent")
+
+      delete clear_financial_chat_messages_path
+
+      assert_response :redirect
+      assert_match(/sign_in/, response.location)
+      assert_equal 1, FinancialChatMessage.count
+    end
+
     test "POST rate limits after 20 posts in a minute" do
       original_cache = Rails.cache
       Rails.cache = ActiveSupport::Cache::MemoryStore.new

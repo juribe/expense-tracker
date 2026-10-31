@@ -157,6 +157,32 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     refute_includes system_prompt, "Bolsillo viaje"
   end
 
+  test "credit card debt uses the reconciled used_credit instead of the cached balance" do
+    @fake.responses << { content: "ok" }
+    visa = @user.money_sources.create!(name: "Visa", kind: "credit_card", starting_balance: -100_000)
+    visa.update!(balance_offset: 25_000)
+    paid = @user.money_sources.create!(name: "Nu", kind: "credit_card", starting_balance: -50_000)
+    paid.update!(balance_offset: 50_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Tarjetas de crédito \(deuda actual\)/, system_prompt)
+    assert_match(/Visa: COP 75\.000/, system_prompt)
+    assert_match(/Nu: COP 0/, system_prompt)
+    refute_includes system_prompt, "Visa: COP 100.000"
+  end
+
+  test "system prompt states that current data overrides figures from earlier answers" do
+    @fake.responses << { content: "ok" }
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/fuente de verdad/i, system_prompt)
+    assert_match(/respuestas anteriores/i, system_prompt)
+  end
+
   test "provider failure broadcasts assistant_failed and persists nothing" do
     @fake.responses << Ai::Provider::Error.new("LLM timeout")
 

@@ -7,8 +7,26 @@
      data-placeholder="<%= t("financial_chat.input_placeholder") %>"
      data-thinking-text="<%= t("financial_chat.thinking") %>">
   <div class="financial-chat__header">
-    <h1 class="fw-bold mb-1"><%= t("financial_chat.title") %></h1>
-    <p class="text-secondary mb-0"><%= t("financial_chat.subtitle") %></p>
+    <div class="d-flex align-items-start justify-content-between gap-3">
+      <div>
+        <h1 class="fw-bold mb-1"><%= t("financial_chat.title") %></h1>
+        <p class="text-secondary mb-0"><%= t("financial_chat.subtitle") %></p>
+      </div>
+      <% if @messages.any? %>
+        <%= button_to clear_financial_chat_messages_path,
+              method: :delete,
+              class: "btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 flex-shrink-0",
+              form: { class: "m-0", data: {
+                turbo_confirm: t("financial_chat.clear_confirm"),
+                confirm_title: t("financial_chat.clear"),
+                confirm_label: t("financial_chat.clear_confirm_label"),
+                confirm_variant: "danger"
+              } } do %>
+          <i class="ti ti-trash" aria-hidden="true"></i>
+          <span><%= t("financial_chat.clear") %></span>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
   <div class="financial-chat__scroll" id="chatScroll" data-testid="chat-messages">
