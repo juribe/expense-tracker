@@ -20,7 +20,7 @@ module Mcp
           sub_kind: source.sub_kind,
           institution: source.institution_name,
           balance: money(source.balance),
-          available_credit: money(source.available_credit),
+          available_credit: source.debt? ? money(source.available_credit) : nil,
           used_credit: source.debt? ? money(source.used_credit) : nil,
           parent_id: source.parent_id,
           payment_source: source.payment_source?,
