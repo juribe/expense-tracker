@@ -1,0 +1,114 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="card-title"><i class="ti ti-plug-connected me-2 text-secondary"></i><%= t("mcp.settings.title") %></h5>
+</div>
+
+<p class="text-muted"><%= t("mcp.settings.intro") %></p>
+
+<% if @plain_token %>
+  <div class="alert alert-success" role="alert">
+    <div class="fw-semibold mb-1"><i class="ti ti-key me-1"></i><%= t("mcp.settings.token_once") %></div>
+    <code class="user-select-all"><%= @plain_token %></code>
+    <div class="small mt-2"><%= t("mcp.settings.token_hint") %></div>
+  </div>
+<% end %>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <i class="ti ti-plus me-2"></i><%= t("mcp.settings.new_token") %>
+  </div>
+  <div class="card-body">
+    <%= form_with url: mcp_settings_path, scope: :mcp_token, local: true do |form| %>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <%= form.label :name, t("mcp.settings.name"), class: "form-label" %>
+          <%= form.text_field :name, class: "form-control", required: true,
+                              placeholder: t("mcp.settings.name_placeholder") %>
+        </div>
+        <div class="col-md-4">
+          <div class="form-check">
+            <%= form.check_box :write_access, class: "form-check-input" %>
+            <%= form.label :write_access, t("mcp.settings.write_access"), class: "form-check-label" %>
+          </div>
+          <div class="small text-muted"><%= t("mcp.settings.write_help") %></div>
+        </div>
+        <div class="col-md-3 text-md-end">
+          <%= form.button type: :submit, class: "btn btn-primary w-100" do %>
+            <i class="ti ti-key me-1"></i><%= t("mcp.settings.create") %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <i class="ti ti-list me-2"></i><%= t("mcp.settings.active_tokens") %>
+  </div>
+
+  <% if @tokens.empty? %>
+    <div class="card-body text-muted"><%= t("mcp.settings.empty") %></div>
+  <% else %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th><%= t("mcp.settings.name") %></th>
+            <th><%= t("mcp.settings.scopes") %></th>
+            <th><%= t("mcp.settings.created_at") %></th>
+            <th><%= t("mcp.settings.last_used") %></th>
+            <th><%= t("mcp.settings.status") %></th>
+            <th class="text-end"><%= t("mcp.settings.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @tokens.each do |token| %>
+            <tr>
+              <td class="fw-semibold"><%= token.name %></td>
+              <td>
+                <% token.scopes.each do |scope| %>
+                  <span class="badge bg-<%= scope == "write" ? "warning" : "secondary" %>-subtle text-<%= scope == "write" ? "warning" : "secondary" %>">
+                    <%= t("mcp.settings.scope_#{scope}") %>
+                  </span>
+                <% end %>
+              </td>
+              <td class="small text-muted"><%= l(token.created_at, format: :short) %></td>
+              <td class="small text-muted">
+                <%= token.last_used_at ? l(token.last_used_at, format: :short) : t("mcp.settings.never") %>
+              </td>
+              <td>
+                <% if token.revoked? %>
+                  <span class="badge bg-danger-subtle text-danger"><%= t("mcp.settings.revoked") %></span>
+                <% elsif token.expired? %>
+                  <span class="badge bg-secondary-subtle text-secondary"><%= t("mcp.settings.expired") %></span>
+                <% else %>
+                  <span class="badge bg-success-subtle text-success"><%= t("mcp.settings.active") %></span>
+                <% end %>
+              </td>
+              <td class="text-end">
+                <% unless token.revoked? %>
+                  <%= button_to mcp_settings_token_path(token), method: :delete,
+                                class: "btn btn-sm btn-outline-danger",
+                                form: { data: { turbo_confirm: t("mcp.settings.confirm_revoke") } } do %>
+                    <i class="ti ti-ban me-1"></i><%= t("mcp.settings.revoke") %>
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header">
+    <i class="ti ti-terminal-2 me-2"></i><%= t("mcp.settings.connection_title") %>
+  </div>
+  <div class="card-body small">
+    <p class="mb-2"><%= t("mcp.settings.connection_intro") %></p>
+    <div class="mb-1"><%= t("mcp.settings.endpoint") %>: <code>POST /mcp</code></div>
+    <div><%= t("mcp.settings.header") %>: <code>Authorization: Bearer &lt;token&gt;</code></div>
+  </div>
+</div>
