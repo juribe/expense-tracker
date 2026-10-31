@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   # opening the confirmation email. Only available in the test environment.
   if Rails.env.test?
     post "test_support/confirm_user", to: "test_support/confirmations#create"
+    post "test_support/promote_admin", to: "test_support/admins#create"
   end
 
   # Devise authentication

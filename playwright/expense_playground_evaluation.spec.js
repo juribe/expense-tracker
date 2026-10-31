@@ -237,7 +237,7 @@ test.describe('expense playground – AI evaluation', () => {
   }
 
   test('the Evaluation tab exposes the dataset/provider/model form', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await openEvaluationTab(page);
 
     await expect(page.getByRole('heading', { level: 5, name: /Evaluaci/ })).toBeVisible();
@@ -250,7 +250,7 @@ test.describe('expense playground – AI evaluation', () => {
   });
 
   test('starting an evaluation polls the run and renders the completed metrics', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockEvaluationApi(page, { running: RUNNING, completed: COMPLETED, completeAfterPolls: 2 });
     await openEvaluationTab(page);
 
@@ -275,7 +275,7 @@ test.describe('expense playground – AI evaluation', () => {
   });
 
   test('dataset validation errors from the backend are surfaced', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     const store = {
       running: RUNNING,
       completed: COMPLETED,
@@ -306,7 +306,7 @@ test.describe('expense playground – AI evaluation', () => {
   });
 
   test('the form requires a model before submitting', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     const store = { running: RUNNING, completed: COMPLETED, completeAfterPolls: 2 };
     mockEvaluationApi(page, store);
     await openEvaluationTab(page);
@@ -327,7 +327,7 @@ test.describe('expense playground – AI evaluation', () => {
   });
 
   test('failed cases can be searched by message and filtered by status', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockEvaluationApi(page, { running: RUNNING, completed: COMPLETED, completeAfterPolls: 1 });
     await openEvaluationTab(page);
 
@@ -357,7 +357,7 @@ test.describe('expense playground – AI evaluation', () => {
   });
 
   test('the model comparison table lists completed runs for the same dataset', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockEvaluationApi(page, {
       running: RUNNING,
       completed: COMPLETED,

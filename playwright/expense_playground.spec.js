@@ -73,7 +73,7 @@ test.describe('expense playground', () => {
   }
 
   test('tabs switch between text and image inputs', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
 
     await expect(page.getByTestId('panel-text')).toBeVisible();
@@ -90,7 +90,7 @@ test.describe('expense playground', () => {
   });
 
   test('clicking an example fills the textarea', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
 
     await page.getByTestId('playground-examples').getByRole('button').first().click();
@@ -98,7 +98,7 @@ test.describe('expense playground', () => {
   });
 
   test('processing shows the candidate, pipeline details and history entry without creating an expense', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcess(page, okPayload());
     await page.goto('/expense-playground');
 
@@ -122,7 +122,7 @@ test.describe('expense playground', () => {
   });
 
   test('expected results are evaluated against the detection', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcess(page, okPayload({
       evaluation: {
         checks: [
@@ -151,7 +151,7 @@ test.describe('expense playground', () => {
   });
 
   test('user can edit the candidate and create the expense', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     const { createMoneySource } = require('./helpers/money_sources');
     await createMoneySource(page, `Efectivo-${Date.now()}`);
     mockProcess(page, okPayload());
@@ -177,7 +177,7 @@ test.describe('expense playground', () => {
   });
 
   test('processing failures surface a clear error', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcess(page, {
       ok: false,
       run_id: 43,

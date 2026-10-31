@@ -88,7 +88,7 @@ test.describe('expense playground – file import', () => {
   // ---- Tab switching ----
 
   test('file tab shows the file upload panel', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
 
     await expect(page.getByTestId('panel-file')).toBeHidden();
@@ -103,7 +103,7 @@ test.describe('expense playground – file import', () => {
   // ---- File selection – CSV ----
 
   test('selecting a CSV file shows the filename and hides the PDF password field', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
 
@@ -121,7 +121,7 @@ test.describe('expense playground – file import', () => {
   // ---- File selection – PDF shows password field ----
 
   test('selecting a PDF file shows the PDF password input', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
 
@@ -139,7 +139,7 @@ test.describe('expense playground – file import', () => {
   // ---- Unsupported file type ----
 
   test('selecting an unsupported file type shows an error', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
 
@@ -157,7 +157,7 @@ test.describe('expense playground – file import', () => {
   // ---- Remove file ----
 
   test('clicking remove clears the selected file', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
 
@@ -178,7 +178,7 @@ test.describe('expense playground – file import', () => {
   // ---- Processing shows candidates ----
 
   test('processing a file shows extracted candidates in the preview table', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, okFilePayload());
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
@@ -200,7 +200,7 @@ test.describe('expense playground – file import', () => {
   // ---- Money sources are displayed ----
 
   test('detected money sources are shown above the candidate table', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, okFilePayload());
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
@@ -221,7 +221,7 @@ test.describe('expense playground – file import', () => {
   // ---- Duplicate badges ----
 
   test('duplicate transactions show a warning badge', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, okFilePayload());
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
@@ -247,7 +247,7 @@ test.describe('expense playground – file import', () => {
   // ---- Classification & money source metadata ----
 
   test('each row displays classification and money source metadata', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, okFilePayload());
     await page.goto('/expense-playground');
     await page.getByTestId('tab-file').click();
@@ -274,7 +274,7 @@ test.describe('expense playground – file import', () => {
   // ---- Batch create success ----
 
   test('clicking create all persists expenses and shows success', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, okFilePayload());
     mockBatchCreate(page, {
       ok: true,
@@ -308,7 +308,7 @@ test.describe('expense playground – file import', () => {
   // ---- Batch create partial failure ----
 
   test('batch create errors are displayed to the user', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, okFilePayload());
     mockBatchCreate(page, {
       ok: false,
@@ -337,7 +337,7 @@ test.describe('expense playground – file import', () => {
   // ---- File processing error ----
 
   test('server errors during file processing are displayed', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, {
       ok: false,
       candidates: [],
@@ -364,7 +364,7 @@ test.describe('expense playground – file import', () => {
   // ---- No transactions extracted ----
 
   test('file with no extractable transactions shows a message', async ({ page }) => {
-    await signUp(page);
+    await signUp(page, { admin: true });
     mockProcessFile(page, {
       ok: true,
       candidates: [],

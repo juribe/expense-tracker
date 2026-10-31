@@ -21,6 +21,11 @@ async function signUp(page, overrides = {}) {
   // Accounts must confirm their email before signing in. Specs cannot open the
   // confirmation email, so the test-only endpoint confirms the account.
   await confirmUser(page, email);
+  // Internal tools (expense playground, AI evaluations) are admin-only, so
+  // specs that exercise them opt into the role before signing in.
+  if (overrides.admin) {
+    await promoteAdmin(page, email);
+  }
   await signIn(page, email, password);
 
   return { email, password, name };
@@ -32,6 +37,15 @@ async function confirmUser(page, email) {
   });
   if (!response.ok()) {
     throw new Error(`Could not confirm ${email}: ${response.status()}`);
+  }
+}
+
+async function promoteAdmin(page, email) {
+  const response = await page.request.post('/test_support/promote_admin', {
+    form: { email }
+  });
+  if (!response.ok()) {
+    throw new Error(`Could not promote ${email} to admin: ${response.status()}`);
   }
 }
 
