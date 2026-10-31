@@ -139,6 +139,9 @@ class FinancialAnalysisService
         de esta pregunta: si respuestas anteriores de la conversación muestran cifras
         distintas (por ejemplo, deudas ya pagadas), usa los datos actuales y no
         repitas las cifras viejas.
+      - Respeta el periodo indicado en los DATOS DEL USUARIO: si es un ciclo
+        financiero, habla de "ciclo" y usa sus fechas; si es un mes calendario,
+        habla de "mes".
       - Formato de dinero: COP 1.234.567 (sin decimales).
       - Escribe markdown: párrafos cortos, listas cuando ayuden, y **negrilla** en las cifras clave.
       - Cuando un resumen numérico compacto ayude, añade UNA tarjeta insight:
@@ -152,26 +155,28 @@ class FinancialAnalysisService
     PROMPT
   end
 
-  # Compact text snapshot of the user's finances for the current month and
-  # the previous one. Built from the same summaries the dashboard uses.
+  # Calendar month by default; the user's financial cycle when configured,
+  # mirroring the dashboard: Reports::Period resolves this_month/last_month
+  # to their pay-cycle equivalents (this_cycle/last_cycle).
   def financial_context
-    month = Time.zone.today
-    previous = month << 1
+    current = reporting_period("this_month")
+    previous = reporting_period("last_month")
 
     <<~CONTEXT
-      Mes actual: #{I18n.l(month, format: :long, default: month.strftime("%B %Y"))}
+      #{period_header(current, :current)}
+      #{period_header(previous, :previous)}
 
-      Ingresos #{month.strftime("%Y-%m")}: #{money(Income.dashboard_summary(user: @user, month: month)[:total_amount])}
-      Ingresos #{previous.strftime("%Y-%m")}: #{money(Income.dashboard_summary(user: @user, month: previous)[:total_amount])}
+      Ingresos #{current.label}: #{money(Income.dashboard_summary(user: @user, range: current.range)[:total_amount])}
+      Ingresos #{previous.label}: #{money(Income.dashboard_summary(user: @user, range: previous.range)[:total_amount])}
 
-      Gastos #{month.strftime("%Y-%m")}: #{money(Expense.dashboard_summary(user: @user, month: month)[:total_amount])}
-      Gastos #{previous.strftime("%Y-%m")}: #{money(Expense.dashboard_summary(user: @user, month: previous)[:total_amount])}
+      Gastos #{current.label}: #{money(expense_total(current.range))}
+      Gastos #{previous.label}: #{money(expense_total(previous.range))}
 
-      Gastos por categoría (#{month.strftime("%Y-%m")}):
-      #{category_lines(month)}
+      Gastos por categoría (#{current.label}):
+      #{category_lines(current.range)}
 
-      Presupuestos del mes:
-      #{budget_lines(month)}
+      Presupuestos del periodo:
+      #{budget_lines(current.range)}
 
       #{bank_account_lines}
 
@@ -185,8 +190,32 @@ class FinancialAnalysisService
     CONTEXT
   end
 
-  def category_lines(month)
-    by_category = Expense.dashboard_summary(user: @user, month: month)[:by_category]
+  # The reporting period follows the dashboard: a pay cycle when the user
+  # configured one, a calendar month otherwise.
+  def reporting_period(preset)
+    Reports::Period.new(preset: preset, user: @user)
+  end
+
+  def period_header(period, position)
+    noun = position == :previous ? "anterior" : "actual"
+    return "Mes #{noun}: #{period.label}" unless period.cycle_aligned?
+
+    "Ciclo financiero #{noun}: #{period.label} (#{period_range_label(period)})"
+  end
+
+  def period_range_label(period)
+    "#{I18n.l(period.range.begin, format: "%b %e").squeeze(" ").strip} – " \
+      "#{I18n.l(period.range.end, format: "%b %e").squeeze(" ").strip}"
+  end
+
+  # Expenses are stored as negative amounts; the dashboard and this context
+  # report the positive magnitude so the assistant never says "gastaste -X".
+  def expense_total(period_range)
+    Expense.dashboard_summary(user: @user, range: period_range)[:total_amount].to_d.abs
+  end
+
+  def category_lines(period_range)
+    by_category = Expense.dashboard_summary(user: @user, range: period_range)[:by_category]
     return "- (sin gastos registrados)" if by_category.blank?
 
     by_category.sort_by { |_, total| -total.abs }
@@ -195,12 +224,12 @@ class FinancialAnalysisService
                .join("\n")
   end
 
-  def budget_lines(month)
+  def budget_lines(period_range)
     budgets = @user.budgets.includes(:category)
     return "- (sin presupuestos)" if budgets.blank?
 
     budgets.map do |budget|
-      spent = CategorySpend.call(user: @user, category: budget.category, month: month)
+      spent = CategorySpend.call(user: @user, category: budget.category, range: period_range)
       "- #{budget.category.name}: gastado #{money(spent)} de #{money(budget.monthly_amount)}"
     end.join("\n")
   end

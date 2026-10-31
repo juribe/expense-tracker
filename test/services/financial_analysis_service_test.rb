@@ -183,6 +183,51 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     assert_match(/respuestas anteriores/i, system_prompt)
   end
 
+  test "uses the financial cycle for the reporting period when cycles are enabled" do
+    @user.update!(financial_cycle_start_day: 20)
+    @fake.responses << { content: "ok" }
+    current_cycle = PayCycle.current(@user)
+    previous_cycle = PayCycle.previous(@user)
+    category = Category.create!(name: "Mercado", is_default: true, category_type: "expense")
+    income_category = Category.create!(name: "Salario", is_default: true, category_type: "income")
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    @user.expenses.create!(amount: 40_000, date: current_cycle.starts, category: category, description: "Ciclo",
+                           money_source: source)
+    @user.expenses.create!(amount: 25_000, date: previous_cycle.starts, category: category, description: "Anterior",
+                           money_source: source)
+    @user.incomes.create!(amount: 900_000, date: current_cycle.starts, category: income_category, description: "Pago",
+                          money_source: source)
+    @user.budgets.create!(category: category, monthly_amount: 100_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Ciclo financiero actual: #{Regexp.escape(current_cycle.label)} \(.+\)/, system_prompt)
+    assert_match(/Ciclo financiero anterior: #{Regexp.escape(previous_cycle.label)}/, system_prompt)
+    assert_match(/Ingresos #{Regexp.escape(current_cycle.label)}: COP 900\.000/, system_prompt)
+    assert_match(/Gastos #{Regexp.escape(current_cycle.label)}: COP 40\.000/, system_prompt)
+    assert_match(/Gastos #{Regexp.escape(previous_cycle.label)}: COP 25\.000/, system_prompt)
+    assert_match(/Mercado: gastado COP 40\.000 de COP 100\.000/, system_prompt)
+  end
+
+  test "keeps calendar months when financial cycles are disabled" do
+    @user.update!(financial_cycle_start_day: 1)
+    @fake.responses << { content: "ok" }
+    category = Category.create!(name: "Mercado", is_default: true, category_type: "expense")
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    @user.expenses.create!(amount: 30_000, date: Time.zone.today, category: category, description: "Mes",
+                           money_source: source)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    month_label = I18n.l(Time.zone.today, format: "%b %Y")
+    assert_match(/Mes actual: #{Regexp.escape(month_label)}/, system_prompt)
+    assert_match(/Mes anterior: #{Regexp.escape(I18n.l(Time.zone.today.prev_month, format: "%b %Y"))}/, system_prompt)
+    assert_match(/Gastos #{Regexp.escape(month_label)}: COP 30\.000/, system_prompt)
+    refute_match(/Ciclo financiero/, system_prompt)
+  end
+
   test "provider failure broadcasts assistant_failed and persists nothing" do
     @fake.responses << Ai::Provider::Error.new("LLM timeout")
 
