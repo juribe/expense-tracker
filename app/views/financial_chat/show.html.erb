@@ -1,21 +1,23 @@
 <% content_for :title, t("financial_chat.title") %>
 
-<div class="financial-chat"
-     id="financialChat"
-     data-user-id="<%= current_user.id %>"
-     data-send-url="<%= financial_chat_messages_path %>"
-     data-placeholder="<%= t("financial_chat.input_placeholder") %>"
-     data-thinking-text="<%= t("financial_chat.thinking") %>">
-  <div class="financial-chat__header">
-    <div class="d-flex align-items-start justify-content-between gap-3">
-      <div>
-        <h1 class="fw-bold mb-1"><%= t("financial_chat.title") %></h1>
-        <p class="text-secondary mb-0"><%= t("financial_chat.subtitle") %></p>
+<div class="financial-chat-page">
+  <div class="financial-chat"
+       id="financialChat"
+       data-user-id="<%= current_user.id %>"
+       data-send-url="<%= financial_chat_messages_path %>"
+       data-placeholder="<%= t("financial_chat.input_placeholder") %>"
+       data-thinking-text="<%= t("financial_chat.thinking") %>">
+    <div class="financial-chat__header">
+      <div class="financial-chat__heading">
+        <h1 class="financial-chat__title"><%= t("financial_chat.title") %></h1>
+        <p class="financial-chat__subtitle"><%= t("financial_chat.subtitle") %></p>
       </div>
       <% if @messages.any? %>
         <%= button_to clear_financial_chat_messages_path,
               method: :delete,
-              class: "btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 flex-shrink-0",
+              class: "btn btn-sm btn-outline-secondary financial-chat__clear",
+              title: t("financial_chat.clear"),
+              aria: { label: t("financial_chat.clear") },
               form: { class: "m-0", data: {
                 turbo_confirm: t("financial_chat.clear_confirm"),
                 confirm_title: t("financial_chat.clear"),
@@ -27,48 +29,50 @@
         <% end %>
       <% end %>
     </div>
-  </div>
 
-  <div class="financial-chat__scroll" id="chatScroll" data-testid="chat-messages">
-    <% if @messages.empty? %>
-      <div class="chat-empty" id="chatEmptyState">
-        <div class="chat-empty__icon"><i class="ti ti-pig-money"></i></div>
-        <h2 class="chat-empty__title"><%= t("financial_chat.empty.title") %></h2>
-        <p class="chat-empty__subtitle"><%= t("financial_chat.empty.subtitle") %></p>
-        <div class="chat-empty__suggestions">
-          <% Array(t("financial_chat.empty.suggestions", default: [])).each do |suggestion| %>
-            <button type="button" class="chat-suggestion" data-suggestion="<%= suggestion %>"><%= suggestion %></button>
-          <% end %>
-        </div>
-      </div>
-    <% else %>
-      <% @messages.each do |message| %>
-        <div class="chat-row <%= message.user? ? "chat-row-user" : "chat-row-assistant" %>" data-message-id="<%= message.id %>">
-          <% unless message.user? %>
-            <div class="chat-avatar bg-primary text-white"><i class="ti ti-pig-money"></i></div>
-          <% end %>
-          <div class="<%= message.user? ? "chat-bubble-user" : "chat-bubble-assistant chat-bubble-rich" %>">
-            <% if message.user? %>
-              <p class="mb-1"><%= message.content %></p>
-              <small class="chat-time"><%= message.created_at.strftime("%H:%M") %></small>
-            <% else %>
-              <%= FinancialChatMarkdownRenderer.render(message.content) %>
+    <div class="financial-chat__scroll" id="chatScroll" data-testid="chat-messages">
+      <% if @messages.empty? %>
+        <div class="chat-empty" id="chatEmptyState">
+          <div class="chat-empty__icon"><i class="ti ti-pig-money"></i></div>
+          <h2 class="chat-empty__title"><%= t("financial_chat.empty.title") %></h2>
+          <p class="chat-empty__subtitle"><%= t("financial_chat.empty.subtitle") %></p>
+          <div class="chat-empty__suggestions">
+            <% Array(t("financial_chat.empty.suggestions", default: [])).each do |suggestion| %>
+              <button type="button" class="chat-suggestion" data-suggestion="<%= suggestion %>"><%= suggestion %></button>
             <% end %>
           </div>
         </div>
+      <% else %>
+        <% @messages.each do |message| %>
+          <div class="chat-row <%= message.user? ? "chat-row-user" : "chat-row-assistant" %>" data-message-id="<%= message.id %>">
+            <% unless message.user? %>
+              <div class="chat-avatar bg-primary text-white"><i class="ti ti-pig-money"></i></div>
+            <% end %>
+            <div class="<%= message.user? ? "chat-bubble-user" : "chat-bubble-assistant chat-bubble-rich" %>">
+              <% if message.user? %>
+                <p class="mb-1"><%= message.content %></p>
+                <small class="chat-time"><%= message.created_at.strftime("%H:%M") %></small>
+              <% else %>
+                <%= FinancialChatMarkdownRenderer.render(message.content) %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       <% end %>
-    <% end %>
-    <div class="chat-reconnecting" id="chatReconnecting" hidden>
-      <i class="ti ti-repeat"></i> <%= t("financial_chat.reconnecting") %>
+      <div class="chat-reconnecting" id="chatReconnecting" hidden>
+        <i class="ti ti-repeat"></i> <%= t("financial_chat.reconnecting") %>
+      </div>
+    </div>
+
+    <div class="financial-chat__composer-wrap">
+      <form class="financial-chat__composer" id="chatComposer">
+        <textarea class="form-control chat-input" id="chatInput" rows="1"
+                  placeholder="<%= t("financial_chat.input_placeholder") %>"
+                  aria-label="<%= t("financial_chat.input_placeholder") %>"></textarea>
+        <button type="submit" class="btn btn-primary chat-send" id="chatSend" aria-label="Enviar" disabled>
+          <i class="ti ti-send"></i>
+        </button>
+      </form>
     </div>
   </div>
-
-  <form class="financial-chat__composer" id="chatComposer">
-    <textarea class="form-control chat-input" id="chatInput" rows="1"
-              placeholder="<%= t("financial_chat.input_placeholder") %>"
-              aria-label="<%= t("financial_chat.input_placeholder") %>"></textarea>
-    <button type="submit" class="btn btn-primary chat-send" id="chatSend" aria-label="Enviar" disabled>
-      <i class="ti ti-send"></i>
-    </button>
-  </form>
 </div>

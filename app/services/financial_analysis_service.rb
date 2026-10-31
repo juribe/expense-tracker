@@ -137,13 +137,20 @@ class FinancialAnalysisService
       - Usa solo los datos entregados; si falta información, dilo sin inventar cifras.
       - Los DATOS DEL USUARIO son la fuente de verdad y están actualizados al momento
         de esta pregunta: si respuestas anteriores de la conversación muestran cifras
-        distintas (por ejemplo, deudas ya pagadas), usa los datos actuales y no
+        distintas (por ejemplo, deudas ya pagadas) o negaron un crédito que ahora
+        aparece, corrige explícitamente esa respuesta y usa los datos actuales; no
         repitas las cifras viejas.
       - Respeta el periodo indicado en los DATOS DEL USUARIO: si es un ciclo
         financiero, habla de "ciclo" y usa sus fechas; si es un mes calendario,
         habla de "mes".
       - Formato de dinero: COP 1.234.567 (sin decimales).
       - Escribe markdown: párrafos cortos, listas cuando ayuden, y **negrilla** en las cifras clave.
+      - Cuando respondas sobre créditos o préstamos, incluye todos los créditos
+        activos de "Créditos y préstamos" (sin omitir ninguno) con valor total,
+        tipo, saldo, interés, cuota, cuota actual y cuotas faltantes. "Crédito
+        rotativo" es un préstamo independiente, no es una tarjeta de crédito:
+        no lo agrupes con las tarjetas ni lo sustituyas por ellas. Si un dato no
+        está registrado, dilo.
       - Cuando un resumen numérico compacto ayude, añade UNA tarjeta insight:
 
         ```insight
@@ -184,6 +191,9 @@ class FinancialAnalysisService
 
       Tarjetas de crédito (deuda actual):
       #{credit_card_lines}
+
+      Créditos y préstamos:
+      #{loan_lines}
 
       Gastos recurrentes pendientes de pago:
       #{recurring_pending_lines}
@@ -246,6 +256,67 @@ class FinancialAnalysisService
                  .map { |card| "- #{card.name}: #{money(card.used_credit)}" }
     lines << "Total deuda tarjetas de crédito: #{money(cards.sum { |card| card.used_credit.to_d })}"
     lines.join("\n")
+  end
+
+  # Loan details the assistant needs to answer about credit progress. Fields
+  # come straight from CreditAccount/MoneySource; missing values stay explicit
+  # instead of being replaced with zeroes.
+  def loan_lines
+    loans = @user.money_sources.where(kind: "loan", active: true).includes(:credit_account).to_a
+    return "- (sin créditos registrados)" if loans.empty?
+
+    lines = loans.sort_by { |loan| loan.name.downcase }.map { |loan| loan_line(loan) }
+    balances = loans.filter_map { |loan| loan.outstanding_balance&.to_d }
+    if balances.any?
+      label = balances.size == loans.size ? "Total saldo de créditos" : "Total saldo de créditos registrado"
+      lines << "#{label}: #{money(balances.sum)}"
+    end
+    lines.join("\n")
+  end
+
+  def loan_line(loan)
+    identity = [ loan_type_label(loan), loan.institution_name.presence ].compact.join("; ")
+    "- #{loan.name} (#{identity}): " \
+      "valor total #{money_or_missing(loan.principal_amount)}; " \
+      "saldo #{money_or_missing(loan.outstanding_balance)}; " \
+      "interés #{loan.interest_rate_label.presence || "sin tasa registrada"}; " \
+      "cuota #{loan_installment_label(loan)}; " \
+      "cuota actual #{current_installment_label(loan)}; " \
+      "cuotas faltantes #{loan_remaining_installments_label(loan)}"
+  end
+
+  def loan_type_label(loan)
+    sub_kind = loan.sub_kind.presence
+    return I18n.t("kinds.loan") unless sub_kind
+
+    I18n.t("kinds_sub.#{sub_kind}", default: sub_kind.humanize)
+  end
+
+  def loan_installment_label(loan)
+    amount = loan.installment_amount
+    return "sin cuota registrada" if amount.blank?
+
+    frequency = loan.payment_frequency.presence
+    suffix = frequency ? " #{I18n.t("money_sources.form.frequency.#{frequency}", default: frequency).downcase}" : ""
+    "#{money(amount)}#{suffix}"
+  end
+
+  def current_installment_label(loan)
+    paid = loan.credit_account&.installments_paid
+    count = loan.installment_count
+    return "sin dato" if paid.nil? || count.blank?
+    return "pagada" if paid >= count
+
+    "#{paid + 1} de #{count}"
+  end
+
+  def loan_remaining_installments_label(loan)
+    remaining = loan.remaining_installments
+    remaining.nil? ? "sin dato" : remaining.to_s
+  end
+
+  def money_or_missing(value)
+    value.nil? ? "sin dato" : money(value)
   end
 
   # Immediately available money held at a bank: the requested total on the

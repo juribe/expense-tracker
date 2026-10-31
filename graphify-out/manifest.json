@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793457548.879363,
-    "seen": 1793457644.0087948,
+    "mtime": 1793460579.0456455,
+    "seen": 1793460644.247165,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3174,9 +3174,9 @@
     "semantic_hash": ""
   },
   "app/services/financial_analysis_service.rb": {
-    "mtime": 1793405720.9171782,
-    "seen": 1793405773.249855,
-    "ast_hash": "bebb6adf30250436c67a78dbe20b47c7",
+    "mtime": 1793460517.4640238,
+    "seen": 1793460644.246254,
+    "ast_hash": "c034d0cd1293cc06f2e360aa0b963852",
     "semantic_hash": ""
   },
   "app/services/financial_chat_markdown_renderer.rb": {
@@ -3204,9 +3204,9 @@
     "semantic_hash": ""
   },
   "test/controllers/financial_chat_controller_test.rb": {
-    "mtime": 1793405202.7157004,
-    "seen": 1793405246.636184,
-    "ast_hash": "885b32bd27a7af31089cd299c06b4676",
+    "mtime": 1793458704.4206197,
+    "seen": 1793459241.6316202,
+    "ast_hash": "151cc13d28b76ceb0c7f0436d863e37d",
     "semantic_hash": ""
   },
   "test/controllers/financial_chats/messages_controller_test.rb": {
@@ -3234,9 +3234,9 @@
     "semantic_hash": ""
   },
   "test/services/financial_analysis_service_test.rb": {
-    "mtime": 1793405723.442555,
-    "seen": 1793405773.250581,
-    "ast_hash": "d4e544206ee423781d9d9f9e63f7cbc1",
+    "mtime": 1793460528.1698158,
+    "seen": 1793460644.246965,
+    "ast_hash": "0feb7b5106834b99fb9770aa110cf9f1",
     "semantic_hash": ""
   },
   "test/services/financial_chat_markdown_renderer_test.rb": {

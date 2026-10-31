@@ -20,6 +20,63 @@ class FinancialChatControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: I18n.t("financial_chat.title")
   end
 
+  test "GET /financial_chat frames the conversation in a card with an integrated composer" do
+    sign_in @user
+
+    get financial_chat_path
+
+    assert_response :success
+    assert_select "div.financial-chat-page > div#financialChat.financial-chat" do
+      assert_select ".financial-chat__header h1", text: I18n.t("financial_chat.title")
+      assert_select ".financial-chat__header p", text: I18n.t("financial_chat.subtitle")
+      assert_select "#chatScroll[data-testid='chat-messages']"
+      assert_select ".financial-chat__composer-wrap form#chatComposer.financial-chat__composer" do
+        assert_select "textarea#chatInput[placeholder=?]", I18n.t("financial_chat.input_placeholder")
+        assert_select "button#chatSend[type='submit'][disabled]"
+      end
+    end
+  end
+
+  test "GET /financial_chat keeps the client hooks used by Action Cable and sending" do
+    sign_in @user
+
+    get financial_chat_path
+
+    assert_select "#financialChat[data-user-id='#{@user.id}']"
+    assert_select "#financialChat[data-send-url='#{financial_chat_messages_path}']"
+    assert_select "#financialChat[data-placeholder=?]", I18n.t("financial_chat.input_placeholder")
+    assert_select "#financialChat[data-thinking-text=?]", I18n.t("financial_chat.thinking")
+  end
+
+  test "GET /financial_chat renders assistant answers with avatar and rich markdown" do
+    sign_in @user
+    chat = FinancialChat.for_user(@user)
+    chat.messages.create!(
+      role: "assistant",
+      content: "Tus gastos fueron **COP 845.000** en restaurantes.",
+      status: "complete"
+    )
+
+    get financial_chat_path
+
+    assert_select ".chat-row-assistant" do
+      assert_select ".chat-avatar .ti-pig-money"
+      assert_select ".chat-bubble-assistant.chat-bubble-rich strong", text: "COP 845.000"
+    end
+  end
+
+  test "GET /financial_chat renders the empty state and suggestions inside the conversation" do
+    sign_in @user
+    FinancialChat.for_user(@user)
+
+    get financial_chat_path
+
+    assert_select "#chatScroll #chatEmptyState" do
+      assert_select ".chat-empty__title", text: I18n.t("financial_chat.empty.title")
+      assert_select ".chat-suggestion", count: I18n.t("financial_chat.empty.suggestions").size
+    end
+  end
+
   test "GET /financial_chat redirects unauthenticated user to sign in" do
     get financial_chat_path
     assert_response :redirect

@@ -173,6 +173,79 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     refute_includes system_prompt, "Visa: COP 100.000"
   end
 
+  test "includes loan details with total value, type, balance, rate, installment and progress in the system prompt" do
+    @fake.responses << { content: "ok" }
+    loan = @user.money_sources.create!(name: "Hipotecario", kind: "loan", sub_kind: "mortgage",
+                                       bank: "Banco Central")
+    loan.create_credit_account!(
+      principal_amount: 120_000_000,
+      outstanding_balance: 80_000_000,
+      interest_rate: 10.5,
+      interest_rate_type: "effective_annual",
+      installment_amount: 1_500_000,
+      installment_count: 120,
+      installments_paid: 24,
+      payment_frequency: "monthly"
+    )
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Créditos y préstamos:/, system_prompt)
+    assert_includes system_prompt,
+                    "- Hipotecario (Crédito hipotecario; Banco Central): " \
+                    "valor total COP 120.000.000; saldo COP 80.000.000; " \
+                    "interés 10.50% EA; cuota COP 1.500.000 mensual; " \
+                    "cuota actual 25 de 120; cuotas faltantes 80"
+    assert_match(/Total saldo de créditos: COP 80\.000\.000/, system_prompt)
+  end
+
+  test "excludes inactive loans and other users' loans from the credit context" do
+    @fake.responses << { content: "ok" }
+    other_user = User.create!(name: "Other", email: "other_financial_chat@example.com", password: "password123")
+    active_loan = @user.money_sources.create!(name: "Crédito activo", kind: "loan", sub_kind: "personal")
+    active_loan.create_credit_account!(principal_amount: 10_000_000, outstanding_balance: 4_000_000)
+    inactive_loan = @user.money_sources.create!(name: "Crédito inactivo", kind: "loan", active: false)
+    inactive_loan.create_credit_account!(principal_amount: 90_000_000, outstanding_balance: 90_000_000)
+    other_loan = other_user.money_sources.create!(name: "Crédito ajeno", kind: "loan")
+    other_loan.create_credit_account!(principal_amount: 70_000_000, outstanding_balance: 70_000_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt, "Crédito activo"
+    refute_includes system_prompt, "Crédito inactivo"
+    refute_includes system_prompt, "Crédito ajeno"
+    assert_match(/Total saldo de créditos: COP 4\.000\.000/, system_prompt)
+  end
+
+  test "marks missing loan data as unavailable instead of inventing figures" do
+    @fake.responses << { content: "ok" }
+    @user.money_sources.create!(name: "Crédito sin detalles", kind: "loan")
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt,
+                    "- Crédito sin detalles (Préstamo): valor total sin dato; saldo sin dato; " \
+                    "interés sin tasa registrada; cuota sin cuota registrada; " \
+                    "cuota actual sin dato; cuotas faltantes sin dato"
+  end
+
+  test "credit instructions require every active credit and keep revolving separate from cards" do
+    @fake.responses << { content: "ok" }
+    revolving = @user.money_sources.create!(name: "Crédito Rotativo", kind: "loan", sub_kind: "revolving")
+    revolving.create_credit_account!(principal_amount: 50_000_000, outstanding_balance: 20_000_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt, "Crédito Rotativo (Crédito rotativo"
+    assert_match(/incluye todos los créditos\s+activos/i, system_prompt)
+    assert_match(/no es una tarjeta de crédito/i, system_prompt)
+    assert_match(/corrige explícitamente/i, system_prompt)
+  end
+
   test "system prompt states that current data overrides figures from earlier answers" do
     @fake.responses << { content: "ok" }
 
