@@ -62,7 +62,7 @@ module Expenses
         return
       end
 
-      scope = user.expenses.includes(:category, { money_source: :credit_account })
+      scope = user.expenses.includes(:category, :money_source)
       scope = apply_filters(scope)
       scope = apply_sort(scope)
       @csv_scope = scope

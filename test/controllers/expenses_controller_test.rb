@@ -35,6 +35,17 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
+  # Runs the request with Bullet enabled so its Rack middleware raises on N+1
+  # queries or unused eager loading. Bullet is off by default in tests.
+  def assert_page_has_no_bullet_notifications
+    Bullet.enable = true
+    Bullet.raise = true
+    yield
+  ensure
+    Bullet.enable = false
+    Bullet.raise = false
+  end
+
   test "GET /expenses renders the table with expenses" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
     create_expense(amount: 12.50, date: Date.today, money_source: source)
@@ -223,6 +234,26 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, '2026-03-10,"Lunch, ""business""",Food,-12.5'
     assert_includes response.body, "Food"
     refute_includes response.body, "Excluded"
+  end
+
+  test "GET /expenses.csv does not preload credit data unused by the export" do
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
+    create_expense(amount: 12.50, date: Date.today, money_source: source)
+
+    assert_page_has_no_bullet_notifications { get expenses_path(format: :csv) }
+
+    assert_response :success
+    assert_includes response.body, "Visa"
+  end
+
+  test "GET /expenses preloads money-source credit data used by display_name" do
+    source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
+    create_expense(amount: 12.50, date: Date.today, money_source: source)
+
+    assert_page_has_no_bullet_notifications { get expenses_path }
+
+    assert_response :success
+    assert_select "tr[data-testid=row] .badge", text: /Visa/
   end
 
   test "GET /expenses/:id renders the drawer fragment" do
@@ -607,14 +638,26 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     template_for(amount: 12_000)
     template_for(amount: 33_000)
 
-    Bullet.enable = true
-    Bullet.raise = true
-    get expenses_path
+    assert_page_has_no_bullet_notifications { get expenses_path }
 
     assert_response :success
-  ensure
-    Bullet.enable = false
-    Bullet.raise = false
+    assert_select "#bulkRecurringSelect option", count: 4
+  end
+
+  test "GET /expenses does not preload categories for debt-target templates" do
+    @template.destroy!
+    loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+    debt_category = Category.create!(name: "Deuda", is_default: true, category_type: "expense")
+    @user.recurring_templates.create!(
+      category: debt_category, kind: "expense", amount: 3_000_000, frequency: "monthly",
+      source: "manual", money_source: loan
+    )
+
+    assert_page_has_no_bullet_notifications { get expenses_path }
+
+    assert_response :success
+    assert_select "#bulkRecurringSelect option", count: 1
+    assert_select "#bulkRecurringSelect option", text: /Deuda/, count: 0
   end
 
   test "POST /expenses/assign_recurring rejects an inactive template" do

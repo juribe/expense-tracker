@@ -28,6 +28,7 @@ class ExpensesController < ApplicationController
       end
       format.html do
         @expenses = search.relation
+        preload_money_source_credit_data
         @total_count = search.total_count
         @filtered_total = search.filtered_total
         @page_subtotal = search.page_subtotal
@@ -225,6 +226,17 @@ class ExpensesController < ApplicationController
     @money_sources = MoneySource.payment_origins(current_user)
   end
 
+  # The table renders MoneySource#display_name, which reads credit_account
+  # (card last four digits). Only the HTML list needs it; the CSV export uses
+  # the plain name, so it avoids the extra query.
+  def preload_money_source_credit_data
+    return if @expenses.empty?
+
+    ActiveRecord::Associations::Preloader.new(
+      records: @expenses, associations: { money_source: :credit_account }
+    ).call
+  end
+
   # Active expense recurring templates for the "assign to recurring" modal,
   # plus the ids already paid this period — those render disabled, since an
   # expense must first be unassigned to reopen the period.
@@ -233,8 +245,17 @@ class ExpensesController < ApplicationController
     # source page — a single-link assign would skip the real Payment. Their
     # templates never appear in the assign modal.
     relation = current_user.recurring_templates.active.expense.includes(:money_source).ordered
-relation = relation.includes(:category) if request.format.html?
-@recurring_templates = relation.to_a.reject { |template| template.money_source&.debt_payment_target? }
+    @recurring_templates = relation.to_a.reject { |template| template.money_source&.debt_payment_target? }
+
+    # Category names are only rendered by the HTML modal, and only for the
+    # templates that survive the debt filter. Preloading the unfiltered
+    # relation eager loads categories that are never used (Bullet flags it
+    # when every template is a debt-payment target).
+    if request.format.html? && @recurring_templates.any?
+      ActiveRecord::Associations::Preloader.new(
+        records: @recurring_templates, associations: :category
+      ).call
+    end
     @current_period_range = PayCycle.period_for(current_user).last
     template_ids = @recurring_templates.map(&:id)
 
