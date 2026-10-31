@@ -151,6 +151,10 @@ class FinancialAnalysisService
         rotativo" es un préstamo independiente, no es una tarjeta de crédito:
         no lo agrupes con las tarjetas ni lo sustituyas por ellas. Si un dato no
         está registrado, dilo.
+      - Cuando respondas sobre metas de ahorro o presupuestos, usa los bloques
+        "Metas de ahorro en curso" y "Presupuestos del periodo"; incluye todas
+        las metas en curso y los presupuestos activos, y distingue ahorrado,
+        restante y excedido.
       - Cuando un resumen numérico compacto ayude, añade UNA tarjeta insight:
 
         ```insight
@@ -184,6 +188,9 @@ class FinancialAnalysisService
 
       Presupuestos del periodo:
       #{budget_lines(current.range)}
+
+      Metas de ahorro en curso:
+      #{goal_lines}
 
       #{bank_account_lines}
 
@@ -235,13 +242,64 @@ class FinancialAnalysisService
   end
 
   def budget_lines(period_range)
-    budgets = @user.budgets.includes(:category)
-    return "- (sin presupuestos)" if budgets.blank?
+    budgets = @user.budgets.active.includes(:category)
+    return "- (sin presupuestos activos)" if budgets.blank?
 
     budgets.map do |budget|
-      spent = CategorySpend.call(user: @user, category: budget.category, range: period_range)
-      "- #{budget.category.name}: gastado #{money(spent)} de #{money(budget.monthly_amount)}"
+      spent = budget.spent_for(period_range)
+      remaining = budget.remaining_for(period_range)
+      balance = remaining.negative? ? "excedido #{money(remaining.abs)}" : "restante #{money(remaining)}"
+      "- #{budget.category.name}: gastado #{money(spent)} de #{money(budget.monthly_amount)} " \
+        "(#{budget.percentage_for(period_range).round}%); #{balance}; " \
+        "estado #{budget_status_label(budget.status_for(period_range))}"
     end.join("\n")
+  end
+
+  def budget_status_label(status)
+    I18n.t("budgets.status.#{status}")
+  end
+
+  # Only goals still in progress: archived goals and goals whose reserved
+  # amount already reached the target are omitted.
+  def goal_lines
+    goals = @user.goals.active.includes(:pocket, :goal_allocations).reject(&:completed?)
+    return "- (sin metas en curso)" if goals.empty?
+
+    goals = goals.sort_by { |goal| [ -goal.priority, goal.name.downcase ] }
+    lines = goals.map { |goal| goal_line(goal) }
+    lines << "Total metas en curso: #{goals.size} · " \
+             "ahorrado #{money(goals.sum { |goal| goal.saved_amount })} · " \
+             "objetivo #{money(goals.sum { |goal| goal.target_amount.to_d })} · " \
+             "restante #{money(goals.sum { |goal| goal.remaining_amount })}"
+    lines.join("\n")
+  end
+
+  def goal_line(goal)
+    category = goal_category_label(goal)
+    priority = goal_priority_label(goal)
+    pocket = goal.pocket&.name || "sin bolsillo"
+    target_date = goal.target_date ? I18n.l(goal.target_date, format: :long) : "sin fecha"
+    months = goal.months_remaining
+    contribution = goal.required_monthly_contribution
+
+    "- #{goal.name} (#{category}; prioridad #{priority}; bolsillo #{pocket}): " \
+      "ahorrado #{money(goal.saved_amount)} de #{money(goal.target_amount)} " \
+      "(#{goal.progress_percentage.round}%); restante #{money(goal.remaining_amount)}; " \
+      "fecha límite #{target_date}; " \
+      "#{months ? "faltan #{months} meses; " : ""}" \
+      "aporte requerido #{contribution ? "#{money(contribution)}/mes" : "sin dato"}; " \
+      "estado #{I18n.t("goals.health.#{goal.health}")}"
+  end
+
+  def goal_category_label(goal)
+    return I18n.t("goals.form.category_blank", default: "Sin categoría") if goal.category.blank?
+
+    I18n.t("goals.categories.#{goal.category}", default: goal.category.humanize)
+  end
+
+  def goal_priority_label(goal)
+    priority = Goal::PRIORITIES.key(goal.priority) || :medium
+    I18n.t("goals.priorities.#{priority}", default: "Media").downcase
   end
 
   # Card debt is the reconciled, canonical figure the rest of the app shows:

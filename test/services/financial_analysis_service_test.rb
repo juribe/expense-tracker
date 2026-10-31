@@ -107,6 +107,115 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     assert_match(/500\.000/, system_prompt)
   end
 
+  test "includes active budgets with remaining, percentage and status" do
+    @fake.responses << { content: "ok" }
+    category = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")
+    inactive_category = Category.create!(name: "Presupuesto inactivo", is_default: true, category_type: "expense")
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    @user.expenses.create!(amount: 85_000, date: Date.today, category: category, description: "Almuerzo",
+                           money_source: source)
+    @user.expenses.create!(amount: 20_000, date: Date.today, category: inactive_category, description: "Otro",
+                           money_source: source)
+    @user.budgets.create!(category: category, monthly_amount: 100_000)
+    @user.budgets.create!(category: inactive_category, monthly_amount: 50_000, active: false)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt,
+                    "- Restaurantes: gastado COP 85.000 de COP 100.000 (85%); " \
+                    "restante COP 15.000; estado Cerca del límite"
+    refute_includes system_prompt, "Presupuesto inactivo: gastado"
+  end
+
+  test "reports over-budget spending with the exceeded amount and status" do
+    @fake.responses << { content: "ok" }
+    category = Category.create!(name: "Ocio", is_default: true, category_type: "expense")
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    @user.expenses.create!(amount: 120_000, date: Date.today, category: category, description: "Salida",
+                           money_source: source)
+    @user.budgets.create!(category: category, monthly_amount: 100_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt,
+                    "- Ocio: gastado COP 120.000 de COP 100.000 (120%); " \
+                    "excedido COP 20.000; estado Superado"
+  end
+
+  test "includes goals in progress ordered by priority with progress and required contribution" do
+    @fake.responses << { content: "ok" }
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 10_000_000)
+    high = @user.goals.create!(name: "Viaje", pocket: pocket, target_amount: 5_000_000,
+                               target_date: Date.current + 8.months, priority: 2, category: "travel")
+    low = @user.goals.create!(name: "Computador", pocket: pocket, target_amount: 1_000_000,
+                              priority: 0, category: "other")
+    GoalAllocation.create!(financial_goal: high, amount: 2_000_000, date: Date.current)
+    GoalAllocation.create!(financial_goal: low, amount: 100_000, date: Date.current)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Metas de ahorro en curso:/, system_prompt)
+    assert_includes system_prompt,
+                    "- Viaje (Viaje; prioridad alta; bolsillo Ahorros): " \
+                    "ahorrado COP 2.000.000 de COP 5.000.000 (40%); restante COP 3.000.000; " \
+                    "fecha límite #{I18n.l(high.target_date, format: :long)}; faltan 8 meses; " \
+                    "aporte requerido COP 375.000/mes; estado En rumbo"
+    assert_includes system_prompt, "- Computador (Otra; prioridad baja; bolsillo Ahorros)"
+    assert_operator system_prompt.index("Viaje"), :<, system_prompt.index("Computador")
+    assert_includes system_prompt,
+                    "Total metas en curso: 2 · ahorrado COP 2.100.000 · " \
+                    "objetivo COP 6.000.000 · restante COP 3.900.000"
+  end
+
+  test "excludes completed, archived and other users' goals from the system prompt" do
+    @fake.responses << { content: "ok" }
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 10_000_000)
+    @user.goals.create!(name: "Meta propia", pocket: pocket, target_amount: 3_000_000)
+    completed = @user.goals.create!(name: "Meta cumplida", pocket: pocket, target_amount: 1_000_000)
+    @user.goals.create!(name: "Meta archivada", pocket: pocket, target_amount: 2_000_000, status: "archived")
+    GoalAllocation.create!(financial_goal: completed, amount: 1_000_000, date: Date.current)
+
+    other_user = User.create!(name: "Other", email: "other_goals@example.com", password: "password123")
+    other_pocket = other_user.money_sources.create!(name: "Ahorros ajenos", kind: "pocket",
+                                                    starting_balance: 2_000_000)
+    other_user.goals.create!(name: "Meta ajena", pocket: other_pocket, target_amount: 1_000_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt, "Meta propia"
+    refute_includes system_prompt, "Meta cumplida"
+    refute_includes system_prompt, "Meta archivada"
+    refute_includes system_prompt, "Meta ajena"
+  end
+
+  test "keeps goals without a target date explicit instead of inventing a date or contribution" do
+    @fake.responses << { content: "ok" }
+    pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 2_000_000)
+    @user.goals.create!(name: "Fondo libre", pocket: pocket, target_amount: 2_000_000)
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_includes system_prompt,
+                    "- Fondo libre (Sin categoría; prioridad media; bolsillo Ahorros): " \
+                    "ahorrado COP 0 de COP 2.000.000 (0%); restante COP 2.000.000; " \
+                    "fecha límite sin fecha; aporte requerido sin dato; estado En rumbo"
+  end
+
+  test "goal and budget instructions tell the assistant to use those blocks" do
+    @fake.responses << { content: "ok" }
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/Metas de ahorro en curso/, system_prompt)
+    assert_match(/Presupuestos del periodo/, system_prompt)
+  end
+
   test "includes pending recurring expenses and their total in the system prompt" do
     @fake.responses << { content: "ok" }
     category = Category.create!(name: "Servicios", is_default: true, category_type: "expense")

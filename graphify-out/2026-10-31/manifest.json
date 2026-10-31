@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793460116.7695277,
-    "seen": 1793460217.191663,
+    "mtime": 1793460579.0456455,
+    "seen": 1793460644.247165,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3174,9 +3174,9 @@
     "semantic_hash": ""
   },
   "app/services/financial_analysis_service.rb": {
-    "mtime": 1793460055.5521386,
-    "seen": 1793460217.1907861,
-    "ast_hash": "aabfc7fabc41c4e99d34d23cbbf6e153",
+    "mtime": 1793460517.4640238,
+    "seen": 1793460644.246254,
+    "ast_hash": "c034d0cd1293cc06f2e360aa0b963852",
     "semantic_hash": ""
   },
   "app/services/financial_chat_markdown_renderer.rb": {
@@ -3234,9 +3234,9 @@
     "semantic_hash": ""
   },
   "test/services/financial_analysis_service_test.rb": {
-    "mtime": 1793460023.090244,
-    "seen": 1793460217.191469,
-    "ast_hash": "6ace51d10c5ab72f216cf52036caf945",
+    "mtime": 1793460528.1698158,
+    "seen": 1793460644.246965,
+    "ast_hash": "0feb7b5106834b99fb9770aa110cf9f1",
     "semantic_hash": ""
   },
   "test/services/financial_chat_markdown_renderer_test.rb": {

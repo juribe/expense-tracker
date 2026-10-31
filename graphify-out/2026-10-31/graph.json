@@ -6454,7 +6454,7 @@
       "file_type": "code",
       "norm_label": "financialanalysisservice::deltabuffer",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L370"
+      "source_location": "L374"
     },
     {
       "id": "app_services_expenses_inputs_text_expenses",
@@ -23591,7 +23591,7 @@
       "file_type": "code",
       "norm_label": ".payloads()",
       "source_file": "test/services/financial_analysis_service_test.rb",
-      "source_location": "L353"
+      "source_location": "L367"
     },
     {
       "id": "test_services_financial_analysis_service_test_financialanalysisservicetest_run_service",
@@ -23615,7 +23615,7 @@
       "file_type": "code",
       "norm_label": ".transmissions()",
       "source_file": "test/services/financial_analysis_service_test.rb",
-      "source_location": "L357"
+      "source_location": "L371"
     },
     {
       "id": "test_services_financial_analysis_service_test_financialanalysisservicetest_user_stream",
@@ -41219,7 +41219,7 @@
       "file_type": "code",
       "norm_label": ".drain()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L383"
+      "source_location": "L387"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_deltabuffer_due_pred",
@@ -41231,7 +41231,7 @@
       "file_type": "code",
       "norm_label": ".due?()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L393"
+      "source_location": "L397"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_deltabuffer_initialize",
@@ -41243,7 +41243,7 @@
       "file_type": "code",
       "norm_label": ".initialize()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L371"
+      "source_location": "L375"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_deltabuffer_push",
@@ -41255,7 +41255,7 @@
       "file_type": "code",
       "norm_label": ".push()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L378"
+      "source_location": "L382"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_persist_answer",
@@ -43235,7 +43235,7 @@
       "file_type": "code",
       "norm_label": ".active_sources()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L343"
+      "source_location": "L347"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_already_answered_pred",
@@ -43283,7 +43283,7 @@
       "file_type": "code",
       "norm_label": ".bank_account_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L321"
+      "source_location": "L325"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_call",
@@ -43307,7 +43307,7 @@
       "file_type": "code",
       "norm_label": ".cash_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L326"
+      "source_location": "L330"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_category_lines",
@@ -43319,7 +43319,7 @@
       "file_type": "code",
       "norm_label": ".category_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L223"
+      "source_location": "L227"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_credit_card_lines",
@@ -43331,7 +43331,7 @@
       "file_type": "code",
       "norm_label": ".credit_card_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L247"
+      "source_location": "L251"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_current_installment_label",
@@ -43343,7 +43343,7 @@
       "file_type": "code",
       "norm_label": ".current_installment_label()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L300"
+      "source_location": "L304"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_expense_total",
@@ -43355,7 +43355,7 @@
       "file_type": "code",
       "norm_label": ".expense_total()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L219"
+      "source_location": "L223"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_fail_analysis",
@@ -43379,7 +43379,7 @@
       "file_type": "code",
       "norm_label": ".financial_context()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L164"
+      "source_location": "L168"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_kind_label",
@@ -43391,7 +43391,7 @@
       "file_type": "code",
       "norm_label": ".kind_label()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L347"
+      "source_location": "L351"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_liquid_lines",
@@ -43403,7 +43403,7 @@
       "file_type": "code",
       "norm_label": ".liquid_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L330"
+      "source_location": "L334"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_llm_messages",
@@ -43427,7 +43427,7 @@
       "file_type": "code",
       "norm_label": ".loan_installment_label()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L291"
+      "source_location": "L295"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_loan_line",
@@ -43439,7 +43439,7 @@
       "file_type": "code",
       "norm_label": ".loan_line()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L273"
+      "source_location": "L277"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_loan_lines",
@@ -43451,7 +43451,7 @@
       "file_type": "code",
       "norm_label": ".loan_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L260"
+      "source_location": "L264"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_loan_remaining_installments_label",
@@ -43463,7 +43463,7 @@
       "file_type": "code",
       "norm_label": ".loan_remaining_installments_label()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L309"
+      "source_location": "L313"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_loan_type_label",
@@ -43475,7 +43475,7 @@
       "file_type": "code",
       "norm_label": ".loan_type_label()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L284"
+      "source_location": "L288"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_money",
@@ -43487,7 +43487,7 @@
       "file_type": "code",
       "norm_label": ".money()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L363"
+      "source_location": "L367"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_money_or_missing",
@@ -43499,7 +43499,7 @@
       "file_type": "code",
       "norm_label": ".money_or_missing()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L314"
+      "source_location": "L318"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_period_header",
@@ -43511,7 +43511,7 @@
       "file_type": "code",
       "norm_label": ".period_header()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L205"
+      "source_location": "L209"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_period_range_label",
@@ -43523,7 +43523,7 @@
       "file_type": "code",
       "norm_label": ".period_range_label()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L212"
+      "source_location": "L216"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_recurring_pending_lines",
@@ -43535,7 +43535,7 @@
       "file_type": "code",
       "norm_label": ".recurring_pending_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L351"
+      "source_location": "L355"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_reporting_period",
@@ -43547,7 +43547,7 @@
       "file_type": "code",
       "norm_label": ".reporting_period()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L201"
+      "source_location": "L205"
     },
     {
       "id": "app_services_financial_analysis_service_financialanalysisservice_system_prompt",
@@ -53519,7 +53519,7 @@
       "file_type": "code",
       "norm_label": ".budget_lines()",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L233"
+      "source_location": "L237"
     },
     {
       "id": "app_services_spending_alert_service_spendingalertservice_budget_enabled_pred",
@@ -123645,7 +123645,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L322",
+      "source_location": "L326",
       "weight": 1.0
     },
     {
@@ -123669,7 +123669,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L238",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
@@ -123681,7 +123681,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L239",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -123729,7 +123729,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L327",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
@@ -123741,7 +123741,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L224",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
@@ -123753,7 +123753,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L229",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -123765,7 +123765,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L252",
+      "source_location": "L256",
       "weight": 1.0
     },
     {
@@ -123777,7 +123777,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L386",
+      "source_location": "L390",
       "weight": 1.0
     },
     {
@@ -123789,7 +123789,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L380",
+      "source_location": "L384",
       "weight": 1.0
     },
     {
@@ -123801,7 +123801,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L220",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -123837,7 +123837,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L165",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -123849,7 +123849,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L169",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -123861,7 +123861,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L172",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -123873,7 +123873,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L172",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -123885,7 +123885,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L175",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -123897,7 +123897,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L179",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -123909,7 +123909,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L182",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -123945,7 +123945,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L332",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -123957,7 +123957,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L337",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -123969,7 +123969,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L297",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -123981,7 +123981,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L274",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -123993,7 +123993,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L276",
+      "source_location": "L280",
       "weight": 1.0
     },
     {
@@ -124005,7 +124005,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L279",
+      "source_location": "L283",
       "weight": 1.0
     },
     {
@@ -124017,7 +124017,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L280",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -124029,7 +124029,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L281",
+      "source_location": "L285",
       "weight": 1.0
     },
     {
@@ -124041,7 +124041,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L264",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -124053,7 +124053,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L268",
+      "source_location": "L272",
       "weight": 1.0
     },
     {
@@ -124065,7 +124065,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L315",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -124077,7 +124077,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L209",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
@@ -124113,7 +124113,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L352",
+      "source_location": "L356",
       "weight": 1.0
     },
     {
@@ -124125,7 +124125,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L352",
+      "source_location": "L356",
       "weight": 1.0
     },
     {
@@ -124137,7 +124137,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L356",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -124149,7 +124149,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L202",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -154500,7 +154500,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L370",
+      "source_location": "L374",
       "weight": 1.0
     },
     {
@@ -202152,7 +202152,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L164",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -202163,7 +202163,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L201",
+      "source_location": "L205",
       "weight": 1.0
     },
     {
@@ -202174,7 +202174,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L205",
+      "source_location": "L209",
       "weight": 1.0
     },
     {
@@ -202185,7 +202185,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L212",
+      "source_location": "L216",
       "weight": 1.0
     },
     {
@@ -202196,7 +202196,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L219",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -202207,7 +202207,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L223",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -202218,7 +202218,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L233",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -202229,7 +202229,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L247",
+      "source_location": "L251",
       "weight": 1.0
     },
     {
@@ -202240,7 +202240,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L260",
+      "source_location": "L264",
       "weight": 1.0
     },
     {
@@ -202251,7 +202251,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L273",
+      "source_location": "L277",
       "weight": 1.0
     },
     {
@@ -202262,7 +202262,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L284",
+      "source_location": "L288",
       "weight": 1.0
     },
     {
@@ -202273,7 +202273,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L291",
+      "source_location": "L295",
       "weight": 1.0
     },
     {
@@ -202284,7 +202284,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L300",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -202295,7 +202295,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L309",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -202306,7 +202306,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L314",
+      "source_location": "L318",
       "weight": 1.0
     },
     {
@@ -202317,7 +202317,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L321",
+      "source_location": "L325",
       "weight": 1.0
     },
     {
@@ -202328,7 +202328,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L326",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -202339,7 +202339,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L330",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
@@ -202361,7 +202361,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L343",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -202372,7 +202372,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L347",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -202383,7 +202383,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L351",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -202394,7 +202394,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L363",
+      "source_location": "L367",
       "weight": 1.0
     },
     {
@@ -202471,7 +202471,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L371",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
@@ -202482,7 +202482,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L378",
+      "source_location": "L382",
       "weight": 1.0
     },
     {
@@ -202493,7 +202493,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L383",
+      "source_location": "L387",
       "weight": 1.0
     },
     {
@@ -202504,7 +202504,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/financial_analysis_service.rb",
-      "source_location": "L393",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
@@ -214219,7 +214219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/financial_analysis_service_test.rb",
-      "source_location": "L353",
+      "source_location": "L367",
       "weight": 1.0
     },
     {
@@ -214230,7 +214230,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/financial_analysis_service_test.rb",
-      "source_location": "L357",
+      "source_location": "L371",
       "weight": 1.0
     },
     {
@@ -214241,7 +214241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/financial_analysis_service_test.rb",
-      "source_location": "L361",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
