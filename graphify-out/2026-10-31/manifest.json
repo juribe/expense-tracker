@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1793405183.6960351,
-    "seen": 1793405246.6367118,
-    "ast_hash": "3bb5cde223892ad1aa500e5c6c84dd21",
+    "mtime": 1793463274.5185885,
+    "seen": 1793463690.068397,
+    "ast_hash": "b2b85faa2bd2446390d0786dfa411de1",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793405181.0464642,
-    "seen": 1793405246.636714,
-    "ast_hash": "caaae087653614f43ecc0e7d9004320b",
+    "mtime": 1793463274.5185673,
+    "seen": 1793463690.0684001,
+    "ast_hash": "d33b7c0a6199484d3a849f531eaf70db",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793460579.0456455,
-    "seen": 1793460644.247165,
+    "mtime": 1793464995.4624214,
+    "seen": 1793465024.001659,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2634,9 +2634,9 @@
     "semantic_hash": ""
   },
   "app/services/web_hook_handler/whatsapp_service.rb": {
-    "mtime": 1791328904.4447281,
-    "seen": 1792857266.808848,
-    "ast_hash": "788528da428d38c4f817a42c904b2407",
+    "mtime": 1793464925.6182675,
+    "seen": 1793465024.000948,
+    "ast_hash": "b6663f560bf829fd0bc88e32b8284655",
     "semantic_hash": ""
   },
   "test/controllers/webhooks/whatsapp_controller_test.rb": {
@@ -2646,9 +2646,9 @@
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
-    "mtime": 1792619817.9652414,
-    "seen": 1792857266.809349,
-    "ast_hash": "4133624ccb76b04dd8631db5c82d6c62",
+    "mtime": 1793464892.312401,
+    "seen": 1793465024.001593,
+    "ast_hash": "08ee57548e989294d90f49488335a794",
     "semantic_hash": ""
   },
   "app/controllers/whatsapp_settings_controller.rb": {
@@ -2682,9 +2682,9 @@
     "semantic_hash": ""
   },
   "app/services/whatsapp/connect_service.rb": {
-    "mtime": 1790560256.3687606,
-    "seen": 1792857266.8088498,
-    "ast_hash": "44ae14c70336fd1c9e38ca2e9ca704d1",
+    "mtime": 1793464915.918213,
+    "seen": 1793465024.00095,
+    "ast_hash": "155b8132af46e41f21087a41db1f634f",
     "semantic_hash": ""
   },
   "app/services/whatsapp/reply_sender.rb": {
@@ -2718,9 +2718,9 @@
     "semantic_hash": ""
   },
   "test/services/whatsapp/connect_service_test.rb": {
-    "mtime": 1790560256.4503553,
-    "seen": 1792857266.809351,
-    "ast_hash": "d19b01216e680422059d92d6315472d7",
+    "mtime": 1793464892.3124006,
+    "seen": 1793465024.0015948,
+    "ast_hash": "9b5b5fa0ed76187e1e3ea944878eee56",
     "semantic_hash": ""
   },
   "app/services/whatsapp/media_fetcher.rb": {
@@ -2766,9 +2766,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/clarification/resolver.rb": {
-    "mtime": 1792192419.4939601,
-    "seen": 1792857266.8086631,
-    "ast_hash": "bcb5bd97e341420d9082cb0ff9a8bee6",
+    "mtime": 1793464915.9181156,
+    "seen": 1793465024.000701,
+    "ast_hash": "0bdf020a85f76de319dfdc9ecc01045b",
     "semantic_hash": ""
   },
   "app/services/whatsapp/garbage_filter.rb": {
@@ -2778,9 +2778,9 @@
     "semantic_hash": ""
   },
   "test/services/expenses/clarification/resolver_test.rb": {
-    "mtime": 1792622553.837753,
-    "seen": 1792857266.8092391,
-    "ast_hash": "4949d4a9310452718f57a4e33515e986",
+    "mtime": 1793464894.9166691,
+    "seen": 1793465024.0014431,
+    "ast_hash": "b19f7f3d7b43a820426bf60e83811a62",
     "semantic_hash": ""
   },
   "test/services/whatsapp/garbage_filter_test.rb": {
@@ -3174,9 +3174,9 @@
     "semantic_hash": ""
   },
   "app/services/financial_analysis_service.rb": {
-    "mtime": 1793460517.4640238,
-    "seen": 1793460644.246254,
-    "ast_hash": "c034d0cd1293cc06f2e360aa0b963852",
+    "mtime": 1793464925.6190603,
+    "seen": 1793465024.000774,
+    "ast_hash": "97a96c878062bd15465b7afe7be7f5a4",
     "semantic_hash": ""
   },
   "app/services/financial_chat_markdown_renderer.rb": {
@@ -3234,9 +3234,9 @@
     "semantic_hash": ""
   },
   "test/services/financial_analysis_service_test.rb": {
-    "mtime": 1793460528.1698158,
-    "seen": 1793460644.246965,
-    "ast_hash": "0feb7b5106834b99fb9770aa110cf9f1",
+    "mtime": 1793464797.566863,
+    "seen": 1793465024.001463,
+    "ast_hash": "2bec6bd75d18eb7bac4ae7752739bd0c",
     "semantic_hash": ""
   },
   "test/services/financial_chat_markdown_renderer_test.rb": {
@@ -6063,6 +6063,12 @@
     "mtime": 1793457389.9355714,
     "seen": 1793457644.007529,
     "ast_hash": "75cfbee29de8d37160986d52d7c5771e",
+    "semantic_hash": ""
+  },
+  "app/lib/app_name.rb": {
+    "mtime": 1793464906.0792017,
+    "seen": 1793465024.000463,
+    "ast_hash": "4f7dc648c05cf7071b17f1135cc82c7a",
     "semantic_hash": ""
   }
 }

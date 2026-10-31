@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793463274.5185673,
-    "seen": 1793463690.0684001,
-    "ast_hash": "d33b7c0a6199484d3a849f531eaf70db",
+    "mtime": 1793465370.6809304,
+    "seen": 1793466295.5769541,
+    "ast_hash": "f0c5e7fcca144c7e6ddead3fff5b86b5",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793462419.4672832,
-    "seen": 1793462456.225288,
+    "mtime": 1793466502.6660793,
+    "seen": 1793466553.6746812,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2634,9 +2634,9 @@
     "semantic_hash": ""
   },
   "app/services/web_hook_handler/whatsapp_service.rb": {
-    "mtime": 1791328904.4447281,
-    "seen": 1792857266.808848,
-    "ast_hash": "788528da428d38c4f817a42c904b2407",
+    "mtime": 1793464925.6182675,
+    "seen": 1793465024.000948,
+    "ast_hash": "b6663f560bf829fd0bc88e32b8284655",
     "semantic_hash": ""
   },
   "test/controllers/webhooks/whatsapp_controller_test.rb": {
@@ -2646,9 +2646,9 @@
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
-    "mtime": 1792619817.9652414,
-    "seen": 1792857266.809349,
-    "ast_hash": "4133624ccb76b04dd8631db5c82d6c62",
+    "mtime": 1793464892.312401,
+    "seen": 1793465024.001593,
+    "ast_hash": "08ee57548e989294d90f49488335a794",
     "semantic_hash": ""
   },
   "app/controllers/whatsapp_settings_controller.rb": {
@@ -2682,9 +2682,9 @@
     "semantic_hash": ""
   },
   "app/services/whatsapp/connect_service.rb": {
-    "mtime": 1790560256.3687606,
-    "seen": 1792857266.8088498,
-    "ast_hash": "44ae14c70336fd1c9e38ca2e9ca704d1",
+    "mtime": 1793464915.918213,
+    "seen": 1793465024.00095,
+    "ast_hash": "155b8132af46e41f21087a41db1f634f",
     "semantic_hash": ""
   },
   "app/services/whatsapp/reply_sender.rb": {
@@ -2718,9 +2718,9 @@
     "semantic_hash": ""
   },
   "test/services/whatsapp/connect_service_test.rb": {
-    "mtime": 1790560256.4503553,
-    "seen": 1792857266.809351,
-    "ast_hash": "d19b01216e680422059d92d6315472d7",
+    "mtime": 1793464892.3124006,
+    "seen": 1793465024.0015948,
+    "ast_hash": "9b5b5fa0ed76187e1e3ea944878eee56",
     "semantic_hash": ""
   },
   "app/services/whatsapp/media_fetcher.rb": {
@@ -2766,9 +2766,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/clarification/resolver.rb": {
-    "mtime": 1792192419.4939601,
-    "seen": 1792857266.8086631,
-    "ast_hash": "bcb5bd97e341420d9082cb0ff9a8bee6",
+    "mtime": 1793464915.9181156,
+    "seen": 1793465024.000701,
+    "ast_hash": "0bdf020a85f76de319dfdc9ecc01045b",
     "semantic_hash": ""
   },
   "app/services/whatsapp/garbage_filter.rb": {
@@ -2778,9 +2778,9 @@
     "semantic_hash": ""
   },
   "test/services/expenses/clarification/resolver_test.rb": {
-    "mtime": 1792622553.837753,
-    "seen": 1792857266.8092391,
-    "ast_hash": "4949d4a9310452718f57a4e33515e986",
+    "mtime": 1793464894.9166691,
+    "seen": 1793465024.0014431,
+    "ast_hash": "b19f7f3d7b43a820426bf60e83811a62",
     "semantic_hash": ""
   },
   "test/services/whatsapp/garbage_filter_test.rb": {
@@ -3174,9 +3174,9 @@
     "semantic_hash": ""
   },
   "app/services/financial_analysis_service.rb": {
-    "mtime": 1793462357.9502192,
-    "seen": 1793462456.2244081,
-    "ast_hash": "4059d18131dc60a9d1b5791df2085c7f",
+    "mtime": 1793464925.6190603,
+    "seen": 1793465024.000774,
+    "ast_hash": "97a96c878062bd15465b7afe7be7f5a4",
     "semantic_hash": ""
   },
   "app/services/financial_chat_markdown_renderer.rb": {
@@ -3234,9 +3234,9 @@
     "semantic_hash": ""
   },
   "test/services/financial_analysis_service_test.rb": {
-    "mtime": 1793462328.599222,
-    "seen": 1793462456.2250938,
-    "ast_hash": "c63d0a667007e1640a6e391447490c2a",
+    "mtime": 1793466426.156058,
+    "seen": 1793466553.674481,
+    "ast_hash": "6cc73d9b843ced591f76fe804e06597e",
     "semantic_hash": ""
   },
   "test/services/financial_chat_markdown_renderer_test.rb": {
@@ -3630,9 +3630,9 @@
     "semantic_hash": ""
   },
   "app/helpers/reconciliations_helper.rb": {
-    "mtime": 1793299818.9078636,
-    "seen": 1793299953.150271,
-    "ast_hash": "e2cbae5543f4075b2347ddede7f35e80",
+    "mtime": 1793465385.6366735,
+    "seen": 1793466295.5757298,
+    "ast_hash": "8a6e58a8226ef49106113061f44ae87d",
     "semantic_hash": ""
   },
   "app/models/concerns/reconciliation/invalidatable.rb": {
@@ -3702,9 +3702,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reconciliations_controller_test.rb": {
-    "mtime": 1793299810.1669881,
-    "seen": 1793299953.151082,
-    "ast_hash": "18e353558237d9b68a417d04f32da564",
+    "mtime": 1793465342.2266595,
+    "seen": 1793466295.576511,
+    "ast_hash": "e3966555fa6aaaa1dba81d48957733c4",
     "semantic_hash": ""
   },
   "test/services/reconciliation/check_balance_test.rb": {
@@ -5538,9 +5538,9 @@
     "semantic_hash": ""
   },
   "test/mailers/devise_mailer_test.rb": {
-    "mtime": 1793221475.8382459,
-    "seen": 1793221563.614506,
-    "ast_hash": "7335756a78a4392f6cabb6d1a4d8dd51",
+    "mtime": 1793465824.8737535,
+    "seen": 1793466295.576566,
+    "ast_hash": "69ee6549a74db3a18d1a0f67c1b58236",
     "semantic_hash": ""
   },
   "app/assets/javascripts/available_cycle.js": {
@@ -5622,9 +5622,9 @@
     "semantic_hash": ""
   },
   "test/system/reconciliation_ui_test.rb": {
-    "mtime": 1793295223.9682138,
-    "seen": 1793295744.708072,
-    "ast_hash": "a4a5dc98a00b1fe465478e2127aac319",
+    "mtime": 1793465315.9812994,
+    "seen": 1793466295.5769138,
+    "ast_hash": "8b141f5ef8e31fc7a1fbe783fb52a268",
     "semantic_hash": ""
   },
   "db/migrate/20261029120000_cascade_credit_extra_payments_on_source_deletion.rb": {
@@ -5802,9 +5802,9 @@
     "semantic_hash": ""
   },
   "test/controllers/page_titles_test.rb": {
-    "mtime": 1793398483.8557105,
-    "seen": 1793398546.029078,
-    "ast_hash": "2bc43eacef293aa9dbe1a51844bc7de0",
+    "mtime": 1793465315.979938,
+    "seen": 1793466295.5765061,
+    "ast_hash": "efbbdbdc1236bcdd520251d0bc542df0",
     "semantic_hash": ""
   },
   "designs/alertas_de_gasto.md": {
@@ -6063,6 +6063,12 @@
     "mtime": 1793457389.9355714,
     "seen": 1793457644.007529,
     "ast_hash": "75cfbee29de8d37160986d52d7c5771e",
+    "semantic_hash": ""
+  },
+  "app/lib/app_name.rb": {
+    "mtime": 1793466446.8687265,
+    "seen": 1793466553.673462,
+    "ast_hash": "ab3e5b25821ff240a4b676c52048ec29",
     "semantic_hash": ""
   }
 }
