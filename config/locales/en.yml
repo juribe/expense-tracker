@@ -1657,6 +1657,13 @@ en:
         eliminated: "%{count} installments eliminated"
         covered: "%{count} installments prepaid"
       installments_affected: "Effect"
+      simple_summary: "Lower the balance and free up available credit"
+      source_note: "The amount is deducted from the selected source."
+      effect_note: "The payment directly lowers the debt"
+      history_title: "Extra payment history"
+      history_count:
+        one: "%{count} movement"
+        other: "%{count} movements"
     reconstruct:
       title: "Reconstruct credit"
       hint: "Enter whatever information you have about the credit. Missing data is estimated and the schedule is clearly marked as estimated. The credit data is never modified."

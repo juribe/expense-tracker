@@ -3173,6 +3173,13 @@ es:
         prepay_installments: "Adelantar cuotas"
         reduce_balance: "Reducir saldo"
       simple_hint: "Un abono de verdad para tu tarjeta o crédito rotativo: la plata sale de la fuente que elijas y el saldo baja de inmediato. No cambia cuotas ni plazo, y libera el cupo al instante."
+      simple_summary: "Reduce el saldo y libera cupo disponible"
+      source_note: "El valor se descuenta de la fuente seleccionada."
+      effect_note: "El abono reduce directamente la deuda"
+      history_title: "Historial de abonos"
+      history_count:
+        one: "%{count} movimiento"
+        other: "%{count} movimientos"
       preview:
         balance: "Saldo actual"
         payment: "Abono extraordinario"

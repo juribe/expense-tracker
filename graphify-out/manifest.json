@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1793405183.6960351,
-    "seen": 1793405246.6367118,
-    "ast_hash": "3bb5cde223892ad1aa500e5c6c84dd21",
+    "mtime": 1793463274.5185885,
+    "seen": 1793463690.068397,
+    "ast_hash": "b2b85faa2bd2446390d0786dfa411de1",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793405181.0464642,
-    "seen": 1793405246.636714,
-    "ast_hash": "caaae087653614f43ecc0e7d9004320b",
+    "mtime": 1793463274.5185673,
+    "seen": 1793463690.0684001,
+    "ast_hash": "d33b7c0a6199484d3a849f531eaf70db",
     "semantic_hash": ""
   },
   "config/queue.yml": {

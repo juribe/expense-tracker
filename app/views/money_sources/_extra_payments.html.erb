@@ -8,17 +8,28 @@
     preview_balance = source.used_credit.to_d
     preview_limit = source.credit_limit.to_d
   end
+  extras = source.credit_extra_payments.includes(:funding_money_source).recent_first
 %>
 <div class="card mt-4">
   <div class="card-body">
-    <h5 class="card-title mb-2"><i class="ti ti-notebook me-2"></i><%= t("credits.extras.title") %></h5>
+    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+      <div class="d-flex align-items-center gap-2 min-w-0">
+        <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true">
+          <i class="ti ti-notebook"></i>
+        </span>
+        <h5 class="card-title mb-0"><%= t("credits.extras.title") %></h5>
+      </div>
+      <% if simple %>
+        <span class="small text-secondary text-end d-none d-md-block"><%= t("credits.extras.simple_summary") %></span>
+      <% end %>
+    </div>
+
     <% if simple %>
-      <p class="small text-muted"><%= t("credits.extras.simple_hint") %></p>
       <div data-extra-preview data-balance="<%= preview_balance %>" data-limit="<%= preview_limit %>">
         <%= form_with url: money_source_extra_payments_path(source), method: :post, local: true do %>
           <%= hidden_field_tag :application_type, "reduce_balance" %>
-          <div class="row">
-            <div class="col-md-7 mb-2">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-lg-4">
               <label class="form-label small" for="extra_funding_<%= source.id %>">
                 <%= t("credits.extras.funding") %>
               </label>
@@ -29,7 +40,7 @@
                 <% end %>
               </select>
             </div>
-            <div class="col-8 col-md-5 mb-2">
+            <div class="col-6 col-md-4 col-lg-3">
               <label class="form-label small" for="extra_amount_<%= source.id %>"><%= t("credits.extras.amount") %></label>
               <div class="input-group">
                 <span class="input-group-text">$</span>
@@ -37,38 +48,48 @@
                        inputmode="decimal" autocomplete="off" data-money-input="true" data-extra-amount="true" required>
               </div>
             </div>
-            <div class="col-4 col-md-5 mb-2">
+            <div class="col-6 col-md-4 col-lg-2">
               <label class="form-label small" for="extra_date_<%= source.id %>"><%= t("credits.extras.date") %></label>
               <input type="date" class="form-control" id="extra_date_<%= source.id %>" name="date" value="<%= Date.current %>">
             </div>
-            <div class="col-8 col-md-7 mb-2 d-flex align-items-end">
-              <button type="submit" class="btn btn-primary btn-sm w-100">
-                <i class="ti ti-plus me-1"></i><%= t("credits.extras.record") %>
+            <div class="col-12 col-md-4 col-lg-3 d-grid">
+              <button type="submit" class="btn btn-primary">
+                <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("credits.extras.record") %>
               </button>
             </div>
           </div>
+          <div class="d-flex flex-wrap justify-content-between gap-2 small text-secondary mt-2">
+            <span><%= t("credits.extras.source_note") %></span>
+            <span class="text-success">
+              <i class="ti ti-circle-check me-1" aria-hidden="true"></i><%= t("credits.extras.effect_note") %>
+            </span>
+          </div>
         <% end %>
 
-        <div class="border rounded p-2 mt-2 small" data-extra-result hidden>
-          <dl class="row mb-0">
-            <dt class="col-7"><%= t("credits.extras.preview.balance") %></dt>
-            <dd class="col-5 text-end" data-extra-balance><%= number_to_currency(preview_balance) %></dd>
-            <dt class="col-7"><%= t("credits.extras.preview.payment") %></dt>
-            <dd class="col-5 text-end fw-bold" data-extra-payment></dd>
-            <dt class="col-7"><%= t("credits.extras.preview.new_balance") %></dt>
-            <dd class="col-5 text-end fw-bold" data-extra-new-balance></dd>
-            <dt class="col-7" data-extra-available-row <%= "hidden" unless preview_limit.positive? %>>
-              <%= t("credits.extras.preview.available") %>
-            </dt>
-            <dd class="col-5 text-end text-success fw-bold" data-extra-available <%= "hidden" unless preview_limit.positive? %>></dd>
-          </dl>
+        <div class="row g-2 small mt-3" data-extra-result aria-live="polite" hidden>
+          <div class="col-6 col-lg-3">
+            <div class="text-secondary"><%= t("credits.extras.preview.balance") %></div>
+            <div class="fw-semibold num" data-extra-balance><%= number_to_currency(preview_balance) %></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="text-secondary"><%= t("credits.extras.preview.payment") %></div>
+            <div class="fw-semibold num" data-extra-payment></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="text-secondary"><%= t("credits.extras.preview.new_balance") %></div>
+            <div class="fw-bold num" data-extra-new-balance></div>
+          </div>
+          <div class="col-6 col-lg-3" data-extra-available-row <%= "hidden" unless preview_limit.positive? %>>
+            <div class="text-secondary"><%= t("credits.extras.preview.available") %></div>
+            <div class="text-success fw-bold num" data-extra-available <%= "hidden" unless preview_limit.positive? %>></div>
+          </div>
         </div>
       </div>
     <% else %>
-      <p class="small text-muted"><%= t("credits.extras.hint") %></p>
+      <p class="small text-secondary mb-2"><%= t("credits.extras.hint") %></p>
       <%= form_with url: money_source_extra_payments_path(source), method: :post, local: true do %>
-        <div class="row">
-          <div class="col-md-7 mb-2">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-lg-4">
             <label class="form-label small" for="extra_funding_<%= source.id %>">
               <%= t("credits.extras.funding") %>
             </label>
@@ -79,7 +100,7 @@
               <% end %>
             </select>
           </div>
-          <div class="col-8 col-md-5 mb-2">
+          <div class="col-6 col-md-4 col-lg-4">
             <label class="form-label small" for="extra_amount_<%= source.id %>"><%= t("credits.extras.amount") %></label>
             <div class="input-group">
               <span class="input-group-text">$</span>
@@ -87,7 +108,11 @@
                      inputmode="decimal" autocomplete="off" data-money-input="true">
             </div>
           </div>
-          <div class="col-md-7 mb-2">
+          <div class="col-6 col-md-4 col-lg-4">
+            <label class="form-label small" for="extra_date_<%= source.id %>"><%= t("credits.extras.date") %></label>
+            <input type="date" class="form-control" id="extra_date_<%= source.id %>" name="date" value="<%= Date.current %>">
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
             <label class="form-label small" for="extra_application_<%= source.id %>"><%= t("credits.extras.application_type") %></label>
             <select class="form-select" id="extra_application_<%= source.id %>" name="application_type">
               <% CreditExtraPayment::APPLICATION_TYPES.each do |type| %>
@@ -95,64 +120,75 @@
               <% end %>
             </select>
           </div>
-          <div class="col-4 col-md-5 mb-2">
-            <label class="form-label small" for="extra_date_<%= source.id %>"><%= t("credits.extras.date") %></label>
-            <input type="date" class="form-control" id="extra_date_<%= source.id %>" name="date" value="<%= Date.current %>">
-          </div>
-          <div class="col-8 col-md-7 mb-2">
+          <div class="col-12 col-md-6 col-lg-5">
             <label class="form-label small" for="extra_note_<%= source.id %>"><%= t("credits.extras.note") %></label>
             <input type="text" class="form-control" id="extra_note_<%= source.id %>" name="note" maxlength="140">
           </div>
-          <div class="col-4 col-md-5 mb-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary btn-sm w-100">
-              <i class="ti ti-plus me-1"></i><%= t("credits.extras.record") %>
+          <div class="col-12 col-lg-3 d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("credits.extras.record") %>
             </button>
           </div>
         </div>
       <% end %>
     <% end %>
 
-    <% extras = source.credit_extra_payments.recent_first %>
     <% if extras.any? %>
-      <hr>
-      <% extras.each do |extra| %>
-        <div class="border rounded p-2 mb-2 small d-flex justify-content-between align-items-center">
-          <div>
-            <div class="fw-bold">
-              <%= l(extra.date, format: :long) %> ·
-              <%= number_to_currency(extra.amount) %>
-            </div>
-            <div>
-              <span class="badge bg-light text-dark"><%= t("credits.extras.application_types.#{extra.application_type}") %></span>
+      <div class="d-flex align-items-center justify-content-between gap-2 mt-4 mb-2">
+        <h6 class="mb-0"><%= t("credits.extras.history_title") %></h6>
+        <span class="badge rounded-pill bg-body-secondary text-secondary border">
+          <%= t("credits.extras.history_count", count: extras.size) %>
+        </span>
+      </div>
+      <div>
+        <% extras.each do |extra| %>
+          <div class="border rounded px-2 py-2 mb-2 d-flex align-items-center gap-2 gap-sm-3">
+            <span class="icon-chip icon-chip-green icon-chip-sm flex-shrink-0" aria-hidden="true">
+              <i class="ti ti-arrow-down-left"></i>
+            </span>
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold small"><%= t("credits.extras.expense_description") %></div>
+              <div class="text-secondary small">
+                <%= l(extra.date, format: "%d %b %Y") %> · <%= t("credits.extras.application_types.#{extra.application_type}") %>
+              </div>
               <% if extra.installments_affected.to_i.positive? %>
-                <span class="text-success">
+                <div class="text-success small">
                   <% if extra.application_type == "prepay_installments" %>
                     <%= t("credits.extras.effect.covered", count: extra.installments_affected) %>
                   <% else %>
                     <%= t("credits.extras.effect.eliminated", count: extra.installments_affected) %>
                   <% end %>
-                </span>
+                </div>
               <% end %>
-              <% if extra.note.present? %><div class="text-muted"><%= extra.note %></div><% end %>
+              <% if extra.note.present? %>
+                <div class="text-secondary small text-truncate"><%= extra.note %></div>
+              <% end %>
             </div>
+            <div class="text-end flex-shrink-0">
+              <div class="fw-bold num">-<%= number_to_currency(extra.amount) %></div>
+              <div class="text-secondary small text-truncate d-none d-sm-block"><%= extra.funding_money_source&.name %></div>
+            </div>
+            <%= button_to money_source_extra_payment_path(source, extra), method: :delete,
+                          form_class: "d-inline-flex flex-shrink-0 m-0",
+                          class: "btn btn-sm btn-outline-danger btn-icon-only",
+                          title: t("credits.extras.delete"),
+                          aria: { label: t("credits.extras.delete") },
+                          data: { turbo_confirm: t("credits.extras.delete_confirm") } do %>
+              <i class="ti ti-trash" aria-hidden="true"></i>
+            <% end %>
           </div>
-          <%= button_to money_source_extra_payment_path(source, extra), method: :delete,
-                        form_class: "d-inline", class: "btn btn-outline-danger btn-sm",
-                        data: { turbo_confirm: t("credits.extras.delete_confirm") } do %>
-            <i class="ti ti-trash"></i>
-          <% end %>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
       <% if source.credit_projection.present? %>
-        <div class="small text-muted">
-          <i class="ti ti-calculator me-1"></i>
+        <div class="small text-secondary mt-2">
+          <i class="ti ti-calculator me-1" aria-hidden="true"></i>
           <%= link_to money_source_credits_path(source) do %>
             <%= t("credit_intelligence_link", default: "Ver el análisis y simular sin mover nada") %>
           <% end %>
         </div>
       <% end %>
     <% else %>
-      <p class="text-muted small mb-0 mt-2"><i class="ti ti-inbox me-1"></i><%= t("credits.extras.empty") %></p>
+      <p class="text-secondary small mb-0 mt-3"><i class="ti ti-inbox me-1" aria-hidden="true"></i><%= t("credits.extras.empty") %></p>
     <% end %>
   </div>
 </div>
