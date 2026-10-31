@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -498,6 +498,49 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
     t.index ["provider", "external_id"], name: "index_mail_inbound_deliveries_on_provider_and_external_id", unique: true
     t.index ["status"], name: "index_mail_inbound_deliveries_on_status"
     t.index ["user_id"], name: "index_mail_inbound_deliveries_on_user_id"
+  end
+
+  create_table "mcp_access_tokens", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "name", null: false
+    t.string "token_digest", null: false
+    t.jsonb "scopes", default: ["read"], null: false
+    t.datetime "last_used_at"
+    t.datetime "expires_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token_digest"], name: "index_mcp_access_tokens_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_mcp_access_tokens_on_user_id"
+  end
+
+  create_table "mcp_idempotency_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "idempotency_key", null: false
+    t.string "tool_name", null: false
+    t.string "request_digest", null: false
+    t.jsonb "response", default: {}, null: false
+    t.uuid "resource_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "idempotency_key"], name: "index_mcp_idempotency_records_on_user_id_and_idempotency_key", unique: true
+    t.index ["user_id"], name: "index_mcp_idempotency_records_on_user_id"
+  end
+
+  create_table "mcp_tool_invocations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "mcp_access_token_id"
+    t.string "tool_name", null: false
+    t.string "status", null: false
+    t.string "error_code"
+    t.uuid "resource_id"
+    t.jsonb "argument_keys", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mcp_access_token_id"], name: "index_mcp_tool_invocations_on_mcp_access_token_id"
+    t.index ["tool_name"], name: "index_mcp_tool_invocations_on_tool_name"
+    t.index ["user_id", "created_at"], name: "index_mcp_tool_invocations_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_mcp_tool_invocations_on_user_id"
   end
 
   create_table "money_source_recognition_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1020,6 +1063,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
   add_foreign_key "incomes", "users"
   add_foreign_key "mail_inbound_deliveries", "processed_emails"
   add_foreign_key "mail_inbound_deliveries", "users"
+  add_foreign_key "mcp_access_tokens", "users", on_delete: :cascade
+  add_foreign_key "mcp_idempotency_records", "users", on_delete: :cascade
+  add_foreign_key "mcp_tool_invocations", "mcp_access_tokens", on_delete: :nullify
+  add_foreign_key "mcp_tool_invocations", "users", on_delete: :cascade
   add_foreign_key "money_source_recognition_identifiers", "money_source_recognitions"
   add_foreign_key "money_source_recognitions", "money_sources"
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
