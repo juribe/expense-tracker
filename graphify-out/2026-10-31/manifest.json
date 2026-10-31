@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793487916.168389,
-    "seen": 1793488026.747133,
+    "mtime": 1793488408.379537,
+    "seen": 1793488515.782656,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -6168,9 +6168,9 @@
     "semantic_hash": ""
   },
   "app/lib/mcp/presenters/budget_presenter.rb": {
-    "mtime": 1793466365.6207983,
-    "seen": 1793485518.305144,
-    "ast_hash": "1e04cd43f11e73634e6c6ae6cc416ae1",
+    "mtime": 1793488258.1264327,
+    "seen": 1793488515.781282,
+    "ast_hash": "c2cf2711da686ea7b11cede6d44ecabe",
     "semantic_hash": ""
   },
   "app/lib/mcp/presenters/category_presenter.rb": {
@@ -6240,9 +6240,9 @@
     "semantic_hash": ""
   },
   "app/lib/mcp/tool_arguments.rb": {
-    "mtime": 1793466635.6670964,
-    "seen": 1793485518.30516,
-    "ast_hash": "505562b80c4357f548a04deea733a38d",
+    "mtime": 1793488233.8930771,
+    "seen": 1793488515.781302,
+    "ast_hash": "2d0aa00147b3f9cdee6fc0d2ead9188b",
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/accounts/get_account_balances_tool.rb": {
@@ -6270,15 +6270,15 @@
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/budgets/get_budget_progress_tool.rb": {
-    "mtime": 1793466894.6216207,
-    "seen": 1793485518.305166,
-    "ast_hash": "e8009bfc164e186ea8cbea8d60c3cf28",
+    "mtime": 1793488264.33324,
+    "seen": 1793488515.781311,
+    "ast_hash": "ff440f48258700c2892f6be443505bfb",
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/budgets/get_budgets_tool.rb": {
-    "mtime": 1793466327.842293,
-    "seen": 1793485518.3051672,
-    "ast_hash": "b8de1d12ab3137d9831bdae739d8e2c9",
+    "mtime": 1793488264.333248,
+    "seen": 1793488515.781312,
+    "ast_hash": "5330da90f15d7c2989496ce818ada7d0",
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/budgets/update_budget_tool.rb": {
@@ -6294,15 +6294,15 @@
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/context/get_financial_context_tool.rb": {
-    "mtime": 1793467216.0217366,
-    "seen": 1793485518.305171,
-    "ast_hash": "6fc249f49b602e0a886c702987dac8c0",
+    "mtime": 1793488264.334194,
+    "seen": 1793488515.7813172,
+    "ast_hash": "d1bd023aa70f0f540db5281e0c728c51",
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/context/get_money_sources_tool.rb": {
-    "mtime": 1793467216.0220718,
-    "seen": 1793485518.305172,
-    "ast_hash": "635b708fa1bf816a34178aa93db1f2b2",
+    "mtime": 1793488233.8930387,
+    "seen": 1793488515.781319,
+    "ast_hash": "07f462c9731f51b3192e8f9a2df03199",
     "semantic_hash": ""
   },
   "app/lib/mcp/tools/credit_cards/create_credit_card_payment_tool.rb": {
@@ -6570,15 +6570,15 @@
     "semantic_hash": ""
   },
   "test/mcp/tools/budget_tools_test.rb": {
-    "mtime": 1793466291.506089,
-    "seen": 1793485518.3059871,
-    "ast_hash": "83a2494936576eee6113d4af28e3d9bf",
+    "mtime": 1793488293.3222363,
+    "seen": 1793488515.7822258,
+    "ast_hash": "7befcb8c3723cadf395ebcad0baac194",
     "semantic_hash": ""
   },
   "test/mcp/tools/context_tools_test.rb": {
-    "mtime": 1793467086.606767,
-    "seen": 1793485518.305988,
-    "ast_hash": "0ddf6d64c54b26a2a79d1d4154ad4928",
+    "mtime": 1793488239.8259938,
+    "seen": 1793488515.782227,
+    "ast_hash": "80cd2bd9f2c2def140b309cc9edf2048",
     "semantic_hash": ""
   },
   "test/mcp/tools/expense_tools_test.rb": {
@@ -6669,6 +6669,12 @@
     "mtime": 1793467091.431291,
     "seen": 1793485518.306421,
     "ast_hash": "f04a417de2ff76abd92f35f974d5a2df",
+    "semantic_hash": ""
+  },
+  "app/lib/mcp/budget_progress.rb": {
+    "mtime": 1793488258.1141748,
+    "seen": 1793488515.78127,
+    "ast_hash": "aafcd4e1ddf08938cd8ec334c21dadc3",
     "semantic_hash": ""
   }
 }
