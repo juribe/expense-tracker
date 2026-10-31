@@ -55493,7 +55493,7 @@
       "file_type": "code",
       "norm_label": "addalias()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L197"
+      "source_location": "L199"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_addkeyword",
@@ -55505,7 +55505,7 @@
       "file_type": "code",
       "norm_label": "addkeyword()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L193"
+      "source_location": "L195"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_addvalue",
@@ -55541,7 +55541,7 @@
       "file_type": "code",
       "norm_label": "bindmodal()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L285"
+      "source_location": "L287"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_activeform",
@@ -55553,7 +55553,7 @@
       "file_type": "code",
       "norm_label": "activeform()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L307"
+      "source_location": "L309"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_anydirty",
@@ -55565,7 +55565,7 @@
       "file_type": "code",
       "norm_label": "anydirty()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L537"
+      "source_location": "L539"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_clearerror",
@@ -55577,7 +55577,7 @@
       "file_type": "code",
       "norm_label": "clearerror()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L321"
+      "source_location": "L323"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_clearsavedsuggestions",
@@ -55589,7 +55589,7 @@
       "file_type": "code",
       "norm_label": "clearsavedsuggestions()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L433"
+      "source_location": "L435"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_confirmdiscard",
@@ -55601,7 +55601,7 @@
       "file_type": "code",
       "norm_label": "confirmdiscard()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L546"
+      "source_location": "L548"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_deleteformdirtystate",
@@ -55613,7 +55613,7 @@
       "file_type": "code",
       "norm_label": "deleteformdirtystate()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L445"
+      "source_location": "L447"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_finish",
@@ -55625,7 +55625,7 @@
       "file_type": "code",
       "norm_label": "finish()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L440"
+      "source_location": "L442"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_hidemodal",
@@ -55637,7 +55637,7 @@
       "file_type": "code",
       "norm_label": "hidemodal()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L541"
+      "source_location": "L543"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_requestclose",
@@ -55649,7 +55649,7 @@
       "file_type": "code",
       "norm_label": "requestclose()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L565"
+      "source_location": "L567"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_saveallandexit",
@@ -55661,7 +55661,7 @@
       "file_type": "code",
       "norm_label": "saveallandexit()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L517"
+      "source_location": "L519"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_saveform",
@@ -55673,7 +55673,7 @@
       "file_type": "code",
       "norm_label": "saveform()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L449"
+      "source_location": "L451"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_savequeue",
@@ -55685,7 +55685,7 @@
       "file_type": "code",
       "norm_label": "savequeue()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L526"
+      "source_location": "L528"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_savestep",
@@ -55697,7 +55697,7 @@
       "file_type": "code",
       "norm_label": "savestep()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L488"
+      "source_location": "L490"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_setbusy",
@@ -55709,7 +55709,7 @@
       "file_type": "code",
       "norm_label": "setbusy()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L419"
+      "source_location": "L421"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_setconfigured",
@@ -55721,7 +55721,7 @@
       "file_type": "code",
       "norm_label": "setconfigured()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L327"
+      "source_location": "L329"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_showerror",
@@ -55733,7 +55733,7 @@
       "file_type": "code",
       "norm_label": "showerror()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L315"
+      "source_location": "L317"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_showstep",
@@ -55745,7 +55745,7 @@
       "file_type": "code",
       "norm_label": "showstep()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L389"
+      "source_location": "L391"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_total",
@@ -55757,7 +55757,7 @@
       "file_type": "code",
       "norm_label": "total()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L311"
+      "source_location": "L313"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_updatefooter",
@@ -55769,7 +55769,7 @@
       "file_type": "code",
       "norm_label": "updatefooter()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L372"
+      "source_location": "L374"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindmodal_updateprogress",
@@ -55781,7 +55781,7 @@
       "file_type": "code",
       "norm_label": "updateprogress()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L349"
+      "source_location": "L351"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_bindstepform",
@@ -55793,7 +55793,7 @@
       "file_type": "code",
       "norm_label": "bindstepform()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L223"
+      "source_location": "L225"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_canonicalcontainer",
@@ -55817,7 +55817,7 @@
       "file_type": "code",
       "norm_label": "csrftoken()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L280"
+      "source_location": "L282"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_escaperegexp",
@@ -55841,7 +55841,7 @@
       "file_type": "code",
       "norm_label": "init()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L610"
+      "source_location": "L612"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_keywordvalues",
@@ -55889,7 +55889,7 @@
       "file_type": "code",
       "norm_label": "markdirty()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L219"
+      "source_location": "L221"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_mirroraliases",
@@ -55925,7 +55925,7 @@
       "file_type": "code",
       "norm_label": "removealias()",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L201"
+      "source_location": "L203"
     },
     {
       "id": "app_assets_javascripts_recognition_wizard_removelabel",
@@ -67661,7 +67661,7 @@
       "file_type": "code",
       "norm_label": ".assert_modal_open()",
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L161"
+      "source_location": "L177"
     },
     {
       "id": "test_system_guided_recognition_wizard_test_guidedrecognitionwizardsystemtest_create_source",
@@ -67673,7 +67673,7 @@
       "file_type": "code",
       "norm_label": ".create_source()",
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L157"
+      "source_location": "L173"
     },
     {
       "id": "test_system_guided_recognition_wizard_test_guidedrecognitionwizardsystemtest_sign_in",
@@ -67685,7 +67685,7 @@
       "file_type": "code",
       "norm_label": ".sign_in()",
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L166"
+      "source_location": "L182"
     },
     {
       "id": "app_models_money_source_moneysource_credit_card_pred",
@@ -104935,7 +104935,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L198",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -104947,7 +104947,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L194",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -104971,7 +104971,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L179",
+      "source_location": "L181",
       "weight": 1.0
     },
     {
@@ -104983,7 +104983,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L187",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -104995,7 +104995,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L189",
+      "source_location": "L191",
       "weight": 1.0
     },
     {
@@ -105007,7 +105007,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L190",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -105019,7 +105019,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L434",
+      "source_location": "L436",
       "weight": 1.0
     },
     {
@@ -105031,7 +105031,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L547",
+      "source_location": "L549",
       "weight": 1.0
     },
     {
@@ -105043,7 +105043,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L441",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -105055,7 +105055,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L567",
+      "source_location": "L569",
       "weight": 1.0
     },
     {
@@ -105067,7 +105067,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L518",
+      "source_location": "L520",
       "weight": 1.0
     },
     {
@@ -105079,7 +105079,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L523",
+      "source_location": "L525",
       "weight": 1.0
     },
     {
@@ -105091,7 +105091,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L450",
+      "source_location": "L452",
       "weight": 1.0
     },
     {
@@ -105103,7 +105103,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L451",
+      "source_location": "L453",
       "weight": 1.0
     },
     {
@@ -105115,7 +105115,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L457",
+      "source_location": "L459",
       "weight": 1.0
     },
     {
@@ -105127,7 +105127,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L472",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -105139,7 +105139,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L473",
+      "source_location": "L475",
       "weight": 1.0
     },
     {
@@ -105151,7 +105151,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L477",
+      "source_location": "L479",
       "weight": 1.0
     },
     {
@@ -105163,7 +105163,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L479",
+      "source_location": "L481",
       "weight": 1.0
     },
     {
@@ -105175,7 +105175,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L528",
+      "source_location": "L530",
       "weight": 1.0
     },
     {
@@ -105187,7 +105187,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L532",
+      "source_location": "L534",
       "weight": 1.0
     },
     {
@@ -105199,7 +105199,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L491",
+      "source_location": "L493",
       "weight": 1.0
     },
     {
@@ -105211,7 +105211,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L494",
+      "source_location": "L496",
       "weight": 1.0
     },
     {
@@ -105223,7 +105223,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L498",
+      "source_location": "L500",
       "weight": 1.0
     },
     {
@@ -105235,7 +105235,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L501",
+      "source_location": "L503",
       "weight": 1.0
     },
     {
@@ -105247,7 +105247,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L505",
+      "source_location": "L507",
       "weight": 1.0
     },
     {
@@ -105259,7 +105259,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L505",
+      "source_location": "L507",
       "weight": 1.0
     },
     {
@@ -105271,7 +105271,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L429",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -105283,7 +105283,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L346",
+      "source_location": "L348",
       "weight": 1.0
     },
     {
@@ -105295,7 +105295,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L390",
+      "source_location": "L392",
       "weight": 1.0
     },
     {
@@ -105307,7 +105307,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L414",
+      "source_location": "L416",
       "weight": 1.0
     },
     {
@@ -105319,7 +105319,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L415",
+      "source_location": "L417",
       "weight": 1.0
     },
     {
@@ -105331,7 +105331,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L383",
+      "source_location": "L385",
       "weight": 1.0
     },
     {
@@ -105343,7 +105343,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L353",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -105355,7 +105355,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L227",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -105367,7 +105367,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L230",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -105379,7 +105379,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L231",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -105391,7 +105391,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L236",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -105403,7 +105403,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L243",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -105415,7 +105415,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L251",
+      "source_location": "L253",
       "weight": 1.0
     },
     {
@@ -105427,7 +105427,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L260",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -105535,7 +105535,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L202",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -105547,7 +105547,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L215",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -105559,7 +105559,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L216",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -140623,7 +140623,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L349",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -140635,7 +140635,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L389",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -140647,7 +140647,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L488",
+      "source_location": "L490",
       "weight": 1.0
     },
     {
@@ -149088,7 +149088,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L193",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -149099,7 +149099,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L197",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -149110,7 +149110,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L201",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -149132,7 +149132,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L219",
+      "source_location": "L221",
       "weight": 1.0
     },
     {
@@ -149143,7 +149143,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L223",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -149154,7 +149154,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L280",
+      "source_location": "L282",
       "weight": 1.0
     },
     {
@@ -149165,7 +149165,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L285",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -149209,7 +149209,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L610",
+      "source_location": "L612",
       "weight": 1.0
     },
     {
@@ -149253,7 +149253,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L307",
+      "source_location": "L309",
       "weight": 1.0
     },
     {
@@ -149264,7 +149264,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L311",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -149275,7 +149275,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L315",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -149286,7 +149286,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L321",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -149297,7 +149297,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L327",
+      "source_location": "L329",
       "weight": 1.0
     },
     {
@@ -149308,7 +149308,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L372",
+      "source_location": "L374",
       "weight": 1.0
     },
     {
@@ -149319,7 +149319,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L419",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -149330,7 +149330,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L433",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -149341,7 +149341,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L440",
+      "source_location": "L442",
       "weight": 1.0
     },
     {
@@ -149352,7 +149352,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L445",
+      "source_location": "L447",
       "weight": 1.0
     },
     {
@@ -149363,7 +149363,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L449",
+      "source_location": "L451",
       "weight": 1.0
     },
     {
@@ -149374,7 +149374,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L517",
+      "source_location": "L519",
       "weight": 1.0
     },
     {
@@ -149385,7 +149385,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L526",
+      "source_location": "L528",
       "weight": 1.0
     },
     {
@@ -149396,7 +149396,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L537",
+      "source_location": "L539",
       "weight": 1.0
     },
     {
@@ -149407,7 +149407,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L541",
+      "source_location": "L543",
       "weight": 1.0
     },
     {
@@ -149418,7 +149418,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L546",
+      "source_location": "L548",
       "weight": 1.0
     },
     {
@@ -219015,7 +219015,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L157",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -219026,7 +219026,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L161",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -219037,7 +219037,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L166",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -219844,7 +219844,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L305",
+      "source_location": "L307",
       "weight": 1.0
     },
     {
@@ -219856,7 +219856,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L577",
+      "source_location": "L579",
       "weight": 1.0
     },
     {
@@ -219868,7 +219868,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L567",
+      "source_location": "L569",
       "weight": 1.0
     },
     {
@@ -219880,7 +219880,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "app/assets/javascripts/recognition_wizard.js",
-      "source_location": "L611",
+      "source_location": "L613",
       "weight": 1.0
     },
     {
@@ -221932,7 +221932,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "test/system/guided_recognition_wizard_test.rb",
-      "source_location": "L163",
+      "source_location": "L179",
       "weight": 1.0
     },
     {

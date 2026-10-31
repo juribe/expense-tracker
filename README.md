@@ -111,3 +111,10 @@ audio never leaves the machine. Setup and configuration are documented in
 ffmpeg -version
 whisper-env/bin/python -c "from faster_whisper import WhisperModel; print('faster-whisper OK')"
 ```
+
+### MCP server (AI agents)
+
+External MCP clients can query and operate the user's finances through
+`POST /mcp`. Each user connects with a revocable personal token created in
+Settings → AI agents. Authentication, the tool catalogue, structured examples
+and known limitations are documented in [docs/mcp.md](docs/mcp.md).

@@ -2,6 +2,12 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # MCP endpoint for external AI agents. JSON-RPC over HTTP, stateless:
+  # the Bearer token (not a request argument) identifies the user.
+  post "mcp", to: "mcp/endpoint#create", as: :mcp_endpoint
+  get "mcp", to: "mcp/endpoint#method_not_allowed"
+  delete "mcp", to: "mcp/endpoint#method_not_allowed"
+
   # Public webhooks (signature-verified): WhatsApp Cloud API and Cloudflare Email Worker
   namespace :webhooks do
     get "whatsapp", to: "whatsapp#verify"
@@ -21,6 +27,11 @@ Rails.application.routes.draw do
     post "test_support/confirm_user", to: "test_support/confirmations#create"
     post "test_support/promote_admin", to: "test_support/admins#create"
   end
+
+  # MCP token management (Settings → AI agents)
+  get "settings/mcp", to: "mcp/settings#show", as: :mcp_settings
+  post "settings/mcp", to: "mcp/settings#create"
+  delete "settings/mcp/:id", to: "mcp/settings#destroy", as: :mcp_settings_token
 
   # Devise authentication
   devise_for :users, controllers: {

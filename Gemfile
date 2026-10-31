@@ -48,6 +48,9 @@ gem "resend"
 gem "svix"
 gem "will_paginate", "~> 4.0"
 
+# MCP server so external AI agents can query and operate on a user's finances.
+gem "fast-mcp", "~> 1.6.0"
+
 # Loads environment variables from .env in development and test.
 gem "dotenv-rails", groups: [ :development, :test ]
 
