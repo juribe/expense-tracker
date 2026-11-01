@@ -10,7 +10,7 @@
         <div>
           <h5 class="card-title mb-0">
             <i class="ti ti-<%= source_kind_icon(source.kind) %> me-1"></i>
-            <%= link_to source.name, money_source_path(source), class: "text-decoration-none" %>
+            <%= link_to source.name, money_source_path(source), class: "text-decoration-none stretched-link" %>
           </h5>
           <small class="text-muted"><%= source_kind_label(source.kind) %></small>
           <% if source.institution_name.present? %>
@@ -21,7 +21,7 @@
             <span class="badge bg-light text-dark mt-1"><%= card_id_parts.join(" · ") %></span>
           <% end %>
         </div>
-        <div class="d-flex flex-shrink-0 gap-2 d-print-none">
+        <div class="d-flex flex-shrink-0 gap-2 d-print-none card-actions">
           <% if source.pocket? %>
             <%= render "money_sources/quick_assign_action", source: source %>
           <% end %>
@@ -41,6 +41,10 @@
               <i class="ti ti-dots" aria-hidden="true"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-end">
+              <%= link_to money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2" do %>
+                <i class="ti ti-eye me-2" aria-hidden="true"></i><span>Detalle</span>
+              <% end %>
+              <div class="dropdown-divider"></div>
               <%= render "money_sources/quick_transfer_actions", source: source, menu: true, with_text: true %>
               <% if quick_transfer_actions(source).any? %>
                 <div class="dropdown-divider"></div>

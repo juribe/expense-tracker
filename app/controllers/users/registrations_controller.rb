@@ -4,6 +4,18 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # Devise's default update_resource always demands the current password,
   # even for name-only edits. Only password/e-mail changes keep the
   # confirmation; a blank password updates the remaining profile freely.
+  #
+  # Closing an account destroys the user and, transitively, every MoneySource.
+  # Each source's `outgoing_transfers` / `incoming_transfers` associations are
+  # destroyed in turn; loading them lazily per source is an N+1 that Bullet
+  # flags (and raises on in development). Eager-load them up front so the
+  # cascade stays a single query batch. The redirect lands on the app root
+  # (the sign-in screen once signed out) instead of the meaningless /users.
+  def destroy
+    self.resource = User.includes(money_sources: [:outgoing_transfers, :incoming_transfers, :goals, :payments, :credit_scenarios, :credit_extra_payments, :gmf_monthly_accumulators]).find(resource.id)
+    super
+  end
+
   protected
 
   def update_resource(resource, params)

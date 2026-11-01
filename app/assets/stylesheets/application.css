@@ -96,6 +96,7 @@
 @media (max-width: 639.98px) { .loans-grid { grid-template-columns: 1fr; } }
 
 .loan-card {
+  position: relative;
   background: var(--loan-card-bg);
   border: 1px solid var(--loan-card-border);
   border-radius: 1rem;
@@ -206,6 +207,7 @@
  * Account Card (Accounts / Cash Dashboard)
  * ------------------------------------------------- */
 .account-card {
+  position: relative;
   background: var(--loan-card-bg);
   border: 1px solid var(--loan-card-border);
   border-radius: 1rem;
@@ -229,6 +231,16 @@
 /* Spike-style card "..." menu: subtle dots toggle, no caret, accent on
    hover/expanded. Shared by all money source cards. */
 .card-more-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; padding: 0; background: transparent; color: var(--loan-muted); border-radius: .5rem; font-size: .95rem; transition: all .15s ease; }
+
+/* Whole-card click target (stretched link) must not swallow interactive
+   controls: keep actions/menus above the link's overlay. */
+.account-actions,
+.loan-actions,
+.cc-actions,
+.card-actions {
+  position: relative;
+  z-index: 2;
+}
 .card-more-btn::after { display: none; }
 .card-more-btn:hover, .card-more-btn:focus, .card-more-btn[aria-expanded="true"] { background: var(--loan-accent-soft); color: var(--loan-accent); }
 [data-bs-theme="dark"] .card-more-btn:hover,
@@ -251,6 +263,7 @@
  * Credit Card Card (Credit Cards Dashboard)
  * ------------------------------------------------- */
 .credit-card-card {
+  position: relative;
   background: var(--loan-card-bg);
   border: 1px solid var(--loan-card-border);
   border-radius: 1rem;
