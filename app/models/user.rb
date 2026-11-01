@@ -24,14 +24,26 @@ class User < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :recurring_templates, dependent: :destroy
   has_many :gmail_connections, dependent: :destroy
-  has_many :processed_emails, dependent: :destroy
   has_many :mail_inbound_deliveries, dependent: :destroy
+  has_many :processed_emails, dependent: :destroy
+  # Records that also reference money sources must be removed before the
+  # sources themselves, so their foreign keys and (for payments) balance
+  # effects stay consistent.
+  has_many :reconciliation_states, dependent: :destroy
+  has_many :reconciliation_snapshots, dependent: :destroy
+  has_many :balance_adjustments, dependent: :destroy
+  has_many :statement_format_mappings, dependent: :destroy
+  has_many :spreadsheet_format_mappings, dependent: :destroy
+  has_many :ai_requests, dependent: :destroy
+  has_many :mcp_idempotency_records, dependent: :delete_all
+  has_many :mcp_tool_invocations, dependent: :delete_all
+  has_many :categories, dependent: :destroy
+  has_many :goals, dependent: :destroy
   has_many :money_sources, dependent: :destroy
   has_many :gmf_monthly_accumulators, dependent: :destroy
   has_many :transfers, dependent: :destroy
   has_many :financial_setups, dependent: :destroy
   has_many :budgets, dependent: :destroy
-  has_many :goals, dependent: :destroy
   has_one :financial_chat, dependent: :destroy
   has_many :spending_alerts, dependent: :destroy
   has_many :transaction_rules, dependent: :destroy

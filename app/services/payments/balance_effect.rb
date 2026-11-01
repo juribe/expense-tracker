@@ -50,15 +50,15 @@ module Payments
     end
 
     def loan?
-      payment.money_source.loan?
+      payment.money_source&.loan? == true
     end
 
     def credit_card?
-      payment.money_source.credit_card?
+      payment.money_source&.credit_card? == true
     end
 
     def revolving_target?
-      payment.money_source.revolving?
+      payment.money_source&.revolving? == true
     end
 
     def apply_loan(delta, counts_installment, had_installment)
