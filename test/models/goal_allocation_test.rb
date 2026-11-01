@@ -11,7 +11,7 @@ class GoalAllocationTest < ActiveSupport::TestCase
 
   def create_allocation(**overrides)
     GoalAllocation.create!(
-      { financial_goal: @goal, pocket: @pocket, amount: 1_000_000, date: Date.today }.merge(overrides)
+      { financial_goal: @goal, pocket: @pocket, amount: 1_000_000, date: Date.current }.merge(overrides)
     )
   end
 
@@ -20,13 +20,13 @@ class GoalAllocationTest < ActiveSupport::TestCase
   end
 
   test "amount cannot be zero" do
-    allocation = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: 0, date: Date.today)
+    allocation = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: 0, date: Date.current)
     assert_not allocation.valid?
     assert_includes allocation.errors[:amount], I18n.t("errors.messages.other_than", count: 0)
   end
 
   test "amount is required" do
-    allocation = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, date: Date.today)
+    allocation = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, date: Date.current)
     assert_not allocation.valid?
     assert_includes allocation.errors[:amount], I18n.t("errors.messages.blank")
   end
@@ -39,14 +39,14 @@ class GoalAllocationTest < ActiveSupport::TestCase
 
   test "pocket must be the goal's pocket" do
     other_pocket = @user.money_sources.create!(name: "Otro bolsillo", kind: "pocket", starting_balance: 0)
-    allocation = GoalAllocation.new(financial_goal: @goal, pocket: other_pocket, amount: 100, date: Date.today)
+    allocation = GoalAllocation.new(financial_goal: @goal, pocket: other_pocket, amount: 100, date: Date.current)
     assert_not allocation.valid?
     assert_includes allocation.errors[:pocket], I18n.t("activerecord.errors.messages.pocket_mismatch")
   end
 
   test "allocations cannot exceed the pocket's balance" do
     create_allocation(amount: 5_000_000)
-    over = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: 2_000_000, date: Date.today)
+    over = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: 2_000_000, date: Date.current)
     assert_not over.valid?
     assert_includes over.errors[:amount], I18n.t("activerecord.errors.messages.pocket_overallocated")
   end
@@ -57,7 +57,7 @@ class GoalAllocationTest < ActiveSupport::TestCase
   end
 
   test "a release cannot sink the goal's saved amount below zero" do
-    release = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: -1, date: Date.today)
+    release = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: -1, date: Date.current)
     assert_not release.valid?
     assert_includes release.errors[:amount], I18n.t("activerecord.errors.messages.goal_saved_negative")
   end
@@ -80,7 +80,7 @@ class GoalAllocationTest < ActiveSupport::TestCase
   end
 
   test "es-formatted amounts are normalized" do
-    allocation = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: "1.500.000,50", date: Date.today)
+    allocation = GoalAllocation.new(financial_goal: @goal, pocket: @pocket, amount: "1.500.000,50", date: Date.current)
     allocation.valid?
     assert_equal 1_500_000.5, allocation.amount
   end

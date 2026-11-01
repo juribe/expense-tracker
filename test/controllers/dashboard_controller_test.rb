@@ -73,7 +73,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /dashboard includes expense summary and budgets" do
     sign_in @user
-    @user.expenses.create!(amount: 10.00, date: Date.today, category: @category, description: "Coffee", money_source: @default_source)
+    @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "Coffee", money_source: @default_source)
     get dashboard_path
     assert_response :success
     assert_select "[data-testid=table]", count: 0

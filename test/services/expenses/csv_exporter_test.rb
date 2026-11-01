@@ -53,7 +53,7 @@ module Expenses
     end
 
     test "provides the suggested download filename" do
-      assert_equal "expenses-#{Date.today}.csv", CsvExporter.filename
+      assert_equal "expenses-#{Date.current}.csv", CsvExporter.filename
     end
 
     test "escapes text cells that could be interpreted as spreadsheet formulas" do

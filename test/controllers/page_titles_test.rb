@@ -50,7 +50,7 @@ class PageTitlesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "title", "Resumen financiero | Mis Gastos"
-    assert_select "footer", text: /© #{Date.today.year} Mis Gastos/
+    assert_select "footer", text: /© #{Date.current.year} Mis Gastos/
   end
 
   test "missing translation does not raise and leaves the title nil" do
@@ -67,7 +67,7 @@ class PageTitlesTest < ActionDispatch::IntegrationTest
     post expenses_path, params: {
       expense: {
         amount: 10,
-        date: Date.today,
+        date: Date.current,
         category_id: @category.id,
         money_source_id: @source.id,
         description: "x"

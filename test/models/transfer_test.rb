@@ -11,17 +11,17 @@ class TransferTest < ActiveSupport::TestCase
 
   def create_transfer(**overrides)
     Transfer.create!(
-      { user: @user, from_source: @savings, to_source: @checking, amount: 100, date: Date.today }.merge(overrides)
+      { user: @user, from_source: @savings, to_source: @checking, amount: 100, date: Date.current }.merge(overrides)
     )
   end
 
   test "is valid with required attributes" do
-    transfer = Transfer.new(user: @user, from_source: @savings, to_source: @checking, amount: 50, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @savings, to_source: @checking, amount: 50, date: Date.current)
     assert transfer.valid?
   end
 
   test "amount must be present and greater than 0" do
-    transfer = Transfer.new(user: @user, from_source: @savings, to_source: @checking, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @savings, to_source: @checking, date: Date.current)
     assert_not transfer.valid?
     assert_includes transfer.errors[:amount], I18n.t("errors.messages.blank")
 
@@ -41,7 +41,7 @@ class TransferTest < ActiveSupport::TestCase
   end
 
   test "from_source and to_source must be different" do
-    transfer = Transfer.new(user: @user, from_source: @savings, to_source: @savings, amount: 100, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @savings, to_source: @savings, amount: 100, date: Date.current)
     assert_not transfer.valid?
     assert_includes transfer.errors[:to_source], I18n.t("validation.transfer_sources")
   end
@@ -51,7 +51,7 @@ class TransferTest < ActiveSupport::TestCase
     other_source_a = other_user.money_sources.create!(name: "A", kind: "account", starting_balance: 100)
     other_source_b = other_user.money_sources.create!(name: "B", kind: "account")
     my_transfer = create_transfer
-    other_transfer = Transfer.create!(user: other_user, from_source: other_source_a, to_source: other_source_b, amount: 50, date: Date.today)
+    other_transfer = Transfer.create!(user: other_user, from_source: other_source_a, to_source: other_source_b, amount: 50, date: Date.current)
     assert_includes Transfer.for_user(@user), my_transfer
     assert_not_includes Transfer.for_user(@user), other_transfer
   end
@@ -77,7 +77,7 @@ class TransferTest < ActiveSupport::TestCase
     @pocket = @user.money_sources.create!(name: "Bolsillo Europa", kind: "pocket", starting_balance: 0)
     @savings.update!(starting_balance: 2_000_000)
 
-    Transfer.create!(user: @user, from_source: @savings, to_source: @pocket, amount: 1_000_000, date: Date.today)
+    Transfer.create!(user: @user, from_source: @savings, to_source: @pocket, amount: 1_000_000, date: Date.current)
 
     # 2_000_000 starting balance minus the assigned amount
     assert_equal 1_000_000, @savings.reload.balance.to_i
@@ -89,7 +89,7 @@ class TransferTest < ActiveSupport::TestCase
   test "moving money out of a pocket is a transfer, not an income" do
     @pocket = @user.money_sources.create!(name: "Bolsillo Europa", kind: "pocket", starting_balance: 1_000_000)
 
-    Transfer.create!(user: @user, from_source: @pocket, to_source: @savings, amount: 400_000, date: Date.today)
+    Transfer.create!(user: @user, from_source: @pocket, to_source: @savings, amount: 400_000, date: Date.current)
 
     assert_equal 600_000, @pocket.reload.balance.to_i
     assert_equal 401_000, @savings.reload.balance.to_i
@@ -100,7 +100,7 @@ class TransferTest < ActiveSupport::TestCase
     @pocket_a = @user.money_sources.create!(name: "Bolsillo A", kind: "pocket", starting_balance: 500_000)
     @pocket_b = @user.money_sources.create!(name: "Bolsillo B", kind: "pocket", starting_balance: 0)
 
-    Transfer.create!(user: @user, from_source: @pocket_a, to_source: @pocket_b, amount: 200_000, date: Date.today)
+    Transfer.create!(user: @user, from_source: @pocket_a, to_source: @pocket_b, amount: 200_000, date: Date.current)
 
     assert_equal 300_000, @pocket_a.reload.balance.to_i
     assert_equal 200_000, @pocket_b.reload.balance.to_i
@@ -110,7 +110,7 @@ class TransferTest < ActiveSupport::TestCase
     @pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 500_000)
     card = @user.money_sources.create!(name: "Tarjeta", kind: "credit_card", starting_balance: 0)
 
-    transfer = Transfer.new(user: @user, from_source: @pocket, to_source: card, amount: 100, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @pocket, to_source: card, amount: 100, date: Date.current)
     assert_not transfer.valid?
     assert_includes transfer.errors[:to_source], I18n.t("activerecord.errors.messages.pocket_flow")
   end
@@ -119,7 +119,7 @@ class TransferTest < ActiveSupport::TestCase
     @pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 0)
     loan = @user.money_sources.create!(name: "Préstamo", kind: "loan", starting_balance: 0)
 
-    transfer = Transfer.new(user: @user, from_source: loan, to_source: @pocket, amount: 100, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: loan, to_source: @pocket, amount: 100, date: Date.current)
     assert_not transfer.valid?
     assert_includes transfer.errors[:to_source], I18n.t("activerecord.errors.messages.pocket_flow")
   end
@@ -128,16 +128,16 @@ class TransferTest < ActiveSupport::TestCase
     @pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 1_000_000)
     goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 5_000_000)
 
-    transfer = Transfer.new(user: @user, from_source: @pocket, to_source: @savings, amount: 1_000_000, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @pocket, to_source: @savings, amount: 1_000_000, date: Date.current)
     assert transfer.valid?
   end
 
   test "releasing more than the unallocated balance is blocked" do
     @pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 1_000_000)
     goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 5_000_000)
-    goal.goal_allocations.create!(pocket: @pocket, amount: 800_000, date: Date.today)
+    goal.goal_allocations.create!(pocket: @pocket, amount: 800_000, date: Date.current)
 
-    transfer = Transfer.new(user: @user, from_source: @pocket, to_source: @savings, amount: 500_000, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @pocket, to_source: @savings, amount: 500_000, date: Date.current)
     assert_not transfer.valid?
     assert_includes transfer.errors[:amount], I18n.t("activerecord.errors.messages.pocket_allocations_exceed_balance")
   end
@@ -145,9 +145,9 @@ class TransferTest < ActiveSupport::TestCase
   test "releasing only the unallocated balance leaves allocations covered" do
     @pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 1_000_000)
     goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 5_000_000)
-    goal.goal_allocations.create!(pocket: @pocket, amount: 800_000, date: Date.today)
+    goal.goal_allocations.create!(pocket: @pocket, amount: 800_000, date: Date.current)
 
-    Transfer.create!(user: @user, from_source: @pocket, to_source: @savings, amount: 200_000, date: Date.today)
+    Transfer.create!(user: @user, from_source: @pocket, to_source: @savings, amount: 200_000, date: Date.current)
 
     assert_equal 800_000, @pocket.reload.balance.to_i
     assert_equal 0, @pocket.reload.unallocated_amount.to_i
@@ -245,7 +245,7 @@ class TransferTest < ActiveSupport::TestCase
     foreign = other_user.money_sources.create!(name: "Ajena", kind: "account", starting_balance: 1000)
     balance_before = foreign.reload.cached_balance
 
-    transfer = Transfer.new(user: @user, from_source: foreign, to_source: @checking, amount: 100, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: foreign, to_source: @checking, amount: 100, date: Date.current)
 
     assert_not transfer.valid?
     assert_includes transfer.errors[:from_source], I18n.t("activerecord.errors.messages.other_user")
@@ -256,7 +256,7 @@ class TransferTest < ActiveSupport::TestCase
     other_user = User.create!(name: "Other", email: "transfer_destination_owner@example.com", password: "password123")
     foreign = other_user.money_sources.create!(name: "Ajena", kind: "account", starting_balance: 0)
 
-    transfer = Transfer.new(user: @user, from_source: @savings, to_source: foreign, amount: 100, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: @savings, to_source: foreign, amount: 100, date: Date.current)
 
     assert_not transfer.valid?
     assert_includes transfer.errors[:to_source], I18n.t("activerecord.errors.messages.other_user")
@@ -269,7 +269,7 @@ class TransferTest < ActiveSupport::TestCase
     checking_before = @checking.reload.cached_balance
     foreign_before = foreign.reload.cached_balance
 
-    transfer = Transfer.new(user: @user, from_source: foreign, to_source: @checking, amount: 100, date: Date.today)
+    transfer = Transfer.new(user: @user, from_source: foreign, to_source: @checking, amount: 100, date: Date.current)
 
     assert_not transfer.save
     assert_equal savings_before, @savings.reload.cached_balance

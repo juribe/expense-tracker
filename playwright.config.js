@@ -2,6 +2,12 @@ const { defineConfig } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
+// Keep spec-side and browser dates on the application's time zone
+// (America/Bogota, see config/application.rb). CI runs in UTC, so without
+// this "today" drifts a day (or month) ahead of what the app renders around
+// midnight and the date-driven specs flake.
+process.env.TZ = 'America/Bogota';
+
 const port = process.env.PLAYWRIGHT_PORT || '3310';
 const dbHost = process.env.DATABASE_HOST || '127.0.0.1';
 const dbPort = process.env.DATABASE_PORT || '5432';
@@ -22,7 +28,8 @@ module.exports = defineConfig({
   workers: Number(process.env.PLAYWRIGHT_WORKERS || 4),
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`,
-    headless: true
+    headless: true,
+    timezoneId: 'America/Bogota'
   },
   webServer: {
     command: `${railsPrefix}bin/rails server -e test -p ${port} -b 127.0.0.1`,

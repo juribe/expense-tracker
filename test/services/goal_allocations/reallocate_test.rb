@@ -8,8 +8,8 @@ class GoalAllocationsReallocateTest < ActiveSupport::TestCase
     @pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 10_000_000)
     @travel = Goal.create!(user: @user, pocket: @pocket, name: "Viaje Europa", target_amount: 20_000_000)
     @car = Goal.create!(user: @user, pocket: @pocket, name: "Carro", target_amount: 30_000_000)
-    @travel.goal_allocations.create!(pocket: @pocket, amount: 2_500_000, date: Date.today)
-    @car.goal_allocations.create!(pocket: @pocket, amount: 2_500_000, date: Date.today)
+    @travel.goal_allocations.create!(pocket: @pocket, amount: 2_500_000, date: Date.current)
+    @car.goal_allocations.create!(pocket: @pocket, amount: 2_500_000, date: Date.current)
   end
 
   test "moves the reservation between goals of the same pocket" do

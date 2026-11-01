@@ -39,7 +39,7 @@ class AppHealthTest < ActionDispatch::IntegrationTest
       post expenses_path, params: {
         expense: {
           amount: 50.00,
-          date: Date.today,
+          date: Date.current,
           category_id: category.id,
           description: "Pharmacy",
           money_source_id: @user.money_sources.first&.id ||

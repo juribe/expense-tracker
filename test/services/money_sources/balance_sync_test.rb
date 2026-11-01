@@ -16,11 +16,11 @@ module MoneySources
     end
 
     def create_expense(source, amount)
-      source.transactions.create!(user: @user, category: @category, amount: -amount, date: Date.today, kind: "expense", source: "manual")
+      source.transactions.create!(user: @user, category: @category, amount: -amount, date: Date.current, kind: "expense", source: "manual")
     end
 
     def create_income(source, amount)
-      source.transactions.create!(user: @user, category: @category, amount: amount, date: Date.today, kind: "income", source: "manual")
+      source.transactions.create!(user: @user, category: @category, amount: amount, date: Date.current, kind: "income", source: "manual")
     end
 
     test "creating an expense updates the cached balance" do
@@ -94,7 +94,7 @@ module MoneySources
 
       assert_difference -> { from.reload.cached_balance }, -100 do
         assert_difference -> { to.reload.cached_balance }, 100 do
-          Transfer.create!(user: @user, from_source: from, to_source: to, amount: 100, date: Date.today)
+          Transfer.create!(user: @user, from_source: from, to_source: to, amount: 100, date: Date.current)
         end
       end
     end
@@ -102,7 +102,7 @@ module MoneySources
     test "destroying a transfer reverses both sources" do
       from = create_source(name: "From #{Time.now.to_i}")
       to = create_source(name: "To #{Time.now.to_i}")
-      transfer = Transfer.create!(user: @user, from_source: from, to_source: to, amount: 100, date: Date.today)
+      transfer = Transfer.create!(user: @user, from_source: from, to_source: to, amount: 100, date: Date.current)
 
       assert_difference -> { from.reload.cached_balance }, 100 do
         assert_difference -> { to.reload.cached_balance }, -100 do

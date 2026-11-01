@@ -61,7 +61,7 @@ class CreditAccountTest < ActiveSupport::TestCase
   end
 
   test "end_date must be after start_date" do
-    account = @source.build_credit_account(start_date: Date.today, end_date: Date.yesterday)
+    account = @source.build_credit_account(start_date: Date.current, end_date: Date.yesterday)
     assert_not account.valid?
     assert account.errors[:end_date].any?
   end

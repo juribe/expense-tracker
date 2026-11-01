@@ -48,7 +48,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /expenses renders the table with expenses" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
-    create_expense(amount: 12.50, date: Date.today, money_source: source)
+    create_expense(amount: 12.50, date: Date.current, money_source: source)
     get expenses_path
     assert_response :success
     assert_select "[data-testid=table]"
@@ -61,7 +61,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /expenses/:id shows the money source with its icon" do
     source = create_source(name: "Nequi", kind: "wallet", bank: "Bancolombia", starting_balance: 100)
-    expense = create_expense(amount: 20.00, date: Date.today, money_source: source)
+    expense = create_expense(amount: 20.00, date: Date.current, money_source: source)
     get expense_path(expense)
     assert_response :success
     assert_select ".drawer-value .badge", text: /Nequi/
@@ -69,7 +69,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses/:id renders the highlighted amount card" do
-    expense = create_expense(amount: 63_500, date: Date.today)
+    expense = create_expense(amount: 63_500, date: Date.current)
     get expense_path(expense)
     assert_response :success
     assert_select ".drawer-amount-card"
@@ -77,7 +77,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses renders the bulk update bar and modal" do
-    create_expense(amount: 12.50, date: Date.today)
+    create_expense(amount: 12.50, date: Date.current)
     create_source(name: "Visa", kind: "credit_card", bank: "Chase")
     get expenses_path
     assert_response :success
@@ -100,7 +100,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses shows no-results state when filters match nothing" do
-    create_expense(amount: 12.50, date: Date.today)
+    create_expense(amount: 12.50, date: Date.current)
     get expenses_path, params: { category_id: @other_category.id }
     assert_response :success
     assert_select "[data-testid=empty]"
@@ -108,8 +108,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses filters by category with a row-level where filter" do
-    create_expense(amount: 12.50, date: Date.today, category: @category)
-    create_expense(amount: 9.00, date: Date.today, category: @other_category, description: "Bus")
+    create_expense(amount: 12.50, date: Date.current, category: @category)
+    create_expense(amount: 9.00, date: Date.current, category: @other_category, description: "Bus")
     get expenses_path, params: { category_id: @category.id }
     assert_response :success
     assert_select "tr[data-testid=row]", count: 1
@@ -120,8 +120,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "GET /expenses filters by money source and keeps it selected in the filter form" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
     other_source = create_source(name: "Cuenta", kind: "account")
-    create_expense(amount: 12.50, date: Date.today, money_source: source, description: "Visa lunch")
-    create_expense(amount: 9.00, date: Date.today, money_source: other_source, description: "Cash lunch")
+    create_expense(amount: 12.50, date: Date.current, money_source: source, description: "Visa lunch")
+    create_expense(amount: 9.00, date: Date.current, money_source: other_source, description: "Cash lunch")
 
     get expenses_path, params: { money_source_id: source.id }
 
@@ -132,9 +132,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses filters by amount range" do
-    create_expense(amount: 10.00, date: Date.today, description: "Low")
-    create_expense(amount: 50.00, date: Date.today, description: "Mid")
-    create_expense(amount: 100.00, date: Date.today, description: "High")
+    create_expense(amount: 10.00, date: Date.current, description: "Low")
+    create_expense(amount: 50.00, date: Date.current, description: "Mid")
+    create_expense(amount: 100.00, date: Date.current, description: "High")
     get expenses_path, params: { min_amount: "20", max_amount: "75" }
     assert_response :success
     assert_select "tr[data-testid=row]", count: 1
@@ -142,8 +142,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses filters by description text and keeps it in the filter state" do
-    create_expense(amount: 12.50, date: Date.today, description: "Café con leche")
-    create_expense(amount: 9.00, date: Date.today, description: "Bus")
+    create_expense(amount: 12.50, date: Date.current, description: "Café con leche")
+    create_expense(amount: 9.00, date: Date.current, description: "Bus")
 
     get expenses_path, params: { q: "café" }
 
@@ -157,7 +157,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "DELETE /expenses/:id preserves the text search" do
-    expense = create_expense(amount: 12.50, date: Date.today)
+    expense = create_expense(amount: 12.50, date: Date.current)
     delete expense_path(expense), params: { q: "lunch" }
     assert_redirected_to expenses_path(q: "lunch")
   end
@@ -172,7 +172,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses validates min > max amount and does not run the query" do
-    create_expense(amount: 50.00, date: Date.today)
+    create_expense(amount: 50.00, date: Date.current)
     get expenses_path, params: { min_amount: "100", max_amount: "10" }
     assert_response :success
     assert_select "input.is-invalid"
@@ -187,8 +187,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses sorts by amount ascending" do
-    create_expense(amount: 10.00, date: Date.today, description: "Low")
-    create_expense(amount: 99.00, date: Date.today, description: "High")
+    create_expense(amount: 10.00, date: Date.current, description: "Low")
+    create_expense(amount: 99.00, date: Date.current, description: "High")
     get expenses_path, params: { sort: "amount", dir: "asc" }
     assert_response :success
     assert_select "thead th[aria-sort=ascending]"
@@ -207,7 +207,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses paginates at 25 rows and preserves page param" do
-    30.times { |i| create_expense(amount: i + 1, date: Date.today, description: "Expense #{i}") }
+    30.times { |i| create_expense(amount: i + 1, date: Date.current, description: "Expense #{i}") }
     get expenses_path, params: { page: 1 }
     assert_response :success
     assert_select "tr[data-testid=row]", count: 25
@@ -217,7 +217,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses shows the subtotal of the visible page, not the filtered total" do
-    30.times { |i| create_expense(amount: 10.0 + i, date: Date.today, description: "Expense #{i}") }
+    30.times { |i| create_expense(amount: 10.0 + i, date: Date.current, description: "Expense #{i}") }
     get expenses_path, params: { page: 2 }
     assert_response :success
     assert_select "#pageFoot", text: /Total de página -\$60/
@@ -238,7 +238,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /expenses.csv does not preload credit data unused by the export" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
-    create_expense(amount: 12.50, date: Date.today, money_source: source)
+    create_expense(amount: 12.50, date: Date.current, money_source: source)
 
     assert_page_has_no_bullet_notifications { get expenses_path(format: :csv) }
 
@@ -248,7 +248,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /expenses preloads money-source credit data used by display_name" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
-    create_expense(amount: 12.50, date: Date.today, money_source: source)
+    create_expense(amount: 12.50, date: Date.current, money_source: source)
 
     assert_page_has_no_bullet_notifications { get expenses_path }
 
@@ -257,7 +257,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses/:id renders the drawer fragment" do
-    expense = create_expense(amount: 12.50, date: Date.today)
+    expense = create_expense(amount: 12.50, date: Date.current)
     get expense_path(expense)
     assert_response :success
     assert_select ".expense-drawer"
@@ -265,7 +265,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses/:id drawer shows the recurring link badge and unlink button" do
-    expense = create_expense(amount: 63_500, date: Date.today)
+    expense = create_expense(amount: 63_500, date: Date.current)
     expense.update!(recurring_template_id: @template.id)
 
     get expense_path(expense)
@@ -275,20 +275,20 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses/:id renders the drawer fragment without the application layout" do
-    expense = create_expense(amount: 12.50, date: Date.today)
+    expense = create_expense(amount: 12.50, date: Date.current)
     get expense_path(expense)
     assert_response :success
     assert_select "aside.left-sidebar", count: 0
   end
 
   test "GET /expenses/:id drawer shows no recurring link for unlinked expenses" do
-    expense = create_expense(amount: 12.50, date: Date.today)
+    expense = create_expense(amount: 12.50, date: Date.current)
     get expense_path(expense)
     assert_select ".drawer-recurring", text: /Sin asignar/
   end
 
   test "DELETE /expenses/:id destroys and preserves filter query" do
-    expense = create_expense(amount: 12.50, date: Date.today)
+    expense = create_expense(amount: 12.50, date: Date.current)
     delete expense_path(expense), params: { category_id: @category.id, sort: "amount", dir: "asc" }
     assert_redirected_to expenses_path(category_id: @category.id.to_s, sort: "amount", dir: "asc")
     assert_not Expense.exists?(expense.id)
@@ -297,9 +297,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "DELETE /expenses/:id also removes the confirmed candidate" do
-    expense = create_expense(amount: 12.50, date: Date.today)
+    expense = create_expense(amount: 12.50, date: Date.current)
     candidate = @user.expense_candidates.create!(
-      amount: 12.50, date: Date.today, source: "whatsapp",
+      amount: 12.50, date: Date.current, source: "whatsapp",
       status: "confirmed", expense_id: expense.id
     )
 
@@ -323,7 +323,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     Credits::Projection::Builder.call(money_source: loan).result
     funding = @user.money_sources.create!(name: "Abono funding", kind: "account", starting_balance: 500_000)
     extra = Credits::ExtraPayments::Create.call(
-      money_source: loan, funding_money_source: funding, date: Date.today,
+      money_source: loan, funding_money_source: funding, date: Date.current,
       amount: "300000", application_type: "reduce_term"
     ).result
 
@@ -336,9 +336,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "DELETE /expenses/bulk_destroy removes selected expenses" do
-    a = create_expense(amount: 1, date: Date.today, description: "A")
-    b = create_expense(amount: 2, date: Date.today, description: "B")
-    c = create_expense(amount: 3, date: Date.today, description: "C")
+    a = create_expense(amount: 1, date: Date.current, description: "A")
+    b = create_expense(amount: 2, date: Date.current, description: "B")
+    c = create_expense(amount: 3, date: Date.current, description: "C")
     delete bulk_destroy_expenses_path, params: { ids: [ a.id, c.id ] }
     assert_redirected_to expenses_path
     assert Expense.exists?(b.id)
@@ -362,7 +362,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_difference "Expense.count" do
       post expenses_path, params: { expense: {
-        amount: 50_000, description: "Compra grande", date: Date.today.to_s,
+        amount: 50_000, description: "Compra grande", date: Date.current.to_s,
         category_id: @category.id, money_source_id: source.id
       } }
     end
@@ -377,7 +377,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
     assert_difference "Expense.count", 1 do
       post expenses_path, params: { expense: {
-        amount: 20_000, description: "Compra", date: Date.today.to_s,
+        amount: 20_000, description: "Compra", date: Date.current.to_s,
         category_id: @category.id, money_source_id: source.id
       } }
     end
@@ -475,7 +475,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses/:id/edit offers only payment sources in the source dropdown" do
-    expense = create_expense(amount: 10, date: Date.today)
+    expense = create_expense(amount: 10, date: Date.current)
     card = create_source(name: "Visa", kind: "credit_card")
     loan = create_source(name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
 
@@ -489,7 +489,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   # ------------------------------------------------ apply to recurring
 
   test "POST /expenses/assign_recurring assigns an expense to an expense template" do
-    expense = create_expense(amount: 63_500, date: Date.today, description: "Cuota Veículo", source: "gmail")
+    expense = create_expense(amount: 63_500, date: Date.current, description: "Cuota Veículo", source: "gmail")
     template = template_for(amount: 65_000)
 
     post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
@@ -503,7 +503,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/assign_recurring with completed=0 links the expense but keeps the template pending" do
-    expense = create_expense(amount: 30_000, date: Date.today)
+    expense = create_expense(amount: 30_000, date: Date.current)
     template = template_for(amount: 65_000)
 
     post assign_recurring_expenses_path,
@@ -520,8 +520,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "POST /expenses/assign_recurring accepts several partial expenses for the same period" do
     template = template_for(amount: 65_000)
-    first = create_expense(amount: 20_000, date: Date.today)
-    second = create_expense(amount: 25_000, date: Date.today)
+    first = create_expense(amount: 20_000, date: Date.current)
+    second = create_expense(amount: 25_000, date: Date.current)
 
     post assign_recurring_expenses_path,
          params: { expense_id: first.id, recurring_template_id: template.id, completed: "0" }
@@ -538,8 +538,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "POST /expenses/assign_recurring completes the period when partials reach the expected amount" do
     template = template_for(amount: 65_000)
-    first = create_expense(amount: 30_000, date: Date.today)
-    second = create_expense(amount: 35_000, date: Date.today)
+    first = create_expense(amount: 30_000, date: Date.current)
+    second = create_expense(amount: 35_000, date: Date.current)
 
     post assign_recurring_expenses_path,
          params: { expense_id: first.id, recurring_template_id: template.id, completed: "0" }
@@ -551,9 +551,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses exposes expected and accumulated amounts for partial templates" do
-    paid = create_expense(amount: 20_000, date: Date.today)
+    paid = create_expense(amount: 20_000, date: Date.current)
     paid.update!(recurring_template_id: @template.id, recurring_paid_in_full: false)
-    create_expense(amount: 10_000, date: Date.today)
+    create_expense(amount: 10_000, date: Date.current)
 
     get expenses_path
 
@@ -567,10 +567,10 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/assign_recurring rejects when the template already paid that period" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     template = template_for(amount: 50_000)
     template.transactions.create!(user: @user, category: @category, amount: 50_000,
-                                  date: Date.today, kind: "expense", source: "recurring_template",
+                                  date: Date.current, kind: "expense", source: "recurring_template",
                                   money_source: @user.money_sources.first)
 
     post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
@@ -581,7 +581,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/assign_recurring rejects an already linked expense" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     first = template_for(amount: 50_000)
     expense.update!(recurring_template_id: first.id)
     second = template_for(amount: 50_000)
@@ -594,7 +594,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/assign_recurring rejects an income template" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     income_template = @user.recurring_templates.create!(
       category: @category, kind: "income", amount: 3_000_000, frequency: "monthly", source: "manual"
     )
@@ -607,7 +607,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/assign_recurring rejects a debt-target template" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
     debt_template = @user.recurring_templates.create!(
       category: @category, kind: "expense", amount: 3_000_000, frequency: "monthly",
@@ -661,7 +661,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/assign_recurring rejects an inactive template" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     template = template_for(amount: 50_000, active: false)
 
     post assign_recurring_expenses_path, params: { expense_id: expense.id, recurring_template_id: template.id }
@@ -674,7 +674,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "POST /expenses/assign_recurring rejects other users' expense and template" do
     other = User.create!(name: "Other", email: "other_assign_recurring@example.com", password: "password123")
     other_source = other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
-    other_expense = other.expenses.create!(category: @category, amount: 50_000, date: Date.today, source: "gmail",
+    other_expense = other.expenses.create!(category: @category, amount: 50_000, date: Date.current, source: "gmail",
                                            money_source: other_source)
     other_template = other.recurring_templates.create!(
       category: @category, kind: "expense", amount: 50_000, frequency: "monthly", source: "wizard"
@@ -683,13 +683,13 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     post assign_recurring_expenses_path, params: { expense_id: other_expense.id, recurring_template_id: @template.id }
     assert_equal I18n.t("expenses.assign_recurring.not_found"), flash[:alert]
 
-    post assign_recurring_expenses_path, params: { expense_id: create_expense(amount: 1, date: Date.today).id,
+    post assign_recurring_expenses_path, params: { expense_id: create_expense(amount: 1, date: Date.current).id,
                                                   recurring_template_id: other_template.id }
     assert_equal I18n.t("expenses.assign_recurring.not_found"), flash[:alert]
   end
 
   test "POST /expenses/unassign_recurring clears the link and reopens the period" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     template = template_for(amount: 50_000)
     expense.update!(recurring_template_id: template.id)
     assert_equal :completed, template.status_for(Date.current.strftime("%Y-%m"))
@@ -702,13 +702,13 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "POST /expenses/unassign_recurring rejects an unlinked or foreign expense" do
-    expense = create_expense(amount: 50_000, date: Date.today)
+    expense = create_expense(amount: 50_000, date: Date.current)
     post unassign_recurring_expenses_path, params: { expense_id: expense.id }
     assert_equal I18n.t("expenses.assign_recurring.not_linked"), flash[:alert]
 
     other = User.create!(name: "Other2", email: "other2_assign_recurring@example.com", password: "password123")
     other_source = other.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
-    other_expense = other.expenses.create!(category: @category, amount: 1, date: Date.today, source: "gmail",
+    other_expense = other.expenses.create!(category: @category, amount: 1, date: Date.current, source: "gmail",
                                            money_source: other_source)
     other_expense.update!(recurring_template_id: template_for(amount: 1).id)
     post unassign_recurring_expenses_path, params: { expense_id: other_expense.id }
@@ -717,7 +717,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses shows the per-row apply-to-recurring button and template options" do
-    create_expense(amount: 63_500, date: Date.today, source: "gmail")
+    create_expense(amount: 63_500, date: Date.current, source: "gmail")
 
     get expenses_path
     assert_response :success
@@ -726,7 +726,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=bulk-recurring]", count: 0
     assert_select "tr[data-testid=row][data-recurring-id=''] [data-testid=row-assign-recurring]", count: 1
     # Already-linked expenses don't offer the button again (2 rows, 1 linked).
-    linked = create_expense(amount: 1, date: Date.today)
+    linked = create_expense(amount: 1, date: Date.current)
     linked.update!(recurring_template_id: @template.id)
     get expenses_path
     assert_select "[data-testid=row-assign-recurring]", count: 1
@@ -736,7 +736,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "assigning to a credit-card template is rejected: apply the payment from the account page" do
     source = create_source(name: "Visa", kind: "credit_card", bank: "Chase")
     source.create_credit_account!(credit_limit: 3_000_000)
-    expense = create_expense(amount: 1_500_000, date: Date.today, source: "gmail", money_source: source)
+    expense = create_expense(amount: 1_500_000, date: Date.current, source: "gmail", money_source: source)
     template = template_for(amount: 1_500_000)
     template.update!(money_source: source, description: "Cuota Visa")
     card_balance_before = source.reload.balance
@@ -752,9 +752,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses renders templates already paid this period as unavailable options" do
-    create_expense(amount: 1, date: Date.today, source: "gmail")
+    create_expense(amount: 1, date: Date.current, source: "gmail")
     template = template_for(amount: 20_000, active: true)
-    expense = create_expense(amount: 20_000, date: Date.today)
+    expense = create_expense(amount: 20_000, date: Date.current)
     expense.update!(recurring_template_id: template.id)
 
     get expenses_path
@@ -763,15 +763,15 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /expenses rows keep the eye-only drawer button" do
-    create_expense(amount: 10, date: Date.today)
+    create_expense(amount: 10, date: Date.current)
     get expenses_path
     assert_response :success
     assert_select "tr[data-testid=row] [data-open-drawer]", count: 1
   end
 
   test "PATCH /expenses/bulk_update changes category for selected expenses" do
-    a = create_expense(amount: 1, date: Date.today, description: "A")
-    b = create_expense(amount: 2, date: Date.today, description: "B")
+    a = create_expense(amount: 1, date: Date.current, description: "A")
+    b = create_expense(amount: 2, date: Date.current, description: "B")
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id, b.id ], category_id: @other_category.id }
     assert_redirected_to expenses_path
     assert_equal @other_category.id, a.reload.category_id
@@ -781,8 +781,8 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "PATCH /expenses/bulk_update changes money source for selected expenses" do
-    a = create_expense(amount: 1, date: Date.today)
-    b = create_expense(amount: 2, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
+    b = create_expense(amount: 2, date: Date.current)
     source = create_source
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id, b.id ], money_source_id: source.id }
     assert_redirected_to expenses_path
@@ -791,7 +791,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "PATCH /expenses/bulk_update changes category and money source in one request" do
-    a = create_expense(amount: 1, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
     source = create_source
     patch bulk_update_expenses_path,
           params: { expense_ids: [ a.id ], category_id: @other_category.id, money_source_id: source.id }
@@ -803,7 +803,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
 
   test "PATCH /expenses/bulk_update only updates the fields provided" do
     source = create_source
-    a = create_expense(amount: 1, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
     a.update!(money_source_id: source.id)
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], category_id: @other_category.id }
     assert_redirected_to expenses_path
@@ -815,9 +815,9 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "PATCH /expenses/bulk_update ignores expense ids not owned by the current user" do
     other_user = User.create!(name: "Other", email: "bulk_update_other@example.com", password: "password123")
     other_source = other_user.money_sources.create!(name: "Cuenta Ajena", kind: "account", starting_balance: 1_000_000)
-    other_expense = other_user.expenses.create!(amount: 5, date: Date.today, description: "Theirs", category: @category,
+    other_expense = other_user.expenses.create!(amount: 5, date: Date.current, description: "Theirs", category: @category,
                                                 money_source: other_source)
-    mine = create_expense(amount: 2, date: Date.today)
+    mine = create_expense(amount: 2, date: Date.current)
     patch bulk_update_expenses_path, params: { expense_ids: [ mine.id, other_expense.id ], category_id: @other_category.id }
     assert_redirected_to expenses_path
     assert_equal @other_category.id, mine.reload.category_id
@@ -829,7 +829,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "PATCH /expenses/bulk_update rejects a category not available to the user" do
     other_user = User.create!(name: "Other", email: "bulk_update_cat_other@example.com", password: "password123")
     other_category = Category.create!(name: "Secret Cat", user: other_user, is_default: false, category_type: "expense")
-    a = create_expense(amount: 1, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
     original = a.category_id
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], category_id: other_category.id }
     assert_redirected_to expenses_path
@@ -841,7 +841,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   test "PATCH /expenses/bulk_update rejects a money source not owned by the user" do
     other_user = User.create!(name: "Other", email: "bulk_update_src_other@example.com", password: "password123")
     other_source = other_user.money_sources.create!(name: "Other Bank", kind: "account", starting_balance: 0)
-    a = create_expense(amount: 1, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
     original_source = a.reload.money_source_id
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id ], money_source_id: other_source.id }
     assert_redirected_to expenses_path
@@ -858,7 +858,7 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "PATCH /expenses/bulk_update rejects requests without any field to change" do
-    a = create_expense(amount: 1, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
     patch bulk_update_expenses_path, params: { expense_ids: [ a.id ] }
     assert_redirected_to expenses_path
     follow_redirect!
@@ -866,18 +866,18 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "PATCH /expenses/bulk_update preserves filters, sort, and page on redirect" do
-    a = create_expense(amount: 1, date: Date.today)
+    a = create_expense(amount: 1, date: Date.current)
     url = bulk_update_expenses_path(category_id: @category.id, sort: "date", dir: "asc", page: "2")
     patch url, params: { expense_ids: [ a.id ], category_id: @other_category.id }
     assert_redirected_to expenses_path(category_id: @category.id.to_s, sort: "date", dir: "asc", page: "2")
   end
 
   test "GET /expenses does not trigger an N+1 on money sources or credit accounts" do
-    create_expense(amount: 1, date: Date.today)
+    create_expense(amount: 1, date: Date.current)
     cards = 3.times.map do |i|
       card = create_source(name: "Tarjeta #{i}", kind: "credit_card")
       card.build_credit_account(credit_limit: 1000, card_brand: "visa", card_last_four: "123#{i}").save!
-      create_expense(amount: 10 + i, date: Date.today, money_source: card)
+      create_expense(amount: 10 + i, date: Date.current, money_source: card)
       card
     end
 

@@ -19,7 +19,7 @@ module Expenses
     end
 
     def self.filename
-      "expenses-#{Date.today}.csv"
+      "expenses-#{Date.current}.csv"
     end
 
     def call(scope)

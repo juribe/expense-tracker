@@ -33,7 +33,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index marks imported expenses to open in the expense drawer" do
-    @user.expenses.create!(description: "Compra importada", amount: 12.50, date: Date.today, source: "gmail",
+    @user.expenses.create!(description: "Compra importada", amount: 12.50, date: Date.current, source: "gmail",
                            category: Category.create!(user: @user, name: "Otros", category_type: "expense"),
                            money_source: @user.money_sources.first || @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000))
 

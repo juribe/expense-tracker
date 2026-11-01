@@ -17,7 +17,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
   end
 
   def create_transfer(amount: 100)
-    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: amount, date: Date.today)
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking, amount: amount, date: Date.current)
   end
 
   test "GET /transfers renders the index" do
@@ -75,7 +75,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
           from_source_id: @savings.id,
           to_source_id: @checking.id,
           amount: 200,
-          date: Date.today.to_s,
+          date: Date.current.to_s,
           note: "Monthly transfer"
         }
       }
@@ -91,7 +91,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
         from_source_id: @savings.id,
         to_source_id: @savings.id,
         amount: 100,
-        date: Date.today.to_s
+        date: Date.current.to_s
       }
     }
     assert_redirected_to transfers_path
@@ -102,7 +102,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
           from_source_id: @savings.id,
           to_source_id: @savings.id,
           amount: 100,
-          date: Date.today.to_s
+          date: Date.current.to_s
         }
       }
     end
@@ -125,7 +125,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     card = @user.money_sources.create!(name: "Abono card", kind: "credit_card", starting_balance: -2_000_000)
     card.create_credit_account!(credit_limit: 10_000_000)
     extra = Credits::ExtraPayments::Create.call(
-      money_source: card, funding_money_source: funding, date: Date.today,
+      money_source: card, funding_money_source: funding, date: Date.current,
       amount: "1000000", application_type: "reduce_balance"
     ).result
 
@@ -144,7 +144,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
         from_source_id: @savings.id,
         to_source_id: @checking.id,
         amount: 5_000,
-        date: Date.today.to_s
+        date: Date.current.to_s
       } }
     end
 
@@ -163,7 +163,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
           from_source_id: @savings.id,
           to_source_id: cash.id,
           amount: 5_000,
-          date: Date.today.to_s
+          date: Date.current.to_s
         }
       }
     end
@@ -183,7 +183,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     other_user = User.create!(name: "Other", email: "other_transfer_ctrl@example.com", password: "password123")
     other_a = other_user.money_sources.create!(name: "A", kind: "account", starting_balance: 100)
     other_b = other_user.money_sources.create!(name: "B", kind: "account")
-    other_transfer = Transfer.create!(user: other_user, from_source: other_a, to_source: other_b, amount: 50, date: Date.today)
+    other_transfer = Transfer.create!(user: other_user, from_source: other_a, to_source: other_b, amount: 50, date: Date.current)
     delete transfer_path(other_transfer)
     assert_response :not_found
     assert Transfer.exists?(other_transfer.id)
@@ -241,7 +241,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_difference([ "Transfer.count", "GoalAllocation.count" ], 1) do
       post transfers_path, params: { transfer: {
         from_source_id: @savings.id, to_source_id: pocket.id, amount: "1.000.000",
-        date: Date.today.to_s, assign_goal_id: goal.id
+        date: Date.current.to_s, assign_goal_id: goal.id
       } }
     end
 
@@ -261,7 +261,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_difference("Transfer.count", 1) do
       assert_no_difference("GoalAllocation.count") do
         post transfers_path, params: { transfer: {
-          from_source_id: @savings.id, to_source_id: pocket.id, amount: "500.000", date: Date.today.to_s
+          from_source_id: @savings.id, to_source_id: pocket.id, amount: "500.000", date: Date.current.to_s
         } }
       end
     end
@@ -278,7 +278,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
       assert_no_difference("GoalAllocation.count") do
         post transfers_path, params: { transfer: {
           from_source_id: @savings.id, to_source_id: pocket.id, amount: "100.000",
-          date: Date.today.to_s, assign_goal_id: other_goal.id
+          date: Date.current.to_s, assign_goal_id: other_goal.id
         } }
       end
     end
@@ -292,7 +292,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
       assert_no_difference("GoalAllocation.count") do
         post transfers_path, params: { transfer: {
           from_source_id: @savings.id, to_source_id: @checking.id, amount: "100.000",
-          date: Date.today.to_s, assign_goal_id: goal.id
+          date: Date.current.to_s, assign_goal_id: goal.id
         } }
       end
     end
@@ -302,9 +302,9 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     pocket = @user.money_sources.create!(name: "Ahorros", kind: "pocket", starting_balance: 0)
     goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 5_000_000)
     @savings.update!(starting_balance: 2_000_000)
-    transfer = Transfer.create!(user: @user, from_source: @savings, to_source: pocket, amount: 1_000_000, date: Date.today)
+    transfer = Transfer.create!(user: @user, from_source: @savings, to_source: pocket, amount: 1_000_000, date: Date.current)
     assert_equal 1_000_000, pocket.reload.balance.to_i
-    goal.goal_allocations.create!(pocket: pocket, amount: 1_000_000, date: Date.today)
+    goal.goal_allocations.create!(pocket: pocket, amount: 1_000_000, date: Date.current)
 
     assert_no_difference("Transfer.count") do
       delete transfer_path(transfer)
@@ -662,7 +662,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Transfer.count" do
       post transfers_path, params: { transfer: {
         from_source_id: foreign_source.id, to_source_id: @checking.id,
-        amount: 100, date: Date.today.to_s
+        amount: 100, date: Date.current.to_s
       } }
     end
 
@@ -680,7 +680,7 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Transfer.count" do
       post transfers_path, params: { transfer: {
         from_source_id: @savings.id, to_source_id: foreign_source.id,
-        amount: 100, date: Date.today.to_s
+        amount: 100, date: Date.current.to_s
       } }
     end
 

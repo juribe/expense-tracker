@@ -74,8 +74,8 @@ class MoneySourceTest < ActiveSupport::TestCase
   test "balance includes starting_balance plus transactions" do
     source = create_source(starting_balance: 100)
     category = Category.create!(name: "Food")
-    source.transactions.create!(user: @user, category: category, amount: -50, date: Date.today, kind: "expense", source: "manual")
-    source.transactions.create!(user: @user, category: category, amount: 200, date: Date.today, kind: "income", source: "manual")
+    source.transactions.create!(user: @user, category: category, amount: -50, date: Date.current, kind: "expense", source: "manual")
+    source.transactions.create!(user: @user, category: category, amount: 200, date: Date.current, kind: "income", source: "manual")
     assert_equal BigDecimal("250"), source.reload.balance
   end
 
@@ -83,7 +83,7 @@ class MoneySourceTest < ActiveSupport::TestCase
     pocket = create_source(name: "Ahorros", kind: "pocket", starting_balance: 6_000_000)
     account = create_source(name: "Cuenta", kind: "account", starting_balance: 6_000_000)
     goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 20_000_000)
-    goal.goal_allocations.create!(pocket: pocket, amount: 5_000_000, date: Date.today)
+    goal.goal_allocations.create!(pocket: pocket, amount: 5_000_000, date: Date.current)
 
     assert_equal 5_000_000, pocket.reload.allocated_amount.to_i
     assert_equal 1_000_000, pocket.reload.unallocated_amount.to_i
@@ -111,28 +111,28 @@ class MoneySourceTest < ActiveSupport::TestCase
     account = create_source(name: "Checking", kind: "account", starting_balance: 500)
     card = create_source(name: "Debit Card", kind: "debit_card", parent: account)
     category = Category.create!(name: "Food")
-    card.transactions.create!(user: @user, category: category, amount: -30, date: Date.today, kind: "expense", source: "manual")
+    card.transactions.create!(user: @user, category: category, amount: -30, date: Date.current, kind: "expense", source: "manual")
     assert_equal BigDecimal("470"), account.reload.balance
   end
 
   test "balance subtracts outgoing transfers" do
     source_a = create_source(name: "Savings", starting_balance: 1000)
     source_b = create_source(name: "Checking", starting_balance: 0)
-    Transfer.create!(user: @user, from_source: source_a, to_source: source_b, amount: 200, date: Date.today)
+    Transfer.create!(user: @user, from_source: source_a, to_source: source_b, amount: 200, date: Date.current)
     assert_equal BigDecimal("800"), source_a.reload.balance
   end
 
   test "balance adds incoming transfers" do
     source_a = create_source(name: "Savings", starting_balance: 1000)
     source_b = create_source(name: "Checking", starting_balance: 0)
-    Transfer.create!(user: @user, from_source: source_a, to_source: source_b, amount: 200, date: Date.today)
+    Transfer.create!(user: @user, from_source: source_a, to_source: source_b, amount: 200, date: Date.current)
     assert_equal BigDecimal("200"), source_b.reload.balance
   end
 
   test "credit_card balance is negative (debt)" do
     cc = create_source(name: "Visa", kind: "credit_card", starting_balance: 0)
     category = Category.create!(name: "Shopping")
-    cc.transactions.create!(user: @user, category: category, amount: -150, date: Date.today, kind: "expense", source: "manual")
+    cc.transactions.create!(user: @user, category: category, amount: -150, date: Date.current, kind: "expense", source: "manual")
     assert_equal BigDecimal("-150"), cc.reload.balance
   end
 
@@ -237,7 +237,7 @@ class MoneySourceTest < ActiveSupport::TestCase
   test "used_credit is the positive debt for a credit card" do
     cc = create_source(name: "Visa", kind: "credit_card", starting_balance: 0)
     category = Category.create!(name: "Shopping")
-    cc.transactions.create!(user: @user, category: category, amount: -150, date: Date.today, kind: "expense", source: "manual")
+    cc.transactions.create!(user: @user, category: category, amount: -150, date: Date.current, kind: "expense", source: "manual")
     assert_equal BigDecimal("150"), cc.reload.used_credit
   end
 
@@ -251,7 +251,7 @@ class MoneySourceTest < ActiveSupport::TestCase
     cc.build_credit_account(credit_limit: 1000)
     cc.save!
     category = Category.create!(name: "Shopping")
-    cc.transactions.create!(user: @user, category: category, amount: -300, date: Date.today, kind: "expense", source: "manual")
+    cc.transactions.create!(user: @user, category: category, amount: -300, date: Date.current, kind: "expense", source: "manual")
     assert_equal BigDecimal("300"), cc.reload.used_credit
     assert_equal BigDecimal("700"), cc.available_credit
     assert_equal BigDecimal("30"), cc.credit_utilization
@@ -402,7 +402,7 @@ class MoneySourceTest < ActiveSupport::TestCase
     account.update_column(:cached_balance, -300)
     assert account.negative_balance_warning?
 
-    tx = account.transactions.create!(user: @user, category: @category, amount: 300, date: Date.today, kind: "income", source: "manual")
+    tx = account.transactions.create!(user: @user, category: @category, amount: 300, date: Date.current, kind: "income", source: "manual")
     assert_not account.reload.negative_balance_warning?
   end
 end

@@ -17,7 +17,7 @@ class Dashboard::PositionSnapshotTest < ActiveSupport::TestCase
   end
 
   def spend(source, amount)
-    source.transactions.create!(user: @user, category: @category, amount: -amount, date: Date.today,
+    source.transactions.create!(user: @user, category: @category, amount: -amount, date: Date.current,
                                 kind: "expense", source: "manual")
     source.reload
   end
