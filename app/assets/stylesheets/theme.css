@@ -287,6 +287,27 @@ section.page-section { margin-bottom: 1.5rem; }
   color: var(--bs-primary);
 }
 
+/* Segmented filter control (movements list): the selected option is a plain
+ * white pill inside the gray track — no colored button trying to cover the
+ * track behind it. */
+.statement-filters .statement-filter {
+  border: 0;
+  background: transparent;
+  color: var(--et-muted);
+  font-weight: 600;
+  box-shadow: none;
+}
+.statement-filters .statement-filter:hover { color: var(--bs-body-color); }
+.statement-filters .statement-filter.active,
+.statement-filters .statement-filter.active:hover {
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: 0 1px 4px rgba(24, 44, 69, 0.10);
+}
+[data-bs-theme="dark"] .statement-filters .statement-filter.active {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
 .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--et-muted); }
 .empty-state .ti { font-size: 2rem; opacity: 0.55; }
 .empty-state p { font-size: 0.875rem; margin-bottom: 1rem; }

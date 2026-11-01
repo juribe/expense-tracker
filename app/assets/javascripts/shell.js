@@ -118,6 +118,21 @@
           var slug = event.target.getAttribute("data-tab-slug");
           if (slug) { saveSession(key, slug); }
         });
+        // On the movements page the active tab is an URL link (no
+        // data-bs-toggle), so Bootstrap can't deactivate its panel when a
+        // real tab is activated. Clear those link-driven panels ourselves.
+        container.addEventListener("show.bs.tab", function () {
+          var content = container.querySelector(".tab-content");
+          if (!content) return;
+          content.querySelectorAll(".tab-pane.show.active").forEach(function (pane) {
+            var trigger = document.querySelector('[aria-controls="' + pane.id + '"]');
+            if (trigger && !trigger.hasAttribute("data-bs-toggle")) {
+              pane.classList.remove("active", "show");
+              trigger.classList.remove("active");
+              trigger.setAttribute("aria-selected", "false");
+            }
+          });
+        });
       }
       var forced = container.getAttribute("data-source-tabs-force");
       if (forced) {

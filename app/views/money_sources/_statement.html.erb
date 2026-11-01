@@ -47,20 +47,28 @@
 
       <div class="row g-3">
         <div class="col-12 col-sm-6 col-md-3">
-          <div class="text-muted small">Saldo inicial</div>
-          <div class="fs-4 fw-bold"><%= MoneyFormat.currency(s.opening_balance) %></div>
+          <div class="rounded-3 bg-body-tertiary p-3 h-100">
+            <div class="text-muted small">Saldo inicial</div>
+            <div class="fs-4 fw-bold"><%= MoneyFormat.currency(s.opening_balance) %></div>
+          </div>
         </div>
         <div class="col-12 col-sm-6 col-md-3">
-          <div class="text-muted small"><%= entries_label %></div>
-          <div class="fs-4 fw-bold text-success">+<%= MoneyFormat.currency(s.entries_total) %></div>
+          <div class="rounded-3 bg-success-subtle p-3 h-100">
+            <div class="text-muted small"><%= entries_label %></div>
+            <div class="fs-4 fw-bold text-success">+<%= MoneyFormat.currency(s.entries_total) %></div>
+          </div>
         </div>
         <div class="col-12 col-sm-6 col-md-3">
-          <div class="text-muted small"><%= exits_label %></div>
-          <div class="fs-4 fw-bold text-danger">−<%= MoneyFormat.currency(s.exits_total) %></div>
+          <div class="rounded-3 bg-danger-subtle p-3 h-100">
+            <div class="text-muted small"><%= exits_label %></div>
+            <div class="fs-4 fw-bold text-danger">−<%= MoneyFormat.currency(s.exits_total) %></div>
+          </div>
         </div>
-        <div class="col-12 col-sm-6 col-md-3 bg-body-tertiary rounded p-2">
-          <div class="text-muted small">Saldo calculado al final de período</div>
-          <div class="fs-4 fw-bold"><%= MoneyFormat.currency(s.closing_balance) %></div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <div class="rounded-3 bg-primary-subtle p-3 h-100">
+            <div class="text-muted small">Saldo calculado al final de período</div>
+            <div class="fs-4 fw-bold"><%= MoneyFormat.currency(s.closing_balance) %></div>
+          </div>
         </div>
       </div>
 
@@ -86,19 +94,19 @@
   <div class="card mt-3">
     <div class="card-body">
       <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-        <div class="btn-group" role="group" aria-label="Filtrar movimientos">
+        <div class="statement-filters d-inline-flex gap-1 p-1 bg-body-tertiary rounded-3" role="group" aria-label="Filtrar movimientos">
           <% [
                ["all", "Todos"],
                ["in", entries_label],
                ["out", exits_label]
              ].each do |value, label| %>
-            <button type="submit" name="kind" value="<%= value %>" class="btn btn-sm <%= (params[:kind].blank? ? "all" : params[:kind]) == value ? "btn-dark" : "btn-outline-secondary" %>">
+            <button type="submit" name="kind" value="<%= value %>" class="btn btn-sm statement-filter <%= (params[:kind].blank? ? "all" : params[:kind]) == value ? "active" : "" %>">
               <%= label %>
             </button>
           <% end %>
         </div>
         <div class="ms-auto d-flex gap-2">
-          <input type="search" name="q" value="<%= params[:q] %>" class="form-control form-control-sm w-auto statement-search" placeholder="Buscar movimientos…" aria-label="Buscar movimientos">
+          <input type="search" name="q" value="<%= params[:q] %>" class="form-control form-control-sm statement-search" placeholder="Buscar movimientos…" aria-label="Buscar movimientos">
           <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Buscar movimientos">
             <i class="ti ti-search"></i>
           </button>

@@ -1313,7 +1313,7 @@ es:
         extras: "Abonos"
         recognition: "Reconocimiento"
         movements: "Movimientos"
-      details: "Detalles"
+      details: "Información de la cuenta"
       current_balance: "Saldo actual"
       status: "Estado"
       manual_adjustment: "Ajuste manual"

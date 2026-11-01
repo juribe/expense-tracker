@@ -33,7 +33,7 @@
     tabs << { slug: "reconocimiento", label: t("money_sources.show.tabs.recognition"), icon: "ti-scan" } if @money_source.payment_source?
   %>
 
-  <div data-source-tabs="<%= @money_source.id %>"<%= %( data-source-tabs-force="movimientos") if @active_tab == "movimientos" %>>
+  <div data-source-tabs="<%= @money_source.id %>" <% if @active_tab == "movimientos" %>data-source-tabs-force="movimientos"<% end %>>
     <ul class="nav nav-tabs" role="tablist">
       <% tabs.each do |tab| %>
         <li class="nav-item" role="presentation">
@@ -73,7 +73,7 @@
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
-                  <div class="fs-4 fw-bold text-success"><%= @money_source.balance_label %></div>
+                  <div class="stat-value text-success mb-2"><%= @money_source.balance_label %></div>
                   <% if @money_source.negative_balance_warning? %>
                     <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
                       <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
@@ -131,7 +131,7 @@
     </div>
   </div>
 <% else %>
-  <div data-source-tabs="<%= @money_source.id %>"<%= %( data-source-tabs-force="movimientos") if @active_tab == "movimientos" %>>
+  <div data-source-tabs="<%= @money_source.id %>" <% if @active_tab == "movimientos" %>data-source-tabs-force="movimientos"<% end %>>
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link<%= " active" unless @active_tab == "movimientos" %>"
@@ -173,7 +173,7 @@
               <div class="card">
                 <div class="card-body">
                   <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
-                  <div class="fs-4 fw-bold text-success"><%= @money_source.balance_label %></div>
+                  <div class="stat-value text-success mb-2"><%= @money_source.balance_label %></div>
                   <% if @money_source.negative_balance_warning? %>
                     <span class="badge text-bg-warning mt-2" data-testid="negative-balance-warning">
                       <i class="ti ti-alert-triangle me-1"></i><%= t("money_sources.negative_balance_warning") %>
@@ -201,13 +201,50 @@
               <% if @money_source.kind == "account" %>
                 <% gmf_acc = GmfMonthlyAccumulator.find_by(user_id: current_user.id, money_source_id: @money_source.id, year: Date.current.year, month: Date.current.month) %>
                 <% gmf_limit = Gmf::Uvt.exemption_limit(Date.current.year) rescue 0 %>
+                <% gmf_debits = gmf_acc&.total_debits || 0 %>
+                <% gmf_covered = gmf_acc&.covered_by_exemption || 0 %>
+                <% gmf_gmf = gmf_acc&.gmf_generated || 0 %>
+                <% gmf_pct = gmf_limit.to_d.positive? ? (gmf_debits.to_d / gmf_limit.to_d * 100) : 0 %>
                 <div class="card mt-3">
                   <div class="card-body">
-                    <h5 class="card-title">GMF 4x1.000 (mes actual)</h5>
-                    <p class="mb-1">Débitos que consumen exención: <%= gmf_acc&.total_debits || 0 %></p>
-                    <p class="mb-1">Límite mensual: <%= gmf_limit %></p>
-                    <p class="mb-1">Disponible: <%= [gmf_limit - (gmf_acc&.covered_by_exemption || 0), 0].max %></p>
-                    <p class="mb-1">GMF cobrado: <%= gmf_acc&.gmf_generated || 0 %></p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h5 class="card-title mb-0">Control del GMF 4×1.000</h5>
+                      <span class="badge bg-light text-dark"><%= I18n.l(Date.current, format: "%B %Y") %></span>
+                    </div>
+                    <div class="row g-3">
+                      <div class="col-6">
+                        <div class="text-muted small">Débitos que consumen exención</div>
+                        <div class="fs-5 fw-bold"><%= number_to_currency(gmf_debits) %></div>
+                      </div>
+                      <div class="col-6 text-end">
+                        <div class="text-muted small">GMF cobrado</div>
+                        <div class="fs-5 fw-bold text-warning"><%= number_to_currency(gmf_gmf) %></div>
+                      </div>
+                    </div>
+                    <div class="mt-3">
+                      <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Consumo del límite mensual</span>
+                        <strong><%= number_to_percentage(gmf_pct, precision: 2) %></strong>
+                      </div>
+                      <div class="progress" role="progressbar" aria-valuenow="<%= gmf_pct.round(2) %>" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success et-w-<%= [gmf_pct, 100].min.round %>"></div>
+                      </div>
+                    </div>
+                    <div class="row g-2 mt-3 pt-3 border-top">
+                      <div class="col-4">
+                        <div class="text-muted small">Límite mensual</div>
+                        <div class="fw-semibold"><%= number_to_currency(gmf_limit) %></div>
+                      </div>
+                      <div class="col-4">
+                        <div class="text-muted small">Disponible</div>
+                        <div class="fw-semibold"><%= number_to_currency([gmf_limit - gmf_covered, 0].max) %></div>
+                      </div>
+                      <div class="col-4">
+                        <div class="text-muted small">Exenta 4×1.000</div>
+                        <div class="fw-semibold"><%= @money_source.gmf_exempt? ? "Sí" : "No" %></div>
+                      </div>
+                    </div>
+                    <small class="text-muted d-block mt-3">El seguimiento corresponde al mes calendario y se reinicia el primer día de cada mes.</small>
                   </div>
                 </div>
               <% end %>

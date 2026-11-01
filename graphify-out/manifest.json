@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793553000.4632363,
-    "seen": 1793553057.0297012,
-    "ast_hash": "376ef9f7e156676ab12caf0ffe9411a6",
+    "mtime": 1793567343.4885068,
+    "seen": 1793567370.039309,
+    "ast_hash": "869caa3c9a596d30af2328e29b4bc9bc",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793561400.7763145,
-    "seen": 1793562712.253786,
+    "mtime": 1793567298.3567405,
+    "seen": 1793567370.039317,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4014,9 +4014,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/shell.js": {
-    "mtime": 1792958348.5187676,
-    "seen": 1793490696.634323,
-    "ast_hash": "162e4fb3629db7aff964b8ad4e564aff",
+    "mtime": 1793568344.728959,
+    "seen": 1793568414.341423,
+    "ast_hash": "7eac84fdb24e1432289b76b249e21180",
     "semantic_hash": ""
   },
   "app/assets/vendor/fonts/tabler-icons/fonts/tabler-icons.svg": {

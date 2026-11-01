@@ -15,8 +15,6 @@
           <%= number_to_currency(@money_source.loan? ? @money_source.outstanding_balance : @money_source.used_credit) %>
         </dd>
       <% else %>
-        <dt class="col-sm-5"><%= t("money_sources.form.starting_balance", default: "Saldo inicial") %></dt>
-        <dd class="col-sm-7"><%= number_to_currency(@money_source.starting_balance) %></dd>
         <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
         <dd class="col-sm-7 fw-bold text-success">
           <%= @money_source.balance_label %>
@@ -32,7 +30,7 @@
       <% if @money_source.balance_offset.to_d.nonzero? || loan_adjustment %>
         <dt class="col-sm-5"><%= t("money_sources.show.manual_adjustment") %></dt>
         <dd class="col-sm-7">
-          <div>
+          <div class="rounded-3 border border-warning-subtle bg-warning-subtle p-2">
             <% if loan_adjustment %>
               <span class="fw-semibold"><%= number_to_currency(@money_source.outstanding_balance) %></span>
             <% else %>
