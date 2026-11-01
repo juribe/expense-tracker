@@ -57,6 +57,13 @@ module ExpensesHelper
     t("expenses.filter_summary_count", count: count)
   end
 
+  # The panel starts collapsed to keep the index compact, but it stays open
+  # while the user is filtering (or fixing an invalid filter) so the active
+  # criteria remain visible.
+  def expenses_filters_expanded?(filter_errors = {})
+    active_expense_filters_count.positive? || filter_errors.present?
+  end
+
   def sort_params
     filter_params.slice(:q, :category_id, :start_date, :end_date, :min_amount, :max_amount)
   end

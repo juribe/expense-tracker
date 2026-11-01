@@ -30,9 +30,10 @@
   <%= render "expenses/ai_entry", categories: @categories %>
 
   <!-- Filters -->
+  <% filters_expanded = expenses_filters_expanded?(@filter_errors) %>
   <div class="card expenses-panel filters-panel" id="filterCard" data-testid="filter-card">
     <button type="button" class="filter-toggle" id="filterToggle"
-            aria-expanded="false" aria-controls="filterPanel" data-testid="filter-toggle">
+            aria-expanded="<%= filters_expanded %>" aria-controls="filterPanel" data-testid="filter-toggle">
       <span class="filter-icon" aria-hidden="true"><i class="ti ti-filter"></i></span>
       <span class="filter-title"><%= t("expenses.filter_heading") %></span>
       <span class="filter-summary" id="filterSummary"><%= expenses_filter_summary %></span>
@@ -47,13 +48,13 @@
           <% chip_label = key == :category_id ? @categories.find { |c| c.id.to_s == value.to_s }&.name : key == :money_source_id ? @money_sources.find { |s| s.id.to_s == value.to_s }&.name : value %>
           <%= link_to expenses_path(sort_params.except(key)), class: "chip expenses-chip text-decoration-none", data: { testid: "chip-#{key}" }, aria: { label: t("expenses.remove_filter", label: label) } do %>
             <%= label %>: <%= chip_label %>
-            <button type="button" aria-hidden="true" tabindex="-1" class="ms-1">&times;</button>
+            <i class="ti ti-x chip-remove" aria-hidden="true"></i>
           <% end %>
         <% end %>
       </div>
     <% end %>
 
-    <div class="filter-panel" id="filterPanel" hidden data-testid="filter-panel">
+    <div class="filter-panel" id="filterPanel" <%= "hidden" unless filters_expanded %> data-testid="filter-panel">
       <div class="card-body">
         <%= form_with url: expenses_path, method: :get, class: "expenses-filters row g-3", data: { testid: "filter-form" } do |f| %>
         <div class="col-md-4 expenses-field">

@@ -48,14 +48,19 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   font-size: .8125rem;
   margin: 0 .25rem .25rem 0;
 }
-.chip button {
-  all: unset;
-  cursor: pointer;
+.chip-remove {
+  font-size: .8rem;
   line-height: 1;
-  color: var(--bs-gray-400);
-  padding: .15rem;
+  color: currentColor;
+  opacity: .6;
+  transition: opacity .15s ease, color .15s ease;
 }
-.chip button:focus-visible { outline: 2px solid var(--bs-primary); }
+.chip:hover .chip-remove,
+.chip:focus-visible .chip-remove {
+  color: var(--bs-danger);
+  opacity: 1;
+}
+.chip:focus-visible { outline: 2px solid var(--bs-primary); }
 
 .mobile-list { display: none; }
 .mobile-item {

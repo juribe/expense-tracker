@@ -82,6 +82,10 @@ test.describe('expense pages are working', () => {
     await page.getByTestId('filter-form').getByRole('button', { name: 'Filtrar gastos' }).click();
 
     await expect(page).toHaveURL(/q=cafe/);
+    // The panel stays open while a filter is applied.
+    await expect(page.getByTestId('filter-panel')).toBeVisible();
+    // Each applied filter shows a removable chip with a visible "x" affordance.
+    await expect(page.getByTestId('chip-q').locator('.chip-remove')).toBeVisible();
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveCount(1);
     await expect(page.locator('#expenseTable td.desc-cell')).toHaveText('Cafe con leche');
 

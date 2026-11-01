@@ -15,7 +15,9 @@ test.describe('Hybrid financial setup wizard', () => {
   async function pickBank(page, rowIndex, name) {
     const combobox = page.locator('[data-institution-combobox]').nth(rowIndex);
     await combobox.locator('[data-institution-search]').fill(name);
-    await combobox.locator('[data-institution-option][value]:not([value=""])').filter({ hasText: name }).first().click();
+    const option = combobox.locator('[data-institution-option][value]:not([value=""])').filter({ hasText: name }).first();
+    await expect(option).toBeVisible({ timeout: 10000 });
+    await option.click();
   }
 
   async function choose(page, title) {

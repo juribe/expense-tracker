@@ -107,6 +107,40 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: I18n.t("expenses.no_results_title")
   end
 
+  test "GET /expenses starts with the filter panel collapsed when no filter is applied" do
+    get expenses_path
+
+    assert_response :success
+    assert_select "[data-testid=filter-toggle][aria-expanded=false]"
+    assert_select "[data-testid=filter-panel][hidden]"
+  end
+
+  test "GET /expenses opens the filter panel when the user is filtering" do
+    get expenses_path, params: { q: "lunch" }
+
+    assert_response :success
+    assert_select "[data-testid=filter-toggle][aria-expanded=true]"
+    assert_select "[data-testid=filter-panel][hidden]", count: 0
+  end
+
+  test "GET /expenses opens the filter panel when a filter is invalid" do
+    get expenses_path, params: { start_date: Date.current.iso8601, end_date: 1.day.ago.to_date.iso8601 }
+
+    assert_response :success
+    assert_select "[data-testid=filter-toggle][aria-expanded=true]"
+    assert_select "[data-testid=filter-panel][hidden]", count: 0
+  end
+
+  test "GET /expenses renders filter chips as links without nested controls" do
+    get expenses_path, params: { q: "lunch" }
+
+    assert_response :success
+    assert_select "[data-testid=chip-q]", count: 1 do
+      assert_select "button", count: 0
+      assert_select "i.chip-remove.ti-x[aria-hidden=true]"
+    end
+  end
+
   test "GET /expenses filters by category with a row-level where filter" do
     create_expense(amount: 12.50, date: Date.current, category: @category)
     create_expense(amount: 9.00, date: Date.current, category: @other_category, description: "Bus")
