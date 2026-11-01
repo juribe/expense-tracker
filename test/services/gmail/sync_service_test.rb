@@ -109,6 +109,26 @@ module Gmail
       assert_match(/boom/, failed_record.failure_reason)
     end
 
+    test "does not downgrade an already processed message when fetching it fails" do
+      record = ProcessedEmail.create!(user: @user, provider: "gmail", message_id: "done",
+                                     status: "processed", attempts: 2, processed_at: 1.day.ago)
+
+      sync(FakeClient.configure(stubs: { "done" => purchase_message("done") }, fail_on: [ "done" ]))
+
+      record.reload
+      assert_equal "processed", record.status
+      assert_equal 2, record.attempts
+    end
+
+    test "does not downgrade a message pending review when fetching it fails" do
+      record = ProcessedEmail.create!(user: @user, provider: "gmail", message_id: "review",
+                                     status: "needs_review", attempts: 1, processed_at: 1.day.ago)
+
+      sync(FakeClient.configure(stubs: { "review" => purchase_message("review") }, fail_on: [ "review" ]))
+
+      assert_equal "needs_review", record.reload.status
+    end
+
     test "does nothing for inactive connections" do
       @connection.update!(active: false)
 

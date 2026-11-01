@@ -7,6 +7,9 @@
 # concurrent syncs see the claim and skip.
 class ProcessedEmail < ApplicationRecord
   STATUSES = %w[queued processing processed ignored needs_review failed].freeze
+  # Outcomes that must never be imported again. A later sync or a failed fetch
+  # must not turn these rows back into retryable work.
+  TERMINAL_STATUSES = %w[processed ignored needs_review].freeze
 
   belongs_to :user
   belongs_to :expense, optional: true

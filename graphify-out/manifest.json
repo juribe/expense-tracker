@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "app/models/processed_email.rb": {
-    "mtime": 1793148128.1059585,
-    "seen": 1793490696.63463,
-    "ast_hash": "9f7bf52afc0653d525b48da1714e209d",
+    "mtime": 1793546175.2733932,
+    "seen": 1793546216.2221398,
+    "ast_hash": "97dd9109800ab08ec43b3dd4c8a6b930",
     "semantic_hash": ""
   },
   "app/models/recurring_template.rb": {
@@ -330,9 +330,9 @@
     "semantic_hash": ""
   },
   "app/services/gmail/sync_service.rb": {
-    "mtime": 1792447199.2725325,
-    "seen": 1793490696.6348538,
-    "ast_hash": "3aa5e4f51c1a0d1c47b010ed8d779fb0",
+    "mtime": 1793546175.2736175,
+    "seen": 1793546216.2223969,
+    "ast_hash": "f3f4441023aac76004e8d77d2c33ef6a",
     "semantic_hash": ""
   },
   "app/services/import_pipeline.rb": {
@@ -912,9 +912,9 @@
     "semantic_hash": ""
   },
   "test/services/gmail/sync_service_test.rb": {
-    "mtime": 1792619532.374258,
-    "seen": 1793490696.635482,
-    "ast_hash": "4ad8288049555ccc9a13d99537557dbb",
+    "mtime": 1793546175.2740104,
+    "seen": 1793546216.22311,
+    "ast_hash": "732ec904e8a4c841e57a4b3e5869802c",
     "semantic_hash": ""
   },
   "test/services/import_pipeline_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793492562.6434114,
-    "seen": 1793492827.859976,
+    "mtime": 1793546126.2083404,
+    "seen": 1793546216.223296,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4578,15 +4578,15 @@
     "semantic_hash": ""
   },
   "app/services/gmail/transaction_recorder.rb": {
-    "mtime": 1793120089.8815882,
-    "seen": 1793490696.6348548,
-    "ast_hash": "466d8f56eb5056b4c1dbcecd0b4639c3",
+    "mtime": 1793546175.2738044,
+    "seen": 1793546216.222398,
+    "ast_hash": "8d22438ff18e29bf8a1d63cecde3da7a",
     "semantic_hash": ""
   },
   "test/services/gmail/transaction_recorder_test.rb": {
-    "mtime": 1793119947.7906835,
-    "seen": 1793490696.6354828,
-    "ast_hash": "3d1c01bf8368df17e7ae50b2d7db4336",
+    "mtime": 1793546175.2742045,
+    "seen": 1793546216.2231119,
+    "ast_hash": "b037ff31382ead344a2c0638a15e6f8e",
     "semantic_hash": ""
   },
   "test/controllers/imports_controller_test.rb": {

@@ -75,6 +75,20 @@ module Gmail
       assert_equal "needs_review", candidate.status
     end
 
+    test "reuses the existing candidate when the same email is reprocessed" do
+      @mercado.destroy!
+      first = recorder.call(@transaction, money_source: @money_source).candidate
+
+      reprocessed = @transaction.merge(merchant: "Pago PSE")
+      second = nil
+      assert_no_difference -> { ExpenseCandidate.count } do
+        second = recorder.call(reprocessed, money_source: @money_source)
+      end
+
+      assert_equal first.id, second.candidate.id
+      assert_equal "SAO", second.candidate.description
+    end
+
     test "uses the merchant as the activity for learned classifications" do
       transporte = Category.create!(name: "Transporte", user: @user, is_default: false, category_type: "expense")
       ActivityClassification.record!(user: @user, name: "EDS", category: transporte, source: "user")

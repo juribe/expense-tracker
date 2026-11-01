@@ -102,14 +102,19 @@ module Gmail
 
     # Records a retryable failure row when fetching/parsing blew up before the
     # importer could run, then reports it as :failed for the summary.
+    #
+    # A message that already reached a terminal outcome (processed, ignored or
+    # pending review) must keep it: downgrading it to "failed" made the next
+    # sync reclaim the email and duplicate its expense candidates.
     def mark_failed(message_id, error_message)
-      ProcessedEmail.find_or_initialize_by(provider: ExpenseImporter::PROVIDER, message_id: message_id.to_s).tap do |record|
-        record.user ||= @connection.user
-        record.status = "failed"
-        record.failure_reason = error_message[0, 500]
-        record.attempts += 1
-        record.save!
-      end
+      record = ProcessedEmail.find_or_initialize_by(provider: ExpenseImporter::PROVIDER, message_id: message_id.to_s)
+      return if record.persisted? && record.status.in?(ProcessedEmail::TERMINAL_STATUSES)
+
+      record.user ||= @connection.user
+      record.status = "failed"
+      record.failure_reason = error_message[0, 500]
+      record.attempts += 1
+      record.save!
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
       nil
     end

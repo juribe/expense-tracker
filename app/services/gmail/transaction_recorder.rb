@@ -66,6 +66,9 @@ module Gmail
     end
 
     def create_candidate(transaction, money_source, category = nil, suggestion = nil)
+      existing = existing_candidate(transaction)
+      return Result.new(candidate: existing) if existing
+
       candidate = ExpenseCandidate.create!(
         user: @user,
         amount: transaction[:amount],
@@ -80,6 +83,20 @@ module Gmail
         metadata: candidate_metadata(transaction)
       )
       Result.new(candidate: candidate)
+    end
+
+    # A message reprocessed after a mid-pipeline failure must not duplicate its
+    # review candidate: the same email, amount and date are already represented.
+    # Reuse the existing row regardless of its status (pending, confirmed or
+    # discarded) so a retry neither reopens nor duplicates the review.
+    def existing_candidate(transaction)
+      return if @gmail_message_id.blank?
+
+      ExpenseCandidate.where(
+        user_id: @user.id,
+        amount: transaction[:amount].to_d.abs,
+        date: occurred_at_for(transaction).to_date
+      ).where("metadata ->> 'gmail_message_id' = ?", @gmail_message_id).first
     end
 
     def candidate_metadata(transaction)
