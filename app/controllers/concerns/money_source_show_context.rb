@@ -19,6 +19,7 @@ module MoneySourceShowContext
 
     unapplied = current_user.expenses
                             .where.not(id: @money_source.payments.select(:expense_id))
+                            .where.not(source: "gmf")
                             .order(date: :desc, id: :desc)
     # Only the awaiting list renders the template hint; the picker does not,
     # so the eager load stays scoped to what is used (keeps Bullet quiet).

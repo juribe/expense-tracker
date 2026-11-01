@@ -48,7 +48,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await createExpense(page, { amount: 100.00, description: 'Groceries', moneySourceLabel: sourceName });
 
-    const row = page.locator('#expenseTable tr', { hasText: 'Groceries' });
+    const row = page.locator('#expenseTable tr', { hasText: 'Groceries' }).filter({ hasNotText: 'GMF' });
     await expect(row).toContainText(category);
   });
 
@@ -71,7 +71,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await createExpense(page, { amount: 50.00, description: 'Different source', moneySourceLabel: srcB });
 
-    const row = page.locator('#expenseTable tr', { hasText: 'Different source' });
+    const row = page.locator('#expenseTable tr', { hasText: 'Different source' }).filter({ hasNotText: 'GMF' });
     await expect(row).not.toContainText(category);
   });
 
@@ -93,7 +93,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await createExpense(page, { amount: 30.00, description: 'GAS station visit' });
 
-    const row = page.locator('#expenseTable tr', { hasText: 'GAS station visit' });
+    const row = page.locator('#expenseTable tr', { hasText: 'GAS station visit' }).filter({ hasNotText: 'GMF' });
     await expect(row).toBeVisible();
 
     await row.getByRole('link').click();
@@ -135,7 +135,7 @@ test.describe('transaction rules – focused scenarios', () => {
 
     await createExpense(page, { amount: 25.00, description: 'DUP_MERCHANT store' });
 
-    const row = page.locator('#expenseTable tr', { hasText: 'DUP_MERCHANT store' });
+    const row = page.locator('#expenseTable tr', { hasText: 'DUP_MERCHANT store' }).filter({ hasNotText: 'GMF' });
     await expect(row).toContainText(category);
 
     await row.getByRole('link').click();
@@ -144,7 +144,7 @@ test.describe('transaction rules – focused scenarios', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page).toHaveURL(/\/expenses/);
 
-    const updatedRow = page.locator('#expenseTable tr', { hasText: 'DUP_MERCHANT store' });
+    const updatedRow = page.locator('#expenseTable tr', { hasText: 'DUP_MERCHANT store' }).filter({ hasNotText: 'GMF' });
     await expect(updatedRow).toContainText(category);
   });
 
