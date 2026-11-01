@@ -70,7 +70,12 @@ module Gmf
     end
 
     def description
-      "GMF 4x1.000 (#{@origin.class.name} ##{@origin.id})"
+      origin_label = case @origin
+                     when Expense then "Gasto #{@origin.description.presence || @origin.id}"
+                     when Transfer then "Transferencia"
+                     else @origin.class.name
+                     end
+      "GMF 4x1.000 (#{origin_label})"
     end
   end
 end
