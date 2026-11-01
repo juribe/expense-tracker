@@ -115,9 +115,9 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     category = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")
     income_category = Category.create!(name: "Salario", is_default: true, category_type: "income")
     source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
-    @user.expenses.create!(amount: 85_000, date: Date.today, category: category, description: "Almuerzo",
+    @user.expenses.create!(amount: 85_000, date: Date.current, category: category, description: "Almuerzo",
                            money_source: source)
-    @user.incomes.create!(amount: 4_500_000, date: Date.today, category: income_category, description: "Salario",
+    @user.incomes.create!(amount: 4_500_000, date: Date.current, category: income_category, description: "Salario",
                           money_source: source)
     @user.budgets.create!(category: category, monthly_amount: 500_000)
 
@@ -135,9 +135,9 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     category = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")
     inactive_category = Category.create!(name: "Presupuesto inactivo", is_default: true, category_type: "expense")
     source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
-    @user.expenses.create!(amount: 85_000, date: Date.today, category: category, description: "Almuerzo",
+    @user.expenses.create!(amount: 85_000, date: Date.current, category: category, description: "Almuerzo",
                            money_source: source)
-    @user.expenses.create!(amount: 20_000, date: Date.today, category: inactive_category, description: "Otro",
+    @user.expenses.create!(amount: 20_000, date: Date.current, category: inactive_category, description: "Otro",
                            money_source: source)
     @user.budgets.create!(category: category, monthly_amount: 100_000)
     @user.budgets.create!(category: inactive_category, monthly_amount: 50_000, active: false)
@@ -155,7 +155,7 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     @fake.responses << { content: "ok" }
     category = Category.create!(name: "Ocio", is_default: true, category_type: "expense")
     source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
-    @user.expenses.create!(amount: 120_000, date: Date.today, category: category, description: "Salida",
+    @user.expenses.create!(amount: 120_000, date: Date.current, category: category, description: "Salida",
                            money_source: source)
     @user.budgets.create!(category: category, monthly_amount: 100_000)
 
