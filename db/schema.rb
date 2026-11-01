@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_185722) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -438,6 +438,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
     t.index ["user_id"], name: "index_gmail_connections_on_user_id"
   end
 
+  create_table "gmf_monthly_accumulators", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "money_source_id", null: false
+    t.integer "year", null: false
+    t.integer "month", null: false
+    t.decimal "total_debits", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "covered_by_exemption", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "taxable", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "gmf_generated", precision: 14, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "money_source_id", "year", "month"], name: "index_gmf_accumulators_unique_period", unique: true
+  end
+
+  create_table "gmf_uvt_years", primary_key: "year", id: :serial, force: :cascade do |t|
+    t.decimal "value", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "goal_allocations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "financial_goal_id", null: false
     t.uuid "pocket_id", null: false
@@ -587,11 +607,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
     t.string "institution_type"
     t.uuid "institution_id"
     t.string "institution_cached_name"
+    t.boolean "gmf_exempt", default: false, null: false
     t.index ["institution_type", "institution_id"], name: "index_money_sources_on_institution"
     t.index ["kind", "sub_kind"], name: "index_money_sources_on_kind_and_sub_kind"
     t.index ["parent_id"], name: "index_money_sources_on_parent_id"
     t.index ["user_id", "identifier"], name: "index_money_sources_on_user_id_and_identifier", unique: true
     t.index ["user_id", "kind"], name: "index_money_sources_on_user_id_and_kind"
+    t.index ["user_id"], name: "index_money_sources_gmf_exempt_per_user", unique: true, where: "(gmf_exempt = true)"
     t.index ["user_id"], name: "index_money_sources_on_user_id"
   end
 
@@ -936,6 +958,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
     t.jsonb "tags", default: [], null: false
     t.boolean "recurring_paid_in_full", default: false, null: false
     t.uuid "idempotency_key"
+    t.string "gmf_origin_type"
+    t.uuid "gmf_origin_id"
+    t.string "gmf_status"
+    t.boolean "gmf_estimated", default: false, null: false
+    t.string "gmf_bank_reference"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
     t.index ["gmail_message_id"], name: "index_transactions_on_gmail_message_id"
@@ -944,9 +971,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
     t.index ["money_source_id"], name: "index_transactions_on_money_source_id"
     t.index ["recurring_template_id"], name: "index_transactions_on_recurring_template_id"
     t.index ["user_id", "gmail_message_id", "amount", "date"], name: "index_transactions_gmail_dedup", unique: true, where: "(gmail_message_id IS NOT NULL)"
+    t.index ["user_id", "gmf_origin_type", "gmf_origin_id"], name: "index_transactions_gmf_origin"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1055,6 +1083,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_130001) do
   add_foreign_key "financial_chats", "users"
   add_foreign_key "financial_setups", "users"
   add_foreign_key "gmail_connections", "users"
+  add_foreign_key "gmf_monthly_accumulators", "money_sources"
+  add_foreign_key "gmf_monthly_accumulators", "users"
   add_foreign_key "goal_allocations", "goals", column: "financial_goal_id"
   add_foreign_key "goal_allocations", "money_sources", column: "pocket_id"
   add_foreign_key "goals", "money_sources", column: "pocket_id"

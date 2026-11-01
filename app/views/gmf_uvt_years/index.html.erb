@@ -1,0 +1,24 @@
+<div class="container mt-4">
+  <h1>UVT anual (GMF)</h1>
+  <table class="table">
+    <thead><tr><th>Año</th><th>Valor</th><th></th></tr></thead>
+    <tbody>
+      <% @uvt_years.each do |uvt| %>
+        <tr>
+          <td><%= uvt.year %></td>
+          <td><%= uvt.value %></td>
+          <td>
+            <%= button_to "Eliminar", gmf_uvt_year_path(uvt), method: :delete, class: "btn btn-sm btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= form_with model: GmfUvtYear.new, url: gmf_uvt_years_path, local: true do |f| %>
+    <div class="row">
+      <div class="col"><%= f.select :year, (2026..2035).to_a, { include_blank: "Escoge un año" }, class: "form-select" %></div>
+      <div class="col"><%= f.number_field :value, class: "form-control", placeholder: "Valor", step: "0.01" %></div>
+      <div class="col"><%= f.submit "Agregar", class: "btn btn-primary" %></div>
+    </div>
+  <% end %>
+</div>

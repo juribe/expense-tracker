@@ -74,6 +74,7 @@ Rails.application.routes.draw do
   end
   resources :category_insights, only: [:index, :show]
   resources :budgets
+  resources :gmf_uvt_years, only: [ :index, :create, :update, :destroy ]
   resources :goals
   resources :goal_allocations, only: [ :create, :destroy ] do
     collection do

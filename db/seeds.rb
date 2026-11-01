@@ -59,7 +59,24 @@ end
 require_relative "seed_data/financial_catalog_seeder"
 FinancialCatalogSeeder.run
 
-# Subcategory saving tips for Category Insight
+# GMF (4x1.000) system categories
+gmf_parent = Category.find_or_initialize_by(name: "Impuestos y gravámenes", is_default: true, category_type: "expense")
+gmf_parent.icon = "ti-receipt-tax"
+gmf_parent.save!
+gmf_child = Category.find_or_initialize_by(name: "4x1.000 (GMF)", is_default: true, category_type: "expense", parent: gmf_parent)
+gmf_child.icon = "ti-receipt-tax"
+gmf_child.save!
+
+# UVT values (annual) - admin can add/update via configuration
+[
+  { year: 2024, value: 47065.00 },
+  { year: 2025, value: 49799.00 },
+  { year: 2026, value: 52374.00 }
+].each do |attrs|
+  GmfUvtYear.find_or_create_by!(year: attrs[:year]) do |r|
+    r.value = attrs[:value]
+  end
+end
 CATEGORY_SAVING_TIPS = {
   "Mercado" => [
     { title: "Planifica la compra semanal", body: "Haz una lista antes de ir al supermercado y evita compras impulsivas." },

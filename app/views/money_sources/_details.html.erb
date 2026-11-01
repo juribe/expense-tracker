@@ -24,6 +24,10 @@
       <% end %>
       <dt class="col-sm-5"><%= t("money_sources.show.status") %></dt>
       <dd class="col-sm-7"><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %></dd>
+      <% if @money_source.kind == "account" %>
+        <dt class="col-sm-5">Exenta 4x1.000</dt>
+        <dd class="col-sm-7"><%= @money_source.gmf_exempt? ? "Sí" : "No" %></dd>
+      <% end %>
       <% loan_adjustment = @money_source.loan? && @money_source.balance_offset_note.present? %>
       <% if @money_source.balance_offset.to_d.nonzero? || loan_adjustment %>
         <dt class="col-sm-5"><%= t("money_sources.show.manual_adjustment") %></dt>

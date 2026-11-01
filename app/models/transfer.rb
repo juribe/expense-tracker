@@ -40,11 +40,19 @@ class Transfer < ApplicationRecord
     MoneySources::OutstandingSync.adjust!(to_source, -amount.to_d)
   end
 
+  after_commit on: [ :create ] do
+    Gmf::TransferHandler.call(self)
+  end
+
   after_commit on: [ :destroy ] do
     MoneySources::BalanceSync.adjust!(from_source, amount.to_d)
     MoneySources::BalanceSync.adjust!(to_source, -amount.to_d)
     MoneySources::OutstandingSync.adjust!(from_source, -amount.to_d)
     MoneySources::OutstandingSync.adjust!(to_source, amount.to_d)
+  end
+
+  after_commit on: [ :destroy ] do
+    Gmf::TransferDestroyHandler.call(self)
   end
 
   private

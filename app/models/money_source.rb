@@ -58,6 +58,7 @@ class MoneySource < ApplicationRecord
   has_many :credit_scenarios, dependent: :destroy
   has_many :credit_extra_payments, dependent: :destroy
   has_one :recognition, class_name: "MoneySourceRecognition", dependent: :destroy
+  has_many :gmf_monthly_accumulators, dependent: :destroy
   has_many :recognition_identifiers, through: :recognition, source: :recognition_identifiers
 
   # Whether an institution is (or is being) attached. Defined explicitly so
@@ -72,9 +73,11 @@ class MoneySource < ApplicationRecord
   validates :kind, presence: true, inclusion: { in: KINDS }
   validates :sub_kind, inclusion: { in: SUB_KINDS }, allow_blank: true
   validates :starting_balance, numericality: true
+  validates :gmf_exempt, inclusion: { in: [true, false] }
   validate :institution_belongs_to_owner, if: :institution?
   validate :parent_belongs_to_user
   validate :parent_must_not_be_self
+  validate :gmf_exempt_only_for_eligible_accounts
 
   scope :active, -> { where(active: true) }
   scope :by_kind, ->(kind) { where(kind: kind) }
@@ -105,6 +108,7 @@ class MoneySource < ApplicationRecord
   # write path) and cascaded on entity renames by the institution models.
   # Views/badges/reports read institution_cached_name — the polymorphic
   # association is only loaded by code that needs its id/type or aliases.
+  before_save :sync_gmf_exempt_uniqueness, if: :gmf_exempt_changed?
   before_save :sync_institution_cached_name
 
   # Changing the starting balance shifts the cached balance by the same delta
@@ -211,6 +215,27 @@ class MoneySource < ApplicationRecord
 
   def debt?
     credit_card? || loan?
+  end
+
+  # The account currently marked as GMF-exempt for this user, if any.
+  def self.gmf_exempt_for(user)
+    user.money_sources.find_by(gmf_exempt: true)
+  end
+
+  # Marks this account as the single GMF-exempt account for its user,
+  # unmarking any other account inside the same transaction.
+  def enable_gmf_exemption!
+    return if gmf_exempt?
+
+    ActiveRecord::Base.transaction do
+      user.money_sources.where(gmf_exempt: true).lock.update_all(gmf_exempt: false)
+      update!(gmf_exempt: true)
+    end
+  end
+
+  # Removes the GMF-exempt flag from this account.
+  def disable_gmf_exemption!
+    update!(gmf_exempt: false) if gmf_exempt?
   end
 
   def credit_account?
@@ -380,7 +405,22 @@ class MoneySource < ApplicationRecord
 
   private
 
-  # Denormalized entity label: the attached institution's display name, or
+  # When marking this account as exempt, unmark any other exempt account
+  # for the same user inside the same save (transactional).
+  def sync_gmf_exempt_uniqueness
+    return unless gmf_exempt?
+
+    user.money_sources.where(gmf_exempt: true).where.not(id: id).update_all(gmf_exempt: false)
+  end
+
+  # GMF exemption eligibility: only bank accounts (kind == "account") can be
+  # marked as exempt. Debit cards inherit from their parent account.
+  def gmf_exempt_only_for_eligible_accounts
+    return unless gmf_exempt?
+    return if kind == "account"
+
+    errors.add(:gmf_exempt, "solo puede activarse en cuentas bancarias elegibles")
+  end
   # nil when detached (so #institution_name falls back to the legacy bank).
   # The ONLY writer besides the entity rename cascades.
   def sync_institution_cached_name

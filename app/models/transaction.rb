@@ -63,8 +63,16 @@ class Transaction < ApplicationRecord
     end
   end
 
+  after_commit on: [ :update ], if: :expense? do
+    Gmf::ExpenseUpdateHandler.call(self) unless source.to_s == "gmf"
+  end
+
   after_commit on: [ :destroy ], if: :expense? do
     SpendingAlertService.call(user: user, category: category, month: date)
+  end
+
+  after_commit on: [ :destroy ], if: :expense? do
+    Gmf::ExpenseDestroyHandler.call(self) unless source.to_s == "gmf"
   end
 
   # Keeps the owning money source's cached balance in sync. The delta equals
@@ -75,6 +83,14 @@ class Transaction < ApplicationRecord
   after_commit on: [ :create ], if: :money_source_id? do
     MoneySources::BalanceSync.adjust!(money_source, amount.to_d)
     MoneySources::OutstandingSync.adjust!(money_source, -amount.to_d)
+  end
+
+  after_commit on: [ :create ], if: :expense? do
+    if source.to_s != "gmf" && Gmf::BankChargeDetector.bank_charge?(description)
+      Gmf::Reconciler.reconcile_bank_charge(self)
+    elsif source.to_s != "gmf"
+      Gmf::ExpenseHandler.call(self)
+    end
   end
 
   after_commit on: [ :update ], if: :balance_relevant_change? do

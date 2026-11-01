@@ -414,7 +414,7 @@ class MoneySourcesController < ApplicationController
 
   def money_source_params
     permitted = [ :name, :kind, :sub_kind, :bank, :parent_id, :starting_balance, :active, :identifier,
-                  :institution_ref ]
+                  :institution_ref, :gmf_exempt ]
 
     if params.dig(:money_source, :kind).to_s.in?(%w[credit_card loan]) || @money_source&.debt?
       permitted << {

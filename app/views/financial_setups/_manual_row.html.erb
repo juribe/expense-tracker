@@ -121,6 +121,19 @@
         </div>
       <% end %>
 
+      <% if kind == "account" %>
+        <div class="col-12">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="sources[<%= index %>][gmf_exempt]" value="1" <%= "checked" if row["gmf_exempt"].to_s == "1" %> id="gmf_exempt_<%= index %>">
+            <label class="form-check-label" for="gmf_exempt_<%= index %>">¿Esta cuenta tiene marcada la exención del 4x1.000 en tu banco?</label>
+          </div>
+          <% existing_exempt = MoneySource.gmf_exempt_for(current_user) if defined?(current_user) %>
+          <% if existing_exempt %>
+            <div class="form-text text-warning">Ya existe una cuenta marcada como exenta: <%= existing_exempt.name %>. No se puede marcar una segunda.</div>
+          <% end %>
+        </div>
+      <% end %>
+
       <input type="hidden" name="sources[<%= index %>][kind]" value="<%= kind %>">
       <% if row["origin"].present? %>
         <input type="hidden" name="sources[<%= index %>][origin]" value="<%= row["origin"] %>">

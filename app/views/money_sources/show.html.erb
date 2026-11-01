@@ -198,6 +198,19 @@
                   </div>
                 </div>
               <% end %>
+              <% if @money_source.kind == "account" %>
+                <% gmf_acc = GmfMonthlyAccumulator.find_by(user_id: current_user.id, money_source_id: @money_source.id, year: Date.current.year, month: Date.current.month) %>
+                <% gmf_limit = Gmf::Uvt.exemption_limit(Date.current.year) rescue 0 %>
+                <div class="card mt-3">
+                  <div class="card-body">
+                    <h5 class="card-title">GMF 4x1.000 (mes actual)</h5>
+                    <p class="mb-1">Débitos que consumen exención: <%= gmf_acc&.total_debits || 0 %></p>
+                    <p class="mb-1">Límite mensual: <%= gmf_limit %></p>
+                    <p class="mb-1">Disponible: <%= [gmf_limit - (gmf_acc&.covered_by_exemption || 0), 0].max %></p>
+                    <p class="mb-1">GMF cobrado: <%= gmf_acc&.gmf_generated || 0 %></p>
+                  </div>
+                </div>
+              <% end %>
             </div>
             <div class="col-lg-5">
               <%= render "money_sources/details" %>

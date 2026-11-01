@@ -15,6 +15,7 @@ module FinancialSetups
     def initialize(setup:)
       @setup = setup
       @user = setup.user
+      @gmf_exempt_assigned = false
     end
 
     def call
@@ -71,6 +72,10 @@ module FinancialSetups
       )
       assign_institution(source, row)
 
+      if kind == "account"
+        assign_gmf_exempt(source, row)
+      end
+
       if %w[credit_card loan].include?(kind)
         build_credit_account(source, row)
       end
@@ -86,6 +91,15 @@ module FinancialSetups
     def assign_institution(source, row)
       ref = row["institution_ref"].presence
       source.assign_institution_ref(ref) if ref
+    end
+
+    def assign_gmf_exempt(source, row)
+      return unless row["gmf_exempt"].to_s == "1"
+      return if @gmf_exempt_assigned
+      return if MoneySource.gmf_exempt_for(@user).present?
+
+      source.gmf_exempt = true
+      @gmf_exempt_assigned = true
     end
 
     def build_credit_account(source, row)
@@ -164,6 +178,10 @@ module FinancialSetups
         identifier: entry["identifier"].presence
       )
       assign_institution(source, entry)
+
+      if kind == "account"
+        assign_gmf_exempt(source, entry)
+      end
 
       if %w[credit_card loan].include?(kind)
         build_credit_account(source, entry)
