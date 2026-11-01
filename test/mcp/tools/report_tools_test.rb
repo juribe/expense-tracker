@@ -7,6 +7,7 @@ class ReportToolsTest < ActiveSupport::TestCase
   include McpToolHelper
 
   setup do
+    travel_to Time.zone.local(2026, 10, 15, 12)
     @user = User.create!(name: "MCP Reports", email: "mcp_reports@example.com", password: "password123")
     @expense_category = Category.create!(name: "Transporte Reportes", is_default: true, category_type: "expense")
     @income_category = Category.create!(name: "Salario Reportes", is_default: true, category_type: "income")

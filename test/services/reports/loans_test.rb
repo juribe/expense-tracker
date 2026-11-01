@@ -116,7 +116,7 @@ class ReportsLoansTest < ActiveSupport::TestCase
     @mortgage.recurring_templates.create!(user: @user, category: @food, kind: "expense", amount: 1_500_000,
                                           frequency: "monthly", payment_day: 5, active: true)
 
-    row = report[:rows].find { |r| r[:name] == "Mortgage" }
+    row = travel_to(Date.new(2026, 10, 10)) { report[:rows] }.find { |r| r[:name] == "Mortgage" }
 
     assert_equal Date.new(2026, 10, 5), row[:next_payment_date]
   end

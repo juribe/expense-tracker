@@ -108,7 +108,7 @@ class ReportsAvailableCycleTest < ActiveSupport::TestCase
 
   test "days remaining for cycle" do
     data = report
-    cycle = PayCycle.current(@user)
+    cycle = travel_to(Date.new(2026, 10, 28)) { PayCycle.current(@user) }
     assert_equal (cycle.ends - Date.new(2026, 10, 28)).to_i, data[:days_remaining]
   end
 

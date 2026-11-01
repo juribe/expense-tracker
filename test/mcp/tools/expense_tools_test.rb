@@ -7,6 +7,7 @@ class ExpenseToolsTest < ActiveSupport::TestCase
   include McpToolHelper
 
   setup do
+    travel_to Time.zone.local(2026, 10, 15, 12)
     @user = User.create!(name: "MCP Expenses", email: "mcp_expenses@example.com", password: "password123")
     @other_user = User.create!(name: "Other", email: "mcp_expenses_other@example.com", password: "password123")
     @category = Category.create!(name: "Transporte Gastos", is_default: true, category_type: "expense")
