@@ -1,114 +1,186 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h5 class="card-title"><i class="ti ti-plug-connected me-2 text-secondary"></i><%= t("mcp.settings.title") %></h5>
-</div>
+<% content_for :title, t("mcp.settings.title") %>
 
-<p class="text-muted"><%= t("mcp.settings.intro") %></p>
-
-<% if @plain_token %>
-  <div class="alert alert-success" role="alert">
-    <div class="fw-semibold mb-1"><i class="ti ti-key me-1"></i><%= t("mcp.settings.token_once") %></div>
-    <code class="user-select-all"><%= @plain_token %></code>
-    <div class="small mt-2"><%= t("mcp.settings.token_hint") %></div>
-  </div>
+<%= render "shared/page_header",
+           title: t("mcp.settings.title"),
+           subtitle: t("mcp.settings.intro") do %>
 <% end %>
 
-<div class="card mb-4">
-  <div class="card-header">
-    <i class="ti ti-plus me-2"></i><%= t("mcp.settings.new_token") %>
-  </div>
-  <div class="card-body">
-    <%= form_with url: mcp_settings_path, scope: :mcp_token, local: true do |form| %>
-      <div class="row g-3 align-items-end">
-        <div class="col-md-5">
-          <%= form.label :name, t("mcp.settings.name"), class: "form-label" %>
-          <%= form.text_field :name, class: "form-control", required: true,
-                              placeholder: t("mcp.settings.name_placeholder") %>
+<div class="mcp-layout">
+  <main class="card mcp-main">
+    <h2 class="mcp-card-title"><%= t("mcp.settings.prepare_title") %></h2>
+    <p class="mcp-card-sub"><%= t("mcp.settings.prepare_sub") %></p>
+
+    <div class="mcp-steps">
+      <div class="mcp-step">
+        <div class="mcp-step-num">1</div>
+        <div>
+          <strong><%= t("mcp.settings.step1_title") %></strong>
+          <span><%= t("mcp.settings.step1_desc") %></span>
         </div>
-        <div class="col-md-4">
-          <div class="form-check">
-            <%= form.check_box :write_access, class: "form-check-input" %>
-            <%= form.label :write_access, t("mcp.settings.write_access"), class: "form-check-label" %>
+      </div>
+      <div class="mcp-step">
+        <div class="mcp-step-num">2</div>
+        <div>
+          <strong><%= t("mcp.settings.step2_title") %></strong>
+          <span><%= t("mcp.settings.step2_desc") %></span>
+        </div>
+      </div>
+      <div class="mcp-step">
+        <div class="mcp-step-num">3</div>
+        <div>
+          <strong><%= t("mcp.settings.step3_title") %></strong>
+          <span><%= t("mcp.settings.step3_desc") %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mcp-section">
+      <label class="mcp-section-label"><%= t("mcp.settings.address_label") %></label>
+      <div class="mcp-field" data-testid="mcp-endpoint">
+        <code><%= mcp_endpoint_url %></code>
+        <button type="button" class="mcp-mini mcp-copy"
+                data-copy-value="<%= mcp_endpoint_url %>"
+                data-copied-label="<%= t("mcp.settings.copied") %>"
+                data-copy-failed-label="<%= t("mcp.settings.copy_failed") %>">
+          <%= t("mcp.settings.copy") %>
+        </button>
+      </div>
+    </div>
+
+    <div class="mcp-section">
+      <label class="mcp-section-label"><%= t("mcp.settings.key_title") %></label>
+      <p class="mcp-card-sub"><%= t("mcp.settings.key_desc") %></p>
+
+      <div class="mcp-keybox" data-key="<%= @plain_token || "" %>">
+        <div class="mcp-keytop">
+          <strong id="keyTitle">
+            <%= @tokens.any? ? t("mcp.settings.key_created") : t("mcp.settings.key_none_title") %>
+          </strong>
+          <span class="mcp-status" id="keyStatus">
+            <%= @tokens.any? ? "● #{t("mcp.settings.key_active")}" : "● #{t("mcp.settings.key_none")}" %>
+          </span>
+        </div>
+
+        <div class="mcp-keyrow">
+          <code id="keyValue"><%= @plain_token.present? ? @plain_token : "••••••••••••••••••••••••" %></code>
+          <div class="mcp-keyactions">
+            <button type="button" class="mcp-btn" id="reveal"
+                    data-action="reveal"
+                    data-reveal-label="<%= t("mcp.settings.reveal") %>"
+                    data-hide-label="<%= t("mcp.settings.hide") %>"
+                    data-revealed="<%= @plain_token.present? %>"
+                    <%= "disabled" unless @plain_token %>>
+              <%= @plain_token.present? ? t("mcp.settings.hide") : t("mcp.settings.reveal") %>
+            </button>
+            <button type="button" class="mcp-btn" id="copyKey" data-action="copy-key"
+                    data-copied-label="<%= t("mcp.settings.copied") %>"
+                    data-copy-failed-label="<%= t("mcp.settings.copy_failed") %>"
+                    <%= "disabled" unless @plain_token %>>
+              <%= t("mcp.settings.copy_key") %>
+            </button>
           </div>
-          <div class="small text-muted"><%= t("mcp.settings.write_help") %></div>
         </div>
-        <div class="col-md-3 text-md-end">
-          <%= form.button type: :submit, class: "btn btn-primary w-100" do %>
-            <i class="ti ti-key me-1"></i><%= t("mcp.settings.create") %>
+
+        <% if @tokens.any? %>
+          <p class="mcp-keymeta">
+            <%= t("mcp.settings.key_created_on", date: l(@tokens.first.created_at.to_date, format: :long)) %>
+            <% if @tokens.first.last_used_at %>
+              · <%= t("mcp.settings.key_last_used", date: l(@tokens.first.last_used_at, format: :short)) %>
+            <% end %>
+          </p>
+        <% end %>
+
+        <%= form_with url: mcp_settings_path, scope: :mcp_token, local: true,
+                      html: { id: "keyForm" },
+                      data: (@tokens.any? ? { turbo_confirm: t("mcp.settings.key_replace_confirm") } : {}) do |form| %>
+          <%= form.hidden_field :name, value: "Mi asistente" %>
+          <button type="submit" class="mcp-primary" id="generate">
+            ＋ <%= t("mcp.settings.generate_key") %>
+          </button>
+        <% end %>
+
+        <% if @plain_token.present? %>
+          <p class="mcp-keynote" id="keyNote"><%= t("mcp.settings.key_note") %></p>
+        <% elsif @tokens.any? %>
+          <p class="mcp-keynote" id="keyNote"><%= t("mcp.settings.key_already_shown") %></p>
+        <% else %>
+          <p class="mcp-keynote" id="keyNote"><%= t("mcp.settings.key_note") %></p>
+        <% end %>
+      </div>
+
+      <div class="mcp-warn">
+        🔒 <span><%= t("mcp.settings.key_warn") %></span>
+      </div>
+    </div>
+
+    <div class="mcp-section">
+      <label class="mcp-section-label"><%= t("mcp.settings.prompt_title") %></label>
+      <p class="mcp-card-sub" style="margin-bottom:10px"><%= t("mcp.settings.prompt_desc") %></p>
+
+      <div class="mcp-promptbox">
+        <div class="mcp-prompthead">
+          <strong><%= t("mcp.settings.prompt_ready") %></strong>
+          <span><%= t("mcp.settings.prompt_complete") %></span>
+        </div>
+        <div id="prompt" data-testid="mcp-prompt">
+          <% if @plain_token.present? %>
+            <%= mcp_prompt_text(mcp_endpoint_url, @plain_token) %>
+          <% elsif @tokens.any? %>
+            <%= t("mcp.settings.key_already_shown") %>
+          <% else %>
+            <%= t("mcp.settings.prompt_placeholder") %>
           <% end %>
         </div>
       </div>
-    <% end %>
-  </div>
-</div>
 
-<div class="card">
-  <div class="card-header">
-    <i class="ti ti-list me-2"></i><%= t("mcp.settings.active_tokens") %>
-  </div>
-
-  <% if @tokens.empty? %>
-    <div class="card-body text-muted"><%= t("mcp.settings.empty") %></div>
-  <% else %>
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr>
-            <th><%= t("mcp.settings.name") %></th>
-            <th><%= t("mcp.settings.scopes") %></th>
-            <th><%= t("mcp.settings.created_at") %></th>
-            <th><%= t("mcp.settings.last_used") %></th>
-            <th><%= t("mcp.settings.status") %></th>
-            <th class="text-end"><%= t("mcp.settings.actions") %></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @tokens.each do |token| %>
-            <tr>
-              <td class="fw-semibold"><%= token.name %></td>
-              <td>
-                <% token.scopes.each do |scope| %>
-                  <span class="badge bg-<%= scope == "write" ? "warning" : "secondary" %>-subtle text-<%= scope == "write" ? "warning" : "secondary" %>">
-                    <%= t("mcp.settings.scope_#{scope}") %>
-                  </span>
-                <% end %>
-              </td>
-              <td class="small text-muted"><%= l(token.created_at, format: :short) %></td>
-              <td class="small text-muted">
-                <%= token.last_used_at ? l(token.last_used_at, format: :short) : t("mcp.settings.never") %>
-              </td>
-              <td>
-                <% if token.revoked? %>
-                  <span class="badge bg-danger-subtle text-danger"><%= t("mcp.settings.revoked") %></span>
-                <% elsif token.expired? %>
-                  <span class="badge bg-secondary-subtle text-secondary"><%= t("mcp.settings.expired") %></span>
-                <% else %>
-                  <span class="badge bg-success-subtle text-success"><%= t("mcp.settings.active") %></span>
-                <% end %>
-              </td>
-              <td class="text-end">
-                <% unless token.revoked? %>
-                  <%= button_to mcp_settings_token_path(token), method: :delete,
-                                class: "btn btn-sm btn-outline-danger",
-                                form: { data: { turbo_confirm: t("mcp.settings.confirm_revoke") } } do %>
-                    <i class="ti ti-ban me-1"></i><%= t("mcp.settings.revoke") %>
-                  <% end %>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+      <button type="button" class="mcp-copyall" id="copyPrompt"
+              data-copy-target="prompt"
+              data-copied-label="<%= t("mcp.settings.copied") %>"
+              data-copy-failed-label="<%= t("mcp.settings.copy_failed") %>"
+              <%= "disabled" unless @plain_token %>>
+        <%= t("mcp.settings.copy_prompt") %>
+      </button>
+      <p class="mcp-hint"><%= t("mcp.settings.prompt_hint") %></p>
     </div>
-  <% end %>
+  </main>
+
+  <aside class="mcp-side">
+    <section class="card mcp-side-card">
+      <h2><%= t("mcp.settings.other_title") %></h2>
+      <p class="mcp-card-sub"><%= t("mcp.settings.other_desc") %></p>
+
+      <div class="mcp-other">
+        <div class="mcp-ico">✳</div>
+        <div>
+          <strong>Claude</strong>
+          <span><%= t("mcp.settings.claude_desc") %></span>
+        </div>
+        <a href="#" data-info><%= t("mcp.settings.how_to_connect") %></a>
+      </div>
+      <div class="mcp-other">
+        <div class="mcp-ico">⌘</div>
+        <div>
+          <strong>OpenCode</strong>
+          <span><%= t("mcp.settings.opencode_desc") %></span>
+        </div>
+        <a href="#" data-info><%= t("mcp.settings.how_to_connect") %></a>
+      </div>
+      <div class="mcp-other">
+        <div class="mcp-ico">＋</div>
+        <div>
+          <strong><%= t("mcp.settings.other_assistants") %></strong>
+          <span><%= t("mcp.settings.compatible_tools") %></span>
+        </div>
+        <a href="#" data-info><%= t("mcp.settings.how_to_connect") %></a>
+      </div>
+    </section>
+
+    <section class="card mcp-side-card">
+      <div class="mcp-safe">
+        <b><%= t("mcp.settings.security_title") %></b>
+        <%= t("mcp.settings.security_body") %>
+      </div>
+    </section>
+  </aside>
 </div>
 
-<div class="card mt-4">
-  <div class="card-header">
-    <i class="ti ti-terminal-2 me-2"></i><%= t("mcp.settings.connection_title") %>
-  </div>
-  <div class="card-body small">
-    <p class="mb-2"><%= t("mcp.settings.connection_intro") %></p>
-    <div class="mb-1"><%= t("mcp.settings.endpoint") %>: <code>POST /mcp</code></div>
-    <div><%= t("mcp.settings.header") %>: <code>Authorization: Bearer &lt;token&gt;</code></div>
-  </div>
-</div>

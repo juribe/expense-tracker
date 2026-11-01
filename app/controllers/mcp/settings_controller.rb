@@ -13,15 +13,19 @@ module Mcp
 
     def create
       name = token_params[:name].to_s.strip
-      if name.blank?
-        load_tokens
-        flash.now[:alert] = t("mcp.settings.name_required")
-        return render :show, status: :unprocessable_entity
-      end
+      name = "Mi asistente" if name.blank?
+
+      # Revoke any previously active keys before issuing a new one, so a
+      # user always has at most one active connection key at a time.
+      current_user.mcp_access_tokens.active.each(&:revoke!)
 
       @token, @plain_token = McpAccessToken.issue!(user: current_user, name: name, scopes: scopes_param)
       load_tokens
       render :show
+    rescue ActiveRecord::RecordInvalid
+      load_tokens
+      flash.now[:alert] = t("mcp.settings.name_required")
+      render :show, status: :unprocessable_entity
     end
 
     def destroy
@@ -42,7 +46,11 @@ module Mcp
 
     def scopes_param
       scopes = [ "read" ]
-      scopes << "write" if token_params[:write_access].to_s == "1"
+      if token_params.key?(:write_access)
+        scopes << "write" if token_params[:write_access].to_s == "1"
+      else
+        scopes << "write"
+      end
       scopes
     end
 
