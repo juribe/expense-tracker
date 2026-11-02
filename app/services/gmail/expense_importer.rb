@@ -7,9 +7,10 @@ module Gmail
   #
   # The message is CLAIMED first: its ProcessedEmail row is created (or taken
   # over from "failed"/stale) in "processing" state behind the
-  # [provider, message_id] unique index. A concurrent sync run then loses the
-  # claim at the database level and never re-reads the message — the double
-  # DiDi/UBER imports came from the old check-then-act guard.
+  # [user_id, provider, message_id] unique index. A concurrent run of the same
+  # user then loses the claim at the database level and never re-reads the
+  # message — the double DiDi/UBER imports came from the old check-then-act
+  # guard. Another user's row is never visible: idempotence is per user.
   #
   #   Gmail::ExpenseImporter.new(connection: connection).call(message)
   class ExpenseImporter
@@ -71,8 +72,8 @@ module Gmail
     # racing runs can never both win: Postgres re-evaluates the predicate
     # after the row lock and only one UPDATE matches.
     def claim_message!
-      row = ProcessedEmail.find_or_initialize_by(provider: @provider, message_id: @message_id)
-      row.user ||= @connection.user
+      row = ProcessedEmail.find_or_initialize_by(user: @connection.user, provider: @provider,
+                                                 message_id: @message_id)
 
       if row.new_record?
         row.assign_attributes(status: "processing", failure_reason: nil, processed_at: nil)
@@ -99,7 +100,8 @@ module Gmail
     end
 
     def take_over(row)
-      claimed = ProcessedEmail.where(id: row.id, status: [ "failed", "processing", "queued" ])
+      claimed = ProcessedEmail.where(id: row.id, user_id: @connection.user.id,
+                                     status: [ "failed", "processing", "queued" ])
                               .where("status IN (?) OR updated_at < ?", %w[failed queued], STALE_CLAIM_TIMEOUT.ago)
                               .update_all(status: "processing", failure_reason: nil,
                                           processed_at: nil, updated_at: Time.current)
@@ -109,7 +111,8 @@ module Gmail
     # A run that dies mid-pipeline must not leave a live claim: downgrade it
     # to "failed" so the next sync can retry.
     def release_claim
-      ProcessedEmail.where(provider: @provider, message_id: @message_id, status: "processing")
+      ProcessedEmail.where(user_id: @connection.user.id, provider: @provider, message_id: @message_id,
+                           status: "processing")
                     .update_all(status: "failed", failure_reason: "import raised unexpectedly",
                                 updated_at: Time.current)
     end
@@ -250,8 +253,8 @@ module Gmail
     end
 
     def record!(status, expense_ids: [], reason: nil, payload: nil)
-      processed_email = ProcessedEmail.find_or_initialize_by(provider: @provider, message_id: @message_id)
-      processed_email.user ||= @connection.user
+      processed_email = ProcessedEmail.find_or_initialize_by(user: @connection.user, provider: @provider,
+                                                             message_id: @message_id)
       processed_email.status = status.to_s
       processed_email.expense_id = expense_ids.first
       processed_email.failure_reason = reason.presence

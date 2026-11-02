@@ -4,8 +4,10 @@
 #   https://github.com/rails/solid_queue
 
 # Shared set of recurring tasks.
+# The dispatcher enqueues one GmailSyncJob per active connection, so each
+# user's mailbox is synchronized in its own job.
 gmail_sync: &gmail_sync
-  class: GmailSyncJob
+  class: GmailSyncDispatchJob
   queue: default
   schedule: every 15 minutes
 

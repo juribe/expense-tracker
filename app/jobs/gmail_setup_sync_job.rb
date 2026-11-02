@@ -2,28 +2,29 @@
 
 # Background job for the explicit "Setup sync": scans the mailbox broadly
 # for bank/financial emails (Gmail::SetupScanService) and persists Gmail
-# criteria + money source suggestions. Mirrors GmailSyncJob's UI contract:
-# sets `syncing` beforehand and clears it (storing the summary) when done,
-# even on failure, so the settings page can poll sync_status.
-#
-# The SYNCING CLAIM is taken by the controller (GmailConnectionsController#setup_sync)
-# BEFORE redirecting, so the recognition page can render its loading state
-# right away; this job does not re-check it (a stacked sync cannot pass the
-# controller guard).
+# criteria + money source suggestions. The job owns the same per-connection
+# claim as GmailSyncJob, so a setup scan and a normal sync never overlap.
 class GmailSetupSyncJob < ApplicationJob
   queue_as :default
 
   def perform(connection_id:)
     connection = GmailConnection.find_by(id: connection_id)
     return unless connection
+    return unless connection.claim_sync!
 
-    connection.update!(syncing: Time.current) if connection.syncing.blank?
+    run_scan(connection)
+  end
 
+  private
+
+  # Publishes the same UI contract as GmailSyncJob: clears the claim and stores
+  # the summary when done, even on failure.
+  def run_scan(connection)
     summary = Gmail::SetupScanService.call(connection)
     Rails.logger.info("[GmailSetupJob] connection=#{connection.id} #{summary.inspect}")
-    connection.update!(last_sync_summary: summary, syncing: nil)
+    connection.release_sync!(summary: summary)
   rescue StandardError => e
-    Rails.logger.error("[GmailSetupJob] connection=#{connection_id} failed: #{e.class}: #{e.message}")
-    connection&.update!(last_sync_summary: { error: e.message }, syncing: nil)
+    Rails.logger.error("[GmailSetupJob] connection=#{connection.id} failed: #{e.class}: #{e.message}")
+    connection.release_sync!(summary: { error: e.message })
   end
 end

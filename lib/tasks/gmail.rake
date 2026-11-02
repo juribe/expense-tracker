@@ -5,7 +5,9 @@ namespace :gmail do
   task sync: :environment do
     puts "Polling interval: every #{GmailSyncJob.polling_interval_minutes} minutes " \
          "(configure with GMAIL_SYNC_INTERVAL_MINUTES)"
-    GmailSyncJob.perform_now
+    GmailConnection.active.find_each do |connection|
+      GmailSyncJob.perform_now(connection_id: connection.id)
+    end
     puts "Gmail sync finished."
   end
 end

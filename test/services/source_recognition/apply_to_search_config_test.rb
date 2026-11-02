@@ -76,6 +76,19 @@ module SourceRecognition
       assert_includes config[:domains], "davibank.com"
       assert_includes config[:domains], "mail.davivienda.com"
     end
+    test "applies confirmed criteria to every connection of the user" do
+      second = GmailConnection.create!(user: @user, email: "second@gmail.com",
+                                       search_config: { senders: [ "old@bank.com" ] })
+      @source.ensure_recognition.replace_identifiers(domain: [ "davibank.com" ])
+
+      ApplyToSearchConfig.call(user: @user)
+
+      [ @connection, second ].each do |connection|
+        assert_includes connection.reload.search_config_hash[:domains], "davibank.com"
+      end
+      assert_includes second.reload.search_config_hash[:senders], "old@bank.com"
+    end
+
     test "confirmed values of non-payment sources never leak into the search config" do
       loan = @user.money_sources.create!(name: "Davibank Libre", kind: "loan", sub_kind: "personal",
                                          starting_balance: 0, bank: "Davibank")

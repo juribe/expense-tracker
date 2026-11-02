@@ -44,11 +44,25 @@ class ProcessedEmailTest < ActiveSupport::TestCase
     assert_not @email.valid?
   end
 
-  test "enforces unique provider + message_id at the database level" do
+  test "enforces one provider + message_id per user" do
     @email.save!
     duplicate = ProcessedEmail.new(user: @user, provider: "gmail", message_id: "msg-1", status: "processed")
+
+    assert_not duplicate.valid?
     assert_raises(ActiveRecord::RecordNotUnique) do
       duplicate.save!(validate: false)
+    end
+  end
+
+  test "allows the same provider + message_id for different users" do
+    @email.save!
+    other_user = User.create!(name: "Other PE", email: "processed_email_other@example.com",
+                              password: "password123")
+    other = ProcessedEmail.new(user: other_user, provider: "gmail", message_id: "msg-1", status: "processed")
+
+    assert other.valid?
+    assert_difference -> { ProcessedEmail.count }, 1 do
+      other.save!
     end
   end
 

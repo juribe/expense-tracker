@@ -35,10 +35,10 @@ module Gmail
       EmailTransactionDetector::Result.new(transactional?: transactional, reason: reason)
     end
 
-    def importer(detector: nil, extractor: nil, provider: Gmail::ExpenseImporter::PROVIDER, source: "gmail",
-                 category_prefill: nil)
+    def importer(connection: @connection, detector: nil, extractor: nil,
+                 provider: Gmail::ExpenseImporter::PROVIDER, source: "gmail", category_prefill: nil)
       Gmail::ExpenseImporter.new(
-        connection: @connection,
+        connection: connection,
         provider: provider,
         source: source,
         detector: detector || FakeDetector.new(detector_result(transactional: true)),
@@ -414,6 +414,43 @@ module Gmail
 
       assert_equal :processed, retry_result.status
       assert_equal 1, Expense.where(gmail_message_id: "msg-100", description: "Restaurante XYZ").count
+    end
+
+    # Two users can share a mailbox (same Gmail message ids). Each one owns its
+    # own idempotence row and its own expense.
+    test "imports the same message id independently for different users" do
+      payment_source
+      other_user = User.create!(name: "Other Importer", email: "gmail_importer_other@example.com",
+                                password: "password123")
+      other_user.money_sources.create!(name: "Visa Other", kind: "credit_card", identifier: "1234")
+      other_connection = GmailConnection.create!(user: other_user, email: "other@gmail.com")
+
+      first = importer.call(@message)
+      second = importer(connection: other_connection).call(@message)
+
+      assert_equal :processed, first.status
+      assert_equal :processed, second.status
+      assert_equal 1, Expense.where(user: @user, gmail_message_id: "msg-100").count
+      assert_equal 1, Expense.where(user: other_user, gmail_message_id: "msg-100").count
+      assert_equal [ @user.id, other_user.id ].sort,
+                   ProcessedEmail.where(provider: "gmail", message_id: "msg-100").pluck(:user_id).sort
+    end
+
+    test "does not take over another user's failed message" do
+      other_user = User.create!(name: "Other Failed", email: "gmail_importer_failed@example.com",
+                                password: "password123")
+      foreign = ProcessedEmail.create!(user: other_user, provider: "gmail", message_id: "msg-100",
+                                       status: "failed", failure_reason: "foreign failure", attempts: 3)
+      payment_source
+
+      result = importer.call(@message)
+
+      assert_equal :processed, result.status
+      foreign.reload
+      assert_equal "failed", foreign.status
+      assert_equal "foreign failure", foreign.failure_reason
+      assert_equal 3, foreign.attempts
+      assert_equal @user, ProcessedEmail.find_by!(user: @user, provider: "gmail", message_id: "msg-100").user
     end
 
     # --- source recognition ---------------------------------------------------

@@ -129,6 +129,40 @@ module Gmail
       assert_equal "needs_review", record.reload.status
     end
 
+    test "syncs the same message id independently for different users" do
+      other_user = User.create!(name: "Other Sync", email: "gmail_sync_other@example.com",
+                                password: "password123")
+      other_user.money_sources.create!(name: "Visa Other", kind: "credit_card", identifier: "1234")
+      other_connection = GmailConnection.create!(user: other_user, email: "other@gmail.com",
+                                                 search_config: { senders: [ "notifications@bank.com" ] })
+      client_class = FakeClient.configure(stubs: { "same" => purchase_message("same") })
+      logger = Logger.new(StringIO.new)
+
+      Gmail::SyncService.call(@connection.reload, client_class: client_class,
+                              extractor: FakeExtractor.new, logger: logger)
+      Gmail::SyncService.call(other_connection.reload, client_class: client_class,
+                              extractor: FakeExtractor.new, logger: logger)
+
+      assert_equal 2, ProcessedEmail.where(provider: "gmail", message_id: "same").count
+      assert_equal 1, Expense.where(user: @user, gmail_message_id: "same").count
+      assert_equal 1, Expense.where(user: other_user, gmail_message_id: "same").count
+    end
+
+    test "does not mark another user's message as failed" do
+      other_user = User.create!(name: "Other Failure", email: "gmail_sync_failure@example.com",
+                                password: "password123")
+      foreign = ProcessedEmail.create!(user: other_user, provider: "gmail", message_id: "bad",
+                                       status: "processing", attempts: 1)
+
+      sync(FakeClient.configure(stubs: { "bad" => purchase_message("bad") }, fail_on: [ "bad" ]))
+
+      foreign.reload
+      assert_equal "processing", foreign.status
+      assert_equal 1, foreign.attempts
+      own = ProcessedEmail.find_by!(user: @user, provider: "gmail", message_id: "bad")
+      assert_equal "failed", own.status
+    end
+
     test "does nothing for inactive connections" do
       @connection.update!(active: false)
 

@@ -2,8 +2,10 @@
 
 class GmailConnectionsController < ApplicationController
   # A sync scans a live mailbox and bills AI work: one trigger per minute is
-  # generous for a human, hostile for a script.
-  rate_limit to: 5, within: 1.minute, only: [ :sync, :setup_sync ], store: RateLimitProxy.new
+  # generous for a human, hostile for a script. Keyed by user so accounts
+  # sharing an IP do not throttle each other.
+  rate_limit to: 5, within: 1.minute, only: [ :sync, :setup_sync ], store: RateLimitProxy.new,
+             by: -> { current_user&.id || request.remote_ip }
 
   before_action :set_connection, only: %i[update destroy sync sync_status setup_sync]
 
@@ -105,14 +107,11 @@ class GmailConnectionsController < ApplicationController
   # Step 0 of the setup wizard: kicks off the broad mailbox scan
   # (Gmail::SetupScanService) in the background. The scan does NOT import
   # expenses — it only discovers Gmail criteria and money source suggestions.
-  # The results are reviewed on the recognition page, so land there.
-  # `syncing` is CLAIMED here (before the redirect) so the recognition page
-  # renders its loading state deterministically — the job may still be
-  # spinning up when the page loads — and auto-refreshes when the scan ends.
+  # The results are reviewed on the recognition page, so land there. The job
+  # owns the `syncing` claim; the page polls sync_status while it runs.
   def setup_sync
     return sync_already_running if @connection.sync_running?
 
-    @connection.update!(syncing: Time.current)
     GmailSetupSyncJob.perform_later(connection_id: @connection.id)
     redirect_to money_sources_recognition_path, notice: t("gmail_messages.setup_sync_started")
   end

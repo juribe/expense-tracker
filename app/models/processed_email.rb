@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 # Tracks every email examined by the import pipeline so each message is only
-# processed once across all providers. The [provider, message_id] unique index
-# makes duplicate prevention race-safe: an import run claims a message by
-# creating its row in "processing" state BEFORE doing extraction, so
-# concurrent syncs see the claim and skip.
+# processed once per user and provider. The [user_id, provider, message_id]
+# unique index makes duplicate prevention race-safe: an import run claims a
+# message by creating its row in "processing" state BEFORE doing extraction,
+# so concurrent syncs of the same user see the claim and skip. Users never
+# share rows, even when they connect the same mailbox.
 class ProcessedEmail < ApplicationRecord
   STATUSES = %w[queued processing processed ignored needs_review failed].freeze
   # Outcomes that must never be imported again. A later sync or a failed fetch
@@ -17,7 +18,7 @@ class ProcessedEmail < ApplicationRecord
   validates :provider, presence: true, inclusion: { in: %w[gmail cloudflare resend] }
   validates :message_id, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
-  validates :message_id, uniqueness: { scope: :provider }
+  validates :message_id, uniqueness: { scope: [ :user_id, :provider ] }
 
   scope :gmail, -> { where(provider: "gmail") }
   scope :cloudflare, -> { where(provider: "cloudflare") }

@@ -51,6 +51,26 @@ class GmailConnection < ApplicationRecord
     syncing.present? && syncing > STALE_SYNC_TIMEOUT.ago
   end
 
+  # Atomically claims the connection for one sync run. Returns false when a
+  # live claim exists, so two runs can never sync the same mailbox at once.
+  def claim_sync!
+    now = Time.current
+    claimed = self.class.where(id: id)
+                       .where("syncing IS NULL OR syncing < ?", STALE_SYNC_TIMEOUT.ago)
+                       .update_all(syncing: now, updated_at: now)
+    return false unless claimed == 1
+
+    self[:syncing] = now
+    true
+  end
+
+  # Clears the claim and stores the run summary the UI polls.
+  def release_sync!(summary:)
+    # The claim wrote `syncing` straight to the database, so update! would not
+    # see it dirty and would leave the claim behind.
+    update_columns(last_sync_summary: summary, syncing: nil, updated_at: Time.current)
+  end
+
   # True when the periodic sync keeps failing because Google rejected the
   # refresh token (invalid_grant). Happens when the OAuth consent screen is
   # in Testing mode (refresh tokens expire after 7 days) or the user revoked
@@ -141,7 +161,6 @@ class GmailConnection < ApplicationRecord
   end
 
   def joined_for(saved_values, suggestion_entries)
-
     values = saved_values.dup
     keys = values.map { |value| value.to_s.downcase.strip }
     Array(suggestion_entries).filter_map do |entry|

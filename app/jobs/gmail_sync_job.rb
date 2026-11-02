@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-# Periodic Gmail synchronization job. Schedule it (cron, Solid Queue
-# recurring task...) at the interval defined by GMAIL_SYNC_INTERVAL_MINUTES.
+# Synchronizes ONE Gmail connection. GmailSyncDispatchJob fans out one job per
+# active connection, and this job owns the per-connection claim so two runs can
+# never sync the same mailbox at once.
 class GmailSyncJob < ApplicationJob
   DEFAULT_INTERVAL_MINUTES = 15
 
@@ -12,34 +13,28 @@ class GmailSyncJob < ApplicationJob
     ENV.fetch("GMAIL_SYNC_INTERVAL_MINUTES", DEFAULT_INTERVAL_MINUTES).to_i.clamp(1, 1440)
   end
 
-  def perform(connection_id: nil)
-    scope = connection_id ? GmailConnection.where(id: connection_id) : GmailConnection.active
+  def perform(connection_id:)
+    connection = GmailConnection.find_by(id: connection_id)
+    return unless connection
+    # Never search a mailbox that has not been configured yet (no initial
+    # setup sync, no saved criteria, no prior successful sync).
+    return unless connection.search_configured?
+    return unless connection.claim_sync!
 
-    scope.find_each do |connection|
-      sync_one(connection)
-    end
+    run_sync(connection)
   end
 
   private
 
-  # Runs the sync for a single connection, publishing enough state on the
-  # connection for the UI to poll: sets `syncing` beforehand and clears it
-  # (and stores the summary) when done, even on failure.
-  def sync_one(connection)
-     # Another sync (normal or setup) already claimed this connection.
-     return if connection.sync_running?
-
-     # Never search a mailbox that has not been configured yet (no initial
-     # setup sync, no saved criteria, no prior successful sync).
-     return unless connection.search_configured?
-
-     connection.update!(syncing: Time.current)
-
+  # Runs the sync for the claimed connection, publishing enough state on the
+  # connection for the UI to poll: clears the claim and stores the summary when
+  # done, even on failure.
+  def run_sync(connection)
     summary = Gmail::SyncService.call(connection)
     Rails.logger.info("[GmailSyncJob] connection=#{connection.id} #{summary.inspect}")
-    connection.update!(last_sync_summary: summary, syncing: nil)
+    connection.release_sync!(summary: summary)
   rescue StandardError => e
     Rails.logger.error("[GmailSyncJob] connection=#{connection.id} failed: #{e.class}: #{e.message}")
-    connection.update!(last_sync_summary: { error: e.message }, syncing: nil)
+    connection.release_sync!(summary: { error: e.message })
   end
 end

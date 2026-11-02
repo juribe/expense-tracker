@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
-    "mtime": 1792849928.168855,
-    "seen": 1793490696.634374,
-    "ast_hash": "975ec370ced436dec8fe984414a93699",
+    "mtime": 1793581897.6165812,
+    "seen": 1793582558.477338,
+    "ast_hash": "7dcaeb2be1f3c0394ba6ea09b8d0a463",
     "semantic_hash": ""
   },
   "app/controllers/imports_controller.rb": {
@@ -132,9 +132,9 @@
     "semantic_hash": "bdecd79f2c18f1519c7d39f08ba41ea9"
   },
   "app/jobs/gmail_sync_job.rb": {
-    "mtime": 1792447202.4821084,
-    "seen": 1793490696.634464,
-    "ast_hash": "7f3b35cd01e56884c664614a46624aaa",
+    "mtime": 1793581892.9162786,
+    "seen": 1793582558.4774442,
+    "ast_hash": "018d2ea2824c96b91b69af92171ab8be",
     "semantic_hash": ""
   },
   "app/mailers/application_mailer.rb": {
@@ -198,9 +198,9 @@
     "semantic_hash": "843da63d09510236e4e59c876646b1ba"
   },
   "app/models/gmail_connection.rb": {
-    "mtime": 1792448444.1286316,
-    "seen": 1793490696.63461,
-    "ast_hash": "617c843297533d0f7e9f81d226014065",
+    "mtime": 1793582085.7442026,
+    "seen": 1793582558.477626,
+    "ast_hash": "30dc9d9cecf2e24b29ba0b36a6b7a0c0",
     "semantic_hash": ""
   },
   "app/models/income.rb": {
@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "app/models/processed_email.rb": {
-    "mtime": 1793546175.2733932,
-    "seen": 1793546216.2221398,
-    "ast_hash": "97dd9109800ab08ec43b3dd4c8a6b930",
+    "mtime": 1793581873.2389596,
+    "seen": 1793582558.477652,
+    "ast_hash": "1d26e87b8ef1436868122bac6fa6ca39",
     "semantic_hash": ""
   },
   "app/models/recurring_template.rb": {
@@ -312,9 +312,9 @@
     "semantic_hash": "d433dbcbb161277529d867a6378f165e"
   },
   "app/services/gmail/expense_importer.rb": {
-    "mtime": 1793120079.2124484,
-    "seen": 1793490696.634848,
-    "ast_hash": "378d2135b52c182404c6a140a0b5c920",
+    "mtime": 1793581977.637677,
+    "seen": 1793582558.4779022,
+    "ast_hash": "008f958ec364653e044b48a8f2424346",
     "semantic_hash": ""
   },
   "app/services/gmail/oauth_client.rb": {
@@ -330,9 +330,9 @@
     "semantic_hash": ""
   },
   "app/services/gmail/sync_service.rb": {
-    "mtime": 1793546175.2736175,
-    "seen": 1793546216.2223969,
-    "ast_hash": "f3f4441023aac76004e8d77d2c33ef6a",
+    "mtime": 1793581883.5338702,
+    "seen": 1793582558.477908,
+    "ast_hash": "ab31798bc501322280d9ded3e8b7d30d",
     "semantic_hash": ""
   },
   "app/services/import_pipeline.rb": {
@@ -372,9 +372,9 @@
     "semantic_hash": ""
   },
   "app/services/source_recognition/apply_to_search_config.rb": {
-    "mtime": 1791735122.0049279,
-    "seen": 1793490696.634945,
-    "ast_hash": "c2746249ef7d1afe54a1a2bee5e43a9d",
+    "mtime": 1793581902.9511383,
+    "seen": 1793582558.4780328,
+    "ast_hash": "4687ec972a2fd62ba47c33651481fe21",
     "semantic_hash": ""
   },
   "app/services/source_recognition/catalog.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793565977.350274,
-    "seen": 1793566074.694211,
-    "ast_hash": "f572a6696073fdbcdfecab553d40f436",
+    "mtime": 1793581912.5693414,
+    "seen": 1793582558.478188,
+    "ast_hash": "db42213165ef66e1e78779d0bd3f8b28",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -594,10 +594,10 @@
     "semantic_hash": "c91729e88d5d283dc5d2443e3f9bab12"
   },
   "lib/tasks/gmail.rake": {
-    "mtime": 1787694826.7675645,
-    "seen": 1793490696.635082,
-    "ast_hash": "9bdec59288843c4c7fcdc2a9ad31a694",
-    "semantic_hash": "9bdec59288843c4c7fcdc2a9ad31a694"
+    "mtime": 1793581870.9317908,
+    "seen": 1793582558.478196,
+    "ast_hash": "a8fc7c2a03eaeef2ff40b4e4024405ef",
+    "semantic_hash": ""
   },
   "package.json": {
     "mtime": 1787694826.7693844,
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "test/controllers/gmail_connections_controller_test.rb": {
-    "mtime": 1793492501.8472033,
-    "seen": 1793492827.859482,
-    "ast_hash": "38d12d1da05ca3ec48b33d996059feb2",
+    "mtime": 1793581365.557132,
+    "seen": 1793582558.4783401,
+    "ast_hash": "3b7f939f869a5e682d0da4017f3ac210",
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "test/jobs/gmail_sync_job_test.rb": {
-    "mtime": 1792447221.2829328,
-    "seen": 1793490696.6352699,
-    "ast_hash": "169ed163c2587398628774e760248606",
+    "mtime": 1793581957.1271613,
+    "seen": 1793582558.478417,
+    "ast_hash": "9de13d789d20cc22bfae356b324fba12",
     "semantic_hash": ""
   },
   "test/models/category_test.rb": {
@@ -828,9 +828,9 @@
     "semantic_hash": "1103a68c3444790597a69073003a6357"
   },
   "test/models/gmail_connection_test.rb": {
-    "mtime": 1791591315.0680661,
-    "seen": 1793490696.6353228,
-    "ast_hash": "65b2db520baa3b6501fb6e641bce33a9",
+    "mtime": 1793581489.6298754,
+    "seen": 1793582558.478477,
+    "ast_hash": "0df4eb0470926ce6f4381e12120d4fe9",
     "semantic_hash": ""
   },
   "test/models/money_source_recognition_test.rb": {
@@ -846,9 +846,9 @@
     "semantic_hash": ""
   },
   "test/models/processed_email_test.rb": {
-    "mtime": 1793148078.96717,
-    "seen": 1793490696.6353421,
-    "ast_hash": "1792517c880a802173bfd8cab7d10d46",
+    "mtime": 1793581482.2693913,
+    "seen": 1793582558.4785001,
+    "ast_hash": "39a00f1c402540cd5e82909eaa596099",
     "semantic_hash": ""
   },
   "test/models/transfer_test.rb": {
@@ -900,9 +900,9 @@
     "semantic_hash": "efaa10682baa8ebed14a050c8e60500c"
   },
   "test/services/gmail/expense_importer_test.rb": {
-    "mtime": 1793119944.4113863,
-    "seen": 1793490696.635477,
-    "ast_hash": "a3a08e5d5bb2b42c4a7fa54e8d894075",
+    "mtime": 1793581519.38542,
+    "seen": 1793582558.4786549,
+    "ast_hash": "9c17e3e9c89e12218ccb257e7b99ea80",
     "semantic_hash": ""
   },
   "test/services/gmail/query_builder_test.rb": {
@@ -912,9 +912,9 @@
     "semantic_hash": ""
   },
   "test/services/gmail/sync_service_test.rb": {
-    "mtime": 1793546175.2740104,
-    "seen": 1793546216.22311,
-    "ast_hash": "732ec904e8a4c841e57a4b3e5869802c",
+    "mtime": 1793581534.5194879,
+    "seen": 1793582558.4786592,
+    "ast_hash": "49ec0238e60b862a4c0e723a84dafd71",
     "semantic_hash": ""
   },
   "test/services/import_pipeline_test.rb": {
@@ -936,9 +936,9 @@
     "semantic_hash": "7bb7c03792a43a7ccb77e62bd6b1571b"
   },
   "test/services/source_recognition/apply_to_search_config_test.rb": {
-    "mtime": 1791585433.4241421,
-    "seen": 1793490696.63555,
-    "ast_hash": "5754362ceaea7069f69d27ec2cb968f6",
+    "mtime": 1793581540.332368,
+    "seen": 1793582558.478743,
+    "ast_hash": "9eb9d182786f7663d3f4441a8056be28",
     "semantic_hash": ""
   },
   "test/services/source_recognition/discovery_service_test.rb": {
@@ -1038,10 +1038,10 @@
     "semantic_hash": "8a0ede4bdad64c58e952add72f1205e3"
   },
   "config/recurring.yml": {
-    "mtime": 1787839607.2712624,
-    "seen": 1793490696.6356401,
-    "ast_hash": "30ef39cf64faeec116af2653df27649e",
-    "semantic_hash": "30ef39cf64faeec116af2653df27649e"
+    "mtime": 1793581905.889871,
+    "seen": 1793582558.478847,
+    "ast_hash": "ff781fdf55dbe72653584854579f036e",
+    "semantic_hash": ""
   },
   "config/storage.yml": {
     "mtime": 1787694826.7623274,
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793567298.3567405,
-    "seen": 1793567370.039317,
+    "mtime": 1793582479.53532,
+    "seen": 1793582558.4788501,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1224,9 +1224,9 @@
     "semantic_hash": ""
   },
   "app/jobs/gmail_setup_sync_job.rb": {
-    "mtime": 1791647597.842821,
-    "seen": 1793490696.6344619,
-    "ast_hash": "a581488c83f756839bfbc519430cce07",
+    "mtime": 1793581892.9162815,
+    "seen": 1793582558.47744,
+    "ast_hash": "b2d9da6baa74ee340dbbcd347ca7faaa",
     "semantic_hash": ""
   },
   "app/services/gmail/setup_scan_service.rb": {
@@ -1236,9 +1236,9 @@
     "semantic_hash": ""
   },
   "test/jobs/gmail_setup_sync_job_test.rb": {
-    "mtime": 1791647778.8962266,
-    "seen": 1793490696.6352692,
-    "ast_hash": "0a87676b7897c7dfdd579c7a4319b7a9",
+    "mtime": 1793581957.127164,
+    "seen": 1793582558.478415,
+    "ast_hash": "c7aa8e188c767e74f9e3f5275bcd281a",
     "semantic_hash": ""
   },
   "test/services/gmail/setup_scan_service_test.rb": {
@@ -5196,9 +5196,9 @@
     "semantic_hash": ""
   },
   "app/services/mail_inbound/acceptance.rb": {
-    "mtime": 1792977627.298204,
-    "seen": 1793490696.6348648,
-    "ast_hash": "183a770cd0338adb2e4239162a18f594",
+    "mtime": 1793581886.1394043,
+    "seen": 1793582558.477942,
+    "ast_hash": "12e96e1c9b2e33413e95ebd92689288d",
     "semantic_hash": ""
   },
   "app/services/mail_inbound/delivery_draft.rb": {
@@ -6867,6 +6867,30 @@
     "mtime": 1793559015.4018278,
     "seen": 1793560247.732739,
     "ast_hash": "dee14b0cae57ee042b1f77b470d9290b",
+    "semantic_hash": ""
+  },
+  "app/jobs/gmail_sync_dispatch_job.rb": {
+    "mtime": 1793581892.9141994,
+    "seen": 1793582558.477442,
+    "ast_hash": "ddccffdf5830740a902754d661724537",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261101190000_scope_processed_emails_uniqueness_to_user.rb": {
+    "mtime": 1793581870.9316962,
+    "seen": 1793582558.478185,
+    "ast_hash": "873e539543a1d15bb938189f99d0b0c7",
+    "semantic_hash": ""
+  },
+  "test/jobs/gmail_sync_dispatch_job_test.rb": {
+    "mtime": 1793581588.6047428,
+    "seen": 1793582558.478416,
+    "ast_hash": "f44dbe64a4b5ebde59c6457d2d0b86bf",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound/acceptance_test.rb": {
+    "mtime": 1793581550.7797036,
+    "seen": 1793582558.478673,
+    "ast_hash": "fc57ce47399337808de426cce09ef043",
     "semantic_hash": ""
   }
 }

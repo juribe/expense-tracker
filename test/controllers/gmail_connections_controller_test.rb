@@ -176,7 +176,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [], connection.search_config_hash[:subject_keywords]
   end
 
-  test "setup_sync enqueues the setup scan job" do
+  test "setup_sync enqueues the setup scan job without claiming the connection" do
     GmailConnection.create!(user: @user, email: "me@gmail.com")
 
     with_active_job_adapter(:test) do
@@ -187,9 +187,8 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     # The recognition results live on the recognition page: land there.
     assert_redirected_to money_sources_recognition_path
-    # The syncing claim happens BEFORE the redirect, so the recognition page
-    # renders its loading state deterministically (the job is async).
-    assert_kind_of ActiveSupport::TimeWithZone, @user.gmail_connections.last.reload.syncing
+    # The job owns the syncing claim; the controller only enqueues it.
+    assert_nil @user.gmail_connections.last.reload.syncing
   end
 
   test "saving setup criteria with next=recognition lands on the recognition page" do
@@ -226,6 +225,17 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to gmail_connection_path
     assert_match(/segundo plano/, flash[:notice])
+  end
+
+  test "sync leaves the syncing claim to the job" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com")
+
+    with_active_job_adapter(:test) do
+      post sync_gmail_connection_path
+    end
+
+    assert_redirected_to gmail_connection_path
+    assert_nil GmailConnection.last.reload.syncing
   end
 
   test "sync refuses to enqueue while another sync is running" do
@@ -443,5 +453,37 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal true, JSON.parse(response.body)["authorization_expired"]
+  end
+
+  test "index lists only the current user's pending reviews" do
+    other_user = User.create!(name: "Other Reviews", email: "gmail_other_reviews@example.com",
+                              password: "password123")
+    pending_review_for(@user, "own-review", "Cafe Propio")
+    pending_review_for(other_user, "foreign-review", "Cafe Ajeno")
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "[data-testid='review-row']", count: 1
+    assert_select "[data-testid='review-row']", text: /Cafe Propio/
+    assert_no_match(/Cafe Ajeno/, response.body)
+  end
+
+  private
+
+  def pending_review_for(user, message_id, merchant)
+    ProcessedEmail.create!(
+      user: user,
+      provider: "gmail",
+      message_id: message_id,
+      status: "needs_review",
+      payload: {
+        subject: "Compra",
+        transactions: [ {
+          "type" => "expense", "amount" => 10_000, "merchant" => merchant,
+          "occurred_at" => "2026-08-23T14:30:00", "confidence" => 0.4
+        } ]
+      }.to_json
+    )
   end
 end

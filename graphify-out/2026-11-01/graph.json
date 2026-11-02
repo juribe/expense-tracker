@@ -66922,7 +66922,7 @@
       "file_type": "code",
       "norm_label": "init()",
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L132"
+      "source_location": "L147"
     },
     {
       "id": "app_assets_javascripts_shell_initsidebar",
@@ -116389,7 +116389,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L132",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -116401,7 +116401,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L132",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -116413,7 +116413,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L132",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -116461,7 +116461,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L124",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -116473,7 +116473,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L127",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -163371,7 +163371,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/assets/javascripts/shell.js",
-      "source_location": "L132",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -246313,5 +246313,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "606eb36f1bedea4392ee327872627e91b15451b3"
+  "built_at_commit": "9e8a7fea6694c54c9e0f46ca8a80871729b75603"
 }

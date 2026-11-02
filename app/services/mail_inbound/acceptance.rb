@@ -3,11 +3,10 @@
 module MailInbound
   # Acceptance
   # Persists a normalized provider message as a ProcessedEmail and enqueues
-  # the existing expense pipeline job.
+  # the existing expense pipeline job. Idempotence is per user: two users may
+  # hold rows for the same provider message id.
   class Acceptance
     TERMINAL_STATUSES = %w[queued processing processed ignored needs_review].freeze
-
-    class TenantMismatch < Error; end
 
     def initialize(delivery:, message:)
       @delivery = delivery
@@ -16,10 +15,10 @@ module MailInbound
 
     def call
       record = ProcessedEmail.find_or_initialize_by(
+        user: @message.user,
         provider: @message.provider,
         message_id: @message.external_id
       )
-      raise TenantMismatch, "message belongs to another user" if foreign_record?(record)
       return [ record, false ] if record.persisted? && terminal?(record.status)
 
       save_queued(record)
@@ -27,19 +26,14 @@ module MailInbound
       [ record, true ]
     rescue ActiveRecord::RecordNotUnique
       record = ProcessedEmail.find_by!(
+        user: @message.user,
         provider: @message.provider,
         message_id: @message.external_id
       )
-      raise TenantMismatch, "message belongs to another user" if foreign_record?(record)
-
       [ record, false ]
     end
 
     private
-
-    def foreign_record?(record)
-      record.persisted? && record.user_id != @message.user.id
-    end
 
     def terminal?(status)
       TERMINAL_STATUSES.include?(status.to_s)

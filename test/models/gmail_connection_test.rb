@@ -154,4 +154,31 @@ class GmailConnectionTest < ActiveSupport::TestCase
     assert_equal "Compraste por", values[:subject_keywords]
     assert_empty values[:domains]
   end
+
+  test "claim_sync! lets only one run own the connection" do
+    @connection.save!
+
+    assert @connection.claim_sync!
+    assert @connection.reload.sync_running?
+    assert_not @connection.claim_sync!
+  end
+
+  test "claim_sync! recovers a stale claim" do
+    @connection.save!
+    @connection.update_column(:syncing, GmailConnection::STALE_SYNC_TIMEOUT.ago - 1.minute)
+
+    assert @connection.claim_sync!
+    assert @connection.reload.sync_running?
+  end
+
+  test "release_sync! clears the claim and stores the summary" do
+    @connection.save!
+    @connection.claim_sync!
+
+    @connection.release_sync!(summary: { fetched: 1, created: 1 })
+
+    @connection.reload
+    assert_not @connection.sync_running?
+    assert_equal 1, @connection.last_sync_summary["fetched"]
+  end
 end
