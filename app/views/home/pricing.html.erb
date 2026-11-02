@@ -1,0 +1,73 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag :pricing, "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="page-shell">
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+<header class="hero" id="top">
+    <div>
+      <div class="eyebrow"><span class="spark">✦</span> Tu tranquilidad financiera empieza aquí</div>
+      <h1>Más claridad con tu dinero.<br><span class="gradient-text">Menos vueltas.</span></h1>
+      <p class="hero-copy">Todo lo que necesitas para entender tus gastos, cuidar tu presupuesto y tomar mejores decisiones. Elige cómo empezar; nosotros ponemos el orden.</p>
+      <div class="hero-proof"><span class="proof-item"><i class="proof-check">✓</i> Fácil de usar</span><span class="proof-item"><i class="proof-check">✓</i> Tus datos son tuyos</span><span class="proof-item"><i class="proof-check">✓</i> Sin sorpresas</span></div>
+    </div>
+    <div class="hero-art" aria-label="Ilustración de resumen financiero">
+      <div class="glow"></div>
+      <div class="money-card"><div class="money-top"><span class="money-logo">yogasto.</span><span>RESUMEN DEL MES</span></div><div class="money-number">$ 4.285.900</div><div class="money-bottom"><span>GASTOS ORGANIZADOS</span><span>•••• 2026</span></div></div>
+      <div class="floating-stat stat-a"><div class="stat-label">Presupuesto disponible</div><div class="stat-value green">$ 1.240.000</div><div class="stat-small">Vas por buen camino ✨</div><div class="tiny-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="floating-stat stat-b"><div class="stat-label">Gastos bajo control</div><div class="stat-value">+ 18,5%</div><div class="stat-small">Mejor que el mes pasado</div></div><div class="orbit-dot"></div>
+    </div>
+  </header>
+
+<section class="pricing-section" id="planes">
+      <div class="section-head"><div class="section-kicker">Precios simples. Decisiones inteligentes.</div><h2>Empieza a llevar tus finanzas a otro nivel</h2><p>Prueba todo con calma o elige el plan que mejor se adapte a ti.</p><div class="billing-note"><span class="billing-pill"><i class="billing-dot"></i><strong>Sin letra pequeña</strong> · Tú decides cuándo y cómo pagar</span></div></div>
+      <div class="plans">
+        <article class="plan">
+          <div class="plan-top"><div class="plan-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3m0 12v3M4.9 4.9 7 7m10 10 2.1 2.1M3 12h3m12 0h3M4.9 19.1 7 17m10-10 2.1-2.1"/><circle cx="12" cy="12" r="4"/></svg></div><span class="plan-tag">Para empezar</span></div>
+          <h3>Prueba gratis</h3><p class="plan-desc">Conoce todo lo que Yogasto puede hacer por ti, sin compromisos.</p>
+          <div class="price-line"><span class="price">$0</span><span class="period">COP</span></div><div class="price-sub"><span class="save">30 días de acceso completo</span></div><div class="rule"></div><div class="feature-intro">Todo incluido durante tu prueba</div>
+          <ul class="features"><li><i class="tick">✓</i> Registro y organización de gastos e ingresos</li><li><i class="tick">✓</i> Cuentas, tarjetas y deudas</li><li><i class="tick">✓</i> Presupuestos, bolsillos y metas</li><li><i class="tick">✓</i> Automatizaciones e inteligencia artificial</li><li><i class="tick">✓</i> Reportes y análisis de tus finanzas</li></ul>
+          <button class="plan-button dark" data-open-trial>Comenzar gratis <span aria-hidden="true">→</span></button><p class="button-note">No necesitas tarjeta · No hay cobros automáticos</p>
+        </article>
+        <article class="plan featured">
+          <div class="popular">✦ El favorito</div>
+          <div class="plan-top"><div class="plan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h3"/></svg></div><span class="plan-tag">Flexibilidad total</span></div>
+          <h3>Mensual</h3><p class="plan-desc">Todo el poder de Yogasto, con la libertad de pagar mes a mes.</p>
+          <div class="price-line"><span class="currency">$</span><span class="price">14.900</span></div><div class="price-sub">COP / mes</div><div class="rule"></div><div class="feature-intro">Todo incluido</div>
+          <ul class="features"><li><i class="tick">✓</i> Todas las herramientas de Yogasto</li><li><i class="tick">✓</i> Automatización de tus movimientos</li><li><i class="tick">✓</i> Inteligencia artificial para tus finanzas</li><li><i class="tick">✓</i> Presupuestos, metas y reportes completos</li><li><i class="tick">✓</i> Actualizaciones y nuevas funciones</li></ul>
+          <button class="plan-button primary" data-open-checkout data-plan="Mensual" data-amount="14.900" data-billing="month">Elegir plan mensual <span aria-hidden="true">→</span></button><p class="button-note">Tarjeta: renovación mensual · PSE: pago manual</p>
+        </article>
+        <article class="plan">
+          <div class="plan-top"><div class="plan-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M16 2v4M8 2v4M3 9h18M8 14l2.5 2.5L16 12"/></svg></div><span class="plan-tag">Mejor valor</span></div>
+          <h3>Anual</h3><p class="plan-desc">Un año completo para construir mejores hábitos con tu dinero.</p>
+          <div class="price-line"><span class="currency">$</span><span class="price">149.900</span></div><div class="price-sub">COP / 12 meses</div><div class="rule"></div><div class="feature-intro">Todo incluido por un año</div>
+          <ul class="features"><li><i class="tick">✓</i> Todas las herramientas de Yogasto</li><li><i class="tick">✓</i> Automatización e inteligencia artificial</li><li><i class="tick">✓</i> Presupuestos, metas y reportes completos</li><li><i class="tick">✓</i> Un solo pago por 12 meses de acceso</li><li><i class="tick">✓</i> Sin renovación automática</li></ul>
+          <button class="plan-button" data-open-checkout data-plan="Anual" data-amount="149.900" data-billing="year">Elegir plan anual <span aria-hidden="true">→</span></button><p class="button-note"><span style="color:#178765;font-weight:800">Ahorras $28.900</span> frente al pago mensual</p>
+        </article>
+      </div>
+      <div class="guarantee"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><b>Pago seguro</b></span><span>✓ Pagos en pesos colombianos</span><span>✓ Tarjeta o PSE</span><span>✓ Cancela cuando quieras</span></div>
+    </section>
+
+    <section class="included" id="incluye">
+      <div class="included-panel"><div class="included-head"><div><h2>Todo lo que necesitas. En un solo lugar.</h2><p>Deja de perseguir tus gastos y empieza a entender tu dinero.</p></div><span class="all-plans">Incluido en todos los planes de pago</span></div>
+        <div class="included-grid">
+          <div class="included-item"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5m0 14h17M8 15l3-4 3 2 5-7"/></svg></div><strong>Todo bajo control</strong><small>Gastos, ingresos y movimientos organizados.</small></div>
+          <div class="included-item"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/></svg></div><strong>Tus cuentas y deudas</strong><small>Una visión clara de lo que tienes y debes.</small></div>
+          <div class="included-item"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 8h14M6 16h12"/><circle cx="12" cy="12" r="9"/></svg></div><strong>Presupuestos y metas</strong><small>Planea, separa y avanza hacia tus objetivos.</small></div>
+          <div class="included-item"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></svg></div><strong>IA que te ayuda</strong><small>Registra y comprende tus finanzas con menos esfuerzo.</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq"><div class="faq-head"><h2>¿Tienes alguna pregunta?</h2><p>Lo importante es que empieces con tranquilidad.</p></div><div class="faq-list">
+      <div class="faq-item open"><button class="faq-q" aria-expanded="true"><span>¿La prueba gratis necesita tarjeta de crédito?</span><span>+</span></button><div class="faq-a">No. Puedes activar tu prueba de 30 días sin registrar una tarjeta. No se realizará ningún cobro automático al terminar. Cuando finalice, podrás elegir un plan para seguir usando las funciones premium.</div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>¿Qué pasa cuando terminan mis 30 días gratis?</span><span>+</span></button><div class="faq-a">Tu prueba termina y las funciones premium se desactivan. Tu cuenta y tu información se conservan; no se borra tu historial ni se realiza ningún cobro. Puedes elegir un plan cuando quieras para recuperar el acceso completo.</div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>¿Cuál es la diferencia entre el plan mensual y el anual?</span><span>+</span></button><div class="faq-a">Ambos incluyen las mismas funciones. El mensual cuesta $14.900 COP y se renueva mensualmente cuando pagas con tarjeta y autorizas la renovación. Con PSE haces un pago manual por cada periodo. El anual cuesta $149.900 COP por 12 meses, se paga una sola vez y no se renueva automáticamente.</div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>¿Puedo pagar con PSE?</span><span>+</span></button><div class="faq-a">Sí. Puedes elegir tarjeta o PSE al continuar con la compra. Los pagos por PSE son pagos individuales, por lo que deberás renovar manualmente cuando termine tu periodo de acceso.</div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false"><span>¿Puedo cambiar de plan más adelante?</span><span>+</span></button><div class="faq-a">Sí. Puedes pasar de mensual a anual cuando quieras. Antes de confirmar cualquier cambio verás el precio y las condiciones aplicables.</div></div>
+    </div></section>
+    <section class="bottom-cta"><div class="bottom-inner"><div><h3>Tu tranquilidad financiera vale empezar hoy.</h3><p>Activa tu prueba gratis y descubre lo fácil que puede ser tener todo en orden.</p></div><button data-open-trial>Empezar mis 30 días gratis&nbsp; →</button></div></section>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" data-modal-backdrop><div class="modal"><button class="close" aria-label="Cerrar" data-modal-close>×</button><div class="modal-icon" id="modalIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 8h14M6 16h12"/><circle cx="12" cy="12" r="9"/></svg></div><h3 id="modalTitle">Comienza tu prueba gratis</h3><p class="modal-desc" id="modalDesc">Disfruta 30 días de acceso completo. No necesitas tarjeta y no te cobraremos automáticamente.</p><div id="methodChoices" style="display:none"><div class="method selected" data-method="card"><div class="method-icon">▰</div><div class="method-copy"><strong>Tarjeta de crédito o débito</strong><small id="cardHint">Pago seguro con tarjeta</small></div><i class="radio"></i></div><div class="method" data-method="pse"><div class="method-icon" style="font-size:12px">PSE</div><div class="method-copy"><strong>PSE</strong><small id="pseHint">Paga desde tu banco</small></div><i class="radio"></i></div></div><button class="modal-action" id="modalAction">Activar prueba gratis</button><p class="modal-foot" id="modalFoot">Sin tarjeta · Sin cobros · Sin compromisos</p><div class="success-note" id="successNote"></div></div></div>

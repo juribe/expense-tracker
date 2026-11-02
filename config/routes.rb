@@ -264,8 +264,16 @@ Rails.application.routes.draw do
 
   get "plans", to: "plans#index", as: :plans
   post "plans/start_trial", to: "plans#start_trial", as: :start_trial_plans
-  root "dashboard#index"
+
+  # Public marketing pages
+  get "home", to: "home#index", as: :home
+  root "home#index"
   get "dashboard", to: "dashboard#index", as: :dashboard
+
+  get "precios", to: "home#pricing", as: :precios
+  get "pricing", to: "home#pricing", as: :pricing
+  get "prices", to: "home#pricing", as: :prices
+  get "home/pricing", to: "home#pricing", as: :home_pricing
 
   # Dashboard setup banner (onboarding): per-user permanent skips. «No ahora»
   # and the banner close button never reach the server.

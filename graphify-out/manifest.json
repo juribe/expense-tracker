@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1793632110.1354303,
-    "seen": 1793632315.47914,
-    "ast_hash": "bbd437b5d0b9036c8155b09d9f4a7d48",
+    "mtime": 1793650144.6271272,
+    "seen": 1793653125.360864,
+    "ast_hash": "fd284b15cadb8d3e7117c02239f75a63",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793632129.383993,
-    "seen": 1793632315.4792068,
-    "ast_hash": "d389954b64e99e03bc4932d2b1579c9e",
+    "mtime": 1793636812.5025747,
+    "seen": 1793653125.360939,
+    "ast_hash": "ebee5102b6139463b07befc0feabbca8",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "db/seeds.rb": {
-    "mtime": 1793559487.1673355,
-    "seen": 1793560247.7320251,
-    "ast_hash": "dfad48acaa5a8c8e96750c6f1ee26a9e",
+    "mtime": 1793634437.0507095,
+    "seen": 1793653125.3609421,
+    "ast_hash": "2d49a95e4090d00c08008c162dfbf8c1",
     "semantic_hash": ""
   },
   "lib/tasks/cssbundling_override.rake": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793582479.53532,
-    "seen": 1793582558.4788501,
+    "mtime": 1793654295.4939666,
+    "seen": 1793654328.2273548,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -6996,9 +6996,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/controllers/payment_engine/admin/payment_options_controller.rb": {
-    "mtime": 1793632022.2089202,
-    "seen": 1793632315.479237,
-    "ast_hash": "a5ad87653f9d013b0dfa76fd4caf6740",
+    "mtime": 1793634432.8237996,
+    "seen": 1793653125.360972,
+    "ast_hash": "d6f5b1c12c5db420a9a92477239f9880",
     "semantic_hash": ""
   },
   "payment_engine/app/controllers/payment_engine/admin/payments_controller.rb": {
@@ -7020,9 +7020,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/controllers/payment_engine/admin/settings_controller.rb": {
-    "mtime": 1793632036.1375644,
-    "seen": 1793632315.479243,
-    "ast_hash": "43e209de905c5b8f9161fb4f92f01208",
+    "mtime": 1793636937.0826912,
+    "seen": 1793653125.3609788,
+    "ast_hash": "fce60ea74451b8e82cd62b201e40ef89",
     "semantic_hash": ""
   },
   "payment_engine/app/controllers/payment_engine/admin/subscriptions_controller.rb": {
@@ -7110,9 +7110,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/payment_option.rb": {
-    "mtime": 1793631993.8827326,
-    "seen": 1793632315.479263,
-    "ast_hash": "7ad8c28b34c8240f62f38d2104746430",
+    "mtime": 1793634424.0771027,
+    "seen": 1793653125.361003,
+    "ast_hash": "6ffebf6d199d73e9ecc1d694af330387",
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/provider.rb": {
@@ -7134,9 +7134,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/setting.rb": {
-    "mtime": 1793631998.3663743,
-    "seen": 1793632315.479268,
-    "ast_hash": "8c7d2e630049776809c9dd2a83ee77dd",
+    "mtime": 1793636899.9233687,
+    "seen": 1793653125.3610098,
+    "ast_hash": "3d8462f7c53217ebd788b14a48744fba",
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/subscription.rb": {
@@ -7224,9 +7224,9 @@
     "semantic_hash": ""
   },
   "payment_engine/config/routes.rb": {
-    "mtime": 1793632038.041639,
-    "seen": 1793632315.4792871,
-    "ast_hash": "945b55b214d496fa29bcbfa29dc17ce4",
+    "mtime": 1793636896.3016264,
+    "seen": 1793653125.361036,
+    "ast_hash": "42d93eecea3ab800588fc8efa6b1c6c0",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000000_create_payment_engine_membership_types.rb": {
@@ -7242,15 +7242,15 @@
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000100_create_payment_engine_memberships.rb": {
-    "mtime": 1793631988.3947234,
-    "seen": 1793632315.479291,
-    "ast_hash": "25a0f34a859c1f24e248b2a5717cd33b",
+    "mtime": 1793632380.9509065,
+    "seen": 1793653125.3610408,
+    "ast_hash": "97b208760b4bb0243980addb00d4157a",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000200_create_payment_engine_purchases.rb": {
-    "mtime": 1793631988.3948178,
-    "seen": 1793632315.4792929,
-    "ast_hash": "73d085d75a282628439dc780f2512733",
+    "mtime": 1793632381.0203748,
+    "seen": 1793653125.361043,
+    "ast_hash": "dc0dd318ba5731ea2e7f96bac34b83bb",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000300_create_payment_engine_payments.rb": {
@@ -7260,15 +7260,15 @@
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000400_create_payment_engine_subscriptions.rb": {
-    "mtime": 1793631988.3949986,
-    "seen": 1793632315.479295,
-    "ast_hash": "fef640ccd3e6808ea6cd4caa2dd33b55",
+    "mtime": 1793632381.0945766,
+    "seen": 1793653125.361046,
+    "ast_hash": "a87b67d51f89174987cde0c4f04339cc",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000500_create_payment_engine_provider_customers.rb": {
-    "mtime": 1793631988.395097,
-    "seen": 1793632315.479297,
-    "ast_hash": "84c27dcbd6b00d70b0365e5640f6ccc4",
+    "mtime": 1793632381.1609333,
+    "seen": 1793653125.361048,
+    "ast_hash": "243192dd45d7885609d77ddc2c05b0ca",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000600_create_payment_engine_webhook_events.rb": {
@@ -7278,9 +7278,9 @@
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000700_create_payment_engine_audit_logs.rb": {
-    "mtime": 1793631988.395266,
-    "seen": 1793632315.479299,
-    "ast_hash": "7e47345cda52ab21c5b2c7aac5f75bb0",
+    "mtime": 1793632383.1224606,
+    "seen": 1793653125.3610508,
+    "ast_hash": "dcd7536e99ef7006b2fe1f4ac784be19",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102000800_create_payment_engine_providers.rb": {
@@ -7296,9 +7296,9 @@
     "semantic_hash": ""
   },
   "payment_engine/lib/payment_engine.rb": {
-    "mtime": 1793632285.0000029,
-    "seen": 1793632315.479303,
-    "ast_hash": "97de720baba92f33a1fffda68e441565",
+    "mtime": 1793636817.9855409,
+    "seen": 1793653125.361061,
+    "ast_hash": "4b7debd8b957cb618dd4a69e93465ad3",
     "semantic_hash": ""
   },
   "payment_engine/lib/payment_engine/access.rb": {
@@ -7308,9 +7308,9 @@
     "semantic_hash": ""
   },
   "payment_engine/lib/payment_engine/configuration.rb": {
-    "mtime": 1793631970.3479996,
-    "seen": 1793632315.479306,
-    "ast_hash": "b909dfdc005bc9ac910a1023655ebb22",
+    "mtime": 1793636905.1409185,
+    "seen": 1793653125.361066,
+    "ast_hash": "a0f15f75009ce087869956a82e86ada5",
     "semantic_hash": ""
   },
   "payment_engine/lib/payment_engine/engine.rb": {
@@ -7506,8 +7506,8 @@
     "semantic_hash": ""
   },
   "test/integration/payment_engine_crud_test.rb": {
-    "mtime": 1793632184.900537,
-    "seen": 1793632315.479562,
+    "mtime": 1793632418.9605954,
+    "seen": 1793653125.361357,
     "ast_hash": "6d651c18c491745fdd42bf6ba161db08",
     "semantic_hash": ""
   },
@@ -7605,6 +7605,108 @@
     "mtime": 1793631930.9193854,
     "seen": 1793632315.480187,
     "ast_hash": "2add52a0cba32f1b7f42233d99f8226e",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/home.js": {
+    "mtime": 1793650179.9619377,
+    "seen": 1793653125.35992,
+    "ast_hash": "7a457e18e5a8487a83d15f56f09b719c",
+    "semantic_hash": ""
+  },
+  "app/controllers/home_controller.rb": {
+    "mtime": 1793653635.833999,
+    "seen": 1793653684.681621,
+    "ast_hash": "969c1f3ca432ef545eaeb83997ce398b",
+    "semantic_hash": ""
+  },
+  "app/controllers/plans_controller.rb": {
+    "mtime": 1793636821.2132308,
+    "seen": 1793653125.360066,
+    "ast_hash": "047a95850efdb09dc178ddf378decfcf",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261102150846_change_payment_engine_owner_ids_to_string.rb": {
+    "mtime": 1793632407.4676652,
+    "seen": 1793653125.3609312,
+    "ast_hash": "9a12cb19ae43c385002f057aa92a775f",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261102150847_add_access_duration_to_payment_options.payment_engine.rb": {
+    "mtime": 1793634410.0576248,
+    "seen": 1793653125.360933,
+    "ast_hash": "f6368337ec90e93b2bbfbe1daea2614c",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261102150848_add_trial_config_to_settings.payment_engine.rb": {
+    "mtime": 1793636791.2042394,
+    "seen": 1793653125.3609338,
+    "ast_hash": "54a7a5a8cebef95fe529504c78808cf8",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261102150849_add_trial_unique_index.payment_engine.rb": {
+    "mtime": 1793636806.1727269,
+    "seen": 1793653125.360936,
+    "ast_hash": "f1fe7a1922e06a83c2650cc89f0b9d7d",
+    "semantic_hash": ""
+  },
+  "payment_engine/app/assets/javascripts/payment_engine/admin.js": {
+    "mtime": 1793634430.6133416,
+    "seen": 1793653125.360964,
+    "ast_hash": "a09359c10252d7112f52fbbec4d9716f",
+    "semantic_hash": ""
+  },
+  "payment_engine/app/services/payment_engine/memberships/start_free_trial.rb": {
+    "mtime": 1793636815.7483246,
+    "seen": 1793653125.361021,
+    "ast_hash": "8df903994218e2b8ada36c31ca761f44",
+    "semantic_hash": ""
+  },
+  "payment_engine/db/migrate/20261102001000_change_payment_engine_owner_ids_to_string.rb": {
+    "mtime": 1793632407.4626641,
+    "seen": 1793653125.361055,
+    "ast_hash": "9a12cb19ae43c385002f057aa92a775f",
+    "semantic_hash": ""
+  },
+  "payment_engine/db/migrate/20261102001100_add_access_duration_to_payment_options.rb": {
+    "mtime": 1793634410.0522966,
+    "seen": 1793653125.361057,
+    "ast_hash": "f6368337ec90e93b2bbfbe1daea2614c",
+    "semantic_hash": ""
+  },
+  "payment_engine/db/migrate/20261102001200_add_trial_config_to_settings.rb": {
+    "mtime": 1793636791.1972713,
+    "seen": 1793653125.361058,
+    "ast_hash": "54a7a5a8cebef95fe529504c78808cf8",
+    "semantic_hash": ""
+  },
+  "payment_engine/db/migrate/20261102001300_add_trial_unique_index.rb": {
+    "mtime": 1793636806.16704,
+    "seen": 1793653125.3610592,
+    "ast_hash": "f1fe7a1922e06a83c2650cc89f0b9d7d",
+    "semantic_hash": ""
+  },
+  "payment_engine/lib/payment_engine/access_policy.rb": {
+    "mtime": 1793636817.8643942,
+    "seen": 1793653125.361064,
+    "ast_hash": "3e846b7a7f0bda40ca6fbb9e62186e80",
+    "semantic_hash": ""
+  },
+  "test/integration/payment_engine_commercial_test.rb": {
+    "mtime": 1793636929.3584619,
+    "seen": 1793653125.3613539,
+    "ast_hash": "8853939edacd75f9a06471120dc5c2be",
+    "semantic_hash": ""
+  },
+  "test/integration/payment_engine_options_test.rb": {
+    "mtime": 1793634472.7936323,
+    "seen": 1793653125.3613591,
+    "ast_hash": "6a193c355bde64bddcec6a5113d31c1c",
+    "semantic_hash": ""
+  },
+  "test/integration/payment_engine_trial_test.rb": {
+    "mtime": 1793636845.8393006,
+    "seen": 1793653125.3613598,
+    "ast_hash": "c7df5e9bcfc2c1b61f9a54e18df42b81",
     "semantic_hash": ""
   }
 }
