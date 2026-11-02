@@ -1,0 +1,26 @@
+<h1>Pagos</h1>
+<div class="pe-filters">
+  <%= form_with url: admin_payments_path, method: :get, local: true do %>
+    <select name="status" class="pe-select"><option value="">Todos</option><% %w[pending succeeded failed refunded].each do |s| %><option value="<%= s %>" <%= 'selected' if params[:status]==s %>><%= s %></option><% end %></select>
+    <select name="provider" class="pe-select"><option value="">Todos</option><% PaymentEngine::Provider.order(:name).each do |p| %><option value="<%= p.code %>" <%= 'selected' if params[:provider]==p.code %>><%= p.name %></option><% end %></select>
+    <button class="pe-btn" type="submit">Filtrar</button>
+  <% end %>
+</div>
+<table class="pe-table">
+  <thead><tr><th>ID</th><th>Compra</th><th>Importe</th><th>Proveedor</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= link_to r.id, admin_payment_path(r) %></td>
+        <td><%= r.purchase&.code %></td>
+        <td><%= number_to_currency(r.amount, unit: r.currency) %></td>
+        <td><%= r.provider_code %></td>
+        <td><%= status_badge(r.status) %></td>
+        <td><%= r.created_at %></td>
+        <td><%= link_to "Ver", admin_payment_path(r), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="7" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

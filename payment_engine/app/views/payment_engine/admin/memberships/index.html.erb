@@ -1,0 +1,28 @@
+<h1>Membresías</h1>
+<div class="pe-filters">
+  <%= form_with url: admin_memberships_path, method: :get, local: true do %>
+    <select name="status" class="pe-select"><option value="">Todos</option><% %w[active suspended cancelled expired].each do |s| %><option value="<%= s %>" <%= 'selected' if params[:status]==s %>><%= s %></option><% end %></select>
+    <select name="membership_type_id" class="pe-select"><option value="">Todos los tipos</option><% PaymentEngine::MembershipType.order(:name).each do |mt| %><option value="<%= mt.id %>" <%= 'selected' if params[:membership_type_id].to_s==mt.id.to_s %>><%= mt.name %></option><% end %></select>
+    <input type="text" name="owner_id" value="<%= params[:owner_id] %>" placeholder="Owner ID" class="pe-input" style="width:120px">
+    <button class="pe-btn" type="submit">Filtrar</button>
+  <% end %>
+  <%= link_to "Conceder", new_admin_membership_path, class: "pe-btn pe-btn-primary" %>
+</div>
+<table class="pe-table">
+  <thead><tr><th>ID</th><th>Propietario</th><th>Tipo</th><th>Estado</th><th>Inicio</th><th>Expiración</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= link_to r.id, admin_membership_path(r) %></td>
+        <td><%= payment_engine_owner_label(r.owner) %></td>
+        <td><%= r.membership_type&.name %></td>
+        <td><%= status_badge(r.status) %></td>
+        <td><%= r.starts_at %></td>
+        <td><%= r.expires_at %></td>
+        <td><%= link_to "Ver", admin_membership_path(r), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="7" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

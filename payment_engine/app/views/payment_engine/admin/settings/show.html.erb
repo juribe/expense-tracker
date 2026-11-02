@@ -1,0 +1,22 @@
+<h1>Configuración</h1>
+<%= form_with model: @setting, url: admin_settings_path, method: :patch, local: true do |f| %>
+  <div class="pe-card">
+    <div class="pe-form-group"><%= f.label :default_currency, "Moneda predeterminada" %><%= f.text_field :default_currency, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :time_zone, "Zona horaria" %><%= f.text_field :time_zone, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :locale, "Idioma" %><%= f.text_field :locale, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :membership_policy, "Política de membresías simultáneas" %><%= f.text_field :membership_policy, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :expiration_policy, "Política de expiración" %><%= f.text_field :expiration_policy, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :grace_days, "Días de gracia" %><%= f.number_field :grace_days, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :cancellation_policy, "Política de cancelación" %><%= f.text_field :cancellation_policy, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :audit_enabled, "Auditoría habilitada" %><%= f.check_box :audit_enabled %></div>
+    <div class="pe-form-group"><%= f.label :notification_email, "Email de notificaciones" %><%= f.text_field :notification_email, class: "pe-input" %></div>
+    <h3>Free Trial</h3>
+    <div class="pe-form-group"><%= f.label :payments_enabled, "Pagos habilitados" %><%= f.check_box :payments_enabled %></div>
+    <div class="pe-form-group"><%= f.label :paid_access_required, "Acceso pagado obligatorio" %><%= f.check_box :paid_access_required %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_enabled, "Free trial habilitado" %><%= f.check_box :free_trial_enabled %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_duration_days, "Duración del trial (días)" %><%= f.number_field :free_trial_duration_days, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_requires_card, "Requiere tarjeta" %><%= f.check_box :free_trial_requires_card %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_once_per_user, "Un trial por usuario" %><%= f.check_box :free_trial_once_per_user %></div>
+    <%= f.submit "Guardar", class: "pe-btn pe-btn-primary" %>
+  </div>
+<% end %>

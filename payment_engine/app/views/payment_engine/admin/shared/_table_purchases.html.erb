@@ -1,0 +1,16 @@
+<table class="pe-table">
+  <thead><tr><th>Código</th><th>Propietario</th><th>Producto</th><th>Importe</th><th>Estado</th><th>Fecha</th></tr></thead>
+  <tbody>
+    <% records.each do |p| %>
+      <tr>
+        <td><%= link_to p.code, admin_purchase_path(p) %></td>
+        <td><%= payment_engine_owner_label(p.owner) %></td>
+        <td><%= p.payment_option&.name %></td>
+        <td><%= number_to_currency(p.amount, unit: p.currency) %></td>
+        <td><%= status_badge(p.status) %></td>
+        <td><%= p.created_at %></td>
+      </tr>
+    <% end %>
+    <% if records.empty? %><tr><td colspan="6" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>

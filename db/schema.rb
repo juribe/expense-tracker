@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_150849) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -625,6 +625,176 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_190000) do
     t.index ["user_id"], name: "index_onboarding_progresses_on_user_id", unique: true
   end
 
+  create_table "payment_engine_audit_logs", force: :cascade do |t|
+    t.string "actor_type"
+    t.string "actor_id"
+    t.string "action", null: false
+    t.string "auditable_type"
+    t.string "auditable_id"
+    t.text "reason"
+    t.jsonb "changes", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.index ["auditable_type", "auditable_id"], name: "idx_on_auditable_type_auditable_id_b454a00d56"
+  end
+
+  create_table "payment_engine_membership_types", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "code", null: false
+    t.text "description"
+    t.string "status", default: "active", null: false
+    t.integer "position", default: 0
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_payment_engine_membership_types_on_code", unique: true
+  end
+
+  create_table "payment_engine_memberships", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.string "owner_id", null: false
+    t.bigint "membership_type_id", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "starts_at"
+    t.datetime "expires_at"
+    t.string "source", default: "manual"
+    t.bigint "purchase_id"
+    t.bigint "subscription_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["membership_type_id"], name: "index_payment_engine_memberships_on_membership_type_id"
+    t.index ["owner_type", "owner_id"], name: "idx_pe_one_trial_per_owner", unique: true, where: "((source)::text = 'trial'::text)"
+    t.index ["owner_type", "owner_id"], name: "index_payment_engine_memberships_on_owner_type_and_owner_id"
+  end
+
+  create_table "payment_engine_payment_options", force: :cascade do |t|
+    t.bigint "membership_type_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.decimal "price", precision: 15, scale: 2, default: "0.0", null: false
+    t.string "currency", default: "COP", null: false
+    t.string "mode", default: "one_time", null: false
+    t.string "interval", default: "month"
+    t.integer "interval_count", default: 1
+    t.integer "trial_days", default: 0
+    t.string "status", default: "active", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "access_duration_count", default: 1, null: false
+    t.string "access_duration_unit", default: "month", null: false
+    t.index ["membership_type_id"], name: "index_payment_engine_payment_options_on_membership_type_id"
+  end
+
+  create_table "payment_engine_payments", force: :cascade do |t|
+    t.bigint "purchase_id"
+    t.string "provider_code"
+    t.string "external_reference"
+    t.decimal "amount", precision: 15, scale: 2, default: "0.0", null: false
+    t.string "currency", default: "COP", null: false
+    t.string "status", default: "pending", null: false
+    t.string "payment_method"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["purchase_id"], name: "index_payment_engine_payments_on_purchase_id"
+  end
+
+  create_table "payment_engine_provider_customers", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.string "owner_id", null: false
+    t.string "provider_code", null: false
+    t.string "external_customer_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id", "provider_code"], name: "idx_pe_provider_customers_unique", unique: true
+  end
+
+  create_table "payment_engine_providers", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", null: false
+    t.string "environment", default: "sandbox"
+    t.boolean "active", default: false
+    t.jsonb "credentials", default: {}
+    t.jsonb "settings", default: {}
+    t.jsonb "capabilities", default: {}
+    t.datetime "last_activity_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_payment_engine_providers_on_code", unique: true
+  end
+
+  create_table "payment_engine_purchases", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "owner_type", null: false
+    t.string "owner_id", null: false
+    t.bigint "payment_option_id"
+    t.jsonb "commercial_snapshot", default: {}
+    t.decimal "amount", precision: 15, scale: 2, default: "0.0", null: false
+    t.string "currency", default: "COP", null: false
+    t.string "status", default: "pending", null: false
+    t.bigint "payment_id"
+    t.bigint "membership_id"
+    t.bigint "subscription_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_payment_engine_purchases_on_code", unique: true
+    t.index ["owner_type", "owner_id"], name: "index_payment_engine_purchases_on_owner_type_and_owner_id"
+    t.index ["payment_option_id"], name: "index_payment_engine_purchases_on_payment_option_id"
+  end
+
+  create_table "payment_engine_settings", force: :cascade do |t|
+    t.string "default_currency", default: "COP"
+    t.string "time_zone", default: "UTC"
+    t.string "locale", default: "es"
+    t.string "membership_policy", default: "single"
+    t.string "expiration_policy", default: "end_of_period"
+    t.integer "grace_days", default: 3
+    t.string "cancellation_policy", default: "end_of_period"
+    t.boolean "audit_enabled", default: true
+    t.string "notification_email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "payments_enabled", default: true, null: false
+    t.boolean "paid_access_required", default: true, null: false
+    t.boolean "free_trial_enabled", default: true, null: false
+    t.integer "free_trial_duration_days", default: 60, null: false
+    t.boolean "free_trial_requires_card", default: false, null: false
+    t.boolean "free_trial_once_per_user", default: true, null: false
+  end
+
+  create_table "payment_engine_subscriptions", force: :cascade do |t|
+    t.string "owner_type", null: false
+    t.string "owner_id", null: false
+    t.bigint "payment_option_id"
+    t.string "provider_code"
+    t.string "external_id"
+    t.string "status", default: "active", null: false
+    t.datetime "starts_at"
+    t.datetime "next_billing_at"
+    t.datetime "last_payment_at"
+    t.datetime "last_failed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_payment_engine_subscriptions_on_owner_type_and_owner_id"
+    t.index ["payment_option_id"], name: "index_payment_engine_subscriptions_on_payment_option_id"
+  end
+
+  create_table "payment_engine_webhook_events", force: :cascade do |t|
+    t.string "provider_code", null: false
+    t.string "external_id"
+    t.string "event_type"
+    t.string "status", default: "received", null: false
+    t.jsonb "payload", default: {}
+    t.text "processing_result"
+    t.integer "attempts", default: 0
+    t.datetime "received_at"
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider_code", "external_id"], name: "idx_pe_webhook_unique", unique: true
+  end
+
   create_table "payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "expense_id", null: false
@@ -974,7 +1144,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_190000) do
     t.index ["user_id", "gmf_origin_type", "gmf_origin_id"], name: "index_transactions_gmf_origin"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1102,6 +1272,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_190000) do
   add_foreign_key "money_sources", "money_sources", column: "parent_id"
   add_foreign_key "money_sources", "users"
   add_foreign_key "onboarding_progresses", "users"
+  add_foreign_key "payment_engine_memberships", "payment_engine_membership_types", column: "membership_type_id"
+  add_foreign_key "payment_engine_payment_options", "payment_engine_membership_types", column: "membership_type_id"
+  add_foreign_key "payment_engine_payments", "payment_engine_purchases", column: "purchase_id"
+  add_foreign_key "payment_engine_purchases", "payment_engine_payment_options", column: "payment_option_id"
+  add_foreign_key "payment_engine_subscriptions", "payment_engine_payment_options", column: "payment_option_id"
   add_foreign_key "payments", "transactions", column: "expense_id"
   add_foreign_key "pending_whatsapp_connections", "users"
   add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :nullify

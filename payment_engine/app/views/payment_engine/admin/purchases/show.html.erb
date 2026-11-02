@@ -1,0 +1,14 @@
+<h1>Compra <%= @record.code %></h1>
+<div class="pe-card">
+  <p><strong>Propietario:</strong> <%= payment_engine_owner_label(@record.owner) %></p>
+  <p><strong>Opción:</strong> <%= @record.payment_option&.name %></p>
+  <p><strong>Snapshot:</strong> <%= @record.commercial_snapshot.inspect %></p>
+  <p><strong>Importe:</strong> <%= number_to_currency(@record.amount, unit: @record.currency) %></p>
+  <p><strong>Moneda:</strong> <%= @record.currency %></p>
+  <p><strong>Estado:</strong> <%= status_badge(@record.status) %></p>
+  <p><strong>Pago:</strong> <%= @record.payment&.id %></p>
+  <p><strong>Membresía:</strong> <%= @record.membership&.id %></p>
+  <p><strong>Suscripción:</strong> <%= @record.subscription&.id %></p>
+  <p><strong>Creado:</strong> <%= @record.created_at %></p>
+</div>
+<%= link_to "Volver", admin_purchases_path, class: "pe-btn" %>

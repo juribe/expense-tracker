@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_payment_engine_bin_rubocop", "label": "rubocop", "file_type": "code", "source_file": "payment_engine/bin/rubocop", "source_location": "L1"}], "edges": [], "raw_calls": []}

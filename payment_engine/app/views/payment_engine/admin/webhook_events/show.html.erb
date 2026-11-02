@@ -1,0 +1,18 @@
+<h1>Webhook <%= @record.external_id %></h1>
+<div class="pe-card">
+  <p><strong>Proveedor:</strong> <%= @record.provider_code %></p>
+  <p><strong>Tipo:</strong> <%= @record.event_type %></p>
+  <p><strong>Estado:</strong> <%= status_badge(@record.status) %></p>
+  <p><strong>Recibido:</strong> <%= @record.received_at %></p>
+  <p><strong>Procesado:</strong> <%= @record.processed_at %></p>
+  <p><strong>Intentos:</strong> <%= @record.attempts %></p>
+  <p><strong>Resultado:</strong> <%= @record.processing_result %></p>
+</div>
+<div class="pe-card">
+  <h3>Payload sanitizado</h3>
+  <pre><%= JSON.pretty_generate(@record.payload || {}) rescue @record.payload.inspect %></pre>
+</div>
+<%= form_with url: reprocess_admin_webhook_event_path(@record), method: :post, local: true do %>
+  <button class="pe-btn" type="submit">Reprocesar</button>
+<% end %>
+<%= link_to "Volver", admin_webhook_events_path, class: "pe-btn" %>

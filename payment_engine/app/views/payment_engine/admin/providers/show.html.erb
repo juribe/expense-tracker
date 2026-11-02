@@ -1,0 +1,14 @@
+<h1><%= @record.name %></h1>
+<div class="pe-card">
+  <p><strong>Código:</strong> <%= @record.code %></p>
+  <p><strong>Entorno:</strong> <%= @record.environment %></p>
+  <p><strong>Activo:</strong> <%= @record.active %></p>
+  <p><strong>Configurado:</strong> <%= @record.configured? %></p>
+  <p><strong>Capacidades:</strong> <%= @record.capabilities.inspect %></p>
+  <p><strong>Última actividad:</strong> <%= @record.last_activity_at %></p>
+</div>
+<%= form_with url: test_connection_admin_provider_path(@record), method: :post, local: true do %>
+  <button class="pe-btn" type="submit">Probar conexión</button>
+<% end %>
+<%= link_to "Editar", edit_admin_provider_path(@record), class: "pe-btn" %>
+<%= link_to "Volver", admin_providers_path, class: "pe-btn" %>

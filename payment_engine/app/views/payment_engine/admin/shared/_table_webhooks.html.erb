@@ -1,0 +1,15 @@
+<table class="pe-table">
+  <thead><tr><th>Proveedor</th><th>ID externo</th><th>Tipo</th><th>Estado</th><th>Recibido</th></tr></thead>
+  <tbody>
+    <% records.each do |w| %>
+      <tr>
+        <td><%= w.provider_code %></td>
+        <td><%= link_to w.external_id, admin_webhook_event_path(w) %></td>
+        <td><%= w.event_type %></td>
+        <td><%= status_badge(w.status) %></td>
+        <td><%= w.received_at %></td>
+      </tr>
+    <% end %>
+    <% if records.empty? %><tr><td colspan="5" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>

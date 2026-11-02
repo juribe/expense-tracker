@@ -1,0 +1,12 @@
+<h1><%= @record.name %></h1>
+<div class="pe-card">
+  <p><strong>Tipo:</strong> <%= @record.membership_type&.name %></p>
+  <p><strong>Precio:</strong> <%= number_to_currency(@record.price, unit: @record.currency) %></p>
+  <p><strong>Modalidad:</strong> <%= @record.mode %></p>
+  <p><strong>Intervalo:</strong> <%= @record.interval %> x <%= @record.interval_count %></p>
+  <p><strong>Prueba (días):</strong> <%= @record.trial_days %></p>
+  <p><strong>Duración de acceso:</strong> <%= @record.access_duration_count %> <%= @record.access_duration_unit %></p>
+  <p><strong>Estado:</strong> <%= status_badge(@record.status) %></p>
+</div>
+<%= link_to "Editar", edit_admin_payment_option_path(@record), class: "pe-btn" %>
+<%= link_to "Volver", admin_payment_options_path, class: "pe-btn" %>

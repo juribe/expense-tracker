@@ -149,3 +149,54 @@ CATEGORY_SAVING_TIPS.each do |name, tips|
     end
   end
 end
+
+# --- PaymentEngine: membresía básica y opciones comerciales iniciales ---
+pe_mt = PaymentEngine::MembershipType.find_or_create_by!(code: "BASIC") do |mt|
+  mt.name = "Membresía Básica"
+  mt.description = "Acceso completo a Yogasto."
+  mt.status = "active"
+  mt.position = 1
+end
+pe_mt.update!(name: "Membresía Básica", status: "active")
+
+pe_monthly = PaymentEngine::PaymentOption.find_or_create_by!(membership_type: pe_mt, name: "Mensual") do |po|
+  po.description = "Acceso completo a Yogasto con renovación mensual."
+  po.price = 14900
+  po.currency = "COP"
+  po.mode = "recurring"
+  po.interval = "month"
+  po.interval_count = 1
+  po.trial_days = 0
+  po.status = "active"
+  po.position = 1
+  po.access_duration_count = 1
+  po.access_duration_unit = "month"
+end
+pe_monthly.update!(
+  description: "Acceso completo a Yogasto con renovación mensual.",
+  price: 14900, currency: "COP", mode: "recurring",
+  interval: "month", interval_count: 1, trial_days: 0,
+  status: "active", position: 1,
+  access_duration_count: 1, access_duration_unit: "month"
+)
+
+pe_annual = PaymentEngine::PaymentOption.find_or_create_by!(membership_type: pe_mt, name: "Anual") do |po|
+  po.description = "Acceso completo a Yogasto durante 12 meses. Ahorra frente al pago mensual."
+  po.price = 149900
+  po.currency = "COP"
+  po.mode = "one_time"
+  po.interval = nil
+  po.interval_count = nil
+  po.trial_days = 0
+  po.status = "active"
+  po.position = 2
+  po.access_duration_count = 12
+  po.access_duration_unit = "month"
+end
+pe_annual.update!(
+  description: "Acceso completo a Yogasto durante 12 meses. Ahorra frente al pago mensual.",
+  price: 149900, currency: "COP", mode: "one_time",
+  interval: nil, interval_count: nil, trial_days: 0,
+  status: "active", position: 2,
+  access_duration_count: 12, access_duration_unit: "month"
+)

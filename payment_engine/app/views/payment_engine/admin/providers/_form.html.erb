@@ -1,0 +1,13 @@
+<%= form_with model: [:admin, record], url: record.persisted? ? admin_provider_path(record) : admin_providers_path, local: true do |f| %>
+  <% if record.errors.any? %><div class="pe-flash pe-flash-danger"><%= record.errors.full_messages.join(", ") %></div><% end %>
+  <div class="pe-card">
+    <div class="pe-form-group"><%= f.label :code, "Código" %><%= f.text_field :code, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :name, "Nombre" %><%= f.text_field :name, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :environment, "Entorno" %><%= f.select :environment, %w[sandbox production], {}, class: "pe-select" %></div>
+    <div class="pe-form-group"><%= f.label :active, "Activo" %><%= f.check_box :active %></div>
+    <div class="pe-form-group"><label>Credenciales (JSON)</label><textarea name="provider[credentials]" class="pe-textarea"><%= record.credentials.to_json %></textarea></div>
+    <div class="pe-form-group"><label>Capacidades (JSON)</label><textarea name="provider[capabilities]" class="pe-textarea"><%= record.capabilities.to_json %></textarea></div>
+    <%= f.submit "Guardar", class: "pe-btn pe-btn-primary" %>
+    <%= link_to "Cancelar", admin_providers_path, class: "pe-btn" %>
+  </div>
+<% end %>

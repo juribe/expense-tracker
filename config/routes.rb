@@ -260,6 +260,10 @@ Rails.application.routes.draw do
        to: "reconciliations#leave_pending", as: :reconciliation_leave_pending
 
   # Dashboard is the app's home
+  mount PaymentEngine::Engine => "/payment_engine"
+
+  get "plans", to: "plans#index", as: :plans
+  post "plans/start_trial", to: "plans#start_trial", as: :start_trial_plans
   root "dashboard#index"
   get "dashboard", to: "dashboard#index", as: :dashboard
 

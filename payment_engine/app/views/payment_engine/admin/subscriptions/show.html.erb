@@ -1,0 +1,24 @@
+<h1>Suscripción #<%= @record.id %></h1>
+<div class="pe-card">
+  <p><strong>Propietario:</strong> <%= payment_engine_owner_label(@record.owner) %></p>
+  <p><strong>Opción:</strong> <%= @record.payment_option&.name %></p>
+  <p><strong>Proveedor:</strong> <%= @record.provider_code %></p>
+  <p><strong>Identificador externo:</strong> <%= @record.external_id %></p>
+  <p><strong>Estado:</strong> <%= status_badge(@record.status) %></p>
+  <p><strong>Inicio:</strong> <%= @record.starts_at %></p>
+  <p><strong>Próxima renovación:</strong> <%= @record.next_billing_at %></p>
+  <p><strong>Último pago exitoso:</strong> <%= @record.last_payment_at %></p>
+  <p><strong>Último pago fallido:</strong> <%= @record.last_failed_at %></p>
+</div>
+<div class="pe-card">
+  <h3>Acciones</h3>
+  <%= form_with url: cancel_admin_subscription_path(@record), method: :post, local: true do %>
+    <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <button class="pe-btn pe-btn-danger" type="submit">Cancelar renovación</button>
+  <% end %>
+  <%= form_with url: resume_admin_subscription_path(@record), method: :post, local: true do %>
+    <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <button class="pe-btn" type="submit">Reanudar</button>
+  <% end %>
+</div>
+<%= link_to "Volver", admin_subscriptions_path, class: "pe-btn" %>

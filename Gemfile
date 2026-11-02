@@ -86,3 +86,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "payment_engine", path: "payment_engine"

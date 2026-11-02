@@ -1,0 +1,25 @@
+<%= form_with model: [:admin, record], url: record.persisted? ? admin_payment_option_path(record) : admin_payment_options_path, local: true, html: { id: "pe-payment-option-form" } do |f| %>
+  <% if record.errors.any? %><div class="pe-flash pe-flash-danger"><%= record.errors.full_messages.join(", ") %></div><% end %>
+  <div class="pe-card">
+    <div class="pe-form-group"><%= f.label :membership_type_id, "Tipo de membresía" %><%= f.collection_select :membership_type_id, PaymentEngine::MembershipType.order(:name), :id, :name, {}, class: "pe-select" %></div>
+    <div class="pe-form-group"><%= f.label :name, "Nombre" %><%= f.text_field :name, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :description, "Descripción" %><%= f.text_area :description, class: "pe-textarea" %></div>
+    <div class="pe-form-group"><%= f.label :price, "Precio" %><%= f.number_field :price, step: 0.01, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :currency, "Moneda" %><%= f.text_field :currency, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :mode, "Modalidad" %><%= f.select :mode, [["Pago único","one_time"],["Recurrente","recurring"]], {}, class: "pe-select", id: "pe-mode-select" %></div>
+
+    <div id="pe-recurring-fields">
+      <div class="pe-form-group"><%= f.label :interval, "Intervalo de facturación" %><%= f.select :interval, %w[day month year], {}, class: "pe-select" %></div>
+      <div class="pe-form-group"><%= f.label :interval_count, "Cantidad del intervalo" %><%= f.number_field :interval_count, class: "pe-input" %></div>
+      <div class="pe-form-group"><%= f.label :trial_days, "Días de prueba" %><%= f.number_field :trial_days, class: "pe-input" %></div>
+    </div>
+
+    <div class="pe-form-group"><%= f.label :access_duration_count, "Duración del acceso (cantidad)" %><%= f.number_field :access_duration_count, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :access_duration_unit, "Unidad de duración" %><%= f.select :access_duration_unit, %w[day month year], {}, class: "pe-select" %></div>
+
+    <div class="pe-form-group"><%= f.label :status, "Estado" %><%= f.select :status, %w[active inactive], {}, class: "pe-select" %></div>
+    <div class="pe-form-group"><%= f.label :position, "Orden" %><%= f.number_field :position, class: "pe-input" %></div>
+    <%= f.submit "Guardar", class: "pe-btn pe-btn-primary" %>
+    <%= link_to "Cancelar", admin_payment_options_path, class: "pe-btn" %>
+  </div>
+<% end %>

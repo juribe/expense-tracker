@@ -1,0 +1,16 @@
+<table class="pe-table">
+  <thead><tr><th>ID</th><th>Propietario</th><th>Tipo</th><th>Estado</th><th>Inicio</th><th>Expiración</th></tr></thead>
+  <tbody>
+    <% records.each do |m| %>
+      <tr>
+        <td><%= link_to m.id, admin_membership_path(m) %></td>
+        <td><%= payment_engine_owner_label(m.owner) %></td>
+        <td><%= m.membership_type&.name %></td>
+        <td><%= status_badge(m.status) %></td>
+        <td><%= m.starts_at %></td>
+        <td><%= m.expires_at %></td>
+      </tr>
+    <% end %>
+    <% if records.empty? %><tr><td colspan="6" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>

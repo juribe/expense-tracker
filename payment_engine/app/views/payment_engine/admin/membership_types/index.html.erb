@@ -1,0 +1,28 @@
+<h1>Tipos de membresía</h1>
+<div class="pe-filters">
+  <%= form_with url: admin_membership_types_path, method: :get, local: true do %>
+    <input type="text" name="q" value="<%= params[:q] %>" placeholder="Buscar" class="pe-input" style="width:200px">
+    <button class="pe-btn" type="submit">Buscar</button>
+  <% end %>
+  <%= link_to "Nuevo", new_admin_membership_type_path, class: "pe-btn pe-btn-primary" %>
+</div>
+<table class="pe-table">
+  <thead><tr><th>Nombre</th><th>Código</th><th>Opciones</th><th>Membresías</th><th>Estado</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= r.name %></td>
+        <td><%= r.code %></td>
+        <td><%= r.payment_options.count %></td>
+        <td><%= r.memberships.count %></td>
+        <td><%= status_badge(r.status) %></td>
+        <td>
+          <%= link_to "Ver", admin_membership_type_path(r), class: "pe-btn" %>
+          <%= link_to "Editar", edit_admin_membership_type_path(r), class: "pe-btn" %>
+        </td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="6" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

@@ -1,0 +1,27 @@
+<h1>Eventos de webhook</h1>
+<div class="pe-filters">
+  <%= form_with url: admin_webhook_events_path, method: :get, local: true do %>
+    <select name="provider" class="pe-select"><option value="">Todos</option><% PaymentEngine::Provider.order(:name).each do |p| %><option value="<%= p.code %>" <%= 'selected' if params[:provider]==p.code %>><%= p.name %></option><% end %></select>
+    <select name="status" class="pe-select"><option value="">Todos</option><% %w[received processed failed].each do |s| %><option value="<%= s %>" <%= 'selected' if params[:status]==s %>><%= s %></option><% end %></select>
+    <button class="pe-btn" type="submit">Filtrar</button>
+  <% end %>
+</div>
+<table class="pe-table">
+  <thead><tr><th>Proveedor</th><th>ID externo</th><th>Tipo</th><th>Estado</th><th>Recibido</th><th>Procesado</th><th>Intentos</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= r.provider_code %></td>
+        <td><%= link_to r.external_id, admin_webhook_event_path(r) %></td>
+        <td><%= r.event_type %></td>
+        <td><%= status_badge(r.status) %></td>
+        <td><%= r.received_at %></td>
+        <td><%= r.processed_at %></td>
+        <td><%= r.attempts %></td>
+        <td><%= link_to "Ver", admin_webhook_event_path(r), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="8" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

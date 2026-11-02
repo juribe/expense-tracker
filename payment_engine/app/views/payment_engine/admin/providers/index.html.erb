@@ -1,0 +1,18 @@
+<h1>Proveedores</h1>
+<%= link_to "Nuevo", new_admin_provider_path, class: "pe-btn pe-btn-primary" %>
+<table class="pe-table">
+  <thead><tr><th>Nombre</th><th>Código</th><th>Entorno</th><th>Estado</th><th>Configurado</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= r.name %></td>
+        <td><%= r.code %></td>
+        <td><%= r.environment %></td>
+        <td><%= status_badge(r.active ? "active" : "inactive") %></td>
+        <td><%= r.configured? ? "Sí" : "No" %></td>
+        <td><%= link_to "Ver", admin_provider_path(r), class: "pe-btn" %> <%= link_to "Editar", edit_admin_provider_path(r), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="6" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>

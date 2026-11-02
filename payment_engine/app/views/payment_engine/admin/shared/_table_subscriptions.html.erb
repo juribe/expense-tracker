@@ -1,0 +1,15 @@
+<table class="pe-table">
+  <thead><tr><th>ID</th><th>Propietario</th><th>Tipo</th><th>Estado</th><th>Próxima renovación</th></tr></thead>
+  <tbody>
+    <% records.each do |s| %>
+      <tr>
+        <td><%= link_to s.id, admin_subscription_path(s) %></td>
+        <td><%= payment_engine_owner_label(s.owner) %></td>
+        <td><%= s.payment_option&.membership_type&.name %></td>
+        <td><%= status_badge(s.status) %></td>
+        <td><%= s.next_billing_at %></td>
+      </tr>
+    <% end %>
+    <% if records.empty? %><tr><td colspan="5" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>

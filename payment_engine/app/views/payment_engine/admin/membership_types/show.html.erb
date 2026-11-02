@@ -1,0 +1,9 @@
+<h1><%= @record.name %></h1>
+<div class="pe-card">
+  <p><strong>Código:</strong> <%= @record.code %></p>
+  <p><strong>Descripción:</strong> <%= @record.description %></p>
+  <p><strong>Estado:</strong> <%= status_badge(@record.status) %></p>
+  <p><strong>Creado:</strong> <%= @record.created_at %></p>
+</div>
+<%= link_to "Editar", edit_admin_membership_type_path(@record), class: "pe-btn" %>
+<%= link_to "Volver", admin_membership_types_path, class: "pe-btn" %>

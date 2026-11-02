@@ -1,0 +1,16 @@
+<table class="pe-table">
+  <thead><tr><th>ID</th><th>Compra</th><th>Importe</th><th>Proveedor</th><th>Estado</th><th>Fecha</th></tr></thead>
+  <tbody>
+    <% records.each do |p| %>
+      <tr>
+        <td><%= link_to p.id, admin_payment_path(p) %></td>
+        <td><%= p.purchase&.code %></td>
+        <td><%= number_to_currency(p.amount, unit: p.currency) %></td>
+        <td><%= p.provider_code %></td>
+        <td><%= status_badge(p.status) %></td>
+        <td><%= p.created_at %></td>
+      </tr>
+    <% end %>
+    <% if records.empty? %><tr><td colspan="6" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>

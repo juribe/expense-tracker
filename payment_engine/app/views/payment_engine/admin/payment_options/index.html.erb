@@ -1,0 +1,30 @@
+<h1>Opciones de pago</h1>
+<div class="pe-filters">
+  <%= form_with url: admin_payment_options_path, method: :get, local: true do %>
+    <select name="membership_type_id" class="pe-select"><option value="">Todos los tipos</option>
+      <% PaymentEngine::MembershipType.order(:name).each do |mt| %><option value="<%= mt.id %>" <%= 'selected' if params[:membership_type_id].to_s == mt.id.to_s %>><%= mt.name %></option><% end %>
+    </select>
+    <select name="mode" class="pe-select"><option value="">Todas las modalidades</option><option value="one_time" <%= 'selected' if params[:mode]=='one_time' %>>Pago único</option><option value="recurring" <%= 'selected' if params[:mode]=='recurring' %>>Recurrente</option></select>
+    <select name="status" class="pe-select"><option value="">Todos</option><option value="active">Activo</option><option value="inactive">Inactivo</option></select>
+    <button class="pe-btn" type="submit">Filtrar</button>
+  <% end %>
+  <%= link_to "Nueva", new_admin_payment_option_path, class: "pe-btn pe-btn-primary" %>
+</div>
+<table class="pe-table">
+  <thead><tr><th>Nombre</th><th>Tipo</th><th>Precio</th><th>Moneda</th><th>Modalidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= r.name %></td>
+        <td><%= r.membership_type&.name %></td>
+        <td><%= number_to_currency(r.price, unit: r.currency) %></td>
+        <td><%= r.currency %></td>
+        <td><%= r.mode %></td>
+        <td><%= status_badge(r.status) %></td>
+        <td><%= link_to "Ver", admin_payment_option_path(r), class: "pe-btn" %> <%= link_to "Editar", edit_admin_payment_option_path(r), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="7" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

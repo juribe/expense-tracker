@@ -1,0 +1,17 @@
+<h1>Pago #<%= @record.id %></h1>
+<div class="pe-card">
+  <p><strong>Compra:</strong> <%= @record.purchase&.code %></p>
+  <p><strong>Importe:</strong> <%= number_to_currency(@record.amount, unit: @record.currency) %></p>
+  <p><strong>Proveedor:</strong> <%= @record.provider_code %></p>
+  <p><strong>Referencia externa:</strong> <%= @record.external_reference %></p>
+  <p><strong>Estado:</strong> <%= status_badge(@record.status) %></p>
+  <p><strong>Método:</strong> <%= @record.payment_method %></p>
+  <p><strong>Error:</strong> <%= @record.error_message %></p>
+</div>
+<div class="pe-card">
+  <%= form_with url: refund_admin_payment_path(@record), method: :post, local: true do %>
+    <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <button class="pe-btn pe-btn-danger" type="submit">Solicitar reembolso</button>
+  <% end %>
+</div>
+<%= link_to "Volver", admin_payments_path, class: "pe-btn" %>

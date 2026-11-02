@@ -1,0 +1,25 @@
+<h1>Compras</h1>
+<div class="pe-filters">
+  <%= form_with url: admin_purchases_path, method: :get, local: true do %>
+    <select name="status" class="pe-select"><option value="">Todos</option><% %w[pending paid failed cancelled refunded].each do |s| %><option value="<%= s %>" <%= 'selected' if params[:status]==s %>><%= s %></option><% end %></select>
+    <button class="pe-btn" type="submit">Filtrar</button>
+  <% end %>
+</div>
+<table class="pe-table">
+  <thead><tr><th>Código</th><th>Propietario</th><th>Producto</th><th>Importe</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% @records.each do |r| %>
+      <tr>
+        <td><%= link_to r.code, admin_purchase_path(r) %></td>
+        <td><%= payment_engine_owner_label(r.owner) %></td>
+        <td><%= r.payment_option&.name %></td>
+        <td><%= number_to_currency(r.amount, unit: r.currency) %></td>
+        <td><%= status_badge(r.status) %></td>
+        <td><%= r.created_at %></td>
+        <td><%= link_to "Ver", admin_purchase_path(r), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="7" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

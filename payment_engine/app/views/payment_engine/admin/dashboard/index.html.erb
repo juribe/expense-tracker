@@ -1,0 +1,40 @@
+<h1>Dashboard</h1>
+<div class="pe-grid">
+  <div class="pe-metric"><div class="pe-metric-label">Ingresos cobrados</div><div class="pe-metric-value"><%= number_to_currency(@charged_income, unit: "$") %></div></div>
+  <div class="pe-metric"><div class="pe-metric-label">Pagos exitosos</div><div class="pe-metric-value"><%= @successful_payments %></div></div>
+  <div class="pe-metric"><div class="pe-metric-label">Pagos fallidos</div><div class="pe-metric-value"><%= @failed_payments %></div></div>
+  <div class="pe-metric"><div class="pe-metric-label">Membresías activas</div><div class="pe-metric-value"><%= @active_memberships %></div></div>
+  <div class="pe-metric"><div class="pe-metric-label">Suscripciones activas</div><div class="pe-metric-value"><%= @active_subscriptions %></div></div>
+  <div class="pe-metric"><div class="pe-metric-label">Renovaciones próximas (7d)</div><div class="pe-metric-value"><%= @upcoming_renewals %></div></div>
+</div>
+
+<div class="pe-card">
+  <h3>Últimas compras</h3>
+  <%= render "payment_engine/admin/shared/table_purchases", records: @recent_purchases %>
+</div>
+<div class="pe-card">
+  <h3>Últimos pagos</h3>
+  <%= render "payment_engine/admin/shared/table_payments", records: @recent_payments %>
+</div>
+<div class="pe-card">
+  <h3>Nuevas membresías</h3>
+  <%= render "payment_engine/admin/shared/table_memberships", records: @recent_memberships %>
+</div>
+<div class="pe-card">
+  <h3>Suscripciones canceladas</h3>
+  <%= render "payment_engine/admin/shared/table_subscriptions", records: @cancelled_subscriptions %>
+</div>
+<div class="pe-card">
+  <h3>Webhooks fallidos</h3>
+  <%= render "payment_engine/admin/shared/table_webhooks", records: @failed_webhooks %>
+</div>
+<% if @providers_unconfigured.any? %>
+  <div class="pe-card">
+    <h3>Alertas</h3>
+    <ul>
+      <% @providers_unconfigured.each do |p| %>
+        <li>Proveedor sin configurar: <%= link_to p.name, admin_provider_path(p) %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

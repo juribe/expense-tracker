@@ -1,0 +1,22 @@
+<h1>Configuración comercial</h1>
+<%= form_with model: @setting, url: admin_commercial_settings_path, method: :patch, local: true do |f| %>
+  <% if @setting.errors.any? %><div class="pe-flash pe-flash-danger"><%= @setting.errors.full_messages.join(", ") %></div><% end %>
+  <div class="pe-card">
+    <h3>Pagos</h3>
+    <div class="pe-form-group"><%= f.label :payments_enabled, "Habilitar pagos" %><%= f.check_box :payments_enabled %><small>Permite iniciar compras y procesar pagos.</small></div>
+    <div class="pe-form-group"><%= f.label :paid_access_required, "Exigir membresía para acceder" %><%= f.check_box :paid_access_required %><small>Cuando está activado, los usuarios necesitan una membresía vigente.</small></div>
+  </div>
+  <div class="pe-card">
+    <h3>Prueba gratuita</h3>
+    <div class="pe-form-group"><%= f.label :free_trial_enabled, "Habilitar prueba gratuita" %><%= f.check_box :free_trial_enabled %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_duration_days, "Duración (días)" %><%= f.number_field :free_trial_duration_days, class: "pe-input" %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_requires_card, "Requiere tarjeta" %><%= f.check_box :free_trial_requires_card %></div>
+    <div class="pe-form-group"><%= f.label :free_trial_once_per_user, "Una prueba por usuario" %><%= f.check_box :free_trial_once_per_user %></div>
+  </div>
+  <div class="pe-card">
+    <h3>Después de finalizar la prueba</h3>
+    <p>Las funcionalidades premium se desactivan. No se realiza ningún cobro. No se crea una suscripción. Los datos financieros se conservan. El usuario puede consultar la facturación y contratar un plan.</p>
+  </div>
+  <%= f.submit "Guardar configuración", class: "pe-btn pe-btn-primary" %>
+  <%= link_to "Cancelar", admin_commercial_settings_path, class: "pe-btn" %>
+<% end %>

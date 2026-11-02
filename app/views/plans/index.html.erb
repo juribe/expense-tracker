@@ -1,0 +1,21 @@
+<h1>Planes</h1>
+<% if @can_trial %>
+  <div class="card p-3 mb-3">
+    <h2>Prueba Yogasto gratis</h2>
+    <p>$0 COP. <%= @settings.free_trial_duration_days %> días de acceso completo.</p>
+    <p>Sin tarjeta de crédito. Sin cobros automáticos.</p>
+    <%= button_to "Comenzar gratis", start_trial_plans_path, method: :post, class: "btn btn-primary" %>
+  </div>
+<% end %>
+<% if @monthly %>
+  <div class="card p-3 mb-3">
+    <h2>Mensual</h2>
+    <p>$<%= @monthly.price %> COP / mes</p>
+  </div>
+<% end %>
+<% if @annual %>
+  <div class="card p-3 mb-3">
+    <h2>Anual</h2>
+    <p>$<%= @annual.price %> COP / año</p>
+  </div>
+<% end %>

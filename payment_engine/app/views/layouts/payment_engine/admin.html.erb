@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <title>PaymentEngine Admin</title>
+  <%= stylesheet_link_tag "payment_engine/admin", "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "payment_engine/admin" %>
+</head>
+<body class="payment-engine-admin">
+  <div class="pe-shell">
+    <aside class="pe-sidebar" id="pe-sidebar">
+      <div class="pe-brand">PaymentEngine</div>
+      <nav class="pe-nav">
+        <a class="pe-nav-link" href="/">← Volver a la app</a>
+        <div class="pe-nav-section">GENERAL</div>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'dashboard' %>" href="<%= admin_root_path %>">Dashboard</a>
+
+        <div class="pe-nav-section">COMERCIAL</div>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'membership_types' %>" href="<%= admin_membership_types_path %>">Tipos de membresía</a>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'payment_options' %>" href="<%= admin_payment_options_path %>">Opciones de pago</a>
+
+        <div class="pe-nav-section">CLIENTES Y ACCESO</div>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'memberships' %>" href="<%= admin_memberships_path %>">Membresías</a>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'subscriptions' %>" href="<%= admin_subscriptions_path %>">Suscripciones</a>
+
+        <div class="pe-nav-section">TRANSACCIONES</div>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'purchases' %>" href="<%= admin_purchases_path %>">Compras</a>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'payments' %>" href="<%= admin_payments_path %>">Pagos</a>
+
+        <div class="pe-nav-section">CONFIGURACIÓN</div>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'providers' %>" href="<%= admin_providers_path %>">Proveedores</a>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'webhook_events' %>" href="<%= admin_webhook_events_path %>">Webhooks</a>
+        <a class="pe-nav-link <%= 'active' if controller_name == 'settings' %>" href="<%= admin_settings_path %>">Configuración</a>
+        <a class="pe-nav-link" href="<%= admin_commercial_settings_path %>">Configuración comercial</a>
+      </nav>
+    </aside>
+    <div class="pe-main">
+      <header class="pe-header">
+        <button class="pe-menu-btn" onclick="document.getElementById('pe-sidebar').classList.toggle('open')">☰</button>
+        <div class="pe-header-title"><%= content_for?(:page_title) ? yield(:page_title) : controller_name.humanize %></div>
+        <div class="pe-account">
+          <%= current_host_user&.email || current_host_user&.name || "Admin" %>
+        </div>
+      </header>
+      <div class="pe-content">
+        <% if notice.present? %>
+          <div class="pe-flash pe-flash-success"><%= notice %></div>
+        <% end %>
+        <% if alert.present? %>
+          <div class="pe-flash pe-flash-danger"><%= alert %></div>
+        <% end %>
+        <%= yield %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
