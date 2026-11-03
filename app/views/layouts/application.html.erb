@@ -45,6 +45,7 @@
           <%= render "shared/topbar" %>
 
           <div class="body-wrapper">
+            <%= render "shared/membership_banner" %>
             <div class="app-container content-wrapper py-4">
               <% if notice %>
                 <div class="alert alert-success alert-dismissible fade show" role="alert" data-testid="flash-notice">
@@ -127,5 +128,6 @@
     <%= javascript_include_tag "reconciliation", defer: true %>
     <%= javascript_include_tag "onboarding", defer: true %>
     <%= javascript_include_tag "email_sources", defer: true %>
+    <%= javascript_include_tag "epayco_checkout", defer: true %>
   </body>
 </html>

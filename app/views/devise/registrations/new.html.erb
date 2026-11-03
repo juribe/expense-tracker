@@ -5,7 +5,16 @@
   <p><%= t("auth.sign_up_subtitle") %></p>
 </div>
 
+<% if params[:trial].present? || session[:trial_intent] %>
+  <div class="auth-field"><p>Estás creando tu cuenta para comenzar la prueba gratuita de <%= PaymentEngine::Configuration.free_trial_duration_days %> días.</p></div>
+<% elsif params[:payment_option_id].present? || session[:pending_payment_option_id] %>
+  <% po = PaymentEngine::PaymentOption.find_by(id: (params[:payment_option_id] || session[:pending_payment_option_id])) %>
+  <% if po %><div class="auth-field"><p>Tu selección: <%= po.name %> — $<%= number_with_delimiter(po.price.to_i, delimiter: ".") %> <%= po.currency %></p></div><% end %>
+<% end %>
+
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "auth-form" }) do |f| %>
+  <%= hidden_field_tag :trial, (params[:trial] || session[:trial_intent]) %>
+  <%= hidden_field_tag :payment_option_id, (params[:payment_option_id] || session[:pending_payment_option_id]) %>
   <%= render "devise/shared/error_messages", resource: resource %>
 
   <div class="auth-field">

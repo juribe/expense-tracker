@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
   layout :layout_for_request
 
   before_action :authenticate_user!
+  before_action :require_membership_selection, if: -> { user_signed_in? }
   before_action :set_page_title, if: -> { request.get? }
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -31,6 +32,67 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  # The current membership of the signed-in user for dashboards, banners and
+  # plan cards.
+  def current_membership
+    return nil unless user_signed_in?
+    PaymentEngine::Membership.where(owner: current_user).order(expires_at: :desc).first
+  end
+  helper_method :current_membership
+
+  # Controls the once-per-day membership expiry banner. It is only visible
+  # while the membership is active and within the five days before its
+  # expiration date.
+  def membership_expiry_banner?
+    return false unless user_signed_in?
+    membership = current_membership
+    return false unless membership&.active? && membership.expires_at.present?
+
+    days_left = (membership.expires_at.to_date - Date.current).to_i
+    return false unless days_left.between?(0, 5)
+    return false if cookies[:membership_expiry_banner] == Date.current.to_s
+
+    true
+  end
+
+  def prepare_membership_expiry_banner
+    return unless membership_expiry_banner?
+
+    @show_membership_expiry_banner = true
+    cookies[:membership_expiry_banner] = {
+      value: Date.current.to_s,
+      expires: 1.day.from_now,
+      path: "/"
+    }
+  end
+
+  before_action :prepare_membership_expiry_banner, if: :user_signed_in?
+
+  def require_membership_selection
+    return unless user_signed_in?
+    return unless current_user.respond_to?(:requires_membership) && current_user.requires_membership?
+
+    if current_user_has_active_membership?
+      current_user.update!(requires_membership: false)
+      return
+    end
+    return if allowed_without_membership?
+
+    redirect_to plans_path, alert: "Selecciona una membresía para continuar." and return
+  end
+
+  def current_user_has_active_membership?
+    PaymentEngine::Membership.where(owner: current_user, status: "active")
+      .where("expires_at IS NULL OR expires_at >= ?", Time.current).exists?
+  rescue StandardError
+    false
+  end
+
+  def allowed_without_membership?
+    controller_name.in?(%w[plans home sessions registrations confirmations passwords]) ||
+      (controller_name == "payment_engine" && action_name == "create")
+  end
 
   # Admin-only areas redirect regular users to the dashboard instead of
   # revealing their contents.

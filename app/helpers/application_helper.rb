@@ -7,6 +7,28 @@ module ApplicationHelper
   def greeting(resource)
     MailerHelper.greeting(resource)
   end
+
+  # Two-letter initials for the profile avatar, preferring the user's name.
+  def user_initials(user)
+    source = user&.name.presence || user&.email.presence || "?"
+    parts = source.split(/[\s@._-]+/).reject(&:blank?)
+    letters = parts.map { |p| p[0] }.join.upcase
+    letters = letters[0, 2]
+    letters.presence || "?"
+  end
+
+  # How much of the current membership period has been consumed, as a
+  # percentage (0..100). Used to fill the progress bar on the profile page.
+  def membership_progress_percent(membership)
+    return 0 unless membership&.starts_at.present? && membership&.expires_at.present?
+
+    total = (membership.expires_at - membership.starts_at).to_f
+    return 0 if total <= 0
+
+    remaining = (membership.expires_at - Time.current).to_f
+    used = 1 - (remaining / total)
+    (used * 100).clamp(0, 100).round
+  end
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
   BANK_ICON_TONES = 8
   # Chartkick understands these options natively and uses them to format both

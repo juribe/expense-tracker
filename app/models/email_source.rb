@@ -4,6 +4,7 @@
 # GmailConnection; this model tracks additional/forwarding sources and their
 # independent status.
 class EmailSource < ApplicationRecord
+  has_many :email_forwarding_verifications, dependent: :destroy, foreign_key: :email_source_id
   SOURCE_TYPES = %w[gmail forwarding].freeze
   STATUSES = %w[pending_setup pending_verification active error disconnected].freeze
 

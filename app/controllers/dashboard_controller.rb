@@ -16,8 +16,6 @@ class DashboardController < ApplicationController
     load_dashboard
   end
 
-  private
-
   def load_dashboard
     resolve_period
     @expense_summary = Expense.dashboard_summary(user: current_user, range: @span)

@@ -17,6 +17,7 @@ module PaymentEngine
         )
         ActiveRecord::Base.transaction do
           membership.save!
+          owner.update!(requires_membership: false) if owner.respond_to?(:requires_membership=)
           AuditLog.create!(
             actor_type: actor&.class&.name || "System",
             actor_id: actor&.id,

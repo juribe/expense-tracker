@@ -270,7 +270,7 @@
   <div class="sidebar-footer">
     <div class="bottom-rule"></div>
     <div class="sidebar-profile">
-      <%= link_to edit_user_registration_path, class: "sidebar-profile-main text-decoration-none", title: t("nav.profile", default: "Mi perfil") do %>
+      <%= link_to profile_path, class: "sidebar-profile-main text-decoration-none", title: t("nav.profile", default: "Mi perfil") do %>
         <span class="sidebar-avatar"><%= user_initials(current_user) %></span>
         <span class="sidebar-profile-copy hide-menu">
           <span class="sidebar-profile-name"><%= user_display_name(current_user) %></span>

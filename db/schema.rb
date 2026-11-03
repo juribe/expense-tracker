@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_150849) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_112817) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -1144,7 +1144,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_150849) do
     t.index ["user_id", "gmf_origin_type", "gmf_origin_id"], name: "index_transactions_gmf_origin"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1181,6 +1181,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_150849) do
     t.string "unconfirmed_email"
     t.string "inbound_email_token"
     t.boolean "admin", default: false, null: false
+    t.boolean "requires_membership", default: false, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["inbound_email_token"], name: "index_users_on_inbound_email_token", unique: true

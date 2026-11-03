@@ -11,17 +11,29 @@ gmail_sync: &gmail_sync
   queue: default
   schedule: every 15 minutes
 
+# Expires PaymentEngine memberships whose access period is over.
+payment_engine_membership_expiration: &payment_engine_membership_expiration
+  class: PaymentEngine::ExpireMembershipsJob
+  queue: default
+  schedule: every 15 minutes
+
 development:
   gmail_sync:
     <<: *gmail_sync
+  payment_engine_membership_expiration:
+    <<: *payment_engine_membership_expiration
 
 test:
   gmail_sync:
     <<: *gmail_sync
+  payment_engine_membership_expiration:
+    <<: *payment_engine_membership_expiration
 
 production:
   gmail_sync:
     <<: *gmail_sync
+  payment_engine_membership_expiration:
+    <<: *payment_engine_membership_expiration
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

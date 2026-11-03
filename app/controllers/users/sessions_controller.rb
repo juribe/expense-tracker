@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 class Users::SessionsController < Devise::SessionsController
+  def after_sign_in_path_for(resource)
+    if session[:trial_intent] || session[:pending_payment_option_id]
+      plans_path
+    else
+      super
+    end
+  end
   # Credential guessing is the cheapest attack on the app: check the counter
   # before Devise validates anything. The counter must not depend on the user
   # (a wrong guess must not be able to lock someone out), so it is per IP:

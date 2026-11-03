@@ -1,0 +1,16 @@
+<%# Once-a-day membership expiry banner: five days before the membership ends
+    the user sees a reminder with a shortcut to the plans page. %>
+<% if @show_membership_expiry_banner && current_membership&.active? %>
+  <div class="alert alert-warning d-flex align-items-center justify-content-center gap-3 mb-3"
+       role="status" data-testid="membership-expiry-banner">
+    <span>
+      Tu membresía
+      <% if current_membership.membership_type.present? %>
+        (<%= current_membership.membership_type.name %>)
+      <% end %>
+      vence el <%= l(current_membership.expires_at, format: :long) %>.
+    </span>
+    <%= link_to "Renovar membresía", plans_path, class: "btn btn-sm btn-primary",
+          data: { testid: "membership-banner-renew" } %>
+  </div>
+<% end %>

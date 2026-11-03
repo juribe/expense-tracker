@@ -1,0 +1,9 @@
+<h1>Checkout</h1>
+<% if @option %>
+  <p><%= @option.name %> — $<%= number_with_delimiter(@option.price.to_i, delimiter: ".") %> <%= @option.currency %></p>
+  <%= form_with url: create_checkout_plans_path, method: :post do |f| %>
+    <%= hidden_field_tag :payment_option_id, @option.id %>
+    <%= f.select :method, [["Tarjeta", "card"], ["PSE", "pse"]] %>
+    <%= f.submit "Continuar" %>
+  <% end %>
+<% end %>

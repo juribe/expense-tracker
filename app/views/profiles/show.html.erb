@@ -1,0 +1,138 @@
+<%= content_for :head do %>
+  <%= stylesheet_link_tag :profile, "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "profile", defer: true %>
+<% end %>
+
+<div class="profile-page">
+  <%= render "shared/page_header", title: "Mi perfil", subtitle: "Administra tu información y revisa tu membresía de Yogasto." %>
+
+  <section class="layout">
+    <div class="col-left">
+      <article class="card">
+        <div class="card-head">
+          <h2>Información personal</h2>
+        <span class="head-note">Tu cuenta</span>
+      </div>
+      <div class="profile-main">
+        <div class="identity">
+          <div class="big-avatar"><%= user_initials(current_user) %></div>
+          <div>
+            <h3><%= current_user.name.presence || current_user.email %></h3>
+            <p>Tu espacio personal en Yogasto</p>
+            <div class="verified">
+              <% if current_user.confirmed_at.present? %>
+                ✓ Cuenta activa
+              <% else %>
+                ⏳ Cuenta pendiente de confirmación
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="details">
+          <div class="field">
+            <label>Nombre completo</label>
+            <div><%= current_user.name.presence || "—" %></div>
+          </div>
+          <div class="field">
+            <label>Correo electrónico</label>
+            <div><%= current_user.email %></div>
+          </div>
+          <div class="field">
+            <label>Miembro desde</label>
+            <div><%= current_user.created_at.present? ? l(current_user.created_at, format: :long) : "—" %></div>
+          </div>
+          <div class="field">
+            <label>Seguridad</label>
+            <div><%= current_user.encrypted_password.present? ? "Contraseña configurada" : "Sin contraseña configurada" %></div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <%= link_to "Editar perfil", edit_user_registration_path, class: "btn btn-primary" %>
+      </div>
+      </article>
+
+      <section class="card danger">
+        <div>
+          <h2>¿Quieres dejar Yogasto?</h2>
+          <p>Si decides cancelar tu cuenta, se eliminará tu acceso y la información asociada según nuestra política de eliminación de datos. Esta acción es permanente.</p>
+        </div>
+        <%= button_to "Cancelar mi cuenta", registration_path(:user),
+              data: { confirm: "¿Estás seguro?", turbo_confirm: "¿Estás seguro?" },
+              method: :delete, class: "btn btn-danger" %>
+      </section>
+    </div>
+
+    <aside class="right">
+      <article class="card membership">
+        <div class="card-head">
+          <h2>Tu membresía</h2>
+          <span class="head-note">Plan actual</span>
+        </div>
+        <div class="member-banner">
+          <div class="member-top">
+            <span class="plan-tag">
+              <%= current_membership&.membership_type&.name&.upcase || "SIN MEMBRESÍA" %>
+            </span>
+            <span class="status">
+              <i class="dot"></i>
+              <% if current_membership&.active? %>
+                Activa
+              <% else %>
+                No activa
+              <% end %>
+            </span>
+          </div>
+          <div class="plan-title">
+            <%= current_membership&.membership_type&.name || "—" %>
+          </div>
+          <p class="plan-desc">
+            <%= current_membership&.membership_type&.description.presence || "Todo lo esencial para tener tus finanzas en orden." %>
+          </p>
+        </div>
+        <div class="member-body">
+          <div class="renew-row">
+            <span>Activa hasta</span>
+            <strong>
+              <% if current_membership&.expires_at.present? %>
+                <%= l(current_membership.expires_at, format: :long) %>
+              <% else %>
+                —
+              <% end %>
+            </strong>
+          </div>
+          <div class="progress-label">
+            <span>Tu membresía</span>
+            <span><%= current_membership&.active? ? "Vigente" : "No vigente" %></span>
+          </div>
+          <div class="progress"><span data-progress="<%= membership_progress_percent(current_membership) %>"></span></div>
+          <div class="member-actions">
+            <%= link_to "Ver planes", plans_path, class: "btn btn-primary" %>
+            <%= link_to "Detalles", plans_path, class: "btn btn-outline" %>
+          </div>
+        </div>
+      </article>
+
+      <article class="card quick-card">
+        <h2>Accesos de tu cuenta</h2>
+        <p>Encuentra rápidamente las opciones para administrar tu cuenta.</p>
+        <a class="quick-link" href="<%= edit_user_registration_path %>">
+          <span>
+            <strong>Editar mis datos</strong>
+            <small>Nombre, correo y contraseña</small>
+          </span>
+          <span class="arrow">›</span>
+        </a>
+        <a class="quick-link" href="<%= plans_path %>">
+          <span>
+            <strong>Comparar membresías</strong>
+            <small>Conoce lo que incluye cada plan</small>
+          </span>
+          <span class="arrow">›</span>
+        </a>
+      </article>
+    </aside>
+  </section>
+
+  <div class="footer">Yogasto · Tus finanzas, más claras.</div>
+</div>

@@ -2,29 +2,166 @@
 
 module PaymentEngine
   module Webhooks
+    # Processes a validated provider notification. ePayco-specific parsing and
+    # signature verification live in the provider adapter; this service is
+    # generic and applies the normalized event to PaymentEngine records.
     class Process
-      def self.call(webhook_event:, actor: nil)
-        # Idempotency: if already processed, skip
+      EVENT_HANDLERS = {
+        "payment.approved" => :handle_payment_approved,
+        "payment.rejected" => :handle_payment_rejected,
+        "payment.pending" => :handle_payment_pending,
+        "payment.refunded" => :handle_payment_refunded
+      }.freeze
+
+      def self.call(webhook_event:, data: nil, actor: nil)
+        new(webhook_event: webhook_event, data: data, actor: actor).call
+      end
+
+      def initialize(webhook_event:, data: nil, actor: nil)
+        @webhook_event = webhook_event
+        @data = data
+        @actor = actor
+      end
+
+      def call
         if webhook_event.processed?
-          return PaymentEngine::Result.new(success: true, record: webhook_event, metadata: { skipped: true })
+          return Result.new(success: true, record: webhook_event, metadata: { skipped: true })
         end
+
+        event_data = payload_for_processing(@data)
+
         ActiveRecord::Base.transaction do
-          webhook_event.update!(status: "processed", processed_at: Time.current, attempts: webhook_event.attempts.to_i + 1)
-          AuditLog.create!(
-            actor_type: actor&.class&.name || "System",
-            actor_id: actor&.id,
-            action: "webhook.processed",
-            auditable_type: webhook_event.class.name,
-            auditable_id: webhook_event.id,
-            reason: nil,
-            changes: { status: "processed" },
-            metadata: {}
+          outcome = process_event(event_data)
+
+          webhook_event.update!(
+            status: "processed",
+            processed_at: Time.current,
+            attempts: webhook_event.attempts.to_i + 1
           )
+          audit!(
+            action: "webhook.processed",
+            auditable: webhook_event,
+            changes: { status: "processed", event_type: event_data["event_type"].presence || "unknown" }
+          )
+
+          outcome || Result.new(success: true, record: webhook_event)
         end
-        PaymentEngine::Result.new(success: true, record: webhook_event)
-      rescue StandardError => e
-        webhook_event.update!(status: "failed", processing_result: e.message, attempts: webhook_event.attempts.to_i + 1) rescue nil
-        PaymentEngine::Result.new(success: false, errors: [e.message])
+      rescue StandardError => error
+        webhook_event.update!(status: "failed", processing_result: error.message, attempts: webhook_event.attempts.to_i + 1) rescue nil
+        Result.new(success: false, errors: [error.message])
+      end
+
+      private
+
+      attr_reader :webhook_event, :actor
+
+      # Accepts a normalized payload from the provider adapter or falls back to
+      # the stored raw payload. Unknown providers only get the event recorded.
+      def payload_for_processing(passthrough)
+        if passthrough.is_a?(PaymentEngine::Result)
+          passthrough = passthrough.data
+        end
+        return {} unless passthrough.is_a?(Hash)
+
+        passthrough.deep_stringify_keys
+      end
+
+      def process_event(data)
+        handler = EVENT_HANDLERS[data["event_type"]]
+        return unless handler
+
+        purchase = Purchase.find_by(id: data["purchase_id"])
+        return unless purchase
+        return unless amount_matches?(purchase, data) && currency_matches?(purchase, data)
+
+        send(handler, purchase, data)
+      end
+
+      def handle_payment_approved(purchase, data)
+        payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
+        payment.update!(
+          provider_code: webhook_event.provider_code,
+          external_reference: data["provider_transaction_id"] || data["event_id"],
+          status: "succeeded"
+        )
+        purchase.update!(status: "paid", payment_id: payment.id)
+        grant_membership(purchase)
+        audit!(action: "payment.approved", auditable: purchase, changes: { status: "paid" })
+        Result.new(success: true, record: payment)
+      end
+
+      def handle_payment_rejected(purchase, data)
+        payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
+        payment.update!(provider_code: webhook_event.provider_code, status: "failed")
+        purchase.update!(status: "failed")
+        audit!(action: "payment.rejected", auditable: purchase, changes: { status: "failed" })
+        Result.new(success: true, record: payment)
+      end
+
+      def handle_payment_pending(purchase, data)
+        payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
+        payment.save!
+        audit!(action: "payment.pending", auditable: purchase, changes: { status: "pending" })
+        Result.new(success: true, record: payment)
+      end
+
+      def handle_payment_refunded(purchase, data)
+        payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
+        payment.update!(provider_code: webhook_event.provider_code, status: "refunded")
+        purchase.update!(status: "refunded")
+        audit!(action: "payment.refunded", auditable: purchase, changes: { status: "refunded" })
+        Result.new(success: true, record: payment)
+      end
+
+
+      def amount_matches?(purchase, data)
+        expected = data["amount"]
+        return true if expected.blank?
+
+        purchase.amount == BigDecimal(expected.to_s)
+      rescue ArgumentError, TypeError
+        false
+      end
+
+      def currency_matches?(purchase, data)
+        expected = data["currency"]
+        return true if expected.blank?
+
+        purchase.currency.to_s.casecmp(expected.to_s).zero?
+      end
+
+      def grant_membership(purchase)
+        return Result.new(success: true, record: purchase.membership) if purchase.membership
+
+        option = purchase.payment_option
+        return Result.new(success: true, record: nil) if option.nil?
+
+        expires_at = (purchase.created_at || Time.current) + option.access_duration
+        result = Memberships::Grant.call(
+          owner: purchase.owner,
+          membership_type: option.membership_type,
+          starts_at: purchase.created_at || Time.current,
+          expires_at: expires_at,
+          source: "purchase",
+          purchase: purchase
+        )
+        return result unless result.success?
+
+        purchase.update!(membership_id: result.record.id)
+        result
+      end
+
+      def audit!(action:, auditable:, changes:)
+        AuditLog.create!(
+          actor_type: actor&.class&.name || "System",
+          actor_id: actor&.id,
+          action: action,
+          auditable_type: auditable.class.name,
+          auditable_id: auditable.id,
+          reason: nil,
+          changes: changes,
+          metadata: {}
+        )
       end
     end
   end

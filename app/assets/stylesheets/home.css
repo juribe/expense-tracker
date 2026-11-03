@@ -231,3 +231,24 @@ footer{border-top:1px solid #edf1f8;padding:30px 0;color:#8796af;font-size:12px}
 .site-footer .brand-logo {
   height: 40px;
 }
+
+/* Yogasto flash messages (prototype) */
+.flash-wrap{position:absolute;z-index:5;top:116px;left:50%;transform:translateX(-50%);width:min(760px,calc(100% - 40px));}
+.flash{--accent:#10a979;--tint:#eafaf4;display:flex;align-items:center;gap:15px;background:rgba(255,255,255,.96);border:1px solid #e5edf6;border-radius:16px;padding:15px 17px 15px 16px;box-shadow:0 12px 35px rgba(30,56,104,.10);backdrop-filter:blur(14px);animation:flash-drop .45s cubic-bezier(.2,.8,.2,1) both;position:relative}
+.flash.error{--accent:#e45165;--tint:#fff0f2}
+.flash.info{--accent:#3978ef;--tint:#eef4ff}
+.flash-icon{height:42px;width:42px;flex:0 0 42px;border-radius:13px;background:var(--tint);color:var(--accent);display:grid;place-items:center}
+.flash-icon svg{width:21px;height:21px}
+.flash-copy{min-width:0;flex:1}
+.flash-title{font-size:15px;line-height:1.35;font-weight:780;color:#172344;margin-bottom:3px}
+.flash-desc{font-size:13px;line-height:1.45;color:#71809c;font-weight:500}
+.flash-close{width:32px;height:32px;border:0;border-radius:9px;background:transparent;color:#96a2b7;display:grid;place-items:center;cursor:pointer;transition:.2s}
+.flash-close:hover{background:#f1f4fa;color:#35415c}
+.flash-close svg{width:17px;height:17px}
+.flash-progress{position:absolute;bottom:0;left:16px;right:16px;height:2px;background:#edf1f7;border-radius:2px;overflow:hidden}
+.flash-progress:after{content:"";display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;animation:flash-shrink 8s linear forwards;opacity:.55}
+@keyframes flash-drop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flash-shrink{to{transform:scaleX(0)}}
+.flash.leaving{animation:flash-leave .22s ease forwards}
+@keyframes flash-leave{to{opacity:0;transform:translateY(-10px)}}
+@media(max-width:760px){.flash-wrap{top:90px;width:calc(100% - 28px)}.flash{padding:12px;gap:11px}.flash-icon{height:38px;width:38px;flex-basis:38px}.flash-title{font-size:14px}.flash-desc{font-size:12px}}

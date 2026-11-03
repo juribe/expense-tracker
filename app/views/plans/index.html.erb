@@ -1,21 +1,63 @@
-<h1>Planes</h1>
-<% if @can_trial %>
-  <div class="card p-3 mb-3">
-    <h2>Prueba Yogasto gratis</h2>
-    <p>$0 COP. <%= @settings.free_trial_duration_days %> días de acceso completo.</p>
-    <p>Sin tarjeta de crédito. Sin cobros automáticos.</p>
-    <%= button_to "Comenzar gratis", start_trial_plans_path, method: :post, class: "btn btn-primary" %>
-  </div>
+<% content_for :head do %>
+  <%= stylesheet_link_tag :plans, "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "plans", defer: true %>
 <% end %>
-<% if @monthly %>
-  <div class="card p-3 mb-3">
-    <h2>Mensual</h2>
-    <p>$<%= @monthly.price %> COP / mes</p>
-  </div>
+
+<% if session[:pending_checkout].present? %>
+  <script src="https://checkout.epayco.co/checkout-v2.js"></script>
+  <div data-epayco-session-id="<%= session[:pending_checkout]["sessionId"] %>"
+       data-epayco-test="<%= PaymentEngine.provider_settings_for(:epayco)[:environment].to_s == "production" ? "false" : "true" %>"></div>
 <% end %>
-<% if @annual %>
-  <div class="card p-3 mb-3">
-    <h2>Anual</h2>
-    <p>$<%= @annual.price %> COP / año</p>
+
+<div class="content-wrapper py-4">
+  <% if current_user&.requires_membership? %>
+    <div class="plans-flash" role="status">
+      <div class="plans-flash-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>
+      </div>
+      <div class="plans-flash-copy">
+        <div class="plans-flash-title">Elige tu membresía para continuar</div>
+        <div class="plans-flash-desc">Selecciona el plan que mejor se adapte a ti. Podrás revisar los detalles antes de confirmar.</div>
+      </div>
+      <button class="plans-close" aria-label="Cerrar mensaje" data-dismiss-flash>×</button>
+    </div>
+  <% end %>
+
+  <h1 class="plans-page-title">Planes</h1>
+
+  <div class="plans-cards">
+    <% if @can_trial %>
+      <article class="plans-card">
+        <h2>Prueba Yogasto gratis</h2>
+        <div class="plans-price">$0 <small>COP</small></div>
+        <p class="plans-sub"><%= @settings.free_trial_duration_days %> días de acceso completo para conocer todo lo que Yogasto puede hacer por ti.</p>
+        <div class="plans-features"><span>Sin tarjeta de crédito</span><span>Sin cobros automáticos</span></div>
+        <%= button_to "Comenzar gratis", start_trial_plans_path, method: :post, class: "plans-btn primary" %>
+      </article>
+    <% end %>
+
+    <% if @monthly %>
+      <article class="plans-card featured">
+        <span class="plans-tag">Membresía clásica</span>
+        <h2>Mensual</h2>
+        <div class="plans-price">$<%= number_with_delimiter(@monthly.price.to_i, delimiter: ".") %> <small>COP / mes</small></div>
+        <p class="plans-sub">Acceso completo a Yogasto con la flexibilidad de pagar mes a mes.</p>
+        <div class="plans-features"><span>Acceso a todas las funciones</span><span>Cancela cuando quieras</span></div>
+        <%= button_to "Elegir plan mensual", create_checkout_plans_path, method: :post, params: { payment_option_id: @monthly.id, method: "card" }, class: "plans-btn primary" %>
+      </article>
+    <% end %>
+
+    <% if @annual %>
+      <article class="plans-card">
+        <h2>Anual</h2>
+        <div class="plans-price">$<%= number_with_delimiter(@annual.price.to_i, delimiter: ".") %> <small>COP / año</small></div>
+        <p class="plans-sub">Un año completo de organización financiera con un solo pago.</p>
+        <div class="plans-features"><span>Acceso a todas las funciones</span><span>Ahorra frente al pago mensual</span></div>
+        <%= button_to "Elegir plan anual", create_checkout_plans_path, method: :post, params: { payment_option_id: @annual.id, method: "card" }, class: "plans-btn" %>
+      </article>
+    <% end %>
   </div>
-<% end %>
+
+  <div class="plans-notice">Elige una opción para continuar. No se realizará ningún cobro sin tu confirmación.</div>
+</div>
+

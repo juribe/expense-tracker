@@ -1,0 +1,88 @@
+require "test_helper"
+require "digest"
+
+# Validates the ePayco webhook contract: signature is mandatory, states map
+# to PaymentEngine records, and repeated notifications stay idempotent.
+class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
+  setup do
+    @customer_id = "123456"
+    @p_key = "test-p-key"
+
+    @provider = PaymentEngine::Provider.find_or_create_by!(code: "epayco") do |p|
+      p.name = "ePayco"
+      p.active = true
+      p.environment = "sandbox"
+    end
+    @provider.update!(
+      credentials: {
+        customer_id: @customer_id,
+        p_key: @p_key
+      },
+      settings: {}
+    )
+
+    @membership_type = PaymentEngine::MembershipType.find_or_create_by!(code: "EPAYCO_TEST") { |mt| mt.name = "Epayco Test"; mt.status = "active" }
+    @payment_option = PaymentEngine::PaymentOption.find_or_create_by!(membership_type: @membership_type, name: "Epayco Monthly") do |po|
+      po.price = 14_900
+      po.currency = "COP"
+      po.mode = "recurring"
+      po.interval = "month"
+      po.interval_count = 1
+      po.access_duration_count = 1
+      po.access_duration_unit = "month"
+      po.status = "active"
+    end
+
+    @owner = User.create!(email: "epayco-webhook-#{SecureRandom.hex(4)}@example.com", password: "password123", password_confirmation: "password123", confirmed_at: Time.current, financial_cycle_start_day: 1, debt_capacity_target_percentage: 50, debt_capacity_alert_percentage: 80)
+    @purchase = PaymentEngine::Purchase.create!(owner: @owner, payment_option: @payment_option, amount: 14_900, currency: "COP", status: "pending")
+    @payment = PaymentEngine::Payment.create!(purchase: @purchase, amount: @purchase.amount, currency: "COP", status: "pending", provider_code: "epayco")
+    @purchase.update!(payment: @payment)
+  end
+
+  test "rejected unauthorized notification keeps purchase pending" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload.merge("x_signature" => "invalid")
+
+    assert_response :unauthorized
+    assert_equal "pending", @purchase.reload.status
+    assert_equal "pending", @payment.reload.status
+    assert_equal 0, PaymentEngine::WebhookEvent.count
+  end
+
+  test "approved notification updates payment, purchase and membership" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+
+    assert_response :ok
+    assert_equal "succeeded", @payment.reload.status
+    assert_equal "paid", @purchase.reload.status
+    assert PaymentEngine::Membership.where(owner: @owner, purchase: @purchase).exists?
+  end
+
+  test "repeated approved notification does not duplicate membership" do
+    2.times { post "/payment_engine/webhooks/epayco", params: webhook_payload }
+
+    assert_equal 1, PaymentEngine::Membership.where(owner: @owner, purchase: @purchase).count
+    assert_equal "paid", @purchase.reload.status
+  end
+
+  private
+
+  def webhook_payload
+    signature = Digest::SHA256.hexdigest(
+      [ @customer_id, @p_key, "ref-1", "txn-1", "14900.00", "COP" ].join("^")
+    )
+    {
+      "x_ref_payco" => "ref-1",
+      "x_transaction_id" => "txn-1",
+      "x_amount" => "14900.00",
+      "x_currency_code" => "COP",
+      "x_id_factura" => @purchase.id,
+      "x_claim_code" => "claim-1",
+      "x_signature" => signature,
+      "x_cod_response" => "1",
+      "x_response" => "Aceptada",
+      "x_transaction_date" => Time.current.strftime("%Y-%m-%d %H:%M:%S")
+    }
+  end
+end

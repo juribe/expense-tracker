@@ -1,0 +1,29 @@
+/* Plans page (membership selection) */
+.plans-page-title{font-size:30px;letter-spacing:-.8px;margin:0 0 20px;font-weight:780}
+.plans-flash{display:flex;align-items:center;gap:15px;padding:16px 18px;background:linear-gradient(100deg,#f1f6ff,#f8f7ff);border:1px solid #dce7ff;border-radius:15px;margin-bottom:23px;box-shadow:0 4px 14px #345b9910;position:relative;animation:plans-arrive .35s ease-out}
+.plans-flash-icon{height:39px;width:39px;flex:0 0 39px;border-radius:12px;background:#e1ebff;color:#3479ef;display:grid;place-items:center}
+.plans-flash-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.plans-flash-copy{flex:1;min-width:0}
+.plans-flash-title{font-size:15px;font-weight:750;color:#233451;margin-bottom:3px}
+.plans-flash-desc{font-size:14px;color:#667793;line-height:1.45}
+.plans-close{border:0;background:transparent;color:#91a0b5;border-radius:8px;width:32px;height:32px;font-size:23px;cursor:pointer}
+.plans-close:hover{background:#e8effb;color:#3f5271}
+.plans-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.plans-card{background:#fff;border:1px solid #e5ebf5;border-radius:17px;padding:24px 22px 22px;min-height:280px;display:flex;flex-direction:column;box-shadow:0 3px 10px #253e6808;transition:.2s}
+.plans-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #253e6810;border-color:#cbdaf5}
+.plans-card.featured{border:1.5px solid #a9c9ff;box-shadow:0 8px 24px #3178ed12;position:relative}
+.plans-tag{position:absolute;right:17px;top:17px;background:#edf4ff;color:#3176e8;padding:6px 10px;border-radius:30px;font-size:11px;font-weight:800}
+.plans-card h2{font-size:21px;letter-spacing:-.4px;margin:0 0 12px}
+.plans-price{font-size:25px;font-weight:800;letter-spacing:-.7px}
+.plans-price small{font-size:14px;font-weight:500;color:#71809b;letter-spacing:0}
+.plans-sub{font-size:14px;color:#71809b;line-height:1.5;margin:11px 0 18px;min-height:42px}
+.plans-features{display:grid;gap:9px;margin:0 0 20px;color:#50617e;font-size:13px}
+.plans-features span:before{content:"✓";color:#13a77a;font-weight:800;margin-right:8px}
+.plans-btn{height:45px;border:1px solid #dce5f2;background:#fff;color:#2e6fc9;border-radius:11px;font-weight:750;font-size:14px;cursor:pointer;margin-top:auto}
+.plans-btn.primary{border:0;color:#fff;background:linear-gradient(100deg,#087fe0,#267ff0);box-shadow:0 7px 15px #1685df22}
+.plans-btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+.plans-notice{margin-top:22px;color:#91a0b6;font-size:12px;text-align:center}
+@keyframes plans-arrive{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){.plans-cards{grid-template-columns:1fr}.plans-card{min-height:0}}
+EOF
+echo done

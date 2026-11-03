@@ -11,12 +11,15 @@ Rails.application.configure do
     policy.base_uri :self
     policy.img_src :self, :data, :https
     policy.font_src :self, "https://fonts.gstatic.com"
-    policy.style_src :self, "https://fonts.googleapis.com"
-    policy.script_src :self, "https://cdn.jsdelivr.net"
-    policy.connect_src :self, "https://cdn.jsdelivr.net"
+    policy.style_src :self, "https://fonts.googleapis.com",
+                     "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+                     "sha256-IlyKGAZsfxopcVXrKndKK3IRDnFuZYUMVfq8LZYGZ9c=",
+                     "sha256-O9Gks2+6RraT552R6e7iRGNVZiIUeq3vE63rNQ2LFkU="
+    policy.script_src :self, "https://cdn.jsdelivr.net", "https://*.epayco.co"
+    policy.connect_src :self, "https://cdn.jsdelivr.net", "https://*.epayco.co"
     policy.object_src :none
     policy.form_action :self
-    policy.frame_src :self
+    policy.frame_src :self, "https://*.epayco.co"
     policy.frame_ancestors :self
   end
 

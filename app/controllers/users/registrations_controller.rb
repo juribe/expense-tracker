@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
+  before_action :store_commercial_intent, only: [:new, :create]
+
+  def build_resource(hash = {})
+    super
+    resource.requires_membership = true if resource.is_a?(User) && resource.new_record?
+  end
+
+  def create
+    super do |resource|
+      session[:requires_membership] = true if resource.persisted?
+    end
+  end
   # Devise's default update_resource always demands the current password,
   # even for name-only edits. Only password/e-mail changes keep the
   # confirmation; a blank password updates the remaining profile freely.
@@ -44,5 +56,18 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def account_update_params
     params.require(:user).permit(:name, :email, :password, :password_confirmation, :current_password)
+  end
+
+  private
+
+  def store_commercial_intent
+    session[:trial_intent] = true if params[:trial].present? || params[:trial_intent].present?
+    session[:pending_payment_option_id] = params[:payment_option_id] if params[:payment_option_id].present?
+  end
+
+  protected
+
+  def after_inactive_sign_up_path_for(resource)
+    super
   end
 end

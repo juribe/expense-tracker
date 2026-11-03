@@ -61,7 +61,7 @@
               </div>
             </li>
             <li><div class="dropdown-divider"></div></li>
-            <li><%= link_to edit_user_registration_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+            <li><%= link_to profile_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
               <i class="ti ti-user-circle fs-5"></i><span><%= t("nav.profile", default: "Mi perfil") %></span><% end %></li>
             <li><%= link_to alert_settings_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
               <i class="ti ti-adjustments fs-5"></i><span><%= t("nav.alert_settings", default: "Preferencias de alertas") %></span><% end %></li>

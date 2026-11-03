@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function openTrial() {
       modalMode = "trial";
       document.getElementById("modalTitle").textContent = "Comienza tu prueba gratis";
-      document.getElementById("modalDesc").textContent = "Disfruta 30 días de acceso completo a Yogasto. No necesitas tarjeta y no te cobraremos automáticamente.";
+      document.getElementById("modalDesc").textContent = "Disfruta acceso completo a Yogasto. No necesitas tarjeta y no te cobraremos automáticamente.";
       document.getElementById("methodChoices").style.display = "none";
       document.getElementById("modalAction").textContent = "Activar prueba gratis";
       document.getElementById("modalFoot").textContent = "Sin tarjeta · Sin cobros · Sin compromisos";
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function modalContinue() {
       var note = document.getElementById("successNote");
-      note.textContent = modalMode === "trial" ? "Prototipo: aquí se conectaría la acción para crear la prueba gratuita de 30 días en Yogasto." : "Prototipo: aquí se redirigiría al checkout del proveedor con el plan y medio de pago seleccionados.";
+      note.textContent = modalMode === "trial" ? "Prototipo: aquí se conectaría la acción para crear la prueba gratuita en Yogasto." : "Prototipo: aquí se redirigiría al checkout del proveedor con el plan y medio de pago seleccionados.";
       note.classList.add("show");
     }
 

@@ -11,10 +11,10 @@ module PaymentEngine
         @active_subscriptions = Subscription.where(status: "active").count
         @upcoming_renewals = Subscription.where(status: "active").where("next_billing_at <= ?", 7.days.from_now).count
 
-        @recent_purchases = Purchase.order(created_at: :desc).limit(10)
-        @recent_payments = Payment.order(created_at: :desc).limit(10)
-        @recent_memberships = Membership.order(created_at: :desc).limit(10)
-        @cancelled_subscriptions = Subscription.where(status: "cancelled").order(updated_at: :desc).limit(10)
+        @recent_purchases = Purchase.includes(:owner, :payment_option).order(created_at: :desc).limit(10)
+        @recent_payments = Payment.includes(:purchase).order(created_at: :desc).limit(10)
+        @recent_memberships = Membership.includes(:owner, :membership_type).order(created_at: :desc).limit(10)
+        @cancelled_subscriptions = Subscription.includes(:owner, :payment_option).where(status: "cancelled").order(updated_at: :desc).limit(10)
         @failed_webhooks = WebhookEvent.where(status: "failed").order(created_at: :desc).limit(10)
 
         @providers_unconfigured = Provider.where(active: true).select { |p| !p.configured? }

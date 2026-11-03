@@ -40,6 +40,7 @@ module PaymentEngine
             starts_at: starts_at,
             expires_at: expires_at
           )
+          owner.update!(requires_membership: false) if owner.respond_to?(:requires_membership=)
           PaymentEngine::AuditLog.create!(
             actor_type: actor&.class&.name || owner.class.name,
             actor_id: actor&.id || owner.id,

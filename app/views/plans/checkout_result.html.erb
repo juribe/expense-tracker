@@ -1,0 +1,35 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag :plans, "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="content-wrapper py-4">
+  <div class="plans-card" style="max-width: 560px; margin: 0 auto; text-align: center;">
+    <h2 style="margin-bottom: 8px;">
+      <% if @purchase_status == "paid" %>
+        ¡Pago aprobado!
+      <% elsif @purchase_status == "failed" %>
+        Pago no aprobado
+      <% else %>
+        Estamos validando tu pago
+      <% end %>
+    </h2>
+
+    <p style="color: #555;">
+      <% if @purchase_status == "paid" %>
+        Ya puedes usar tu membresía. Si no ve el acceso, espera unos segundos y vuelve a cargar la página.
+      <% elsif @purchase_status == "failed" %>
+        Hubo un problema con el pago o fue rechazado. Puedes intentarlo de nuevo.
+      <% else %>
+        El pago está siendo confirmado; esto puede tardar unos minutos. Cuando el webhook confirme la transacción, tu membresía se activará automáticamente.
+      <% end %>
+    </p>
+
+    <% if @ref_payco.present? %>
+      <p style="font-size: 0.9rem; color: #777;">Referencia ePayco: <code><%= @ref_payco %></code></p>
+    <% end %>
+
+    <p style="margin-top: 24px;">
+      <%= link_to "Volver a planes", plans_path, class: "plans-btn" %>
+    </p>
+  </div>
+</div>

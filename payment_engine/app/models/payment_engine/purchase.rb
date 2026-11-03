@@ -11,6 +11,7 @@ module PaymentEngine
     validates :code, presence: true, uniqueness: true
     validates :status, inclusion: { in: %w[pending paid failed cancelled refunded] }
 
+    scope :pending_or_processing, -> { where(status: %w[pending processing]) }
     before_validation :ensure_code
 
     def ensure_code

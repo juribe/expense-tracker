@@ -1,9 +1,11 @@
-# frozen_string_literal: true
-
 module PaymentEngine
   class Configuration
     attr_accessor :admin_authentication, :admin_authorization, :current_user,
-                  :login_path, :owner_resolver, :audit_actor_type
+                  :login_path, :owner_resolver, :audit_actor_type,
+                  :default_provider, :providers, :membership_timezone,
+                  :expiration_grace_period_days, :revoke_access_on_refund,
+                  :webhook_tolerance_seconds, :purchase_duplicate_window_minutes,
+                  :logger
 
     def initialize
       @admin_authentication = nil
@@ -18,6 +20,27 @@ module PaymentEngine
       }
       @owner_resolver = lambda { |owner| PaymentEngine::Configuration.default_owner_resolver(owner) }
       @audit_actor_type = "User"
+
+      @default_provider = nil
+      @providers = {}
+      @membership_timezone = "UTC"
+      @expiration_grace_period_days = 0
+      @revoke_access_on_refund = true
+      @webhook_tolerance_seconds = 300
+      @purchase_duplicate_window_minutes = 15
+      @logger = nil
+    end
+
+    def provider_settings(name)
+      (@providers || {}).fetch(name.to_sym, {}).to_h.symbolize_keys
+    end
+
+    def expiration_grace_period
+      expiration_grace_period_days.to_i.days
+    end
+
+    def engine_logger
+      @logger || (defined?(Rails) && Rails.respond_to?(:logger) ? Rails.logger : Logger.new($stdout))
     end
 
     def self.settings
@@ -49,6 +72,7 @@ module PaymentEngine
     def self.free_trial_once_per_user?
       settings&.free_trial_once_per_user != false
     end
+
     def self.default_owner_resolver(owner)
       return { label: "—", type: nil, id: nil } unless owner
       label = if owner.respond_to?(:name) && owner.name.present?
@@ -70,5 +94,12 @@ module PaymentEngine
 
   def configure
     yield configuration
+    reset_providers!
+    configuration
+  end
+
+  def reset_configuration!
+    @configuration = Configuration.new
+    reset_providers!
   end
 end
