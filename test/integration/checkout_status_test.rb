@@ -1,5 +1,24 @@
 require "test_helper"
 
+class VerifyErrorProvider < PaymentEngine::Providers::Base
+  def fetch_payment(provider_transaction_id:)
+    PaymentEngine::Result.success(
+      data: { "success" => false, "textResponse" => "referencePayco invalid" }
+    )
+  end
+end
+
+class VerifyCancelledProvider < PaymentEngine::Providers::Base
+  def fetch_payment(provider_transaction_id:)
+    PaymentEngine::Result.success(
+      data: { "success" => true, "data" => { "status" => "Cancelada", "bill" => provider_transaction_id } }
+    )
+  end
+end
+
+PaymentEngine.register_provider(:verify_error_test, VerifyErrorProvider)
+PaymentEngine.register_provider(:verify_cancelled_test, VerifyCancelledProvider)
+
 # The checkout result page polls this endpoint; it must return normalized
 # statuses and treat an already-paid purchase as a successful payment.
 class CheckoutStatusTest < ActionDispatch::IntegrationTest
@@ -55,6 +74,64 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
     assert_equal "pending", JSON.parse(response.body)["status"]
   end
 
+  test "returns failed for a failed purchase even when a provider ref is present" do
+    create_purchase(status: "failed")
+
+    get checkout_status_plans_path(ref_payco: "6aea42dbc7396940e5177291")
+
+    assert_response :ok
+    assert_equal "failed", JSON.parse(response.body)["status"]
+  end
+
+  test "verification treats a provider error as failure instead of pending" do
+    purchase = create_purchase(status: "pending")
+
+    result = PaymentEngine::Payments::Verify.call(
+      provider: "verify_error_test",
+      reference: "invalid-ref",
+      purchase: purchase
+    )
+
+    refute result.success?
+    assert_equal :provider_rejected_query, result.code
+    assert_equal "pending", purchase.reload.status
+  end
+
+  test "verification marks a cancelled transaction as failed" do
+    purchase = create_purchase(status: "pending")
+
+    result = PaymentEngine::Payments::Verify.call(
+      provider: "verify_cancelled_test",
+      reference: purchase.id.to_s,
+      purchase: purchase
+    )
+
+    assert result.success?
+    assert_equal "failed", result.data[:state]
+    assert_equal "failed", purchase.reload.status
+  end
+
+  test "webhook maps a cancelled response to rejected" do
+    handler = PaymentEngine::Providers::Epayco::WebhookHandler.new(
+      settings: { customer_id: "customer", p_key: "key" }
+    )
+
+    result = handler.parse(
+      payload: {
+        "x_cod_response" => "0",
+        "x_response" => "Cancelada",
+        "x_ref_payco" => "392216452",
+        "x_transaction_id" => "48772185953887",
+        "x_id_factura" => "33",
+        "x_amount" => "14900.00",
+        "x_currency_code" => "COP"
+      }
+    )
+
+    assert result.success?
+    assert_equal "payment.rejected", result.data[:event_type]
+  end
+
   test "requires authentication" do
     sign_out @owner
 
@@ -73,11 +150,16 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
       currency: @option.currency,
       status: status
     )
+    payment_status = case status
+                     when "paid" then "succeeded"
+                     when "failed" then "failed"
+                     else "pending"
+                     end
     payment = PaymentEngine::Payment.create!(
       purchase: purchase,
       amount: purchase.amount,
       currency: purchase.currency,
-      status: status == "paid" ? "succeeded" : "pending",
+      status: payment_status,
       provider_code: "epayco"
     )
     purchase.update!(payment: payment)

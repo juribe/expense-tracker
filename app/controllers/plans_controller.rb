@@ -54,20 +54,22 @@ class PlansController < ApplicationController
     purchase = PaymentEngine::Purchase.find_by(id: session[:pending_purchase_id]) ||
                PaymentEngine::Purchase.where(owner: current_user).order(created_at: :desc).first
 
-    if ref.present? && purchase
-      result = PaymentEngine::Payments::Verify.call(
-        provider: "epayco",
-        reference: ref,
-        purchase: purchase,
-        payment: purchase.payment
-      )
-      if result.success?
-        render json: { status: normalized_status(result.data[:state]), ref_payco: ref, purchase_id: purchase.id }
-        return
+    status = normalized_status(purchase&.status)
+
+    if purchase && !terminal_status?(status)
+      provider_reference = purchase.payment&.external_reference.presence || ref
+      if provider_reference.present?
+        result = PaymentEngine::Payments::Verify.call(
+          provider: "epayco",
+          reference: provider_reference,
+          purchase: purchase,
+          payment: purchase.payment
+        )
+        status = normalized_status(result.data[:state]) if result.success?
       end
     end
 
-    render json: { status: normalized_status(purchase&.status), ref_payco: ref, purchase_id: purchase&.id }
+    render json: { status: status, ref_payco: ref, purchase_id: purchase&.id }
   end
 
   def create_checkout
@@ -194,5 +196,9 @@ class PlansController < ApplicationController
     when "refunded" then "refunded"
     else "pending"
     end
+  end
+
+  def terminal_status?(status)
+    %w[succeeded failed refunded].include?(status)
   end
 end

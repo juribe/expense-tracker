@@ -81,7 +81,7 @@ module PaymentEngine
         payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
         payment.update!(
           provider_code: webhook_event.provider_code,
-          external_reference: data["provider_transaction_id"] || data["event_id"],
+          external_reference: provider_reference_for(data),
           status: "succeeded"
         )
         purchase.update!(status: "paid", payment_id: payment.id)
@@ -92,7 +92,11 @@ module PaymentEngine
 
       def handle_payment_rejected(purchase, data)
         payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
-        payment.update!(provider_code: webhook_event.provider_code, status: "failed")
+        payment.update!(
+          provider_code: webhook_event.provider_code,
+          external_reference: provider_reference_for(data),
+          status: "failed"
+        )
         purchase.update!(status: "failed")
         audit!(action: "payment.rejected", auditable: purchase, changes: { status: "failed" })
         Result.new(success: true, record: payment)
@@ -100,17 +104,30 @@ module PaymentEngine
 
       def handle_payment_pending(purchase, data)
         payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
-        payment.save!
+        payment.update!(
+          provider_code: webhook_event.provider_code,
+          external_reference: provider_reference_for(data)
+        )
         audit!(action: "payment.pending", auditable: purchase, changes: { status: "pending" })
         Result.new(success: true, record: payment)
       end
 
       def handle_payment_refunded(purchase, data)
         payment = purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: webhook_event.provider_code)
-        payment.update!(provider_code: webhook_event.provider_code, status: "refunded")
+        payment.update!(
+          provider_code: webhook_event.provider_code,
+          external_reference: provider_reference_for(data),
+          status: "refunded"
+        )
         purchase.update!(status: "refunded")
         audit!(action: "payment.refunded", auditable: purchase, changes: { status: "refunded" })
         Result.new(success: true, record: payment)
+      end
+
+      def provider_reference_for(data)
+        data.dig("metadata", "epayco_ref").presence ||
+          data["provider_transaction_id"].presence ||
+          data["event_id"]
       end
 
 

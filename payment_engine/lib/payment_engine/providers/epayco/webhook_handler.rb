@@ -67,7 +67,7 @@ module PaymentEngine
           return :refunded if code == "6" || response.match?(/reversad|reembols/)
           return :approved if code == "1" || response.match?(/aceptad|aprobad/)
           return :pending if code == "3" || response.match?(/pendient/)
-          return :rejected if %w[2 4 9 10 11].include?(code) || response.match?(/rechazad|fallid|expirad|abandonad/)
+          return :rejected if %w[2 4 9 10 11].include?(code) || response.match?(/rechazad|fallid|expirad|abandonad|cancelad|anulad|voided/)
 
           :pending
         end
