@@ -9,6 +9,7 @@ class ApplicationController < ActionController::Base
   layout :layout_for_request
 
   before_action :authenticate_user!
+  before_action :require_membership_selection, if: -> { user_signed_in? }
   before_action :set_page_title, if: -> { request.get? }
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -53,6 +54,31 @@ class ApplicationController < ActionController::Base
     return false if cookies[:membership_expiry_banner] == Date.current.to_s
 
     true
+  end
+
+  def require_membership_selection
+    return unless user_signed_in?
+    return unless current_user.respond_to?(:requires_membership) && current_user.requires_membership?
+
+    if current_user_has_active_membership?
+      current_user.update!(requires_membership: false)
+      return
+    end
+    return if allowed_without_membership?
+
+    redirect_to plans_path, alert: "Selecciona una membresía para continuar." and return
+  end
+
+  def current_user_has_active_membership?
+    PaymentEngine::Membership.where(owner: current_user, status: "active")
+      .where("expires_at IS NULL OR expires_at >= ?", Time.current).exists?
+  rescue StandardError
+    false
+  end
+
+  def allowed_without_membership?
+    controller_name.in?(%w[plans home sessions registrations confirmations passwords]) ||
+      (controller_name == "payment_engine" && action_name == "create")
   end
 
   def prepare_membership_expiry_banner

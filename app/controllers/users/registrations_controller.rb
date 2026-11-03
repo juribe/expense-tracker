@@ -3,6 +3,17 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   before_action :store_commercial_intent, only: [:new, :create]
 
+  def build_resource(hash = {})
+    super
+    resource.requires_membership = true if resource.is_a?(User) && resource.new_record?
+  end
+
+  def create
+    super do |resource|
+      session[:requires_membership] = true if resource.persisted?
+    end
+  end
+
   # Devise's default update_resource always demands the current password,
   # even for name-only edits. Only password/e-mail changes keep the
   # confirmation; a blank password updates the remaining profile freely.

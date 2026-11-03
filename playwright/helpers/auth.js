@@ -28,6 +28,12 @@ async function signUp(page, overrides = {}) {
   }
   await signIn(page, email, password);
 
+  // Grant a free trial so membership gating does not block navigation in E2E specs.
+  const trialResponse = await page.request.post('/test_support/grant_trial', { form: { email } });
+  if (!trialResponse.ok()) {
+    throw new Error(`Could not grant trial to ${email}: ${trialResponse.status()}`);
+  }
+
   return { email, password, name };
 }
 

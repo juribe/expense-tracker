@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   if Rails.env.test?
     post "test_support/confirm_user", to: "test_support/confirmations#create"
     post "test_support/promote_admin", to: "test_support/admins#create"
+    post "test_support/grant_trial", to: "test_support/memberships#create"
   end
 
   # MCP token management (Settings → AI agents)
