@@ -136,15 +136,28 @@ module PaymentEngine
         option = purchase.payment_option
         return Result.new(success: true, record: nil) if option.nil?
 
-        expires_at = (purchase.created_at || Time.current) + option.access_duration
-        result = Memberships::Grant.call(
-          owner: purchase.owner,
-          membership_type: option.membership_type,
-          starts_at: purchase.created_at || Time.current,
-          expires_at: expires_at,
-          source: "purchase",
-          purchase: purchase
-        )
+        existing = Membership.where(owner: purchase.owner, membership_type: option.membership_type, status: "active").order(expires_at: :desc).first
+
+        if existing && existing.expires_at.present? && existing.expires_at > Time.current
+          # Preserve remaining time on early renewal.
+          result = Memberships::Extend.call(
+            membership: existing,
+            duration: option.access_duration,
+            actor: nil,
+            reason: "renewal"
+          )
+        else
+          expires_at = (purchase.created_at || Time.current) + option.access_duration
+          result = Memberships::Grant.call(
+            owner: purchase.owner,
+            membership_type: option.membership_type,
+            starts_at: purchase.created_at || Time.current,
+            expires_at: expires_at,
+            source: "purchase",
+            purchase: purchase
+          )
+        end
+
         return result unless result.success?
 
         purchase.update!(membership_id: result.record.id)
