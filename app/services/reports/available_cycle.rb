@@ -40,6 +40,11 @@ class Reports::AvailableCycle
 
   def pending_monthly_expenses(cycle)
     user.recurring_templates.active.where(kind: "expense").includes(:category).filter_map do |template|
+      # A template that has been marked as paid for this cycle is done, even
+      # if the paid amount is below the configured amount (partial payments
+      # recorded under a manual "paid in full" decision).
+      next if template.fully_paid_for_period?(cycle)
+
       paid = template.paid_amount_for_period(cycle).to_d
       missing = template.amount.to_d - paid
       next if missing <= 0

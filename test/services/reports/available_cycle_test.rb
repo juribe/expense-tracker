@@ -94,6 +94,14 @@ class ReportsAvailableCycleTest < ActiveSupport::TestCase
     assert_equal 0.to_d, data[:pending_total]
   end
 
+  test "expense marked as paid is excluded even when partially paid" do
+    t = template(name: "Internet", amount: 100_000, payment_day: 28)
+    RecurringTemplateProcessor.call(recurring_template: t, amount: 40_000, date: Date.new(2026, 10, 28), money_source: @bank, mark_as_paid: true)
+    data = report
+    assert_empty data[:pending_expenses]
+    assert_equal 0.to_d, data[:pending_total]
+  end
+
   test "remaining calculation positive zero negative" do
     template(name: "Internet", amount: 100_000, payment_day: 28)
     data = report
