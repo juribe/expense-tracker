@@ -9,6 +9,11 @@
     var ref = root.dataset.checkoutRefPayco;
     var statusEl = document.querySelector("[data-checkout-status]");
     var copyBtn = document.querySelector("[data-copy-reference]");
+    var intervals = [5000, 10000, 15000, 20000, 25000, 30000];
+    var attempt = 0;
+    var timer = null;
+    var stopped = false;
+
     if (copyBtn) {
       copyBtn.addEventListener("click", function () {
         var refId = copyBtn.dataset.copyReference;
@@ -27,32 +32,41 @@
       });
     }
 
+    function stop() {
+      stopped = true;
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+
+    function schedule() {
+      if (stopped) return;
+      var delay = intervals[Math.min(attempt, intervals.length - 1)];
+      timer = setTimeout(poll, delay);
+      attempt += 1;
+    }
+
     function poll() {
       var fetchUrl = url + (ref ? "?ref_payco=" + encodeURIComponent(ref) : "");
       fetch(fetchUrl, { headers: { "Accept": "application/json" } })
         .then(function (res) { return res.json(); })
         .then(function (data) {
           if (statusEl) statusEl.textContent = data.status;
+
           if (data.status === "succeeded" || data.status === "failed" || data.status === "refunded") {
-            if (interval) clearInterval(interval);
+            stop();
             if (data.status === "succeeded") {
               setTimeout(function () { window.location.href = "/plans"; }, 3000);
             }
+            return;
           }
-        })
-        .catch(function () {});
-    }
 
-    function scheduleNext() {
-      if (interval) clearInterval(interval);
-      interval = setInterval(function () {
-        poll();
-        intervalIndex = Math.min(intervalIndex + 1, intervals.length - 1);
-        scheduleNext();
-      }, intervals[intervalIndex]);
+          schedule();
+        })
+        .catch(function () { schedule(); });
     }
 
     poll();
-    scheduleNext();
   });
 })();

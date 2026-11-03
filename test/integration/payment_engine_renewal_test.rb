@@ -167,6 +167,31 @@ class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
     assert_in_range (existing.expires_at + 2.months).to_i, (PaymentEngine::Membership.find(existing.id).expires_at.to_i - 2)..(PaymentEngine::Membership.find(existing.id).expires_at.to_i + 2)
   end
 
+  test "verification preserves remaining time and does not extend twice" do
+    existing = PaymentEngine::Membership.create!(
+      owner: @owner,
+      membership_type: @membership_type,
+      status: "active",
+      starts_at: Time.current - 27.days,
+      expires_at: Time.current + 3.days,
+      source: "purchase"
+    )
+
+    purchase = PaymentEngine::Purchase.create!(owner: @owner, payment_option: @monthly, amount: 14_900, currency: "COP", status: "pending")
+
+    result = PaymentEngine::Payments::Verify.call(provider: "fake", reference: "ref-verify", purchase: purchase)
+    assert result.success?
+    assert_equal "succeeded", result.data[:state]
+
+    expected = (existing.expires_at + 1.month).to_i
+    first_expires = purchase.reload.membership.expires_at.to_i
+    assert_in_range expected, (first_expires - 2)..(first_expires + 2)
+
+    again = PaymentEngine::Payments::Verify.call(provider: "fake", reference: "ref-verify", purchase: purchase.reload)
+    assert again.success?
+    assert_equal first_expires, purchase.reload.membership.expires_at.to_i
+  end
+
   private
 
   def webhook_payload(purchase, code, response, amount = "14900.00")

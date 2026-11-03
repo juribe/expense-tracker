@@ -39,7 +39,7 @@ module PaymentEngine
           when "succeeded"
             payment.update!(provider_code: @provider.to_s, external_reference: @reference, status: "succeeded")
             purchase.update!(status: "paid", payment_id: payment.id) unless purchase.status == "paid"
-            grant_membership(purchase) unless purchase.membership
+            Memberships::FulfillPurchase.call(purchase: purchase.reload)
           when "failed"
             payment.update!(provider_code: @provider.to_s, external_reference: @reference, status: "failed")
             purchase.update!(status: "failed") unless purchase.status == "paid"
@@ -77,27 +77,6 @@ module PaymentEngine
         return "pending" if code.to_s == "3" || state.to_s.match?(/pendient|pending/i)
 
         "pending"
-      end
-
-      def grant_membership(purchase)
-        return Result.new(success: true, record: purchase.membership) if purchase.membership
-
-        option = purchase.payment_option
-        return Result.new(success: true, record: nil) if option.nil?
-
-        expires_at = (purchase.created_at || Time.current) + option.access_duration
-        result = Memberships::Grant.call(
-          owner: purchase.owner,
-          membership_type: option.membership_type,
-          starts_at: purchase.created_at || Time.current,
-          expires_at: expires_at,
-          source: "purchase",
-          purchase: purchase
-        )
-        return result unless result.success?
-
-        purchase.update!(membership_id: result.record.id)
-        result
       end
     end
   end
