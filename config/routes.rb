@@ -266,6 +266,7 @@ Rails.application.routes.draw do
   get "plans", to: "plans#index", as: :plans
   get "profile", to: "profiles#show", as: :profile
   get "plans/checkout_result", to: "plans#checkout_result", as: :checkout_result_plans
+  get "plans/checkout_status", to: "plans#checkout_status", as: :checkout_status_plans
   post "plans/start_trial", to: "plans#start_trial", as: :start_trial_plans
   get "plans/checkout", to: "plans#checkout", as: :checkout_plans
   post "plans/checkout", to: "plans#create_checkout", as: :create_checkout_plans

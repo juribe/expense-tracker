@@ -48,6 +48,27 @@ class PlansController < ApplicationController
     @purchase_status = purchase&.status || "unknown"
   end
 
+  def checkout_status
+    ref = params[:ref_payco].presence
+    purchase = PaymentEngine::Purchase.find_by(id: session[:pending_purchase_id]) ||
+               PaymentEngine::Purchase.where(owner: current_user).order(created_at: :desc).first
+
+    if ref.present? && purchase
+      result = PaymentEngine::Payments::Verify.call(
+        provider: "epayco",
+        reference: ref,
+        purchase: purchase,
+        payment: purchase.payment
+      )
+      if result.success?
+        render json: { status: result.data[:state], ref_payco: ref, purchase_id: purchase.id }
+        return
+      end
+    end
+
+    render json: { status: purchase&.status || "unknown", ref_payco: ref, purchase_id: purchase&.id }
+  end
+
   def create_checkout
     option = PaymentEngine::PaymentOption.find(params[:payment_option_id])
     unless PaymentEngine::Configuration.payments_enabled?

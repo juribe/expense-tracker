@@ -1,8 +1,9 @@
 <%= content_for :head do %>
   <%= stylesheet_link_tag :checkout_result, "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "checkout_poll", defer: true %>
 <% end %>
 
-<div class="checkout-result">
+<div class="checkout-result" data-checkout-status-url="<%= checkout_status_plans_path %>" data-checkout-ref-payco="<%= @ref_payco %>">
   <div class="content">
     <div class="crumb">Panel <span style="padding:0 7px">›</span> <b>Estado del pago</b></div>
     <article class="panel">
@@ -23,6 +24,7 @@
             Tu pago fue recibido y estamos esperando la confirmación de ePayco. Este proceso puede tardar unos minutos.
             No necesitas realizar el pago nuevamente.
           </p>
+          <p class="status-line">Estado: <span data-checkout-status><%= @purchase_status %></span></p>
         </div>
       </div>
       <div class="body">
