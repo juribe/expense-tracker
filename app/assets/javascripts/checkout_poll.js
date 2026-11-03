@@ -7,6 +7,7 @@
 
     var url = root.dataset.checkoutStatusUrl;
     var ref = root.dataset.checkoutRefPayco;
+    var successUrl = root.dataset.checkoutSuccessUrl || "/";
     var statusEl = document.querySelector("[data-checkout-status]");
     var headingEl = document.querySelector("[data-checkout-heading]");
     var messageEl = document.querySelector("[data-checkout-message]");
@@ -48,7 +49,7 @@
       if (status === "succeeded") {
         if (eyebrowEl) eyebrowEl.innerHTML = "<span>✓</span> Pago aprobado";
         if (headingEl) headingEl.textContent = "¡Tu pago fue aprobado!";
-        if (messageEl) messageEl.textContent = "Tu membresía se activó correctamente. Te llevaremos a tus planes en unos segundos.";
+        if (messageEl) messageEl.textContent = "Tu membresía se activó correctamente. Te llevaremos a tu dashboard en unos segundos.";
       } else if (status === "failed" || status === "refunded") {
         if (eyebrowEl) eyebrowEl.innerHTML = "<span>!</span> Pago no completado";
         if (headingEl) headingEl.textContent = "No pudimos completar tu pago";
@@ -81,7 +82,7 @@
           if (data.status === "succeeded" || data.status === "failed" || data.status === "refunded") {
             stop();
             if (data.status === "succeeded") {
-              setTimeout(function () { window.location.href = "/plans"; }, 3000);
+              setTimeout(function () { window.location.href = successUrl; }, 3000);
             }
             return;
           }

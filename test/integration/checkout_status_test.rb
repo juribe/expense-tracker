@@ -83,6 +83,23 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
     assert_equal "failed", JSON.parse(response.body)["status"]
   end
 
+  test "checkout result points the success redirect at the dashboard" do
+    create_purchase(status: "pending")
+
+    get checkout_result_plans_path
+
+    assert_response :ok
+    assert_includes response.body, 'data-checkout-success-url="/dashboard"'
+  end
+
+  test "an already paid checkout result redirects to the dashboard" do
+    create_purchase(status: "paid")
+
+    get checkout_result_plans_path
+
+    assert_redirected_to dashboard_path
+  end
+
   test "verification treats a provider error as failure instead of pending" do
     purchase = create_purchase(status: "pending")
 
