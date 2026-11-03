@@ -8,9 +8,24 @@
     var url = root.dataset.checkoutStatusUrl;
     var ref = root.dataset.checkoutRefPayco;
     var statusEl = document.querySelector("[data-checkout-status]");
-    var interval = null;
-    var intervals = [5000, 10000, 15000, 20000, 25000, 30000];
-    var intervalIndex = 0;
+    var copyBtn = document.querySelector("[data-copy-reference]");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", function () {
+        var refId = copyBtn.dataset.copyReference;
+        var refEl = document.getElementById(refId);
+        if (!refEl) return;
+        var text = refEl.textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            copyBtn.textContent = "¡Copiada!";
+          }).catch(function () {
+            copyBtn.textContent = "Selecciona la referencia";
+          });
+        } else {
+          copyBtn.textContent = "Selecciona la referencia";
+        }
+      });
+    }
 
     function poll() {
       var fetchUrl = url + (ref ? "?ref_payco=" + encodeURIComponent(ref) : "");

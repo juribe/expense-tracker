@@ -5,7 +5,7 @@
 
 <div class="checkout-result" data-checkout-status-url="<%= checkout_status_plans_path %>" data-checkout-ref-payco="<%= @ref_payco %>">
   <div class="content">
-    <div class="crumb">Panel <span style="padding:0 7px">›</span> <b>Estado del pago</b></div>
+    <div class="crumb">Panel <span class="crumb-sep">›</span> <b>Estado del pago</b></div>
     <article class="panel">
       <div class="hero">
         <div class="status-art">
@@ -53,8 +53,7 @@
               <div class="ref-label">REFERENCIA DE PAGO · EPAYCO</div>
               <div class="ref-value" id="reference"><%= @ref_payco %></div>
             </div>
-            <button class="copy" type="button"
-                    onclick="navigator.clipboard?.writeText(document.getElementById('reference').textContent).then(()=>this.textContent='¡Copiada!').catch(()=>this.textContent='Selecciona la referencia')">
+            <button class="copy" type="button" data-copy-reference="reference">
               ▢　Copiar
             </button>
           </div>

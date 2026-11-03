@@ -9,9 +9,8 @@
   color: #91a0b4;
   margin-bottom: 17px;
 }
-.checkout-result .crumb b {
-  color: #5e6d83;
-  font-weight: 600;
+.checkout-result .crumb-sep {
+  padding: 0 7px;
 }
 .checkout-result .panel {
   background: #fff;
