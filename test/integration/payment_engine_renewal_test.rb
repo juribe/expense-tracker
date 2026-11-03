@@ -62,6 +62,36 @@ class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
     assert_in_range (existing.expires_at + 1.month).to_i, (purchase.reload.membership.reload.expires_at.to_i - 1)..(purchase.reload.membership.expires_at.to_i + 1)
   end
 
+  test "early renewal with 15 remaining days preserves time" do
+    existing = create_membership(expires_at: Time.current + 15.days)
+    purchase = create_purchase
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload(purchase, "1", "Aceptada")
+
+    assert_response :ok
+    assert_in_range (existing.expires_at + 1.month).to_i, expires_range(purchase)
+  end
+
+  test "renewal exactly on expiration date starts a new period" do
+    create_membership(expires_at: Time.current)
+    purchase = create_purchase
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload(purchase, "1", "Aceptada")
+
+    assert_response :ok
+    assert_in_range (purchase.created_at + 1.month).to_i, expires_range(purchase)
+  end
+
+  test "annual early renewal preserves remaining time" do
+    existing = create_membership(expires_at: Time.current + 3.days)
+    purchase = create_purchase(option: @annual, amount: 149_900)
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload(purchase, "1", "Aceptada", "149900.00")
+
+    assert_response :ok
+    assert_in_range (existing.expires_at + 12.months).to_i, expires_range(purchase)
+  end
+
   test "renewal after expiration starts from payment date" do
     expired = PaymentEngine::Membership.create!(
       owner: @owner,
@@ -79,7 +109,9 @@ class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
     post "/payment_engine/webhooks/epayco", params: webhook_payload(purchase, "1", "Aceptada")
 
     assert_response :ok
-    assert purchase.reload.membership.expires_at > Time.current
+    membership = purchase.reload.membership
+    refute_equal expired.id, membership.id
+    assert_in_range (purchase.created_at + 1.month).to_i, (membership.expires_at.to_i - 2)..(membership.expires_at.to_i + 2)
   end
 
   test "failed payment does not extend membership" do
@@ -193,6 +225,29 @@ class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def create_membership(expires_at:, status: "active")
+    PaymentEngine::Membership.create!(
+      owner: @owner,
+      membership_type: @membership_type,
+      status: status,
+      starts_at: Time.current - 27.days,
+      expires_at: expires_at,
+      source: "purchase"
+    )
+  end
+
+  def create_purchase(option: @monthly, amount: 14_900)
+    purchase = PaymentEngine::Purchase.create!(owner: @owner, payment_option: option, amount: amount, currency: "COP", status: "pending")
+    payment = PaymentEngine::Payment.create!(purchase: purchase, amount: purchase.amount, currency: "COP", status: "pending", provider_code: "epayco")
+    purchase.update!(payment: payment)
+    purchase
+  end
+
+  def expires_range(purchase)
+    expires = purchase.reload.membership.expires_at.to_i
+    (expires - 2)..(expires + 2)
+  end
 
   def webhook_payload(purchase, code, response, amount = "14900.00")
     signature = Digest::SHA256.hexdigest(
