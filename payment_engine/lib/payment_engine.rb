@@ -70,7 +70,7 @@ module PaymentEngine
         record = PaymentEngine::Provider.where(Arel.sql("lower(code) = ?"), key.to_s.downcase).first
         return {} unless record
 
-        record.credentials.to_h.merge(record.settings.to_h).symbolize_keys
+        (record.credentials || {}).to_h.merge((record.settings || {}).to_h).symbolize_keys
       rescue StandardError
         {}
       end

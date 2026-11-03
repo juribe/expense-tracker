@@ -118,3 +118,19 @@ External MCP clients can query and operate the user's finances through
 `POST /mcp`. Each user connects with a revocable personal token created in
 Settings → AI agents. Authentication, the tool catalogue, structured examples
 and known limitations are documented in [docs/mcp.md](docs/mcp.md).
+
+### Payment provider credentials encryption
+
+Payment provider credentials and settings are encrypted at rest with
+ActiveRecord Encryption. Production must provide all three keys:
+
+```sh
+export ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY="..."
+export ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY="..."
+export ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT="..."
+```
+
+The keys can also be stored under `active_record_encryption` in encrypted
+credentials. Development and test derive deterministic keys from the local
+secret key base, so no additional configuration is required there. Changing
+these keys makes previously encrypted provider credentials unreadable.
