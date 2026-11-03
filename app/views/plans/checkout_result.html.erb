@@ -1,35 +1,80 @@
-<% content_for :head do %>
-  <%= stylesheet_link_tag :plans, "data-turbo-track": "reload" %>
+<%= content_for :head do %>
+  <%= stylesheet_link_tag :checkout_result, "data-turbo-track": "reload" %>
 <% end %>
 
-<div class="content-wrapper py-4">
-  <div class="plans-card" style="max-width: 560px; margin: 0 auto; text-align: center;">
-    <h2 style="margin-bottom: 8px;">
-      <% if @purchase_status == "paid" %>
-        ¡Pago aprobado!
-      <% elsif @purchase_status == "failed" %>
-        Pago no aprobado
-      <% else %>
-        Estamos validando tu pago
-      <% end %>
-    </h2>
+<div class="checkout-result">
+  <div class="content">
+    <div class="crumb">Panel <span style="padding:0 7px">›</span> <b>Estado del pago</b></div>
+    <article class="panel">
+      <div class="hero">
+        <div class="status-art">
+          <span class="pulse"></span>
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="12" y="17" width="40" height="36" rx="7" stroke="#4D8FDE" stroke-width="3"/>
+            <path d="M21 11v12M43 11v12M13 28h38" stroke="#4D8FDE" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="32" cy="41" r="9" fill="#fff" stroke="#E8AD43" stroke-width="3"/>
+            <path d="M32 36v5l4 2" stroke="#D18B20" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="hero-copy">
+          <div class="eyebrow"><span>◷</span> Pago en proceso</div>
+          <h1>Estamos validando tu pago</h1>
+          <p>
+            Tu pago fue recibido y estamos esperando la confirmación de ePayco. Este proceso puede tardar unos minutos.
+            No necesitas realizar el pago nuevamente.
+          </p>
+        </div>
+      </div>
+      <div class="body">
+        <h2 class="body-title">¿Qué está pasando con tu pago?</h2>
+        <div class="steps">
+          <div class="step done">
+            <div class="step-dot">✓</div>
+            <strong>Pago enviado</strong>
+            <small>Solicitud recibida</small>
+          </div>
+          <div class="step current">
+            <div class="step-dot">2</div>
+            <strong>Validando pago</strong>
+            <small>Esperando confirmación</small>
+          </div>
+          <div class="step">
+            <div class="step-dot">3</div>
+            <strong>Membresía activa</strong>
+            <small>Se activará automáticamente</small>
+          </div>
+        </div>
 
-    <p style="color: #555;">
-      <% if @purchase_status == "paid" %>
-        Ya puedes usar tu membresía. Si no ve el acceso, espera unos segundos y vuelve a cargar la página.
-      <% elsif @purchase_status == "failed" %>
-        Hubo un problema con el pago o fue rechazado. Puedes intentarlo de nuevo.
-      <% else %>
-        El pago está siendo confirmado; esto puede tardar unos minutos. Cuando el webhook confirme la transacción, tu membresía se activará automáticamente.
-      <% end %>
-    </p>
+        <% if @ref_payco.present? %>
+          <div class="reference">
+            <div>
+              <div class="ref-label">REFERENCIA DE PAGO · EPAYCO</div>
+              <div class="ref-value" id="reference"><%= @ref_payco %></div>
+            </div>
+            <button class="copy" type="button"
+                    onclick="navigator.clipboard?.writeText(document.getElementById('reference').textContent).then(()=>this.textContent='¡Copiada!').catch(()=>this.textContent='Selecciona la referencia')">
+              ▢　Copiar
+            </button>
+          </div>
+        <% end %>
 
-    <% if @ref_payco.present? %>
-      <p style="font-size: 0.9rem; color: #777;">Referencia ePayco: <code><%= @ref_payco %></code></p>
-    <% end %>
+        <div class="notice">
+          <div class="notice-icon">i</div>
+          <div>
+            <strong>Tu membresía se activará automáticamente.</strong><br>
+            Cuando ePayco confirme la transacción, actualizaremos tu cuenta. Puedes continuar usando Yogasto; no cierres ni repitas el proceso de pago.
+          </div>
+        </div>
 
-    <p style="margin-top: 24px;">
-      <%= link_to "Volver a planes", plans_path, class: "plans-btn" %>
-    </p>
+        <div class="footer-actions">
+          <div class="help">¿Tienes dudas? <a href="#">Consulta la ayuda</a></div>
+          <div class="actions">
+            <%= link_to "Volver a planes", plans_path, class: "btn btn-secondary" %>
+            <%= link_to "Consultar estado", checkout_result_plans_path(ref_payco: @ref_payco), class: "btn btn-primary" %>
+          </div>
+        </div>
+      </div>
+    </article>
+    <div class="foot">© 2026 Yogasto · Tus finanzas, más claras.</div>
   </div>
 </div>
