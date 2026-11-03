@@ -9,6 +9,8 @@
     var ref = root.dataset.checkoutRefPayco;
     var statusEl = document.querySelector("[data-checkout-status]");
     var interval = null;
+    var intervals = [5000, 10000, 15000, 20000, 25000, 30000];
+    var intervalIndex = 0;
 
     function poll() {
       var fetchUrl = url + (ref ? "?ref_payco=" + encodeURIComponent(ref) : "");
@@ -26,7 +28,16 @@
         .catch(function () {});
     }
 
+    function scheduleNext() {
+      if (interval) clearInterval(interval);
+      interval = setInterval(function () {
+        poll();
+        intervalIndex = Math.min(intervalIndex + 1, intervals.length - 1);
+        scheduleNext();
+      }, intervals[intervalIndex]);
+    }
+
     poll();
-    interval = setInterval(poll, 3000);
+    scheduleNext();
   });
 })();
