@@ -22,12 +22,27 @@ module ApplicationHelper
   def membership_progress_percent(membership)
     return 0 unless membership&.starts_at.present? && membership&.expires_at.present?
 
-    total = (membership.expires_at - membership.starts_at).to_f
-    return 0 if total <= 0
+    total_days = total_days_for(membership)
+    return 0 if total_days <= 0
 
-    remaining = (membership.expires_at - Time.current).to_f
-    used = 1 - (remaining / total)
+    days_left = (membership.expires_at.to_date - Date.current).to_i
+    days_left = 0 if days_left < 0
+    used = 1 - (days_left.to_f / total_days)
     (used * 100).clamp(0, 100).round
+  end
+
+  def total_days_for(membership)
+    if membership.source == "trial"
+      days = PaymentEngine::Configuration.free_trial_duration_days
+      return days if days.present? && days.positive?
+    end
+
+    option = membership.purchase&.payment_option
+    return (membership.expires_at - membership.starts_at).to_f / 1.day if option.nil? || option.access_duration.nil?
+
+    (option.access_duration / 1.day).round
+  rescue StandardError
+    (membership.expires_at - membership.starts_at).to_f / 1.day
   end
   CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
   BANK_ICON_TONES = 8

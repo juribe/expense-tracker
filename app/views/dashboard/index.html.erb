@@ -2,7 +2,13 @@
   Answers, in order: how much money do I have / what does this cycle look
   like / what is coming / what needs attention. %>
 
+<%= content_for :head do %>
+  <%= stylesheet_link_tag :membership_banner, "data-turbo-track": "reload" %>
+<% end %>
+
 <%= render "dashboard/header" %>
+
+<%= render "dashboard/membership_expiry_banner" %>
 
 <%= render "dashboard/onboarding" %>
 

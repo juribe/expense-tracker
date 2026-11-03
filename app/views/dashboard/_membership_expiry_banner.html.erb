@@ -1,0 +1,33 @@
+<%# Big membership-expiry banner — dashboard only, last 5 days. %>
+<% membership = current_membership %>
+<% if @show_membership_expiry_banner && membership&.active? && membership.expires_at.present? %>
+  <% days_left = (membership.expires_at.to_date - Date.current).to_i %>
+  <% days_text = days_left.zero? ? "hoy" : (days_left == 1 ? "1 día" : "#{days_left} días") %>
+  <% description = if days_left.zero?
+       "Tu membresía vence hoy. Renueva para seguir disfrutando de todas las funcionalidades de Yogasto."
+     elsif days_left == 1
+       "Tu membresía está a punto de terminar. Renueva hoy para seguir usando Yogasto sin interrupciones."
+     else
+       "Renueva ahora y sigue disfrutando de todas las funcionalidades de Yogasto sin interrupciones."
+     end %>
+  <section class="membership-expiry-banner" data-testid="membership-expiry-banner">
+    <div class="art">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6f63c8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path>
+      </svg>
+    </div>
+    <div class="copy">
+      <div class="eyebrow"><span class="clock">◷</span> Tu membresía está por vencer</div>
+      <h2 class="headline">Tu membresía termina en <span class="days"><%= days_text %></span></h2>
+      <p class="description"><%= description %></p>
+    </div>
+    <div class="cta">
+      <%= link_to "Renovar membresía →", plans_path, class: "primary" %>
+      <%= link_to "Ver planes", plans_path, class: "link" %>
+    </div>
+  </section>
+<% end %>
