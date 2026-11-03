@@ -44,8 +44,9 @@ class PlansController < ApplicationController
 
   def checkout_result
     @ref_payco = params[:ref_payco].presence
-    purchase = PaymentEngine::Purchase.find_by(id: session[:pending_purchase_id])
-    @purchase_status = purchase&.status || "unknown"
+    purchase = PaymentEngine::Purchase.find_by(id: session[:pending_purchase_id]) ||
+               PaymentEngine::Purchase.where(owner: current_user).order(created_at: :desc).first
+    @purchase_status = normalized_status(purchase&.status)
   end
 
   def checkout_status
@@ -61,12 +62,12 @@ class PlansController < ApplicationController
         payment: purchase.payment
       )
       if result.success?
-        render json: { status: result.data[:state], ref_payco: ref, purchase_id: purchase.id }
+        render json: { status: normalized_status(result.data[:state]), ref_payco: ref, purchase_id: purchase.id }
         return
       end
     end
 
-    render json: { status: purchase&.status || "unknown", ref_payco: ref, purchase_id: purchase&.id }
+    render json: { status: normalized_status(purchase&.status), ref_payco: ref, purchase_id: purchase&.id }
   end
 
   def create_checkout
@@ -182,5 +183,16 @@ class PlansController < ApplicationController
       purchase.update!(payment: payment)
     end
     [ purchase, purchase.payment ]
+  end
+
+  private
+
+  def normalized_status(status)
+    case status.to_s
+    when "paid", "succeeded" then "succeeded"
+    when "failed", "rejected", "cancelled", "canceled" then "failed"
+    when "refunded" then "refunded"
+    else "pending"
+    end
   end
 end
