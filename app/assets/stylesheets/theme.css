@@ -523,6 +523,24 @@ section.page-section { margin-bottom: 1.5rem; }
   border-radius: 0 4px 4px 0;
   background: #356dff;
 }
+.left-sidebar .sidebar-nav .sidebar-pro {
+  margin-left: auto;
+  padding: 0.25rem 0.4rem;
+  border-radius: 0.3125rem;
+  background: #f0ebff;
+  color: #7048e8;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav .sidebar-pro {
+  background: rgba(112, 72, 232, 0.22);
+  color: #b9a6ff;
+}
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:not(:hover) .sidebar-pro {
+  display: none;
+}
 /* Spike submenus (.first-level) — compact indented rows. A 6px dot lines each
  * label up under its parent's label (mockup alignment), and the li padding /
  * 43px height of top-level items collapses so 13 entries fit without a wall of

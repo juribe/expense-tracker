@@ -1042,6 +1042,9 @@
   --rec-blue: #4e6cf5;
   --rec-blue-dark: #3453df;
   --rec-purple: #8b6df6;
+  --rec-premium: #7048e8;
+  --rec-premium-soft: #f0ebff;
+  --rec-premium-line: #e8e0ff;
   --rec-green: #20b985;
   --rec-green-bg: #e8fbf3;
   --rec-orange: #ff8b72;
@@ -1058,6 +1061,9 @@
   --rec-line: #253a52;
   --rec-bg: #131f30;
   --rec-white: #1a2739;
+  --rec-premium: #b9a6ff;
+  --rec-premium-soft: rgba(112, 72, 232, 0.2);
+  --rec-premium-line: rgba(185, 166, 255, 0.25);
   --rec-green-bg: rgba(32, 185, 133, 0.16);
   --rec-orange-bg: rgba(255, 139, 114, 0.16);
   --rec-yellow-bg: rgba(231, 169, 59, 0.16);
@@ -1463,6 +1469,101 @@
 .reconciliation-page .rec-tip p { margin: 0.3rem 0 0; font-size: 0.6875rem; line-height: 1.5; color: #7785a5; }
 [data-bs-theme="dark"] .reconciliation-page .rec-tip p { color: var(--rec-muted); }
 
+/* Premium lock */
+.reconciliation-page .rec-premium-locked {
+  min-height: 570px;
+  display: grid;
+  place-items: center;
+  padding: 2.75rem 1.5rem;
+  background: var(--rec-white);
+  border: 1px solid var(--rec-line);
+  border-radius: 1.0625rem;
+  box-shadow: var(--rec-shadow);
+}
+.reconciliation-page .rec-lock-card { max-width: 440px; text-align: center; }
+.reconciliation-page .rec-lock-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #f3efff, #e9e2ff);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 21px;
+  box-shadow: inset 0 0 0 1px var(--rec-premium-line);
+}
+[data-bs-theme="dark"] .reconciliation-page .rec-lock-icon {
+  background: linear-gradient(145deg, rgba(112, 72, 232, 0.24), rgba(112, 72, 232, 0.12));
+}
+.reconciliation-page .rec-lock-icon i { font-size: 2rem; color: var(--rec-premium); }
+.reconciliation-page .rec-lock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: var(--rec-premium-soft);
+  color: var(--rec-premium);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.0625rem;
+  padding: 0.375rem 0.5625rem;
+  border-radius: 0.375rem;
+  margin-bottom: 0.9375rem;
+  text-transform: uppercase;
+}
+.reconciliation-page .rec-lock-card h2 {
+  font-size: 1.625rem;
+  letter-spacing: -0.05rem;
+  margin: 0 0 0.75rem;
+  color: var(--rec-ink);
+}
+.reconciliation-page .rec-lock-description {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--rec-muted);
+  margin: 0 auto 1.5625rem;
+  max-width: 405px;
+}
+.reconciliation-page .rec-lock-primary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5625rem;
+  background: #7048e8;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0.625rem;
+  padding: 0.875rem 1.5625rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  box-shadow: 0 5px 12px rgba(112, 72, 232, 0.2);
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.reconciliation-page .rec-lock-primary:hover {
+  background: #5d36d6;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.reconciliation-page .rec-lock-back {
+  display: block;
+  width: max-content;
+  margin: 1.0625rem auto 0;
+  color: var(--rec-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem;
+}
+.reconciliation-page .rec-lock-back:hover { color: var(--rec-premium); }
+.reconciliation-page .rec-lock-note {
+  margin: 1.75rem auto 0;
+  padding-top: 1.125rem;
+  border-top: 1px solid var(--rec-line);
+  font-size: 0.6875rem;
+  color: #a09dae;
+  max-width: 310px;
+  line-height: 1.6;
+}
+[data-bs-theme="dark"] .reconciliation-page .rec-lock-note { color: var(--rec-muted); }
+
 /* Modals */
 .reconciliation-page .rec-modal-header {
   padding: 1.4rem 1.75rem 1.1rem;
@@ -1689,6 +1790,9 @@
   .reconciliation-page .rec-metrics { gap: 0.625rem; }
   .reconciliation-page .rec-metric { padding: 0.875rem; }
   .reconciliation-page .rec-metric-value { font-size: 1.4375rem; }
+  .reconciliation-page .rec-premium-locked { min-height: 510px; padding: 2.1875rem 1.25rem; }
+  .reconciliation-page .rec-lock-card h2 { font-size: 1.4375rem; }
+  .reconciliation-page .rec-lock-description { font-size: 0.8125rem; }
   .reconciliation-page .rec-section-head { align-items: flex-start; }
   .reconciliation-page .rec-row {
     grid-template-columns: minmax(0, 1fr) auto;

@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1793824382.7447681,
-    "seen": 1793824482.534164,
-    "ast_hash": "f2e3d48dbf888f9554be62ae08c8699d",
+    "mtime": 1793827535.2741475,
+    "seen": 1793828428.194839,
+    "ast_hash": "5f1d56eaa119b9f72f8606ec21cfb407",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "config/environments/production.rb": {
-    "mtime": 1792895274.0823433,
-    "seen": 1793490696.635019,
-    "ast_hash": "1b1bbdb1e7b9f067f5bf3ec697cfc86c",
+    "mtime": 1793825851.0690243,
+    "seen": 1793828428.195746,
+    "ast_hash": "16037ffb23fb7b40eb1926100e2011d2",
     "semantic_hash": ""
   },
   "config/environments/test.rb": {
@@ -1002,10 +1002,10 @@
     "semantic_hash": ""
   },
   "config/database.yml": {
-    "mtime": 1789279355.8939784,
-    "seen": 1793490696.635632,
-    "ast_hash": "ce0e31c6d7601fc22883da14f9114614",
-    "semantic_hash": "ce0e31c6d7601fc22883da14f9114614"
+    "mtime": 1793825891.5327697,
+    "seen": 1793828428.196786,
+    "ast_hash": "92e0273845f5462b0ba578b0a235fd77",
+    "semantic_hash": ""
   },
   "config/locales/devise.en.yml": {
     "mtime": 1787694826.7620232,
@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1793480620.438379,
-    "seen": 1793490696.6356359,
-    "ast_hash": "0e17a1c085f97d90c41de9355b46fdf3",
+    "mtime": 1793829257.5163057,
+    "seen": 1793829840.6808488,
+    "ast_hash": "d09e3b91b7f1cbf3289bb6ce275ea4f3",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793567343.4885068,
-    "seen": 1793567370.039309,
-    "ast_hash": "869caa3c9a596d30af2328e29b4bc9bc",
+    "mtime": 1793829257.5163023,
+    "seen": 1793829840.680851,
+    "ast_hash": "69a7c38907edba2fa454c1ccd0a89c80",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793825497.461103,
-    "seen": 1793825549.054792,
+    "mtime": 1793829673.759893,
+    "seen": 1793829840.6808572,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3624,9 +3624,9 @@
     "semantic_hash": ""
   },
   "app/controllers/reconciliations_controller.rb": {
-    "mtime": 1793293065.4632876,
-    "seen": 1793490696.6343958,
-    "ast_hash": "9d06fa0f81eb80023ecb6491b44dac57",
+    "mtime": 1793829222.07181,
+    "seen": 1793829840.679036,
+    "ast_hash": "9355e3f09b86c2be2a5d0234d1823fea",
     "semantic_hash": ""
   },
   "app/helpers/reconciliations_helper.rb": {
@@ -3702,9 +3702,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reconciliations_controller_test.rb": {
-    "mtime": 1793465342.2266595,
-    "seen": 1793490696.635228,
-    "ast_hash": "e3966555fa6aaaa1dba81d48957733c4",
+    "mtime": 1793829204.9660969,
+    "seen": 1793829840.680306,
+    "ast_hash": "a7f00eeddcb6f1164eb2629776627802",
     "semantic_hash": ""
   },
   "test/services/reconciliation/check_balance_test.rb": {
@@ -7920,15 +7920,15 @@
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/user_access.rb": {
-    "mtime": 1793825463.049615,
-    "seen": 1793825549.053975,
-    "ast_hash": "e7e9c8998ce96f62659993cb0fe4163a",
+    "mtime": 1793827542.3588824,
+    "seen": 1793828428.1959412,
+    "ast_hash": "c99be4a775a60ef3ac33dc9d20c70982",
     "semantic_hash": ""
   },
   "test/poro/payment_engine_user_access_test.rb": {
-    "mtime": 1793824364.7249749,
-    "seen": 1793824482.5356312,
-    "ast_hash": "404556ee6a90fba18e4e21eb2347b557",
+    "mtime": 1793827473.450751,
+    "seen": 1793828428.19645,
+    "ast_hash": "0028efae80f92b5247d2e3ea5882e498",
     "semantic_hash": ""
   },
   "db/migrate/20261104120000_remove_requires_membership_from_users.rb": {
@@ -7941,6 +7941,30 @@
     "mtime": 1793823631.818504,
     "seen": 1793823853.347374,
     "ast_hash": "d8de3f7ce3bfa95c28a1b8515760d136",
+    "semantic_hash": ""
+  },
+  "app/controllers/concerns/premium_access.rb": {
+    "mtime": 1793829218.318715,
+    "seen": 1793829840.6789708,
+    "ast_hash": "f6d9e74f640316b6df11f41575def6a0",
+    "semantic_hash": ""
+  },
+  "db/cache_schema.rb": {
+    "mtime": 1793825851.0684996,
+    "seen": 1793828428.195775,
+    "ast_hash": "25ba477bc823a503da187c2dd7de2d63",
+    "semantic_hash": ""
+  },
+  "test/controllers/premium_access_test.rb": {
+    "mtime": 1793828033.0788782,
+    "seen": 1793828428.196241,
+    "ast_hash": "7524398db22b350d354b4f15c204d24a",
+    "semantic_hash": ""
+  },
+  "config/cache.yml": {
+    "mtime": 1793825851.0679011,
+    "seen": 1793828428.196784,
+    "ast_hash": "a2fa46bfccfb376ea34b2e63acfdbf4c",
     "semantic_hash": ""
   }
 }

@@ -24,6 +24,11 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
       payment_day: 5
     )
     @account = MoneySource.create!(user: @user, name: "Davibank Ahorros", kind: "account", starting_balance: 8_400_000)
+    @membership_type = PaymentEngine::MembershipType.create!(
+      name: "Reconciliation Premium",
+      code: "RECONCILIATION_PREMIUM_#{SecureRandom.hex(6)}",
+      status: "active"
+    )
   end
 
   test "GET /reconciliation renders the dashboard for authenticated user" do
@@ -154,6 +159,56 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     get dashboard_path
     assert_select "a[href='#{reconciliation_path}']"
+  end
+
+  test "GET /reconciliation renders the premium lock view without premium access" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(expires_at: 1.day.ago, status: "expired")
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
+    assert_select ".rec-premium-locked h2", text: "Esta función es Premium"
+    assert_select "a[href='#{plans_path}']", text: /Conocer planes/
+    assert_select "a[href='#{dashboard_path}']", text: /Volver a/
+    assert_select ".rec-page-title", count: 0
+    assert_select ".rec-hero", count: 0
+  end
+
+  test "sidebar shows the Día de Balance link with a PRO label without premium access" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(expires_at: 1.day.ago, status: "expired")
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a[href='#{reconciliation_path}']" do
+      assert_select ".sidebar-pro", text: "PRO"
+    end
+  end
+
+  test "sidebar shows the Día de Balance link with an active trial" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(source: "trial", expires_at: 2.days.from_now, status: "active")
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a[href='#{reconciliation_path}']"
+  end
+
+  test "reconciliation JSON endpoints return forbidden without premium access" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(expires_at: 1.day.ago, status: "expired")
+    sign_in @user
+
+    get reconciliation_search_expenses_path(format: :json)
+
+    assert_response :forbidden
   end
 
   test "GET search_expenses returns matching expenses as JSON" do
@@ -602,5 +657,18 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 8_500_000.to_d, @account.reload.balance
     assert_equal "ok", ReconciliationSnapshot.find_by(user: @user, money_source: @account).resolution
     assert_equal 1, ReconciliationSnapshot.for_period(@user, Date.current.strftime("%Y-%m")).count
+  end
+
+  private
+
+  def create_membership(expires_at:, status:, source: "purchase")
+    PaymentEngine::Membership.create!(
+      owner: @user,
+      membership_type: @membership_type,
+      status: status,
+      source: source,
+      starts_at: 1.month.ago,
+      expires_at: expires_at
+    )
   end
 end

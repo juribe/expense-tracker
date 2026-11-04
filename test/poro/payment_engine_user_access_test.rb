@@ -165,6 +165,21 @@ class PaymentEngineUserAccessTest < ActiveSupport::TestCase
     assert_equal false, access.membership_expiring_within_days?(5)
   end
 
+  test "access questions use independent cache entries for the same user" do
+    create_membership(source: "trial", expires_at: 2.days.from_now)
+    user_access = PaymentEngine::UserAccess.new(@user.id)
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    with_paid_access_required(true) do
+      assert_equal false, user_access.need_membership?
+      assert_equal true, user_access.free_membership_used?
+      assert_equal true, user_access.access_premium?
+    end
+  ensure
+    Rails.cache = original_cache
+  end
+
   private
 
   def access

@@ -5,6 +5,7 @@
 # balances verified against reality. Reads the persisted state, never
 # recomputes per request (Reconciliation::State).
 class ReconciliationsController < ApplicationController
+  require_premium
   before_action :set_period
   before_action :set_template, only: [ :assign_payment ]
   before_action :set_source, only: [ :set_actual_balance, :leave_pending, :search_movements ]
@@ -111,6 +112,13 @@ class ReconciliationsController < ApplicationController
   end
 
   private
+
+  def handle_premium_access_denied
+    respond_to do |format|
+      format.html { render :locked }
+      format.any { head :forbidden }
+    end
+  end
 
   def set_period
     @period = params[:period].presence || PayCycle.period_for(current_user).first

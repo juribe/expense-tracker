@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   PER_PAGE = 25
 
   include Chartkick::Helper
+  include PremiumAccess
 
   layout :layout_for_request
 

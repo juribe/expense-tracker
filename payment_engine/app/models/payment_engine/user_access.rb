@@ -15,24 +15,22 @@ module PaymentEngine
     end
 
     def need_membership?
-      Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-        return false unless PaymentEngine::Configuration.paid_access_required?
-
-        !memberships.exists?
+      Rails.cache.fetch(cache_key(:need_membership), expires_in: 1.hour) do
+        PaymentEngine::Configuration.paid_access_required? && !memberships.exists?
       end
     end
 
     def free_membership_used?
-      Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      Rails.cache.fetch(cache_key(:free_membership_used), expires_in: 1.hour) do
         memberships.where(source: "trial").exists?
       end
     end
 
     def access_premium?
-      Rails.cache.fetch(cache_key, expires_in: 1.hour) do
-        return true unless PaymentEngine::Configuration.paid_access_required?
-
-        active_trial? || active_paid_membership?
+      Rails.cache.fetch(cache_key(:access_premium), expires_in: 1.hour) do
+        !PaymentEngine::Configuration.paid_access_required? ||
+          active_trial? ||
+          active_paid_membership?
       end
     end
 
@@ -56,8 +54,8 @@ module PaymentEngine
       PaymentEngine::Membership.where(owner_type: owner_type, owner_id: user_id)
     end
 
-    def cache_key
-      [ "payment_engine_user_access", owner_type, user_id, membership_cache_version ].compact_blank.join(":")
+    def cache_key(question)
+      [ "payment_engine_user_access", owner_type, user_id, question, membership_cache_version ].compact_blank.join(":")
     end
 
     def membership_cache_version

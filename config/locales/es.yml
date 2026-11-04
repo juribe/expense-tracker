@@ -195,6 +195,7 @@ es:
 
   errors:
     not_authorized: "No tienes permiso para acceder a esta sección."
+    premium_only: "Necesitas un plan premium para utilizar esta función."
     format: "%{attribute} %{message}"
     messages:
       model_invalid: "La validación falló: %{errors}"
@@ -2627,6 +2628,13 @@ es:
     title: "Día de Balance"
     subtitle: "Verifica tus saldos al comenzar cada ciclo. Marca las cuentas que coinciden o actualiza el valor si cambió."
     breadcrumb: "Herramientas"
+    premium_lock:
+      eyebrow: "Función Premium"
+      title: "Esta función es Premium"
+      description: "Tu prueba gratuita ha terminado. Para seguir disfrutando de todas las funcionalidades de %{app_name}, elige uno de nuestros planes Premium."
+      cta: "Conocer planes"
+      back: "Volver a %{app_name}"
+      note: "Tus datos y la información que ya has registrado siguen estando disponibles en %{app_name}."
     checked_today: "Última revisión: Hoy, %{time}"
     checked_on: "Última revisión: %{date}"
     hero:
