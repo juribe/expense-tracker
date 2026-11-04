@@ -20,11 +20,13 @@ class PaymentEngineCommercialTest < ActionDispatch::IntegrationTest
     assert_equal true, s.payments_enabled
     assert_equal 60, s.free_trial_duration_days rescue nil
   end
-  test "normal user forbidden" do
+  test "normal user redirected to the dashboard" do
     sign_out @admin
     user = User.create!(email: "ucomm@example.com", password: "password123", password_confirmation: "password123", confirmed_at: Time.current, financial_cycle_start_day: 1, debt_capacity_target_percentage: 50, debt_capacity_alert_percentage: 80)
     sign_in user
     get "/payment_engine/admin/settings/commercial"
-    assert_response :forbidden
+
+    assert_redirected_to "/dashboard"
+    assert_equal I18n.t("errors.not_authorized"), flash[:alert]
   end
 end

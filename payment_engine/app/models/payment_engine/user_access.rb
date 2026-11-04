@@ -39,11 +39,10 @@ module PaymentEngine
     end
 
     def membership_expiring_within_days?(days)
-      membership = current_membership
-      return false unless membership&.active? && membership.expires_at.present?
-
-      days_left = (membership.expires_at.to_date - Date.current).to_i
-      days_left.between?(0, days)
+      question = "membership_expiring_within_days_#{days}_#{Date.current.iso8601}"
+      Rails.cache.fetch(cache_key(question), expires_in: 1.hour) do
+        expiring_within_days?(days)
+      end
     end
 
     private
@@ -74,6 +73,13 @@ module PaymentEngine
 
     def active_paid_membership?
       active_memberships.where("source IS NULL OR source <> ?", "trial").exists?
+    end
+
+    def expiring_within_days?(days)
+      membership = current_membership
+      return false unless membership&.active? && membership.expires_at.present?
+
+      (membership.expires_at.to_date - Date.current).to_i.between?(0, days)
     end
   end
 end

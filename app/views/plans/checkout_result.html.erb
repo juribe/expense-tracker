@@ -3,7 +3,7 @@
   <%= javascript_include_tag "checkout_poll", defer: true %>
 <% end %>
 
-<div class="checkout-result" data-checkout-status-url="<%= checkout_status_plans_path %>" data-checkout-ref-payco="<%= @ref_payco %>" data-checkout-success-url="<%= dashboard_path %>">
+<div class="checkout-result" data-checkout-status-url="<%= checkout_status_plans_path %>" data-checkout-ref-payco="<%= @ref_payco %>">
   <div class="content">
     <div class="crumb">Panel <span class="crumb-sep">›</span> <b>Estado del pago</b></div>
     <article class="panel">
@@ -28,19 +28,19 @@
         </div>
       </div>
       <div class="body">
-        <h2 class="body-title">¿Qué está pasando con tu pago?</h2>
+        <h2 class="body-title" data-checkout-body-title>¿Qué está pasando con tu pago?</h2>
         <div class="steps">
-          <div class="step done">
+          <div class="step done" data-checkout-step="sent">
             <div class="step-dot">✓</div>
             <strong>Pago enviado</strong>
             <small>Solicitud recibida</small>
           </div>
-          <div class="step current">
+          <div class="step current" data-checkout-step="validating">
             <div class="step-dot">2</div>
             <strong>Validando pago</strong>
             <small>Esperando confirmación</small>
           </div>
-          <div class="step">
+          <div class="step" data-checkout-step="active">
             <div class="step-dot">3</div>
             <strong>Membresía activa</strong>
             <small>Se activará automáticamente</small>
@@ -62,8 +62,8 @@
         <div class="notice">
           <div class="notice-icon">i</div>
           <div>
-            <strong>Tu membresía se activará automáticamente.</strong><br>
-            Cuando ePayco confirme la transacción, actualizaremos tu cuenta. Puedes continuar usando Yogasto; no cierres ni repitas el proceso de pago.
+            <strong data-checkout-notice-title>Tu membresía se activará automáticamente.</strong><br>
+            <span data-checkout-notice-message>Cuando ePayco confirme la transacción, actualizaremos tu cuenta. Puedes continuar usando Yogasto; no cierres ni repitas el proceso de pago.</span>
           </div>
         </div>
 

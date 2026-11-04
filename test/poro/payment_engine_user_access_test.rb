@@ -165,6 +165,22 @@ class PaymentEngineUserAccessTest < ActiveSupport::TestCase
     assert_equal false, access.membership_expiring_within_days?(5)
   end
 
+  test "membership_expiring_within_days? caches the answer per day window" do
+    membership = create_membership(source: "purchase", expires_at: 4.days.from_now)
+    user_access = PaymentEngine::UserAccess.new(@user.id)
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    assert_equal true, user_access.membership_expiring_within_days?(5)
+
+    membership.update_columns(expires_at: 30.days.from_now)
+
+    assert_equal true, user_access.membership_expiring_within_days?(5)
+    assert_equal false, user_access.membership_expiring_within_days?(1)
+  ensure
+    Rails.cache = original_cache
+  end
+
   test "access questions use independent cache entries for the same user" do
     create_membership(source: "trial", expires_at: 2.days.from_now)
     user_access = PaymentEngine::UserAccess.new(@user.id)

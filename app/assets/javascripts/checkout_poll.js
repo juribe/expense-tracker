@@ -7,11 +7,14 @@
 
     var url = root.dataset.checkoutStatusUrl;
     var ref = root.dataset.checkoutRefPayco;
-    var successUrl = root.dataset.checkoutSuccessUrl || "/";
     var statusEl = document.querySelector("[data-checkout-status]");
     var headingEl = document.querySelector("[data-checkout-heading]");
     var messageEl = document.querySelector("[data-checkout-message]");
     var eyebrowEl = document.querySelector("[data-checkout-eyebrow]");
+    var bodyTitleEl = document.querySelector("[data-checkout-body-title]");
+    var steps = document.querySelectorAll("[data-checkout-step]");
+    var noticeTitleEl = document.querySelector("[data-checkout-notice-title]");
+    var noticeMessageEl = document.querySelector("[data-checkout-notice-message]");
     var copyBtn = document.querySelector("[data-copy-reference]");
     var intervals = [5000, 10000, 15000, 20000, 25000, 30000];
     var attempt = 0;
@@ -49,7 +52,19 @@
       if (status === "succeeded") {
         if (eyebrowEl) eyebrowEl.innerHTML = "<span>✓</span> Pago aprobado";
         if (headingEl) headingEl.textContent = "¡Tu pago fue aprobado!";
-        if (messageEl) messageEl.textContent = "Tu membresía se activó correctamente. Te llevaremos a tu dashboard en unos segundos.";
+        if (messageEl) messageEl.textContent = "Tu membresía está activa. Ya puedes continuar usando Yogasto.";
+        if (bodyTitleEl) bodyTitleEl.textContent = "Tu pago fue confirmado";
+        steps.forEach(function (step) {
+          step.classList.add("done");
+          step.classList.remove("current");
+          var dot = step.querySelector(".step-dot");
+          var detail = step.querySelector("small");
+          if (dot) dot.textContent = "✓";
+          if (detail && step.dataset.checkoutStep === "validating") detail.textContent = "Confirmado";
+          if (detail && step.dataset.checkoutStep === "active") detail.textContent = "Acceso habilitado";
+        });
+        if (noticeTitleEl) noticeTitleEl.textContent = "Tu membresía está activa.";
+        if (noticeMessageEl) noticeMessageEl.textContent = "El pago fue confirmado y tu cuenta ya tiene acceso premium.";
       } else if (status === "failed" || status === "refunded") {
         if (eyebrowEl) eyebrowEl.innerHTML = "<span>!</span> Pago no completado";
         if (headingEl) headingEl.textContent = "No pudimos completar tu pago";
@@ -81,9 +96,6 @@
 
           if (data.status === "succeeded" || data.status === "failed" || data.status === "refunded") {
             stop();
-            if (data.status === "succeeded") {
-              setTimeout(function () { window.location.href = successUrl; }, 3000);
-            }
             return;
           }
 

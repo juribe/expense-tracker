@@ -46,8 +46,11 @@ module PaymentEngine
             head :forbidden
           end
         else
-          render "payment_engine/admin/forbidden", status: :forbidden, layout: "payment_engine/admin"
+          redirect_to main_app.dashboard_path,
+                      alert: I18n.t("errors.not_authorized", default: "No tienes permiso para acceder a esta sección.")
         end
+      rescue NoMethodError
+        render "payment_engine/admin/forbidden", status: :forbidden, layout: "payment_engine/admin"
       end
 
       def audit_actor

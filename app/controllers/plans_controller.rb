@@ -45,10 +45,6 @@ class PlansController < ApplicationController
     purchase = PaymentEngine::Purchase.find_by(id: session[:pending_purchase_id]) ||
                PaymentEngine::Purchase.where(owner: current_user).order(created_at: :desc).first
 
-    if purchase&.status == "paid"
-      redirect_to dashboard_path, notice: "Tu pago fue aprobado y tu membresía está activa." and return
-    end
-
     @purchase_status = normalized_status(purchase&.status)
   end
 

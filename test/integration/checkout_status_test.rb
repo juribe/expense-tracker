@@ -83,21 +83,25 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
     assert_equal "failed", JSON.parse(response.body)["status"]
   end
 
-  test "checkout result points the success redirect at the dashboard" do
+  test "checkout result stays on the confirmation page for a pending purchase" do
     create_purchase(status: "pending")
 
     get checkout_result_plans_path
 
     assert_response :ok
-    assert_includes response.body, 'data-checkout-success-url="/dashboard"'
+    assert_select ".checkout-result"
+    assert_select "[data-checkout-status]", text: "pending"
+    assert_select "[data-checkout-success-url]", count: 0
   end
 
-  test "an already paid checkout result redirects to the dashboard" do
+  test "an already paid checkout result renders the confirmation page instead of redirecting" do
     create_purchase(status: "paid")
 
     get checkout_result_plans_path
 
-    assert_redirected_to dashboard_path
+    assert_response :ok
+    assert_select ".checkout-result"
+    assert_select "[data-checkout-status]", text: "succeeded"
   end
 
   test "verification treats a provider error as failure instead of pending" do
@@ -168,10 +172,10 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
       status: status
     )
     payment_status = case status
-                     when "paid" then "succeeded"
-                     when "failed" then "failed"
-                     else "pending"
-                     end
+    when "paid" then "succeeded"
+    when "failed" then "failed"
+    else "pending"
+    end
     payment = PaymentEngine::Payment.create!(
       purchase: purchase,
       amount: purchase.amount,
