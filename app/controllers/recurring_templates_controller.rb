@@ -127,9 +127,9 @@ class RecurringTemplatesController < ApplicationController
   def load_index_data
     @kind = %w[income expense].include?(params[:kind]) ? params[:kind] : "income"
     @recurring_templates = current_user.recurring_templates
-                                       .includes(:category)
                                        .where(kind: @kind)
                                        .ordered
+                                       .to_a
     @current_period = current_listing_period
 
     # "Pagar"/"Recibir" modal: where the money comes from / lands. Only
@@ -141,8 +141,19 @@ class RecurringTemplatesController < ApplicationController
       @recurring_templates = @recurring_templates.select { |rt| rt.status_for(@current_period).to_s == @status_filter }
     end
 
+    preload_categories
+
     @total_count = @recurring_templates.size
     @filtered_total = @recurring_templates.sum(&:signed_amount)
+  end
+
+  # Mirrors RecurringTemplateActions#preload_categories: the table renders a
+  # category badge per row, but the status filter runs in Ruby and may empty
+  # the list, so preloading in the query would be wasted (Bullet flags it).
+  def preload_categories
+    return if @recurring_templates.empty?
+
+    ActiveRecord::Associations::Preloader.new(records: @recurring_templates, associations: :category).call
   end
 
   # Mirrors RecurringTemplateActions#current_listing_period: a pay cycle for
