@@ -32,8 +32,8 @@ module Ai
 
     # The system prompt lives in the extraction task; kept here as a class
     # method so both the task and this service share one definition.
-    def self.system_prompt(include_transactions: true)
-      new(include_transactions: include_transactions).send(:system_prompt)
+    def self.system_prompt(include_transactions: true, categories: [])
+      new(include_transactions: include_transactions).send(:system_prompt, categories: categories)
     end
 
     ACCOUNT_NUMBER_LABEL = /(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)\s*(?:de\s+)?cuenta|cuenta\s*(?:n[uú]mero|nro\.?|no\.?|n[oº°]|\#)|cuenta\s+(?:de\s+)?(?:ahorros?|corriente|n[oó]mina|maestra|electr[oó]nica)\s*(?:no\.?|nro\.?|n[oº°]|\#)?|account\s*(?:number|no\.?|\#)|(?:savings|checking)\s+account/i
@@ -72,9 +72,10 @@ module Ai
         layout: include_transactions ? normalize_layout(raw["layout"]) : nil }
     end
 
-    def call(text:, today: Date.current)
+    def call(text:, today: Date.current, categories: [])
       result = Ai::Router.call(task: :statement_extraction, input: text,
-                               context: { include_transactions: @include_transactions })
+                               context: { include_transactions: @include_transactions,
+                                          categories: Array(categories) })
       return failure(result.error || "AI extraction failed.") unless result.ok?
 
       { ok?: true, data: result.data, error: nil }
@@ -86,10 +87,10 @@ module Ai
       { ok?: false, data: nil, error: message }
     end
 
-    def system_prompt(include_transactions: @include_transactions)
+    def system_prompt(include_transactions: @include_transactions, categories: [])
       [
         sources_section(include_transactions: include_transactions),
-        (transactions_section if include_transactions),
+        (transactions_section(categories) if include_transactions),
         (layout_section if include_transactions),
         response_section(include_transactions: include_transactions)
       ].compact.join("\n\n")
@@ -186,13 +187,26 @@ module Ai
       PROMPT
     end
 
-    def transactions_section
+    def transactions_section(categories)
       <<~PROMPT
         TRANSACTIONS — extract only the real purchases/charges:
           - OMIT any row marked as cancelled ("CANCELADA", "ANULADA", "REVERSADA").
           - OMIT payments, credits, refunds and every income/abono row. Never return
             type "income"; only "expense" rows are used.
+        #{transaction_category_rules(categories)}
       PROMPT
+    end
+
+    def transaction_category_rules(categories)
+      return "" if categories.blank?
+
+      <<~RULES
+        - Category: exactly one of the user's category labels or null: #{categories.join(", ")}.
+          Never invent, translate, or pluralize a label. When no label matches literally,
+          infer the category from the merchant: a recognizable food / bakery / snack merchant
+          (e.g. "PANQUESUDO VILLA CAROL") maps to the matching food / snacks category the user
+          has. Report null only when the row identifies no product or service.
+      RULES
     end
 
     def layout_section
@@ -236,7 +250,7 @@ module Ai
              "summary":{"total_due":1250300,"min_payment":62515,"interest_charged":45200,
               "due_date":"2026-09-04","statement_date":"2026-08-25"},
              "transactions":[{"date":"2026-08-23","description":"Restaurante XYZ","amount":48500,
-              "type":"expense","category":"restaurants","confidence":0.98}],
+              "type":"expense","category":null,"confidence":0.98}],
              "layout":{"bank":"Davibank","anchors":["Davibank pertenece a Davivienda Group S.A."],
               "sections":{"expenses":["Transacciones del periodo facturado"]},
               "row":{"fields":[{"token":"date","format":"DD/MM/YYYY"},
@@ -315,7 +329,7 @@ module Ai
         description: description,
         amount: amount,
         type: normalize_type(entry["type"]),
-        category: entry["category"].to_s.strip.presence || "others",
+        category: entry["category"].to_s.strip.presence,
         confidence: normalize_confidence(entry["confidence"])
       }
     end

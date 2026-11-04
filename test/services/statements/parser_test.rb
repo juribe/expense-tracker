@@ -5,12 +5,13 @@ require "test_helper"
 module Statements
   class ParserTest < ActiveSupport::TestCase
     FakeExtractor = Struct.new(:result) do
-      def call(text:, today: Date.current)
+      def call(text:, today: Date.current, categories: [])
         @called_with = text
+        @categories = categories
         result
       end
 
-      attr_reader :called_with
+      attr_reader :called_with, :categories
     end
 
     setup do
@@ -29,6 +30,15 @@ module Statements
       assert_equal Date.new(2026, 9, 4), document.summary.due_date
       assert_equal "Restaurante XYZ", document.movements.first[:description]
       assert_equal "Visa", document.source.name
+    end
+
+    test "passes the user's expense category names to the AI extractor" do
+      Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+
+      Statements::Parser.call(user: @user, file_data: data_uri("fecha,valor\n2026-09-01,100"),
+                              filename: "extracto.csv", extractor: @extractor)
+
+      assert_equal [ "Mercado" ], @extractor.categories
     end
 
     test "runs a matching layout adapter instead of the AI extractor" do

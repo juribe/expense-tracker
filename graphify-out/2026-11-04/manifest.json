@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793830823.583044,
-    "seen": 1793830878.832331,
+    "mtime": 1793831382.8650842,
+    "seen": 1793831448.36448,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -7920,15 +7920,15 @@
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/user_access.rb": {
-    "mtime": 1793827542.3588824,
-    "seen": 1793828428.1959412,
-    "ast_hash": "c99be4a775a60ef3ac33dc9d20c70982",
+    "mtime": 1793831324.0689082,
+    "seen": 1793831448.363673,
+    "ast_hash": "adacd46b50c3e1ba11c8daea7d759b37",
     "semantic_hash": ""
   },
   "test/poro/payment_engine_user_access_test.rb": {
-    "mtime": 1793827473.450751,
-    "seen": 1793828428.19645,
-    "ast_hash": "0028efae80f92b5247d2e3ea5882e498",
+    "mtime": 1793831294.8906476,
+    "seen": 1793831448.364152,
+    "ast_hash": "6ad7feed19c0a6886581161dda01346d",
     "semantic_hash": ""
   },
   "db/migrate/20261104120000_remove_requires_membership_from_users.rb": {

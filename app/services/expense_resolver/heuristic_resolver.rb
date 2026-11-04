@@ -107,7 +107,8 @@ module ExpenseResolver
         { "index" => position, "description" => entry.description.to_s }
       end
 
-      result = Ai::Router.call(task: :category_suggestion, input: items, context: { user: @user })
+      result = Ai::Router.call(task: :category_suggestion, input: items,
+                               context: { user: @user, categories: @categories.map(&:name) })
       return unless result.ok?
 
       pending.each_with_index do |(entry, _), position|

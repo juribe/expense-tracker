@@ -270,6 +270,29 @@ class ExpenseResolverNaturalLanguageParserTest < ActiveSupport::TestCase
     assert_nil result.result.first.category_suggestion
   end
 
+  test "the suggestion pass carries the user's expense category names" do
+    Category.create!(name: "Mercado", user: @user, is_default: false, category_type: "expense")
+
+    result, provider = parse(
+      "pagué ropa",
+      user: @user,
+      responses: [
+        json_response([ {
+          "original_text" => "pagué ropa", "amount" => 80_000,
+          "date" => "2026-09-16", "description" => "ropa", "category" => nil,
+          "money_source_hint" => nil
+        } ]),
+        { content: [
+          { "index" => 0, "category_suggestion" => "Mercado", "confidence" => 0.9 }
+        ].to_json, input_tokens: 5, output_tokens: 3 }
+      ]
+    )
+
+    assert result.success?
+    suggestion_system = provider.calls.last.first[:content]
+    assert_includes suggestion_system, "Mercado"
+  end
+
   test "still succeeds when the suggestion call fails" do
     result, provider = parse(
       "pagué ropa",

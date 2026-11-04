@@ -62,13 +62,19 @@ module Statements
     end
 
     def ai_document(extraction)
-      result = @extractor.call(text: extraction.text)
+      result = @extractor.call(text: extraction.text, categories: expense_category_names)
       return failure(result[:error].presence || I18n.t("wizard.upload.extract_failed")) unless result[:ok?]
 
       learn_layout(extraction.text, result[:data])
       ServiceResult.success(build_document(result[:data], engine: :ai))
     rescue Ai::StatementExtractor::ExtractionError => e
       failure(e.message)
+    end
+
+    # The extractor classifies rows itself; without the user's labels it
+    # answers with English seed names (e.g. "restaurants") that never fold.
+    def expense_category_names
+      Category.for_user(@user).where(category_type: "expense").order(:name).pluck(:name)
     end
 
     # Optionally remembers the layout the AI described so later statements of

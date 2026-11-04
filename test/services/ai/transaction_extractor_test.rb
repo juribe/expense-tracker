@@ -123,6 +123,20 @@ module Ai
       assert_includes prompt, "account/product number"
     end
 
+    test "system prompt infers the category from the merchant when no label matches literally" do
+      prompt = Ai::TransactionExtractor.system_prompt(categories: [ "Domicilios y antojos" ])
+
+      assert_includes prompt, "Domicilios y antojos"
+      assert_includes prompt, "PANQUESUDO"
+      assert_includes prompt, "infer the category from the merchant"
+    end
+
+    test "system prompt reserves null for emails with nothing identifiable" do
+      prompt = Ai::TransactionExtractor.system_prompt
+
+      assert_includes prompt, "nothing identifiable"
+    end
+
     test "call sends the user's categories to the AI system prompt" do
       payload = {
         transactions: [ { type: "expense", amount: 48_500, merchant: "SAO" } ],

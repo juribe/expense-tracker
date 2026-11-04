@@ -79,6 +79,29 @@ module Statements
       assert_equal category.id, review.candidates.first.category_id
     end
 
+    test "classifies unresolved activities through the batch AI even on the AI engine" do
+      mercado = Category.create!(name: "Mercado", user: @user, category_type: "expense")
+      stub_method(Ai::Router, :call, ->(task: nil, **_kwargs) {
+        raise ArgumentError, "unexpected AI task: #{task}" unless task == :category_classification
+
+        Ai::Router::Result.new(ok?: true, data: { "panquesudo villa carol" => "Mercado" },
+                               confidence: 0.9, strategy: "cheap_ai", error: nil)
+      }) do
+        document = Statements::Document.new(
+          engine: :ai,
+          summary: nil,
+          source: nil,
+          movements: [ { date: "2026-08-23", description: "PANQUESUDO VILLA CAROL",
+                         amount: 35_000, type: "expense" } ]
+        )
+
+        review = Statements::ReviewBuilder.call(user: @user, document: document)
+
+        assert_equal mercado.id, review.candidates.first.category_id
+        assert_equal "Mercado", review.candidates.first.category_name
+      end
+    end
+
     test "suggests a payment from the summary when no payment movement exists" do
       document = Statements::Document.new(
         engine: :ai,

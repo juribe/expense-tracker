@@ -15,9 +15,9 @@ module Ai
         25
       end
 
-      def messages(input, _context)
+      def messages(input, context)
         [
-          { role: "system", content: system_prompt },
+          { role: "system", content: system_prompt(Array(context[:categories])) },
           { role: "user", content: Array(input).to_json }
         ]
       end
@@ -55,14 +55,25 @@ module Ai
         value.to_s if value
       end
 
-      def system_prompt
+      def system_prompt(categories)
+        categories_block =
+          if categories.present?
+            <<~BLOCK
+              Categorías del usuario: [#{categories.join(", ")}]
+              Prefiere una de las categorías del usuario cuando encaje con el
+              propósito del gasto; sugiere una nueva solo cuando ninguna encaja.
+            BLOCK
+          else
+            ""
+          end
+
         <<~PROMPT
           Para cada gasto, sugiere una categoría general y reutilizable.
           La categoría nombra el tipo de gasto (qué se compró o pagó), no la
           acción ni el destinatario. Ejemplos: "pago de ropa" → Ropa;
           "arreglo de reloj" → Accesorios; "por concepto de videojuegos" → Videojuegos.
           No copies la descripción. Si el propósito no es claro, usa null.
-          Devuelve solo JSON válido.
+          #{categories_block}Devuelve solo JSON válido.
 
           Salida:
 

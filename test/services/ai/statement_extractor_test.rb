@@ -270,6 +270,47 @@ module Ai
       assert_match(/LAYOUT/i, prompt)
     end
 
+    test "transactions prompt lists the user's categories and asks for merchant inference" do
+      prompt = Ai::StatementExtractor.system_prompt(categories: [ "Mercado", "Domicilios y antojos" ])
+
+      assert_includes prompt, "Domicilios y antojos"
+      assert_includes prompt, "PANQUESUDO"
+      assert_includes prompt, "infer the category from the merchant"
+    end
+
+    test "call sends the user's categories to the system prompt" do
+      payload = {
+        "sources" => [ { "kind" => "credit_card", "name" => "Visa", "card_last_four" => "8976" } ],
+        "transactions" => []
+      }.to_json
+      strong = FakeAiProvider.new(responses: [ payload ])
+
+      result = nil
+      stub_method(Ai::Providers, :strong, ->(*) { strong }) do
+        with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+          result = Ai::StatementExtractor.new.call(text: "statement body", categories: [ "Mercado" ])
+        end
+      end
+
+      assert result[:ok?], result[:error].inspect
+      system_prompt = strong.calls.first.find { |message| message[:role] == "system" }[:content]
+      assert_includes system_prompt, "Mercado"
+    end
+
+    test "a transaction without a category is not forced to others" do
+      data = parse(
+        {
+          "sources" => [ { "kind" => "credit_card", "name" => "Visa" } ],
+          "transactions" => [
+            { "date" => "2026-08-23", "description" => "PANQUESUDO VILLA CAROL",
+              "amount" => 35_000, "type" => "expense", "confidence" => 0.9 }
+          ]
+        }
+      )
+
+      assert_nil data[:transactions].first[:category]
+    end
+
     test "call fails cleanly without an API key configured" do
       result = with_env({ "MISTRAL_API_KEY" => nil }) do
         Ai::StatementExtractor.new.call(text: "statement")

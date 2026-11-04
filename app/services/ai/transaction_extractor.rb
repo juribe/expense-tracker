@@ -91,6 +91,13 @@ module Ai
         - Amounts must be positive numbers in the smallest published unit shown by the bank
           ("$48.500" COP means 48500).
         - Use ISO datetimes for occurred_at.
+        - Category rules:
+          - When no label matches literally, infer the category from the merchant: a recognizable
+            merchant selling food, snacks or bakery items (e.g. "PANQUESUDO VILLA CAROL") maps to
+            the matching food / snacks category the user has ("Domicilios y antojos" when present).
+          - report "null" ONLY for emails with nothing identifiable (no merchant, product or
+            transaction label): when the email names any business, product or service, pick the
+            closest label from the list instead of null.
         - Category must be exactly one of these labels or null: #{category_list}
         - Never invent, translate, or pluralize a category name.
         Respond with ONLY JSON of the shape:

@@ -55,6 +55,25 @@ class ExpenseResolverHeuristicResolverTest < ActiveSupport::TestCase
     end
   end
 
+  test "the suggestion call carries the user's expense category names" do
+    with_category_fill_enabled do
+      captured = nil
+      suggestion = Ai::Router::Result.new(ok?: true, data: { "0" => "Spa" }, confidence: 0.9, strategy: "cheap_ai", error: nil)
+      stub_method(Ai::Router, :call, ->(task: nil, **kwargs) {
+        raise ArgumentError, "unexpected AI task: #{task}" unless task == :category_suggestion
+
+        captured = kwargs
+        suggestion
+      }) do
+        resolution = resolve("me gasté 95.000 en spa")
+
+        assert resolution.resolved?
+      end
+
+      assert_includes captured[:context][:categories], "Restaurants"
+    end
+  end
+
   test "stored knowledge fills the category with no AI call at all" do
     with_category_fill_enabled do
       spa = Category.create!(name: "Spa", is_default: true, category_type: "expense")

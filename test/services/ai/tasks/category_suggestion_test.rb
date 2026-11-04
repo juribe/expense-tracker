@@ -26,6 +26,22 @@ class Ai::Tasks::CategorySuggestionTest < ActiveSupport::TestCase
     assert_equal input.to_json, messages.last[:content]
   end
 
+  test "the prompt names the user's categories and prefers one of them" do
+    messages = task.messages(input, { categories: [ "Mercado", "Domicilios y antojos" ] })
+
+    content = messages.first[:content]
+    assert_includes content, "Categorías del usuario: [Mercado, Domicilios y antojos]"
+    assert_includes content, "una de las categorías del usuario"
+  end
+
+  test "the prompt omits the category block when the context has no categories" do
+    messages = task.messages(input, {})
+
+    content = messages.first[:content]
+    assert_includes content, "categoría general y reutilizable"
+    refute_includes content, "Categorías del usuario"
+  end
+
   test "parse maps category suggestions by index" do
     content = [
       { "index" => 0, "category_suggestion" => "Ropa", "confidence" => 0.95 },

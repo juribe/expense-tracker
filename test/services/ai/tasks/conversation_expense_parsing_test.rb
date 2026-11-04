@@ -36,6 +36,25 @@ class Ai::Tasks::ConversationExpenseParsingTest < ActiveSupport::TestCase
     assert_includes content, "origen y destino"
   end
 
+  test "the prompt infers the category from a recognizable merchant" do
+    messages = task.messages(
+      "Pagué 35 mil en PANQUESUDO",
+      today: Date.new(2026, 9, 16),
+      categories: [ "Domicilios y antojos" ]
+    )
+
+    content = messages.first[:content]
+    assert_includes content, "PANQUESUDO"
+    assert_includes content, "comercio"
+    refute_includes content, "no definen el propósito"
+  end
+
+  test "the prompt reserves null for messages with nothing identifiable" do
+    messages = task.messages("Pagué 50 mil", today: Date.new(2026, 9, 16), categories: [ "Transporte" ])
+
+    assert_includes messages.first[:content], "null solo si"
+  end
+
   test "lists registered money-source identifiers when the context provides them" do
     messages = task.messages(
       "Pagué 50 mil en gasolina",

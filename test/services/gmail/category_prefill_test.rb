@@ -129,5 +129,23 @@ module Gmail
       assert_nil result.first.category
       assert_nil result.first.suggestion
     end
+
+    test "sends the user's expense categories to the suggestion call" do
+      captured = nil
+      router_stub = lambda do |**kwargs|
+        captured = kwargs
+        Ai::Router::Result.new(ok?: false, data: nil, confidence: nil, strategy: nil, error: "stubbed")
+      end
+
+      with_env({ "MISTRAL_API_KEY" => "test-key" }) do
+        stub_method(Ai::Router, :call, router_stub) do
+          Gmail::CategoryPrefill.new(user: @user).call([ transaction ])
+        end
+      end
+
+      assert_equal :category_suggestion, captured[:task]
+      assert_includes captured[:context][:categories], "Mercado"
+      assert_includes captured[:context][:categories], "Ocio y salidas"
+    end
   end
 end

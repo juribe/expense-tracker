@@ -48,7 +48,7 @@ module ExpenseResolver
       suggestion_result = Ai::Router.call(
         task: :category_suggestion,
         input: items,
-        context: { user: user, execution: recording&.execution }
+        context: { user: user, categories: categories_names, execution: recording&.execution }
       )
 
       if suggestion_result.ok?

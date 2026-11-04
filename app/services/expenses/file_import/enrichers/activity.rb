@@ -48,13 +48,13 @@ module Expenses
 
         private
 
-        # Deterministic extraction (CSV/Excel) skips AI parsing, so without
-        # classification reuse every row would land as "Others". Batch-classify
-        # the activities with no stored/rule mapping in a single request (cheap
-        # tier first when configured); learned classifications are persisted by
-        # the classifier so the next import needs no AI at all.
+        # Statement rows whose extracted category never folded (English seed names,
+        # "others") land here regardless of engine: batch-classify the activities
+        # with no stored/rule mapping in a single request (cheap tier first when
+        # configured); learned classifications are persisted by the classifier so
+        # the next import needs no AI at all.
         def ai_classify_fallbacks(candidates, fallbacks, engine)
-          return if engine == :ai || fallbacks.empty?
+          return if fallbacks.empty?
 
           categories = Category.for_user(@user).where(category_type: "expense").order(:name)
           response = Ai::CategoryClassifier.new.call(activities: fallbacks.values.uniq,

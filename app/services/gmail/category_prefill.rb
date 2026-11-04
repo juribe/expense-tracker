@@ -84,7 +84,14 @@ module Gmail
     def default_suggestion(items)
       return nil unless Ai.configuration.configured?
 
-      Ai::Router.call(task: :category_suggestion, input: items, context: { user: user })
+      Ai::Router.call(task: :category_suggestion, input: items,
+                      context: { user: user, categories: expense_category_names })
+    end
+
+    # The extractor resolves against the user's real categories; sending only
+    # the free-form suggestion text made most suggestions unfoldable.
+    def expense_category_names
+      Category.for_user_and_type(user, "expense").pluck(:name)
     end
   end
 end

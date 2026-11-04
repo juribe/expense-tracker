@@ -107,11 +107,16 @@ module Ai
             Usa Hoy solo si el mensaje no menciona ninguna fecha; null solo
             si es ambigua.
           - description: corto, en el idioma del usuario. No traduzcas ni inventes.
-          - category: de la lista solo si corresponde claramente al propósito;
-            si no encaja, null. Nunca fuerces la más parecida. El comercio,
-            destinatario o método de pago no definen el propósito.
+          - category: de la lista cuando encaje claramente con el propósito. Identifícalo
+            también por el nombre del comercio o establecimiento cuando él solo revela el
+            tipo de producto o servicio: panadería, repostería, dulces o comida rápida
+            ("PANQUESUDO") → la categoría de comida o antojos de la lista. El
+            destinatario y el método de pago no definen la categoría ("al papá de
+            Juan" o "Nequi" → null). null solo si el mensaje no identifica ningún
+            comercio, producto ni servicio; nunca fuerces la más parecida.
             Ejemplos: "gasolina" → "Transporte", "matrícula universitaria" →
-            "Educación", "pago de ropa" → null.
+            "Educación", "almuerzo en PANQUESUDO" → la categoría de comida de la lista,
+            "pago de ropa" → null.
           - money_source_hint: método de pago o cuenta de ese gasto usando
             solo un identificador de las fuentes registradas. Si el mensaje
             no especifica cuenta ni tarjeta, null. Si ninguna fuente

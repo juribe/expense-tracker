@@ -21,7 +21,8 @@ module Ai
 
       def messages(input, context)
         [
-          { role: "system", content: Ai::StatementExtractor.system_prompt(include_transactions: include_transactions?(context)) },
+          { role: "system", content: Ai::StatementExtractor.system_prompt(
+            include_transactions: include_transactions?(context), categories: Array(context[:categories])) },
           { role: "user", content: "Statement contents:\n\n#{statement_window(input)}" }
         ]
       end
