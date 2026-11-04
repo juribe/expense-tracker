@@ -92,6 +92,12 @@ module ActiveSupport
 
     fixtures :all
 
+    # Most tests exercise behavior unrelated to commercial gating. Disable paid
+    # access by default; access-gating tests enable it explicitly.
+    setup do
+      PaymentEngine::Setting.current.update!(paid_access_required: false)
+    end
+
     module SlowTestTiming
       def run
         t0 = Process.clock_gettime(Process::CLOCK_MONOTONIC)

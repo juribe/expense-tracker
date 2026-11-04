@@ -27,8 +27,6 @@ class PlansController < ApplicationController
     if result.success?
       session.delete(:trial_intent)
       session.delete(:pending_payment_option_id)
-      session.delete(:requires_membership)
-      current_user.update!(requires_membership: false) if current_user.respond_to?(:requires_membership=)
       redirect_to root_path, notice: "Tu prueba gratuita ha comenzado."
     else
       redirect_to plans_path, alert: result.errors.join(", ")

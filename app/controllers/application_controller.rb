@@ -37,20 +37,23 @@ class ApplicationController < ActionController::Base
   # plan cards.
   def current_membership
     return nil unless user_signed_in?
-    PaymentEngine::Membership.where(owner: current_user).order(expires_at: :desc).first
+    user_access.current_membership
   end
   helper_method :current_membership
+
+  # Commercial access questions for the signed-in user. Child controllers and
+  # views can use it to decide membership and premium access.
+  def user_access
+    @user_access ||= PaymentEngine::UserAccess.new(current_user&.id)
+  end
+  helper_method :user_access
 
   # Controls the once-per-day membership expiry banner. It is only visible
   # while the membership is active and within the five days before its
   # expiration date.
   def membership_expiry_banner?
     return false unless user_signed_in?
-    membership = current_membership
-    return false unless membership&.active? && membership.expires_at.present?
-
-    days_left = (membership.expires_at.to_date - Date.current).to_i
-    return false unless days_left.between?(0, 5)
+    return false unless user_access.membership_expiring_within_days?(5)
     return false if cookies[:membership_expiry_banner] == Date.current.to_s
 
     true
@@ -58,22 +61,10 @@ class ApplicationController < ActionController::Base
 
   def require_membership_selection
     return unless user_signed_in?
-    return unless current_user.respond_to?(:requires_membership) && current_user.requires_membership?
-
-    if current_user_has_active_membership?
-      current_user.update!(requires_membership: false)
-      return
-    end
+    return unless user_access.need_membership?
     return if allowed_without_membership?
 
     redirect_to plans_path, alert: "Selecciona una membresía para continuar." and return
-  end
-
-  def current_user_has_active_membership?
-    PaymentEngine::Membership.where(owner: current_user, status: "active")
-      .where("expires_at IS NULL OR expires_at >= ?", Time.current).exists?
-  rescue StandardError
-    false
   end
 
   def allowed_without_membership?

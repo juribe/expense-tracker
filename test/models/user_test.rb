@@ -3,6 +3,10 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  test "users no longer have the requires_membership column" do
+    refute_includes User.column_names, "requires_membership"
+  end
+
   test "users are not admins by default" do
     user = User.create!(
       name: "Regular User",

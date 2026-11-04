@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_213956) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -1181,7 +1181,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_213956) do
     t.string "unconfirmed_email"
     t.string "inbound_email_token"
     t.boolean "admin", default: false, null: false
-    t.boolean "requires_membership", default: false, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["inbound_email_token"], name: "index_users_on_inbound_email_token", unique: true

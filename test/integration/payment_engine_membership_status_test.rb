@@ -23,7 +23,6 @@ class PaymentEngineMembershipStatusTest < ActionDispatch::IntegrationTest
   end
 
   test "plans page hides the free trial once the user already used it" do
-    @user.update!(requires_membership: false)
     get plans_path
     assert_includes response.body, "Comenzar gratis"
 
@@ -34,7 +33,6 @@ class PaymentEngineMembershipStatusTest < ActionDispatch::IntegrationTest
   end
 
   test "profile shows the current membership" do
-    @user.update!(requires_membership: false)
     PaymentEngine::Membership.create!(
       owner: @user,
       membership_type: @membership_type,
@@ -51,7 +49,6 @@ class PaymentEngineMembershipStatusTest < ActionDispatch::IntegrationTest
   end
 
   test "expiry banner shows once per day during the last five days" do
-    @user.update!(requires_membership: false)
     PaymentEngine::Membership.create!(
       owner: @user,
       membership_type: @membership_type,
@@ -71,7 +68,6 @@ class PaymentEngineMembershipStatusTest < ActionDispatch::IntegrationTest
   end
 
   test "expiry banner is hidden before the last five days" do
-    @user.update!(requires_membership: false)
     PaymentEngine::Membership.create!(
       owner: @user,
       membership_type: @membership_type,

@@ -34,3 +34,6 @@ production:
   primary:
     <<: *default
     database: <%= ENV.fetch("DATABASE_NAME", "expense_tracker_production") %>
+  cache:
+    <<: *default
+    database: <%= ENV.fetch("CACHE_DATABASE_NAME", "expense_tracker_cache_production") %>

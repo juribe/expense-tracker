@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1793744273.0993836,
-    "seen": 1793745040.189497,
-    "ast_hash": "b85ad70cdb0b07ba6dbc8e1210a7458f",
+    "mtime": 1793824382.7447681,
+    "seen": 1793824482.534164,
+    "ast_hash": "f2e3d48dbf888f9554be62ae08c8699d",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   "app/controllers/concerns/recurring_template_actions.rb": {
-    "mtime": 1792761428.0365546,
-    "seen": 1793490696.63435,
-    "ast_hash": "f2ecc69f496b229eda454ddf447566ab",
+    "mtime": 1793810391.0388284,
+    "seen": 1793810507.481914,
+    "ast_hash": "5120e36d8b6a35b0d0aa6e2ef73e754f",
     "semantic_hash": ""
   },
   "app/controllers/dashboard_controller.rb": {
@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "app/controllers/recurring_templates_controller.rb": {
-    "mtime": 1792761305.543778,
-    "seen": 1793490696.634398,
-    "ast_hash": "53a97345abfe8caf0dc834093fea69a8",
+    "mtime": 1793810397.4676044,
+    "seen": 1793810507.4819782,
+    "ast_hash": "f6b2efe5e6b9019cf07b499c1b88544a",
     "semantic_hash": ""
   },
   "app/controllers/transfers_controller.rb": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "app/controllers/users/registrations_controller.rb": {
-    "mtime": 1793744275.474177,
-    "seen": 1793745040.189611,
-    "ast_hash": "014d1122ed374cbc0ba5e461ba6b0f82",
+    "mtime": 1793823659.382676,
+    "seen": 1793823853.346137,
+    "ast_hash": "5806e367ecd5e5aec0b96d0e4e09fc3c",
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793745017.2050445,
-    "seen": 1793745040.190428,
-    "ast_hash": "9d3dec77ea4e9d5771710a9409aac1b5",
+    "mtime": 1793823668.663435,
+    "seen": 1793823853.34697,
+    "ast_hash": "f0f9a5ff85a6cb274534a931f00a21a1",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -972,9 +972,9 @@
     "semantic_hash": "8e38e13dc85bb5b17d7d7bf2d5868aa3"
   },
   "test/test_helper.rb": {
-    "mtime": 1792978272.3274999,
-    "seen": 1793490696.635607,
-    "ast_hash": "7487f1b76a1736d1df3580e9cfa42fe8",
+    "mtime": 1793823754.8830929,
+    "seen": 1793823853.3478038,
+    "ast_hash": "6a39adb029db2e1317887d8f1d667e43",
     "semantic_hash": ""
   },
   ".rubocop.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793744319.5892193,
-    "seen": 1793745040.1912909,
+    "mtime": 1793824408.0436661,
+    "seen": 1793824482.535954,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5004,9 +5004,9 @@
     "semantic_hash": ""
   },
   "test/models/user_test.rb": {
-    "mtime": 1793401025.2683084,
-    "seen": 1793490696.63536,
-    "ast_hash": "1c8bf5100317e9026886cef0ba384007",
+    "mtime": 1793823631.819184,
+    "seen": 1793823853.34751,
+    "ast_hash": "3d2369e508f8b005d3977bf5087386f8",
     "semantic_hash": ""
   },
   "app/controllers/test_support/confirmations_controller.rb": {
@@ -7164,9 +7164,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/services/payment_engine/memberships/grant.rb": {
-    "mtime": 1793705316.6144974,
-    "seen": 1793738613.7899232,
-    "ast_hash": "940ae15b26e22247f824a99600ff61ba",
+    "mtime": 1793823659.3826976,
+    "seen": 1793823853.347051,
+    "ast_hash": "bdca7fa8f6a6830453ccd2531fc1cc03",
     "semantic_hash": ""
   },
   "payment_engine/app/services/payment_engine/memberships/reactivate.rb": {
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "app/controllers/plans_controller.rb": {
-    "mtime": 1793740010.0926864,
-    "seen": 1793740106.830692,
-    "ast_hash": "ed04daa4021832a2ebfd9e306c97f40f",
+    "mtime": 1793823656.0155473,
+    "seen": 1793823853.346096,
+    "ast_hash": "08b87bfea2e36565fb078c9d36fb17ed",
     "semantic_hash": ""
   },
   "db/migrate/20261102150846_change_payment_engine_owner_ids_to_string.rb": {
@@ -7656,9 +7656,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/services/payment_engine/memberships/start_free_trial.rb": {
-    "mtime": 1793705313.1749408,
-    "seen": 1793738613.7899258,
-    "ast_hash": "b040103cd33d74fcce8559162c6184c9",
+    "mtime": 1793823659.3826828,
+    "seen": 1793823853.347054,
+    "ast_hash": "8df903994218e2b8ada36c31ca761f44",
     "semantic_hash": ""
   },
   "payment_engine/db/migrate/20261102001000_change_payment_engine_owner_ids_to_string.rb": {
@@ -7830,9 +7830,9 @@
     "semantic_hash": ""
   },
   "test/integration/payment_engine_membership_status_test.rb": {
-    "mtime": 1793724237.4945877,
-    "seen": 1793738613.790242,
-    "ast_hash": "27ca9a77c47db14110c3b23888d865a6",
+    "mtime": 1793823639.0300474,
+    "seen": 1793823853.347382,
+    "ast_hash": "946e1c012f0d934075bef4b516f25990",
     "semantic_hash": ""
   },
   "test/integration/payment_engine_renewal_test.rb": {
@@ -7911,6 +7911,36 @@
     "mtime": 1793744276.808331,
     "seen": 1793745040.189603,
     "ast_hash": "e5b1bf85a105fd7c1b9702a477af5177",
+    "semantic_hash": ""
+  },
+  "test/integration/recurring_listing_filters_bullet_test.rb": {
+    "mtime": 1793810373.2249734,
+    "seen": 1793810507.483295,
+    "ast_hash": "bd71af36b3533980e0ee4329c33660b3",
+    "semantic_hash": ""
+  },
+  "payment_engine/app/models/payment_engine/user_access.rb": {
+    "mtime": 1793824374.1545904,
+    "seen": 1793824482.53516,
+    "ast_hash": "4bd5cb14f4119dbc6fe7d58671678cc7",
+    "semantic_hash": ""
+  },
+  "test/poro/payment_engine_user_access_test.rb": {
+    "mtime": 1793824364.7249749,
+    "seen": 1793824482.5356312,
+    "ast_hash": "404556ee6a90fba18e4e21eb2347b557",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261104120000_remove_requires_membership_from_users.rb": {
+    "mtime": 1793823662.7359145,
+    "seen": 1793823853.346965,
+    "ast_hash": "c00d01aa79c7c36e508a00dea046587f",
+    "semantic_hash": ""
+  },
+  "test/integration/membership_access_gating_test.rb": {
+    "mtime": 1793823631.818504,
+    "seen": 1793823853.347374,
+    "ast_hash": "d8de3f7ce3bfa95c28a1b8515760d136",
     "semantic_hash": ""
   }
 }
