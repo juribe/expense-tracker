@@ -21,6 +21,18 @@ class PaymentEngineTrialTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     assert_equal 1, PaymentEngine::Membership.where(owner: @user, source: "trial").count
   end
+
+  test "cannot start a second trial after the first expired" do
+    PaymentEngine::Memberships::StartFreeTrial.call(owner: @user)
+    PaymentEngine::Membership.where(owner: @user, source: "trial")
+                             .update_all(status: "expired", expires_at: 1.day.ago)
+
+    post start_trial_plans_path
+
+    assert_redirected_to plans_path
+    assert_equal "El usuario ya utilizó su prueba gratuita", flash[:alert]
+    assert_equal 1, PaymentEngine::Membership.where(owner: @user, source: "trial").count
+  end
   test "access policy premium true during trial" do
     PaymentEngine::Memberships::StartFreeTrial.call(owner: @user)
     assert PaymentEngine::AccessPolicy.premium_access?(@user)

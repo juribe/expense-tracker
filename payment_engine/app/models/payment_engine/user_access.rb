@@ -26,6 +26,13 @@ module PaymentEngine
       end
     end
 
+    # The free plan is only offered to users who have never had a membership.
+    def free_plan_available?
+      Rails.cache.fetch(cache_key(:free_plan_available), expires_in: 1.hour) do
+        !memberships.exists?
+      end
+    end
+
     def access_premium?
       Rails.cache.fetch(cache_key(:access_premium), expires_in: 1.hour) do
         !PaymentEngine::Configuration.paid_access_required? ||

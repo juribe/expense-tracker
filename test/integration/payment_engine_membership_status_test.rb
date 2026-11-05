@@ -24,12 +24,12 @@ class PaymentEngineMembershipStatusTest < ActionDispatch::IntegrationTest
 
   test "plans page hides the free trial once the user already used it" do
     get plans_path
-    assert_includes response.body, "Comenzar gratis"
+    assert_includes response.body, "Comenzar prueba gratis"
 
     PaymentEngine::Memberships::StartFreeTrial.call(owner: @user)
 
     get plans_path
-    refute_includes response.body, "Comenzar gratis"
+    refute_includes response.body, "Comenzar prueba gratis"
   end
 
   test "profile shows the current membership" do

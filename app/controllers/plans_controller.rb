@@ -8,7 +8,12 @@ class PlansController < ApplicationController
     @monthly = PaymentEngine::PaymentOption.find_by(name: "Mensual")
     @annual = PaymentEngine::PaymentOption.find_by(name: "Anual")
     @can_trial = PaymentEngine::AccessPolicy.can_start_trial?(current_user)
-    @settings = PaymentEngine::Setting.current
+    @trial_days = PaymentEngine::Configuration.free_trial_duration_days
+    @payments_enabled = PaymentEngine::Configuration.payments_enabled?
+    @free_plan_available = user_access.free_plan_available?
+    @free_access_available = !user_access.need_membership?
+    @active_trial = active_trial?
+    @annual_savings = annual_savings
     if session[:pending_payment_option_id].present?
       @selected_option = PaymentEngine::PaymentOption.find_by(id: session[:pending_payment_option_id])
     end
@@ -187,6 +192,25 @@ class PlansController < ApplicationController
   end
 
   private
+
+  def active_trial?
+    membership = current_membership
+    return false unless membership&.active?
+    return false unless membership.source == "trial"
+
+    membership.expires_at.blank? || membership.expires_at >= Time.current
+  end
+
+  def annual_savings
+    return unless @monthly && @annual
+
+    monthly_year_total = @monthly.price.to_d * 12
+    savings = monthly_year_total - @annual.price.to_d
+    return if savings <= 0
+
+    @annual_savings_percent = ((savings / monthly_year_total) * 100).round
+    savings
+  end
 
   def normalized_status(status)
     case status.to_s

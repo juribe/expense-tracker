@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function openTrial() {
       modalMode = "trial";
       document.getElementById("modalTitle").textContent = "Comienza tu prueba gratis";
-      document.getElementById("modalDesc").textContent = "Disfruta acceso completo a Yogasto. No necesitas tarjeta y no te cobraremos automáticamente.";
+      document.getElementById("modalDesc").textContent = "Disfruta acceso completo a Yogasto. No necesitas tarjeta y no se realizará ningún cobro.";
       document.getElementById("methodChoices").style.display = "none";
       document.getElementById("modalAction").textContent = "Activar prueba gratis";
       document.getElementById("modalFoot").textContent = "Sin tarjeta · Sin cobros · Sin compromisos";
@@ -66,10 +66,10 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("modalTitle").textContent = "Continúa con tu plan " + plan.toLowerCase();
       document.getElementById("modalDesc").textContent = "Plan " + plan + " · $" + amount + " COP" + (billing === "month" ? " por mes" : " por 12 meses") + ". Elige cómo quieres realizar tu pago.";
       document.getElementById("methodChoices").style.display = "block";
-      document.getElementById("cardHint").textContent = billing === "month" ? "Renovación mensual con tu autorización" : "Un solo pago por 12 meses";
+      document.getElementById("cardHint").textContent = billing === "month" ? "Pago manual por cada periodo" : "Un solo pago por 12 meses";
       document.getElementById("pseHint").textContent = "Pago manual desde tu banco";
       document.getElementById("modalAction").textContent = "Continuar con tarjeta";
-      document.getElementById("modalFoot").textContent = billing === "month" ? "Con PSE, la renovación es manual." : "Pago único · Sin renovación automática";
+      document.getElementById("modalFoot").textContent = billing === "month" ? "Pago manual por cada periodo" : "Pago único por 12 meses";
       document.getElementById("successNote").classList.remove("show");
       document.querySelectorAll(".method").forEach(function (m) {
         m.classList.toggle("selected", m.dataset.method === "card");

@@ -9,10 +9,10 @@
        data-epayco-test="<%= PaymentEngine.provider_settings_for(:epayco)[:environment].to_s == "production" ? "false" : "true" %>"></div>
 <% end %>
 
-<div class="content-wrapper py-4">
-  <% if user_signed_in? && user_access.need_membership? %>
+<div class="plans-page">
+  <% if user_signed_in? && user_access.need_membership? && flash[:alert].blank? %>
     <div class="plans-flash" role="status">
-      <div class="plans-flash-icon">
+      <div class="plans-flash-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>
       </div>
       <div class="plans-flash-copy">
@@ -23,41 +23,175 @@
     </div>
   <% end %>
 
-  <h1 class="plans-page-title">Planes</h1>
+  <header class="plans-intro">
+    <div class="plans-eyebrow">PLANES DE YOGASTO</div>
+    <h1>Tu tranquilidad financiera, a tu ritmo</h1>
+    <p>Organiza tu dinero con las herramientas que necesitas. Empieza gratis y activa Pro cuando quieras ir más allá.</p>
+  </header>
 
-  <div class="plans-cards">
-    <% if @can_trial %>
-      <article class="plans-card">
-        <h2>Prueba Yogasto gratis</h2>
-        <div class="plans-price">$0 <small>COP</small></div>
-        <p class="plans-sub"><%= @settings.free_trial_duration_days %> días de acceso completo para conocer todo lo que Yogasto puede hacer por ti.</p>
-        <div class="plans-features"><span>Sin tarjeta de crédito</span><span>Sin cobros automáticos</span></div>
-        <%= button_to "Comenzar gratis", start_trial_plans_path, method: :post, class: "plans-btn primary" %>
+  <% if @active_trial %>
+    <section class="plans-trial plans-trial--active" aria-labelledby="plans-active-trial-title">
+      <div class="plans-trial-icon" aria-hidden="true">✓</div>
+      <div class="plans-trial-copy">
+        <strong id="plans-active-trial-title">Tu prueba Pro está activa</strong>
+        <p>
+          Disfrutas de todas las funciones Pro gratis
+          <% if current_membership.expires_at.present? %>hasta el <%= l(current_membership.expires_at, format: :long) %><% end %>.
+          Cuando termine, podrás continuar con el plan Gratis sin perder tu cuenta ni tus datos.
+        </p>
+      </div>
+    </section>
+  <% elsif @can_trial %>
+    <section class="plans-trial" aria-labelledby="plans-trial-title">
+      <div class="plans-trial-icon" aria-hidden="true">✦</div>
+      <div class="plans-trial-copy">
+        <strong id="plans-trial-title">¡Disfruta de Yogasto Pro gratis durante <%= @trial_days %> días!</strong>
+        <p>
+          <strong>Funciones Pro incluidas por <%= @trial_days %> días.</strong>
+          Prueba todas las herramientas sin pagar durante este período. Cuando termine la prueba,
+          podrás seguir usando Yogasto gratis con las funciones esenciales. No necesitas pagar para continuar.
+        </p>
+        <%= button_to "Comenzar prueba gratis", start_trial_plans_path, method: :post, class: "plans-trial-cta" %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="plans-grid <%= "plans-grid--two" unless @free_plan_available %>" aria-label="Planes de Yogasto">
+    <% if @free_plan_available %>
+      <article class="plans-card plans-card--free">
+        <div class="plans-card-head">
+          <h2>Gratis</h2>
+          <span class="plans-card-label">Para empezar</span>
+        </div>
+        <div class="plans-price"><strong>$0</strong><span>COP / siempre</span></div>
+        <p class="plans-desc">Lleva el control de tu dinero y mantén tus finanzas organizadas sin pagar.</p>
+
+        <div class="plans-divider"></div>
+        <div class="plans-section-label">INCLUYE</div>
+        <ul class="plans-features">
+          <li><span class="plans-check" aria-hidden="true">✓</span>Registra y organiza tus gastos e ingresos</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Administra tus cuentas, efectivo y tarjetas</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Organiza tus movimientos por categorías</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Consulta tus reportes y movimientos</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Gestiona gastos e ingresos recurrentes</li>
+        </ul>
+
+        <% if @can_trial %>
+          <div class="plans-divider"></div>
+          <div class="plans-section-label">FUNCIONES PRO INCLUIDAS POR <%= @trial_days %> DÍAS</div>
+          <ul class="plans-features plans-features--pro">
+            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Chat financiero con IA</li>
+            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Análisis y oportunidades de ahorro</li>
+            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Registro automático de gastos por correo</li>
+            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Creación de gastos por WhatsApp</li>
+            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Herramientas avanzadas de planificación</li>
+          </ul>
+        <% end %>
+
+        <% if @free_access_available %>
+          <%= link_to "Continuar con el plan gratis", dashboard_path, class: "plans-cta plans-cta--free" %>
+        <% else %>
+          <div class="plans-cta-note">Disponible cuando termine tu prueba</div>
+        <% end %>
+        <div class="plans-undercta">Gratis, sin fecha de vencimiento.</div>
       </article>
     <% end %>
 
     <% if @monthly %>
-      <article class="plans-card featured">
-        <span class="plans-tag">Membresía clásica</span>
-        <h2>Mensual</h2>
-        <div class="plans-price">$<%= number_with_delimiter(@monthly.price.to_i, delimiter: ".") %> <small>COP / mes</small></div>
-        <p class="plans-sub">Acceso completo a Yogasto con la flexibilidad de pagar mes a mes.</p>
-        <div class="plans-features"><span>Acceso a todas las funciones</span><span>Cancela cuando quieras</span></div>
-        <%= button_to "Elegir plan mensual", create_checkout_plans_path, method: :post, params: { payment_option_id: @monthly.id, method: "card" }, class: "plans-btn primary" %>
+      <article class="plans-card plans-card--monthly">
+        <span class="plans-tag">MEMBRESÍA CLÁSICA</span>
+        <div class="plans-card-head">
+          <h2>Pro mensual</h2>
+        </div>
+        <div class="plans-price">
+          <strong>$<%= number_with_delimiter(@monthly.price.to_i, delimiter: ".") %></strong>
+          <span>COP / mes</span>
+        </div>
+        <p class="plans-desc">Acceso completo a Yogasto Pro con la flexibilidad de pagar mes a mes.</p>
+
+        <div class="plans-divider"></div>
+        <div class="plans-section-label">TODO LO DEL PLAN GRATIS, MÁS</div>
+        <ul class="plans-features">
+          <li><span class="plans-check" aria-hidden="true">✓</span>Chat financiero con IA para consultar tus finanzas</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Análisis de gastos y oportunidades de ahorro</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Registra gastos automáticamente al recibir correos de tus bancos</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Crea gastos por WhatsApp enviando texto, notas de voz o imágenes de recibos</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Herramientas avanzadas de planificación financiera</li>
+        </ul>
+
+        <div class="plans-probox">
+          <b>Más claridad para tomar decisiones</b>
+          <p>Explora tus hábitos, entiende mejor tus gastos y analiza escenarios con herramientas inteligentes.</p>
+        </div>
+
+        <%= render "plans/checkout_button",
+                   option: @monthly,
+                   label: "Elegir plan mensual",
+                   variant: "primary",
+                   enabled: @payments_enabled %>
+        <div class="plans-undercta">Pago mensual. Renovación manual.</div>
       </article>
     <% end %>
 
     <% if @annual %>
-      <article class="plans-card">
-        <h2>Anual</h2>
-        <div class="plans-price">$<%= number_with_delimiter(@annual.price.to_i, delimiter: ".") %> <small>COP / año</small></div>
-        <p class="plans-sub">Un año completo de organización financiera con un solo pago.</p>
-        <div class="plans-features"><span>Acceso a todas las funciones</span><span>Ahorra frente al pago mensual</span></div>
-        <%= button_to "Elegir plan anual", create_checkout_plans_path, method: :post, params: { payment_option_id: @annual.id, method: "card" }, class: "plans-btn" %>
+      <article class="plans-card plans-card--annual">
+        <span class="plans-tag">MEJOR VALOR</span>
+        <div class="plans-card-head">
+          <h2>Pro anual</h2>
+        </div>
+        <div class="plans-price">
+          <strong>$<%= number_with_delimiter(@annual.price.to_i, delimiter: ".") %></strong>
+          <span>COP / año</span>
+        </div>
+        <% if @annual_savings.present? %>
+          <div class="plans-saving">
+            ✓ Ahorras $<%= number_with_delimiter(@annual_savings.to_i, delimiter: ".") %> al año<% if @annual_savings_percent.present? %> · <%= @annual_savings_percent %>%<% end %>
+          </div>
+        <% end %>
+        <p class="plans-desc">Un año completo de organización financiera con un solo pago.</p>
+
+        <div class="plans-divider"></div>
+        <div class="plans-section-label">TODO LO DEL PLAN GRATIS, MÁS</div>
+        <ul class="plans-features">
+          <li><span class="plans-check" aria-hidden="true">✓</span>Chat financiero con IA para consultar tus finanzas</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Análisis de gastos y oportunidades de ahorro</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Registra gastos automáticamente al recibir correos de tus bancos</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Crea gastos por WhatsApp enviando texto, notas de voz o imágenes de recibos</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Herramientas avanzadas de planificación financiera</li>
+          <li><span class="plans-check" aria-hidden="true">✓</span>Acceso a todas las funciones Pro durante 12 meses</li>
+        </ul>
+
+        <div class="plans-probox">
+          <b>Más tiempo para organizarte</b>
+          <p>Disfruta de todas las herramientas Pro durante 12 meses y paga menos que con 12 mensualidades.</p>
+        </div>
+
+        <%= render "plans/checkout_button",
+                   option: @annual,
+                   label: "Elegir plan anual",
+                   variant: "annual",
+                   enabled: @payments_enabled %>
+        <div class="plans-undercta">Un solo pago por 12 meses.</div>
       </article>
     <% end %>
+  </section>
+
+  <section class="plans-after" aria-labelledby="plans-after-title">
+    <span class="plans-after-icon" aria-hidden="true">✦</span>
+    <div>
+      <strong id="plans-after-title">¿Qué pasa cuando termina mi prueba Pro?</strong>
+      <p>
+        Tu cuenta sigue activa y <strong>no pierdes tu cuenta ni tus datos</strong>.
+        Pasarás a utilizar el plan Gratis: podrás seguir registrando y consultando tus finanzas con las
+        funciones incluidas en ese plan. Las funciones Pro, como el chat financiero, los análisis avanzados
+        y las automatizaciones, quedarán reservadas para quienes tengan una membresía activa.
+      </p>
+    </div>
+  </section>
+
+  <div class="plans-trust">
+    <span>🔒 Pago seguro</span>
+    <span>✓ Tú eliges cuándo pasar a Pro</span>
+    <span>✓ No se realiza ningún cobro sin tu confirmación</span>
   </div>
-
-  <div class="plans-notice">Elige una opción para continuar. No se realizará ningún cobro sin tu confirmación.</div>
 </div>
-

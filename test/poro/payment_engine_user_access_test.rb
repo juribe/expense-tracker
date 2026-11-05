@@ -82,6 +82,34 @@ class PaymentEngineUserAccessTest < ActiveSupport::TestCase
     assert_equal false, access.free_membership_used?
   end
 
+  test "free_plan_available? returns true when the user never started a trial" do
+    assert_equal true, access.free_plan_available?
+  end
+
+  test "free_plan_available? returns false during an active trial" do
+    create_membership(source: "trial", expires_at: 10.days.from_now)
+
+    assert_equal false, access.free_plan_available?
+  end
+
+  test "free_plan_available? returns false after the trial expired" do
+    create_membership(source: "trial", expires_at: 1.day.ago)
+
+    assert_equal false, access.free_plan_available?
+  end
+
+  test "free_plan_available? returns false for a paid-only user" do
+    create_membership(source: "purchase", expires_at: 1.month.from_now)
+
+    assert_equal false, access.free_plan_available?
+  end
+
+  test "free_plan_available? returns false with an expired paid membership" do
+    create_membership(source: "purchase", expires_at: 1.day.ago)
+
+    assert_equal false, access.free_plan_available?
+  end
+
   test "access_premium? returns true when paid access is not required" do
     with_paid_access_required(false) do
       assert_equal true, access.access_premium?

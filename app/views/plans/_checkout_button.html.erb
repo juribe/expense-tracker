@@ -1,0 +1,12 @@
+<% variant_class = variant == "annual" ? "plans-cta--annual" : "plans-cta--primary" %>
+
+<% if enabled %>
+  <%= button_to label,
+                create_checkout_plans_path,
+                method: :post,
+                params: { payment_option_id: option.id, method: "card" },
+                class: "plans-cta #{variant_class}",
+                form_class: "plans-cta-form" %>
+<% else %>
+  <button type="button" class="plans-cta <%= variant_class %>" disabled>Pagos no disponibles</button>
+<% end %>

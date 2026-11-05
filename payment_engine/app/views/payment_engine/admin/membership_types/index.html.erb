@@ -13,8 +13,8 @@
       <tr>
         <td><%= r.name %></td>
         <td><%= r.code %></td>
-        <td><%= r.payment_options.count %></td>
-        <td><%= r.memberships.count %></td>
+        <td><%= r.payment_options.size %></td>
+        <td><%= r.memberships.size %></td>
         <td><%= status_badge(r.status) %></td>
         <td>
           <%= link_to "Ver", admin_membership_type_path(r), class: "pe-btn" %>

@@ -6,24 +6,24 @@ module PaymentEngine
       def self.call(owner:, membership_type: nil, actor: nil)
         settings = PaymentEngine::Setting.current
         unless settings.free_trial_enabled
-          return PaymentEngine::Result.new(success: false, errors: ["El free trial está desactivado"])
+          return PaymentEngine::Result.new(success: false, errors: [ "El free trial está desactivado" ])
         end
 
         membership_type ||= PaymentEngine::MembershipType.active.first
-        return PaymentEngine::Result.new(success: false, errors: ["No hay tipo de membresía"]) unless membership_type
+        return PaymentEngine::Result.new(success: false, errors: [ "No hay tipo de membresía" ]) unless membership_type
 
         # eligibility: no prior trial
         if settings.free_trial_once_per_user
           existing_trial = PaymentEngine::Membership.where(owner: owner, source: "trial").exists?
           if existing_trial
-            return PaymentEngine::Result.new(success: false, errors: ["El usuario ya utilizó su prueba gratuita"])
+            return PaymentEngine::Result.new(success: false, errors: [ "El usuario ya utilizó su prueba gratuita" ])
           end
         end
 
         # no incompatible active membership
         active = PaymentEngine::Membership.where(owner: owner, status: "active").where("expires_at IS NULL OR expires_at >= ?", Time.current).exists?
         if active
-          return PaymentEngine::Result.new(success: false, errors: ["El usuario ya tiene una membresía activa"])
+          return PaymentEngine::Result.new(success: false, errors: [ "El usuario ya tiene una membresía activa" ])
         end
 
         duration = settings.free_trial_duration_days.days
@@ -52,10 +52,12 @@ module PaymentEngine
           )
         end
         PaymentEngine::Result.new(success: true, record: membership)
+      rescue ActiveRecord::RecordInvalid => e
+        PaymentEngine::Result.new(success: false, errors: e.record.errors.full_messages)
       rescue ActiveRecord::RecordNotUnique
-        PaymentEngine::Result.new(success: false, errors: ["El usuario ya utilizó su prueba gratuita"])
+        PaymentEngine::Result.new(success: false, errors: [ "El usuario ya utilizó su prueba gratuita" ])
       rescue StandardError => e
-        PaymentEngine::Result.new(success: false, errors: [e.message])
+        PaymentEngine::Result.new(success: false, errors: [ e.message ])
       end
     end
   end
