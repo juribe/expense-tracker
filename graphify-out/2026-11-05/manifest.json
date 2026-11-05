@@ -8286,9 +8286,9 @@
     "semantic_hash": ""
   },
   "app/services/financial_habits/detail.rb": {
-    "mtime": 1793912284.477965,
-    "seen": 1793912353.5277529,
-    "ast_hash": "963822ded1daf5d69a2dc8a5e3f31590",
+    "mtime": 1793915978.3761928,
+    "seen": 1793916026.141036,
+    "ast_hash": "a105a72894e83592914d06f02fa8745e",
     "semantic_hash": ""
   },
   "test/services/financial_habits/detail_test.rb": {

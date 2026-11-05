@@ -68,5 +68,3 @@ module Ai
     end
   end
 end
-
-Ai::Router.register_task(:financial_habits_narrative, "Ai::Tasks::FinancialHabitsNarrative")

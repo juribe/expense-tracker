@@ -1,22 +1,38 @@
 # frozen_string_literal: true
 
 module FinancialHabits
-  IncomeSpendingAnalyzer = IncomeSpendingPatternAnalyzer
-  IncomeSpending = IncomeSpendingPatternAnalyzer
-  SpendingTimeAnalyzer = SpendingTimePatternAnalyzer
-  SpendingTime = SpendingTimePatternAnalyzer
-  MerchantAnalyzer = MerchantFrequencyAnalyzer
-  MerchantFrequency = MerchantFrequencyAnalyzer
-  RecurrentMerchantAnalyzer = MerchantFrequencyAnalyzer
-  CreditUsageAnalyzer = CreditUsagePatternAnalyzer
-  CreditUsage = CreditUsagePatternAnalyzer
-  BehaviorChange = BehaviorChangeAnalyzer
-  BehaviorChangeAnalyzer = BehaviorChangeAnalyzer
-  PlanningOpportunity = PlanningOpportunityAnalyzer
-  Planning = PlanningOpportunityAnalyzer
+  # Convenience names kept inside their own namespace so Zeitwerk can eager
+  # load this file without expecting the aliases to live at the module root.
+  module Aliases
+    IncomeSpendingAnalyzer = FinancialHabits::IncomeSpendingPatternAnalyzer
+    IncomeSpending = FinancialHabits::IncomeSpendingPatternAnalyzer
+    SpendingTimeAnalyzer = FinancialHabits::SpendingTimePatternAnalyzer
+    SpendingTime = FinancialHabits::SpendingTimePatternAnalyzer
+    MerchantAnalyzer = FinancialHabits::MerchantFrequencyAnalyzer
+    MerchantFrequency = FinancialHabits::MerchantFrequencyAnalyzer
+    RecurrentMerchantAnalyzer = FinancialHabits::MerchantFrequencyAnalyzer
+    CreditUsageAnalyzer = FinancialHabits::CreditUsagePatternAnalyzer
+    CreditUsage = FinancialHabits::CreditUsagePatternAnalyzer
+    BehaviorChange = FinancialHabits::BehaviorChangeAnalyzer
+    PlanningOpportunity = FinancialHabits::PlanningOpportunityAnalyzer
+    Planning = FinancialHabits::PlanningOpportunityAnalyzer
+  end
+
+  IncomeSpendingAnalyzer = Aliases::IncomeSpendingAnalyzer
+  IncomeSpending = Aliases::IncomeSpending
+  SpendingTimeAnalyzer = Aliases::SpendingTimeAnalyzer
+  SpendingTime = Aliases::SpendingTime
+  MerchantAnalyzer = Aliases::MerchantAnalyzer
+  MerchantFrequency = Aliases::MerchantFrequency
+  RecurrentMerchantAnalyzer = Aliases::RecurrentMerchantAnalyzer
+  CreditUsageAnalyzer = Aliases::CreditUsageAnalyzer
+  CreditUsage = Aliases::CreditUsage
+  BehaviorChange = Aliases::BehaviorChange
+  PlanningOpportunity = Aliases::PlanningOpportunity
+  Planning = Aliases::Planning
 end
 
-IncomeSpendingAnalyzer = FinancialHabits::IncomeSpendingPatternAnalyzer unless defined?(IncomeSpendingAnalyzer)
-SpendingTimeAnalyzer = FinancialHabits::SpendingTimePatternAnalyzer unless defined?(SpendingTimeAnalyzer)
-MerchantAnalyzer = FinancialHabits::MerchantFrequencyAnalyzer unless defined?(MerchantAnalyzer)
-CreditUsageAnalyzer = FinancialHabits::CreditUsagePatternAnalyzer unless defined?(CreditUsageAnalyzer)
+IncomeSpendingAnalyzer = FinancialHabits::IncomeSpendingAnalyzer unless defined?(IncomeSpendingAnalyzer)
+SpendingTimeAnalyzer = FinancialHabits::SpendingTimeAnalyzer unless defined?(SpendingTimeAnalyzer)
+MerchantAnalyzer = FinancialHabits::MerchantAnalyzer unless defined?(MerchantAnalyzer)
+CreditUsageAnalyzer = FinancialHabits::CreditUsageAnalyzer unless defined?(CreditUsageAnalyzer)
