@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   "app/controllers/incomes_controller.rb": {
-    "mtime": 1793288255.9306304,
-    "seen": 1793490696.63438,
-    "ast_hash": "950838e909fe1f383ba2a9fc0969484c",
+    "mtime": 1793920405.2053008,
+    "seen": 1793920511.326714,
+    "ast_hash": "1bcc036294fc6512a3b3ecc054f2c7ce",
     "semantic_hash": ""
   },
   "app/controllers/money_sources_controller.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793909273.8381205,
-    "seen": 1793909326.6056519,
-    "ast_hash": "45cb8ba6580a2363328e15ffb6b1fafe",
+    "mtime": 1793919736.8056529,
+    "seen": 1793919945.246212,
+    "ast_hash": "f9083ba780ef1256873dfb3958464901",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793907096.6699715,
-    "seen": 1793908729.719936,
+    "mtime": 1793920458.1867678,
+    "seen": 1793920511.3285482,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1728,9 +1728,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/router.rb": {
-    "mtime": 1793840032.3481042,
-    "seen": 1793841208.753483,
-    "ast_hash": "995f1dbac77458b7d1de7994e4ae1f96",
+    "mtime": 1793916953.0788398,
+    "seen": 1793917188.93821,
+    "ast_hash": "ff5d00e8797484d8de28ce0f3a9438bd",
     "semantic_hash": ""
   },
   "app/services/ai/spreadsheet_mapper.rb": {
@@ -2814,9 +2814,9 @@
     "semantic_hash": ""
   },
   "test/controllers/incomes_controller_test.rb": {
-    "mtime": 1793320197.7316775,
-    "seen": 1793490696.635214,
-    "ast_hash": "8ea1d38e1948133a46273c10ae1cff1a",
+    "mtime": 1793920388.0248833,
+    "seen": 1793920511.327988,
+    "ast_hash": "3c131cfed523aca5be37e249c0d88131",
     "semantic_hash": ""
   },
   "test/controllers/recurring_templates_controller_test.rb": {
@@ -8226,15 +8226,15 @@
     "semantic_hash": ""
   },
   "app/services/ai/tasks/financial_habits_narrative.rb": {
-    "mtime": 1793909264.246561,
-    "seen": 1793909326.604157,
-    "ast_hash": "cf211746b6c51018447d68bf022b109d",
+    "mtime": 1793916955.868761,
+    "seen": 1793917188.938227,
+    "ast_hash": "7247d3c5c70a13ed45123549de695db7",
     "semantic_hash": ""
   },
   "app/services/financial_habits/aliases.rb": {
-    "mtime": 1793909553.050265,
-    "seen": 1793909595.5588531,
-    "ast_hash": "32102609aa71936bfa4f367c9d6d1ca2",
+    "mtime": 1793916938.995547,
+    "seen": 1793917188.938421,
+    "ast_hash": "29aa19de592f5decec62e75e673ccd0d",
     "semantic_hash": ""
   },
   "app/services/financial_habits/analysis_state.rb": {
