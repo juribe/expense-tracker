@@ -1,6 +1,7 @@
 <% subtitle = capture do %>
+  <span class="d-block"><%= t("transfers.index.subtitle") %></span>
   <% if @cycle %>
-    <span class="badge bg-light text-dark border" data-testid="cycle-badge">
+    <span class="badge bg-light text-dark border mt-2" data-testid="cycle-badge">
       <i class="ti ti-calendar-plus me-1"></i><%= @cycle.label %> (<%= @cycle.range_label %>)
     </span>
   <% end %>
@@ -13,52 +14,134 @@
   </div>
 <% end %>
 
+<section class="row g-3 mb-4" data-testid="transfers-summary">
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <%= render "shared/stat",
+                   label: t("transfers.index.summary.total"),
+                   value: tag.span(number_to_currency(@summary[:total]), data: { testid: "summary-total" }),
+                   icon: "arrows-left-right",
+                   icon_tone: "blue",
+                   delta: @cycle ? t("transfers.index.summary.cycle_hint", label: @cycle.label, range: @cycle.range_label) : t("transfers.index.summary.period_hint", label: @period_label) %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <%= render "shared/stat",
+                   label: t("transfers.index.summary.movements"),
+                   value: tag.span(@summary[:count], data: { testid: "summary-count" }),
+                   icon: "list-details",
+                   icon_tone: "green",
+                   delta: @cycle ? t("transfers.index.summary.movements_cycle_hint") : t("transfers.index.summary.movements_period_hint") %>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="card mb-4">
   <div class="card-body">
-    <%= form_with url: transfers_path, method: :get, class: "row g-3 align-items-end" do |f| %>
-      <div class="col-6 col-md-3">
+    <%= form_with url: transfers_path, method: :get, id: "transfer-filters",
+                  class: "row g-3 align-items-end", data: { testid: "transfer-filter-form" } do |f| %>
+      <%= hidden_field_tag :cycle, params[:cycle] if params[:cycle].present? %>
+      <div class="col-6 col-lg-2">
         <%= f.label :start_date, t("common.from", default: "Desde"), class: "form-label" %>
         <%= f.date_field :start_date, value: @start_date, class: "form-control" %>
       </div>
-      <div class="col-6 col-md-3">
+      <div class="col-6 col-lg-2">
         <%= f.label :end_date, t("common.to", default: "Hasta"), class: "form-label" %>
         <%= f.date_field :end_date, value: @end_date, class: "form-control" %>
       </div>
-      <div class="col-12 col-md-4 d-flex gap-2">
-        <%= f.submit t("common.filter", default: "Filtrar"), class: "btn btn-outline-primary" %>
-        <%= link_to t("transfers.index.back_to_current", default: "Período actual"), transfers_path, class: "btn btn-outline-secondary" %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <%= f.label :source_id, t("transfers.index.filters.source"), class: "form-label" %>
+        <%= f.select :source_id,
+                     options_from_collection_for_select(@sources, :id, :display_name, @source_id),
+                     { include_blank: t("transfers.index.filters.all_sources") },
+                     class: "form-select" %>
+      </div>
+      <div class="col-12 col-md-6 col-lg-4 d-flex gap-2">
+        <%= f.submit t("common.filter", default: "Filtrar"), class: "btn btn-primary flex-grow-1" %>
+        <%= link_to t("transfers.index.back_to_current", default: "Período actual"), transfers_path,
+                    class: "btn btn-outline-secondary text-nowrap" %>
       </div>
     <% end %>
   </div>
 </div>
 
-<% if @transfers.any? %>
-  <div class="card">
+<div class="card" data-testid="transfers-table-card">
+  <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h2 class="card-title"><%= t("transfers.index.table_title") %></h2>
+      <p class="card-subtitle mb-0">
+        <% if @filters_applied %>
+          <%= t("transfers.index.filtered_results", count: @filtered_count) %>
+        <% else %>
+          <%= t("transfers.index.period_results", count: @filtered_count) %>
+        <% end %>
+      </p>
+    </div>
+    <div class="input-group transfer-search">
+      <%= search_field_tag :q, @query,
+                           form: "transfer-filters",
+                           placeholder: t("transfers.index.filters.search_placeholder"),
+                           class: "form-control",
+                           autocomplete: "off",
+                           aria: { label: t("transfers.index.filters.search_label") },
+                           data: { testid: "transfer-search" } %>
+      <button type="submit" form="transfer-filters" class="btn btn-outline-secondary"
+              aria-label="<%= t("transfers.index.filters.search_label") %>">
+        <i class="ti ti-search"></i>
+      </button>
+    </div>
+  </div>
+
+  <% if @transfers.any? %>
     <div class="table-responsive">
       <table class="table table-hover ledger-table align-middle mb-0">
         <caption class="visually-hidden"><%= t("transfers.index.caption") %></caption>
         <thead class="table-light">
           <tr>
-            <th scope="col"><%= t("common.date") %></th>
-            <th scope="col"><%= t("transfers.new.from", default: "Desde") %></th>
-            <th scope="col"><%= t("transfers.new.to", default: "Hacia") %></th>
-            <th scope="col" class="text-end"><%= t("common.amount") %></th>
-            <th scope="col"><%= t("transfers.new.note", default: "Nota") %></th>
-            <th scope="col" class="text-end"><%= t("common.actions") %></th>
+            <th scope="col"><%= t("transfers.index.columns.date") %></th>
+            <th scope="col"><%= t("transfers.index.columns.route") %></th>
+            <th scope="col" class="text-end"><%= t("transfers.index.columns.amount") %></th>
+            <th scope="col"><%= t("transfers.index.columns.note") %></th>
+            <th scope="col" class="text-end"><%= t("transfers.index.columns.actions") %></th>
           </tr>
         </thead>
         <tbody>
           <% @transfers.each do |transfer| %>
             <tr data-testid="row" data-id="<%= transfer.id %>">
-              <td class="text-nowrap"><%= l(transfer.date, format: :long) %></td>
-              <td><%= transfer.from_source.name %></td>
-              <td><%= transfer.to_source.name %></td>
-              <td class="text-end fw-bold"><%= number_to_currency(transfer.amount) %></td>
+              <td class="text-nowrap cell-strong"><%= l(transfer.date, format: :short) %></td>
+              <td>
+                <div class="transfer-route">
+                  <span class="transfer-route-account">
+                    <span class="icon-chip icon-chip-sm icon-chip-blue" aria-hidden="true">
+                      <i class="ti ti-<%= source_kind_icon(transfer.from_source.kind) %>"></i>
+                    </span>
+                    <span class="fw-semibold"><%= transfer.from_source.display_name %></span>
+                  </span>
+                  <i class="ti ti-arrow-right transfer-route-arrow" aria-hidden="true"></i>
+                  <span class="transfer-route-account">
+                    <span class="icon-chip icon-chip-sm icon-chip-green" aria-hidden="true">
+                      <i class="ti ti-<%= source_kind_icon(transfer.to_source.kind) %>"></i>
+                    </span>
+                    <span class="fw-semibold"><%= transfer.to_source.display_name %></span>
+                  </span>
+                </div>
+              </td>
+              <td class="text-end cell-amount"><%= number_to_currency(transfer.amount) %></td>
               <td class="desc-cell" title="<%= transfer.note %>">
                 <%= transfer.note.presence || "—" %>
               </td>
               <td class="text-end">
-                <%= button_to transfer_path(transfer), method: :delete, class: "btn btn-sm btn-outline-danger", data: { confirm: t("transfers.index.delete_confirm") }, form: { class: "d-inline-block" } do %>
+                <%= button_to transfer_path(transfer), method: :delete,
+                              class: "btn btn-sm btn-outline-danger",
+                              title: t("common.delete"),
+                              aria: { label: t("transfers.index.delete_confirm") },
+                              data: { confirm: t("transfers.index.delete_confirm") },
+                              form: { class: "d-inline-block" } do %>
                   <i class="ti ti-trash"></i>
                 <% end %>
               </td>
@@ -67,10 +150,25 @@
         </tbody>
       </table>
     </div>
-  </div>
-<% else %>
-  <div class="card" data-testid="empty">
-    <%= render "shared/empty_state", icon: "arrows-left-right", title: t("transfers.index.empty_title"),
-          text: t("transfers.index.empty_body") %>
-  </div>
-<% end %>
+    <div class="card-footer d-flex flex-column flex-sm-row justify-content-between gap-2 text-secondary small">
+      <span><%= t("transfers.index.showing", count: @filtered_count, shown: @transfers.size, total: @filtered_count) %></span>
+      <span><%= t("transfers.index.sorted") %></span>
+    </div>
+  <% elsif @filters_applied %>
+    <div data-testid="filtered-empty">
+      <%= render "shared/empty_state",
+                 icon: "filter-off",
+                 title: t("transfers.index.filtered_empty_title"),
+                 text: t("transfers.index.filtered_empty_body"),
+                 cta: (link_to t("transfers.index.clear_filters"), transfers_path, class: "btn btn-outline-secondary") %>
+    </div>
+  <% else %>
+    <div data-testid="empty">
+      <%= render "shared/empty_state",
+                 icon: "arrows-left-right",
+                 title: t("transfers.index.empty_title"),
+                 text: t("transfers.index.empty_body"),
+                 cta: (link_to t("transfers.index.empty_cta"), money_sources_cash_path, class: "btn btn-primary") %>
+    </div>
+  <% end %>
+</div>

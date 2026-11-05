@@ -19,9 +19,19 @@ class TransfersController < ApplicationController
     @span, @period_label, @cycle = transfer_period
     @start_date = params[:start_date]
     @end_date = params[:end_date]
-    @transfers = current_user.transfers
-      .includes(:from_source, :to_source)
-      .where(date: @span)
+    @query = params[:q].to_s.strip
+    @source_id = params[:source_id].presence
+    @selected_source = @source_id.present? ? current_user.money_sources.find_by(id: @source_id) : nil
+    @filters_applied = filter_params_present?
+    @sources = current_user.money_sources.includes(:credit_account).order(:kind, :name)
+
+    period_transfers = current_user.transfers.where(date: @span)
+    @summary = { total: period_transfers.sum(:amount), count: period_transfers.count }
+
+    filtered = filtered_transfers(period_transfers)
+    @filtered_count = filtered.count
+    @transfers = filtered
+      .includes(from_source: :credit_account, to_source: :credit_account)
       .order(date: :desc, created_at: :desc)
       .limit(50)
   end
@@ -107,6 +117,41 @@ class TransfersController < ApplicationController
     params.delete(:end_date)
     params.delete(:cycle)
     transfer_period
+  end
+
+  # The period's transfers narrowed by the source on either end and by free
+  # text over the source names and the note. Source matches go through a
+  # subquery so a transfer whose two ends match the query is never returned
+  # twice.
+  def filtered_transfers(scope)
+    scope = filter_transfers_by_source(scope)
+    return scope if @query.blank?
+
+    like = "%#{Transfer.sanitize_sql_like(@query)}%"
+    matching_sources = current_user.money_sources
+      .where("name ILIKE :like OR institution_cached_name ILIKE :like", like: like)
+      .select(:id)
+
+    scope.where(
+      "transfers.note ILIKE ? OR transfers.from_source_id IN (?) OR transfers.to_source_id IN (?)",
+      like, matching_sources, matching_sources
+    )
+  end
+
+  def filter_transfers_by_source(scope)
+    return scope if @source_id.blank?
+    return scope.none unless @selected_source
+
+    scope.where(
+      "transfers.from_source_id = :id OR transfers.to_source_id = :id",
+      id: @selected_source.id
+    )
+  end
+
+  def filter_params_present?
+    params[:q].present? || params[:source_id].present? ||
+      params[:start_date].present? || params[:end_date].present? ||
+      params[:cycle].present?
   end
 
   def set_transfer

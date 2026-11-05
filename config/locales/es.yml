@@ -1614,10 +1614,44 @@ es:
   transfers:
     index:
       title: "Transferencias"
+      subtitle: "Consulta los movimientos de dinero entre tus cuentas y fuentes de dinero."
       caption: "Tus transferencias"
       delete_confirm: "¿Eliminar esta transferencia?"
       empty_title: "Aún no hay transferencias"
-      empty_body: "Registra transferencias entre tus fuentes de dinero."
+      empty_body: "Las transferencias se crean desde Fuentes de dinero."
+      empty_cta: "Ir a Fuentes de dinero"
+      filtered_empty_title: "No encontramos transferencias"
+      filtered_empty_body: "Prueba con otro rango de fechas, una fuente diferente o cambia la búsqueda."
+      clear_filters: "Limpiar filtros"
+      table_title: "Historial de transferencias"
+      period_results:
+        one: "%{count} transferencia en este período"
+        other: "%{count} transferencias en este período"
+      filtered_results:
+        one: "%{count} transferencia encontrada"
+        other: "%{count} transferencias encontradas"
+      showing:
+        one: "Mostrando %{shown} de %{total} transferencia"
+        other: "Mostrando %{shown} de %{total} transferencias"
+      sorted: "Ordenadas por fecha: más recientes primero"
+      filters:
+        source: "Fuente de dinero"
+        all_sources: "Todas las fuentes"
+        search_label: "Buscar"
+        search_placeholder: "Buscar cuenta, fuente o nota..."
+      summary:
+        total: "Total transferido"
+        movements: "Transferencias"
+        cycle_hint: "En este ciclo financiero · %{label} (%{range})"
+        period_hint: "En este período · %{label}"
+        movements_cycle_hint: "Movimientos registrados en el ciclo"
+        movements_period_hint: "Movimientos registrados en el período"
+      columns:
+        date: "Fecha"
+        route: "Origen / destino"
+        amount: "Valor"
+        note: "Nota"
+        actions: "Acciones"
     new:
       error_prohibited:
         one: "%{count} error impidió guardar la transferencia:"

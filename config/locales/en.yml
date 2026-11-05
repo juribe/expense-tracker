@@ -1385,6 +1385,46 @@ en:
     note_placeholder: "Optional"
 
   transfers:
+    index:
+      title: "Transfers"
+      subtitle: "Review the money movements between your accounts and money sources."
+      caption: "Your transfers"
+      delete_confirm: "Delete this transfer?"
+      empty_title: "No transfers yet"
+      empty_body: "Transfers are created from Money sources."
+      empty_cta: "Go to Money sources"
+      filtered_empty_title: "No transfers found"
+      filtered_empty_body: "Try another date range, a different source or change the search."
+      clear_filters: "Clear filters"
+      table_title: "Transfer history"
+      period_results:
+        one: "%{count} transfer in this period"
+        other: "%{count} transfers in this period"
+      filtered_results:
+        one: "%{count} transfer found"
+        other: "%{count} transfers found"
+      showing:
+        one: "Showing %{shown} of %{total} transfer"
+        other: "Showing %{shown} of %{total} transfers"
+      sorted: "Sorted by date: newest first"
+      filters:
+        source: "Money source"
+        all_sources: "All sources"
+        search_label: "Search"
+        search_placeholder: "Search account, source or note..."
+      summary:
+        total: "Total transferred"
+        movements: "Transfers"
+        cycle_hint: "In this financial cycle · %{label} (%{range})"
+        period_hint: "In this period · %{label}"
+        movements_cycle_hint: "Movements recorded in the cycle"
+        movements_period_hint: "Movements recorded in the period"
+      columns:
+        date: "Date"
+        route: "Origin / destination"
+        amount: "Amount"
+        note: "Note"
+        actions: "Actions"
     new:
       assign_to_goal: "Assign to goal (optional)"
       assign_blank: "Only leave the money in the pocket"

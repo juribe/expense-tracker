@@ -1,0 +1,27 @@
+.transfer-route {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.transfer-route-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.transfer-route-arrow {
+  color: var(--et-muted);
+}
+
+.transfer-search {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .transfer-search {
+    max-width: 22rem;
+  }
+}

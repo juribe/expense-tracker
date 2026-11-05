@@ -45,9 +45,11 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".et-maxw-14rem", text: "José Uribe"
   end
 
-  test "GET /transfers shows empty state when no transfers" do
+  test "GET /transfers shows a friendly empty state when there are no transfers" do
     get transfers_path
     assert_response :success
+    assert_select "[data-testid=empty]", text: /#{I18n.t("transfers.index.empty_title")}/
+    assert_select "[data-testid=empty] a[href='#{money_sources_cash_path}']"
   end
 
   test "GET /transfers shows the financial cycle badge in the title with a schedule" do
@@ -229,6 +231,138 @@ class TransfersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "en rango"
     refute_includes response.body, "rango fuera"
+  end
+
+  test "GET /transfers summarizes the selected financial cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    @savings.update!(starting_balance: 20_000_000)
+
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                     amount: 100_000, date: cycle.starts)
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                     amount: 250_000, date: cycle.ends)
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                     amount: 9_000_000, date: cycle.starts - 1.day)
+
+    get transfers_path
+
+    assert_response :success
+    assert_select "[data-testid=transfers-summary]"
+    total = css_select("[data-testid=summary-total]").first.text
+    assert_includes total, "350.000"
+    refute_includes total, "9.000.000"
+    assert_select "[data-testid=summary-count]", text: "2"
+  end
+
+  test "GET /transfers summarizes only the explicit date range" do
+    @savings.update!(starting_balance: 5_000_000)
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                     amount: 100_000, date: Date.new(2026, 3, 5))
+    Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                     amount: 200_000, date: Date.new(2026, 3, 28))
+
+    get transfers_path, params: { start_date: "2026-03-01", end_date: "2026-03-10" }
+
+    assert_response :success
+    total = css_select("[data-testid=summary-total]").first.text
+    assert_includes total, "100.000"
+    refute_includes total, "200.000"
+    assert_select "[data-testid=summary-count]", text: "1"
+  end
+
+  test "GET /transfers searches by source name without duplicating rows" do
+    origin = @user.money_sources.create!(name: "Cuenta Origen", kind: "account", starting_balance: 1_000_000)
+    destination = @user.money_sources.create!(name: "Cuenta Destino", kind: "account")
+    matching = Transfer.create!(user: @user, from_source: origin, to_source: destination,
+                                amount: 10_000, date: Date.current, note: "Traslado")
+    other = create_transfer
+
+    get transfers_path(q: "Cuenta")
+
+    assert_response :success
+    assert_select "form#transfer-filters"
+    assert_select "input[name='q'][form='transfer-filters']"
+    assert_select "[data-testid=row][data-id='#{matching.id}']", count: 1
+    assert_select "[data-testid=row][data-id='#{other.id}']", count: 0
+    assert_select "[data-testid=summary-count]", text: "2"
+  end
+
+  test "GET /transfers searches by note" do
+    matching = Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                                amount: 100, date: Date.current, note: "Pago del viaje")
+    other = create_transfer
+
+    get transfers_path(q: "viaje")
+
+    assert_response :success
+    assert_select "[data-testid=row][data-id='#{matching.id}']"
+    assert_select "[data-testid=row][data-id='#{other.id}']", count: 0
+  end
+
+  test "GET /transfers filters by money source on either end" do
+    @checking.update!(starting_balance: 1_000)
+    outgoing = Transfer.create!(user: @user, from_source: @savings, to_source: @checking,
+                                amount: 100, date: Date.current)
+    incoming = Transfer.create!(user: @user, from_source: @checking, to_source: @savings,
+                                amount: 50, date: Date.current)
+    unrelated_origin = @user.money_sources.create!(name: "Otra cuenta", kind: "account", starting_balance: 500)
+    unrelated_destination = @user.money_sources.create!(name: "Otro destino", kind: "account")
+    unrelated = Transfer.create!(user: @user, from_source: unrelated_origin, to_source: unrelated_destination,
+                                 amount: 25, date: Date.current)
+
+    get transfers_path(source_id: @savings.id)
+
+    assert_response :success
+    assert_select "[data-testid=row][data-id='#{outgoing.id}']"
+    assert_select "[data-testid=row][data-id='#{incoming.id}']"
+    assert_select "[data-testid=row][data-id='#{unrelated.id}']", count: 0
+  end
+
+  test "GET /transfers shows a filtered empty state when filters match nothing" do
+    create_transfer
+
+    get transfers_path(q: "no-existe")
+
+    assert_response :success
+    assert_select "[data-testid=filtered-empty]", text: /No encontramos transferencias/
+    assert_select "[data-testid=row]", count: 0
+  end
+
+  test "GET /transfers renders the history with route icons and columns" do
+    pocket = @user.money_sources.create!(name: "Ahorros viaje", kind: "pocket")
+    transfer = Transfer.create!(user: @user, from_source: @savings, to_source: pocket,
+                                amount: 100, date: Date.current, note: "Reserva del viaje")
+
+    get transfers_path
+
+    assert_response :success
+    assert_select "table thead th", text: "Fecha"
+    assert_select "table thead th", text: "Origen / destino"
+    assert_select "table thead th", text: "Valor"
+    assert_select "table thead th", text: "Nota"
+    assert_select "table thead th", text: "Acciones"
+    assert_select "[data-testid=row][data-id='#{transfer.id}']" do
+      assert_select ".ti-building-bank"
+      assert_select ".ti-arrow-right"
+      assert_select ".ti-pig-money"
+      assert_select "td", text: /Reserva del viaje/
+      assert_select "form[action='#{transfer_path(transfer)}'] button[data-confirm=?]",
+                    I18n.t("transfers.index.delete_confirm")
+    end
+  end
+
+  test "GET /transfers shows the page description, cycle and money sources action" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    create_transfer
+
+    get transfers_path
+
+    assert_response :success
+    assert_select ".page-subtitle", text: /#{I18n.t("transfers.index.subtitle")}/
+    assert_select "[data-testid=cycle-badge]", text: /#{cycle.label}/
+    assert_select "a[href='#{money_sources_cash_path}']", text: /#{I18n.t("nav.money_sources")}/
   end
 
   # ----- Transfer to pocket with optional goal allocation -----
