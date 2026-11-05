@@ -247,6 +247,13 @@ Rails.application.routes.draw do
 
   # Financial summary (month snapshot page)
   get "financial_summary", to: "financial_summary#show", as: :financial_summary
+
+  # Savings opportunities (Pro): deterministic analysis plus an AI narrative.
+  get "savings_opportunities", to: "savings_opportunities#show", as: :savings_opportunities
+  post "savings_opportunities/refresh", to: "savings_opportunities#refresh", as: :refresh_savings_opportunities
+  get "savings_opportunities/status", to: "savings_opportunities#status", as: :status_savings_opportunities
+  post "savings_opportunities/scenario", to: "savings_opportunities#scenario", as: :scenario_savings_opportunities
+
   get "debt_capacity", to: "debt_capacity#show", as: :debt_capacity
   get "debt_capacity/comparison", to: "debt_capacity#comparison", as: :debt_capacity_comparison
 

@@ -379,6 +379,7 @@ en:
     assistant: "Assistant"
     financial_chat: "Financial Chat"
     financial_summary: "Summary"
+    savings_opportunities: "Savings opportunities"
     sign_out: "Sign out"
     toggle_sidebar: "Toggle sidebar"
     close_sidebar: "Close sidebar"
@@ -1825,3 +1826,162 @@ en:
   errors:
     not_authorized: "You do not have permission to access this section."
     premium_only: "You need a premium plan to use this feature."
+
+  savings_opportunities:
+    title: "Savings opportunities"
+    subtitle: "Spot patterns in your spending, find where you could cut back and explore small changes that could free up money every month."
+    opportunities_title: "Your savings opportunities"
+    per_month: "month"
+    view_movements: "View movements"
+    movement: "Movement"
+    disclaimer: "This analysis is informational. It does not modify your movements and does not guarantee savings; decisions about your spending are yours."
+    window:
+      label: "Last %{count} months and the current period"
+
+    empty:
+      title: "Not enough movements yet"
+      text: "Once you record expenses, we will analyze your patterns and show real savings opportunities."
+      cta: "Record an expense"
+
+    refresh:
+      button: "Refresh analysis"
+      refreshing: "Refreshing…"
+      pending: "We are refreshing the smart analysis. Please try again in a moment."
+      unavailable: "No AI provider is configured; showing the analysis calculated from your data."
+
+    ai:
+      label: "Smart analysis of your spending"
+      heading_none: "We are still reviewing your spending"
+      heading:
+        one: "We found 1 opportunity for you"
+        other: "We found %{count} opportunities for you"
+      heading_configured:
+        one: "You have 1 configured payment to review"
+        other: "You have %{count} configured payments to review"
+      configured_count:
+        one: "1 configured payment"
+        other: "%{count} configured payments"
+      potential_monthly: "Potential monthly savings"
+      potential_pending: "There is not enough history to estimate savings yet."
+      opportunities_none: "No clear opportunities yet"
+      opportunities:
+        one: "1 opportunity detected"
+        other: "%{count} opportunities detected"
+      pending: "Generating the smart analysis…"
+      fallback_note: "Showing the analysis calculated from your movements while the smart explanation is prepared."
+      scope_note: "Calculated only from categories with a detected opportunity. Recurring payments and small expenses are not added, to avoid counting the same money twice."
+      failed: "We could not refresh the smart analysis. Your statistics are still available and you can try again."
+      not_generated: "Not updated yet"
+      updated_today: "Last update: today"
+      updated_on: "Last update: %{date}"
+
+    categories:
+      title: "Where to spend less"
+      subtitle: "Categories where your spending increased and may have room to cut back."
+      summary: "Potential savings:"
+      insufficient_history: "We need at least one complete month of movements to compare your categories. Meanwhile, you can review the other analyses."
+      none: "We found no clear opportunity in this period. Your spending is close to your usual behavior."
+      current_vs_average_html: "Your spending in this category is <b>%{current}</b> this period, %{delta}% above your equivalent average of <b>%{average}</b>."
+      new_spending_html: "This category had no spending in previous months and now totals <b>%{current}</b> in the current period."
+      recommendation_title: "Yogasto recommendation"
+      evolution: "Spending evolution"
+      how_much: "How much could you save?"
+      estimated_monthly: "Estimated monthly savings"
+      others: "Other categories to review"
+      new_label: "New"
+      table:
+        category: "Category"
+        current: "Current spending"
+        average: "Equivalent average"
+        variation: "Variation"
+        potential: "Estimated reduction"
+
+    recurring:
+      title: "Recurring expenses"
+      subtitle: "Payments that repeat and you may want to review."
+      summary: "Total identified:"
+      found: "Payments we found"
+      none: "We found no recurring payments with enough evidence in recent months."
+      last_payment: "Last payment: %{date}"
+      configured: "Configured"
+      confirmed: "Confirmed"
+      possible: "Review"
+      total_label: "Total identified payments"
+      note: "Not all these payments are necessarily dispensable. Review which ones you still use and decide whether any deserves a change."
+      view_all: "View movements for the period"
+      unknown_merchant: "Recurring payment"
+      configured_summary: "Configured total:"
+      configured_found: "Configured recurring payments"
+      configured_total_label: "Total configured recurring payments"
+      configured_day: "Configured payment day: %{day}"
+      configured_note: "There are no previous cycles to compare yet, so we show the recurring payments you have configured. These are planned payments, not observed movements."
+      configured_view_all: "Review my recurring payments"
+
+    small_expenses:
+      title: "Small expenses"
+      subtitle: "Frequent low-value purchases that add up to a meaningful amount."
+      summary: "Accumulated total:"
+      accumulation: "How your purchases add up"
+      none: "We found no frequent small purchases that add up meaningfully in this period."
+      group_detail:
+        one: "%{count} purchase · Average %{average}"
+        other: "%{count} purchases · Average %{average}"
+      total_label: "Accumulated total for the period"
+      note: "These are everyday expenses that can go unnoticed. Review their frequency and choose which ones you would like to reduce; we do not modify any movement."
+      threshold_html: "We consider small purchases those below <b>%{amount}</b>, based on your own spending habits."
+      weekday: "They concentrate mainly on %{day}."
+      view_all: "View these movements"
+      unknown_concept: "Small purchase"
+
+    simulator:
+      title: "Simulate how much you could save"
+      subtitle: "Adjust the reduction percentage in your spending and explore different scenarios."
+      summary: "Estimated savings:"
+      none: "There are no categories with enough spending to simulate a scenario yet."
+      adjust: "Adjust your spending"
+      current_spend: "Current spending: %{amount}"
+      saving: "Savings:"
+      hint: "These scenarios are hypothetical and do not modify your movements."
+      potential_monthly: "Potential monthly savings"
+      in_six: "In 6 months"
+      in_twelve: "In 12 months"
+      estimated_note: "This is an estimated opportunity, not guaranteed savings."
+      goal: "Turn into a goal"
+
+    goal:
+      name: "Savings from opportunities: %{monthly} per month"
+      empty: "Select at least one reduction greater than zero."
+
+    frequencies:
+      weekly: "Weekly payment"
+      biweekly: "Biweekly payment"
+      monthly: "Monthly payment"
+      quarterly: "Quarterly payment"
+      annual: "Annual payment"
+      yearly: "Annual payment"
+      daily: "Daily payment"
+
+    narrative:
+      summary_empty: "There are not enough movements yet to analyze your spending. Record some expenses and we will look for opportunities again."
+      summary_insufficient: "We do not have enough history to compare your categories yet. You can review small expenses and simulate scenarios while we complete the analysis."
+      summary_insufficient_recurring:
+        one: "We do not have enough history to compare your categories yet, but you can review the recurring payment you have configured."
+        other: "We do not have enough history to compare your categories yet, but you can review the %{count} recurring payments you have configured."
+      summary_none: "We reviewed your recent months and found no clear savings opportunities. Your spending is close to your usual behavior."
+      summary_unavailable: "We could not generate the smart explanation right now. Your calculated statistics are still available."
+      summary: "Reviewing your recent months, we found %{opportunities} opportunities to review. %{detail}"
+      detail_categories: "There are %{count} categories where recent spending differs from your usual behavior."
+      detail_recurring: "We also identified %{count} payments that repeat."
+      detail_small: "And %{count} groups of small purchases that add up."
+      category:
+        increased: "Spending in %{name} increased compared with your average for recent months."
+        significant: "%{name} accounts for an important share of your spending in the period."
+        new: "Spending in %{name} is new compared with previous months."
+        recommendation: "You could review how often you buy in this category. A %{rate}% reduction would represent about %{amount} per month."
+      recurring:
+        explanation: "We detected payments to %{name} with a %{frequency} frequency."
+        configured_explanation: "You have %{name} configured (%{frequency}). There are not enough previous movements to confirm it yet."
+        recommendation: "Review whether these payments are still useful to you. You decide which ones to keep."
+      small:
+        explanation: "%{name} appears in several small movements in the period; together they add up to an amount worth reviewing."
+        recommendation: "Review the frequency of these purchases and decide which ones you would like to reduce."

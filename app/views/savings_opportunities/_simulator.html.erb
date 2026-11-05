@@ -1,0 +1,85 @@
+<% simulator = analysis[:simulator] %>
+<% rows = simulator[:rows] %>
+<% default_total = simulator[:default_total] %>
+
+<div class="accordion-item so-accordion">
+  <h2 class="accordion-header" id="soSimulatorHeading">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#soSimulatorPanel" aria-expanded="false" aria-controls="soSimulatorPanel">
+      <span class="so-acc-icon so-icon-purple"><i class="ti ti-adjustments"></i></span>
+      <span class="so-acc-heading">
+        <strong><%= t("savings_opportunities.simulator.title") %></strong>
+        <small><%= t("savings_opportunities.simulator.subtitle") %></small>
+      </span>
+      <span class="so-acc-summary">
+        <%= t("savings_opportunities.simulator.summary") %>
+        <b data-so-sim-summary><%= savings_money(default_total) %> / <%= t("savings_opportunities.per_month") %></b>
+      </span>
+    </button>
+  </h2>
+
+  <div id="soSimulatorPanel" class="accordion-collapse collapse" aria-labelledby="soSimulatorHeading">
+    <div class="accordion-body so-panel">
+      <% if rows.empty? %>
+        <div class="so-panel-note">
+          <i class="ti ti-circle-check me-2"></i><%= t("savings_opportunities.simulator.none") %>
+        </div>
+      <% else %>
+        <%= form_with url: scenario_savings_opportunities_path, method: :post,
+                      data: { so_scenario_form: true } do |form| %>
+          <div class="so-sim-layout">
+            <div>
+              <h3><%= t("savings_opportunities.simulator.adjust") %></h3>
+
+              <% rows.each do |row| %>
+                <% dom_id = "soSim#{row[:id].to_s.parameterize}" %>
+                <% saving = row[:steps][row[:default_percentage]] %>
+                <div class="so-sim-row" data-so-sim-row
+                     data-so-steps="<%= json_escape(row[:steps].to_json) %>">
+                  <label for="<%= dom_id %>">
+                    <%= row[:name] %>
+                    <small><%= t("savings_opportunities.simulator.current_spend",
+                                 amount: savings_money(row[:current])) %></small>
+                  </label>
+                  <div>
+                    <div class="so-percent" data-so-percent><%= row[:default_percentage] %>%</div>
+                    <input type="range" min="0" max="100" step="5"
+                           value="<%= row[:default_percentage] %>"
+                           id="<%= dom_id %>" class="form-range" data-so-range>
+                  </div>
+                  <div class="so-sim-save" data-so-saving>
+                    <%= t("savings_opportunities.simulator.saving") %>
+                    <b><%= savings_money(saving) %></b>
+                  </div>
+                  <input type="hidden" name="reductions[<%= row[:id] %>]"
+                         value="<%= row[:default_percentage] %>" data-so-hidden>
+                </div>
+              <% end %>
+
+              <p class="so-small-note mt-3"><%= t("savings_opportunities.simulator.hint") %></p>
+            </div>
+
+            <div class="so-result-card">
+              <span class="so-eyebrow"><%= t("savings_opportunities.simulator.potential_monthly") %></span>
+              <div class="so-result-total" data-so-total><%= savings_money(default_total) %></div>
+              <div class="so-horizon">
+                <div>
+                  <%= t("savings_opportunities.simulator.in_six") %>
+                  <b data-so-six><%= savings_money(default_total * 6) %></b>
+                </div>
+                <div>
+                  <%= t("savings_opportunities.simulator.in_twelve") %>
+                  <b data-so-twelve><%= savings_money(default_total * 12) %></b>
+                </div>
+              </div>
+              <p class="so-small-note mt-2"><%= t("savings_opportunities.simulator.estimated_note") %></p>
+              <button type="submit" class="btn btn-primary w-100 mt-3" data-so-goal-submit>
+                <i class="ti ti-target-arrow me-1"></i><%= t("savings_opportunities.simulator.goal") %>
+              </button>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

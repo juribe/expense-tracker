@@ -1,0 +1,9 @@
+<ul class="so-movement-list">
+  <% movements.each do |movement| %>
+    <li>
+      <span class="so-movement-date"><%= I18n.l(movement[:date], format: :short) %></span>
+      <span class="so-movement-desc"><%= movement[:description].presence || movement[:category_name].presence || t("savings_opportunities.movement") %></span>
+      <span class="so-movement-amount"><%= savings_money(movement[:amount]) %></span>
+    </li>
+  <% end %>
+</ul>

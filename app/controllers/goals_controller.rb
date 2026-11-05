@@ -11,8 +11,10 @@ class GoalsController < ApplicationController
   end
 
   # GET /goals/new
+  # Accepts optional name/target_amount params so the savings simulator can
+  # reuse this form instead of introducing a separate goals system.
   def new
-    @goal = Goal.new
+    @goal = Goal.new(name: params[:name].presence, target_amount: params[:target_amount].presence)
     load_pockets
   end
 

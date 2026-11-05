@@ -1,0 +1,49 @@
+<% content_for :title, t("savings_opportunities.title") %>
+
+<div class="savings-opportunities" data-so-page data-so-per-month="<%= t("savings_opportunities.per_month") %>">
+  <%= render "shared/page_header", title: t("savings_opportunities.title"),
+                                  subtitle: t("savings_opportunities.subtitle") do %>
+    <%= form_with url: refresh_savings_opportunities_path, method: :post,
+                  class: "d-inline-flex align-items-center gap-2",
+                  data: { so_refresh_form: true, so_status_url: status_savings_opportunities_path } do |form| %>
+      <%= form.button type: :submit, class: "btn btn-outline-primary",
+                      data: { so_refresh_button: true,
+                              so_refreshing_label: t("savings_opportunities.refresh.refreshing") } do %>
+        <i class="ti ti-refresh me-1"></i><span><%= t("savings_opportunities.refresh.button") %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <div data-so-analysis-status data-so-status-url="<%= status_savings_opportunities_path %>"
+       data-so-pending="<%= @analysis_pending.present? %>" hidden></div>
+
+  <% if @analysis_state == "failed" %>
+    <div class="alert alert-warning d-flex align-items-start" role="alert">
+      <i class="ti ti-alert-triangle me-2 mt-1"></i>
+      <div><%= t("savings_opportunities.ai.failed") %></div>
+    </div>
+  <% end %>
+
+  <% if @analysis[:state] == :empty %>
+    <%= render "shared/empty_state",
+               icon: "sparkles",
+               title: t("savings_opportunities.empty.title"),
+               text: t("savings_opportunities.empty.text"),
+               cta: link_to(t("savings_opportunities.empty.cta"), new_expense_path, class: "btn btn-primary") %>
+  <% else %>
+    <%= render "savings_opportunities/ai_summary", analysis: @analysis, narrative: @narrative %>
+
+    <h2 class="so-section-title"><%= t("savings_opportunities.opportunities_title") %></h2>
+
+    <div class="accordion so-accordions" id="savingsOpportunitiesAccordion">
+      <%= render "savings_opportunities/categories", analysis: @analysis, narrative: @narrative %>
+      <%= render "savings_opportunities/recurring", analysis: @analysis, narrative: @narrative %>
+      <%= render "savings_opportunities/small_expenses", analysis: @analysis, narrative: @narrative %>
+      <%= render "savings_opportunities/simulator", analysis: @analysis %>
+    </div>
+
+    <p class="so-disclaimer">
+      <i class="ti ti-info-circle me-1"></i><%= t("savings_opportunities.disclaimer") %>
+    </p>
+  <% end %>
+</div>

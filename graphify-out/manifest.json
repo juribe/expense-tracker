@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1793744278.1315565,
-    "seen": 1793745040.190346,
-    "ast_hash": "ff973904910446c0d144955f73e9e195",
+    "mtime": 1793840042.3523269,
+    "seen": 1793841208.753943,
+    "ast_hash": "3e33c64d54ffb9c82265b844bd90cf19",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
   },
   "config/locales/en.yml": {
-    "mtime": 1793829257.5163057,
-    "seen": 1793829840.6808488,
-    "ast_hash": "d09e3b91b7f1cbf3289bb6ce275ea4f3",
+    "mtime": 1793879242.5178983,
+    "seen": 1793880336.157395,
+    "ast_hash": "8b416e999fe0cce1b1925c48794d28a5",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793829257.5163023,
-    "seen": 1793829840.680851,
-    "ast_hash": "69a7c38907edba2fa454c1ccd0a89c80",
+    "mtime": 1793879242.5178988,
+    "seen": 1793880336.157396,
+    "ast_hash": "1862c966114b70127e984a35d633a82e",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793835930.5985348,
-    "seen": 1793836039.310229,
+    "mtime": 1793883034.7183654,
+    "seen": 1793883067.155832,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1728,9 +1728,9 @@
     "semantic_hash": ""
   },
   "app/services/ai/router.rb": {
-    "mtime": 1790560256.3609865,
-    "seen": 1793490696.634675,
-    "ast_hash": "fe244f9778a21a5b038226f9b024c376",
+    "mtime": 1793840032.3481042,
+    "seen": 1793841208.753483,
+    "ast_hash": "995f1dbac77458b7d1de7994e4ae1f96",
     "semantic_hash": ""
   },
   "app/services/ai/spreadsheet_mapper.rb": {
@@ -3216,9 +3216,9 @@
     "semantic_hash": ""
   },
   "test/controllers/financial_summary_controller_test.rb": {
-    "mtime": 1791336724.5717037,
-    "seen": 1793490696.635206,
-    "ast_hash": "c86bb9c59ace0221d32ab97f1322a281",
+    "mtime": 1793882943.312986,
+    "seen": 1793883067.1552262,
+    "ast_hash": "e27039007071d8949677638c91fb9ef4",
     "semantic_hash": ""
   },
   "test/models/financial_chat_message_test.rb": {
@@ -3786,9 +3786,9 @@
     "semantic_hash": ""
   },
   "app/controllers/goals_controller.rb": {
-    "mtime": 1792192357.1559997,
-    "seen": 1793490696.634377,
-    "ast_hash": "d75d6211a785e961e4da8d8352c4f77e",
+    "mtime": 1793840329.824261,
+    "seen": 1793841208.7531211,
+    "ast_hash": "e4263adc9a45931a5f22c8e4a82a7232",
     "semantic_hash": ""
   },
   "app/models/goal.rb": {
@@ -3804,9 +3804,9 @@
     "semantic_hash": ""
   },
   "test/controllers/goals_controller_test.rb": {
-    "mtime": 1793320236.4463298,
-    "seen": 1793490696.63521,
-    "ast_hash": "9475dc38dee91eda98214ed93918df38",
+    "mtime": 1793840489.8302462,
+    "seen": 1793841208.754365,
+    "ast_hash": "642f1eda388aac01acbe17959a7354e8",
     "semantic_hash": ""
   },
   "test/models/goal_test.rb": {
@@ -7965,6 +7965,162 @@
     "mtime": 1793825851.0679011,
     "seen": 1793828428.196784,
     "ast_hash": "a2fa46bfccfb376ea34b2e63acfdbf4c",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/savings_opportunities.js": {
+    "mtime": 1793879284.9467068,
+    "seen": 1793880336.15539,
+    "ast_hash": "8c8026949668f38c2ac8cae217eaa65c",
+    "semantic_hash": ""
+  },
+  "app/controllers/savings_opportunities_controller.rb": {
+    "mtime": 1793879222.964137,
+    "seen": 1793880336.155516,
+    "ast_hash": "8c2250172769ad2864934243afe7ecdd",
+    "semantic_hash": ""
+  },
+  "app/helpers/savings_opportunities_helper.rb": {
+    "mtime": 1793877750.6838562,
+    "seen": 1793878039.911776,
+    "ast_hash": "68d62fc0eaf8b99b8eac204ad46755b7",
+    "semantic_hash": ""
+  },
+  "app/jobs/savings_opportunity_analysis_job.rb": {
+    "mtime": 1793841386.9085166,
+    "seen": 1793876650.539619,
+    "ast_hash": "1cd34cfefc0dbedeb54220083fd1c3bd",
+    "semantic_hash": ""
+  },
+  "app/services/ai/tasks/savings_opportunity_analysis.rb": {
+    "mtime": 1793840628.5679507,
+    "seen": 1793841208.7534988,
+    "ast_hash": "a315ec56888ba6905c5a91c2b68c65d2",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/analysis.rb": {
+    "mtime": 1793878078.8912454,
+    "seen": 1793878171.233582,
+    "ast_hash": "63514ad79f19c1b03c6a21c62cd8aacf",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/analysis_state.rb": {
+    "mtime": 1793880383.7683115,
+    "seen": 1793882354.061132,
+    "ast_hash": "cb378cd5622181ebd77b522d5a686871",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/category_analysis.rb": {
+    "mtime": 1793840936.7174468,
+    "seen": 1793841208.753819,
+    "ast_hash": "3689286d86627b35c7c6e54ee8849c27",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/narrative.rb": {
+    "mtime": 1793882363.230265,
+    "seen": 1793882463.46348,
+    "ast_hash": "0d74a57c27e577971b688b3a4412bad4",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/recurring_detection.rb": {
+    "mtime": 1793877731.7016642,
+    "seen": 1793878039.912385,
+    "ast_hash": "c058e11821089e8992c6f1a75a0f3f7a",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/simulator.rb": {
+    "mtime": 1793841557.9703083,
+    "seen": 1793876650.540202,
+    "ast_hash": "d784c4eb74275740d068360603f805a3",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/small_expenses.rb": {
+    "mtime": 1793882201.67987,
+    "seen": 1793882354.061144,
+    "ast_hash": "fe11b98fb7135b2341dba3f674204dad",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/window.rb": {
+    "mtime": 1793839941.696802,
+    "seen": 1793841208.7538261,
+    "ast_hash": "238ff1fdf46e3938ebd14a9fb3da65c1",
+    "semantic_hash": ""
+  },
+  "test/controllers/savings_opportunities_controller_test.rb": {
+    "mtime": 1793879355.8303657,
+    "seen": 1793880336.1568441,
+    "ast_hash": "5af922e90c50af5a8fe36f38d20d8766",
+    "semantic_hash": ""
+  },
+  "test/services/ai/tasks/savings_opportunity_analysis_test.rb": {
+    "mtime": 1793840637.3389375,
+    "seen": 1793841208.7546098,
+    "ast_hash": "4200a20fa6410112fa3729f17ea38f1d",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/analysis_test.rb": {
+    "mtime": 1793877700.6880052,
+    "seen": 1793878039.9133592,
+    "ast_hash": "a8d51e89a236bd8609b57145dd836b76",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/category_analysis_test.rb": {
+    "mtime": 1793840936.7205782,
+    "seen": 1793841208.754807,
+    "ast_hash": "27d1fe77103d18f4b85a29045d61adc0",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/narrative_test.rb": {
+    "mtime": 1793877827.798756,
+    "seen": 1793878039.913363,
+    "ast_hash": "b52786fbc7ed0c0d689c639f9137eddc",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/recurring_detection_test.rb": {
+    "mtime": 1793840993.7141964,
+    "seen": 1793841208.75481,
+    "ast_hash": "7e4631f6a8fedad796c007daec8b3afe",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/simulator_test.rb": {
+    "mtime": 1793841557.970666,
+    "seen": 1793876650.5411782,
+    "ast_hash": "a9a78a7066e2aa62a238a64ba62ecaec",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/small_expenses_test.rb": {
+    "mtime": 1793882236.4281633,
+    "seen": 1793882354.06214,
+    "ast_hash": "af9d7afa3b33317ce0ee92c22b6cc67e",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/configured_recurring.rb": {
+    "mtime": 1793877927.1331205,
+    "seen": 1793878039.912381,
+    "ast_hash": "5035ff58bffc9ff7c315ff85f2f6b97d",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/configured_recurring_test.rb": {
+    "mtime": 1793877695.564937,
+    "seen": 1793878039.913362,
+    "ast_hash": "bee4660fa231335cb7d6af3b4bc54a63",
+    "semantic_hash": ""
+  },
+  "app/services/savings_opportunities/shared_cache.rb": {
+    "mtime": 1793879189.7055206,
+    "seen": 1793880336.1562262,
+    "ast_hash": "f71632cba858aa60b2398188c8b45648",
+    "semantic_hash": ""
+  },
+  "test/services/savings_opportunities/analysis_state_test.rb": {
+    "mtime": 1793879346.2789364,
+    "seen": 1793880336.1572711,
+    "ast_hash": "a86ef487820f41b2534b36a67995f26a",
+    "semantic_hash": ""
+  },
+  "test/system/savings_opportunities_refresh_test.rb": {
+    "mtime": 1793880101.945401,
+    "seen": 1793880336.157357,
+    "ast_hash": "746334663ec5d072b15e1f80fe4157c1",
     "semantic_hash": ""
   }
 }

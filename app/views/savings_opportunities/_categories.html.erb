@@ -1,0 +1,148 @@
+<% categories = analysis[:categories] %>
+<% opportunities = categories[:opportunities] %>
+<% main = opportunities.first %>
+<% total_potential = opportunities.sum(0.to_d) { |row| row[:potential] } %>
+
+<div class="accordion-item so-accordion">
+  <h2 class="accordion-header" id="soCategoriesHeading">
+    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+            data-bs-target="#soCategoriesPanel" aria-expanded="true" aria-controls="soCategoriesPanel">
+      <span class="so-acc-icon so-icon-purple"><i class="ti ti-tools"></i></span>
+      <span class="so-acc-heading">
+        <strong><%= t("savings_opportunities.categories.title") %></strong>
+        <small><%= t("savings_opportunities.categories.subtitle") %></small>
+      </span>
+      <span class="so-acc-summary">
+        <%= t("savings_opportunities.categories.summary") %>
+        <b><%= savings_money(total_potential) %> / <%= t("savings_opportunities.per_month") %></b>
+      </span>
+    </button>
+  </h2>
+
+  <div id="soCategoriesPanel" class="accordion-collapse collapse show" aria-labelledby="soCategoriesHeading">
+    <div class="accordion-body so-panel">
+      <% if !categories[:comparison_available] %>
+        <div class="so-panel-note">
+          <i class="ti ti-history me-2"></i><%= t("savings_opportunities.categories.insufficient_history") %>
+        </div>
+      <% elsif main.nil? %>
+        <div class="so-panel-note">
+          <i class="ti ti-circle-check me-2"></i><%= t("savings_opportunities.categories.none") %>
+        </div>
+      <% else %>
+        <% detail = savings_highlight(narrative, "category:#{main[:id]}") %>
+        <% quick = savings_quick_percentage(main) %>
+        <% max_month = main[:months].map { |month| month[:total] }.max %>
+
+        <div class="so-panel-grid">
+          <div class="so-panel-col">
+            <div class="so-category-name">
+              <%= main[:name] %>
+              <%= savings_delta_badge(main[:delta_pct]) %>
+            </div>
+
+            <p class="so-desc">
+              <% if main[:comparable_average].positive? %>
+                <%= t("savings_opportunities.categories.current_vs_average_html",
+                      current: savings_money(main[:current]),
+                      average: savings_money(main[:comparable_average]),
+                      delta: savings_percentage(main[:delta_pct].to_f.abs)) %>
+              <% else %>
+                <%= t("savings_opportunities.categories.new_spending_html",
+                      current: savings_money(main[:current])) %>
+              <% end %>
+            </p>
+
+            <% if detail["explanation"].present? %>
+              <p class="so-desc"><%= detail["explanation"] %></p>
+            <% end %>
+
+            <div class="so-recommend">
+              <i class="ti ti-bulb"></i>
+              <div>
+                <b><%= t("savings_opportunities.categories.recommendation_title") %></b>
+                <%= detail["recommendation"] %>
+              </div>
+            </div>
+
+            <% if main[:category_id].present? %>
+              <%= link_to t("savings_opportunities.view_movements"),
+                          reports_transactions_path(period: "last_3_months", category_id: main[:category_id]),
+                          class: "btn btn-link btn-sm px-0 mt-2" %>
+            <% end %>
+          </div>
+
+          <div class="so-panel-col">
+            <h3><%= t("savings_opportunities.categories.evolution") %></h3>
+            <div class="so-bars" role="img" aria-label="<%= t("savings_opportunities.categories.evolution") %>">
+              <% main[:months].each do |month| %>
+                <div class="so-bar-wrap">
+                  <div class="so-bar-label"><%= savings_money(month[:total]) %></div>
+                  <div class="so-bar <%= 'so-bar-current' if month[:current] %>"
+                       style="height: <%= savings_bar_height(month[:total], max_month) %>px"></div>
+                  <div class="so-bar-month"><%= month[:label] %></div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="so-panel-col">
+            <h3><%= t("savings_opportunities.categories.how_much") %></h3>
+            <div class="so-choices" data-so-choice-group>
+              <% SavingsOpportunitiesHelper::QUICK_PERCENTAGES.each do |percentage| %>
+                <button type="button"
+                        class="so-choice <%= 'selected' if percentage == quick %>"
+                        data-so-choice
+                        data-so-saving="<%= main[:quick_steps][percentage] %>"
+                        data-so-saving-target="soCategorySaving">
+                  <%= percentage %>%
+                </button>
+              <% end %>
+            </div>
+            <div class="so-saving-box">
+              <small><%= t("savings_opportunities.categories.estimated_monthly") %></small>
+              <strong id="soCategorySaving" data-so-saving-output><%= savings_money(main[:quick_steps][quick]) %></strong>
+            </div>
+          </div>
+        </div>
+
+        <% others = opportunities.drop(1) %>
+        <% if others.any? %>
+          <h3 class="so-subtitle"><%= t("savings_opportunities.categories.others") %></h3>
+          <div class="table-responsive">
+            <table class="table ledger-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th><%= t("savings_opportunities.categories.table.category") %></th>
+                  <th class="text-end"><%= t("savings_opportunities.categories.table.current") %></th>
+                  <th class="text-end"><%= t("savings_opportunities.categories.table.average") %></th>
+                  <th><%= t("savings_opportunities.categories.table.variation") %></th>
+                  <th class="text-end"><%= t("savings_opportunities.categories.table.potential") %></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% others.each do |row| %>
+                  <tr>
+                    <td class="cell-strong"><%= row[:name] %></td>
+                    <td class="cell-amount"><%= savings_money(row[:current]) %></td>
+                    <td class="cell-amount text-secondary"><%= savings_money(row[:comparable_average]) %></td>
+                    <td><%= savings_delta_badge(row[:delta_pct]) %></td>
+                    <td class="cell-amount amt-pos"><%= savings_money(row[:potential]) %></td>
+                    <td class="text-end">
+                      <% if row[:category_id].present? %>
+                        <%= link_to t("savings_opportunities.view_movements"),
+                                    reports_transactions_path(period: "last_3_months", category_id: row[:category_id]),
+                                    class: "btn btn-outline-secondary btn-sm" %>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

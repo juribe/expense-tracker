@@ -1,0 +1,51 @@
+<% totals = analysis[:totals] %>
+<% configured_only = totals[:configured_recurring_count].positive? &&
+                     totals[:configured_recurring_count] == totals[:opportunities_count] %>
+<% pending_potential = analysis[:state] == :insufficient_history && totals[:potential_monthly].zero? %>
+<section class="so-ai-card" data-testid="savings-ai-summary">
+  <div class="so-bot" aria-hidden="true"><i class="ti ti-robot"></i></div>
+  <div class="so-ai-copy">
+    <span class="so-ai-label"><i class="ti ti-sparkles"></i><%= t("savings_opportunities.ai.label") %></span>
+    <h2>
+      <% if configured_only %>
+        <%= t("savings_opportunities.ai.heading_configured", count: totals[:configured_recurring_count]) %>
+      <% elsif totals[:opportunities_count].positive? %>
+        <%= t("savings_opportunities.ai.heading", count: totals[:opportunities_count]) %>
+      <% else %>
+        <%= t("savings_opportunities.ai.heading_none") %>
+      <% end %>
+    </h2>
+    <p><%= narrative["summary"] %></p>
+  </div>
+  <div class="so-ai-total">
+    <div class="so-eyebrow"><%= t("savings_opportunities.ai.potential_monthly") %></div>
+    <div class="so-big-money">
+      <% if pending_potential %>—<% else %><%= savings_money(totals[:potential_monthly]) %><% end %>
+    </div>
+    <span class="so-pill">
+      <i class="ti ti-pig-money"></i>
+      <% if configured_only %>
+        <%= t("savings_opportunities.ai.configured_count", count: totals[:configured_recurring_count]) %>
+      <% elsif totals[:opportunities_count].positive? %>
+        <%= t("savings_opportunities.ai.opportunities", count: totals[:opportunities_count]) %>
+      <% else %>
+        <%= t("savings_opportunities.ai.opportunities_none") %>
+      <% end %>
+    </span>
+    <% if pending_potential %>
+      <div class="so-small-note mt-1"><%= t("savings_opportunities.ai.potential_pending") %></div>
+    <% end %>
+    <div class="so-updated"><i class="ti ti-clock me-1"></i><%= savings_updated_label(narrative["generated_at"]) %></div>
+    <div class="so-updated" data-so-pending-note <%= "hidden" unless @analysis_pending %>>
+      <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span><%= t("savings_opportunities.ai.pending") %>
+    </div>
+    <% if !@analysis_pending && narrative["source"] == "deterministic" &&
+          SavingsOpportunities::Narrative.ai_available? && analysis[:state] == :ok %>
+      <div class="so-updated"><%= t("savings_opportunities.ai.fallback_note") %></div>
+    <% end %>
+    <div class="so-updated" data-so-analysis-error hidden>
+      <i class="ti ti-alert-triangle me-1"></i><%= t("savings_opportunities.ai.failed") %>
+    </div>
+    <div class="so-small-note mt-2"><%= t("savings_opportunities.ai.scope_note") %></div>
+  </div>
+</section>

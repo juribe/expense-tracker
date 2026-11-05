@@ -30,7 +30,8 @@ module Ai
       category_classification: "Ai::Tasks::CategoryClassification",
       statement_extraction: "Ai::Tasks::StatementExtraction",
       transaction_extraction: "Ai::Tasks::TransactionExtraction",
-      spreadsheet_mapping: "Ai::Tasks::SpreadsheetMapping"
+      spreadsheet_mapping: "Ai::Tasks::SpreadsheetMapping",
+      savings_opportunity_analysis: "Ai::Tasks::SavingsOpportunityAnalysis"
     }.freeze
 
     class << self

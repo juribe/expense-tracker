@@ -48,9 +48,9 @@ class FinancialSummaryControllerTest < ActionDispatch::IntegrationTest
     assert_match(/sign_in/, response.location)
   end
 
-  test "sidebar includes financial summary link" do
+  test "sidebar does not include the financial summary link" do
     sign_in @user
     get dashboard_path
-    assert_select "a[href='#{financial_summary_path}']"
+    assert_select "a[href='#{financial_summary_path}']", count: 0
   end
 end

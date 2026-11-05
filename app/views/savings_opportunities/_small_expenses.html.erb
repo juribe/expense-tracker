@@ -1,0 +1,87 @@
+<% small = analysis[:small_expenses] %>
+<% groups = small[:groups] %>
+
+<div class="accordion-item so-accordion">
+  <h2 class="accordion-header" id="soSmallHeading">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#soSmallPanel" aria-expanded="false" aria-controls="soSmallPanel">
+      <span class="so-acc-icon so-icon-green"><i class="ti ti-coffee"></i></span>
+      <span class="so-acc-heading">
+        <strong><%= t("savings_opportunities.small_expenses.title") %></strong>
+        <small><%= t("savings_opportunities.small_expenses.subtitle") %></small>
+      </span>
+      <span class="so-acc-summary">
+        <%= t("savings_opportunities.small_expenses.summary") %>
+        <b><%= savings_money(small[:total]) %> / <%= t("savings_opportunities.per_month") %></b>
+      </span>
+    </button>
+  </h2>
+
+  <div id="soSmallPanel" class="accordion-collapse collapse" aria-labelledby="soSmallHeading">
+    <div class="accordion-body so-panel">
+      <div class="so-two-col">
+        <div>
+          <h3><%= t("savings_opportunities.small_expenses.accumulation") %></h3>
+
+          <% if !small[:available] || groups.empty? %>
+            <div class="so-panel-note">
+              <i class="ti ti-circle-check me-2"></i><%= t("savings_opportunities.small_expenses.none") %>
+            </div>
+          <% else %>
+            <div class="so-list-rows">
+              <% groups.each_with_index do |group, index| %>
+                <div class="so-list-row">
+                  <div>
+                    <b><%= group[:name] %></b>
+                    <span class="so-subtext">
+                      <%= t("savings_opportunities.small_expenses.group_detail",
+                            count: group[:count], average: savings_money(group[:average])) %>
+                    </span>
+                    <a class="so-inline-link" href="#soSmallMovements<%= index %>"
+                       data-bs-toggle="collapse" role="button" aria-expanded="false"
+                       aria-controls="soSmallMovements<%= index %>">
+                      <%= t("savings_opportunities.view_movements") %>
+                    </a>
+                    <span class="so-small-note d-block">
+                      <%= savings_highlight(narrative, "small:#{group[:key]}")["explanation"] %>
+                    </span>
+                  </div>
+                  <span class="so-amount"><%= savings_money(group[:total]) %></span>
+                </div>
+                <div class="collapse so-movements" id="soSmallMovements<%= index %>">
+                  <%= render "savings_opportunities/movements", movements: group[:movements] %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="so-highlight">
+          <span class="so-eyebrow"><%= t("savings_opportunities.small_expenses.total_label") %></span>
+          <strong><%= savings_money(small[:total]) %></strong>
+          <p class="so-small-note"><%= t("savings_opportunities.small_expenses.note") %></p>
+          <% if small[:threshold].present? %>
+            <p class="so-small-note">
+              <%= t("savings_opportunities.small_expenses.threshold_html",
+                    amount: savings_money(small[:threshold])) %>
+            </p>
+          <% end %>
+          <% if small[:top_weekday].present? %>
+            <p class="so-small-note">
+              <i class="ti ti-calendar me-1"></i>
+              <%= t("savings_opportunities.small_expenses.weekday", day: savings_weekday_name(small[:top_weekday])) %>
+            </p>
+          <% end %>
+          <% if groups.any? %>
+            <p class="so-small-note">
+              <%= savings_highlight(narrative, "small:#{groups.first[:key]}")["recommendation"] %>
+            </p>
+          <% end %>
+          <%= link_to t("savings_opportunities.small_expenses.view_all"),
+                      reports_transactions_path(period: "this_month"),
+                      class: "btn btn-outline-primary btn-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

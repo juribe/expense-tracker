@@ -1,0 +1,105 @@
+<% recurring = analysis[:recurring] %>
+<% rows = recurring[:rows] %>
+<% configured = recurring[:source] == "configured" %>
+
+<div class="accordion-item so-accordion">
+  <h2 class="accordion-header" id="soRecurringHeading">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#soRecurringPanel" aria-expanded="false" aria-controls="soRecurringPanel">
+      <span class="so-acc-icon so-icon-blue"><i class="ti ti-repeat"></i></span>
+      <span class="so-acc-heading">
+        <strong><%= t("savings_opportunities.recurring.title") %></strong>
+        <small><%= t("savings_opportunities.recurring.subtitle") %></small>
+      </span>
+      <span class="so-acc-summary">
+        <%= t(configured ? "savings_opportunities.recurring.configured_summary" : "savings_opportunities.recurring.summary") %>
+        <b><%= savings_money(recurring[:total_monthly]) %> / <%= t("savings_opportunities.per_month") %></b>
+      </span>
+    </button>
+  </h2>
+
+  <div id="soRecurringPanel" class="accordion-collapse collapse" aria-labelledby="soRecurringHeading">
+    <div class="accordion-body so-panel">
+      <% if configured %>
+        <div class="so-panel-note mb-3">
+          <i class="ti ti-info-circle me-2"></i><%= t("savings_opportunities.recurring.configured_note") %>
+        </div>
+      <% end %>
+
+      <div class="so-two-col">
+        <div>
+          <h3><%= t(configured ? "savings_opportunities.recurring.configured_found" : "savings_opportunities.recurring.found") %></h3>
+
+          <% if rows.empty? %>
+            <div class="so-panel-note">
+              <i class="ti ti-circle-check me-2"></i><%= t("savings_opportunities.recurring.none") %>
+            </div>
+          <% else %>
+            <div class="so-list-rows">
+              <% rows.each_with_index do |row, index| %>
+                <div class="so-list-row">
+                  <div class="so-merchant">
+                    <span class="so-merchant-icon"><%= savings_initial(row[:name]) %></span>
+                    <span>
+                      <b><%= row[:name] %></b>
+                      <span class="so-subtext">
+                        <%= savings_frequency_label(row[:frequency]) %>
+                        <% if row[:last_date].present? %>
+                          · <%= t("savings_opportunities.recurring.last_payment",
+                                   date: I18n.l(row[:last_date], format: :short)) %>
+                        <% elsif row[:payment_day].present? %>
+                          · <%= t("savings_opportunities.recurring.configured_day", day: row[:payment_day]) %>
+                        <% end %>
+                        <%= savings_confidence_badge(row[:confidence]) %>
+                      </span>
+                      <% if row[:movements].any? %>
+                        <a class="so-inline-link" href="#soRecurringMovements<%= index %>"
+                           data-bs-toggle="collapse" role="button" aria-expanded="false"
+                           aria-controls="soRecurringMovements<%= index %>">
+                          <%= t("savings_opportunities.view_movements") %>
+                        </a>
+                      <% end %>
+                      <span class="so-small-note d-block">
+                        <%= savings_highlight(narrative, "recurring:#{row[:key]}")["explanation"] %>
+                      </span>
+                    </span>
+                  </div>
+                  <span class="so-amount">
+                    <%= savings_money(row[:monthly_amount]) %><small> / <%= t("savings_opportunities.per_month") %></small>
+                  </span>
+                </div>
+                <% if row[:movements].any? %>
+                  <div class="collapse so-movements" id="soRecurringMovements<%= index %>">
+                    <%= render "savings_opportunities/movements", movements: row[:movements] %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="so-highlight">
+          <span class="so-eyebrow">
+            <%= t(configured ? "savings_opportunities.recurring.configured_total_label" : "savings_opportunities.recurring.total_label") %>
+          </span>
+          <strong><%= savings_money(recurring[:total_monthly]) %> / <%= t("savings_opportunities.per_month") %></strong>
+          <p class="so-small-note"><%= t("savings_opportunities.recurring.note") %></p>
+          <% if rows.first.present? %>
+            <p class="so-small-note">
+              <%= savings_highlight(narrative, "recurring:#{rows.first[:key]}")["recommendation"] %>
+            </p>
+          <% end %>
+          <% if configured %>
+            <%= link_to t("savings_opportunities.recurring.configured_view_all"),
+                        monthly_expenses_path,
+                        class: "btn btn-outline-primary btn-sm" %>
+          <% else %>
+            <%= link_to t("savings_opportunities.recurring.view_all"),
+                        reports_transactions_path(period: "last_6_months"),
+                        class: "btn btn-outline-primary btn-sm" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

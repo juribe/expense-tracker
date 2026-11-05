@@ -40,6 +40,14 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name=?] option", "goal[pocket_id]", text: @pocket.name
   end
 
+  test "GET /goals/new prefills the form from the savings simulator" do
+    get new_goal_path(name: "Ahorro por oportunidades", target_amount: "1800000")
+
+    assert_response :success
+    assert_select "input[name='goal[name]'][value='Ahorro por oportunidades']"
+    assert_select "input[name='goal[target_amount]'][value='1.800.000']"
+  end
+
   test "GET /goals/new and edit render the shared card header and footer" do
     goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 1_000_000)
 

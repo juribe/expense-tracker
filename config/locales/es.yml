@@ -351,6 +351,7 @@ es:
       expense_evaluations-cases: "Casos de la evaluación"
       financial_chat-show: "Chat Financiero"
       financial_summary-show: "Resumen Financiero"
+      savings_opportunities-show: "Oportunidades de ahorro"
       debt_capacity-show: "Deudas y capacidad de endeudamiento"
       debt_capacity-comparison: "Comparación de capacidad de endeudamiento"
       reconciliations-show: "Día de Balance"
@@ -830,6 +831,7 @@ es:
     assistant: "Asistente"
     financial_chat: "Chat Financiero"
     financial_summary: "Resumen"
+    savings_opportunities: "Oportunidades de ahorro"
     reconciliation: "Día de Balance"
     sign_out: "Cerrar sesión"
     toggle_sidebar: "Alternar barra lateral"
@@ -3399,3 +3401,162 @@ es:
       copy: "Copiar"
       copied: "Copiado"
       copy_failed: "No se pudo copiar"
+
+  savings_opportunities:
+    title: "Oportunidades de ahorro"
+    subtitle: "Descubre patrones en tus gastos, identifica dónde podrías reducir tus consumos y explora pequeños cambios que podrían ayudarte a liberar dinero cada mes."
+    opportunities_title: "Tus oportunidades de ahorro"
+    per_month: "mes"
+    view_movements: "Ver movimientos"
+    movement: "Movimiento"
+    disclaimer: "Este análisis es informativo. No modifica tus movimientos y no garantiza un ahorro: las decisiones sobre tus gastos son tuyas."
+    window:
+      label: "Últimos %{count} meses y el período en curso"
+
+    empty:
+      title: "Aún no hay movimientos suficientes"
+      text: "Cuando registres gastos, analizaremos tus patrones y te mostraremos oportunidades reales de ahorro."
+      cta: "Registrar un gasto"
+
+    refresh:
+      button: "Actualizar análisis"
+      refreshing: "Actualizando…"
+      pending: "Estamos actualizando el análisis inteligente. Vuelve a intentarlo en un momento."
+      unavailable: "No hay un proveedor de IA configurado; mostramos el análisis calculado con tus datos."
+
+    ai:
+      label: "Análisis inteligente de tus gastos"
+      heading_none: "Seguimos revisando tus gastos"
+      heading:
+        one: "Encontramos 1 oportunidad para ti"
+        other: "Encontramos %{count} oportunidades para ti"
+      heading_configured:
+        one: "Tienes 1 pago configurado para revisar"
+        other: "Tienes %{count} pagos configurados para revisar"
+      configured_count:
+        one: "1 pago configurado"
+        other: "%{count} pagos configurados"
+      potential_monthly: "Ahorro potencial mensual"
+      potential_pending: "Todavía no hay historial suficiente para estimar un ahorro."
+      opportunities_none: "Sin oportunidades claras todavía"
+      opportunities:
+        one: "1 oportunidad detectada"
+        other: "%{count} oportunidades detectadas"
+      pending: "Generando el análisis inteligente…"
+      fallback_note: "Mostramos el análisis calculado con tus movimientos mientras preparamos la explicación inteligente."
+      scope_note: "Calculado solo con las categorías con oportunidad detectada. Los pagos recurrentes y los pequeños gastos no se suman para evitar contar dos veces el mismo dinero."
+      failed: "No pudimos actualizar el análisis inteligente. Tus estadísticas siguen disponibles y puedes intentarlo de nuevo."
+      not_generated: "Todavía sin actualizar"
+      updated_today: "Última actualización: hoy"
+      updated_on: "Última actualización: %{date}"
+
+    categories:
+      title: "Dónde gastar menos"
+      subtitle: "Categorías donde tus gastos han aumentado y podrían tener margen de reducción."
+      summary: "Ahorro potencial:"
+      insufficient_history: "Necesitamos al menos un mes completo de movimientos para comparar tus categorías. Mientras tanto, puedes revisar los otros análisis."
+      none: "No encontramos categorías con una oportunidad clara en este período. Tus gastos se mantienen cerca de tu comportamiento habitual."
+      current_vs_average_html: "Tus gastos en esta categoría son de <b>%{current}</b> este período, un %{delta}% por encima de tu promedio equivalente de <b>%{average}</b>."
+      new_spending_html: "Esta categoría no tenía gastos en los meses anteriores y ahora suma <b>%{current}</b> en el período actual."
+      recommendation_title: "Recomendación de Yogasto"
+      evolution: "Evolución de tus gastos"
+      how_much: "¿Cuánto podrías ahorrar?"
+      estimated_monthly: "Ahorro estimado mensual"
+      others: "Otras categorías que podrías revisar"
+      new_label: "Nuevo"
+      table:
+        category: "Categoría"
+        current: "Gasto actual"
+        average: "Promedio equivalente"
+        variation: "Variación"
+        potential: "Reducción estimada"
+
+    recurring:
+      title: "Gastos recurrentes"
+      subtitle: "Pagos que se repiten y que podrías revisar si sigues necesitando."
+      summary: "Total identificado:"
+      found: "Pagos que encontramos"
+      none: "No detectamos pagos recurrentes con evidencia suficiente en los últimos meses."
+      last_payment: "Último pago: %{date}"
+      configured: "Configurado"
+      confirmed: "Confirmado"
+      possible: "Revisar"
+      total_label: "Total de pagos identificados"
+      note: "No todos estos pagos son necesariamente prescindibles. Revisa cuáles sigues utilizando y decide si alguno merece un cambio."
+      view_all: "Ver movimientos del período"
+      unknown_merchant: "Pago periódico"
+      configured_summary: "Total configurado:"
+      configured_found: "Pagos recurrentes configurados"
+      configured_total_label: "Total de pagos recurrentes configurados"
+      configured_day: "Día de pago configurado: %{day}"
+      configured_note: "Como todavía no hay ciclos anteriores para comparar, mostramos los pagos recurrentes que tienes configurados. Son pagos previstos, no movimientos observados."
+      configured_view_all: "Revisar mis pagos recurrentes"
+
+    small_expenses:
+      title: "Pequeños gastos"
+      subtitle: "Compras frecuentes de bajo valor que, en conjunto, representan una cantidad importante."
+      summary: "Total acumulado:"
+      accumulation: "Así se acumulan tus compras"
+      none: "No encontramos compras pequeñas frecuentes que se acumulen de forma relevante en este período."
+      group_detail:
+        one: "%{count} compra · Promedio %{average}"
+        other: "%{count} compras · Promedio %{average}"
+      total_label: "Total acumulado en el período"
+      note: "Son gastos cotidianos que pueden pasar desapercibidos. Revisa su frecuencia y elige cuáles te gustaría reducir; no modificamos ningún movimiento."
+      threshold_html: "Consideramos compras pequeñas las que están por debajo de <b>%{amount}</b>, según tus propios hábitos de gasto."
+      weekday: "Se concentran principalmente los %{day}."
+      view_all: "Ver estos movimientos"
+      unknown_concept: "Compra pequeña"
+
+    simulator:
+      title: "Simula cuánto podrías ahorrar"
+      subtitle: "Ajusta el porcentaje de reducción en tus gastos y explora diferentes escenarios."
+      summary: "Ahorro estimado:"
+      none: "Todavía no hay categorías con gasto suficiente para simular un escenario."
+      adjust: "Ajusta tus gastos"
+      current_spend: "Gasto actual: %{amount}"
+      saving: "Ahorro:"
+      hint: "Estos escenarios son hipotéticos y no modifican tus movimientos."
+      potential_monthly: "Ahorro potencial mensual"
+      in_six: "En 6 meses"
+      in_twelve: "En 12 meses"
+      estimated_note: "Es una oportunidad estimada, no un ahorro garantizado."
+      goal: "Convertir en objetivo"
+
+    goal:
+      name: "Ahorro por oportunidades: %{monthly} al mes"
+      empty: "Selecciona al menos una reducción mayor que cero."
+
+    frequencies:
+      weekly: "Pago semanal"
+      biweekly: "Pago quincenal"
+      monthly: "Pago mensual"
+      quarterly: "Pago trimestral"
+      annual: "Pago anual"
+      yearly: "Pago anual"
+      daily: "Pago diario"
+
+    narrative:
+      summary_empty: "Aún no hay movimientos suficientes para analizar tus gastos. Registra algunos gastos y volveremos a buscar oportunidades."
+      summary_insufficient: "Todavía no tenemos suficiente historial para comparar tus categorías. Puedes revisar tus pequeños gastos y simular escenarios mientras completamos el análisis."
+      summary_insufficient_recurring:
+        one: "Todavía no tenemos suficiente historial para comparar tus categorías, pero puedes revisar el pago recurrente que tienes configurado."
+        other: "Todavía no tenemos suficiente historial para comparar tus categorías, pero puedes revisar los %{count} pagos recurrentes que tienes configurados."
+      summary_none: "Revisamos tus últimos meses y no encontramos oportunidades de ahorro claras. Tus gastos se mantienen cerca de tu comportamiento habitual."
+      summary_unavailable: "No pudimos generar la explicación inteligente en este momento. Tus estadísticas calculadas siguen disponibles."
+      summary: "Revisando tus últimos meses, encontramos %{opportunities} oportunidades para revisar. %{detail}"
+      detail_categories: "Hay %{count} categorías donde el gasto reciente se separa de tu comportamiento habitual."
+      detail_recurring: "También identificamos %{count} pagos que se repiten."
+      detail_small: "Y %{count} grupos de compras pequeñas que se acumulan."
+      category:
+        increased: "El gasto en %{name} ha aumentado respecto a tu promedio de los últimos meses."
+        significant: "%{name} concentra una parte importante de tus gastos del período."
+        new: "El gasto en %{name} es nuevo frente a los meses anteriores."
+        recommendation: "Podrías revisar la frecuencia de tus consumos en esta categoría. Una reducción del %{rate}% representaría cerca de %{amount} al mes."
+      recurring:
+        explanation: "Detectamos pagos de %{name} con una frecuencia %{frequency}."
+        configured_explanation: "Tienes configurado %{name} (%{frequency}). Aún no hay movimientos anteriores suficientes para confirmarlo."
+        recommendation: "Revisa si estos pagos siguen siendo útiles para ti. Tú decides cuáles mantener."
+      small:
+        explanation: "%{name} aparece en varios movimientos pequeños del período; juntos suman una cantidad que vale la pena mirar."
+        recommendation: "Revisa la frecuencia de estas compras y decide cuáles te gustaría reducir."
