@@ -1,0 +1,164 @@
+<% content_for :title, "#{@discovery[:title]} | Hábitos financieros" %>
+<% presentation = habit_presentation(@discovery) %>
+
+<div class="financial-habit-detail">
+  <div class="fhd-topbar">
+    <%= link_to "← Volver a hábitos", financial_habits_path, class: "fhd-back" %>
+    <span class="fhd-updated">Actualizado <%= Time.current.strftime("%d/%m/%Y %H:%M") %></span>
+  </div>
+
+  <div class="fhd-eyebrow">Análisis del hábito</div>
+
+  <div class="fhd-title">
+    <div class="fhd-icon"><i class="ti ti-<%= presentation[:icon] %>"></i></div>
+    <div>
+      <h1><%= @discovery[:title] %></h1>
+      <p><%= @discovery[:description] %></p>
+    </div>
+  </div>
+
+  <div class="fhd-meta">
+    <span class="fhd-confidence">● Confianza <%= @discovery[:confidence_text] || @discovery[:confidence] %></span>
+    <span class="fhd-period"><i class="ti ti-calendar-plus me-1" aria-hidden="true"></i>Periodo: <%= @analysis[:period_label] %></span>
+    <span class="fhd-pill fh-pill-<%= presentation[:tone] %>"><%= presentation[:pill] %></span>
+  </div>
+
+  <div class="fhd-grid">
+    <div class="fhd-panel">
+      <h2><%= @detail[:visualization][:title] %></h2>
+      <div class="fhd-big"><%= @detail[:primary][:value] %> <span><%= @detail[:primary][:label] %></span></div>
+      <p class="fhd-sub"><%= @detail[:primary][:caption] %></p>
+
+      <% if @detail[:visualization][:type] == "bars" && @detail[:visualization][:rows].any? %>
+        <div class="fhd-bars">
+          <% @detail[:visualization][:rows].each do |row| %>
+            <% height = [ [ (row[:pct].to_i / 10.0).round * 10, 5 ].max, 100 ].min %>
+            <div class="fhd-bw">
+              <b><%= row[:pct] %>%</b>
+              <div class="fhd-bar fhd-bar-h-<%= height %> <%= 'fhd-bar-hot' if row[:highlight] %>"></div>
+              <small><%= row[:label] %></small>
+            </div>
+          <% end %>
+        </div>
+      <% elsif @detail[:visualization][:type] == "ranking" %>
+        <div class="fhd-ranking">
+          <% @detail[:visualization][:rows].each do |row| %>
+            <div class="fhd-ranking-row <%= 'is-hot' if row[:highlight] %>">
+              <div>
+                <b><%= row[:label] %></b>
+                <small>
+                  <%= row[:visits] %> visitas
+                  <% if row[:interval].present? %> · cada ~<%= row[:interval] %> días<% end %>
+                </small>
+              </div>
+              <div class="text-end">
+                <b><%= MoneyFormat.currency(row[:value]) %></b>
+                <% if row[:average].present? %><small>Prom. <%= MoneyFormat.currency(row[:average]) %></small><% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% elsif @detail[:visualization][:type] == "comparison" %>
+        <div class="fhd-comparison">
+          <% @detail[:visualization][:rows].each do |row| %>
+            <div class="fhd-comparison-row">
+              <div class="d-flex justify-content-between">
+                <span><%= row[:label] %></span>
+                <b><%= row[:pct] %>%</b>
+              </div>
+              <div class="fhd-hbar"><span class="fhd-hbar-fill fhd-bar-w-<%= [ [ (row[:pct].to_i / 10.0).round * 10, 5 ].max, 100 ].min %>"></span></div>
+              <small><%= MoneyFormat.currency(row[:value]) %></small>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @detail[:visualization][:note].present? %>
+        <p class="fhd-sub mt-2"><%= @detail[:visualization][:note] %></p>
+      <% end %>
+    </div>
+
+    <div class="fhd-panel">
+      <h2>Resumen del análisis</h2>
+      <div class="fhd-rows">
+        <% @detail[:summary_rows].each do |row| %>
+          <div class="fhd-row">
+            <span><%= row[:label] %></span>
+            <b><%= row[:money] ? MoneyFormat.currency(row[:value]) : row[:value] %></b>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="fhd-note">
+    <b>¿Qué significa?</b>
+    <%= @detail[:interpretation] %>
+  </div>
+
+  <% if @detail[:evolution][:rows].any? %>
+    <div class="fhd-section">
+      <h2><%= @detail[:evolution][:title] %></h2>
+      <div class="fhd-rows">
+        <% @detail[:evolution][:rows].each do |row| %>
+          <div class="fhd-row">
+            <div>
+              <b><%= row[:label] %></b>
+              <% if row[:detail].present? %><small><%= row[:detail] %></small><% end %>
+            </div>
+            <div class="text-end">
+              <% if row[:pct].present? %><b><%= row[:pct] %>%</b><% end %>
+              <small><%= row[:money] ? MoneyFormat.currency(row[:value]) : row[:value] %></small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @detail[:breakdown][:rows].any? %>
+    <div class="fhd-section">
+      <h2><%= @detail[:breakdown][:title] %></h2>
+      <div class="fhd-rows">
+        <% @detail[:breakdown][:rows].each do |row| %>
+          <div class="fhd-row">
+            <div>
+              <b><%= row[:label] %></b>
+              <% if row[:count].present? %><small><%= row[:count] %> movimientos</small><% end %>
+            </div>
+            <div class="text-end">
+              <% if row[:pct].present? %><b><%= row[:pct] %>%</b><% end %>
+              <small><%= MoneyFormat.currency(row[:value]) %></small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="fhd-rec">
+    <b>✦ Una idea para aprovechar este descubrimiento</b>
+    <p><%= @detail[:recommendation] %></p>
+    <%= link_to "Ver movimientos relacionados", @detail[:expenses_link] || expenses_path, class: "btn btn-primary" %>
+    <%= link_to "Entendido", financial_habits_path, class: "btn btn-outline-secondary ms-2" %>
+  </div>
+
+  <% if @detail[:related_movements].any? %>
+    <details class="fhd-movements">
+      <summary>Ver movimientos de respaldo (<%= @detail[:related_movements].size %>)</summary>
+      <div class="fhd-movement-list">
+        <% @detail[:related_movements].each do |movement| %>
+          <div class="fhd-movement">
+            <div>
+              <b><%= movement[:description].presence || movement[:category] %></b>
+              <small><%= l(movement[:date], format: "%d %b %Y") %> · <%= movement[:category] %><% if movement[:money_source].present? %> · <%= movement[:money_source] %><% end %></small>
+            </div>
+            <b><%= MoneyFormat.currency(movement[:amount]) %></b>
+          </div>
+        <% end %>
+      </div>
+    </details>
+  <% end %>
+
+  <p class="fhd-disclaimer">Este análisis es informativo. No modifica tus movimientos y no garantiza resultados: las decisiones sobre tus gastos son tuyas.</p>
+</div>

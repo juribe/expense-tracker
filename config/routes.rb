@@ -250,6 +250,13 @@ Rails.application.routes.draw do
 
   # Savings opportunities (Pro): deterministic analysis plus an AI narrative.
   get "savings_opportunities", to: "savings_opportunities#show", as: :savings_opportunities
+
+  # Financial habits: deterministic behavioral analysis.
+  get "financial_habits", to: "financial_habits#show", as: :financial_habits
+  post "financial_habits/refresh", to: "financial_habits#refresh", as: :refresh_financial_habits
+  get "financial_habits/status", to: "financial_habits#status", as: :status_financial_habits
+  get "financial_habits/:key", to: "financial_habits#detail", as: :financial_habit_detail
+  get "habits", to: "financial_habits#show", as: :habits
   post "savings_opportunities/refresh", to: "savings_opportunities#refresh", as: :refresh_savings_opportunities
   get "savings_opportunities/status", to: "savings_opportunities#status", as: :status_savings_opportunities
   post "savings_opportunities/scenario", to: "savings_opportunities#scenario", as: :scenario_savings_opportunities

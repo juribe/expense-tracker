@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1793840042.3523269,
-    "seen": 1793841208.753943,
-    "ast_hash": "3e33c64d54ffb9c82265b844bd90cf19",
+    "mtime": 1793912107.3817346,
+    "seen": 1793912353.528034,
+    "ast_hash": "a80c98cbbbec7d0f0e7520e5d83e61cb",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793892605.0086644,
-    "seen": 1793892654.495894,
-    "ast_hash": "b2dedd65a3deb895194780a4ee7869d1",
+    "mtime": 1793909273.8381205,
+    "seen": 1793909326.6056519,
+    "ast_hash": "45cb8ba6580a2363328e15ffb6b1fafe",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793898506.2442517,
-    "seen": 1793898570.700085,
+    "mtime": 1793907096.6699715,
+    "seen": 1793908729.719936,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -8169,6 +8169,138 @@
     "mtime": 1793898190.3282993,
     "seen": 1793898570.699709,
     "ast_hash": "e3681a57ffc7ccac19545090ab9bbf8c",
+    "semantic_hash": ""
+  },
+  "app/controllers/financial_habits_controller.rb": {
+    "mtime": 1793912100.7302368,
+    "seen": 1793912353.5271308,
+    "ast_hash": "40b858ee7f697ef96ac10350443ec74c",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habit_analyzer.rb": {
+    "mtime": 1793908641.4945588,
+    "seen": 1793908729.718557,
+    "ast_hash": "bda9d7723a70da19be9a026f6f5be611",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/analysis.rb": {
+    "mtime": 1793912263.6533337,
+    "seen": 1793912353.52774,
+    "ast_hash": "d91242fbf7fd7d31b540c046855dbb30",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/analyzers.rb": {
+    "mtime": 1793908642.9287393,
+    "seen": 1793908729.71856,
+    "ast_hash": "996fa1133abc12f4415e0b7eddeec234",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/credit_usage_pattern_analyzer.rb": {
+    "mtime": 1793912263.65213,
+    "seen": 1793912353.5277472,
+    "ast_hash": "aa13f20118d70c514fa97b33566bd0bd",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/income_spending_pattern_analyzer.rb": {
+    "mtime": 1793912263.650373,
+    "seen": 1793912353.527754,
+    "ast_hash": "b153ac390cfd6a7b6ca14876726e7bff",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/merchant_frequency_analyzer.rb": {
+    "mtime": 1793912263.6529818,
+    "seen": 1793912353.527756,
+    "ast_hash": "324cf2583b63eba39097b46ad01b47fd",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/spending_time_pattern_analyzer.rb": {
+    "mtime": 1793912263.6536636,
+    "seen": 1793912353.527762,
+    "ast_hash": "482bd428256b9ba0a5d8c72d9e5b107b",
+    "semantic_hash": ""
+  },
+  "app/jobs/financial_habits_analysis_job.rb": {
+    "mtime": 1793909276.153615,
+    "seen": 1793909326.603873,
+    "ast_hash": "f3600f22431a0da62373cd1e5a4ddfae",
+    "semantic_hash": ""
+  },
+  "app/services/ai/tasks/financial_habits_narrative.rb": {
+    "mtime": 1793909264.246561,
+    "seen": 1793909326.604157,
+    "ast_hash": "cf211746b6c51018447d68bf022b109d",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/aliases.rb": {
+    "mtime": 1793909553.050265,
+    "seen": 1793909595.5588531,
+    "ast_hash": "32102609aa71936bfa4f367c9d6d1ca2",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/analysis_state.rb": {
+    "mtime": 1793909259.6551611,
+    "seen": 1793909326.604349,
+    "ast_hash": "20820f431577f36099653465f31c48c1",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/narrative.rb": {
+    "mtime": 1793910348.3891604,
+    "seen": 1793910383.672312,
+    "ast_hash": "5311be4af29eebc7fc8b7c83f43486a1",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/shared_cache.rb": {
+    "mtime": 1793909256.6167505,
+    "seen": 1793909326.604358,
+    "ast_hash": "562743994ae53c761301e84a73979ab7",
+    "semantic_hash": ""
+  },
+  "test/services/financial_habits/analysis_test.rb": {
+    "mtime": 1793908771.3257356,
+    "seen": 1793909326.605428,
+    "ast_hash": "4821b0421b7750d39352b73d9c5472a0",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/behavior_change_analyzer.rb": {
+    "mtime": 1793912263.6517737,
+    "seen": 1793912353.527745,
+    "ast_hash": "4adc8f6a9f67369689e3f4c5654e1f94",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/planning_opportunity_analyzer.rb": {
+    "mtime": 1793912263.6524756,
+    "seen": 1793912353.527759,
+    "ast_hash": "850f9739cdf7d504966391fe8c7e429f",
+    "semantic_hash": ""
+  },
+  "app/helpers/financial_habits_helper.rb": {
+    "mtime": 1793912028.7625144,
+    "seen": 1793912353.527238,
+    "ast_hash": "ac2d9ad14acfc79356f4ae94c75f48bf",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/cycle_end_spending_analyzer.rb": {
+    "mtime": 1793912263.6507654,
+    "seen": 1793912353.527751,
+    "ast_hash": "0da3d5a526d76064452980cb43031096",
+    "semantic_hash": ""
+  },
+  "app/services/financial_habits/detail.rb": {
+    "mtime": 1793915978.3761928,
+    "seen": 1793916026.141036,
+    "ast_hash": "a105a72894e83592914d06f02fa8745e",
+    "semantic_hash": ""
+  },
+  "test/services/financial_habits/detail_test.rb": {
+    "mtime": 1793912324.9464147,
+    "seen": 1793912353.5288131,
+    "ast_hash": "c02e36e23c7ee47a7df331900f406533",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/financial_habits.js": {
+    "mtime": 1793914845.531582,
+    "seen": 1793914880.732954,
+    "ast_hash": "c67edbe1702a818c9f9547c212a539d0",
     "semantic_hash": ""
   }
 }

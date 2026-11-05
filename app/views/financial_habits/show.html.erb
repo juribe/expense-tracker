@@ -1,0 +1,187 @@
+<% content_for :title, "Hábitos financieros | #{AppName.current}" %>
+
+<div class="financial-habits">
+  <div class="fh-heading">
+    <div>
+      <div class="fh-eyebrow">Inteligencia financiera</div>
+      <h1>Descubre tus hábitos financieros</h1>
+      <p>Analizamos tus movimientos para descubrir patrones en tu comportamiento y ayudarte a tomar mejores decisiones con tu dinero.</p>
+    </div>
+    <div class="fh-period">
+      <i class="ti ti-calendar-plus me-1" aria-hidden="true"></i><%= @analysis[:period_label] %>
+    </div>
+  </div>
+
+  <section class="fh-hero">
+    <div class="fh-hero-copy">
+      <div class="fh-tag"><i class="ti ti-sparkles"></i> Análisis personalizado</div>
+      <h2>Hay cosas sobre tu dinero que quizás no habías notado.</h2>
+      <p>Analizamos tus movimientos para entender cómo gastas, reconocer comportamientos frecuentes y sugerirte pequeños cambios que podrían ayudarte.</p>
+      <p class="fh-hero-count">
+        Encontramos <strong><%= @analysis[:discoveries].size %></strong>
+        <%= @analysis[:discoveries].size == 1 ? "descubrimiento" : "descubrimientos" %>
+        en tu comportamiento financiero.
+      </p>
+    </div>
+    <div class="fh-hero-stats">
+      <div>
+        <strong><%= @analysis[:analyzed_movements] %></strong>
+        <span>movimientos</span>
+      </div>
+      <div>
+        <strong><%= @analysis[:discoveries].size %></strong>
+        <span>patrones encontrados</span>
+      </div>
+      <div>
+        <strong><%= (@analysis[:period].end - @analysis[:period].begin).to_i + 1 %></strong>
+        <span>días analizados</span>
+      </div>
+    </div>
+  </section>
+
+  <% if @narrative.present? && @narrative["summary"].present? && @analysis_pending %>
+    <div class="fh-narrative">
+      <strong>Análisis en actualización.</strong> Estamos afinando la narrativa con tus movimientos más recientes.
+    </div>
+  <% end %>
+
+  <% if @analysis[:state] == :empty %>
+    <div class="fh-empty-wrap">
+      <%= render "shared/empty_state",
+                 icon: "sparkles",
+                 title: "Estamos conociendo tus hábitos financieros",
+                 text: "A medida que registres más movimientos podremos identificar patrones y tendencias.",
+                 cta: link_to("Registrar un gasto", new_expense_path, class: "btn btn-primary") %>
+    </div>
+  <% elsif @analysis[:discoveries].blank? %>
+    <div class="fh-empty-wrap">
+      <%= render "shared/empty_state",
+                 icon: "chart-dots",
+                 title: "Sin descubrimientos relevantes por ahora",
+                 text: "Estamos conociendo tus hábitos financieros. A medida que registres más movimientos podremos identificar patrones y tendencias." %>
+    </div>
+  <% else %>
+    <div class="fh-section-head">
+      <h3>Lo que descubrimos</h3>
+      <span><%= @analysis[:discoveries].size %> descubrimientos · Actualizado hoy</span>
+    </div>
+
+    <section class="fh-insights">
+      <% @analysis[:discoveries].each do |discovery| %>
+        <% presentation = habit_presentation(discovery) %>
+        <% metric = habit_metric(discovery) %>
+        <% evidence = discovery[:evidence] || {} %>
+        <article class="fh-card">
+          <div class="fh-card-top">
+            <div class="fh-symbol"><i class="ti ti-<%= presentation[:icon] %>"></i></div>
+            <span class="fh-pill fh-pill-<%= presentation[:tone] %>"><%= presentation[:pill] %></span>
+          </div>
+
+          <h4><%= discovery[:title] %></h4>
+          <p class="fh-desc"><%= discovery[:description] %></p>
+
+          <div class="fh-metric-row">
+            <div>
+              <div class="fh-metric"><%= metric[:value] %></div>
+              <small class="fh-desc"><%= metric[:label] %></small>
+            </div>
+            <div class="fh-mini-note">
+              Periodo<br><b><%= metric[:note] %></b>
+            </div>
+          </div>
+
+          <% if discovery[:key].to_s == "merchant_frequency" && evidence[:merchants].present? %>
+            <div class="fh-merchant-list">
+              <% evidence[:merchants].first(3).each do |merchant| %>
+                <div class="fh-merchant-row">
+                  <span><%= merchant[:name] %></span>
+                  <b><%= merchant[:visits] %> visitas</b>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="fh-recommend">
+            <b>Una idea para ti</b><br>
+            <%= discovery[:recommendation] %>
+          </div>
+
+          <div class="fh-card-foot">
+            <span>● Confianza <%= discovery[:confidence_text] || discovery[:confidence] %> · <%= metric[:note] %></span>
+            <%= link_to financial_habit_detail_path(discovery[:key]),
+                        class: "fh-analysis-btn",
+                        data: { financial_habit_detail_link: true } do %>
+              Ver análisis <i class="ti ti-arrow-right"></i>
+            <% end %>
+          </div>
+        </article>
+      <% end %>
+    </section>
+
+    <div class="fh-bottom-grid">
+      <div class="fh-panel">
+        <h3>Recomendaciones para empezar</h3>
+        <p class="fh-sub">Pequeños cambios basados en lo que observamos.</p>
+        <% @analysis[:discoveries].first(3).each do |discovery| %>
+          <div class="fh-recommendation">
+            <div class="fh-rec-icon"><i class="ti ti-bulb"></i></div>
+            <div>
+              <strong><%= discovery[:title].to_s.sub(/\.$/, "") %></strong>
+              <p><%= discovery[:recommendation] %></p>
+            </div>
+            <span class="fh-confidence">Sugerida</span>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="fh-panel">
+        <h3>Tu análisis evoluciona contigo</h3>
+        <p class="fh-sub">Cuanto más historial tengas, mejor podremos reconocer cambios.</p>
+
+        <div class="fh-timeline">
+          <i class="fh-dot"></i>
+          <div>
+            <strong>Primer mes</strong>
+            <span>Primeros patrones y observaciones</span>
+          </div>
+          <span class="fh-status">Completado</span>
+        </div>
+        <div class="fh-timeline">
+          <i class="fh-dot fh-dot-progress"></i>
+          <div>
+            <strong>Segundo mes</strong>
+            <span>Confirmar comportamientos recurrentes</span>
+          </div>
+          <span class="fh-status fh-status-progress">En curso</span>
+        </div>
+        <div class="fh-timeline">
+          <i class="fh-dot fh-dot-pending"></i>
+          <div>
+            <strong>Tercer mes</strong>
+            <span>Comparar tendencias y evolución</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="fh-disclaimer">Los descubrimientos se basan en patrones observados y no representan juicios sobre tus decisiones.</p>
+  <% end %>
+
+  <% if @analysis[:state] == :insufficient_data %>
+    <div class="fh-narrative mt-3">
+      Estamos conociendo tus hábitos financieros. A medida que registres más movimientos podremos identificar patrones y tendencias.
+    </div>
+  <% end %>
+
+  <div class="fh-overlay" data-financial-habit-overlay hidden>
+    <section class="fh-drawer" role="dialog" aria-modal="true" aria-label="Detalle del hábito">
+      <div class="fh-drawer-bar">
+        <button type="button" class="fh-drawer-back" data-financial-habit-close>← Volver a hábitos</button>
+        <button type="button" class="fh-drawer-close" data-financial-habit-close aria-label="Cerrar">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div class="fh-drawer-content" data-financial-habit-drawer-content></div>
+    </section>
+  </div>
+</div>

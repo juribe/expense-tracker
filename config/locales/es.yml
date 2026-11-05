@@ -351,6 +351,7 @@ es:
       expense_evaluations-cases: "Casos de la evaluación"
       financial_chat-show: "Chat Financiero"
       financial_summary-show: "Resumen Financiero"
+      financial_habits-show: "Hábitos financieros"
       savings_opportunities-show: "Oportunidades de ahorro"
       debt_capacity-show: "Deudas y capacidad de endeudamiento"
       debt_capacity-comparison: "Comparación de capacidad de endeudamiento"
@@ -3401,6 +3402,13 @@ es:
       copy: "Copiar"
       copied: "Copiado"
       copy_failed: "No se pudo copiar"
+
+  financial_habits:
+    narrative:
+      summary_empty: "Aún no hay movimientos suficientes para descubrir hábitos."
+      summary_insufficient: "Estamos conociendo tus hábitos financieros. A medida que registres más movimientos podremos identificar patrones."
+      summary_none: "No encontramos patrones relevantes en este periodo."
+      summary: "Encontramos %{count} patrones en tu comportamiento financiero."
 
   savings_opportunities:
     title: "Oportunidades de ahorro"
