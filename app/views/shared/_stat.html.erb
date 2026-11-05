@@ -1,7 +1,15 @@
 <%# Typographic KPI block. Locals: label, value, delta (optional html string),
-    tone: nil | :positive | :negative | :balance (colors the value) %>
+    tone: nil | :positive | :negative | :balance (colors the value),
+    icon: optional ti icon name, icon_tone: blue | green | red | amber | gray %>
 <div class="stat">
-  <div class="stat-label"><%= label %></div>
+  <div class="stat-label d-flex align-items-center gap-2">
+    <% if local_assigns[:icon] %>
+      <span class="icon-chip icon-chip-sm icon-chip-<%= local_assigns[:icon_tone] || "gray" %>" aria-hidden="true">
+        <i class="ti ti-<%= local_assigns[:icon] %>"></i>
+      </span>
+    <% end %>
+    <span><%= label %></span>
+  </div>
   <div class="stat-value
               <%= "amt-pos" if local_assigns[:tone] == :positive %><%= "amt-debt" if local_assigns[:tone] == :negative %><%= "text-balance-blue" if local_assigns[:tone] == :balance %>">
     <%= value %>

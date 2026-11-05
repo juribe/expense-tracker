@@ -2031,20 +2031,46 @@ es:
       submit: "Crear Ingreso"
     index:
       title: "Ingresos"
-      subtitle: "Entradas de ingreso recientes para tu cuenta."
+      subtitle: "Registra y consulta el dinero que recibes durante tu ciclo financiero."
       monthly_income: "Ingreso Mensual"
       add_income: "Agregar Ingreso"
-      recent: "Los 50 más recientes"
+      table_title: "Movimientos de ingreso"
+      recent: "Los 50 ingresos más recientes"
+      filtered_results:
+        one: "%{count} ingreso encontrado"
+        other: "%{count} ingresos encontrados"
+      showing:
+        one: "Mostrando %{count} de %{total} ingreso"
+        other: "Mostrando %{count} de %{total} ingresos"
+      sorted: "Ordenados por fecha: más recientes primero"
       caption: "Tus ingresos"
       no_description: "Sin descripción"
+      filters:
+        search_label: "Buscar"
+        search_placeholder: "Buscar descripción..."
+        all_categories: "Todas las categorías"
+      summary:
+        total: "Total recibido"
+        movements: "Movimientos"
+        monthly_incomes: "Ingresos mensuales"
+        cycle_hint: "En este ciclo financiero · %{label} (%{range})"
+        month_hint: "Este mes · %{label}"
+        movements_cycle_hint: "Ingresos registrados en el ciclo"
+        movements_month_hint: "Ingresos registrados este mes"
+        monthly_hint:
+          one: "Ingreso recurrente configurado"
+          other: "Ingresos recurrentes configurados"
       columns:
         date: "Fecha"
         category: "Categoría"
         description: "Descripción"
+        money_source: "Medio de dinero"
         amount: "Monto"
       empty:
         title: "Aún no hay ingresos"
         body: "Agrega tu primer ingreso para empezar a registrar el dinero que entra."
+        filtered_title: "No encontramos ingresos"
+        filtered_body: "Prueba con otra descripción o cambia la categoría."
 
   monthly_incomes:
     title: "Ingresos Mensuales"

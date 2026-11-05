@@ -116,4 +116,137 @@ class IncomesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_equal balance_before, foreign_source.reload.cached_balance
   end
+
+  test "GET /incomes summarizes the selected financial cycle with real income data" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+    category = income_category("Salario resumen")
+    source = @user.money_sources.create!(name: "Cuenta resumen", kind: "account")
+    @user.incomes.create!(amount: 1_000_000, description: "Salario", date: cycle.starts,
+                          category: category, money_source: source)
+    @user.incomes.create!(amount: 500_000, description: "Bonificación", date: cycle.ends,
+                          category: category, money_source: source)
+    @user.incomes.create!(amount: 9_000_000, description: "Ingreso anterior", date: cycle.starts - 1.day,
+                          category: category, money_source: source)
+    @user.recurring_templates.create!(kind: "income", category: category, amount: 2_000_000,
+                                      payment_day: 1, active: true)
+    @user.recurring_templates.create!(kind: "expense", category: income_category("Gasto resumen"), amount: 800_000,
+                                      payment_day: 5, active: true)
+
+    get incomes_path
+
+    assert_response :success
+    assert_select "[data-testid=incomes-summary]"
+    summary_total = css_select("[data-testid=summary-total]").first.text
+    assert_includes summary_total, "1.500.000"
+    refute_includes summary_total, "9.000.000"
+    assert_select "[data-testid=summary-count]", text: "2"
+    assert_select "[data-testid=summary-monthly]", text: "1"
+  end
+
+  test "GET /incomes summarizes the calendar month when no cycle is configured" do
+    @user.update!(financial_cycle_start_day: 1)
+    category = income_category("Salario mes")
+    source = @user.money_sources.create!(name: "Cuenta mes", kind: "account")
+    @user.incomes.create!(amount: 700_000, description: "Salario del mes", date: Date.current,
+                          category: category, money_source: source)
+    @user.incomes.create!(amount: 300_000, description: "Salario anterior", date: Date.current.prev_month,
+                          category: category, money_source: source)
+
+    get incomes_path
+
+    assert_response :success
+    summary_total = css_select("[data-testid=summary-total]").first.text
+    assert_includes summary_total, "700.000"
+    refute_includes summary_total, "1.000.000"
+    assert_select "[data-testid=summary-count]", text: "1"
+  end
+
+  test "GET /incomes shows date, category, description, money source, amount and actions" do
+    category = income_category("Salario tabla")
+    source = @user.money_sources.create!(name: "Cuenta principal", kind: "account")
+    income = @user.incomes.create!(amount: 1_500_000, description: "Pago mensual", date: Date.current,
+                                   category: category, money_source: source)
+
+    get incomes_path
+
+    assert_response :success
+    assert_select "table thead th", text: "Fecha"
+    assert_select "table thead th", text: "Categoría"
+    assert_select "table thead th", text: "Descripción"
+    assert_select "table thead th", text: "Medio de dinero"
+    assert_select "table thead th", text: "Monto"
+    assert_select "table thead th", text: "Acciones"
+    assert_select "[data-testid=row][data-id='#{income.id}']" do
+      assert_select "td", text: /Pago mensual/
+      assert_select "[data-testid=money-source]", text: /Cuenta principal/
+      assert_select "a[href='#{edit_income_path(income)}']"
+      assert_select "form[action='#{income_path(income)}'] button"
+    end
+  end
+
+  test "GET /incomes eager loads credit card details for money source labels" do
+    category = income_category("Salario tarjetas")
+    card_one = @user.money_sources.create!(name: "Visa", kind: "credit_card")
+    card_one.create_credit_account!(credit_limit: 2_000_000, card_last_four: "1234")
+    card_two = @user.money_sources.create!(name: "Mastercard", kind: "credit_card")
+    card_two.create_credit_account!(credit_limit: 3_000_000, card_last_four: "5678")
+    @user.incomes.create!(amount: 1_000_000, description: "Pago Visa", date: Date.current,
+                          category: category, money_source: card_one)
+    @user.incomes.create!(amount: 500_000, description: "Pago Mastercard", date: Date.current,
+                          category: category, money_source: card_two)
+
+    Bullet.enable = true
+    Bullet.raise = true
+
+    get incomes_path
+
+    assert_response :success
+    assert_select "[data-testid=money-source]", text: /1234/
+    assert_select "[data-testid=money-source]", text: /5678/
+  ensure
+    Bullet.enable = false
+    Bullet.raise = false
+  end
+
+  test "GET /incomes filters recent incomes by description and category" do
+    salary_category = income_category("Salario filtro")
+    freelance_category = income_category("Honorarios filtro")
+    source = @user.money_sources.create!(name: "Cuenta filtros", kind: "account")
+    salary = @user.incomes.create!(amount: 1_000_000, description: "Pago mensual", date: Date.current,
+                                   category: salary_category, money_source: source)
+    freelance = @user.incomes.create!(amount: 500_000, description: "Proyecto freelance", date: Date.current,
+                                      category: freelance_category, money_source: source)
+
+    get incomes_path(q: "mensual")
+
+    assert_response :success
+    assert_select "[data-testid=row][data-id='#{salary.id}']"
+    assert_select "[data-testid=row][data-id='#{freelance.id}']", count: 0
+
+    get incomes_path(category_id: freelance_category.id)
+
+    assert_response :success
+    assert_select "[data-testid=row][data-id='#{freelance.id}']"
+    assert_select "[data-testid=row][data-id='#{salary.id}']", count: 0
+  end
+
+  test "GET /incomes shows a filtered empty state without matching incomes" do
+    category = income_category("Salario vacío")
+    source = @user.money_sources.create!(name: "Cuenta vacía", kind: "account")
+    @user.incomes.create!(amount: 900_000, description: "Pago mensual", date: Date.current,
+                          category: category, money_source: source)
+
+    get incomes_path(q: "no-existe")
+
+    assert_response :success
+    assert_select "[data-testid=filtered-empty]", text: /No encontramos ingresos/
+    assert_select "[data-testid=row]", count: 0
+  end
+
+  private
+
+  def income_category(name)
+    Category.create!(name: name, user: @user, is_default: false, category_type: "income")
+  end
 end

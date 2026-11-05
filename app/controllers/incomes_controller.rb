@@ -3,8 +3,13 @@
 class IncomesController < ApplicationController
   # GET /incomes or /incomes.json
   def index
-    @incomes = Income.for_user(current_user).includes(:category).recent(50)
-    @cycle_filter = Reports::Period.cycles_enabled?(current_user) ? PayCycle.current(current_user) : nil
+    @period = PayCycle.current(current_user)
+    @cycle_filter = Reports::Period.cycles_enabled?(current_user) ? @period : nil
+    @categories = Category.for_user_and_type(current_user, "income")
+    @filters_applied = params[:q].present? || params[:category_id].present?
+    @incomes = filtered_incomes.recent(50)
+    @filtered_count = filtered_incomes.count
+    @summary = income_summary
   end
 
   # GET /incomes/new
@@ -60,6 +65,31 @@ class IncomesController < ApplicationController
     # credit_account is eager loaded: display_name renders the card's last
     # four for credit cards (same pattern as MoneySource.payment_origins).
     current_user.money_sources.active.payment_sources.includes(:credit_account).order(:kind, :name)
+  end
+
+  # Recent incomes, optionally narrowed by description or category. The cycle
+  # summary stays period-based so filtering the table never changes its totals.
+  def filtered_incomes
+    @filtered_incomes ||= begin
+      scope = Income.for_user(current_user).includes(:category, money_source: :credit_account)
+
+      if (query = params[:q].to_s.strip).present?
+        scope = scope.where("description ILIKE ?", "%#{Income.sanitize_sql_like(query)}%")
+      end
+
+      scope = scope.where(category_id: params[:category_id]) if params[:category_id].present?
+      scope
+    end
+  end
+
+  def income_summary
+    incomes = Income.for_user(current_user).where(date: @period.to_range)
+
+    {
+      total: incomes.sum(:amount),
+      count: incomes.count,
+      monthly_incomes: current_user.recurring_templates.income.count
+    }
   end
 
   def income_params

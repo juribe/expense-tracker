@@ -7,77 +7,162 @@
   <% end %>
 <% end %>
 <%= render "shared/page_header", title: t("incomes.index.title"), subtitle: subtitle do %>
-  <div class="d-flex gap-2">
-    <%= link_to monthly_incomes_path, class: "btn btn-outline-secondary" do %>
-      <i class="ti ti-arrow-down-circle me-1"></i> <%= t("incomes.index.monthly_income") %>
+  <div class="d-flex flex-column flex-sm-row gap-2">
+    <%= link_to monthly_incomes_path, class: "btn btn-outline-secondary text-nowrap" do %>
+      <i class="ti ti-repeat me-1"></i> <%= t("incomes.index.monthly_income") %>
     <% end %>
-    <%= link_to new_income_path, class: "btn btn-primary" do %>
+    <%= link_to new_income_path, class: "btn btn-primary text-nowrap" do %>
       <i class="ti ti-plus me-1"></i> <%= t("incomes.index.add_income") %>
     <% end %>
   </div>
 <% end %>
-  <div class="d-flex justify-content-between align-items-baseline mb-3">
-    <p class="results-meta mb-0" id="resultsMeta" aria-live="polite">
-      <%= t("incomes.count", count: @incomes.count) %>
+
+<section class="row g-3 mb-4" data-testid="incomes-summary">
+  <div class="col-12 col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <%= render "shared/stat",
+                   label: t("incomes.index.summary.total"),
+                   value: tag.span(number_to_currency(@summary[:total]), data: { testid: "summary-total" }),
+                   tone: :positive,
+                   icon: "arrow-down-left",
+                   icon_tone: "green",
+                   delta: @cycle_filter ? t("incomes.index.summary.cycle_hint", label: @period.label, range: @period.range_label) : t("incomes.index.summary.month_hint", label: @period.label) %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <%= render "shared/stat",
+                   label: t("incomes.index.summary.movements"),
+                   value: tag.span(@summary[:count], data: { testid: "summary-count" }),
+                   icon: "list-details",
+                   icon_tone: "blue",
+                   delta: @cycle_filter ? t("incomes.index.summary.movements_cycle_hint") : t("incomes.index.summary.movements_month_hint") %>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <%= render "shared/stat",
+                   label: t("incomes.index.summary.monthly_incomes"),
+                   value: tag.span(@summary[:monthly_incomes], data: { testid: "summary-monthly" }),
+                   icon: "repeat",
+                   icon_tone: "green",
+                   delta: t("incomes.index.summary.monthly_hint", count: @summary[:monthly_incomes]) %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="card" data-testid="incomes-table-card">
+  <div class="card-header">
+    <h2 class="card-title"><%= t("incomes.index.table_title") %></h2>
+    <p class="card-subtitle mb-0">
+      <%= @filters_applied ? t("incomes.index.filtered_results", count: @filtered_count) : t("incomes.index.recent") %>
     </p>
-    <span class="small text-muted d-none d-md-inline"><%= t("incomes.index.recent") %></span>
+  </div>
+
+  <div class="card-body border-bottom">
+    <%= form_with url: incomes_path, method: :get, class: "row g-2 align-items-end", data: { testid: "income-filter-form" } do |f| %>
+      <div class="col-12 col-md-5">
+        <%= f.label :q, t("incomes.index.filters.search_label"), class: "form-label" %>
+        <div class="input-group">
+          <span class="input-group-text"><i class="ti ti-search" aria-hidden="true"></i></span>
+          <%= f.search_field :q,
+                             value: params[:q],
+                             placeholder: t("incomes.index.filters.search_placeholder"),
+                             class: "form-control",
+                             autocomplete: "off",
+                             data: { testid: "income-search" } %>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <%= f.label :category_id, t("common.category"), class: "form-label" %>
+        <%= f.select :category_id,
+                     options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
+                     { include_blank: t("incomes.index.filters.all_categories") },
+                     class: "form-select",
+                     data: { auto_submit: true } %>
+      </div>
+      <div class="col-12 col-md-3 d-flex gap-2">
+        <%= f.submit t("common.filter"), class: "btn btn-outline-primary flex-grow-1" %>
+        <% if @filters_applied %>
+          <%= link_to t("common.clear"), incomes_path, class: "btn btn-outline-secondary" %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <% if @incomes.any? %>
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover ledger-table align-middle mb-0" id="incomeTable">
-          <caption class="visually-hidden"><%= t("incomes.index.caption") %></caption>
-          <thead class="table-light">
-            <tr>
-              <th scope="col"><%= t("incomes.index.columns.date") %></th>
-              <th scope="col"><%= t("incomes.index.columns.category") %></th>
-               <th scope="col"><%= t("incomes.index.columns.description") %></th>
-               <th scope="col" class="text-end"><%= t("incomes.index.columns.amount") %></th>
-               <th scope="col" class="text-end"><%= t("common.actions") %></th>
-             </tr>
-          </thead>
-          <tbody>
-            <% @incomes.each do |income| %>
-              <tr data-testid="row" data-id="<%= income.id %>">
-                <td class="text-nowrap"><%= l(income.date, format: :short) %></td>
-                <td><%= category_badge(income.category) %></td>
-                <td class="desc-cell" title="<%= income.description %>">
-                  <% if income.description.present? %>
-                    <%= income.description %>
-                  <% else %>
-                    <span class="text-muted"><%= t("incomes.index.no_description") %></span>
-                  <% end %>
-                </td>
-                 <td class="text-end fw-bold amount text-success"><%= number_to_currency(income.amount) %></td>
-                 <td class="text-end text-nowrap">
-                   <%= link_to edit_income_path(income), class: "btn btn-sm btn-outline-primary me-1" do %>
-                     <i class="ti ti-pencil"></i>
-                   <% end %>
-                   <%= button_to income_path(income), method: :delete, class: "btn btn-sm btn-outline-danger",
-                                 data: { turbo_confirm: t("incomes.delete_confirm", default: "¿Eliminar este ingreso?") },
-                                 form: { class: "d-inline", data: { turbo: true } } do %>
-                     <i class="ti ti-trash"></i>
-                   <% end %>
-                 </td>
-               </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+    <div class="table-responsive">
+      <table class="table table-hover ledger-table align-middle mb-0" id="incomeTable">
+        <caption class="visually-hidden"><%= t("incomes.index.caption") %></caption>
+        <thead class="table-light">
+          <tr>
+            <th scope="col"><%= t("incomes.index.columns.date") %></th>
+            <th scope="col"><%= t("incomes.index.columns.category") %></th>
+            <th scope="col"><%= t("incomes.index.columns.description") %></th>
+            <th scope="col" class="d-none d-md-table-cell"><%= t("incomes.index.columns.money_source") %></th>
+            <th scope="col" class="text-end"><%= t("incomes.index.columns.amount") %></th>
+            <th scope="col" class="text-end"><%= t("common.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @incomes.each do |income| %>
+            <tr data-testid="row" data-id="<%= income.id %>">
+              <td class="text-nowrap cell-strong"><%= l(income.date, format: :short) %></td>
+              <td><%= category_badge(income.category) %></td>
+              <td class="desc-cell" title="<%= income.description %>">
+                <% if income.description.present? %>
+                  <%= income.description %>
+                <% else %>
+                  <span class="text-muted"><%= t("incomes.index.no_description") %></span>
+                <% end %>
+              </td>
+              <td class="d-none d-md-table-cell">
+                <span data-testid="money-source"><%= money_source_badge(income.money_source) %></span>
+              </td>
+              <td class="text-end cell-amount amt-pos"><%= number_to_currency(income.amount) %></td>
+              <td class="text-end text-nowrap">
+                <%= link_to edit_income_path(income), class: "btn btn-sm btn-outline-primary me-1" do %>
+                  <i class="ti ti-pencil"></i>
+                <% end %>
+                <%= button_to income_path(income), method: :delete, class: "btn btn-sm btn-outline-danger",
+                              data: { turbo_confirm: t("incomes.delete_confirm", default: "¿Eliminar este ingreso?") },
+                              form: { class: "d-inline", data: { turbo: true } } do %>
+                  <i class="ti ti-trash"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer d-flex flex-column flex-sm-row justify-content-between gap-2 text-secondary small">
+      <span><%= t("incomes.index.showing", count: @incomes.size, total: @filtered_count) %></span>
+      <span><%= t("incomes.index.sorted") %></span>
+    </div>
+  <% elsif @filters_applied %>
+    <div class="p-5 text-center" data-testid="filtered-empty">
+      <i class="ti ti-filter-off display-4 text-muted mb-3 d-block"></i>
+      <h2 class="h4 mb-2"><%= t("incomes.index.empty.filtered_title") %></h2>
+      <p class="text-muted mb-0"><%= t("incomes.index.empty.filtered_body") %></p>
+      <%= link_to t("common.clear"), incomes_path, class: "btn btn-outline-secondary mt-3" %>
     </div>
   <% else %>
-    <div class="card">
-      <div class="p-5 text-center" data-testid="empty">
-        <i class="ti ti-cash display-4 text-muted mb-3 d-block"></i>
-        <h4 class="mb-2"><%= t("incomes.index.empty.title") %></h4>
-        <p class="text-muted mb-0"><%= t("incomes.index.empty.body") %></p>
-        <%= link_to new_income_path, class: "btn btn-primary mt-3" do %>
-          <i class="ti ti-plus me-1"></i><%= t("incomes.index.add_income") %>
-        <% end %>
-      </div>
+    <div class="p-5 text-center" data-testid="empty">
+      <i class="ti ti-cash display-4 text-muted mb-3 d-block"></i>
+      <h2 class="h4 mb-2"><%= t("incomes.index.empty.title") %></h2>
+      <p class="text-muted mb-0"><%= t("incomes.index.empty.body") %></p>
+      <%= link_to new_income_path, class: "btn btn-primary mt-3" do %>
+        <i class="ti ti-plus me-1"></i><%= t("incomes.index.add_income") %>
+      <% end %>
     </div>
   <% end %>
+</div>
 
 <%= render "shared/process_recurring_modal",
            modal_id: "incomeProcessModal",
@@ -103,4 +188,3 @@
       today: Date.current.strftime("%F")
 } } %>
 <%= javascript_include_tag "income_process_modal", defer: true %>
-
