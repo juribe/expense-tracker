@@ -1,70 +1,117 @@
-<div class="container-fluid py-4 et-maxw-960">
-  <div class="card border-0 mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h4 class="mb-0"><i class="ti ti-bulb me-2"></i>Oportunidad de ahorro</h4>
-      <%= link_to category_insights_path, class: "btn btn-outline-secondary btn-sm" do %>
-        <i class="ti ti-arrow-left me-1"></i>Volver
-      <% end %>
+<div class="ci-detail-head" data-testid="category-insight-header">
+  <div class="ci-detail-title">
+    <span class="ci-cat-icon ci-cat-icon-lg">
+      <i class="<%= category_icon_klass(@category) %>" aria-hidden="true"></i>
+    </span>
+    <div>
+      <h1><%= @category.name %></h1>
+      <p>Análisis de esta categoría · <%= category_insight_cycle_range(@cycle) %></p>
     </div>
-    <div class="card-body">
-      <h5 class="mb-3"><%= @category.name %></h5>
-      <dl class="row mb-0">
-        <dt class="col-sm-4">Potencial de ahorro</dt>
-        <dd class="col-sm-8"><%= savings_potential_label(@category.savings_potential).presence || "—" %></dd>
+  </div>
+  <%= link_to category_insights_path, class: "btn btn-outline-secondary ci-back" do %>
+    <i class="ti ti-arrow-left me-1" aria-hidden="true"></i>Volver a categorías
+  <% end %>
+</div>
 
-        <dt class="col-sm-4">Gasto promedio</dt>
-        <dd class="col-sm-8">
-          <% if @insight[:average_spending].present? %>
-            <%= MoneyFormat.currency(@insight[:average_spending]) %> por ciclo financiero
-          <% else %>
-            Sin historial suficiente
-          <% end %>
-        </dd>
+<div class="ci-detail-grid">
+  <section class="card ci-panel" data-testid="category-insight-analysis">
+    <div class="ci-panel-head">
+      <span class="ci-panel-icon ci-panel-icon-blue"><i class="ti ti-bulb" aria-hidden="true"></i></span>
+      <h2>Análisis de ahorro</h2>
+    </div>
+    <div class="ci-panel-body">
+      <div class="ci-potential-box ci-potential-<%= @category.savings_potential_level %>">
+        <div>
+          <small>Potencial de ahorro</small>
+          <strong data-testid="category-insight-potential"><%= category_insight_potential_short_label(@category) %></strong>
+        </div>
+        <span class="ci-pill">Nivel de potencial</span>
+      </div>
 
-        <dt class="col-sm-4">Reducción sugerida</dt>
-        <dd class="col-sm-8">
-          <% if @insight[:suggested_rate].present? %>
-            <%= @insight[:suggested_rate].to_i %>%
-          <% else %>
-            No configurada
-          <% end %>
-        </dd>
+      <div class="ci-metrics">
+        <div class="ci-metric" data-testid="metric-average">
+          <span>Gasto promedio mensual</span>
+          <b>
+            <%= @insight[:average_spending].present? ? MoneyFormat.currency(@insight[:average_spending]) : "Sin historial suficiente" %>
+          </b>
+          <small>
+            <% if @insight[:average_spending].present? %>
+              Promedio de <%= @insight[:cycles_with_spending] %>
+              <%= @insight[:cycles_with_spending] == 1 ? "ciclo" : "ciclos" %> con actividad
+            <% else %>
+              Necesitamos 3 ciclos completos
+            <% end %>
+          </small>
+        </div>
 
-        <dt class="col-sm-4">Ahorro estimado</dt>
-        <dd class="col-sm-8">
-          <% if @insight[:estimated_savings].present? %>
-            <%= MoneyFormat.currency(@insight[:estimated_savings]) %> por ciclo
-          <% else %>
-            —
-          <% end %>
-        </dd>
-      </dl>
-      <p class="text-muted small mt-3 mb-0">
-        El ahorro estimado se calcula multiplicando el gasto promedio de los últimos
-        <%= @insight[:completed_cycles] %> ciclos financieros completos por la reducción sugerida.
-        Es una estimación, no una garantía de ahorro.
+        <div class="ci-metric" data-testid="metric-reduction">
+          <span>Reducción sugerida</span>
+          <b><%= @insight[:suggested_rate].present? ? "#{@insight[:suggested_rate].to_i}%" : "No configurada" %></b>
+          <small><%= @insight[:suggested_rate].present? ? "Configurada para esta categoría" : "Sin referencia configurada" %></small>
+        </div>
+
+        <div class="ci-metric" data-testid="metric-savings">
+          <span>Ahorro estimado al mes</span>
+          <b>
+            <%= @insight[:estimated_savings].present? ? MoneyFormat.currency(@insight[:estimated_savings]) : "Sin historial suficiente" %>
+          </b>
+          <small><%= @insight[:estimated_savings].present? ? "Estimación mensual" : "Se habilita con 3 ciclos completos" %></small>
+        </div>
+
+        <div class="ci-metric" data-testid="metric-current">
+          <span>Gasto en el ciclo actual</span>
+          <b><%= MoneyFormat.currency(@insight[:current_cycle_spending]) %></b>
+          <small>
+            <%= @insight[:current_cycle_spending].positive? ? @cycle.range_label : "Sin gastos en el ciclo" %>
+          </small>
+        </div>
+      </div>
+
+      <% if @insight[:average_spending].blank? %>
+        <div class="ci-empty-history" data-testid="category-insight-missing-history">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          <div>
+            <strong>Aún no tenemos suficiente historial</strong>
+            <p>
+              Para calcular un ahorro estimado necesitamos comparar el gasto promedio de tus últimos
+              3 ciclos financieros completos. Por ahora, el porcentaje es una referencia y no una
+              garantía de ahorro.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+      <p class="ci-explain">
+        El ahorro estimado se calcula multiplicando el gasto promedio de los últimos 3 ciclos
+        financieros completos por la reducción sugerida. Es una estimación, no una garantía de ahorro.
       </p>
     </div>
-  </div>
+  </section>
 
-  <div class="card border-0">
-    <div class="card-header">
-      <h5 class="mb-0"><i class="ti ti-message me-2"></i>Consejos de ahorro</h5>
+  <section class="card ci-panel" data-testid="category-insight-tips">
+    <div class="ci-panel-head">
+      <span class="ci-panel-icon ci-panel-icon-amber"><i class="ti ti-list-check" aria-hidden="true"></i></span>
+      <h2>Consejos de ahorro</h2>
     </div>
-    <div class="card-body">
+    <div class="ci-panel-body">
       <% if @insight[:tips].any? %>
-        <ul class="mb-0">
-          <% @insight[:tips].each do |tip| %>
-            <li class="mb-2">
-              <strong><%= tip.title %></strong>
-              <br>
-              <span class="text-muted"><%= tip.body %></span>
-            </li>
+        <div class="ci-tips">
+          <% @insight[:tips].each_with_index do |tip, index| %>
+            <div class="ci-tip">
+              <b><span class="ci-tip-num"><%= index + 1 %></span><%= tip.title %></b>
+              <p><%= tip.body %></p>
+            </div>
           <% end %>
-        </ul>
+        </div>
       <% else %>
-        <p class="text-muted mb-0">No hay consejos configurados para esta subcategoría.</p>
+        <p class="text-secondary small mb-0">No hay consejos configurados para esta categoría.</p>
       <% end %>
+
+      <div class="ci-actions">
+        <%= link_to "Ver gastos de esta categoría", expenses_path(category_id: @category.id),
+                    class: "btn btn-primary" %>
+        <%= link_to "Volver", category_insights_path, class: "btn btn-outline-secondary" %>
+      </div>
     </div>
-  </div>
+  </section>
 </div>

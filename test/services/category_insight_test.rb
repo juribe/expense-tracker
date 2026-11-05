@@ -38,6 +38,25 @@ class CategoryInsightTest < ActiveSupport::TestCase
     data = insight
     assert_nil data[:average_spending]
     assert_nil data[:estimated_savings]
+    assert_equal 500_000.to_d, data[:current_cycle_spending]
+  end
+
+  test "current cycle spending does not affect the completed-cycle average" do
+    expense(-100_000, date: @anchor.prev_month)
+    expense(-500_000, date: @anchor)
+
+    data = insight
+
+    assert_equal 100_000.to_d, data[:average_spending]
+    assert_equal 15_000.to_d, data[:estimated_savings]
+    assert_equal 500_000.to_d, data[:current_cycle_spending]
+  end
+
+  test "no spending in completed cycles or current cycle keeps average nil" do
+    data = insight
+
+    assert_nil data[:average_spending]
+    assert_equal 0.to_d, data[:current_cycle_spending]
   end
 
   test "excludes debt payments" do

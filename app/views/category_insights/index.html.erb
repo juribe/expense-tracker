@@ -1,28 +1,138 @@
-<%= render "shared/page_header", title: "Oportunidad de ahorro" do %>
-  <%= link_to categories_path, class: "btn btn-outline-secondary" do %>
-    <i class="ti ti-arrow-left me-1"></i>Categorías
-  <% end %>
-<% end %>
+<%= render "shared/page_header",
+           title: "Ahorro por categoría",
+           subtitle: "Revisa qué categorías podrían ofrecerte margen para reducir gastos según tu actividad." %>
 
-<div class="card border-0">
-  <div class="card-body">
-    <% if @categories.any? %>
-      <ul class="list-group list-group-flush">
-        <% @categories.each do |row| %>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <strong><%= row[:category].name %></strong>
-              <small class="text-muted d-block">
-                Potencial: <%= savings_potential_label(row[:category].savings_potential) %> ·
-                Gasto promedio: <%= MoneyFormat.currency(row[:average]) %>
-              </small>
-            </div>
-            <%= link_to "Ver oportunidad", category_insight_path(row[:category]), class: "btn btn-outline-primary btn-sm" %>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="text-muted mb-0">No hay categorías con oportunidad de ahorro configurada.</p>
-    <% end %>
+<div class="ci-note" data-testid="potential-note" role="note">
+  <i class="ti ti-info-circle ci-note-icon" aria-hidden="true"></i>
+  <div>
+    <strong>¿Cómo interpretar el potencial de ahorro?</strong>
+    <p>
+      Los niveles de potencial son estimaciones orientativas basadas en la información disponible.
+      No representan un ahorro garantizado y pueden cambiar a medida que Yogasto conoce mejor tus hábitos.
+    </p>
   </div>
 </div>
+
+<div class="ci-stats">
+  <div class="ci-stat" data-testid="stat-analyzed">
+    <span class="ci-stat-icon ci-stat-icon-blue"><i class="ti ti-chart-pie" aria-hidden="true"></i></span>
+    <div>
+      <small>Categorías analizadas</small>
+      <strong class="ci-stat-value"><%= @analyzed_count %></strong>
+      <em>en este ciclo</em>
+    </div>
+  </div>
+  <div class="ci-stat" data-testid="stat-potential">
+    <span class="ci-stat-icon ci-stat-icon-green"><i class="ti ti-trending-up" aria-hidden="true"></i></span>
+    <div>
+      <small>Con potencial por revisar</small>
+      <strong class="ci-stat-value"><%= @potential_count %></strong>
+      <em>según estimación</em>
+    </div>
+  </div>
+  <div class="ci-stat" data-testid="stat-limited">
+    <span class="ci-stat-icon ci-stat-icon-amber"><i class="ti ti-history" aria-hidden="true"></i></span>
+    <div>
+      <small>Con historial limitado</small>
+      <strong class="ci-stat-value"><%= @limited_history_count %></strong>
+      <em>por ahora</em>
+    </div>
+  </div>
+</div>
+
+<section class="card ci-card" data-category-insights>
+  <div class="ci-card-head">
+    <div>
+      <h2>Oportunidades por categoría</h2>
+      <p>Selecciona una categoría para consultar su análisis y consejos.</p>
+    </div>
+    <div class="ci-tools">
+      <label class="ci-search">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="search" placeholder="Buscar categoría" aria-label="Buscar categoría"
+               autocomplete="off" data-category-insights-search>
+      </label>
+      <select class="ci-sort" aria-label="Ordenar categorías" data-category-insights-sort>
+        <option value="default">Orden recomendado</option>
+        <option value="potential">Mayor potencial</option>
+        <option value="amount">Mayor gasto</option>
+        <option value="alpha">Nombre A–Z</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="ci-tabs" role="group" aria-label="Filtrar por potencial">
+    <button type="button" class="ci-tab is-active" data-category-insights-filter="all" aria-pressed="true">
+      Todas (<%= @analyzed_count %>)
+    </button>
+    <button type="button" class="ci-tab" data-category-insights-filter="high" aria-pressed="false">
+      Potencial alto (<%= @potential_counts.fetch("high", 0) %>)
+    </button>
+    <button type="button" class="ci-tab" data-category-insights-filter="medium" aria-pressed="false">
+      Potencial medio (<%= @potential_counts.fetch("medium", 0) %>)
+    </button>
+    <button type="button" class="ci-tab" data-category-insights-filter="low" aria-pressed="false">
+      Potencial bajo (<%= @potential_counts.fetch("low", 0) %>)
+    </button>
+  </div>
+
+  <div class="ci-thead" aria-hidden="true">
+    <span>Categoría</span>
+    <span>Potencial</span>
+    <span>Gasto en el ciclo</span>
+    <span></span>
+  </div>
+
+  <div class="ci-list" data-category-insights-list>
+    <% @categories.each_with_index do |row, index| %>
+      <div class="ci-row"
+           data-category-insights-item
+           data-category-name="<%= row[:category].name %>"
+           data-potential="<%= row[:potential] %>"
+           data-current-spending="<%= row[:current_cycle] %>"
+           data-default-index="<%= index %>">
+        <div class="ci-row-category">
+          <span class="ci-cat-icon">
+            <i class="<%= category_icon_klass(row[:category]) %>" aria-hidden="true"></i>
+          </span>
+          <div>
+            <strong class="ci-cat-name"><%= row[:category].name %></strong>
+            <span class="ci-meta"><%= category_insight_activity_label(row) %></span>
+          </div>
+        </div>
+
+        <div class="ci-row-potential">
+          <span class="ci-level ci-level-<%= row[:potential] %>">
+            <%= category_insight_potential_label(row[:category]) %>
+          </span>
+        </div>
+
+        <div class="ci-row-amount">
+          <% amount = category_insight_cycle_amount(row) %>
+          <% if amount %>
+            <span class="ci-amount">
+              <%= amount %>
+              <small><%= category_insight_cycle_hint(row) %></small>
+            </span>
+          <% else %>
+            <span class="ci-muted">Sin historial suficiente</span>
+          <% end %>
+        </div>
+
+        <div class="ci-row-action">
+          <%= link_to "Ver análisis", category_insight_path(row[:category]), class: "ci-open",
+                      data: { category_insights_link: true } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="ci-empty" data-category-insights-empty <%= "hidden" if @categories.any? %>>
+    No encontramos categorías.
+  </div>
+
+  <div class="ci-foot">
+    <span>Mostrando <span data-category-insights-count><%= @analyzed_count %></span> categorías</span>
+    <span>Las estimaciones se ajustan con más historial.</span>
+  </div>
+</section>

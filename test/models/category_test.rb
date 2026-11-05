@@ -166,6 +166,20 @@ class CategoryTest < ActiveSupport::TestCase
     assert_includes cat.errors[:savings_potential], I18n.t("errors.messages.inclusion")
   end
 
+  test "savings_potential_level returns high, medium or low" do
+    %w[high medium low].each do |value|
+      cat = Category.new(name: "Test #{value}", savings_potential: value)
+      assert_equal value, cat.savings_potential_level
+    end
+  end
+
+  test "savings_potential_level falls back to low for other values" do
+    %w[variable none por_evaluar].push(nil).each do |value|
+      cat = Category.new(name: "Test #{value}", savings_potential: value)
+      assert_equal "low", cat.savings_potential_level
+    end
+  end
+
   test "suggested_savings_percentage can be nil" do
     cat = Category.new(name: "Test", suggested_savings_percentage: nil)
     assert cat.valid?

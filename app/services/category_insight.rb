@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 # CategoryInsight
-# Deterministic savings-opportunity estimate for a subcategory, built from the
+# Deterministic savings-opportunity estimate for a category, built from the
 # user's actual historical spending over completed financial cycles plus a
-# configured suggested savings rate. Advice comes from SubcategorySavingTip.
+# configured suggested savings rate. Current-cycle spending is returned as a
+# separate reference, never mixed into the average. Advice comes from
+# SubcategorySavingTip.
 #
-# Methods: call, average_spending, estimated_savings, completed_cycles
+# Methods: call, average_spending, estimated_savings, completed_cycles,
+# current_cycle_spending
 #
 # Example: CategoryInsight.new(user: user, category: category).call
 class CategoryInsight
@@ -27,6 +30,7 @@ class CategoryInsight
     totals = completed_cycle_totals
     spending_cycles = totals.select(&:positive?)
     avg = spending_cycles.empty? ? nil : (spending_cycles.sum / spending_cycles.size)
+    current = current_cycle_spending
     rate = category&.suggested_savings_percentage
     eligible = rate.present? && rate.to_d.positive? && eligible_category?
     estimate = (avg.present? && eligible) ? (avg * rate.to_d / 100) : nil
@@ -40,6 +44,7 @@ class CategoryInsight
       suggested_savings_percentage: rate,
       average_spending: avg,
       average_spending_amount: avg,
+      current_cycle_spending: current,
       estimated_savings: estimate,
       estimated_savings_amount: estimate,
       completed_cycles: COMPLETED_CYCLES,
@@ -61,6 +66,10 @@ class CategoryInsight
 
   def completed_cycles
     PayCycle.back(user, COMPLETED_CYCLES + 1, anchor: date).first(COMPLETED_CYCLES)
+  end
+
+  def current_cycle_spending
+    spending_for(PayCycle.containing(user, date).to_range)
   end
 
   private

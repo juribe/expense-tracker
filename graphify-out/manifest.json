@@ -150,9 +150,9 @@
     "semantic_hash": "8061f2304feb5db0f90c9086b9c30377"
   },
   "app/models/category.rb": {
-    "mtime": 1793235269.844468,
-    "seen": 1793490696.634578,
-    "ast_hash": "fc0b9ba061372199414cd4e1fa9d9ae8",
+    "mtime": 1793891141.632875,
+    "seen": 1793891778.0634089,
+    "ast_hash": "3fac514407991a1d564bef92ee32d41c",
     "semantic_hash": ""
   },
   "app/models/concerns/encrypted_secret.rb": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "test/models/category_test.rb": {
-    "mtime": 1793235262.8551152,
-    "seen": 1793490696.635306,
-    "ast_hash": "30cc23793c9884f1b798c40964877f6a",
+    "mtime": 1793890847.607471,
+    "seen": 1793891778.064529,
+    "ast_hash": "c7a8c4109728a5da2b1eaa4b9256f641",
     "semantic_hash": ""
   },
   "test/models/credit_account_test.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793879242.5178988,
-    "seen": 1793880336.157396,
-    "ast_hash": "1862c966114b70127e984a35d633a82e",
+    "mtime": 1793892605.0086644,
+    "seen": 1793892654.495894,
+    "ast_hash": "b2dedd65a3deb895194780a4ee7869d1",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793883034.7183654,
-    "seen": 1793883067.155832,
+    "mtime": 1793891743.1141295,
+    "seen": 1793891778.064938,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4518,9 +4518,9 @@
     "semantic_hash": ""
   },
   "app/controllers/category_insights_controller.rb": {
-    "mtime": 1792336218.1803427,
-    "seen": 1793490696.634346,
-    "ast_hash": "d217da55ea0a767295ff61200e10f8e7",
+    "mtime": 1793892181.8410742,
+    "seen": 1793892221.883905,
+    "ast_hash": "f65c9e59ba44aed43d10f48e5fb089c2",
     "semantic_hash": ""
   },
   "app/models/subcategory_saving_tip.rb": {
@@ -4530,9 +4530,9 @@
     "semantic_hash": ""
   },
   "app/services/category_insight.rb": {
-    "mtime": 1792335445.7082946,
-    "seen": 1793490696.634698,
-    "ast_hash": "1547c4ec0d1cb669a519dbeee7644a2e",
+    "mtime": 1793892186.6386905,
+    "seen": 1793892221.8843572,
+    "ast_hash": "9a1657656d44d2caff7303bc7682628e",
     "semantic_hash": ""
   },
   "db/migrate/20261018000000_create_subcategory_saving_tips.rb": {
@@ -4542,9 +4542,9 @@
     "semantic_hash": ""
   },
   "test/controllers/category_insights_controller_test.rb": {
-    "mtime": 1792336248.7564924,
-    "seen": 1793490696.635185,
-    "ast_hash": "c9ff0a0b862d8c6b925b87d199de3cd0",
+    "mtime": 1793892578.7892072,
+    "seen": 1793892654.495266,
+    "ast_hash": "284e337d19c22613d1375f4585442d58",
     "semantic_hash": ""
   },
   "test/models/subcategory_saving_tip_test.rb": {
@@ -4554,9 +4554,9 @@
     "semantic_hash": ""
   },
   "test/services/category_insight_test.rb": {
-    "mtime": 1792849928.2961066,
-    "seen": 1793490696.635392,
-    "ast_hash": "beb82da4b2c109eea8e6197735d827e8",
+    "mtime": 1793883638.6076941,
+    "seen": 1793891778.0646331,
+    "ast_hash": "b2a02439e5f1266f7b438a4909c7fa52",
     "semantic_hash": ""
   },
   ".opencode/plans/gmail-sync-guard.md": {
@@ -8121,6 +8121,24 @@
     "mtime": 1793880101.945401,
     "seen": 1793880336.157357,
     "ast_hash": "746334663ec5d072b15e1f80fe4157c1",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/category_insights.js": {
+    "mtime": 1793891660.5612938,
+    "seen": 1793891778.063017,
+    "ast_hash": "cb7b61e2a6083f2d57cae53e4414a728",
+    "semantic_hash": ""
+  },
+  "app/helpers/category_insights_helper.rb": {
+    "mtime": 1793891150.523758,
+    "seen": 1793891778.063244,
+    "ast_hash": "8433c3ffa308cf10e86e99655eb8fe96",
+    "semantic_hash": ""
+  },
+  "test/system/category_insights_test.rb": {
+    "mtime": 1793892002.4048069,
+    "seen": 1793892171.4798772,
+    "ast_hash": "491383b78a2275cbc78dce86756bfd1b",
     "semantic_hash": ""
   }
 }

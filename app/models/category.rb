@@ -2,6 +2,7 @@
 
 class Category < ApplicationRecord
   SAVINGS_POTENTIALS = %w[low medium high variable none por_evaluar].freeze
+  SAVINGS_POTENTIAL_LEVELS = %w[low medium high].freeze
 
   belongs_to :parent, class_name: "Category", optional: true
   belongs_to :user, optional: true
@@ -46,6 +47,10 @@ class Category < ApplicationRecord
 
   def custom?
     !is_default?
+  end
+
+  def savings_potential_level
+    SAVINGS_POTENTIAL_LEVELS.include?(savings_potential) ? savings_potential : "low"
   end
 
   def editable_by?(user)
