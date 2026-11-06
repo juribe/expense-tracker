@@ -200,3 +200,22 @@ pe_annual.update!(
   status: "active", position: 2,
   access_duration_count: 12, access_duration_unit: "month"
 )
+
+# Maglev CMS public site (development/test only).
+#
+# The public home (GET /) is served by Maglev, so the Playwright environment
+# — which creates its database with `db:prepare` — needs an existing site with
+# a published Home. Production creates and publishes the site explicitly
+# (`maglev:create_site` + `yogasto:publish_cms`) so content editors control
+# what goes live; republishing from seeds there could leak drafts.
+if !Rails.env.production? && Maglev::Site.none?
+  Maglev::GenerateSite.call(theme: Maglev.local_themes.first)
+
+  maglev_site = Maglev::Site.first
+  Maglev::I18n.available_locales = maglev_site.locale_prefixes
+  Maglev::I18n.with_locale(maglev_site.default_locale_prefix) do
+    Maglev::Page.all.find_each do |page|
+      Maglev::PublishService.call(site: maglev_site, page: page)
+    end
+  end
+end
