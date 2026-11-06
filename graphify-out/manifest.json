@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1793827535.2741475,
-    "seen": 1793828428.194839,
-    "ast_hash": "5f1d56eaa119b9f72f8606ec21cfb407",
+    "mtime": 1793924760.0436296,
+    "seen": 1793932183.012647,
+    "ast_hash": "51b4e1a227a126d0e1fa6f17019f78b0",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1793912107.3817346,
-    "seen": 1793912353.528034,
-    "ast_hash": "a80c98cbbbec7d0f0e7520e5d83e61cb",
+    "mtime": 1793927115.1097739,
+    "seen": 1793932183.0138922,
+    "ast_hash": "fd722a0d43d16f3823a7134d542b1e04",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793896097.6447928,
-    "seen": 1793896384.318576,
-    "ast_hash": "75707293560f41511eb2e97876338f05",
+    "mtime": 1793924028.1059937,
+    "seen": 1793932183.014026,
+    "ast_hash": "405fe2023e1c5e6a06154fdfb9b1527a",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -972,9 +972,9 @@
     "semantic_hash": "8e38e13dc85bb5b17d7d7bf2d5868aa3"
   },
   "test/test_helper.rb": {
-    "mtime": 1793823754.8830929,
-    "seen": 1793823853.3478038,
-    "ast_hash": "6a39adb029db2e1317887d8f1d667e43",
+    "mtime": 1793927130.6134257,
+    "seen": 1793932183.015121,
+    "ast_hash": "de76694db8598844e58f299b029429d8",
     "semantic_hash": ""
   },
   ".rubocop.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793921951.399672,
-    "seen": 1793922032.587583,
+    "mtime": 1793931359.597451,
+    "seen": 1793932183.015191,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4818,9 +4818,9 @@
     "semantic_hash": ""
   },
   "test/controllers/security_headers_test.rb": {
-    "mtime": 1792849928.2904866,
-    "seen": 1793490696.635236,
-    "ast_hash": "dd806c59df33036a0cccbb7016d7ac2c",
+    "mtime": 1793931440.5646975,
+    "seen": 1793932183.014505,
+    "ast_hash": "cc9112aa57be10facef3fbe46ea8a2c4",
     "semantic_hash": ""
   },
   "db/migrate/20261023142925_delete_plaintext_ai_requests.rb": {
@@ -8301,6 +8301,270 @@
     "mtime": 1793914845.531582,
     "seen": 1793914880.732954,
     "ast_hash": "c67edbe1702a818c9f9547c212a539d0",
+    "semantic_hash": ""
+  },
+  "app/controllers/public_cms/sitemap_controller.rb": {
+    "mtime": 1793932045.1093743,
+    "seen": 1793932183.0128472,
+    "ast_hash": "f01c6538883d5a0a7517852f08a9b92e",
+    "semantic_hash": ""
+  },
+  "app/helpers/maglev_theme_helper.rb": {
+    "mtime": 1793923949.7441547,
+    "seen": 1793932183.012939,
+    "ast_hash": "a45176067362a48c6ae74b515b2b8c09",
+    "semantic_hash": ""
+  },
+  "app/models/concerns/maglev/page/seo_extension_concern.rb": {
+    "mtime": 1793923965.6337187,
+    "seen": 1793932183.0131352,
+    "ast_hash": "874974c579e34e79af0c0ce302c363ef",
+    "semantic_hash": ""
+  },
+  "config/initializers/maglev.rb": {
+    "mtime": 1793931907.00022,
+    "seen": 1793932183.013885,
+    "ast_hash": "39c59e8e9b947b1522366b53506711af",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235815_create_active_storage_tables.active_storage.rb": {
+    "mtime": 1793923095.6932752,
+    "seen": 1793932183.013995,
+    "ast_hash": "b1b2c6338ffe12720c2d1d559b407bec",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235818_create_maglev_sites.maglev.rb": {
+    "mtime": 1793923098.9510086,
+    "seen": 1793932183.013997,
+    "ast_hash": "e741933b345276d61eb92f08317fe5eb",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235819_create_maglev_pages.maglev.rb": {
+    "mtime": 1793923098.9512703,
+    "seen": 1793932183.013999,
+    "ast_hash": "cc4636222caea086f848901b50fa9977",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235820_create_maglev_section_content.maglev.rb": {
+    "mtime": 1793923098.951563,
+    "seen": 1793932183.0140002,
+    "ast_hash": "2479aa3943395f66df36abfa94680e9c",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235821_create_maglev_assets.maglev.rb": {
+    "mtime": 1793923098.951836,
+    "seen": 1793932183.0140018,
+    "ast_hash": "db7810d240238e94797983dbc3d3d0a7",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235822_switch_to_localized_page_fields.maglev.rb": {
+    "mtime": 1793923098.9529138,
+    "seen": 1793932183.014003,
+    "ast_hash": "4d4d9764058222cd43ea88d1fa1a975a",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235823_create_maglev_page_paths.maglev.rb": {
+    "mtime": 1793923098.953089,
+    "seen": 1793932183.014005,
+    "ast_hash": "ff98aadc93f18e85e0af9325a91a34b5",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235824_add_canonical_to_pages.maglev.rb": {
+    "mtime": 1793923098.9532425,
+    "seen": 1793932183.014006,
+    "ast_hash": "bd0f598f3d2e046c5b126a48fb4e6709",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235825_add_locales_to_sites.maglev.rb": {
+    "mtime": 1793923098.9533837,
+    "seen": 1793932183.014008,
+    "ast_hash": "eb3958d1f71299ce102d109f06d7d9ae",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235826_translate_section_content.maglev.rb": {
+    "mtime": 1793923098.953567,
+    "seen": 1793932183.014009,
+    "ast_hash": "c2ed745ccb00f1287131bd15c2a6a05a",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235827_add_lock_version_to_maglev_pages.maglev.rb": {
+    "mtime": 1793923098.9537604,
+    "seen": 1793932183.014011,
+    "ast_hash": "3e5cd29a225c377dbf04371c80c11c0d",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235828_better_page_path_canonical_indices.maglev.rb": {
+    "mtime": 1793923098.9539492,
+    "seen": 1793932183.0140119,
+    "ast_hash": "1de0078e774ec0c678a13375292e5052",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235829_fix_page_path_indices.maglev.rb": {
+    "mtime": 1793923098.9541497,
+    "seen": 1793932183.0140128,
+    "ast_hash": "311abf7871f320c72876edb10b175908",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235830_add_open_graph_tags_to_pages.maglev.rb": {
+    "mtime": 1793923098.954373,
+    "seen": 1793932183.014015,
+    "ast_hash": "c00a3dddf150cf0c917fd293cfb1e603",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235831_add_style_to_sites.maglev.rb": {
+    "mtime": 1793923098.954571,
+    "seen": 1793932183.014016,
+    "ast_hash": "7b46dc54e60ec7431796888c0f797aaf",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235832_create_maglev_sections_content_stores.maglev.rb": {
+    "mtime": 1793923098.9547484,
+    "seen": 1793932183.014018,
+    "ast_hash": "4114384f6df538bbc73ad36d2cd4ed51",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235833_add_published_at_to_sites_and_pages.maglev.rb": {
+    "mtime": 1793923098.954954,
+    "seen": 1793932183.014019,
+    "ast_hash": "f5862ae04a9f519b0c638222e6c998a5",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261105235834_add_published_payload_to_pages.maglev.rb": {
+    "mtime": 1793923098.9560921,
+    "seen": 1793932183.0140212,
+    "ast_hash": "89d2e0e4981930cadd4238195d730173",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261106090000_add_seo_fields_to_maglev_pages.rb": {
+    "mtime": 1793923957.7504842,
+    "seen": 1793932183.0140219,
+    "ast_hash": "2536ca42cda1db1a8df55dd42017e748",
+    "semantic_hash": ""
+  },
+  "lib/tasks/publish_cms.rake": {
+    "mtime": 1793924095.108805,
+    "seen": 1793932183.014046,
+    "ast_hash": "bc2dc1ed134aaa2d4b7ab97d570b256a",
+    "semantic_hash": ""
+  },
+  "test/controllers/public_cms/sitemap_controller_test.rb": {
+    "mtime": 1793927152.8631444,
+    "seen": 1793932183.014487,
+    "ast_hash": "2dacfffc372a11bd289f5fea8ff98337",
+    "semantic_hash": ""
+  },
+  "test/integration/maglev_editor_authorization_test.rb": {
+    "mtime": 1793931180.9820347,
+    "seen": 1793932183.014549,
+    "ast_hash": "e56133724a1284d5b9e613ea1733a90d",
+    "semantic_hash": ""
+  },
+  "test/integration/public_cms_home_test.rb": {
+    "mtime": 1793927185.7019587,
+    "seen": 1793932183.014584,
+    "ast_hash": "3cd7973b8245fc28f0223f9b4119262e",
+    "semantic_hash": ""
+  },
+  "test/support/public_cms_test_support.rb": {
+    "mtime": 1793931120.2365444,
+    "seen": 1793932183.0150971,
+    "ast_hash": "f175347616b225ce08cfe54d1ddec217",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/automation.yml": {
+    "mtime": 1793923614.938818,
+    "seen": 1793932183.01515,
+    "ast_hash": "bfaba7aee5a32e8ce3a3ff1211eaff04",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/features.yml": {
+    "mtime": 1793923608.9702005,
+    "seen": 1793932183.0151522,
+    "ast_hash": "6662b62fb82c87210bdda8e51631edc2",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/final_cta.yml": {
+    "mtime": 1793923673.2167265,
+    "seen": 1793932183.015153,
+    "ast_hash": "e7e8adc70261a4bbe6c5d94ea1aff26c",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/financial_chat.yml": {
+    "mtime": 1793923657.5585773,
+    "seen": 1793932183.0151548,
+    "ast_hash": "c8372bcad536b6decf50c2ab8d2c3c97",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/footer.yml": {
+    "mtime": 1793924436.5618718,
+    "seen": 1793932183.015156,
+    "ast_hash": "4aa2cb00a2c2638860282e0ff08bd60f",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/hero.yml": {
+    "mtime": 1793923603.089653,
+    "seen": 1793932183.015158,
+    "ast_hash": "f7018f9d5984fe9cbf6a4d103abfdaed",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/how_it_works.yml": {
+    "mtime": 1793923626.6716387,
+    "seen": 1793932183.0151591,
+    "ast_hash": "df4667f71b243615aa3e2ac022624e79",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/natural_language.yml": {
+    "mtime": 1793923622.969849,
+    "seen": 1793932183.015161,
+    "ast_hash": "3446d1f702b5a1f4206770273d2583b6",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/navbar.yml": {
+    "mtime": 1793924433.4603093,
+    "seen": 1793932183.015163,
+    "ast_hash": "2c4d3513cf4d6769537952a376a5583a",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/pricing_cta.yml": {
+    "mtime": 1793923668.2503884,
+    "seen": 1793932183.015164,
+    "ast_hash": "29ed9343e62dbd9e71d5b9feaa004cca",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/registration_demo.yml": {
+    "mtime": 1793923648.9239106,
+    "seen": 1793932183.0151649,
+    "ast_hash": "9ece6453d2c0950e7940727e22eca995",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/security.yml": {
+    "mtime": 1793923662.7093349,
+    "seen": 1793932183.015167,
+    "ast_hash": "e217dbf2460a021ad7d602cccaeff18c",
+    "semantic_hash": ""
+  },
+  "app/theme/theme.yml": {
+    "mtime": 1793931141.1330292,
+    "seen": 1793932183.015168,
+    "ast_hash": "d503de6e306ca07c0ac0e6943198eb36",
+    "semantic_hash": ""
+  },
+  "config/locales/maglev_page_seo.yml": {
+    "mtime": 1793923987.083862,
+    "seen": 1793932183.015184,
+    "ast_hash": "8c81725dcf7ef1c69887a91911d936ef",
+    "semantic_hash": ""
+  },
+  "public/theme/image-placeholder.jpg": {
+    "mtime": 1793923101.763228,
+    "seen": 1793932183.015432,
+    "ast_hash": "530210287c46fcd14d4e769ee06364c4",
+    "semantic_hash": ""
+  },
+  "public/theme/logo-placeholder.svg": {
+    "mtime": 1793923101.7637892,
+    "seen": 1793932183.015433,
+    "ast_hash": "1c3baf50f8bdb41752afcf019a21319a",
     "semantic_hash": ""
   }
 }
