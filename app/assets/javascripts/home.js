@@ -1,18 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
+  var navMenu = document.getElementById("navMenu");
+  var menuToggle = document.querySelector("[data-menu-toggle]");
+
+  function setMobileMenu(open) {
+    if (!navMenu) return;
+    navMenu.classList.toggle("open", open);
+    if (menuToggle) menuToggle.setAttribute("aria-expanded", String(open));
+  }
+
   // Close mobile menu when clicking hash links
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     a.addEventListener("click", function () {
-      var navLinks = document.getElementById("navLinks");
-      if (navLinks) navLinks.classList.remove("open");
+      setMobileMenu(false);
     });
   });
 
   // Mobile menu toggle
-  var menuToggle = document.querySelector("[data-menu-toggle]");
   if (menuToggle) {
     menuToggle.addEventListener("click", function () {
-      var navLinks = document.getElementById("navLinks");
-      if (navLinks) navLinks.classList.toggle("open");
+      setMobileMenu(!(navMenu && navMenu.classList.contains("open")));
     });
   }
 

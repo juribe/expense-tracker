@@ -1,0 +1,153 @@
+# Contáctanos: reasons, help shortcut and the real contact form.
+# The form posts to POST /contact and is enhanced by contact_form.js.
+# Reusable lists are blocks so the editor can change reasons and subject
+# options without touching the template.
+name: "Contáctanos"
+category: institutional
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "— Encabezado"
+  id: heading_divider
+  type: divider
+- label: "Título de la sección"
+  id: heading
+  type: text
+  default: "¿En qué podemos ayudarte?"
+- label: "Descripción de la sección"
+  id: description
+  type: text
+  default: "Elige el motivo que mejor describa tu consulta. Así podremos ayudarte más rápido."
+- label: "— Motivos"
+  id: reasons_divider
+  type: divider
+- label: "Título de los motivos"
+  id: reasons_title
+  type: text
+  default: "Cuéntanos qué necesitas"
+- label: "Introducción de los motivos"
+  id: reasons_intro
+  type: text
+  default: "Selecciona una opción para completar el motivo del formulario."
+- label: "— Tarjeta de ayuda"
+  id: help_divider
+  type: divider
+- label: "Título de la tarjeta de ayuda"
+  id: help_title
+  type: text
+  default: "¿Buscas una respuesta rápida?"
+- label: "Texto de la tarjeta de ayuda"
+  id: help_text
+  type: text
+  default: "Consulta nuestras guías y preguntas frecuentes. Puede que tu respuesta ya esté allí."
+- label: "Enlace al centro de ayuda"
+  id: help_link
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/help", text: "Ir al centro de ayuda", open_new_window: false }
+- label: "— Formulario"
+  id: form_divider
+  type: divider
+- label: "Título del formulario"
+  id: form_title
+  type: text
+  default: "Escríbenos"
+- label: "Introducción del formulario"
+  id: form_intro
+  type: text
+  default: "Completa tus datos y cuéntanos cómo podemos ayudarte."
+- label: "Etiqueta del nombre"
+  id: name_label
+  type: text
+  default: "Nombre"
+- label: "Placeholder del nombre"
+  id: name_placeholder
+  type: text
+  default: "Tu nombre"
+- label: "Etiqueta del correo"
+  id: email_label
+  type: text
+  default: "Correo electrónico"
+- label: "Placeholder del correo"
+  id: email_placeholder
+  type: text
+  default: "tu@correo.com"
+- label: "Etiqueta del motivo"
+  id: subject_label
+  type: text
+  default: "Motivo"
+- label: "Etiqueta del mensaje"
+  id: message_label
+  type: text
+  default: "Mensaje"
+- label: "Placeholder del mensaje"
+  id: message_placeholder
+  type: text
+  default: "Cuéntanos un poco más..."
+- label: "Texto del botón"
+  id: submit_label
+  type: text
+  default: "Enviar mensaje"
+- label: "Texto mientras se envía"
+  id: sending_label
+  type: text
+  default: "Enviando mensaje..."
+- label: "Nota de privacidad"
+  id: privacy_note
+  type: text
+  default: "Usaremos tus datos únicamente para responder a tu mensaje."
+- label: "Enlace de privacidad"
+  id: privacy_link
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/privacy", text: "Política de privacidad", open_new_window: false }
+- label: "Título del estado de éxito"
+  id: success_title
+  type: text
+  default: "¡Mensaje enviado!"
+- label: "Texto del estado de éxito"
+  id: success_text
+  type: text
+  default: "Gracias por escribirnos. Te responderemos muy pronto."
+- label: "Texto del estado de error"
+  id: error_text
+  type: text
+  default: "No pudimos enviar tu mensaje. Revisa los datos e inténtalo de nuevo."
+blocks_label: "Motivos y opciones del formulario"
+blocks:
+- name: "Motivo seleccionable"
+  type: reason
+  settings:
+  - label: "Icono (emoji o símbolo)"
+    id: icon
+    type: text
+    default: "?"
+  - label: "Color"
+    id: color
+    type: select
+    select: ["purple", "blue", "green"]
+    default: "purple"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Tengo una pregunta"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Quiero resolver una duda sobre Yogasto."
+  - label: "Valor del motivo (debe coincidir con una opción)"
+    id: value
+    type: text
+    default: "Tengo una pregunta"
+- name: "Opción del selector de motivo"
+  type: subject
+  settings:
+  - label: "Texto de la opción"
+    id: label
+    type: text
+    default: "Tengo una pregunta"
+  - label: "Valor enviado"
+    id: value
+    type: text
+    default: "Tengo una pregunta"

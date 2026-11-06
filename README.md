@@ -100,6 +100,29 @@ If no map is configured, all tokens use `INBOUND_EMAIL_USER_EMAIL`.
 Full setup, deployment, local testing and limitations are documented in
 [docs/mail_inbound.md](docs/mail_inbound.md).
 
+### Contact form email
+
+The public Contáctanos page (`/contact`) delivers messages through
+`ContactMailer`. Configure the internal inbox and sender with:
+
+```sh
+export CONTACT_EMAIL="hola@yogasto.co"
+export CONTACT_FROM_EMAIL="no-reply@yogasto.co"
+```
+
+Both values are optional; those are the defaults. Delivery uses
+`deliver_later`, so run the Solid Queue worker in environments that process
+background jobs. The form includes a honeypot, per-IP rate limiting and a short
+deduplication window; it does not use a CAPTCHA. The internal recipient is never
+rendered on the public page.
+
+When deploying new pages from `app/theme/theme.yml`, create only the missing
+Maglev pages without overwriting edited content:
+
+```sh
+bin/rails yogasto:sync_cms_pages
+```
+
 ### Local Speech-to-Text (faster-whisper)
 
 Audio notes in the Expense Playground are transcribed LOCALLY with

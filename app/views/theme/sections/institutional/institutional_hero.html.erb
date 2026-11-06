@@ -1,0 +1,44 @@
+<% variant = %w[lavender white].include?(maglev_section.settings.variant.to_s) ? maglev_section.settings.variant.to_s : "lavender" %>
+<% show_art = maglev_section.settings.show_art.true? || maglev_section.settings.image.present? %>
+<%= maglev_section.wrapper_tag.section class: "institutional-hero institutional-hero--#{variant} #{'institutional-hero--text-only' unless show_art}" do %>
+  <div class="container institutional-hero-grid">
+    <div class="institutional-hero-copy">
+      <%= maglev_section.setting_tag :eyebrow, html_tag: "div", class: "institutional-eyebrow" %>
+      <h1><%= maglev_section.setting_tag :title, html_tag: "span" %></h1>
+      <%= maglev_section.setting_tag :description, html_tag: "p", class: "institutional-hero-description" %>
+      <% if maglev_section.settings.note.present? %>
+        <div class="institutional-hero-note">
+          <span class="institutional-hero-note-icon" aria-hidden="true">◷</span>
+          <%= maglev_section.setting_tag :note, html_tag: "span" %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if show_art %>
+      <div class="institutional-hero-art" aria-hidden="true">
+        <% if maglev_section.settings.image.present? %>
+          <img src="<%= maglev_section.settings.image.url %>"
+               alt="<%= maglev_section.settings.image.alt_text %>"
+               class="institutional-hero-image">
+        <% else %>
+          <div class="institutional-art-orb"></div>
+          <div class="institutional-art-card">
+            <div class="institutional-art-head">
+              <span class="institutional-art-avatar">✉</span>
+              <span class="institutional-art-lines"><i></i><i></i></span>
+              <span class="institutional-art-status"></span>
+            </div>
+            <div class="institutional-art-chat">
+              <p class="institutional-art-bubble"><%= maglev_section.settings.art_greeting %></p>
+              <p class="institutional-art-bubble institutional-art-bubble--reply"><%= maglev_section.settings.art_message %></p>
+              <p class="institutional-art-bubble"><%= maglev_section.settings.art_reply %></p>
+            </div>
+            <div class="institutional-art-dots"><span></span><span></span><span></span></div>
+          </div>
+          <span class="institutional-art-float institutional-art-float--top"><%= maglev_section.settings.art_badge %></span>
+          <span class="institutional-art-float institutional-art-float--bottom">✓</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

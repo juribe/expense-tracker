@@ -95,6 +95,15 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   .header-actions .btn { width: 100%; }
   .desc-cell { max-width: 100%; }
   .bulk-bar > .btn { flex: 1 1 100%; min-height: 44px; }
+
+  /* Mobile rows keep the checkbox and expense summary on the first line.
+   * Amount and actions move to a full-width second line so they never widen
+   * the card beyond the viewport. */
+  .mobile-item { grid-template-columns: auto minmax(0, 1fr); }
+  .mobile-item-body { min-width: 0; }
+  .mobile-item > .text-end { grid-column: 1 / -1; }
+  .mobile-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .mobile-actions .btn { width: 44px; min-width: 44px; padding-left: 0; padding-right: 0; }
 }
 /* Mockup-inspired polish for the expenses list (mockup_ui_gastos_filtros.html) */
 :root {

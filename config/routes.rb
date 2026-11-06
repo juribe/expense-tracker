@@ -294,6 +294,7 @@ Rails.application.routes.draw do
   get "sitemap", to: "public_cms/sitemap#show", defaults: { format: "xml" }
   get "sitemap.xml", to: "public_cms/sitemap#show", defaults: { format: "xml" }
   root "maglev/published_page_preview#index"
+  post "contact", to: "contact_messages#create", as: :contact_message
   get "dashboard", to: "dashboard#index", as: :dashboard
 
   get "precios", to: "home#pricing", as: :precios

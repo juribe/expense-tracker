@@ -1,0 +1,41 @@
+# Reusable two-card institutional section (help, security, legal shortcuts).
+name: "Tarjetas de enlaces"
+category: institutional
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "Siempre cerca"
+- label: "Título"
+  id: title
+  type: text
+  default: "También estamos aquí"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Encuentra respuestas y conoce cómo cuidamos tu información."
+blocks_label: "Tarjetas"
+blocks:
+- name: "Tarjeta"
+  type: card
+  settings:
+  - label: "Icono (emoji o símbolo)"
+    id: icon
+    type: text
+    default: "?"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Centro de ayuda"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Respuestas rápidas a las preguntas más frecuentes."
+  - label: "Enlace"
+    id: link
+    type: link
+    with_text: false
+    default: { link_type: "url", href: "/help", open_new_window: false }

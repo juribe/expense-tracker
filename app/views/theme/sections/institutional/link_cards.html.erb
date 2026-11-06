@@ -1,0 +1,27 @@
+<%= maglev_section.wrapper_tag.section class: "institutional-links" do %>
+  <div class="container">
+    <div class="institutional-links-head">
+      <% if maglev_section.settings.kicker.present? %>
+        <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "institutional-eyebrow" %>
+      <% end %>
+      <h2><%= maglev_section.setting_tag :title, html_tag: "span" %></h2>
+      <% if maglev_section.settings.description.present? %>
+        <%= maglev_section.setting_tag :description, html_tag: "p" %>
+      <% end %>
+    </div>
+
+    <div class="institutional-link-grid">
+      <% maglev_section.blocks.each do |block| %>
+        <% next unless block.type == "card" %>
+        <%= block.setting_tag :link, class: "institutional-link-card" do %>
+          <span class="institutional-link-icon" aria-hidden="true"><%= block.settings.icon %></span>
+          <span class="institutional-link-copy">
+            <strong><%= block.settings.title %></strong>
+            <small><%= block.settings.description %></small>
+          </span>
+          <span class="institutional-link-arrow" aria-hidden="true">↗</span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

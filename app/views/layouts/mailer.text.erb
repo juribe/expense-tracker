@@ -2,5 +2,5 @@
 
 --
 © <%= Date.current.year %> <%= AppName.current %> · Tus finanzas, más claras.
-Este es un correo automático; por favor, no respondas a este mensaje.
-https://yogasto.co
+<% unless @allow_reply %>Este es un correo automático; por favor, no respondas a este mensaje.
+<% end %>https://yogasto.co

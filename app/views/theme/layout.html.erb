@@ -26,6 +26,7 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag :home, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :institutional, "data-turbo-track": "reload" %>
     <%= yield :head %>
   </head>
   <body>
@@ -34,6 +35,7 @@
     </main>
 
     <%= javascript_include_tag "home", defer: true %>
+    <%= javascript_include_tag "contact_form", defer: true if maglev_page.path == "contact" %>
     <%= javascript_include_tag "flash", defer: true %>
   </body>
 </html>

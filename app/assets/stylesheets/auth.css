@@ -137,6 +137,17 @@
   height: 55px;
 }
 
+.auth-brand-link {
+  display: block;
+  width: fit-content;
+  border-radius: 8px;
+}
+
+.auth-brand-link:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 4px;
+}
+
 .auth-brand-logo-dark { display: none; }
 
 [data-bs-theme="dark"] .auth-brand-logo-light { display: none; }

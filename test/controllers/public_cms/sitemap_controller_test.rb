@@ -16,6 +16,7 @@ class PublicCmsSitemapControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match %r{<urlset}, response.body
     assert_match "<loc>https://yogasto.co/</loc>", response.body
+    assert_match "<loc>https://yogasto.co/contact</loc>", response.body
     assert_match %r{<lastmod>\d{4}-\d{2}-\d{2}</lastmod>}, response.body
   end
 
@@ -42,6 +43,7 @@ class PublicCmsSitemapControllerTest < ActionDispatch::IntegrationTest
     get "https://yogasto.co/sitemap.xml"
 
     assert_response :success
-    refute_match "<loc>", response.body
+    refute_match "<loc>https://yogasto.co/</loc>", response.body
+    assert_match "<loc>https://yogasto.co/contact</loc>", response.body
   end
 end

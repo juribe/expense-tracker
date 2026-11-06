@@ -1,0 +1,16 @@
+<% variant = %w[plain lavender].include?(maglev_section.settings.variant.to_s) ? maglev_section.settings.variant.to_s : "plain" %>
+<% align = %w[left center].include?(maglev_section.settings.align.to_s) ? maglev_section.settings.align.to_s : "left" %>
+<%= maglev_section.wrapper_tag.section class: "institutional-content institutional-content--#{variant} institutional-content--#{align}" do %>
+  <div class="container institutional-content-inner">
+    <% if maglev_section.settings.kicker.present? %>
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "institutional-eyebrow" %>
+    <% end %>
+    <h2><%= maglev_section.setting_tag :title, html_tag: "span" %></h2>
+    <% if maglev_section.settings.body.present? %>
+      <%= maglev_section.setting_tag :body, html_tag: "div", class: "institutional-content-body" %>
+    <% end %>
+    <% if maglev_section.settings.cta.text.present? %>
+      <%= maglev_section.setting_tag :cta, class: "btn" %>
+    <% end %>
+  </div>
+<% end %>

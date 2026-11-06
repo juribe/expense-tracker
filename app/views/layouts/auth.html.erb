@@ -48,8 +48,10 @@
       <main class="auth-shell">
         <section class="auth-intro" aria-label="<%= t("auth.intro.aria_label", app_name: AppName.current) %>">
           <div class="auth-brand">
-            <img src="/brand/yogasto-logo-claro.svg" alt="<%= AppName.current %>" class="auth-brand-logo auth-brand-logo-light">
-            <img src="/brand/yogasto-logo-fondo-oscuro.svg" alt="<%= AppName.current %>" class="auth-brand-logo auth-brand-logo-dark">
+            <%= link_to root_path, class: "auth-brand-link", aria: { label: t("auth.home_link", default: "Ir al inicio de Yogasto") } do %>
+              <img src="/brand/yogasto-logo-claro.svg" alt="<%= AppName.current %>" class="auth-brand-logo auth-brand-logo-light">
+              <img src="/brand/yogasto-logo-fondo-oscuro.svg" alt="<%= AppName.current %>" class="auth-brand-logo auth-brand-logo-dark">
+            <% end %>
             <div class="auth-brand-tag"><%= t("auth.intro.brand_tag") %></div>
           </div>
 

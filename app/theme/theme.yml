@@ -15,6 +15,7 @@ section_categories:
 - name: demo
 - name: content
 - name: cta
+- name: institutional
 
 # Properties of your theme such as the primary color, font name, ...etc.
 style_settings: []
@@ -440,6 +441,192 @@ pages:
         settings: { label: "Seguridad", link: { link_type: "url", href: "/security", open_new_window: false } }
       - type: link
         settings: { label: "Cómo protegemos tu información", link: { link_type: "url", href: "/#seguridad", open_new_window: false } }
+
+- title: "Contáctanos"
+  path: "contact"
+  seo_title: "Contáctanos"
+  meta_description: "¿Tienes preguntas o necesitas ayuda con Yogasto? Escríbenos, estaremos encantados de ayudarte."
+  og_title: "Contáctanos"
+  og_description: "Estamos para ayudarte. Escríbenos y te responderemos lo antes posible."
+  sections:
+  - type: navbar
+  - type: institutional_hero
+    settings:
+      eyebrow: "Estamos para ayudarte"
+      title: "Hablemos.<br/>Estamos aquí para ayudarte."
+      description: "¿Tienes preguntas, necesitas ayuda o quieres contarnos algo? Escríbenos y te responderemos lo antes posible."
+      note: "Respondemos de lunes a viernes, en horario laboral."
+      variant: "lavender"
+      show_art: true
+      art_greeting: "¡Hola! ¿En qué te ayudamos?"
+      art_message: "Estoy aquí para ayudarte con tu cuenta."
+      art_reply: "Gracias, revisemos juntos."
+      art_badge: "Estamos contigo"
+  - type: contact
+    settings:
+      heading: "¿En qué podemos ayudarte?"
+      description: "Elige el motivo que mejor describa tu consulta. Así podremos ayudarte más rápido."
+      reasons_title: "Cuéntanos qué necesitas"
+      reasons_intro: "Selecciona una opción para completar el motivo del formulario."
+      help_title: "¿Buscas una respuesta rápida?"
+      help_text: "Consulta nuestras guías y preguntas frecuentes. Puede que tu respuesta ya esté allí."
+      help_link: { link_type: "url", href: "/help", text: "Ir al centro de ayuda", open_new_window: false }
+      form_title: "Escríbenos"
+      form_intro: "Completa tus datos y cuéntanos cómo podemos ayudarte."
+      name_label: "Nombre"
+      name_placeholder: "Tu nombre"
+      email_label: "Correo electrónico"
+      email_placeholder: "tu@correo.com"
+      subject_label: "Motivo"
+      message_label: "Mensaje"
+      message_placeholder: "Cuéntanos un poco más..."
+      submit_label: "Enviar mensaje"
+      sending_label: "Enviando mensaje..."
+      privacy_note: "Usaremos tus datos únicamente para responder a tu mensaje."
+      privacy_link: { link_type: "url", href: "/privacy", text: "Política de privacidad", open_new_window: false }
+      success_title: "¡Mensaje enviado!"
+      success_text: "Gracias por escribirnos. Te responderemos muy pronto."
+      error_text: "No pudimos enviar tu mensaje. Revisa los datos e inténtalo de nuevo."
+    blocks:
+    - type: reason
+      settings: { icon: "?", color: "purple", title: "Tengo una pregunta", description: "Quiero resolver una duda sobre Yogasto.", value: "Tengo una pregunta" }
+    - type: reason
+      settings: { icon: "!", color: "blue", title: "Necesito soporte", description: "Tengo un problema con mi cuenta o alguna funcionalidad.", value: "Necesito soporte" }
+    - type: reason
+      settings: { icon: "✦", color: "green", title: "Quiero compartir una idea", description: "Tengo una sugerencia para mejorar Yogasto.", value: "Quiero compartir una idea" }
+    - type: subject
+      settings: { label: "Tengo una pregunta", value: "Tengo una pregunta" }
+    - type: subject
+      settings: { label: "Necesito soporte", value: "Necesito soporte" }
+    - type: subject
+      settings: { label: "Quiero compartir una idea", value: "Quiero compartir una idea" }
+    - type: subject
+      settings: { label: "Consulta sobre mi membresía", value: "Consulta sobre mi membresía" }
+    - type: subject
+      settings: { label: "Otro motivo", value: "Otro motivo" }
+  - type: link_cards
+    settings:
+      kicker: "Siempre cerca"
+      title: "También estamos aquí"
+      description: "Encuentra respuestas y conoce cómo cuidamos tu información."
+    blocks:
+    - type: card
+      settings: { icon: "?", title: "Centro de ayuda", description: "Respuestas rápidas a las preguntas más frecuentes.", link: { link_type: "url", href: "/help", open_new_window: false } }
+    - type: card
+      settings: { icon: "🔒", title: "Seguridad y privacidad", description: "Conoce cómo cuidamos tu información.", link: { link_type: "url", href: "/security", open_new_window: false } }
+  - type: institutional_content
+    settings:
+      kicker: ""
+      title: "Tus finanzas, más claras. Tu tranquilidad, primero."
+      body: "Yogasto · Controla mejor tu dinero."
+      cta: { link_type: "url", href: "/", text: "", open_new_window: false }
+      variant: "lavender"
+      align: "center"
+  - type: footer
+
+- title: "Centro de ayuda"
+  path: "help"
+  seo_title: "Centro de ayuda"
+  meta_description: "Respuestas rápidas y guías para usar Yogasto."
+  og_title: "Centro de ayuda"
+  og_description: "Encuentra respuestas rápidas y guías para aprovechar Yogasto."
+  sections:
+  - type: navbar
+  - type: institutional_hero
+    settings:
+      eyebrow: "Ayuda"
+      title: "Centro de ayuda"
+      description: "Encuentra respuestas rápidas y guías para aprovechar Yogasto."
+      note: ""
+      variant: "lavender"
+      show_art: false
+  - type: institutional_content
+    settings:
+      kicker: ""
+      title: "¿No encuentras lo que buscas?"
+      body: "Escríbenos desde <a href='/contact'>Contáctanos</a> y te ayudaremos."
+      cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
+      variant: "plain"
+      align: "center"
+  - type: footer
+
+- title: "Política de privacidad"
+  path: "privacy"
+  seo_title: "Política de privacidad"
+  meta_description: "Información sobre cómo Yogasto trata y protege tus datos."
+  og_title: "Política de privacidad"
+  og_description: "Información sobre cómo Yogasto trata y protege tus datos."
+  sections:
+  - type: navbar
+  - type: institutional_hero
+    settings:
+      eyebrow: "Privacidad"
+      title: "Política de privacidad"
+      description: "Queremos que tengas claridad sobre cómo tratamos tu información."
+      note: ""
+      variant: "white"
+      show_art: false
+  - type: institutional_content
+    settings:
+      kicker: ""
+      title: "Estamos preparando este documento"
+      body: "Mientras publicamos la versión completa, si tienes preguntas sobre cómo tratamos tu información, escríbenos desde <a href='/contact'>Contáctanos</a>."
+      cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
+      variant: "plain"
+      align: "left"
+  - type: footer
+
+- title: "Seguridad"
+  path: "security"
+  seo_title: "Seguridad"
+  meta_description: "Conoce cómo cuidamos la información en Yogasto y cómo reportar una inquietud de seguridad."
+  og_title: "Seguridad"
+  og_description: "Conoce cómo cuidamos la información en Yogasto y cómo reportar una inquietud de seguridad."
+  sections:
+  - type: navbar
+  - type: institutional_hero
+    settings:
+      eyebrow: "Confianza"
+      title: "Seguridad"
+      description: "La protección de tu información es parte de cómo construimos Yogasto."
+      note: ""
+      variant: "white"
+      show_art: false
+  - type: institutional_content
+    settings:
+      kicker: ""
+      title: "¿Tienes una inquietud de seguridad?"
+      body: "Estamos preparando esta página con más detalle. Si necesitas reportar algo o quieres saber cómo protegemos tu información, escríbenos desde <a href='/contact'>Contáctanos</a>."
+      cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
+      variant: "plain"
+      align: "left"
+  - type: footer
+
+- title: "Términos y condiciones"
+  path: "terms"
+  seo_title: "Términos y condiciones"
+  meta_description: "Términos y condiciones de uso de Yogasto."
+  og_title: "Términos y condiciones"
+  og_description: "Términos y condiciones de uso de Yogasto."
+  sections:
+  - type: navbar
+  - type: institutional_hero
+    settings:
+      eyebrow: "Legal"
+      title: "Términos y condiciones"
+      description: "Las reglas que acompañan el uso de Yogasto."
+      note: ""
+      variant: "white"
+      show_art: false
+  - type: institutional_content
+    settings:
+      kicker: ""
+      title: "Estamos preparando este documento"
+      body: "Mientras publicamos la versión completa, si tienes preguntas sobre estos términos, escríbenos desde <a href='/contact'>Contáctanos</a>."
+      cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
+      variant: "plain"
+      align: "left"
+  - type: footer
 
 # List of CSS class names used by your library of icons (font awesome, remixicons, ...etc)
 icons: []

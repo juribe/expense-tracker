@@ -4,11 +4,13 @@
       <a class="brand" href="/" aria-label="Yogasto inicio">
         <img src="/brand/yogasto-logo-claro.svg" alt="Yogasto" class="brand-logo">
       </a>
-      <div class="nav-links" id="navLinks">
-        <a href="/#funciones">Características</a><a href="/#lenguaje-natural">Registra con IA</a><a href="/#como-funciona">Cómo funciona</a><a href="/precios">Precios</a>
+      <div class="nav-menu" id="navMenu">
+        <div class="nav-links">
+          <a href="/#funciones">Características</a><a href="/#lenguaje-natural">Registra con IA</a><a href="/#como-funciona">Cómo funciona</a><a href="/precios">Precios</a>
+        </div>
+        <div class="nav-actions"><a class="login" href="/users/sign_in">Iniciar sesión</a><a class="btn" href="/users/sign_up">Crear cuenta <span>→</span></a></div>
       </div>
-      <div class="nav-actions"><a class="login" href="/users/sign_in">Iniciar sesión</a><a class="btn" href="/users/sign_up">Crear cuenta <span>→</span></a></div>
-      <button class="menu-toggle" aria-label="Abrir menú" data-menu-toggle>☰</button>
+      <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu" data-menu-toggle>☰</button>
     </nav>
   </div>
 </div>

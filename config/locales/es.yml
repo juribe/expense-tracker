@@ -78,6 +78,37 @@ es:
         delimiter: ""
         precision: 0
 
+  contact:
+    errors:
+      invalid: "No pudimos enviar tu mensaje. Revisa los datos e inténtalo de nuevo."
+      rate_limited: "Has enviado varios mensajes. Espera un momento antes de intentarlo de nuevo."
+
+  activemodel:
+    attributes:
+      contact_message:
+        name: "Nombre"
+        email: "Correo electrónico"
+        subject: "Motivo"
+        message: "Mensaje"
+    errors:
+      models:
+        contact_message:
+          attributes:
+            name:
+              blank: "Escribe tu nombre."
+              too_long: "El nombre es demasiado largo."
+            email:
+              blank: "Escribe tu correo electrónico."
+              invalid: "Escribe un correo electrónico válido."
+              too_long: "El correo electrónico es demasiado largo."
+            subject:
+              blank: "Selecciona un motivo."
+              invalid: "El motivo no es válido."
+              too_long: "El motivo es demasiado largo."
+            message:
+              blank: "Escribe tu mensaje."
+              too_long: "El mensaje es demasiado largo."
+
   activerecord:
     errors:
       messages:

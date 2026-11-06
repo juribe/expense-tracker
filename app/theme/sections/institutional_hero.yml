@@ -1,0 +1,62 @@
+# Institutional hero shared by the Contáctanos and help/legal pages.
+# The title accepts safe inline HTML (for example <br/>) because it is
+# rendered through Maglev's setting_tag.
+name: "Hero institucional"
+category: institutional
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "— Contenido"
+  id: content_divider
+  type: divider
+- label: "Etiqueta superior"
+  id: eyebrow
+  type: text
+  default: "Estamos para ayudarte"
+- label: "Título (admite HTML, por ejemplo <br/>)"
+  id: title
+  type: text
+  default: "Hablemos.<br/>Estamos aquí para ayudarte."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "¿Tienes preguntas, necesitas ayuda o quieres contarnos algo? Escríbenos y te responderemos lo antes posible."
+- label: "Texto complementario"
+  id: note
+  type: text
+  default: "Respondemos de lunes a viernes, en horario laboral."
+- label: "Variante visual"
+  id: variant
+  type: select
+  select: ["lavender", "white"]
+  default: "lavender"
+- label: "Mostrar ilustración"
+  id: show_art
+  type: checkbox
+  default: true
+- hint: "Si subes una imagen reemplaza la ilustración HTML. Déjala vacía para conservar el diseño actual."
+  id: image_hint
+  type: hint
+- label: "Imagen de la ilustración (opcional)"
+  id: image
+  type: image
+- label: "— Ilustración predeterminada"
+  id: art_divider
+  type: divider
+- label: "Saludo de la ilustración"
+  id: art_greeting
+  type: text
+  default: "¡Hola! ¿En qué te ayudamos?"
+- label: "Mensaje de la ilustración"
+  id: art_message
+  type: text
+  default: "Estoy aquí para ayudarte con tu cuenta."
+- label: "Respuesta de la ilustración"
+  id: art_reply
+  type: text
+  default: "Gracias, revisemos juntos."
+- label: "Insignia de la ilustración"
+  id: art_badge
+  type: text
+  default: "Estamos contigo"

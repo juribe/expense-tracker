@@ -1,0 +1,134 @@
+<% reasons = maglev_section.blocks.select { |block| block.type == "reason" } %>
+<% subjects = maglev_section.blocks.select { |block| block.type == "subject" } %>
+<% selected_subject = (reasons.first&.settings&.value || subjects.first&.settings&.value).to_s %>
+<%= maglev_section.wrapper_tag.section class: "contact-section", id: "contacto" do %>
+  <div class="container">
+    <div class="contact-heading">
+      <h2><%= maglev_section.setting_tag :heading, html_tag: "span" %></h2>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-left">
+        <div class="contact-reasons" role="group" aria-labelledby="contact-reasons-title">
+          <h3 id="contact-reasons-title"><%= maglev_section.setting_tag :reasons_title, html_tag: "span" %></h3>
+          <p class="contact-reasons-intro"><%= maglev_section.setting_tag :reasons_intro, html_tag: "span" %></p>
+
+          <div class="contact-reason-list">
+            <% reasons.each_with_index do |block, index| %>
+              <% color = %w[purple blue green].include?(block.settings.color.to_s) ? block.settings.color : "purple" %>
+              <% value = block.settings.value.to_s %>
+              <button type="button"
+                      class="contact-reason contact-reason--<%= color %>"
+                      data-contact-reason="<%= value %>"
+                      aria-pressed="<%= index.zero? %>">
+                <span class="contact-reason-icon" aria-hidden="true"><%= block.settings.icon %></span>
+                <span class="contact-reason-copy">
+                  <strong><%= block.settings.title %></strong>
+                  <small><%= block.settings.description %></small>
+                </span>
+                <span class="contact-reason-check" aria-hidden="true">✓</span>
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <aside class="contact-help">
+          <div class="contact-help-icon" aria-hidden="true">?</div>
+          <h3><%= maglev_section.setting_tag :help_title, html_tag: "span" %></h3>
+          <p><%= maglev_section.setting_tag :help_text, html_tag: "span" %></p>
+          <%= maglev_section.setting_tag :help_link, class: "contact-help-link" do %>
+            <%= maglev_section.settings.help_link.text %> <span aria-hidden="true">→</span>
+          <% end %>
+        </aside>
+      </div>
+
+      <div class="contact-form-panel">
+        <h3 id="contact-form-title"><%= maglev_section.setting_tag :form_title, html_tag: "span" %></h3>
+        <p class="contact-form-intro"><%= maglev_section.setting_tag :form_intro, html_tag: "span" %></p>
+
+        <% if params[:sent].present? %>
+          <div class="contact-form-status is-success" data-contact-status role="status" aria-live="polite">
+            <strong><%= maglev_section.settings.success_title %></strong>
+            <span><%= maglev_section.settings.success_text %></span>
+          </div>
+        <% elsif params[:error].present? %>
+          <div class="contact-form-status is-error" data-contact-status role="status" aria-live="polite">
+            <strong><%= maglev_section.settings.error_text %></strong>
+          </div>
+        <% else %>
+          <div class="contact-form-status" data-contact-status role="status" aria-live="polite" hidden></div>
+        <% end %>
+
+        <%= form_with url: main_app.contact_message_path, method: :post, scope: :contact_message,
+                      data: {
+                        contact_form: true,
+                        success_title: maglev_section.settings.success_title.to_s,
+                        success_text: maglev_section.settings.success_text.to_s,
+                        error_text: maglev_section.settings.error_text.to_s
+                      },
+                      html: { aria: { labelledby: "contact-form-title" } },
+                      class: "contact-form" do |form| %>
+          <div class="contact-field">
+            <%= form.label :name, maglev_section.settings.name_label.to_s, class: "contact-label" %>
+            <%= form.text_field :name, required: true, maxlength: 120, autocomplete: "name",
+                                placeholder: maglev_section.settings.name_placeholder.to_s,
+                                class: "contact-input",
+                                aria: { describedby: "contact_name_error" } %>
+            <p class="contact-field-error" id="contact_name_error" data-contact-error-for="name" hidden></p>
+          </div>
+
+          <div class="contact-field">
+            <%= form.label :email, maglev_section.settings.email_label.to_s, class: "contact-label" %>
+            <%= form.email_field :email, required: true, maxlength: 254, autocomplete: "email",
+                                 placeholder: maglev_section.settings.email_placeholder.to_s,
+                                 class: "contact-input",
+                                 aria: { describedby: "contact_email_error" } %>
+            <p class="contact-field-error" id="contact_email_error" data-contact-error-for="email" hidden></p>
+          </div>
+
+          <div class="contact-field">
+            <%= form.label :subject, maglev_section.settings.subject_label.to_s, class: "contact-label" %>
+            <%= select_tag "contact_message[subject]",
+                           options_for_select(
+                             subjects.map { |block| [block.settings.label.to_s, block.settings.value.to_s] },
+                             selected_subject
+                           ),
+                           id: "contact_message_subject",
+                           required: true,
+                           class: "contact-select",
+                           data: { contact_subject: true },
+                           aria: { describedby: "contact_subject_error" } %>
+            <p class="contact-field-error" id="contact_subject_error" data-contact-error-for="subject" hidden></p>
+          </div>
+
+          <div class="contact-field">
+            <%= form.label :message, maglev_section.settings.message_label.to_s, class: "contact-label" %>
+            <%= form.text_area :message, required: true, maxlength: 5000, rows: 5,
+                               placeholder: maglev_section.settings.message_placeholder.to_s,
+                               class: "contact-textarea",
+                               aria: { describedby: "contact_message_error" } %>
+            <p class="contact-field-error" id="contact_message_error" data-contact-error-for="message" hidden></p>
+          </div>
+
+          <div class="contact-honeypot-wrap" aria-hidden="true">
+            <%= form.text_field :website, tabindex: -1, autocomplete: "off",
+                                class: "contact-honeypot",
+                                aria: { hidden: "true" } %>
+          </div>
+
+          <%= form.button type: :submit, class: "contact-submit",
+                          data: { contact_submit: true, sending_label: maglev_section.settings.sending_label.to_s } do %>
+            <span data-contact-submit-label><%= maglev_section.settings.submit_label %></span>
+            <span aria-hidden="true">→</span>
+          <% end %>
+
+          <p class="contact-privacy">
+            <%= maglev_section.setting_tag :privacy_note, html_tag: "span" %>
+            <%= maglev_section.setting_tag :privacy_link, class: "contact-privacy-link" %>
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

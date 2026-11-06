@@ -273,7 +273,7 @@
                  data-delete-url="<%= expense_path(expense, state_query) %>">
               <input type="checkbox" class="form-check-input row-check mt-2"
                      aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
-              <div>
+              <div class="mobile-item-body">
                 <div class="small text-muted"><%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %> · <%= money_source_badge(expense.money_source) %></div>
                 <div class="mt-1">
                   <% if expense.description.present? %>

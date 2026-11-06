@@ -1,0 +1,37 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+  <tr>
+    <td align="center" style="text-align:center;font-family:Arial,Helvetica,sans-serif;">
+      <div style="width:66px;height:66px;margin:0 auto 23px;border-radius:20px;background-color:#F0EDFF;color:#7867E8;text-align:center;line-height:66px;font-size:30px;">
+        ✉
+      </div>
+
+      <h1 align="center" style="margin:0 0 16px;text-align:center;font-size:29px;line-height:1.22;letter-spacing:-1px;font-weight:750;color:#252746;font-family:Arial,Helvetica,sans-serif;">Nuevo mensaje de contacto</h1>
+      <p align="center" style="margin:0 auto 27px;max-width:430px;text-align:center;color:#777B98;font-size:15px;line-height:1.75;font-family:Arial,Helvetica,sans-serif;">
+        Una persona escribió desde el formulario de Contáctanos de Yogasto.
+      </p>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px;text-align:left;border:1px solid #E8E8F4;border-radius:14px;">
+        <tr>
+          <td style="padding:14px 18px;border-bottom:1px solid #F0F0F8;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:#9295AE;width:110px;">Nombre</td>
+          <td style="padding:14px 18px;border-bottom:1px solid #F0F0F8;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#252746;font-weight:700;"><%= @contact_name %></td>
+        </tr>
+        <tr>
+          <td style="padding:14px 18px;border-bottom:1px solid #F0F0F8;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:#9295AE;">Correo</td>
+          <td style="padding:14px 18px;border-bottom:1px solid #F0F0F8;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#252746;"><%= mail_to @contact_email %></td>
+        </tr>
+        <tr>
+          <td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;color:#9295AE;">Motivo</td>
+          <td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#252746;font-weight:700;"><%= @contact_subject %></td>
+        </tr>
+      </table>
+
+      <div style="margin:0 0 22px;padding:18px 20px;text-align:left;background-color:#F8F7FF;border:1px solid #ECE8FF;border-radius:14px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.75;color:#4F5270;">
+        <%= simple_format(@contact_message, {}, wrapper_tag: "div") %>
+      </div>
+
+      <p align="center" style="max-width:410px;margin:0 auto;text-align:center;color:#9295AD;font-size:12px;line-height:1.8;font-family:Arial,Helvetica,sans-serif;">
+        Puedes responder directamente a este correo para contactar a <%= @contact_name %>.
+      </p>
+    </td>
+  </tr>
+</table>

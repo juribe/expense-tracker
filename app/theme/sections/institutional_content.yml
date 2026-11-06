@@ -1,0 +1,34 @@
+# Reusable institutional content band. Used as the closing message on
+# Contáctanos and as the main copy block on the help/legal pages.
+name: "Contenido institucional"
+category: institutional
+singleton: false
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+- label: "Título"
+  id: title
+  type: text
+  default: "Tus finanzas, más claras."
+- label: "Contenido (admite HTML)"
+  id: body
+  type: text
+  default: "Estamos preparando este contenido. Si tienes preguntas, escríbenos desde <a href='/contact'>Contáctanos</a>."
+- label: "Botón (opcional)"
+  id: cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
+- label: "Variante visual"
+  id: variant
+  type: select
+  select: ["plain", "lavender"]
+  default: "plain"
+- label: "Alineación"
+  id: align
+  type: select
+  select: ["left", "center"]
+  default: "left"

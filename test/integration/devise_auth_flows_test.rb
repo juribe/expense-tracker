@@ -47,6 +47,15 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "#main-wrapper", count: 0
   end
 
+  test "auth layout brand logo links to the public home" do
+    get new_user_session_path
+
+    assert_response :success
+    assert_select "a.auth-brand-link[href='#{root_path}']" do
+      assert_select "img.auth-brand-logo", count: 2
+    end
+  end
+
   test "forgot password page renders inside the dedicated auth layout" do
     get new_user_password_path
 
