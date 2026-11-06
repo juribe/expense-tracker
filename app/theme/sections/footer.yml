@@ -1,0 +1,122 @@
+# Sitewide footer, shared by every public CMS page.
+name: "Pie de página"
+category: navigation
+site_scoped: true
+singleton: true
+insert_at: bottom
+insert_button: false
+max_width_pane: 480
+settings:
+- label: "Logo"
+  id: logo
+  type: image
+  default: "/brand/yogasto-logo-claro.svg"
+- label: "Descripción de Yogasto"
+  id: about
+  type: text
+  default: "Finanzas personales, con claridad.<br/>Organiza hoy. Decide mejor mañana."
+- label: "Copyright"
+  id: copyright
+  type: text
+  default: "© 2026 Yogasto. Todos los derechos reservados."
+- label: "Texto de conexión segura"
+  id: secure_text
+  type: text
+  default: "Conexión protegida con HTTPS"
+- label: "Texto: volver arriba"
+  id: top_link
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/#inicio", text: "Volver arriba ↑", open_new_window: false }
+blocks_label: "Columnas de enlaces"
+blocks_presentation: "tree"
+blocks:
+- name: "Columna"
+  type: column
+  root: true
+  settings:
+  - label: "Título de la columna"
+    id: title
+    type: text
+    default: "Yogasto"
+- name: "Enlace"
+  type: link
+  settings:
+  - label: "Texto del enlace"
+    id: label
+    type: text
+    default: "Características"
+  - label: "Destino"
+    id: link
+    type: link
+    with_text: false
+    default: { link_type: "url", href: "/#funciones", open_new_window: false }
+
+sample:
+  settings:
+    logo: "/brand/yogasto-logo-claro.svg"
+    about: "Finanzas personales, con claridad.<br/>Organiza hoy. Decide mejor mañana."
+    copyright: "© 2026 Yogasto. Todos los derechos reservados."
+    secure_text: "Conexión protegida con HTTPS"
+    top_link: { link_type: "url", href: "/#inicio", text: "Volver arriba ↑", open_new_window: false }
+  blocks:
+  - type: column
+    settings:
+      title: "Yogasto"
+    children:
+    - type: link
+      settings:
+        label: "Características"
+        link: { link_type: "url", href: "/#funciones", open_new_window: false }
+    - type: link
+      settings:
+        label: "Automatización con IA"
+        link: { link_type: "url", href: "/#automatizacion", open_new_window: false }
+    - type: link
+      settings:
+        label: "Registro con lenguaje natural"
+        link: { link_type: "url", href: "/#lenguaje-natural", open_new_window: false }
+    - type: link
+      settings:
+        label: "Cómo funciona"
+        link: { link_type: "url", href: "/#como-funciona", open_new_window: false }
+  - type: column
+    settings:
+      title: "Planes y ayuda"
+    children:
+    - type: link
+      settings:
+        label: "Precios y planes"
+        link: { link_type: "url", href: "/precios", open_new_window: false }
+    - type: link
+      settings:
+        label: "Contáctanos"
+        link: { link_type: "url", href: "/contact", open_new_window: false }
+    - type: link
+      settings:
+        label: "Centro de ayuda"
+        link: { link_type: "url", href: "/help", open_new_window: false }
+    - type: link
+      settings:
+        label: "Iniciar sesión"
+        link: { link_type: "url", href: "/users/sign_in", open_new_window: false }
+  - type: column
+    settings:
+      title: "Confianza y legal"
+    children:
+    - type: link
+      settings:
+        label: "Política de privacidad"
+        link: { link_type: "url", href: "/privacy", open_new_window: false }
+    - type: link
+      settings:
+        label: "Términos y condiciones"
+        link: { link_type: "url", href: "/terms", open_new_window: false }
+    - type: link
+      settings:
+        label: "Seguridad"
+        link: { link_type: "url", href: "/security", open_new_window: false }
+    - type: link
+      settings:
+        label: "Cómo protegemos tu información"
+        link: { link_type: "url", href: "/#seguridad", open_new_window: false }

@@ -1,0 +1,23 @@
+# Final call-to-action band before the footer.
+name: "CTA final"
+category: cta
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Tu dinero merece claridad"
+- label: "Título"
+  id: title
+  type: text
+  default: "Deja de preguntarte a dónde se fue tu dinero."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Empieza a entenderlo, organizarlo y usarlo mejor."
+- label: "Botón"
+  id: cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/users/sign_up", text: "Crear mi cuenta gratis", open_new_window: false }

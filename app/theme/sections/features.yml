@@ -1,0 +1,44 @@
+# Grid of feature cards (section 2 of the marketing home).
+name: "Funciones"
+category: features
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Mucho más que anotar gastos"
+- label: "Título"
+  id: title
+  type: text
+  default: "Todo lo que necesitas para "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "tener el control."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Una forma sencilla de organizar tu vida financiera, desde los movimientos del día a día hasta tus planes a futuro."
+blocks_label: "Funciones"
+blocks:
+- name: "Función"
+  type: item
+  settings:
+  - label: "Icono (emoji o símbolo)"
+    id: icon
+    type: text
+    default: "⌁"
+  - label: "Color del icono"
+    id: color
+    type: select
+    select: ["blue", "purple", "green", "orange", "cyan", "pink"]
+    default: "green"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Encuentra oportunidades de ahorro"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Identifica en qué se te va el dinero, descubre hábitos que puedes mejorar y encuentra pequeños cambios que pueden liberar dinero cada mes."

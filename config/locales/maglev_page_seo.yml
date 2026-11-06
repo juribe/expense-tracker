@@ -1,0 +1,6 @@
+es:
+  activerecord:
+    attributes:
+      maglev/page:
+        canonical_url: "URL canónica"
+        meta_robots: "Meta robots (ej. index,follow)"

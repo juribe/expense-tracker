@@ -1,0 +1,145 @@
+# Hero of the public home page. Two-column layout with the editable dashboard
+# mockup on the right (preserving the original design).
+name: "Hero"
+category: heroes
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "— Contenido principal"
+  id: content_divider
+  type: divider
+- label: "Eyebrow"
+  id: eyebrow
+  type: text
+  default: "Tus finanzas, en un solo lugar"
+- label: "Título principal (termina en <br/>)"
+  id: title
+  type: text
+  default: "Tus finanzas,<br/>"
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "por fin en orden."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Organiza tus gastos, entiende tus hábitos y toma mejores decisiones con una visión clara de todo tu dinero."
+- label: "Botón principal"
+  id: primary_cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/users/sign_up", text: "Empieza gratis", open_new_window: false }
+- label: "Botón secundario"
+  id: secondary_cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/#como-funciona", text: "Descubre cómo funciona", open_new_window: false }
+- label: "Texto de confianza"
+  id: note
+  type: text
+  default: "Sin complicaciones. Tú tienes el control de tu información."
+- label: "— Franja de beneficios"
+  id: trust_divider
+  type: divider
+- label: "Frase de confianza (negrita)"
+  id: trust_strong
+  type: text
+  default: "Todo tu dinero, más claro."
+- label: "Beneficio 1"
+  id: trust_item_1
+  type: text
+  default: "Gastos e ingresos"
+- label: "Beneficio 2"
+  id: trust_item_2
+  type: text
+  default: "Metas y presupuestos"
+- label: "— Mockup del dashboard"
+  id: mock_divider
+  type: divider
+- hint: "Si subes una imagen reemplaza el mockup HTML. Déjala vacía para conservar el diseño actual."
+  id: image_hint
+  type: hint
+- label: "Imagen del dashboard (opcional)"
+  id: dashboard_image
+  type: image
+- label: "Mes del selector"
+  id: month_label
+  type: text
+  default: "Noviembre 2026⌄"
+- label: "Título del balance"
+  id: balance_label
+  type: text
+  default: "Balance del mes"
+- label: "Balance"
+  id: balance
+  type: text
+  default: "$ 8.450.000"
+- label: "Variación del balance"
+  id: balance_change
+  type: text
+  default: "↗ 12,8%"
+- label: "Ingresos: título"
+  id: income_label
+  type: text
+  default: "Ingresos"
+- label: "Ingresos: valor"
+  id: income_value
+  type: text
+  default: "$ 11.200.000"
+- label: "Ingresos: nota"
+  id: income_note
+  type: text
+  default: "● Este mes"
+- label: "Gastos: título"
+  id: expense_label
+  type: text
+  default: "Gastos"
+- label: "Gastos: valor"
+  id: expense_value
+  type: text
+  default: "$ 2.750.000"
+- label: "Gastos: nota"
+  id: expense_note
+  type: text
+  default: "● Este mes"
+- label: "Gráfico: título"
+  id: chart_title
+  type: text
+  default: "Así se mueve tu dinero"
+- label: "Gráfico: rango"
+  id: chart_range
+  type: text
+  default: "Últimos 6 meses⌄"
+- label: "Movimiento: icono"
+  id: activity_icon
+  type: text
+  default: "🛒"
+- label: "Movimiento: título"
+  id: activity_title
+  type: text
+  default: "Compra en supermercado"
+- label: "Movimiento: detalle"
+  id: activity_meta
+  type: text
+  default: "Hoy · Alimentación"
+- label: "Movimiento: valor"
+  id: activity_amount
+  type: text
+  default: "-$ 186.500"
+- label: "Tarjeta flotante izquierda"
+  id: float1_title
+  type: text
+  default: "Gasto registrado"
+- label: "Tarjeta flotante izquierda: detalle"
+  id: float1_subtitle
+  type: text
+  default: "Todo en orden"
+- label: "Tarjeta flotante derecha"
+  id: float2_title
+  type: text
+  default: "Organizado con IA"
+- label: "Tarjeta flotante derecha: detalle"
+  id: float2_subtitle
+  type: text
+  default: "Menos trabajo para ti"

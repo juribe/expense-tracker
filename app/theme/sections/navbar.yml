@@ -1,0 +1,70 @@
+# Sitewide top navigation, shared by every public CMS page.
+name: "Navegación"
+category: navigation
+site_scoped: true
+singleton: true
+insert_at: top
+insert_button: false
+max_width_pane: 480
+settings:
+- label: "Logo"
+  id: logo
+  type: image
+  default: "/brand/yogasto-logo-claro.svg"
+blocks_label: "Enlaces y botones"
+blocks:
+- name: "Enlace del menú"
+  type: link
+  settings:
+  - label: "Texto del enlace"
+    id: label
+    type: text
+    default: "Características"
+  - label: "Destino"
+    id: link
+    type: link
+    with_text: false
+    default: { link_type: "url", href: "/#funciones", open_new_window: false }
+- name: "Botón: iniciar sesión"
+  type: login
+  settings:
+  - label: "Botón iniciar sesión"
+    id: link
+    type: link
+    with_text: true
+    default: { link_type: "url", href: "/users/sign_in", text: "Iniciar sesión", open_new_window: false }
+- name: "Botón: crear cuenta"
+  type: signup
+  settings:
+  - label: "Botón crear cuenta"
+    id: link
+    type: link
+    with_text: true
+    default: { link_type: "url", href: "/users/sign_up", text: "Crear cuenta", open_new_window: false }
+
+sample:
+  settings:
+    logo: "/brand/yogasto-logo-claro.svg"
+  blocks:
+  - type: link
+    settings:
+      label: "Características"
+      link: { link_type: "url", href: "/#funciones", open_new_window: false }
+  - type: link
+    settings:
+      label: "Registra con IA"
+      link: { link_type: "url", href: "/#lenguaje-natural", open_new_window: false }
+  - type: link
+    settings:
+      label: "Cómo funciona"
+      link: { link_type: "url", href: "/#como-funciona", open_new_window: false }
+  - type: link
+    settings:
+      label: "Precios"
+      link: { link_type: "url", href: "/precios", open_new_window: false }
+  - type: login
+    settings:
+      link: { link_type: "url", href: "/users/sign_in", text: "Iniciar sesión", open_new_window: false }
+  - type: signup
+    settings:
+      link: { link_type: "url", href: "/users/sign_up", text: "Crear cuenta", open_new_window: false }

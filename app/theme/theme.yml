@@ -1,0 +1,445 @@
+# Yogasto public theme (Maglev CMS)
+# The sections replicate 1:1 the design of the marketing home page and add
+# content administration through the Maglev editor.
+# Please, do not change the id of the theme
+id: "theme"
+
+name: "Yogasto"
+
+description: "Tema público de Yogasto: home de marketing editable con Maglev CMS."
+
+section_categories:
+- name: navigation
+- name: heroes
+- name: features
+- name: demo
+- name: content
+- name: cta
+
+# Properties of your theme such as the primary color, font name, ...etc.
+style_settings: []
+
+pages:
+- title: "Home"
+  path: "index"
+  seo_title: "Controla tus finanzas personales"
+  meta_description: "Organiza tus gastos e ingresos, entiende tus hábitos y toma mejores decisiones con una visión clara de todo tu dinero."
+  og_title: "Controla tus finanzas personales"
+  og_description: "Yogasto organiza tus finanzas personales: gastos e ingresos, presupuestos, metas e inteligencia artificial para registrar tu dinero."
+  sections:
+  - type: navbar
+    blocks:
+    - type: link
+      settings: { label: "Características", link: { link_type: "url", href: "/#funciones", open_new_window: false } }
+    - type: link
+      settings: { label: "Registra con IA", link: { link_type: "url", href: "/#lenguaje-natural", open_new_window: false } }
+    - type: link
+      settings: { label: "Cómo funciona", link: { link_type: "url", href: "/#como-funciona", open_new_window: false } }
+    - type: link
+      settings: { label: "Precios", link: { link_type: "url", href: "/precios", open_new_window: false } }
+    - type: login
+      settings: { link: { link_type: "url", href: "/users/sign_in", text: "Iniciar sesión", open_new_window: false } }
+    - type: signup
+      settings: { link: { link_type: "url", href: "/users/sign_up", text: "Crear cuenta", open_new_window: false } }
+  - type: hero
+    settings:
+      eyebrow: "Tus finanzas, en un solo lugar"
+      title: "Tus finanzas,<br/>"
+      gradient_text: "por fin en orden."
+      description: "Organiza tus gastos, entiende tus hábitos y toma mejores decisiones con una visión clara de todo tu dinero."
+      primary_cta: { link_type: "url", href: "/users/sign_up", text: "Empieza gratis", open_new_window: false }
+      secondary_cta: { link_type: "url", href: "/#como-funciona", text: "Descubre cómo funciona", open_new_window: false }
+      note: "Sin complicaciones. Tú tienes el control de tu información."
+      trust_strong: "Todo tu dinero, más claro."
+      trust_item_1: "Gastos e ingresos"
+      trust_item_2: "Metas y presupuestos"
+      month_label: "Noviembre 2026⌄"
+      balance_label: "Balance del mes"
+      balance: "$ 8.450.000"
+      balance_change: "↗ 12,8%"
+      income_label: "Ingresos"
+      income_value: "$ 11.200.000"
+      income_note: "● Este mes"
+      expense_label: "Gastos"
+      expense_value: "$ 2.750.000"
+      expense_note: "● Este mes"
+      chart_title: "Así se mueve tu dinero"
+      chart_range: "Últimos 6 meses⌄"
+      activity_icon: "🛒"
+      activity_title: "Compra en supermercado"
+      activity_meta: "Hoy · Alimentación"
+      activity_amount: "-$ 186.500"
+      float1_title: "Gasto registrado"
+      float1_subtitle: "Todo en orden"
+      float2_title: "Organizado con IA"
+      float2_subtitle: "Menos trabajo para ti"
+  - type: features
+    settings:
+      kicker: "Mucho más que anotar gastos"
+      title: "Todo lo que necesitas para "
+      gradient_text: "tener el control."
+      description: "Una forma sencilla de organizar tu vida financiera, desde los movimientos del día a día hasta tus planes a futuro."
+    blocks:
+    - type: item
+      settings: { icon: "⌁", color: "green", title: "Encuentra oportunidades de ahorro", description: "Identifica en qué se te va el dinero, descubre hábitos que puedes mejorar y encuentra pequeños cambios que pueden liberar dinero cada mes." }
+    - type: item
+      settings: { icon: "✧", color: "purple", title: "Automatización con IA", description: "Convierte correos bancarios, mensajes de WhatsApp y archivos en movimientos organizados." }
+    - type: item
+      settings: { icon: "％", color: "purple", title: "Descubre cómo pagar menos intereses", description: "Entiende cuánto te cuestan tus deudas, compara diferentes escenarios de pago y analiza cómo organizar tus abonos para reducir el costo de tus deudas." }
+    - type: item
+      settings: { icon: "✎", color: "blue", title: "Registra gastos hablando como siempre", description: "Escribe una descripción natural y Yogasto identifica cada gasto, sus valores, fechas y categorías, incluso cuando mencionas varios en un solo mensaje." }
+    - type: item
+      settings: { icon: "▤", color: "pink", title: "Reportes que se entienden", description: "Descubre tus hábitos con resúmenes y gráficos claros que te ayudan a decidir mejor." }
+    - type: item
+      settings: { icon: "◎", color: "green", title: "Presupuestos y metas", description: "Define límites, crea objetivos de ahorro y sigue tu progreso sin perder de vista lo importante." }
+    - type: item
+      settings: { icon: "▥", color: "blue", title: "Gastos e ingresos", description: "Registra tus movimientos y entiende cuánto entra, cuánto sale y en qué estás usando tu dinero." }
+    - type: item
+      settings: { icon: "▣", color: "orange", title: "Cuentas y tarjetas", description: "Organiza tus cuentas, efectivo, tarjetas y fuentes de dinero en un solo lugar." }
+    - type: item
+      settings: { icon: "↗", color: "cyan", title: "Deudas y compromisos", description: "Visualiza lo que debes, registra abonos y ten una perspectiva más clara de tus obligaciones." }
+  - type: automation
+    settings:
+      kicker: "Menos registro manual, más claridad"
+      title: "Tus gastos pueden organizarse "
+      gradient_text: "casi solos."
+      description: "Yogasto usa inteligencia artificial para reconocer la información de tus movimientos y ayudarte a mantener tus finanzas al día."
+      demo_title: "De una notificación a un gasto organizado"
+    blocks:
+    - type: channel
+      settings: { icon: "✉️", title: "Correos de tus bancos", description: "Identifica notificaciones y extrae los datos del movimiento." }
+    - type: channel
+      settings: { icon: "💬", title: "Mensajes de WhatsApp", description: "Envía un mensaje con tu gasto y deja que Yogasto lo organice." }
+    - type: channel
+      settings: { icon: "📄", title: "Archivos, imágenes y texto", description: "Procesa documentos y comprobantes para registrar movimientos." }
+    - type: flow_step
+      settings: { icon: "✉", icon_style: "blue", title: "Recibes una notificación", description: "Compra aprobada · $86.900 en Tienda" }
+    - type: flow_step
+      settings: { icon: "✧", icon_style: "purple", title: "Yogasto reconoce los datos", description: "Valor, comercio, fecha y categoría" }
+    - type: flow_step
+      settings: { icon: "✓", icon_style: "green", title: "Tu gasto queda organizado", description: "Compras · Tarjeta débito · Hoy", check: true }
+  - type: natural_language
+    settings:
+      kicker: "Registra tus gastos a tu manera"
+      title: "Escribe como le contarías a un amigo. "
+      gradient_text: "Yogasto se encarga del resto."
+      description: "No tienes que llenar formularios ni escribir cada movimiento por separado. Describe lo que pasó con tus propias palabras y la IA separa la información en gastos individuales, listos para revisar y guardar."
+      demo_title: "Así de fácil es registrar varios gastos"
+      message_label: "TU MENSAJE"
+      message: "“Hoy pagué 18.000 de un café, 42.000 de almuerzo y 65.000 de gasolina con mi tarjeta débito”."
+      identified_label: "YOGASTO IDENTIFICÓ 3 GASTOS"
+      total_label: "Total identificado"
+      total_value: "$ 125.000"
+      success_note: "✓ 3 movimientos listos para revisar y guardar"
+    blocks:
+    - type: channel
+      settings: { icon: "✍️", title: "Una sola descripción, varios gastos", description: "Yogasto detecta cada compra y crea un movimiento independiente." }
+    - type: channel
+      settings: { icon: "🧠", title: "Interpreta el contexto", description: "Reconoce valores, comercios, fechas y categorías aunque no sigas un formato rígido." }
+    - type: channel
+      settings: { icon: "✓", title: "Revisa antes de guardar", description: "Comprueba los movimientos identificados y confirma cuando estén correctos." }
+    - type: expense
+      settings: { icon: "☕", title: "Café", meta: "Comida y restaurantes · Hoy", amount: "$ 18.000" }
+    - type: expense
+      settings: { icon: "🍽", title: "Almuerzo", meta: "Comida y restaurantes · Hoy", amount: "$ 42.000" }
+    - type: expense
+      settings: { icon: "⛽", title: "Gasolina", meta: "Transporte · Hoy", amount: "$ 65.000" }
+  - type: how_it_works
+    settings:
+      kicker: "Empieza en minutos"
+      title: "Tu dinero más claro, "
+      gradient_text: "paso a paso."
+      description: "No necesitas ser experto en finanzas. Solo empieza por organizar lo que ya tienes."
+    blocks:
+    - type: step
+      settings: { title: "Configura tu espacio", description: "Agrega tus cuentas, tarjetas, ingresos y categorías para tener todo a la mano." }
+    - type: step
+      settings: { title: "Registra tus movimientos", description: "Hazlo manualmente o aprovecha las herramientas de automatización con IA." }
+    - type: step
+      settings: { title: "Decide con claridad", description: "Consulta tus reportes, ajusta tus presupuestos y avanza hacia tus metas." }
+  - type: registration_demo
+    settings:
+      kicker: "Así trabaja Yogasto"
+      title: "De cualquier mensaje a un gasto "
+      gradient_text: "organizado."
+      description: "Mira cada paso: recibes o envías información, Yogasto la interpreta y el movimiento queda registrado."
+    blocks:
+    - type: tab
+      settings:
+        key: "email"
+        icon: "✉"
+        label: "Correo"
+        kicker: "01 · CORREO ELECTRÓNICO"
+        title: "Tu banco envía el correo. Yogasto lo organiza."
+        description: "La notificación llega a tu bandeja, Yogasto reconoce los datos de la compra y crea el gasto."
+        caption: "Primero aparece tu bandeja de entrada."
+      children:
+      - type: mailbox_step
+        settings:
+          tag: "PASO 1"
+          headline: "Tu mailbox está listo"
+          mailbox_title: "✉ Bandeja de entrada"
+          badge: "3"
+          row1_title: "Banco Ejemplo"
+          row1_sub: "Resumen de cuenta"
+          row2_title: "Promociones"
+          row2_sub: "Ofertas para ti"
+      - type: mail_notice_step
+        settings:
+          tag: "PASO 2"
+          headline: "¡Llegó un correo con un gasto!"
+          bank_badge: "B"
+          bank_name: "Banco Ejemplo"
+          bank_desc: "Compra aprobada con tu tarjeta"
+          notice_amount: "$86.500 COP · Mercado La 14"
+      - type: ai_reading_step
+        settings:
+          tag: "PASO 3"
+          headline: "Identifica los datos importantes"
+          reading_title: "Yogasto está leyendo el correo"
+          line1_label: "Comercio"
+          line1_value: "Mercado La 14"
+          line2_label: "Valor"
+          line2_value: "$86.500"
+          line3_label: "Fecha"
+          line3_value: "Hoy"
+          line4_label: "Medio"
+          line4_value: "Tarjeta débito"
+      - type: saved_expense_step
+        settings:
+          tag: "PASO 4"
+          headline: "El gasto queda registrado en Yogasto"
+          expense_title: "🛒 Mercado La 14"
+          expense_amount: "−$86.500"
+          expense_meta: "Compras · Tarjeta débito · Hoy"
+    - type: tab
+      settings:
+        key: "text"
+        icon: "💬"
+        label: "WhatsApp texto"
+        kicker: "02 · WHATSAPP TEXTO"
+        title: "Escribe como hablas. Yogasto entiende."
+        description: "No necesitas llenar campos ni usar comandos. Cuéntale qué pagaste, cuánto y con qué dinero."
+        caption: "Se abre tu conversación con Yogasto."
+      children:
+      - type: chat_intro_step
+        settings:
+          tag: "PASO 1"
+          headline: "Abres el chat con Yogasto"
+          bubble: "¡Hola! Cuéntame qué gasto quieres registrar."
+      - type: chat_message_step
+        settings:
+          tag: "PASO 2"
+          headline: "Envías tu descripción en lenguaje natural"
+          bubble: "almuerzo en restaurante por 50mil pague con la plata"
+          typing: "✓✓ Enviado"
+      - type: ai_reading_step
+        settings:
+          tag: "PASO 3"
+          headline: "Extrae y organiza la información"
+          reading_title: "Yogasto interpreta tu mensaje"
+          line1_label: "Concepto"
+          line1_value: "Almuerzo"
+          line2_label: "Valor"
+          line2_value: "$50.000"
+          line3_label: "Categoría"
+          line3_value: "Comida y restaurantes"
+          line4_label: "Fuente"
+          line4_value: "La Plata"
+      - type: saved_expense_step
+        settings:
+          tag: "PASO 4"
+          headline: "Movimiento creado correctamente"
+          expense_title: "🍽 Almuerzo"
+          expense_amount: "−$50.000"
+          expense_meta: "Comida y restaurantes · La Plata · Hoy"
+    - type: tab
+      settings:
+        key: "image"
+        icon: "🧾"
+        label: "WhatsApp imagen"
+        kicker: "03 · WHATSAPP IMAGEN"
+        title: "Una foto del recibo también se convierte en gasto."
+        description: "Envía la foto del comprobante y agrega una palabra o comentario para darle contexto."
+        caption: "Primero ves el chat con Yogasto."
+      children:
+      - type: chat_intro_step
+        settings:
+          tag: "PASO 1"
+          headline: "Abres la conversación"
+          bubble: "Puedes enviarme una foto de tu recibo."
+      - type: chat_receipt_step
+        settings:
+          tag: "PASO 2"
+          headline: "Envías el recibo con el comentario «belleza»"
+          receipt_head: "RECIBO DE PAGO"
+          receipt_business: "BEAUTY STUDIO"
+          receipt_amount: "$120.000"
+          receipt_meta: "Servicio · 02 nov 2026"
+          bubble: "belleza"
+      - type: ai_reading_step
+        settings:
+          tag: "PASO 3"
+          headline: "Interpreta el recibo y su contexto"
+          reading_title: "Yogasto lee la imagen y el comentario"
+          line1_label: "Descripción"
+          line1_value: "Servicio de belleza"
+          line2_label: "Valor"
+          line2_value: "$120.000"
+          line3_label: "Fecha"
+          line3_value: "02 nov 2026"
+          line4_label: "Categoría"
+          line4_value: "Cuidado personal"
+      - type: saved_expense_step
+        settings:
+          tag: "PASO 4"
+          headline: "El gasto queda registrado"
+          expense_title: "💅 Servicio de belleza"
+          expense_amount: "−$120.000"
+          expense_meta: "Cuidado personal · Hoy"
+    - type: tab
+      settings:
+        key: "audio"
+        icon: "🎙"
+        label: "WhatsApp audio"
+        kicker: "04 · WHATSAPP AUDIO"
+        title: "Habla. Yogasto escucha y registra."
+        description: "Envía una nota de voz. Yogasto convierte lo que dices en texto, identifica los datos y crea el movimiento."
+        caption: "Empieza en tu chat de Yogasto."
+      children:
+      - type: chat_intro_step
+        settings:
+          tag: "PASO 1"
+          headline: "Abres la conversación"
+          bubble: "También puedes enviarme notas de voz."
+      - type: chat_audio_step
+        settings:
+          tag: "PASO 2"
+          headline: "Envías una nota de voz"
+          duration: "0:08"
+          typing: "✓✓ Audio enviado"
+      - type: ai_reading_step
+        settings:
+          tag: "PASO 3"
+          headline: "Primero muestra lo que escuchó y entendió"
+          reading_title: "Yogasto transcribe e interpreta el audio"
+          transcript: "“Pagué treinta y cinco mil de parqueadero esta mañana con efectivo”."
+          line1_label: "Concepto"
+          line1_value: "Parqueadero"
+          line2_label: "Valor"
+          line2_value: "$35.000"
+          line3_label: "Categoría"
+          line3_value: "Transporte"
+          line4_label: "Fuente"
+          line4_value: "Efectivo"
+      - type: saved_expense_step
+        settings:
+          tag: "PASO 4"
+          headline: "El gasto queda creado en Yogasto"
+          expense_title: "🅿️ Parqueadero"
+          expense_amount: "−$35.000"
+          expense_meta: "Transporte · Efectivo · Hoy"
+  - type: financial_chat
+    settings:
+      eyebrow: "TU ASISTENTE FINANCIERO"
+      title: "No solo organices tu dinero. "
+      gradient_text: "Aprende a tomar mejores decisiones."
+      description: "Habla con Yogasto sobre tus finanzas. Pregunta, descubre oportunidades y recibe recomendaciones basadas en tus propios movimientos, cuentas, deudas y metas."
+      cta: { link_type: "url", href: "/users/sign_up", text: "Quiero conversar con Yogasto", open_new_window: false }
+      chat_title: "Chat Financiero"
+      chat_subtitle: "Tu información, tus finanzas, tus decisiones"
+      chat_status: "● Disponible"
+      chat_date: "HOY · CONVERSACIÓN DE EJEMPLO"
+      suggestion_1: "¿Dónde gasto más?"
+      suggestion_2: "¿Qué deuda pago primero?"
+      suggestion_3: "¿Cómo ahorro más?"
+      input_placeholder: "Pregúntame lo que quieras sobre tus finanzas..."
+      note: "Ejemplo ilustrativo de una conversación. Las recomendaciones se basan en la información disponible en tu cuenta."
+    blocks:
+    - type: benefit
+      settings: { icon: "✦", strong_text: "Entiende tus gastos.", description: "Descubre a dónde se está yendo tu dinero y qué puedes mejorar." }
+    - type: benefit
+      settings: { icon: "↗", strong_text: "Toma mejores decisiones.", description: "Compara deudas, prioridades y estrategias para pagar menos intereses." }
+    - type: benefit
+      settings: { icon: "◎", strong_text: "Acércate a tus metas.", description: "Calcula cuánto necesitas ahorrar y cómo llegar más rápido." }
+  - type: security
+    settings:
+      kicker: "Tu información merece cuidado"
+      title: "La confianza también hace parte de "
+      gradient_text: "tener tus finanzas en orden."
+      description: "Trabajamos para proteger tu información y mantener Yogasto cuidado, actualizado y disponible."
+      note: "La seguridad es un trabajo continuo. Estas medidas no significan que exista riesgo cero ni sustituyen una auditoría independiente o certificación formal."
+    blocks:
+    - type: item
+      settings: { icon: "🔒", color: "blue", title: "Conexión protegida", description: "Yogasto utiliza HTTPS para proteger la información que viaja entre tu navegador y nuestros servidores." }
+    - type: item
+      settings: { icon: "⌕", color: "purple", title: "Revisión de seguridad", description: "Hemos realizado una revisión interna de seguridad de la aplicación y sus configuraciones, y seguimos mejorando nuestras medidas de protección." }
+    - type: item
+      settings: { icon: "↻", color: "green", title: "Infraestructura actualizada", description: "Mantenemos un proceso de actualización del servidor y sus componentes para aplicar mejoras y correcciones de seguridad." }
+  - type: pricing_cta
+    settings:
+      kicker: "Planes simples y transparentes"
+      title: "Empieza gratis. "
+      gradient_text: "Crece a tu ritmo."
+      description: "Conoce las opciones de Yogasto y elige las herramientas que mejor acompañen tu forma de organizar el dinero."
+      panel_title: "Tu tranquilidad financiera empieza aquí."
+      panel_text: "Explora nuestros planes, compara lo que incluye cada uno y encuentra el que se adapta a ti. Puedes comenzar sin pagar."
+      cta: { link_type: "url", href: "/pricing", text: "Ver todos los precios", open_new_window: false }
+      cta_hint: "Conoce los planes de Yogasto"
+    blocks:
+    - type: point
+      settings: { text: "Plan gratis para empezar" }
+    - type: point
+      settings: { text: "Opciones para crecer" }
+    - type: point
+      settings: { text: "Precios claros" }
+  - type: final_cta
+    settings:
+      kicker: "Tu dinero merece claridad"
+      title: "Deja de preguntarte a dónde se fue tu dinero."
+      description: "Empieza a entenderlo, organizarlo y usarlo mejor."
+      cta: { link_type: "url", href: "/users/sign_up", text: "Crear mi cuenta gratis", open_new_window: false }
+  - type: footer
+    settings:
+      logo: "/brand/yogasto-logo-claro.svg"
+      about: "Finanzas personales, con claridad.<br/>Organiza hoy. Decide mejor mañana."
+      copyright: "© 2026 Yogasto. Todos los derechos reservados."
+      secure_text: "Conexión protegida con HTTPS"
+      top_link: { link_type: "url", href: "/#inicio", text: "Volver arriba ↑", open_new_window: false }
+    blocks:
+    - type: column
+      settings: { title: "Yogasto" }
+      children:
+      - type: link
+        settings: { label: "Características", link: { link_type: "url", href: "/#funciones", open_new_window: false } }
+      - type: link
+        settings: { label: "Automatización con IA", link: { link_type: "url", href: "/#automatizacion", open_new_window: false } }
+      - type: link
+        settings: { label: "Registro con lenguaje natural", link: { link_type: "url", href: "/#lenguaje-natural", open_new_window: false } }
+      - type: link
+        settings: { label: "Cómo funciona", link: { link_type: "url", href: "/#como-funciona", open_new_window: false } }
+    - type: column
+      settings: { title: "Planes y ayuda" }
+      children:
+      - type: link
+        settings: { label: "Precios y planes", link: { link_type: "url", href: "/precios", open_new_window: false } }
+      - type: link
+        settings: { label: "Contáctanos", link: { link_type: "url", href: "/contact", open_new_window: false } }
+      - type: link
+        settings: { label: "Centro de ayuda", link: { link_type: "url", href: "/help", open_new_window: false } }
+      - type: link
+        settings: { label: "Iniciar sesión", link: { link_type: "url", href: "/users/sign_in", open_new_window: false } }
+    - type: column
+      settings: { title: "Confianza y legal" }
+      children:
+      - type: link
+        settings: { label: "Política de privacidad", link: { link_type: "url", href: "/privacy", open_new_window: false } }
+      - type: link
+        settings: { label: "Términos y condiciones", link: { link_type: "url", href: "/terms", open_new_window: false } }
+      - type: link
+        settings: { label: "Seguridad", link: { link_type: "url", href: "/security", open_new_window: false } }
+      - type: link
+        settings: { label: "Cómo protegemos tu información", link: { link_type: "url", href: "/#seguridad", open_new_window: false } }
+
+# List of CSS class names used by your library of icons (font awesome, remixicons, ...etc)
+icons: []

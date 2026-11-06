@@ -1,0 +1,22 @@
+<%= maglev_section.wrapper_tag.section class: "section", id: "seguridad" do %>
+  <div class="container" id="seguridad">
+    <div class="section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h2>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+    <div class="feature-grid security-grid">
+      <% maglev_section.blocks.each do |maglev_block| %>
+        <% next unless maglev_block.type == "item" %>
+        <%= maglev_block.wrapper_tag.article class: "feature" do %>
+          <div class="feature-icon <%= maglev_block.settings.color %>"><%= maglev_block.settings.icon %></div>
+          <%= maglev_block.setting_tag :title, html_tag: "h3" %>
+          <%= maglev_block.setting_tag :description, html_tag: "p" %>
+        <% end %>
+      <% end %>
+    </div>
+    <p class="security-note" <%= maglev_section.settings.note.dom_data %>><%= maglev_section.settings.note %></p>
+  </div>
+<% end %>

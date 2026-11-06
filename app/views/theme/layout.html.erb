@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="<%= maglev_page.meta_robots.presence || 'index,follow' %>">
+    <title><%= [maglev_page.seo_title.presence, maglev_site.name].compact.first %> | Yogasto</title>
+
+    <meta name="description" content="<%= maglev_page.meta_description %>">
+    <meta property="og:title" content="<%= maglev_page.og_title.presence || maglev_page.seo_title %>">
+    <meta property="og:description" content="<%= maglev_page.og_description.presence || maglev_page.meta_description %>">
+    <% if maglev_page.og_image_url.present? %>
+      <meta property="og:image" content="<%= maglev_page.og_image_url %>">
+    <% end %>
+    <meta property="og:type" content="website">
+
+    <%= canonical_and_og_url_tags(maglev_page) %>
+
+    <%= render_maglev_alternate_links %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag :home, "data-turbo-track": "reload" %>
+    <%= yield :head %>
+  </head>
+  <body>
+    <main data-maglev-dropzone>
+      <%= render_maglev_sections %>
+    </main>
+
+    <%= javascript_include_tag "home", defer: true %>
+    <%= javascript_include_tag "flash", defer: true %>
+  </body>
+</html>

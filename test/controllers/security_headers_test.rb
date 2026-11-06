@@ -3,8 +3,15 @@
 require "test_helper"
 
 # Security headers: the CSP must ship on every response (percentages, SPA).
+# The root is served by the Maglev CMS published preview, so the tests seed
+# a published CMS site to exercise the real public rendering path.
 class SecurityHeadersTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PublicCmsTestSupport
+
+  setup do
+    create_maglev_site!
+  end
 
   test "responses carry the content security policy" do
     get root_path

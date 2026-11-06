@@ -1,0 +1,83 @@
+# Financial chat section: benefits + illustrative chat window.
+name: "Chat Financiero"
+category: content
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Eyebrow"
+  id: eyebrow
+  type: text
+  default: "TU ASISTENTE FINANCIERO"
+- label: "Título"
+  id: title
+  type: text
+  default: "No solo organices tu dinero. "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "Aprende a tomar mejores decisiones."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Habla con Yogasto sobre tus finanzas. Pregunta, descubre oportunidades y recibe recomendaciones basadas en tus propios movimientos, cuentas, deudas y metas."
+- label: "Botón"
+  id: cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/users/sign_up", text: "Quiero conversar con Yogasto", open_new_window: false }
+- label: "— Ventana de chat (ejemplo ilustrativo)"
+  id: chat_divider
+  type: divider
+- label: "Título de la ventana"
+  id: chat_title
+  type: text
+  default: "Chat Financiero"
+- label: "Subtítulo de la ventana"
+  id: chat_subtitle
+  type: text
+  default: "Tu información, tus finanzas, tus decisiones"
+- label: "Estado"
+  id: chat_status
+  type: text
+  default: "● Disponible"
+- label: "Etiqueta de fecha"
+  id: chat_date
+  type: text
+  default: "HOY · CONVERSACIÓN DE EJEMPLO"
+- label: "Sugerencia 1"
+  id: suggestion_1
+  type: text
+  default: "¿Dónde gasto más?"
+- label: "Sugerencia 2"
+  id: suggestion_2
+  type: text
+  default: "¿Qué deuda pago primero?"
+- label: "Sugerencia 3"
+  id: suggestion_3
+  type: text
+  default: "¿Cómo ahorro más?"
+- label: "Placeholder del input"
+  id: input_placeholder
+  type: text
+  default: "Pregúntame lo que quieras sobre tus finanzas..."
+- label: "Nota informativa"
+  id: note
+  type: text
+  default: "Ejemplo ilustrativo de una conversación. Las recomendaciones se basan en la información disponible en tu cuenta."
+blocks_label: "Beneficios"
+blocks:
+- name: "Beneficio"
+  type: benefit
+  settings:
+  - label: "Icono"
+    id: icon
+    type: text
+    default: "✦"
+  - label: "Texto en negrita"
+    id: strong_text
+    type: text
+    default: "Entiende tus gastos."
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Descubre a dónde se está yendo tu dinero y qué puedes mejorar."

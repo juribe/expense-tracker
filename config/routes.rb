@@ -287,8 +287,13 @@ Rails.application.routes.draw do
   post "plans/checkout", to: "plans#create_checkout", as: :create_checkout_plans
 
   # Public marketing pages
-  get "home", to: "home#index", as: :home
-  root "home#index"
+  # The marketing home is administered with Maglev CMS and served at "/" by
+  # the engine's published page preview (see the catch-all above this file).
+  # "/home" legacy alias still works with a redirect to the CMS page.
+  get "home", to: redirect("/", status: 301), as: :legacy_home
+  get "sitemap", to: "public_cms/sitemap#show", defaults: { format: "xml" }
+  get "sitemap.xml", to: "public_cms/sitemap#show", defaults: { format: "xml" }
+  root "maglev/published_page_preview#index"
   get "dashboard", to: "dashboard#index", as: :dashboard
 
   get "precios", to: "home#pricing", as: :precios
@@ -318,4 +323,9 @@ Rails.application.routes.draw do
   get "financial_setup/step/:step/edit_all", to: "financial_setups#edit_all", as: :financial_setup_edit_all
   post "financial_setup/save_edits", to: "financial_setups#save_edits", as: :financial_setup_save_edits
   post "financial_setup/remove_source", to: "financial_setups#remove_source", as: :financial_setup_remove_source
+  # Mount Maglev engine (mainly used for the content editor)
+  mount Maglev::Engine => '/maglev'
+
+  # Handle "/:path" + "/sitemap" requests by Maglev engine
+  draw 'maglev/public_preview'
 end

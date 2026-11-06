@@ -1,0 +1,53 @@
+<%= maglev_section.wrapper_tag.section class: "section", id: "lenguaje-natural" do %>
+  <div class="container auto-grid" id="lenguaje-natural">
+    <div class="auto-copy">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h2>
+      <p <%= maglev_section.settings.description.dom_data %>><%= maglev_section.settings.description %></p>
+      <div class="channel-list">
+        <% maglev_section.blocks.each do |maglev_block| %>
+          <% next unless maglev_block.type == "channel" %>
+          <%= maglev_block.wrapper_tag.div class: "channel" do %>
+            <span class="channel-icon"><%= maglev_block.settings.icon %></span>
+            <span>
+              <%= maglev_block.setting_tag :title, html_tag: "b" %>
+              <%= maglev_block.setting_tag :description, html_tag: "small" %>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    <div class="flow-card">
+      <%= maglev_section.setting_tag :demo_title, html_tag: "div", class: "flow-title" %>
+      <div class="demo-message">
+        <div class="demo-message-label" <%= maglev_section.settings.message_label.dom_data %>><%= maglev_section.settings.message_label %></div>
+        <p class="demo-message-content" <%= maglev_section.settings.message.dom_data %>><%= maglev_section.settings.message %></p>
+      </div>
+      <div class="identified-label" <%= maglev_section.settings.identified_label.dom_data %>>
+        <span>✧</span> <%= maglev_section.settings.identified_label %>
+      </div>
+      <% expenses_rendered = false %>
+      <% maglev_section.blocks.each do |maglev_block| %>
+        <% next unless maglev_block.type == "expense" %>
+        <% expenses_rendered = true %>
+        <%= maglev_block.wrapper_tag.div class: "flow-step" do %>
+          <span class="step-icon"><%= maglev_block.settings.icon %></span>
+          <span>
+            <%= maglev_block.setting_tag :title, html_tag: "b" %>
+            <%= maglev_block.setting_tag :meta, html_tag: "small" %>
+          </span>
+          <b class="demo-item-amount" <%= maglev_block.settings.amount.dom_data %>><%= maglev_block.settings.amount %></b>
+        <% end %>
+      <% end %>
+      <% if expenses_rendered %>
+        <div class="demo-total">
+          <span class="demo-total-label" <%= maglev_section.settings.total_label.dom_data %>><%= maglev_section.settings.total_label %></span>
+          <b class="demo-total-value" <%= maglev_section.settings.total_value.dom_data %>><%= maglev_section.settings.total_value %></b>
+        </div>
+        <div class="demo-success" <%= maglev_section.settings.success_note.dom_data %>><%= maglev_section.settings.success_note %></div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,15 @@
+<div class="demo-step s<%= pos %>">
+  <span class="step-tag"><%= maglev_block.settings.tag %></span>
+  <div class="ai-reading">
+    <span class="ai-spark">✦</span>
+    <b><%= maglev_block.settings.reading_title %></b>
+    <% if maglev_block.settings.transcript.present? %>
+      <div class="transcript"><%= maglev_block.settings.transcript %></div>
+    <% end %>
+    <div class="read-line"><span><%= maglev_block.settings.line1_label %></span> <strong><%= maglev_block.settings.line1_value %></strong> <em>✓</em></div>
+    <div class="read-line"><span><%= maglev_block.settings.line2_label %></span> <strong><%= maglev_block.settings.line2_value %></strong> <em>✓</em></div>
+    <div class="read-line"><span><%= maglev_block.settings.line3_label %></span> <strong><%= maglev_block.settings.line3_value %></strong> <em>✓</em></div>
+    <div class="read-line"><span><%= maglev_block.settings.line4_label %></span> <strong><%= maglev_block.settings.line4_value %></strong> <em>✓</em></div>
+  </div>
+  <strong><%= maglev_block.settings.headline %></strong>
+</div>

@@ -1,0 +1,88 @@
+<%= maglev_section.wrapper_tag.section class: "hero", id: "inicio" do %>
+  <div class="container hero-grid" id="inicio">
+    <div>
+      <%= maglev_section.setting_tag :eyebrow, html_tag: "div", class: "eyebrow" %>
+      <h1>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h1>
+      <%= maglev_section.setting_tag :description, html_tag: "p", class: "hero-copy" %>
+      <div class="hero-actions">
+        <%= maglev_section.setting_tag :primary_cta, class: "btn" do %>
+          <%= maglev_section.settings.primary_cta.text %> <span>→</span>
+        <% end %>
+        <%= maglev_section.setting_tag :secondary_cta, class: "btn secondary" %>
+      </div>
+      <%= maglev_section.setting_tag :note, html_tag: "div", class: "hero-note" %>
+      <div class="trust">
+        <%= maglev_section.setting_tag :trust_strong, html_tag: "strong" %><span class="trust-dot"></span>
+        <span <%= maglev_section.settings.trust_item_1.dom_data %>><%= maglev_section.settings.trust_item_1 %></span><span class="trust-dot"></span>
+        <span <%= maglev_section.settings.trust_item_2.dom_data %>><%= maglev_section.settings.trust_item_2 %></span>
+      </div>
+    </div>
+    <div class="mock-wrap">
+      <div class="glow"></div>
+      <% if maglev_section.settings.dashboard_image.present? %>
+        <img src="<%= maglev_section.settings.dashboard_image.url %>"
+             alt="<%= maglev_section.settings.dashboard_image.alt_text %>" class="dashboard-hero-image">
+      <% else %>
+        <div class="dashboard">
+          <div class="dash-top">
+            <div class="dash-brand"><span class="dash-icon">✦</span> Yogasto</div>
+            <span class="month" <%= maglev_section.settings.month_label.dom_data %>><%= maglev_section.settings.month_label %></span>
+          </div>
+          <div class="dash-label" <%= maglev_section.settings.balance_label.dom_data %>><%= maglev_section.settings.balance_label %></div>
+          <div class="balance-row">
+            <div class="balance" <%= maglev_section.settings.balance.dom_data %>><%= maglev_section.settings.balance %></div>
+            <span class="positive" <%= maglev_section.settings.balance_change.dom_data %>><%= maglev_section.settings.balance_change %></span>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-top"><span <%= maglev_section.settings.income_label.dom_data %>><%= maglev_section.settings.income_label %></span><span>↗</span></div>
+              <strong <%= maglev_section.settings.income_value.dom_data %>><%= maglev_section.settings.income_value %></strong>
+              <div class="mini" <%= maglev_section.settings.income_note.dom_data %>><%= maglev_section.settings.income_note %></div>
+            </div>
+            <div class="metric">
+              <div class="metric-top"><span <%= maglev_section.settings.expense_label.dom_data %>><%= maglev_section.settings.expense_label %></span><span>↘</span></div>
+              <strong <%= maglev_section.settings.expense_value.dom_data %>><%= maglev_section.settings.expense_value %></strong>
+              <div class="mini purple" <%= maglev_section.settings.expense_note.dom_data %>><%= maglev_section.settings.expense_note %></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head">
+              <span <%= maglev_section.settings.chart_title.dom_data %>><%= maglev_section.settings.chart_title %></span>
+              <span <%= maglev_section.settings.chart_range.dom_data %>><%= maglev_section.settings.chart_range %></span>
+            </div>
+            <div class="chart">
+              <% ["42", "65", "51", "78", "60", "91", "70", "83"].each do |height| %>
+                <div class="bar h<%= height %>"></div>
+              <% end %>
+            </div>
+            <div class="chart-labels"><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span><span>Nov</span></div>
+          </div>
+          <div class="activity">
+            <span class="activity-icon" <%= maglev_section.settings.activity_icon.dom_data %>><%= maglev_section.settings.activity_icon %></span>
+            <span>
+              <b <%= maglev_section.settings.activity_title.dom_data %>><%= maglev_section.settings.activity_title %></b>
+              <small <%= maglev_section.settings.activity_meta.dom_data %>><%= maglev_section.settings.activity_meta %></small>
+            </span>
+            <b <%= maglev_section.settings.activity_amount.dom_data %>><%= maglev_section.settings.activity_amount %></b>
+          </div>
+        </div>
+        <div class="float-card one">
+          <span class="float-icon">✓</span>
+          <span>
+            <span <%= maglev_section.settings.float1_title.dom_data %>><%= maglev_section.settings.float1_title %></span>
+            <small <%= maglev_section.settings.float1_subtitle.dom_data %>><%= maglev_section.settings.float1_subtitle %></small>
+          </span>
+        </div>
+        <div class="float-card two">
+          <span class="float-icon purple">✧</span>
+          <span>
+            <span <%= maglev_section.settings.float2_title.dom_data %>><%= maglev_section.settings.float2_title %></span>
+            <small <%= maglev_section.settings.float2_subtitle.dom_data %>><%= maglev_section.settings.float2_subtitle %></small>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

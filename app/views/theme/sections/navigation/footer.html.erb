@@ -1,0 +1,34 @@
+<%= maglev_section.wrapper_tag.footer class: "site-footer" do %>
+  <div class="container">
+    <div class="footer-main">
+      <div class="footer-about">
+        <a class="footer-brand" href="/" aria-label="Yogasto inicio">
+          <%= maglev_section.setting_tag :logo, class: "brand-logo footer-brand-logo" %>
+        </a>
+        <%= maglev_section.setting_tag :about, html_tag: "p" %>
+      </div>
+      <% maglev_section.blocks.each do |maglev_block| %>
+        <% next unless maglev_block.type == "column" %>
+        <div class="footer-col" <%= maglev_block.dom_data %>>
+          <%= maglev_block.setting_tag :title, html_tag: "h4" %>
+          <% if maglev_block.children? %>
+            <% maglev_block.children.each do |maglev_link| %>
+              <a href="<%= maglev_link.settings.link.href %>"
+                 <% if maglev_link.settings.link.open_new_window? %>target="_blank" rel="noopener"<% end %>
+                 <%= maglev_link.settings.label.dom_data %>><%= maglev_link.settings.label %></a>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="footer-bottom">
+      <span <%= maglev_section.settings.copyright.dom_data %>>
+        <span><%= maglev_section.settings.copyright %></span>
+      </span>
+      <span class="footer-secure"><span>🔒</span>
+        <span <%= maglev_section.settings.secure_text.dom_data %>><%= maglev_section.settings.secure_text %></span>
+      </span>
+      <%= maglev_section.setting_tag :top_link, class: "footer-top-link" %>
+    </div>
+  </div>
+<% end %>

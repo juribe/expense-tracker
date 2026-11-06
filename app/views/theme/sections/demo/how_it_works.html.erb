@@ -1,0 +1,21 @@
+<%= maglev_section.wrapper_tag.section class: "section", id: "como-funciona" do %>
+  <div class="container" id="como-funciona">
+    <div class="section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h2>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+    <div class="steps">
+      <% maglev_section.blocks.each_with_index do |maglev_block, index| %>
+        <% next unless maglev_block.type == "step" %>
+        <%= maglev_block.wrapper_tag.div class: "step" do %>
+          <div class="step-number"><%= index + 1 %></div>
+          <%= maglev_block.setting_tag :title, html_tag: "h3" %>
+          <%= maglev_block.setting_tag :description, html_tag: "p" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -88,3 +88,8 @@ group :test do
 end
 
 gem "payment_engine", path: "payment_engine"
+
+# Maglev CMS v3 (open source, single-site edition) for public marketing pages.
+gem "maglevcms", "~> 3.1.0"
+# Image processing for Active Storage variants (required by Maglev CMS media)
+gem "image_processing", "~> 1.2"

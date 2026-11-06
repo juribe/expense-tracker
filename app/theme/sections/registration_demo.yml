@@ -1,0 +1,278 @@
+# "Registro inteligente": interactive demo with four tabs (mail, WhatsApp text,
+# image and audio), each one walking through its four-step story.
+name: "Registro inteligente (demo interactiva)"
+category: demo
+singleton: true
+countable: false
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Así trabaja Yogasto"
+- label: "Título"
+  id: title
+  type: text
+  default: "De cualquier mensaje a un gasto "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "organizado."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Mira cada paso: recibes o envías información, Yogasto la interpreta y el movimiento queda registrado."
+blocks_label: "Pestañas de la demo"
+blocks_presentation: "tree"
+blocks:
+- name: "Pestaña"
+  type: tab
+  root: true
+  settings:
+  - label: "Clave interna (email | text | image | audio)"
+    id: key
+    type: text
+    default: "email"
+  - label: "Icono de la pestaña"
+    id: icon
+    type: text
+    default: "✉"
+  - label: "Nombre de la pestaña"
+    id: label
+    type: text
+    default: "Correo"
+  - label: "Kicker"
+    id: kicker
+    type: text
+    default: "01 · CORREO ELECTRÓNICO"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Tu banco envía el correo. <strong>Yogasto lo organiza.</strong>"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "La notificación llega a tu bandeja, Yogasto reconoce los datos de la compra y crea el gasto."
+  - label: "Texto del paso inicial"
+    id: caption
+    type: text
+    default: "Primero aparece tu bandeja de entrada."
+- name: "Bandeja de correo"
+  type: mailbox_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 1"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "Tu mailbox está listo"
+  - label: "Título de la bandeja"
+    id: mailbox_title
+    type: text
+    default: "✉ Bandeja de entrada"
+  - label: "Contador"
+    id: badge
+    type: text
+    default: "3"
+  - label: "Correo 1"
+    id: row1_title
+    type: text
+    default: "Banco Ejemplo"
+  - label: "Correo 1: asunto"
+    id: row1_sub
+    type: text
+    default: "Resumen de cuenta"
+  - label: "Correo 2"
+    id: row2_title
+    type: text
+    default: "Promociones"
+  - label: "Correo 2: asunto"
+    id: row2_sub
+    type: text
+    default: "Ofertas para ti"
+- name: "Aviso de compra del banco"
+  type: mail_notice_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 2"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "¡Llegó un correo con un gasto!"
+  - label: "Insignia del banco"
+    id: bank_badge
+    type: text
+    default: "B"
+  - label: "Nombre del banco"
+    id: bank_name
+    type: text
+    default: "Banco Ejemplo"
+  - label: "Descripción"
+    id: bank_desc
+    type: text
+    default: "Compra aprobada con tu tarjeta"
+  - label: "Valor y comercio"
+    id: notice_amount
+    type: text
+    default: "$86.500 COP · Mercado La 14"
+- name: "Chat: mensaje de Yogasto"
+  type: chat_intro_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 1"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "Abres el chat con Yogasto"
+  - label: "Mensaje"
+    id: bubble
+    type: text
+    default: "¡Hola! Cuéntame qué gasto quieres registrar."
+- name: "Chat: mensaje del usuario"
+  type: chat_message_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 2"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "Envías tu descripción en lenguaje natural"
+  - label: "Mensaje del usuario"
+    id: bubble
+    type: text
+    default: "almuerzo en restaurante por 50mil pague con la plata"
+  - label: "Confirmación (✓✓)"
+    id: typing
+    type: text
+    default: "✓✓ Enviado"
+- name: "Chat: recibo en imagen"
+  type: chat_receipt_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 2"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "Envías el recibo con el comentario"
+  - label: "Encabezado del recibo"
+    id: receipt_head
+    type: text
+    default: "RECIBO DE PAGO"
+  - label: "Comercio"
+    id: receipt_business
+    type: text
+    default: "BEAUTY STUDIO"
+  - label: "Valor"
+    id: receipt_amount
+    type: text
+    default: "$120.000"
+  - label: "Detalle"
+    id: receipt_meta
+    type: text
+    default: "Servicio · 02 nov 2026"
+  - label: "Comentario del usuario"
+    id: bubble
+    type: text
+    default: "belleza"
+- name: "Chat: nota de voz"
+  type: chat_audio_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 2"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "Envías una nota de voz"
+  - label: "Duración del audio"
+    id: duration
+    type: text
+    default: "0:08"
+  - label: "Confirmación (✓✓)"
+    id: typing
+    type: text
+    default: "✓✓ Audio enviado"
+- name: "Lectura con IA"
+  type: ai_reading_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 3"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "Identifica los datos importantes"
+  - label: "Título de la lectura"
+    id: reading_title
+    type: text
+    default: "Yogasto está leyendo el correo"
+  - label: "Transcripción (solo audio)"
+    id: transcript
+    type: text
+  - label: "Línea 1: etiqueta"
+    id: line1_label
+    type: text
+    default: "Comercio"
+  - label: "Línea 1: valor"
+    id: line1_value
+    type: text
+    default: "Mercado La 14"
+  - label: "Línea 2: etiqueta"
+    id: line2_label
+    type: text
+    default: "Valor"
+  - label: "Línea 2: valor"
+    id: line2_value
+    type: text
+    default: "$86.500"
+  - label: "Línea 3: etiqueta"
+    id: line3_label
+    type: text
+    default: "Fecha"
+  - label: "Línea 3: valor"
+    id: line3_value
+    type: text
+    default: "Hoy"
+  - label: "Línea 4: etiqueta"
+    id: line4_label
+    type: text
+    default: "Medio"
+  - label: "Línea 4: valor"
+    id: line4_value
+    type: text
+    default: "Tarjeta débito"
+- name: "Gasto creado"
+  type: saved_expense_step
+  settings:
+  - label: "Etiqueta del paso"
+    id: tag
+    type: text
+    default: "PASO 4"
+  - label: "Título debajo de la ilustración"
+    id: headline
+    type: text
+    default: "El gasto queda registrado en Yogasto"
+  - label: "Título del gasto"
+    id: expense_title
+    type: text
+    default: "🛒 Mercado La 14"
+  - label: "Valor"
+    id: expense_amount
+    type: text
+    default: "−$86.500"
+  - label: "Detalle"
+    id: expense_meta
+    type: text
+    default: "Compras · Tarjeta débito · Hoy"

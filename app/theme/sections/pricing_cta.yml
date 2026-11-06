@@ -1,0 +1,52 @@
+# Pricing call-to-action panel. Links to the existing pricing page managed by
+# the Payment Engine; prices are NOT duplicated here.
+name: "CTA de precios"
+category: cta
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Planes simples y transparentes"
+- label: "Título"
+  id: title
+  type: text
+  default: "Empieza gratis. "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "Crece a tu ritmo."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Conoce las opciones de Yogasto y elige las herramientas que mejor acompañen tu forma de organizar el dinero."
+- label: "— Panel de precios"
+  id: panel_divider
+  type: divider
+- label: "Título del panel"
+  id: panel_title
+  type: text
+  default: "Tu tranquilidad financiera empieza aquí."
+- label: "Texto del panel"
+  id: panel_text
+  type: text
+  default: "Explora nuestros planes, compara lo que incluye cada uno y encuentra el que se adapta a ti. Puedes comenzar sin pagar."
+- label: "Botón"
+  id: cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/pricing", text: "Ver todos los precios", open_new_window: false }
+- label: "Texto del botón (detalle)"
+  id: cta_hint
+  type: text
+  default: "Conoce los planes de Yogasto"
+blocks_label: "Beneficios listados"
+blocks:
+- name: "Punto"
+  type: point
+  settings:
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Plan gratis para empezar"

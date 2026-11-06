@@ -1,0 +1,67 @@
+# "Automatización con IA": copy + channel list + visual demo flow, two columns.
+name: "Automatización con IA"
+category: features
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Menos registro manual, más claridad"
+- label: "Título"
+  id: title
+  type: text
+  default: "Tus gastos pueden organizarse "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "casi solos."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Yogasto usa inteligencia artificial para reconocer la información de tus movimientos y ayudarte a mantener tus finanzas al día."
+- label: "Título de la demostración"
+  id: demo_title
+  type: text
+  default: "De una notificación a un gasto organizado"
+blocks_label: "Canales y pasos de la demo"
+blocks:
+- name: "Canal"
+  type: channel
+  settings:
+  - label: "Icono"
+    id: icon
+    type: text
+    default: "✉️"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Correos de tus bancos"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Identifica notificaciones y extrae los datos del movimiento."
+- name: "Paso de la demo"
+  type: flow_step
+  settings:
+  - label: "Icono"
+    id: icon
+    type: text
+    default: "✉"
+  - label: "Estilo del icono"
+    id: icon_style
+    type: select
+    select: ["blue", "purple", "green"]
+    default: "blue"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Recibes una notificación"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Compra aprobada · $86.900 en Tienda"
+  - label: "Marcado como paso final (fondo verde)"
+    id: check
+    type: checkbox
+    default: false

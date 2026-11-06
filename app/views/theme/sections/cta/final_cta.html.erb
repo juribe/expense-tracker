@@ -1,0 +1,10 @@
+<%= maglev_section.wrapper_tag.section class: "final-cta" do %>
+  <div class="container">
+    <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+    <%= maglev_section.setting_tag :title, html_tag: "h2" %>
+    <p <%= maglev_section.settings.description.dom_data %>><%= maglev_section.settings.description %></p>
+    <%= maglev_section.setting_tag :cta, class: "btn" do %>
+      <%= maglev_section.settings.cta.text %> <span>→</span>
+    <% end %>
+  </div>
+<% end %>

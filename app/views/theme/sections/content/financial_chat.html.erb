@@ -1,0 +1,64 @@
+<%= maglev_section.wrapper_tag.section class: "section chat-feature", id: "chat-financiero" do %>
+  <div class="container chat-feature-grid" id="chat-financiero">
+    <div class="chat-feature-copy">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>
+        <span <%= maglev_section.settings.eyebrow.dom_data %>><%= maglev_section.settings.eyebrow %></span>
+      </div>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h2>
+      <p <%= maglev_section.settings.description.dom_data %>><%= maglev_section.settings.description %></p>
+      <div class="chat-benefits">
+        <% maglev_section.blocks.each do |maglev_block| %>
+          <% next unless maglev_block.type == "benefit" %>
+          <%= maglev_block.wrapper_tag.div class: "chat-benefit" do %>
+            <span class="chat-benefit-icon"><%= maglev_block.settings.icon %></span>
+            <span><b><%= maglev_block.settings.strong_text %></b> <%= maglev_block.settings.description %></span>
+          <% end %>
+        <% end %>
+      </div>
+      <%= maglev_section.setting_tag :cta, class: "btn btn-primary" do %>
+        <%= maglev_section.settings.cta.text %> <span>→</span>
+      <% end %>
+    </div>
+
+    <div class="chat-window">
+      <div class="chat-window-head">
+        <div class="chat-assistant">
+          <div class="chat-avatar">✦</div>
+          <div>
+            <strong <%= maglev_section.settings.chat_title.dom_data %>><%= maglev_section.settings.chat_title %></strong>
+            <small <%= maglev_section.settings.chat_subtitle.dom_data %>><%= maglev_section.settings.chat_subtitle %></small>
+          </div>
+        </div>
+        <span class="chat-online" <%= maglev_section.settings.chat_status.dom_data %>><%= maglev_section.settings.chat_status %></span>
+      </div>
+      <div class="chat-body">
+        <div class="chat-date" <%= maglev_section.settings.chat_date.dom_data %>><%= maglev_section.settings.chat_date %></div>
+        <div class="chat-message user">Quiero ahorrar para viajar a Bogotá. ¿Qué debería hacer con mi dinero?</div>
+        <div class="chat-message ai">
+          ¡Vamos a organizar ese objetivo! Revisando tus movimientos y compromisos, hay algunas oportunidades para acercarte a tu viaje sin descuidar tus finanzas.
+          <div class="chat-insight">
+            <div class="chat-insight-title">Oportunidades que puedes revisar</div>
+            <div class="chat-insight-row"><span>Priorizar deuda de mayor interés</span><b>Ahorrar intereses</b></div>
+            <div class="chat-insight-row"><span>Revisar gastos no esenciales</span><b>Liberar dinero</b></div>
+            <div class="chat-insight-row"><span>Programar un aporte mensual</span><b>Crear el hábito</b></div>
+          </div>
+          <p class="chat-reply-note">También puedo calcular cuánto tardarías en alcanzar tu meta según el monto que puedas ahorrar cada mes.</p>
+        </div>
+        <div class="chat-message user">¿Y si ahorro $400.000 al mes?</div>
+        <div class="chat-message ai">Puedo proyectarlo y mostrarte cómo cambia la fecha de tu viaje si ajustas el aporte o el presupuesto. <strong>¿Calculamos tu plan?</strong></div>
+      </div>
+      <div class="chat-suggestions">
+        <span <%= maglev_section.settings.suggestion_1.dom_data %>><%= maglev_section.settings.suggestion_1 %></span>
+        <span <%= maglev_section.settings.suggestion_2.dom_data %>><%= maglev_section.settings.suggestion_2 %></span>
+        <span <%= maglev_section.settings.suggestion_3.dom_data %>><%= maglev_section.settings.suggestion_3 %></span>
+      </div>
+      <div class="chat-input-demo">
+        <span <%= maglev_section.settings.input_placeholder.dom_data %>><%= maglev_section.settings.input_placeholder %></span>
+        <span class="chat-send">➤</span>
+      </div>
+      <div class="chat-note" <%= maglev_section.settings.note.dom_data %>><%= maglev_section.settings.note %></div>
+    </div>
+  </div>
+<% end %>

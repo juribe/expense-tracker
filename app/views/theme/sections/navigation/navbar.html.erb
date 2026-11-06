@@ -1,0 +1,29 @@
+<%= maglev_section.wrapper_tag.div class: "nav-wrap" do %>
+  <div class="container">
+    <nav>
+      <a class="brand" href="/" aria-label="Yogasto inicio">
+        <%= maglev_section.setting_tag :logo, class: "brand-logo" %>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <% maglev_section.blocks.each do |maglev_block| %>
+          <% next unless maglev_block.type == "link" %>
+          <a href="<%= maglev_block.settings.link.href %>"
+             <% if maglev_block.settings.link.open_new_window? %>target="_blank" rel="noopener"<% end %>
+             <%= maglev_block.settings.label.dom_data %>><%= maglev_block.settings.label %></a>
+        <% end %>
+      </div>
+      <div class="nav-actions">
+        <% maglev_section.blocks.each do |maglev_block| %>
+          <% if maglev_block.type == "login" %>
+            <%= maglev_block.setting_tag :link, class: "login" %>
+          <% elsif maglev_block.type == "signup" %>
+            <%= maglev_block.setting_tag :link, class: "btn" do %>
+              <%= maglev_block.settings.link.text %> <span>→</span>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+      <button class="menu-toggle" aria-label="Abrir menú" data-menu-toggle>☰</button>
+    </nav>
+  </div>
+<% end %>

@@ -1,0 +1,29 @@
+<%= maglev_section.wrapper_tag.section class: "section pricing", id: "precios" do %>
+  <div class="container" id="precios">
+    <div class="section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h2>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+    <div class="price-panel">
+      <div>
+        <%= maglev_section.setting_tag :panel_title, html_tag: "h3" %>
+        <p <%= maglev_section.settings.panel_text.dom_data %>><%= maglev_section.settings.panel_text %></p>
+        <div class="price-points">
+          <% maglev_section.blocks.each do |maglev_block| %>
+            <% next unless maglev_block.type == "point" %>
+            <span <%= maglev_block.settings.text.dom_data %>><%= maglev_block.settings.text %></span>
+          <% end %>
+        </div>
+      </div>
+      <div class="price-action">
+        <%= maglev_section.setting_tag :cta, class: "btn" do %>
+          <%= maglev_section.settings.cta.text %> <span>→</span>
+        <% end %>
+        <small <%= maglev_section.settings.cta_hint.dom_data %>><%= maglev_section.settings.cta_hint %></small>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,35 @@
+# "Cómo funciona": three numbered steps.
+name: "Cómo funciona"
+category: demo
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Empieza en minutos"
+- label: "Título"
+  id: title
+  type: text
+  default: "Tu dinero más claro, "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "paso a paso."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "No necesitas ser experto en finanzas. Solo empieza por organizar lo que ya tienes."
+blocks_label: "Pasos"
+blocks:
+- name: "Paso"
+  type: step
+  settings:
+  - label: "Título"
+    id: title
+    type: text
+    default: "Configura tu espacio"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Agrega tus cuentas, tarjetas, ingresos y categorías para tener todo a la mano."

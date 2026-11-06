@@ -1,0 +1,90 @@
+# "Registro con lenguaje natural": copy + channels + a demo card listing the
+# expenses identified from a single natural-language message.
+name: "Registro con lenguaje natural"
+category: features
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Registra tus gastos a tu manera"
+- label: "Título"
+  id: title
+  type: text
+  default: "Escribe como le contarías a un amigo. "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "Yogasto se encarga del resto."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "No tienes que llenar formularios ni escribir cada movimiento por separado. Describe lo que pasó con tus propias palabras y la IA separa la información en gastos individuales, listos para revisar y guardar."
+- label: "— Demostración visual"
+  id: demo_divider
+  type: divider
+- label: "Título de la demostración"
+  id: demo_title
+  type: text
+  default: "Así de fácil es registrar varios gastos"
+- label: "Etiqueta del mensaje"
+  id: message_label
+  type: text
+  default: "TU MENSAJE"
+- label: "Mensaje de ejemplo"
+  id: message
+  type: text
+  default: "“Hoy pagué 18.000 de un café, 42.000 de almuerzo y 65.000 de gasolina con mi tarjeta débito”."
+- label: "Etiqueta de gastos identificados"
+  id: identified_label
+  type: text
+  default: "YOGASTO IDENTIFICÓ 3 GASTOS"
+- label: "Etiqueta del total"
+  id: total_label
+  type: text
+  default: "Total identificado"
+- label: "Total identificado"
+  id: total_value
+  type: text
+  default: "$ 125.000"
+- label: "Nota de confirmación"
+  id: success_note
+  type: text
+  default: "✓ 3 movimientos listos para revisar y guardar"
+blocks_label: "Canales y gastos identificados"
+blocks:
+- name: "Canal (beneficio)"
+  type: channel
+  settings:
+  - label: "Icono"
+    id: icon
+    type: text
+    default: "✍️"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Una sola descripción, varios gastos"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Yogasto detecta cada compra y crea un movimiento independiente."
+- name: "Gasto identificado"
+  type: expense
+  settings:
+  - label: "Icono"
+    id: icon
+    type: text
+    default: "☕"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Café"
+  - label: "Detalle (categoría · fuente)"
+    id: meta
+    type: text
+    default: "Comida y restaurantes · Hoy"
+  - label: "Valor"
+    id: amount
+    type: text
+    default: "$ 18.000"

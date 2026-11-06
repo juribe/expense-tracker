@@ -1,0 +1,41 @@
+<%= maglev_section.wrapper_tag.section class: "section", id: "registro-inteligente" do %>
+  <div class="container" id="registro-inteligente">
+    <div class="section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span>
+      </h2>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+
+    <% first_tab = maglev_section.blocks.find { |block| block.type == "tab" } %>
+    <div class="flow-tabs" role="tablist" aria-label="Formas de registrar gastos">
+      <% maglev_section.blocks.each do |maglev_tab| %>
+        <% next unless maglev_tab.type == "tab" %>
+        <button class="flow-tab<%= " active" if maglev_tab.equal?(first_tab) %>" data-flow="<%= maglev_tab.settings.key %>">
+          <%= maglev_tab.settings.icon %> <%= maglev_tab.settings.label %>
+        </button>
+      <% end %>
+    </div>
+
+    <% maglev_section.blocks.each do |maglev_tab| %>
+      <% next unless maglev_tab.type == "tab" %>
+      <article class="demo-flow<%= " active" if maglev_tab.equal?(first_tab) %>" data-demo="<%= maglev_tab.settings.key %>">
+        <div class="demo-copy">
+          <%= maglev_tab.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+          <%= maglev_tab.setting_tag :title, html_tag: "h3" %>
+          <p <%= maglev_tab.settings.description.dom_data %>><%= maglev_tab.settings.description %></p>
+          <div class="step-rail"><span class="current">1</span><i></i><span>2</span><i></i><span>3</span><i></i><span>4</span></div>
+          <p class="step-caption"><%= maglev_tab.settings.caption %></p>
+        </div>
+        <div class="demo-stage">
+          <% if maglev_tab.children? %>
+            <% maglev_tab.children.each_with_index do |maglev_block, step_index| %>
+              <%= render "theme/sections/demo/steps/#{maglev_block.type}", maglev_block: maglev_block, pos: step_index + 1 %>
+            <% end %>
+          <% end %>
+        </div>
+      </article>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,49 @@
+# Security section: reassurance cards. Only real, current safeguards; the note
+# clarifies that no certifications or zero-risk guarantees are claimed.
+name: "Seguridad"
+category: content
+singleton: true
+max_width_pane: 480
+settings:
+- label: "Kicker"
+  id: kicker
+  type: text
+  default: "Tu información merece cuidado"
+- label: "Título"
+  id: title
+  type: text
+  default: "La confianza también hace parte de "
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: "tener tus finanzas en orden."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Trabajamos para proteger tu información y mantener Yogasto cuidado, actualizado y disponible."
+- label: "Nota informativa inferior"
+  id: note
+  type: text
+  default: "La seguridad es un trabajo continuo. Estas medidas no significan que exista riesgo cero ni sustituyen una auditoría independiente o certificación formal."
+blocks_label: "Medidas de seguridad"
+blocks:
+- name: "Medida"
+  type: item
+  settings:
+  - label: "Icono (emoji o símbolo)"
+    id: icon
+    type: text
+    default: "🔒"
+  - label: "Color del icono"
+    id: color
+    type: select
+    select: ["blue", "purple", "green", "orange", "cyan", "pink"]
+    default: "blue"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Conexión protegida"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Yogasto utiliza HTTPS para proteger la información que viaja entre tu navegador y nuestros servidores."
