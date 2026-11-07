@@ -193,6 +193,44 @@ class PaymentEngineUserAccessTest < ActiveSupport::TestCase
     assert_equal false, access.membership_expiring_within_days?(5)
   end
 
+  test "renewal_prompt? is true after an expired paid membership" do
+    create_membership(source: "purchase", expires_at: 1.day.ago)
+
+    with_paid_access_required(true) do
+      assert_equal true, access.renewal_prompt?
+    end
+  end
+
+  test "renewal_prompt? is true after the trial expired" do
+    create_membership(source: "trial", expires_at: 1.day.ago)
+
+    with_paid_access_required(true) do
+      assert_equal true, access.renewal_prompt?
+    end
+  end
+
+  test "renewal_prompt? is false with an active paid membership" do
+    create_membership(source: "purchase", expires_at: 1.month.from_now)
+
+    with_paid_access_required(true) do
+      assert_equal false, access.renewal_prompt?
+    end
+  end
+
+  test "renewal_prompt? is false during an active trial" do
+    create_membership(source: "trial", expires_at: 10.days.from_now)
+
+    with_paid_access_required(true) do
+      assert_equal false, access.renewal_prompt?
+    end
+  end
+
+  test "renewal_prompt? is false when the user never had a membership" do
+    with_paid_access_required(true) do
+      assert_equal false, access.renewal_prompt?
+    end
+  end
+
   test "membership_expiring_within_days? caches the answer per day window" do
     membership = create_membership(source: "purchase", expires_at: 4.days.from_now)
     user_access = PaymentEngine::UserAccess.new(@user.id)

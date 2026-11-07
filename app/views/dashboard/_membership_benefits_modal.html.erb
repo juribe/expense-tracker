@@ -1,0 +1,78 @@
+<%# Benefits recovered with an active PRO membership. Only implemented
+    capabilities are listed; opened from the dashboard renewal hero. %>
+<div class="modal fade membership-benefits-modal" id="membershipBenefitsModal" tabindex="-1"
+     aria-labelledby="membershipBenefitsModalTitle" aria-hidden="true"
+     data-testid="membership-benefits-modal">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <span class="membership-benefits-modal__eyebrow">Yogasto PRO</span>
+          <h2 class="modal-title h4" id="membershipBenefitsModalTitle">Todo lo que recuperas con PRO</h2>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p class="membership-benefits-modal__lead">
+          Vuelve a aprovechar las herramientas que te ayudan a llevar tus finanzas con menos trabajo y más claridad.
+        </p>
+
+        <div class="membership-benefits-modal__grid">
+          <article class="membership-benefits-modal__item">
+            <span class="membership-benefits-modal__icon" aria-hidden="true"><i class="ti ti-mail"></i></span>
+            <div>
+              <h3>Automatizaciones</h3>
+              <p>Email, Gmail y WhatsApp.</p>
+            </div>
+          </article>
+
+          <article class="membership-benefits-modal__item">
+            <span class="membership-benefits-modal__icon" aria-hidden="true"><i class="ti ti-brain"></i></span>
+            <div>
+              <h3>Inteligencia artificial</h3>
+              <p>Procesamiento y registro automático de movimientos.</p>
+            </div>
+          </article>
+
+          <article class="membership-benefits-modal__item">
+            <span class="membership-benefits-modal__icon" aria-hidden="true"><i class="ti ti-list-check"></i></span>
+            <div>
+              <h3>Reglas</h3>
+              <p>Categorización y automatización personalizada.</p>
+            </div>
+          </article>
+
+          <article class="membership-benefits-modal__item">
+            <span class="membership-benefits-modal__icon" aria-hidden="true"><i class="ti ti-plug-connected"></i></span>
+            <div>
+              <h3>Integraciones</h3>
+              <p>MCP y conexión con asistentes de IA.</p>
+            </div>
+          </article>
+
+          <article class="membership-benefits-modal__item">
+            <span class="membership-benefits-modal__icon" aria-hidden="true"><i class="ti ti-chart-bar"></i></span>
+            <div>
+              <h3>Análisis</h3>
+              <p>Reportes y herramientas avanzadas.</p>
+            </div>
+          </article>
+
+          <article class="membership-benefits-modal__item">
+            <span class="membership-benefits-modal__icon" aria-hidden="true"><i class="ti ti-inbox"></i></span>
+            <div>
+              <h3>Candidatos y procesamiento</h3>
+              <p>Revisión y confirmación de movimientos detectados.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <%= link_to plans_path, class: "btn w-100 membership-benefits-modal__cta" do %>
+          <i class="ti ti-crown me-1" aria-hidden="true"></i>
+          Renovar membresía
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

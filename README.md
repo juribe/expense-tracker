@@ -148,8 +148,11 @@ editorial instructions and publishing steps are in
 ### Terms and conditions
 
 The terms page lives at `/terminos-y-condiciones` and shares the Maglev legal
-document section with the privacy policy. It is also a preliminary, noindex
-version until legal data is confirmed. See
+document section with the privacy policy. It is published with `index,follow`
+and contains only user-facing, verified copy. Internal legal checks and pending
+decisions are documented in
+[docs/terms_and_conditions_audit.md](docs/terms_and_conditions_audit.md);
+editorial instructions are in
 [docs/terms_and_conditions.md](docs/terms_and_conditions.md).
 
 ### Security

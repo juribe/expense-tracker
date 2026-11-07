@@ -1,0 +1,447 @@
+/* Dashboard membership renewal hero and its benefits modal.
+ * Shown only after a membership expires; the purple surface is scoped so it
+ * never leaks into the rest of the app. Light/dark aware. */
+
+.membership-renewal-hero {
+  --mrh-ink: #1c2340;
+  --mrh-copy: #43506c;
+  --mrh-muted: #6b7690;
+  --mrh-purple: #7137ef;
+  --mrh-purple-strong: #5b21d8;
+  --mrh-pill-bg: #e4d7ff;
+  --mrh-pill-copy: #38206f;
+  --mrh-feature-bg: rgba(255, 255, 255, 0.82);
+  --mrh-feature-border: #ece7ff;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  padding: 2rem 2.25rem;
+  border: 1px solid #e7deff;
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(ellipse at 78% 105%, #ddd2ff 0%, transparent 45%),
+    linear-gradient(112deg, #f7f2ff 0%, #f1edff 48%, #e9e3ff 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.membership-renewal-hero::after {
+  content: "";
+  position: absolute;
+  right: 18%;
+  bottom: -18rem;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.32);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.membership-renewal-hero__copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.membership-renewal-hero__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  padding: 0.45rem 0.8rem 0.45rem 0.45rem;
+  border-radius: 999px;
+  background: var(--mrh-pill-bg);
+  color: var(--mrh-pill-copy);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.membership-renewal-hero__crown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--mrh-purple);
+  color: #fff;
+  font-size: 0.8125rem;
+}
+
+.membership-renewal-hero__title {
+  max-width: 42rem;
+  margin: 0 0 0.7rem;
+  color: var(--mrh-ink);
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.membership-renewal-hero__lead {
+  max-width: 40rem;
+  margin: 0 0 1.35rem;
+  color: var(--mrh-copy);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.membership-renewal-hero__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.membership-renewal-hero__primary,
+.membership-renewal-hero__secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0 1.35rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
+}
+
+.membership-renewal-hero__primary {
+  background: linear-gradient(105deg, #8a51ff, var(--mrh-purple-strong));
+  color: #fff;
+  box-shadow: 0 0.45rem 1rem rgba(113, 55, 239, 0.22);
+}
+
+.membership-renewal-hero__primary:hover,
+.membership-renewal-hero__primary:focus-visible {
+  color: #fff;
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.membership-renewal-hero__secondary {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: #b9a4f7;
+  color: #26324c;
+}
+
+.membership-renewal-hero__secondary:hover,
+.membership-renewal-hero__secondary:focus-visible {
+  background: #fff;
+  color: #1c2340;
+}
+
+.membership-renewal-hero__primary:focus-visible,
+.membership-renewal-hero__secondary:focus-visible {
+  outline: 3px solid rgba(113, 55, 239, 0.35);
+  outline-offset: 2px;
+}
+
+.membership-renewal-hero__visual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.membership-renewal-hero__illustration {
+  flex: 0 1 13.75rem;
+  max-width: 13.75rem;
+  min-width: 0;
+}
+
+.membership-renewal-hero__illustration svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0.8rem 0.7rem rgba(68, 49, 139, 0.14));
+}
+
+.hero-art-shadow { fill: rgba(68, 49, 139, 0.14); }
+.hero-art-frame { fill: #3924a4; }
+.hero-art-screen { fill: #fbfaff; }
+.hero-art-line { fill: #d9d6fa; }
+.hero-art-line-soft { fill: #e5e3fa; }
+.hero-art-panel { fill: #f1efff; }
+.hero-art-crown-bg { fill: #e3d8ff; }
+.hero-art-crown { fill: #7137ef; }
+.hero-art-bar { fill: #57bcef; }
+.hero-art-bar-muted { fill: #c8c7ef; }
+.hero-art-base { fill: #8f91c5; }
+
+.membership-renewal-hero__features {
+  display: grid;
+  gap: 0.55rem;
+  width: 13.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.membership-renewal-hero__feature {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--mrh-feature-border);
+  border-radius: 0.85rem;
+  background: var(--mrh-feature-bg);
+  box-shadow: 0 0.3rem 0.9rem rgba(71, 49, 139, 0.05);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--mrh-ink);
+}
+
+.membership-renewal-hero__feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.15rem;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 0.65rem;
+  background: #f2edff;
+  color: var(--mrh-purple);
+  font-size: 1.05rem;
+}
+
+.membership-renewal-hero__feature strong {
+  display: block;
+  font-weight: 700;
+}
+
+.membership-renewal-hero__feature small {
+  display: block;
+  margin-top: 0.1rem;
+  color: var(--mrh-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+/* Benefits modal */
+.membership-benefits-modal .modal-content {
+  border-color: #e9e1ff;
+  border-radius: 1.15rem;
+}
+
+.membership-benefits-modal__eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #7137ef;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.membership-benefits-modal__lead {
+  margin-bottom: 1.1rem;
+  color: var(--et-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.membership-benefits-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.membership-benefits-modal__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.85rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.85rem;
+  background: var(--et-surface);
+}
+
+.membership-benefits-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  background: rgba(113, 55, 239, 0.12);
+  color: #7137ef;
+  font-size: 1.1rem;
+}
+
+.membership-benefits-modal__item h3 {
+  margin: 0 0 0.15rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.membership-benefits-modal__item p {
+  margin: 0;
+  color: var(--et-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta,
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:hover,
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:focus,
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:focus-visible,
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:active {
+  min-height: 2.75rem;
+  border: 0;
+  background: linear-gradient(105deg, #8a51ff, #5b21d8);
+  color: #fff;
+  font-weight: 700;
+}
+
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:hover,
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:focus,
+.membership-benefits-modal .modal-footer .membership-benefits-modal__cta:focus-visible {
+  background: linear-gradient(105deg, #9562ff, #6428e4);
+  color: #fff;
+}
+
+[data-bs-theme="dark"] .membership-renewal-hero {
+  --mrh-ink: #f2eefc;
+  --mrh-copy: #cfc8e4;
+  --mrh-muted: #a99fc4;
+  --mrh-pill-bg: rgba(113, 55, 239, 0.3);
+  --mrh-pill-copy: #e7dcff;
+  --mrh-feature-bg: rgba(25, 22, 45, 0.66);
+  --mrh-feature-border: rgba(167, 139, 250, 0.24);
+  border-color: #3b3264;
+  background:
+    radial-gradient(ellipse at 78% 105%, rgba(113, 55, 239, 0.28) 0%, transparent 46%),
+    linear-gradient(112deg, #1a172e 0%, #201b38 50%, #272044 100%);
+}
+
+[data-bs-theme="dark"] .membership-renewal-hero::after {
+  background: rgba(113, 55, 239, 0.08);
+}
+
+[data-bs-theme="dark"] .membership-renewal-hero__secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #5d4b9b;
+  color: #e6ddff;
+}
+
+[data-bs-theme="dark"] .membership-renewal-hero__secondary:hover,
+[data-bs-theme="dark"] .membership-renewal-hero__secondary:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+[data-bs-theme="dark"] .membership-renewal-hero__feature-icon {
+  background: rgba(113, 55, 239, 0.22);
+  color: #c4a9ff;
+}
+
+[data-bs-theme="dark"] .hero-art-shadow { fill: rgba(0, 0, 0, 0.36); }
+[data-bs-theme="dark"] .hero-art-frame { fill: #4b2bbd; }
+[data-bs-theme="dark"] .hero-art-screen { fill: #241f42; }
+[data-bs-theme="dark"] .hero-art-line { fill: #403a6b; }
+[data-bs-theme="dark"] .hero-art-line-soft { fill: #37315e; }
+[data-bs-theme="dark"] .hero-art-panel { fill: #2f2852; }
+[data-bs-theme="dark"] .hero-art-crown-bg { fill: #3b2a6b; }
+[data-bs-theme="dark"] .hero-art-crown { fill: #b79bff; }
+[data-bs-theme="dark"] .hero-art-bar { fill: #56b9ec; }
+[data-bs-theme="dark"] .hero-art-bar-muted { fill: #514b7d; }
+[data-bs-theme="dark"] .hero-art-base { fill: #5f5a8e; }
+
+[data-bs-theme="dark"] .membership-benefits-modal .modal-content {
+  border-color: #3b3264;
+}
+
+[data-bs-theme="dark"] .membership-benefits-modal__eyebrow { color: #b79bff; }
+[data-bs-theme="dark"] .membership-benefits-modal__icon {
+  background: rgba(113, 55, 239, 0.22);
+  color: #c4a9ff;
+}
+
+@media (max-width: 1100px) {
+  .membership-renewal-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1.85rem 2rem;
+  }
+
+  .membership-renewal-hero__visual {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .membership-renewal-hero {
+    padding: 1.5rem 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .membership-renewal-hero__title {
+    font-size: 1.6rem;
+  }
+
+  .membership-renewal-hero__lead {
+    font-size: 0.9375rem;
+  }
+
+  .membership-renewal-hero__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .membership-renewal-hero__primary,
+  .membership-renewal-hero__secondary {
+    width: 100%;
+  }
+
+  .membership-renewal-hero__visual {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .membership-renewal-hero__illustration {
+    align-self: center;
+    width: min(15rem, 78%);
+    max-width: 15rem;
+  }
+
+  .membership-renewal-hero__features {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .membership-renewal-hero__features,
+  .membership-benefits-modal__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .membership-benefits-modal .modal-body {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .membership-renewal-hero__primary,
+  .membership-renewal-hero__secondary {
+    transition: none;
+  }
+
+  .membership-renewal-hero__primary:hover,
+  .membership-renewal-hero__primary:focus-visible {
+    transform: none;
+  }
+}

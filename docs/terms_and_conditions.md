@@ -16,36 +16,31 @@ con la Política de privacidad.
 - El índice lateral se genera desde los bloques raíz; agregar, eliminar,
   renombrar o reordenar secciones actualiza el índice.
 - La fecha de actualización, el tiempo de lectura, las migas de pan, el aviso
-  de revisión y el CTA son ajustes de la sección.
+  introductorio y el CTA son ajustes de la sección.
 
 ## Estado actual
 
-La página está publicada como **versión preliminar**:
+La página está publicada como versión pública:
 
-- muestra un aviso de revisión legal;
-- tiene `meta_robots = noindex,follow`;
-- por eso no se incluye en el sitemap mientras esté en revisión.
+- no muestra avisos de revisión ni notas internas;
+- tiene `meta_robots = index,follow`;
+- se incluye en el sitemap cuando está publicada.
 
-Antes de considerarla definitiva, completar los datos pendientes, eliminar el
-aviso de revisión y cambiar `meta_robots` a `index,follow`.
+Los términos públicos solo deben contener disposiciones verificadas y lenguaje
+para usuarios. Las verificaciones legales internas y los pendientes se
+documentan en
+[docs/terms_and_conditions_audit.md](terms_and_conditions_audit.md).
 
 ## Datos pendientes de confirmación
 
-- Titular legal, razón social, NIT y domicilio.
-- Correo oficial y canal de reclamaciones.
-- Edad mínima y requisitos de capacidad legal.
-- Condiciones definitivas de membresías, vencimiento y acceso posterior.
-- Reglas de renovación anticipada y disponibilidad del plan Gratis.
-- Condiciones de reembolsos, reversiones, facturación y disputas.
-- Medios de pago definitivos y tratamiento de pagos pendientes/rechazados.
-- Proveedores externos y sus condiciones aplicables.
-- Jurisdicción, mecanismos de atención de reclamaciones y revisión legal de
-  protección al consumidor.
+Los pendientes internos no se publican en la página. La lista vigente, con la
+evidencia revisada y la decisión que requiere cada punto, está en
+[docs/terms_and_conditions_audit.md](terms_and_conditions_audit.md).
 
 ## Comandos
 
 ```sh
-# Crea o actualiza la página preliminar y la publica con noindex.
+# Crea o actualiza la página pública y la publica con index,follow.
 bin/rails yogasto:setup_terms_and_conditions
 
 # Recrea el contenido desde la semilla (sobrescribe ediciones).

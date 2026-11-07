@@ -1,0 +1,75 @@
+<%# Dashboard renewal hero: shown when the user had a membership and no longer
+    has PRO access. It never blocks the free dashboard; it only promotes renewal. %>
+<% if membership_renewal_prompt? %>
+  <section class="membership-renewal-hero" data-testid="membership-renewal-hero"
+           aria-labelledby="membership-renewal-hero-title">
+    <div class="membership-renewal-hero__copy">
+      <span class="membership-renewal-hero__status">
+        <span class="membership-renewal-hero__crown" aria-hidden="true"><i class="ti ti-crown"></i></span>
+        Tu membresía ha vencido
+      </span>
+      <h2 class="membership-renewal-hero__title" id="membership-renewal-hero-title">
+        Recupera el acceso a todas las funciones de Yogasto
+      </h2>
+      <p class="membership-renewal-hero__lead">
+        Reactiva tu membresía y vuelve a automatizar tus gastos, conectar tus bancos, usar IA y mucho más.
+      </p>
+      <div class="membership-renewal-hero__actions">
+        <%= link_to plans_path, class: "membership-renewal-hero__primary", data: { testid: "membership-renewal-link" } do %>
+          <i class="ti ti-crown" aria-hidden="true"></i>
+          <span>Renovar membresía</span>
+          <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        <% end %>
+        <button type="button" class="membership-renewal-hero__secondary"
+                data-bs-toggle="modal" data-bs-target="#membershipBenefitsModal"
+                data-testid="membership-benefits-button">
+          Ver beneficios
+        </button>
+      </div>
+    </div>
+
+    <div class="membership-renewal-hero__visual">
+      <div class="membership-renewal-hero__illustration" aria-hidden="true">
+        <svg viewBox="0 0 260 190" focusable="false" role="presentation">
+          <ellipse class="hero-art-shadow" cx="130" cy="178" rx="98" ry="9"></ellipse>
+          <rect class="hero-art-frame" x="38" y="17" width="184" height="137" rx="17"></rect>
+          <rect class="hero-art-screen" x="50" y="29" width="160" height="111" rx="9"></rect>
+          <rect class="hero-art-line" x="64" y="43" width="58" height="6" rx="3"></rect>
+          <rect class="hero-art-panel" x="64" y="61" width="29" height="63" rx="5"></rect>
+          <rect class="hero-art-line-soft" x="70" y="70" width="17" height="4" rx="2"></rect>
+          <rect class="hero-art-line-soft" x="70" y="80" width="17" height="4" rx="2"></rect>
+          <rect class="hero-art-line-soft" x="70" y="90" width="17" height="4" rx="2"></rect>
+          <rect class="hero-art-panel" x="102" y="61" width="94" height="63" rx="7"></rect>
+          <circle class="hero-art-crown-bg" cx="149" cy="78" r="15"></circle>
+          <path class="hero-art-crown" d="M142 82h14l2-10-6 4-5-7-5 7-6-4z"></path>
+          <rect class="hero-art-bar" x="116" y="104" width="14" height="11" rx="3"></rect>
+          <rect class="hero-art-bar" x="137" y="96" width="14" height="19" rx="3"></rect>
+          <rect class="hero-art-bar" x="158" y="88" width="14" height="27" rx="3"></rect>
+          <rect class="hero-art-bar-muted" x="179" y="100" width="10" height="15" rx="3"></rect>
+          <path class="hero-art-base" d="M28 154h208l9 13H19z"></path>
+        </svg>
+      </div>
+
+      <ul class="membership-renewal-hero__features" aria-label="Beneficios de la membresía PRO">
+        <li class="membership-renewal-hero__feature">
+          <span class="membership-renewal-hero__feature-icon" aria-hidden="true"><i class="ti ti-mail"></i></span>
+          <span><strong>Automatizaciones</strong><small>Email, Gmail, WhatsApp</small></span>
+        </li>
+        <li class="membership-renewal-hero__feature">
+          <span class="membership-renewal-hero__feature-icon" aria-hidden="true"><i class="ti ti-brain"></i></span>
+          <span><strong>IA para registrar</strong><small>tus gastos</small></span>
+        </li>
+        <li class="membership-renewal-hero__feature">
+          <span class="membership-renewal-hero__feature-icon" aria-hidden="true"><i class="ti ti-list-check"></i></span>
+          <span><strong>Reglas y</strong><small>categorización</small></span>
+        </li>
+        <li class="membership-renewal-hero__feature">
+          <span class="membership-renewal-hero__feature-icon" aria-hidden="true"><i class="ti ti-chart-bar"></i></span>
+          <span><strong>Análisis y</strong><small>reportes avanzados</small></span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <%= render "dashboard/membership_benefits_modal" %>
+<% end %>

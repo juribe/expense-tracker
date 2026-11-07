@@ -29,7 +29,7 @@ class TermsAndConditionsTest < ApplicationSystemTestCase
     assert_selector "[data-privacy-toc-link='pagos'].is-active"
   end
 
-  test "el índice de 14 secciones no desborda en móvil" do
+  test "el índice de 18 secciones no desborda en móvil" do
     [ 375, 390 ].each do |width|
       page.current_window.resize_to(width, 844)
       visit "/terminos-y-condiciones"

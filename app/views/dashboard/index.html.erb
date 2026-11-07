@@ -4,7 +4,10 @@
 
 <%= content_for :head do %>
   <%= stylesheet_link_tag :membership_banner, "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag :membership_hero, "data-turbo-track": "reload" %>
 <% end %>
+
+<%= render "dashboard/membership_renewal_hero" %>
 
 <%= render "dashboard/header" %>
 

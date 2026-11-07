@@ -56,6 +56,15 @@ class ApplicationController < ActionController::Base
   end
   helper_method :user_access
 
+  # The dashboard renewal hero: the user had a membership and currently has
+  # no PRO access. Free users without membership history are not prompted.
+  def membership_renewal_prompt?
+    return false unless user_signed_in?
+
+    user_access.renewal_prompt?
+  end
+  helper_method :membership_renewal_prompt?
+
   # Controls the once-per-day membership expiry banner. It is only visible
   # while the membership is active and within the five days before its
   # expiration date.

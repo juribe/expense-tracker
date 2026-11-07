@@ -41,6 +41,12 @@ module PaymentEngine
       end
     end
 
+    # True when the user has had a membership but no longer has PRO access.
+    # It reuses the access and free-plan rules instead of re-deriving expiry.
+    def renewal_prompt?
+      !free_plan_available? && !access_premium?
+    end
+
     def current_membership
       memberships.order(expires_at: :desc).first
     end
