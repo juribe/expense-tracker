@@ -7,6 +7,10 @@ class User < ApplicationRecord
 
   attr_accessor :terms_accepted, :privacy_accepted, :marketing_consent, :registration_form
 
+  NAME_MAX_LENGTH = 255
+
+  validates :name, presence: true, if: :name_required?
+  validates :name, length: { maximum: NAME_MAX_LENGTH }
   validates :financial_cycle_start_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }
   validates :inbound_email_token, uniqueness: true, allow_nil: true
@@ -142,6 +146,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def name_required?
+    registration_form? || (persisted? && will_save_change_to_name?)
+  end
 
   def registration_form?
     ActiveModel::Type::Boolean.new.cast(registration_form)

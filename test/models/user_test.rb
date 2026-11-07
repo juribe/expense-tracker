@@ -81,6 +81,52 @@ class UserTest < ActiveSupport::TestCase
     refute marketing.granted?
   end
 
+  test "registration requires a name" do
+    user = build_registration_user(name: "")
+
+    refute user.valid?
+    assert user.errors[:name].present?
+  end
+
+  test "registration rejects a whitespace-only name" do
+    user = build_registration_user(name: "   ")
+
+    refute user.valid?
+    assert user.errors[:name].present?
+  end
+
+  test "rejects names longer than the maximum length" do
+    user = build_registration_user(name: "a" * 256)
+
+    refute user.valid?
+    assert user.errors[:name].present?
+  end
+
+  test "prevents blanking an existing name" do
+    user = User.create!(
+      name: "Valid Name",
+      email: "rename-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+
+    refute user.update(name: "")
+    assert user.errors[:name].present?
+  end
+
+  test "allows legacy blank names to update other attributes" do
+    user = User.create!(
+      name: "Legacy Name",
+      email: "legacy-name-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123"
+    )
+    user.update_column(:name, "")
+
+    assert user.update(financial_cycle_start_day: 2)
+    assert_equal 2, user.reload.financial_cycle_start_day
+  end
+
   private
 
   def build_registration_user(overrides = {})

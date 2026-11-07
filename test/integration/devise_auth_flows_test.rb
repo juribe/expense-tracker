@@ -18,7 +18,8 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     get new_user_registration_path
     assert_response :success
     assert_select "h1", text: I18n.t("auth.sign_up")
-    assert_select "#user_name"
+    assert_select "#user_name[required]"
+    assert_select "#user_name[maxlength='255']"
     assert_select "#user_email"
     assert_select "#user_password"
     assert_select "#user_password_confirmation"
@@ -100,6 +101,8 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "#main-wrapper", count: 1
     assert_select "[data-testid='auth-page']", count: 0
+    assert_select "#user_name[required]"
+    assert_select "#user_name[maxlength='255']"
   end
 
   test "sign up creates an unconfirmed user and sends a confirmation email" do

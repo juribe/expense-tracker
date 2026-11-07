@@ -10,7 +10,8 @@
 
           <div class="mb-3">
             <%= f.label :name, class: "form-label" %>
-            <%= f.text_field :name, autocomplete: "name", class: "form-control" %>
+            <%= f.text_field :name, autocomplete: "name", required: true,
+                             maxlength: User::NAME_MAX_LENGTH, class: "form-control" %>
           </div>
 
           <div class="mb-3">

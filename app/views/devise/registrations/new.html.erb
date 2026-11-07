@@ -19,7 +19,9 @@
 
   <div class="auth-field">
     <%= f.label :name, class: "auth-label" %>
-    <%= f.text_field :name, autofocus: true, autocomplete: "name", class: "auth-input", placeholder: t("auth.name_placeholder") %>
+    <%= f.text_field :name, autofocus: true, autocomplete: "name",
+                     required: true, maxlength: User::NAME_MAX_LENGTH,
+                     class: "auth-input", placeholder: t("auth.name_placeholder") %>
   </div>
 
   <div class="auth-field">

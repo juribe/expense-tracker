@@ -47,6 +47,20 @@ class Users::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, I18n.t("auth.consents.privacy_required", default: "Debes aceptar la Política de privacidad para crear tu cuenta.")
   end
 
+  test "sign up without a name is rejected" do
+    sign_out :user
+
+    assert_no_difference("User.count") do
+      post user_registration_path, params: {
+        user: sign_up_params(name: "")
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select "#error_explanation"
+    assert_includes response.body, I18n.t("errors.messages.blank", default: "no puede estar en blanco")
+  end
+
   test "sign up requires privacy acceptance independently from terms" do
     sign_out :user
 

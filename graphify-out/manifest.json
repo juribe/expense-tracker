@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "app/models/user.rb": {
-    "mtime": 1794078839.8882213,
-    "seen": 1794079009.206367,
-    "ast_hash": "8be9e2eecf0deac31a986f06e5960cd0",
+    "mtime": 1794079540.143395,
+    "seen": 1794079720.4050298,
+    "ast_hash": "d0a94462f4c69775aa36b2358c84941d",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "test/integration/devise_auth_flows_test.rb": {
-    "mtime": 1794076499.8485203,
-    "seen": 1794078780.088073,
-    "ast_hash": "7f8e598a223fce962d88392c2d978950",
+    "mtime": 1794079525.0306418,
+    "seen": 1794079720.4061499,
+    "ast_hash": "a3dce505600ce96cf8b9cfed3bd0904d",
     "semantic_hash": ""
   },
   "test/jobs/gmail_sync_job_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794078901.9152355,
-    "seen": 1794079009.20816,
+    "mtime": 1794079593.7089598,
+    "seen": 1794079720.406786,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4998,15 +4998,15 @@
     "semantic_hash": ""
   },
   "test/controllers/users/registrations_controller_test.rb": {
-    "mtime": 1794076431.1373036,
-    "seen": 1794078780.088042,
-    "ast_hash": "913e17bcd6f76b5346bf679ce83e0ffb",
+    "mtime": 1794079518.9809403,
+    "seen": 1794079720.406124,
+    "ast_hash": "8b7c62db150cc9dfb47bd5e09d7129dc",
     "semantic_hash": ""
   },
   "test/models/user_test.rb": {
-    "mtime": 1794076752.3720727,
-    "seen": 1794078780.0882702,
-    "ast_hash": "fc9937f8257ba1ffaf76bf054626a511",
+    "mtime": 1794079514.7216384,
+    "seen": 1794079720.4063392,
+    "ast_hash": "afe6749735b84ed9c56abf8f238dfa77",
     "semantic_hash": ""
   },
   "app/controllers/test_support/confirmations_controller.rb": {
