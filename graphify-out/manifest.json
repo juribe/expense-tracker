@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794077358.6929238,
-    "seen": 1794078780.08874,
-    "ast_hash": "1d12fe177369f8cea1dcc418037e00e0",
+    "mtime": 1794085417.533706,
+    "seen": 1794085466.080796,
+    "ast_hash": "91b1903afb9e2a5bcbc95db362468413",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -3372,9 +3372,9 @@
     "semantic_hash": ""
   },
   "app/controllers/reports/insights_controller.rb": {
-    "mtime": 1791048017.1303556,
-    "seen": 1793490696.6344059,
-    "ast_hash": "7b0437335a8a2aaa0bef9dd3506d4a1e",
+    "mtime": 1794085400.7507627,
+    "seen": 1794085466.0787442,
+    "ast_hash": "3da7724223750777f177ccdcb9f1122a",
     "semantic_hash": ""
   },
   "app/controllers/reports/loans_controller.rb": {
@@ -3390,9 +3390,9 @@
     "semantic_hash": ""
   },
   "app/controllers/reports/overview_controller.rb": {
-    "mtime": 1791048391.4784477,
-    "seen": 1793490696.63441,
-    "ast_hash": "8b4eaecc6097ac62116afdcf4c44b6aa",
+    "mtime": 1794085404.2187057,
+    "seen": 1794085466.078749,
+    "ast_hash": "90097764ff916570ac5b09a10652dcfd",
     "semantic_hash": ""
   },
   "app/controllers/reports/recurring_controller.rb": {
@@ -3420,9 +3420,9 @@
     "semantic_hash": ""
   },
   "app/helpers/reports_helper.rb": {
-    "mtime": 1793235682.931183,
-    "seen": 1793490696.634453,
-    "ast_hash": "ee8d5f5f4b27f38c7f2ab5d441dfb126",
+    "mtime": 1794084419.180648,
+    "seen": 1794084481.9861708,
+    "ast_hash": "30125ba642b9780da36e4d087671e761",
     "semantic_hash": ""
   },
   "app/services/loans/next_payment.rb": {
@@ -3462,9 +3462,9 @@
     "semantic_hash": ""
   },
   "app/services/reports/insights.rb": {
-    "mtime": 1791047876.4564433,
-    "seen": 1793490696.63493,
-    "ast_hash": "a305696bc4a333192c81960b64ff9338",
+    "mtime": 1794085397.7593036,
+    "seen": 1794085466.079458,
+    "ast_hash": "3dddedacd7d81bc0b2cdd46984e08939",
     "semantic_hash": ""
   },
   "app/services/reports/loans.rb": {
@@ -3486,15 +3486,15 @@
     "semantic_hash": ""
   },
   "app/services/reports/period.rb": {
-    "mtime": 1791332695.2355585,
-    "seen": 1793490696.6349351,
-    "ast_hash": "6a660153a5bee7af953d4b882502d93c",
+    "mtime": 1794085597.3695912,
+    "seen": 1794085662.990726,
+    "ast_hash": "6569aeb2bd8a49dd5cbf0e5272bceaeb",
     "semantic_hash": ""
   },
   "app/services/reports/recurring.rb": {
-    "mtime": 1791046934.4227388,
-    "seen": 1793490696.634937,
-    "ast_hash": "855ed1a4efb14bc5627a6dde57c91475",
+    "mtime": 1794084797.843742,
+    "seen": 1794084862.20788,
+    "ast_hash": "803df94137b96d52fdad52df84d8ee94",
     "semantic_hash": ""
   },
   "app/services/reports/spending_trend.rb": {
@@ -3516,9 +3516,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/reports_pages_test.rb": {
-    "mtime": 1793230160.441802,
-    "seen": 1793490696.635235,
-    "ast_hash": "c9f2cbbabec5c9689ae0becb1164acbf",
+    "mtime": 1794085577.517637,
+    "seen": 1794085662.991703,
+    "ast_hash": "f9ef6fc769a9cc0d5122ea7e22ac2a8c",
     "semantic_hash": ""
   },
   "test/services/reports/base_test.rb": {
@@ -3552,9 +3552,9 @@
     "semantic_hash": ""
   },
   "test/services/reports/insights_test.rb": {
-    "mtime": 1792169955.5258207,
-    "seen": 1793490696.635537,
-    "ast_hash": "e157bd62dfe5bfdfb9fb7fc86bec272f",
+    "mtime": 1794085376.3186665,
+    "seen": 1794085466.080599,
+    "ast_hash": "b6632f9360f1b91f33674089069a9b7f",
     "semantic_hash": ""
   },
   "test/services/reports/loans_test.rb": {
@@ -3576,15 +3576,15 @@
     "semantic_hash": ""
   },
   "test/services/reports/period_test.rb": {
-    "mtime": 1791332984.088179,
-    "seen": 1793490696.635543,
-    "ast_hash": "c394a01aab0346e297e51e9eb0012b72",
+    "mtime": 1794085600.6030104,
+    "seen": 1794085662.992198,
+    "ast_hash": "dc776e1ffac4e116308cf53d082cb77b",
     "semantic_hash": ""
   },
   "test/services/reports/recurring_test.rb": {
-    "mtime": 1791046852.558177,
-    "seen": 1793490696.635544,
-    "ast_hash": "7f2f8f718c85bf0f8e8623a8f8f7a39d",
+    "mtime": 1794084766.8100886,
+    "seen": 1794084862.209127,
+    "ast_hash": "115e4cabd9b1631138f6b5cd4d0a91ef",
     "semantic_hash": ""
   },
   "test/services/reports/spending_trend_test.rb": {

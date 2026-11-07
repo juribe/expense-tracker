@@ -15,13 +15,17 @@ class ReportsInsightsTest < ActiveSupport::TestCase
     @filter = Reports::Filter.new(user: @user, period: @period)
   end
 
-  def expense(amount, date:, category: @food, source: @bank)
+  def expense(amount, date:, category: @food, source: @bank, recurring_template: nil)
     Expense.create!(user: @user, category: category, money_source: source, amount: amount,
-                    date: date, description: "x")
+                    date: date, description: "x", recurring_template: recurring_template)
+  end
+
+  def insights_service
+    Reports::Insights.new(user: @user, filter: @filter)
   end
 
   def insights
-    Reports::Insights.new(user: @user, filter: @filter).call
+    insights_service.call
   end
 
   def category_spike(september, august, previous_months: [])
@@ -108,12 +112,28 @@ class ReportsInsightsTest < ActiveSupport::TestCase
   end
 
   test "insight when recurring commitments grow" do
-    expense(-100_000, date: Date.new(2026, 9, 10))
-    expense(-1_000, date: Date.new(2026, 8, 10))
-    RecurringTemplate.create!(user: @user, category: @food, kind: "expense", amount: 1_500_000,
-                              frequency: "monthly", payment_day: 5, active: true, description: "Rent")
+    template = RecurringTemplate.create!(user: @user, category: @food, kind: "expense", amount: 1_500_000,
+                                         frequency: "monthly", payment_day: 5, active: true, description: "Rent")
+    expense(-1_000_000, date: Date.new(2026, 8, 10), recurring_template: template)
 
     assert insights.any? { |i| i[:rule] == :recurring_commitment_increase }
+  end
+
+  test "no recurring commitment insight without a previous baseline" do
+    RecurringTemplate.create!(user: @user, category: @food, kind: "expense", amount: 1_500_000,
+                              frequency: "monthly", payment_day: 5, active: true, description: "Rent")
+    expense(-100_000, date: Date.new(2026, 9, 10))
+
+    refute insights.any? { |i| i[:rule] == :recurring_commitment_increase }
+  end
+
+  test "recurring income templates are not treated as expense commitments" do
+    salary_category = Category.create!(name: "Salario", is_default: true, category_type: "income")
+    expense(-10_000, date: Date.new(2026, 9, 10))
+    RecurringTemplate.create!(user: @user, category: salary_category, kind: "income", amount: 8_000_000,
+                              frequency: "monthly", payment_day: 5, active: true, description: "Salary")
+
+    refute insights.any? { |i| i[:rule] == :recurring_commitment_increase }
   end
 
   test "insight when debt payments rise sharply" do
@@ -129,6 +149,32 @@ class ReportsInsightsTest < ActiveSupport::TestCase
 
   test "no insights without meaningful data" do
     assert_empty insights
+  end
+
+  test "flags insufficient data when the current period has no spending" do
+    expense(-100_000, date: Date.new(2026, 8, 10))
+
+    assert insights_service.insufficient_data?
+  end
+
+  test "flags insufficient data without previous or historical spending" do
+    expense(-100_000, date: Date.new(2026, 9, 10))
+
+    assert insights_service.insufficient_data?
+  end
+
+  test "has enough data when the previous period has spending" do
+    expense(-100_000, date: Date.new(2026, 9, 10))
+    expense(-100_000, date: Date.new(2026, 8, 10))
+
+    refute insights_service.insufficient_data?
+  end
+
+  test "has enough data with historical spending even without the previous period" do
+    expense(-100_000, date: Date.new(2026, 9, 10))
+    expense(-100_000, date: Date.new(2026, 5, 10))
+
+    refute insights_service.insufficient_data?
   end
 
   test "insights are capped and always carry structure" do

@@ -18,7 +18,32 @@ class Reports::Insights < Reports::Base
          .first(Reports::Thresholds::MAX_INSIGHTS)
   end
 
+  # True when the rules cannot compare the current period: either there is no
+  # current spending, or there is no previous/historical spending to compare
+  # it against. This is different from a period with data but nothing notable.
+  def insufficient_data?
+    return @insufficient_data unless @insufficient_data.nil?
+
+    @insufficient_data = !current_spending? || !comparison_spending?
+  end
+
   private
+
+  def current_spending?
+    filter.expense_scope(period.range).where.missing(:payments).exists?
+  end
+
+  def comparison_spending?
+    return true if filter.expense_scope(period.previous_range).where.missing(:payments).exists?
+
+    filter.expense_scope(historical_activity_range).where.missing(:payments).exists?
+  end
+
+  # Covers both comparison sources used by the rules: the six monthly windows
+  # behind the transaction-count average and the category history range.
+  def historical_activity_range
+    (period.range.begin - HISTORICAL_MONTHS.months).beginning_of_month..(period.range.begin - 1.day)
+  end
 
   def rules
     %i[spending_change category_spike category_unusual_average large_transaction
@@ -143,8 +168,12 @@ class Reports::Insights < Reports::Base
                                       .where.not(recurring_template_id: nil)
                                       .where(date: period.previous_range)
                                       .sum(Arel.sql("ABS(amount)")).to_d
+    # Without a previous recurring baseline there is no growth to report: a
+    # zero would make the whole current commitment look like an increase.
+    return [] if today.zero? || processed_last_month.zero?
+
     increase = today - processed_last_month
-    return [] if today.zero? || increase < today * Reports::Thresholds::RECURRING_INCREASE_PCT / 100
+    return [] if increase < today * Reports::Thresholds::RECURRING_INCREASE_PCT / 100
 
     [ {
       rule: :recurring_commitment_increase, kind: "increase",

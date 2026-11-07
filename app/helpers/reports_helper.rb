@@ -59,6 +59,16 @@ module ReportsHelper
     end
   end
 
+  # Preset selected in the period control. With a configured financial cycle
+  # the default is the current cycle, matching how the reports resolve an
+  # omitted period.
+  def selected_period_preset(user: nil)
+    return params[:period] if params[:period].present?
+
+    user ||= current_user if respond_to?(:current_user)
+    Reports::Period.cycles_enabled?(user) ? "this_cycle" : "this_month"
+  end
+
   # The two single-cycle presets name their concrete range ("Este ciclo
   # (Oct 20 – Nov 4)") so the selector is unambiguous about which months it
   # covers; multi-cycle and calendar presets keep their static labels.

@@ -1,7 +1,7 @@
 <%# Filters card: title block + two-row chip grid + actions, composable with
     the period. locals: path %>
 <%= form_with url: path, method: :get, local: true do |form| %>
-  <%= hidden_field_tag :period, params[:period] || "this_month" %>
+  <%= hidden_field_tag :period, selected_period_preset %>
   <% if params[:period] == "custom" %>
     <%= hidden_field_tag :start_date, params[:start_date] %>
     <%= hidden_field_tag :end_date, params[:end_date] %>

@@ -1,4 +1,4 @@
-<%= render "reports/page_header", title: t("reports.title"), subtitle: t("reports.overview.subtitle"), path: reports_overview_path %>
+<%= render "reports/page_header", title: t("reports.title"), subtitle: t("reports.overview.subtitle"), path: reports_overview_path, filters: false %>
 
 <div class="row g-3 mb-4" data-testid="overview-cards">
   <div class="col-12 col-sm-6 col-xl-3">
@@ -79,6 +79,8 @@
               <span class="small"><%= insight[:message] %></span>
             </div>
           <% end %>
+        <% elsif @insights_insufficient_data %>
+          <p class="text-muted mb-0"><%= t("reports.insights.insufficient_data_title") %></p>
         <% else %>
           <p class="text-muted mb-0"><%= t("reports.insights.empty") %></p>
         <% end %>

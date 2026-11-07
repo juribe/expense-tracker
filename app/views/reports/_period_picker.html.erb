@@ -9,7 +9,7 @@
   <div class="input-group">
     <span class="input-group-text"><i class="ti ti-calendar"></i></span>
     <%= select_tag :period,
-          options_for_select(period_presets, params[:period] || "this_month"),
+          options_for_select(period_presets, selected_period_preset),
           class: "form-select", id: "report-period-select",
           "data-auto-submit": true %>
     <%= submit_tag t("common.apply", default: "Aplicar"), class: "btn btn-light" %>

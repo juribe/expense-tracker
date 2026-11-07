@@ -2321,6 +2321,8 @@ es:
       title: "Perspectivas financieras"
       subtitle: "Lo más importante que detectamos en tus datos"
       empty: "No hay nada destacable en este periodo. Eso es buena señal."
+      insufficient_data_title: "Falta información para generar perspectivas"
+      insufficient_data_help: "Necesitamos movimientos de periodos anteriores para poder comparar tus datos. Sigue registrando tus finanzas y las perspectivas aparecerán cuando haya suficiente historial."
       spending_increase: "Tus gastos subieron %{pct}% frente al periodo anterior."
       spending_decrease: "Tus gastos bajaron %{pct}% frente al periodo anterior."
       category_increase: "Tu gasto en %{name} subió %{pct}% frente al periodo anterior."

@@ -98,6 +98,16 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /reports/insights explains when there is not enough history" do
+    @user.expenses.create!(amount: -100_000, date: Date.current, category: @category, money_source: @bank, description: "only current")
+
+    get reports_insights_path
+
+    assert_response :success
+    assert_select "[data-testid=insights-insufficient-data]", text: /Falta información/
+    assert_select "[data-testid=insight]", count: 0
+  end
+
   test "reports pages include the chip click-through script" do
     get reports_by_category_path
     assert_response :success
@@ -153,6 +163,53 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
   test "GET /reports with custom range" do
     get reports_overview_path(period: "custom", start_date: 1.month.ago.to_date, end_date: Date.current)
     assert_response :success
+  end
+
+  test "GET /reports renders only the period picker, not the filters card" do
+    @user.update!(financial_cycle_start_day: 20)
+
+    get reports_overview_path
+
+    assert_response :success
+    assert_select "#report-period-select"
+    assert_select "#report-period-select option[value=this_cycle]"
+    assert_select "form .filters-card", count: 0
+    assert_select "select[name=category_id]", count: 0
+    assert_select "select[name=money_source_id]", count: 0
+    assert_select "select[name=kind]", count: 0
+  end
+
+  test "GET /reports scopes the summary to the selected financial cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.current(@user)
+
+    @user.expenses.create!(amount: -100_000, date: cycle.starts + 1.day,
+                           category: @category, money_source: @bank, description: "inside cycle")
+    @user.expenses.create!(amount: -999_999, date: cycle.starts - 1.day,
+                           category: @category, money_source: @bank, description: "outside cycle")
+
+    get reports_overview_path(period: "this_cycle")
+
+    assert_response :success
+    assert_select "[data-testid=expenses-total]", text: "$100.000"
+  end
+
+  test "GET /reports uses the current financial cycle by default" do
+    travel_to Date.new(2026, 11, 7) do
+      @user.update!(financial_cycle_start_day: 20)
+      cycle = PayCycle.current(@user)
+
+      @user.expenses.create!(amount: -100_000, date: cycle.starts + 1.day,
+                             category: @category, money_source: @bank, description: "inside cycle")
+      @user.expenses.create!(amount: -999_999, date: cycle.starts - 1.day,
+                             category: @category, money_source: @bank, description: "outside cycle")
+
+      get reports_overview_path
+
+      assert_response :success
+      assert_select "[data-testid=expenses-total]", text: "$100.000"
+      assert_select "#report-period-select option[value=this_cycle][selected]"
+    end
   end
 
   test "sidebar includes the reports link" do

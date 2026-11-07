@@ -15,6 +15,9 @@
 class Reports::Period
   MONTH_PRESETS = %w[this_month last_month last_3_months last_6_months last_12_months this_year custom].freeze
   CYCLE_PRESETS = %w[this_cycle last_cycle last_3_cycles last_6_cycles last_12_cycles this_year custom].freeze
+  # Presets that only exist as pay cycles; this_year/custom are shared with the
+  # calendar presets and resolve the same way in both modes.
+  CYCLE_ONLY_PRESETS = (CYCLE_PRESETS - %w[this_year custom]).freeze
   PRESETS = MONTH_PRESETS
 
   MONTH_TO_CYCLE = {
@@ -119,9 +122,13 @@ class Reports::Period
     preset = raw.to_s
     return "custom" if preset == "custom" && @start_date.present? && @end_date.present?
     return MONTH_TO_CYCLE.fetch(preset) if cycles_enabled? && MONTH_TO_CYCLE.key?(preset)
-    return MONTH_TO_CYCLE.key(preset) if MONTH_TO_CYCLE.value?(preset) # cycle preset without schedule
+    return preset if cycles_enabled? && CYCLE_ONLY_PRESETS.include?(preset)
+    return MONTH_TO_CYCLE.key(preset) if CYCLE_ONLY_PRESETS.include?(preset) # cycle preset without schedule
+    return preset if PRESETS.include?(preset)
 
-    PRESETS.include?(preset) ? preset : "this_month"
+    # A missing or unknown preset is the default period: the current cycle
+    # when the user has one configured, otherwise the calendar month.
+    cycles_enabled? ? "this_cycle" : "this_month"
   end
 
   def cycles_enabled?

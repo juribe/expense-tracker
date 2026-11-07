@@ -120,6 +120,34 @@ class ReportsPeriodTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 8, 20)..Date.new(2026, 9, 19), p.previous_range
   end
 
+  test "omitted preset defaults to this cycle with a configured schedule" do
+    user = User.create!(name: "Cycle User", email: "cycle_period_default_test@example.com", password: "password123")
+    user.update!(financial_cycle_start_day: 20)
+
+    p = Reports::Period.new(preset: nil, date: Date.new(2026, 10, 25), user: user)
+
+    assert_equal "this_cycle", p.preset
+    assert_equal Date.new(2026, 10, 20)..Date.new(2026, 11, 19), p.range
+  end
+
+  test "explicit cycle presets stay cycle-aligned with a configured schedule" do
+    user = User.create!(name: "Cycle User", email: "cycle_period_explicit_test@example.com", password: "password123")
+    user.update!(financial_cycle_start_day: 20)
+
+    this_cycle = Reports::Period.new(preset: "this_cycle", date: Date.new(2026, 10, 25), user: user)
+    assert_equal "this_cycle", this_cycle.preset
+    assert_equal Date.new(2026, 10, 20)..Date.new(2026, 11, 19), this_cycle.range
+    assert_equal Date.new(2026, 9, 20)..Date.new(2026, 10, 19), this_cycle.previous_range
+
+    last_cycle = Reports::Period.new(preset: "last_cycle", date: Date.new(2026, 10, 25), user: user)
+    assert_equal "last_cycle", last_cycle.preset
+    assert_equal Date.new(2026, 9, 20)..Date.new(2026, 10, 19), last_cycle.range
+
+    three_cycles = Reports::Period.new(preset: "last_3_cycles", date: Date.new(2026, 10, 25), user: user)
+    assert_equal "last_3_cycles", three_cycles.preset
+    assert_equal Date.new(2026, 8, 20)..Date.new(2026, 11, 19), three_cycles.range
+  end
+
   test "last 3 months become three cycles with a configured schedule" do
     user = User.create!(name: "Cycle User", email: "cycle_period_span_test@example.com", password: "password123")
     user.update!(financial_cycle_start_day: 20)

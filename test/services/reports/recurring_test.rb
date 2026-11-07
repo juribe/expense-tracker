@@ -66,13 +66,24 @@ class ReportsRecurringTest < ActiveSupport::TestCase
     assert_equal 31_440_000.to_d, data[:annual_committed]
   end
 
-  test "income templates are counted separately" do
+  test "income templates do not count as expense commitments" do
     template(name: "Salary", amount: 8_000_000, kind: "income")
 
     data = report
 
-    assert_equal 8_000_000.to_d, data[:monthly_committed]
+    assert_equal 0.to_d, data[:monthly_committed]
+    assert_equal 0.to_d, data[:annual_committed]
     assert_equal :income, data[:items].first[:kind]
+  end
+
+  test "monthly committed only sums expense templates" do
+    template(name: "Internet", amount: 120_000)
+    template(name: "Salary", amount: 8_000_000, kind: "income")
+
+    data = report
+
+    assert_equal 120_000.to_d, data[:monthly_committed]
+    assert_equal 1_440_000.to_d, data[:annual_committed]
   end
 
   test "upcoming payments for the next 7 days from today" do

@@ -1,6 +1,7 @@
 <%# Shared page header: big title + subtitle on the left, period control on
-    the right, filters bar below.
-    locals: path (current page path), title, subtitle (optional) %>
+    the right, optional filters bar below.
+    locals: path (current page path), title, subtitle (optional),
+    filters (optional, defaults to true) %>
 <div class="reports-header">
   <div class="d-flex align-items-start">
     <i class="ti ti-chart-line reports-header-icon me-3 d-none d-sm-inline"></i>
@@ -17,4 +18,6 @@
   </div>
 </div>
 
-<%= render "reports/filters", path: path %>
+<% if local_assigns.fetch(:filters, true) %>
+  <%= render "reports/filters", path: path %>
+<% end %>

@@ -3,6 +3,8 @@
 # Reports::Recurring
 # Recurring payments report: templates with monthly/annual equivalents,
 # committed amounts and upcoming payments within the next seven days.
+# Committed amounts only include expense templates; income templates stay in
+# the item list but are never treated as a monthly commitment.
 # Amounts come from the template's recorded data; unknown frequencies are
 # never extrapolated beyond a monthly fallback factor.
 #
@@ -24,11 +26,12 @@ class Reports::Recurring < Reports::Base
   def call
     items = template_items
     active = items.select { |item| item[:active] }
+    commitments = active.select { |item| item[:kind] == :expense }
     {
       period: period,
       items: items,
-      monthly_committed: active.sum { |item| item[:monthly_equivalent] },
-      annual_committed: active.sum { |item| item[:monthly_equivalent] * 12 },
+      monthly_committed: commitments.sum { |item| item[:monthly_equivalent] },
+      annual_committed: commitments.sum { |item| item[:annual_equivalent] },
       upcoming: upcoming(active)
     }
   end
