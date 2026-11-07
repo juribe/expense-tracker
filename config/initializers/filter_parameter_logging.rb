@@ -7,5 +7,9 @@ Rails.application.config.filter_parameters += [
   :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn, :cvv, :cvc,
   # Raw base64 payloads (file/image/audio uploads) are in-memory only; never
   # let Rails echo them into the request log.
-  :file_data, :image_data, :audio_data
+  :file_data, :image_data, :audio_data,
+  # WebAuthn responses and recovery codes are one-time secrets.
+  :public_key_credential, :public_key, :recovery_code, :code_digest,
+  # TOTP codes and provisioning secrets must never reach request logs.
+  :totp_code, :otp_code, :totp_secret
 ]

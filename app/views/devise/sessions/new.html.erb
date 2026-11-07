@@ -1,4 +1,9 @@
 <% content_for :title, "#{t("auth.sign_in")} | #{AppName.current}" %>
+<% content_for :head do %>
+  <%= javascript_include_tag "devise/webauthn", type: "module" %>
+  <%= javascript_include_tag "webauthn_ui", defer: true %>
+  <%= stylesheet_link_tag :auth_webauthn, "data-turbo-track": "reload" %>
+<% end %>
 
 <div class="auth-heading">
   <h1><%= t("auth.sign_in") %></h1>
@@ -40,12 +45,22 @@
   </button>
 <% end %>
 
+<div class="auth-divider auth-divider-labeled" data-testid="auth-divider">
+  <span><%= t("auth.or_continue_other_way", default: "O continúa de otra manera") %></span>
+</div>
+
+<%= login_with_passkey_form_for(resource_name, data: { testid: "passkey-login-form" }) do |form| %>
+  <%= form.button nil, type: "submit", class: "auth-passkey", data: { testid: "passkey-login" } do %>
+    <i class="ti ti-fingerprint" aria-hidden="true"></i>
+    <span><%= t("auth.continue_with_passkey", default: "Continuar con Passkey") %></span>
+  <% end %>
+<% end %>
+<p class="auth-passkey-help"><%= t("auth.passkey_help", default: "Usa la huella, el rostro o el PIN de este dispositivo.") %></p>
+
 <div class="auth-privacy">
   <i class="ti ti-shield-check" aria-hidden="true"></i>
   <span><%= t("auth.privacy") %></span>
 </div>
-
-<div class="auth-divider"></div>
 
 <p class="auth-footer-link">
   <%= t("auth.sign_up_prompt") %>

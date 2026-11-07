@@ -8,6 +8,7 @@ require_relative "support/fake_ai_provider"
 require_relative "support/public_cms_test_support"
 require_relative "support/help_center_test_support"
 require_relative "support/privacy_policy_test_support"
+require_relative "support/webauthn_test_helper"
 
 # Never inherit AI provider configuration from the developer's .env:
 # tests must make no real AI calls. Tests that exercise AI routing set the
@@ -183,6 +184,7 @@ end
 module ActionDispatch
   class IntegrationTest
     prepend BulletIntegrationHook
+    include WebauthnTestHelper
   end
 end
 

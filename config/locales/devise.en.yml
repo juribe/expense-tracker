@@ -16,6 +16,19 @@ en:
       timeout: "Your session expired. Please sign in again to continue."
       unauthenticated: "You need to sign in or sign up before continuing."
       unconfirmed: "You have to confirm your email address before continuing."
+      passkey_not_found: "Your passkey does not exist or is not valid."
+      passkey_verification_failed: "We could not verify your identity. Please try again."
+      passkey_deletion_failed: "We could not delete the passkey."
+      security_key_deletion_failed: "We could not delete the security key."
+      security_key_promotion_failed: "You cannot convert this key into a passkey."
+      last_security_key: "You cannot delete your only security key. Disable two-step verification first."
+      invalid_recovery_code: "The recovery code is invalid or has already been used."
+      invalid_totp_code: "The authenticator code is invalid or has already been used."
+      sign_in_not_initiated: "Sign in was not initiated."
+      two_factor_required: "Two-step verification is required to sign in."
+      webauthn_credential_not_found: "Your WebAuthn credential does not exist or is not valid."
+      webauthn_credential_verification_failed: "We could not verify the WebAuthn credential."
+      webauthn_challenge_expired: "Verification expired. Please try again."
     mailer:
       confirmation_instructions:
         subject: "Confirmation instructions"
@@ -36,6 +49,13 @@ en:
       send_paranoid_instructions: "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
       updated: "Your password has been changed successfully. You are now signed in."
       updated_not_active: "Your password has been changed successfully."
+    passkeys:
+      passkey_created: "Passkey created successfully."
+      passkey_deleted: "Passkey deleted successfully."
+    second_factor_webauthn_credentials:
+      security_key_created: "Two-step verification enabled."
+      security_key_deleted: "Security key deleted successfully."
+      security_key_promoted: "Security key promoted to passkey successfully."
     registrations:
       destroyed: "Bye! Your account has been successfully cancelled. We hope to see you again soon."
       signed_up: "Welcome! You have signed up successfully."

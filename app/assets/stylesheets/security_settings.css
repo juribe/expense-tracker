@@ -1,0 +1,350 @@
+.security-page {
+  --security-ink: #1d2440;
+  --security-muted: #6f7894;
+  --security-purple: #6c4cff;
+  --security-purple-soft: #f1edff;
+  --security-lavender: #e9e3ff;
+  --security-border: #e7e3f5;
+  --security-danger: #c0392b;
+  display: grid;
+  gap: 1.25rem;
+  color: var(--security-ink);
+}
+
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.security-card,
+.security-reauth {
+  padding: 1.5rem;
+  border: 1px solid var(--security-border);
+  border-radius: 1.25rem;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(56, 38, 125, 0.06);
+}
+
+.security-reauth {
+  background: linear-gradient(135deg, #fbfaff 0%, #f4f0ff 100%);
+  border-color: var(--security-lavender);
+}
+
+.security-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.security-section-head h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.security-section-head p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--security-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.security-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: 0 0 auto;
+  border-radius: 0.9rem;
+  background: var(--security-purple-soft);
+  color: var(--security-purple);
+  font-size: 1.25rem;
+}
+
+.security-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  background: var(--security-purple-soft);
+  color: var(--security-purple);
+  font-weight: 700;
+}
+
+.security-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.security-status.is-on {
+  background: #e9f8ef;
+  color: #1f7a45;
+}
+
+.security-status.is-off {
+  background: #f3f4f8;
+  color: var(--security-muted);
+}
+
+.security-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.security-device {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--security-border);
+  border-radius: 0.95rem;
+  background: #fbfaff;
+}
+
+.security-device-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: 0 0 auto;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: var(--security-purple);
+  font-size: 1.1rem;
+}
+
+.security-device-body {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.security-device-body strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
+}
+
+.security-device-body small {
+  color: var(--security-muted);
+  font-size: 0.78rem;
+}
+
+.security-device form {
+  margin: 0;
+}
+
+.security-action {
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 0.25rem;
+}
+
+.security-form,
+.security-inline-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.security-inline-form {
+  margin-bottom: 1rem;
+}
+
+.security-field {
+  flex: 1 1 15rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.security-field .form-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.security-field .form-control {
+  min-height: 2.75rem;
+  border-radius: 0.8rem;
+  border-color: var(--security-border);
+}
+
+.security-field .form-control:focus {
+  border-color: var(--security-purple);
+  box-shadow: 0 0 0 0.2rem rgba(108, 76, 255, 0.14);
+}
+
+.security-empty {
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  border-radius: 0.9rem;
+  background: #f8f7fd;
+  color: var(--security-muted);
+  font-size: 0.9rem;
+}
+
+.security-meta {
+  margin: 0 0 0.9rem;
+  color: var(--security-muted);
+  font-size: 0.88rem;
+}
+
+.security-warning {
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.85rem;
+  background: #fff8e8;
+  color: #8a5a00;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.recovery-codes {
+  margin-top: 1.1rem;
+  padding: 1.1rem;
+  border: 1px dashed var(--security-purple);
+  border-radius: 1rem;
+  background: #fbfaff;
+}
+
+.recovery-codes h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.recovery-code-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.recovery-code-grid code {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.7rem;
+  background: #fff;
+  border: 1px solid var(--security-lavender);
+  color: var(--security-ink);
+  font-size: 0.88rem;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+.recovery-code-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.security-devices-card .security-section-head {
+  margin-bottom: 0;
+}
+
+@media (max-width: 991.98px) {
+  .security-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .security-card,
+  .security-reauth {
+    padding: 1.15rem;
+  }
+
+  .security-device {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .security-device form {
+    width: 100%;
+  }
+
+  .security-device form .btn {
+    width: 100%;
+  }
+}
+
+.totp-setup-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1.25rem;
+}
+
+.totp-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid var(--security-lavender);
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.totp-qr svg {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+}
+
+.totp-setup-copy {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.totp-secret {
+  display: block;
+  padding: 0.9rem 1rem;
+  border-radius: 0.8rem;
+  background: var(--security-purple-soft);
+  color: var(--security-ink);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  word-break: break-word;
+}
+
+.totp-secret-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.totp-confirm-form {
+  margin-top: 1.25rem;
+}
+
+.totp-cancel-action {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+  .totp-setup-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

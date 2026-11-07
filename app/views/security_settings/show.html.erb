@@ -1,0 +1,222 @@
+<% content_for :head do %>
+  <%= stylesheet_link_tag :security_settings, "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "devise/webauthn", type: "module" %>
+  <%= javascript_include_tag "security_settings", defer: true %>
+<% end %>
+
+<div class="security-page">
+  <%= render "shared/page_header",
+             title: t("security.title"),
+             subtitle: t("security.subtitle") %>
+
+  <div class="security-grid">
+    <section class="card security-card" data-testid="passkeys-card">
+      <div class="security-section-head">
+        <div>
+          <h2><%= t("security.passkeys.title") %></h2>
+          <p><%= t("security.passkeys.description") %></p>
+        </div>
+        <span class="security-count" data-testid="passkeys-count"><%= @passkeys.size %></span>
+      </div>
+
+      <% if @passkeys.any? %>
+        <div class="security-list">
+          <% @passkeys.each do |passkey| %>
+            <div class="security-device" data-testid="device-row">
+              <span class="security-device-icon" aria-hidden="true"><i class="ti ti-fingerprint"></i></span>
+              <div class="security-device-body">
+                <strong><%= passkey.name %></strong>
+                <small><%= t("security.passkeys.created_at", date: l(passkey.created_at, format: :short)) %></small>
+              </div>
+              <% if security_reauthenticated? %>
+                <%= button_to t("security.passkeys.delete"),
+                              user_passkey_path(passkey),
+                              method: :delete,
+                              class: "btn btn-outline-danger btn-sm",
+                              form: { data: { turbo_confirm: t("security.passkeys.delete_confirm", default: "¿Eliminar esta passkey?") } } %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="security-empty"><%= t("security.passkeys.empty") %></p>
+      <% end %>
+
+      <% if security_reauthenticated? %>
+        <div class="security-action" data-testid="passkey-form">
+          <%= passkey_creation_form_for(:user, local: true, data: { testid: "passkey-creation-form" }) do |form| %>
+            <div class="security-field">
+              <%= form.label :name, t("security.passkeys.name_label"), class: "form-label" %>
+              <%= form.text_field :name,
+                                  required: true,
+                                  autocomplete: "off",
+                                  class: "form-control",
+                                  placeholder: t("security.passkeys.name_placeholder") %>
+            </div>
+            <%= form.submit t("security.passkeys.add"), class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="card security-card" data-testid="totp-card">
+      <div class="security-section-head">
+        <div>
+          <h2><%= t("security.totp.title") %></h2>
+          <p><%= t("security.totp.description") %></p>
+        </div>
+        <span class="security-status <%= @totp_enabled ? "is-on" : "is-off" %>"
+              data-testid="totp-status">
+          <%= @totp_enabled ? t("security.totp.enabled") : t("security.totp.disabled") %>
+        </span>
+      </div>
+
+      <% if @totp_enabled %>
+        <p class="security-meta"><%= t("security.totp.enabled_help") %></p>
+        <% if @recovery_codes_remaining.zero? %>
+          <p class="security-warning"><%= t("security.totp.no_recovery_codes") %></p>
+        <% end %>
+      <% else %>
+        <p class="security-empty"><%= t("security.totp.disabled_help") %></p>
+      <% end %>
+
+      <% if security_reauthenticated? %>
+        <div class="security-action" data-testid="totp-actions">
+          <%= button_to(@totp_enabled ? t("security.totp.change") : t("security.totp.setup"),
+                        start_totp_setup_security_settings_path,
+                        method: :post,
+                        class: "btn btn-primary",
+                        form: { data: { testid: @totp_enabled ? "totp-change-button" : "totp-setup-button" } }) %>
+
+          <% if @totp_enabled %>
+            <%= button_to t("security.totp.disable"),
+                          disable_totp_security_settings_path,
+                          method: :delete,
+                          class: "btn btn-outline-danger",
+                          form: { data: { testid: "totp-disable-button", turbo_confirm: t("security.totp.disable_confirm") } } %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="card security-card" data-testid="two-factor-card">
+      <div class="security-section-head">
+        <div>
+          <h2><%= t("security.two_factor.card_title") %></h2>
+          <p><%= t("security.two_factor.card_description") %></p>
+        </div>
+        <span class="security-status <%= @second_factor_credentials.any? ? "is-on" : "is-off" %>"
+              data-testid="two-factor-status">
+          <%= @second_factor_credentials.any? ? t("security.two_factor.enabled") : t("security.two_factor.disabled") %>
+        </span>
+      </div>
+
+      <% if @second_factor_credentials.any? %>
+        <div class="security-list">
+          <% @second_factor_credentials.each do |credential| %>
+            <div class="security-device" data-testid="device-row">
+              <span class="security-device-icon" aria-hidden="true"><i class="ti ti-key"></i></span>
+              <div class="security-device-body">
+                <strong><%= credential.name %></strong>
+                <small><%= t("security.passkeys.created_at", date: l(credential.created_at, format: :short)) %></small>
+              </div>
+              <% if security_reauthenticated? %>
+                <%= button_to t("security.two_factor.delete"),
+                              user_second_factor_webauthn_credential_path(credential),
+                              method: :delete,
+                              class: "btn btn-outline-danger btn-sm",
+                              form: { data: { turbo_confirm: t("security.two_factor.delete_confirm", default: "¿Eliminar esta llave de seguridad?") } } %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="security-empty"><%= t("security.two_factor.empty") %></p>
+      <% end %>
+
+      <% if security_reauthenticated? %>
+        <div class="security-action" data-testid="two-factor-form">
+          <%= security_key_creation_form_for(:user, local: true, data: { testid: "security-key-creation-form" }) do |form| %>
+            <div class="security-field">
+              <%= form.label :name, t("security.two_factor.name_label"), class: "form-label" %>
+              <%= form.text_field :name,
+                                  required: true,
+                                  autocomplete: "off",
+                                  class: "form-control",
+                                  placeholder: t("security.two_factor.name_placeholder") %>
+            </div>
+            <%= form.submit(@second_factor_credentials.any? ? t("security.two_factor.add_another") : t("security.two_factor.add"),
+                            class: "btn btn-primary") %>
+          <% end %>
+
+          <% if @second_factor_credentials.any? %>
+            <%= button_to t("security.two_factor.disable"),
+                          disable_two_factor_security_settings_path,
+                          method: :delete,
+                          class: "btn btn-outline-danger",
+                          form: { data: { turbo_confirm: t("security.two_factor.disable_confirm") } } %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  </div>
+
+  <section class="card security-card" data-testid="recovery-codes-card">
+    <div class="security-section-head">
+      <div>
+        <h2><%= t("security.recovery_codes.title") %></h2>
+        <p><%= t("security.recovery_codes.description") %></p>
+      </div>
+      <span class="security-icon" aria-hidden="true"><i class="ti ti-lifebuoy"></i></span>
+    </div>
+
+    <% if @mfa_enabled %>
+      <p class="security-meta"><%= t("security.recovery_codes.remaining", count: @recovery_codes_remaining) %></p>
+
+      <% if security_reauthenticated? %>
+        <%= form_with url: regenerate_recovery_codes_security_settings_path,
+                      method: :post,
+                      local: true,
+                      class: "security-inline-form" do |form| %>
+          <%= form.submit(@recovery_codes_remaining.positive? ? t("security.recovery_codes.regenerate") : t("security.recovery_codes.generate"),
+                          class: "btn btn-outline-primary") %>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="security-empty"><%= t("security.recovery_codes.two_factor_required") %></p>
+    <% end %>
+
+    <% if @recovery_codes_plaintext.present? %>
+      <div class="recovery-codes" data-testid="recovery-codes-plaintext">
+        <h3><%= t("security.recovery_codes.plaintext_title") %></h3>
+        <p class="security-warning"><%= t("security.recovery_codes.plaintext_warning") %></p>
+
+        <div class="recovery-code-grid">
+          <% @recovery_codes_plaintext.each do |code| %>
+            <code data-recovery-code><%= code %></code>
+          <% end %>
+        </div>
+
+        <div class="recovery-code-actions">
+          <button type="button" class="btn btn-outline-primary" data-recovery-copy>
+            <i class="ti ti-copy" aria-hidden="true"></i> <%= t("security.recovery_codes.copy") %>
+          </button>
+          <button type="button" class="btn btn-outline-primary" data-recovery-download>
+            <i class="ti ti-download" aria-hidden="true"></i> <%= t("security.recovery_codes.download") %>
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="card security-card security-devices-card" data-testid="devices-card">
+    <div class="security-section-head">
+      <div>
+        <h2><%= t("security.devices.title") %></h2>
+        <p><%= t("security.devices.description") %></p>
+      </div>
+      <span class="security-icon" aria-hidden="true"><i class="ti ti-devices"></i></span>
+    </div>
+    <p class="security-meta"><%= t("security.devices.session_note") %></p>
+  </section>
+</div>

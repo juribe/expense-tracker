@@ -2,7 +2,8 @@
 
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :confirmable
+         :recoverable, :rememberable, :validatable, :confirmable,
+         :passkey_authenticatable, :webauthn_two_factor_authenticatable
 
   validates :financial_cycle_start_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }
@@ -58,12 +59,26 @@ class User < ApplicationRecord
   has_many :email_sources, dependent: :destroy
   has_many :email_forwarding_verifications, dependent: :destroy
   has_many :mcp_access_tokens, dependent: :destroy
+  has_many :recovery_codes, dependent: :destroy
+  has_one :totp_credential, dependent: :destroy
 
   # WhatsApp linking: connections and pending tokens die with the account;
   # identities only nullify their claim so the historical row survives.
   has_many :whatsapp_connections, dependent: :destroy
   has_many :pending_whatsapp_connections, dependent: :destroy
   has_many :whatsapp_identities, foreign_key: :claimed_by_user_id, dependent: :nullify, inverse_of: :claimed_by_user
+
+  # Two-factor authentication is opt-in. A passkey is a complete primary
+  # authentication method and does not enable a second factor by itself.
+  # Password logins require a second factor when the user has either a
+  # second-factor WebAuthn key or TOTP configured.
+  def second_factor_enabled?
+    second_factor_webauthn_credentials.exists? || totp_enabled?
+  end
+
+  def totp_enabled?
+    totp_credential.present?
+  end
 
   # Persisted alert toggles, auto-built with defaults on first access so the
   # alert engine and settings page never deal with a nil row.

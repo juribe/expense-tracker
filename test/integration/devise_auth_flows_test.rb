@@ -132,6 +132,17 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{new_user_confirmation_path}']", count: 0
   end
 
+  test "sign in page keeps the password form and adds the passkey option below it" do
+    get new_user_session_path
+
+    assert_response :success
+    assert_select "form.auth-form #user_email"
+    assert_select "form.auth-form #user_password"
+    assert_select "[data-testid='auth-divider']", text: /O continúa de otra manera/
+    assert_select "[data-testid='passkey-login']"
+    assert_select "script[type='module'][src*='devise/webauthn']"
+  end
+
   test "sign in with valid credentials redirects to the dashboard" do
     post user_session_path, params: {
       user: { email: @user.email, password: "password123" }

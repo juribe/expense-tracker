@@ -1,0 +1,65 @@
+.auth-divider-labeled {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+  color: var(--auth-muted, #7d8eaa);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.auth-divider-labeled::before,
+.auth-divider-labeled::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--auth-line, #dce5f1);
+}
+
+.auth-passkey {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #d9d0ff;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #f6f2ff 0%, #eee9ff 100%);
+  color: #4b2fd6;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.auth-passkey:hover {
+  background: linear-gradient(135deg, #efe9ff 0%, #e5ddff 100%);
+  box-shadow: 0 10px 24px rgba(76, 47, 214, 0.14);
+  transform: translateY(-1px);
+}
+
+.auth-passkey:focus-visible {
+  outline: 3px solid rgba(108, 76, 255, 0.28);
+  outline-offset: 2px;
+}
+
+.auth-passkey i {
+  font-size: 1.2rem;
+}
+
+.auth-passkey-help {
+  margin: 0.6rem 0 0;
+  color: var(--auth-muted, #7d8eaa);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.auth-webauthn-submit {
+  gap: 0.55rem;
+}
+
+.auth-webauthn-submit i {
+  font-size: 1.15rem;
+}

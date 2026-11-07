@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -1021,6 +1021,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
     t.index ["user_id"], name: "index_reconciliation_states_on_user_id"
   end
 
+  create_table "recovery_codes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "code_digest", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "used_at"], name: "index_recovery_codes_on_user_id_and_used_at"
+    t.index ["user_id"], name: "index_recovery_codes_on_user_id"
+  end
+
   create_table "recurring_templates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "category_id", null: false
@@ -1238,6 +1248,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
     t.index ["subcategory_id"], name: "index_subcategory_saving_tips_on_subcategory_id"
   end
 
+  create_table "totp_credentials", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.text "secret", null: false
+    t.bigint "last_used_timestamp", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_totp_credentials_on_user_id", unique: true
+  end
+
   create_table "transaction_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.string "name"
@@ -1329,10 +1348,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
     t.string "unconfirmed_email"
     t.string "inbound_email_token"
     t.boolean "admin", default: false, null: false
+    t.string "webauthn_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["inbound_email_token"], name: "index_users_on_inbound_email_token", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["webauthn_id"], name: "index_users_on_webauthn_id", unique: true
+  end
+
+  create_table "webauthn_credentials", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "external_id", null: false
+    t.string "name", null: false
+    t.text "public_key", null: false
+    t.bigint "sign_count", null: false
+    t.uuid "user_id", null: false
+    t.integer "authentication_factor", limit: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_webauthn_credentials_on_external_id", unique: true
+    t.index ["user_id"], name: "index_webauthn_credentials_on_user_id"
   end
 
   create_table "whatsapp_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1437,6 +1471,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
   add_foreign_key "reconciliation_snapshots", "money_sources"
   add_foreign_key "reconciliation_snapshots", "users"
   add_foreign_key "reconciliation_states", "users"
+  add_foreign_key "recovery_codes", "users"
   add_foreign_key "recurring_templates", "categories"
   add_foreign_key "recurring_templates", "money_sources"
   add_foreign_key "recurring_templates", "users"
@@ -1452,6 +1487,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
   add_foreign_key "statement_format_mappings", "money_sources"
   add_foreign_key "statement_format_mappings", "users"
   add_foreign_key "subcategory_saving_tips", "categories", column: "subcategory_id"
+  add_foreign_key "totp_credentials", "users"
   add_foreign_key "transaction_rules", "categories"
   add_foreign_key "transaction_rules", "money_sources", column: "action_money_source_id"
   add_foreign_key "transaction_rules", "money_sources", column: "money_source_condition_id"
@@ -1463,6 +1499,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
   add_foreign_key "transfers", "money_sources", column: "from_source_id"
   add_foreign_key "transfers", "money_sources", column: "to_source_id"
   add_foreign_key "transfers", "users"
+  add_foreign_key "webauthn_credentials", "users"
   add_foreign_key "whatsapp_connections", "users"
   add_foreign_key "whatsapp_connections", "whatsapp_identities"
   add_foreign_key "whatsapp_identities", "users", column: "claimed_by_user_id"

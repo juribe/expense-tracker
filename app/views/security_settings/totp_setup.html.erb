@@ -1,0 +1,74 @@
+<% content_for :title, "#{t("security.totp.setup_title")} | #{AppName.current}" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag :security_settings, "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "security_settings", defer: true %>
+<% end %>
+
+<div class="security-page">
+  <%= render "shared/page_header",
+             title: t("security.totp.setup_title"),
+             subtitle: t("security.totp.setup_subtitle") %>
+
+  <section class="card security-card" data-testid="totp-setup">
+    <div class="security-section-head">
+      <div>
+        <h2><%= t("security.totp.scan_title") %></h2>
+        <p><%= t("security.totp.scan_help") %></p>
+      </div>
+      <span class="security-icon" aria-hidden="true"><i class="ti ti-device-mobile"></i></span>
+    </div>
+
+    <div class="totp-setup-grid">
+      <div class="totp-qr" data-testid="totp-qr">
+        <%= raw @totp_qr_svg %>
+      </div>
+
+      <div class="totp-setup-copy">
+        <p><%= t("security.totp.manual_help") %></p>
+        <code class="totp-secret" data-testid="totp-secret" data-totp-secret>
+          <%= @totp_secret.scan(/.{4}/).join(" ") %>
+        </code>
+
+        <div class="totp-secret-actions">
+          <button type="button" class="btn btn-outline-primary" data-totp-secret-copy>
+            <i class="ti ti-copy" aria-hidden="true"></i> <%= t("security.totp.copy_secret") %>
+          </button>
+        </div>
+
+        <% if @totp_enabled %>
+          <p class="security-warning"><%= t("security.totp.change_warning") %></p>
+        <% else %>
+          <p class="security-warning"><%= t("security.totp.only_once_warning") %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <%= form_with url: confirm_totp_security_settings_path,
+                  method: :post,
+                  local: true,
+                  class: "security-form totp-confirm-form",
+                  data: { testid: "totp-confirm-form" } do |form| %>
+      <div class="security-field">
+        <%= form.label :totp_code, t("security.totp.code_label"), class: "form-label" %>
+        <%= form.text_field :totp_code,
+                            required: true,
+                            autofocus: true,
+                            inputmode: "numeric",
+                            pattern: "[0-9]{6}",
+                            maxlength: 6,
+                            autocomplete: "one-time-code",
+                            class: "form-control",
+                            placeholder: "000000" %>
+        <p class="security-meta"><%= t("security.totp.code_help") %></p>
+      </div>
+      <%= form.submit t("security.totp.confirm"), class: "btn btn-primary" %>
+    <% end %>
+
+    <div class="security-action totp-cancel-action">
+      <%= button_to t("security.totp.cancel"),
+                    cancel_totp_setup_security_settings_path,
+                    method: :delete,
+                    class: "btn btn-outline" %>
+    </div>
+  </section>
+</div>

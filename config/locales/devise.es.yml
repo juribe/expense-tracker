@@ -14,6 +14,19 @@ es:
       timeout: "Tu sesión expiró. Inicia sesión nuevamente para continuar."
       unauthenticated: "Debes iniciar sesión o registrarte para continuar."
       unconfirmed: "Debes confirmar tu dirección de correo electrónico antes de continuar."
+      passkey_not_found: "Tu passkey no existe o no es válida."
+      passkey_verification_failed: "No pudimos verificar tu identidad. Inténtalo nuevamente."
+      passkey_deletion_failed: "No pudimos eliminar la passkey."
+      security_key_deletion_failed: "No pudimos eliminar la llave de seguridad."
+      security_key_promotion_failed: "No puedes convertir esta llave en passkey."
+      last_security_key: "No puedes eliminar tu única llave de seguridad. Desactiva la verificación en dos pasos primero."
+      invalid_recovery_code: "El código de recuperación no es válido o ya fue usado."
+      invalid_totp_code: "El código de la aplicación de autenticación no es válido o ya fue usado."
+      sign_in_not_initiated: "No se inició el proceso de inicio de sesión."
+      two_factor_required: "La verificación en dos pasos es obligatoria para iniciar sesión."
+      webauthn_credential_not_found: "Tu credencial WebAuthn no existe o no es válida."
+      webauthn_credential_verification_failed: "No pudimos verificar la credencial WebAuthn."
+      webauthn_challenge_expired: "La verificación expiró. Inténtalo nuevamente."
     mailer:
       confirmation_instructions:
         subject: "Instrucciones de confirmación"
@@ -34,6 +47,13 @@ es:
       send_paranoid_instructions: "Si tu dirección de correo existe en nuestra base de datos, recibirás un enlace de recuperación de contraseña en tu correo en unos minutos."
       updated: "Tu contraseña ha sido cambiada correctamente. Ahora has iniciado sesión."
       updated_not_active: "Tu contraseña ha sido cambiada correctamente."
+    passkeys:
+      passkey_created: "Passkey agregada correctamente."
+      passkey_deleted: "Passkey eliminada correctamente."
+    second_factor_webauthn_credentials:
+      security_key_created: "Verificación en dos pasos activada."
+      security_key_deleted: "Llave de seguridad eliminada correctamente."
+      security_key_promoted: "Llave de seguridad convertida en passkey."
     registrations:
       destroyed: "¡Hasta luego! Tu cuenta ha sido cancelada correctamente. Esperamos volver a verte pronto."
       signed_up: "¡Bienvenido! Te has registrado correctamente."

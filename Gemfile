@@ -93,3 +93,8 @@ gem "payment_engine", path: "payment_engine"
 gem "maglevcms", "~> 3.1.0"
 # Image processing for Active Storage variants (required by Maglev CMS media)
 gem "image_processing", "~> 1.2"
+gem "devise-webauthn", "~> 0.5.1"
+
+gem "rotp", "~> 6.4"
+
+gem "rqrcode", "~> 3.2"

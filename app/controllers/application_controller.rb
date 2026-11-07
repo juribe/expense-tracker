@@ -76,7 +76,14 @@ class ApplicationController < ActionController::Base
   end
 
   def allowed_without_membership?
-    controller_name.in?(%w[plans home sessions registrations confirmations passwords]) ||
+    controller_name.in?(%w[
+      plans home sessions registrations confirmations passwords
+      security_settings passkeys passkey_authentication_options
+      passkey_registration_options two_factor_authentications
+      second_factor_webauthn_credentials security_key_authentication_options
+      security_key_registration_options recovery_code_authentications
+      totp_authentications
+    ]) ||
       (controller_name == "payment_engine" && action_name == "create") ||
       maglev_request?
   end

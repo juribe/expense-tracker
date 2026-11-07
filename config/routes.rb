@@ -39,13 +39,53 @@ Rails.application.routes.draw do
     registrations: "users/registrations",
     passwords: "users/passwords",
     sessions: "users/sessions",
-    confirmations: "users/confirmations"
+    confirmations: "users/confirmations",
+    passkeys: "users/passkeys",
+    passkey_authentication_options: "users/passkey_authentication_options",
+    passkey_registration_options: "users/passkey_registration_options",
+    two_factor_authentications: "users/two_factor_authentications",
+    second_factor_webauthn_credentials: "users/second_factor_webauthn_credentials",
+    security_key_authentication_options: "users/security_key_authentication_options",
+    security_key_registration_options: "users/security_key_registration_options"
   }
 
   # Allow sign out via GET as a no-JS fallback (Turbo/JS may not be loaded)
   devise_scope :user do
     get "users/sign_out", to: "users/sessions#destroy", as: :user_session_sign_out_get
+    post "users/recovery_code_authentication",
+         to: "users/recovery_code_authentications#create",
+         as: :user_recovery_code_authentication
+    post "users/totp_authentication",
+         to: "users/totp_authentications#create",
+         as: :user_totp_authentication
   end
+
+  # Account security: passkeys, optional WebAuthn second factor and recovery.
+  get "profile/security", to: "security_settings#show", as: :security_settings
+  post "profile/security/reauthenticate",
+       to: "security_settings#reauthenticate",
+       as: :reauthenticate_security_settings
+  post "profile/security/recovery-codes",
+       to: "security_settings#regenerate_recovery_codes",
+       as: :regenerate_recovery_codes_security_settings
+  delete "profile/security/two-factor",
+         to: "security_settings#disable_two_factor",
+         as: :disable_two_factor_security_settings
+  post "profile/security/totp/setup",
+       to: "security_settings#start_totp_setup",
+       as: :start_totp_setup_security_settings
+  get "profile/security/totp/setup",
+      to: "security_settings#totp_setup",
+      as: :totp_setup_security_settings
+  delete "profile/security/totp/setup",
+         to: "security_settings#cancel_totp_setup",
+         as: :cancel_totp_setup_security_settings
+  post "profile/security/totp/confirm",
+       to: "security_settings#confirm_totp",
+       as: :confirm_totp_security_settings
+  delete "profile/security/totp",
+         to: "security_settings#disable_totp",
+         as: :disable_totp_security_settings
 
   # Resources
   resources :expenses do

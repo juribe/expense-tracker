@@ -1,0 +1,40 @@
+<% content_for :title, "#{t("security.reauthentication.locked_title")} | #{AppName.current}" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag :security_settings, "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="security-page">
+  <%= render "shared/page_header",
+             title: t("security.reauthentication.locked_title"),
+             subtitle: t("security.reauthentication.locked_help") %>
+
+  <section class="card security-reauth security-locked" data-testid="security-locked">
+    <div class="security-section-head">
+      <div>
+        <h2><%= t("security.reauthentication.title") %></h2>
+        <p><%= t("security.reauthentication.help") %></p>
+      </div>
+      <span class="security-icon" aria-hidden="true"><i class="ti ti-lock"></i></span>
+    </div>
+
+    <%= form_with url: reauthenticate_security_settings_path,
+                  method: :post,
+                  local: true,
+                  class: "security-form",
+                  data: { testid: "reauthenticate-form" } do |form| %>
+      <div class="security-field">
+        <%= form.label :current_password, t("security.reauthentication.password_label"), class: "form-label" %>
+        <%= form.password_field :current_password,
+                                autocomplete: "current-password",
+                                required: true,
+                                autofocus: true,
+                                class: "form-control" %>
+      </div>
+      <%= form.submit t("security.reauthentication.submit"), class: "btn btn-primary" %>
+    <% end %>
+
+    <p class="security-meta">
+      <%= link_to t("security.reauthentication.back_to_profile"), profile_path %>
+    </p>
+  </section>
+</div>

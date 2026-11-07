@@ -1,0 +1,80 @@
+<% content_for :title, "#{t("security.two_factor.title")} | #{AppName.current}" %>
+<% content_for :head do %>
+  <%= javascript_include_tag "devise/webauthn", type: "module" %>
+  <%= javascript_include_tag "webauthn_ui", defer: true %>
+  <%= stylesheet_link_tag :auth_webauthn, "data-turbo-track": "reload" %>
+<% end %>
+
+<div class="auth-heading">
+  <h1><%= t("security.two_factor.title", default: "Verificación en dos pasos") %></h1>
+  <p><%= t("security.two_factor.description", default: "Confirma tu identidad para continuar.") %></p>
+</div>
+
+<% if @resource&.totp_enabled? %>
+  <%= form_with url: user_totp_authentication_path,
+                method: :post,
+                local: true,
+                class: "auth-form",
+                data: { testid: "totp-form" } do |form| %>
+    <div class="auth-field">
+      <%= form.label :totp_code, t("auth.totp_code_label", default: "Código de la aplicación"), class: "auth-label" %>
+      <%= form.text_field :totp_code,
+                          required: true,
+                          inputmode: "numeric",
+                          pattern: "[0-9]{6}",
+                          maxlength: 6,
+                          autocomplete: "one-time-code",
+                          class: "auth-input",
+                          placeholder: "000000" %>
+      <p class="auth-passkey-help"><%= t("auth.totp_code_help", default: "Escribe el código de seis dígitos de tu aplicación de autenticación.") %></p>
+    </div>
+
+    <button type="submit" class="auth-submit">
+      <span><%= t("auth.verify_totp", default: "Verificar código") %></span>
+      <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </button>
+  <% end %>
+<% end %>
+
+<% if @resource&.second_factor_webauthn_credentials&.exists? %>
+  <% if @resource.totp_enabled? %>
+    <div class="auth-divider auth-divider-labeled">
+      <span><%= t("auth.or_use_security_key", default: "O usa una llave de seguridad") %></span>
+    </div>
+  <% end %>
+
+  <%= login_with_security_key_form_for(resource_name, data: { testid: "security-key-form" }) do |form| %>
+    <%= form.button nil, type: "submit", class: "auth-submit auth-webauthn-submit" do %>
+      <i class="ti ti-key" aria-hidden="true"></i>
+      <span><%= t("auth.use_security_key", default: "Usar llave de seguridad") %></span>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div class="auth-divider auth-divider-labeled">
+  <span><%= t("auth.use_recovery_code", default: "Usar código de recuperación") %></span>
+</div>
+
+<%= form_with url: user_recovery_code_authentication_path,
+              method: :post,
+              class: "auth-form",
+              data: { testid: "recovery-code-form" } do |form| %>
+  <div class="auth-field">
+    <%= form.label :recovery_code, t("auth.recovery_code_label", default: "Código de recuperación"), class: "auth-label" %>
+    <%= form.text_field :recovery_code,
+                        autocomplete: "one-time-code",
+                        spellcheck: false,
+                        class: "auth-input",
+                        placeholder: t("auth.recovery_code_placeholder", default: "xxxxx-xxxxx-xxxxx-xxxxx") %>
+    <p class="auth-passkey-help"><%= t("auth.recovery_code_help", default: "Usa uno de los códigos que guardaste.") %></p>
+  </div>
+
+  <button type="submit" class="auth-submit">
+    <span><%= t("auth.use_recovery_code", default: "Usar código de recuperación") %></span>
+    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+  </button>
+<% end %>
+
+<p class="auth-footer-link">
+  <%= link_to t("auth.back", default: "Volver"), new_session_path(resource_name) %>
+</p>

@@ -14,4 +14,11 @@ class ProfilePageTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Mi perfil"
     assert_includes response.body, "Ver planes"
   end
+
+  test "profile page links to account security" do
+    get profile_path
+
+    assert_response :success
+    assert_select "a[href='#{security_settings_path}']"
+  end
 end
