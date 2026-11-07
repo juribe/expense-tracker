@@ -14,6 +14,8 @@ async function signUp(page, overrides = {}) {
   await page.locator('#user_email').fill(email);
   await page.locator('#user_password').fill(password);
   await page.locator('#user_password_confirmation').fill(password);
+  await page.locator('#user_terms_accepted').check();
+  await page.locator('#user_privacy_accepted').check();
   await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await expect(page.locator('body')).toBeVisible();
   await expect(page).not.toHaveURL(/sign_up/);

@@ -54,6 +54,35 @@
     </div>
   </div>
 
+  <div class="auth-consents" data-testid="registration-consents">
+    <div class="auth-consent">
+      <%= f.check_box :terms_accepted, required: true, class: "auth-consent-input" %>
+      <label for="user_terms_accepted" class="auth-consent-copy">
+        <span><%= t("auth.consents.terms_prefix") %></span>
+        <%= link_to t("auth.consents.terms_link"), "/terminos-y-condiciones",
+                    target: "_blank", rel: "noopener" %>
+      </label>
+    </div>
+
+    <div class="auth-consent">
+      <%= f.check_box :privacy_accepted, required: true, class: "auth-consent-input" %>
+      <label for="user_privacy_accepted" class="auth-consent-copy">
+        <span><%= t("auth.consents.privacy_prefix") %></span>
+        <%= link_to t("auth.consents.privacy_link"), "/privacidad",
+                    target: "_blank", rel: "noopener" %>
+        <span><%= t("auth.consents.privacy_suffix") %></span>
+      </label>
+    </div>
+
+    <div class="auth-consent">
+      <%= f.check_box :marketing_consent, class: "auth-consent-input" %>
+      <label for="user_marketing_consent" class="auth-consent-copy">
+        <span><%= t("auth.consents.marketing_label") %></span>
+        <span class="auth-consent-optional"><%= t("auth.consents.optional") %></span>
+      </label>
+    </div>
+  </div>
+
   <button type="submit" class="auth-submit">
     <span><%= t("auth.sign_up") %></span>
     <i class="ti ti-arrow-right" aria-hidden="true"></i>

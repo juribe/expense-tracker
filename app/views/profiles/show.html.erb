@@ -52,6 +52,42 @@
       </div>
       </article>
 
+      <article class="card communications" data-testid="marketing-consent-card">
+        <div class="card-head">
+          <h2><%= t("profile.communications.title") %></h2>
+          <span class="head-note"><%= t("profile.communications.note") %></span>
+        </div>
+        <div class="communications-body">
+          <p class="communications-description"><%= t("profile.communications.description") %></p>
+
+          <%= form_with url: profile_communications_path,
+                        method: :patch,
+                        class: "communications-form",
+                        data: { testid: "marketing-consent-form" } do %>
+            <%= hidden_field_tag "user[marketing_consent]", "0" %>
+            <label class="communications-toggle" for="user_marketing_consent">
+              <%= check_box_tag "user[marketing_consent]", "1", @marketing_consent&.granted?,
+                                id: "user_marketing_consent",
+                                class: "communications-check" %>
+              <span><%= t("profile.communications.checkbox_label") %></span>
+            </label>
+            <button type="submit" class="btn btn-outline">
+              <%= t("profile.communications.save") %>
+            </button>
+          <% end %>
+
+          <p class="communications-meta">
+            <% if @marketing_consent %>
+              <%= t("profile.communications.status_label") %>:
+              <strong><%= @marketing_consent.granted? ? t("profile.communications.granted") : t("profile.communications.withdrawn") %></strong>
+              · <%= l(@marketing_consent.occurred_at, format: :long) %>
+            <% else %>
+              <%= t("profile.communications.no_record") %>
+            <% end %>
+          </p>
+        </div>
+      </article>
+
       <section class="card danger">
         <div>
           <h2>¿Quieres dejar Yogasto?</h2>

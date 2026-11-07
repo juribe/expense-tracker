@@ -58,10 +58,18 @@
 .profile-page .quick-link strong{display:block;font-size:12px;margin-bottom:4px}
 .profile-page .quick-link small{font-size:11px;color:#98a2b1}
 .profile-page .arrow{color:#9aa7b8;font-size:18px}
+.profile-page .communications-body{padding:18px 22px 20px}
+.profile-page .communications-description{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.55}
+.profile-page .communications-form{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.profile-page .communications-toggle{display:grid;grid-template-columns:18px 1fr;gap:10px;align-items:flex-start;color:#42516a;font-size:12px;line-height:1.5;cursor:pointer}
+.profile-page .communications-check{width:16px;height:16px;margin:2px 0 0;accent-color:var(--blue);cursor:pointer}
+.profile-page .communications-check:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.profile-page .communications-meta{margin:12px 0 0;color:#98a2b1;font-size:11px;line-height:1.5}
+.profile-page .communications-meta strong{color:#26344a}
 .profile-page .danger{margin-top:0;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:18px}
 .profile-page .danger h2{font-size:13px;margin:0 0 5px}
 .profile-page .danger p{font-size:11px;color:var(--muted);line-height:1.5;margin:0;max-width:500px}
 .profile-page .danger .btn{white-space:nowrap}
 .profile-page .footer{text-align:center;color:#a3adba;font-size:11px;margin-top:25px}
 @media(max-width:760px){.profile-page .layout{grid-template-columns:1fr}.profile-page .top{align-items:center}.profile-page .top h1{font-size:24px}.profile-page .details{gap:19px 12px}.profile-page .danger{align-items:flex-start;flex-direction:column}.profile-page .danger .btn{width:100%}}
-@media(max-width:420px){.profile-page .details{grid-template-columns:1fr}.profile-page .actions .btn{flex:1}.profile-page .member-actions{flex-direction:column}.profile-page .card-head,.profile-page .profile-main{padding-left:18px;padding-right:18px}}
+@media(max-width:420px){.profile-page .details{grid-template-columns:1fr}.profile-page .actions .btn{flex:1}.profile-page .member-actions{flex-direction:column}.profile-page .card-head,.profile-page .profile-main,.profile-page .communications-body{padding-left:18px;padding-right:18px}.profile-page .communications-form .btn{width:100%}}

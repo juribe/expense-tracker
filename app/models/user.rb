@@ -5,14 +5,19 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable, :confirmable,
          :passkey_authenticatable, :webauthn_two_factor_authenticatable
 
+  attr_accessor :terms_accepted, :privacy_accepted, :marketing_consent, :registration_form
+
   validates :financial_cycle_start_day,
             numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 28 }
   validates :inbound_email_token, uniqueness: true, allow_nil: true
 
   before_create :generate_inbound_email_token
+  after_create :record_registration_consents, if: :registration_form?, prepend: true
+
   validates :debt_capacity_target_percentage, :debt_capacity_alert_percentage,
             numericality: { greater_than: 0, less_than_or_equal_to: 100 }
   validate :debt_capacity_thresholds_are_ordered
+  validate :registration_consents_accepted, on: :create, if: :registration_form?
 
   # A start day of 1 means plain calendar months; anything else turns on the
   # pay-cycle grouping everywhere (reports, budgets, dashboard, cuadre).
@@ -61,6 +66,7 @@ class User < ApplicationRecord
   has_many :mcp_access_tokens, dependent: :destroy
   has_many :recovery_codes, dependent: :destroy
   has_one :totp_credential, dependent: :destroy
+  has_many :user_consents, dependent: :destroy, inverse_of: :user
 
   # WhatsApp linking: connections and pending tokens die with the account;
   # identities only nullify their claim so the historical row survives.
@@ -136,6 +142,26 @@ class User < ApplicationRecord
   end
 
   private
+
+  def registration_form?
+    ActiveModel::Type::Boolean.new.cast(registration_form)
+  end
+
+  def registration_consents_accepted
+    errors.add(:base, I18n.t("auth.consents.terms_required")) unless accepted_value?(terms_accepted)
+    errors.add(:base, I18n.t("auth.consents.privacy_required")) unless accepted_value?(privacy_accepted)
+  end
+
+  def record_registration_consents
+    UserConsent.record_registration_acceptances!(
+      self,
+      marketing_granted: accepted_value?(marketing_consent)
+    )
+  end
+
+  def accepted_value?(value)
+    ActiveModel::Type::Boolean.new.cast(value) == true
+  end
 
   def generate_inbound_email_token
     return if self[:inbound_email_token].present?

@@ -22,9 +22,27 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "#user_email"
     assert_select "#user_password"
     assert_select "#user_password_confirmation"
+    assert_select "#user_terms_accepted"
+    assert_select "#user_privacy_accepted"
+    assert_select "#user_marketing_consent"
+    assert_select "a[href='/terminos-y-condiciones']",
+                  text: I18n.t("auth.consents.terms_link", default: "Términos y condiciones")
+    assert_select "a[href='/privacidad']",
+                  text: I18n.t("auth.consents.privacy_link", default: "Política de privacidad")
     assert_select "button[type='submit']", text: I18n.t("auth.sign_up")
     assert_select "a[href='#{new_user_session_path}']", text: I18n.t("auth.log_in")
     assert_select "a[href='#{new_user_confirmation_path}']", text: I18n.t("auth.resend_confirmation")
+  end
+
+  test "sign up page makes legal consents required and leaves marketing optional" do
+    get new_user_registration_path
+
+    assert_select "#user_terms_accepted[required]"
+    assert_select "#user_privacy_accepted[required]"
+    assert_select "#user_terms_accepted[checked]", count: 0
+    assert_select "#user_privacy_accepted[checked]", count: 0
+    assert_select "#user_marketing_consent[required]", count: 0
+    assert_select "#user_marketing_consent[checked]", count: 0
   end
 
   test "sign up page renders inside the dedicated auth layout" do
@@ -92,7 +110,10 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
             name: "Jane Doe",
             email: "jane@example.com",
             password: "password123",
-            password_confirmation: "password123"
+            password_confirmation: "password123",
+            terms_accepted: "1",
+            privacy_accepted: "1",
+            marketing_consent: "0"
           }
         }
       end
@@ -100,6 +121,8 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     user = User.find_by(email: "jane@example.com")
     assert_equal "Jane Doe", user.name
     assert_not user.confirmed?
+    assert_equal 2, user.user_consents.legal.count
+    assert_equal 1, user.user_consents.marketing.count
     assert_redirected_to root_path
   end
 
@@ -110,7 +133,9 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
           name: "Jane Doe",
           email: "jane@example.com",
           password: "password123",
-          password_confirmation: "different123"
+          password_confirmation: "different123",
+          terms_accepted: "1",
+          privacy_accepted: "1"
         }
       }
     end

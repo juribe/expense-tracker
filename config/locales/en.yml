@@ -2143,3 +2143,28 @@ en:
     two_factor_title: "Two-step verification"
     two_factor_subtitle: "Confirm your identity with your security key or a recovery code."
     use_security_key: "Use security key"
+    consents:
+      terms_prefix: "I have read and accept the"
+      terms_link: "Terms and conditions"
+      privacy_prefix: "I have read the"
+      privacy_link: "Privacy policy"
+      privacy_suffix: "and understand how my personal data will be processed."
+      marketing_label: "I agree to receive commercial communications, news, promotions and offers from Yogasto by email."
+      optional: "Optional"
+      terms_required: "You must accept the Terms and conditions to create your account."
+      privacy_required: "You must accept the Privacy policy to create your account."
+
+  profile:
+    communications:
+      title: "Communications"
+      note: "Preferences"
+      description: "Choose whether you want to receive commercial emails from Yogasto. This preference does not affect your access to the account."
+      checkbox_label: "I agree to receive commercial communications, news, promotions and offers from Yogasto by email."
+      save: "Save preference"
+      status_label: "Current status"
+      granted: "Active"
+      withdrawn: "Withdrawn"
+      no_record: "You have not recorded a communications preference yet."
+      granted_notice: "You agreed to receive commercial communications."
+      withdrawn_notice: "You withdrew your consent for commercial communications."
+      unchanged: "Your communications preference did not change."

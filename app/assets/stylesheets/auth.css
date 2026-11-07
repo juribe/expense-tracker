@@ -622,6 +622,68 @@
   accent-color: var(--auth-blue);
 }
 
+/* --------------------------------------------------------------- consents */
+.auth-consents {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #e7edf5;
+}
+
+.auth-consent {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.auth-consent .field_with_errors {
+  display: contents;
+}
+
+.auth-consent-input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--auth-blue);
+  cursor: pointer;
+}
+
+.auth-consent-input:focus-visible {
+  outline: 2px solid #3b87ff;
+  outline-offset: 2px;
+}
+
+.auth-consent-copy {
+  color: #52637b;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.auth-consent-copy a {
+  color: var(--auth-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-consent-copy a:hover {
+  text-decoration: underline;
+}
+
+.auth-consent-optional {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: #edf3fb;
+  color: #6f7f96;
+  font-size: 0.625rem;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+
 .auth-inline-link {
   color: var(--auth-blue);
   font-size: 0.6875rem;
@@ -1023,6 +1085,19 @@
 
 [data-bs-theme="dark"] .auth-check,
 [data-bs-theme="dark"] .auth-footer-link {
+  color: var(--auth-muted);
+}
+
+[data-bs-theme="dark"] .auth-consents {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .auth-consent-copy {
+  color: var(--auth-muted);
+}
+
+[data-bs-theme="dark"] .auth-consent-optional {
+  background: rgba(255, 255, 255, 0.08);
   color: var(--auth-muted);
 }
 

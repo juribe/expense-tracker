@@ -2402,6 +2402,16 @@ es:
     forgot_password_subtitle: "Escribe tu correo y te enviaremos un enlace para restablecer la contraseña."
     reset_password_subtitle: "Elige una nueva contraseña para tu cuenta."
     privacy: "Tus datos financieros son privados y seguros."
+    consents:
+      terms_prefix: "He leído y acepto los"
+      terms_link: "Términos y condiciones"
+      privacy_prefix: "He leído la"
+      privacy_link: "Política de privacidad"
+      privacy_suffix: "y conozco el tratamiento que se dará a mis datos personales."
+      marketing_label: "Acepto recibir comunicaciones comerciales, novedades, promociones y ofertas de Yogasto por correo electrónico."
+      optional: "Opcional"
+      terms_required: "Debes aceptar los Términos y condiciones para crear tu cuenta."
+      privacy_required: "Debes aceptar la Política de privacidad para crear tu cuenta."
     continue_with_passkey: "Continuar con Passkey"
     or_continue_other_way: "O continúa de otra manera"
     passkey_help: "Usa la huella, el rostro o el PIN de este dispositivo."
@@ -3783,3 +3793,18 @@ es:
       session_note: "Tu sesión actual está protegida por tu contraseña y, si la activaste, por la verificación en dos pasos."
     webauthn:
       challenge_expired: "La verificación expiró. Inténtalo nuevamente."
+
+  profile:
+    communications:
+      title: "Comunicaciones"
+      note: "Preferencias"
+      description: "Puedes decidir si quieres recibir correos comerciales de Yogasto. Esta preferencia no afecta tu acceso a la cuenta."
+      checkbox_label: "Acepto recibir comunicaciones comerciales, novedades, promociones y ofertas de Yogasto por correo electrónico."
+      save: "Guardar preferencia"
+      status_label: "Estado actual"
+      granted: "Activo"
+      withdrawn: "Retirado"
+      no_record: "Aún no has registrado una preferencia de comunicaciones."
+      granted_notice: "Aceptaste recibir comunicaciones comerciales."
+      withdrawn_notice: "Retiraste tu consentimiento para comunicaciones comerciales."
+      unchanged: "Tu preferencia de comunicaciones no cambió."

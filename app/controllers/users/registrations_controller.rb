@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
-  before_action :store_commercial_intent, only: [:new, :create]
+  before_action :store_commercial_intent, only: [ :new, :create ]
 
   # Devise's default update_resource always demands the current password,
   # even for name-only edits. Only password/e-mail changes keep the
@@ -14,7 +14,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # cascade stays a single query batch. The redirect lands on the app root
   # (the sign-in screen once signed out) instead of the meaningless /users.
   def destroy
-    self.resource = User.includes(money_sources: [:outgoing_transfers, :incoming_transfers, :goals, :payments, :credit_scenarios, :credit_extra_payments, :gmf_monthly_accumulators]).find(resource.id)
+    self.resource = User.includes(money_sources: [ :outgoing_transfers, :incoming_transfers, :goals, :payments, :credit_scenarios, :credit_extra_payments, :gmf_monthly_accumulators ]).find(resource.id)
     super
   end
 
@@ -31,10 +31,25 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   private
 
+  # The registration form carries virtual consent fields. Mark the resource so
+  # the model validates and records them only for this flow.
+  def build_resource(hash = {})
+    super
+    resource.registration_form = true if action_name == "create"
+  end
+
   # `admin` is intentionally never permitted here or in account_update_params:
   # the role is not assignable through public sign-up or profile updates.
   def sign_up_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    params.expect(user: [
+      :name,
+      :email,
+      :password,
+      :password_confirmation,
+      :terms_accepted,
+      :privacy_accepted,
+      :marketing_consent
+    ])
   end
 
   def sensitive_change?(resource, params)

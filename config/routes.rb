@@ -320,6 +320,7 @@ Rails.application.routes.draw do
 
   get "plans", to: "plans#index", as: :plans
   get "profile", to: "profiles#show", as: :profile
+  patch "profile/communications", to: "profiles#update_communications", as: :profile_communications
   get "plans/checkout_result", to: "plans#checkout_result", as: :checkout_result_plans
   get "plans/checkout_status", to: "plans#checkout_status", as: :checkout_status_plans
   post "plans/start_trial", to: "plans#start_trial", as: :start_trial_plans

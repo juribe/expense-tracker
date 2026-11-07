@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_131500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -1311,7 +1311,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_130000) do
     t.index ["user_id", "gmf_origin_type", "gmf_origin_id"], name: "index_transactions_gmf_origin"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1327,6 +1327,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_130000) do
     t.index ["to_source_id"], name: "index_transfers_on_to_source_id"
     t.index ["user_id", "date"], name: "index_transfers_on_user_id_and_date"
     t.index ["user_id"], name: "index_transfers_on_user_id"
+  end
+
+  create_table "user_consents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "consent_type", null: false
+    t.string "document_version"
+    t.boolean "granted", default: true, null: false
+    t.datetime "occurred_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "consent_type", "occurred_at"], name: "idx_on_user_id_consent_type_occurred_at_89448ca91e"
+    t.index ["user_id"], name: "index_user_consents_on_user_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1499,6 +1511,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_130000) do
   add_foreign_key "transfers", "money_sources", column: "from_source_id"
   add_foreign_key "transfers", "money_sources", column: "to_source_id"
   add_foreign_key "transfers", "users"
+  add_foreign_key "user_consents", "users"
   add_foreign_key "webauthn_credentials", "users"
   add_foreign_key "whatsapp_connections", "users"
   add_foreign_key "whatsapp_connections", "whatsapp_identities"
