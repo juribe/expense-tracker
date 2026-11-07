@@ -1,0 +1,36 @@
+# Accessible native accordion for security questions.
+name: "Preguntas frecuentes de seguridad"
+category: security
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Ancla de la sección"
+  id: anchor
+  type: text
+  default: "preguntas"
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "Preguntas frecuentes"
+- label: "Título"
+  id: title
+  type: text
+  default: "¿Tienes dudas sobre seguridad?"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Respuestas sencillas sobre el uso de Yogasto y tu información."
+blocks_label: "Preguntas y respuestas"
+blocks:
+- name: "Pregunta"
+  type: question
+  settings:
+  - label: "Pregunta"
+    id: question
+    type: text
+    default: "¿Tienes alguna duda?"
+  - label: "Respuesta (admite HTML)"
+    id: answer
+    type: text
+    default: "Escribe aquí una respuesta clara."

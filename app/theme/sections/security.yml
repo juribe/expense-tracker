@@ -5,6 +5,10 @@ category: content
 singleton: true
 max_width_pane: 480
 settings:
+- label: "Ancla de la sección"
+  id: anchor
+  type: text
+  default: "seguridad"
 - label: "Kicker"
   id: kicker
   type: text
@@ -30,6 +34,10 @@ blocks:
 - name: "Medida"
   type: item
   settings:
+  - label: "Visible"
+    id: visible
+    type: checkbox
+    default: true
   - label: "Icono (emoji o símbolo)"
     id: icon
     type: text

@@ -1,0 +1,31 @@
+<% anchor = maglev_section.settings.anchor.to_s.presence || "correos" %>
+<% steps = maglev_section.blocks.select { |block| block.type == "step" } %>
+<%= maglev_section.wrapper_tag.section class: "security-process" do %>
+  <div class="container security-process-grid" id="<%= anchor %>">
+    <div class="security-process-intro">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "security-kicker" %>
+      <%= maglev_section.setting_tag :title, html_tag: "h2" %>
+      <%= maglev_section.setting_tag :description, html_tag: "p", class: "security-process-description" %>
+      <% if maglev_section.settings.note_text.present? %>
+        <div class="security-process-note">
+          <% if maglev_section.settings.note_title.present? %>
+            <strong><%= maglev_section.settings.note_title %>:</strong>
+          <% end %>
+          <%= maglev_section.setting_tag :note_text, html_tag: "span" %>
+        </div>
+      <% end %>
+    </div>
+
+    <ol class="security-steps">
+      <% steps.each_with_index do |step, index| %>
+        <li class="security-step">
+          <span class="security-step-num" aria-hidden="true"><%= step.settings.number.to_s.presence || format("%02d", index + 1) %></span>
+          <div class="security-step-content">
+            <%= step.setting_tag :title, html_tag: "h3" %>
+            <%= step.setting_tag :description, html_tag: "p" %>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+  </div>
+<% end %>

@@ -1,0 +1,48 @@
+<% anchor = maglev_section.settings.anchor.to_s.presence || "datos" %>
+<% items = maglev_section.blocks.select { |block| block.type == "item" } %>
+<% kept_items = items.select { |block| block.settings.column.to_s != "not_kept" } %>
+<% not_kept_items = items.select { |block| block.settings.column.to_s == "not_kept" } %>
+<%= maglev_section.wrapper_tag.section class: "security-data" do %>
+  <div class="container" id="<%= anchor %>">
+    <div class="security-section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "security-kicker" %>
+      <%= maglev_section.setting_tag :title, html_tag: "h2" %>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+
+    <div class="security-data-grid">
+      <article class="security-data-panel security-data-panel--kept">
+        <h3><%= maglev_section.settings.kept_title %></h3>
+        <ul class="security-data-list">
+          <% kept_items.each do |item| %>
+            <li>
+              <span class="security-data-check" aria-hidden="true">✓</span>
+              <%= item.setting_tag :text, html_tag: "span" %>
+            </li>
+          <% end %>
+        </ul>
+      </article>
+
+      <article class="security-data-panel security-data-panel--not_kept">
+        <h3><%= maglev_section.settings.not_kept_title %></h3>
+        <ul class="security-data-list">
+          <% not_kept_items.each do |item| %>
+            <li>
+              <span class="security-data-check security-data-check--muted" aria-hidden="true">–</span>
+              <%= item.setting_tag :text, html_tag: "span" %>
+            </li>
+          <% end %>
+        </ul>
+      </article>
+    </div>
+
+    <% if maglev_section.settings.note_text.present? %>
+      <div class="security-data-note">
+        <% if maglev_section.settings.note_title.present? %>
+          <strong><%= maglev_section.settings.note_title %>:</strong>
+        <% end %>
+        <%= maglev_section.setting_tag :note_text, html_tag: "span" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

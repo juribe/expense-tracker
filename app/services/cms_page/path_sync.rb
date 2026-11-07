@@ -1,8 +1,8 @@
-# LegalDocument::LinkSync
-# Updates shared navigation links from a legacy legal path to its new path,
+# CmsPage::PathSync
+# Updates shared navigation links from a legacy public path to its new path,
 # retires the legacy page and publishes the site sections.
-module LegalDocument
-  class LinkSync
+module CmsPage
+  class PathSync
     def initialize(site:, legacy_path:, new_path:)
       @site = site
       @legacy_path = legacy_path

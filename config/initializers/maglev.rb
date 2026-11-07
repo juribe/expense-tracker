@@ -49,7 +49,7 @@ Maglev.configure do |config|
     maglev users users/sign_in users/sign_up dashboard plans profile
     precios pricing prices settings reports expenses incomes budgets goals
     transfers imports financial_setup financial_chat financial_summary
-    savings_opportunities drains ayuda/buscar ayuda/valoracion help privacy terms contactanos
+    savings_opportunities drains ayuda/buscar ayuda/valoracion help privacy terms security contactanos
   )
 
   # Base class for Maglev::ApplicationController (inherit auth, layout, etc. from your app).

@@ -1,0 +1,23 @@
+<% anchor = maglev_section.settings.anchor.to_s.presence || "preguntas" %>
+<% questions = maglev_section.blocks.select { |block| block.type == "question" } %>
+<%= maglev_section.wrapper_tag.section class: "security-faq" do %>
+  <div class="container" id="<%= anchor %>">
+    <div class="security-section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "security-kicker" %>
+      <%= maglev_section.setting_tag :title, html_tag: "h2" %>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+
+    <div class="security-faq-list">
+      <% questions.each do |question| %>
+        <details class="security-faq-item">
+          <summary>
+            <span><%= question.settings.question %></span>
+            <span class="security-faq-icon" aria-hidden="true">+</span>
+          </summary>
+          <%= question.setting_tag :answer, html_tag: "div", class: "security-faq-answer" %>
+        </details>
+      <% end %>
+    </div>
+  </div>
+<% end %>

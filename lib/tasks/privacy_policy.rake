@@ -13,7 +13,7 @@ namespace :yogasto do
       force: ENV["FORCE"] == "1",
       publish: ENV.fetch("PUBLISH", "1") == "1"
     )
-    LegalDocument::LinkSync.new(site: site, legacy_path: "privacy", new_path: "privacidad").call if ENV.fetch("PUBLISH", "1") == "1"
+    CmsPage::PathSync.new(site: site, legacy_path: "privacy", new_path: "privacidad").call if ENV.fetch("PUBLISH", "1") == "1"
 
     Rails.logger&.info("[yogasto:setup_privacy_policy] Privacy policy updated")
   end

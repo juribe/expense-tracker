@@ -115,7 +115,7 @@ sample:
     - type: link
       settings:
         label: "Seguridad"
-        link: { link_type: "url", href: "/security", open_new_window: false }
+        link: { link_type: "url", href: "/seguridad", open_new_window: false }
     - type: link
       settings:
         label: "Cómo protegemos tu información"

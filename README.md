@@ -150,6 +150,13 @@ document section with the privacy policy. It is also a preliminary, noindex
 version until legal data is confirmed. See
 [docs/terms_and_conditions.md](docs/terms_and_conditions.md).
 
+### Security
+
+The public security page lives at `/seguridad` and is administered from Maglev.
+It reuses the institutional hero, navbar, footer and security cards. Verified
+claims, pending infrastructure details and editorial instructions are documented
+in [docs/security_page.md](docs/security_page.md).
+
 ### Local Speech-to-Text (faster-whisper)
 
 Audio notes in the Expense Playground are transcribed LOCALLY with

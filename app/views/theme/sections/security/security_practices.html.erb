@@ -1,0 +1,21 @@
+<% anchor = maglev_section.settings.anchor.to_s.presence || "practicas" %>
+<% practices = maglev_section.blocks.select { |block| block.type == "item" } %>
+<%= maglev_section.wrapper_tag.section class: "security-practices" do %>
+  <div class="container" id="<%= anchor %>">
+    <div class="security-section-head">
+      <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "security-kicker" %>
+      <%= maglev_section.setting_tag :title, html_tag: "h2" %>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+
+    <div class="security-practice-grid">
+      <% practices.each do |practice| %>
+        <article class="security-practice">
+          <span class="security-practice-icon" aria-hidden="true"><%= practice.settings.icon %></span>
+          <%= practice.setting_tag :title, html_tag: "h3" %>
+          <%= practice.setting_tag :description, html_tag: "p" %>
+        </article>
+      <% end %>
+    </div>
+  </div>
+<% end %>

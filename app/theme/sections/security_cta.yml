@@ -1,0 +1,24 @@
+# Dark closing call-to-action for the public security page.
+name: "CTA de seguridad"
+category: security
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Ancla de la sección"
+  id: anchor
+  type: text
+  default: "contacto"
+- label: "Título"
+  id: title
+  type: text
+  default: "¿Necesitas hablar con nosotros?"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Si tienes una pregunta o quieres reportar algo relacionado con la seguridad, estamos para ayudarte."
+- label: "Botón"
+  id: cta
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/contact", text: "Contactar con Yogasto", open_new_window: false }

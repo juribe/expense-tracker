@@ -1,5 +1,6 @@
-<%= maglev_section.wrapper_tag.section class: "section", id: "seguridad" do %>
-  <div class="container" id="seguridad">
+<% anchor = maglev_section.settings.anchor.to_s.presence || "seguridad" %>
+<%= maglev_section.wrapper_tag.section class: "section" do %>
+  <div class="container" id="<%= anchor %>">
     <div class="section-head">
       <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
       <h2>
@@ -10,10 +11,15 @@
     <div class="feature-grid security-grid">
       <% maglev_section.blocks.each do |maglev_block| %>
         <% next unless maglev_block.type == "item" %>
-        <%= maglev_block.wrapper_tag.article class: "feature" do %>
-          <div class="feature-icon <%= maglev_block.settings.color %>"><%= maglev_block.settings.icon %></div>
-          <%= maglev_block.setting_tag :title, html_tag: "h3" %>
-          <%= maglev_block.setting_tag :description, html_tag: "p" %>
+        <% visible = !maglev_block.settings.respond_to?(:visible) ||
+                     maglev_block.settings.visible.content.nil? ||
+                     maglev_block.settings.visible.true? %>
+        <% if visible %>
+          <%= maglev_block.wrapper_tag.article class: "feature" do %>
+            <div class="feature-icon <%= maglev_block.settings.color %>"><%= maglev_block.settings.icon %></div>
+            <%= maglev_block.setting_tag :title, html_tag: "h3" %>
+            <%= maglev_block.setting_tag :description, html_tag: "p" %>
+          <% end %>
         <% end %>
       <% end %>
     </div>

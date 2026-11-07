@@ -38,11 +38,12 @@
 
     <%= stylesheet_link_tag :home, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :institutional, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :security, "data-turbo-track": "reload" if maglev_page.path == "seguridad" %>
     <%= stylesheet_link_tag :help_center, "data-turbo-track": "reload" if help_center_page?(maglev_page) %>
     <%= stylesheet_link_tag :privacy, "data-turbo-track": "reload" if legal_document_page?(maglev_page) %>
     <%= yield :head %>
   </head>
-  <body>
+  <body class="<%= "security-page" if maglev_page.path == "seguridad" %>">
     <main data-maglev-dropzone>
       <% if help_center_page?(maglev_page) && (flash[:notice].present? || flash[:alert].present?) %>
         <div class="help-flash-wrap">

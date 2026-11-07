@@ -1,0 +1,40 @@
+# Account-security recommendations for the public security page.
+name: "Buenas prácticas de seguridad"
+category: security
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Ancla de la sección"
+  id: anchor
+  type: text
+  default: "practicas"
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "Buenas prácticas"
+- label: "Título"
+  id: title
+  type: text
+  default: "La seguridad también es un trabajo compartido"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Algunas acciones sencillas ayudan a proteger el acceso a tu cuenta."
+blocks_label: "Recomendaciones"
+blocks:
+- name: "Recomendación"
+  type: item
+  settings:
+  - label: "Icono (emoji o símbolo)"
+    id: icon
+    type: text
+    default: "🔐"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Usa una contraseña segura"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Elige una contraseña única y evita reutilizarla en otros servicios."

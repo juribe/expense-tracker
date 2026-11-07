@@ -14,7 +14,7 @@ namespace :yogasto do
       publish: ENV.fetch("PUBLISH", "1") == "1"
     )
     if ENV.fetch("PUBLISH", "1") == "1"
-      LegalDocument::LinkSync.new(
+      CmsPage::PathSync.new(
         site: site,
         legacy_path: "terms",
         new_path: "terminos-y-condiciones"

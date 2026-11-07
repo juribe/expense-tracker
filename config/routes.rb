@@ -294,6 +294,7 @@ Rails.application.routes.draw do
   get "help", to: redirect("/ayuda", status: 301), as: :legacy_help
   get "privacy", to: redirect("/privacidad", status: 301), as: :legacy_privacy
   get "terms", to: redirect("/terminos-y-condiciones", status: 301), as: :legacy_terms
+  get "security", to: redirect("/seguridad", status: 301), as: :legacy_security
   get "contactanos", to: redirect("/contact", status: 301), as: :legacy_contact
   get "ayuda/buscar", to: "help_center/search#index", as: :help_center_search
   post "ayuda/valoracion", to: "help_center/ratings#create", as: :help_center_rating

@@ -1,0 +1,489 @@
+/* Public security page. Loaded after home.css and institutional.css. */
+
+.security-page {
+  background: #fff;
+}
+
+.security-page .institutional-eyebrow {
+  padding: 8px 12px;
+  border: 1px solid #e5dcff;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .6);
+}
+
+.security-page .institutional-eyebrow:before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b6be8;
+  opacity: 1;
+}
+
+.security-page .institutional-hero-note {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.security-page .institutional-hero-note-icon {
+  color: #27866a;
+}
+
+.security-page .security-grid .feature {
+  border-color: #ebe6f4;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(54, 37, 104, .04);
+}
+
+.security-page .security-grid .feature-icon {
+  background: #f2edff;
+  color: #6b4fd0;
+}
+
+.security-page .security-grid .feature h3 {
+  color: #211b35;
+}
+
+.security-page .security-grid .feature p {
+  color: #716b82;
+}
+
+.security-kicker {
+  margin-bottom: 12px;
+  color: #7251d5;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.security-section-head {
+  max-width: 720px;
+  margin: 0 auto 38px;
+  text-align: center;
+}
+
+.security-section-head h2 {
+  margin: 0 0 13px;
+  color: #211b35;
+  font-size: clamp(29px, 3.5vw, 39px);
+  font-weight: 800;
+  letter-spacing: -1.4px;
+  line-height: 1.15;
+}
+
+.security-section-head p {
+  margin: 0;
+  color: #716b82;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.security-process {
+  padding: 78px 0;
+  background: #fbfaff;
+}
+
+.security-process-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+  gap: 55px;
+  align-items: start;
+}
+
+.security-process-intro {
+  position: sticky;
+  top: 30px;
+}
+
+.security-process-intro h2 {
+  margin: 0 0 14px;
+  color: #211b35;
+  font-size: clamp(29px, 3.1vw, 38px);
+  font-weight: 800;
+  letter-spacing: -1.4px;
+  line-height: 1.18;
+}
+
+.security-process-description {
+  margin: 0;
+  color: #716b82;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.security-process-note {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border: 1px solid #e7defe;
+  border-radius: 15px;
+  background: #f4f0ff;
+  color: #594b7b;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.security-process-note strong {
+  color: #3e2c70;
+}
+
+.security-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.security-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 17px;
+  padding-bottom: 27px;
+}
+
+.security-step:not(:last-child):before {
+  position: absolute;
+  top: 49px;
+  bottom: 0;
+  left: 23px;
+  width: 1px;
+  background: #ddd4f5;
+  content: "";
+}
+
+.security-step-num {
+  z-index: 1;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 15px;
+  background: #f0eaff;
+  color: #5635b5;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.security-step-content {
+  padding-top: 2px;
+}
+
+.security-step-content h3 {
+  margin: 0 0 5px;
+  color: #211b35;
+  font-size: 16px;
+  letter-spacing: -.2px;
+}
+
+.security-step-content p {
+  margin: 0;
+  color: #716b82;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.security-data {
+  padding: 78px 0;
+  background: #fff;
+}
+
+.security-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.security-data-panel {
+  padding: 28px;
+  border: 1px solid #ece8f3;
+  border-radius: 22px;
+  background: #fff;
+}
+
+.security-data-panel--kept {
+  border-color: #e9e1ff;
+  background: linear-gradient(145deg, #f5f1ff, #fbfaff);
+}
+
+.security-data-panel h3 {
+  margin: 0 0 15px;
+  color: #211b35;
+  font-size: 19px;
+  letter-spacing: -.4px;
+}
+
+.security-data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.security-data-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #625c70;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.security-data-check {
+  display: grid;
+  flex: none;
+  width: 21px;
+  height: 21px;
+  margin-top: 1px;
+  place-items: center;
+  border-radius: 7px;
+  background: #eaf7f1;
+  color: #27866a;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.security-data-check--muted {
+  background: #f2eff7;
+  color: #7b728c;
+}
+
+.security-data-note {
+  margin-top: 22px;
+  padding: 17px 20px;
+  border: 1px solid #f5e8c8;
+  border-radius: 16px;
+  background: #fff9eb;
+  color: #79643a;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.security-practices {
+  padding: 78px 0;
+  background: #fbfaff;
+}
+
+.security-practice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.security-practice {
+  padding: 25px;
+  border: 1px solid #ece8f3;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(42, 26, 78, .035);
+}
+
+.security-practice-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 18px;
+  place-items: center;
+  border-radius: 14px;
+  background: #f2edff;
+  color: #7251d5;
+  font-size: 21px;
+}
+
+.security-practice h3 {
+  margin: 0 0 8px;
+  color: #211b35;
+  font-size: 17px;
+  letter-spacing: -.3px;
+}
+
+.security-practice p {
+  margin: 0;
+  color: #716b82;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.security-faq {
+  padding: 78px 0;
+  background: #fff;
+}
+
+.security-faq-list {
+  display: grid;
+  max-width: 850px;
+  margin: 0 auto;
+  gap: 10px;
+}
+
+.security-faq-item {
+  border: 1px solid #ece8f3;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.security-faq-item summary {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 17px 20px;
+  color: #211b35;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.45;
+  list-style: none;
+  cursor: pointer;
+}
+
+.security-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.security-faq-item summary:focus-visible {
+  outline: 3px solid rgba(114, 81, 213, .35);
+  outline-offset: -3px;
+}
+
+.security-faq-icon {
+  flex: none;
+  color: #7251d5;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform .18s ease;
+}
+
+.security-faq-item[open] .security-faq-icon {
+  transform: rotate(45deg);
+}
+
+.security-faq-answer {
+  padding: 0 20px 20px;
+  color: #716b82;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.security-faq-answer p {
+  margin: 0;
+}
+
+.security-cta {
+  padding: 58px 0;
+  background: #241b3a;
+  color: #fff;
+}
+
+.security-cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.security-cta h2 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: clamp(28px, 3vw, 34px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.2;
+}
+
+.security-cta p {
+  margin: 0;
+  color: #c9c1d8;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.security-cta-link {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: #fff;
+  color: #4e35a0;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.security-cta-link:hover {
+  background: #f4f0ff;
+}
+
+.security-cta-link:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, .55);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .security-process-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .security-process-intro {
+    position: static;
+  }
+
+  .security-practice-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .security-process,
+  .security-data,
+  .security-practices,
+  .security-faq {
+    padding: 58px 0;
+  }
+
+  .security-data-grid,
+  .security-practice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .security-step {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 14px;
+    padding-bottom: 23px;
+  }
+
+  .security-step:not(:last-child):before {
+    top: 43px;
+    left: 20px;
+  }
+
+  .security-step-num {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+  }
+
+  .security-cta {
+    padding: 42px 0;
+  }
+
+  .security-cta-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .security-cta-link {
+    width: 100%;
+    justify-content: center;
+  }
+}

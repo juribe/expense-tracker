@@ -1,0 +1,48 @@
+# Numbered email-processing flow for the public security page.
+name: "Proceso de seguridad"
+category: security
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Ancla de la sección"
+  id: anchor
+  type: text
+  default: "correos"
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "Procesamiento de correos"
+- label: "Título"
+  id: title
+  type: text
+  default: "El correo se procesa. El movimiento es lo que conservamos."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Cuando conectas una fuente de correo, el mensaje se recibe y se procesa temporalmente."
+- label: "Título del aviso"
+  id: note_title
+  type: text
+  default: "En pocas palabras"
+- label: "Texto del aviso"
+  id: note_text
+  type: text
+  default: "El contenido original se usa para extraer la información necesaria y se elimina de las tablas de procesamiento al terminar."
+blocks_label: "Etapas del proceso"
+blocks:
+- name: "Etapa"
+  type: step
+  settings:
+  - label: "Número (opcional, ej. 01)"
+    id: number
+    type: text
+    default: ""
+  - label: "Título"
+    id: title
+    type: text
+    default: "Etapa del proceso"
+  - label: "Descripción"
+    id: description
+    type: text
+    default: "Describe qué ocurre en esta etapa."

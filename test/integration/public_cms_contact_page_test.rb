@@ -80,12 +80,12 @@ class PublicCmsContactPageTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href='/ayuda']", minimum: 2
     assert_select "a[href='/privacidad']", minimum: 1
-    assert_select "a[href='/security']", minimum: 1
+    assert_select "a[href='/seguridad']", minimum: 1
     assert_select "footer.site-footer a[href='/contact']", minimum: 1
     assert_select "footer.site-footer a[href='/ayuda']", minimum: 1
     assert_select "footer.site-footer a[href='/privacidad']", minimum: 1
     assert_select "footer.site-footer a[href='/terminos-y-condiciones']", minimum: 1
-    assert_select "footer.site-footer a[href='/security']", minimum: 1
+    assert_select "footer.site-footer a[href='/seguridad']", minimum: 1
   end
 
   test "la página existe y se administra desde Maglev" do

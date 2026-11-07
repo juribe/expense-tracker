@@ -26,6 +26,10 @@ settings:
   id: note
   type: text
   default: "Respondemos de lunes a viernes, en horario laboral."
+- label: "Icono del texto complementario"
+  id: note_icon
+  type: text
+  default: "◷"
 - label: "Variante visual"
   id: variant
   type: select
@@ -35,6 +39,19 @@ settings:
   id: show_art
   type: checkbox
   default: true
+- label: "Estilo de la ilustración"
+  id: art_style
+  type: select
+  select: ["chat", "shield"]
+  default: "chat"
+- label: "Texto del chip superior (escudo)"
+  id: art_chip_one
+  type: text
+  default: "Datos tratados con cuidado"
+- label: "Texto del chip inferior (escudo)"
+  id: art_chip_two
+  type: text
+  default: "Procesamiento temporal"
 - hint: "Si subes una imagen reemplaza la ilustración HTML. Déjala vacía para conservar el diseño actual."
   id: image_hint
   type: hint

@@ -1,0 +1,53 @@
+# Two-column comparison of the information Yogasto keeps and does not keep.
+name: "Qué guardamos y qué no"
+category: security
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Ancla de la sección"
+  id: anchor
+  type: text
+  default: "datos"
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "Información y mantenimiento"
+- label: "Título"
+  id: title
+  type: text
+  default: "Qué guardamos y qué no"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Queremos que tengas claridad sobre la diferencia entre el contenido que se procesa y la información que permanece en tu cuenta."
+- label: "Título de la columna que conservamos"
+  id: kept_title
+  type: text
+  default: "Información que conservamos"
+- label: "Título de la columna que no almacenamos"
+  id: not_kept_title
+  type: text
+  default: "Información que no almacenamos"
+- label: "Título de la aclaración"
+  id: note_title
+  type: text
+  default: "Una aclaración"
+- label: "Texto de la aclaración"
+  id: note_text
+  type: text
+  default: "El contenido del correo sí pasa temporalmente por nuestros sistemas durante el procesamiento."
+blocks_label: "Elementos de las columnas"
+blocks:
+- name: "Elemento"
+  type: item
+  settings:
+  - label: "Columna"
+    id: column
+    type: select
+    select: ["kept", "not_kept"]
+    default: "kept"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Información que debe explicarse."

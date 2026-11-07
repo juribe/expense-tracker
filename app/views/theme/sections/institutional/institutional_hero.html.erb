@@ -1,5 +1,7 @@
 <% variant = %w[lavender white].include?(maglev_section.settings.variant.to_s) ? maglev_section.settings.variant.to_s : "lavender" %>
 <% show_art = maglev_section.settings.show_art.true? || maglev_section.settings.image.present? %>
+<% art_style = maglev_section.settings.art_style.to_s == "shield" ? "shield" : "chat" %>
+<% note_icon = maglev_section.settings.note_icon.to_s.presence || "◷" %>
 <%= maglev_section.wrapper_tag.section class: "institutional-hero institutional-hero--#{variant} #{'institutional-hero--text-only' unless show_art}" do %>
   <div class="container institutional-hero-grid">
     <div class="institutional-hero-copy">
@@ -8,18 +10,36 @@
       <%= maglev_section.setting_tag :description, html_tag: "p", class: "institutional-hero-description" %>
       <% if maglev_section.settings.note.present? %>
         <div class="institutional-hero-note">
-          <span class="institutional-hero-note-icon" aria-hidden="true">◷</span>
+          <span class="institutional-hero-note-icon" aria-hidden="true"><%= note_icon %></span>
           <%= maglev_section.setting_tag :note, html_tag: "span" %>
         </div>
       <% end %>
     </div>
 
     <% if show_art %>
-      <div class="institutional-hero-art" aria-hidden="true">
+      <div class="institutional-hero-art institutional-hero-art--<%= art_style %>" aria-hidden="true">
         <% if maglev_section.settings.image.present? %>
           <img src="<%= maglev_section.settings.image.url %>"
                alt="<%= maglev_section.settings.image.alt_text %>"
                class="institutional-hero-image">
+        <% elsif art_style == "shield" %>
+          <div class="security-art-glow"></div>
+          <div class="security-shield-card">
+            <div class="security-shield-icon">
+              <svg viewBox="0 0 64 64" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m32 8 19 7v15c0 13-8 22-19 27C21 52 13 43 13 30V15l19-7Z"/>
+                <path d="m23 32 6 6 13-14"/>
+              </svg>
+            </div>
+          </div>
+          <span class="security-float security-float--one">
+            <span class="security-float-icon">✓</span>
+            <%= maglev_section.settings.art_chip_one %>
+          </span>
+          <span class="security-float security-float--two">
+            <span class="security-float-icon">⌁</span>
+            <%= maglev_section.settings.art_chip_two %>
+          </span>
         <% else %>
           <div class="institutional-art-orb"></div>
           <div class="institutional-art-card">

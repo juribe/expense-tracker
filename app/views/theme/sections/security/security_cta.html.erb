@@ -1,0 +1,14 @@
+<% anchor = maglev_section.settings.anchor.to_s.presence || "contacto" %>
+<%= maglev_section.wrapper_tag.section class: "security-cta" do %>
+  <div class="container security-cta-inner" id="<%= anchor %>">
+    <div>
+      <%= maglev_section.setting_tag :title, html_tag: "h2" %>
+      <%= maglev_section.setting_tag :description, html_tag: "p" %>
+    </div>
+    <% if maglev_section.settings.cta.text.present? %>
+      <%= maglev_section.setting_tag :cta, class: "security-cta-link" do %>
+        <%= maglev_section.settings.cta.text %> <span aria-hidden="true">→</span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
