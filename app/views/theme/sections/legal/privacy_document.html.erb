@@ -65,12 +65,14 @@
   </aside>
 
   <article class="privacy-content">
-    <% if maglev_section.settings.review_title.present? || maglev_section.settings.review_text.present? %>
+    <% review_title = maglev_section.settings.review_title.to_s %>
+    <% review_text = maglev_section.settings.review_text.to_s %>
+    <% if review_title.present? || review_text.present? %>
       <div class="privacy-review" role="note">
         <span class="privacy-review__icon" aria-hidden="true">!</span>
         <div>
-          <b><%= maglev_section.settings.review_title %></b>
-          <p><%= maglev_section.settings.review_text %></p>
+          <b><%= review_title %></b>
+          <p><%= review_text %></p>
         </div>
       </div>
     <% end %>

@@ -2,9 +2,9 @@
 
 require_relative "legal_document_helpers"
 
-# Initial content for the Maglev privacy policy. This is a preliminary draft:
-# fields that need confirmation from the Yogasto owner are explicitly marked.
-# The page is created without publishing by default.
+# Public content for the Maglev privacy policy. Only verified, user-facing
+# statements belong here: internal verification notes and pending decisions
+# live in docs/privacy_policy_audit.md and must never be rendered on the page.
 module PrivacyPolicySeed
   extend LegalDocumentHelpers
 
@@ -15,15 +15,15 @@ module PrivacyPolicySeed
     meta_description: "Conoce qué información utiliza Yogasto, para qué la usa y qué opciones tienes para controlar tus datos.",
     og_title: "Política de privacidad",
     og_description: "Transparencia sobre el tratamiento de tu información en Yogasto.",
-    meta_robots: "noindex,follow"
+    meta_robots: "index,follow"
   }.freeze
 
   DOCUMENT_SETTINGS = {
     eyebrow: "TRANSPARENCIA Y CONFIANZA",
     title: "Tu información es tuya.<br>Así la cuidamos.",
     description: "Queremos que tengas claridad sobre qué información utilizamos, para qué la usamos y qué opciones tienes para mantener el control de tus datos.",
-    last_updated: "6 de noviembre de 2026",
-    reading_time: "8 minutos",
+    last_updated: "7 de noviembre de 2026",
+    reading_time: "9 minutos",
     reading_label: "Lectura: ",
     updated_label: "Última actualización: ",
     meta_order: "updated_first",
@@ -37,8 +37,8 @@ module PrivacyPolicySeed
     intro: "En Yogasto respetamos tu privacidad. Esta política explica cómo recopilamos, utilizamos, almacenamos y protegemos la información cuando visitas nuestro sitio web o utilizas nuestra aplicación y sus funcionalidades.",
     notice_title: "Una explicación clara, sin letra pequeña.",
     notice_text: "Yogasto te ayuda a organizar tus finanzas personales. Por eso, parte de la información que decides registrar puede ser especialmente privada. Queremos explicarte cómo la tratamos.",
-    review_title: "Versión preliminar en revisión legal",
-    review_text: "Estamos completando los datos de identificación del responsable y los plazos de conservación. No consideres esta versión como definitiva.",
+    review_title: "",
+    review_text: "",
     cta_title: "Tu tranquilidad también hace parte de tus finanzas.",
     cta_text: "Si tienes alguna inquietud sobre privacidad, estamos para ayudarte.",
     cta_link: { link_type: "url", href: "/contactanos", text: "Hablar con Yogasto", open_new_window: false }
@@ -50,12 +50,12 @@ module PrivacyPolicySeed
       title: "¿Quién es responsable de tus datos?",
       nav_label: "Responsable",
       children: [
-        text("<p>El responsable del tratamiento de los datos personales es el titular u operador de Yogasto. Para consultas relacionadas con privacidad puedes usar los canales de contacto indicados en esta política.</p>"),
-        callout(
-          "Datos pendientes de confirmar",
-          "<p>Antes de publicar esta política deben completarse la razón social, el NIT, el domicilio y el correo o canal de privacidad del responsable. No inventes estos datos: deben ser confirmados por el responsable de Yogasto.</p>",
-          "warning"
-        ),
+        text("<p>El responsable del tratamiento de los datos personales es <strong>José Uribe</strong>, titular de Yogasto. Para consultas, solicitudes o reclamos relacionados con privacidad puedes escribir a <a href='mailto:hola@yogasto.co'>hola@yogasto.co</a>.</p>"),
+        list([
+          "Nombre o razón social: José Uribe",
+          "Domicilio: Soledad, Atlántico, Colombia",
+          "Correo electrónico y canal de privacidad: <a href='mailto:hola@yogasto.co'>hola@yogasto.co</a>"
+        ]),
         text("<p>Esta política se interpreta conforme a la normativa aplicable en materia de protección de datos personales, incluyendo la Ley 1581 de 2012 y sus normas reglamentarias en Colombia, cuando corresponda.</p>")
       ]
     ),
@@ -102,13 +102,8 @@ module PrivacyPolicySeed
       nav_label: "Funciones inteligentes",
       intro: "Algunas funciones de Yogasto pueden utilizar proveedores tecnológicos de inteligencia artificial para interpretar textos, clasificar movimientos, extraer información de archivos o responder consultas financieras.",
       children: [
-        text("<p>La configuración actual permite usar Mistral como proveedor principal y, según el entorno, OpenRouter o Flex AI como proveedores alternativos o intermediarios. También se pueden procesar imágenes y audios para reconocimiento o transcripción cuando usas esas funciones.</p>"),
-        text("<p>Cuando utilizas estas funciones, el contenido que envías y los datos necesarios para realizar la tarea pueden ser procesados por el proveedor correspondiente. El alcance depende de la función utilizada y de la configuración vigente.</p>"),
-        callout(
-          "Confirmar antes de publicar",
-          "<p>Deben verificarse con cada proveedor: qué datos recibe, durante cuánto tiempo los conserva, en qué región se procesan, si los utiliza para entrenamiento y qué contrato o acuerdo de tratamiento aplica. No se debe afirmar que ningún proveedor almacena o entrena con los datos sin verificar sus condiciones y la configuración vigente.</p>",
-          "warning"
-        ),
+        text("<p>Yogasto puede usar Mistral como proveedor principal y OpenRouter como proveedor alternativo o intermediario para algunas tareas de inteligencia artificial. También se pueden procesar imágenes y audios para reconocimiento o transcripción cuando usas esas funciones.</p>"),
+        text("<p>Cuando utilizas estas funciones, el contenido que envías y los datos necesarios para realizar la tarea pueden ser procesados por el proveedor correspondiente. El alcance depende de la función utilizada y de la configuración vigente. El tratamiento que cada proveedor realiza se rige por sus propias condiciones y por los acuerdos aplicables.</p>"),
         text("<p>Yogasto registra telemetría de las llamadas de IA, incluyendo el prompt y la respuesta, cifrada en reposo, para diagnóstico y métricas internas. Cuando esos registros están asociados a tu cuenta, se eliminan con ella conforme a las asociaciones configuradas.</p>"),
         text("<p>Si no deseas utilizar una función inteligente, puedes continuar utilizando las funciones manuales disponibles en la aplicación.</p>")
       ]
@@ -120,6 +115,12 @@ module PrivacyPolicySeed
       intro: "No vendemos tus datos personales. Podemos compartir información limitada con proveedores que nos ayudan a operar Yogasto, únicamente en la medida necesaria para prestar el servicio.",
       children: [
         providers([
+          provider(
+            name: "OVHcloud",
+            service_type: "Infraestructura y alojamiento",
+            purpose: "Alojar la plataforma y almacenar la información de los usuarios.",
+            data: "Información almacenada en la plataforma y las copias de seguridad automáticas necesarias para su disponibilidad."
+          ),
           provider(
             name: "ePayco",
             service_type: "Procesamiento de pagos",
@@ -133,9 +134,9 @@ module PrivacyPolicySeed
             data: "Texto, montos, fechas, descripciones, categorías e imágenes enviadas a la función."
           ),
           provider(
-            name: "OpenRouter / Flex AI",
+            name: "OpenRouter",
             service_type: "Inteligencia artificial (según configuración)",
-            purpose: "Proveedores alternativos o intermediarios para tareas de IA de menor costo.",
+            purpose: "Proveer modelos alternativos o intermediarios para tareas de IA.",
             data: "El mismo contenido necesario para ejecutar la tarea de IA configurada."
           ),
           provider(
@@ -151,18 +152,14 @@ module PrivacyPolicySeed
             data: "Mensajes, imágenes o audios enviados voluntariamente a la aplicación."
           ),
           provider(
-            name: "Cloudflare / Resend",
+            name: "Cloudflare",
             service_type: "Procesamiento de correo entrante",
             purpose: "Recibir correos reenviados a la dirección de ingreso de Yogasto.",
-            data: "Contenido y metadatos de los correos que reenvías, según el proveedor configurado."
+            data: "Contenido y metadatos de los correos que reenvías."
           )
         ]),
-        text("<p>También podremos comunicar información cuando exista una obligación legal válida o sea necesario para proteger derechos, usuarios o la seguridad del servicio.</p>"),
-        callout(
-          "Pendiente de confirmar",
-          "<p>Antes de publicar deben confirmarse los nombres definitivos de los proveedores de infraestructura, alojamiento, monitoreo y respaldo, así como sus enlaces de privacidad, regiones y contratos. La lista anterior solo incluye servicios identificados en la implementación actual.</p>",
-          "warning"
-        )
+        text("<p>Yogasto utiliza proveedores externos de infraestructura tecnológica para alojar la plataforma y almacenar la información de sus usuarios. Actualmente, estos servicios son proporcionados por OVHcloud, cuyos servidores se encuentran ubicados en Canadá.</p><p>Se realizan copias de seguridad automáticas para contribuir a la protección y disponibilidad de la información. Los proveedores tecnológicos pueden tratar datos personales en el marco de los servicios contratados y conforme a las condiciones y acuerdos de tratamiento aplicables.</p>"),
+        text("<p>También podremos comunicar información cuando exista una obligación legal válida o sea necesario para proteger derechos, usuarios o la seguridad del servicio.</p>")
       ]
     ),
     section(
@@ -189,13 +186,11 @@ module PrivacyPolicySeed
       nav_label: "Conservación y eliminación",
       intro: "Conservamos la información mientras sea necesaria para prestar el servicio, mantener tu cuenta, cumplir obligaciones legales, resolver disputas y hacer valer nuestros acuerdos.",
       children: [
-        text("<p>Cuando eliminas tu cuenta desde tu perfil, la aplicación elimina el usuario y los registros asociados configurados con eliminación en cascada, incluyendo movimientos, cuentas, integraciones y telemetría de IA. La acción es permanente.</p>"),
-        text("<p>Algunos registros pueden conservarse cuando exista una obligación legal, una disputa o una copia de respaldo pendiente de rotación. Los plazos concretos deben definirse antes de publicar esta política.</p>"),
-        callout(
-          "Plazos pendientes",
-          "<p>No hay plazos de conservación, retención de respaldos ni periodos de registros técnicos documentados en el código actual. Deben establecerse y confirmarse antes de publicar esta sección.</p>",
-          "warning"
-        )
+        text("<p>Mientras tu cuenta esté activa, conservamos los datos que registras y los necesarios para operar el servicio. Cuando eliminas tu cuenta desde tu perfil, la aplicación elimina el usuario y los registros asociados configurados con eliminación en cascada, incluyendo movimientos, cuentas, integraciones y telemetría de IA. La eliminación de la cuenta es permanente en la aplicación.</p>"),
+        text("<p>Las copias de seguridad automáticas pueden conservar versiones anteriores de la información durante el ciclo de respaldo configurado. Por eso, la eliminación de una cuenta no implica que todas las copias de respaldo se eliminen de inmediato; esas copias se van reemplazando conforme a la operación del servicio.</p>"),
+        text("<p>El contenido de los correos procesados para importar movimientos se conserva solo mientras es necesario para completar el procesamiento y revisar el resultado. Una vez concluido el ciclo, ese contenido se elimina de las tablas de procesamiento; pueden permanecer metadatos y resultados asociados a tu cuenta. Los archivos, imágenes y audios que envías a las funciones de análisis se procesan para realizar la tarea solicitada.</p>"),
+        text("<p>Los registros técnicos y la telemetría de IA se conservan para diagnóstico, seguridad y métricas internas. Cuando están asociados a tu cuenta, se eliminan con ella. Los registros técnicos no asociados a tu cuenta pueden conservarse por periodos limitados conforme a la operación de la infraestructura.</p>"),
+        text("<p>Si existe una obligación legal, una disputa o un respaldo pendiente de rotación, podemos conservar la información necesaria durante el tiempo exigido o mientras la situación se resuelva.</p>")
       ]
     ),
     section(
@@ -213,13 +208,10 @@ module PrivacyPolicySeed
           "Solicitar la supresión de datos cuando proceda legalmente.",
           "Revocar la autorización cuando sea legalmente posible."
         ]),
-        text("<p>Para ejercer estos derechos puedes escribirnos desde <a href='/contactanos'>Contáctanos</a>. Incluye el correo asociado a tu cuenta y el motivo de tu solicitud. Podemos pedir información adicional para verificar tu identidad antes de atenderla.</p>"),
+        text("<p>Para ejercer estos derechos escribe a <a href='mailto:hola@yogasto.co'>hola@yogasto.co</a>. Incluye el correo asociado a tu cuenta y el motivo de tu solicitud. Podemos pedir información adicional para verificar tu identidad antes de atenderla.</p>"),
         text("<p>No envíes contraseñas ni datos completos de tarjetas por este canal.</p>"),
-        callout(
-          "Plazos legales",
-          "<p>Las solicitudes se atenderán conforme a los términos legales aplicables. Esta versión no fija plazos distintos ni inventa términos de respuesta; deben validarse con el responsable legal antes de publicar.</p>",
-          "note"
-        )
+        text("<p>De acuerdo con la Ley 1581 de 2012, las consultas se atenderán dentro de los diez (10) días hábiles siguientes a su recibo. Si no es posible responder en ese plazo, te informaremos los motivos y la fecha en que atenderemos la solicitud, que no podrá superar los cinco (5) días hábiles siguientes.</p>"),
+        text("<p>Los reclamos se atenderán dentro de los quince (15) días hábiles siguientes a su recibo. Si no es posible responder en ese plazo, te informaremos los motivos y la fecha en que atenderemos el reclamo, que no podrá superar los ocho (8) días hábiles siguientes.</p>")
       ]
     ),
     section(
@@ -229,11 +221,7 @@ module PrivacyPolicySeed
       intro: "Yogasto utiliza cookies necesarias para mantener la sesión, proteger el acceso y recordar el aviso de membresía. También puede usar almacenamiento local o de sesión del navegador para preferencias de interfaz.",
       children: [
         text("<p>Las cookies estrictamente necesarias permiten que el servicio funcione. El almacenamiento local y de sesión se usa para preferencias como el tema visual, el estado del menú, avisos de onboarding y el estado de sincronización de Gmail.</p>"),
-        callout(
-          "Sin cookies publicitarias identificadas",
-          "<p>En el código actual no identificamos cookies de analítica, publicidad ni píxeles de seguimiento. Antes de publicar esta política debe confirmarse que el entorno de producción, el CDN o servicios externos no añadan cookies adicionales.</p>",
-          "note"
-        )
+        text("<p>La aplicación no incorpora cookies de analítica, publicidad ni píxeles de seguimiento. Si en el futuro incorporamos cookies no necesarias, actualizaremos esta política y, cuando corresponda, solicitaremos tu consentimiento.</p>")
       ]
     ),
     section(
@@ -242,12 +230,8 @@ module PrivacyPolicySeed
       nav_label: "Menores de edad",
       intro: "Yogasto no está dirigido a menores de edad. Si consideras que un menor nos ha proporcionado datos personales sin la autorización correspondiente, contáctanos para revisar la situación y tomar las medidas aplicables.",
       children: [
-        text("<p>El registro actual no incluye un mecanismo de verificación de edad. La edad mínima, la autorización del representante legal y el procedimiento aplicable deben definirse antes de publicar esta política.</p>"),
-        callout(
-          "Pendiente de confirmar",
-          "<p>No se debe inventar una edad mínima ni afirmar que existe verificación de edad. El responsable de Yogasto debe definir estos requisitos con revisión legal.</p>",
-          "warning"
-        )
+        text("<p>Si eres menor de edad, no debes crear una cuenta ni proporcionar datos personales sin la autorización de tu representante legal.</p>"),
+        text("<p>La aplicación no cuenta actualmente con un mecanismo automático de verificación de edad. Si consideras que un menor nos ha proporcionado datos personales sin la autorización correspondiente, escríbenos a <a href='mailto:hola@yogasto.co'>hola@yogasto.co</a> para revisar la situación y adoptar las medidas aplicables.</p>")
       ]
     ),
     section(
@@ -264,14 +248,10 @@ module PrivacyPolicySeed
       anchor: "contacto",
       title: "¿Cómo puedes contactarnos?",
       nav_label: "Contáctanos",
-      intro: "Si tienes preguntas, solicitudes o reclamos sobre el tratamiento de tu información personal, puedes escribirnos desde nuestra página de contacto.",
+      intro: "Si tienes preguntas, solicitudes o reclamos sobre el tratamiento de tu información personal, escríbenos a hola@yogasto.co.",
       children: [
         text("<p>Incluye el correo asociado a tu cuenta, el motivo de tu solicitud y la información necesaria para ayudarnos a atenderla. No envíes contraseñas ni datos completos de tarjetas.</p>"),
-        callout(
-          "Canal de privacidad",
-          "<p>Usa <a href='/contactanos'>Contáctanos</a> para iniciar una solicitud de privacidad. El correo específico de privacidad y el procedimiento interno de atención deben confirmarse antes de publicar.</p>",
-          "tip"
-        )
+        text("<p>También puedes escribirnos a <a href='mailto:hola@yogasto.co'>hola@yogasto.co</a> o desde la página de <a href='/contactanos'>Contáctanos</a>.</p>")
       ]
     )
   ].freeze

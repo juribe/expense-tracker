@@ -96,11 +96,11 @@ settings:
 - label: "Título del aviso de revisión (vacío en la versión final)"
   id: review_title
   type: text
-  default: "Versión preliminar en revisión legal"
+  default: ""
 - label: "Texto del aviso de revisión"
   id: review_text
   type: text
-  default: "Estamos completando los datos de identificación del responsable y los plazos de conservación. No consideres esta versión como definitiva."
+  default: ""
 - label: "— CTA final"
   id: cta_divider
   type: divider

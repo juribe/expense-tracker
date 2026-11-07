@@ -139,9 +139,11 @@ in [docs/help_center.md](docs/help_center.md).
 ### Privacy policy
 
 The public privacy policy lives at `/privacidad` and is administered from
-Maglev. It is currently a preliminary, noindex version with a legal review
-notice. Pending legal data, editorial instructions and publishing steps are
-documented in [docs/privacy_policy.md](docs/privacy_policy.md).
+Maglev. It is published with `index,follow` and contains only user-facing,
+verified copy. Internal verification notes and pending legal decisions are
+documented in [docs/privacy_policy_audit.md](docs/privacy_policy_audit.md);
+editorial instructions and publishing steps are in
+[docs/privacy_policy.md](docs/privacy_policy.md).
 
 ### Terms and conditions
 

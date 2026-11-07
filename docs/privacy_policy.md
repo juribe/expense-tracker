@@ -18,36 +18,32 @@ bloques:
 - Los anchors deben ser estables (`responsable`, `datos`, `ia`, etc.) para no
   romper enlaces existentes.
 
-La fecha de actualización, el tiempo de lectura, el aviso de revisión y el CTA
+La fecha de actualización, el tiempo de lectura, el aviso introductorio y el CTA
 son ajustes de la sección, por lo que también se editan desde Maglev.
 
 ## Estado actual
 
-La página está publicada como **versión preliminar**:
+La página está publicada como versión pública:
 
-- muestra un aviso de revisión legal;
-- tiene `meta_robots = noindex,follow`;
-- por eso no se incluye en el sitemap mientras esté en revisión.
+- no muestra avisos de revisión ni notas internas;
+- tiene `meta_robots = index,follow`;
+- se incluye en el sitemap cuando está publicada.
 
-Antes de considerarla definitiva, completar los datos pendientes, eliminar el
-aviso de revisión y cambiar `meta_robots` a `index,follow`.
+La política pública solo debe contener afirmaciones verificadas y lenguaje para
+usuarios. Las verificaciones internas, los pendientes legales y las decisiones
+del responsable se documentan en
+[docs/privacy_policy_audit.md](privacy_policy_audit.md).
 
 ## Datos pendientes de confirmación
 
-- Razón social, NIT y domicilio del responsable.
-- Correo o canal específico de privacidad.
-- Plazos de conservación y retención de respaldos.
-- Edad mínima y mecanismo de verificación para menores.
-- Proveedor de infraestructura, alojamiento, respaldo y monitoreo.
-- Condiciones de retención, región y entrenamiento de cada proveedor de IA.
-- Enlaces a las políticas de privacidad de los proveedores.
-- Confirmación de cookies del entorno de producción/CDN.
-- Revisión legal de los plazos y del procedimiento de derechos.
+Los pendientes internos no se publican en la página. La lista vigente, con la
+evidencia revisada y la decisión que requiere cada punto, está en
+[docs/privacy_policy_audit.md](privacy_policy_audit.md).
 
 ## Comandos
 
 ```sh
-# Crea o actualiza la página preliminar y la publica con noindex.
+# Crea o actualiza la página pública y la publica con index,follow.
 bin/rails yogasto:setup_privacy_policy
 
 # Recrea el contenido desde la semilla (sobrescribe ediciones).
