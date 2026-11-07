@@ -106,7 +106,7 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "no-store", response.headers["Cache-Control"]
     assert_select "[data-testid='totp-setup']"
-    assert_select "[data-testid='totp-qr'] svg"
+    assert_select "[data-testid='totp-qr'] img[src^='data:image/svg+xml;base64,']"
     formatted_secret = secret.scan(/.{4}/).join(" ")
     assert_select "[data-testid='totp-secret']", text: /#{Regexp.escape(formatted_secret)}/
     assert_select "input[name='totp_code']"

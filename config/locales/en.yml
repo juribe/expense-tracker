@@ -2105,6 +2105,7 @@ en:
       setup_subtitle: "Add a second factor with Google Authenticator, Microsoft Authenticator or another compatible app."
       scan_title: "Scan the QR code"
       scan_help: "Open your authenticator app, choose add account and scan this QR code."
+      qr_alt: "QR code to set up the authenticator app"
       manual_help: "If you cannot scan the QR code, enter this key manually:"
       copy_secret: "Copy key"
       only_once_warning: "You will not see this QR code again after confirming. Store the key somewhere safe."

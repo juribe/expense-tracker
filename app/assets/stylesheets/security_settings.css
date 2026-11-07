@@ -305,7 +305,8 @@
   background: #fff;
 }
 
-.totp-qr svg {
+.totp-qr img {
+  display: block;
   width: 100%;
   max-width: 260px;
   height: auto;

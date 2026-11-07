@@ -20,7 +20,7 @@
 
     <div class="totp-setup-grid">
       <div class="totp-qr" data-testid="totp-qr">
-        <%= raw @totp_qr_svg %>
+        <%= image_tag @totp_qr_data_uri, alt: t("security.totp.qr_alt"), class: "totp-qr-image" %>
       </div>
 
       <div class="totp-setup-copy">

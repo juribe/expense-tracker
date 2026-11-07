@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "base64"
 require "rqrcode"
 
 class SecuritySettingsController < ApplicationController
@@ -93,6 +94,7 @@ class SecuritySettingsController < ApplicationController
       viewbox: true,
       use_path: true
     ).sub(/\A<\?xml.*?\?>/, "")
+    @totp_qr_data_uri = "data:image/svg+xml;base64,#{Base64.strict_encode64(@totp_qr_svg)}"
     @page_title = t("security.totp.setup_title")
   end
 

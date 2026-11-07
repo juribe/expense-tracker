@@ -3763,6 +3763,7 @@ es:
       setup_subtitle: "Añade un segundo factor con Google Authenticator, Microsoft Authenticator u otra aplicación compatible."
       scan_title: "Escanea el código QR"
       scan_help: "Abre tu aplicación de autenticación, selecciona agregar una cuenta y escanea este código."
+      qr_alt: "Código QR para configurar la aplicación de autenticación"
       manual_help: "Si no puedes escanear el QR, ingresa esta clave manualmente:"
       copy_secret: "Copiar clave"
       only_once_warning: "No podrás ver este QR de nuevo después de confirmar. Guarda la clave en un lugar seguro."
