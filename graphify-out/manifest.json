@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1793924760.0436296,
-    "seen": 1793932183.012647,
-    "ast_hash": "51b4e1a227a126d0e1fa6f17019f78b0",
+    "mtime": 1794070433.9034693,
+    "seen": 1794072545.724067,
+    "ast_hash": "0a972756aef27a89d5c9cd6f659b8505",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "app/models/user.rb": {
-    "mtime": 1793562669.1514409,
-    "seen": 1793562712.2525282,
-    "ast_hash": "7f87e630057f8c1671514480b033b047",
+    "mtime": 1794070422.9921432,
+    "seen": 1794072545.724519,
+    "ast_hash": "7332739ca705d8ed56dc28da9139e762",
     "semantic_hash": ""
   },
   "app/services/ai/statement_extractor.rb": {
@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "config/initializers/filter_parameter_logging.rb": {
-    "mtime": 1789226535.8918624,
-    "seen": 1793490696.6350322,
-    "ast_hash": "ac0f4a0d2d0af837c82d478bdc056df8",
+    "mtime": 1794070433.904896,
+    "seen": 1794072545.725054,
+    "ast_hash": "f38b9a68633a060819f791746763094d",
     "semantic_hash": ""
   },
   "config/initializers/inflections.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1794025870.025207,
-    "seen": 1794026425.607522,
-    "ast_hash": "fed1538a2d47356735de520bc4224484",
+    "mtime": 1794070433.9034696,
+    "seen": 1794072545.725067,
+    "ast_hash": "d2420603a0701572d7b398b76f77bf78",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793997224.059811,
-    "seen": 1793998930.8489568,
-    "ast_hash": "1d1c47c6d32737877b995df3fd2d6f10",
+    "mtime": 1794070568.7408974,
+    "seen": 1794072545.7251918,
+    "ast_hash": "8d51f8a4c0c593f76a08009d4291b431",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -774,10 +774,10 @@
     "semantic_hash": ""
   },
   "test/controllers/sessions_controller_test.rb": {
-    "mtime": 1787694826.772634,
-    "seen": 1793490696.6352372,
-    "ast_hash": "4e9fe7974e10fc547acff04c6aa70b05",
-    "semantic_hash": "4e9fe7974e10fc547acff04c6aa70b05"
+    "mtime": 1794070346.7968686,
+    "seen": 1794072545.725579,
+    "ast_hash": "f4d9b2b2cc752e7306b93fb72b8f6836",
+    "semantic_hash": ""
   },
   "test/controllers/transfers_controller_test.rb": {
     "mtime": 1793921935.2454345,
@@ -792,9 +792,9 @@
     "semantic_hash": ""
   },
   "test/integration/devise_auth_flows_test.rb": {
-    "mtime": 1793983868.073568,
-    "seen": 1793984083.865708,
-    "ast_hash": "4c91ef5b0d6b5688cdf090fe5171c8ef",
+    "mtime": 1794055943.909075,
+    "seen": 1794064990.273312,
+    "ast_hash": "ead5c4afe407adc9a0407cb7b23bc12c",
     "semantic_hash": ""
   },
   "test/jobs/gmail_sync_job_test.rb": {
@@ -972,9 +972,9 @@
     "semantic_hash": "8e38e13dc85bb5b17d7d7bf2d5868aa3"
   },
   "test/test_helper.rb": {
-    "mtime": 1794012735.0710008,
-    "seen": 1794013529.617076,
-    "ast_hash": "413180c3ed00254c4ebe83126b0be747",
+    "mtime": 1794055868.599389,
+    "seen": 1794064990.273869,
+    "ast_hash": "aa0d03c4523555016aae4922e60ca1bf",
     "semantic_hash": ""
   },
   ".rubocop.yml": {
@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1794026120.2805734,
-    "seen": 1794026425.608612,
-    "ast_hash": "aa412c885a4337df0f589320b9110aa2",
+    "mtime": 1794071673.856145,
+    "seen": 1794072545.7261581,
+    "ast_hash": "f736aee339d6ad0c0ecd6f31c3caa746",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1008,27 +1008,27 @@
     "semantic_hash": ""
   },
   "config/locales/devise.en.yml": {
-    "mtime": 1787694826.7620232,
-    "seen": 1793490696.635633,
-    "ast_hash": "8131df2d0832d1888ac483528e35e9e2",
-    "semantic_hash": "8131df2d0832d1888ac483528e35e9e2"
+    "mtime": 1794070551.8958306,
+    "seen": 1794072545.726219,
+    "ast_hash": "6b8b7384bcfb416ec8859fced4fe48f4",
+    "semantic_hash": ""
   },
   "config/locales/devise.es.yml": {
-    "mtime": 1787970761.4799006,
-    "seen": 1793490696.635635,
-    "ast_hash": "72184d3f370766f41a2e5da981bc812e",
-    "semantic_hash": "72184d3f370766f41a2e5da981bc812e"
+    "mtime": 1794070551.8958378,
+    "seen": 1794072545.7262201,
+    "ast_hash": "33150f6498e947fa98ba1887c28a0ba9",
+    "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1793921782.077263,
-    "seen": 1793922032.5875762,
-    "ast_hash": "a1836c21c3b59813e71151a7cb673ffe",
+    "mtime": 1794070729.4667265,
+    "seen": 1794072545.726221,
+    "ast_hash": "f92595c35237e97af915b0947cce7391",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793997309.2177587,
-    "seen": 1793998930.849935,
-    "ast_hash": "4d6bb611368e83876a718824ef9c3be6",
+    "mtime": 1794070729.4667454,
+    "seen": 1794072545.726223,
+    "ast_hash": "e976ac84ad6961b45f5447a8eb7c6b16",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794027104.5822008,
-    "seen": 1794027191.5463638,
+    "mtime": 1794073628.2096617,
+    "seen": 1794073672.328373,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4836,9 +4836,9 @@
     "semantic_hash": ""
   },
   "app/controllers/users/sessions_controller.rb": {
-    "mtime": 1793703802.7238815,
-    "seen": 1793738613.789042,
-    "ast_hash": "f3be5f0cd70129548411a8ff02f64119",
+    "mtime": 1794065447.2326438,
+    "seen": 1794065635.425845,
+    "ast_hash": "55ed12061dd2ea744bb2930619f55731",
     "semantic_hash": ""
   },
   "test/controllers/users/sessions_controller_test.rb": {
@@ -7860,9 +7860,9 @@
     "semantic_hash": ""
   },
   "test/integration/profile_page_test.rb": {
-    "mtime": 1793723247.5211802,
-    "seen": 1793738613.790252,
-    "ast_hash": "72717c0dd54775a7339acc1ad683d99f",
+    "mtime": 1794055947.0815978,
+    "seen": 1794064990.2733471,
+    "ast_hash": "f62389dc196d21ebb38ca3ff7578bbb1",
     "semantic_hash": ""
   },
   "test/integration/checkout_status_test.rb": {
@@ -8544,9 +8544,9 @@
     "semantic_hash": ""
   },
   "app/theme/theme.yml": {
-    "mtime": 1794026672.2495008,
-    "seen": 1794027191.5463428,
-    "ast_hash": "8c978f8f5d986eb76492a79a7d3fef87",
+    "mtime": 1794071099.8710637,
+    "seen": 1794072545.726211,
+    "ast_hash": "4d1565c056fd62510d8c6411baaf6547",
     "semantic_hash": ""
   },
   "config/locales/maglev_page_seo.yml": {
@@ -9000,9 +9000,9 @@
     "semantic_hash": ""
   },
   "db/seeds/privacy_policy.rb": {
-    "mtime": 1794023451.2514834,
-    "seen": 1794024043.7780428,
-    "ast_hash": "8f30ee4450a6204bc02156ec0e8959cb",
+    "mtime": 1794073793.8158855,
+    "seen": 1794073897.787943,
+    "ast_hash": "4d4f60947bce2b0fee7dbf4b8868e4e2",
     "semantic_hash": ""
   },
   "lib/tasks/privacy_policy.rake": {
@@ -9012,9 +9012,9 @@
     "semantic_hash": ""
   },
   "test/integration/public_cms_privacy_policy_test.rb": {
-    "mtime": 1794023655.901654,
-    "seen": 1794024043.778506,
-    "ast_hash": "86072a42af332e35b9d56fd6127d9df4",
+    "mtime": 1794073718.7171285,
+    "seen": 1794073897.788424,
+    "ast_hash": "e58a2b77dadb4e04acf0181f2e362abf",
     "semantic_hash": ""
   },
   "test/support/privacy_policy_test_support.rb": {
@@ -9030,15 +9030,15 @@
     "semantic_hash": ""
   },
   "app/theme/sections/privacy_document.yml": {
-    "mtime": 1794023465.7514331,
-    "seen": 1794024043.779579,
-    "ast_hash": "0408ff0b5a90165cb98051b3d58d1699",
+    "mtime": 1794071099.677952,
+    "seen": 1794072545.7261992,
+    "ast_hash": "9076cd761d76501a2c30445937038643",
     "semantic_hash": ""
   },
   "docs/privacy_policy.md": {
-    "mtime": 1794013191.4274752,
-    "seen": 1794013529.6174452,
-    "ast_hash": "28c5eaae3a42c27d2893d44efee3dba4",
+    "mtime": 1794071636.257238,
+    "seen": 1794072545.7263029,
+    "ast_hash": "a31e15cddabd9018c9cc471f7afdc12c",
     "semantic_hash": ""
   },
   "app/services/legal_document/seeder.rb": {
@@ -9141,6 +9141,240 @@
     "mtime": 1794026665.577191,
     "seen": 1794027191.54644,
     "ast_hash": "4457da67c6a6fa49e1bbbdd1e4393bf1",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/security_settings.js": {
+    "mtime": 1794070512.2526975,
+    "seen": 1794072545.724042,
+    "ast_hash": "9062579b1b59413201e3d9ccdd9ce5e1",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/webauthn_ui.js": {
+    "mtime": 1794056584.57385,
+    "seen": 1794064990.2713459,
+    "ast_hash": "f2b8ba0c25af0ad90984bc7054dac1f9",
+    "semantic_hash": ""
+  },
+  "app/controllers/concerns/security_reauthentication.rb": {
+    "mtime": 1794065280.9152505,
+    "seen": 1794065635.425705,
+    "ast_hash": "315e2b5175a14d548b12730867351bda",
+    "semantic_hash": ""
+  },
+  "app/controllers/security_settings_controller.rb": {
+    "mtime": 1794072837.373984,
+    "seen": 1794073310.032665,
+    "ast_hash": "c13023631c20a07bf80a0c91638dd58f",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/passkey_authentication_options_controller.rb": {
+    "mtime": 1794056438.5522306,
+    "seen": 1794064990.271481,
+    "ast_hash": "58f0aa093919fe787b4aeb4cc5099d9e",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/passkey_registration_options_controller.rb": {
+    "mtime": 1794056438.5521996,
+    "seen": 1794064990.2714822,
+    "ast_hash": "58f533343dd1c568eacf278b6d97394c",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/passkeys_controller.rb": {
+    "mtime": 1794065040.9499767,
+    "seen": 1794065635.425833,
+    "ast_hash": "213229be2afbf763611ddd5a2f1485bf",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/recovery_code_authentications_controller.rb": {
+    "mtime": 1794070443.2044194,
+    "seen": 1794072545.724213,
+    "ast_hash": "338598bbd08f65fae43bfe8e2578ff2f",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/second_factor_webauthn_credentials_controller.rb": {
+    "mtime": 1794065040.9515827,
+    "seen": 1794065635.4258401,
+    "ast_hash": "7d916cd661a22b4a0ecec69d0546559a",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/security_key_authentication_options_controller.rb": {
+    "mtime": 1794056446.438367,
+    "seen": 1794064990.271491,
+    "ast_hash": "923c1f2d9a9303b006d72201501dde11",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/security_key_registration_options_controller.rb": {
+    "mtime": 1794056446.4382567,
+    "seen": 1794064990.271492,
+    "ast_hash": "5e54a7022f0534c492c6f9baf18427aa",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/two_factor_authentications_controller.rb": {
+    "mtime": 1794065263.864822,
+    "seen": 1794065635.425846,
+    "ast_hash": "9af46ea14022a191ffe4e0ea92b48fc5",
+    "semantic_hash": ""
+  },
+  "app/lib/webauthn_challenge.rb": {
+    "mtime": 1794056404.923154,
+    "seen": 1794064990.2716749,
+    "ast_hash": "022aa09fe328b812553847f0be93a8b3",
+    "semantic_hash": ""
+  },
+  "app/models/recovery_code.rb": {
+    "mtime": 1794070559.8241863,
+    "seen": 1794072545.724503,
+    "ast_hash": "fcf8306158f4d5f289e12c471b251d96",
+    "semantic_hash": ""
+  },
+  "app/models/webauthn_credential.rb": {
+    "mtime": 1794064544.7958798,
+    "seen": 1794064990.271782,
+    "ast_hash": "448ecf32294db5235051dce534df6eb5",
+    "semantic_hash": ""
+  },
+  "config/initializers/devise_webauthn_guards.rb": {
+    "mtime": 1794064158.8258862,
+    "seen": 1794064990.2726982,
+    "ast_hash": "e48c772bc5120d3632adbb1d8cb7a314",
+    "semantic_hash": ""
+  },
+  "config/initializers/webauthn.rb": {
+    "mtime": 1794065469.0592604,
+    "seen": 1794065635.426712,
+    "ast_hash": "82148163dd03f3629f0f03454be05b52",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261107125532_create_webauthn_credentials.rb": {
+    "mtime": 1794056291.2936952,
+    "seen": 1794064990.2728572,
+    "ast_hash": "237a92d4d0a708faf6766a1392216868",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261107125533_add_webauthn_id_to_users.rb": {
+    "mtime": 1794056132.7656572,
+    "seen": 1794064990.2728581,
+    "ast_hash": "a72e157ee0e82cebf0f8b9ae05ce3fad",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261107125534_create_recovery_codes.rb": {
+    "mtime": 1794056291.2929497,
+    "seen": 1794064990.2728598,
+    "ast_hash": "00149226b1333e2cf7fbd48cc4fd2904",
+    "semantic_hash": ""
+  },
+  "test/controllers/security_settings_controller_test.rb": {
+    "mtime": 1794072734.838487,
+    "seen": 1794073310.0368938,
+    "ast_hash": "469bd663a25cdd47ec4efaeda8eea3da",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/passkeys_controller_test.rb": {
+    "mtime": 1794056675.5172906,
+    "seen": 1794064990.273281,
+    "ast_hash": "fe053a0ad07b01187dc121265ea0bba7",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/recovery_code_authentications_controller_test.rb": {
+    "mtime": 1794070355.9326477,
+    "seen": 1794072545.725588,
+    "ast_hash": "21a561250c98d1ad67d3efa3c0f41259",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/second_factor_webauthn_credentials_controller_test.rb": {
+    "mtime": 1794055938.948795,
+    "seen": 1794064990.2732868,
+    "ast_hash": "95f58d9878ec8f1b564b9d8ea8c467f4",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/two_factor_authentications_controller_test.rb": {
+    "mtime": 1794072482.817868,
+    "seen": 1794072545.725596,
+    "ast_hash": "e1c7ea1f08fb42ce77c8170944df8120",
+    "semantic_hash": ""
+  },
+  "test/models/recovery_code_test.rb": {
+    "mtime": 1794056019.6342762,
+    "seen": 1794064990.27347,
+    "ast_hash": "e4f00a71dd0fd7ffbc12779323d55d94",
+    "semantic_hash": ""
+  },
+  "test/models/user_webauthn_test.rb": {
+    "mtime": 1794056001.017201,
+    "seen": 1794064990.2734919,
+    "ast_hash": "ae324e4923a1546331c5429e5319edcb",
+    "semantic_hash": ""
+  },
+  "test/models/webauthn_credential_test.rb": {
+    "mtime": 1794056006.887275,
+    "seen": 1794064990.273493,
+    "ast_hash": "0fa3bd6ca606ca9dc32850cb8f131d56",
+    "semantic_hash": ""
+  },
+  "test/support/webauthn_test_helper.rb": {
+    "mtime": 1794064140.5829444,
+    "seen": 1794064990.273833,
+    "ast_hash": "c7c631974a021b5fd2b0b56c5db97324",
+    "semantic_hash": ""
+  },
+  "docs/passkeys.md": {
+    "mtime": 1794072691.9315312,
+    "seen": 1794073310.039305,
+    "ast_hash": "728b52963e5635b3434bcf20b9b905ea",
+    "semantic_hash": ""
+  },
+  "app/controllers/concerns/second_factor_authentication.rb": {
+    "mtime": 1794072887.440066,
+    "seen": 1794073310.032452,
+    "ast_hash": "6a5065248f0c39b1165e890008922296",
+    "semantic_hash": ""
+  },
+  "app/controllers/users/totp_authentications_controller.rb": {
+    "mtime": 1794070443.1956384,
+    "seen": 1794072545.724223,
+    "ast_hash": "946b8a41cc76906ea68723a428fae1ef",
+    "semantic_hash": ""
+  },
+  "app/models/totp_credential.rb": {
+    "mtime": 1794072708.9462688,
+    "seen": 1794073310.033783,
+    "ast_hash": "f7e8520f85fbacf15fe062b1e985aa80",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261107130000_create_totp_credentials.rb": {
+    "mtime": 1794070415.003088,
+    "seen": 1794072545.7251892,
+    "ast_hash": "d073320de0effd0476c870616dffba70",
+    "semantic_hash": ""
+  },
+  "test/controllers/users/totp_authentications_controller_test.rb": {
+    "mtime": 1794070796.5412169,
+    "seen": 1794072545.725595,
+    "ast_hash": "bb0908cf760ff6c531124d2d334c213f",
+    "semantic_hash": ""
+  },
+  "test/models/totp_credential_test.rb": {
+    "mtime": 1794070610.476029,
+    "seen": 1794072545.725779,
+    "ast_hash": "a224f6d2e6abf22e71cbf22e12679019",
+    "semantic_hash": ""
+  },
+  "test/models/user_mfa_test.rb": {
+    "mtime": 1794070273.9679172,
+    "seen": 1794072545.7257931,
+    "ast_hash": "57b38aee07515689c811b28bd804e55a",
+    "semantic_hash": ""
+  },
+  "docs/privacy_policy_audit.md": {
+    "mtime": 1794073758.0889983,
+    "seen": 1794073897.789114,
+    "ast_hash": "622961dc5d3c9f9d0998ab76203e67c6",
+    "semantic_hash": ""
+  },
+  "docs/totp-mfa.md": {
+    "mtime": 1794070775.3561633,
+    "seen": 1794072545.726312,
+    "ast_hash": "0dfbff5209ec7e7030f64cc406c88bc4",
     "semantic_hash": ""
   }
 }
