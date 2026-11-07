@@ -83,6 +83,14 @@ es:
       invalid: "No pudimos enviar tu mensaje. Revisa los datos e inténtalo de nuevo."
       rate_limited: "Has enviado varios mensajes. Espera un momento antes de intentarlo de nuevo."
 
+  help_center:
+    search:
+      empty: "No encontramos artículos para tu búsqueda. Prueba con otras palabras o escríbenos."
+    rating:
+      thanks: "Gracias por tu valoración."
+      invalid: "No pudimos registrar tu valoración. Inténtalo de nuevo."
+      rate_limited: "Has enviado varias valoraciones. Espera un momento antes de intentarlo de nuevo."
+
   activemodel:
     attributes:
       contact_message:

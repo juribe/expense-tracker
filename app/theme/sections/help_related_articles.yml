@@ -1,0 +1,24 @@
+# Related articles. Editors can list article paths (one per line); if empty,
+# the section falls back to other articles in the same category.
+name: "Artículos relacionados"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "SIGUE LEYENDO"
+- label: "Título"
+  id: heading
+  type: text
+  default: "Artículos relacionados"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Otras guías que pueden ayudarte."
+- label: "Rutas relacionadas (una por línea)"
+  id: related_paths
+  type: text
+  default: ""

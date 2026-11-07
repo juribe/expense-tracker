@@ -1,7 +1,7 @@
 xml.instruct!
 
 xml.urlset xmlns: "http://www.google.com/schemas/sitemap/0.9" do
-  @pages.find_each do |page|
+  @pages.each do |page|
     fullpath = page.index? ? "#{@host}/" : "#{@host}/#{page.path}"
 
     xml.url do

@@ -1,0 +1,12 @@
+<nav class="help-breadcrumb" aria-label="Ruta de navegación">
+  <% items.each_with_index do |item, index| %>
+    <% if index.positive? %>
+      <span class="help-breadcrumb__separator" aria-hidden="true">/</span>
+    <% end %>
+    <% if item[:url].present? %>
+      <a href="<%= item[:url] %>"><%= item[:label] %></a>
+    <% else %>
+      <span aria-current="page"><%= item[:label] %></span>
+    <% end %>
+  <% end %>
+</nav>

@@ -49,7 +49,7 @@ Maglev.configure do |config|
     maglev users users/sign_in users/sign_up dashboard plans profile
     precios pricing prices settings reports expenses incomes budgets goals
     transfers imports financial_setup financial_chat financial_summary
-    savings_opportunities drains
+    savings_opportunities drains ayuda/buscar ayuda/valoracion help privacy contactanos
   )
 
   # Base class for Maglev::ApplicationController (inherit auth, layout, etc. from your app).
@@ -110,6 +110,7 @@ end
 #    keep working exactly the same.
 Rails.application.config.to_prepare do
   Maglev::Page.include(Maglev::Page::SeoExtensionConcern)
+  Maglev::Page.include(Maglev::Page::HelpCenterExtensionConcern)
 
   extra_seo_params = Module.new do
     def page_params

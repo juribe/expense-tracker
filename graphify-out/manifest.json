@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1793985670.6583602,
-    "seen": 1793986727.7401931,
-    "ast_hash": "8b85b6bbfafc23d7554ca089dd1efd5a",
+    "mtime": 1794012701.3325086,
+    "seen": 1794013529.615586,
+    "ast_hash": "66b49fb4f68c01e5577da0488f8063ae",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1793924028.1059937,
-    "seen": 1793932183.014026,
-    "ast_hash": "405fe2023e1c5e6a06154fdfb9b1527a",
+    "mtime": 1793997224.059811,
+    "seen": 1793998930.8489568,
+    "ast_hash": "1d1c47c6d32737877b995df3fd2d6f10",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -972,9 +972,9 @@
     "semantic_hash": "8e38e13dc85bb5b17d7d7bf2d5868aa3"
   },
   "test/test_helper.rb": {
-    "mtime": 1793927130.6134257,
-    "seen": 1793932183.015121,
-    "ast_hash": "de76694db8598844e58f299b029429d8",
+    "mtime": 1794012735.0710008,
+    "seen": 1794013529.617076,
+    "ast_hash": "413180c3ed00254c4ebe83126b0be747",
     "semantic_hash": ""
   },
   ".rubocop.yml": {
@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1793986450.2446678,
-    "seen": 1793986727.741248,
-    "ast_hash": "31885c9cf9dfbf4dbe699951cee1eefa",
+    "mtime": 1794013197.2789116,
+    "seen": 1794013529.617103,
+    "ast_hash": "a08847954f96d5d97b0bda0691254425",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1793985675.9993157,
-    "seen": 1793986727.741288,
-    "ast_hash": "f87af6207a38a05960e1d532d251d6fb",
+    "mtime": 1793997309.2177587,
+    "seen": 1793998930.849935,
+    "ast_hash": "4d6bb611368e83876a718824ef9c3be6",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1793987203.8358548,
-    "seen": 1793987260.923348,
+    "mtime": 1794013713.1412883,
+    "seen": 1794013813.588497,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -8304,9 +8304,9 @@
     "semantic_hash": ""
   },
   "app/controllers/public_cms/sitemap_controller.rb": {
-    "mtime": 1793932045.1093743,
-    "seen": 1793932183.0128472,
-    "ast_hash": "f01c6538883d5a0a7517852f08a9b92e",
+    "mtime": 1794013462.6533267,
+    "seen": 1794013529.6144,
+    "ast_hash": "b72b37ab6f952dcd645318a93a448509",
     "semantic_hash": ""
   },
   "app/helpers/maglev_theme_helper.rb": {
@@ -8322,9 +8322,9 @@
     "semantic_hash": ""
   },
   "config/initializers/maglev.rb": {
-    "mtime": 1793931907.00022,
-    "seen": 1793932183.013885,
-    "ast_hash": "39c59e8e9b947b1522366b53506711af",
+    "mtime": 1794012701.3329368,
+    "seen": 1794013529.615579,
+    "ast_hash": "12cfc55e2e554d624d945bc007ec6634",
     "semantic_hash": ""
   },
   "db/migrate/20261105235815_create_active_storage_tables.active_storage.rb": {
@@ -8448,9 +8448,9 @@
     "semantic_hash": ""
   },
   "test/controllers/public_cms/sitemap_controller_test.rb": {
-    "mtime": 1793984898.7663424,
-    "seen": 1793986727.7406878,
-    "ast_hash": "adffd859791eaaa744e562ee69cc85bd",
+    "mtime": 1794012722.1277516,
+    "seen": 1794013529.616328,
+    "ast_hash": "d7dcfb5876dd07669e84f0dce7c10492",
     "semantic_hash": ""
   },
   "test/integration/maglev_editor_authorization_test.rb": {
@@ -8460,9 +8460,9 @@
     "semantic_hash": ""
   },
   "test/integration/public_cms_home_test.rb": {
-    "mtime": 1793927185.7019587,
-    "seen": 1793932183.014584,
-    "ast_hash": "3cd7973b8245fc28f0223f9b4119262e",
+    "mtime": 1794011654.139913,
+    "seen": 1794011733.895956,
+    "ast_hash": "7147700b3a24db3e5a0efedaa1339d56",
     "semantic_hash": ""
   },
   "test/support/public_cms_test_support.rb": {
@@ -8496,9 +8496,9 @@
     "semantic_hash": ""
   },
   "app/theme/sections/footer.yml": {
-    "mtime": 1793924436.5618718,
-    "seen": 1793932183.015156,
-    "ast_hash": "4aa2cb00a2c2638860282e0ff08bd60f",
+    "mtime": 1794012693.92242,
+    "seen": 1794013529.6171699,
+    "ast_hash": "ac19d562e642e358f661170dd756e420",
     "semantic_hash": ""
   },
   "app/theme/sections/hero.yml": {
@@ -8544,9 +8544,9 @@
     "semantic_hash": ""
   },
   "app/theme/theme.yml": {
-    "mtime": 1793985935.994629,
-    "seen": 1793986727.7412748,
-    "ast_hash": "7048f087de625e0ec3cf3cd8a2c7b1e3",
+    "mtime": 1794012693.920829,
+    "seen": 1794013529.617297,
+    "ast_hash": "28f37c4ca267447f4d06d371305cc32b",
     "semantic_hash": ""
   },
   "config/locales/maglev_page_seo.yml": {
@@ -8616,15 +8616,15 @@
     "semantic_hash": ""
   },
   "test/integration/public_cms_contact_page_test.rb": {
-    "mtime": 1793987118.0287974,
-    "seen": 1793987260.922815,
-    "ast_hash": "c8195464d7170bb2bb55f511f1968101",
+    "mtime": 1794012762.9836376,
+    "seen": 1794013529.616499,
+    "ast_hash": "4a2ca0bc2fb1b02069ac3c6e410984d2",
     "semantic_hash": ""
   },
   "test/integration/public_cms_institutional_pages_test.rb": {
-    "mtime": 1793984893.3897107,
-    "seen": 1793986727.740769,
-    "ast_hash": "ec80ada5eda673c0a02a7ae6e19b4eef",
+    "mtime": 1794012762.9933739,
+    "seen": 1794013529.6165051,
+    "ast_hash": "8e598aff97ef242d09cbf0ad04bd8204",
     "semantic_hash": ""
   },
   "test/mailers/contact_mailer_test.rb": {
@@ -8646,9 +8646,9 @@
     "semantic_hash": ""
   },
   "app/theme/sections/contact.yml": {
-    "mtime": 1793985723.4859016,
-    "seen": 1793986727.741251,
-    "ast_hash": "6325610497b44870ab8fc05cff19ecc9",
+    "mtime": 1794012693.9208286,
+    "seen": 1794013529.617106,
+    "ast_hash": "954c5ec8a7c5d18d4c6fe15e0032590e",
     "semantic_hash": ""
   },
   "app/theme/sections/institutional_content.yml": {
@@ -8664,9 +8664,393 @@
     "semantic_hash": ""
   },
   "app/theme/sections/link_cards.yml": {
-    "mtime": 1793985727.8643925,
-    "seen": 1793986727.7412648,
-    "ast_hash": "411a2fc2dee1f08038d8810aee15b93a",
+    "mtime": 1793997844.3819094,
+    "seen": 1793998930.8499131,
+    "ast_hash": "e3551f78f4bfe91d1466255e2ea40302",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/help_center.js": {
+    "mtime": 1793999093.3923054,
+    "seen": 1793999188.0377028,
+    "ast_hash": "b7e795916fa6d759fad64eebe46cde83",
+    "semantic_hash": ""
+  },
+  "app/controllers/help_center/ratings_controller.rb": {
+    "mtime": 1793997383.4940498,
+    "seen": 1793998930.847948,
+    "ast_hash": "920265050ff8b4bbf2f2768c9228f2c2",
+    "semantic_hash": ""
+  },
+  "app/controllers/help_center/search_controller.rb": {
+    "mtime": 1793997300.683583,
+    "seen": 1793998930.847949,
+    "ast_hash": "155531799f4c0b63f856eeb71ae1b0ea",
+    "semantic_hash": ""
+  },
+  "app/helpers/help_center_helper.rb": {
+    "mtime": 1793999741.642172,
+    "seen": 1793999798.073803,
+    "ast_hash": "2f285cd82d2ff34723a75b097235714d",
+    "semantic_hash": ""
+  },
+  "app/models/concerns/maglev/page/help_center_extension_concern.rb": {
+    "mtime": 1793997282.9869735,
+    "seen": 1793998930.848211,
+    "ast_hash": "f77aca5acb4be03c12d0daabeff93198",
+    "semantic_hash": ""
+  },
+  "app/models/help_article_index.rb": {
+    "mtime": 1793997235.8752,
+    "seen": 1793998930.848258,
+    "ast_hash": "35a2152ebaf437d2ec80dbed44c98ab8",
+    "semantic_hash": ""
+  },
+  "app/models/help_article_rating.rb": {
+    "mtime": 1793997383.4831364,
+    "seen": 1793998930.848259,
+    "ast_hash": "ef387121394db7cdb3c63e929f3c9ee6",
+    "semantic_hash": ""
+  },
+  "app/models/help_category_index.rb": {
+    "mtime": 1793997235.8751519,
+    "seen": 1793998930.848261,
+    "ast_hash": "b8196f287e5c2bbb0590dd5192cb1fd0",
+    "semantic_hash": ""
+  },
+  "app/services/help_center.rb": {
+    "mtime": 1793997245.6882327,
+    "seen": 1793998930.8485918,
+    "ast_hash": "15269494eab8b71b65eb055b4e3e698b",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/category_articles.rb": {
+    "mtime": 1793997968.846357,
+    "seen": 1793998930.848593,
+    "ast_hash": "ffebfda8d5fd6244fe20709262e1ea35",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/category_directory.rb": {
+    "mtime": 1793997621.7290301,
+    "seen": 1793998930.848594,
+    "ast_hash": "001d28c3fccf26ab2d52db08033cc972",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/indexer.rb": {
+    "mtime": 1793999594.8242123,
+    "seen": 1793999670.86715,
+    "ast_hash": "608a26e7ad2c8155ab995be2542fafbc",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/navigation_sync.rb": {
+    "mtime": 1794011577.389485,
+    "seen": 1794011733.8939679,
+    "ast_hash": "c72058675f6931c443d2da476fc61755",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/page_path.rb": {
+    "mtime": 1793998794.7187486,
+    "seen": 1793998930.848598,
+    "ast_hash": "0ee0b7558818430283289f7e08eef8ca",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/popular_articles.rb": {
+    "mtime": 1793997621.7308192,
+    "seen": 1793998930.848599,
+    "ast_hash": "2132af3cdb25dc4b4f42d2bd5bc3158e",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/rating_fingerprint.rb": {
+    "mtime": 1793997245.6907625,
+    "seen": 1793998930.848601,
+    "ast_hash": "b1a516ef7154dd32244f0c22b388539c",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/related_articles.rb": {
+    "mtime": 1793997621.7307713,
+    "seen": 1793998930.848602,
+    "ast_hash": "04e9f6225ac2445694bc12f8dface2f9",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/search.rb": {
+    "mtime": 1793997383.4884057,
+    "seen": 1793998930.8486028,
+    "ast_hash": "7eae9b580fffa7d514c275a875ae8c13",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/seeder.rb": {
+    "mtime": 1794010497.9298308,
+    "seen": 1794010629.102582,
+    "ast_hash": "0515003e8e6280e2fe379f4b34099e84",
+    "semantic_hash": ""
+  },
+  "app/services/help_center/text_normalizer.rb": {
+    "mtime": 1793997245.6905484,
+    "seen": 1793998930.8486059,
+    "ast_hash": "dde0aed9d85b81ce1d89b2dafa366ce1",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261106120000_enable_pg_trgm.rb": {
+    "mtime": 1793997216.6297634,
+    "seen": 1793998930.848952,
+    "ast_hash": "e98a78ca72f0c1b3850d3f1cb6835df3",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261106120100_create_help_center_indices.rb": {
+    "mtime": 1793997216.6297581,
+    "seen": 1793998930.848953,
+    "ast_hash": "fda1dae3f5285a8c07ddf70165990dba",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261106120200_create_help_article_ratings.rb": {
+    "mtime": 1793997216.6355193,
+    "seen": 1793998930.8489542,
+    "ast_hash": "06a6e9623be836ede4d449128926e432",
+    "semantic_hash": ""
+  },
+  "db/seeds/help_center.rb": {
+    "mtime": 1794010466.1103225,
+    "seen": 1794010629.102975,
+    "ast_hash": "abcbcae37729375cd57eb8c23f3dcd69",
+    "semantic_hash": ""
+  },
+  "lib/tasks/help_center.rake": {
+    "mtime": 1794010517.92249,
+    "seen": 1794010629.102984,
+    "ast_hash": "be56d4a576fe395a42e6b8ed1e81e71a",
+    "semantic_hash": ""
+  },
+  "test/controllers/help_center/ratings_controller_test.rb": {
+    "mtime": 1793996957.8899326,
+    "seen": 1793998930.8492959,
+    "ast_hash": "ea7213ea3bea329a3cd7caab176acd04",
+    "semantic_hash": ""
+  },
+  "test/controllers/help_center/search_controller_test.rb": {
+    "mtime": 1793996957.889932,
+    "seen": 1793998930.849298,
+    "ast_hash": "17c2ce84b80a876f7d776e73065f715e",
+    "semantic_hash": ""
+  },
+  "test/integration/help_center_indexing_test.rb": {
+    "mtime": 1793996947.1714294,
+    "seen": 1793998930.849366,
+    "ast_hash": "feef22190eadcca5a720b3900a5fd452",
+    "semantic_hash": ""
+  },
+  "test/integration/public_cms_help_center_test.rb": {
+    "mtime": 1793999492.0826101,
+    "seen": 1793999670.869171,
+    "ast_hash": "2d06a393935bf4185ce19f398a37fa11",
+    "semantic_hash": ""
+  },
+  "test/models/help_article_index_test.rb": {
+    "mtime": 1793997389.5042183,
+    "seen": 1793998930.849479,
+    "ast_hash": "f27323943a7bc0520f78c33d77064223",
+    "semantic_hash": ""
+  },
+  "test/models/help_article_rating_test.rb": {
+    "mtime": 1793997202.0688517,
+    "seen": 1793998930.84948,
+    "ast_hash": "d2d59d761b8657efff6da3bd7f77789d",
+    "semantic_hash": ""
+  },
+  "test/models/help_category_index_test.rb": {
+    "mtime": 1793997389.504204,
+    "seen": 1793998930.8494809,
+    "ast_hash": "8953684443cc31b834517388bf761e98",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/indexer_test.rb": {
+    "mtime": 1793999000.1659214,
+    "seen": 1793999188.039561,
+    "ast_hash": "bfa67e7afce9db74ddc17ac8832ef7a9",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/navigation_sync_test.rb": {
+    "mtime": 1794011553.3427901,
+    "seen": 1794011733.896354,
+    "ast_hash": "72c52330228d0af9d8dcefe576f912c3",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/page_path_test.rb": {
+    "mtime": 1793997389.5051265,
+    "seen": 1793998930.849686,
+    "ast_hash": "81d8cc2932090b0fd8c5dfcdddbc3574",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/rating_fingerprint_test.rb": {
+    "mtime": 1793997178.8986042,
+    "seen": 1793998930.849687,
+    "ast_hash": "ef7957974089d343b15f68500261dd39",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/search_test.rb": {
+    "mtime": 1793997153.02244,
+    "seen": 1793998930.849688,
+    "ast_hash": "1555582e103cab22b1f7f59ad116dab0",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/seeder_test.rb": {
+    "mtime": 1794010509.5831301,
+    "seen": 1794010629.1037812,
+    "ast_hash": "5e1587333507e5d8275aca0c5f78be89",
+    "semantic_hash": ""
+  },
+  "test/services/help_center/text_normalizer_test.rb": {
+    "mtime": 1793997143.3582962,
+    "seen": 1793998930.849691,
+    "ast_hash": "b127d7300628ba015626572f1f871c06",
+    "semantic_hash": ""
+  },
+  "test/support/help_center_test_support.rb": {
+    "mtime": 1793997984.6704676,
+    "seen": 1793998930.849828,
+    "ast_hash": "b3cdf589844d33ac469da2e305d1f8f2",
+    "semantic_hash": ""
+  },
+  "test/system/help_center_test.rb": {
+    "mtime": 1793998277.7999163,
+    "seen": 1793998930.8498461,
+    "ast_hash": "2428729953553035c685b69b4fb2d4c6",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_article_content.yml": {
+    "mtime": 1793997647.5934129,
+    "seen": 1793998930.8498921,
+    "ast_hash": "bb5c6648a676230f3b123b54882b90d6",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_article_feedback.yml": {
+    "mtime": 1793997647.5933974,
+    "seen": 1793998930.8498938,
+    "ast_hash": "b702cb9e46cefd03dffd756f8505d0b8",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_article_header.yml": {
+    "mtime": 1793997647.5933259,
+    "seen": 1793998930.849895,
+    "ast_hash": "d1236ed39875193ca770e914cdf66237",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_article_list.yml": {
+    "mtime": 1793997647.5943682,
+    "seen": 1793998930.849897,
+    "ast_hash": "1bf9b4ace82e5d794af8a6d55176bdf4",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_categories.yml": {
+    "mtime": 1793997632.8071773,
+    "seen": 1793998930.849898,
+    "ast_hash": "84a392c4f2c4f304060b120f95bd9d42",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_category_header.yml": {
+    "mtime": 1793997632.809526,
+    "seen": 1793998930.849899,
+    "ast_hash": "402fc98bd05ee91cf8aed0335dccff97",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_hero.yml": {
+    "mtime": 1793997632.807189,
+    "seen": 1793998930.8499,
+    "ast_hash": "7888013d1e9085b8572d87867fc63da4",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_other_categories.yml": {
+    "mtime": 1793997647.5944386,
+    "seen": 1793998930.8499022,
+    "ast_hash": "07cd367bb43238a236aa200bf1f8259c",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_popular.yml": {
+    "mtime": 1793997632.809522,
+    "seen": 1793998930.849903,
+    "ast_hash": "1dbbd7d3c1cee8a32a5c7ff7cffffe0d",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_related_articles.yml": {
+    "mtime": 1793997647.5934265,
+    "seen": 1793998930.849904,
+    "ast_hash": "3f21b78064ca7da63599d5acd20b8291",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/help_search_results.yml": {
+    "mtime": 1793997632.8093755,
+    "seen": 1793998930.849905,
+    "ast_hash": "e9e58dcc31706f4da9d2a2ab2cc81a16",
+    "semantic_hash": ""
+  },
+  "docs/help_center.md": {
+    "mtime": 1794011598.1556637,
+    "seen": 1794011733.897072,
+    "ast_hash": "f0f3e9c49923da8d4404e72adbe2029f",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/privacy.js": {
+    "mtime": 1794013141.9341555,
+    "seen": 1794013529.614145,
+    "ast_hash": "11d2d35436332eda6f98a739831d3d1c",
+    "semantic_hash": ""
+  },
+  "app/helpers/privacy_helper.rb": {
+    "mtime": 1794012504.6942573,
+    "seen": 1794013529.614507,
+    "ast_hash": "d491eda244eda6156f94b8014fbdb3df",
+    "semantic_hash": ""
+  },
+  "app/services/privacy_policy/link_sync.rb": {
+    "mtime": 1794013657.897337,
+    "seen": 1794013813.587134,
+    "ast_hash": "598e565693e1b5efe87259083ead0335",
+    "semantic_hash": ""
+  },
+  "app/services/privacy_policy/seeder.rb": {
+    "mtime": 1794013007.6035225,
+    "seen": 1794013529.6153998,
+    "ast_hash": "0e964ac2645f43f6e9bfa7632d417e58",
+    "semantic_hash": ""
+  },
+  "db/seeds/privacy_policy.rb": {
+    "mtime": 1794012805.3561966,
+    "seen": 1794013529.615733,
+    "ast_hash": "6e90898a5b1527d394256d5b05d86b83",
+    "semantic_hash": ""
+  },
+  "lib/tasks/privacy_policy.rake": {
+    "mtime": 1794012669.2982986,
+    "seen": 1794013529.6157491,
+    "ast_hash": "a45289a91eaa3910dde6ebb77158b4ba",
+    "semantic_hash": ""
+  },
+  "test/integration/public_cms_privacy_policy_test.rb": {
+    "mtime": 1794012745.51551,
+    "seen": 1794013529.6165068,
+    "ast_hash": "db2301d6a709aac2c9e79b3a7d846564",
+    "semantic_hash": ""
+  },
+  "test/support/privacy_policy_test_support.rb": {
+    "mtime": 1794012735.067783,
+    "seen": 1794013529.6170409,
+    "ast_hash": "bca0138a1842123a73f2ba13d13496c0",
+    "semantic_hash": ""
+  },
+  "test/system/privacy_policy_test.rb": {
+    "mtime": 1794013095.515946,
+    "seen": 1794013529.617067,
+    "ast_hash": "28fd186d88bb69432a95b28695b6c4de",
+    "semantic_hash": ""
+  },
+  "app/theme/sections/privacy_document.yml": {
+    "mtime": 1794012490.8971808,
+    "seen": 1794013529.61729,
+    "ast_hash": "be69afcfe66a77ce6d8573b065e8a7f9",
+    "semantic_hash": ""
+  },
+  "docs/privacy_policy.md": {
+    "mtime": 1794013191.4274752,
+    "seen": 1794013529.6174452,
+    "ast_hash": "28c5eaae3a42c27d2893d44efee3dba4",
     "semantic_hash": ""
   }
 }

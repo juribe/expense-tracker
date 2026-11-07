@@ -123,6 +123,26 @@ Maglev pages without overwriting edited content:
 bin/rails yogasto:sync_cms_pages
 ```
 
+### Help center
+
+The public help center lives at `/ayuda` and is administered from Maglev. The
+initial categories, articles, navigation link and derived search/rating data can
+be prepared with:
+
+```sh
+bin/rails yogasto:setup_help_center
+```
+
+Editorial rules, page paths, section names and reindexing commands are documented
+in [docs/help_center.md](docs/help_center.md).
+
+### Privacy policy
+
+The public privacy policy lives at `/privacidad` and is administered from
+Maglev. It is currently a preliminary, noindex version with a legal review
+notice. Pending legal data, editorial instructions and publishing steps are
+documented in [docs/privacy_policy.md](docs/privacy_policy.md).
+
 ### Local Speech-to-Text (faster-whisper)
 
 Audio notes in the Expense Playground are transcribed LOCALLY with

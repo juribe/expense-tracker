@@ -1,0 +1,30 @@
+# Category page header. The native Maglev page title is the H1.
+name: "Cabecera de categoría"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: eyebrow
+  type: text
+  default: "CENTRO DE AYUDA"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Guías y respuestas para avanzar con claridad."
+- label: "Icono"
+  id: icon
+  type: text
+  default: "◇"
+- label: "Posición en la landing"
+  id: position
+  type: text
+  default: "100"
+- label: "Imagen opcional"
+  id: image
+  type: image
+- label: "Texto alternativo de la imagen"
+  id: image_alt
+  type: text
+  default: ""

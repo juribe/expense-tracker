@@ -1,0 +1,35 @@
+# Help center landing hero with the real search form.
+name: "Hero del Centro de ayuda"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: eyebrow
+  type: text
+  default: "CENTRO DE AYUDA"
+- label: "Título"
+  id: title
+  type: text
+  default: "Todo lo que necesitas saber sobre Yogasto."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Encuentra respuestas, aprende a utilizar tus herramientas y sácale el máximo provecho a tu experiencia financiera."
+- label: "Placeholder del buscador"
+  id: search_placeholder
+  type: text
+  default: "¿Qué necesitas saber? Por ejemplo: registrar un gasto..."
+- label: "Texto de ayuda del buscador"
+  id: search_hint
+  type: text
+  default: "Busca por tema, función o pregunta."
+- label: "Texto del botón buscar"
+  id: search_button_label
+  type: text
+  default: "Buscar"
+- label: "Texto del botón limpiar"
+  id: clear_label
+  type: text
+  default: "Limpiar"

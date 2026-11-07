@@ -16,6 +16,8 @@ section_categories:
 - name: content
 - name: cta
 - name: institutional
+- name: help_center
+- name: legal
 
 # Properties of your theme such as the primary color, font name, ...etc.
 style_settings: []
@@ -427,14 +429,14 @@ pages:
       - type: link
         settings: { label: "Contáctanos", link: { link_type: "url", href: "/contact", open_new_window: false } }
       - type: link
-        settings: { label: "Centro de ayuda", link: { link_type: "url", href: "/help", open_new_window: false } }
+        settings: { label: "Centro de ayuda", link: { link_type: "url", href: "/ayuda", open_new_window: false } }
       - type: link
         settings: { label: "Iniciar sesión", link: { link_type: "url", href: "/users/sign_in", open_new_window: false } }
     - type: column
       settings: { title: "Confianza y legal" }
       children:
       - type: link
-        settings: { label: "Política de privacidad", link: { link_type: "url", href: "/privacy", open_new_window: false } }
+        settings: { label: "Política de privacidad", link: { link_type: "url", href: "/privacidad", open_new_window: false } }
       - type: link
         settings: { label: "Términos y condiciones", link: { link_type: "url", href: "/terms", open_new_window: false } }
       - type: link
@@ -470,7 +472,7 @@ pages:
       reasons_intro: "Selecciona una opción para completar el motivo del formulario."
       help_title: "¿Buscas una respuesta rápida?"
       help_text: "Consulta nuestras guías y preguntas frecuentes. Puede que tu respuesta ya esté allí."
-      help_link: { link_type: "url", href: "/help", text: "Ir al centro de ayuda", open_new_window: false }
+      help_link: { link_type: "url", href: "/ayuda", text: "Ir al centro de ayuda", open_new_window: false }
       form_title: "Escríbenos"
       form_intro: "Completa tus datos y cuéntanos cómo podemos ayudarte."
       name_label: "Nombre"
@@ -483,7 +485,7 @@ pages:
       submit_label: "Enviar mensaje"
       sending_label: "Enviando mensaje..."
       privacy_note: "Usaremos tus datos únicamente para responder a tu mensaje."
-      privacy_link: { link_type: "url", href: "/privacy", text: "Política de privacidad", open_new_window: false }
+      privacy_link: { link_type: "url", href: "/privacidad", text: "Política de privacidad", open_new_window: false }
       success_title: "¡Mensaje enviado!"
       success_text: "Gracias por escribirnos. Te responderemos muy pronto."
       error_text: "No pudimos enviar tu mensaje. Revisa los datos e inténtalo de nuevo."
@@ -511,7 +513,7 @@ pages:
       description: "Encuentra respuestas y conoce cómo cuidamos tu información."
     blocks:
     - type: card
-      settings: { icon: "?", title: "Centro de ayuda", description: "Respuestas rápidas a las preguntas más frecuentes.", link: { link_type: "url", href: "/help", open_new_window: false } }
+      settings: { icon: "?", title: "Centro de ayuda", description: "Respuestas rápidas a las preguntas más frecuentes.", link: { link_type: "url", href: "/ayuda", open_new_window: false } }
     - type: card
       settings: { icon: "🔒", title: "Seguridad y privacidad", description: "Conoce cómo cuidamos tu información.", link: { link_type: "url", href: "/security", open_new_window: false } }
   - type: institutional_content
@@ -525,55 +527,76 @@ pages:
   - type: footer
 
 - title: "Centro de ayuda"
-  path: "help"
+  path: "ayuda"
   seo_title: "Centro de ayuda"
-  meta_description: "Respuestas rápidas y guías para usar Yogasto."
+  meta_description: "Encuentra respuestas, guías y paso a paso para usar Yogasto y sacar más provecho a tus finanzas."
   og_title: "Centro de ayuda"
-  og_description: "Encuentra respuestas rápidas y guías para aprovechar Yogasto."
+  og_description: "Guías y respuestas para usar Yogasto y organizar mejor tus finanzas."
   sections:
   - type: navbar
-  - type: institutional_hero
+  - type: help_hero
     settings:
-      eyebrow: "Ayuda"
-      title: "Centro de ayuda"
-      description: "Encuentra respuestas rápidas y guías para aprovechar Yogasto."
-      note: ""
-      variant: "lavender"
-      show_art: false
+      eyebrow: "CENTRO DE AYUDA"
+      title: "Todo lo que necesitas saber sobre Yogasto."
+      description: "Encuentra respuestas, aprende a utilizar tus herramientas y sácale el máximo provecho a tu experiencia financiera."
+      search_placeholder: "¿Qué necesitas saber? Por ejemplo: registrar un gasto..."
+      search_hint: "Busca por tema, función o pregunta."
+      search_button_label: "Buscar"
+      clear_label: "Limpiar"
+  - type: help_search_results
+    settings:
+      kicker: "RESULTADOS"
+      heading: "Artículos que coinciden con tu búsqueda."
+      empty_text: "No encontramos artículos para esa búsqueda. Prueba con otras palabras o escríbenos."
+      clear_label: "Limpiar búsqueda"
+  - type: help_categories
+    settings:
+      kicker: "EXPLORA POR CATEGORÍAS"
+      heading: "Encuentra fácilmente la información que buscas."
+      description: "Organizamos las guías por tema para que llegues a la respuesta sin dar vueltas."
+      empty_text: "Estamos preparando las categorías. Mientras tanto, escríbenos y te ayudamos."
+  - type: help_popular
+    settings:
+      kicker: "PREGUNTAS POPULARES"
+      heading: "Las respuestas que más se consultan."
+      description: "Un atajo a las dudas que más nos escriben."
   - type: institutional_content
     settings:
-      kicker: ""
-      title: "¿No encuentras lo que buscas?"
-      body: "Escríbenos desde <a href='/contact'>Contáctanos</a> y te ayudaremos."
+      kicker: "¿NO ENCUENTRAS LO QUE BUSCAS?"
+      title: "Estamos para ayudarte."
+      body: "Cuéntanos qué necesitas y te responderemos lo antes posible."
       cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
-      variant: "plain"
+      variant: "lavender"
       align: "center"
   - type: footer
 
 - title: "Política de privacidad"
-  path: "privacy"
+  path: "privacidad"
   seo_title: "Política de privacidad"
-  meta_description: "Información sobre cómo Yogasto trata y protege tus datos."
+  meta_description: "Conoce qué información utiliza Yogasto, para qué la usa y qué opciones tienes para controlar tus datos."
   og_title: "Política de privacidad"
-  og_description: "Información sobre cómo Yogasto trata y protege tus datos."
+  og_description: "Transparencia sobre el tratamiento de tu información en Yogasto."
   sections:
   - type: navbar
-  - type: institutional_hero
+  - type: privacy_document
     settings:
-      eyebrow: "Privacidad"
-      title: "Política de privacidad"
-      description: "Queremos que tengas claridad sobre cómo tratamos tu información."
-      note: ""
-      variant: "white"
-      show_art: false
-  - type: institutional_content
-    settings:
-      kicker: ""
-      title: "Estamos preparando este documento"
-      body: "Mientras publicamos la versión completa, si tienes preguntas sobre cómo tratamos tu información, escríbenos desde <a href='/contact'>Contáctanos</a>."
-      cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
-      variant: "plain"
-      align: "left"
+      eyebrow: "TRANSPARENCIA Y CONFIANZA"
+      title: "Tu información es tuya.<br>Así la cuidamos."
+      description: "Queremos que tengas claridad sobre qué información utilizamos, para qué la usamos y qué opciones tienes para mantener el control de tus datos."
+      last_updated: "6 de noviembre de 2026"
+      reading_time: "8 minutos"
+      toc_label: "EN ESTA POLÍTICA"
+      help_title: "¿Tienes preguntas sobre tus datos?"
+      help_text: "Escríbenos y te ayudaremos a resolverlas."
+      help_link: { link_type: "url", href: "/contactanos", text: "Contactar a Yogasto", open_new_window: false }
+      intro: "En Yogasto respetamos tu privacidad. Esta política explica cómo recopilamos, utilizamos, almacenamos y protegemos la información cuando visitas nuestro sitio web o utilizas nuestra aplicación y sus funcionalidades."
+      notice_title: "Una explicación clara, sin letra pequeña."
+      notice_text: "Yogasto te ayuda a organizar tus finanzas personales. Por eso, parte de la información que decides registrar puede ser especialmente privada. Queremos explicarte cómo la tratamos."
+      review_title: "Versión preliminar en revisión legal"
+      review_text: "Estamos completando los datos de identificación del responsable y los plazos de conservación. No consideres esta versión como definitiva."
+      cta_title: "Tu tranquilidad también hace parte de tus finanzas."
+      cta_text: "Si tienes alguna inquietud sobre privacidad, estamos para ayudarte."
+      cta_link: { link_type: "url", href: "/contactanos", text: "Hablar con Yogasto", open_new_window: false }
   - type: footer
 
 - title: "Seguridad"

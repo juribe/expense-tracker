@@ -1,0 +1,114 @@
+<% sections = maglev_section.blocks.select { |block| block.type == "privacy_section" } %>
+<section class="privacy-hero">
+  <div class="privacy-wrap">
+    <nav class="privacy-crumb" aria-label="Ruta de navegación">
+      <a href="/">Inicio</a>
+      <span aria-hidden="true">›</span>
+      <a href="/ayuda">Centro de ayuda</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">Política de privacidad</span>
+    </nav>
+
+    <div class="privacy-pill"><span aria-hidden="true">●</span> <%= maglev_section.settings.eyebrow %></div>
+    <h1 class="privacy-title"><%= privacy_sanitize_inline(maglev_section.settings.title) %></h1>
+    <p class="privacy-lead"><%= privacy_sanitize_inline(maglev_section.settings.description) %></p>
+    <div class="privacy-meta">
+      <span>◷ Última actualización: <%= maglev_section.settings.last_updated %></span>
+      <span>Lectura: <%= maglev_section.settings.reading_time %></span>
+    </div>
+  </div>
+</section>
+
+<div class="privacy-wrap privacy-layout">
+  <aside class="privacy-side">
+    <p class="privacy-side__label"><%= maglev_section.settings.toc_label %></p>
+    <nav class="privacy-toc" aria-label="Índice de la política" data-privacy-toc>
+      <% sections.each_with_index do |section, index| %>
+        <%= tag.a privacy_nav_label(section),
+                  href: "##{privacy_anchor(section)}",
+                  data: { privacy_toc_link: privacy_anchor(section) },
+                  aria: { current: index.zero? ? "true" : nil },
+                  class: ("is-active" if index.zero?) %>
+      <% end %>
+    </nav>
+
+    <div class="privacy-help">
+      <b><%= maglev_section.settings.help_title %></b>
+      <p><%= maglev_section.settings.help_text %></p>
+      <% if maglev_section.settings.help_link.present? %>
+        <a href="<%= maglev_section.settings.help_link.href %>"
+           <% if maglev_section.settings.help_link.open_new_window? %>target="_blank" rel="noopener"<% end %>>
+          <%= maglev_section.settings.help_link.text %> →
+        </a>
+      <% end %>
+    </div>
+  </aside>
+
+  <article class="privacy-content">
+    <% if maglev_section.settings.review_title.present? || maglev_section.settings.review_text.present? %>
+      <div class="privacy-review" role="note">
+        <span class="privacy-review__icon" aria-hidden="true">!</span>
+        <div>
+          <b><%= maglev_section.settings.review_title %></b>
+          <p><%= maglev_section.settings.review_text %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% if maglev_section.settings.intro.present? %>
+      <p class="privacy-intro"><%= privacy_sanitize_inline(maglev_section.settings.intro) %></p>
+    <% end %>
+
+    <% if maglev_section.settings.notice_title.present? || maglev_section.settings.notice_text.present? %>
+      <div class="privacy-notice">
+        <span class="privacy-notice__icon" aria-hidden="true">i</span>
+        <div>
+          <b><%= maglev_section.settings.notice_title %></b>
+          <p><%= maglev_section.settings.notice_text %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% sections.each do |section| %>
+      <section id="<%= privacy_anchor(section) %>"
+               class="privacy-section"
+               data-privacy-section
+               data-privacy-anchor="<%= privacy_anchor(section) %>">
+        <h2><%= privacy_sanitize_inline(section.settings.title) %></h2>
+        <% if section.settings.intro.present? %>
+          <p class="privacy-section__intro"><%= privacy_sanitize_inline(section.settings.intro) %></p>
+        <% end %>
+
+        <% Array(section.children).each do |block| %>
+          <% case block.type %>
+          <% when "privacy_text" %>
+            <%= render "theme/sections/legal/privacy_blocks/privacy_text", block: block %>
+          <% when "privacy_list" %>
+            <%= render "theme/sections/legal/privacy_blocks/privacy_list", block: block %>
+          <% when "privacy_cards" %>
+            <%= render "theme/sections/legal/privacy_blocks/privacy_cards", block: block %>
+          <% when "privacy_callout" %>
+            <%= render "theme/sections/legal/privacy_blocks/privacy_callout", block: block %>
+          <% when "privacy_providers" %>
+            <%= render "theme/sections/legal/privacy_blocks/privacy_providers", block: block %>
+          <% end %>
+        <% end %>
+      </section>
+    <% end %>
+
+    <p class="privacy-updated">Última actualización: <%= maglev_section.settings.last_updated %></p>
+  </article>
+</div>
+
+<section class="privacy-cta">
+  <div>
+    <h2><%= maglev_section.settings.cta_title %></h2>
+    <p><%= maglev_section.settings.cta_text %></p>
+  </div>
+  <% if maglev_section.settings.cta_link.present? %>
+    <a href="<%= maglev_section.settings.cta_link.href %>"
+       <% if maglev_section.settings.cta_link.open_new_window? %>target="_blank" rel="noopener"<% end %>>
+      <%= maglev_section.settings.cta_link.text %> →
+    </a>
+  <% end %>
+</section>

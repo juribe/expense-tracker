@@ -1,0 +1,15 @@
+<% current_path = HelpCenter::PagePath.new(maglev_page.path).to_s %>
+<% entries = HelpCenter::CategoryDirectory.new.call.reject { |entry| entry.category.path == current_path } %>
+<% if entries.any? %>
+  <section class="help-section help-other-categories">
+    <div class="help-center-container">
+      <header class="help-section__head">
+        <p class="help-eyebrow"><%= maglev_section.settings.kicker %></p>
+        <h2><%= maglev_section.settings.heading %></h2>
+        <p><%= maglev_section.settings.description %></p>
+      </header>
+
+      <%= render "theme/help_center/category_cards", entries: entries %>
+    </div>
+  </section>
+<% end %>

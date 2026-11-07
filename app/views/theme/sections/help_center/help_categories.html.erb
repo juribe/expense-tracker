@@ -1,0 +1,19 @@
+<% entries = HelpCenter::CategoryDirectory.new.call %>
+<section class="help-section help-categories">
+  <div class="help-center-container">
+    <header class="help-section__head">
+      <p class="help-eyebrow"><%= maglev_section.settings.kicker %></p>
+      <h2><%= maglev_section.settings.heading %></h2>
+      <p><%= maglev_section.settings.description %></p>
+    </header>
+
+    <% if entries.any? %>
+      <%= render "theme/help_center/category_cards", entries: entries %>
+    <% else %>
+      <div class="help-empty">
+        <p><%= maglev_section.settings.empty_text %></p>
+        <a href="/contact" class="help-link">Contáctanos</a>
+      </div>
+    <% end %>
+  </div>
+</section>

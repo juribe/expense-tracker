@@ -1,0 +1,23 @@
+# Paginated article list for a category. New published articles appear automatically.
+name: "Listado de artículos"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "GUÍAS DE LA CATEGORÍA"
+- label: "Título"
+  id: heading
+  type: text
+  default: "Artículos"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Elige una guía para ver el paso a paso."
+- label: "Texto sin artículos"
+  id: empty_text
+  type: text
+  default: "Todavía no hay artículos publicados en esta categoría. Escríbenos y te ayudamos."

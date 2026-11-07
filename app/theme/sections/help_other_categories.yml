@@ -1,0 +1,19 @@
+# Shortcuts to the other help categories from a category page.
+name: "Otras categorías"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "SIGUE EXPLORANDO"
+- label: "Título"
+  id: heading
+  type: text
+  default: "Otras categorías"
+- label: "Descripción"
+  id: description
+  type: text
+  default: "También puedes necesitar ayuda con otro tema."

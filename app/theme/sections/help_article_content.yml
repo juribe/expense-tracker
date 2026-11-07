@@ -1,0 +1,77 @@
+# Structured rich content for a help article. Paragraph settings accept a safe
+# subset of HTML (headings, lists, links, emphasis, tables) and are sanitized.
+name: "Contenido de artículo"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- hint: "Añade bloques y ordénalos. El contenido se renderiza dentro del artículo."
+  id: intro_hint
+  type: hint
+blocks_label: "Bloques de contenido"
+blocks:
+- name: "Encabezado"
+  type: heading
+  settings:
+  - label: "Nivel"
+    id: level
+    type: select
+    select: ["2", "3"]
+    default: "2"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Un subtítulo claro"
+- name: "Párrafo"
+  type: paragraph
+  settings:
+  - label: "Contenido (HTML seguro permitido)"
+    id: text
+    type: text
+    default: "Escribe aquí el contenido del artículo."
+- name: "Imagen"
+  type: image
+  settings:
+  - label: "Imagen"
+    id: image
+    type: image
+  - label: "Texto alternativo"
+    id: alt
+    type: text
+    default: ""
+  - label: "Pie de imagen"
+    id: caption
+    type: text
+    default: ""
+- name: "Consejo o advertencia"
+  type: callout
+  settings:
+  - label: "Tipo"
+    id: variant
+    type: select
+    select: ["tip", "warning", "note"]
+    default: "tip"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Consejo"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Un consejo breve para aplicar."
+- name: "Enlace a video o recurso"
+  type: video
+  settings:
+  - label: "Título"
+    id: title
+    type: text
+    default: "Ver recurso"
+  - label: "URL (http o https)"
+    id: url
+    type: text
+    default: ""
+  - label: "Descripción"
+    id: description
+    type: text
+    default: ""

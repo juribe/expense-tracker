@@ -1,0 +1,31 @@
+<% article = help_center_article_index(maglev_page) %>
+<% if article %>
+  <section class="help-feedback">
+    <div class="help-center-container">
+      <div class="help-feedback__card"
+           data-help-rating
+           data-help-rating-page="<%= article.maglev_page_id %>"
+           data-help-rating-thanks="<%= maglev_section.settings.thanks_text %>"
+           data-help-rating-error="<%= maglev_section.settings.error_text %>">
+        <h2><%= maglev_section.settings.question %></h2>
+        <%= form_with url: "/ayuda/valoracion", method: :post, local: true,
+                      class: "help-feedback__form", data: { help_rating_form: true } do |form| %>
+          <%= hidden_field_tag :page_id, article.maglev_page_id %>
+          <div class="help-feedback__actions">
+            <button type="submit" name="helpful" value="true" class="help-feedback__button"
+                    data-help-rating-value="true">
+              <span aria-hidden="true">✓</span>
+              <%= maglev_section.settings.yes_label %>
+            </button>
+            <button type="submit" name="helpful" value="false" class="help-feedback__button"
+                    data-help-rating-value="false">
+              <span aria-hidden="true">×</span>
+              <%= maglev_section.settings.no_label %>
+            </button>
+          </div>
+        <% end %>
+        <p class="help-feedback__status" data-help-rating-status aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+<% end %>

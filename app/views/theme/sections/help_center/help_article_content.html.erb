@@ -1,0 +1,47 @@
+<section class="help-article-content">
+  <div class="help-center-container">
+    <div class="help-prose">
+      <% maglev_section.blocks.each do |block| %>
+        <% case block.type %>
+        <% when "heading" %>
+          <% level = block.settings.level.to_s == "3" ? "h3" : "h2" %>
+          <<%= level %>><%= help_sanitize_inline(block.settings.text) %></<%= level %>>
+        <% when "paragraph" %>
+          <div class="help-prose__html"><%= help_sanitize_html(block.settings.text) %></div>
+        <% when "image" %>
+          <% url = block.settings.image.url.presence %>
+          <% if url.present? %>
+            <figure class="help-prose__figure">
+              <img src="<%= url %>"
+                   alt="<%= block.settings.alt.presence || block.settings.caption.presence || "" %>"
+                   loading="lazy"
+                   decoding="async">
+              <% if block.settings.caption.present? %>
+                <figcaption><%= block.settings.caption %></figcaption>
+              <% end %>
+            </figure>
+          <% end %>
+        <% when "callout" %>
+          <% variant = %w[tip warning note].include?(block.settings.variant.to_s) ? block.settings.variant.to_s : "tip" %>
+          <aside class="help-callout help-callout--<%= variant %>">
+            <p class="help-callout__title"><%= block.settings.title %></p>
+            <div><%= help_sanitize_html(block.settings.text) %></div>
+          </aside>
+        <% when "video" %>
+          <% url = help_safe_external_url(block.settings.url) %>
+          <% if url %>
+            <div class="help-resource">
+              <div>
+                <strong><%= block.settings.title %></strong>
+                <% if block.settings.description.present? %>
+                  <span><%= block.settings.description %></span>
+                <% end %>
+              </div>
+              <a href="<%= url %>" target="_blank" rel="noopener">Abrir recurso ↗</a>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

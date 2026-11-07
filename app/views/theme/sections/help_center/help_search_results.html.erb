@@ -1,0 +1,43 @@
+<% query = params[:q].to_s.strip %>
+<section class="help-results"
+         data-help-search-results-section
+         data-help-results-kicker="<%= maglev_section.settings.kicker %>"
+         data-help-results-heading="<%= maglev_section.settings.heading %>"
+         data-help-results-empty="<%= maglev_section.settings.empty_text %>"
+         data-help-results-clear="<%= maglev_section.settings.clear_label %>"
+         <%= "hidden" if query.blank? %>>
+  <div class="help-center-container">
+    <div data-help-search-results aria-live="polite">
+      <% if query.present? %>
+        <% results = HelpCenter::Search.new(query: query).call %>
+        <div class="help-results__head">
+          <p class="help-eyebrow"><%= maglev_section.settings.kicker %></p>
+          <h2><%= maglev_section.settings.heading %></h2>
+          <p class="help-results__meta">
+            <%= pluralize(results.size, "resultado", plural: "resultados") %> para “<%= query %>”
+          </p>
+        </div>
+
+        <% if results.any? %>
+          <ul class="help-result-list">
+            <% results.each do |article| %>
+              <li>
+                <a class="help-result" href="<%= article.url %>">
+                  <span class="help-result__category"><%= article.category_name %></span>
+                  <strong><%= article.title %></strong>
+                  <span class="help-result__summary"><%= article.summary %></span>
+                </a>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <div class="help-empty">
+            <p><%= maglev_section.settings.empty_text %></p>
+            <a href="/ayuda" class="help-link"><%= maglev_section.settings.clear_label %></a>
+            <a href="/contact" class="help-link">Contáctanos</a>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

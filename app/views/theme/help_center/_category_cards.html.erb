@@ -1,0 +1,15 @@
+<div class="help-category-grid">
+  <% entries.each do |entry| %>
+    <a class="help-category-card" href="<%= entry.category.url %>">
+      <span class="help-category-card__icon" aria-hidden="true"><%= entry.category.icon.presence || "◇" %></span>
+      <span class="help-category-card__body">
+        <strong><%= entry.category.name %></strong>
+        <% if entry.category.description.present? %>
+          <span><%= truncate(entry.category.description, length: 120) %></span>
+        <% end %>
+        <small><%= pluralize(entry.article_count, "artículo", plural: "artículos") %></small>
+      </span>
+      <span class="help-category-card__arrow" aria-hidden="true">→</span>
+    </a>
+  <% end %>
+</div>

@@ -31,6 +31,13 @@ class PublicCmsHomeTest < ActionDispatch::IntegrationTest
     assert_select "footer.site-footer .footer-col", 3
   end
 
+  test "el Centro de ayuda vive en el footer y no en el header" do
+    get "https://yogasto.co/"
+
+    assert_select "nav .nav-links a[href='/ayuda']", 0
+    assert_select "footer.site-footer a[href='/ayuda']", minimum: 1
+  end
+
   test "the home renders the interactive demo with its four tabs" do
     get "https://yogasto.co/"
 

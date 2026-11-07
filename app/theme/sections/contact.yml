@@ -45,7 +45,7 @@ settings:
   id: help_link
   type: link
   with_text: true
-  default: { link_type: "url", href: "/help", text: "Ir al centro de ayuda", open_new_window: false }
+  default: { link_type: "url", href: "/ayuda", text: "Ir al centro de ayuda", open_new_window: false }
 - label: "— Formulario"
   id: form_divider
   type: divider
@@ -101,7 +101,7 @@ settings:
   id: privacy_link
   type: link
   with_text: true
-  default: { link_type: "url", href: "/privacy", text: "Política de privacidad", open_new_window: false }
+  default: { link_type: "url", href: "/privacidad", text: "Política de privacidad", open_new_window: false }
 - label: "Título del estado de éxito"
   id: success_title
   type: text

@@ -1,0 +1,26 @@
+<% articles = HelpCenter::PopularArticles.new.call %>
+<% if articles.any? %>
+  <section class="help-section help-popular">
+    <div class="help-center-container">
+      <header class="help-section__head">
+        <p class="help-eyebrow"><%= maglev_section.settings.kicker %></p>
+        <h2><%= maglev_section.settings.heading %></h2>
+        <p><%= maglev_section.settings.description %></p>
+      </header>
+
+      <ol class="help-popular-list">
+        <% articles.each do |article| %>
+          <li>
+            <a href="<%= article.url %>">
+              <span class="help-popular-list__index" aria-hidden="true">↗</span>
+              <span>
+                <strong><%= article.title %></strong>
+                <small><%= article.category_name %></small>
+              </span>
+            </a>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  </section>
+<% end %>

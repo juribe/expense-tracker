@@ -8,8 +8,6 @@ class PublicCmsInstitutionalPagesTest < ActionDispatch::IntegrationTest
   include PublicCmsTestSupport
 
   INSTITUTIONAL_PAGES = {
-    "/help" => "Centro de ayuda",
-    "/privacy" => "Política de privacidad",
     "/security" => "Seguridad",
     "/terms" => "Términos y condiciones"
   }.freeze
@@ -31,8 +29,19 @@ class PublicCmsInstitutionalPagesTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "las páginas institucionales existen en Maglev" do
-    %w[help privacy security terms].each do |path|
+  test "el Centro de ayuda se publica como landing de ayuda" do
+    get "https://yogasto.co/ayuda"
+
+    assert_response :success
+    assert_match "<title>Centro de ayuda | Yogasto</title>", response.body
+    assert_select "h1", count: 1
+    assert_select "section.help-hero", 1
+    assert_select "section.help-categories", 1
+    assert_select "section.institutional-content", 1
+  end
+
+  test "las páginas institucionales y el Centro de ayuda existen en Maglev" do
+    %w[ayuda privacidad security terms].each do |path|
       assert_not_nil Maglev::Page.by_path(path).first, "Falta la página Maglev #{path}"
     end
   end
@@ -40,8 +49,15 @@ class PublicCmsInstitutionalPagesTest < ActionDispatch::IntegrationTest
   test "el footer compartido conserva los enlaces institucionales" do
     get "https://yogasto.co/contact"
 
-    %w[/contact /help /privacy /terms /security].each do |href|
+    %w[/contact /ayuda /privacidad /terms /security].each do |href|
       assert_select "footer.site-footer a[href='#{href}']", minimum: 1
     end
+  end
+
+  test "/help redirige al nuevo Centro de ayuda" do
+    get "https://yogasto.co/help"
+
+    assert_response :moved_permanently
+    assert_redirected_to "/ayuda"
   end
 end

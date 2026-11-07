@@ -1,0 +1,28 @@
+# Anonymous article rating. The endpoint stores an opaque fingerprint and
+# never exposes aggregate counts in the response.
+name: "Valoración del artículo"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Pregunta"
+  id: question
+  type: text
+  default: "¿Te resultó útil este artículo?"
+- label: "Texto del botón sí"
+  id: yes_label
+  type: text
+  default: "Sí, me ayudó"
+- label: "Texto del botón no"
+  id: no_label
+  type: text
+  default: "No del todo"
+- label: "Texto de agradecimiento"
+  id: thanks_text
+  type: text
+  default: "Gracias por tu valoración."
+- label: "Texto de error"
+  id: error_text
+  type: text
+  default: "No pudimos registrar tu valoración. Inténtalo de nuevo."

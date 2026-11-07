@@ -1,0 +1,28 @@
+<% path = HelpCenter::PagePath.new(maglev_page.path) %>
+<% article = help_center_article_index(maglev_page) %>
+<% category = HelpCategoryIndex.find_by(locale: HelpCenter::LOCALE, path: path.category_path) %>
+<% summary = article&.summary.presence || maglev_section.settings.summary.presence || maglev_page.meta_description %>
+<% cover_url = maglev_section.settings.cover_image.url.presence || article&.cover_image_url.presence %>
+<% cover_alt = maglev_section.settings.cover_alt.presence || maglev_page.title %>
+<header class="help-article-hero">
+  <div class="help-center-container">
+    <%= render "theme/help_center/breadcrumbs", items: help_center_breadcrumbs(maglev_page) %>
+
+    <div class="help-article-hero__grid">
+      <div class="help-article-hero__copy">
+        <p class="help-eyebrow"><%= maglev_section.settings.eyebrow.presence || category&.name %></p>
+        <h1><%= maglev_page.title %></h1>
+        <p class="help-article-hero__summary"><%= help_sanitize_inline(summary) %></p>
+        <p class="help-article-hero__meta">
+          Actualizado el <%= help_center_date(article&.published_at || maglev_page.published_at || maglev_page.updated_at) %>
+        </p>
+      </div>
+
+      <% if cover_url.present? %>
+        <figure class="help-article-hero__cover">
+          <img src="<%= cover_url %>" alt="<%= cover_alt %>" loading="lazy" decoding="async">
+        </figure>
+      <% end %>
+    </div>
+  </div>
+</header>

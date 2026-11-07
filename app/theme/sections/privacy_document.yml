@@ -1,0 +1,214 @@
+# Privacy policy document. The whole page is a single Maglev section whose
+# root blocks are the 12 policy sections. The table of contents is generated
+# from those blocks, so renaming, adding, removing or reordering sections in
+# the editor updates the navigation automatically.
+name: "Política de privacidad"
+category: legal
+singleton: true
+insert_button: true
+max_width_pane: 480
+blocks_presentation: "tree"
+blocks_label: "Secciones y contenido de la política"
+settings:
+- label: "— Hero"
+  id: hero_divider
+  type: divider
+- label: "Etiqueta superior"
+  id: eyebrow
+  type: text
+  default: "TRANSPARENCIA Y CONFIANZA"
+- label: "Título"
+  id: title
+  type: text
+  default: "Tu información es tuya. Así la cuidamos."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Queremos que tengas claridad sobre qué información utilizamos, para qué la usamos y qué opciones tienes para mantener el control de tus datos."
+- label: "Fecha de última actualización"
+  id: last_updated
+  type: text
+  default: "6 de noviembre de 2026"
+- label: "Tiempo estimado de lectura"
+  id: reading_time
+  type: text
+  default: "8 minutos"
+- label: "— Índice y aviso"
+  id: toc_divider
+  type: divider
+- label: "Título del índice"
+  id: toc_label
+  type: text
+  default: "EN ESTA POLÍTICA"
+- label: "Título de la tarjeta de ayuda"
+  id: help_title
+  type: text
+  default: "¿Tienes preguntas sobre tus datos?"
+- label: "Texto de la tarjeta de ayuda"
+  id: help_text
+  type: text
+  default: "Escríbenos y te ayudaremos a resolverlas."
+- label: "Enlace de la tarjeta de ayuda"
+  id: help_link
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/contactanos", text: "Contactar a Yogasto", open_new_window: false }
+- label: "Introducción"
+  id: intro
+  type: text
+  default: "En Yogasto respetamos tu privacidad. Esta política explica cómo recopilamos, utilizamos, almacenamos y protegemos la información cuando visitas nuestro sitio web o utilizas nuestra aplicación y sus funcionalidades."
+- label: "Título del aviso introductorio"
+  id: notice_title
+  type: text
+  default: "Una explicación clara, sin letra pequeña."
+- label: "Texto del aviso introductorio"
+  id: notice_text
+  type: text
+  default: "Yogasto te ayuda a organizar tus finanzas personales. Por eso, parte de la información que decides registrar puede ser especialmente privada. Queremos explicarte cómo la tratamos."
+- label: "Título del aviso de revisión (vacío en la versión final)"
+  id: review_title
+  type: text
+  default: "Versión preliminar en revisión legal"
+- label: "Texto del aviso de revisión"
+  id: review_text
+  type: text
+  default: "Estamos completando los datos de identificación del responsable y los plazos de conservación. No consideres esta versión como definitiva."
+- label: "— CTA final"
+  id: cta_divider
+  type: divider
+- label: "Título del CTA"
+  id: cta_title
+  type: text
+  default: "Tu tranquilidad también hace parte de tus finanzas."
+- label: "Texto del CTA"
+  id: cta_text
+  type: text
+  default: "Si tienes alguna inquietud sobre privacidad, estamos para ayudarte."
+- label: "Enlace del CTA"
+  id: cta_link
+  type: link
+  with_text: true
+  default: { link_type: "url", href: "/contactanos", text: "Hablar con Yogasto", open_new_window: false }
+blocks:
+- name: "Sección de la política"
+  type: privacy_section
+  root: true
+  accept: [privacy_text, privacy_list, privacy_cards, privacy_callout, privacy_providers]
+  settings:
+  - label: "Ancla estable (ej. responsable)"
+    id: anchor
+    type: text
+    default: "seccion"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Título de la sección"
+  - label: "Etiqueta corta para el índice (opcional)"
+    id: nav_label
+    type: text
+    default: ""
+  - label: "Introducción (opcional)"
+    id: intro
+    type: text
+    default: ""
+- name: "Texto"
+  type: privacy_text
+  root: false
+  settings:
+  - label: "Contenido (HTML seguro permitido)"
+    id: text
+    type: text
+    default: "Escribe aquí el contenido."
+- name: "Lista"
+  type: privacy_list
+  root: false
+  accept: [privacy_list_item]
+  settings:
+  - label: "Tipo de lista"
+    id: ordered
+    type: select
+    select: ["unordered", "ordered"]
+    default: "unordered"
+- name: "Elemento de lista"
+  type: privacy_list_item
+  root: false
+  settings:
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Elemento de la lista."
+- name: "Grupo de tarjetas"
+  type: privacy_cards
+  root: false
+  accept: [privacy_card]
+  settings:
+  - label: "Columnas"
+    id: columns
+    type: select
+    select: ["two", "three"]
+    default: "two"
+- name: "Tarjeta informativa"
+  type: privacy_card
+  root: false
+  settings:
+  - label: "Icono (emoji o símbolo)"
+    id: icon
+    type: text
+    default: "◇"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Título de la tarjeta"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Descripción breve."
+- name: "Bloque de aviso"
+  type: privacy_callout
+  root: false
+  settings:
+  - label: "Tipo"
+    id: variant
+    type: select
+    select: ["tip", "warning", "note"]
+    default: "note"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Importante"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Información que debes tener en cuenta."
+- name: "Lista de proveedores"
+  type: privacy_providers
+  root: false
+  accept: [privacy_provider]
+  settings:
+  - hint: "Solo se muestran proveedores confirmados. Deja el enlace vacío si aún no está verificado."
+    id: hint
+    type: hint
+- name: "Proveedor"
+  type: privacy_provider
+  root: false
+  settings:
+  - label: "Nombre"
+    id: name
+    type: text
+    default: "Proveedor"
+  - label: "Tipo de servicio"
+    id: service_type
+    type: text
+    default: "Servicio"
+  - label: "Finalidad"
+    id: purpose
+    type: text
+    default: "Finalidad del proveedor."
+  - label: "Información que puede procesar"
+    id: data
+    type: text
+    default: "Información necesaria para la operación."
+  - label: "Enlace a su política de privacidad"
+    id: policy_url
+    type: text
+    default: ""

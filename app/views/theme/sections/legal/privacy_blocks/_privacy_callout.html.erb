@@ -1,0 +1,5 @@
+<% variant = %w[tip warning note].include?(block.settings.variant.to_s) ? block.settings.variant.to_s : "note" %>
+<aside class="privacy-callout privacy-callout--<%= variant %>">
+  <b><%= block.settings.title %></b>
+  <div><%= privacy_sanitize_html(block.settings.text) %></div>
+</aside>

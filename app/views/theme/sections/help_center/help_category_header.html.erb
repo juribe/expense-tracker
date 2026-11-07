@@ -1,0 +1,31 @@
+<% path = HelpCenter::PagePath.new(maglev_page.path) %>
+<% category = help_center_category_index(maglev_page) %>
+<% count = HelpArticleIndex.for_locale(HelpCenter::LOCALE).in_category(path.to_s).count %>
+<% description = category&.description.presence || maglev_section.settings.description.presence || maglev_page.meta_description %>
+<% icon = category&.icon.presence || maglev_section.settings.icon.presence || "◇" %>
+<% image_url = category&.image_url.presence || maglev_section.settings.image.url.presence %>
+<section class="help-category-hero">
+  <div class="help-center-container">
+    <%= render "theme/help_center/breadcrumbs", items: help_center_breadcrumbs(maglev_page) %>
+
+    <div class="help-category-hero__grid">
+      <div class="help-category-hero__copy">
+        <p class="help-eyebrow"><%= maglev_section.settings.eyebrow %></p>
+        <h1><%= maglev_page.title %></h1>
+        <p class="help-category-hero__description"><%= help_sanitize_inline(description) %></p>
+        <p class="help-category-hero__count"><%= pluralize(count, "artículo", plural: "artículos") %></p>
+      </div>
+
+      <div class="help-category-hero__art" aria-hidden="true">
+        <% if image_url.present? %>
+          <img src="<%= image_url %>"
+               alt="<%= maglev_section.settings.image_alt.presence || "" %>"
+               loading="lazy"
+               decoding="async">
+        <% else %>
+          <span class="help-category-hero__icon"><%= icon %></span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

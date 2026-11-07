@@ -1,0 +1,34 @@
+<% query = params[:q].to_s %>
+<section class="help-hero">
+  <div class="help-center-container">
+    <div class="help-hero__inner">
+      <p class="help-eyebrow"><%= maglev_section.settings.eyebrow %></p>
+      <h1 class="help-hero__title"><%= help_sanitize_inline(maglev_section.settings.title) %></h1>
+      <p class="help-hero__description"><%= help_sanitize_inline(maglev_section.settings.description) %></p>
+
+      <%= form_with url: "/ayuda", method: :get, local: true, class: "help-search",
+                    html: { role: "search" }, data: { help_search_form: true } do |form| %>
+        <label class="help-sr-only" for="help-search-input">Buscar en el Centro de ayuda</label>
+        <div class="help-search__field">
+          <span class="help-search__icon" aria-hidden="true">⌕</span>
+          <%= form.search_field :q,
+                                value: query,
+                                id: "help-search-input",
+                                class: "help-search__input",
+                                placeholder: maglev_section.settings.search_placeholder,
+                                autocomplete: "off",
+                                data: { help_search_input: true } %>
+          <button type="button" class="help-search__clear" data-help-search-clear
+                  <%= "hidden" if query.blank? %>>
+            <%= maglev_section.settings.clear_label %>
+          </button>
+          <button type="submit" class="help-search__button">
+            <%= maglev_section.settings.search_button_label %>
+          </button>
+        </div>
+      <% end %>
+
+      <p class="help-search__hint"><%= maglev_section.settings.search_hint %></p>
+    </div>
+  </div>
+</section>

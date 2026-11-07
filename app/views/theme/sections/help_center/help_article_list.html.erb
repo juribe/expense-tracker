@@ -1,0 +1,46 @@
+<% path = HelpCenter::PagePath.new(maglev_page.path) %>
+<% articles = HelpCenter::CategoryArticles.new(category_path: path.to_s, page: params[:page]).call %>
+<section class="help-section help-article-list">
+  <div class="help-center-container">
+    <header class="help-section__head">
+      <p class="help-eyebrow"><%= maglev_section.settings.kicker %></p>
+      <h2><%= maglev_section.settings.heading %></h2>
+      <p><%= maglev_section.settings.description %></p>
+    </header>
+
+    <% if articles.any? %>
+      <div class="help-article-grid">
+        <% articles.each do |article| %>
+          <a class="help-article-card" href="<%= article.url %>">
+            <span class="help-article-card__icon" aria-hidden="true"><%= article.icon.presence || "▤" %></span>
+            <span class="help-article-card__body">
+              <strong><%= article.title %></strong>
+              <% if article.summary.present? %>
+                <span><%= truncate(article.summary, length: 150) %></span>
+              <% end %>
+              <small>Actualizado el <%= help_center_date(article.published_at || article.page_updated_at) %></small>
+            </span>
+            <span class="help-article-card__arrow" aria-hidden="true">→</span>
+          </a>
+        <% end %>
+      </div>
+
+      <% if articles.total_pages > 1 %>
+        <nav class="help-pagination" aria-label="Paginación de artículos">
+          <% if articles.previous_page %>
+            <a href="/<%= path %>?page=<%= articles.previous_page %>" rel="prev">Anterior</a>
+          <% end %>
+          <span class="current" aria-current="page"><%= articles.current_page %> / <%= articles.total_pages %></span>
+          <% if articles.next_page %>
+            <a href="/<%= path %>?page=<%= articles.next_page %>" rel="next">Siguiente</a>
+          <% end %>
+        </nav>
+      <% end %>
+    <% else %>
+      <div class="help-empty">
+        <p><%= maglev_section.settings.empty_text %></p>
+        <a href="/contact" class="help-link">Contáctanos</a>
+      </div>
+    <% end %>
+  </div>
+</section>

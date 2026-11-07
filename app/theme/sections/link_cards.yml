@@ -38,4 +38,4 @@ blocks:
     id: link
     type: link
     with_text: false
-    default: { link_type: "url", href: "/help", open_new_window: false }
+    default: { link_type: "url", href: "/ayuda", open_new_window: false }

@@ -291,6 +291,11 @@ Rails.application.routes.draw do
   # the engine's published page preview (see the catch-all above this file).
   # "/home" legacy alias still works with a redirect to the CMS page.
   get "home", to: redirect("/", status: 301), as: :legacy_home
+  get "help", to: redirect("/ayuda", status: 301), as: :legacy_help
+  get "privacy", to: redirect("/privacidad", status: 301), as: :legacy_privacy
+  get "contactanos", to: redirect("/contact", status: 301), as: :legacy_contact
+  get "ayuda/buscar", to: "help_center/search#index", as: :help_center_search
+  post "ayuda/valoracion", to: "help_center/ratings#create", as: :help_center_rating
   get "sitemap", to: "public_cms/sitemap#show", defaults: { format: "xml" }
   get "sitemap.xml", to: "public_cms/sitemap#show", defaults: { format: "xml" }
   root "maglev/published_page_preview#index"

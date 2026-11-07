@@ -1,0 +1,38 @@
+# Article header. The native Maglev page title is the H1.
+name: "Cabecera de artículo"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: eyebrow
+  type: text
+  default: "CENTRO DE AYUDA"
+- label: "Resumen corto"
+  id: summary
+  type: text
+  default: "Una explicación breve de lo que aprenderás en este artículo."
+- label: "Icono"
+  id: icon
+  type: text
+  default: "▤"
+- label: "Posición dentro de la categoría"
+  id: position
+  type: text
+  default: "100"
+- label: "Destacado"
+  id: featured
+  type: checkbox
+  default: false
+- label: "Popular"
+  id: popular
+  type: checkbox
+  default: false
+- label: "Imagen de portada"
+  id: cover_image
+  type: image
+- label: "Texto alternativo de la portada"
+  id: cover_alt
+  type: text
+  default: ""

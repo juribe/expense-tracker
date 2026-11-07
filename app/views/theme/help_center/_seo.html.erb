@@ -1,0 +1,3 @@
+<% help_center_seo_data(page, site: site, base_url: request.base_url).each do |entry| %>
+  <script type="application/ld+json"><%= raw(json_escape(JSON.generate(entry))) %></script>
+<% end %>

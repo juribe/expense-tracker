@@ -1,0 +1,6 @@
+<% ordered = block.settings.ordered.to_s == "ordered" %>
+<%= content_tag(ordered ? :ol : :ul, class: "privacy-list") do %>
+  <% Array(block.children).each do |item| %>
+    <li><%= privacy_sanitize_inline(item.settings.text) %></li>
+  <% end %>
+<% end %>

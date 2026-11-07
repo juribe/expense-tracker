@@ -15,7 +15,9 @@ class PublicCms::SitemapController < ActionController::Base
     Maglev::I18n.available_locales = site.locale_prefixes
     @host = request.base_url
     Maglev::I18n.with_locale(site.default_locale_prefix) do
-      @pages = Maglev::Page.where(visible: true).where.not(published_at: nil).order(:created_at).includes(:canonical_paths)
+      @pages = Maglev::Page.where(visible: true).where.not(published_at: nil)
+                           .order(:created_at).includes(:canonical_paths)
+                           .reject { |page| page.meta_robots.to_s.downcase.include?("noindex") }
       render_layout_free
     end
   end
@@ -23,6 +25,6 @@ class PublicCms::SitemapController < ActionController::Base
   private
 
   def render_layout_free
-    render "public_cms/sitemap/show", formats: [:xml], layout: false
+    render "public_cms/sitemap/show", formats: [ :xml ], layout: false
   end
 end

@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_120200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
   enable_extension "pgcrypto"
 
   create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -513,6 +514,64 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_090000) do
     t.index ["pocket_id"], name: "index_goals_on_pocket_id"
     t.index ["user_id", "name"], name: "index_goals_on_user_id_and_name"
     t.index ["user_id"], name: "index_goals_on_user_id"
+  end
+
+  create_table "help_article_indices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "maglev_page_id", null: false
+    t.string "locale", default: "es", null: false
+    t.string "path", null: false
+    t.string "category_path", null: false
+    t.string "category_name", null: false
+    t.string "title", null: false
+    t.text "summary"
+    t.text "search_text", null: false
+    t.string "normalized_title", null: false
+    t.string "normalized_summary"
+    t.string "icon"
+    t.string "cover_image_url"
+    t.integer "position", default: 100, null: false
+    t.boolean "featured", default: false, null: false
+    t.boolean "popular", default: false, null: false
+    t.datetime "published_at"
+    t.datetime "page_updated_at"
+    t.string "seo_title"
+    t.string "meta_description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["locale", "category_path", "position"], name: "idx_on_locale_category_path_position_2446f66741"
+    t.index ["locale", "path"], name: "index_help_article_indices_on_locale_and_path", unique: true
+    t.index ["maglev_page_id"], name: "index_help_article_indices_on_maglev_page_id", unique: true
+    t.index ["normalized_title"], name: "index_help_article_indices_on_normalized_title", opclass: :gin_trgm_ops, using: :gin
+    t.index ["search_text"], name: "index_help_article_indices_on_search_text", opclass: :gin_trgm_ops, using: :gin
+  end
+
+  create_table "help_article_ratings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "maglev_page_id", null: false
+    t.boolean "helpful", null: false
+    t.string "fingerprint", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["maglev_page_id", "fingerprint"], name: "index_help_article_ratings_on_maglev_page_id_and_fingerprint", unique: true
+  end
+
+  create_table "help_category_indices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "maglev_page_id", null: false
+    t.string "locale", default: "es", null: false
+    t.string "path", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "icon"
+    t.string "image_url"
+    t.integer "position", default: 100, null: false
+    t.datetime "published_at"
+    t.datetime "page_updated_at"
+    t.string "seo_title"
+    t.string "meta_description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["locale", "path"], name: "index_help_category_indices_on_locale_and_path", unique: true
+    t.index ["locale", "position"], name: "index_help_category_indices_on_locale_and_position"
+    t.index ["maglev_page_id"], name: "index_help_category_indices_on_maglev_page_id", unique: true
   end
 
   create_table "incomes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1350,6 +1409,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_090000) do
   add_foreign_key "goal_allocations", "money_sources", column: "pocket_id"
   add_foreign_key "goals", "money_sources", column: "pocket_id"
   add_foreign_key "goals", "users"
+  add_foreign_key "help_article_indices", "maglev_pages", on_delete: :cascade
+  add_foreign_key "help_article_ratings", "maglev_pages", on_delete: :cascade
+  add_foreign_key "help_category_indices", "maglev_pages", on_delete: :cascade
   add_foreign_key "incomes", "categories"
   add_foreign_key "incomes", "users"
   add_foreign_key "mail_inbound_deliveries", "processed_emails"

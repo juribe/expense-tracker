@@ -1,0 +1,12 @@
+<% columns = block.settings.columns.to_s == "three" ? "three" : "two" %>
+<div class="privacy-card-grid privacy-card-grid--<%= columns %>">
+  <% Array(block.children).each do |card| %>
+    <div class="privacy-card">
+      <% if card.settings.icon.present? %>
+        <span class="privacy-card__icon" aria-hidden="true"><%= card.settings.icon %></span>
+      <% end %>
+      <b><%= card.settings.title %></b>
+      <div class="privacy-card__text"><%= privacy_sanitize_html(card.settings.text) %></div>
+    </div>
+  <% end %>
+</div>

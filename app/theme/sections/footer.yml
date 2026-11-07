@@ -95,7 +95,7 @@ sample:
     - type: link
       settings:
         label: "Centro de ayuda"
-        link: { link_type: "url", href: "/help", open_new_window: false }
+        link: { link_type: "url", href: "/ayuda", open_new_window: false }
     - type: link
       settings:
         label: "Iniciar sesión"
@@ -107,7 +107,7 @@ sample:
     - type: link
       settings:
         label: "Política de privacidad"
-        link: { link_type: "url", href: "/privacy", open_new_window: false }
+        link: { link_type: "url", href: "/privacidad", open_new_window: false }
     - type: link
       settings:
         label: "Términos y condiciones"

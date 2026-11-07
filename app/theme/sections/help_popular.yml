@@ -1,0 +1,19 @@
+# Popular help questions driven by the article index.
+name: "Preguntas populares"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "PREGUNTAS POPULARES"
+- label: "Título"
+  id: heading
+  type: text
+  default: "Las respuestas que más se consultan."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Un atajo a las dudas que más nos escriben."

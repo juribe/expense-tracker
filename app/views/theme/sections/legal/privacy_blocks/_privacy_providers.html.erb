@@ -1,0 +1,24 @@
+<div class="privacy-providers">
+  <% Array(block.children).each do |provider| %>
+    <article class="privacy-provider">
+      <header>
+        <b><%= provider.settings.name %></b>
+        <span><%= provider.settings.service_type %></span>
+      </header>
+      <dl>
+        <div>
+          <dt>Finalidad</dt>
+          <dd><%= privacy_sanitize_inline(provider.settings.purpose) %></dd>
+        </div>
+        <div>
+          <dt>Información que puede procesar</dt>
+          <dd><%= privacy_sanitize_inline(provider.settings.data) %></dd>
+        </div>
+      </dl>
+      <% policy_url = privacy_external_url(provider.settings.policy_url) %>
+      <% if policy_url %>
+        <a href="<%= policy_url %>" target="_blank" rel="noopener">Política de privacidad ↗</a>
+      <% end %>
+    </article>
+  <% end %>
+</div>

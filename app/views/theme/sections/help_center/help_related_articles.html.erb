@@ -1,0 +1,29 @@
+<% article = help_center_article_index(maglev_page) %>
+<% paths = help_center_related_paths(maglev_section.settings.related_paths) %>
+<% related = HelpCenter::RelatedArticles.new(article: article, paths: paths).call %>
+<% if related.any? %>
+  <section class="help-section help-related">
+    <div class="help-center-container">
+      <header class="help-section__head">
+        <p class="help-eyebrow"><%= maglev_section.settings.kicker %></p>
+        <h2><%= maglev_section.settings.heading %></h2>
+        <p><%= maglev_section.settings.description %></p>
+      </header>
+
+      <div class="help-article-grid">
+        <% related.each do |related_article| %>
+          <a class="help-article-card" href="<%= related_article.url %>">
+            <span class="help-article-card__icon" aria-hidden="true"><%= related_article.icon.presence || "▤" %></span>
+            <span class="help-article-card__body">
+              <strong><%= related_article.title %></strong>
+              <% if related_article.summary.present? %>
+                <span><%= truncate(related_article.summary, length: 130) %></span>
+              <% end %>
+            </span>
+            <span class="help-article-card__arrow" aria-hidden="true">→</span>
+          </a>
+        <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>

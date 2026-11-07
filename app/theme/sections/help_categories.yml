@@ -1,0 +1,23 @@
+# Dynamic category cards for the help center landing page.
+name: "Categorías del Centro de ayuda"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "EXPLORA POR CATEGORÍAS"
+- label: "Título"
+  id: heading
+  type: text
+  default: "Encuentra fácilmente la información que buscas."
+- label: "Descripción"
+  id: description
+  type: text
+  default: "Organizamos las guías por tema para que llegues a la respuesta sin dar vueltas."
+- label: "Texto sin categorías"
+  id: empty_text
+  type: text
+  default: "Estamos preparando las categorías. Mientras tanto, escríbenos y te ayudamos."

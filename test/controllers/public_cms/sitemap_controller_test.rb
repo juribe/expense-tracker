@@ -36,6 +36,17 @@ class PublicCmsSitemapControllerTest < ActionDispatch::IntegrationTest
     refute_match "contacto", response.body
   end
 
+  test "noindex pages are not listed" do
+    Maglev::I18n.with_locale("es") do
+      Maglev::Page.by_path("contact").first.update!(meta_robots: "noindex,follow")
+    end
+
+    get "https://yogasto.co/sitemap.xml"
+
+    assert_response :success
+    refute_match "<loc>https://yogasto.co/contact</loc>", response.body
+  end
+
   test "invisible pages are not listed" do
     page = Maglev::Page.by_path("index").first
     page.update!(visible: false)

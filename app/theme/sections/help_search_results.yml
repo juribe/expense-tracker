@@ -1,0 +1,23 @@
+# Server-rendered search results and the target container for the live search.
+name: "Resultados de búsqueda"
+category: help_center
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "RESULTADOS"
+- label: "Título"
+  id: heading
+  type: text
+  default: "Artículos que coinciden con tu búsqueda."
+- label: "Texto sin resultados"
+  id: empty_text
+  type: text
+  default: "No encontramos artículos para esa búsqueda. Prueba con otras palabras o escríbenos."
+- label: "Texto del enlace para limpiar"
+  id: clear_label
+  type: text
+  default: "Limpiar búsqueda"
