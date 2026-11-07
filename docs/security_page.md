@@ -6,23 +6,21 @@ anterior `/security` responde con un 301 a la nueva URL.
 ## Administración
 
 En Maglev, abrir la página **Seguridad** (`seguridad`). La página reutiliza el
-navbar, el footer, el hero institucional y la sección de tarjetas de seguridad
-que ya existe en el tema.
+navbar, el footer, el hero institucional y las secciones de seguridad del tema.
 
 Secciones editables:
 
-- **Hero institucional**: etiqueta, título, descripción, texto complementario,
-  ilustración de escudo y chips flotantes.
-- **Seguridad** (Nuestro compromiso): kicker, título, descripción, nota y tres
-  tarjetas editables. Cada tarjeta tiene icono, visibilidad y orden.
-- **Proceso de seguridad**: introducción, aviso y etapas numeradas. Se pueden
-  agregar, eliminar y reordenar etapas.
-- **Qué guardamos y qué no**: títulos de las columnas, elementos de cada
-  columna y nota aclaratoria. El editor elige la columna de cada elemento.
-- **Buenas prácticas de seguridad**: tarjetas con icono, título y descripción.
-- **Preguntas frecuentes de seguridad**: pares pregunta/respuesta en un
-  acordeón nativo (`details`/`summary`), accesible con teclado.
-- **CTA de seguridad**: título, descripción y botón.
+- **Hero institucional**: etiqueta, título, descripción, texto complementario e
+  ilustración de escudo.
+- **Protección de la cuenta**: contraseña, passkeys y TOTP. Cada tarjeta es
+  editable y puede ocultarse.
+- **Protección de la información**: medidas técnicas y operativas verificadas.
+- **Procesamiento de información**: categorías de datos y funciones.
+- **Control de la información**: acciones del usuario y consideraciones sobre
+  cierre de cuenta y backups.
+- **Infraestructura y proveedores**: preguntas sobre OVHcloud, proveedores
+  externos, correos, backups y tarjetas.
+- **Reportar un problema de seguridad**: CTA con correo de contacto.
 - **SEO de la página**: title, meta description, Open Graph y canonical.
 
 El contenido se guarda en Maglev después de la primera carga. La semilla del
@@ -30,30 +28,37 @@ tema es solo el punto de partida.
 
 ## Afirmaciones verificadas
 
-- La aplicación y la base de datos están alojadas en un servidor VPS de
-  OVHcloud (confirmado por el responsable del producto).
-- Los correos entrantes se almacenan temporalmente en `mail_inbound_deliveries`
-  y `processed_emails.payload`; el contenido se purga al terminar el
-  procesamiento o al agotar los reintentos.
-- Los movimientos estructurados se conservan en las tablas financieras.
-- Yogasto no almacena números completos ni datos completos de tarjetas. Solo
-  pueden existir referencias, identificadores de transacción o los últimos
-  cuatro dígitos usados para identificar un medio de pago.
-- La producción fuerza HTTPS (`config.force_ssl = true`) y el footer compartido
-  muestra esa condición.
-- Las dependencias se mantienen actualizadas como parte del mantenimiento del
-  servicio.
+- La aplicación se aloja en infraestructura de OVHcloud ubicada en Canadá
+  (confirmado por el responsable del producto).
+- La producción fuerza HTTPS (`config/environments/production.rb`).
+- Las contraseñas se gestionan con Devise y bcrypt; no se almacenan en texto
+  plano.
+- Passkeys y TOTP están implementados como métodos opcionales. Passkeys usan
+  WebAuthn y TOTP usa aplicaciones compatibles.
+- Los secretos TOTP se cifran con Active Record Encryption. Los códigos de
+  recuperación se guardan como hashes bcrypt.
+- La página de seguridad de la cuenta exige reautenticación con contraseña y no
+  se cachea.
+- Existe una política de seguridad de contenido (CSP), cookies seguras en
+  producción y límites de uso en accesos sensibles y formularios públicos.
+- Los tokens de Gmail, la telemetría de IA y las credenciales de proveedores se
+  protegen con cifrado en reposo.
+- La información de cada cuenta se gestiona con controles de autorización.
+- El contenido de los correos procesados se elimina de los sistemas de
+  procesamiento al terminar; si el procesamiento falla, puede conservarse
+  mientras se reintenta.
+- Yogasto no almacena números completos de tarjetas; el pago lo procesa ePayco.
+- Los proveedores externos publicados coinciden con la Política de privacidad:
+  OVHcloud, ePayco, Mistral, OpenRouter, Google/Gmail, Meta/WhatsApp y
+  Cloudflare.
+- La página no afirma certificaciones, auditorías independientes ni garantías
+  de riesgo cero.
 
 ## Pendiente de confirmación
 
-- Retención exacta en logs, colas, respaldos y proveedores externos.
-- Política de backups y pruebas de restauración.
-- Endurecimiento del servidor, monitoreo, alertas y respuesta a incidentes.
-- Certificados, caducidad y configuración TLS más allá de `force_ssl`.
-- Contratos y condiciones de Cloudflare, Resend, Gmail/Google, ePayco y
-  proveedores de IA.
-- Canal oficial para reportar incidentes de seguridad y responsable legal.
-- Revisión legal de la redacción y de las afirmaciones públicas.
+Los detalles técnicos y legales que no están confirmados se documentan en
+[docs/security_page_audit.md](security_page_audit.md). No deben publicarse en la
+página hasta tener evidencia.
 
 ## Comandos
 

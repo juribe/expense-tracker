@@ -158,9 +158,10 @@ editorial instructions are in
 ### Security
 
 The public security page lives at `/seguridad` and is administered from Maglev.
-It reuses the institutional hero, navbar, footer and security cards. Verified
-claims, pending infrastructure details and editorial instructions are documented
-in [docs/security_page.md](docs/security_page.md).
+It reuses the institutional hero, navbar, footer and security sections. Verified
+measures, unverified items and editorial instructions are documented in
+[docs/security_page.md](docs/security_page.md) and
+[docs/security_page_audit.md](docs/security_page_audit.md).
 
 ### Local Speech-to-Text (faster-whisper)
 

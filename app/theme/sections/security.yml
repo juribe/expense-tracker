@@ -1,6 +1,7 @@
-# Security section: reassurance cards. Only real, current safeguards; the note
-# clarifies that no certifications or zero-risk guarantees are claimed.
-name: "Seguridad"
+# Security section: account-protection methods. Only real, current safeguards;
+# the note clarifies that methods are optional and no zero-risk guarantee is
+# claimed.
+name: "Protección de la cuenta"
 category: content
 singleton: true
 max_width_pane: 480
@@ -8,30 +9,30 @@ settings:
 - label: "Ancla de la sección"
   id: anchor
   type: text
-  default: "seguridad"
+  default: "cuenta"
 - label: "Kicker"
   id: kicker
   type: text
-  default: "Tu información merece cuidado"
+  default: "Protección de tu cuenta"
 - label: "Título"
   id: title
   type: text
-  default: "La confianza también hace parte de "
+  default: "Protege el acceso a "
 - label: "Texto destacado con gradiente"
   id: gradient_text
   type: text
-  default: "tener tus finanzas en orden."
+  default: "tu cuenta"
 - label: "Descripción"
   id: description
   type: text
-  default: "Trabajamos para proteger tu información y mantener Yogasto cuidado, actualizado y disponible."
+  default: "Puedes elegir entre diferentes métodos para iniciar sesión y añadir capas adicionales de protección."
 - label: "Nota informativa inferior"
   id: note
   type: text
-  default: "La seguridad es un trabajo continuo. Estas medidas no significan que exista riesgo cero ni sustituyen una auditoría independiente o certificación formal."
-blocks_label: "Medidas de seguridad"
+  default: "Passkeys y TOTP son opcionales. Puedes activarlos desde Perfil > Seguridad de la cuenta cuando estén disponibles en tu cuenta. La disponibilidad también depende de tu dispositivo y navegador."
+blocks_label: "Métodos de protección"
 blocks:
-- name: "Medida"
+- name: "Método"
   type: item
   settings:
   - label: "Visible"
@@ -50,8 +51,8 @@ blocks:
   - label: "Título"
     id: title
     type: text
-    default: "Conexión protegida"
+    default: "Contraseña"
   - label: "Descripción"
     id: description
     type: text
-    default: "Yogasto utiliza HTTPS para proteger la información que viaja entre tu navegador y nuestros servidores."
+    default: "Yogasto usa autenticación con contraseña. No almacenamos tu contraseña en texto plano."

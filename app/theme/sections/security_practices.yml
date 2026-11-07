@@ -1,5 +1,5 @@
-# Account-security recommendations for the public security page.
-name: "Buenas prácticas de seguridad"
+# Information-protection measures for the public security page.
+name: "Protección de la información"
 category: security
 singleton: true
 insert_button: true
@@ -8,33 +8,33 @@ settings:
 - label: "Ancla de la sección"
   id: anchor
   type: text
-  default: "practicas"
+  default: "proteccion"
 - label: "Etiqueta superior"
   id: kicker
   type: text
-  default: "Buenas prácticas"
+  default: "Protección de la información"
 - label: "Título"
   id: title
   type: text
-  default: "La seguridad también es un trabajo compartido"
+  default: "Medidas para cuidar tus datos"
 - label: "Descripción"
   id: description
   type: text
-  default: "Algunas acciones sencillas ayudan a proteger el acceso a tu cuenta."
-blocks_label: "Recomendaciones"
+  default: "Estas son algunas de las prácticas que forman parte del funcionamiento actual de Yogasto."
+blocks_label: "Medidas de protección"
 blocks:
-- name: "Recomendación"
+- name: "Medida"
   type: item
   settings:
   - label: "Icono (emoji o símbolo)"
     id: icon
     type: text
-    default: "🔐"
+    default: "🔒"
   - label: "Título"
     id: title
     type: text
-    default: "Usa una contraseña segura"
+    default: "Conexión protegida"
   - label: "Descripción"
     id: description
     type: text
-    default: "Elige una contraseña única y evita reutilizarla en otros servicios."
+    default: "La comunicación entre tu navegador y Yogasto se protege con HTTPS en producción."

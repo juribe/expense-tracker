@@ -1,5 +1,5 @@
-# Accessible native accordion for security questions.
-name: "Preguntas frecuentes de seguridad"
+# Accessible native accordion for infrastructure, providers and security questions.
+name: "Infraestructura y proveedores"
 category: security
 singleton: true
 insert_button: true
@@ -8,19 +8,19 @@ settings:
 - label: "Ancla de la sección"
   id: anchor
   type: text
-  default: "preguntas"
+  default: "infraestructura"
 - label: "Etiqueta superior"
   id: kicker
   type: text
-  default: "Preguntas frecuentes"
+  default: "Infraestructura y proveedores"
 - label: "Título"
   id: title
   type: text
-  default: "¿Tienes dudas sobre seguridad?"
+  default: "Dónde se aloja y quiénes participan"
 - label: "Descripción"
   id: description
   type: text
-  default: "Respuestas sencillas sobre el uso de Yogasto y tu información."
+  default: "Yogasto utiliza proveedores externos para prestar determinados servicios. Estas son las respuestas principales."
 blocks_label: "Preguntas y respuestas"
 blocks:
 - name: "Pregunta"
@@ -29,8 +29,8 @@ blocks:
   - label: "Pregunta"
     id: question
     type: text
-    default: "¿Tienes alguna duda?"
+    default: "¿Dónde se aloja la información de Yogasto?"
   - label: "Respuesta (admite HTML)"
     id: answer
     type: text
-    default: "Escribe aquí una respuesta clara."
+    default: "Yogasto se aloja en infraestructura de OVHcloud ubicada en Canadá."

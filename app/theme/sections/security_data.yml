@@ -1,5 +1,5 @@
-# Two-column comparison of the information Yogasto keeps and does not keep.
-name: "Qué guardamos y qué no"
+# Two-column section explaining user control over account information.
+name: "Control de la información"
 category: security
 singleton: true
 insert_button: true
@@ -8,36 +8,36 @@ settings:
 - label: "Ancla de la sección"
   id: anchor
   type: text
-  default: "datos"
+  default: "control"
 - label: "Etiqueta superior"
   id: kicker
   type: text
-  default: "Información y mantenimiento"
+  default: "Tu información y tu control"
 - label: "Título"
   id: title
   type: text
-  default: "Qué guardamos y qué no"
+  default: "Tú decides qué compartes y cuándo"
 - label: "Descripción"
   id: description
   type: text
-  default: "Queremos que tengas claridad sobre la diferencia entre el contenido que se procesa y la información que permanece en tu cuenta."
-- label: "Título de la columna que conservamos"
+  default: "Puedes consultar tu información, gestionar tus integraciones y ejercer tus derechos."
+- label: "Título de la columna de acciones"
   id: kept_title
   type: text
-  default: "Información que conservamos"
-- label: "Título de la columna que no almacenamos"
+  default: "Puedes hacerlo desde tu cuenta"
+- label: "Título de la columna de consideraciones"
   id: not_kept_title
   type: text
-  default: "Información que no almacenamos"
+  default: "Ten en cuenta"
 - label: "Título de la aclaración"
   id: note_title
   type: text
-  default: "Una aclaración"
+  default: "Transparencia"
 - label: "Texto de la aclaración"
   id: note_text
   type: text
-  default: "El contenido del correo sí pasa temporalmente por nuestros sistemas durante el procesamiento."
-blocks_label: "Elementos de las columnas"
+  default: "La Política de privacidad describe con más detalle el tratamiento de datos, la conservación y tus derechos."
+blocks_label: "Acciones y consideraciones"
 blocks:
 - name: "Elemento"
   type: item
@@ -50,4 +50,4 @@ blocks:
   - label: "Texto"
     id: text
     type: text
-    default: "Información que debe explicarse."
+    default: "Consultar y actualizar la información registrada en tu cuenta."

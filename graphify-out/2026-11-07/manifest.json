@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1794070433.9034693,
-    "seen": 1794072545.724067,
-    "ast_hash": "0a972756aef27a89d5c9cd6f659b8505",
+    "mtime": 1794081331.8849201,
+    "seen": 1794081772.442094,
+    "ast_hash": "b6828df9868640098d2bcef4c42916ba",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794079593.7089598,
-    "seen": 1794079720.406786,
+    "mtime": 1794081729.8469448,
+    "seen": 1794081772.444292,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -7920,15 +7920,15 @@
     "semantic_hash": ""
   },
   "payment_engine/app/models/payment_engine/user_access.rb": {
-    "mtime": 1793898217.1105585,
-    "seen": 1793898570.699271,
-    "ast_hash": "20e4fe1d2486d58a8dbddc9e3c2c9327",
+    "mtime": 1794081331.8849106,
+    "seen": 1794081772.443313,
+    "ast_hash": "4917c152fdb422601731c021d6525c4f",
     "semantic_hash": ""
   },
   "test/poro/payment_engine_user_access_test.rb": {
-    "mtime": 1793898163.8347325,
-    "seen": 1793898570.6997461,
-    "ast_hash": "dcbdfce178227625f0cedaf80a7e6604",
+    "mtime": 1794081306.8988252,
+    "seen": 1794081772.443855,
+    "ast_hash": "5759921de230720bc5b7b7fd85499ef1",
     "semantic_hash": ""
   },
   "db/migrate/20261104120000_remove_requires_membership_from_users.rb": {
@@ -9405,6 +9405,12 @@
     "mtime": 1794080705.0444598,
     "seen": 1794080749.9255722,
     "ast_hash": "394c18c1d5855e1be3f5cd6b8c2a08a6",
+    "semantic_hash": ""
+  },
+  "test/integration/membership_renewal_hero_test.rb": {
+    "mtime": 1794081317.5899081,
+    "seen": 1794081772.4436748,
+    "ast_hash": "81b6effdd4de099e258b44999dfbc8f0",
     "semantic_hash": ""
   }
 }

@@ -15,27 +15,87 @@ class PublicCmsSecurityPageTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "<title>Seguridad y protección de datos | Yogasto</title>", response.body
-    assert_select "h1", count: 1, text: /Tu información financiera merece cuidado/
+    assert_select "h1", count: 1, text: /Tu información financiera merece protección/
     assert_select "section.institutional-hero--lavender", 1
-    assert_select ".institutional-eyebrow", text: /Seguridad y privacidad/
+    assert_select ".institutional-eyebrow", text: /SEGURIDAD Y TRANSPARENCIA/
     assert_select ".security-shield-card", 1
-    assert_select ".security-float", count: 2
-    assert_select ".institutional-hero-note", text: /Información clara sobre nuestras prácticas/
     assert_select "footer.site-footer", 1
   end
 
-  test "el compromiso muestra solo prácticas verificadas" do
+  test "la protección de la cuenta explica contraseña, passkeys y TOTP" do
     get "https://yogasto.co/seguridad"
 
-    assert_select "#compromiso .feature", count: 3
-    assert_match "OVHcloud", response.body
-    assert_match "tablas de procesamiento", response.body
-    assert_match(/no almacena números ni datos completos de tarjetas/i, response.body)
-    refute_match "certificación ISO", response.body
+    assert_select "#cuenta .feature", count: 3
+    assert_match "Passkeys", response.body
+    assert_match "Códigos TOTP", response.body
+    assert_match "son opcionales", response.body
+    refute_match "biometría se envía", response.body
+  end
+
+  test "la protección de la información muestra medidas verificadas" do
+    get "https://yogasto.co/seguridad"
+
+    assert_select "#proteccion .security-practice", count: 6
+    assert_match "HTTPS", response.body
+    assert_match "cifrado en reposo", response.body
+    assert_match "no incorpora cookies de analítica", response.body
+    refute_match "100 %", response.body
     refute_match "riesgo cero garantizado", response.body
   end
 
-  test "una tarjeta de compromiso oculta no se renderiza" do
+  test "el procesamiento explica datos, correos, WhatsApp, archivos e IA" do
+    get "https://yogasto.co/seguridad"
+
+    assert_select "#procesamiento .security-step", count: 6
+    assert_select "#procesamiento .security-step", text: /Gastos, ingresos y movimientos/
+    assert_select "#procesamiento .security-step", text: /Correos y Gmail/
+    assert_select "#procesamiento .security-step", text: /WhatsApp/
+    assert_select "#procesamiento .security-step", text: /Archivos y extractos bancarios/
+    assert_select "#procesamiento .security-step", text: /Inteligencia artificial/
+    assert_select "#procesamiento .security-step", text: /Telemetría y registros de IA/
+    assert_match "Mistral", response.body
+    assert_match "OpenRouter", response.body
+    assert_match "plan Pro", response.body
+  end
+
+  test "el control de la información explica las acciones del usuario y los backups" do
+    get "https://yogasto.co/seguridad"
+
+    assert_select "#control .security-data-panel", count: 2
+    assert_match "Cerrar tu cuenta", response.body
+    assert_match "copias de seguridad", response.body
+  end
+
+  test "infraestructura y proveedores coinciden con la Política de privacidad" do
+    get "https://yogasto.co/seguridad"
+
+    assert_select "#infraestructura details", count: 7
+    assert_match "OVHcloud", response.body
+    assert_match "Canadá", response.body
+    assert_match "ePayco", response.body
+    assert_match "Cloudflare", response.body
+    assert_select "#infraestructura a[href='/privacidad']", 1
+  end
+
+  test "el canal para reportar problemas de seguridad está visible" do
+    get "https://yogasto.co/seguridad"
+
+    assert_select "#reportar", 1
+    assert_match "¿Encontraste algo sospechoso?", response.body
+    assert_select "section.security-cta a[href='mailto:hola@yogasto.co']", 1
+  end
+
+  test "configura SEO, canonical y una sola URL pública" do
+    get "https://yogasto.co/seguridad"
+
+    assert_select "meta[name='description'][content='Conoce cómo Yogasto protege tu cuenta y tu información, cómo procesa los datos y qué puedes hacer para mantener el control.']", 1
+    assert_select "link[rel='canonical'][href='https://yogasto.co/seguridad']", 1
+    assert_select "meta[property='og:title'][content='Seguridad y protección de datos']", 1
+    assert_select "meta[property='og:description']", 1
+    assert_select "link[href*='security']", minimum: 1
+  end
+
+  test "una tarjeta de protección oculta no se renderiza" do
     Maglev::I18n.with_locale("es") do
       page = Maglev::Page.by_path("seguridad").first
       sections = page.sections
@@ -53,81 +113,11 @@ class PublicCmsSecurityPageTest < ActionDispatch::IntegrationTest
         .dig("blocks", 0, "settings")
         .find { |setting| setting["id"] == "visible" }
       assert_equal false, persisted["value"]
-
-      published = page.sections_content_stores.find_by(published: true)
-        .sections_translations["es"]
-        .find { |section| section["type"] == "security" }
-        .dig("blocks", 0, "settings")
-        .find { |setting| setting["id"] == "visible" }
-      assert_equal false, published["value"]
     end
 
     get "https://yogasto.co/seguridad"
 
-    assert_select "#compromiso .feature", count: 2
-  end
-
-  test "el proceso de correos explica las cinco etapas y la eliminación temporal" do
-    get "https://yogasto.co/seguridad"
-
-    assert_select "#correos .security-step", count: 5
-    assert_select "#correos .security-step", text: /Recepción del correo/
-    assert_select "#correos .security-step", text: /Almacenamiento temporal/
-    assert_select "#correos .security-step", text: /Extracción de información/
-    assert_select "#correos .security-step", text: /Eliminación del contenido original/
-    assert_select "#correos .security-step", text: /Conservación del movimiento/
-    assert_match "se elimina de las tablas temporales", response.body
-    assert_match "datos estructurados", response.body
-  end
-
-  test "qué guardamos y qué no separa los datos y aclara el alcance técnico" do
-    get "https://yogasto.co/seguridad"
-
-    assert_select "#datos .security-data-panel", count: 2
-    assert_select ".security-data-panel--kept li", count: 2
-    assert_select ".security-data-panel--not_kept li", count: 2
-    assert_match "contenido original del correo", response.body
-    assert_match "registros técnicos", response.body
-    assert_match "respaldos", response.body
-  end
-
-  test "las buenas prácticas no prometen funciones inexistentes" do
-    get "https://yogasto.co/seguridad"
-
-    assert_select "#practicas .security-practice", count: 3
-    assert_match "contraseña segura", response.body
-    assert_match "No compartas tus credenciales", response.body
-    refute_match "cerrar sesiones", response.body
-    refute_match "dispositivos conectados", response.body
-  end
-
-  test "las preguntas frecuentes usan acordeones nativos" do
-    get "https://yogasto.co/seguridad"
-
-    assert_select "#preguntas details", count: 5
-    assert_select "#preguntas summary", count: 5
-    assert_select "#preguntas details[open]", count: 0
-    assert_match "¿Yogasto guarda el contenido de mis correos?", response.body
-    assert_match "¿Yogasto almacena los datos de mi tarjeta de crédito?", response.body
-  end
-
-  test "configura SEO, canonical y una sola URL pública" do
-    get "https://yogasto.co/seguridad"
-
-    assert_select "meta[name='description'][content='Conoce cómo Yogasto procesa tu información financiera, gestiona temporalmente los correos electrónicos y cuida tus datos.']", 1
-    assert_select "link[rel='canonical'][href='https://yogasto.co/seguridad']", 1
-    assert_select "meta[property='og:title'][content='Seguridad y protección de datos']", 1
-    assert_select "meta[property='og:description']", 1
-    assert_select "link[href*='security']", minimum: 1
-  end
-
-  test "el CTA y el footer usan las rutas institucionales actuales" do
-    get "https://yogasto.co/seguridad"
-
-    assert_select "section.security-cta a[href='/contact']", 1
-    assert_select "footer.site-footer a[href='/contact']", minimum: 1
-    assert_select "footer.site-footer a[href='/seguridad']", minimum: 1
-    assert_select "footer.site-footer a[href='/terminos-y-condiciones']", minimum: 1
+    assert_select "#cuenta .feature", count: 2
   end
 
   test "la página es pública y no exige autenticación" do

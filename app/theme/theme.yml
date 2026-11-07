@@ -602,169 +602,209 @@ pages:
 - title: "Seguridad"
   path: "seguridad"
   seo_title: "Seguridad y protección de datos"
-  meta_description: "Conoce cómo Yogasto procesa tu información financiera, gestiona temporalmente los correos electrónicos y cuida tus datos."
+  meta_description: "Conoce cómo Yogasto protege tu cuenta y tu información, cómo procesa los datos y qué puedes hacer para mantener el control."
   og_title: "Seguridad y protección de datos"
-  og_description: "Información clara sobre la infraestructura, el procesamiento de correos y las prácticas de seguridad de Yogasto."
+  og_description: "Medidas técnicas y operativas para proteger tu cuenta y tu información financiera."
   sections:
   - type: navbar
   - type: institutional_hero
     settings:
-      eyebrow: "Seguridad y privacidad"
-      title: "Tu información financiera merece cuidado."
-      description: "En Yogasto trabajamos para tratar tu información con responsabilidad. Te contamos dónde se aloja, qué datos conservamos y cómo procesamos los correos que conectas."
-      note: "Información clara sobre nuestras prácticas."
+      eyebrow: "SEGURIDAD Y TRANSPARENCIA"
+      title: "Tu información financiera merece protección."
+      description: "En Yogasto trabajamos para proteger tu cuenta y tu información mediante medidas técnicas y operativas orientadas a mantener tus datos seguros y bajo tu control."
+      note: "Transparencia sobre nuestras prácticas, sin promesas absolutas."
       note_icon: "✓"
       variant: "lavender"
       show_art: true
       art_style: "shield"
-      art_chip_one: "Datos tratados con cuidado"
-      art_chip_two: "Procesamiento temporal"
+      art_chip_one: "Protección de la cuenta"
+      art_chip_two: "Transparencia y control"
   - type: security
     settings:
-      anchor: "compromiso"
-      kicker: "Nuestro compromiso"
-      title: "Conoce cómo cuidamos "
-      gradient_text: "tu información"
-      description: "Estas son algunas de las prácticas que forman parte del funcionamiento actual de Yogasto."
-      note: "También mantenemos nuestras dependencias actualizadas para corregir vulnerabilidades y mejorar la estabilidad. La seguridad es un proceso continuo y estas prácticas no implican certificaciones independientes ni una garantía de riesgo cero."
+      anchor: "cuenta"
+      kicker: "PROTECCIÓN DE TU CUENTA"
+      title: "Protege el acceso a "
+      gradient_text: "tu cuenta"
+      description: "Puedes elegir entre diferentes métodos para iniciar sesión y añadir capas adicionales de protección."
+      note: "Passkeys y TOTP son opcionales. Puedes activarlos desde Perfil > Seguridad de la cuenta cuando estén disponibles en tu cuenta. La disponibilidad también depende de tu dispositivo y navegador."
     blocks:
     - type: item
       settings:
         visible: true
-        icon: "▤"
+        icon: "◎"
         color: "purple"
-        title: "Infraestructura del servicio"
-        description: "La aplicación y su base de datos están alojadas en un servidor VPS de OVHcloud."
+        title: "Contraseña"
+        description: "Yogasto usa autenticación con contraseña. No almacenamos tu contraseña en texto plano; se guarda mediante un mecanismo de hash seguro. Usa una contraseña única y no la reutilices en otros servicios."
     - type: item
       settings:
         visible: true
-        icon: "✉"
-        color: "purple"
-        title: "Procesamiento de correos"
-        description: "El contenido del correo se utiliza temporalmente para extraer los datos del movimiento y se elimina de las tablas de procesamiento al terminar."
+        icon: "◈"
+        color: "blue"
+        title: "Passkeys"
+        description: "Puedes iniciar sesión con una passkey que hayas activado, usando la biometría, el PIN o una llave de seguridad compatible con tu dispositivo. La verificación ocurre en tu dispositivo o en el proveedor de autenticación; Yogasto no recibe ni almacena tu huella o rostro."
     - type: item
       settings:
         visible: true
-        icon: "▭"
-        color: "purple"
-        title: "No almacenamos tus tarjetas"
-        description: "Yogasto no almacena números ni datos completos de tarjetas de crédito."
+        icon: "▣"
+        color: "green"
+        title: "Códigos TOTP"
+        description: "Puedes activar códigos temporales con aplicaciones compatibles como Google Authenticator o Microsoft Authenticator. Los códigos cambian periódicamente, se generan en tu aplicación y añaden una capa adicional al inicio de sesión con contraseña."
+  - type: security_practices
+    settings:
+      anchor: "proteccion"
+      kicker: "PROTECCIÓN DE LA INFORMACIÓN"
+      title: "Medidas para cuidar tus datos"
+      description: "Estas son algunas de las prácticas que forman parte del funcionamiento actual de Yogasto."
+    blocks:
+    - type: item
+      settings:
+        icon: "🔒"
+        title: "Conexión protegida"
+        description: "La comunicación entre tu navegador y Yogasto se protege con HTTPS en producción."
+    - type: item
+      settings:
+        icon: "◈"
+        title: "Acceso controlado"
+        description: "La información de cada cuenta se gestiona de forma separada y con controles de autorización."
+    - type: item
+      settings:
+        icon: "▣"
+        title: "Credenciales protegidas"
+        description: "Las contraseñas se almacenan como hashes. Los tokens de integraciones, la telemetría de IA y las credenciales de proveedores se protegen con cifrado en reposo."
+    - type: item
+      settings:
+        icon: "◌"
+        title: "Contenido y cookies"
+        description: "Aplicamos una política de seguridad de contenido y usamos cookies seguras en producción. La aplicación no incorpora cookies de analítica, publicidad ni píxeles de seguimiento."
+    - type: item
+      settings:
+        icon: "⌁"
+        title: "Límites de uso"
+        description: "Aplicamos límites de uso y medidas antispam en accesos sensibles y formularios públicos."
+    - type: item
+      settings:
+        icon: "↻"
+        title: "Mantenimiento"
+        description: "Revisamos y actualizamos dependencias y componentes como parte del mantenimiento del servicio."
   - type: security_process
     settings:
-      anchor: "correos"
-      kicker: "Procesamiento de correos"
-      title: "El correo se procesa. El movimiento es lo que conservamos."
-      description: "Cuando conectas una fuente de correo para identificar movimientos, el mensaje se recibe y se procesa temporalmente. No utilizamos esas tablas como un archivo histórico de tus correos."
-      note_title: "En pocas palabras"
-      note_text: "El contenido original se usa para extraer la información necesaria y se elimina de las tablas de procesamiento al terminar. Si el procesamiento falla, puede conservarse mientras se reintenta."
+      anchor: "procesamiento"
+      kicker: "CÓMO PROCESAMOS TU INFORMACIÓN"
+      title: "Transparencia en cada función"
+      description: "Algunas funcionalidades requieren procesar información para ofrecerte el servicio. Esto es lo que ocurre según la función que uses."
+      note_title: "Más detalle"
+      note_text: "La Política de privacidad explica los datos, proveedores y plazos de conservación aplicables."
     blocks:
     - type: step
       settings:
         number: "01"
-        title: "Recepción del correo"
-        description: "Yogasto recibe el contenido del mensaje que se necesita analizar para identificar un movimiento financiero."
+        title: "Gastos, ingresos y movimientos"
+        description: "La información financiera que registras se utiliza para organizar tus finanzas, generar informes, realizar análisis y ofrecer las funcionalidades del plan contratado."
     - type: step
       settings:
         number: "02"
-        title: "Almacenamiento temporal"
-        description: "El contenido del correo se guarda temporalmente en las tablas de procesamiento."
+        title: "Correos y Gmail"
+        description: "Cuando autorizas la integración, Yogasto puede recibir y procesar correos relacionados con movimientos financieros para identificar importes, comercios, fechas y otros datos. No usamos los sistemas de procesamiento como archivo permanente de tus correos."
     - type: step
       settings:
         number: "03"
-        title: "Extracción de información"
-        description: "Se identifican datos relevantes, como el importe, el comercio, la fecha y otros detalles del movimiento."
+        title: "WhatsApp"
+        description: "Cuando usas la integración de WhatsApp, los mensajes que envías pueden procesarse para identificar y registrar movimientos financieros. El procesamiento depende de la integración que autorices."
     - type: step
       settings:
         number: "04"
-        title: "Eliminación del contenido original"
-        description: "Al terminar el procesamiento, el contenido del correo se elimina de las tablas temporales."
+        title: "Archivos y extractos bancarios"
+        description: "Los archivos que cargas, incluidos extractos bancarios, se procesan para identificar movimientos y facilitar su incorporación a Yogasto. La carga y el procesamiento de extractos son funcionalidades del plan Pro."
     - type: step
       settings:
         number: "05"
-        title: "Conservación del movimiento"
-        description: "Se conservan los datos estructurados que necesitas para organizar y consultar tus finanzas en Yogasto."
+        title: "Inteligencia artificial"
+        description: "Algunas funciones utilizan proveedores externos de inteligencia artificial, como Mistral y OpenRouter, para interpretar información, clasificar movimientos y generar análisis. No todas las funciones de IA se ejecutan dentro de Yogasto."
+    - type: step
+      settings:
+        number: "06"
+        title: "Telemetría y registros de IA"
+        description: "Podemos conservar registros técnicos del procesamiento, incluidos prompts y respuestas, protegidos con cifrado en reposo, para operación, diagnóstico, seguimiento de errores y mejora del servicio."
   - type: security_data
     settings:
-      anchor: "datos"
-      kicker: "Información y mantenimiento"
-      title: "Qué guardamos y qué no"
-      description: "Queremos que tengas claridad sobre la diferencia entre el contenido que se procesa y la información que permanece en tu cuenta."
-      kept_title: "Información que conservamos"
-      not_kept_title: "Información que no almacenamos"
-      note_title: "Una aclaración"
-      note_text: "El contenido del correo sí pasa temporalmente por nuestros sistemas durante el procesamiento. La eliminación descrita corresponde a las tablas de procesamiento; las copias en registros técnicos, colas o respaldos deben evaluarse según la configuración de infraestructura."
+      anchor: "control"
+      kicker: "TU INFORMACIÓN Y TU CONTROL"
+      title: "Tú decides qué compartes y cuándo"
+      description: "Puedes consultar tu información, gestionar tus integraciones y ejercer tus derechos."
+      kept_title: "Puedes hacerlo desde tu cuenta"
+      not_kept_title: "Ten en cuenta"
+      note_title: "Transparencia"
+      note_text: "La Política de privacidad describe con más detalle el tratamiento de datos, la conservación y tus derechos."
     blocks:
     - type: item
       settings:
         column: "kept"
-        text: "Los datos estructurados de los movimientos que se extraen durante el procesamiento."
+        text: "Consultar y actualizar la información registrada en tu cuenta."
     - type: item
       settings:
         column: "kept"
-        text: "La información que registras y administras en tu cuenta de Yogasto."
+        text: "Gestionar y desconectar tus integraciones de Gmail, WhatsApp u otros servicios."
+    - type: item
+      settings:
+        column: "kept"
+        text: "Solicitar el ejercicio de tus derechos sobre datos personales escribiendo a hola@yogasto.co."
+    - type: item
+      settings:
+        column: "kept"
+        text: "Cerrar tu cuenta desde Perfil, con la opción de cierre de cuenta disponible allí."
     - type: item
       settings:
         column: "not_kept"
-        text: "El contenido original del correo como historial permanente: se elimina de las tablas de procesamiento una vez finaliza el procesamiento."
+        text: "Al cerrar la cuenta, se eliminan los datos asociados conforme a la Política de privacidad y a las obligaciones legales aplicables."
     - type: item
       settings:
         column: "not_kept"
-        text: "Los números ni los datos completos de tus tarjetas de crédito."
-  - type: security_practices
-    settings:
-      anchor: "practicas"
-      kicker: "Buenas prácticas"
-      title: "La seguridad también es un trabajo compartido"
-      description: "Algunas acciones sencillas ayudan a proteger el acceso a tu cuenta."
-    blocks:
+        text: "Las copias de seguridad pueden conservarse durante el ciclo técnico de respaldo y no desaparecen necesariamente de inmediato."
     - type: item
       settings:
-        icon: "🔐"
-        title: "Usa una contraseña segura"
-        description: "Elige una contraseña única y evita reutilizar la misma en otros servicios."
-    - type: item
-      settings:
-        icon: "🤝"
-        title: "No compartas tus credenciales"
-        description: "No envíes tu contraseña ni códigos de acceso por correo, chat o mensajes."
-    - type: item
-      settings:
-        icon: "👀"
-        title: "Desconfía de mensajes sospechosos"
-        description: "Verifica el origen de los mensajes que soliciten información personal o acceso a tu cuenta."
+        column: "not_kept"
+        text: "Algunos registros pueden conservarse cuando exista una obligación legal o una disputa."
   - type: security_faq
     settings:
-      anchor: "preguntas"
-      kicker: "Preguntas frecuentes"
-      title: "¿Tienes dudas sobre seguridad?"
-      description: "Respuestas sencillas sobre el uso de Yogasto y tu información."
+      anchor: "infraestructura"
+      kicker: "INFRAESTRUCTURA Y PROVEEDORES"
+      title: "Dónde se aloja y quiénes participan"
+      description: "Yogasto utiliza proveedores externos para prestar determinados servicios. Estas son las respuestas principales."
     blocks:
-    - type: question
-      settings:
-        question: "¿Yogasto puede mover el dinero de mis cuentas?"
-        answer: "Yogasto es una herramienta para organizar tus finanzas personales. No es una entidad financiera ni custodia tu dinero. Las funciones de conexión disponibles dependen de los permisos que autorices a cada servicio."
-    - type: question
-      settings:
-        question: "¿Yogasto guarda el contenido de mis correos?"
-        answer: "El contenido del correo se recibe y almacena temporalmente en las tablas de procesamiento. De allí se extraen los datos del movimiento y, una vez procesado, se elimina. Si el procesamiento falla, puede conservarse mientras se reintenta."
-    - type: question
-      settings:
-        question: "¿Yogasto almacena los datos de mi tarjeta de crédito?"
-        answer: "No almacenamos números ni datos completos de tarjetas de crédito. La información de pago se gestiona mediante el proveedor de pagos correspondiente."
     - type: question
       settings:
         question: "¿Dónde se aloja la información de Yogasto?"
-        answer: "La aplicación y la base de datos están alojadas en un servidor VPS de OVHcloud."
+        answer: "Yogasto se aloja en infraestructura de OVHcloud ubicada en Canadá."
     - type: question
       settings:
-        question: "¿Qué puedo hacer si detecto algo sospechoso?"
-        answer: "Si notas actividad que no reconoces o tienes dudas sobre el uso de tu cuenta, contacta a nuestro equipo de soporte para revisar tu reporte."
+        question: "¿Qué proveedores externos participan?"
+        answer: "Según las funciones que uses, pueden intervenir OVHcloud (alojamiento), ePayco (procesamiento de pagos), Mistral y OpenRouter (inteligencia artificial), Google/Gmail y Meta/WhatsApp (integraciones que autorizas) y Cloudflare (procesamiento de correo entrante). La Política de privacidad describe el detalle."
+    - type: question
+      settings:
+        question: "¿Yogasto guarda el contenido de mis correos?"
+        answer: "Cuando autorizas una integración de correo, el contenido se procesa para identificar movimientos. No utilizamos los sistemas de procesamiento como archivo histórico permanente: el contenido se elimina al terminar el procesamiento. Si el procesamiento falla, puede conservarse mientras se reintenta."
+    - type: question
+      settings:
+        question: "¿Qué pasa con las copias de seguridad?"
+        answer: "Yogasto realiza copias de seguridad automáticas para apoyar la recuperación ante incidentes técnicos. No prometemos recuperación inmediata ni un periodo específico de conservación. Las copias pueden conservarse después del cierre de una cuenta y no desaparecen necesariamente de forma instantánea."
+    - type: question
+      settings:
+        question: "¿Yogasto almacena los datos de mi tarjeta de crédito?"
+        answer: "No almacenamos números ni datos completos de tarjetas de crédito. El procesamiento de pagos está a cargo de ePayco."
+    - type: question
+      settings:
+        question: "¿Dónde puedo leer la Política de privacidad?"
+        answer: "Puedes consultar la <a href='/privacidad'>Política de privacidad</a> para conocer el detalle del tratamiento de datos, los proveedores y la conservación de la información."
+    - type: question
+      settings:
+        question: "¿Qué puedo hacer para proteger mi cuenta?"
+        answer: "Usa una contraseña única, no compartas tus credenciales ni códigos de acceso, desconfía de mensajes que soliciten información personal y activa passkeys o TOTP desde Perfil > Seguridad de la cuenta si tu dispositivo lo permite."
   - type: security_cta
     settings:
-      anchor: "contacto"
-      title: "¿Necesitas hablar con nosotros?"
-      description: "Si tienes una pregunta o quieres reportar algo relacionado con la seguridad, estamos para ayudarte."
-      cta: { link_type: "url", href: "/contact", text: "Contactar con Yogasto", open_new_window: false }
+      anchor: "reportar"
+      title: "¿Encontraste algo sospechoso?"
+      description: "Si detectas actividad inusual en tu cuenta, un posible acceso no autorizado o crees haber encontrado una vulnerabilidad de seguridad, comunícate con nosotros para que podamos revisar el caso."
+      cta: { link_type: "url", href: "mailto:hola@yogasto.co", text: "Escribir a hola@yogasto.co", open_new_window: false }
   - type: footer
 
 - title: "Términos y condiciones"

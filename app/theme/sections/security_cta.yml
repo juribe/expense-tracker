@@ -1,5 +1,5 @@
-# Dark closing call-to-action for the public security page.
-name: "CTA de seguridad"
+# Closing call-to-action for reporting security concerns.
+name: "Reportar un problema de seguridad"
 category: security
 singleton: true
 insert_button: true
@@ -8,17 +8,17 @@ settings:
 - label: "Ancla de la sección"
   id: anchor
   type: text
-  default: "contacto"
+  default: "reportar"
 - label: "Título"
   id: title
   type: text
-  default: "¿Necesitas hablar con nosotros?"
+  default: "¿Encontraste algo sospechoso?"
 - label: "Descripción"
   id: description
   type: text
-  default: "Si tienes una pregunta o quieres reportar algo relacionado con la seguridad, estamos para ayudarte."
+  default: "Si detectas actividad inusual en tu cuenta, un posible acceso no autorizado o crees haber encontrado una vulnerabilidad de seguridad, comunícate con nosotros para que podamos revisar el caso."
 - label: "Botón"
   id: cta
   type: link
   with_text: true
-  default: { link_type: "url", href: "/contact", text: "Contactar con Yogasto", open_new_window: false }
+  default: { link_type: "url", href: "mailto:hola@yogasto.co", text: "Escribir a hola@yogasto.co", open_new_window: false }

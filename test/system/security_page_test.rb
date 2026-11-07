@@ -20,6 +20,7 @@ class SecurityPageTest < ApplicationSystemTestCase
   test "el acordeón de preguntas frecuentes se abre con clic y teclado" do
     visit "/seguridad"
 
+    first("details summary").scroll_to(:center)
     first("details summary").click
     assert_selector "details[open]", count: 1
 
@@ -27,10 +28,10 @@ class SecurityPageTest < ApplicationSystemTestCase
     refute_selector "details[open]"
 
     second_summary = all("details summary")[1]
+    second_summary.scroll_to(:center)
     second_summary.send_keys(:return)
     assert_selector "details:nth-of-type(2)[open]", count: 1
   end
-
   test "en escritorio el proceso y las tarjetas usan columnas" do
     page.current_window.resize_to(1400, 1000)
     visit "/seguridad"
@@ -68,7 +69,7 @@ class SecurityPageTest < ApplicationSystemTestCase
       assert_equal 1, process_columns
 
       summary_height = page.evaluate_script(
-        "document.querySelector('#preguntas summary').getBoundingClientRect().height"
+        "document.querySelector('#infraestructura summary').getBoundingClientRect().height"
       )
       assert_operator summary_height, :>=, 48
     end
