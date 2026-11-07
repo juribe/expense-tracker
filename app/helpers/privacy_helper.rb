@@ -3,6 +3,12 @@
 #
 # Example: privacy_anchor(section_block)
 module PrivacyHelper
+  LEGAL_DOCUMENT_PATHS = %w[privacidad terminos-y-condiciones].freeze
+
+  def legal_document_page?(page)
+    LEGAL_DOCUMENT_PATHS.include?(page.path)
+  end
+
   PRIVACY_TAGS = %w[
     p br strong em b i u a ul ol li h2 h3 h4 blockquote code pre
     table thead tbody tr th td hr span

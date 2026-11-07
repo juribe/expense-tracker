@@ -84,7 +84,7 @@ class PublicCmsContactPageTest < ActionDispatch::IntegrationTest
     assert_select "footer.site-footer a[href='/contact']", minimum: 1
     assert_select "footer.site-footer a[href='/ayuda']", minimum: 1
     assert_select "footer.site-footer a[href='/privacidad']", minimum: 1
-    assert_select "footer.site-footer a[href='/terms']", minimum: 1
+    assert_select "footer.site-footer a[href='/terminos-y-condiciones']", minimum: 1
     assert_select "footer.site-footer a[href='/security']", minimum: 1
   end
 

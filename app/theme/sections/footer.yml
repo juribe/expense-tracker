@@ -111,7 +111,7 @@ sample:
     - type: link
       settings:
         label: "Términos y condiciones"
-        link: { link_type: "url", href: "/terms", open_new_window: false }
+        link: { link_type: "url", href: "/terminos-y-condiciones", open_new_window: false }
     - type: link
       settings:
         label: "Seguridad"

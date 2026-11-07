@@ -438,7 +438,7 @@ pages:
       - type: link
         settings: { label: "Política de privacidad", link: { link_type: "url", href: "/privacidad", open_new_window: false } }
       - type: link
-        settings: { label: "Términos y condiciones", link: { link_type: "url", href: "/terms", open_new_window: false } }
+        settings: { label: "Términos y condiciones", link: { link_type: "url", href: "/terminos-y-condiciones", open_new_window: false } }
       - type: link
         settings: { label: "Seguridad", link: { link_type: "url", href: "/security", open_new_window: false } }
       - type: link
@@ -626,29 +626,38 @@ pages:
   - type: footer
 
 - title: "Términos y condiciones"
-  path: "terms"
+  path: "terminos-y-condiciones"
   seo_title: "Términos y condiciones"
-  meta_description: "Términos y condiciones de uso de Yogasto."
+  meta_description: "Conoce las condiciones de uso de Yogasto, las reglas de nuestras membresías y tus derechos y responsabilidades al utilizar la plataforma."
   og_title: "Términos y condiciones"
-  og_description: "Términos y condiciones de uso de Yogasto."
+  og_description: "Reglas claras para usar Yogasto y entender tus derechos y responsabilidades."
   sections:
   - type: navbar
-  - type: institutional_hero
+  - type: privacy_document
     settings:
-      eyebrow: "Legal"
-      title: "Términos y condiciones"
-      description: "Las reglas que acompañan el uso de Yogasto."
-      note: ""
-      variant: "white"
-      show_art: false
-  - type: institutional_content
-    settings:
-      kicker: ""
-      title: "Estamos preparando este documento"
-      body: "Mientras publicamos la versión completa, si tienes preguntas sobre estos términos, escríbenos desde <a href='/contact'>Contáctanos</a>."
-      cta: { link_type: "url", href: "/contact", text: "Contáctanos", open_new_window: false }
-      variant: "plain"
-      align: "left"
+      eyebrow: "INFORMACIÓN LEGAL"
+      title: "Reglas claras para una mejor experiencia."
+      description: "Estos términos explican las condiciones para usar Yogasto, tus responsabilidades y los compromisos que asumimos para ofrecerte nuestro servicio."
+      last_updated: "6 de noviembre de 2026"
+      reading_time: "9 minutos"
+      reading_label: "Lectura aproximada: "
+      updated_label: "Última actualización: "
+      meta_order: "reading_first"
+      breadcrumb_parent_label: "Información legal"
+      breadcrumb_parent_url: ""
+      breadcrumb_current_label: "Términos y condiciones"
+      toc_label: "EN ESTA PÁGINA"
+      help_title: "¿Tienes alguna pregunta?"
+      help_text: "Estamos aquí para ayudarte."
+      help_link: { link_type: "url", href: "/contactanos", text: "Contactar con soporte", open_new_window: false }
+      intro: "Te recomendamos leer estos términos antes de crear una cuenta o utilizar las funcionalidades de Yogasto. Al registrarte, acceder o utilizar la plataforma, confirmas que has leído y aceptas estas condiciones."
+      notice_title: "Un punto importante"
+      notice_text: "Yogasto es una herramienta para organizar y comprender tus finanzas personales. No es una entidad financiera, no custodia tu dinero ni reemplaza el criterio de un profesional financiero, contable o tributario."
+      review_title: "Versión preliminar en revisión legal"
+      review_text: "Estamos completando los datos del titular, las condiciones definitivas de membresías y pagos y la información de contacto legal. No consideres esta versión como definitiva."
+      cta_title: "¿Necesitas que te ayudemos?"
+      cta_text: "Estamos aquí para resolver tus dudas sobre el uso de Yogasto."
+      cta_link: { link_type: "url", href: "/ayuda", text: "Visitar centro de ayuda", open_new_window: false }
   - type: footer
 
 # List of CSS class names used by your library of icons (font awesome, remixicons, ...etc)

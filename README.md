@@ -143,6 +143,13 @@ Maglev. It is currently a preliminary, noindex version with a legal review
 notice. Pending legal data, editorial instructions and publishing steps are
 documented in [docs/privacy_policy.md](docs/privacy_policy.md).
 
+### Terms and conditions
+
+The terms page lives at `/terminos-y-condiciones` and shares the Maglev legal
+document section with the privacy policy. It is also a preliminary, noindex
+version until legal data is confirmed. See
+[docs/terms_and_conditions.md](docs/terms_and_conditions.md).
+
 ### Local Speech-to-Text (faster-whisper)
 
 Audio notes in the Expense Playground are transcribed LOCALLY with

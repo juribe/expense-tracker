@@ -39,7 +39,7 @@
     <%= stylesheet_link_tag :home, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :institutional, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :help_center, "data-turbo-track": "reload" if help_center_page?(maglev_page) %>
-    <%= stylesheet_link_tag :privacy, "data-turbo-track": "reload" if maglev_page.path == "privacidad" %>
+    <%= stylesheet_link_tag :privacy, "data-turbo-track": "reload" if legal_document_page?(maglev_page) %>
     <%= yield :head %>
   </head>
   <body>
@@ -62,7 +62,7 @@
     <%= javascript_include_tag "home", defer: true %>
     <%= javascript_include_tag "contact_form", defer: true if maglev_page.path == "contact" %>
     <%= javascript_include_tag "help_center", defer: true if help_center_page?(maglev_page) %>
-    <%= javascript_include_tag "privacy", defer: true if maglev_page.path == "privacidad" %>
+    <%= javascript_include_tag "privacy", defer: true if legal_document_page?(maglev_page) %>
     <%= javascript_include_tag "flash", defer: true %>
   </body>
 </html>

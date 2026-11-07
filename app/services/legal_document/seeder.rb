@@ -1,9 +1,9 @@
-# PrivacyPolicy::Seeder
-# Creates or updates the Maglev privacy policy page from structured seed data.
+# LegalDocument::Seeder
+# Creates or updates a Maglev legal document page from structured seed data.
 # Existing editor content is preserved unless force: true is passed.
 #
-# Example: PrivacyPolicy::Seeder.new(site: site, data: PrivacyPolicySeed).call
-module PrivacyPolicy
+# Example: LegalDocument::Seeder.new(site: site, data: PrivacyPolicySeed).call
+module LegalDocument
   class Seeder
     def initialize(site:, data:)
       @site = site
@@ -74,6 +74,7 @@ module PrivacyPolicy
         "settings" => setting_pairs(
           anchor: definition[:anchor],
           title: definition[:title],
+          number: definition[:number],
           nav_label: definition[:nav_label],
           intro: definition[:intro]
         ),

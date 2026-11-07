@@ -9,7 +9,7 @@ class PublicCmsPrivacyPolicyTest < ActionDispatch::IntegrationTest
 
   setup do
     @site = create_maglev_site!
-    PrivacyPolicy::Seeder.new(site: @site, data: privacy_seed_data).call(force: true, publish: true)
+    LegalDocument::Seeder.new(site: @site, data: privacy_seed_data).call(force: true, publish: true)
   end
 
   test "la política se renderiza con hero, índice y doce secciones" do

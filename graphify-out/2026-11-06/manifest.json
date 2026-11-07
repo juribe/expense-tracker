@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794013565.4728205,
-    "seen": 1794013644.27245,
+    "mtime": 1794013713.1412883,
+    "seen": 1794013813.588497,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -9000,9 +9000,9 @@
     "semantic_hash": ""
   },
   "app/services/privacy_policy/link_sync.rb": {
-    "mtime": 1794012663.0067136,
-    "seen": 1794013529.615398,
-    "ast_hash": "dd41e09fa5be19b32d772dc2e8eb5b6d",
+    "mtime": 1794013657.897337,
+    "seen": 1794013813.587134,
+    "ast_hash": "598e565693e1b5efe87259083ead0335",
     "semantic_hash": ""
   },
   "app/services/privacy_policy/seeder.rb": {

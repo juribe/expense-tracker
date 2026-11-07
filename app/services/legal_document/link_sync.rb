@@ -1,17 +1,19 @@
-# PrivacyPolicy::LinkSync
-# Updates shared navigation links from /privacy to /privacidad, retires the
-# legacy page and publishes the site sections.
-module PrivacyPolicy
+# LegalDocument::LinkSync
+# Updates shared navigation links from a legacy legal path to its new path,
+# retires the legacy page and publishes the site sections.
+module LegalDocument
   class LinkSync
-    def initialize(site:)
+    def initialize(site:, legacy_path:, new_path:)
       @site = site
+      @legacy_path = legacy_path
+      @new_path = new_path
     end
 
     def call
       Maglev::I18n.with_locale(@site.default_locale_prefix) do
         ActiveRecord::Base.transaction do
           sections = @site.sections || []
-          replace_privacy_links(sections)
+          replace_links(sections)
           @site.sections = sections
           @site.save!
 
@@ -24,13 +26,21 @@ module PrivacyPolicy
 
     private
 
-    def replace_privacy_links(node)
+    def legacy_href
+      "/#{@legacy_path}"
+    end
+
+    def new_href
+      "/#{@new_path}"
+    end
+
+    def replace_links(node)
       case node
       when Hash
-        node["href"] = "/privacidad" if node["href"] == "/privacy"
-        node.each_value { |value| replace_privacy_links(value) }
+        node["href"] = new_href if node["href"] == legacy_href
+        node.each_value { |value| replace_links(value) }
       when Array
-        node.each { |value| replace_privacy_links(value) }
+        node.each { |value| replace_links(value) }
       end
     end
 
@@ -39,18 +49,18 @@ module PrivacyPolicy
       return if page.nil?
 
       sections = page.sections || []
-      replace_privacy_links(sections)
+      replace_links(sections)
       page.update!(sections: sections)
       Maglev::PublishService.call(site: @site, page: page)
     end
 
     def retire_legacy_page
-      page = Maglev::Page.by_path("privacy").first
+      page = Maglev::Page.by_path(@legacy_path).first
       page&.update!(visible: false)
     end
 
     def publish_site
-      page = Maglev::Page.by_path("privacidad").first || Maglev::Page.by_path("index").first
+      page = Maglev::Page.by_path(@new_path).first || Maglev::Page.by_path("index").first
       Maglev::PublishService.call(site: @site, page: page) if page
     end
   end

@@ -1,54 +1,12 @@
 # frozen_string_literal: true
 
+require_relative "legal_document_helpers"
+
 # Initial content for the Maglev privacy policy. This is a preliminary draft:
 # fields that need confirmation from the Yogasto owner are explicitly marked.
 # The page is created without publishing by default.
 module PrivacyPolicySeed
-  module_function
-
-  def text(html)
-    { type: "privacy_text", text: html }
-  end
-
-  def list(items, ordered: false)
-    { type: "privacy_list", ordered: ordered, items: items }
-  end
-
-  def cards(items, columns: "two")
-    { type: "privacy_cards", columns: columns, items: items }
-  end
-
-  def card(icon:, title:, text:)
-    { icon: icon, title: title, text: text }
-  end
-
-  def callout(title, text, variant = "note")
-    { type: "privacy_callout", title: title, text: text, variant: variant }
-  end
-
-  def providers(items)
-    { type: "privacy_providers", items: items }
-  end
-
-  def provider(name:, service_type:, purpose:, data:, policy_url: "")
-    {
-      name: name,
-      service_type: service_type,
-      purpose: purpose,
-      data: data,
-      policy_url: policy_url
-    }
-  end
-
-  def section(anchor:, title:, nav_label: nil, intro: nil, children: [])
-    {
-      anchor: anchor,
-      title: title,
-      nav_label: nav_label,
-      intro: intro,
-      children: children
-    }
-  end
+  extend LegalDocumentHelpers
 
   PAGE = {
     title: "Política de privacidad",
@@ -66,6 +24,12 @@ module PrivacyPolicySeed
     description: "Queremos que tengas claridad sobre qué información utilizamos, para qué la usamos y qué opciones tienes para mantener el control de tus datos.",
     last_updated: "6 de noviembre de 2026",
     reading_time: "8 minutos",
+    reading_label: "Lectura: ",
+    updated_label: "Última actualización: ",
+    meta_order: "updated_first",
+    breadcrumb_parent_label: "Centro de ayuda",
+    breadcrumb_parent_url: "/ayuda",
+    breadcrumb_current_label: "Política de privacidad",
     toc_label: "EN ESTA POLÍTICA",
     help_title: "¿Tienes preguntas sobre tus datos?",
     help_text: "Escríbenos y te ayudaremos a resolverlas.",

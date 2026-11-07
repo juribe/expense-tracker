@@ -8,8 +8,7 @@ class PublicCmsInstitutionalPagesTest < ActionDispatch::IntegrationTest
   include PublicCmsTestSupport
 
   INSTITUTIONAL_PAGES = {
-    "/security" => "Seguridad",
-    "/terms" => "Términos y condiciones"
+    "/security" => "Seguridad"
   }.freeze
 
   setup do
@@ -41,7 +40,7 @@ class PublicCmsInstitutionalPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "las páginas institucionales y el Centro de ayuda existen en Maglev" do
-    %w[ayuda privacidad security terms].each do |path|
+    %w[ayuda privacidad terminos-y-condiciones security].each do |path|
       assert_not_nil Maglev::Page.by_path(path).first, "Falta la página Maglev #{path}"
     end
   end
@@ -49,7 +48,7 @@ class PublicCmsInstitutionalPagesTest < ActionDispatch::IntegrationTest
   test "el footer compartido conserva los enlaces institucionales" do
     get "https://yogasto.co/contact"
 
-    %w[/contact /ayuda /privacidad /terms /security].each do |href|
+    %w[/contact /ayuda /privacidad /terminos-y-condiciones /security].each do |href|
       assert_select "footer.site-footer a[href='#{href}']", minimum: 1
     end
   end

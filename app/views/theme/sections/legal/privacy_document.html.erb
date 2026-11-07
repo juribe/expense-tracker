@@ -1,20 +1,36 @@
 <% sections = maglev_section.blocks.select { |block| block.type == "privacy_section" } %>
+<% breadcrumb_parent_label = maglev_section.settings.breadcrumb_parent_label.presence || "Centro de ayuda" %>
+<% breadcrumb_parent_url = maglev_section.settings.breadcrumb_parent_url.presence || "/ayuda" %>
+<% breadcrumb_current_label = maglev_section.settings.breadcrumb_current_label.presence || "Política de privacidad" %>
+<% reading_label = maglev_section.settings.reading_label.presence || "Lectura: " %>
+<% updated_label = maglev_section.settings.updated_label.presence || "Última actualización: " %>
+<% reading_meta = capture { tag.span("#{reading_label}#{maglev_section.settings.reading_time}") } %>
+<% updated_meta = capture { tag.span("◷ #{updated_label}#{maglev_section.settings.last_updated}") } %>
 <section class="privacy-hero">
   <div class="privacy-wrap">
     <nav class="privacy-crumb" aria-label="Ruta de navegación">
       <a href="/">Inicio</a>
       <span aria-hidden="true">›</span>
-      <a href="/ayuda">Centro de ayuda</a>
+      <% if breadcrumb_parent_url.present? %>
+        <a href="<%= breadcrumb_parent_url %>"><%= breadcrumb_parent_label %></a>
+      <% else %>
+        <span><%= breadcrumb_parent_label %></span>
+      <% end %>
       <span aria-hidden="true">›</span>
-      <span aria-current="page">Política de privacidad</span>
+      <span aria-current="page"><%= breadcrumb_current_label %></span>
     </nav>
 
     <div class="privacy-pill"><span aria-hidden="true">●</span> <%= maglev_section.settings.eyebrow %></div>
     <h1 class="privacy-title"><%= privacy_sanitize_inline(maglev_section.settings.title) %></h1>
     <p class="privacy-lead"><%= privacy_sanitize_inline(maglev_section.settings.description) %></p>
     <div class="privacy-meta">
-      <span>◷ Última actualización: <%= maglev_section.settings.last_updated %></span>
-      <span>Lectura: <%= maglev_section.settings.reading_time %></span>
+      <% if maglev_section.settings.meta_order.to_s == "reading_first" %>
+        <%= reading_meta %>
+        <%= updated_meta %>
+      <% else %>
+        <%= updated_meta %>
+        <%= reading_meta %>
+      <% end %>
     </div>
   </div>
 </section>
@@ -24,11 +40,15 @@
     <p class="privacy-side__label"><%= maglev_section.settings.toc_label %></p>
     <nav class="privacy-toc" aria-label="Índice de la política" data-privacy-toc>
       <% sections.each_with_index do |section, index| %>
-        <%= tag.a privacy_nav_label(section),
-                  href: "##{privacy_anchor(section)}",
+        <%= tag.a href: "##{privacy_anchor(section)}",
                   data: { privacy_toc_link: privacy_anchor(section) },
                   aria: { current: index.zero? ? "true" : nil },
-                  class: ("is-active" if index.zero?) %>
+                  class: ("is-active" if index.zero?) do %>
+          <% if section.settings.number.present? %>
+            <span class="privacy-toc__num" aria-hidden="true"><%= section.settings.number %></span>
+          <% end %>
+          <span><%= privacy_nav_label(section) %></span>
+        <% end %>
       <% end %>
     </nav>
 
@@ -74,7 +94,12 @@
                class="privacy-section"
                data-privacy-section
                data-privacy-anchor="<%= privacy_anchor(section) %>">
-        <h2><%= privacy_sanitize_inline(section.settings.title) %></h2>
+        <h2>
+          <% if section.settings.number.present? %>
+            <span class="privacy-section__number"><%= section.settings.number %></span>
+          <% end %>
+          <%= privacy_sanitize_inline(section.settings.title) %>
+        </h2>
         <% if section.settings.intro.present? %>
           <p class="privacy-section__intro"><%= privacy_sanitize_inline(section.settings.intro) %></p>
         <% end %>

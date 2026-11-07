@@ -8,4 +8,11 @@ module PrivacyPolicyTestSupport
     load Rails.root.join("db/seeds/privacy_policy.rb")
     PrivacyPolicySeed
   end
+
+  def terms_seed_data
+    TermsAndConditionsSeed
+  rescue NameError
+    load Rails.root.join("db/seeds/terms_and_conditions.rb")
+    TermsAndConditionsSeed
+  end
 end

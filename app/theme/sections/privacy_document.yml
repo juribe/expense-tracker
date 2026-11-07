@@ -2,7 +2,7 @@
 # root blocks are the 12 policy sections. The table of contents is generated
 # from those blocks, so renaming, adding, removing or reordering sections in
 # the editor updates the navigation automatically.
-name: "Política de privacidad"
+name: "Documento legal"
 category: legal
 singleton: true
 insert_button: true
@@ -33,6 +33,34 @@ settings:
   id: reading_time
   type: text
   default: "8 minutos"
+- label: "Etiqueta de lectura"
+  id: reading_label
+  type: text
+  default: "Lectura: "
+- label: "Etiqueta de actualización"
+  id: updated_label
+  type: text
+  default: "Última actualización: "
+- label: "Orden de los metadatos"
+  id: meta_order
+  type: select
+  select: ["updated_first", "reading_first"]
+  default: "updated_first"
+- label: "— Migas de pan"
+  id: breadcrumb_divider
+  type: divider
+- label: "Texto del enlace anterior"
+  id: breadcrumb_parent_label
+  type: text
+  default: "Centro de ayuda"
+- label: "URL del enlace anterior (vacío para texto simple)"
+  id: breadcrumb_parent_url
+  type: text
+  default: "/ayuda"
+- label: "Texto de la página actual"
+  id: breadcrumb_current_label
+  type: text
+  default: "Política de privacidad"
 - label: "— Índice y aviso"
   id: toc_divider
   type: divider
@@ -103,6 +131,10 @@ blocks:
     id: title
     type: text
     default: "Título de la sección"
+  - label: "Número (opcional, ej. 01)"
+    id: number
+    type: text
+    default: ""
   - label: "Etiqueta corta para el índice (opcional)"
     id: nav_label
     type: text

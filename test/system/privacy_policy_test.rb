@@ -9,7 +9,7 @@ class PrivacyPolicyTest < ApplicationSystemTestCase
 
   setup do
     @site = create_maglev_site!
-    PrivacyPolicy::Seeder.new(site: @site, data: privacy_seed_data).call(force: true, publish: true)
+    LegalDocument::Seeder.new(site: @site, data: privacy_seed_data).call(force: true, publish: true)
     page.current_window.resize_to(1400, 1000)
   end
 
