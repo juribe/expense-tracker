@@ -70,7 +70,7 @@ module PrivacyPolicySeed
           card(icon: "▤", title: "Información financiera", text: "Gastos, ingresos, categorías, presupuestos, cuentas, tarjetas, deudas, movimientos, saldos y reportes que registres."),
           card(icon: "✎", title: "Contenido que compartes", text: "Textos, mensajes, archivos, documentos, imágenes y audios que envíes a las funciones que los procesan."),
           card(icon: "◌", title: "Datos de uso", text: "Interacciones con la aplicación, registros técnicos, información del dispositivo o navegador cuando se reciba y diagnósticos de errores."),
-          card(icon: "⇄", title: "Integraciones", text: "Datos necesarios para activar funciones que conectes voluntariamente, como Gmail, correo de reenvío, WhatsApp o el servidor MCP."),
+          card(icon: "⇄", title: "Integraciones", text: "Datos necesarios para activar funciones que conectes voluntariamente, como Gmail, correo de reenvío, WhatsApp o asistentes de inteligencia artificial."),
           card(icon: "▣", title: "Membresías y pagos", text: "Plan, estado de la membresía, historial de transacciones y referencias del proveedor de pagos. No almacenamos el número completo de las tarjetas; ePayco procesa los datos de pago.")
         ]),
         text("<p>No necesitas conectar servicios externos para utilizar las funciones básicas de Yogasto. Las integraciones opcionales se activan por decisión tuya.</p>")
@@ -158,7 +158,7 @@ module PrivacyPolicySeed
             data: "Contenido y metadatos de los correos que reenvías."
           )
         ]),
-        text("<p>Yogasto utiliza proveedores externos de infraestructura tecnológica para alojar la plataforma y almacenar la información de sus usuarios. Actualmente, estos servicios son proporcionados por OVHcloud, cuyos servidores se encuentran ubicados en Canadá.</p><p>Se realizan copias de seguridad automáticas para contribuir a la protección y disponibilidad de la información. Los proveedores tecnológicos pueden tratar datos personales en el marco de los servicios contratados y conforme a las condiciones y acuerdos de tratamiento aplicables.</p>"),
+        text("<p>Yogasto utiliza proveedores externos de infraestructura tecnológica para alojar la plataforma y almacenar la información de sus usuarios. Actualmente, estos servicios son proporcionados por OVHcloud, cuya infraestructura se encuentra ubicada en Canadá.</p><p>Se realizan copias de seguridad automáticas para contribuir a la protección y disponibilidad de la información. Los proveedores tecnológicos pueden tratar datos personales en el marco de los servicios contratados y conforme a las condiciones y acuerdos de tratamiento aplicables.</p>"),
         text("<p>También podremos comunicar información cuando exista una obligación legal válida o sea necesario para proteger derechos, usuarios o la seguridad del servicio.</p>")
       ]
     ),
@@ -169,15 +169,15 @@ module PrivacyPolicySeed
       intro: "Aplicamos medidas técnicas y organizativas razonables para proteger la información frente al acceso, uso, modificación o divulgación no autorizados.",
       children: [
         list([
-          "Autenticación de usuarios con Devise y contraseñas protegidas mediante bcrypt.",
+          "Inicio de sesión con autenticación y contraseñas protegidas; no almacenamos contraseñas en texto plano.",
           "HTTPS y cookies seguras en producción.",
-          "Política de seguridad de contenido (CSP) y controles de acceso.",
+          "Controles de acceso y una política de seguridad de contenido para reducir riesgos en la interfaz.",
           "Cifrado en reposo de tokens de Gmail, telemetría de IA y credenciales de proveedores.",
           "Límites de uso y medidas antispam en formularios públicos.",
           "Registros técnicos para diagnóstico y prevención de abuso."
         ]),
         text("<p>Ningún sistema conectado a Internet puede garantizar seguridad absoluta. No afirmamos certificaciones, auditorías independientes ni garantías de riesgo cero.</p>"),
-        text("<p>Consulta también nuestra <a href='/security'>página de Seguridad</a> para conocer más sobre las prácticas disponibles.</p>")
+        text("<p>Consulta también nuestra <a href='/seguridad'>página de Seguridad</a> para conocer más sobre las prácticas disponibles.</p>")
       ]
     ),
     section(

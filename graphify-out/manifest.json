@@ -9000,9 +9000,9 @@
     "semantic_hash": ""
   },
   "db/seeds/privacy_policy.rb": {
-    "mtime": 1794073793.8158855,
-    "seen": 1794073897.787943,
-    "ast_hash": "4d4f60947bce2b0fee7dbf4b8868e4e2",
+    "mtime": 1794083469.1966505,
+    "seen": 1794083597.2820742,
+    "ast_hash": "860ddd0ccb3f5ecc911046472681d36c",
     "semantic_hash": ""
   },
   "lib/tasks/privacy_policy.rake": {
@@ -9414,9 +9414,9 @@
     "semantic_hash": ""
   },
   "docs/security_page_audit.md": {
-    "mtime": 1794082870.003056,
-    "seen": 1794082991.69536,
-    "ast_hash": "766de424f697eab58021774d07981cf2",
+    "mtime": 1794083038.263062,
+    "seen": 1794083597.283214,
+    "ast_hash": "70d0ca0cc23c75a0151afd961258dfa3",
     "semantic_hash": ""
   }
 }
