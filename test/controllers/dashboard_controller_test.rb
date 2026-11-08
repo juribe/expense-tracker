@@ -137,7 +137,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get dashboard_path
 
     assert_response :success
-    assert_includes response.body, "Transacciones"
+    assert_includes response.body, "Dinero en cuentas"
     refute_includes response.body, "Gastos del periodo seleccionado"
     refute_includes response.body, "{:title=>"
   end
