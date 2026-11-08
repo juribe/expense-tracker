@@ -78,9 +78,9 @@
     "semantic_hash": "fba18fb177f1817d9eb01ed7a248bb25"
   },
   "app/controllers/monthly_reports_controller.rb": {
-    "mtime": 1792635587.9246666,
-    "seen": 1793490696.63439,
-    "ast_hash": "40e7c437204cff5e81851b4be99d936a",
+    "mtime": 1794177865.9145336,
+    "seen": 1794177908.011601,
+    "ast_hash": "8589519a2616f5436ecb18b92107b358",
     "semantic_hash": ""
   },
   "app/controllers/recurring_templates_controller.rb": {
@@ -678,9 +678,9 @@
     "semantic_hash": ""
   },
   "playwright/monthly-reports.spec.js": {
-    "mtime": 1792715001.6348376,
-    "seen": 1793490696.635134,
-    "ast_hash": "d0c71391d3cf885fbc850912a82470d0",
+    "mtime": 1794177833.7865782,
+    "seen": 1794177908.012983,
+    "ast_hash": "ef316c60939b881dc04246224082923b",
     "semantic_hash": ""
   },
   "playwright/page-ai_powered_expense_entry-working.spec.js": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794174613.982633,
-    "seen": 1794174756.555383,
-    "ast_hash": "9b135c8573d40ff7e97602ab70156115",
+    "mtime": 1794177618.8807933,
+    "seen": 1794177908.0137742,
+    "ast_hash": "e9d2c829fab7ca0a6d7bf044011cb1f1",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794175555.4212167,
-    "seen": 1794175701.016362,
+    "mtime": 1794175989.4336255,
+    "seen": 1794177908.013782,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1464,9 +1464,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1794175122.2605453,
-    "seen": 1794175701.015446,
-    "ast_hash": "ddfa952a8a27d71db5b009e38de4154b",
+    "mtime": 1794177382.154289,
+    "seen": 1794177908.013055,
+    "ast_hash": "c2a6f4b828c7cdea7e80046b809aee3f",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
@@ -3384,9 +3384,9 @@
     "semantic_hash": ""
   },
   "app/controllers/reports/money_sources_controller.rb": {
-    "mtime": 1791048017.130885,
-    "seen": 1793490696.634409,
-    "ast_hash": "5b08baad21fbcd63eba1a92373241348",
+    "mtime": 1794176923.8463373,
+    "seen": 1794177908.0116339,
+    "ast_hash": "705aba77aecac61ce241789faba44b9d",
     "semantic_hash": ""
   },
   "app/controllers/reports/overview_controller.rb": {
@@ -3768,9 +3768,9 @@
     "semantic_hash": ""
   },
   "test/helpers/reports_helper_test.rb": {
-    "mtime": 1794174281.665707,
-    "seen": 1794174756.55473,
-    "ast_hash": "f0637aff89841cf44afcf5e8cbb274f0",
+    "mtime": 1794175786.8198612,
+    "seen": 1794177908.013152,
+    "ast_hash": "c5f3a34c89191d94a46b80290595db71",
     "semantic_hash": ""
   },
   "test/models/recurring_template_test.rb": {
@@ -4746,9 +4746,9 @@
     "semantic_hash": ""
   },
   "test/controllers/monthly_reports_controller_test.rb": {
-    "mtime": 1792635576.233853,
-    "seen": 1793490696.635221,
-    "ast_hash": "3468dbc461124f398d3773eb98e72fcd",
+    "mtime": 1794177655.1444933,
+    "seen": 1794177908.0130959,
+    "ast_hash": "b68e697615ec5b7236e61737c67383de",
     "semantic_hash": ""
   },
   "test/services/expense_resolver/amounts/service_test.rb": {

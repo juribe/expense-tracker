@@ -354,8 +354,8 @@ es:
       recurring_templates-show: "Detalle del recurrente"
       monthly_incomes-index: "Ingresos mensuales"
       monthly_expenses-index: "Gastos mensuales"
-      monthly_reports-index: "Balance mensual"
-      monthly_reports-show: "Balance mensual"
+      monthly_reports-index: "Balance del ciclo"
+      monthly_reports-show: "Balance del ciclo"
 
       # Reportes
       reports-index: "Reportes financieros"
@@ -2177,16 +2177,18 @@ es:
     import_failed: "La importación falló: %{message}"
 
   reports:
-    monthly_balance: "Balance mensual"
-    income_vs_expense: "Ingresos y gastos por mes"
+    monthly_balance: "Balance del ciclo"
+    monthly_balance_subtitle: "Ingresos, gastos y resultado neto de cada ciclo."
+    monthly_balance_cycle: "Ciclo"
+    income_vs_expense: "Ingresos y gastos por ciclo"
     month: "Mes"
     net: "Neto"
     transactions: "Transacciones"
     view_details: "Ver detalles"
     no_transactions: "Aún no hay transacciones registradas."
-    no_month_transactions: "No hay transacciones para este mes."
+    no_month_transactions: "No hay transacciones para este ciclo."
     summary: "Resumen"
-    back: "Volver a reportes mensuales"
+    back: "Volver al balance del ciclo"
     uncategorized: "Sin categoría"
     title: "Informes"
     transactions:

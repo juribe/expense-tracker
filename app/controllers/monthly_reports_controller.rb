@@ -1,50 +1,30 @@
 # frozen_string_literal: true
 
-class MonthlyReportsController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_monthly_report, only: [:show]
-
+# MonthlyReportsController
+# GET /monthly_reports — "Balance del ciclo": income, expenses and net result
+# for each financial cycle covered by the period selected in the shared
+# reports period picker. Without a configured financial cycle the cycles are
+# plain calendar months.
+class MonthlyReportsController < Reports::BaseController
   def index
-    income_rows = current_user.incomes
-      .select("TO_CHAR(date, 'YYYY-MM') as month, SUM(amount) as income_total, COUNT(*) as income_count")
-      .group("TO_CHAR(date, 'YYYY-MM')")
-      .index_by(&:month)
-
-    expense_rows = current_user.expenses
-      .select("TO_CHAR(date, 'YYYY-MM') as month, SUM(amount) as expense_total, COUNT(*) as expense_count")
-      .group("TO_CHAR(date, 'YYYY-MM')")
-      .index_by(&:month)
-
-    months = (income_rows.keys + expense_rows.keys).uniq.sort.reverse
-
-    @monthly_summary = months.map do |month|
-      income_row = income_rows[month]
-      expense_row = expense_rows[month]
-      income_total = income_row&.income_total.to_d
-      expense_total = expense_row&.expense_total.to_d
-
-      {
-        month: month,
-        income_total: income_total,
-        expense_total: expense_total,
-        net_total: income_total + expense_total,
-        count: income_row&.income_count.to_i + expense_row&.expense_count.to_i
-      }
-    end
+    @cycles = PayCycle.cycles_between(current_user, @period.range).map { |cycle| cycle_summary(cycle) }
   end
 
   def show
+    @range = range_for(params[:id])
     @incomes = current_user.incomes
       .includes(:category)
-      .where("TO_CHAR(date, 'YYYY-MM') = ?", @month)
+      .where(date: @range)
       .order(date: :desc)
 
     @expenses = current_user.expenses
       .includes(:category)
-      .where("TO_CHAR(date, 'YYYY-MM') = ?", @month)
+      .where(date: @range)
       .order(date: :desc)
 
-    @transactions = (@incomes.to_a + @expenses.to_a).sort_by { |record| [record.date, record.created_at || Time.at(0)] }.reverse
+    @transactions = (@incomes.to_a + @expenses.to_a)
+                    .sort_by { |record| [ record.date, record.created_at || Time.at(0) ] }
+                    .reverse
     @income_total = @incomes.sum(:amount)
     @expense_total = @expenses.sum(:amount)
     @net_total = @income_total + @expense_total
@@ -52,7 +32,26 @@ class MonthlyReportsController < ApplicationController
 
   private
 
-  def set_monthly_report
-    @month = params[:id]
+  # A stale or hand-typed period key must never break the report.
+  def range_for(key)
+    PayCycle.key_range(current_user, key)
+  rescue ArgumentError, Date::Error
+    PayCycle.current(current_user).to_range
+  end
+
+  def cycle_summary(cycle)
+    range = cycle.to_range
+    income_total = @report_filters.income_scope(range).sum(:amount).to_d
+    expense_total = @report_filters.expense_scope(range).sum(:amount).to_d
+
+    {
+      key: PayCycle.period_for(current_user, cycle.starts).first,
+      label: cycle.label,
+      range_label: cycle.range_label,
+      income_total: income_total,
+      expense_total: expense_total,
+      net_total: income_total + expense_total,
+      count: @report_filters.income_scope(range).count + @report_filters.expense_scope(range).count
+    }
   end
 end

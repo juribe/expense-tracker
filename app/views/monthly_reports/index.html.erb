@@ -1,47 +1,54 @@
-<%= render "shared/page_header", title: t("reports.monthly_balance", default: "Balance mensual") %>
+<%= render "reports/page_header",
+           title: t("reports.monthly_balance", default: "Balance del ciclo"),
+           subtitle: t("reports.monthly_balance_subtitle", default: "Ingresos, gastos y resultado neto de cada ciclo."),
+           path: monthly_reports_path,
+           filters: false %>
 
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0"><%= t("reports.income_vs_expense", default: "Ingresos y gastos por mes") %></h5>
-        </div>
-        <div class="card-body">
-          <% if @monthly_summary.any? %>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-light">
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><%= t("reports.income_vs_expense", default: "Ingresos y gastos por ciclo") %></h5>
+      </div>
+      <div class="card-body">
+        <% if @cycles.any? { |cycle| cycle[:count].positive? } %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" data-testid="monthly-balance-table">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col"><%= t("reports.monthly_balance_cycle", default: "Ciclo") %></th>
+                  <th scope="col" class="text-end"><%= t("types.income_plural") %></th>
+                  <th scope="col" class="text-end"><%= t("types.expense_plural") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.net", default: "Neto") %></th>
+                  <th scope="col" class="text-end"><%= t("reports.transactions.title", default: "Transacciones") %></th>
+                  <th scope="col"><%= t("common.actions") %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @cycles.each do |cycle| %>
                   <tr>
-                    <th scope="col"><%= t("reports.month") %></th>
-                    <th scope="col" class="text-end"><%= t("types.income_plural") %></th>
-                    <th scope="col" class="text-end"><%= t("types.expense_plural") %></th>
-                    <th scope="col" class="text-end"><%= t("reports.net", default: "Neto") %></th>
-                    <th scope="col" class="text-end"><%= t("reports.transactions.title", default: "Transacciones") %></th>
-                    <th scope="col"><%= t("common.actions") %></th>
+                    <td>
+                      <div class="fw-semibold"><%= cycle[:label] %></div>
+                      <div class="text-muted small"><%= cycle[:range_label] %></div>
+                    </td>
+                    <td class="text-end text-success"><%= number_to_currency(cycle[:income_total]) %></td>
+                    <td class="text-end text-danger"><%= number_to_currency(cycle[:expense_total]) %></td>
+                    <td class="text-end fw-bold <%= cycle[:net_total].negative? ? 'text-danger' : 'text-success' %>">
+                      <%= number_to_currency(cycle[:net_total]) %>
+                    </td>
+                    <td class="text-end"><%= cycle[:count] %></td>
+                    <td>
+                      <%= link_to t("reports.view_details", default: "Ver detalles"), monthly_report_path(cycle[:key]), class: "btn btn-sm btn-primary" %>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  <% @monthly_summary.each do |report| %>
-                    <tr>
-                      <td><%= report[:month] %></td>
-                      <td class="text-end text-success"><%= number_to_currency(report[:income_total]) %></td>
-                      <td class="text-end text-danger"><%= number_to_currency(report[:expense_total]) %></td>
-                      <td class="text-end fw-bold <%= report[:net_total].negative? ? 'text-danger' : 'text-success' %>">
-                        <%= number_to_currency(report[:net_total]) %>
-                      </td>
-                      <td class="text-end"><%= report[:count] %></td>
-                      <td>
-                        <%= link_to t("reports.view_details", default: "Ver detalles"), monthly_report_path(report[:month]), class: "btn btn-sm btn-primary" %>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-          <% else %>
-            <p><%= t("reports.no_transactions", default: "Aún no hay transacciones registradas.") %></p>
-          <% end %>
-        </div>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p><%= t("reports.no_transactions", default: "Aún no hay transacciones registradas.") %></p>
+        <% end %>
       </div>
     </div>
   </div>
+</div>
