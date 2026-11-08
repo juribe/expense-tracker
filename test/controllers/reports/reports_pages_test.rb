@@ -150,6 +150,47 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select "tfoot td", text: "$300.000"
   end
 
+  test "GET /reports/budgets renders the budget control panel" do
+    @category.update_column(:icon, "ti-chef-hat")
+    Budget.create!(user: @user, category: @category, monthly_amount: 1_000_000)
+    @user.expenses.create!(amount: -550_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "x")
+
+    get reports_budgets_path(period: "this_month")
+
+    assert_response :success
+    assert_select "h1", text: "Presupuesto vs. gasto"
+    assert_select "[data-testid=budget-metrics] .budget-metric", count: 4
+    assert_select "[data-testid=budget-metric-budget]", text: /\$1\.000\.000/
+    assert_select "[data-testid=budget-metric-actual]", text: /\$550\.000/
+    assert_select "[data-testid=budget-metric-remaining]", text: /\$450\.000/
+    assert_select "[data-testid=budget-metric-usage]", text: /55/
+    assert_select "i.ti-chef-hat"
+    assert_select "[data-testid=budget-view-table]"
+    assert_select "[data-testid=budget-view-chart]"
+    assert_select "[data-testid=budget-chart-view] #budget-vs-actual-chart"
+  end
+
+  test "GET /reports/budgets keeps unbudgeted spending in its own section" do
+    other = Category.create!(name: "Educación", is_default: true, category_type: "expense",
+                             icon: "ti-school")
+    Budget.create!(user: @user, category: @category, monthly_amount: 1_000_000)
+    @user.expenses.create!(amount: -100_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "budgeted")
+    @user.expenses.create!(amount: -250_000, date: Date.current, category: other,
+                           money_source: @bank, description: "unbudgeted")
+
+    get reports_budgets_path(period: "this_month")
+
+    assert_response :success
+    assert_select "[data-testid=budget-unbudgeted]" do
+      assert_select "i.ti-school"
+      assert_select "td, .budget-unbudgeted-amount", text: /\$250\.000/
+      assert_select "[data-testid=budget-unbudgeted-total]", text: /\$250\.000/
+    end
+    assert_select "[data-testid=budget-metric-budget]", text: /\$1\.000\.000/
+  end
+
   test "GET /reports/credit_cards renders" do
     get reports_credit_cards_path
     assert_response :success

@@ -59,4 +59,36 @@ class ReportsHelperTest < ActionView::TestCase
     assert_equal "-20%", available_cycle_percentage(-2_000_000, 10_000_000)
     assert_equal "—", available_cycle_percentage(1, 0)
   end
+
+  test "budget usage levels follow the 75 and 90 percent thresholds" do
+    assert_equal :safe, budget_usage_level(74.9)
+    assert_equal :warning, budget_usage_level(75)
+    assert_equal :warning, budget_usage_level(89.9)
+    assert_equal :critical, budget_usage_level(90)
+    assert_equal :critical, budget_usage_level(124)
+    assert_equal :none, budget_usage_level(nil)
+  end
+
+  test "budget usage width clamps to the progress track" do
+    assert_equal 0, budget_usage_width(nil)
+    assert_equal 55, budget_usage_width(55.4)
+    assert_equal 100, budget_usage_width(140)
+  end
+
+  test "budget chart splits actual spending by usage level" do
+    rows = [
+      { category_name: "Comida", budget: 1_000.to_d, actual: 500.to_d, pct_used: 50.0 },
+      { category_name: "Transporte", budget: 1_000.to_d, actual: 800.to_d, pct_used: 80.0 },
+      { category_name: "Salud", budget: 1_000.to_d, actual: 1_100.to_d, pct_used: 110.0 }
+    ]
+
+    chart = budget_chart_data(rows)
+
+    assert_equal [ "Presupuesto", "Dentro del presupuesto", "Cerca del límite", "Al límite o excedido" ],
+                 chart[:series].map { |series| series[:name] }
+    assert_equal [ "Comida" ], chart[:series][1][:data].map(&:first)
+    assert_equal [ "Transporte" ], chart[:series][2][:data].map(&:first)
+    assert_equal [ "Salud" ], chart[:series][3][:data].map(&:first)
+    assert_equal 4, chart[:colors].size
+  end
 end

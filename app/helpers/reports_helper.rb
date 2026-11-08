@@ -8,11 +8,72 @@
 # Example: delta_badge(delta_pct, good_when_positive: false) # => "↑ 12.4% vs periodo anterior"
 module ReportsHelper
   AVAILABLE_CYCLE_TONES = %w[purple blue orange green pink].freeze
+  BUDGET_USAGE_WARNING_PERCENT = 75
+  BUDGET_USAGE_CRITICAL_PERCENT = 90
 
   def money_amount(value)
     return content_tag(:span, "—", class: "text-muted") if value.blank?
 
     number_to_currency(value.to_d, precision: 0)
+  end
+
+  # Category icons are stored as full `ti-*` classes; legacy categories may
+  # have none, so the report falls back to the generic tag icon.
+  def budget_category_icon(icon)
+    icon = icon.to_s.strip
+    icon.match?(/\Ati-[a-z0-9-]+\z/) ? icon : "ti-tag"
+  end
+
+  # Budget consumption level used by the summary card, table bars and chart.
+  # The thresholds are presentation rules for this report; the domain status
+  # on Budget stays untouched.
+  def budget_usage_level(pct)
+    return :none if pct.nil?
+    return :critical if pct.to_f >= BUDGET_USAGE_CRITICAL_PERCENT
+    return :warning if pct.to_f >= BUDGET_USAGE_WARNING_PERCENT
+
+    :safe
+  end
+
+  def budget_usage_percent(pct)
+    return "—" if pct.nil?
+
+    number_to_percentage(pct, precision: 0)
+  end
+
+  def budget_usage_width(pct)
+    [ [ pct.to_f, 0 ].max, 100 ].min.round
+  end
+
+  def budget_usage_message(level)
+    t("reports.budgets.usage_messages.#{level}")
+  end
+
+  # Chartkick series for the budget-vs-actual chart. The budget is one series;
+  # actual spending is split by consumption level so each bar keeps its own
+  # semantic color without any client-side calculation.
+  def budget_chart_data(rows)
+    series = [ { name: t("reports.budgets.budget"), data: rows.map { |row| [ row[:category_name], row[:budget].to_f ] } } ]
+    colors = [ "#7FA7D8" ]
+
+    {
+      safe: [ "#0e9f6e", t("reports.budgets.chart.safe") ],
+      warning: [ "#e9a23b", t("reports.budgets.chart.warning") ],
+      critical: [ "#e0254b", t("reports.budgets.chart.critical") ]
+    }.each do |level, (color, label)|
+      data = rows.select { |row| budget_usage_level(row[:pct_used]) == level }
+                 .map { |row| [ row[:category_name], row[:actual].to_f ] }
+      next if data.empty?
+
+      series << { name: label, data: data }
+      colors << color
+    end
+
+    { series: series, colors: colors }
+  end
+
+  def budget_chart_height(rows)
+    "#{[ rows.size * 46 + 90, 280 ].max}px"
   end
 
   def delta_badge(delta_pct, good_when_positive: false)

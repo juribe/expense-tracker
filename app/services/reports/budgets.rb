@@ -14,13 +14,16 @@ class Reports::Budgets < Reports::Base
     budgets = Budget.active.for_user(user).includes(:category)
     spending = category_totals(period.range)
     rows = budgets.map { |budget| budget_row(budget, spending) }
+    total_budget = rows.sum { |row| row[:budget] }
+    total_actual = rows.sum { |row| row[:actual] }
 
     {
       period: period,
       rows: rows.sort_by { |row| -(row[:actual] <=> 0) },
-      total_budget: rows.sum { |row| row[:budget] },
-      total_actual: rows.sum { |row| row[:actual] },
+      total_budget: total_budget,
+      total_actual: total_actual,
       total_remaining: rows.sum { |row| row[:remaining] },
+      usage_pct: overall_usage_pct(total_budget, total_actual),
       unbudgeted: unbudgeted_section(spending, budgets)
     }
   end
@@ -38,10 +41,11 @@ class Reports::Budgets < Reports::Base
     actual = spending[budget.category_id].to_d
     budget_amount = budget_target(budget)
     remaining = budget_amount - actual
-    pct_used = budget_amount.positive? ? (actual / budget_amount * 100).round(1) : 0.0
+    pct_used = budget_amount.positive? ? (actual / budget_amount * 100).round(1) : nil
 
     {
       id: budget.id, category_id: budget.category_id, category_name: budget.category.name,
+      category_icon: budget.category.icon,
       budget: budget_amount, actual: actual, remaining: remaining,
       pct_used: pct_used, status: status(pct_used)
     }
@@ -53,12 +57,14 @@ class Reports::Budgets < Reports::Base
     return nil if unbudgeted.empty?
 
     categories = Category.where(id: unbudgeted.keys).index_by(&:id)
-    total = unbudgeted.values.sum
+    entries = unbudgeted.map do |category_id, actual|
+      category = categories[category_id]
+      { id: category_id, name: category&.name, category_icon: category&.icon, actual: actual }
+    end
+
     {
-      total: total,
-      categories: unbudgeted.map do |category_id, actual|
-        { id: category_id, name: categories[category_id]&.name, actual: actual }
-      end
+      total: unbudgeted.values.sum,
+      categories: entries.sort_by { |entry| -entry[:actual] }
     }
   end
 
@@ -73,6 +79,8 @@ class Reports::Budgets < Reports::Base
   end
 
   def status(pct_used)
+    return :on_track if pct_used.nil?
+
     if pct_used > 100.0
       :over_budget
     elsif pct_used >= Budget::NEAR_LIMIT_PERCENT
@@ -80,6 +88,12 @@ class Reports::Budgets < Reports::Base
     else
       :on_track
     end
+  end
+
+  def overall_usage_pct(total_budget, total_actual)
+    return nil unless total_budget.positive?
+
+    (total_actual / total_budget * 100).round(1)
   end
 
   def span_months

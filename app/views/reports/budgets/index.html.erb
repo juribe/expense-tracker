@@ -2,68 +2,241 @@
            title: t("reports.budgets.title"),
            subtitle: t("reports.budgets.subtitle"),
            path: reports_budgets_path,
-           money_source_filter: false %>
+           money_source_filter: false,
+           icon: "ti-report-money" %>
 
-<div class="card">
-  <div class="card-header bg-white">
-    <h5 class="mb-0"><%= t("reports.budgets.title") %></h5>
+<% rows = @budgets[:rows] %>
+<% unbudgeted = @budgets[:unbudgeted] %>
+<% usage_pct = @budgets[:usage_pct] %>
+<% usage_level = budget_usage_level(usage_pct) %>
+
+<section class="budget-report" data-budget-report data-testid="budget-report">
+  <div class="budget-metrics" data-testid="budget-metrics">
+    <article class="budget-metric">
+      <span class="budget-metric-icon is-purple"><i class="ti ti-report-money"></i></span>
+      <div class="budget-metric-body">
+        <div class="budget-metric-label"><%= t("reports.budgets.budget_total") %></div>
+        <div class="budget-metric-value" data-testid="budget-metric-budget"><%= money_amount(@budgets[:total_budget]) %></div>
+        <div class="budget-metric-sub">
+          <%= t("reports.budgets.budgeted_categories", count: rows.size) %>
+        </div>
+      </div>
+    </article>
+
+    <article class="budget-metric">
+      <span class="budget-metric-icon is-green"><i class="ti ti-receipt"></i></span>
+      <div class="budget-metric-body">
+        <div class="budget-metric-label"><%= t("reports.budgets.actual") %></div>
+        <div class="budget-metric-value" data-testid="budget-metric-actual"><%= money_amount(@budgets[:total_actual]) %></div>
+        <div class="budget-metric-sub">
+          <% if usage_pct.nil? %>
+            <%= t("reports.budgets.no_budget") %>
+          <% else %>
+            <%= t("reports.budgets.of_budget", pct: budget_usage_percent(usage_pct)) %>
+          <% end %>
+        </div>
+      </div>
+    </article>
+
+    <article class="budget-metric">
+      <span class="budget-metric-icon is-blue"><i class="ti ti-wallet"></i></span>
+      <div class="budget-metric-body">
+        <div class="budget-metric-label"><%= t("reports.budgets.remaining") %></div>
+        <div class="budget-metric-value <%= @budgets[:total_remaining].negative? ? "is-negative" : "is-positive" %>"
+             data-testid="budget-metric-remaining">
+          <% if @budgets[:total_remaining].negative? %>
+            <span aria-hidden="true">−</span><%= money_amount(@budgets[:total_remaining].abs) %>
+          <% else %>
+            <%= money_amount(@budgets[:total_remaining]) %>
+          <% end %>
+        </div>
+        <div class="budget-metric-sub">
+          <%= @budgets[:total_remaining].negative? ? t("reports.budgets.deficit_hint") : t("reports.budgets.remaining_hint") %>
+        </div>
+      </div>
+    </article>
+
+    <article class="budget-metric budget-metric-usage">
+      <span class="budget-metric-icon is-purple"><i class="ti ti-chart-pie"></i></span>
+      <div class="budget-metric-body">
+        <div class="budget-metric-usage-head">
+          <div class="budget-metric-label"><%= t("reports.budgets.usage_label") %></div>
+          <div class="budget-metric-value" data-testid="budget-metric-usage"><%= budget_usage_percent(usage_pct) %></div>
+        </div>
+        <div class="budget-track is-<%= usage_level %>" aria-hidden="true">
+          <span class="budget-track-fill is-<%= usage_level %> et-w-<%= budget_usage_width(usage_pct) %>"></span>
+        </div>
+        <div class="budget-metric-sub"><%= budget_usage_message(usage_level) %></div>
+      </div>
+    </article>
   </div>
-  <div class="card-body">
-    <% if @budgets[:rows].any? || @budgets[:unbudgeted] %>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th scope="col"><%= t("common.category") %></th>
-              <th scope="col" class="text-end"><%= t("reports.budgets.budget") %></th>
-              <th scope="col" class="text-end"><%= t("reports.budgets.actual") %></th>
-              <th scope="col" class="text-end"><%= t("reports.budgets.remaining") %></th>
-              <th scope="col" class="text-end"><%= t("reports.budgets.usage") %></th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @budgets[:rows].each do |row| %>
-              <tr>
-                <td class="fw-semibold"><%= row[:category_name] %></td>
-                <td class="text-end"><%= money_amount(row[:budget]) %></td>
-                <td class="text-end fw-bold <%= row[:remaining].negative? ? 'text-danger' : 'text-danger' %>"><%= money_amount(row[:actual]) %></td>
-                <td class="text-end <%= row[:remaining].negative? ? 'text-danger' : 'text-success' %>"><%= money_amount(row[:remaining]) %></td>
-                <td class="text-end"><%= number_to_percentage(row[:pct_used], precision: 1) %></td>
-                <td class="et-minw-140px"><%= usage_progress(row[:pct_used]) %></td>
-              </tr>
-            <% end %>
-          </tbody>
-          <tfoot>
-            <tr class="table-light fw-bold">
-              <td><%= t("reports.categories.total") %></td>
-              <td class="text-end"><%= money_amount(@budgets[:total_budget]) %></td>
-              <td class="text-end"><%= money_amount(@budgets[:total_actual]) %></td>
-              <td class="text-end"><%= money_amount(@budgets[:total_remaining]) %></td>
-              <td colspan="2"></td>
-            </tr>
-          </tfoot>
-        </table>
+
+  <section class="budget-panel">
+    <header class="budget-panel-head">
+      <div class="budget-panel-title">
+        <span class="budget-panel-icon"><i class="ti ti-chart-pie"></i></span>
+        <div>
+          <h2><%= t("reports.budgets.by_category") %></h2>
+          <p><%= t("reports.budgets.by_category_hint") %></p>
+        </div>
       </div>
 
-      <% if @budgets[:unbudgeted] %>
-        <hr>
-        <h6 class="text-muted"><%= t("reports.budgets.unbudgeted") %></h6>
-        <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0">
+      <div class="budget-view-switch" role="tablist" aria-label="<%= t("reports.budgets.view_selector") %>">
+        <button type="button" class="budget-view-button is-active" data-budget-view="table"
+                id="budget-table-tab" role="tab" aria-selected="true" aria-controls="budget-table-view"
+                data-testid="budget-view-table">
+          <i class="ti ti-table"></i> <%= t("reports.budgets.table_view") %>
+        </button>
+        <button type="button" class="budget-view-button" data-budget-view="chart"
+                id="budget-chart-tab" role="tab" aria-selected="false" aria-controls="budget-chart-view"
+                data-testid="budget-view-chart">
+          <i class="ti ti-chart-bar"></i> <%= t("reports.budgets.chart_view") %>
+        </button>
+      </div>
+    </header>
+
+    <div class="budget-panel-body" id="budget-table-view" role="tabpanel"
+         aria-labelledby="budget-table-tab" data-budget-panel="table">
+      <% if rows.any? %>
+        <div class="table-responsive budget-table-wrap">
+          <table class="budget-table">
+            <thead>
+              <tr>
+                <th scope="col"><%= t("common.category") %></th>
+                <th scope="col" class="text-end"><%= t("reports.budgets.budget") %></th>
+                <th scope="col" class="text-end"><%= t("reports.budgets.actual") %></th>
+                <th scope="col" class="text-end"><%= t("reports.budgets.remaining") %></th>
+                <th scope="col" class="text-end"><%= t("reports.budgets.usage") %></th>
+              </tr>
+            </thead>
             <tbody>
-              <% @budgets[:unbudgeted][:categories].each do |category| %>
+              <% rows.each do |row| %>
+                <% level = budget_usage_level(row[:pct_used]) %>
+                <% over = row[:remaining].negative? %>
                 <tr>
-                  <td><%= category[:name] %></td>
-                  <td class="text-end fw-bold text-danger"><%= money_amount(category[:actual]) %></td>
+                  <td>
+                    <div class="budget-category">
+                      <span class="budget-category-icon">
+                        <i class="ti <%= budget_category_icon(row[:category_icon]) %>"></i>
+                      </span>
+                      <span class="budget-category-name"><%= row[:category_name] %></span>
+                      <% if level == :critical %>
+                        <span class="budget-status-pill is-critical">
+                          <%= over ? t("reports.budgets.over") : t("reports.budgets.at_limit") %>
+                        </span>
+                      <% elsif level == :warning %>
+                        <span class="budget-status-pill is-warning"><%= t("reports.budgets.near_limit") %></span>
+                      <% end %>
+                    </div>
+                  </td>
+                  <td class="budget-amount" data-label="<%= t("reports.budgets.budget") %>"><%= money_amount(row[:budget]) %></td>
+                  <td class="budget-amount" data-label="<%= t("reports.budgets.actual") %>"><%= money_amount(row[:actual]) %></td>
+                  <td class="budget-amount <%= over ? "is-negative" : "is-positive" %>" data-label="<%= t("reports.budgets.remaining") %>">
+                    <% if over %>
+                      <span aria-hidden="true">−</span><%= money_amount(row[:remaining].abs) %>
+                    <% else %>
+                      <%= money_amount(row[:remaining]) %>
+                    <% end %>
+                  </td>
+                  <td data-label="<%= t("reports.budgets.usage") %>">
+                    <div class="budget-usage">
+                      <span class="budget-usage-value is-<%= level %>"><%= budget_usage_percent(row[:pct_used]) %></span>
+                      <span class="budget-track is-<%= level %>" aria-hidden="true">
+                        <span class="budget-track-fill is-<%= level %> et-w-<%= budget_usage_width(row[:pct_used]) %>"></span>
+                      </span>
+                    </div>
+                  </td>
                 </tr>
               <% end %>
             </tbody>
+            <tfoot>
+              <tr class="budget-total-row">
+                <td><%= t("common.total") %></td>
+                <td class="budget-amount" data-label="<%= t("reports.budgets.budget") %>"><%= money_amount(@budgets[:total_budget]) %></td>
+                <td class="budget-amount" data-label="<%= t("reports.budgets.actual") %>"><%= money_amount(@budgets[:total_actual]) %></td>
+                <td class="budget-amount <%= @budgets[:total_remaining].negative? ? "is-negative" : "is-positive" %>" data-label="<%= t("reports.budgets.remaining") %>">
+                  <% if @budgets[:total_remaining].negative? %>
+                    <span aria-hidden="true">−</span><%= money_amount(@budgets[:total_remaining].abs) %>
+                  <% else %>
+                    <%= money_amount(@budgets[:total_remaining]) %>
+                  <% end %>
+                </td>
+                <td data-label="<%= t("reports.budgets.usage") %>">
+                  <div class="budget-usage">
+                    <span class="budget-usage-value is-<%= usage_level %>"><%= budget_usage_percent(usage_pct) %></span>
+                    <span class="budget-track is-<%= usage_level %>" aria-hidden="true">
+                      <span class="budget-track-fill is-<%= usage_level %> et-w-<%= budget_usage_width(usage_pct) %>"></span>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
+        <p class="budget-table-note"><%= t("reports.budgets.table_note") %></p>
+      <% else %>
+        <div class="budget-empty">
+          <span class="budget-empty-icon"><i class="ti ti-target-arrow"></i></span>
+          <p class="budget-empty-title"><%= t("reports.budgets.empty") %></p>
+          <p class="budget-empty-hint"><%= t("reports.budgets.empty_hint") %></p>
+        </div>
       <% end %>
-    <% else %>
-      <p class="text-muted mb-0"><%= t("reports.budgets.empty") %></p>
-    <% end %>
-  </div>
-</div>
+    </div>
+
+    <div class="budget-panel-body" id="budget-chart-view" role="tabpanel"
+         aria-labelledby="budget-chart-tab" data-budget-panel="chart" data-testid="budget-chart-view" hidden>
+      <% if rows.any? %>
+        <% chart = budget_chart_data(rows) %>
+        <%= bar_chart chart[:series],
+              **chart_money_options,
+              id: "budget-vs-actual-chart",
+              height: budget_chart_height(rows),
+              colors: chart[:colors],
+              legend: "bottom",
+              library: { animation: false } %>
+        <p class="budget-table-note"><%= t("reports.budgets.chart_note") %></p>
+      <% else %>
+        <div class="budget-empty">
+          <span class="budget-empty-icon"><i class="ti ti-chart-bar"></i></span>
+          <p class="budget-empty-title"><%= t("reports.budgets.empty") %></p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <% if unbudgeted %>
+    <section class="budget-unbudgeted" data-testid="budget-unbudgeted">
+      <header class="budget-unbudgeted-head">
+        <div class="budget-unbudgeted-copy">
+          <span class="budget-unbudgeted-icon"><i class="ti ti-alert-triangle"></i></span>
+          <div>
+            <h2><%= t("reports.budgets.unbudgeted") %></h2>
+            <p><%= t("reports.budgets.unbudgeted_hint") %></p>
+          </div>
+        </div>
+        <div class="budget-unbudgeted-total">
+          <span><%= t("reports.budgets.unbudgeted_total") %></span>
+          <strong data-testid="budget-unbudgeted-total"><%= money_amount(unbudgeted[:total]) %></strong>
+        </div>
+      </header>
+
+      <ul class="budget-unbudgeted-list">
+        <% unbudgeted[:categories].each do |category| %>
+          <li class="budget-unbudgeted-item">
+            <span class="budget-unbudgeted-category">
+              <span class="budget-unbudgeted-cat-icon">
+                <i class="ti <%= budget_category_icon(category[:category_icon]) %>"></i>
+              </span>
+              <span><%= category[:name] %></span>
+            </span>
+            <strong class="budget-unbudgeted-amount"><%= money_amount(category[:actual]) %></strong>
+          </li>
+        <% end %>
+      </ul>
+
+      <p class="budget-unbudgeted-note"><%= t("reports.budgets.unbudgeted_note") %></p>
+    </section>
+  <% end %>
+</section>
+
+<%= javascript_include_tag "reports_budgets", defer: true %>

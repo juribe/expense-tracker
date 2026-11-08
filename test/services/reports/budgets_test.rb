@@ -62,6 +62,20 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     assert_equal 2_400_000.to_d, row[:budget]
   end
 
+  test "cycle period only counts expenses inside the selected cycle range" do
+    @user.update!(financial_cycle_start_day: 20)
+    period = Reports::Period.new(preset: "this_cycle", date: Date.new(2026, 10, 25), user: @user)
+    filter = Reports::Filter.new(user: @user, period: period)
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+    expense(-300_000, category: @restaurants, date: Date.new(2026, 10, 20))
+    expense(-500_000, category: @restaurants, date: Date.new(2026, 10, 19))
+    expense(-200_000, category: @restaurants, date: Date.new(2026, 11, 20))
+
+    row = Reports::Budgets.new(user: @user, filter: filter).call[:rows].sole
+
+    assert_equal 300_000.to_d, row[:actual]
+  end
+
   test "under budget status and remaining" do
     Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
     expense(-600_000, category: @restaurants)
@@ -108,6 +122,46 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     assert_equal 580_000.to_d, data[:total_remaining]
   end
 
+  test "exposes overall budget usage for the summary cards" do
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+    Budget.create!(user: @user, category: @food, monthly_amount: 1_000_000)
+    expense(-920_000, category: @restaurants)
+    expense(-280_000, category: @food)
+
+    data = report
+
+    assert_in_delta 66.7, data[:usage_pct], 0.1
+  end
+
+  test "overall usage is nil when there is no budget to measure" do
+    expense(-300_000, category: @restaurants)
+
+    data = report
+
+    assert_nil data[:usage_pct]
+    assert_equal 0.to_d, data[:total_budget]
+  end
+
+  test "category percentage is nil when the budget target is zero" do
+    budget = Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+    budget.update_column(:monthly_amount, 0)
+    expense(-300_000, category: @restaurants)
+
+    row = report[:rows].first
+
+    assert_nil row[:pct_used]
+    assert_equal(-300_000.to_d, row[:remaining])
+  end
+
+  test "rows expose the stored category icon" do
+    @restaurants.update_column(:icon, "ti-chef-hat")
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+
+    row = report[:rows].first
+
+    assert_equal "ti-chef-hat", row[:category_icon]
+  end
+
   test "debt payments are not counted as budget spending" do
     Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
     installment = expense(-2_800_000, category: @restaurants)
@@ -132,6 +186,7 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
   end
 
   test "categories without a budget are listed as unbudgeted spending" do
+    @food.update_column(:icon, "ti-shopping-cart")
     Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
     expense(-300_000, category: @food)
 
@@ -140,6 +195,7 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     assert_equal 1, data[:rows].size
     assert_equal 300_000.to_d, data[:unbudgeted][:total]
     assert_equal @food.id, data[:unbudgeted][:categories].first[:id]
+    assert_equal "ti-shopping-cart", data[:unbudgeted][:categories].first[:category_icon]
   end
 
   test "empty period with no budgets yields an empty structure" do
