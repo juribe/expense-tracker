@@ -1,5 +1,7 @@
 <%# Filters card: title block + two-row chip grid + actions, composable with
-    the period. locals: path, money_source_filter (optional, defaults to true) %>
+    the period. locals: path, category_filter (optional, defaults to true),
+    money_source_filter (optional, defaults to true) %>
+<% show_category = local_assigns.fetch(:category_filter, true) %>
 <% show_money_source = local_assigns.fetch(:money_source_filter, true) %>
 <%= form_with url: path, method: :get, local: true do |form| %>
   <%= hidden_field_tag :period, selected_period_preset %>
@@ -16,19 +18,21 @@
       <p class="filters-description"><%= t("reports.filters.description", default: "Selecciona los criterios para actualizar el reporte.") %></p>
     </div>
 
-    <div class="filters-grid<%= " filters-grid-single" unless show_money_source %>">
-      <div class="filter-chip">
-        <i class="ti ti-tag"></i>
-        <div class="flex-grow-1 min-w-0">
-          <div class="chip-label"><%= t("common.category") %></div>
-          <%= category_picker form, :category_id, user_expense_categories,
-                              value: params[:category_id],
-                              include_blank: t("reports.filters.all_f", default: "Todas"),
-                              label: nil,
-                              id: "category_id",
-                              testid: "reports-category-picker" %>
+    <div class="filters-grid<%= " filters-grid-single" if [show_category, show_money_source].count(true) == 1 %>">
+      <% if show_category %>
+        <div class="filter-chip">
+          <i class="ti ti-tag"></i>
+          <div class="flex-grow-1 min-w-0">
+            <div class="chip-label"><%= t("common.category") %></div>
+            <%= category_picker form, :category_id, user_expense_categories,
+                                value: params[:category_id],
+                                include_blank: t("reports.filters.all_f", default: "Todas"),
+                                label: nil,
+                                id: "category_id",
+                                testid: "reports-category-picker" %>
+          </div>
         </div>
-      </div>
+      <% end %>
 
       <% if show_money_source %>
         <div class="filter-chip">

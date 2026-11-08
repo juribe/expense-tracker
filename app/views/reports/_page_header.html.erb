@@ -3,6 +3,7 @@
     locals: path (current page path), title, subtitle (optional),
     icon (optional, defaults to ti-chart-line),
     filters (optional, defaults to true),
+    category_filter (optional, defaults to true),
     money_source_filter (optional, defaults to true) %>
 <div class="reports-header">
   <div class="d-flex align-items-start">
@@ -22,5 +23,6 @@
 
 <% if local_assigns.fetch(:filters, true) %>
   <%= render "reports/filters", path: path,
+             category_filter: local_assigns.fetch(:category_filter, true),
              money_source_filter: local_assigns.fetch(:money_source_filter, true) %>
 <% end %>
