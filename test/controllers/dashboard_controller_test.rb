@@ -19,7 +19,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     get dashboard_path
     assert_response :success
-    assert_select ".summary-value"
+    assert_select "[data-testid=dashboard-recent-expenses]"
   end
 
   test "sidebar shows the admin section to admin users" do
@@ -92,7 +92,8 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get dashboard_path, params: { cycle: "2026-11-2" }
 
     assert_response :success
-    assert_select "h5", text: /Gastos de este ciclo/
+    assert_includes response.body, "Arriendo"
+    refute_includes response.body, "Fuera"
   end
 
   test "GET /dashboard shows the financial cycle banner when cycles are enabled" do
@@ -118,38 +119,19 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "div.cycle-banner", count: 0
   end
 
-  test "GET /dashboard labels the expense card with the cycle when cycles are enabled" do
+  test "GET /dashboard no longer renders the period expense count card nor its chart" do
     sign_in @user
     @user.update!(financial_cycle_start_day: 20)
 
     get dashboard_path, params: { cycle: "2026-10-25" }
 
     assert_response :success
-    assert_select "h5", text: /Gastos de este ciclo/
+    assert_select "h5", text: /Gastos de este ciclo/, count: 0
     assert_select "h5", text: /Gastos de este mes/, count: 0
-    assert_select "span", text: /No hay gastos este ciclo/
+    assert_select ".dashboard-mini-chart", count: 0
   end
 
-  test "GET /dashboard labels the expense card with the month without a configured schedule" do
-    sign_in @user
-
-    get dashboard_path
-
-    assert_response :success
-    assert_select "h5", text: /Gastos de este mes/
-  end
-
-  test "GET /dashboard transactions card counts all the period's expenses, not just the recent 5" do
-    sign_in @user
-    7.times { |i| @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "G#{i}", money_source: @default_source) }
-
-    get dashboard_path
-
-    assert_response :success
-    assert_select "p.summary-value", text: "7"
-  end
-
-  test "GET /dashboard renders the transactions label, never the translations hash" do
+  test "GET /dashboard never renders the raw translations hash" do
     sign_in @user
 
     get dashboard_path
@@ -160,33 +142,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "{:title=>"
   end
 
-  test "GET /dashboard shows the budgets card above the quick add card" do
-    Budget.create!(user: @user, category: @category, monthly_amount: 100_000, period: "monthly", active: true)
-    sign_in @user
-
-    get dashboard_path
-
-    assert_response :success
-    body = response.body
-    assert_operator body.index("Presupuestos"), :<, body.index("Agregar gasto rápido")
-  end
-
-  test "GET /dashboard quick add form offers payment sources, not loans" do
-    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true)
-    card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
-    loan = @user.money_sources.create!(name: "Préstamo", kind: "loan", active: true)
-    sign_in @user
-
-    get dashboard_path
-
-    assert_response :success
-    select_values = assert_select("select#expense_money_source_id option").map { |node| node["value"] }
-    assert_includes select_values, cash.id.to_s
-    assert_includes select_values, card.id.to_s
-    assert_not_includes select_values, loan.id.to_s
-  end
-
-  test "GET /dashboard renders exactly eight KPI cards in the requested order" do
+  test "GET /dashboard renders exactly four KPI cards in the requested order" do
     sign_in @user
 
     get dashboard_path
@@ -197,13 +153,9 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
       "Dinero en cuentas",
       "Ingresos",
       "Gastos",
-      "Gasto proyectado",
-      "Cupo disponible",
-      "Ahorros",
-      "Deuda tarjetas de crédito",
-      "Deudas normales"
+      "Gasto proyectado"
     ], titles
-    assert_select "a.metric-card[href]", count: 8
+    assert_select "a.metric-card[href]", count: 4
   end
 
   test "GET /dashboard KPI cards link to their related pages" do
@@ -217,11 +169,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
       money_sources_cash_path,
       incomes_path,
       expenses_path,
-      reports_budgets_path,
-      reports_credit_cards_path,
-      money_sources_pockets_path,
-      debt_capacity_path,
-      reports_loans_path
+      reports_budgets_path
     ], hrefs
   end
 
@@ -232,7 +180,34 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     refute_includes response.body, "Dinero disponible"
-    assert_select ".metric-card", count: 8
+    assert_select ".metric-card", count: 4
+  end
+
+  test "GET /dashboard renders the recent expenses table in the full-width column" do
+    sign_in @user
+    @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "Coffee",
+                           money_source: @default_source)
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "div.col-12.col-lg-8 [data-testid=dashboard-recent-expenses]", count: 1
+    assert_select "div.table-responsive [data-testid=dashboard-recent-expenses]", count: 1
+    assert_select "div.col-lg-7 [data-testid=dashboard-recent-expenses]", count: 0
+  end
+
+  test "GET /dashboard places the category breakdown in the right column between budgets and goals" do
+    Budget.create!(user: @user, category: @category, monthly_amount: 100_000, period: "monthly", active: true)
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    right_column_titles = css_select("div.col-12.col-lg-4 h5.card-title").map { |node| node.text.strip }
+    categories_index = right_column_titles.index("Distribución por categoría")
+    assert categories_index, "expected the category breakdown card in the right column"
+    assert_operator categories_index, :>, right_column_titles.index("Presupuestos")
+    assert_operator categories_index, :<, right_column_titles.index("Metas financieras")
   end
 
   test "GET /dashboard keeps the evolution chart and the upcoming payments panel" do

@@ -35,7 +35,7 @@ class MembershipRenewalHeroTest < ActionDispatch::IntegrationTest
       assert_select "a[href='#{plans_path}']", text: /Renovar membresía/
       assert_select "[data-testid='membership-benefits-button']", text: "Ver beneficios"
     end
-    assert_select "a.metric-card", count: 8
+    assert_select "a.metric-card", count: 4
   end
 
   test "shows the renewal hero after the free trial ends" do
@@ -72,7 +72,7 @@ class MembershipRenewalHeroTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid='membership-renewal-hero']", count: 0
-    assert_select "a.metric-card", count: 8
+    assert_select "a.metric-card", count: 4
   end
 
   test "the benefits modal lists the recovered PRO capabilities" do

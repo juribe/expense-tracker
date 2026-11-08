@@ -21,29 +21,15 @@
 
 <div class="row g-3">
   <div class="col-12 col-lg-8">
-    <div class="row g-3">
-      <div class="col-12">
-        <%= render "dashboard/period_count" %>
-      </div>
-    </div>
-
     <%= render "dashboard/cash_flow" %>
 
-    <div class="row g-3">
-      <div class="col-12 col-lg-5">
-        <%= render "dashboard/categories" %>
-      </div>
-
-      <div class="col-12 col-lg-7">
-        <%= render "dashboard/recent_expenses" %>
-      </div>
-    </div>
+    <%= render "dashboard/recent_expenses" %>
   </div>
 
   <div class="col-12 col-lg-4">
     <%= render "dashboard/upcoming_payments" %>
     <%= render "dashboard/budgets" %>
+    <%= render "dashboard/categories" %>
     <%= render "dashboard/goals" %>
-    <%= render "dashboard/quick_add" %>
   </div>
 </div>

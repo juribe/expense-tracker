@@ -59,40 +59,6 @@
             icon: "target", variant: "expense",
             href: reports_budgets_path, testid: "dashboard-kpi-projected" %>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.credit_available", default: "Cupo disponible"),
-            value: number_to_currency(@position[:credit_available]),
-            description: t("dashboard.credit_available_desc",
-                           default: "Saldo disponible en tarjetas de crédito y créditos rotativos."),
-            icon: "credit-card", variant: "credit",
-            href: reports_credit_cards_path, testid: "dashboard-kpi-credit" %>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.savings", default: "Ahorros"),
-            value: number_to_currency(@position[:savings_balance]),
-            description: t("dashboard.savings_desc", default: "Total de tus bolsillos de ahorro."),
-            icon: "pig-money", variant: "savings",
-            href: money_sources_pockets_path, testid: "dashboard-kpi-savings" %>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.card_debt", default: "Deuda tarjetas de crédito"),
-            value: number_to_currency(@position[:credit_debt]),
-            description: t("dashboard.card_debt_desc",
-                           default: "Total que debes en tarjetas de crédito."),
-            icon: "credit-card", variant: "debt",
-            href: debt_capacity_path, testid: "dashboard-kpi-credit-debt" %>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.normal_debt", default: "Deudas normales"),
-            value: number_to_currency(@position[:loan_debt]),
-            description: t("dashboard.normal_debt_desc",
-                           default: "Total que debes en créditos y préstamos, incluidos los rotativos."),
-            icon: "building-bank", variant: "normal-debt",
-            href: reports_loans_path, testid: "dashboard-kpi-loan-debt" %>
-    </div>
   </div>
 </section>
+

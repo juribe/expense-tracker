@@ -3,9 +3,6 @@
  * Tokens, cards, tables and badges come from theme.css — only composition
  * that is unique to the dashboard lives here. */
 
-/* Mini bar chart inside the period-count card */
-.dashboard-mini-chart .chart-container { margin: 0; }
-
 /* Donut chart with the total centered in the hole */
 .donut-wrap { width: 170px; height: 170px; }
 .donut-center {
@@ -75,41 +72,21 @@
 /* Amount semantics per variant */
 .metric-card--accounts .stat-value,
 .metric-card--income .stat-value { color: var(--et-positive); }
-.metric-card--expense .stat-value,
-.metric-card--debt .stat-value { color: var(--et-negative); }
-.metric-card--credit .stat-value { color: var(--et-balance); }
-.metric-card--savings .stat-value { color: var(--et-saving); }
-.metric-card--normal-debt .stat-value { color: var(--et-attention); }
+.metric-card--expense .stat-value { color: var(--et-negative); }
 
 /* Icon chip per variant */
 .metric-card--accounts .icon-chip,
 .metric-card--income .icon-chip { background: rgba(14, 159, 110, 0.12); color: var(--et-positive); }
-.metric-card--expense .icon-chip,
-.metric-card--debt .icon-chip { background: rgba(224, 37, 75, 0.12); color: var(--et-negative); }
-.metric-card--credit .icon-chip { background: rgba(42, 109, 245, 0.12); color: var(--et-balance); }
-.metric-card--savings .icon-chip { background: rgba(121, 41, 232, 0.14); color: var(--et-saving); }
-.metric-card--normal-debt .icon-chip { background: rgba(178, 106, 0, 0.14); color: var(--et-attention); }
+.metric-card--expense .icon-chip { background: rgba(224, 37, 75, 0.12); color: var(--et-negative); }
 
-/* Soft tint: only the cards that represent a balance bucket get one */
+/* Soft tint: only the card that represents a balance bucket gets one */
 .metric-card--accounts  { background: linear-gradient(115deg, #f1fbf7, #fff); }
-.metric-card--credit    { background: linear-gradient(115deg, #f2f8ff, #fff); }
-.metric-card--savings   { background: linear-gradient(115deg, #f8f3ff, #fff); }
-.metric-card--debt      { background: linear-gradient(115deg, #fff5f5, #fff); }
-.metric-card--normal-debt { background: linear-gradient(115deg, #fffaf0, #fff); }
 
 [data-bs-theme="dark"] .metric-card--accounts { background: linear-gradient(115deg, rgba(14, 159, 110, 0.16), rgba(14, 159, 110, 0) 70%); }
-[data-bs-theme="dark"] .metric-card--credit { background: linear-gradient(115deg, rgba(42, 109, 245, 0.18), rgba(42, 109, 245, 0) 70%); }
-[data-bs-theme="dark"] .metric-card--savings { background: linear-gradient(115deg, rgba(121, 41, 232, 0.2), rgba(121, 41, 232, 0) 70%); }
-[data-bs-theme="dark"] .metric-card--debt { background: linear-gradient(115deg, rgba(224, 37, 75, 0.16), rgba(224, 37, 75, 0) 70%); }
-[data-bs-theme="dark"] .metric-card--normal-debt { background: linear-gradient(115deg, rgba(178, 106, 0, 0.18), rgba(178, 106, 0, 0) 70%); }
 
 [data-bs-theme="dark"] .metric-card--accounts .icon-chip,
 [data-bs-theme="dark"] .metric-card--income .icon-chip { background: rgba(14, 159, 110, 0.22); }
-[data-bs-theme="dark"] .metric-card--expense .icon-chip,
-[data-bs-theme="dark"] .metric-card--debt .icon-chip { background: rgba(224, 37, 75, 0.22); }
-[data-bs-theme="dark"] .metric-card--credit .icon-chip { background: rgba(42, 109, 245, 0.22); }
-[data-bs-theme="dark"] .metric-card--savings .icon-chip { background: rgba(121, 41, 232, 0.28); }
-[data-bs-theme="dark"] .metric-card--normal-debt .icon-chip { background: rgba(178, 106, 0, 0.26); }
+[data-bs-theme="dark"] .metric-card--expense .icon-chip { background: rgba(224, 37, 75, 0.22); }
 
 /* ---------------------------------------------------- Onboarding banner
  * Setup banner at the top of the dashboard: soft blue hero surface with

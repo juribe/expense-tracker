@@ -23,8 +23,6 @@ class DashboardController < ApplicationController
     @budgets = current_user.budgets.includes(:category)
     @goals = current_user.goals.includes([ :pocket, :goal_allocations ]).order(:created_at, :id)
     @pending_candidates = current_user.expense_candidates.pending.includes(:category).limit(10)
-    @categories = Category.for_user_and_type(current_user, "expense")
-    @money_sources = MoneySource.payment_origins(current_user)
     @position = Dashboard::PositionSnapshot.call(user: current_user)
     @onboarding = Dashboard::Onboarding.new(user: current_user)
   end
