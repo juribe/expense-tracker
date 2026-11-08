@@ -1,0 +1,20 @@
+<%# locals: transactions, total %>
+<div data-testid="report-transactions-modal-content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted small">
+      <%= t("reports.overview.number_of_expenses") %>:
+      <strong><%= transactions.size %></strong>
+    </span>
+    <span class="text-muted small">
+      <%= t("reports.overview.expenses") %>:
+      <strong class="text-danger"><%= money_amount(total) %></strong>
+    </span>
+  </div>
+
+  <%= render "reports/transactions/list", transactions: transactions, sortable: true %>
+
+  <div class="d-flex justify-content-end mt-3">
+    <%= link_to t("reports.transactions.view_full"), reports_transactions_path(filter_params_for),
+                class: "btn btn-sm btn-outline-primary" %>
+  </div>
+</div>

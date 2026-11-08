@@ -45,7 +45,7 @@
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><%= t("reports.nav.by_category") %></h5>
-        <%= link_to reports_by_category_path(params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id", "money_source_id", "credit_card_id", "loan_id", "kind").compact_blank), class: "btn btn-sm btn-outline-primary" do %>
+        <%= link_to reports_by_category_path(params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id", "money_source_id", "credit_card_id", "loan_id").compact_blank), class: "btn btn-sm btn-outline-primary" do %>
           <%= t("common.view_all", default: "Ver todo") %> <i class="ti ti-arrow-right ms-1"></i>
         <% end %>
       </div>

@@ -5,9 +5,16 @@
 # the shared filters, paginated with will_paginate.
 class Reports::TransactionsController < Reports::BaseController
   def index
-    @transactions = report_filters.expense_scope(@period.range)
-                                  .includes(:category, :money_source)
-                                  .order(date: :desc, created_at: :desc)
-                                  .paginate(page: params[:page], per_page: 25)
+    scope = report_filters.expense_scope(@period.range)
+    ordered = scope.includes(:category, :money_source).order(date: :desc, created_at: :desc)
+
+    if params[:modal].present?
+      render partial: "reports/transactions/modal",
+             locals: { transactions: ordered.to_a, total: scope.sum(:amount).abs },
+             layout: false
+      return
+    end
+
+    @transactions = ordered.paginate(page: params[:page], per_page: 25)
   end
 end

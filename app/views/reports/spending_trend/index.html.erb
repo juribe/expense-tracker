@@ -9,14 +9,27 @@
   </div>
   <div class="card-body">
     <% if @spending_trend[:total].positive? %>
+      <% drill_down_urls = @spending_trend[:series].map do |point|
+           next unless point[:total].positive?
+
+           range = spending_trend_bucket_range(point[:date], @spending_trend[:period])
+           reports_transactions_path(filter_params_for(period: "custom", start_date: range.begin, end_date: range.end))
+         end %>
       <div class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted small"><%= t("reports.overview.expenses") %>: <strong class="text-danger"><%= money_amount(@spending_trend[:total]) %></strong></span>
       </div>
-      <%= column_chart @spending_trend[:series].map { |point| [ point[:label], point[:total] ] },
-            **chart_money_options,
-            height: "340px", legend: false, colors: ["#7FA7D8"] %>
+      <div data-spending-trend data-spending-trend-urls="<%= drill_down_urls.to_json %>">
+        <%= column_chart @spending_trend[:series].map { |point| [ point[:label], point[:total] ] },
+              **chart_money_options,
+              id: "spending-trend-chart",
+              library: { animation: false },
+              height: "340px", legend: false, colors: ["#7FA7D8"] %>
+      </div>
+      <p class="text-muted small mt-2 mb-0"><%= t("reports.trend.click_hint") %></p>
     <% else %>
       <p class="text-muted mb-0"><%= t("reports.trend.empty") %></p>
     <% end %>
   </div>
 </div>
+
+<%= render "reports/transactions/modal_container" %>

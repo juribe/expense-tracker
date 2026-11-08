@@ -47,6 +47,64 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /reports/trends renders per-bucket drill-down links" do
+    @user.expenses.create!(amount: -100_000, date: Date.new(2026, 9, 3),
+                           category: @category, money_source: @bank, description: "coffee")
+
+    get reports_trends_path(period: "custom", start_date: Date.new(2026, 9, 1), end_date: Date.new(2026, 9, 30))
+
+    assert_response :success
+    container = css_select("[data-spending-trend]").first
+    assert container, "trend chart container missing"
+    assert_select "[data-testid=report-transactions-modal]"
+    assert_select "#reportTransactionsModal .modal-dialog.report-transactions-modal"
+
+    urls = JSON.parse(container["data-spending-trend-urls"])
+    third_day = urls[2]
+    assert_includes third_day, "period=custom"
+    assert_includes third_day, "start_date=2026-09-03"
+    assert_includes third_day, "end_date=2026-09-03"
+    assert_nil urls[1]
+
+    scripts = Nokogiri::HTML(response.body).css("script[src]").map { |script| script["src"] }
+    assert scripts.any? { |src| src.include?("spending_trend") }
+    assert scripts.any? { |src| src.include?("reports_transactions_modal") }
+  end
+
+  test "GET /reports/by_category wires category rows to the shared transactions modal" do
+    @user.expenses.create!(amount: -100_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "coffee")
+
+    get reports_by_category_path(period: "this_month")
+
+    assert_response :success
+    row = css_select("tr[data-transactions-modal-url]").first
+    assert row, "category row should expose a modal URL"
+    assert_includes row["data-transactions-modal-url"], "category_id=#{@category.id}"
+    assert_select "#reportTransactionsModal"
+    assert_select "tr.report-row-link a[href*='category_id=#{@category.id}']"
+
+    scripts = Nokogiri::HTML(response.body).css("script[src]").map { |script| script["src"] }
+    assert scripts.any? { |src| src.include?("reports_transactions_modal") }
+  end
+
+  test "GET /reports/transactions with modal renders only the drill-down content" do
+    @user.expenses.create!(amount: -100_000, date: Date.new(2026, 9, 3),
+                           category: @category, money_source: @bank, description: "coffee")
+
+    get reports_transactions_path(period: "custom", start_date: Date.new(2026, 9, 3),
+                                  end_date: Date.new(2026, 9, 3), modal: 1)
+
+    assert_response :success
+    assert_select "[data-testid=report-transactions-modal-content]"
+    assert_select "[data-testid=reports-transactions-table][data-sortable-table]"
+    %w[date description category source amount].each do |key|
+      assert_select "button[data-sort-key='#{key}']"
+    end
+    assert_select "h1", count: 0
+    assert_select "aside.left-sidebar", count: 0
+  end
+
   test "reports charts format money values with whole pesos" do
     @user.expenses.create!(amount: -1_234_567, date: Date.current, category: @category, money_source: @bank, description: "x")
 
@@ -66,6 +124,30 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
   test "GET /reports/budgets renders" do
     get reports_budgets_path
     assert_response :success
+  end
+
+  test "GET /reports/budgets keeps the category filter but hides money sources" do
+    get reports_budgets_path
+
+    assert_response :success
+    assert_select "form .filters-card"
+    assert_select "select[name=category_id]"
+    assert_select "select[name=money_source_id]", count: 0
+  end
+
+  test "GET /reports/budgets ignores money source params" do
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true,
+                                       starting_balance: 1_000_000)
+    Budget.create!(user: @user, category: @category, monthly_amount: 1_000_000)
+    @user.expenses.create!(amount: -100_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "bank")
+    @user.expenses.create!(amount: -200_000, date: Date.current, category: @category,
+                           money_source: cash, description: "cash")
+
+    get reports_budgets_path(period: "this_month", money_source_id: @bank.id)
+
+    assert_response :success
+    assert_select "tfoot td", text: "$300.000"
   end
 
   test "GET /reports/credit_cards renders" do
@@ -106,6 +188,25 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-testid=insights-insufficient-data]", text: /Falta información/
     assert_select "[data-testid=insight]", count: 0
+  end
+
+  test "reports filters omit the kind filter and only list payment sources" do
+    card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
+    cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true)
+    loan = @user.money_sources.create!(name: "Préstamo", kind: "loan", active: true)
+    pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", active: true)
+    inactive = @user.money_sources.create!(name: "Cuenta inactiva", kind: "account", active: false)
+
+    get reports_by_category_path
+
+    assert_response :success
+    assert_select "select[name=kind]", count: 0
+    assert_select "select[name=money_source_id] option[value='#{@bank.id}']", count: 1
+    assert_select "select[name=money_source_id] option[value='#{card.id}']", count: 1
+    assert_select "select[name=money_source_id] option[value='#{cash.id}']", count: 1
+    assert_select "select[name=money_source_id] option[value='#{loan.id}']", count: 0
+    assert_select "select[name=money_source_id] option[value='#{pocket.id}']", count: 0
+    assert_select "select[name=money_source_id] option[value='#{inactive.id}']", count: 0
   end
 
   test "reports pages include the chip click-through script" do
@@ -158,6 +259,8 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     get reports_transactions_path(period: "this_month", category_id: @category.id)
     assert_response :success
     assert_select "table"
+    assert_select "table[data-sortable-table]", count: 0
+    assert_select "button[data-sort-key]", count: 0
   end
 
   test "GET /reports with custom range" do

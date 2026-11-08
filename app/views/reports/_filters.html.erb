@@ -1,5 +1,6 @@
 <%# Filters card: title block + two-row chip grid + actions, composable with
-    the period. locals: path %>
+    the period. locals: path, money_source_filter (optional, defaults to true) %>
+<% show_money_source = local_assigns.fetch(:money_source_filter, true) %>
 <%= form_with url: path, method: :get, local: true do |form| %>
   <%= hidden_field_tag :period, selected_period_preset %>
   <% if params[:period] == "custom" %>
@@ -15,7 +16,7 @@
       <p class="filters-description"><%= t("reports.filters.description", default: "Selecciona los criterios para actualizar el reporte.") %></p>
     </div>
 
-    <div class="filters-grid">
+    <div class="filters-grid<%= " filters-grid-single" unless show_money_source %>">
       <div class="filter-chip">
         <i class="ti ti-tag"></i>
         <div class="flex-grow-1 min-w-0">
@@ -29,29 +30,19 @@
         </div>
       </div>
 
-      <div class="filter-chip">
-        <i class="ti ti-wallet"></i>
-        <div class="flex-grow-1 min-w-0">
-          <div class="chip-label"><%= t("money_sources.title", default: "Fuentes") %></div>
-          <%= select_tag :money_source_id,
-                options_for_select(money_source_options, params[:money_source_id]),
-                include_blank: t("reports.filters.all_f", default: "Todas"),
-                class: "form-select" %>
+      <% if show_money_source %>
+        <div class="filter-chip">
+          <i class="ti ti-wallet"></i>
+          <div class="flex-grow-1 min-w-0">
+            <div class="chip-label"><%= t("money_sources.title", default: "Fuentes") %></div>
+            <%= select_tag :money_source_id,
+                  options_for_select(money_source_options, params[:money_source_id]),
+                  include_blank: t("reports.filters.all_f", default: "Todas"),
+                  class: "form-select" %>
+          </div>
+          <i class="ti ti-chevron-down text-muted et-fs-07"></i>
         </div>
-        <i class="ti ti-chevron-down text-muted et-fs-07"></i>
-      </div>
-
-      <div class="filter-chip">
-        <i class="ti ti-layout-grid"></i>
-        <div class="flex-grow-1 min-w-0">
-          <div class="chip-label"><%= t("reports.filters.kind", default: "Resumen") %></div>
-          <%= select_tag :kind,
-                options_for_select(kind_options, params[:kind]),
-                include_blank: t("reports.filters.all_f", default: "Todas"),
-                class: "form-select" %>
-        </div>
-        <i class="ti ti-chevron-down text-muted et-fs-07"></i>
-      </div>
+      <% end %>
     </div>
 
     <div class="filters-actions">

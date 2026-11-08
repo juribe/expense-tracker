@@ -26,7 +26,7 @@
         </div>
         <div class="col-12 col-lg-7">
           <div class="table-responsive">
-            <table class="table report-table align-middle mb-0">
+            <table class="table table-hover report-table align-middle mb-0">
               <thead>
                 <tr>
                   <th scope="col"><%= t("common.category") %></th>
@@ -38,9 +38,10 @@
               </thead>
               <tbody>
                 <% @category_spending[:categories].each_with_index do |category, index| %>
-                  <tr>
+                  <% category_path = reports_transactions_path(filter_params_for(category_id: category[:id])) %>
+                  <tr class="report-row-link" data-transactions-modal-url="<%= category_path %>">
                     <td>
-                      <%= link_to reports_transactions_path(filter_params_for(category_id: category[:id])), class: "d-flex align-items-center text-decoration-none text-reset" do %>
+                      <%= link_to category_path, class: "d-flex align-items-center text-decoration-none text-reset" do %>
                         <span class="category-swatch me-2 et-swatch-r<%= index %>">
                           <i class="ti ti-tag"></i>
                         </span>
@@ -65,6 +66,7 @@
               </tfoot>
             </table>
           </div>
+          <p class="text-muted small mt-2 mb-0"><%= t("reports.categories.click_hint") %></p>
         </div>
       </div>
     <% else %>
@@ -72,3 +74,5 @@
     <% end %>
   </div>
 </div>
+
+<%= render "reports/transactions/modal_container" %>

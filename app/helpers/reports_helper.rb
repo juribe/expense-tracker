@@ -81,7 +81,11 @@ module ReportsHelper
   end
 
   def money_source_options
-    @money_source_options ||= current_user.present? ? current_user.money_sources.active.order(:kind, :name).map { |s| [ s.name, s.id ] } : []
+    @money_source_options ||= if current_user.present?
+      current_user.money_sources.active.payment_sources.order(:kind, :name).pluck(:name, :id)
+    else
+      []
+    end
   end
 
   def credit_card_options
@@ -90,13 +94,6 @@ module ReportsHelper
 
   def loan_options
     @loan_options ||= current_user.present? ? current_user.money_sources.active.by_kind("loan").map { |s| [ s.name, s.id ] } : []
-  end
-
-  def kind_options
-    [
-      [ t("types.expense"), "expense" ],
-      [ t("types.income"), "income" ]
-    ]
   end
 
   # Chart.js renders to canvas and cannot resolve CSS var() colors, so the
@@ -110,9 +107,24 @@ module ReportsHelper
     rows.each_with_index.map { |_row, index| CHART_COLORS[index % CHART_COLORS.size] }
   end
 
+  # Date range represented by a spending-trend bucket. Partial first and last
+  # buckets are clamped to the report period so the drill-down never opens
+  # transactions outside it.
+  def spending_trend_bucket_range(date, period)
+    date = date.to_date
+    case period.bucket
+    when :day
+      date..date
+    when :week
+      [ date, period.range.begin ].max..[ date + 6.days, period.range.end ].min
+    else
+      [ date, period.range.begin ].max..[ date.end_of_month, period.range.end ].min
+    end
+  end
+
   def filter_params_for(**overrides)
     base = params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id",
-                                    "money_source_id", "credit_card_id", "loan_id", "kind")
+                                    "money_source_id", "credit_card_id", "loan_id")
     (base.symbolize_keys.merge(overrides)).compact_blank
   end
 

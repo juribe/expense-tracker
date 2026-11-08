@@ -1,0 +1,54 @@
+<%# locals: transactions, sortable (optional, defaults to false) %>
+<% sortable = local_assigns.fetch(:sortable, false) %>
+<% headers = [
+     { label: t("common.date"), key: "date", type: "date" },
+     { label: t("common.description"), key: "description", type: "text" },
+     { label: t("common.category"), key: "category", type: "text" },
+     { label: t("money_sources.title", default: "Fuente"), key: "source", type: "text" },
+     { label: t("common.amount"), key: "amount", type: "number", class_name: "text-end" }
+   ] %>
+
+<% if transactions.any? %>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0"
+           <%= "data-sortable-table" if sortable %>
+           data-testid="reports-transactions-table">
+      <thead class="table-light">
+        <tr>
+          <% headers.each do |header| %>
+            <% if sortable %>
+              <th scope="col" class="<%= header[:class_name] %>"
+                  aria-sort="<%= header[:key] == "date" ? "descending" : "none" %>">
+                <button type="button" class="report-sort-button"
+                        data-sort-key="<%= header[:key] %>" data-sort-type="<%= header[:type] %>">
+                  <%= header[:label] %>
+                  <i class="ti <%= header[:key] == "date" ? "ti-sort-descending" : "ti-arrows-sort" %>"
+                     data-sort-icon aria-hidden="true"></i>
+                </button>
+              </th>
+            <% else %>
+              <th scope="col" class="<%= header[:class_name] %>"><%= header[:label] %></th>
+            <% end %>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% transactions.each do |transaction| %>
+          <tr>
+            <td data-sort-value="<%= transaction.date.iso8601 %>"><%= l(transaction.date, format: :short) %></td>
+            <td data-sort-value="<%= transaction.description.to_s %>"><%= transaction.description.presence || "—" %></td>
+            <td data-sort-value="<%= transaction.category&.name.to_s %>">
+              <%= transaction.category ? category_badge(transaction.category) : "—" %>
+            </td>
+            <td data-sort-value="<%= transaction.money_source&.name.to_s %>"><%= transaction.money_source&.name || "—" %></td>
+            <td class="text-end fw-bold text-danger" data-sort-value="<%= transaction.amount.abs.to_s %>">
+              <%= money_amount(transaction.amount.abs) %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-muted mb-0"><%= t("reports.categories.empty") %></p>
+<% end %>

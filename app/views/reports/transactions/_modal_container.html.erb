@@ -1,0 +1,16 @@
+<%# Shared report drill-down modal; opened by reports_transactions_modal.js. %>
+<div class="modal fade" id="reportTransactionsModal" tabindex="-1"
+     aria-labelledby="reportTransactionsModalTitle" aria-hidden="true"
+     data-testid="report-transactions-modal"
+     data-transactions-loading="<%= t("reports.transactions.loading") %>"
+     data-transactions-error="<%= t("reports.transactions.load_error") %>">
+  <div class="modal-dialog modal-lg report-transactions-modal modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportTransactionsModalTitle"><%= t("reports.transactions.title") %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close") %>"></button>
+      </div>
+      <div class="modal-body" data-report-transactions-body></div>
+    </div>
+  </div>
+</div>

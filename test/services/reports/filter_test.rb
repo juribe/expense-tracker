@@ -64,18 +64,6 @@ class ReportsFilterTest < ActiveSupport::TestCase
     assert_equal [ -100_000.to_d ], filter(category_id: 999_999).expense_scope(@period.range).pluck(:amount)
   end
 
-  test "kind filter selects which base scope is non-empty" do
-    Expense.create!(user: @user, category: @food, amount: -100_000, date: @period.range.first, description: "x",
-                    money_source: @bank)
-    Income.create!(user: @user, category: @salary, amount: 500_000, date: @period.range.first, description: "x",
-                   money_source: @bank)
-
-    assert_equal 100_000.to_d, filter(kind: "expense").expense_scope(@period.range).sum(:amount).abs
-    assert_equal 500_000.to_d, filter(kind: "income").income_scope(@period.range).sum(:amount)
-    assert_equal 0.to_d, filter(kind: "expense").income_scope(@period.range).sum(:amount)
-    assert_equal 0.to_d, filter(kind: "income").expense_scope(@period.range).sum(:amount)
-  end
-
   test "transfer scope covers transfers touching the filtered source" do
     @user.transfers.create!(from_source: @bank, to_source: @card, amount: 500_000, date: Date.new(2026, 9, 5))
     @user.transfers.create!(from_source: @loan, to_source: @bank, amount: 300_000, date: Date.new(2026, 9, 6))

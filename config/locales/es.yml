@@ -2192,6 +2192,9 @@ es:
     transactions:
       title: "Transacciones"
       subtitle: "Gastos del periodo seleccionado"
+      view_full: "Ver reporte completo"
+      loading: "Cargando transacciones…"
+      load_error: "No se pudieron cargar las transacciones."
     sections:
       overview: "Resumen"
       spending: "Gastos"
@@ -2232,7 +2235,6 @@ es:
       apply: "Aplicar filtros"
       all_f: "Todas"
       all_m: "Todos"
-      kind: "Resumen"
     overview:
       subtitle: "Tu resumen financiero del periodo"
       income: "Ingresos"
@@ -2251,11 +2253,13 @@ es:
       count: "Transacciones"
       change: "Cambio"
       drill_down: "Ver gastos"
+      click_hint: "Haz clic en una categoría para ver sus transacciones."
       empty: "No hay gastos en este periodo."
     trend:
       title: "Tendencia de gasto"
       subtitle: "Evolución de tu gasto en el tiempo"
       empty: "No hay gastos para graficar."
+      click_hint: "Haz clic en una barra para ver las transacciones de ese periodo."
     budgets:
       title: "Presupuesto vs real"
       subtitle: "Cuánto llevas gastado frente a tus presupuestos"

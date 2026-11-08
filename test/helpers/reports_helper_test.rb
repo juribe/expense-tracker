@@ -34,6 +34,16 @@ class ReportsHelperTest < ActionView::TestCase
     assert_match(/20\d\d/, this_label)
   end
 
+  test "spending trend bucket ranges map days and clamp partial weeks" do
+    daily = Reports::Period.new(preset: "this_month", date: Date.new(2026, 9, 15))
+    assert_equal Date.new(2026, 9, 3)..Date.new(2026, 9, 3),
+                 spending_trend_bucket_range(Date.new(2026, 9, 3), daily)
+
+    weekly = Reports::Period.new(preset: "last_3_months", date: Date.new(2026, 9, 15))
+    assert_equal Date.new(2026, 7, 1)..Date.new(2026, 7, 5),
+                 spending_trend_bucket_range(Date.new(2026, 6, 29), weekly)
+  end
+
   test "available cycle due labels reflect the due date state" do
     travel_to Date.new(2026, 10, 28) do
       assert_equal "Vencido", available_cycle_due_label(due_date: Date.new(2026, 10, 20), overdue: true)

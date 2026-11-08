@@ -1,36 +1,29 @@
 # frozen_string_literal: true
 
 # Reports::Filter
-# Composable report filters (category, money source, card, loan, kind) turned
-# into scoped relations shared by every report service.
+# Composable report filters (category, money source, card, loan) turned into
+# scoped relations shared by every report service.
 #
 # Associations: none (value object over the user's records)
 # Methods: expense_scope, income_scope, transfer_scope, applied_filters
 #
 # Example: Reports::Filter.new(user: user, period: period, category_id: 7).expense_scope(period.range)
 class Reports::Filter
-  KINDS = %w[expense income].freeze
-
   attr_reader :user, :period
 
   def initialize(user:, period:, category_id: nil, money_source_id: nil,
-                 credit_card_id: nil, loan_id: nil, kind: nil)
+                 credit_card_id: nil, loan_id: nil)
     @user = user
     @period = period
     @category_id = UuidParams.normalize(category_id)
     @money_source_id = UuidParams.normalize(credit_card_id.presence || loan_id.presence || money_source_id.presence)
-    @kind = kind.to_s.presence_in(KINDS)
   end
 
   def expense_scope(range)
-    return Expense.none if @kind == "income"
-
     scoped(Expense.all, range)
   end
 
   def income_scope(range)
-    return Income.none if @kind == "expense"
-
     scoped(Income.all, range)
   end
 
@@ -45,7 +38,6 @@ class Reports::Filter
     chips = []
     chips << "category" if @category_id
     chips << "money_source" if @money_source_id
-    chips << "kind" if @kind
     chips
   end
 
