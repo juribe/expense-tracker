@@ -195,7 +195,7 @@ test.describe('category budgets are working', () => {
     await expect(prevCard.getByText('$40.000', { exact: true })).toBeVisible();
   });
 
-  test('dashboard shows a summary of budgets', async ({ page }) => {
+  test('dashboard shows the cycle budget summary', async ({ page }) => {
     await signUp(page);
     const category = `Dash-${Date.now()}`;
     await createCategory(page, category);
@@ -204,10 +204,12 @@ test.describe('category budgets are working', () => {
     await createExpense(page, { amount: 90000, category, description: 'Lunch', source: efectivo });
 
     await page.goto('/dashboard');
-    const section = page.locator('.card', { hasText: 'Presupuestos' });
-    await expect(section.getByText('Presupuestos')).toBeVisible();
-    await expect(section.getByText(category)).toBeVisible();
-    await expect(section.getByText('90%')).toBeVisible();
-    await expect(section.getByText(/1 presupuesto/)).toBeVisible();
+    const section = page.getByTestId('dashboard-budget');
+    await expect(section.getByText('Presupuesto del ciclo')).toBeVisible();
+    await expect(section.locator('.dash-budget-value')).toContainText('$90.000');
+    await expect(section.locator('.dash-budget-value')).toContainText('de $100.000');
+    await expect(section.locator('.dash-budget-progress')).toHaveAttribute('aria-valuenow', '90');
+    await expect(section.locator('.dash-budget-foot')).toContainText('90% utilizado');
+    await expect(section.locator('.dash-budget-foot')).toContainText('$10.000 disponibles');
   });
 });
