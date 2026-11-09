@@ -154,6 +154,7 @@ Rails.application.routes.draw do
     end
     member do
       post :reset_adjustment
+      patch :toggle_active
     end
     get "credits", to: "credits#show", as: :credits
     get "credits/reconstruct", to: "credits#reconstruct", as: :credit_reconstruct

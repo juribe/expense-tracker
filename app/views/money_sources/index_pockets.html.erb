@@ -1,33 +1,85 @@
 <%= render "shared/unfinished_setup_banner", setup: @setup %>
 <%= render "money_sources/quick_transfer_modal" %>
 
-<header class="loans-header loans-toolbar d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-  <div>
-    <h1 class="loans-title"><i class="ti ti-pig-money" aria-hidden="true"></i><%= t("money_sources.index.pockets_title", default: "Bolsillos") %></h1>
-    <p class="loans-subtitle"><%= t("money_sources.index.pockets_subtitle", default: "Dinero asignado a un propósito, aunque siga dentro de tu cuenta. Asignar a un bolsillo no es un gasto.") %></p>
-  </div>
-  <div class="loans-actions flex-wrap">
-    <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-primary" do %>
-      <i class="ti ti-plus" aria-hidden="true"></i><%= t("money_sources.index.new_pocket", default: "Nuevo bolsillo") %>
-    <% end %>
-  </div>
-</header>
+<%= render "shared/page_header",
+           title: t("money_sources.pocket_list.title", default: "Bolsillos"),
+           subtitle: t("money_sources.pocket_list.subtitle",
+                       default: "Organiza tu dinero por objetivos, sin sacarlo de tus cuentas.") do %>
+  <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-primary text-nowrap" do %>
+    <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("money_sources.index.new_pocket", default: "Nuevo bolsillo") %>
+  <% end %>
+<% end %>
 
 <% if @money_sources.any? %>
-  <div class="row g-3">
-    <% @money_sources.each do |source| %>
-      <%= render partial: "money_source", locals: { source: source } %>
-    <% end %>
-  </div>
-<% else %>
-  <div class="card">
-    <div class="p-5 text-center">
-      <i class="ti ti-pig-money display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2"><%= t("money_sources.index.pockets_empty_title", default: "Aún no tienes bolsillos") %></h4>
-      <p class="text-muted"><%= t("money_sources.index.pockets_empty_body", default: "Crea un bolsillo para separar dinero: Viaje, Emergencias, Impuestos...") %></p>
-      <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("money_sources.index.new_pocket", default: "Nuevo bolsillo") %>
-      <% end %>
+  <section class="row g-3 mb-4" data-testid="pockets-summary">
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("money_sources.pocket_list.summary.total_label", default: "Dinero en bolsillos"),
+                     value: tag.span(number_to_currency(@pocket_summary[:total]), data: { testid: "pocket-summary-total" }),
+                     icon: "pig-money",
+                     icon_tone: "blue",
+                     delta: t("money_sources.pocket_list.summary.total_hint",
+                              default: "Saldo total reservado en tus bolsillos") %>
+        </div>
+      </div>
     </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("money_sources.pocket_list.summary.allocated_label", default: "Asignado a metas"),
+                     value: tag.span(number_to_currency(@pocket_summary[:allocated]), data: { testid: "pocket-summary-allocated" }),
+                     tone: :balance,
+                     icon: "target",
+                     icon_tone: "blue",
+                     delta: t("money_sources.pocket_list.summary.allocated_hint",
+                              default: "Dinero que ya tiene un propósito") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("money_sources.pocket_list.summary.unallocated_label", default: "Dinero sin asignar"),
+                     value: tag.span(number_to_currency(@pocket_summary[:unallocated]), data: { testid: "pocket-summary-unallocated" }),
+                     tone: :positive,
+                     icon: "wallet",
+                     icon_tone: "green",
+                     delta: t("money_sources.pocket_list.summary.unallocated_hint",
+                              default: "Disponible para distribuir entre tus metas") %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pockets-section-head">
+    <h2><%= t("money_sources.pocket_list.section_title", default: "Mis bolsillos") %></h2>
+    <span><%= t("money_sources.pocket_list.active_count", count: @active_pockets_count,
+                                                          default: "#{@active_pockets_count} bolsillos activos") %></span>
+  </div>
+
+  <section class="pockets-grid" aria-label="<%= t("money_sources.pocket_list.section_title", default: "Mis bolsillos") %>">
+    <% @pocket_cards.each do |card| %>
+      <%= render "money_sources/pocket_card", card: card %>
+    <% end %>
+  </section>
+<% else %>
+  <% empty_cta = capture do %>
+    <%= link_to new_money_source_path(kind: "pocket"), class: "btn btn-primary mt-2" do %>
+      <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("money_sources.pocket_list.empty_cta", default: "Crear mi primer bolsillo") %>
+    <% end %>
+  <% end %>
+  <div class="card pockets-empty-card" data-testid="pockets-empty">
+    <%= render "shared/empty_state",
+               icon: "pig-money",
+               title: t("money_sources.pocket_list.empty_title", default: "Todavía no tienes bolsillos"),
+               text: t("money_sources.pocket_list.empty_body",
+                       default: "Organiza tu dinero creando bolsillos para tus viajes, ahorros, emergencias y otros objetivos."),
+               cta: empty_cta %>
   </div>
 <% end %>

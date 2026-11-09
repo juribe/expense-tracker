@@ -1,109 +1,201 @@
-<%# Pocket breakdown: how the pocket's balance is distributed across its
-    goals. Allocations are reservations, not movements. %>
-<div class="card mb-4" id="pocket-breakdown">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="card-title mb-0"><i class="ti ti-chart-pie me-2"></i><%= t("money_sources.pocket.distribution_title", default: "Distribución del dinero") %></h5>
-    <%= render "money_sources/quick_assign_action", source: @money_source,
-          button_class: "btn btn-sm btn-outline-primary", text: t("money_sources.pocket.add_money", default: "Agregar dinero") %>
-  </div>
-  <div class="card-body">
-    <div class="row text-center g-3 mb-3">
-      <div class="col-4">
-        <div class="small text-muted"><%= t("money_sources.pocket.total", default: "Total") %></div>
-        <div class="fs-5 fw-bold"><%= number_to_currency(@money_source.balance) %></div>
-      </div>
-      <div class="col-4">
-        <div class="small text-muted"><%= t("money_sources.pocket.allocated", default: "Asignado a metas") %></div>
-        <div class="fs-5 fw-bold text-warning"><%= number_to_currency(@money_source.allocated_amount) %></div>
-      </div>
-      <div class="col-4">
-        <div class="small text-muted"><%= t("money_sources.pocket.unallocated", default: "No asignado") %></div>
-        <div class="fs-5 fw-bold text-success"><%= number_to_currency(@money_source.unallocated_amount) %></div>
-      </div>
-    </div>
+<%# Pocket summary: real balance distribution plus the goals it backs.
+    Allocations are reservations, never expenses or bank movements. %>
+<% summary = pocket_money_summary(@money_source) %>
 
-    <h6 class="fw-semibold mb-2"><%= t("money_sources.pocket.goals_title", default: "Metas en este bolsillo") %></h6>
-    <% if @pocket_goals.any? %>
-      <div class="list-group list-group-flush">
-        <% @pocket_goals.each do |goal| %>
-          <div class="list-group-item px-0">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="fw-semibold">
-                <span class="me-1"><%= goal_category_emoji(goal.category) %></span>
-                <%= link_to goal.name, goals_path, class: "text-decoration-none text-reset" %>
-              </span>
-              <span class="small">
-                <strong><%= number_to_currency(goal.saved_amount) %></strong>
-                / <%= number_to_currency(goal.target_amount) %>
-                · <%= number_to_percentage(goal.progress_percentage, precision: 1) %>
-              </span>
+<div class="pocket-summary" id="pocket-breakdown">
+  <section class="card pocket-balance-card" data-testid="pocket-summary">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <div class="min-w-0">
+          <div class="stat-label"><%= t("money_sources.pocket.balance_label", default: "Saldo total del bolsillo") %></div>
+          <div class="pocket-balance-value" data-testid="pocket-total"><%= number_to_currency(summary[:total]) %></div>
+          <p class="pocket-balance-hint mb-0"><%= t("money_sources.pocket.balance_hint", default: "Dinero disponible dentro de este bolsillo") %></p>
+        </div>
+        <span class="icon-chip icon-chip-blue pocket-balance-icon" aria-hidden="true">
+          <i class="ti ti-wallet"></i>
+        </span>
+      </div>
+
+      <div class="pocket-distribution-bar" role="img" data-testid="pocket-distribution-bar"
+           aria-label="<%= t("money_sources.pocket.distribution_label", default: "Distribución del dinero entre metas y saldo libre") %>">
+        <span class="pocket-distribution-allocated et-w-<%= summary[:allocated_percentage] %>"
+              data-testid="pocket-distribution-allocated"></span>
+        <span class="pocket-distribution-unallocated et-w-<%= summary[:unallocated_percentage] %>"
+              data-testid="pocket-distribution-unallocated"></span>
+      </div>
+
+      <div class="pocket-legend">
+        <div class="pocket-legend-item">
+          <span class="pocket-legend-dot pocket-legend-dot-allocated" aria-hidden="true"></span>
+          <div class="min-w-0">
+            <div class="pocket-legend-label"><%= t("money_sources.pocket.allocated", default: "Asignado a metas") %></div>
+            <div class="pocket-legend-value pocket-legend-value-allocated" data-testid="pocket-allocated">
+              <%= number_to_currency(summary[:allocated]) %>
             </div>
-            <div class="progress et-progress-6" role="progressbar"
-                 aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
-                 aria-valuenow="<%= goal.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100">
-              <div class="progress-bar <%= goal_health_progress_class(goal) %> et-w-<%= goal.progress_percentage.round %>"></div>
-            </div>
-            <div class="d-flex gap-2 mt-2 d-print-none">
-              <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path, local: true, class: "d-flex gap-2 align-items-center" do |f| %>
-                <%= f.hidden_field :financial_goal_id, value: goal.id %>
-                <%= f.hidden_field :date, value: Date.current %>
-                <%= f.text_field :amount, class: "form-control form-control-sm pocket-amount-input",
-                      placeholder: t("common.amount", default: "Monto"), inputmode: "decimal",
-                      autocomplete: "off", data: { money_input: true }, required: true %>
-                <%= f.submit t("goals.assign_to_goal", default: "Asignar"), class: "btn btn-sm btn-outline-primary" %>
-              <% end %>
-              <% if goal.saved_amount.positive? %>
-                <%= button_to goal_allocations_path, method: :post, params: { goal_allocations: { financial_goal_id: goal.id, amount: -goal.saved_amount, date: Date.current } },
-                              class: "btn btn-sm btn-outline-secondary",
-                              data: { confirm: t("money_sources.pocket.release_confirm", name: goal.name) } do %>
-                  <%= t("goals.release", default: "Liberar") %>
-                <% end %>
-              <% end %>
-              <% others = @pocket_goals.where.not(id: goal.id) %>
-              <% if others.any? && goal.saved_amount.positive? %>
-                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reallocate-modal"
-                        data-reallocate-from="<%= goal.id %>"
-                        data-reallocate-from-name="<%= goal.name %>"
-                        data-reallocate-max="<%= goal.saved_amount %>">
-                  <%= t("goals.reallocate", default: "Reasignar") %>
-                </button>
-              <% end %>
+            <div class="pocket-legend-meta" data-testid="pocket-allocated-share">
+              <%= t("money_sources.pocket.allocated_share", percentage: summary[:allocated_percentage],
+                    default: "%{percentage}% del saldo total") %>
             </div>
           </div>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="text-muted small mb-3"><%= t("money_sources.pocket.no_goals", default: "Este bolsillo aún no respalda ninguna meta.") %></p>
-      <%= link_to new_goal_path, class: "btn btn-sm btn-outline-primary" do %>
-        <i class="ti ti-plus me-1"></i><%= t("goals.new", default: "Nueva meta") %>
-      <% end %>
-    <% end %>
+        </div>
 
-    <% if @recent_allocations.any? %>
-      <h6 class="fw-semibold mt-4 mb-2"><%= t("money_sources.pocket.history_title", default: "Historial de asignaciones") %></h6>
-      <ul class="list-unstyled mb-0 small">
-        <% @recent_allocations.each do |allocation| %>
-          <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
-            <span>
-              <span class="text-muted me-2"><%= l(allocation.date, format: :short) %></span>
-              <%= allocation.financial_goal.name %>
-            </span>
-            <span class="d-flex align-items-center gap-2">
-              <span class="<%= allocation.amount.to_d.positive? ? "text-success" : "text-danger" %> fw-semibold">
-                <%= reconciliation_signed_money(allocation.amount) %>
-              </span>
-              <%= button_to goal_allocation_path(allocation), method: :delete,
-                            form: { class: "d-inline-block" },
-                            class: "btn btn-sm btn-link text-muted p-0", title: t("goals.delete_allocation", default: "Eliminar asignación"),
-                            data: { confirm: t("money_sources.pocket.delete_allocation_confirm") } do %>
-                <i class="ti ti-x small"></i>
-              <% end %>
-            </span>
-          </li>
-        <% end %>
-      </ul>
-    <% end %>
-  </div>
+        <div class="pocket-legend-item">
+          <span class="pocket-legend-dot pocket-legend-dot-unallocated" aria-hidden="true"></span>
+          <div class="min-w-0">
+            <div class="pocket-legend-label"><%= t("money_sources.pocket.unallocated", default: "Sin asignar") %></div>
+            <div class="pocket-legend-value pocket-legend-value-unallocated" data-testid="pocket-unallocated">
+              <%= number_to_currency(summary[:unallocated]) %>
+            </div>
+            <div class="pocket-legend-meta" data-testid="pocket-unallocated-share">
+              <%= t("money_sources.pocket.unallocated_share", percentage: summary[:unallocated_percentage],
+                    default: "%{percentage}% del saldo total") %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="pocket-goals">
+    <div class="card-header pocket-panel-head">
+      <div>
+        <h2 class="card-title"><%= t("money_sources.pocket.goals_title", default: "Metas de este bolsillo") %></h2>
+        <div class="card-subtitle"><%= t("money_sources.pocket.goals_subtitle", default: "Dinero reservado para tus objetivos") %></div>
+      </div>
+      <span class="badge rounded-pill bg-body-secondary text-secondary border" data-testid="pocket-goal-count">
+        <%= t("money_sources.pocket.goal_count", count: @pocket_goals.size, default: "#{@pocket_goals.size} metas") %>
+      </span>
+    </div>
+
+    <div class="card-body">
+      <% if @pocket_goals.any? %>
+        <div class="pocket-goals" data-testid="pocket-goals">
+          <% @pocket_goals.each do |goal| %>
+            <% progress = goal.progress_percentage.round %>
+            <article class="pocket-goal" data-testid="pocket-goal">
+              <div class="pocket-goal-head">
+                <div class="pocket-goal-identity">
+                  <span class="pocket-goal-emoji" data-testid="pocket-goal-emoji" aria-hidden="true"><%= goal_category_emoji(goal.category) %></span>
+                  <div class="min-w-0">
+                    <h3 class="pocket-goal-name" data-testid="pocket-goal-name"><%= goal.name %></h3>
+                    <% if goal.target_date.present? %>
+                      <div class="pocket-goal-date">
+                        <i class="ti ti-calendar-event me-1" aria-hidden="true"></i><%= l(goal.target_date, format: :long) %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+                <%= goal_health_badge(goal) %>
+              </div>
+
+              <div class="pocket-goal-values">
+                <div class="pocket-goal-saved" data-testid="pocket-goal-saved"><%= number_to_currency(goal.saved_amount) %></div>
+                <div class="pocket-goal-target" data-testid="pocket-goal-target">
+                  <%= t("money_sources.pocket.goal_target", default: "Objetivo: %{amount}",
+                        amount: number_to_currency(goal.target_amount)) %>
+                </div>
+              </div>
+
+              <div class="progress pocket-goal-progress" role="progressbar"
+                   aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
+                   aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar <%= goal_health_progress_class(goal) %> et-w-<%= progress %>"
+                     data-testid="pocket-goal-progress"></div>
+              </div>
+              <div class="pocket-goal-progress-meta">
+                <span data-testid="pocket-goal-percentage">
+                  <%= t("money_sources.pocket.goal_progress", default: "%{percentage} de la meta",
+                        percentage: number_to_percentage(goal.progress_percentage, precision: 1)) %>
+                </span>
+                <strong data-testid="pocket-goal-remaining">
+                  <%= t("money_sources.pocket.goal_remaining", default: "%{amount} restantes",
+                        amount: number_to_currency(goal.remaining_amount)) %>
+                </strong>
+              </div>
+
+              <div class="pocket-goal-actions d-print-none">
+                <%= form_with model: GoalAllocation.new, scope: :goal_allocations, url: goal_allocations_path,
+                              local: true, class: "pocket-goal-assign" do |f| %>
+                  <%= f.hidden_field :financial_goal_id, value: goal.id %>
+                  <%= f.hidden_field :date, value: Date.current %>
+                  <%= f.label :amount, t("common.amount", default: "Monto"),
+                        class: "visually-hidden", for: "goal-allocation-amount-#{goal.id}" %>
+                  <%= f.text_field :amount, id: "goal-allocation-amount-#{goal.id}",
+                        class: "form-control form-control-sm pocket-amount-input",
+                        placeholder: t("common.amount", default: "Monto"), inputmode: "decimal",
+                        autocomplete: "off", data: { money_input: true }, required: true %>
+                  <%= f.submit t("goals.assign_money", default: "Asignar dinero"), class: "btn btn-sm btn-primary" %>
+                <% end %>
+
+                <% if goal.saved_amount.positive? %>
+                  <%= button_to goal_allocations_path, method: :post,
+                                params: { goal_allocations: { financial_goal_id: goal.id, amount: -goal.saved_amount, date: Date.current } },
+                                class: "btn btn-sm btn-outline-secondary",
+                                data: { confirm: t("money_sources.pocket.release_confirm", name: goal.name) } do %>
+                    <%= t("goals.release", default: "Liberar") %>
+                  <% end %>
+                <% end %>
+
+                <% others = @pocket_goals.where.not(id: goal.id) %>
+                <% if others.any? && goal.saved_amount.positive? %>
+                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reallocate-modal"
+                          data-reallocate-from="<%= goal.id %>"
+                          data-reallocate-from-name="<%= goal.name %>"
+                          data-reallocate-max="<%= goal.saved_amount %>">
+                    <%= t("goals.reallocate", default: "Reasignar") %>
+                  </button>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+
+        <div class="pocket-all-goals">
+          <%= link_to goals_path, class: "btn btn-outline-primary w-100" do %>
+            <i class="ti ti-target me-1" aria-hidden="true"></i><%= t("money_sources.pocket.all_goals", default: "Ver todas las metas") %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="pocket-goals-empty" data-testid="pocket-goals-empty">
+          <span class="pocket-empty-icon" aria-hidden="true"><i class="ti ti-target"></i></span>
+          <h3><%= t("money_sources.pocket.no_goals_title", default: "Aún no hay metas en este bolsillo") %></h3>
+          <p><%= t("money_sources.pocket.no_goals", default: "Este bolsillo aún no tiene metas asociadas.") %></p>
+          <p class="small"><%= t("money_sources.pocket.no_goals_hint", default: "Crea una meta y asígnale dinero para empezar a reservar.") %></p>
+          <%= link_to new_goal_path, class: "btn btn-primary btn-sm" do %>
+            <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("goals.new", default: "Nueva meta") %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @recent_allocations.any? %>
+        <div class="pocket-history">
+          <h3 class="section-title"><%= t("money_sources.pocket.history_title", default: "Historial de asignaciones") %></h3>
+          <ul class="list-unstyled pocket-history-list mb-0">
+            <% @recent_allocations.each do |allocation| %>
+              <li class="d-flex justify-content-between align-items-center gap-3">
+                <span>
+                  <span class="text-secondary me-2"><%= l(allocation.date, format: :short) %></span>
+                  <%= allocation.financial_goal.name %>
+                </span>
+                <span class="d-flex align-items-center gap-2">
+                  <span class="<%= allocation.amount.to_d.positive? ? "text-success" : "text-danger" %> fw-semibold">
+                    <%= reconciliation_signed_money(allocation.amount) %>
+                  </span>
+                  <%= button_to goal_allocation_path(allocation), method: :delete,
+                                form: { class: "d-inline-block" },
+                                class: "btn btn-sm btn-link text-secondary p-0",
+                                title: t("goals.delete_allocation", default: "Eliminar asignación"),
+                                data: { confirm: t("money_sources.pocket.delete_allocation_confirm") } do %>
+                    <i class="ti ti-x small"></i>
+                  <% end %>
+                </span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </section>
 </div>
 
 <%# Reallocate modal: move a reservation between two goals of this pocket. %>
@@ -147,4 +239,3 @@
 </div>
 
 <%= javascript_include_tag "pocket_breakdown", defer: true %>
-

@@ -1,0 +1,77 @@
+<%# Pocket sidebar: only facts that exist on the model, plus the reminder
+    that reservations stay inside the pocket and are not expenses. %>
+<div class="pocket-summary-side">
+  <section class="card" data-testid="pocket-info">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h2 class="card-title"><%= t("money_sources.pocket.info_title", default: "Información del bolsillo") %></h2>
+      <i class="ti ti-info-circle text-secondary" aria-hidden="true"></i>
+    </div>
+    <div class="card-body">
+      <dl class="pocket-info-list mb-0">
+        <div class="pocket-info-row">
+          <dt><%= t("common.type", default: "Tipo") %></dt>
+          <dd><%= source_kind_label(@money_source.kind) %></dd>
+        </div>
+
+        <% if @money_source.institution_name.present? %>
+          <div class="pocket-info-row">
+            <dt><%= t("money_sources.form.institution", default: "Entidad") %></dt>
+            <dd>
+              <%= @money_source.institution_name %>
+              <%= institution_type_badge(@money_source.institution) if @money_source.institution? %>
+            </dd>
+          </div>
+        <% end %>
+
+        <div class="pocket-info-row">
+          <dt><%= t("money_sources.show.status", default: "Estado") %></dt>
+          <dd>
+            <span class="badge rounded-pill <%= @money_source.active? ? "bg-success-subtle text-success-emphasis" : "bg-secondary-subtle text-secondary-emphasis" %>">
+              <span class="pocket-status-dot" aria-hidden="true"></span><%= @money_source.active? ? t("common.active") : t("common.inactive", default: "Inactiva") %>
+            </span>
+          </dd>
+        </div>
+
+        <div class="pocket-info-row">
+          <dt><%= t("common.created_at", default: "Creado") %></dt>
+          <dd><%= l(@money_source.created_at, format: :long) if @money_source.created_at %></dd>
+        </div>
+
+        <% if @money_source.balance_offset.to_d.nonzero? || @money_source.balance_offset_note.present? %>
+          <div class="pocket-info-row">
+            <dt><%= t("money_sources.show.manual_adjustment") %></dt>
+            <dd>
+              <div class="fw-semibold <%= @money_source.balance_offset.to_d.positive? ? "text-success" : "text-danger" %>">
+                <%= reconciliation_signed_money(@money_source.balance_offset) %>
+              </div>
+              <% if @money_source.balance_offset_note.present? %>
+                <div class="text-secondary small fw-normal"><%= @money_source.balance_offset_note %></div>
+              <% end %>
+              <%= button_to reset_adjustment_money_source_path(@money_source),
+                            method: :post,
+                            form_class: "d-inline",
+                            class: "btn btn-outline-secondary btn-sm mt-1",
+                            data: { turbo: false, confirm: t("money_sources.show.reset_adjustment_confirm") } do %>
+                <i class="ti ti-rotate-2 me-1"></i><%= t("money_sources.show.reset_adjustment") %>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </section>
+
+  <section class="card pocket-tip-card" data-testid="pocket-tip">
+    <div class="card-body">
+      <div class="d-flex align-items-start gap-2">
+        <span class="icon-chip icon-chip-blue pocket-tip-icon" aria-hidden="true">
+          <i class="ti ti-bulb"></i>
+        </span>
+        <div>
+          <h2 class="pocket-tip-title"><%= t("money_sources.pocket.tip_title", default: "Tu dinero, con propósito") %></h2>
+          <p class="pocket-tip-body mb-0"><%= t("money_sources.pocket.tip_body") %></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

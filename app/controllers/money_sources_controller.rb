@@ -4,7 +4,7 @@ class MoneySourcesController < ApplicationController
   include MoneySourceShowContext
 
   before_action :authenticate_user!
-  before_action :set_money_source, only: [ :show, :edit, :update, :destroy, :reset_adjustment ]
+  before_action :set_money_source, only: [ :show, :edit, :update, :destroy, :reset_adjustment, :toggle_active ]
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -44,6 +44,7 @@ class MoneySourcesController < ApplicationController
     scope = scope.where(kind: FILTERS[@filter])
 
     @money_sources = scope.order(:kind, :name)
+    load_pocket_list_context if @filter == "pockets"
     @counts = FILTERS.each_with_object({}) do |(key, kinds), out|
       out[key] = current_user.money_sources.where(kind: kinds).count
     end
@@ -311,8 +312,17 @@ class MoneySourcesController < ApplicationController
 
   # DELETE /money_sources/1
   def destroy
-    @money_source.destroy
-    redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
+    if @money_source.destroy
+      redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.deleted")
+    else
+      redirect_to kind_index_path(@money_source), alert: t("money_sources.flashes.delete_blocked")
+    end
+  end
+
+  # PATCH /money_sources/1/toggle_active
+  def toggle_active
+    @money_source.update!(active: !@money_source.active?)
+    redirect_to kind_index_path(@money_source), notice: t("money_sources.flashes.updated")
   end
 
   private
@@ -326,6 +336,42 @@ class MoneySourcesController < ApplicationController
     when "credit_cards" then "index_credit_cards"
     when "loans" then "index_loans"
     end
+  end
+
+  # Aggregates the pockets list in a fixed number of queries: balances come
+  # from each pocket, reservations from its goal allocations, and movements
+  # from its transactions plus incoming/outgoing transfers. Accounts are
+  # never included, so the same money is not counted twice.
+  def load_pocket_list_context
+    pockets = @money_sources.to_a
+    pocket_ids = pockets.map(&:id)
+    allocations = GoalAllocation.where(pocket_id: pocket_ids).group(:pocket_id).sum(:amount)
+    goals_counts = Goal.where(pocket_id: pocket_ids).group(:pocket_id).count
+    incoming_transfers = Transfer.where(to_source_id: pocket_ids).group(:to_source_id).count
+    outgoing_transfers = Transfer.where(from_source_id: pocket_ids).group(:from_source_id).count
+
+    @pocket_cards = pockets.map do |pocket|
+      total = pocket.balance.to_d
+      allocated = allocations[pocket.id].to_d
+
+      {
+        source: pocket,
+        total: total,
+        allocated: allocated,
+        unallocated: [ total - allocated, 0 ].max,
+        goals_count: goals_counts[pocket.id].to_i,
+        movements_count: pocket.transactions_count.to_i +
+                         incoming_transfers[pocket.id].to_i +
+                         outgoing_transfers[pocket.id].to_i
+      }
+    end
+
+    @pocket_summary = {
+      total: @pocket_cards.sum { |card| card[:total] },
+      allocated: @pocket_cards.sum { |card| card[:allocated] },
+      unallocated: @pocket_cards.sum { |card| card[:unallocated] }
+    }
+    @active_pockets_count = pockets.count(&:active?)
   end
 
   # Persists the deterministic suggestions for every listed source so the

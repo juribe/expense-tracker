@@ -533,6 +533,29 @@ module ApplicationHelper
     { completed: "bg-success", on_track: "bg-success", at_risk: "bg-warning", behind: "bg-danger" }[goal.health]
   end
 
+  # Presentation summary for the pocket detail. Amounts always come from the
+  # model; the percentages only describe how the current balance splits
+  # between allocated and free money for the distribution bar.
+  def pocket_money_summary(money_source)
+    total = money_source.balance.to_d
+    allocated = money_source.allocated_amount.to_d
+    unallocated = money_source.unallocated_amount.to_d
+
+    {
+      total: total,
+      allocated: allocated,
+      unallocated: unallocated,
+      allocated_percentage: money_share_percentage(allocated, total),
+      unallocated_percentage: money_share_percentage(unallocated, total)
+    }
+  end
+
+  def money_share_percentage(amount, total)
+    return 0 unless total.positive?
+
+    ((amount.to_d / total) * 100).clamp(0, 100).round
+  end
+
   # Interest-rate type options with localized labels (reuses the money-sources
   # form's rate_type translations).
   def rate_type_options

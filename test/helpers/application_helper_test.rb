@@ -99,4 +99,30 @@ class ApplicationHelperTest < ActionView::TestCase
     date = next_payment_date(@loan)
     assert_kind_of Date, date
   end
+
+  test "pocket_money_summary reflects real balances and allocation shares" do
+    pocket = @user.money_sources.create!(name: "Bolsillo Viaje", kind: "pocket", starting_balance: 1_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 500_000)
+    GoalAllocation.create!(financial_goal: goal, pocket: pocket, amount: 250_000, date: Date.current)
+
+    summary = pocket_money_summary(pocket)
+
+    assert_equal BigDecimal("1000000"), summary[:total]
+    assert_equal BigDecimal("250000"), summary[:allocated]
+    assert_equal BigDecimal("750000"), summary[:unallocated]
+    assert_equal 25, summary[:allocated_percentage]
+    assert_equal 75, summary[:unallocated_percentage]
+  end
+
+  test "pocket_money_summary returns zero shares for an empty pocket" do
+    pocket = @user.money_sources.create!(name: "Bolsillo Vacío", kind: "pocket", starting_balance: 0)
+
+    summary = pocket_money_summary(pocket)
+
+    assert_equal BigDecimal("0"), summary[:total]
+    assert_equal BigDecimal("0"), summary[:allocated]
+    assert_equal BigDecimal("0"), summary[:unallocated]
+    assert_equal 0, summary[:allocated_percentage]
+    assert_equal 0, summary[:unallocated_percentage]
+  end
 end

@@ -77,6 +77,101 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h5.card-title", text: /Davibank/, count: 0
   end
 
+  # ----- Pockets list redesign -----
+
+  test "GET /money_sources/pockets summarizes pocket balances and allocations without counting accounts" do
+    trip = create_source(name: "Bolsillo Viaje", kind: "pocket", starting_balance: 1_000_000)
+    emergency = create_source(name: "Bolsillo Emergencias", kind: "pocket", starting_balance: 500_000)
+    create_source(name: "Cuenta principal", kind: "account", starting_balance: 9_000_000)
+    trip_goal = Goal.create!(user: @user, pocket: trip, name: "Europa", target_amount: 2_000_000)
+    emergency_goal = Goal.create!(user: @user, pocket: emergency, name: "Fondo", target_amount: 1_000_000)
+    GoalAllocation.create!(financial_goal: trip_goal, pocket: trip, amount: 250_000, date: Date.current)
+    GoalAllocation.create!(financial_goal: emergency_goal, pocket: emergency, amount: 100_000, date: Date.current)
+
+    get money_sources_pockets_path
+
+    assert_response :success
+    assert_select "[data-testid='pocket-summary-total']", text: /\$1\.500\.000/
+    assert_select "[data-testid='pocket-summary-allocated']", text: /\$350\.000/
+    assert_select "[data-testid='pocket-summary-unallocated']", text: /\$1\.150\.000/
+  end
+
+  test "GET /money_sources/pockets renders a card with the real distribution and counts per pocket" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket", starting_balance: 1_000_000)
+    account = create_source(name: "Cuenta principal", kind: "account", starting_balance: 3_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Europa", target_amount: 2_000_000)
+    GoalAllocation.create!(financial_goal: goal, pocket: pocket, amount: 250_000, date: Date.current)
+    Transfer.create!(user: @user, from_source: account, to_source: pocket, amount: 200_000, date: Date.current)
+
+    get money_sources_pockets_path
+
+    assert_response :success
+    assert_select "[data-testid='pocket-card']", count: 1 do
+      assert_select "[data-testid='pocket-card-name']", text: "Bolsillo Viaje"
+      assert_select "[data-testid='pocket-card-total']", text: /\$1\.200\.000/
+      assert_select "[data-testid='pocket-card-allocated']", text: /\$250\.000/
+      assert_select "[data-testid='pocket-card-unallocated']", text: /\$950\.000/
+      assert_select "[data-testid='pocket-card-allocated-share']", text: /21%/
+      assert_select "[data-testid='pocket-card-unallocated-share']", text: /79%/
+      assert_select "[data-testid='pocket-card-allocated-bar'].et-w-21", count: 1
+      assert_select "[data-testid='pocket-card-free-bar'].et-w-79", count: 1
+      assert_select "[data-testid='pocket-card-allocated-bar'][style]", count: 0
+      assert_select "[data-testid='pocket-card-free-bar'][style]", count: 0
+      assert_select "[data-testid='pocket-card-goals-count']", text: /#{I18n.t('money_sources.pocket_list.goals_count', count: 1)}/
+      assert_select "[data-testid='pocket-card-movements-count']", text: /#{I18n.t('money_sources.pocket_list.movements_count', count: 1)}/
+      assert_select "a[href=?]", money_source_path(pocket, tab: "resumen"), text: /Ver bolsillo/
+      assert_select "a[href=?]", edit_money_source_path(pocket), text: /Editar bolsillo/
+      assert_select "form[action=?]", toggle_active_money_source_path(pocket)
+      assert_select "form[action=?]", money_source_path(pocket)
+    end
+  end
+
+  test "GET /money_sources/pockets keeps the assign action on the existing quick-transfer flow" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket", starting_balance: 100_000)
+
+    get money_sources_pockets_path
+
+    assert_response :success
+    expected_src = quick_new_transfers_path(to_source_id: pocket.id, mode: "assign",
+                                            return_to: money_sources_pockets_path)
+    assert_select "button[data-testid='quick-action-assign'][data-src=?]", expected_src
+  end
+
+  test "GET /money_sources/pockets renders a friendly empty state with a create action" do
+    get money_sources_pockets_path
+
+    assert_response :success
+    assert_select "[data-testid='pockets-empty']" do
+      assert_select "h3", text: "Todavía no tienes bolsillos"
+      assert_select "a[href=?]", new_money_source_path(kind: "pocket"), text: /Crear mi primer bolsillo/
+    end
+  end
+
+  test "PATCH /money_sources/:id/toggle_active deactivates and reactivates a pocket" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket", active: true)
+
+    patch toggle_active_money_source_path(pocket)
+
+    assert_redirected_to money_sources_pockets_path
+    assert_not pocket.reload.active?
+
+    patch toggle_active_money_source_path(pocket)
+
+    assert_redirected_to money_sources_pockets_path
+    assert pocket.reload.active?
+  end
+
+  test "DELETE /money_sources/:id keeps a pocket with goals and reports why" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket")
+    Goal.create!(user: @user, pocket: pocket, name: "Europa", target_amount: 2_000_000)
+
+    delete money_source_path(pocket)
+
+    assert_redirected_to money_sources_pockets_path
+    assert MoneySource.exists?(pocket.id)
+    assert_equal I18n.t("money_sources.flashes.delete_blocked"), flash[:alert]
+  end
+
   # Payments apply to every credit: credit cards AND all loan subtypes.
   test "GET /money_sources shows a payments button on every debt source card" do
     create_source(name: "Checking", kind: "account")
@@ -1598,5 +1693,87 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_equal balance_before, foreign_account.reload.cached_balance
+  end
+
+  # ----- Pocket summary redesign -----
+
+  test "a pocket show page renders the real balance distribution" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket", starting_balance: 1_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje a Bogotá",
+                        target_amount: 500_000, category: "travel")
+    GoalAllocation.create!(financial_goal: goal, pocket: pocket, amount: 250_000, date: Date.current)
+
+    get money_source_path(pocket)
+
+    assert_response :success
+    assert_select "[data-testid='pocket-total']", text: /\$1\.000\.000/
+    assert_select "[data-testid='pocket-allocated']", text: /\$250\.000/
+    assert_select "[data-testid='pocket-unallocated']", text: /\$750\.000/
+    assert_select "[data-testid='pocket-allocated-share']", text: /25%/
+    assert_select "[data-testid='pocket-unallocated-share']", text: /75%/
+    assert_select "[data-testid='pocket-distribution-allocated'].et-w-25", count: 1
+    assert_select "[data-testid='pocket-distribution-unallocated'].et-w-75", count: 1
+  end
+
+  test "a pocket show page renders each goal with progress and its assignment form" do
+    pocket = create_source(name: "Bolsillo Viaje", kind: "pocket", starting_balance: 1_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje a Bogotá",
+                        target_amount: 500_000, category: "travel")
+    GoalAllocation.create!(financial_goal: goal, pocket: pocket, amount: 250_000, date: Date.current)
+
+    get money_source_path(pocket)
+
+    assert_response :success
+    assert_select "[data-testid='pocket-goal']", count: 1 do
+      assert_select "[data-testid='pocket-goal-emoji']", text: "✈️"
+      assert_select "[data-testid='pocket-goal-name']", text: "Viaje a Bogotá"
+      assert_select "[data-testid='pocket-goal-saved']", text: /\$250\.000/
+      assert_select "[data-testid='pocket-goal-target']", text: /\$500\.000/
+      assert_select "[data-testid='pocket-goal-progress'].et-w-50", count: 1
+      assert_select "[data-testid='pocket-goal-percentage']", text: /50/
+      assert_select "[data-testid='pocket-goal-remaining']", text: /\$250\.000/
+      assert_select "form[action=?]", goal_allocations_path do
+        assert_select "input[name='goal_allocations[financial_goal_id]'][value=?]", goal.id
+        assert_select "input[type='submit'][value=?]", I18n.t("goals.assign_money")
+      end
+    end
+  end
+
+  test "a pocket show page renders its information and the allocation notice" do
+    pocket = create_source(name: "Bolsillo Davibank", kind: "pocket", bank: "Davivienda",
+                           starting_balance: 100_000)
+
+    get money_source_path(pocket)
+
+    assert_response :success
+    assert_select "[data-testid='pocket-info']" do
+      assert_select "dt", text: I18n.t("common.type")
+      assert_select "dd", text: I18n.t("kinds.pocket")
+      assert_select "dt", text: I18n.t("money_sources.form.institution")
+      assert_select "dd", text: /Davivienda/
+      assert_select "dt", text: I18n.t("money_sources.show.status")
+      assert_select "dd", text: /#{I18n.t('common.active')}/
+      assert_select "dt", text: I18n.t("common.created_at")
+      assert_select "dd", text: /#{Regexp.escape(I18n.l(pocket.created_at, format: :long))}/
+    end
+    assert_select "[data-testid='pocket-tip']", text: /#{Regexp.escape(I18n.t('money_sources.pocket.tip_body'))}/
+
+    pocket_without_institution = create_source(name: "Bolsillo sin entidad", kind: "pocket")
+    get money_source_path(pocket_without_institution)
+
+    assert_response :success
+    assert_select "[data-testid='pocket-info'] dt", text: I18n.t("money_sources.form.institution"), count: 0
+  end
+
+  test "a pocket without goals renders a friendly empty state with a create action" do
+    pocket = create_source(name: "Bolsillo Vacío", kind: "pocket")
+
+    get money_source_path(pocket)
+
+    assert_response :success
+    assert_select "[data-testid='pocket-goals-empty']" do
+      assert_select "p", text: I18n.t("money_sources.pocket.no_goals")
+      assert_select "a[href=?]", new_goal_path, text: /#{I18n.t('goals.new')}/
+    end
   end
 end

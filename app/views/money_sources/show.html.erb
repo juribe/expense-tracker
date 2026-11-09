@@ -20,7 +20,9 @@
       <% end %>
     </div>
 <% end %>
-<%= render "shared/page_header", title: (@money_source.name.presence || @money_source.display_name), actions: source_actions %>
+<% header_options = { title: (@money_source.name.presence || @money_source.display_name), actions: source_actions } %>
+<% header_options[:subtitle] = t("money_sources.show.pocket_subtitle") if @money_source.pocket? %>
+<%= render "shared/page_header", **header_options %>
 
 <%# A forced tab bypasses the sessionStorage restore so index links can
     guarantee the detail (summary) tab. %>
@@ -136,7 +138,7 @@
   </div>
 <% else %>
   <div data-source-tabs="<%= @money_source.id %>" <% if forced_tab %>data-source-tabs-force="<%= forced_tab %>"<% end %>>
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs<%= " pocket-tabs" if @money_source.pocket? %>" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link<%= " active" unless @active_tab == "movimientos" %>"
                 id="source-tab-resumen-btn"
@@ -166,11 +168,13 @@
       <div class="tab-pane fade <%= "show active" unless @active_tab == "movimientos" %>" id="source-tab-resumen" role="tabpanel" aria-labelledby="source-tab-resumen-btn" tabindex="0">
         <div class="row g-4 pt-4">
           <% if @money_source.pocket? %>
-            <div class="col-lg-7">
-              <%= render "money_sources/pocket_breakdown" %>
-            </div>
-            <div class="col-lg-5">
-              <%= render "money_sources/details" %>
+            <div class="col-12">
+              <div class="pocket-summary-layout">
+                <div class="pocket-summary-main">
+                  <%= render "money_sources/pocket_breakdown" %>
+                </div>
+                <%= render "money_sources/pocket_info" %>
+              </div>
             </div>
           <% else %>
             <div class="col-lg-7">
