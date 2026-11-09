@@ -1464,9 +1464,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1794183360.2338195,
-    "seen": 1794183406.358241,
-    "ast_hash": "2dc86714cf0bbb3dd8632da02f701975",
+    "mtime": 1794183913.7533133,
+    "seen": 1794184027.865814,
+    "ast_hash": "fcf760b8c95997a4323171227a589a31",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
@@ -3798,9 +3798,9 @@
     "semantic_hash": ""
   },
   "app/services/dashboard/cycle_summary.rb": {
-    "mtime": 1794183360.224185,
-    "seen": 1794183406.3572679,
-    "ast_hash": "9ae566ac587315cc2669d9adbd74bc7f",
+    "mtime": 1794183933.9160159,
+    "seen": 1794184027.864918,
+    "ast_hash": "fdf99fcd0c9fa91ed62d548231705cb5",
     "semantic_hash": ""
   },
   "test/controllers/goals_controller_test.rb": {
@@ -3816,9 +3816,9 @@
     "semantic_hash": ""
   },
   "test/services/dashboard/cycle_summary_test.rb": {
-    "mtime": 1794183360.2355533,
-    "seen": 1794183406.358614,
-    "ast_hash": "c583c4c54eb6256f4d20a980232f62c1",
+    "mtime": 1794183918.2698538,
+    "seen": 1794184027.866157,
+    "ast_hash": "ee17307e4e02c8170fc5f17c5018f64c",
     "semantic_hash": ""
   },
   "app/controllers/goal_allocations_controller.rb": {
