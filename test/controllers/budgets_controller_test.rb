@@ -30,7 +30,17 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
   test "GET /budgets accepts a month param" do
     get budgets_path(month: "2026-09")
     assert_response :success
-    assert_select "h5", text: /Septiembre/
+    assert_select "[data-testid=cycle-badge]", text: /Septiembre/
+  end
+
+  test "GET /budgets shows a visible label for the sort dropdown" do
+    Budget.create!(user: @user, category: @category, monthly_amount: 800_000)
+
+    get budgets_path
+
+    assert_response :success
+    assert_select "form.budget-sort-form label[for='sort']", text: "Ordenar:"
+    assert_select "form.budget-sort-form select#sort"
   end
 
   test "GET /budgets with an invalid month falls back to the current month" do
@@ -48,10 +58,10 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     get budgets_path(cycle: "2026-10-20")
 
     assert_response :success
-    assert_select "h5", text: /oct/i
+    assert_select "[data-testid=cycle-badge]", text: /oct/i
     assert_select ".budget-amount", text: /200\.000/
     # 200.000 spent of a 500.000 budget renders a 40% wide bar.
-    assert_select ".budget-progress .progress-bar.et-w-40", count: 1
+    assert_select ".budget-progress .budget-progress-bar.et-w-40", count: 1
   end
 
   test "GET /budgets with an invalid cycle param falls back to the current cycle" do
@@ -130,6 +140,24 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     get edit_budget_path(budget)
     assert_response :success
     assert_select "form"
+  end
+
+  test "GET /budgets/:id/edit explains that the category cannot be changed" do
+    budget = Budget.create!(user: @user, category: @category, monthly_amount: 800_000)
+
+    get edit_budget_path(budget)
+
+    assert_response :success
+    assert_select "#categoryHelp", text: /La categoría no se puede cambiar/
+    assert_select "input[type=hidden][name='budget[category_id]'][value=?]", budget.category_id.to_s
+  end
+
+  test "GET /budgets/new keeps the regular category help" do
+    get new_budget_path
+
+    assert_response :success
+    assert_select "#categoryHelp", text: /Presupuesta únicamente categorías de gasto/
+    assert_select "#categoryHelp", text: /no se puede cambiar/, count: 0
   end
 
   test "PATCH /budgets/:id updates the budget" do

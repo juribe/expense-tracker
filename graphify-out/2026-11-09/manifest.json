@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "app/models/recurring_template.rb": {
-    "mtime": 1792849928.172704,
-    "seen": 1793490696.634634,
-    "ast_hash": "f6b9c7b17dfbcd74bbf59bd88f782fd1",
+    "mtime": 1794228173.0669098,
+    "seen": 1794228399.869448,
+    "ast_hash": "38214357dfb730b87f61b0ac2156be4d",
     "semantic_hash": ""
   },
   "app/models/transaction.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794223851.1366518,
-    "seen": 1794224507.340801,
-    "ast_hash": "744fd4197d57e7ffd8ef89524b76bace",
+    "mtime": 1794232831.5094173,
+    "seen": 1794233000.061352,
+    "ast_hash": "56d585d7204f97be932ed1f72fa2a144",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794224357.4345012,
-    "seen": 1794224507.3408089,
+    "mtime": 1794232964.3230596,
+    "seen": 1794233000.0613601,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1260,9 +1260,9 @@
     "semantic_hash": ""
   },
   "app/controllers/budgets_controller.rb": {
-    "mtime": 1791323292.7147582,
-    "seen": 1793490696.634343,
-    "ast_hash": "2deff73efdf0419e86e24500dfec8314",
+    "mtime": 1794230775.2314668,
+    "seen": 1794231014.474565,
+    "ast_hash": "868e7d095386eab4fad05ea8ff358495",
     "semantic_hash": ""
   },
   "app/helpers/alerts_helper.rb": {
@@ -1272,9 +1272,9 @@
     "semantic_hash": ""
   },
   "app/helpers/budgets_helper.rb": {
-    "mtime": 1791497868.4425743,
-    "seen": 1793490696.634439,
-    "ast_hash": "57613e1b643eb995a92f07e897f3cced",
+    "mtime": 1794232141.8876936,
+    "seen": 1794232361.9883342,
+    "ast_hash": "dabe847570c8b107f84bb77be75ce5b8",
     "semantic_hash": ""
   },
   "app/models/alert_preference.rb": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "playwright/budgets.spec.js": {
-    "mtime": 1794186187.084967,
-    "seen": 1794186305.293343,
-    "ast_hash": "34848a9bf3df61624fdb3c59432fc99d",
+    "mtime": 1794232123.8926313,
+    "seen": 1794232361.989524,
+    "ast_hash": "558f39c3d55efaf63c7894b7ca9413eb",
     "semantic_hash": ""
   },
   "test/controllers/alert_settings_controller_test.rb": {
@@ -1332,15 +1332,15 @@
     "semantic_hash": ""
   },
   "test/controllers/budgets_controller_test.rb": {
-    "mtime": 1794186927.5549963,
-    "seen": 1794187036.206132,
-    "ast_hash": "8ae82196693cd31a3e175e0db7c39a63",
+    "mtime": 1794232809.615615,
+    "seen": 1794233000.0605938,
+    "ast_hash": "bcfae8b912631d6a7cac4b90df6a5892",
     "semantic_hash": ""
   },
   "test/integration/budgets_flow_test.rb": {
-    "mtime": 1794183360.2348552,
-    "seen": 1794183406.358351,
-    "ast_hash": "9a0a0f964994db02732c2b00c24e12d0",
+    "mtime": 1794232119.3403373,
+    "seen": 1794232361.989727,
+    "ast_hash": "97b92653cc00489691a6df0dcbf0f506",
     "semantic_hash": ""
   },
   "test/models/alert_preference_test.rb": {
@@ -2832,9 +2832,9 @@
     "semantic_hash": ""
   },
   "test/services/recurring_template_processor_test.rb": {
-    "mtime": 1791332984.0922768,
-    "seen": 1793490696.6355278,
-    "ast_hash": "77f5b33f657bb8acb820576892aefb16",
+    "mtime": 1794228103.7505608,
+    "seen": 1794228399.870983,
+    "ast_hash": "2424c046ed777a3826d65ebc45101804",
     "semantic_hash": ""
   },
   "config/initializers/bullet.rb": {
@@ -3774,9 +3774,9 @@
     "semantic_hash": ""
   },
   "test/models/recurring_template_test.rb": {
-    "mtime": 1792849928.2946537,
-    "seen": 1793490696.635343,
-    "ast_hash": "6155d8e0b59425d56a5d72a5f78255e1",
+    "mtime": 1794228070.5403576,
+    "seen": 1794228399.8707142,
+    "ast_hash": "af4b29c44e80f67da9cca004790c02f2",
     "semantic_hash": ""
   },
   "test/services/pay_cycle_test.rb": {
@@ -9486,9 +9486,9 @@
     "semantic_hash": ""
   },
   "test/controllers/monthly_incomes_controller_test.rb": {
-    "mtime": 1794223771.156762,
-    "seen": 1794224507.340089,
-    "ast_hash": "bcdf04e21d532f28c5c647efff423af0",
+    "mtime": 1794228103.7505603,
+    "seen": 1794228399.870495,
+    "ast_hash": "be32c13a607156ff984b0d551f572ee1",
     "semantic_hash": ""
   },
   "test/services/recurring_incomes/cycle_summary_test.rb": {

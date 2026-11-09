@@ -30,7 +30,13 @@
                                   aria_describedby: "categoryHelp",
                                   testid: "budget-category-picker" %>
               <%= form.hidden_field :category_id unless budget.new_record? %>
-              <div id="categoryHelp" class="form-text"><%= t("budgets.form.category_help") %></div>
+              <div id="categoryHelp" class="form-text">
+                <% if budget.persisted? %>
+                  <i class="ti ti-lock me-1" aria-hidden="true"></i><%= t("budgets.form.category_locked_help") %>
+                <% else %>
+                  <%= t("budgets.form.category_help") %>
+                <% end %>
+              </div>
               <% if budget.errors[:category_id].any? %>
                 <div class="invalid-feedback d-block"><i class="ti ti-alert-circle me-1"></i><%= field_error(budget, :category_id) %></div>
               <% end %>

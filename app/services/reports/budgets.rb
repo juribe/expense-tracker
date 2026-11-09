@@ -12,6 +12,7 @@
 class Reports::Budgets < Reports::Base
   def call
     budgets = Budget.active.for_user(user).includes(:category)
+    budgets = budgets.where(category_id: filter.active_category_id) if filter.active_category_id
     spending = category_totals(period.range)
     rows = budgets.map { |budget| budget_row(budget, spending) }
     total_budget = rows.sum { |row| row[:budget] }
@@ -71,11 +72,19 @@ class Reports::Budgets < Reports::Base
   # Calendar periods scale the monthly amount by covered months; financial
   # cycles span one month each, so the target applies per cycle.
   def budget_target(budget)
-    if period.cycle_aligned?
-      budget.monthly_amount.to_d * period.cycles_displayed
-    else
-      budget.monthly_amount.to_d * span_months
-    end
+    return budget.monthly_amount.to_d * period.cycles_displayed if period.cycle_aligned?
+    return budget.monthly_amount.to_d if matches_financial_cycle?
+
+    budget.monthly_amount.to_d * span_months
+  end
+
+  # The budget-analysis link opens a custom range aligned to a pay cycle. It
+  # must count as one cycle, not as the two calendar months it crosses.
+  def matches_financial_cycle?
+    return false unless period.preset == "custom"
+    return false unless Reports::Period.cycles_enabled?(user)
+
+    PayCycle.containing(user, period.range.begin).to_range == period.range
   end
 
   def status(pct_used)

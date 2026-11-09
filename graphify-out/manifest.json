@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794223851.1366518,
-    "seen": 1794224507.340801,
-    "ast_hash": "744fd4197d57e7ffd8ef89524b76bace",
+    "mtime": 1794232831.5094173,
+    "seen": 1794233000.061352,
+    "ast_hash": "56d585d7204f97be932ed1f72fa2a144",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794228323.9109955,
-    "seen": 1794228399.871454,
+    "mtime": 1794235408.158025,
+    "seen": 1794235526.216645,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1260,9 +1260,9 @@
     "semantic_hash": ""
   },
   "app/controllers/budgets_controller.rb": {
-    "mtime": 1791323292.7147582,
-    "seen": 1793490696.634343,
-    "ast_hash": "2deff73efdf0419e86e24500dfec8314",
+    "mtime": 1794230775.2314668,
+    "seen": 1794231014.474565,
+    "ast_hash": "868e7d095386eab4fad05ea8ff358495",
     "semantic_hash": ""
   },
   "app/helpers/alerts_helper.rb": {
@@ -1272,9 +1272,9 @@
     "semantic_hash": ""
   },
   "app/helpers/budgets_helper.rb": {
-    "mtime": 1791497868.4425743,
-    "seen": 1793490696.634439,
-    "ast_hash": "57613e1b643eb995a92f07e897f3cced",
+    "mtime": 1794232141.8876936,
+    "seen": 1794232361.9883342,
+    "ast_hash": "dabe847570c8b107f84bb77be75ce5b8",
     "semantic_hash": ""
   },
   "app/models/alert_preference.rb": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "playwright/budgets.spec.js": {
-    "mtime": 1794186187.084967,
-    "seen": 1794186305.293343,
-    "ast_hash": "34848a9bf3df61624fdb3c59432fc99d",
+    "mtime": 1794235311.984605,
+    "seen": 1794235526.2154381,
+    "ast_hash": "a9922c22c6e23ae3a4f75b8cb66caf18",
     "semantic_hash": ""
   },
   "test/controllers/alert_settings_controller_test.rb": {
@@ -1332,15 +1332,15 @@
     "semantic_hash": ""
   },
   "test/controllers/budgets_controller_test.rb": {
-    "mtime": 1794186927.5549963,
-    "seen": 1794187036.206132,
-    "ast_hash": "8ae82196693cd31a3e175e0db7c39a63",
+    "mtime": 1794232809.615615,
+    "seen": 1794233000.0605938,
+    "ast_hash": "bcfae8b912631d6a7cac4b90df6a5892",
     "semantic_hash": ""
   },
   "test/integration/budgets_flow_test.rb": {
-    "mtime": 1794183360.2348552,
-    "seen": 1794183406.358351,
-    "ast_hash": "9a0a0f964994db02732c2b00c24e12d0",
+    "mtime": 1794232119.3403373,
+    "seen": 1794232361.989727,
+    "ast_hash": "97b92653cc00489691a6df0dcbf0f506",
     "semantic_hash": ""
   },
   "test/models/alert_preference_test.rb": {
@@ -3438,9 +3438,9 @@
     "semantic_hash": ""
   },
   "app/services/reports/budgets.rb": {
-    "mtime": 1794173866.400297,
-    "seen": 1794174756.553985,
-    "ast_hash": "2bb7e8cdb425cb30694db28056ba82ca",
+    "mtime": 1794234404.927075,
+    "seen": 1794234703.6170619,
+    "ast_hash": "38ce0677f3866d2952e0df0bf99014cf",
     "semantic_hash": ""
   },
   "app/services/reports/category_spending.rb": {
@@ -3456,9 +3456,9 @@
     "semantic_hash": ""
   },
   "app/services/reports/filter.rb": {
-    "mtime": 1794085936.4932272,
-    "seen": 1794085988.272353,
-    "ast_hash": "60f9cdc2557b2acd89f8038dcae27d85",
+    "mtime": 1794234404.9258864,
+    "seen": 1794234703.617068,
+    "ast_hash": "2f1aa0628232064a4dec75aa855d4e03",
     "semantic_hash": ""
   },
   "app/services/reports/insights.rb": {
@@ -3516,9 +3516,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reports/reports_pages_test.rb": {
-    "mtime": 1794173832.1139188,
-    "seen": 1794174756.554692,
-    "ast_hash": "f72d718fcb55ddebee40eacf0091df8b",
+    "mtime": 1794234519.0640752,
+    "seen": 1794234703.617733,
+    "ast_hash": "cf418e48db85d8fb696278f35d823a69",
     "semantic_hash": ""
   },
   "test/services/reports/base_test.rb": {
@@ -3528,9 +3528,9 @@
     "semantic_hash": ""
   },
   "test/services/reports/budgets_test.rb": {
-    "mtime": 1794173821.564376,
-    "seen": 1794174756.555159,
-    "ast_hash": "581645295e517abbea0e32f14bc6d2f8",
+    "mtime": 1794234343.674324,
+    "seen": 1794234703.618183,
+    "ast_hash": "16db3671934112d8ac8c42c6b99738f0",
     "semantic_hash": ""
   },
   "test/services/reports/category_spending_test.rb": {

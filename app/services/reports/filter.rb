@@ -5,7 +5,8 @@
 # scoped relations shared by every report service.
 #
 # Associations: none (value object over the user's records)
-# Methods: expense_scope, income_scope, transfer_scope, applied_filters
+# Methods: expense_scope, income_scope, transfer_scope, applied_filters,
+#          active_category_id, active_source_id
 #
 # Example: Reports::Filter.new(user: user, period: period, category_id: 7).expense_scope(period.range)
 class Reports::Filter
@@ -39,6 +40,12 @@ class Reports::Filter
     chips << "category" if @category_id
     chips << "money_source" if @money_source_id
     chips
+  end
+
+  # The validated category id (nil when unset or unknown), public because
+  # reports that group by category filter their rows and totals with it.
+  def active_category_id
+    valid_category_id if @category_id
   end
 
   # The validated money source id (nil when unset or unknown), public because

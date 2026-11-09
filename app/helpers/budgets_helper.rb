@@ -1,28 +1,17 @@
 # BudgetsHelper
-# Methods: budget_status_class, budget_status_icon, budget_status_label,
-#          budget_summary_counts, budget_metrics
+# Presentation helpers for the budgets index: period navigation, summary
+# metrics, four-level usage states and sorting.
 #
-# Example: budget_summary_counts(budgets, month) # => { total:, near_limit:, over_budget: }
+# Methods: budget_summary_counts, budget_period_summary, budget_progress_data,
+#          budget_display_state, budget_display_label, budget_display_icon,
+#          budget_sort_options, budget_sort_value, budget_sorted,
+#          budget_period_range_label, budget_analysis_path
+#
+# Example: budget_display_state(92.4) # => :near_limit
 module BudgetsHelper
-  def budget_status_class(status)
-    case status.to_sym
-    when :over_budget then "bg-danger"
-    when :near_limit then "bg-warning text-dark"
-    else "bg-success"
-    end
-  end
-
-  def budget_status_icon(status)
-    case status.to_sym
-    when :over_budget then "ti-circle-x"
-    when :near_limit then "ti-alert-triangle"
-    else "ti-circle-check"
-    end
-  end
-
-  def budget_status_label(status)
-    t("budgets.status.#{status}")
-  end
+  BUDGET_ATTENTION_PERCENT = 75
+  BUDGET_NEAR_LIMIT_PERCENT = 90
+  BUDGET_SORT_KEYS = %w[usage available budget spent].freeze
 
   def budget_summary_counts(budgets, period)
     {
@@ -35,30 +24,110 @@ module BudgetsHelper
   def budget_progress_data(budget, period)
     {
       spent: budget.spent_for(period),
-      percentage: budget.percentage_for(period),
-      status: budget.status_for(period)
+      percentage: budget.percentage_for(period)
     }
   end
 
-  # Calendar months navigate by month param, pay cycles by an anchor date
-  # param that snaps into the adjacent cycle.
-  def budget_prev_nav_path(period)
-    period.is_a?(PayCycle::Cycle) ? budgets_path(cycle: period.starts - 1.day) : budgets_path(month: period.prev_month)
+  # Aggregate metrics for the selected period. The per-budget financial values
+  # still come from Budget so the index never reimplements its calculations.
+  def budget_period_summary(budgets, period)
+    rows = budgets.map do |budget|
+      amount = budget.amount_for(period)
+      spent = budget.spent_for(period)
+      { amount: amount, spent: spent, percentage: budget.percentage_for(period) }
+    end
+
+    total_budget = rows.sum { |row| row[:amount] }
+    total_spent = rows.sum { |row| row[:spent] }
+    states = rows.map { |row| budget_display_state(row[:percentage]) }
+
+    {
+      total_budget: total_budget,
+      total_spent: total_spent,
+      total_available: total_budget - total_spent,
+      usage_percentage: total_budget.positive? ? (total_spent / total_budget * 100) : 0,
+      count: rows.size,
+      risk_count: rows.count { |row| row[:percentage].to_f >= BUDGET_NEAR_LIMIT_PERCENT },
+      attention_count: states.count(:attention),
+      near_limit_count: states.count(:near_limit),
+      over_budget_count: states.count(:over_budget)
+    }
   end
 
-  def budget_next_nav_path(period)
-    period.is_a?(PayCycle::Cycle) ? budgets_path(cycle: period.ends + 1.day) : budgets_path(month: period.next_month)
+  # Presentation thresholds for the four-level usage scale. The domain status
+  # on Budget keeps its own thresholds for alerts and other modules.
+  def budget_display_state(percentage)
+    pct = percentage.to_f
+    return :over_budget if pct >= 100
+    return :near_limit if pct >= BUDGET_NEAR_LIMIT_PERCENT
+    return :attention if pct >= BUDGET_ATTENTION_PERCENT
+
+    :on_track
+  end
+
+  def budget_display_label(state)
+    t("budgets.display_status.#{state}")
+  end
+
+  def budget_display_icon(state)
+    {
+      on_track: "ti-circle-check",
+      attention: "ti-clock",
+      near_limit: "ti-alert-triangle",
+      over_budget: "ti-alert-circle"
+    }.fetch(state)
+  end
+
+  def budget_sort_options
+    [
+      [ t("budgets.sort.default"), "default" ],
+      [ t("budgets.sort.usage"), "usage" ],
+      [ t("budgets.sort.available"), "available" ],
+      [ t("budgets.sort.budget"), "budget" ],
+      [ t("budgets.sort.spent"), "spent" ]
+    ]
+  end
+
+  def budget_sort_value(value)
+    BUDGET_SORT_KEYS.include?(value.to_s) ? value.to_s : "default"
+  end
+
+  def budget_sorted(budgets, sort, period)
+    return budgets unless BUDGET_SORT_KEYS.include?(sort)
+
+    rows = budgets.to_a
+    case sort
+    when "usage"
+      rows.sort_by { |budget| [ -budget.percentage_for(period).to_f, budget.category.name.downcase ] }
+    when "available"
+      rows.sort_by { |budget| [ budget.remaining_for(period), budget.category.name.downcase ] }
+    when "budget"
+      rows.sort_by { |budget| [ -budget.amount_for(period).to_f, budget.category.name.downcase ] }
+    when "spent"
+      rows.sort_by { |budget| [ -budget.spent_for(period).to_f, budget.category.name.downcase ] }
+    end
   end
 
   def budget_period_label(period)
     period.is_a?(PayCycle::Cycle) ? period.label : l(period, format: :month_year)
   end
 
-  def budget_current_period?(period)
-    if period.is_a?(PayCycle::Cycle)
-      period == PayCycle.current(current_user)
-    else
-      period.beginning_of_month == Time.zone.today.beginning_of_month
-    end
+  def budget_period_range_label(period)
+    return period.range_label if period.is_a?(PayCycle::Cycle)
+
+    range = period.beginning_of_month..period.end_of_month
+    "#{l(range.begin, format: "%b %e").squeeze(" ").strip} – #{l(range.end, format: "%b %e").squeeze(" ").strip}"
+  end
+
+  # Reuses the budget analysis report scoped to this category and period.
+  def budget_analysis_path(budget, period)
+    range = period.is_a?(PayCycle::Cycle) ? period.to_range : period.beginning_of_month..period.end_of_month
+
+    reports_budgets_path(
+      category_id: budget.category_id,
+      period: "custom",
+      start_date: range.begin.iso8601,
+      end_date: range.end.iso8601
+    )
   end
 end

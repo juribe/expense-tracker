@@ -1,57 +1,89 @@
 <% data = budget_progress_data(budget, period) %>
-<% status = data[:status] %>
 <% pct = data[:percentage] %>
-<div class="card h-100 card-hover">
+<% state = budget_display_state(pct) %>
+<% remaining = budget.remaining_for(period) %>
+<% exceeded = remaining.negative? %>
+<% amount = budget.amount_for(period) %>
+
+<article class="card budget-card budget-card--<%= state.to_s.dasherize %> h-100" data-testid="budget-card">
   <div class="card-body d-flex flex-column">
-    <div class="d-flex justify-content-between align-items-start mb-3">
-      <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
-      <div class="d-flex align-items-center gap-2">
-        <% unless budget.active %>
-          <span class="badge bg-secondary"><%= t("budgets.inactive") %></span>
+    <div class="budget-card-head">
+      <div class="budget-category">
+        <span class="icon-chip icon-chip-blue" aria-hidden="true">
+          <i class="ti <%= budget_category_icon(budget.category.icon) %>"></i>
+        </span>
+        <div class="budget-category-copy">
+          <%= link_to budget.category.name, category_path(budget.category), class: "budget-category-name" %>
+          <% unless budget.active %>
+            <span class="badge bg-secondary mt-1"><%= t("budgets.inactive") %></span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="budget-card-actions d-inline-flex align-items-center gap-2 d-print-none" role="group" aria-label="<%= budget.category.name %>">
+        <%= link_to edit_budget_path(budget), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("budgets.edit_aria", name: budget.category.name) } do %>
+          <i class="ti ti-pencil" aria-hidden="true"></i>
         <% end %>
-        <div class="d-inline-flex align-items-center gap-2 d-print-none" role="group" aria-label="<%= budget.category.name %>">
-          <%= link_to edit_budget_path(budget), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("budgets.edit_aria", name: budget.category.name) } do %>
-            <i class="ti ti-pencil"></i>
-          <% end %>
-          <%= button_to budget_path(budget), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("budgets.delete_aria", name: budget.category.name) }, data: { confirm: t("common.confirm") }, form: { data: { turbo: true } } do %>
-            <i class="ti ti-trash"></i>
-          <% end %>
-        </div>
+        <%= button_to budget_path(budget), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("budgets.delete_aria", name: budget.category.name) }, data: { confirm: t("common.confirm") }, form: { data: { turbo: true } } do %>
+          <i class="ti ti-trash" aria-hidden="true"></i>
+        <% end %>
       </div>
     </div>
 
-    <div class="row g-3 mb-3 text-center">
-      <div class="col-4">
-        <div class="small text-muted"><%= t("budgets.budget") %></div>
-        <div class="fw-bold budget-amount"><%= number_to_currency(budget.amount_for(period)) %></div>
+    <div class="budget-available">
+      <span class="budget-available-label"><%= t("budgets.remaining") %></span>
+      <strong class="budget-available-value" data-testid="budget-available-amount"><%= number_to_currency(remaining) %></strong>
+      <% if exceeded %>
+        <span class="budget-available-hint" data-testid="budget-exceeded-hint">
+          <%= t("budgets.exceeded_hint", amount: number_to_currency(remaining.abs)) %>
+        </span>
+      <% elsif remaining.zero? && state == :over_budget %>
+        <span class="budget-available-hint" data-testid="budget-exhausted-hint"><%= t("budgets.exhausted_hint") %></span>
+      <% else %>
+        <span class="budget-available-hint"><%= t("budgets.available_hint", amount: number_to_currency(amount)) %></span>
+      <% end %>
+    </div>
+
+    <div class="budget-numbers">
+      <div>
+        <span class="budget-number-label"><%= t("budgets.spent") %></span>
+        <span class="budget-number-value budget-number-value--spent budget-amount" data-testid="budget-spent-amount">
+          <%= number_to_currency(data[:spent]) %>
+        </span>
       </div>
-      <div class="col-4">
-        <div class="small text-muted"><%= t("budgets.spent") %></div>
-        <div class="fw-bold text-danger budget-amount"><%= number_to_currency(data[:spent]) %></div>
-      </div>
-      <div class="col-4">
-        <div class="small text-muted">
-          <%= status == :over_budget ? t("budgets.exceeded") : t("budgets.remaining") %>
-        </div>
-        <div class="fw-bold <%= status == :over_budget ? 'text-danger' : 'text-success' %> budget-amount">
-          <%= number_to_currency(status == :over_budget ? data[:spent] - budget.amount_for(period) : budget.remaining_for(period)) %>
-        </div>
+      <div class="text-end">
+        <span class="budget-number-label"><%= t("budgets.budget") %></span>
+        <span class="budget-number-value budget-amount" data-testid="budget-budget-amount"><%= number_to_currency(amount) %></span>
       </div>
     </div>
 
-    <div class="budget-progress mb-3">
-      <div class="progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= pct.round %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= budget_status_class(status) %> et-w-<%= [ pct, 100 ].min.round %>"></div>
+    <div class="budget-usage">
+      <div class="budget-usage-head">
+        <span><%= t("budgets.usage") %></span>
+        <b data-testid="budget-usage"><%= number_to_percentage(pct, precision: 0) %></b>
+      </div>
+      <div class="progress budget-progress"
+           role="progressbar"
+           data-testid="budget-progress"
+           aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>"
+           aria-valuenow="<%= pct.round %>"
+           aria-valuemin="0"
+           aria-valuemax="100">
+        <div class="progress-bar budget-progress-bar et-w-<%= [ pct, 100 ].min.round %>"></div>
       </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mt-auto">
-      <span class="badge <%= budget_status_class(status) %>">
-        <i class="<%= budget_status_icon(status) %> me-1"></i><%= budget_status_label(status) %>
-      </span>
-      <span class="small text-muted fw-semibold">
-        <%= t("budgets.usage") %> <span class="fw-bold"><%= t("budgets.percentage_value", pct: number_to_percentage(pct, precision: 0)) %></span>
-      </span>
+    <div class="budget-card-foot mt-auto">
+      <div class="budget-card-status">
+        <span class="budget-state" data-testid="budget-status">
+          <i class="ti <%= budget_display_icon(state) %>" aria-hidden="true"></i><%= budget_display_label(state) %>
+        </span>
+        <span class="budget-card-usage"><%= t("budgets.percentage_used", pct: number_to_percentage(pct, precision: 0)) %></span>
+      </div>
+
+      <%= link_to budget_analysis_path(budget, period), class: "budget-analysis-link", data: { testid: "budget-analysis" } do %>
+        <%= t("budgets.analysis") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      <% end %>
     </div>
   </div>
-</div>
+</article>

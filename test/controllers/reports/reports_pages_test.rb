@@ -171,6 +171,35 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=budget-chart-view] #budget-vs-actual-chart"
   end
 
+  test "GET /reports/budgets limits rows and totals to the selected category" do
+    other = Category.create!(name: "Educación", is_default: true, category_type: "expense")
+    Budget.create!(user: @user, category: @category, monthly_amount: 1_000_000)
+    Budget.create!(user: @user, category: other, monthly_amount: 2_000_000)
+    @user.expenses.create!(amount: -100_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "selected")
+    @user.expenses.create!(amount: -250_000, date: Date.current, category: other,
+                           money_source: @bank, description: "other")
+
+    get reports_budgets_path(period: "this_month", category_id: @category.id)
+
+    assert_response :success
+    assert_select "[data-testid=budget-metric-budget]", text: /\$1\.000\.000/
+    assert_select "[data-testid=budget-metric-actual]", text: /\$100\.000/
+    assert_select "tbody tr", count: 1
+    assert_select ".budget-category-name", text: @category.name
+    assert_select ".budget-category-name", text: other.name, count: 0
+  end
+
+  test "GET /reports/budgets treats a custom cycle range as one cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    Budget.create!(user: @user, category: @category, monthly_amount: 1_500_000)
+
+    get reports_budgets_path(period: "custom", start_date: "2026-10-20", end_date: "2026-11-19")
+
+    assert_response :success
+    assert_select "[data-testid=budget-metric-budget]", text: /\$1\.500\.000/
+  end
+
   test "GET /reports/budgets keeps unbudgeted spending in its own section" do
     other = Category.create!(name: "Educación", is_default: true, category_type: "expense",
                              icon: "ti-school")

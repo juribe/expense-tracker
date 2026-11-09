@@ -1,51 +1,119 @@
-<%= render "shared/page_header", title: t("budgets.title") do %>
-  <%= link_to new_budget_path, class: "btn btn-primary" do %>
+<% subtitle = capture do %>
+  <%= t("budgets.subtitle") %>
+  <span class="badge bg-light text-dark border ms-2" data-testid="cycle-badge">
+    <i class="ti ti-calendar-plus me-1" aria-hidden="true"></i><%= budget_period_label(@period) %> (<%= budget_period_range_label(@period) %>)
+  </span>
+<% end %>
+<%= render "shared/page_header", title: t("budgets.title"), subtitle: subtitle do %>
+  <%= link_to new_budget_path, class: "btn btn-primary text-nowrap" do %>
     <i class="ti ti-plus me-1"></i><%= t("budgets.new") %>
   <% end %>
 <% end %>
 
-<div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-  <%= link_to budget_prev_nav_path(@period), class: "btn btn-outline-secondary btn-sm", aria: { label: t("budgets.month_previous_aria") } do %>
-    <i class="ti ti-chevron-left"></i>
-  <% end %>
-  <h5 class="mb-0"><%= budget_period_label(@period) %></h5>
-  <%= link_to budget_next_nav_path(@period), class: "btn btn-outline-secondary btn-sm", aria: { label: t("budgets.month_next_aria") } do %>
-    <i class="ti ti-chevron-right"></i>
-  <% end %>
-</div>
-
-<div class="text-center mb-4">
-  <% if budget_current_period?(@period) %>
-    <span class="badge bg-light text-dark border"><i class="ti ti-calendar me-1"></i><%= t("budgets.current_month_badge") %></span>
-  <% else %>
-    <%= link_to budgets_path, class: "small" do %>
-      <i class="ti ti-arrow-left me-1"></i><%= t("budgets.back_to_current_month") %>
-    <% end %>
-  <% end %>
-</div>
-
 <% if @budgets.any? %>
-  <% counts = budget_summary_counts(@budgets, @period) %>
-  <p class="text-secondary small mb-4">
-    <%= t("budgets.summary", count: counts[:total], near_limit: counts[:near_limit], over_budget: counts[:over_budget]) %>
-  </p>
+  <% summary = budget_period_summary(@budgets, @period) %>
+  <% sort = budget_sort_value(@sort) %>
 
-  <div class="row g-3">
-    <% @budgets.each do |budget| %>
-      <div class="col-12 col-md-6 col-lg-4">
+  <section class="row g-3 mb-4 budget-summary" data-testid="budgets-summary">
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("budgets.summary_total"),
+                     value: tag.span(number_to_currency(summary[:total_budget]), data: { testid: "budget-summary-total" }),
+                     tone: :balance,
+                     icon: "wallet",
+                     icon_tone: "blue",
+                     delta: t("budgets.summary_total_hint", count: summary[:count]) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("budgets.summary_spent"),
+                     value: tag.span(number_to_currency(summary[:total_spent]), data: { testid: "budget-summary-spent" }),
+                     tone: :negative,
+                     icon: "arrow-up-right",
+                     icon_tone: "red",
+                     delta: t("budgets.summary_spent_hint", pct: number_to_percentage(summary[:usage_percentage], precision: 0)) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("budgets.summary_available"),
+                     value: tag.span(number_to_currency(summary[:total_available]), data: { testid: "budget-summary-available" }),
+                     tone: summary[:total_available].negative? ? :negative : :positive,
+                     icon: "wallet",
+                     icon_tone: summary[:total_available].negative? ? "red" : "green",
+                     delta: t("budgets.summary_available_hint") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("budgets.summary_risk"),
+                     value: tag.span(summary[:risk_count], data: { testid: "budget-summary-risk" }),
+                     tone: :attention,
+                     icon: "alert-triangle",
+                     icon_tone: "amber",
+                     delta: t("budgets.summary_risk_hint") %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="budget-toolbar">
+    <div>
+      <h2 class="budget-toolbar-title"><%= t("budgets.list_title") %></h2>
+      <p class="budget-toolbar-subtitle">
+        <%= t("budgets.summary", count: summary[:count], near_limit: summary[:near_limit_count], over_budget: summary[:over_budget_count]) %>
+      </p>
+    </div>
+
+    <%= form_with url: budgets_path, method: :get, class: "budget-sort-form", data: { testid: "budget-sort-form" } do |form| %>
+      <% if @period.is_a?(PayCycle::Cycle) %>
+        <%= hidden_field_tag :cycle, @period.starts %>
+      <% else %>
+        <%= hidden_field_tag :month, @period.strftime("%Y-%m") %>
+      <% end %>
+      <%= form.label :sort, t("budgets.sort_label"), class: "form-label mb-0 text-nowrap" %>
+      <%= form.select :sort,
+                      budget_sort_options,
+                      { selected: sort },
+                      class: "form-select form-select-sm",
+                      data: { auto_submit: true } %>
+    <% end %>
+  </div>
+
+  <div class="row g-3" data-testid="budget-cards">
+    <% budget_sorted(@budgets, sort, @period).each do |budget| %>
+      <div class="col-12 col-md-6 col-xl-4">
         <%= render "budget_card", budget: budget, period: @period %>
       </div>
     <% end %>
   </div>
 <% else %>
-  <div class="card">
-    <div class="p-5 text-center">
-      <i class="ti ti-target display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2"><%= t("budgets.empty_title") %></h4>
-      <p class="text-secondary"><%= t("budgets.empty_body") %></p>
-      <%= link_to new_budget_path, class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("budgets.new") %>
-      <% end %>
+  <% empty_cta = link_to new_budget_path, class: "btn btn-primary" do %>
+    <i class="ti ti-plus me-1" aria-hidden="true"></i><%= t("budgets.new") %>
+  <% end %>
+
+  <div class="card" data-testid="budgets-empty">
+    <div class="card-body">
+      <%= render "shared/empty_state",
+                 icon: "target",
+                 title: t("budgets.empty_title"),
+                 text: t("budgets.empty_body"),
+                 cta: empty_cta %>
     </div>
   </div>
 <% end %>

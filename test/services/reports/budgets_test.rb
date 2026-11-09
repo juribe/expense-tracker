@@ -51,6 +51,25 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     assert_equal 500_000.to_d, row[:remaining]
   end
 
+  test "custom period matching a financial cycle scales the budget to one cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    period = Reports::Period.new(
+      preset: "custom",
+      start_date: Date.new(2026, 10, 20),
+      end_date: Date.new(2026, 11, 19),
+      user: @user
+    )
+    filter = Reports::Filter.new(user: @user, period: period)
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 1_500_000)
+    expense(-300_000, category: @restaurants, date: Date.new(2026, 11, 1))
+
+    row = Reports::Budgets.new(user: @user, filter: filter).call[:rows].sole
+
+    assert_equal 1_500_000.to_d, row[:budget]
+    assert_equal 300_000.to_d, row[:actual]
+    assert_equal 1_200_000.to_d, row[:remaining]
+  end
+
   test "multi-cycle period scales the budget across the covered cycles" do
     @user.update!(financial_cycle_start_day: 20)
     period = Reports::Period.new(preset: "last_3_months", date: Date.new(2026, 10, 25), user: @user)
@@ -60,6 +79,22 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     row = Reports::Budgets.new(user: @user, filter: filter).call[:rows].sole
 
     assert_equal 2_400_000.to_d, row[:budget]
+  end
+
+  test "custom period spanning calendar months keeps month scaling" do
+    @user.update!(financial_cycle_start_day: 20)
+    period = Reports::Period.new(
+      preset: "custom",
+      start_date: Date.new(2026, 10, 1),
+      end_date: Date.new(2026, 11, 30),
+      user: @user
+    )
+    filter = Reports::Filter.new(user: @user, period: period)
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+
+    row = Reports::Budgets.new(user: @user, filter: filter).call[:rows].sole
+
+    assert_equal 1_600_000.to_d, row[:budget]
   end
 
   test "cycle period only counts expenses inside the selected cycle range" do
@@ -183,6 +218,23 @@ class ReportsBudgetsTest < ActiveSupport::TestCase
     row = Reports::Budgets.new(user: @user, filter: scoped_filter).call[:rows].first
 
     assert_equal 420_000.to_d, row[:actual]
+  end
+
+  test "category filter limits rows and totals to the selected category" do
+    Budget.create!(user: @user, category: @restaurants, monthly_amount: 800_000)
+    Budget.create!(user: @user, category: @food, monthly_amount: 1_000_000)
+    expense(-920_000, category: @restaurants)
+    expense(-300_000, category: @food)
+    scoped_filter = Reports::Filter.new(user: @user, period: @period, category_id: @restaurants.id)
+
+    data = Reports::Budgets.new(user: @user, filter: scoped_filter).call
+
+    assert_equal 1, data[:rows].size
+    assert_equal @restaurants.id, data[:rows].first[:category_id]
+    assert_equal 800_000.to_d, data[:total_budget]
+    assert_equal 920_000.to_d, data[:total_actual]
+    assert_equal(-120_000.to_d, data[:total_remaining])
+    assert_nil data[:unbudgeted]
   end
 
   test "categories without a budget are listed as unbudgeted spending" do

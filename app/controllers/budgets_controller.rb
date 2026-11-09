@@ -10,6 +10,7 @@ class BudgetsController < ApplicationController
   def index
     @period = resolve_budget_period
     @budgets = current_user.budgets.includes(:category)
+    @sort = params[:sort]
   end
 
   # GET /budgets/new

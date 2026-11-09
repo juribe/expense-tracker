@@ -46,6 +46,12 @@ function previousMonthDate() {
   return `${String(last.getDate()).padStart(2, '0')}/${String(last.getMonth() + 1).padStart(2, '0')}/${last.getFullYear()}`;
 }
 
+function previousMonthParam() {
+  const now = new Date();
+  const date = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
 test.describe('category budgets are working', () => {
   test('user can create a budget and see it on the budgets page', async ({ page }) => {
     await signUp(page);
@@ -57,9 +63,9 @@ test.describe('category budgets are working', () => {
 
     await createBudget(page, category, 800000);
 
-    const card = page.locator('.card', { hasText: category });
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
     await expect(card).toBeVisible();
-    await expect(card.locator('.budget-amount').first()).toHaveText('$800.000');
+    await expect(card.locator('[data-testid="budget-budget-amount"]')).toHaveText('$800.000');
   });
 
   test('user can edit a budget', async ({ page }) => {
@@ -77,8 +83,8 @@ test.describe('category budgets are working', () => {
     await expect(page).toHaveURL(/\/budgets$/);
     await expect(page.getByText('El presupuesto se actualizó correctamente.')).toBeVisible();
 
-    const card = page.locator('.card', { hasText: category });
-    await expect(card.locator('.budget-amount').first()).toHaveText('$1.000.000');
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
+    await expect(card.locator('[data-testid="budget-budget-amount"]')).toHaveText('$1.000.000');
   });
 
   test('user can delete a budget', async ({ page }) => {
@@ -94,7 +100,7 @@ test.describe('category budgets are working', () => {
     await expect(page.getByText(category)).toHaveCount(0);
   });
 
-  test('budget card shows spent, remaining, percentage and on-track status', async ({ page }) => {
+  test('budget card shows spent, remaining, percentage and attention status', async ({ page }) => {
     await signUp(page);
     const category = `Restaurants-${Date.now()}`;
     await createCategory(page, category);
@@ -103,28 +109,28 @@ test.describe('category budgets are working', () => {
     await createExpense(page, { amount: 620000, category, description: 'Dinner', source: efectivo });
 
     await page.goto('/budgets');
-    const card = page.locator('.card', { hasText: category });
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
     await expect(card.getByText('Gastado')).toBeVisible();
-    await expect(card.getByText('$620.000', { exact: true })).toBeVisible();
+    await expect(card.locator('[data-testid="budget-spent-amount"]')).toHaveText('$620.000');
     await expect(card.getByText('Disponible')).toBeVisible();
-    await expect(card.getByText('$180.000', { exact: true })).toBeVisible();
-    await expect(card.getByText('78%')).toBeVisible();
-    await expect(card.getByText('En camino')).toBeVisible();
+    await expect(card.locator('[data-testid="budget-available-amount"]')).toHaveText('$180.000');
+    await expect(card.locator('[data-testid="budget-usage"]')).toHaveText('78%');
+    await expect(card.locator('[data-testid="budget-status"]')).toContainText('Atención');
   });
 
-  test('budget reaches near-limit state at 80% or more', async ({ page }) => {
+  test('budget reaches near-limit state at 90% or more', async ({ page }) => {
     await signUp(page);
     const category = `Shopping-${Date.now()}`;
     await createCategory(page, category);
     const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
     await createBudget(page, category, 100000);
-    await createExpense(page, { amount: 85000, category, description: 'Clothes', source: efectivo });
+    await createExpense(page, { amount: 90000, category, description: 'Clothes', source: efectivo });
 
     await page.goto('/budgets');
-    const card = page.locator('.card', { hasText: category });
-    await expect(card.getByText('85%')).toBeVisible();
-    await expect(card.getByText('Cerca del límite')).toBeVisible();
-    await expect(card.getByText('$15.000', { exact: true })).toBeVisible();
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
+    await expect(card.locator('[data-testid="budget-usage"]')).toHaveText('90%');
+    await expect(card.locator('[data-testid="budget-status"]')).toContainText('Cerca del límite');
+    await expect(card.locator('[data-testid="budget-available-amount"]')).toHaveText('$10.000');
   });
 
   test('budget shows over-budget state when spending exceeds the amount', async ({ page }) => {
@@ -136,10 +142,10 @@ test.describe('category budgets are working', () => {
     await createExpense(page, { amount: 620000, category, description: 'Big purchase', source: efectivo });
 
     await page.goto('/budgets');
-    const card = page.locator('.card', { hasText: category });
-    await expect(card.getByText('Excedido')).toBeVisible();
-    await expect(card.getByText('$120.000', { exact: true })).toBeVisible();
-    await expect(card.getByText('Superado')).toBeVisible();
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
+    await expect(card.locator('[data-testid="budget-available-amount"]')).toHaveText('-$120.000');
+    await expect(card.locator('[data-testid="budget-exceeded-hint"]')).toContainText('Superado por $120.000');
+    await expect(card.locator('[data-testid="budget-status"]')).toContainText('Presupuesto superado');
   });
 
   test('budget spent excludes transfers', async ({ page }) => {
@@ -171,9 +177,9 @@ test.describe('category budgets are working', () => {
     await createExpense(page, { amount: 40000, category, description: 'Food', source: efectivo });
 
     await page.goto('/budgets');
-    const card = page.locator('.card', { hasText: category });
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
     await expect(card.getByText('Gastado')).toBeVisible();
-    await expect(card.getByText('$40.000', { exact: true })).toBeVisible();
+    await expect(card.locator('[data-testid="budget-spent-amount"]')).toHaveText('$40.000');
   });
 
   test('budget uses the correct month for spending', async ({ page }) => {
@@ -185,14 +191,13 @@ test.describe('category budgets are working', () => {
     await createExpense(page, { amount: 40000, category, description: 'Last month', date: previousMonthDate(), source: efectivo });
 
     await page.goto('/budgets');
-    const card = page.locator('.card', { hasText: category });
+    const card = page.locator('[data-testid="budget-card"]', { hasText: category });
     await expect(card.getByText('Gastado')).toBeVisible();
-    await expect(card.getByText('$0', { exact: true })).toBeVisible();
+    await expect(card.locator('[data-testid="budget-spent-amount"]')).toHaveText('$0');
 
-    await page.locator('a[aria-label="Mes anterior"]').click();
-    await expect(page).toHaveURL(/month=/);
-    const prevCard = page.locator('.card', { hasText: category });
-    await expect(prevCard.getByText('$40.000', { exact: true })).toBeVisible();
+    await page.goto(`/budgets?month=${previousMonthParam()}`);
+    const prevCard = page.locator('[data-testid="budget-card"]', { hasText: category });
+    await expect(prevCard.locator('[data-testid="budget-spent-amount"]')).toHaveText('$40.000');
   });
 
   test('dashboard shows the cycle budget summary', async ({ page }) => {
@@ -211,5 +216,24 @@ test.describe('category budgets are working', () => {
     await expect(section.locator('.dash-budget-progress')).toHaveAttribute('aria-valuenow', '90');
     await expect(section.locator('.dash-budget-foot')).toContainText('90% utilizado');
     await expect(section.locator('.dash-budget-foot')).toContainText('$10.000 disponibles');
+  });
+
+  test('budget report total row aligns with the amount columns', async ({ page }) => {
+    await signUp(page);
+    const category = `ReportAlign-${Date.now()}`;
+    await createCategory(page, category);
+    const efectivo = await createMoneySource(page, `Efectivo-${Date.now()}`);
+    await createBudget(page, category, 1000000);
+    await createExpense(page, { amount: 250000, category, description: 'Report alignment', source: efectivo });
+
+    await page.goto('/reports/budgets');
+
+    const bodyAlignment = await page.locator('.budget-table tbody tr').first().locator('td')
+      .evaluateAll(cells => cells.map(cell => getComputedStyle(cell).textAlign));
+    const totalAlignment = await page.locator('.budget-table tfoot tr').locator('td')
+      .evaluateAll(cells => cells.map(cell => getComputedStyle(cell).textAlign));
+
+    expect(bodyAlignment.slice(1)).toEqual(['right', 'right', 'right', 'right']);
+    expect(totalAlignment.slice(1)).toEqual(['right', 'right', 'right', 'right']);
   });
 });
