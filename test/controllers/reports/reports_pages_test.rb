@@ -22,6 +22,37 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=income-total]"
   end
 
+  test "GET /reports renders the financial behavior chart and analysis" do
+    income_category = Category.create!(name: "Salario", is_default: true, category_type: "income")
+    @user.incomes.create!(amount: 10_000_000, date: Date.current, category: income_category,
+                          money_source: @bank, description: "salary")
+    @user.expenses.create!(amount: -2_000_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "x")
+
+    get reports_overview_path
+
+    assert_response :success
+    assert_select "[data-testid=cash-flow-chart]"
+    assert_select "[data-testid=financial-analysis]"
+    assert_select "[data-testid=savings-rate]"
+    assert_select "[data-testid=expense-share-note]", text: /de tus ingresos/
+    assert_select "[data-testid=category-preview] .report-category-row", minimum: 1
+    assert_select "[data-testid=overview-secondary] .report-secondary-card", count: 4
+    assert_includes response.body, '"prefix":"$"'
+    assert_includes response.body, "Ingresos"
+    assert_includes response.body, "Gastos"
+    assert_not_includes response.body, "translation_missing"
+  end
+
+  test "GET /reports renders compact empty states without movements" do
+    get reports_overview_path
+
+    assert_response :success
+    assert_select "[data-testid=cash-flow-empty]"
+    assert_select "[data-testid=financial-analysis-empty]"
+    assert_select "[data-testid=savings-rate]", count: 0
+  end
+
   test "GET /reports redirects unauthenticated user" do
     sign_out @user
 

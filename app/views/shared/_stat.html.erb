@@ -1,6 +1,7 @@
 <%# Typographic KPI block. Locals: label, value, delta (optional html string),
     tone: nil | :positive | :negative | :attention | :balance (colors the value),
-    icon: optional ti icon name, icon_tone: blue | green | red | amber | gray %>
+    icon: optional ti icon name, icon_tone: blue | green | red | amber | gray,
+    testid: optional data-testid applied to the value element %>
 <div class="stat">
   <div class="stat-label d-flex align-items-center gap-2">
     <% if local_assigns[:icon] %>
@@ -11,7 +12,8 @@
     <span><%= label %></span>
   </div>
   <div class="stat-value
-              <%= "amt-pos" if local_assigns[:tone] == :positive %><%= "amt-debt" if local_assigns[:tone] == :negative %><%= "amt-attention" if local_assigns[:tone] == :attention %><%= "text-balance-blue" if local_assigns[:tone] == :balance %>">
+              <%= "amt-pos" if local_assigns[:tone] == :positive %><%= "amt-debt" if local_assigns[:tone] == :negative %><%= "amt-attention" if local_assigns[:tone] == :attention %><%= "text-balance-blue" if local_assigns[:tone] == :balance %>"
+       <%= local_assigns[:testid] ? "data-testid=\"#{local_assigns[:testid]}\"".html_safe : "" %>>
     <%= value %>
   </div>
   <% if local_assigns[:delta] %>

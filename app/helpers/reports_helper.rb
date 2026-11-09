@@ -111,6 +111,59 @@ module ReportsHelper
     end
   end
 
+  # Compact secondary note for the overview KPI cards. Income has no income
+  # denominator, so it shows the comparison delta or its registered count.
+  def overview_income_note(overview)
+    return delta_badge(overview[:income][:delta_pct], good_when_positive: true) if overview[:income][:delta_pct]
+
+    return t("reports.overview.income_no_history") if overview[:income][:count].zero?
+
+    t("reports.overview.income_note", count: overview[:income][:count])
+  end
+
+  def overview_expense_note(overview, analysis)
+    return t("reports.overview.expense_empty") if overview[:expenses][:total].zero?
+
+    share = analysis[:expense_share_pct]
+    return t("reports.overview.expense_no_income") unless share
+
+    content_tag(:span, t("reports.overview.expense_share_note",
+                         pct: number_to_percentage(share, precision: 1)),
+                data: { testid: "expense-share-note" })
+  end
+
+  def overview_debt_note(overview)
+    return t("reports.overview.debt_empty") if overview[:debt][:count].zero?
+
+    t("reports.overview.debt_note", count: overview[:debt][:count])
+  end
+
+  def overview_net_note(analysis)
+    rate = analysis[:savings_rate]
+    return t("reports.overview.net_note") unless rate
+
+    t("reports.overview.net_share_note", pct: number_to_percentage(rate, precision: 1))
+  end
+
+  # The progress track uses the project's generated width classes, keeping
+  # dynamic percentages out of inline styles.
+  def report_progress_class(pct)
+    width = [ [ pct.to_f.round, 0 ].max, 100 ].min
+    "et-w-#{width}"
+  end
+
+  def analysis_alert_icon(kind)
+    case kind.to_s
+    when "decrease" then "trending-down"
+    when "increase" then "trending-up"
+    else "alert-triangle"
+    end
+  end
+
+  def analysis_alert_tone(kind)
+    kind.to_s == "decrease" ? "positive" : "attention"
+  end
+
   def period_presets(user: nil)
     user ||= current_user if respond_to?(:current_user)
     presets = Reports::Period.cycles_enabled?(user) ? Reports::Period::CYCLE_PRESETS : Reports::Period::PRESETS

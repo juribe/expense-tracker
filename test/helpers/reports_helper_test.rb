@@ -75,6 +75,12 @@ class ReportsHelperTest < ActionView::TestCase
     assert_equal 100, budget_usage_width(140)
   end
 
+  test "category progress classes clamp shares to the track" do
+    assert_equal "et-w-0", report_progress_class(nil)
+    assert_equal "et-w-43", report_progress_class(43.4)
+    assert_equal "et-w-100", report_progress_class(140)
+  end
+
   test "budget chart splits actual spending by usage level" do
     rows = [
       { category_name: "Comida", budget: 1_000.to_d, actual: 500.to_d, pct_used: 50.0 },

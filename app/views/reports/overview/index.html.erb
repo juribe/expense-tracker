@@ -1,124 +1,267 @@
 <%= render "reports/page_header", title: t("reports.title"), subtitle: t("reports.overview.subtitle"), path: reports_overview_path, filters: false %>
 
-<div class="row g-3 mb-4" data-testid="overview-cards">
-  <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.income") %></div>
-        <div class="summary-value text-success" data-testid="income-total"><%= money_amount(@overview[:income][:total]) %></div>
-        <%= delta_badge(@overview[:income][:delta_pct], good_when_positive: true) %>
+<div class="row g-3 mb-3 report-metrics" data-testid="overview-cards">
+  <%= render "metric",
+        label: t("reports.overview.income"),
+        value: money_amount(@overview[:income][:total]),
+        tone: :positive,
+        icon: "trending-up",
+        icon_tone: "green",
+        note: overview_income_note(@overview),
+        testid: "income-total",
+        variant: "income" %>
+
+  <%= render "metric",
+        label: t("reports.overview.expenses"),
+        value: money_amount(@overview[:expenses][:total]),
+        tone: :negative,
+        icon: "trending-down",
+        icon_tone: "red",
+        note: overview_expense_note(@overview, @analysis),
+        testid: "expenses-total",
+        variant: "expense" %>
+
+  <%= render "metric",
+        label: t("reports.overview.debt_payments"),
+        value: money_amount(@overview[:debt][:total]),
+        tone: :attention,
+        icon: "credit-card",
+        icon_tone: "amber",
+        note: overview_debt_note(@overview),
+        testid: "debt-total",
+        variant: "debt" %>
+
+  <%= render "metric",
+        label: t("reports.overview.net_cash_flow"),
+        value: money_amount(@overview[:net_cash_flow]),
+        tone: @overview[:net_cash_flow] >= 0 ? :positive : :negative,
+        icon: "arrows-exchange",
+        icon_tone: @overview[:net_cash_flow] >= 0 ? "green" : "red",
+        note: overview_net_note(@analysis),
+        testid: "net-cash-flow",
+        variant: "net" %>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-xl-7">
+    <section class="card report-panel h-100" data-testid="cash-flow-chart">
+      <div class="report-panel-head">
+        <div>
+          <h2 class="report-panel-title"><%= t("reports.overview.chart_title") %></h2>
+          <p class="report-panel-subtitle"><%= t("reports.overview.chart_subtitle") %></p>
+        </div>
+        <div class="report-chart-legend" aria-hidden="true">
+          <span><i class="report-legend-dot is-income"></i><%= t("reports.overview.chart_legend_income") %></span>
+          <span><i class="report-legend-dot is-expense"></i><%= t("reports.overview.chart_legend_expense") %></span>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.expenses") %></div>
-        <div class="summary-value text-danger" data-testid="expenses-total"><%= money_amount(@overview[:expenses][:total]) %></div>
-        <%= delta_badge(@overview[:expenses][:delta_pct]) %>
+      <div class="report-panel-body">
+        <% if @cash_flow_trend[:total_income].positive? || @cash_flow_trend[:total_expense].positive? %>
+          <%= column_chart [
+                { name: t("reports.overview.chart_legend_income"),
+                  data: @cash_flow_trend[:series].map { |point| [ point[:label], point[:income] ] } },
+                { name: t("reports.overview.chart_legend_expense"),
+                  data: @cash_flow_trend[:series].map { |point| [ point[:label], point[:expense] ] } }
+              ],
+              **chart_money_options,
+              id: "reports-cash-flow-chart",
+              height: "380px",
+              colors: [ "#12a875", "#f05268" ],
+              legend: false,
+              library: { animation: false,
+                         scales: { x: { grid: { display: false },
+                                        ticks: { maxTicksLimit: 6, autoSkip: true, maxRotation: 0 } },
+                                   y: { beginAtZero: true } } } %>
+          <p class="report-chart-caption"><%= t("reports.overview.chart_#{@cash_flow_trend[:bucket]}") %></p>
+        <% else %>
+          <div data-testid="cash-flow-empty">
+            <%= render "shared/empty_state", icon: "chart-bar",
+                  title: t("reports.overview.chart_empty") %>
+          </div>
+        <% end %>
       </div>
-    </div>
+    </section>
   </div>
-  <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.debt_payments") %></div>
-        <div class="summary-value text-warning" data-testid="debt-total"><%= money_amount(@overview[:debt][:total]) %></div>
-        <%= delta_badge(@overview[:debt][:delta_pct]) %>
+
+  <div class="col-12 col-xl-5">
+    <section class="card report-panel report-analysis h-100" data-testid="financial-analysis">
+      <div class="report-panel-head">
+        <div>
+          <h2 class="report-panel-title"><%= t("reports.overview.analysis_title") %></h2>
+          <p class="report-panel-subtitle"><%= t("reports.overview.analysis_subtitle") %></p>
+        </div>
+        <span class="report-analysis-icon" aria-hidden="true"><i class="ti ti-wand"></i></span>
       </div>
-    </div>
+      <div class="report-panel-body">
+        <% if @analysis[:available] %>
+          <% if @analysis[:savings_rate] %>
+            <div class="report-savings">
+              <span class="report-savings-label"><%= t("reports.overview.savings_capacity") %></span>
+              <div class="report-savings-value <%= "is-negative" if @analysis[:savings_rate].negative? %>"
+                   data-testid="savings-rate">
+                <%= number_to_percentage(@analysis[:savings_rate], precision: 1) %>
+              </div>
+              <p class="report-savings-copy"><%= t("reports.overview.savings_body") %></p>
+            </div>
+          <% else %>
+            <p class="report-analysis-hint"><%= t("reports.overview.savings_no_income") %></p>
+          <% end %>
+
+          <% if @analysis[:facts].any? %>
+            <ul class="report-facts">
+              <% @analysis[:facts].each do |fact| %>
+                <li><span><%= fact %></span></li>
+              <% end %>
+            </ul>
+          <% end %>
+
+          <% if @analysis[:top_category] %>
+            <% top = @analysis[:top_category] %>
+            <div class="report-top-category">
+              <span class="report-top-category-label"><%= t("reports.overview.top_category") %></span>
+              <div class="report-top-category-row">
+                <strong><%= top[:name] %></strong>
+                <span><%= money_amount(top[:total]) %></span>
+              </div>
+              <span class="report-top-category-share">
+                <%= t("reports.overview.top_category_share",
+                      pct: number_to_percentage(top[:share_pct], precision: 1)) %>
+              </span>
+            </div>
+          <% end %>
+
+          <% if @analysis[:alerts].any? %>
+            <div class="report-analysis-block">
+              <h3 class="report-analysis-heading"><%= t("reports.overview.alerts_title") %></h3>
+              <% @analysis[:alerts].each do |alert| %>
+                <div class="report-alert is-<%= analysis_alert_tone(alert[:kind]) %>">
+                  <i class="ti ti-<%= analysis_alert_icon(alert[:kind]) %>" aria-hidden="true"></i>
+                  <span><%= alert[:message] %></span>
+                </div>
+              <% end %>
+            </div>
+          <% elsif @analysis[:insights_insufficient_data] %>
+            <p class="report-analysis-hint"><%= t("reports.overview.insights_pending") %></p>
+          <% else %>
+            <p class="report-analysis-hint"><%= t("reports.overview.insights_empty") %></p>
+          <% end %>
+
+          <% if @analysis[:recommendations].any? %>
+            <div class="report-analysis-block">
+              <h3 class="report-analysis-heading"><%= t("reports.overview.recommendations_title") %></h3>
+              <% @analysis[:recommendations].each do |recommendation| %>
+                <div class="report-recommendation">
+                  <i class="ti ti-bulb" aria-hidden="true"></i>
+                  <div>
+                    <strong><%= recommendation[:title] %></strong>
+                    <p><%= recommendation[:body] %></p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="report-analysis-empty" data-testid="financial-analysis-empty">
+            <span class="report-analysis-empty-icon" aria-hidden="true"><i class="ti ti-chart-line"></i></span>
+            <h3><%= t("reports.overview.analysis_empty_title") %></h3>
+            <p><%= t("reports.overview.analysis_empty_body") %></p>
+          </div>
+        <% end %>
+      </div>
+    </section>
   </div>
-  <div class="col-12 col-sm-6 col-xl-3">
-    <div class="card h-100">
+</div>
+
+<section class="card report-panel mb-3" data-testid="category-preview">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.overview.categories_title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.overview.categories_subtitle") %></p>
+    </div>
+    <%= link_to reports_by_category_path(filter_params_for), class: "report-link" do %>
+      <%= t("reports.overview.categories_view_all") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    <% end %>
+  </div>
+  <div class="report-panel-body">
+    <% if @category_preview.any? %>
+      <div class="report-category-list">
+        <% @category_preview.each do |category| %>
+          <div class="report-category-row">
+            <div class="report-category-main">
+              <div class="report-category-top">
+                <span class="report-category-name"><%= category[:name] %></span>
+                <span class="report-category-share">
+                  <%= number_to_percentage(category[:share_pct], precision: 1) if category[:share_pct] %>
+                </span>
+              </div>
+              <div class="progress et-progress-8 report-category-track" role="progressbar"
+                   aria-label="<%= category[:name] %>"
+                   aria-valuenow="<%= category[:share_pct].to_f.round %>"
+                   aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar report-category-bar <%= report_progress_class(category[:share_pct]) %>"></div>
+              </div>
+            </div>
+            <div class="report-category-amount"><%= money_amount(category[:total]) %></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="report-category-foot">
+        <span><%= t("reports.overview.categories_shown", count: @category_preview.size) %></span>
+        <span><%= t("reports.overview.categories_total") %>:
+          <strong><%= money_amount(@category_preview_total) %></strong></span>
+      </div>
+    <% else %>
+      <div data-testid="category-preview-empty">
+        <%= render "shared/empty_state", icon: "chart-pie", title: t("reports.overview.categories_empty") %>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<div class="row g-3 report-secondary" data-testid="overview-secondary">
+  <div class="col-6 col-lg-3">
+    <div class="card report-secondary-card h-100">
       <div class="card-body">
-        <div class="text-muted small fw-semibold mb-1"><%= t("reports.overview.net_cash_flow") %></div>
-        <div class="summary-value <%= @overview[:net_cash_flow] >= 0 ? 'text-success' : 'text-danger' %>" data-testid="net-cash-flow">
-          <%= money_amount(@overview[:net_cash_flow]) %>
+        <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-arrows-exchange"></i></span>
+        <div>
+          <span class="report-secondary-label"><%= t("reports.overview.total_transfers") %></span>
+          <strong class="report-secondary-value"><%= money_amount(@overview[:transfers][:total]) %></strong>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="row g-3 mb-4">
-  <div class="col-12 col-lg-6">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><%= t("reports.nav.by_category") %></h5>
-        <%= link_to reports_by_category_path(params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id", "money_source_id", "credit_card_id", "loan_id").compact_blank), class: "btn btn-sm btn-outline-primary" do %>
-          <%= t("common.view_all", default: "Ver todo") %> <i class="ti ti-arrow-right ms-1"></i>
-        <% end %>
-      </div>
+  <div class="col-6 col-lg-3">
+    <div class="card report-secondary-card h-100">
       <div class="card-body">
-        <% if @category_preview.any? %>
-          <% @category_preview.each do |category| %>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="small"><%= category[:name] %></span>
-              <span class="fw-bold text-danger"><%= money_amount(category[:total]) %></span>
-            </div>
-          <% end %>
-        <% else %>
-          <p class="text-muted mb-0"><%= t("reports.categories.empty") %></p>
-        <% end %>
+        <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-receipt-2"></i></span>
+        <div>
+          <span class="report-secondary-label"><%= t("reports.overview.number_of_expenses") %></span>
+          <strong class="report-secondary-value"><%= number_with_delimiter(@overview[:expenses][:count]) %></strong>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-12 col-lg-6">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><%= t("reports.insights.title") %></h5>
-        <%= link_to reports_insights_path, class: "btn btn-sm btn-outline-primary" do %>
-          <%= t("common.view_all", default: "Ver todo") %> <i class="ti ti-arrow-right ms-1"></i>
-        <% end %>
-      </div>
+  <div class="col-6 col-lg-3">
+    <div class="card report-secondary-card h-100">
       <div class="card-body">
-        <% if @insights.any? %>
-          <% @insights.each do |insight| %>
-            <div class="mb-2">
-              <i class="ti ti-bolt text-warning me-1"></i>
-              <span class="small"><%= insight[:message] %></span>
-            </div>
-          <% end %>
-        <% elsif @insights_insufficient_data %>
-          <p class="text-muted mb-0"><%= t("reports.insights.insufficient_data_title") %></p>
-        <% else %>
-          <p class="text-muted mb-0"><%= t("reports.insights.empty") %></p>
-        <% end %>
+        <span class="report-secondary-icon" aria-hidden="true"><i class="ti ti-calculator"></i></span>
+        <div>
+          <span class="report-secondary-label"><%= t("reports.overview.average_expense") %></span>
+          <strong class="report-secondary-value"><%= money_amount(@overview[:expenses][:average]) %></strong>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="row g-3">
-  <div class="col-12 col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body d-flex justify-content-between align-items-center">
-        <span><%= t("reports.overview.total_transfers") %></span>
-        <span class="fw-bold"><%= money_amount(@overview[:transfers][:total]) %></span>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body d-flex justify-content-between align-items-center">
-        <span><%= t("reports.overview.number_of_expenses") %></span>
-        <span class="fw-bold"><%= number_with_delimiter(@overview[:expenses][:count]) %></span>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body d-flex justify-content-between align-items-center">
-        <span><%= t("reports.overview.average_expense") %></span>
-        <span class="fw-bold"><%= money_amount(@overview[:expenses][:average]) %></span>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-lg-3">
-    <div class="card h-100">
-      <div class="card-body d-flex justify-content-between align-items-center">
-        <span><%= t("reports.loans.total_debt") %></span>
-        <span class="fw-bold text-warning"><%= money_amount(loan_summary(current_user.money_sources.active.where(kind: "loan").includes(:credit_account))[:total_balance]) %></span>
+  <div class="col-6 col-lg-3">
+    <div class="card report-secondary-card h-100">
+      <div class="card-body">
+        <span class="report-secondary-icon is-debt" aria-hidden="true"><i class="ti ti-coin"></i></span>
+        <div>
+          <span class="report-secondary-label"><%= t("reports.loans.total_debt") %></span>
+          <strong class="report-secondary-value amt-debt">
+            <%= money_amount(loan_summary(current_user.money_sources.active.where(kind: "loan").includes(:credit_account))[:total_balance]) %>
+          </strong>
+        </div>
       </div>
     </div>
   </div>

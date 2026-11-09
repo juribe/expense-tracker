@@ -2482,6 +2482,48 @@ es:
       total_transfers: "Transferencias"
       number_of_expenses: "Número de gastos"
       average_expense: "Gasto promedio"
+      income_note:
+        one: "%{count} ingreso registrado"
+        other: "%{count} ingresos registrados"
+      income_no_history: "Total recibido en el periodo"
+      expense_share_note: "%{pct} de tus ingresos"
+      expense_no_income: "Sin ingresos registrados en el periodo"
+      expense_empty: "Sin gastos reales en el periodo"
+      debt_note:
+        one: "%{count} pago registrado"
+        other: "%{count} pagos registrados"
+      debt_empty: "Sin pagos de deuda en el periodo"
+      net_share_note: "%{pct} de tus ingresos"
+      net_note: "Después de gastos y pagos de deuda"
+      chart_title: "Comportamiento financiero"
+      chart_subtitle: "Ingresos y gastos reales del periodo"
+      chart_legend_income: "Ingresos"
+      chart_legend_expense: "Gastos"
+      chart_day: "Vista diaria · Valores reales del periodo"
+      chart_week: "Vista semanal · Semanas desde el inicio del periodo"
+      chart_month: "Vista mensual · Valores reales del periodo"
+      chart_empty: "No hay ingresos ni gastos para graficar en este periodo."
+      analysis_title: "Análisis financiero"
+      analysis_subtitle: "Lectura automática de tus movimientos"
+      analysis_empty_title: "Aún no hay datos para analizar"
+      analysis_empty_body: "Registra ingresos y gastos en este periodo para ver tu capacidad de ahorro, tus categorías principales y recomendaciones."
+      savings_capacity: "Tu capacidad de ahorro"
+      savings_body: "De tus ingresos permanece como flujo neto después de los gastos y pagos de deuda registrados."
+      savings_no_income: "No hay ingresos registrados para calcular tu capacidad de ahorro."
+      top_category: "Mayor consumo"
+      top_category_share: "%{pct} del gasto del periodo"
+      alerts_title: "Alertas y oportunidades"
+      recommendations_title: "Recomendaciones"
+      insights_pending: "Seguimos reuniendo historial para comparar este periodo con los anteriores."
+      insights_empty: "Sin alertas destacadas en este periodo."
+      categories_title: "Gastos por categoría"
+      categories_subtitle: "Principales categorías de tu gasto real"
+      categories_shown:
+        one: "Mostrando la categoría principal"
+        other: "Mostrando las %{count} categorías principales"
+      categories_total: "Total mostrado"
+      categories_empty: "No hay gastos en este periodo."
+      categories_view_all: "Ver todas"
     categories:
       title: "Gasto por categoría"
       subtitle: "Cómo se distribuyen tus gastos"
@@ -2590,6 +2632,29 @@ es:
       movement_debt_payment: "Pago de deuda"
       movement_disbursement: "Desembolso"
       empty: "No hay transferencias en este periodo."
+    analysis:
+      facts:
+        expense_share: "Tus gastos reales representan %{pct} de tus ingresos."
+        no_income: "No registraste ingresos en este periodo y tus gastos reales suman %{amount}."
+        income_up: "Tus ingresos subieron %{pct} frente al periodo anterior."
+        income_down: "Tus ingresos bajaron %{pct} frente al periodo anterior."
+        debt_total: "Tus pagos de deuda suman %{amount} en el periodo."
+      recommendations:
+        negative_flow:
+          title: "Recupera el flujo positivo"
+          body: "Tus gastos y pagos de deuda superan tus ingresos en %{amount}."
+        top_category:
+          title: "Revisa tu mayor categoría"
+          body: "%{name} concentra %{pct} de tu gasto real. Abre su detalle para identificar oportunidades."
+        low_savings:
+          title: "Amplía tu margen de ahorro"
+          body: "Tu capacidad de ahorro es del %{pct}. Revisa gastos no esenciales para mejorar tu flujo."
+        healthy_savings:
+          title: "Buen margen de ahorro"
+          body: "Conservas el %{pct} de tus ingresos como flujo neto. Puedes asignar ese excedente a tus metas."
+        debt_share:
+          title: "Pagos de deuda"
+          body: "Representan el %{pct} de tus ingresos del periodo."
     insights:
       title: "Perspectivas financieras"
       subtitle: "Lo más importante que detectamos en tus datos"

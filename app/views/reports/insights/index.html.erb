@@ -1,24 +1,34 @@
 <%= render "reports/page_header", title: t("reports.insights.title"), subtitle: t("reports.insights.subtitle"), path: reports_insights_path %>
 
-<div class="card">
-  <div class="card-header bg-white">
-    <h5 class="mb-0"><%= t("reports.insights.title") %></h5>
+<section class="card report-panel" data-testid="insights-panel">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.insights.title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.insights.subtitle") %></p>
+    </div>
+    <span class="report-analysis-icon" aria-hidden="true"><i class="ti ti-wand"></i></span>
   </div>
-  <div class="card-body">
+  <div class="report-panel-body">
     <% if @insights.any? %>
-      <% @insights.each do |insight| %>
-        <div class="d-flex align-items-start mb-3" data-testid="insight">
-          <i class="ti ti-bolt text-warning me-2 mt-1"></i>
-          <div><%= insight[:message] %></div>
-        </div>
-      <% end %>
+      <div class="report-alert-list">
+        <% @insights.each do |insight| %>
+          <div class="report-alert is-<%= analysis_alert_tone(insight[:kind]) %>" data-testid="insight">
+            <i class="ti ti-<%= analysis_alert_icon(insight[:kind]) %>" aria-hidden="true"></i>
+            <span><%= insight[:message] %></span>
+          </div>
+        <% end %>
+      </div>
     <% elsif @insights_insufficient_data %>
-      <div data-testid="insights-insufficient-data">
-        <p class="fw-semibold mb-1"><%= t("reports.insights.insufficient_data_title") %></p>
-        <p class="text-muted mb-0"><%= t("reports.insights.insufficient_data_help") %></p>
+      <div class="report-analysis-empty" data-testid="insights-insufficient-data">
+        <span class="report-analysis-empty-icon" aria-hidden="true"><i class="ti ti-chart-line"></i></span>
+        <h3><%= t("reports.insights.insufficient_data_title") %></h3>
+        <p><%= t("reports.insights.insufficient_data_help") %></p>
       </div>
     <% else %>
-      <p class="text-muted mb-0"><%= t("reports.insights.empty") %></p>
+      <div class="report-analysis-empty" data-testid="insights-empty">
+        <span class="report-analysis-empty-icon" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+        <h3><%= t("reports.insights.empty") %></h3>
+      </div>
     <% end %>
   </div>
-</div>
+</section>
