@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794181323.5916703,
-    "seen": 1794181380.570395,
+    "mtime": 1794181904.9570663,
+    "seen": 1794181969.0215318,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2328,15 +2328,15 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_candidates_controller.rb": {
-    "mtime": 1794180664.2090635,
-    "seen": 1794180922.635048,
-    "ast_hash": "cb28c0eca2554f32b91b56bfb15f5d3e",
+    "mtime": 1794181514.0647109,
+    "seen": 1794181969.0193868,
+    "ast_hash": "35433cd8cb79096c3e43c9f401137e43",
     "semantic_hash": ""
   },
   "test/controllers/expense_candidates_controller_test.rb": {
-    "mtime": 1794179844.1382875,
-    "seen": 1794180101.085461,
-    "ast_hash": "4a0c6d2b344919f9e422311893b3b203",
+    "mtime": 1794182195.6534624,
+    "seen": 1794182243.3102431,
+    "ast_hash": "7e81294eeb97a3d548526f33673dacca",
     "semantic_hash": ""
   },
   ".opencode/skills/expense-tracker-design/SKILL.md": {
@@ -4872,9 +4872,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/expense_candidates_table.js": {
-    "mtime": 1794180979.9752483,
-    "seen": 1794181380.567929,
-    "ast_hash": "7698fd1a634f2205c83d14a34defe3b8",
+    "mtime": 1794181537.338432,
+    "seen": 1794181969.019255,
+    "ast_hash": "2057c05aadcb0e2ae227cb33cbd1a790",
     "semantic_hash": ""
   },
   "app/assets/javascripts/expense_evaluations_index.js": {

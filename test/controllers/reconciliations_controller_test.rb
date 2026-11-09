@@ -161,7 +161,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{reconciliation_path}']"
   end
 
-  test "GET /reconciliation renders the premium lock view without premium access" do
+  test "GET /reconciliation renders the dashboard without premium access" do
     PaymentEngine::Setting.current.update!(paid_access_required: true)
     create_membership(expires_at: 1.day.ago, status: "expired")
     sign_in @user
@@ -169,15 +169,12 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     get reconciliation_path
 
     assert_response :success
-    assert_select "[data-testid='premium-locked']"
-    assert_select ".rec-premium-locked h2", text: "Esta función es Premium"
-    assert_select "a[href='#{plans_path}']", text: /Conocer planes/
-    assert_select "a[href='#{dashboard_path}']", text: /Volver a/
-    assert_select ".rec-page-title", count: 0
-    assert_select ".rec-hero", count: 0
+    assert_select ".rec-hero"
+    assert_select "[data-testid='premium-locked']", count: 0
+    assert_select ".rec-premium-locked", count: 0
   end
 
-  test "sidebar shows the Día de Balance link with a PRO label without premium access" do
+  test "sidebar shows the Día de Balance link without a PRO label" do
     PaymentEngine::Setting.current.update!(paid_access_required: true)
     create_membership(expires_at: 1.day.ago, status: "expired")
     sign_in @user
@@ -186,7 +183,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{reconciliation_path}']" do
-      assert_select ".sidebar-pro", text: "PRO"
+      assert_select ".sidebar-pro", count: 0
     end
   end
 
@@ -201,14 +198,14 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{reconciliation_path}']"
   end
 
-  test "reconciliation JSON endpoints return forbidden without premium access" do
+  test "reconciliation JSON endpoints respond without premium access" do
     PaymentEngine::Setting.current.update!(paid_access_required: true)
     create_membership(expires_at: 1.day.ago, status: "expired")
     sign_in @user
 
     get reconciliation_search_expenses_path(format: :json)
 
-    assert_response :forbidden
+    assert_response :success
   end
 
   test "GET search_expenses returns matching expenses as JSON" do
