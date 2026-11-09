@@ -102,6 +102,7 @@ Rails.application.routes.draw do
     member do
       post :confirm
       post :discard
+      post :restore
       post :accept_suggestion
     end
     collection do

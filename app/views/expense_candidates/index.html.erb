@@ -1,153 +1,495 @@
-<%= render "shared/page_header", title: t("expense_candidates.title", default: "Candidatos de Gastos") do %>
+<% t_queue = "expense_candidates.queue" %>
+<%= render "shared/page_header", title: t("#{t_queue}.title", default: "Candidatos de gastos"),
+                                 subtitle: t("#{t_queue}.subtitle", default: "Revisa los movimientos detectados por Yogasto y completa la información necesaria para registrarlos como gastos.") do %>
   <%= link_to expenses_path, class: "btn btn-outline-secondary" do %>
-    <i class="ti ti-arrow-left me-1"></i><%= t("common.back_to_expenses", default: "Volver a Gastos") %>
+    <i class="ti ti-arrow-left me-1"></i><%= t("common.back_to_expenses", default: "Volver a gastos") %>
   <% end %>
 <% end %>
 
-<!-- Status filter tabs -->
-<ul class="nav nav-pills mb-4 gap-2">
-  <li class="nav-item">
-    <%= link_to expense_candidates_path, class: "nav-link #{'active' if @status == 'needs_review'}" do %>
-      <i class="ti ti-alert-triangle me-1"></i><%= t("expense_candidates.pending", default: "Pendientes") %>
-      <span class="badge bg-warning text-dark ms-1"><%= current_user.expense_candidates.needs_review.count %></span>
-    <% end %>
-  </li>
-  <li class="nav-item">
-    <%= link_to expense_candidates_path(status: "discarded"), class: "nav-link #{'active' if @status == 'discarded'}" do %>
-      <i class="ti ti-trash me-1"></i><%= t("expense_candidates.discarded", default: "Descartado") %>
-    <% end %>
-  </li>
-</ul>
+<div class="candidates-page" data-testid="expense-candidates-page" data-status="<%= @status %>">
+  <section class="row g-3 mb-4" data-testid="candidates-summary">
+    <div class="col-6 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("#{t_queue}.summary.total", default: "Total de candidatos"),
+                     value: tag.span(@total_count, data: { testid: "summary-total" }),
+                     icon: "inbox",
+                     icon_tone: "blue" %>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("#{t_queue}.summary.pending", default: "Requieren atención"),
+                     value: tag.span(@pending_count, data: { testid: "summary-pending" }),
+                     icon: "alert-triangle",
+                     icon_tone: "amber" %>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("#{t_queue}.summary.discarded", default: "Descartados"),
+                     value: tag.span(@discarded_count, data: { testid: "summary-discarded" }),
+                     icon: "trash",
+                     icon_tone: "gray" %>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- Bulk action bar -->
-<div class="bulk-bar d-none" id="bulkBar" role="region" aria-label="Acciones en lote" data-testid="bulk-bar">
-  <strong id="bulkCount" aria-live="polite">0 <%= t("expense_candidates.selected", default: "seleccionados") %></strong>
-  <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
-    <i class="ti ti-tags me-1"></i><%= t("expense_candidates.change_category", default: "Cambiar Categoría") %>
-  </button>
-  <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
-    <i class="ti ti-wallet me-1"></i><%= t("expense_candidates.change_source", default: "Cambiar Fuente de Dinero") %>
-  </button>
-  <button type="button" class="btn btn-sm btn-success" id="bulkConfirm" data-testid="bulk-confirm" disabled>
-    <i class="ti ti-circle-check me-1"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
-  </button>
-  <button type="button" class="btn btn-sm btn-outline-danger ms-auto" id="bulkDiscard" data-testid="bulk-discard" disabled>
-    <i class="ti ti-circle-x me-1"></i><%= t("expense_candidates.discard_selected", default: "Descartar Seleccionados") %>
-  </button>
+  <nav class="candidates-tabs mb-3" aria-label="<%= t("#{t_queue}.title", default: "Candidatos de gastos") %>">
+    <ul class="nav nav-pills gap-2">
+      <li class="nav-item">
+        <%= link_to expense_candidates_path,
+                    class: "nav-link #{'active' if @status == 'needs_review'}",
+                    data: { testid: "pending-tab" } do %>
+          <i class="ti ti-alert-triangle me-1"></i><%= t("#{t_queue}.tabs.pending", default: "Pendientes") %>
+          <span class="badge rounded-pill candidates-tab-count" data-testid="pending-tab-count"><%= @pending_count %></span>
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to expense_candidates_path(status: "discarded"),
+                    class: "nav-link #{'active' if @status == 'discarded'}",
+                    data: { testid: "discarded-tab" } do %>
+          <i class="ti ti-trash me-1"></i><%= t("#{t_queue}.tabs.discarded", default: "Descartados") %>
+          <span class="badge rounded-pill candidates-tab-count" data-testid="discarded-tab-count"><%= @discarded_count %></span>
+        <% end %>
+      </li>
+    </ul>
+  </nav>
+
+  <section class="card candidates-panel" data-testid="candidates-panel">
+    <div class="candidates-toolbar">
+      <div class="candidates-heading">
+        <h2 class="card-title">
+          <%= t("#{t_queue}.headings.#{@status == 'discarded' ? 'discarded' : 'pending'}",
+                default: @status == 'discarded' ? "Candidatos descartados" : "Necesitan tu revisión") %>
+        </h2>
+        <p class="mb-0">
+          <%= t("#{t_queue}.headings.#{@status == 'discarded' ? 'discarded_caption' : 'pending_caption'}",
+                default: @status == 'discarded' ? "Consulta los movimientos que decidiste no registrar como gastos." : "Completa los datos faltantes para registrar estos movimientos como gastos.") %>
+        </p>
+      </div>
+
+      <%= form_with url: expense_candidates_path, method: :get, class: "candidates-filters", data: { testid: "candidates-filters" } do |f| %>
+        <%= hidden_field_tag :status, @status if @status == "discarded" %>
+
+        <div class="candidates-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <%= f.search_field :q, value: params[:q],
+                                   placeholder: t("#{t_queue}.filters.search_placeholder", default: "Buscar por descripción..."),
+                                   class: "form-control",
+                                   autocomplete: "off",
+                                   aria: { label: t("#{t_queue}.filters.search_placeholder", default: "Buscar por descripción...") },
+                                   data: { testid: "candidate-search" } %>
+        </div>
+
+        <%= f.select :source,
+                     options_for_select(@sources.map { |source| [ candidate_source_label(source), source ] }, params[:source]),
+                     { include_blank: t("#{t_queue}.filters.all_sources", default: "Todos los orígenes") },
+                     class: "form-select",
+                     aria: { label: t("#{t_queue}.table.source", default: "Origen") },
+                     data: { auto_submit: true, testid: "candidate-filter-source" } %>
+
+        <%= f.select :category_id,
+                     options_for_select(@categories.map { |category| [ category.name, category.id ] }, params[:category_id]),
+                     { include_blank: t("#{t_queue}.filters.all_categories", default: "Todas las categorías") },
+                     class: "form-select",
+                     aria: { label: t("#{t_queue}.table.category", default: "Categoría") },
+                     data: { auto_submit: true, testid: "candidate-filter-category" } %>
+
+        <%= f.select :money_source_id,
+                     options_for_select(@money_sources.map { |source| [ source.display_name, source.id ] }, params[:money_source_id]),
+                     { include_blank: t("#{t_queue}.filters.all_money_sources", default: "Todas las fuentes de dinero") },
+                     class: "form-select",
+                     aria: { label: t("#{t_queue}.table.money_source", default: "Fuente de dinero") },
+                     data: { auto_submit: true, testid: "candidate-filter-source-account" } %>
+
+        <%= f.select :missing,
+                     options_for_select(
+                       [
+                         [ t("#{t_queue}.filters.missing_any", default: "Con información faltante"), "any" ],
+                         [ t("#{t_queue}.filters.missing_none", default: "Información completa"), "none" ]
+                       ] + ExpenseCandidatesController::MISSING_FILTER_FIELDS.map { |field| [ candidate_missing_label(field), field ] },
+                       params[:missing]
+                     ),
+                     { include_blank: t("#{t_queue}.filters.all_missing", default: "Cualquier información faltante") },
+                     class: "form-select",
+                     aria: { label: t("#{t_queue}.filters.all_missing", default: "Cualquier información faltante") },
+                     data: { auto_submit: true, testid: "candidate-filter-missing" } %>
+
+        <div class="candidates-filter-actions">
+          <%= f.submit t("#{t_queue}.filters.apply", default: "Filtrar"), class: "btn btn-outline-primary btn-sm", name: nil %>
+          <% if @filters_active %>
+            <%= link_to t("#{t_queue}.filters.clear", default: "Limpiar filtros"),
+                        expense_candidates_path(status: (@status == "discarded" ? "discarded" : nil)),
+                        class: "btn btn-link btn-sm" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bulk-bar candidates-bulk-bar d-none" id="bulkBar" role="region"
+         aria-label="<%= t("#{t_queue}.bulk.aria_label", default: "Acciones en lote") %>"
+         data-testid="bulk-bar">
+      <strong class="candidates-bulk-count" id="bulkCount" aria-live="polite">
+        0 <%= t("#{t_queue}.bulk.selected", default: "seleccionados") %>
+      </strong>
+      <button type="button" class="btn btn-link btn-sm candidates-bulk-clear" id="bulkClearSelection" data-testid="bulk-clear">
+        <i class="ti ti-x me-1"></i><%= t("#{t_queue}.bulk.clear_selection", default: "Limpiar selección") %>
+      </button>
+
+      <div class="candidates-bulk-actions">
+        <button type="button" class="btn btn-sm btn-outline-primary" id="bulkCategory" data-testid="bulk-category" disabled>
+          <i class="ti ti-tag me-1"></i><%= t("#{t_queue}.bulk.change_category", default: "Cambiar categoría") %>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary" id="bulkSource" data-testid="bulk-source" disabled>
+          <i class="ti ti-wallet me-1"></i><%= t("#{t_queue}.bulk.change_source", default: "Cambiar fuente de dinero") %>
+        </button>
+        <button type="button" class="btn btn-sm btn-success" id="bulkConfirm" data-testid="bulk-confirm" disabled>
+          <i class="ti ti-circle-check me-1"></i><%= t("#{t_queue}.bulk.confirm_selected", default: "Confirmar seleccionados") %>
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-sm candidates-bulk-discard" id="bulkDiscard" data-testid="bulk-discard" disabled>
+        <i class="ti ti-circle-x me-1"></i><%= t("#{t_queue}.bulk.discard_selected", default: "Descartar seleccionados") %>
+      </button>
+    </div>
+
+    <% if @status == "discarded" %>
+      <div class="candidates-discarded-note">
+        <i class="ti ti-info-circle me-1" aria-hidden="true"></i>
+        <%= t("#{t_queue}.discarded_note", default: "Estos movimientos fueron descartados y no se convertirán en gastos. Puedes consultar sus detalles o recuperarlos.") %>
+      </div>
+    <% end %>
+
+    <% if @candidates.any? %>
+      <div class="table-responsive candidates-table-wrap d-none d-lg-block">
+        <table class="table table-hover ledger-table candidates-table mb-0" data-testid="candidates-table">
+          <thead>
+            <tr>
+              <th scope="col" class="candidates-check-column">
+                <input type="checkbox" class="form-check-input" id="selectAll"
+                       aria-label="<%= t("#{t_queue}.table.select_all", default: "Seleccionar todos los candidatos") %>">
+              </th>
+              <th scope="col"><%= t("#{t_queue}.table.source", default: "Origen") %></th>
+              <th scope="col"><%= t("#{t_queue}.table.description", default: "Descripción") %></th>
+              <th scope="col" class="text-end"><%= t("#{t_queue}.table.amount", default: "Valor") %></th>
+              <th scope="col"><%= t("#{t_queue}.table.date", default: "Fecha") %></th>
+              <th scope="col"><%= t("#{t_queue}.table.category", default: "Categoría") %></th>
+              <th scope="col"><%= t("#{t_queue}.table.money_source", default: "Fuente de dinero") %></th>
+              <th scope="col"><%= t("#{t_queue}.table.status", default: "Estado") %></th>
+              <th scope="col" class="text-end"><%= t("#{t_queue}.table.actions", default: "Acciones") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @candidates.each do |candidate| %>
+              <% secondary_text = candidate.original_text.presence %>
+              <tr data-testid="candidate-row" data-candidate-row
+                  data-id="<%= candidate.id %>"
+                  data-missing-fields="<%= candidate.missing_fields.join(' ') %>">
+                <td class="candidates-check-column">
+                  <input type="checkbox" class="form-check-input row-check"
+                         value="<%= candidate.id %>"
+                         aria-label="<%= t("#{t_queue}.table.select_candidate", default: "Seleccionar candidato") %> <%= candidate.description.presence || candidate.id %>">
+                </td>
+                <td>
+                  <span class="candidate-source">
+                    <i class="ti ti-<%= source_icon(candidate.source) %> me-1" aria-hidden="true"></i>
+                    <%= candidate_source_label(candidate.source) %>
+                  </span>
+                </td>
+                <td>
+                  <div class="candidate-description"><%= candidate.description.presence || secondary_text&.truncate(70) || "—" %></div>
+                  <% if candidate.description.present? && secondary_text.present? && secondary_text != candidate.description %>
+                    <div class="candidate-description-sub"><%= truncate(secondary_text, length: 90) %></div>
+                  <% end %>
+                </td>
+                <td class="text-end">
+                  <% if candidate.amount %>
+                    <span class="candidate-amount"><%= number_to_currency(candidate.amount.abs) %></span>
+                  <% else %>
+                    <span class="candidate-missing"><i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %></span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if candidate.date %>
+                    <time class="candidate-date" datetime="<%= candidate.date.iso8601 %>"><%= l(candidate.date, format: :long) %></time>
+                  <% else %>
+                    <span class="candidate-missing"><i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %></span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if candidate.category %>
+                    <%= tag.span(title: candidate.category.name) do %><%= category_badge(candidate.category) %><% end %>
+                  <% elsif candidate.category_suggestion.present? %>
+                    <span class="badge candidates-suggested" title="<%= candidate.category_suggestion %>">
+                      <i class="ti ti-bulb me-1" aria-hidden="true"></i><%= t("#{t_queue}.suggested", default: "Sugerida") %>: "<%= candidate.category_suggestion %>"
+                    </span>
+                  <% else %>
+                    <span class="candidate-missing"><i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %></span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if candidate.money_source %>
+                    <%= tag.span(title: candidate.money_source.display_name) do %><%= money_source_badge(candidate.money_source) %><% end %>
+                  <% else %>
+                    <span class="candidate-missing">
+                      <i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %>
+                    </span>
+                  <% end %>
+                </td>
+                <td><%= candidate_queue_status_badge(candidate.status) %></td>
+                <td class="text-end">
+                  <div class="candidates-row-actions">
+                    <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
+                      <i class="ti ti-eye me-1"></i><%= t("#{t_queue}.actions.review", default: "Revisar") %>
+                    <% end %>
+                    <% if @status == "discarded" %>
+                      <%= button_to restore_expense_candidate_path(candidate),
+                                    method: :post,
+                                    class: "btn btn-sm btn-outline-secondary",
+                                    form: { class: "d-inline" } do %>
+                        <i class="ti ti-arrow-back-up me-1"></i><%= t("#{t_queue}.actions.restore", default: "Recuperar") %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="candidates-mobile-list d-lg-none" data-testid="candidates-mobile-list">
+        <div class="candidates-mobile-select-all">
+          <label class="form-check mb-0">
+            <input type="checkbox" class="form-check-input" id="selectAllMobile"
+                   aria-label="<%= t("#{t_queue}.table.select_all", default: "Seleccionar todos los candidatos") %>">
+            <span class="form-check-label"><%= t("#{t_queue}.table.select_all", default: "Seleccionar todos los candidatos") %></span>
+          </label>
+        </div>
+
+        <% @candidates.each do |candidate| %>
+          <% secondary_text = candidate.original_text.presence %>
+          <article class="candidate-mobile-card" data-testid="candidate-mobile-card" data-candidate-row
+                   data-id="<%= candidate.id %>"
+                   data-missing-fields="<%= candidate.missing_fields.join(' ') %>">
+            <div class="candidate-mobile-top">
+              <input type="checkbox" class="form-check-input row-check"
+                     value="<%= candidate.id %>"
+                     aria-label="<%= t("#{t_queue}.table.select_candidate", default: "Seleccionar candidato") %> <%= candidate.description.presence || candidate.id %>">
+              <span class="candidate-source">
+                <i class="ti ti-<%= source_icon(candidate.source) %> me-1" aria-hidden="true"></i>
+                <%= candidate_source_label(candidate.source) %>
+              </span>
+              <%= candidate_queue_status_badge(candidate.status) %>
+            </div>
+
+            <div class="candidate-mobile-main">
+              <div class="candidate-mobile-description">
+                <div class="candidate-description"><%= candidate.description.presence || secondary_text&.truncate(70) || "—" %></div>
+                <% if candidate.description.present? && secondary_text.present? && secondary_text != candidate.description %>
+                  <div class="candidate-description-sub"><%= truncate(secondary_text, length: 80) %></div>
+                <% end %>
+              </div>
+              <div class="candidate-mobile-money">
+                <% if candidate.amount %>
+                  <span class="candidate-amount"><%= number_to_currency(candidate.amount.abs) %></span>
+                <% else %>
+                  <span class="candidate-missing"><i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %></span>
+                <% end %>
+                <div class="candidate-date">
+                  <% if candidate.date %>
+                    <time datetime="<%= candidate.date.iso8601 %>"><%= l(candidate.date, format: :long) %></time>
+                  <% else %>
+                    <span class="candidate-missing"><i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %></span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="candidate-mobile-meta">
+              <% if candidate.category %>
+                <%= category_badge(candidate.category) %>
+              <% elsif candidate.category_suggestion.present? %>
+                <span class="badge candidates-suggested">
+                  <i class="ti ti-bulb me-1" aria-hidden="true"></i><%= t("#{t_queue}.suggested", default: "Sugerida") %>: "<%= candidate.category_suggestion %>"
+                </span>
+              <% else %>
+                <span class="candidate-missing"><i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %></span>
+              <% end %>
+
+              <% if candidate.money_source %>
+                <%= money_source_badge(candidate.money_source) %>
+              <% else %>
+                <span class="candidate-missing">
+                  <i class="ti ti-alert-triangle me-1" aria-hidden="true"></i><%= t("#{t_queue}.missing", default: "Faltante") %>
+                </span>
+              <% end %>
+            </div>
+
+            <div class="candidate-mobile-actions">
+              <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
+                <i class="ti ti-eye me-1"></i><%= t("#{t_queue}.actions.review", default: "Revisar") %>
+              <% end %>
+              <% if @status == "discarded" %>
+                <%= button_to restore_expense_candidate_path(candidate),
+                              method: :post,
+                              class: "btn btn-sm btn-outline-secondary",
+                              form: { class: "d-inline" } do %>
+                  <i class="ti ti-arrow-back-up me-1"></i><%= t("#{t_queue}.actions.restore", default: "Recuperar") %>
+                <% end %>
+              <% end %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+
+      <%= will_paginate @candidates, renderer: WillPaginate::ActionView::BootstrapLinkRenderer,
+                                    previous_label: t("common.previous"), next_label: t("common.next") if @candidates.total_pages > 1 %>
+    <% else %>
+      <div class="candidates-empty <%= @filters_active ? 'candidates-empty--filtered' : (@status == 'discarded' ? 'candidates-empty--discarded' : 'candidates-empty--pending') %>"
+           data-testid="candidates-empty">
+        <% if @filters_active %>
+          <%= render "shared/empty_state",
+                     icon: "filter-off",
+                     title: t("#{t_queue}.empty.no_results_title", default: "Sin resultados"),
+                     text: t("#{t_queue}.empty.no_results_text", default: "Ajusta los filtros para encontrar los candidatos que buscas."),
+                     cta: link_to(t("#{t_queue}.empty.clear_filters", default: "Limpiar filtros"),
+                                  expense_candidates_path(status: (@status == "discarded" ? "discarded" : nil)),
+                                  class: "btn btn-outline-primary btn-sm") %>
+        <% elsif @status == "discarded" %>
+          <%= render "shared/empty_state",
+                     icon: "trash",
+                     title: t("#{t_queue}.empty.discarded_title", default: "Sin candidatos descartados"),
+                     text: t("#{t_queue}.empty.discarded_text", default: "Los movimientos que descartes aparecerán aquí para que puedas consultarlos.") %>
+        <% else %>
+          <%= render "shared/empty_state",
+                     icon: "circle-check",
+                     title: t("#{t_queue}.empty.pending_title", default: "¡Todo está al día!"),
+                     text: t("#{t_queue}.empty.pending_text", default: "No tienes candidatos de gastos pendientes por revisar. Yogasto te avisará cuando detecte movimientos que necesiten tu atención."),
+                     cta: (@discarded_count.positive? ? link_to(t("#{t_queue}.empty.pending_cta", default: "Ver descartados"),
+                                                                expense_candidates_path(status: "discarded"),
+                                                                class: "btn btn-outline-primary btn-sm") : nil) %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
 </div>
 
-<% if @candidates.any? %>
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table table-hover ledger-table mb-0" data-testid="candidates-table">
-        <thead class="table-light">
-          <tr>
-            <th scope="col" class="et-w-40px">
-              <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Select all">
-            </th>
-            <th scope="col"><%= t("common.source", default: "Source") %></th>
-            <th scope="col"><%= t("common.description") %></th>
-            <th scope="col" class="text-end"><%= t("common.amount") %></th>
-            <th scope="col"><%= t("common.date") %></th>
-            <th scope="col"><%= t("common.category") %></th>
-            <th scope="col"><%= t("common.money_source", default: "Money Source") %></th>
-            <th scope="col"><%= t("common.status", default: "Status") %></th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @candidates.each do |candidate| %>
-            <tr data-testid="candidate-row" data-id="<%= candidate.id %>">
-              <td>
-                <input type="checkbox" class="form-check-input row-check"
-                       value="<%= candidate.id %>"
-                       aria-label="Select candidate <%= candidate.id %>">
-              </td>
-              <td>
-                <span class="badge bg-light text-dark">
-                  <i class="ti ti-<%= source_icon(candidate.source) %> me-1"></i>
-                  <%= candidate.source.titleize %>
-                </span>
-              </td>
-              <td><%= candidate.description.presence || candidate.original_text&.truncate(50) || "—" %></td>
-              <td class="text-end fw-bold text-danger">
-                <% if candidate.amount %>
-                  $<%= number_with_precision(candidate.amount.abs, precision: 0, delimiter: ",") %>
-                <% else %>
-                  —
-                <% end %>
-              </td>
-              <td><%= candidate.date ? l(candidate.date, format: :long) : "—" %></td>
-              <td>
-                <% if candidate.category %>
-                  <%= category_badge(candidate.category) %>
-                <% elsif candidate.category_suggestion.present? %>
-                  <span class="badge bg-info text-dark"><i class="ti ti-bulb me-1"></i><%= t("expense_candidates.suggested", default: "Sugerida") %>: "<%= candidate.category_suggestion %>"</span>
-                <% else %>
-                  <span class="badge bg-warning text-dark"><i class="ti ti-alert-triangle me-1"></i><%= t("expense_candidates.missing", default: "Faltante") %></span>
-                <% end %>
-              </td>
-              <td>
-                <% if candidate.money_source %>
-                  <span class="badge bg-light text-dark"><i class="ti ti-wallet me-1"></i><%= candidate.money_source.name %></span>
-                <% else %>
-                  <span class="text-secondary">—</span>
-                <% end %>
-              </td>
-              <td><%= status_badge(candidate.status) %></td>
-              <td class="text-end">
-                <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
-                   <i class="ti ti-eye me-1"></i><%= t("common.review", default: "Revisar") %>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <%= will_paginate @candidates, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, previous_label: t("common.previous"), next_label: t("common.next") if @candidates.total_pages > 1 %>
-<% else %>
-  <div class="card">
-    <div class="card-body text-center p-5">
-      <i class="ti ti-inbox display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2"><%= t("expense_candidates.empty_title", default: "Sin candidatos") %></h4>
-      <p class="text-secondary"><%= t("expense_candidates.empty_hint", default: "Los gastos procesados por IA que necesitan tu revisión aparecerán aquí.") %></p>
-      <%= link_to expenses_path, class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
+<!-- Bulk category modal -->
+<div class="modal fade" id="bulkCategoryModal" tabindex="-1" aria-labelledby="bulkCategoryModalLabel" aria-hidden="true"
+     data-testid="bulk-category-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkCategoryModalLabel">
+          <i class="ti ti-tag me-2"></i><%= t("#{t_queue}.modals.category_title", default: "Cambiar categoría") %>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+      <%= form_with url: bulk_update_expense_candidates_path, method: :patch, id: "bulkCategoryForm" do |f| %>
+        <div class="modal-body">
+          <p class="text-secondary mb-3"><%= t("#{t_queue}.modals.category_description", default: "La categoría se aplicará a todos los candidatos seleccionados.") %></p>
+          <%= hidden_field_tag :candidate_ids, nil, id: "bulkCategoryCandidateIds" %>
+          <%= hidden_field_tag :status, "discarded" if @status == "discarded" %>
+          <%= category_picker f, :category_id, @categories,
+                              label: t("#{t_queue}.table.category", default: "Categoría"),
+                              include_blank: t("#{t_queue}.modals.category_placeholder", default: "Seleccionar categoría..."),
+                              id: "bulkCategorySelect",
+                              testid: "bulk-category-picker",
+                              required: true %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel", default: "Cancelar") %></button>
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-check me-1"></i><%= t("#{t_queue}.modals.apply", default: "Aplicar cambios") %>
+          </button>
+        </div>
       <% end %>
     </div>
   </div>
-<% end %>
+</div>
+
+<!-- Bulk money source modal -->
+<div class="modal fade" id="bulkSourceModal" tabindex="-1" aria-labelledby="bulkSourceModalLabel" aria-hidden="true"
+     data-testid="bulk-source-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="bulkSourceModalLabel">
+          <i class="ti ti-wallet me-2"></i><%= t("#{t_queue}.modals.source_title", default: "Cambiar fuente de dinero") %>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+      <%= form_with url: bulk_update_expense_candidates_path, method: :patch, id: "bulkSourceForm" do |f| %>
+        <div class="modal-body">
+          <p class="text-secondary mb-3"><%= t("#{t_queue}.modals.source_description", default: "La fuente de dinero se aplicará a todos los candidatos seleccionados.") %></p>
+          <%= hidden_field_tag :candidate_ids, nil, id: "bulkSourceCandidateIds" %>
+          <%= hidden_field_tag :status, "discarded" if @status == "discarded" %>
+          <label for="bulkSourceSelect" class="form-label"><%= t("#{t_queue}.table.money_source", default: "Fuente de dinero") %></label>
+          <select id="bulkSourceSelect" name="money_source_id" class="form-select" required>
+            <option value=""><%= t("#{t_queue}.modals.source_placeholder", default: "Seleccionar fuente de dinero...") %></option>
+            <% @money_sources.each do |source| %>
+              <option value="<%= source.id %>"><%= source.display_name %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel", default: "Cancelar") %></button>
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-check me-1"></i><%= t("#{t_queue}.modals.apply", default: "Aplicar cambios") %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
 
 <!-- Bulk confirm modal -->
-<div class="modal fade" id="bulkConfirmModal" tabindex="-1" aria-labelledby="bulkConfirmModalLabel" aria-hidden="true">
+<div class="modal fade" id="bulkConfirmModal" tabindex="-1" aria-labelledby="bulkConfirmModalLabel" aria-hidden="true"
+     data-testid="bulk-confirm-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="bulkConfirmModalLabel">
-          <i class="ti ti-circle-check me-2"></i><%= t("expense_candidates.confirm_selected", default: "Confirmar Seleccionados") %>
+          <i class="ti ti-circle-check me-2"></i><%= t("#{t_queue}.modals.confirm_title", default: "Confirmar seleccionados") %>
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
       </div>
       <%= form_with url: bulk_confirm_expense_candidates_path, method: :post, id: "bulkConfirmForm" do |f| %>
         <div class="modal-body">
-          <p id="bulkConfirmDescription" class="text-secondary mb-3"></p>
-          <%= f.hidden_field :candidate_ids, id: "bulkCandidateIds" %>
+          <p class="text-secondary mb-3"><%= t("#{t_queue}.modals.confirm_description", default: "Revisa la información antes de crear los gastos.") %></p>
+          <%= hidden_field_tag :candidate_ids, nil, id: "bulkCandidateIds" %>
+          <%= hidden_field_tag :status, "discarded" if @status == "discarded" %>
+
+          <div class="alert alert-warning d-none" id="bulkConfirmBlocked" role="alert">
+            <strong><i class="ti ti-alert-triangle me-1"></i><%= t("#{t_queue}.modals.confirm_blocked_title", default: "No se pueden confirmar estos candidatos") %></strong>
+            <div class="small mt-1" id="bulkConfirmBlockedList"></div>
+            <div class="small mt-1"><%= t("#{t_queue}.modals.confirm_blocked_hint", default: "Completa los campos que no se pueden asignar desde este modal.") %></div>
+          </div>
+
+          <p class="small text-secondary"><%= t("#{t_queue}.modals.confirm_hint", default: "Puedes asignar categoría y fuente de dinero a todos los seleccionados antes de confirmar.") %></p>
 
           <div class="mb-3">
             <%= category_picker f, :category_id, @categories,
-                                label: t("common.category"),
-                                include_blank: t("expense_candidates.no_change", default: "Sin cambio"),
-                                id: "bulkCategorySelect",
-                                testid: "bulk-category-picker" %>
+                                label: t("#{t_queue}.table.category", default: "Categoría"),
+                                include_blank: t("#{t_queue}.modals.no_change", default: "Sin cambio"),
+                                id: "bulkConfirmCategorySelect",
+                                testid: "bulk-confirm-category-picker" %>
           </div>
 
           <div class="mb-3">
-            <label for="bulkSourceSelect" class="form-label"><%= t("common.money_source", default: "Fuente de Dinero") %></label>
-            <select id="bulkSourceSelect" name="money_source_id" class="form-select">
-              <option value=""><%= t("expense_candidates.no_change", default: "Sin cambio") %></option>
+            <label for="bulkConfirmSourceSelect" class="form-label"><%= t("#{t_queue}.table.money_source", default: "Fuente de dinero") %></label>
+            <select id="bulkConfirmSourceSelect" name="money_source_id" class="form-select">
+              <option value=""><%= t("#{t_queue}.modals.no_change", default: "Sin cambio") %></option>
               <% @money_sources.each do |source| %>
                 <option value="<%= source.id %>"><%= source.display_name %></option>
               <% end %>
@@ -155,11 +497,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-            <%= t("common.cancel", default: "Cancelar") %>
-          </button>
-          <button type="submit" id="confirmBulkSubmit" class="btn btn-success" disabled>
-            <i class="ti ti-circle-check me-1"></i><%= t("expense_candidates.confirm_and_create", default: "Confirmar y Crear Gastos") %>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel", default: "Cancelar") %></button>
+          <button type="submit" id="confirmBulkSubmit" class="btn btn-success">
+            <i class="ti ti-circle-check me-1"></i><%= t("#{t_queue}.modals.confirm_and_create", default: "Confirmar y crear gastos") %>
           </button>
         </div>
       <% end %>
@@ -168,12 +508,17 @@
 </div>
 
 <%= tag.div class: "d-none", data: { candidates_table_payload: {
-      selected_label: t("expense_candidates.selected", default: "seleccionados"),
-      will_be_confirmed: t("expense_candidates.will_be_confirmed", default: "serán confirmados como gastos."),
-      will_be_discarded: t("expense_candidates.will_be_discarded", default: "serán descartados."),
-      discard_undo_hint: t("expense_candidates.discard_undo_hint", default: "Podrás verlos en la pestaña Descartados."),
+      selected_label: t("#{t_queue}.bulk.selected", default: "seleccionados"),
+      selected_label_singular: t("#{t_queue}.bulk.selected_singular", default: "seleccionado"),
+      will_be_confirmed: t("#{t_queue}.bulk.will_be_confirmed", default: "serán confirmados como gastos."),
+      will_be_confirmed_singular: t("#{t_queue}.bulk.will_be_confirmed_singular", default: "será confirmado como gasto."),
+      will_be_discarded: t("#{t_queue}.bulk.will_be_discarded", default: "serán descartados."),
+      will_be_discarded_singular: t("#{t_queue}.bulk.will_be_discarded_singular", default: "será descartado."),
+      discard_undo_hint: t("#{t_queue}.bulk.discard_undo_hint", default: "Podrás verlos en la pestaña Descartados."),
+      discard_undo_hint_singular: t("#{t_queue}.bulk.discard_undo_hint_singular", default: "Podrás verlo en la pestaña Descartados."),
+      creating_label: t("#{t_queue}.bulk.creating", default: "Creando..."),
+      applying_label: t("#{t_queue}.bulk.applying", default: "Aplicando..."),
       bulk_discard_url: bulk_discard_expense_candidates_path,
-      creating_label: t("common.creating", default: "Creando...")
+      missing_labels: ExpenseCandidatesController::MISSING_FILTER_FIELDS.index_with { |field| candidate_missing_label(field) }
 } } %>
 <%= javascript_include_tag "expense_candidates_table", defer: true %>
-

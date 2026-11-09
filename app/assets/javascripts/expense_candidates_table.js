@@ -1,105 +1,329 @@
-  (function() {
-    var payloadEl = document.querySelector("[data-candidates-table-payload]");
-    var payload = payloadEl ? JSON.parse(payloadEl.dataset.candidatesTablePayload) : {};
-    var $ = function(sel) { return document.querySelector(sel); };
-    var $$ = function(sel) { return document.querySelectorAll(sel); };
+(function () {
+  // Expense candidates queue: row selection, bulk action modals and the
+  // discard confirmation. Bulk updates reuse the existing PATCH/POST endpoints
+  // rendered by the view; this file only handles presentation and selection.
 
-    function selectedIds() {
-      var seen = {};
-      Array.from($$("tr[data-id]"))
-        .filter(function(el) { var cb = el.querySelector(".row-check"); return cb && cb.checked; })
-        .forEach(function(el) { seen[el.dataset.id] = true; });
-      return Object.keys(seen);
-    }
+  var SELECTION_STORAGE_KEY = "expenseCandidatesSelection";
 
-    function updateBulk() {
-      var n = selectedIds().length;
-      var has = n > 0;
-      var bar = $("#bulkBar");
-      // d-none uses display:none !important, so toggling inline styles cannot
-      // reveal the bar. Remove the class instead; .bulk-bar provides display.
-      if (bar) bar.classList.toggle("d-none", !has);
-      if ($("#bulkCount")) $("#bulkCount").textContent = n + " " + payload.selected_label;
-      ["bulkCategory", "bulkSource", "bulkConfirm", "bulkDiscard"].forEach(function(id) {
-        var el = $("#" + id);
-        if (el) el.disabled = !has;
-      });
-    }
+  function payload() {
+    var el = document.querySelector("[data-candidates-table-payload]");
+    return el ? JSON.parse(el.dataset.candidatesTablePayload) : {};
+  }
 
-    function openBulkConfirmModal(focusField) {
-      var ids = selectedIds();
-      if (!ids.length) return;
-      var n = ids.length;
-      var word = n === 1 ? "candidato" : "candidatos";
-      $("#bulkCandidateIds").value = ids.join(",");
-      $("#bulkConfirmDescription").textContent = n + " " + word + " " + payload.will_be_confirmed;
-      CategoryPicker.setValue($("#bulkCategorySelect"), "");
-      $("#bulkSourceSelect").value = "";
-      $("#confirmBulkSubmit").disabled = false;
-      var modal = bootstrap.Modal.getOrCreateInstance("#bulkConfirmModal");
-      modal.show();
-      if (focusField === "bulkCategorySelect") {
-        CategoryPicker.focus($("#bulkCategorySelect"));
-      } else if (focusField) {
-        document.getElementById(focusField).focus();
-      }
-    }
+  function rowElements() {
+    return Array.prototype.slice.call(document.querySelectorAll("[data-candidate-row]"));
+  }
 
-    document.addEventListener("change", function(e) {
-      if (e.target.matches(".row-check, #selectAll")) {
-        if (e.target.id === "selectAll") {
-          Array.from($$(".row-check")).forEach(function(c) { c.checked = e.target.checked; });
-        }
-        updateBulk();
-      }
+  function selectedIds() {
+    var ids = {};
+    rowElements().forEach(function (el) {
+      var checkbox = el.querySelector(".row-check");
+      if (checkbox && checkbox.checked) ids[el.dataset.id] = true;
+    });
+    return Object.keys(ids);
+  }
+
+  function rowForId(id) {
+    return rowElements().filter(function (el) { return el.dataset.id === id; })[0];
+  }
+
+  function syncDuplicateCheckboxes(id, checked) {
+    Array.prototype.slice.call(document.querySelectorAll(".row-check")).forEach(function (checkbox) {
+      if (checkbox.value === id) checkbox.checked = checked;
+    });
+  }
+
+  function updateBulk() {
+    var bar = document.getElementById("bulkBar");
+    if (!bar) return;
+
+    var ids = selectedIds();
+    var count = ids.length;
+    var hasSelection = count > 0;
+    var data = payload();
+
+    bar.classList.toggle("d-none", !hasSelection);
+    var selectedLabel = count === 1
+      ? (data.selected_label_singular || "seleccionado")
+      : (data.selected_label || "seleccionados");
+    document.getElementById("bulkCount").textContent = count + " " + selectedLabel;
+
+    ["bulkCategory", "bulkSource", "bulkConfirm", "bulkDiscard"].forEach(function (id) {
+      var button = document.getElementById(id);
+      if (button) button.disabled = !hasSelection;
     });
 
-    function bulkDiscardSelected() {
-      var ids = selectedIds();
-      if (!ids.length) return;
-      var n = ids.length;
-      var word = n === 1 ? "candidato" : "candidatos";
-      var message = n + " " + word + " " + payload.will_be_discarded + " " + payload.discard_undo_hint;
-      Dialog.confirm(message, { title: "Confirmar", confirmLabel: "Descartar", variant: "danger" }).then(function (confirmed) {
-        if (!confirmed) return;
+    rowElements().forEach(function (el) {
+      var selected = ids.indexOf(el.dataset.id) !== -1;
+      el.classList.toggle("selected", selected);
+    });
+
+    var total = {};
+    rowElements().forEach(function (el) { total[el.dataset.id] = true; });
+    var totalCount = Object.keys(total).length;
+    ["selectAll", "selectAllMobile"].forEach(function (id) {
+      var selectAll = document.getElementById(id);
+      if (!selectAll) return;
+      selectAll.checked = totalCount > 0 && count === totalCount;
+      selectAll.indeterminate = count > 0 && count < totalCount;
+    });
+  }
+
+  function selectAllRows(checked) {
+    Array.prototype.slice.call(document.querySelectorAll(".row-check")).forEach(function (checkbox) {
+      checkbox.checked = checked;
+    });
+  }
+
+  function clearSelection() {
+    selectAllRows(false);
+    updateBulk();
+  }
+
+  function persistSelection() {
+    try {
+      window.sessionStorage.setItem(SELECTION_STORAGE_KEY, JSON.stringify(selectedIds()));
+    } catch (error) {
+      // Private browsing can block storage; selection simply is not restored.
+    }
+  }
+
+  function clearPersistedSelection() {
+    try {
+      window.sessionStorage.removeItem(SELECTION_STORAGE_KEY);
+    } catch (error) {
+      // Nothing to clear when storage is unavailable.
+    }
+  }
+
+  // Category and source updates reload the page. Restoring the checked rows
+  // after the redirect keeps the batch ready for the next bulk action.
+  function restorePersistedSelection() {
+    var raw;
+    try {
+      raw = window.sessionStorage.getItem(SELECTION_STORAGE_KEY);
+    } catch (error) {
+      return;
+    }
+    if (!raw) return;
+
+    clearPersistedSelection();
+
+    var ids;
+    try {
+      ids = JSON.parse(raw);
+    } catch (error) {
+      return;
+    }
+    if (!Array.isArray(ids)) return;
+
+    ids.forEach(function (id) { syncDuplicateCheckboxes(id, true); });
+  }
+
+  function showModal(id) {
+    var element = document.getElementById(id);
+    if (!element || !window.bootstrap) return;
+    window.bootstrap.Modal.getOrCreateInstance(element).show();
+  }
+
+  function resetCategoryPicker(selectId) {
+    var select = document.getElementById(selectId);
+    if (select && window.CategoryPicker) window.CategoryPicker.setValue(select, "");
+  }
+
+  function openCategoryModal() {
+    var ids = selectedIds();
+    if (!ids.length) return;
+
+    document.getElementById("bulkCategoryCandidateIds").value = ids.join(",");
+    resetCategoryPicker("bulkCategorySelect");
+    showModal("bulkCategoryModal");
+  }
+
+  function openSourceModal() {
+    var ids = selectedIds();
+    if (!ids.length) return;
+
+    document.getElementById("bulkSourceCandidateIds").value = ids.join(",");
+    var select = document.getElementById("bulkSourceSelect");
+    if (select) select.value = "";
+    showModal("bulkSourceModal");
+  }
+
+  function missingFieldLabels() {
+    return payload().missing_labels || {};
+  }
+
+  function unresolvableMissing(row) {
+    var assignable = ["category_id", "money_source_id"];
+    return (row.dataset.missingFields || "")
+      .split(/\s+/)
+      .filter(function (field) { return field && assignable.indexOf(field) === -1; });
+  }
+
+  function descriptionFor(row) {
+    var description = row.querySelector(".candidate-description");
+    return description ? description.textContent.trim() : row.dataset.id;
+  }
+
+  function blockedCandidates(ids) {
+    var labels = missingFieldLabels();
+    var blocked = [];
+
+    ids.forEach(function (id) {
+      var row = rowForId(id);
+      if (!row) return;
+      var fields = unresolvableMissing(row);
+      if (!fields.length) return;
+
+      var fieldNames = fields.map(function (field) { return labels[field] || field; }).join(", ");
+      blocked.push(descriptionFor(row) + " (" + fieldNames + ")");
+    });
+
+    return blocked;
+  }
+
+  function openConfirmModal() {
+    var ids = selectedIds();
+    if (!ids.length) return;
+
+    document.getElementById("bulkCandidateIds").value = ids.join(",");
+    resetCategoryPicker("bulkConfirmCategorySelect");
+    var sourceSelect = document.getElementById("bulkConfirmSourceSelect");
+    if (sourceSelect) sourceSelect.value = "";
+
+    var blocked = blockedCandidates(ids);
+    var alert = document.getElementById("bulkConfirmBlocked");
+    var list = document.getElementById("bulkConfirmBlockedList");
+    var submit = document.getElementById("confirmBulkSubmit");
+
+    if (alert) alert.classList.toggle("d-none", blocked.length === 0);
+    if (list) list.textContent = blocked.join(" · ");
+    if (submit) submit.disabled = blocked.length > 0;
+
+    showModal("bulkConfirmModal");
+  }
+
+  function bulkDiscardSelected() {
+    var ids = selectedIds();
+    if (!ids.length) return;
+
+    var data = payload();
+    var single = ids.length === 1;
+    var word = single ? "candidato" : "candidatos";
+    var action = single
+      ? (data.will_be_discarded_singular || "será descartado.")
+      : (data.will_be_discarded || "serán descartados.");
+    var hint = single
+      ? (data.discard_undo_hint_singular || data.discard_undo_hint || "")
+      : (data.discard_undo_hint || "");
+    var message = ids.length + " " + word + " " + action + " " + hint;
+
+    window.Dialog.confirm(message, {
+      title: "Confirmar",
+      confirmLabel: "Descartar",
+      variant: "danger"
+    }).then(function (confirmed) {
+      if (!confirmed) return;
+
+      clearPersistedSelection();
+
       var form = document.createElement("form");
       form.method = "post";
-      form.action = payload.bulk_discard_url;
+      form.action = data.bulk_discard_url;
+
       var csrf = document.querySelector('meta[name="csrf-token"]');
       if (csrf) {
-        var csrfInput = document.createElement("input");
-        csrfInput.type = "hidden";
-        csrfInput.name = "authenticity_token";
-        csrfInput.value = csrf.content;
-        form.appendChild(csrfInput);
+        var token = document.createElement("input");
+        token.type = "hidden";
+        token.name = "authenticity_token";
+        token.value = csrf.content;
+        form.appendChild(token);
       }
+
       var idsInput = document.createElement("input");
       idsInput.type = "hidden";
       idsInput.name = "candidate_ids";
       idsInput.value = ids.join(",");
       form.appendChild(idsInput);
+
+      var page = document.querySelector(".candidates-page");
+      if (page && page.dataset.status === "discarded") {
+        var statusInput = document.createElement("input");
+        statusInput.type = "hidden";
+        statusInput.name = "status";
+        statusInput.value = "discarded";
+        form.appendChild(statusInput);
+      }
+
       document.body.appendChild(form);
       form.submit();
-      });
+    });
+  }
+
+  function showSubmittingState(form, label) {
+    var button = form.querySelector("button[type='submit']");
+    if (!button) return;
+    button.disabled = true;
+    button.textContent = label;
+  }
+
+  document.addEventListener("change", function (event) {
+    if (!document.querySelector(".candidates-page")) return;
+
+    if (event.target.id === "selectAll" || event.target.id === "selectAllMobile") {
+      selectAllRows(event.target.checked);
+      updateBulk();
+      return;
     }
 
-    document.addEventListener("click", function(e) {
-      if (e.target.id === "bulkConfirm" || e.target.closest("#bulkConfirm")) {
-        openBulkConfirmModal();
-      } else if (e.target.id === "bulkCategory" || e.target.closest("#bulkCategory")) {
-        openBulkConfirmModal("bulkCategorySelect");
-      } else if (e.target.id === "bulkSource" || e.target.closest("#bulkSource")) {
-        openBulkConfirmModal("bulkSourceSelect");
-      } else if (e.target.id === "bulkDiscard" || e.target.closest("#bulkDiscard")) {
-        bulkDiscardSelected();
-      }
-    });
+    if (event.target.classList.contains("row-check")) {
+      syncDuplicateCheckboxes(event.target.value, event.target.checked);
+      updateBulk();
+    }
+  });
 
-    $("#bulkConfirmForm").addEventListener("submit", function() {
-      var btn = $("#confirmBulkSubmit");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>' + payload.creating_label;
-    });
+  document.addEventListener("click", function (event) {
+    if (!document.querySelector(".candidates-page")) return;
 
+    if (event.target.id === "bulkClearSelection" || event.target.closest("#bulkClearSelection")) {
+      clearSelection();
+    } else if (event.target.id === "bulkCategory" || event.target.closest("#bulkCategory")) {
+      openCategoryModal();
+    } else if (event.target.id === "bulkSource" || event.target.closest("#bulkSource")) {
+      openSourceModal();
+    } else if (event.target.id === "bulkConfirm" || event.target.closest("#bulkConfirm")) {
+      openConfirmModal();
+    } else if (event.target.id === "bulkDiscard" || event.target.closest("#bulkDiscard")) {
+      bulkDiscardSelected();
+    }
+  });
+
+  document.addEventListener("submit", function (event) {
+    if (event.defaultPrevented) return;
+
+    var data = payload();
+    if (event.target.id === "bulkCategoryForm" || event.target.id === "bulkSourceForm") {
+      persistSelection();
+      showSubmittingState(event.target, data.applying_label || "Aplicando...");
+    } else if (event.target.id === "bulkConfirmForm") {
+      clearPersistedSelection();
+      showSubmittingState(event.target, data.creating_label || "Creando...");
+    }
+  });
+
+  function init() {
+    if (!document.querySelector(".candidates-page")) return;
+
+    restorePersistedSelection();
     updateBulk();
-  })();
+  }
+
+  document.addEventListener("turbo:load", init);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();

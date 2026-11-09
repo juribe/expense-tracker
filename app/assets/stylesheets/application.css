@@ -959,6 +959,9 @@
 }
 
 .category-picker__feedback {
+  display: none;
+}
+.category-picker__feedback:not([hidden]) {
   display: block;
 }
 

@@ -200,6 +200,18 @@ class ExpenseCandidate < ApplicationRecord
     update!(status: "discarded", discarded_at: Time.current)
   end
 
+  # Return a discarded candidate to the review queue. It always needs an
+  # explicit decision again, even when its fields are already complete, so it
+  # re-enters the queue as needs_review. No-op otherwise.
+  def restore!
+    return self unless discarded?
+
+    self.status = "needs_review"
+    self.discarded_at = nil
+    save!
+    self
+  end
+
   private
 
   def set_defaults

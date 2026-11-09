@@ -323,8 +323,32 @@ module ApplicationHelper
     when "image" then "photo"
     when "ocr" then "scan"
     when "gmail" then "mail-opened"
+    when "playground_file" then "file-import"
+    when "manual" then "pencil"
     else "file"
     end
+  end
+
+  # Human label for an expense-candidate ingestion source. Falls back to the
+  # titleized raw value so new channels keep working without a code change.
+  def candidate_source_label(source)
+    t("expense_candidates.queue.sources.#{source}", default: source.to_s.titleize)
+  end
+
+  # Queue state shown in the candidates table: the internal `ready` state is
+  # still pending from the user's point of view.
+  def candidate_queue_status_badge(status)
+    if status == "discarded"
+      tag.span(t("expense_candidates.queue.status.discarded", default: "Descartado"),
+               class: "badge candidates-status candidates-status--discarded")
+    else
+      tag.span(t("expense_candidates.queue.status.pending", default: "Pendiente"),
+               class: "badge candidates-status candidates-status--pending")
+    end
+  end
+
+  def candidate_missing_label(field)
+    t("expense_candidates.queue.missing_fields.#{field}", default: field.to_s.titleize)
   end
 
   CANDIDATE_STATUS_CLASSES = {

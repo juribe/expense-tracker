@@ -787,4 +787,44 @@ class ExpenseCandidateTest < ActiveSupport::TestCase
     assert candidate.confirm!
     assert candidate.reload.expense_id.present?
   end
+
+  # --- restore! ---
+
+  test "restore! returns a discarded candidate with missing fields to needs_review" do
+    candidate = build_candidate(
+      status: "discarded",
+      category_id: nil,
+      discarded_at: Time.current
+    )
+    candidate.save!
+
+    candidate.restore!
+
+    assert_equal "needs_review", candidate.reload.status
+    assert_nil candidate.discarded_at
+  end
+
+  test "restore! returns a complete discarded candidate to needs_review" do
+    candidate = build_candidate(
+      status: "discarded",
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      description: "Completo",
+      discarded_at: Time.current
+    )
+    candidate.save!
+
+    candidate.restore!
+
+    assert_equal "needs_review", candidate.reload.status
+  end
+
+  test "restore! leaves a non-discarded candidate unchanged" do
+    candidate = build_candidate(status: "needs_review")
+    candidate.save!
+
+    candidate.restore!
+
+    assert_equal "needs_review", candidate.reload.status
+  end
 end

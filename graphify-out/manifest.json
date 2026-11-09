@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1793734674.6673675,
-    "seen": 1793738613.789053,
-    "ast_hash": "11048542b5c8799654651b35df4c01ff",
+    "mtime": 1794178776.2431815,
+    "seen": 1794180101.0842009,
+    "ast_hash": "2acc09d7ec9f87c16f164a7e847bdd40",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1794077186.6725233,
-    "seen": 1794078780.087379,
-    "ast_hash": "b9dea548e788231e4452f31d76f58ae7",
+    "mtime": 1794178814.148815,
+    "seen": 1794180101.085012,
+    "ast_hash": "719a5833322fe5991287c154015b02f4",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794077365.732418,
-    "seen": 1794078780.0887392,
-    "ast_hash": "96f74c914ded48ccd8881f6af512b823",
+    "mtime": 1794180681.4442346,
+    "seen": 1794180922.637155,
+    "ast_hash": "1eaacb72b055ce0fb822d9998da4931c",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794177618.8807933,
-    "seen": 1794177908.0137742,
-    "ast_hash": "e9d2c829fab7ca0a6d7bf044011cb1f1",
+    "mtime": 1794180675.6719067,
+    "seen": 1794180922.6371572,
+    "ast_hash": "e4426116dd5ce05f277fc365243a0694",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794175989.4336255,
-    "seen": 1794177908.013782,
+    "mtime": 1794181904.9570663,
+    "seen": 1794181969.0215318,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "app/models/expense_candidate.rb": {
-    "mtime": 1793371906.094665,
-    "seen": 1793490696.634596,
-    "ast_hash": "1a79fe680ba9806415c6f83acf49d548",
+    "mtime": 1794179825.6773438,
+    "seen": 1794180101.084404,
+    "ast_hash": "cac2d7dbfee049566ea94a7cbdfa0348",
     "semantic_hash": ""
   },
   "app/services/ai/image_expense_extractor.rb": {
@@ -1500,9 +1500,9 @@
     "semantic_hash": ""
   },
   "test/models/expense_candidate_test.rb": {
-    "mtime": 1793372031.681883,
-    "seen": 1793490696.635314,
-    "ast_hash": "904c6c4888a9e96aaf16230653f81d70",
+    "mtime": 1794179836.743077,
+    "seen": 1794180101.0856671,
+    "ast_hash": "6af3fb256ba6a63a12dd3f0be1548b83",
     "semantic_hash": ""
   },
   "test/services/ai/image_expense_extractor_test.rb": {
@@ -2328,15 +2328,15 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_candidates_controller.rb": {
-    "mtime": 1793120096.6401775,
-    "seen": 1793490696.6343591,
-    "ast_hash": "d0f248084414bf4ee243ba2f783e9ff6",
+    "mtime": 1794181514.0647109,
+    "seen": 1794181969.0193868,
+    "ast_hash": "35433cd8cb79096c3e43c9f401137e43",
     "semantic_hash": ""
   },
   "test/controllers/expense_candidates_controller_test.rb": {
-    "mtime": 1793119364.8901896,
-    "seen": 1793490696.6351922,
-    "ast_hash": "e5a72dd7a29f5343aeb7bd5919994e15",
+    "mtime": 1794182195.6534624,
+    "seen": 1794182243.3102431,
+    "ast_hash": "7e81294eeb97a3d548526f33673dacca",
     "semantic_hash": ""
   },
   ".opencode/skills/expense-tracker-design/SKILL.md": {
@@ -4872,9 +4872,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/expense_candidates_table.js": {
-    "mtime": 1793377143.2227492,
-    "seen": 1793490696.6342762,
-    "ast_hash": "505effb8edcdc0508e97d5ed07b70e4a",
+    "mtime": 1794181537.338432,
+    "seen": 1794181969.019255,
+    "ast_hash": "2057c05aadcb0e2ae227cb33cbd1a790",
     "semantic_hash": ""
   },
   "app/assets/javascripts/expense_evaluations_index.js": {
@@ -5472,9 +5472,9 @@
     "semantic_hash": ""
   },
   "test/system/expense_candidates_bulk_bar_test.rb": {
-    "mtime": 1793280807.9846802,
-    "seen": 1793490696.6355982,
-    "ast_hash": "83630d6e94760b544f5f4c6d1998444e",
+    "mtime": 1794181119.2318194,
+    "seen": 1794181380.570262,
+    "ast_hash": "5bc9851d1470b9303d4778b6f265c884",
     "semantic_hash": ""
   },
   "app/assets/javascripts/bank_setup_wizard.js": {

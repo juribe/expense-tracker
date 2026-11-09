@@ -266,6 +266,19 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
 
   # --- BULK UPDATE ---
 
+  test "PATCH /expense_candidates/bulk_update keeps the discarded tab active" do
+    candidate = create_candidate(category_id: nil, status: "discarded")
+
+    patch bulk_update_expense_candidates_path, params: {
+      candidate_ids: [ candidate.id ],
+      category_id: @category.id,
+      status: "discarded"
+    }
+
+    assert_redirected_to expense_candidates_path(status: "discarded")
+    assert_equal @category.id, candidate.reload.category_id
+  end
+
   test "PATCH /expense_candidates/bulk_update changes category for selected candidates" do
     a = create_candidate(category_id: nil, status: "needs_review")
     b = create_candidate(category_id: nil, status: "needs_review")
@@ -493,6 +506,18 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
 
   # --- BULK DISCARD ---
 
+  test "POST /expense_candidates/bulk_discard keeps the discarded tab active" do
+    candidate = create_candidate(status: "needs_review")
+
+    post bulk_discard_expense_candidates_path, params: {
+      candidate_ids: [ candidate.id ],
+      status: "discarded"
+    }
+
+    assert_redirected_to expense_candidates_path(status: "discarded")
+    assert_equal "discarded", candidate.reload.status
+  end
+
   test "POST /expense_candidates/bulk_discard marks selected candidates as discarded" do
     a = create_candidate(status: "needs_review")
     b = create_candidate(status: "ready")
@@ -628,5 +653,182 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     classification = ActivityClassification.lookup(user: @user, name: "MOVISTAR_EPAYCO_PREPAG")
     assert_equal @category, classification&.category
     assert_equal "user", classification&.source
+  end
+
+  # --- REDESIGNED QUEUE ---
+
+  test "GET /expense_candidates renders dynamic summary and tab counters" do
+    create_candidate(status: "needs_review", description: "Pendiente")
+    create_candidate(status: "discarded", description: "Descartado")
+    create_candidate(status: "confirmed", description: "Confirmado")
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "[data-testid='candidates-summary']"
+    assert_select "[data-testid='summary-total']", text: "2"
+    assert_select "[data-testid='summary-pending']", text: "1"
+    assert_select "[data-testid='summary-discarded']", text: "1"
+    assert_select "[data-testid='pending-tab-count']", text: "1"
+    assert_select "[data-testid='discarded-tab-count']", text: "1"
+  end
+
+  test "GET /expense_candidates shows the friendly empty state for pending" do
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "[data-testid='candidates-empty']", text: /Todo está al día/
+    assert_select "[data-testid='candidates-empty']", text: /Yogasto te avisará/
+    assert_select "a[href='#{expense_candidates_path(status: 'discarded')}']"
+  end
+
+  test "GET /expense_candidates searches pending candidates by description" do
+    create_candidate(status: "needs_review", description: "PRICESMART COLOMBIA")
+    create_candidate(status: "needs_review", description: "NETFLIX SUSCRIPCION")
+
+    get expense_candidates_path, params: { q: "pricesmart" }
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row']", count: 1
+    assert_select "tr[data-testid='candidate-row']", text: /PRICESMART COLOMBIA/
+  end
+
+  test "GET /expense_candidates filters by source" do
+    create_candidate(status: "needs_review", source: "gmail", description: "Correo")
+    create_candidate(status: "needs_review", source: "whatsapp", description: "Mensaje")
+
+    get expense_candidates_path, params: { source: "whatsapp" }
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row']", count: 1
+    assert_select "tr[data-testid='candidate-row']", text: /Mensaje/
+  end
+
+  test "GET /expense_candidates filters by category and money source" do
+    create_candidate(
+      status: "needs_review", category_id: @category.id,
+      money_source_id: @money_source.id, amount: nil, description: "Con datos"
+    )
+    create_candidate(status: "needs_review", category_id: nil, description: "Sin datos")
+
+    get expense_candidates_path, params: { category_id: @category.id, money_source_id: @money_source.id }
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row']", count: 1
+    assert_select "tr[data-testid='candidate-row']", text: /Con datos/
+  end
+
+  test "GET /expense_candidates filters by missing information" do
+    create_candidate(status: "needs_review", category_id: nil, description: "Sin categoría")
+    create_candidate(
+      status: "needs_review", category_id: @category.id,
+      money_source_id: @money_source.id, description: "Completo"
+    )
+
+    get expense_candidates_path, params: { missing: "category_id" }
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row']", count: 1
+    assert_select "tr[data-testid='candidate-row']", text: /Sin categoría/
+  end
+
+  test "GET /expense_candidates applies filters to the discarded tab" do
+    create_candidate(status: "discarded", source: "gmail", description: "Correo descartado")
+    create_candidate(status: "discarded", source: "whatsapp", description: "Mensaje descartado")
+
+    get expense_candidates_path(status: "discarded", source: "gmail")
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row']", count: 1
+    assert_select "tr[data-testid='candidate-row']", text: /Correo descartado/
+  end
+
+  test "GET /expense_candidates renders every missing field with the same warning treatment" do
+    create_candidate(status: "needs_review", category_id: nil, money_source_id: nil)
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row'] .candidate-missing", minimum: 2
+    assert_select "tr[data-testid='candidate-row'] .candidate-missing--quiet", count: 0
+  end
+
+  test "GET /expense_candidates renders the compact filter form" do
+    create_candidate(status: "needs_review")
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "form[data-testid='candidates-filters'] input[name='q']"
+    assert_select "form[data-testid='candidates-filters'] select[name='source']"
+    assert_select "form[data-testid='candidates-filters'] select[name='category_id']"
+    assert_select "form[data-testid='candidates-filters'] select[name='money_source_id']"
+    assert_select "form[data-testid='candidates-filters'] select[name='missing']"
+  end
+
+  test "GET /expense_candidates renders dedicated bulk action forms" do
+    create_candidate(status: "needs_review")
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "[data-testid='bulk-bar']"
+    assert_select "form#bulkCategoryForm[action='#{bulk_update_expense_candidates_path}']"
+    assert_select "form#bulkSourceForm[action='#{bulk_update_expense_candidates_path}']"
+    assert_select "form#bulkConfirmForm[action='#{bulk_confirm_expense_candidates_path}']"
+    assert_select "form#bulkCategoryForm select#bulkCategorySelect"
+    assert_select "form#bulkSourceForm select#bulkSourceSelect"
+    assert_select "form#bulkConfirmForm select#bulkConfirmSourceSelect"
+  end
+
+  test "GET /expense_candidates renders the recover action only for discarded candidates" do
+    discarded = create_candidate(status: "discarded", description: "Descartado recuperable")
+    create_candidate(status: "needs_review", description: "Pendiente")
+
+    get expense_candidates_path(status: "discarded")
+
+    assert_select "a[href='#{expense_candidate_path(discarded)}']", text: /Revisar/
+    assert_select "form[action='#{restore_expense_candidate_path(discarded)}']"
+  end
+
+  # --- RESTORE ---
+
+  test "POST /expense_candidates/:id/restore returns a discarded candidate to the pending queue" do
+    candidate = create_candidate(status: "discarded", category_id: nil, discarded_at: Time.current)
+
+    post restore_expense_candidate_path(candidate)
+
+    assert_redirected_to expense_candidates_path
+    candidate.reload
+    assert_equal "needs_review", candidate.status
+    assert_nil candidate.discarded_at
+  end
+
+  test "POST /expense_candidates/:id/restore keeps a complete discarded candidate visible in pending" do
+    candidate = create_candidate(
+      status: "discarded",
+      category_id: @category.id,
+      money_source_id: @money_source.id,
+      description: "Completo",
+      discarded_at: Time.current
+    )
+
+    post restore_expense_candidate_path(candidate)
+
+    assert_equal "needs_review", candidate.reload.status
+    follow_redirect!
+    assert_select "tr[data-testid='candidate-row']", text: /Completo/
+  end
+
+  test "POST /expense_candidates/:id/restore rejects another user's candidate" do
+    other_user = User.create!(name: "Other", email: "restore_other_#{SecureRandom.hex(4)}@example.com", password: "password123")
+    other_candidate = ExpenseCandidate.create!(
+      user: other_user, amount: 100, date: Date.current, source: "text", status: "discarded"
+    )
+
+    post restore_expense_candidate_path(other_candidate)
+
+    assert_response :not_found
+    assert_equal "discarded", other_candidate.reload.status
   end
 end
