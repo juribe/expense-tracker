@@ -41,6 +41,61 @@ class ProgressBarsTest < ApplicationSystemTestCase
     assert_in_delta heights["track"] * 0.4, heights["bar"]["width"], 6
   end
 
+  test "goal progress track stays visible when there is no progress" do
+    Goal.create!(user: @user, pocket: @pocket, name: "Meta sin avance", target_amount: 1_000_000)
+    visit goals_path
+
+    assert_selector "[data-testid='goal-card']", text: "Meta sin avance"
+
+    metrics = page.evaluate_script(<<~JS)
+      (() => {
+        const card = Array.from(document.querySelectorAll("[data-testid='goal-card']"))
+          .find((element) => element.textContent.includes("Meta sin avance"));
+        const track = card.querySelector("[data-testid='goal-card-progress']");
+        const bar = track.querySelector(".progress-bar");
+        return {
+          width: track.getBoundingClientRect().width,
+          height: track.getBoundingClientRect().height,
+          background: getComputedStyle(track).backgroundColor,
+          barWidth: bar.getBoundingClientRect().width
+        };
+      })()
+    JS
+
+    assert_operator metrics["width"], :>, 0, "goal progress track has no rendered width"
+    assert_operator metrics["height"], :>, 0, "goal progress track has no rendered height"
+    refute_equal "rgba(0, 0, 0, 0)", metrics["background"], "goal progress track is transparent"
+    assert_in_delta 0, metrics["barWidth"], 1
+  end
+
+  test "assign to goal hint keeps contrast in dark mode" do
+    visit goals_path
+
+    find("[data-bs-target='#assign-to-goal-modal']").click
+    wait_for_modal_transition("#assign-to-goal-modal")
+    page.execute_script("document.documentElement.setAttribute('data-bs-theme', 'dark')")
+
+    colors = page.evaluate_script(<<~JS)
+      (() => {
+        const modal = document.querySelector("#assign-to-goal-modal");
+        const alert = modal.querySelector(".alert");
+        const link = alert.querySelector("a");
+        const pocket = modal.querySelector(".form-control");
+        return {
+          text: getComputedStyle(alert).color,
+          background: getComputedStyle(alert).backgroundColor,
+          link: getComputedStyle(link).color,
+          pocketText: getComputedStyle(pocket).color,
+          pocketBackground: getComputedStyle(pocket).backgroundColor
+        };
+      })()
+    JS
+
+    assert_channel_contrast colors["text"], colors["background"]
+    assert_channel_contrast colors["link"], colors["background"]
+    assert_channel_contrast colors["pocketText"], colors["pocketBackground"]
+  end
+
   test "pocket distribution bar renders with real width and height" do
     visit money_sources_pockets_path
 
@@ -68,6 +123,23 @@ class ProgressBarsTest < ApplicationSystemTestCase
   end
 
   private
+
+  def assert_channel_contrast(text_color, background_color)
+    text_luma = relative_luminance(text_color)
+    background_luma = relative_luminance(background_color)
+    ratio = ([ text_luma, background_luma ].max + 0.05) / ([ text_luma, background_luma ].min + 0.05)
+
+    assert_operator ratio, :>=, 4.5,
+                    "expected readable contrast between #{text_color} and #{background_color}"
+  end
+
+  def relative_luminance(color)
+    channels = color.scan(/\d+(?:\.\d+)?/).first(3).map(&:to_f).map do |channel|
+      value = channel / 255.0
+      value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055)**2.4
+    end
+    (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2])
+  end
 
   def sign_in(user)
     visit new_user_session_path

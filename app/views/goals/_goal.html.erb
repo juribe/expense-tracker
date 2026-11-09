@@ -1,82 +1,107 @@
-<div class="col-12 col-md-6 col-lg-4">
-  <div class="card h-100 card-hover <%= "border-secondary opacity-75" if goal.archived? %>">
+<div class="col-12 col-md-6 col-xl-4">
+  <article class="card h-100 card-hover goal-card <%= "goal-card-archived" if goal.archived? %>" data-testid="goal-card">
     <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start mb-3">
-        <h5 class="mb-0">
-          <span class="me-1"><%= goal_category_emoji(goal.category) %></span>
-          <%= goal.name %>
-        </h5>
-        <%= goal_health_badge(goal) %>
+      <div class="goal-card-head">
+        <div class="goal-card-identity">
+          <span class="goal-card-emoji" aria-hidden="true"><%= goal_category_emoji(goal.category) %></span>
+          <div class="min-w-0">
+            <h5 class="goal-card-name" title="<%= goal.name %>" data-testid="goal-card-name"><%= goal.name %></h5>
+            <% meta = [ goal.category.present? ? goal_category_label(goal.category) : nil, goal.pocket&.name ].compact %>
+            <% if meta.any? %>
+              <div class="goal-card-meta"><%= meta.join(" · ") %></div>
+            <% end %>
+          </div>
+        </div>
+        <div class="goal-card-status"><%= goal_health_badge(goal) %></div>
       </div>
 
-      <p class="summary-value fw-bold mb-1">
-        <%= number_to_currency(goal.saved_amount) %>
-        <span class="text-muted fw-normal fs-6"><%= t("goals.of_target", default: "de %{amount}", amount: number_to_currency(goal.target_amount)) %></span>
-      </p>
+      <div class="goal-card-values">
+        <div class="goal-card-saved" data-testid="goal-card-saved"><%= number_to_currency(goal.saved_amount) %></div>
+        <div class="goal-card-target">
+          <%= t("goals.target_label", default: "Objetivo") %>
+          <span data-testid="goal-card-target"><%= number_to_currency(goal.target_amount) %></span>
+        </div>
+      </div>
 
       <% progress = goal.progress_percentage.round %>
-      <div class="progress mb-1" role="progressbar"
+      <div class="progress goal-card-progress" role="progressbar"
            aria-label="<%= t("goals.progress_aria", name: goal.name) %>"
-           aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= goal_health_progress_class(goal) %> et-w-<%= progress.round %>"></div>
+           aria-valuenow="<%= progress %>" aria-valuemin="0" aria-valuemax="100"
+           data-testid="goal-card-progress">
+        <div class="progress-bar <%= goal_health_progress_class(goal) %> et-w-<%= progress %>"></div>
       </div>
-      <p class="text-muted small mb-3"><%= number_to_percentage(progress, precision: 0) %></p>
+      <div class="goal-card-progress-meta">
+        <span class="goal-card-percentage"><%= number_to_percentage(progress, precision: 0) %></span>
+        <span><%= t("goals.completed_label", default: "completado") %></span>
+      </div>
 
-      <dl class="row row-cols-1 gx-2 gy-1 small mb-3">
-        <div class="col d-flex justify-content-between">
-          <dt class="fw-normal text-muted"><%= t("goals.remaining", default: "Restante") %></dt>
-          <dd class="fw-bold mb-0"><%= number_to_currency(goal.remaining_amount) %></dd>
+      <dl class="goal-card-details">
+        <div class="goal-card-detail">
+          <dt><%= t("goals.remaining", default: "Dinero restante") %></dt>
+          <dd data-testid="goal-card-remaining"><%= number_to_currency(goal.remaining_amount) %></dd>
         </div>
-        <% if goal.required_monthly_contribution.present? %>
-          <div class="col d-flex justify-content-between">
-            <dt class="fw-normal text-muted"><%= t("goals.required_monthly", default: "Requerido/mes") %></dt>
-            <dd class="fw-bold mb-0"><%= number_to_currency(goal.required_monthly_contribution) %></dd>
-          </div>
-        <% end %>
-        <% if goal.target_date %>
-          <div class="col d-flex justify-content-between">
-            <dt class="fw-normal text-muted"><%= t("goals.target_date", default: "Fecha límite") %></dt>
-            <dd class="mb-0"><%= l(goal.target_date, format: :long) %></dd>
-          </div>
-        <% end %>
-        <div class="col d-flex justify-content-between">
-          <dt class="fw-normal text-muted"><%= t("goals.pocket", default: "Bolsillo") %></dt>
-          <dd class="mb-0">
-            <% if goal.pocket %>
-              <i class="ti ti-pig-money me-1"></i><%= goal.pocket.name %>
+        <div class="goal-card-detail">
+          <dt><%= t("goals.required_monthly", default: "Requerido/mes") %></dt>
+          <dd data-testid="goal-card-monthly">
+            <% if goal.required_monthly_contribution.present? %>
+              <%= number_to_currency(goal.required_monthly_contribution) %>
             <% else %>
-              <span class="text-muted">—</span>
+              <span class="text-secondary"><%= t("goals.not_available", default: "—") %></span>
+            <% end %>
+          </dd>
+        </div>
+        <div class="goal-card-detail">
+          <dt><%= t("goals.target_date", default: "Fecha límite") %></dt>
+          <dd>
+            <% if goal.target_date %>
+              <%= l(goal.target_date, format: :long) %>
+            <% else %>
+              <span class="text-secondary"><%= t("goals.no_target_date", default: "Sin fecha") %></span>
+            <% end %>
+          </dd>
+        </div>
+        <div class="goal-card-detail">
+          <dt><%= t("goals.pocket", default: "Bolsillo") %></dt>
+          <dd data-testid="goal-card-pocket">
+            <% if goal.pocket %>
+              <i class="ti ti-pig-money me-1" aria-hidden="true"></i><%= goal.pocket.name %>
+            <% else %>
+              <span class="text-secondary"><%= t("goals.not_available", default: "—") %></span>
             <% end %>
           </dd>
         </div>
       </dl>
 
-      <div class="d-flex gap-2 d-print-none">
-        <% if goal.pocket&.persisted? %>
-          <button type="button" class="btn btn-sm btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#assign-to-goal-modal"
+      <% if goal.pocket&.persisted? %>
+        <div class="goal-card-actions d-print-none">
+          <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assign-to-goal-modal"
                   data-assign-goal="<%= goal.id %>"
                   data-assign-goal-name="<%= goal.name %>"
                   data-assign-pocket-name="<%= goal.pocket.name %>"
                   data-assign-unallocated="<%= goal.pocket.unallocated_amount %>">
-            <i class="ti ti-pig-money me-1"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
+            <i class="ti ti-pig-money me-1" aria-hidden="true"></i><%= t("goals.assign_to_goal", default: "Asignar a meta") %>
           </button>
           <%= link_to money_source_path(goal.pocket), class: "btn btn-sm btn-outline-primary", title: t("goals.view_pocket", default: "Ver bolsillo") do %>
-            <i class="ti ti-eye me-1"></i><%= t("goals.view_pocket", default: "Ver bolsillo") %>
+            <i class="ti ti-eye me-1" aria-hidden="true"></i><%= t("goals.view_pocket", default: "Ver bolsillo") %>
           <% end %>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
     </div>
 
-    <div class="card-footer bg-white d-flex justify-content-end d-print-none">
+    <div class="card-footer d-flex justify-content-end align-items-center d-print-none">
       <div class="d-inline-flex align-items-center gap-2">
-        <%= link_to edit_goal_path(goal), class: "btn btn-sm btn-outline-primary", title: t("common.edit") do %>
+        <%= link_to edit_goal_path(goal), class: "btn btn-sm btn-outline-primary",
+                    title: t("goals.edit", default: "Editar meta"), aria: { label: t("goals.edit", default: "Editar meta") } do %>
           <i class="ti ti-pencil"></i>
         <% end %>
         <%= button_to goal_path(goal), method: :delete, form: { data: { turbo: true } },
-                      class: "btn btn-sm btn-outline-danger", data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
+                      class: "btn btn-sm btn-outline-danger",
+                      title: t("goals.delete", default: "Eliminar meta"),
+                      aria: { label: t("goals.delete", default: "Eliminar meta") },
+                      data: { confirm: t("common.confirm_delete", default: "Are you sure?") } do %>
           <i class="ti ti-trash"></i>
         <% end %>
       </div>
     </div>
-  </div>
+  </article>
 </div>

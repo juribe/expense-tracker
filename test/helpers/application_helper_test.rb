@@ -125,4 +125,42 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal 0, summary[:allocated_percentage]
     assert_equal 0, summary[:unallocated_percentage]
   end
+
+  test "goals_summary aggregates saved, target, remaining and progress" do
+    pocket = @user.money_sources.create!(name: "Bolsillo Metas", kind: "pocket", starting_balance: 10_000_000)
+    travel = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 5_000_000)
+    emergency = Goal.create!(user: @user, pocket: pocket, name: "Emergencias", target_amount: 3_000_000)
+    GoalAllocation.create!(financial_goal: travel, pocket: pocket, amount: 2_000_000, date: Date.current)
+    GoalAllocation.create!(financial_goal: emergency, pocket: pocket, amount: 1_000_000, date: Date.current)
+
+    summary = goals_summary([ travel, emergency ])
+
+    assert_equal 2, summary[:count]
+    assert_equal BigDecimal("3000000"), summary[:total_saved]
+    assert_equal BigDecimal("8000000"), summary[:total_target]
+    assert_equal BigDecimal("5000000"), summary[:remaining]
+    assert_in_delta 37.5, summary[:progress_percentage], 0.01
+  end
+
+  test "goals_summary caps the progress at 100 percent and floors remaining at zero" do
+    pocket = @user.money_sources.create!(name: "Bolsillo Excedido", kind: "pocket", starting_balance: 10_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 2_000_000)
+    GoalAllocation.create!(financial_goal: goal, pocket: pocket, amount: 3_000_000, date: Date.current)
+
+    summary = goals_summary([ goal ])
+
+    assert_equal BigDecimal("3000000"), summary[:total_saved]
+    assert_equal 100, summary[:progress_percentage]
+    assert_equal BigDecimal("0"), summary[:remaining]
+  end
+
+  test "goals_summary handles an empty collection without dividing by zero" do
+    summary = goals_summary([])
+
+    assert_equal 0, summary[:count]
+    assert_equal BigDecimal("0"), summary[:total_saved]
+    assert_equal BigDecimal("0"), summary[:total_target]
+    assert_equal BigDecimal("0"), summary[:remaining]
+    assert_equal 0, summary[:progress_percentage]
+  end
 end

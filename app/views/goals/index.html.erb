@@ -1,24 +1,101 @@
-<%= render "shared/page_header", title: t("goals.title", default: "Metas financieras") do %>
+<%= render "shared/page_header",
+           title: t("goals.title", default: "Metas financieras"),
+           subtitle: t("goals.subtitle", default: "Convierte tus planes en objetivos y sigue tu progreso.") do %>
   <%= link_to new_goal_path, class: "btn btn-primary" do %>
     <i class="ti ti-plus me-1"></i><%= t("goals.new", default: "Nueva meta") %>
   <% end %>
 <% end %>
 
 <% if @goals.any? %>
-  <div class="row g-3">
+  <% summary = goals_summary(@goals) %>
+
+  <section class="row g-3 mb-4 goal-summary" data-testid="goals-summary">
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("goals.summary.total_goals", default: "Total de metas"),
+                     value: tag.span(summary[:count], data: { testid: "goals-summary-count" }),
+                     icon: "flag",
+                     icon_tone: "blue",
+                     delta: t("goals.summary.breakdown", active: summary[:active_count],
+                                                          completed: summary[:completed_count],
+                                                          default: "%{active} en progreso · %{completed} completadas") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("goals.summary.total_saved", default: "Total ahorrado"),
+                     value: tag.span(number_to_currency(summary[:total_saved]), data: { testid: "goals-summary-saved" }),
+                     tone: :positive,
+                     icon: "pig-money",
+                     icon_tone: "green",
+                     delta: t("goals.summary.saved_hint", default: "Dinero acumulado en tus metas") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("goals.summary.total_target", default: "Objetivo total"),
+                     value: tag.span(number_to_currency(summary[:total_target]), data: { testid: "goals-summary-target" }),
+                     tone: :balance,
+                     icon: "target",
+                     icon_tone: "blue",
+                     delta: t("goals.summary.target_hint", default: "Suma de los objetivos de tus metas") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("goals.summary.overall_progress", default: "Progreso general"),
+                     value: tag.span(number_to_percentage(summary[:progress_percentage], precision: 0),
+                                     data: { testid: "goals-summary-progress" }),
+                     tone: summary[:progress_percentage] >= 100 ? :positive : :balance,
+                     icon: "chart-line",
+                     icon_tone: summary[:progress_percentage] >= 100 ? "green" : "blue",
+                     delta: summary[:remaining].positive? ?
+                              t("goals.summary.remaining_hint", amount: number_to_currency(summary[:remaining]),
+                                                                 default: "Faltan %{amount}") :
+                              t("goals.summary.completed_hint", default: "Todas tus metas están completas") %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">
+      <%= t("goals.list_title", default: "Tus metas") %>
+      <span class="text-secondary fw-normal">(<%= @goals.size %>)</span>
+    </h2>
+  </div>
+
+  <div class="row g-3" data-testid="goals-cards">
     <% @goals.each do |goal| %>
       <%= render partial: "goal", locals: { goal: goal } %>
     <% end %>
   </div>
 <% else %>
-  <div class="card">
-    <div class="p-5 text-center">
-      <i class="ti ti-target display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2"><%= t("goals.empty_title", default: "Aún no tienes metas") %></h4>
-      <p class="text-secondary"><%= t("goals.empty_body", default: "Crea una meta para empezar a ahorrar.") %></p>
-      <%= link_to new_goal_path, class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("goals.new", default: "Nueva meta") %>
-      <% end %>
+  <% empty_cta = link_to new_goal_path, class: "btn btn-primary" do %>
+    <i class="ti ti-plus me-1"></i><%= t("goals.empty_cta", default: "Crear mi primera meta") %>
+  <% end %>
+
+  <div class="card" data-testid="goals-empty-state">
+    <div class="card-body">
+      <%= render "shared/empty_state",
+                 icon: "pig-money",
+                 title: t("goals.empty_title", default: "Aún no tienes metas"),
+                 text: t("goals.empty_body", default: "Convierte tus planes en metas y comienza a construir tu futuro financiero"),
+                 cta: empty_cta %>
     </div>
   </div>
 <% end %>
@@ -40,7 +117,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label"><%= t("goals.pocket", default: "Bolsillo") %></label>
-            <div class="form-control bg-light d-flex align-items-center justify-content-between">
+            <div class="form-control bg-body-secondary text-body d-flex align-items-center justify-content-between">
               <span><i class="ti ti-pig-money me-2"></i><span id="assign-to-goal-pocket-name"></span></span>
               <span class="text-secondary small" id="assign-to-goal-unallocated"></span>
             </div>
@@ -60,9 +137,10 @@
             <%= f.text_field :note, class: "form-control", placeholder: t("goal_allocations.note_placeholder", default: "Opcional") %>
           </div>
           <div class="form-text"><%= t("goals.assign_to_goal_hint", default: "El dinero queda reservado para esta meta dentro del bolsillo. No crea un gasto ni cambia tu patrimonio.") %></div>
-          <div class="alert alert-light border small mt-2 mb-0">
+          <div class="alert bg-body-secondary text-body border small mt-2 mb-0">
             <%= t("goals.assign_from_account_hint", default: "¿Falta dinero en el bolsillo?") %>
-            <%= link_to t("goals.move_money", default: "Mueve dinero desde tu cuenta"), money_sources_cash_path, class: "fw-semibold" %>
+            <%= link_to t("goals.move_money", default: "Mueve dinero desde tu cuenta"), money_sources_cash_path,
+                        class: "fw-semibold text-body text-decoration-underline" %>
           </div>
         </div>
         <div class="modal-footer">
@@ -74,4 +152,4 @@
   </div>
 </div>
 
-  <%= javascript_include_tag "goal_assignments", defer: true %>
+<%= javascript_include_tag "goal_assignments", defer: true %>

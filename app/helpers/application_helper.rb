@@ -514,14 +514,14 @@ module ApplicationHelper
   # Health badge for a goal card: derived state, colored per health.
   def goal_health_badge(goal)
     if goal.archived?
-      return tag.span(t("goals.statuses.archived", default: "Archivada"), class: "badge bg-secondary")
+      return tag.span(t("goals.statuses.archived", default: "Archivada"), class: "badge bg-secondary-subtle text-secondary")
     end
 
     labels = {
-      completed: [ t("goals.health.completed", default: "Cumplida"), "bg-success" ],
+      completed: [ t("goals.health.completed", default: "Cumplida"), "bg-success-subtle text-success" ],
       on_track: [ t("goals.health.on_track", default: "En rumbo"), "bg-success-subtle text-success" ],
-      at_risk: [ t("goals.health.at_risk", default: "En riesgo"), "bg-warning text-dark" ],
-      behind: [ t("goals.health.behind", default: "Atrás"), "bg-danger" ]
+      at_risk: [ t("goals.health.at_risk", default: "En riesgo"), "bg-warning-subtle text-warning-emphasis" ],
+      behind: [ t("goals.health.behind", default: "Atrás"), "bg-danger-subtle text-danger" ]
     }
     label, css_class = labels[goal.health]
     tag.span(label, class: "badge #{css_class}")
@@ -531,6 +531,26 @@ module ApplicationHelper
     return "bg-secondary" if goal.archived?
 
     { completed: "bg-success", on_track: "bg-success", at_risk: "bg-warning", behind: "bg-danger" }[goal.health]
+  end
+
+  # Aggregate indicators for the goals index. Amounts always come from the
+  # goals' allocations (via Goal#saved_amount); the progress bar is capped at
+  # 100% while the saved total keeps its real value.
+  def goals_summary(goals)
+    goals = goals.to_a
+    total_saved = goals.sum { |goal| goal.saved_amount.to_d }
+    total_target = goals.sum { |goal| goal.target_amount.to_d }
+    remaining = [ total_target - total_saved, 0.to_d ].max
+
+    {
+      count: goals.size,
+      active_count: goals.count { |goal| !goal.archived? && !goal.completed? },
+      completed_count: goals.count(&:completed?),
+      total_saved: total_saved,
+      total_target: total_target,
+      remaining: remaining,
+      progress_percentage: total_target.positive? ? [ (total_saved / total_target * 100).to_f, 100.0 ].min : 0.0
+    }
   end
 
   # Presentation summary for the pocket detail. Amounts always come from the

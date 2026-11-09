@@ -11,6 +11,7 @@
   --bs-body-font-size: 0.9375rem;
   --bs-body-line-height: 1.55;
   --bs-body-color: #1d2b3a;
+  --bs-body-color-rgb: 29, 43, 58;
   --bs-border-color: #e8edf3;
   --et-surface: #f7f8fb;
   --et-card-radius: 0.75rem;
@@ -26,6 +27,7 @@
 
 [data-bs-theme="dark"] {
   --bs-body-color: #dfe7f0;
+  --bs-body-color-rgb: 223, 231, 240;
   --bs-border-color: #253a52;
   --et-surface: #131f30;
   --et-muted: #8fa3b6;

@@ -4,6 +4,7 @@ require "test_helper"
 
 class GoalsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include ActionView::Helpers::NumberHelper
 
   setup do
     @user = User.create!(
@@ -37,10 +38,81 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".progress .progress-bar.et-w-40", count: 1
   end
 
+  test "GET /goals renders a summary computed from the user's real goals" do
+    travel = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 5_000_000)
+    GoalAllocation.create!(financial_goal: travel, pocket: @pocket, amount: 2_000_000, date: Date.current)
+    Goal.create!(user: @user, pocket: @pocket, name: "Emergencias", target_amount: 3_000_000)
+
+    get goals_path
+
+    assert_response :success
+    assert_select "[data-testid='goals-summary']"
+    assert_select "[data-testid='goals-summary-count']", text: "2"
+    assert_select "[data-testid='goals-summary-saved']", text: number_to_currency(2_000_000)
+    assert_select "[data-testid='goals-summary-target']", text: number_to_currency(8_000_000)
+    assert_select "[data-testid='goals-summary-progress']", text: number_to_percentage(25, precision: 0)
+  end
+
+  test "GET /goals caps the overall progress at 100 percent without hiding the real saved amount" do
+    @pocket.update!(starting_balance: 10_000_000)
+    goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 5_000_000)
+    GoalAllocation.create!(financial_goal: goal, pocket: @pocket, amount: 9_000_000, date: Date.current)
+
+    get goals_path
+
+    assert_response :success
+    assert_select "[data-testid='goals-summary-saved']", text: number_to_currency(9_000_000)
+    assert_select "[data-testid='goals-summary-progress']", text: number_to_percentage(100, precision: 0)
+    assert_select ".progress-bar.et-w-100", count: 1
+  end
+
+  test "GET /goals renders the goal card details and keeps the existing actions" do
+    goal = Goal.create!(
+      user: @user, pocket: @pocket, name: "Viaje a Bogotá", target_amount: 5_000_000,
+      target_date: Date.current + 2.months, category: "travel"
+    )
+    GoalAllocation.create!(financial_goal: goal, pocket: @pocket, amount: 1_000_000, date: Date.current)
+
+    get goals_path
+
+    assert_response :success
+    assert_select "[data-testid='goal-card']" do
+      assert_select "[data-testid='goal-card-name']", text: "Viaje a Bogotá"
+      assert_select "[data-testid='goal-card-saved']", text: number_to_currency(1_000_000)
+      assert_select "[data-testid='goal-card-target']", text: number_to_currency(5_000_000)
+      assert_select "[data-testid='goal-card-remaining']", text: number_to_currency(4_000_000)
+      assert_select "[data-testid='goal-card-monthly']", text: number_to_currency(goal.required_monthly_contribution)
+      assert_select "[data-testid='goal-card-pocket']", text: @pocket.name
+      assert_select "[data-testid='goal-card-progress']"
+    end
+    assert_select "button[data-bs-target='#assign-to-goal-modal']"
+    assert_select "a[href=?]", money_source_path(@pocket)
+    assert_select "a[href=?]", edit_goal_path(goal)
+    assert_select "form[action=?] button", goal_path(goal)
+  end
+
   test "GET /goals shows an empty state without goals" do
     get goals_path
     assert_response :success
-    assert_select "a[href=?]", new_goal_path
+    assert_select "[data-testid='goals-empty-state']" do
+      assert_select "p", text: "Convierte tus planes en metas y comienza a construir tu futuro financiero"
+      assert_select "a[href=?]", new_goal_path, text: /Crear mi primera meta/
+    end
+  end
+
+  test "GET /goals does not include other users' goals in the summary" do
+    Goal.create!(user: @user, pocket: @pocket, name: "Propia", target_amount: 1_000_000)
+    other_user = User.create!(name: "Other", email: "other_goals_summary@example.com", password: "password123")
+    other_pocket = MoneySource.create!(user: other_user, name: "Ajeno", kind: "pocket", starting_balance: 0)
+    Goal.create!(user: other_user, pocket: other_pocket, name: "Ajena", target_amount: 9_000_000)
+
+    get goals_path
+
+    assert_response :success
+    assert_select "[data-testid='goals-summary-count']", text: "1"
+    assert_select "[data-testid='goals-summary-target']", text: number_to_currency(1_000_000)
+    assert_select "[data-testid='goal-card-name']", text: "Propia"
+    assert_select "[data-testid='goal-card-name']", text: "Ajena", count: 0
   end
 
   test "GET /goals/new renders the form with the pocket options" do
