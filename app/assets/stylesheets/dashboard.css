@@ -534,11 +534,18 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   align-items: center;
   justify-content: space-between;
   gap: 14px;
+  flex-direction: row;
   padding: 13px 17px;
   margin-top: 14px;
   margin-bottom: 14px;
 }
-.dash-balance-left { display: flex; align-items: center; gap: 12px; }
+.dash-balance-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
 .dash-balance-mark {
   width: 34px;
   height: 34px;
@@ -552,6 +559,8 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
 .dash-balance-copy strong { display: block; font-size: 15px; }
 .dash-balance-copy small { display: block; color: var(--dash-muted); font-size: 11px; }
 .dash-balance-amount {
+  margin-left: auto;
+  text-align: right;
   font-size: 18px;
   font-weight: 780;
   font-variant-numeric: tabular-nums;
