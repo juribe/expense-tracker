@@ -1,54 +1,42 @@
-<%= render "reports/page_header", title: t("reports.money_sources.title"), subtitle: t("reports.money_sources.subtitle"), path: reports_money_sources_path, category_filter: false %>
+<%= render "reports/page_header",
+      title: t("reports.money_sources.title"),
+      subtitle: t("reports.money_sources.subtitle"),
+      path: reports_money_sources_path,
+      filters: false %>
 
-<div class="card">
-  <div class="card-header bg-white">
-    <h5 class="mb-0"><%= t("reports.money_sources.title") %></h5>
-  </div>
-  <div class="card-body">
-    <% if @money_sources[:kinds].any? %>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th scope="col"><%= t("money_sources.title", default: "Fuente") %></th>
-              <th scope="col" class="text-end"><%= t("reports.categories.total") %></th>
-              <th scope="col" class="text-end"><%= t("reports.categories.share") %></th>
-              <th scope="col" class="text-end"><%= t("reports.categories.count") %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @money_sources[:kinds].each do |kind| %>
-              <tr class="table-light">
-                <td class="fw-bold"><%= kind[:kind_label] %></td>
-                <td class="text-end fw-bold text-danger"><%= money_amount(kind[:total]) %></td>
-                <td class="text-end fw-bold"><%= number_to_percentage(kind[:share_pct], precision: 1) if kind[:share_pct] %></td>
-                <td class="text-end"><%= kind[:count] %></td>
-              </tr>
-              <% kind[:sources].each do |source| %>
-                <tr>
-                  <td class="ps-4">
-                    <%= link_to reports_transactions_path(filter_params_for(money_source_id: source[:id])), class: "text-decoration-none" do %>
-                      <%= source[:name] %>
-                    <% end %>
-                  </td>
-                  <td class="text-end text-danger"><%= money_amount(source[:total]) %></td>
-                  <td class="text-end"><%= number_to_percentage(source[:share_pct], precision: 1) if source[:share_pct] %></td>
-                  <td class="text-end"><%= source[:count] %></td>
-                </tr>
-              <% end %>
-            <% end %>
-          </tbody>
-          <tfoot>
-            <tr class="table-light fw-bold">
-              <td><%= t("reports.categories.total") %></td>
-              <td class="text-end"><%= money_amount(@money_sources[:total]) %></td>
-              <td colspan="2"></td>
-            </tr>
-          </tfoot>
-        </table>
+<div class="money-sources-report" data-testid="money-sources-report" data-money-sources-report>
+  <%= render "reports/money_sources/filters", path: reports_money_sources_path %>
+
+  <% if @money_sources_error %>
+    <section class="card report-panel money-sources-state" data-testid="money-source-error">
+      <div class="report-panel-body">
+        <%= render "shared/empty_state",
+              icon: "alert-triangle",
+              title: t("reports.money_sources.errors.title"),
+              text: t("reports.money_sources.errors.body"),
+              cta: link_to(t("reports.money_sources.errors.retry"), request.fullpath,
+                           class: "btn btn-sm btn-primary") %>
       </div>
-    <% else %>
-      <p class="text-muted mb-0"><%= t("reports.money_sources.empty") %></p>
-    <% end %>
-  </div>
+    </section>
+  <% elsif @money_sources[:total].zero? %>
+    <% filtered = params[:source_kind].present? %>
+    <section class="card report-panel money-sources-state"
+             data-testid="<%= filtered ? "money-source-empty-filtered" : "money-source-empty" %>">
+      <div class="report-panel-body">
+        <%= render "shared/empty_state",
+              icon: filtered ? "filter-off" : "wallet-off",
+              title: filtered ? t("reports.money_sources.empty_filtered") : t("reports.money_sources.empty"),
+              text: filtered ? nil : t("reports.money_sources.empty_hint"),
+              cta: filtered ? link_to(t("reports.money_sources.clear_filters"),
+                                      reports_money_sources_path(report_clear_params),
+                                      class: "btn btn-sm btn-primary") : nil %>
+      </div>
+    </section>
+  <% else %>
+    <%= render "reports/money_sources/summary", report: @money_sources %>
+    <%= render "reports/money_sources/distribution", report: @money_sources %>
+    <%= render "reports/money_sources/detail", report: @money_sources %>
+  <% end %>
 </div>
+
+<%= javascript_include_tag "reports_money_sources", defer: true %>

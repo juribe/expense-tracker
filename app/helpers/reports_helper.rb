@@ -203,6 +203,88 @@ module ReportsHelper
     end
   end
 
+  # "Origen del gasto" report: presentation for the source-type groups. The
+  # keys come from Reports::MoneySources, so colors/icons stay consistent
+  # between the donut, legend, bars and table.
+  MONEY_SOURCE_GROUP_COLORS = {
+    "accounts" => "#2a6df5",
+    "credit_cards" => "#7929e8",
+    "cash" => "#0e9f6e",
+    "loans" => "#b26a00",
+    "pockets" => "#6d7d8c",
+    "other" => "#9ca3af"
+  }.freeze
+
+  MONEY_SOURCE_GROUP_ICONS = {
+    "accounts" => "building-bank",
+    "credit_cards" => "credit-card",
+    "cash" => "cash",
+    "loans" => "coin",
+    "pockets" => "pig-money",
+    "other" => "wallet"
+  }.freeze
+
+  MONEY_SOURCE_GROUP_TONES = {
+    "accounts" => "blue",
+    "credit_cards" => "purple",
+    "cash" => "green",
+    "loans" => "amber",
+    "pockets" => "gray",
+    "other" => "gray"
+  }.freeze
+
+  def money_source_group_label(key)
+    t("reports.money_sources.groups.#{key}", default: key.to_s.humanize)
+  end
+
+  def money_source_group_icon(key)
+    MONEY_SOURCE_GROUP_ICONS.fetch(key.to_s, "wallet")
+  end
+
+  def money_source_group_tone(key)
+    MONEY_SOURCE_GROUP_TONES.fetch(key.to_s, "gray")
+  end
+
+  def money_source_group_color(key)
+    MONEY_SOURCE_GROUP_COLORS.fetch(key.to_s, MONEY_SOURCE_GROUP_COLORS["other"])
+  end
+
+  def money_source_filter_options
+    [
+      [ t("reports.money_sources.filters.all_sources"), "" ],
+      [ t("reports.money_sources.filters.accounts"), "accounts" ],
+      [ t("reports.money_sources.filters.credit_cards"), "credit_cards" ],
+      [ t("reports.money_sources.filters.cash"), "cash" ]
+    ]
+  end
+
+  # Percentages come from the service already rounded; nil means the base was
+  # zero, so the UI shows an em dash rather than a misleading 0%.
+  def money_source_share_label(pct)
+    return "—" if pct.nil?
+
+    number_to_percentage(pct, precision: 1)
+  end
+
+  def money_source_donut_data(groups)
+    groups.map { |group| [ money_source_group_label(group[:key]), group[:total].to_f ] }
+  end
+
+  def money_source_donut_colors(groups)
+    groups.map { |group| money_source_group_color(group[:key]) }
+  end
+
+  def money_source_donut_library
+    { cutout: "72%", plugins: { legend: { display: false } } }
+  end
+
+  def money_source_detail_path(source_id)
+    reports_transactions_path(
+      filter_params_for(money_source_id: source_id, credit_card_id: nil, loan_id: nil,
+                        category_id: nil, uncategorized: nil)
+    )
+  end
+
   def credit_card_options
     @credit_card_options ||= current_user.present? ? current_user.money_sources.active.by_kind("credit_card").map { |s| [ s.name, s.id ] } : []
   end

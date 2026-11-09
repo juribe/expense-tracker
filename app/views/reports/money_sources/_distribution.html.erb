@@ -1,0 +1,61 @@
+<%# Donut, legend and proportional bars for the source-type distribution. Locals: report %>
+<section class="card report-panel money-sources-panel" data-testid="money-source-distribution">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.money_sources.distribution.title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.money_sources.distribution.subtitle") %></p>
+    </div>
+  </div>
+
+  <div class="report-panel-body">
+    <div class="money-sources-distribution">
+      <div class="money-sources-donut-panel">
+        <div class="money-sources-donut-wrap" data-money-source-donut>
+          <%= pie_chart money_source_donut_data(report[:groups]),
+                id: "money-sources-donut-chart",
+                height: "220px",
+                legend: false,
+                donut: true,
+                colors: money_source_donut_colors(report[:groups]),
+                library: money_source_donut_library %>
+          <div class="money-sources-donut-center">
+            <strong><%= money_amount(report[:total]) %></strong>
+            <span><%= t("reports.money_sources.distribution.total_center") %></span>
+          </div>
+        </div>
+
+        <ul class="money-sources-legend" aria-label="<%= t("reports.money_sources.distribution.title") %>">
+          <% report[:groups].each do |group| %>
+            <li class="money-sources-legend-row">
+              <span class="money-sources-swatch is-<%= money_source_group_tone(group[:key]) %>" aria-hidden="true"></span>
+              <span class="money-sources-legend-label"><%= money_source_group_label(group[:key]) %></span>
+              <strong><%= money_source_share_label(group[:share_pct]) %></strong>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <div class="money-sources-breakdown">
+        <% report[:groups].each do |group| %>
+          <article class="money-sources-breakdown-row">
+            <div class="money-sources-breakdown-head">
+              <span class="money-sources-breakdown-name">
+                <span class="money-sources-swatch is-<%= money_source_group_tone(group[:key]) %>" aria-hidden="true"></span>
+                <%= money_source_group_label(group[:key]) %>
+              </span>
+              <strong class="money-sources-amount"><%= money_amount(group[:total]) %></strong>
+            </div>
+            <div class="money-sources-track">
+              <span class="money-sources-fill is-<%= money_source_group_tone(group[:key]) %> <%= report_progress_class(group[:share_pct]) %>"></span>
+            </div>
+            <div class="money-sources-breakdown-foot">
+              <span><%= t("reports.money_sources.distribution.transactions", count: group[:count]) %></span>
+              <span><%= t("reports.money_sources.distribution.share_of_total",
+                            pct: money_source_share_label(group[:share_pct])) %></span>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

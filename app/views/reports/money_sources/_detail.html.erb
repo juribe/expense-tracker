@@ -1,0 +1,132 @@
+<%# Hierarchical source detail with client-side search, sorting and collapse.
+    Locals: report %>
+<section class="card report-panel money-sources-panel" data-testid="money-source-detail">
+  <div class="report-panel-head money-sources-detail-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.money_sources.detail.title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.money_sources.detail.subtitle") %></p>
+    </div>
+
+    <div class="money-sources-tools" data-money-source-tools>
+      <label class="money-sources-search">
+        <span class="visually-hidden"><%= t("reports.money_sources.detail.search_placeholder") %></span>
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="search" placeholder="<%= t("reports.money_sources.detail.search_placeholder") %>"
+               autocomplete="off" data-money-source-search>
+      </label>
+
+      <label class="money-sources-sort">
+        <span class="visually-hidden"><%= t("reports.money_sources.detail.sort_label") %></span>
+        <select class="form-select form-select-sm" data-money-source-sort>
+          <option value="default"><%= t("reports.money_sources.detail.sort_original") %></option>
+          <option value="amount"><%= t("reports.money_sources.detail.sort_amount") %></option>
+          <option value="name"><%= t("reports.money_sources.detail.sort_name") %></option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="report-panel-body">
+    <div class="table-responsive money-sources-table-wrap">
+      <table class="table report-table money-sources-table mb-0">
+        <thead>
+          <tr>
+            <th scope="col"><%= t("reports.money_sources.detail.source") %></th>
+            <th scope="col" class="text-end"><%= t("reports.money_sources.detail.total") %></th>
+            <th scope="col" class="text-end"><%= t("reports.money_sources.detail.share") %></th>
+            <th scope="col" class="text-end"><%= t("reports.money_sources.detail.transactions") %></th>
+            <th scope="col" class="text-end"><span class="visually-hidden"><%= t("reports.money_sources.detail.action") %></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% report[:groups].each do |group| %>
+            <% group_key = group[:key] %>
+            <% group_label = money_source_group_label(group_key) %>
+            <% group_tone = money_source_group_tone(group_key) %>
+            <tr class="money-sources-group-row"
+                data-money-source-group
+                data-money-source-group-key="<%= group_key %>"
+                data-money-source-name="<%= group_label %>"
+                data-money-source-amount="<%= group[:total].to_f %>"
+                data-money-source-expand-label="<%= t("reports.money_sources.detail.expand", name: group_label) %>"
+                data-money-source-collapse-label="<%= t("reports.money_sources.detail.collapse", name: group_label) %>">
+              <td>
+                <div class="money-sources-name">
+                  <button type="button" class="money-sources-toggle" data-money-source-toggle
+                          aria-expanded="true"
+                          aria-label="<%= t("reports.money_sources.detail.collapse", name: group_label) %>">
+                    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+                  </button>
+                  <span class="money-sources-type-icon is-<%= group_tone %>" aria-hidden="true">
+                    <i class="ti ti-<%= money_source_group_icon(group_key) %>"></i>
+                  </span>
+                  <strong><%= group_label %></strong>
+                </div>
+              </td>
+              <td class="text-end">
+                <span class="money-sources-amount"><%= money_amount(group[:total]) %></span>
+              </td>
+              <td class="text-end">
+                <span class="money-sources-share"><%= money_source_share_label(group[:share_pct]) %></span>
+              </td>
+              <td class="text-end">
+                <span class="money-sources-count"><%= number_with_delimiter(group[:count]) %></span>
+              </td>
+              <td></td>
+            </tr>
+
+            <% group[:sources].each do |source| %>
+              <% source_path = money_source_detail_path(source[:id]) %>
+              <tr class="money-sources-source-row"
+                  data-money-source-row
+                  data-money-source-group-key="<%= group_key %>"
+                  data-money-source-name="<%= source[:name] %>"
+                  data-money-source-amount="<%= source[:total].to_f %>"
+                  data-money-source-href="<%= source_path %>">
+                <td>
+                  <%= link_to source_path, class: "money-sources-source-link" do %>
+                    <span class="money-sources-source-name"><%= source[:name] %></span>
+                  <% end %>
+                </td>
+                <td class="text-end">
+                  <span class="money-sources-amount"><%= money_amount(source[:total]) %></span>
+                </td>
+                <td class="text-end">
+                  <span class="money-sources-share"><%= money_source_share_label(source[:share_pct]) %></span>
+                  <span class="money-sources-share-scope"><%= t("reports.money_sources.detail.group_scope") %></span>
+                </td>
+                <td class="text-end">
+                  <span class="money-sources-count"><%= number_with_delimiter(source[:count]) %></span>
+                </td>
+                <td class="text-end">
+                  <%= link_to source_path, class: "money-sources-drill-link",
+                                aria: { label: t("reports.money_sources.detail.view_transactions", name: source[:name]) } do %>
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+
+          <tr class="money-sources-no-results" data-money-source-no-results hidden>
+            <td colspan="5"><%= t("reports.money_sources.detail.no_results") %></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row money-sources-total-row">
+            <td><%= t("reports.money_sources.detail.group_total") %></td>
+            <td class="text-end"><%= money_amount(report[:total]) %></td>
+            <td class="text-end"><%= number_to_percentage(100, precision: 0) %></td>
+            <td class="text-end"><%= number_with_delimiter(report[:total_transactions]) %></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="money-sources-hint">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <%= t("reports.money_sources.detail.hint") %>
+    </p>
+  </div>
+</section>

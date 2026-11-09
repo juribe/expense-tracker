@@ -1,0 +1,54 @@
+<%# Summary indicators for the money-sources report. Locals: report %>
+<% top_group = report[:top_group] %>
+<% main_note = if top_group
+     content_tag(:span,
+                 t("reports.money_sources.summary.main_note",
+                   group: money_source_group_label(top_group[:key]),
+                   amount: money_amount(top_group[:total])),
+                 data: { testid: "money-source-main-note" })
+   else
+     content_tag(:span, t("reports.money_sources.summary.main_empty"),
+                 data: { testid: "money-source-main-note" })
+   end %>
+
+<div class="row g-3 mb-3 report-metrics" data-testid="money-sources-summary">
+  <%= render "reports/metric",
+        label: t("reports.money_sources.summary.total_label"),
+        value: money_amount(report[:total]),
+        tone: :negative,
+        icon: "trending-down",
+        icon_tone: "red",
+        note: t("reports.money_sources.summary.total_note"),
+        testid: "money-source-total",
+        variant: "expense" %>
+
+  <%= render "reports/metric",
+        label: t("reports.money_sources.summary.main_label"),
+        value: money_source_share_label(top_group&.dig(:share_pct)),
+        tone: :balance,
+        icon: "chart-pie",
+        icon_tone: "blue",
+        note: main_note,
+        testid: "money-source-main",
+        variant: "neutral" %>
+
+  <%= render "reports/metric",
+        label: t("reports.money_sources.summary.sources_label"),
+        value: number_with_delimiter(report[:sources_count]),
+        tone: :balance,
+        icon: "wallet",
+        icon_tone: "blue",
+        note: t("reports.money_sources.summary.sources_note"),
+        testid: "money-source-count",
+        variant: "neutral" %>
+
+  <%= render "reports/metric",
+        label: t("reports.money_sources.summary.transactions_label"),
+        value: number_with_delimiter(report[:total_transactions]),
+        tone: nil,
+        icon: "list-check",
+        icon_tone: "amber",
+        note: t("reports.money_sources.summary.transactions_note"),
+        testid: "money-source-transactions",
+        variant: "neutral" %>
+</div>

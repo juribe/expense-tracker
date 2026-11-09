@@ -4174,3 +4174,464 @@ a.category-distribution-row:hover {
   .trend-skeleton-card { height: 96px; }
   .trend-skeleton-chart { height: 300px; }
 }
+
+/* -------------------------------------------------
+ * Money sources: "Origen del gasto"
+ * Summary indicators, donut + legend + proportional
+ * bars and the hierarchical drill-down table.
+ * ------------------------------------------------- */
+
+.money-sources-report {
+  --ms-blue: #2a6df5;
+  --ms-purple: #7929e8;
+  --ms-green: #0e9f6e;
+  --ms-amber: #b26a00;
+  --ms-gray: #6d7d8c;
+  min-width: 0;
+}
+
+.money-sources-panel { margin-bottom: 1rem; min-width: 0; }
+.money-sources-state { margin-bottom: 1rem; min-width: 0; }
+
+.money-sources-distribution {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.5rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.money-sources-donut-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
+  min-width: 0;
+}
+
+.money-sources-donut-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  flex: 0 0 220px;
+}
+
+.money-sources-donut-wrap > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#money-sources-donut-chart { height: 220px !important; }
+
+.money-sources-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.15rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.money-sources-donut-center strong {
+  color: var(--bs-body-color);
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.money-sources-donut-center span {
+  margin-top: 0.2rem;
+  color: var(--et-muted);
+  font-size: 0.65rem;
+}
+
+.money-sources-legend {
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.money-sources-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
+.money-sources-legend-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--et-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.money-sources-legend-row strong {
+  color: var(--bs-body-color);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.money-sources-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 3px;
+  background: var(--ms-gray);
+}
+
+.money-sources-swatch.is-blue { background: var(--ms-blue); }
+.money-sources-swatch.is-purple { background: var(--ms-purple); }
+.money-sources-swatch.is-green { background: var(--ms-green); }
+.money-sources-swatch.is-amber { background: var(--ms-amber); }
+.money-sources-swatch.is-gray { background: var(--ms-gray); }
+
+.money-sources-breakdown {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.money-sources-breakdown-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.money-sources-breakdown-name {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.money-sources-amount {
+  color: var(--et-negative);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.money-sources-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bs-tertiary-bg);
+}
+
+.money-sources-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ms-gray);
+}
+
+.money-sources-fill.is-blue { background: var(--ms-blue); }
+.money-sources-fill.is-purple { background: var(--ms-purple); }
+.money-sources-fill.is-green { background: var(--ms-green); }
+.money-sources-fill.is-amber { background: var(--ms-amber); }
+.money-sources-fill.is-gray { background: var(--ms-gray); }
+
+.money-sources-breakdown-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+  color: var(--et-muted);
+  font-size: 0.68rem;
+}
+
+.money-sources-detail-head {
+  align-items: flex-end;
+}
+
+.money-sources-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.money-sources-search {
+  position: relative;
+  margin: 0;
+}
+
+.money-sources-search .ti {
+  position: absolute;
+  top: 50%;
+  left: 0.7rem;
+  color: var(--et-muted);
+  font-size: 0.95rem;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.money-sources-search input {
+  width: 210px;
+  height: 2.25rem;
+  padding: 0 0.75rem 0 2rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.55rem;
+  outline: none;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+}
+
+.money-sources-search input::placeholder { color: var(--et-muted); }
+
+.money-sources-search input:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.12);
+}
+
+.money-sources-sort select {
+  min-width: 165px;
+  height: 2.25rem;
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+}
+
+.money-sources-table-wrap { margin: 0; }
+.money-sources-table { min-width: 680px; border-collapse: collapse; }
+
+.money-sources-table thead th {
+  color: var(--et-muted);
+  font-size: 0.65rem;
+  font-weight: 750;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.money-sources-table tbody td {
+  padding: 0.7rem 0.55rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+
+.money-sources-table tbody tr:last-child td { border-bottom: 0; }
+
+.money-sources-group-row {
+  background: var(--bs-tertiary-bg);
+  cursor: pointer;
+}
+
+.money-sources-group-row:hover { background: rgba(42, 109, 245, 0.06); }
+
+.money-sources-group-row td {
+  border-bottom: 1px solid var(--bs-border-color);
+  font-weight: 700;
+}
+
+.money-sources-name {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 12rem;
+}
+
+.money-sources-toggle {
+  padding: 0.15rem;
+  border: 0;
+  background: transparent;
+  color: var(--et-muted);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.money-sources-toggle .ti {
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.money-sources-group-row.is-collapsed .money-sources-toggle .ti {
+  transform: rotate(-90deg);
+}
+
+.money-sources-type-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  border-radius: 0.65rem;
+  background: rgba(109, 125, 140, 0.14);
+  color: var(--ms-gray);
+  font-size: 0.95rem;
+}
+
+.money-sources-type-icon.is-blue {
+  background: rgba(42, 109, 245, 0.12);
+  color: var(--ms-blue);
+}
+
+.money-sources-type-icon.is-purple {
+  background: rgba(121, 41, 232, 0.12);
+  color: var(--ms-purple);
+}
+
+.money-sources-type-icon.is-green {
+  background: rgba(14, 159, 110, 0.12);
+  color: var(--ms-green);
+}
+
+.money-sources-type-icon.is-amber {
+  background: rgba(178, 106, 0, 0.14);
+  color: var(--ms-amber);
+}
+
+.money-sources-type-icon.is-gray {
+  background: rgba(109, 125, 140, 0.14);
+  color: var(--ms-gray);
+}
+
+.money-sources-source-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.money-sources-source-row:hover { background: rgba(42, 109, 245, 0.055); }
+
+.money-sources-source-row td:first-child { padding-left: 3.2rem; }
+
+.money-sources-source-link {
+  color: var(--bs-body-color);
+  text-decoration: none;
+}
+
+.money-sources-source-link:hover {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}
+
+.money-sources-source-name { font-weight: 500; }
+
+.money-sources-share { color: var(--bs-body-color); font-variant-numeric: tabular-nums; }
+
+.money-sources-share-scope {
+  display: block;
+  color: var(--et-muted);
+  font-size: 0.64rem;
+}
+
+.money-sources-count { font-variant-numeric: tabular-nums; }
+
+.money-sources-drill-link {
+  color: var(--et-muted);
+  text-decoration: none;
+}
+
+.money-sources-source-row:hover .money-sources-drill-link { color: var(--bs-primary); }
+
+.money-sources-no-results td {
+  padding: 1rem 0.75rem;
+  color: var(--et-muted);
+  text-align: center;
+}
+
+.money-sources-no-results[hidden] { display: none !important; }
+
+.money-sources-total-row td {
+  border-top: 1px solid var(--bs-border-color);
+  border-bottom: 0;
+  background: var(--bs-tertiary-bg);
+  font-weight: 800;
+}
+
+.money-sources-total-row .money-sources-amount { color: var(--bs-body-color); }
+
+.money-sources-hint {
+  display: flex;
+  gap: 0.45rem;
+  margin: 0.9rem 0 0;
+  color: var(--et-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.money-sources-hint .ti {
+  flex: 0 0 auto;
+  margin-top: 0.1rem;
+  color: var(--et-balance);
+}
+
+[data-bs-theme="dark"] .money-sources-group-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-bs-theme="dark"] .money-sources-source-row:hover {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+@media (max-width: 991.98px) {
+  .money-sources-distribution {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .money-sources-donut-panel { justify-content: flex-start; }
+}
+
+@media (max-width: 767.98px) {
+  .money-sources-detail-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .money-sources-tools {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .money-sources-search { flex: 1 1 auto; }
+  .money-sources-search input { width: 100%; }
+}
+
+@media (max-width: 575.98px) {
+  .money-sources-donut-panel { flex-direction: column; align-items: stretch; }
+
+  .money-sources-donut-wrap {
+    width: 180px;
+    height: 180px;
+    flex-basis: 180px;
+    margin: 0 auto;
+  }
+
+  #money-sources-donut-chart { height: 180px !important; }
+
+  .money-sources-legend { grid-template-columns: 1fr; gap: 0.5rem; }
+
+  .money-sources-tools { flex-direction: column; align-items: stretch; }
+
+  .money-sources-sort select { width: 100%; }
+
+  .money-sources-table { min-width: 620px; }
+
+  .money-sources-breakdown-foot {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+}

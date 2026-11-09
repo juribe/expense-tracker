@@ -1,0 +1,42 @@
+<%# Source-type filters for the money-sources report. Locals: path %>
+<%= form_with url: path, method: :get, local: true,
+              html: { data: { testid: "money-source-filters" } } do %>
+  <%= hidden_field_tag :period, selected_period_preset %>
+  <% if params[:period] == "custom" %>
+    <%= hidden_field_tag :start_date, params[:start_date] %>
+    <%= hidden_field_tag :end_date, params[:end_date] %>
+  <% end %>
+
+  <div class="filters-card">
+    <div class="filters-title-block">
+      <div class="filters-heading">
+        <i class="ti ti-filter"></i><%= t("reports.filters.title", default: "Filtros") %>
+      </div>
+      <p class="filters-description"><%= t("reports.filters.description", default: "Selecciona los criterios para actualizar el reporte.") %></p>
+    </div>
+
+    <div class="filters-grid filters-grid-single">
+      <div class="filter-chip">
+        <i class="ti ti-wallet"></i>
+        <div class="flex-grow-1 min-w-0">
+          <div class="chip-label"><%= t("reports.money_sources.filters.sources") %></div>
+          <%= select_tag :source_kind,
+                options_for_select(money_source_filter_options, params[:source_kind].to_s),
+                class: "form-select",
+                aria: { label: t("reports.money_sources.filters.sources") } %>
+        </div>
+        <i class="ti ti-chevron-down text-muted et-fs-07"></i>
+      </div>
+    </div>
+
+    <div class="filters-actions">
+      <%= link_to reports_money_sources_path(report_clear_params), class: "btn btn-outline-secondary",
+                  data: { report_navigation: true } do %>
+        <i class="ti ti-eraser"></i> <%= t("common.clear", default: "Limpiar") %>
+      <% end %>
+      <%= button_tag type: "submit", class: "btn btn-primary" do %>
+        <i class="ti ti-filter"></i> <%= t("common.filter", default: "Filtrar") %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
