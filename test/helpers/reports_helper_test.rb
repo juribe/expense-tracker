@@ -81,6 +81,12 @@ class ReportsHelperTest < ActionView::TestCase
     assert_equal "et-w-100", report_progress_class(140)
   end
 
+  test "category swatch classes cycle through the report palette" do
+    assert_equal "et-swatch-r0", report_category_swatch_class(0)
+    assert_equal "et-swatch-r14", report_category_swatch_class(14)
+    assert_equal "et-swatch-r0", report_category_swatch_class(15)
+  end
+
   test "budget chart splits actual spending by usage level" do
     rows = [
       { category_name: "Comida", budget: 1_000.to_d, actual: 500.to_d, pct_used: 50.0 },

@@ -6,7 +6,7 @@
     <span class="text-muted small"><%= t("reports.overview.number_of_expenses") %>: <strong><%= @transactions.total_entries %></strong></span>
   </div>
   <div class="card-body">
-    <%= render "reports/transactions/list", transactions: @transactions %>
+    <%= render "reports/transactions/list", transactions: @transactions, sortable: true %>
     <%= will_paginate @transactions if @transactions.any? %>
   </div>
 </div>

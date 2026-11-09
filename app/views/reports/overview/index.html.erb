@@ -1,7 +1,7 @@
 <%= render "reports/page_header", title: t("reports.title"), subtitle: t("reports.overview.subtitle"), path: reports_overview_path, filters: false %>
 
 <div class="row g-3 mb-3 report-metrics" data-testid="overview-cards">
-  <%= render "metric",
+  <%= render "reports/metric",
         label: t("reports.overview.income"),
         value: money_amount(@overview[:income][:total]),
         tone: :positive,
@@ -11,7 +11,7 @@
         testid: "income-total",
         variant: "income" %>
 
-  <%= render "metric",
+  <%= render "reports/metric",
         label: t("reports.overview.expenses"),
         value: money_amount(@overview[:expenses][:total]),
         tone: :negative,
@@ -21,7 +21,7 @@
         testid: "expenses-total",
         variant: "expense" %>
 
-  <%= render "metric",
+  <%= render "reports/metric",
         label: t("reports.overview.debt_payments"),
         value: money_amount(@overview[:debt][:total]),
         tone: :attention,
@@ -31,7 +31,7 @@
         testid: "debt-total",
         variant: "debt" %>
 
-  <%= render "metric",
+  <%= render "reports/metric",
         label: t("reports.overview.net_cash_flow"),
         value: money_amount(@overview[:net_cash_flow]),
         tone: @overview[:net_cash_flow] >= 0 ? :positive : :negative,

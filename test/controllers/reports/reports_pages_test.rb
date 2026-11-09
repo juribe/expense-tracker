@@ -110,13 +110,77 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     row = css_select("tr[data-transactions-modal-url]").first
-    assert row, "category row should expose a modal URL"
+    assert row, "category row should expose its modal URL"
     assert_includes row["data-transactions-modal-url"], "category_id=#{@category.id}"
+    assert_includes row["data-transactions-modal-url"], "period=this_month"
+    assert_select "tr.report-category-row-link a[href*='category_id=#{@category.id}']"
     assert_select "#reportTransactionsModal"
-    assert_select "tr.report-row-link a[href*='category_id=#{@category.id}']"
+    assert_select "a.category-distribution-row[data-transactions-modal-url*='category_id=#{@category.id}']"
 
     scripts = Nokogiri::HTML(response.body).css("script[src]").map { |script| script["src"] }
     assert scripts.any? { |src| src.include?("reports_transactions_modal") }
+  end
+
+  test "GET /reports/by_category renders summary indicators and the distribution bars" do
+    @user.expenses.create!(amount: -1_000_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "coffee")
+
+    get reports_by_category_path(period: "this_month")
+
+    assert_response :success
+    assert_select "[data-testid=category-summary]"
+    assert_select "[data-testid=category-total]", text: "$1.000.000"
+    assert_select "[data-testid=category-count]", text: "1"
+    assert_select "[data-testid=category-transactions]", text: "1"
+    assert_select "[data-testid=category-average]", text: "$1.000.000"
+    assert_select "[data-testid=category-distribution] .category-distribution-row", minimum: 1
+    assert_select "[data-testid=category-table]"
+  end
+
+  test "category detail keeps the selected period and only that category" do
+    other = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+    @user.expenses.create!(amount: -100_000, date: Date.current, category: @category,
+                           money_source: @bank, description: "coffee")
+    @user.expenses.create!(amount: -200_000, date: Date.current, category: other,
+                           money_source: @bank, description: "bus")
+
+    start_date = Date.current.beginning_of_month
+    end_date = Date.current.end_of_month
+    get reports_by_category_path(period: "custom", start_date: start_date, end_date: end_date)
+
+    href = css_select("tr[data-transactions-modal-url]")
+           .find { |row| row.text.include?(@category.name) }["data-transactions-modal-url"]
+    assert_includes href, "period=custom"
+    assert_includes href, "start_date=#{start_date.iso8601}"
+    assert_includes href, "end_date=#{end_date.iso8601}"
+    assert_includes href, "category_id=#{@category.id}"
+
+    get href
+
+    assert_response :success
+    assert_select "[data-testid=reports-transactions-table]"
+    assert_select "table[data-sortable-table]"
+    assert_select "td", text: /100\.000/
+    assert_select "td", text: /200\.000/, count: 0
+  end
+
+  test "uncategorized category rows open the uncategorized detail without losing the period" do
+    Expense.create!(user: @user, category: nil, money_source: @bank, amount: -100_000,
+                    date: Date.current, description: "sin categoría")
+
+    get reports_by_category_path(period: "this_month")
+
+    row = css_select("tr[data-transactions-modal-url]")
+           .find { |candidate| candidate.text.include?("Sin categoría") }
+    href = row["data-transactions-modal-url"]
+
+    assert_includes href, "uncategorized=1"
+    assert_includes href, "period=this_month"
+
+    get href
+
+    assert_response :success
+    assert_select "td", text: /100\.000/
   end
 
   test "GET /reports/transactions with modal renders only the drill-down content" do
@@ -141,10 +205,7 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
 
     get reports_by_category_path
     assert_response :success
-    assert_includes response.body, '"prefix":"$"'
-    assert_includes response.body, '"thousands":"."'
-    assert_includes response.body, '"decimal":","'
-    assert_includes response.body, '"round":0'
+    assert_select "[data-testid=category-total]", text: "$1.234.567"
 
     get reports_trends_path
     assert_response :success
@@ -354,14 +415,13 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select ".available-summary-current-track", 0
   end
 
-  test "GET /reports/transactions renders drill-down with filters" do
+  test "GET /reports/transactions renders drill-down with filters and sorting" do
     @user.expenses.create!(amount: -100_000, date: Date.current, category: @category, money_source: @bank, description: "coffee")
 
     get reports_transactions_path(period: "this_month", category_id: @category.id)
     assert_response :success
-    assert_select "table"
-    assert_select "table[data-sortable-table]", count: 0
-    assert_select "button[data-sort-key]", count: 0
+    assert_select "table[data-sortable-table]"
+    assert_select "button[data-sort-key]", minimum: 5
   end
 
   test "GET /reports with custom range" do

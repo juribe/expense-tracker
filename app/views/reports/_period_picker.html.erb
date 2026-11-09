@@ -2,7 +2,7 @@
     Custom range fields appear when the custom preset is active.
     locals: path %>
 <%= form_with url: path, method: :get, local: true do %>
-  <% %w[category_id money_source_id].each do |key| %>
+  <% %w[category_id money_source_id uncategorized].each do |key| %>
     <%= hidden_field_tag key, params[key] if params[key].present? %>
   <% end %>
 

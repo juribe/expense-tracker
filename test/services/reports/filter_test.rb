@@ -58,6 +58,14 @@ class ReportsFilterTest < ActiveSupport::TestCase
     assert_equal [ -200_000.to_d ], filter(loan_id: @loan.id).expense_scope(@period.range).pluck(:amount)
   end
 
+  test "uncategorized filter narrows to expenses without a category" do
+    expense(-100_000, category: @food)
+    Expense.create!(user: @user, category: nil, money_source: @bank, amount: -200_000,
+                    date: Date.new(2026, 9, 10), description: "sin categoría")
+
+    assert_equal [ -200_000.to_d ], filter(uncategorized: true).expense_scope(@period.range).pluck(:amount)
+  end
+
   test "unknown ids degrade to no filter instead of raising" do
     expense(-100_000)
 

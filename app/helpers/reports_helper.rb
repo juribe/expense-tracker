@@ -217,10 +217,6 @@ module ReportsHelper
     #8299C7 #8EAF8B #B08FC2 #C8877D #7FAFA8 #B59A7A #8D9BB8 #C19A6B
   ].freeze
 
-  def category_colors(rows)
-    rows.each_with_index.map { |_row, index| CHART_COLORS[index % CHART_COLORS.size] }
-  end
-
   # Date range represented by a spending-trend bucket. Partial first and last
   # buckets are clamped to the report period so the drill-down never opens
   # transactions outside it.
@@ -238,8 +234,25 @@ module ReportsHelper
 
   def filter_params_for(**overrides)
     base = params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id",
-                                    "money_source_id", "credit_card_id", "loan_id")
+                                    "money_source_id", "credit_card_id", "loan_id",
+                                    "uncategorized")
     (base.symbolize_keys.merge(overrides)).compact_blank
+  end
+
+  # Category rows always keep the selected period and source filters; a nil
+  # category is the real "Sin categoría" bucket, so it uses the dedicated
+  # uncategorized filter instead of dropping the category condition.
+  def category_spending_detail_path(category)
+    overrides = if category[:id].present?
+      { category_id: category[:id], uncategorized: nil }
+    else
+      { category_id: nil, uncategorized: 1 }
+    end
+    reports_transactions_path(filter_params_for(**overrides))
+  end
+
+  def report_category_swatch_class(index)
+    "et-swatch-r#{index % 15}"
   end
 
   def next_due_date_label(day)

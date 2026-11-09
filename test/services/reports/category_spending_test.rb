@@ -108,6 +108,61 @@ class ReportsCategorySpendingTest < ActiveSupport::TestCase
     assert_equal 0.to_d, data[:total]
   end
 
+  test "summarizes total, category count, transactions and average" do
+    expense(-1_200_000, category: @food)
+    expense(-300_000, category: @food)
+    expense(-500_000, category: @transport)
+
+    summary = report[:summary]
+
+    assert_equal 2_000_000.to_d, summary[:total]
+    assert_equal 2, summary[:category_count]
+    assert_equal 3, summary[:transaction_count]
+    assert_in_delta 666_666.67, summary[:average].to_f, 0.01
+  end
+
+  test "distribution keeps the top six categories and groups the rest" do
+    categories = [ @food, @transport ]
+    5.times do |index|
+      categories << Category.create!(user: @user, name: "Categoría #{index}", category_type: "expense")
+    end
+
+    categories.each_with_index do |category, index|
+      expense(-(700_000 - index * 50_000), category: category)
+    end
+
+    distribution = report[:distribution]
+
+    assert_equal 6, distribution[:top_count]
+    assert_equal 7, distribution[:rows].size
+    assert_equal "Otras categorías", distribution[:rows].last[:name]
+    assert distribution[:rows].last[:others]
+    assert_equal 400_000.to_d, distribution[:rows].last[:total]
+    assert_equal 400_000.to_d, distribution[:others_total]
+    assert_in_delta 100.0, distribution[:rows].sum { |row| row[:share_pct] }, 0.2
+  end
+
+  test "distribution has no others row when all categories fit" do
+    expense(-1_200_000, category: @food)
+    expense(-620_000, category: @transport)
+
+    distribution = report[:distribution]
+
+    assert_equal 2, distribution[:top_count]
+    assert_equal 2, distribution[:rows].size
+    assert_equal 0.to_d, distribution[:others_total]
+    assert distribution[:rows].none? { |row| row[:others] }
+  end
+
+  test "exposes the category icon for the report table" do
+    @food.update!(icon: "ti-chef-hat")
+    expense(-100_000, category: @food)
+
+    food = report[:categories].first
+
+    assert_equal "ti-chef-hat", food[:icon]
+  end
+
   test "handles large amounts precisely" do
     expense(-99_999_999.99, category: @food)
 

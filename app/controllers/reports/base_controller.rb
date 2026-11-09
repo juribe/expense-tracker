@@ -34,6 +34,7 @@ class Reports::BaseController < ApplicationController
   end
 
   def report_filter_params
-    params.permit(:category_id, :money_source_id, :credit_card_id, :loan_id).to_h.symbolize_keys
+    params.permit(:category_id, :money_source_id, :credit_card_id, :loan_id, :uncategorized)
+          .to_h.symbolize_keys
   end
 end

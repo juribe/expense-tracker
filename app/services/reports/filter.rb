@@ -13,11 +13,12 @@ class Reports::Filter
   attr_reader :user, :period
 
   def initialize(user:, period:, category_id: nil, money_source_id: nil,
-                 credit_card_id: nil, loan_id: nil)
+                 credit_card_id: nil, loan_id: nil, uncategorized: false)
     @user = user
     @period = period
     @category_id = UuidParams.normalize(category_id)
     @money_source_id = UuidParams.normalize(credit_card_id.presence || loan_id.presence || money_source_id.presence)
+    @uncategorized = ActiveModel::Type::Boolean.new.cast(uncategorized)
   end
 
   def expense_scope(range)
@@ -63,6 +64,7 @@ class Reports::Filter
     category_id = valid_category_id
     source_id = valid_source_id
     scope = scope.where(category_id: category_id) if category_id
+    scope = scope.where(category_id: nil) if !category_id && @uncategorized
     scope = scope.where(money_source_id: source_id) if source_id
     scope
   end
