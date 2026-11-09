@@ -1,64 +1,49 @@
 <%# Dashboard KPI metric cards. %>
 <%
-  incomes_meta = capture do %>
-    <%= dashboard_delta_badge(@cycle_summary[:income_delta_pct]) %>
-    <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
-  <% end %>
-  <% expenses_meta = capture do %>
-    <%= dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) %>
-    <span class="text-secondary"><%= t("dashboard.vs_previous", default: "vs. ciclo anterior") %></span>
-  <% end %>
-  <% projected_available = @cycle_summary[:projected_spend].present? %>
-  <% projected_meta =
-       if projected_available && @cycle_summary[:projection_basis] == :recurring
-         t("dashboard.projection_recurring", default: "Proyección con tus gastos fijos + gasto variable")
-       elsif projected_available
-         t(@cycle_summary[:on_track] ? "dashboard.on_track_title" : "dashboard.off_track_title",
-           default: @cycle_summary[:on_track] ? "Estás en línea con tu meta" : "Vas sobre tu meta de gasto")
-       else
-         t("dashboard.projection_too_early", default: "Muy temprano para proyectar el gasto")
-       end %>
-  <% projected_progress = {
-        pct: @cycle_summary[:period_progress_pct],
-        aria_label: t("dashboard.cycle_progress_aria", default: "Progreso del ciclo"),
-        bar_class: projected_available ? (@cycle_summary[:on_track] ? "bg-success" : "bg-danger") : "bg-secondary"
-      } %>
-<section class="page-section">
-  <div class="row g-3">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.money_in_accounts", default: "Dinero en cuentas"),
-            value: number_to_currency(@position[:accounts_balance]),
-            description: t("dashboard.money_in_accounts_desc",
-                           default: "Saldo disponible en cuentas, tarjetas débito, efectivo y billeteras."),
-            icon: "wallet", variant: "accounts",
-            href: money_sources_cash_path, testid: "dashboard-kpi-accounts" %>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.incomes", default: "Ingresos"),
-            value: number_to_currency(@cycle_summary[:income_total]),
-            meta: incomes_meta,
-            icon: "trending-up", variant: "income",
-            href: incomes_path, testid: "dashboard-kpi-incomes" %>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.expenses", default: "Gastos"),
-            value: number_to_currency(@cycle_summary[:expense_total]),
-            meta: expenses_meta,
-            icon: "receipt", variant: "expense",
-            href: expenses_path, testid: "dashboard-kpi-expenses" %>
-    </div>
-    <div class="col-12 col-sm-6 col-lg-3">
-      <%= render "dashboard/metric_card",
-            label: t("dashboard.projected_spend", default: "Gasto proyectado"),
-            value: projected_available ? number_to_currency(@cycle_summary[:projected_spend]) : "—",
-            meta: projected_meta,
-            progress: projected_progress,
-            icon: "target", variant: "expense",
-            href: reports_budgets_path, testid: "dashboard-kpi-projected" %>
-    </div>
-  </div>
-</section>
+  incomes_badge = capture { dashboard_delta_badge(@cycle_summary[:income_delta_pct]) }
+  expenses_badge = capture { dashboard_delta_badge(@cycle_summary[:expense_delta_pct], good_direction: :down) }
+  projected_available = @cycle_summary[:projected_spend].present?
+  projected_description =
+    if projected_available && @cycle_summary[:projection_basis] == :recurring
+      t("dashboard.projection_recurring", default: "Proyección con tus gastos fijos + gasto variable")
+    elsif projected_available
+      t(@cycle_summary[:on_track] ? "dashboard.on_track_title" : "dashboard.off_track_title",
+        default: @cycle_summary[:on_track] ? "Estás en línea con tu meta" : "Vas sobre tu meta de gasto")
+    else
+      t("dashboard.projection_too_early", default: "Muy temprano para proyectar el gasto")
+    end
+%>
+<section class="dash-metrics-grid" data-testid="dashboard-metrics">
+  <%= render "dashboard/metric_card",
+        label: t("dashboard.money_in_accounts", default: "Dinero en cuentas"),
+        value: number_to_currency(@position[:accounts_balance]),
+        description: t("dashboard.money_in_accounts_desc",
+                       default: "Saldo disponible en cuentas, tarjetas débito, efectivo y billeteras."),
+        badge: t("dashboard.available", default: "Disponible"),
+        icon: "wallet", variant: "accounts",
+        href: money_sources_cash_path, testid: "dashboard-kpi-accounts" %>
 
+  <%= render "dashboard/metric_card",
+        label: t("dashboard.incomes_cycle", default: "Ingresos del ciclo"),
+        value: number_to_currency(@cycle_summary[:income_total]),
+        description: t("dashboard.incomes_foot", default: "Comparado con el ciclo anterior"),
+        badge: incomes_badge,
+        icon: "trending-up", variant: "income",
+        href: incomes_path, testid: "dashboard-kpi-incomes" %>
+
+  <%= render "dashboard/metric_card",
+        label: t("dashboard.expenses_cycle", default: "Gastos del ciclo"),
+        value: number_to_currency(@cycle_summary[:expense_total]),
+        description: t("dashboard.expenses_real_foot", default: "Lo que has gastado hasta hoy"),
+        badge: expenses_badge,
+        icon: "receipt", variant: "expense",
+        href: expenses_path, testid: "dashboard-kpi-expenses" %>
+
+  <%= render "dashboard/metric_card",
+        label: t("dashboard.projected_spend", default: "Gasto proyectado"),
+        value: projected_available ? number_to_currency(@cycle_summary[:projected_spend]) : "—",
+        description: projected_description,
+        badge: t("dashboard.projection", default: "Proyección"),
+        icon: "target", variant: "projection",
+        href: reports_budgets_path, testid: "dashboard-kpi-projected" %>
+</section>

@@ -1,16 +1,32 @@
-<%# Dashboard page header: cycle banner when cycles are enabled, otherwise the plain period label. %>
-<% if @cycle %>
-  <div class="cycle-banner page-header d-flex align-items-center gap-3 flex-wrap">
-    <div>
-      <h1 class="page-title"><strong><%= @cycle.label %></strong></h1>
-      <span class="page-subtitle"><%= @cycle.range_label %></span>
+<%# Dashboard page header: period selector (financial cycle or calendar month),
+    period name and range, then the financial summary heading. %>
+<%
+  period_filter = dashboard_period_filter(user: current_user, cycle: @cycle, month: @budget_period)
+  period_label = @cycle ? @cycle.label : @period_label
+  period_range = @cycle ? @cycle.range_label : dashboard_span_label(@span)
+%>
+<header class="dash-header">
+  <div class="dash-period-bar <%= "cycle-banner" if @cycle %>">
+    <div class="dash-period-copy">
+      <span class="dash-eyebrow">
+        <i class="ti ti-calendar-event" aria-hidden="true"></i>
+        <%= t("dashboard.financial_cycle", default: "Ciclo financiero") %>
+      </span>
+      <strong><%= period_label %></strong>
+      <span class="dash-period-range"><%= period_range %></span>
     </div>
+
+    <%= form_with url: dashboard_path, method: :get, class: "dash-period-selector" do %>
+      <label class="visually-hidden" for="dashboard-period"><%= t("dashboard.select_period", default: "Seleccionar ciclo financiero") %></label>
+      <%= select_tag period_filter[:param],
+            options_for_select(period_filter[:options], period_filter[:selected]),
+            id: "dashboard-period", class: "dash-period-select", data: { auto_submit: true } %>
+      <i class="ti ti-chevron-down" aria-hidden="true"></i>
+    <% end %>
   </div>
-<% else %>
-  <div class="page-header">
-    <div>
-      <h1 class="page-title"><%= @period_label %></h1>
-      <div class="page-subtitle"><%= dashboard_span_label(@span) %></div>
-    </div>
+
+  <div class="dash-heading">
+    <h1><%= t("dashboard.financial_summary_title", default: "Tu resumen financiero") %></h1>
+    <p><%= t("dashboard.financial_summary_subtitle", default: "Así se está moviendo tu dinero durante este ciclo.") %></p>
   </div>
-<% end %>
+</header>

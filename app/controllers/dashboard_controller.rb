@@ -21,6 +21,7 @@ class DashboardController < ApplicationController
     @expense_summary = Expense.dashboard_summary(user: current_user, range: @span)
     @cycle_summary = Dashboard::CycleSummary.new(user: current_user, span: @span, previous_span: previous_span).call
     @budgets = current_user.budgets.includes(:category)
+    @spending_by_category_id = @budgets.any? ? Expense.spending_by_category_id(user: current_user, range: @span) : {}
     @goals = current_user.goals.includes([ :pocket, :goal_allocations ]).order(:created_at, :id)
     @pending_candidates = current_user.expense_candidates.pending.includes(:category).limit(10)
     @position = Dashboard::PositionSnapshot.call(user: current_user)
