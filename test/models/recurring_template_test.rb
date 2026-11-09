@@ -85,4 +85,79 @@ class RecurringTemplateTest < ActiveSupport::TestCase
 
     assert template.valid?
   end
+
+  test "income status counts manual receipts in the same category" do
+    income_category = Category.create!(name: "Salario recurrente", is_default: false,
+                                       category_type: "income", user: @user)
+    template = create_income_template(income_category, amount: 2_000_000)
+    period = Date.new(2026, 10, 1)..Date.new(2026, 10, 31)
+
+    template.transactions.create!(user: @user, category: income_category, amount: 1_000_000,
+                                  date: Date.new(2026, 10, 5), kind: "income",
+                                  source: "recurring_template", money_source: @money_source)
+    manual = @user.incomes.create!(amount: 1_000_000, description: "Segundo pago",
+                                   date: Date.new(2026, 10, 25), category: income_category,
+                                   money_source: @money_source)
+
+    assert_equal 2_000_000.to_d, template.paid_amount_for_period(period)
+    assert_equal :completed, template.status_for(period)
+    assert_equal manual.id, template.last_occurrence.id
+  end
+
+  test "manual income in another category does not complete an income template" do
+    income_category = Category.create!(name: "Salario categoría", is_default: false,
+                                       category_type: "income", user: @user)
+    other_category = Category.create!(name: "Inversiones categoría", is_default: false,
+                                      category_type: "income", user: @user)
+    template = create_income_template(income_category, amount: 2_000_000)
+    period = Date.new(2026, 10, 1)..Date.new(2026, 10, 31)
+
+    template.transactions.create!(user: @user, category: income_category, amount: 1_000_000,
+                                  date: Date.new(2026, 10, 5), kind: "income",
+                                  source: "recurring_template", money_source: @money_source)
+    @user.incomes.create!(amount: 1_000_000, description: "Otro ingreso",
+                          date: Date.new(2026, 10, 25), category: other_category,
+                          money_source: @money_source)
+
+    assert_equal 1_000_000.to_d, template.paid_amount_for_period(period)
+    assert_equal :pending, template.status_for(period)
+  end
+
+  test "manual income is ambiguous when another active income template shares the category" do
+    income_category = Category.create!(name: "Salario compartido", is_default: false,
+                                       category_type: "income", user: @user)
+    salary = create_income_template(income_category, amount: 2_000_000, description: "Salario")
+    create_income_template(income_category, amount: 1_000_000, description: "Bono")
+    period = Date.new(2026, 10, 1)..Date.new(2026, 10, 31)
+
+    @user.incomes.create!(amount: 2_000_000, description: "Pago",
+                          date: Date.new(2026, 10, 25), category: income_category,
+                          money_source: @money_source)
+
+    assert_equal 0.to_d, salary.paid_amount_for_period(period)
+    assert_equal :pending, salary.status_for(period)
+  end
+
+  test "manual income outside the period does not complete an income template" do
+    income_category = Category.create!(name: "Salario fuera", is_default: false,
+                                       category_type: "income", user: @user)
+    template = create_income_template(income_category, amount: 2_000_000)
+    period = Date.new(2026, 10, 1)..Date.new(2026, 10, 31)
+
+    @user.incomes.create!(amount: 2_000_000, description: "Pago anterior",
+                          date: Date.new(2026, 9, 30), category: income_category,
+                          money_source: @money_source)
+
+    assert_equal 0.to_d, template.paid_amount_for_period(period)
+    assert_equal :pending, template.status_for(period)
+  end
+
+  private
+
+  def create_income_template(category, amount:, description: "Salario")
+    @user.recurring_templates.create!(
+      category: category, kind: "income", amount: amount, frequency: "monthly",
+      source: "manual", description: description, payment_day: 5, money_source: @money_source
+    )
+  end
 end

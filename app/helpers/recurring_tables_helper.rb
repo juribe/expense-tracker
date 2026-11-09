@@ -27,13 +27,13 @@ module RecurringTablesHelper
   # Due date of a recurring template inside the listed period (a pay cycle or
   # a calendar month). Returns nil when the template has no payment day.
   def recurring_expected_date(template, period)
-    RecurringExpenses::CycleSummary.expected_date(template, period)
+    RecurringTemplates::CycleSummary.expected_date(template, period)
   end
 
-  def recurring_status_badge(status)
+  def recurring_status_badge(status, completed_label: t("statuses.completed"))
     label, icon, modifier =
       case status
-      when :completed then [ t("statuses.completed"), "ti-circle-check", "completed" ]
+      when :completed then [ completed_label, "ti-circle-check", "completed" ]
       when :pending then [ t("statuses.pending"), "ti-clock", "pending" ]
       else [ t("statuses.inactive"), "ti-minus-circle", "inactive" ]
       end

@@ -2221,18 +2221,39 @@ es:
 
   monthly_incomes:
     title: "Ingresos Mensuales"
+    subtitle: "Administra tus fuentes de ingresos y controla cuándo esperas recibir dinero."
     import_templates: "Importar Plantillas"
     add_income: "Agregar Ingreso"
     receive: "Recibir"
     received: "Recibido"
     received_tooltip: "Ya recibido este mes"
+    list_title: "Ingresos recurrentes registrados"
+    list_hint: "Ingreso mensual"
+    row_actions: "Más acciones"
     filter:
       paid: "Recibidos"
+    summary:
+      monthly_expected: "Ingresos mensuales esperados"
+      active_count:
+        one: "%{count} ingreso recurrente activo"
+        other: "%{count} ingresos recurrentes activos"
+      pending: "Pendientes de recibir"
+      pending_count:
+        one: "%{count} ingreso pendiente en este ciclo"
+        other: "%{count} ingresos pendientes en este ciclo"
+      received: "Recibidos este ciclo"
+      received_progress: "%{received} de %{expected} ingresos recibidos"
+      next_income: "Próximo ingreso"
+      none: "—"
+      no_pending: "Sin ingresos pendientes"
     results_count:
       one: "%{count} ingreso recurrente · %{amount}"
       other: "%{count} ingresos recurrentes · %{amount}"
     columns:
       monthly_amount: "Valor Mensual"
+      payment_day_value: "Día %{day}"
+      expected_date: "Esperado: %{date}"
+      no_income: "Sin ingresos registrados"
     empty:
       no_matching: "No se encontraron plantillas."
       filter_hint: "Cambia el filtro o límpialo para ver todas las plantillas."

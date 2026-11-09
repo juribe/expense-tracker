@@ -58,4 +58,25 @@ class RecurringTemplateProcessorTest < ActiveSupport::TestCase
                                                  date: Date.new(2026, 11, 21))
     assert next_cycle.success?
   end
+
+  test "income period already covered by manual receipts is not processed twice" do
+    income_category = Category.create!(name: "RTP Income Cat", is_default: false,
+                                       category_type: "income", user: @user)
+    template = @user.recurring_templates.create!(
+      category: income_category, kind: "income", amount: 2_000_000, frequency: "monthly",
+      source: "manual", description: "Salario", money_source: @savings
+    )
+    template.transactions.create!(user: @user, category: income_category, amount: 1_000_000,
+                                  date: Date.current, kind: "income",
+                                  source: "recurring_template", money_source: @savings)
+    @user.incomes.create!(amount: 1_000_000, description: "Segundo pago", date: Date.current,
+                          category: income_category, money_source: @savings)
+
+    assert_no_difference "Transaction.count" do
+      result = RecurringTemplateProcessor.call(recurring_template: template, amount: 1, date: Date.current)
+
+      assert_not result.success?
+      assert_match(/Already processed/, result.error)
+    end
+  end
 end

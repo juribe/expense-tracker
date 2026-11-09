@@ -14,37 +14,103 @@
     </ol>
   </nav>
 
-  <%= render "shared/page_header", title: t("monthly_incomes.title") do %>
+  <%= render "shared/page_header",
+             title: t("monthly_incomes.title"),
+             subtitle: t("monthly_incomes.subtitle") do %>
     <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
       <i class="ti ti-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
     <% end %>
     <button type="button" class="btn btn-primary" data-testid="add-recurring"
-            data-rt-action="create"">
+            data-rt-action="create">
       <i class="ti ti-plus me-1"></i><%= t("monthly_incomes.add_income") %>
     </button>
-<% end %>
+  <% end %>
+
+  <% next_income = @recurring_summary[:next_income] %>
+  <div class="row g-3 mb-4 recurring-summary" data-testid="monthly-incomes-summary">
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 recurring-summary-card" data-testid="summary-monthly-expected">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("monthly_incomes.summary.monthly_expected"),
+                     value: number_to_currency(@recurring_summary[:monthly_expected]),
+                     icon: "cash", icon_tone: "blue", tone: :balance,
+                     delta: t("monthly_incomes.summary.active_count", count: @recurring_summary[:active_count]) %>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 recurring-summary-card" data-testid="summary-pending">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("monthly_incomes.summary.pending"),
+                     value: number_to_currency(@recurring_summary[:pending_total]),
+                     icon: "clock", icon_tone: "amber", tone: :attention,
+                     delta: t("monthly_incomes.summary.pending_count", count: @recurring_summary[:pending_count]) %>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 recurring-summary-card" data-testid="summary-received">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("monthly_incomes.summary.received"),
+                     value: number_to_currency(@recurring_summary[:received_total]),
+                     icon: "circle-check", icon_tone: "green", tone: :positive,
+                     delta: t("monthly_incomes.summary.received_progress",
+                              received: @recurring_summary[:received_count],
+                              expected: @recurring_summary[:expected_count]) %>
+          <div class="progress mt-2 recurring-summary-progress" role="progressbar"
+               aria-label="<%= t("monthly_incomes.summary.received_progress",
+                                 received: @recurring_summary[:received_count],
+                                 expected: @recurring_summary[:expected_count]) %>"
+               aria-valuenow="<%= @recurring_summary[:completion_percentage] %>"
+               aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success et-w-<%= @recurring_summary[:completion_percentage] %>"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 recurring-summary-card" data-testid="summary-next-income">
+        <div class="card-body">
+          <%= render "shared/stat",
+                     label: t("monthly_incomes.summary.next_income"),
+                     value: next_income ? l(next_income[:date], format: "%d %b") : t("monthly_incomes.summary.none"),
+                     icon: "calendar-event", icon_tone: "blue", tone: :balance,
+                     delta: if next_income
+                              "#{next_income[:description]} · #{number_to_currency(next_income[:amount])}"
+                            else
+                              t("monthly_incomes.summary.no_pending")
+                            end %>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Filter -->
   <div class="card mb-4">
-    <div class="card-body">
-      <%= form_with url: monthly_incomes_path, method: :get, class: "row g-3 align-items-end", data: { testid: "filter-form" } do |f| %>
-        <div class="col-12 col-md-4 col-lg-2">
+    <div class="card-body py-3">
+      <%= form_with url: monthly_incomes_path, method: :get, class: "row g-2 align-items-end", data: { testid: "filter-form" } do |f| %>
+        <div class="col-12 col-sm-6 col-lg-3">
           <%= f.label :status, t("common.status"), class: "form-label" %>
           <%= f.select :status, options_for_select([[t("common.all"), "all"], [t("monthly_incomes.filter.paid"), "completed"], [t("statuses.pending"), "pending"]], @status_filter), {}, class: "form-select" %>
         </div>
-        <div class="col-12 d-flex gap-2">
-          <%= f.submit t("common.filter"), class: "btn btn-outline-primary" %>
+        <div class="col-12 col-sm-6 col-lg-4 d-flex flex-column flex-sm-row gap-2">
+          <%= f.submit t("common.filter"), class: "btn btn-primary" %>
           <%= link_to t("common.clear"), monthly_incomes_path, class: "btn btn-outline-secondary" %>
         </div>
       <% end %>
     </div>
   </div>
 
-  <!-- Totals -->
-  <div class="d-flex justify-content-between align-items-baseline mb-2">
-    <p class="results-meta mb-0" data-testid="results-meta">
-      <%= t("monthly_incomes.results_count", count: @total_count, amount: number_to_currency(@filtered_total)) %>
-    </p>
+  <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+    <div>
+      <h2 class="h5 mb-1"><%= t("monthly_incomes.list_title") %></h2>
+      <p class="results-meta mb-0" data-testid="results-meta">
+        <%= t("monthly_incomes.results_count", count: @total_count, amount: number_to_currency(@filtered_total)) %>
+      </p>
+    </div>
   </div>
 
   <div class="card" data-testid="recurring-card">
@@ -57,15 +123,16 @@
         <% else %>
           <h5><%= t("monthly_incomes.empty.title") %></h5>
           <p class="text-secondary"><%= t("monthly_incomes.empty.body") %></p>
-          <button type="button" class="btn btn-outline-primary" data-rt-action="create"">
+          <button type="button" class="btn btn-outline-primary" data-rt-action="create">
             <%= t("monthly_incomes.empty.add_first") %>
           </button>
         <% end %>
       </div>
     <% else %>
-      <div class="table-responsive">
-        <table class="table table-hover ledger-table align-middle mb-0" data-testid="recurring-table">
-          <thead class="table-light">
+      <div class="table-responsive recurring-table-wrap">
+        <table class="table table-hover ledger-table align-middle mb-0 recurring-table recurring-table--income"
+               data-testid="recurring-table">
+          <thead>
             <tr>
               <th scope="col"><%= t("common.category") %></th>
               <th scope="col"><%= t("common.description") %></th>
@@ -79,70 +146,91 @@
           <tbody>
             <% @recurring_templates.each do |rt| %>
               <% status = rt.status_for(@current_period) %>
+              <% expected_date = recurring_expected_date(rt, @current_period) %>
+              <% last_received = rt.last_occurrence %>
               <tr data-testid="recurring-row"
                   data-id="<%= rt.id %>"
                   data-category-id="<%= rt.category_id %>"
+                  data-category-name="<%= rt.category&.name %>"
                   data-description="<%= rt.description %>"
                   data-amount="<%= rt.amount %>"
                   data-paid-amount="<%= rt.paid_amount_for_period(@current_period) %>"
                   data-money-source-id="<%= rt.money_source_id %>"
                   data-payment-day="<%= rt.payment_day %>"
                   data-active="<%= rt.active? %>"
+                  data-status="<%= status %>"
                   data-type="<%= rt.kind %>"
                   data-edit-url="<%= monthly_income_path(rt) %>"
                   data-delete-url="<%= monthly_income_path(rt) %>"
                   data-toggle-url="<%= toggle_active_monthly_income_path(rt) %>"
                   data-process-url="<%= process_transaction_monthly_income_path(rt) %>">
-                <td><%= category_badge(rt.category) %></td>
-                <td><%= rt.description.presence || content_tag(:span, "No description", class: "text-muted") %></td>
-                <td class="text-end amount"><%= number_to_currency(rt.signed_amount) %></td>
-                <td class="d-none d-md-table-cell"><%= rt.payment_day %></td>
-                <td class="d-none d-md-table-cell">
-                  <% if (last = rt.last_occurrence) %>
-                    <%= last.date.strftime("%B %-d, %Y") %>
-                  <% else %>
-                    <span class="text-secondary">&mdash;</span>
+                <td class="recurring-cat"><%= category_badge(rt.category) %></td>
+                <td class="recurring-desc">
+                  <span class="cell-strong"><%= rt.description.presence || content_tag(:span, t("recurring.no_description"), class: "text-muted") %></span>
+                  <small class="cell-muted d-block"><%= t("monthly_incomes.list_hint") %></small>
+                </td>
+                <td class="text-end cell-amount recurring-amount"><%= number_to_currency(rt.signed_amount) %></td>
+                <td class="recurring-day d-none d-md-table-cell">
+                  <span class="fw-semibold num"><%= t("monthly_incomes.columns.payment_day_value", day: rt.payment_day) %></span>
+                  <% if expected_date %>
+                    <small class="cell-muted d-block">
+                      <%= t("monthly_incomes.columns.expected_date", date: l(expected_date, format: "%d %b")) %>
+                    </small>
                   <% end %>
                 </td>
-                <td data-testid="status">
-                  <% case status %>
-                  <% when :pending %>
-                    <span class="badge bg-success"><%= t("statuses.pending") %></span>
-                  <% when :completed %>
-                    <span class="badge bg-secondary"><%= t("statuses.completed") %></span>
+                <td class="recurring-last d-none d-md-table-cell">
+                  <% if last_received %>
+                    <span class="fw-semibold num"><%= l(last_received.date, format: "%d %b %Y") %></span>
+                    <small class="cell-muted d-block"><%= number_to_currency(last_received.amount.abs) %></small>
                   <% else %>
-                    <span class="badge bg-danger"><%= t("statuses.inactive") %></span>
+                    <span class="cell-muted"><%= t("monthly_incomes.columns.no_income") %></span>
                   <% end %>
                 </td>
-                <td class="text-end text-nowrap">
-                  <button type="button" class="btn btn-outline-primary btn-sm me-1" data-testid="edit"
-                          aria-label="Edit <%= rt.description.presence || 'recurring income' %>"
-                          data-rt-action="edit"">
-                    <i class="ti ti-pencil"></i>
-                  </button>
-                  <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="deactivate"
-                          aria-label="<%= rt.active? ? 'Deactivate' : 'Activate' %> <%= rt.description.presence || 'recurring income' %>"
-                          title="<%= rt.active? ? 'Deactivate' : 'Activate' %>"
-                          data-rt-action="toggle"">
-                    <i class="ti ti-power"></i>
-                  </button>
-                  <button type="button" class="btn btn-outline-danger btn-sm me-1" data-testid="delete"
-                          aria-label="Delete <%= rt.description.presence || 'recurring income' %>"
-                          data-rt-action="delete"">
-                    <i class="ti ti-trash"></i>
-                  </button>
-                  <% if status == :pending %>
-                    <button type="button" class="btn btn-primary btn-sm" data-testid="process"
-                            data-rt-action="process"">
-                      <i class="ti ti-coin me-1"></i><%= t("monthly_incomes.receive") %>
+                <td data-testid="status" class="recurring-status-cell">
+                  <%= recurring_status_badge(status, completed_label: t("monthly_incomes.received")) %>
+                </td>
+                <td class="text-end recurring-actions-cell">
+                  <div class="recurring-row-actions">
+                    <% if status == :pending %>
+                      <button type="button" class="btn btn-primary btn-sm" data-testid="process"
+                              aria-label="<%= t("monthly_incomes.receive") %>"
+                              title="<%= t("monthly_incomes.receive") %>"
+                              data-rt-action="process">
+                        <i class="ti ti-coin me-1"></i><%= t("monthly_incomes.receive") %>
+                      </button>
+                    <% end %>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-testid="edit"
+                            aria-label="<%= t("recurring.edit_action", name: rt.description.presence || t("nav.recurring_incomes")) %>"
+                            title="<%= t("common.edit") %>"
+                            data-rt-action="edit">
+                      <i class="ti ti-pencil"></i>
                     </button>
-                  <% elsif status == :completed %>
-                    <button type="button" class="btn btn-outline-secondary btn-sm disabled" data-testid="process-disabled"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="<%= t("monthly_incomes.received_tooltip") %>" tabindex="-1" aria-disabled="true">
-                      <i class="ti ti-check me-1"></i><%= t("monthly_incomes.received") %>
-                    </button>
-                  <% end %>
+                    <div class="dropdown">
+                      <button type="button" class="btn btn-outline-secondary btn-sm recurring-actions-toggle"
+                              data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"
+                              data-testid="row-actions"
+                              aria-label="<%= t("monthly_incomes.row_actions") %>"
+                              title="<%= t("monthly_incomes.row_actions") %>">
+                        <i class="ti ti-dots"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <button type="button" class="dropdown-item d-flex align-items-center gap-2"
+                                  data-testid="deactivate" data-rt-action="toggle">
+                            <i class="ti ti-power"></i>
+                            <%= rt.active? ? t("recurring.deactivate") : t("recurring.activate") %>
+                          </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <button type="button" class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                                  data-testid="delete" data-rt-action="delete">
+                            <i class="ti ti-trash"></i><%= t("common.delete") %>
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </td>
               </tr>
             <% end %>

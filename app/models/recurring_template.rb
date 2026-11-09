@@ -43,11 +43,11 @@ class RecurringTemplate < ApplicationRecord
   end
 
   def last_occurrence
-    transactions.order(date: :desc, created_at: :desc).first
+    effective_transactions.order(date: :desc, created_at: :desc).first
   end
 
   def paid_amount_for_period(period)
-    transactions.where(date: period_range(period)).sum { |transaction| transaction.amount.to_d.abs }
+    effective_transactions_in(period_range(period)).sum { |transaction| transaction.amount.to_d.abs }
   end
   alias_method :amount_paid_for_period, :paid_amount_for_period
   alias_method :paid_so_far_for_period, :paid_amount_for_period
@@ -56,7 +56,7 @@ class RecurringTemplate < ApplicationRecord
     return false unless active?
 
     range = period_range(period)
-    transactions_in_period = transactions.where(date: range)
+    transactions_in_period = effective_transactions_in(range)
     return true if transactions_in_period.where(recurring_paid_in_full: true).exists?
 
     paid_amount_for_period(range) >= amount.to_d
@@ -105,6 +105,35 @@ class RecurringTemplate < ApplicationRecord
     return if amount.nil?
 
     self.amount = amount.to_s.delete(",").to_d.abs
+  end
+
+  # Income templates may receive several manual entries in the same category
+  # (for example a salary split across two payments). When the category has
+  # exactly one active recurring income, those unlinked entries complement the
+  # receipts explicitly linked from the "Recibir" modal. With several
+  # templates in the category the attribution is ambiguous, so only linked
+  # transactions count.
+  def effective_transactions
+    return transactions unless absorbs_manual_income_receipts?
+
+    Transaction.where(user_id: user_id, kind: "income", category_id: category_id,
+                      recurring_template_id: nil)
+               .or(transactions)
+  end
+
+  def effective_transactions_in(range)
+    effective_transactions.where(date: range)
+  end
+
+  def absorbs_manual_income_receipts?
+    income? && active? && category_id.present? && sole_active_income_for_category?
+  end
+
+  def sole_active_income_for_category?
+    return @sole_active_income_for_category if defined?(@sole_active_income_for_category)
+
+    @sole_active_income_for_category =
+      user.recurring_templates.income.active.where(category_id: category_id).where.not(id: id).none?
   end
 
   # Shared categories carry no owner (defaults) and belong to both scopes:

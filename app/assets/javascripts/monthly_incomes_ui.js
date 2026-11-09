@@ -99,8 +99,9 @@
       $("#processTitle").textContent = P.confirm_receive;
       $("#processConfirm").textContent = P.receive;
       $("#processCategory").textContent =
-        row.querySelector("td .badge").textContent;
-      $("#processDescription").textContent = row.cells[1].textContent.trim();
+        row.dataset.categoryName || row.querySelector("td .badge").textContent;
+      $("#processDescription").textContent =
+        (row.dataset.description || row.cells[1].textContent).trim();
       $("#processConfiguredAmount").textContent = row.cells[2].textContent.trim();
 
       var configuredAmount = parseFloat(row.dataset.amount) || 0;

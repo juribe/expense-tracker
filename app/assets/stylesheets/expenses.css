@@ -1279,6 +1279,8 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
 .recurring-actions-toggle { min-width: 2rem; }
 .recurring-desc .cell-strong { display: block; }
 .recurring-table .recurring-day { white-space: nowrap; }
+.recurring-table--income .recurring-last { white-space: nowrap; }
+.recurring-table--income .recurring-last .cell-muted { white-space: normal; }
 
 @media (min-width: 992px) {
   .recurring-table-wrap { overflow: visible; }
@@ -1330,6 +1332,12 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
     grid-row: 3;
     text-align: right;
   }
+  .recurring-table--income .recurring-last {
+    display: block !important;
+    grid-column: 1 / -1;
+    grid-row: 4;
+    padding-top: 0.15rem;
+  }
   .recurring-table .recurring-actions-cell {
     grid-column: 1 / -1;
     grid-row: 4;
@@ -1337,6 +1345,7 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
     padding-top: 0.65rem;
     border-top: 1px solid var(--bs-border-color);
   }
+  .recurring-table--income .recurring-actions-cell { grid-row: 5; }
   .recurring-table .recurring-row-actions { width: 100%; }
   .recurring-table .recurring-row-actions > .btn-primary { flex: 1 1 auto; }
   .recurring-table .recurring-actions-toggle { flex: 0 0 auto; }
