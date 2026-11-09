@@ -8,7 +8,7 @@
     <div class="cc-identity">
       <span class="cc-icon accent-blue" aria-hidden="true"><i class="ti ti-credit-card"></i></span>
       <div class="min-w-0">
-        <h3 class="cc-name"><%= link_to source.name, money_source_path(source), class: "text-decoration-none text-inherit stretched-link" %></h3>
+        <h3 class="cc-name"><%= link_to source.name, money_source_path(source, tab: "resumen"), class: "text-decoration-none text-inherit stretched-link" %></h3>
         <div class="cc-meta">
           <span><%= t("money_sources.credit_cards.type") %></span>
           <% if source.institution_name.present? %>
@@ -32,7 +32,7 @@
           <i class="ti ti-dots" aria-hidden="true"></i>
         </button>
         <div class="dropdown-menu dropdown-menu-end">
-          <%= link_to money_source_path(source), class: "dropdown-item d-flex align-items-center gap-2" do %>
+          <%= link_to money_source_path(source, tab: "resumen"), class: "dropdown-item d-flex align-items-center gap-2" do %>
             <i class="ti ti-eye me-2" aria-hidden="true"></i><span>Detalle</span>
           <% end %>
           <div class="dropdown-divider"></div>
@@ -70,7 +70,7 @@
         <span class="cc-progress-pct"><%= utilization %>%</span>
       </div>
       <div class="progress" role="progressbar" aria-label="<%= t("money_sources.credit_cards.utilization") %>" aria-valuenow="<%= utilization %>" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar <%= credit_utilization_class(utilization) %> et-w-<% [ utilization, 100 ].min.round %>"></div>
+        <div class="progress-bar <%= credit_utilization_class(utilization) %> et-w-<%= [ utilization, 100 ].min.round %>"></div>
       </div>
     </div>
   <% end %>
@@ -79,12 +79,12 @@
     <div class="cc-meter">
       <div class="cc-meter-label"><%= t("money_sources.credit_cards.credit_limit") %></div>
       <div class="cc-meter-value"><%= source.credit_limit.present? ? number_to_currency(source.credit_limit) : "—" %></div>
+      <div class="cc-meter-available">
+        <div class="cc-meter-label"><%= t("money_sources.credit_cards.available") %></div>
+        <div class="cc-meter-value"><%= source.available_credit.present? ? number_to_currency(source.available_credit) : "—" %></div>
+      </div>
     </div>
-    <div class="cc-meter">
-      <div class="cc-meter-label"><%= t("money_sources.credit_cards.available") %></div>
-      <div class="cc-meter-value"><%= source.available_credit.present? ? number_to_currency(source.available_credit) : "—" %></div>
-    </div>
-    <div class="cc-meter">
+    <div class="cc-meter text-end">
       <div class="cc-meter-label"><%= t("money_sources.credit_cards.rate") %></div>
       <div class="cc-meter-value"><%= source.interest_rate_label || "—" %></div>
     </div>

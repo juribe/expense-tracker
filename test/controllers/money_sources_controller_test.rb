@@ -73,7 +73,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     get money_sources_pockets_path
     assert_response :success
-    assert_select "a[href=?]", money_source_path(pocket)
+    assert_select "a[href=?]", money_source_path(pocket, tab: "resumen"), text: "Bolsillo Europa"
     assert_select "h5.card-title", text: /Davibank/, count: 0
   end
 
@@ -135,6 +135,24 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/500\.000/, response.body)
   end
 
+  test "GET /money_sources/cash links each account card to the summary tab" do
+    account = create_source(name: "Checking", kind: "account")
+
+    get money_sources_cash_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_path(account, tab: "resumen"), text: "Checking"
+  end
+
+  test "GET /money_sources/credit_cards links each card to the summary tab" do
+    card = create_source(name: "Visa", kind: "credit_card")
+
+    get money_sources_credit_cards_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_path(card, tab: "resumen"), text: "Visa"
+  end
+
   test "GET /money_sources/credit_cards filters to credit cards only and renders summary" do
     create_source(name: "Checking", kind: "account")
     source = create_source(name: "Visa", kind: "credit_card", bank: "Bancolombia", starting_balance: -3000000)
@@ -150,8 +168,26 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/Checking/, response.body)
     # Current debt is the primary figure on the card.
     assert_match(/\$3\.000\.000/, response.body)
+    # The utilization bar renders its width: 3M of a 20M limit is 15%.
+    assert_select "[data-testid='credit-card-card'] .cc-progress .progress-bar.et-w-15", count: 1
     # Summary totals: total debt matches the card's current debt.
     assert_match(/\$3\.000\.000/, response.body)
+  end
+
+  test "GET /money_sources/credit_cards stacks available credit under the approved limit" do
+    source = create_source(name: "Visa", kind: "credit_card", starting_balance: -3000000)
+    source.build_credit_account(credit_limit: 20000000, interest_rate: 24.5,
+                                interest_rate_type: "effective_annual")
+    source.save!
+
+    get money_sources_credit_cards_path
+
+    assert_response :success
+    assert_select "[data-testid='credit-card-card'] .cc-meter", count: 2
+    assert_select "[data-testid='credit-card-card'] .cc-meter:first-child" do
+      assert_select ".cc-meter-label", text: I18n.t("money_sources.credit_cards.credit_limit")
+      assert_select ".cc-meter-available .cc-meter-label", text: I18n.t("money_sources.credit_cards.available")
+    end
   end
 
   test "GET /money_sources/loans filters to loans only" do
@@ -162,6 +198,15 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: I18n.t("money_sources.index.loans_title")
     assert_match(/Car Loan/, response.body)
     assert_no_match(/Visa/, response.body)
+  end
+
+  test "GET /money_sources/loans links each card to the summary tab" do
+    loan = create_source(name: "Car Loan", kind: "loan")
+
+    get money_sources_loans_path
+
+    assert_response :success
+    assert_select "a[href=?]", money_source_path(loan, tab: "resumen"), text: "Car Loan"
   end
 
   test "GET /money_sources/loans renders cards and a summary with correct totals" do
@@ -183,6 +228,14 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/66\.959\.723/, response.body)
     assert_match(/#{I18n.t("money_sources.loans.summary_total")}/, response.body)
     assert_match(/#{I18n.t("money_sources.loans.repaid", pct: 60.8)}/, response.body)
+    # The repayment bar renders its width: 60.8% repaid rounds to 61.
+    assert_select "[data-testid='loan-card'] .loan-progress .progress-bar.et-w-61", count: 1
+    # The rate sits under the original amount, not in its own column.
+    assert_select "[data-testid='loan-card'] .loan-meter", count: 2
+    assert_select "[data-testid='loan-card'] .loan-meter:first-child" do
+      assert_select ".loan-meter-label", text: I18n.t("money_sources.loans.original")
+      assert_select ".loan-meter-sub .loan-meter-label", text: I18n.t("money_sources.loans.rate")
+    end
   end
 
   test "GET /money_sources/loans shows the empty state without loans" do
@@ -1425,6 +1478,16 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".nav-tabs [data-tab-slug='abonos']", count: 1
     assert_select ".nav-tabs [data-tab-slug='resumen'].active", count: 1
     assert_select ".tab-pane#source-tab-resumen.active"
+    assert_select "[data-source-tabs-force]", count: 0
+  end
+
+  test "a show page opened with tab=resumen forces the summary tab" do
+    loan = create_source(name: "Car Loan", kind: "loan", sub_kind: "personal")
+
+    get money_source_path(loan, tab: "resumen")
+
+    assert_response :success
+    assert_select "[data-source-tabs][data-source-tabs-force='resumen']", count: 1
   end
 
   test "a loan show page has no recognition tab" do

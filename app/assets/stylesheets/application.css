@@ -173,7 +173,8 @@
 .loan-progress .progress-bar { border-radius: 999px; background-color: var(--loan-accent); }
 
 /* Secondary metadata grid */
-.loan-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: 1.25rem; border-top: 1px solid var(--loan-card-border); padding-top: 1rem; }
+.loan-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; margin-top: 1.25rem; border-top: 1px solid var(--loan-card-border); padding-top: 1rem; }
+.loan-meter-sub { margin-top: .35rem; }
 .loan-meter-label { font-size: .75rem; color: var(--loan-muted); margin-bottom: .15rem; white-space: nowrap; }
 .loan-meter-value { font-size: .9375rem; font-weight: 600; color: var(--loan-strong); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 
@@ -195,9 +196,9 @@
 .loans-summary-head h2 { font-size: 1.25rem; font-weight: 700; color: var(--loan-strong); margin: 0 0 .15rem; }
 .loans-summary-head p { margin: 0; font-size: .875rem; color: var(--loan-muted); }
 .loans-summary-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 1.5rem; }
-.loans-summary-metric { padding: 0 1.5rem; }
+.loans-summary-metric { padding: 0 1.5rem; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .625rem; align-items: center; }
 .loans-summary-metric + .loans-summary-metric { border-left: 1px solid var(--loan-card-border); }
-.loans-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: .625rem; font-size: 1rem; color: var(--loan-accent); background: var(--loan-accent-soft); margin-bottom: .625rem; }
+.loans-summary-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: .625rem; font-size: 1rem; color: var(--loan-accent); background: var(--loan-accent-soft); grid-row: 1 / span 2; }
 .loans-summary-label { font-size: .8125rem; color: var(--loan-muted); margin-bottom: .15rem; }
 .loans-summary-value { font-size: 1.375rem; font-weight: 800; color: var(--loan-strong); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 @media (max-width: 991.98px) { .loans-summary-metrics { grid-template-columns: repeat(2, 1fr); row-gap: 1.5rem; } .loans-summary-metric:nth-child(3) { border-left: 0; } }
@@ -294,8 +295,9 @@
 .cc-progress-pct { font-weight: 700; color: var(--loan-strong); }
 .cc-progress .progress { height: 6px; border-radius: 999px; background: var(--loan-track); overflow: hidden; }
 .cc-progress .progress-bar { border-radius: 999px; }
-.cc-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.cc-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
 .cc-meter { display: flex; flex-direction: column; gap: .15rem; }
+.cc-meter-available { display: flex; flex-direction: column; gap: .15rem; margin-top: .35rem; }
 .cc-meter-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--loan-muted); }
 .cc-meter-value { font-size: .95rem; font-weight: 700; color: var(--loan-strong); font-variant-numeric: tabular-nums; }
 .cc-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .65rem; padding-top: .85rem; border-top: 1px solid var(--loan-card-border); font-size: .75rem; color: var(--loan-muted); }

@@ -60,6 +60,9 @@ class MoneySourcesController < ApplicationController
     load_payment_context if @money_source.debt?
     load_pocket_context if @money_source.pocket?
     @active_tab = "resumen"
+    # Index cards pass tab=resumen so entering a source from a list always
+    # starts on its detail tab instead of restoring the last visited tab.
+    @force_tab = params[:tab].presence_in(%w[resumen movimientos pagos abonos reconocimiento])
   end
 
   # GET /money_sources/recognition

@@ -27,6 +27,16 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", money_source_path(@pocket)
   end
 
+  test "GET /goals renders the progress bar width from the saved amount" do
+    goal = Goal.create!(user: @user, pocket: @pocket, name: "Viaje", target_amount: 5_000_000)
+    GoalAllocation.create!(financial_goal: goal, pocket: @pocket, amount: 2_000_000, date: Date.current)
+
+    get goals_path
+
+    assert_response :success
+    assert_select ".progress .progress-bar.et-w-40", count: 1
+  end
+
   test "GET /goals shows an empty state without goals" do
     get goals_path
     assert_response :success

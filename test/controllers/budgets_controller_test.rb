@@ -50,6 +50,8 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h5", text: /oct/i
     assert_select ".budget-amount", text: /200\.000/
+    # 200.000 spent of a 500.000 budget renders a 40% wide bar.
+    assert_select ".budget-progress .progress-bar.et-w-40", count: 1
   end
 
   test "GET /budgets with an invalid cycle param falls back to the current cycle" do

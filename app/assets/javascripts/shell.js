@@ -107,6 +107,17 @@
     }
   }
 
+  // Index links carry ?tab=resumen only to bypass the saved-tab restore.
+  // Drop it once applied so the URL stays clean and later reloads keep the
+  // tab the user actually selected.
+  function clearForcedTabParam(slug) {
+    if (!window.history || !window.history.replaceState) { return; }
+    var url = new URL(window.location.href);
+    if (url.searchParams.get("tab") !== slug) { return; }
+    url.searchParams.delete("tab");
+    window.history.replaceState(window.history.state, "", url.toString());
+  }
+
   function initSourceTabs() {
     document.querySelectorAll("[data-source-tabs]").forEach(function (container) {
       var id = container.getAttribute("data-source-tabs");
@@ -137,6 +148,8 @@
       var forced = container.getAttribute("data-source-tabs-force");
       if (forced) {
         activateSourceTab(container, forced);
+        saveSession(key, forced);
+        clearForcedTabParam(forced);
         return;
       }
       var saved = storedSession(key, "");

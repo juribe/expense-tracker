@@ -22,6 +22,18 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=dashboard-recent-expenses]"
   end
 
+  test "GET /dashboard renders the goals progress bar width from the saved amount" do
+    pocket = @user.money_sources.create!(name: "Bolsillo", kind: "pocket", starting_balance: 1_000_000)
+    goal = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 2_000_000)
+    GoalAllocation.create!(financial_goal: goal, pocket: pocket, amount: 1_000_000, date: Date.current)
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select ".dashboard-progress .progress-bar.et-w-50", count: 1
+  end
+
   test "sidebar shows the admin section to admin users" do
     admin = User.create!(
       name: "Admin User",

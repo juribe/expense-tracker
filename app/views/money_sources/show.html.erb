@@ -22,6 +22,10 @@
 <% end %>
 <%= render "shared/page_header", title: (@money_source.name.presence || @money_source.display_name), actions: source_actions %>
 
+<%# A forced tab bypasses the sessionStorage restore so index links can
+    guarantee the detail (summary) tab. %>
+<% forced_tab = @force_tab || ("movimientos" if @active_tab == "movimientos") %>
+
 <% if @money_source.debt? %>
   <%
     tabs = [
@@ -33,7 +37,7 @@
     tabs << { slug: "reconocimiento", label: t("money_sources.show.tabs.recognition"), icon: "ti-scan" } if @money_source.payment_source?
   %>
 
-  <div data-source-tabs="<%= @money_source.id %>" <% if @active_tab == "movimientos" %>data-source-tabs-force="movimientos"<% end %>>
+  <div data-source-tabs="<%= @money_source.id %>" <% if forced_tab %>data-source-tabs-force="<%= forced_tab %>"<% end %>>
     <ul class="nav nav-tabs" role="tablist">
       <% tabs.each do |tab| %>
         <li class="nav-item" role="presentation">
@@ -131,7 +135,7 @@
     </div>
   </div>
 <% else %>
-  <div data-source-tabs="<%= @money_source.id %>" <% if @active_tab == "movimientos" %>data-source-tabs-force="movimientos"<% end %>>
+  <div data-source-tabs="<%= @money_source.id %>" <% if forced_tab %>data-source-tabs-force="<%= forced_tab %>"<% end %>>
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link<%= " active" unless @active_tab == "movimientos" %>"

@@ -61,6 +61,48 @@ test.describe('Money source show page tabs', () => {
     await expect(page.locator('#source-tab-pagos')).toBeVisible();
   });
 
+  test('opening a loan from the index always returns to the detail tab', async ({ page }) => {
+    const name = `Rotativo Index-${Date.now()}`;
+    await createRevolvingLoan(page, name);
+
+    const card = page.locator('[data-testid="loan-card"]', { hasText: name }).first();
+    await card.getByRole('link', { name }).click();
+    await expect(page).not.toHaveURL(/tab=/);
+    await page.locator('[data-tab-slug="pagos"]').click();
+    await expect(page.locator('[data-tab-slug="pagos"]')).toHaveClass(/active/);
+
+    // The forced parameter is gone, so a reload keeps the user's own choice.
+    await page.reload();
+    await expect(page.locator('[data-tab-slug="pagos"]')).toHaveClass(/active/);
+
+    await page.goto('/money_sources/loans');
+    await page.locator('[data-testid="loan-card"]', { hasText: name }).first().getByRole('link', { name }).click();
+
+    await expect(page.locator('[data-tab-slug="resumen"]')).toHaveClass(/active/);
+    await expect(page.locator('#source-tab-pagos')).not.toBeVisible();
+  });
+
+  test('opening a credit card from the index always returns to the detail tab', async ({ page }) => {
+    const name = `TDC Index-${Date.now()}`;
+    await page.goto('/money_sources/new');
+    await page.locator('#money_source_name').fill(name);
+    await page.locator('#money_source_kind').selectOption('credit_card');
+    await page.locator('#money_source_credit_account_attributes_card_last_four').fill('1234');
+    await page.locator('#money_source_credit_account_attributes_credit_limit').fill('20000000');
+    await page.locator('.card button[type="submit"], .card input[type="submit"]').first().click();
+    await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
+
+    await page.locator('[data-testid="credit-card-card"]', { hasText: name }).first().getByRole('link', { name }).click();
+    await page.locator('[data-tab-slug="pagos"]').click();
+    await expect(page.locator('[data-tab-slug="pagos"]')).toHaveClass(/active/);
+
+    await page.goto('/money_sources/credit_cards');
+    await page.locator('[data-testid="credit-card-card"]', { hasText: name }).first().getByRole('link', { name }).click();
+
+    await expect(page.locator('[data-tab-slug="resumen"]')).toHaveClass(/active/);
+    await expect(page.locator('#source-tab-pagos')).not.toBeVisible();
+  });
+
   test('credit card show page exposes the recognition tab', async ({ page }) => {
     const name = `TDC Tabs-${Date.now()}`;
     await page.goto('/money_sources/new');
