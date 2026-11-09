@@ -3,7 +3,8 @@
 # ReportsHelper
 # Presentation helpers for the Reports section.
 #
-# Methods: money_amount, delta_badge, progress_usage, available_cycle_*
+# Methods: money_amount, delta_badge, progress_usage, available_cycle_*,
+#          trend_* helpers for the spending-trend report
 #
 # Example: delta_badge(delta_pct, good_when_positive: false) # => "↑ 12.4% vs periodo anterior"
 module ReportsHelper
@@ -217,25 +218,115 @@ module ReportsHelper
     #8299C7 #8EAF8B #B08FC2 #C8877D #7FAFA8 #B59A7A #8D9BB8 #C19A6B
   ].freeze
 
-  # Date range represented by a spending-trend bucket. Partial first and last
-  # buckets are clamped to the report period so the drill-down never opens
-  # transactions outside it.
-  def spending_trend_bucket_range(date, period)
-    date = date.to_date
-    case period.bucket
-    when :day
-      date..date
-    when :week
-      [ date, period.range.begin ].max..[ date + 6.days, period.range.end ].min
-    else
-      [ date, period.range.begin ].max..[ date.end_of_month, period.range.end ].min
+  # Spending-trend presentation: grouping choices, chart palette and the
+  # drill-down URLs that keep the shared report filters.
+  TREND_GRANULARITIES = %w[day week month].freeze
+  TREND_EXPENSE_COLOR = "#7FA7D8"
+  TREND_PEAK_COLOR = "#F27662"
+
+  def trend_granularity_options
+    TREND_GRANULARITIES.map do |key|
+      { key: key, label: t("reports.trend.granularity.#{key}") }
     end
+  end
+
+  def current_trend_granularity
+    params[:granularity].presence_in(TREND_GRANULARITIES) ||
+      @spending_trend&.dig(:granularity) || "day"
+  end
+
+  def trend_granularity_active?(key)
+    current_trend_granularity == key
+  end
+
+  def trend_chart_colors(series)
+    peak_index = trend_peak_bucket_index(series)
+
+    series.each_with_index.map do |point, index|
+      point[:total].to_d.positive? && index == peak_index ? TREND_PEAK_COLOR : TREND_EXPENSE_COLOR
+    end
+  end
+
+  def trend_peak_bucket_index(series)
+    positive = series.each_with_index.select { |point, _index| point[:total].to_d.positive? }
+    positive.max_by { |point, _index| point[:total] }&.last
+  end
+
+  def trend_chart_library(trend)
+    {
+      animation: false,
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            autoSkip: true,
+            autoSkipPadding: 12,
+            maxTicksLimit: trend[:bucket] == :day ? 12 : 8,
+            maxRotation: 0,
+            minRotation: 0
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "rgba(148, 163, 184, 0.18)" },
+          ticks: { maxTicksLimit: 5 }
+        }
+      }
+    }
+  end
+
+  def trend_chart_tooltips(series)
+    series.map do |point|
+      count = point[:count].to_i
+      {
+        total: "#{t('reports.trend.tooltip_total')}: #{money_amount(point[:total])}",
+        count: count.positive? ? t("reports.trend.tooltip_transactions", count: count) : nil
+      }.compact
+    end
+  end
+
+  def trend_drill_down_url(point)
+    return nil unless point && point[:total].to_d.positive?
+
+    reports_transactions_path(
+      filter_params_for(period: "custom", start_date: point[:range_start], end_date: point[:range_end])
+    )
+  end
+
+  def trend_peak_drill_down_url(trend)
+    trend_drill_down_url(trend[:peak])
+  end
+
+  def trend_peak_date_label(peak)
+    return t("reports.trend.peak_empty") unless peak
+
+    I18n.l(peak[:date], format: "%-d de %B").downcase
+  end
+
+  def trend_legend_peak_label(trend)
+    t(trend[:bucket] == :day ? "reports.trend.legend_peak_day" : "reports.trend.legend_peak_period")
+  end
+
+  def trend_filters_active?
+    %i[category_id money_source_id uncategorized].any? { |key| params[key].present? }
+  end
+
+  def trend_insight_icon(key)
+    case key.to_s
+    when "concentration" then "chart-pie"
+    when "patterns" then "calendar-stats"
+    else "alert-triangle"
+    end
+  end
+
+  def report_clear_params
+    filter_params_for.slice(:period, :start_date, :end_date, :granularity)
   end
 
   def filter_params_for(**overrides)
     base = params.to_unsafe_h.slice("period", "start_date", "end_date", "category_id",
                                     "money_source_id", "credit_card_id", "loan_id",
-                                    "uncategorized")
+                                    "uncategorized", "granularity")
     (base.symbolize_keys.merge(overrides)).compact_blank
   end
 

@@ -10,7 +10,20 @@ class Reports::SpendingTrendController < Reports::BaseController
     policy.style_src :self, "https://fonts.googleapis.com", :unsafe_inline
   end
 
+  rescue_from ActiveRecord::StatementInvalid, with: :render_report_error
+
   def index
-    @spending_trend = Reports::SpendingTrend.new(user: current_user, filter: report_filters).call
+    @spending_trend = Reports::SpendingTrend.new(
+      user: current_user, filter: report_filters, granularity: params[:granularity]
+    ).call
+    @spending_trend_insights = Reports::SpendingTrendInsights.new(trend: @spending_trend).call
+  end
+
+  private
+
+  def render_report_error(exception)
+    Rails.logger.error("Spending trend report failed (#{exception.class})")
+    @spending_trend_error = true
+    render :index, status: :service_unavailable
   end
 end

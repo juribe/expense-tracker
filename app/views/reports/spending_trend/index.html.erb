@@ -1,35 +1,187 @@
 <%= render "reports/page_header", title: t("reports.trend.title"), subtitle: t("reports.trend.subtitle"), path: reports_trends_path %>
 
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0"><%= t("reports.trend.title") %></h5>
-    <%= link_to reports_transactions_path(filter_params_for), class: "btn btn-sm btn-outline-primary" do %>
-      <%= t("reports.categories.drill_down") %> <i class="ti ti-arrow-right ms-1"></i>
-    <% end %>
+<div class="trend-report" data-spending-trend-page>
+  <div class="trend-skeleton" data-trend-skeleton hidden aria-hidden="true">
+    <div class="trend-skeleton-stats">
+      <% 4.times do %><div class="trend-skeleton-card"></div><% end %>
+    </div>
+    <div class="trend-skeleton-chart"></div>
   </div>
-  <div class="card-body">
-    <% if @spending_trend[:total].positive? %>
-      <% drill_down_urls = @spending_trend[:series].map do |point|
-           next unless point[:total].positive?
 
-           range = spending_trend_bucket_range(point[:date], @spending_trend[:period])
-           reports_transactions_path(filter_params_for(period: "custom", start_date: range.begin, end_date: range.end))
-         end %>
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <span class="text-muted small"><%= t("reports.overview.expenses") %>: <strong class="text-danger"><%= money_amount(@spending_trend[:total]) %></strong></span>
+  <% if @spending_trend_error %>
+    <section class="card report-panel trend-state" data-testid="trend-error">
+      <div class="report-panel-body trend-error-body">
+        <span class="trend-error-icon" aria-hidden="true"><i class="ti ti-alert-triangle"></i></span>
+        <h2 class="report-panel-title"><%= t("reports.trend.error_title") %></h2>
+        <p class="trend-error-copy"><%= t("reports.trend.error_body") %></p>
+        <%= link_to t("reports.trend.retry"), request.fullpath, class: "btn btn-sm btn-primary",
+                    data: { report_navigation: true } %>
       </div>
-      <div data-spending-trend data-spending-trend-urls="<%= drill_down_urls.to_json %>">
-        <%= column_chart @spending_trend[:series].map { |point| [ point[:label], point[:total] ] },
-              **chart_money_options,
-              id: "spending-trend-chart",
-              library: { animation: false },
-              height: "340px", legend: false, colors: ["#7FA7D8"] %>
-      </div>
-      <p class="text-muted small mt-2 mb-0"><%= t("reports.trend.click_hint") %></p>
-    <% else %>
-      <p class="text-muted mb-0"><%= t("reports.trend.empty") %></p>
-    <% end %>
-  </div>
+    </section>
+  <% else %>
+    <% trend = @spending_trend %>
+    <div data-trend-content class="trend-content">
+      <% if trend[:total].positive? %>
+        <section class="trend-stats" data-testid="trend-metrics" aria-label="<%= t("reports.trend.title") %>">
+          <%= render "reports/spending_trend/metric_card",
+                label: t("reports.trend.total_label"),
+                value: money_amount(trend[:total]),
+                icon: "trending-down",
+                tone: "expense",
+                icon_tone: "red",
+                note: t("reports.trend.total_note"),
+                testid: "trend-total" %>
+
+          <%= render "reports/spending_trend/metric_card",
+                label: t("reports.trend.average_label"),
+                value: money_amount(trend[:average_daily]),
+                icon: "clock-hour-4",
+                tone: "default",
+                icon_tone: "blue",
+                note: t("reports.trend.average_note"),
+                testid: "trend-average" %>
+
+          <%= render "reports/spending_trend/metric_card",
+                label: t("reports.trend.peak_label"),
+                value: money_amount(trend[:peak]&.dig(:total)),
+                icon: "trending-up",
+                tone: "attention",
+                icon_tone: "amber",
+                note: trend_peak_date_label(trend[:peak]),
+                testid: "trend-peak",
+                url: trend_peak_drill_down_url(trend),
+                link_label: t("reports.trend.peak_link_label") %>
+
+          <%= render "reports/spending_trend/metric_card",
+                label: t("reports.trend.days_label"),
+                value: number_with_delimiter(trend[:days_with_expenses]),
+                suffix: t("reports.trend.days_suffix", total: trend[:elapsed_days]),
+                icon: "calendar-event",
+                tone: "positive",
+                icon_tone: "green",
+                note: t("reports.trend.days_note"),
+                testid: "trend-days-with-expenses" %>
+        </section>
+
+        <section class="card report-panel trend-chart-card" data-testid="trend-chart">
+          <div class="report-panel-head trend-panel-head">
+            <div>
+              <h2 class="report-panel-title"><%= t("reports.trend.chart_title") %></h2>
+              <p class="report-panel-subtitle"><%= t("reports.trend.chart_subtitle") %></p>
+            </div>
+
+            <div class="trend-panel-actions">
+              <nav class="trend-granularity" role="tablist"
+                   aria-label="<%= t("reports.trend.granularity_label") %>"
+                   data-testid="trend-granularity">
+                <% trend_granularity_options.each do |option| %>
+                  <%= link_to filter_params_for(granularity: option[:key]),
+                              class: "trend-granularity-btn #{'is-active' if trend_granularity_active?(option[:key])}",
+                              role: "tab",
+                              aria: { selected: trend_granularity_active?(option[:key]) },
+                              data: { report_navigation: true } do %>
+                    <%= option[:label] %>
+                  <% end %>
+                <% end %>
+              </nav>
+
+              <%= link_to reports_transactions_path(filter_params_for),
+                          class: "btn btn-sm btn-outline-primary trend-view-link" do %>
+                <%= t("reports.categories.drill_down") %> <i class="ti ti-arrow-right ms-1" aria-hidden="true"></i>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="report-panel-body trend-chart-body">
+            <div class="trend-chart-meta">
+              <span class="trend-chart-total" data-testid="trend-chart-total">
+                <%= t("reports.trend.chart_total") %>:
+                <strong><%= money_amount(trend[:total]) %></strong>
+              </span>
+              <span class="trend-chart-period"><%= trend[:period].label %></span>
+            </div>
+
+            <% drill_down_urls = trend[:series].map { |point| trend_drill_down_url(point) } %>
+            <div class="trend-chart-shell"
+                 data-spending-trend
+                 data-spending-trend-urls="<%= drill_down_urls.to_json %>"
+                 data-spending-trend-tooltips="<%= trend_chart_tooltips(trend[:series]).to_json %>"
+                 data-spending-trend-average="<%= trend[:average_daily].to_f %>"
+                 data-spending-trend-average-label="<%= t('reports.trend.average_line') %>">
+              <%= column_chart trend[:series].map { |point| [ point[:label], point[:total] ] },
+                    **chart_money_options,
+                    id: "spending-trend-chart",
+                    height: "340px",
+                    legend: false,
+                    colors: [ ReportsHelper::TREND_EXPENSE_COLOR ],
+                    dataset: {
+                      backgroundColor: trend_chart_colors(trend[:series]),
+                      borderColor: trend_chart_colors(trend[:series]),
+                      borderWidth: 0,
+                      borderRadius: 5,
+                      maxBarThickness: 38
+                    },
+                    library: trend_chart_library(trend) %>
+            </div>
+
+            <div class="trend-chart-legend" aria-hidden="true">
+              <span><i class="trend-legend-dot is-expense"></i><%= t("reports.trend.legend_expense") %></span>
+              <span><i class="trend-legend-dot is-peak"></i><%= trend_legend_peak_label(trend) %></span>
+              <span><i class="trend-legend-line"></i><%= t("reports.trend.legend_average") %></span>
+            </div>
+
+            <p class="trend-chart-hint">
+              <i class="ti ti-info-circle" aria-hidden="true"></i>
+              <%= t("reports.trend.click_hint") %>
+            </p>
+          </div>
+        </section>
+
+        <section class="card report-panel trend-analysis" data-testid="trend-insights">
+          <div class="report-panel-head trend-panel-head">
+            <div>
+              <h2 class="report-panel-title"><%= t("reports.trend.analysis_title") %></h2>
+              <p class="report-panel-subtitle"><%= t("reports.trend.analysis_subtitle") %></p>
+            </div>
+            <span class="trend-analysis-badge">
+              <i class="ti ti-wand" aria-hidden="true"></i>
+              <%= t("reports.trend.analysis_badge") %>
+            </span>
+          </div>
+
+          <div class="trend-insights-grid">
+            <% @spending_trend_insights[:items].each do |item| %>
+              <article class="trend-insight <%= "is-muted" unless item[:available] %>">
+                <span class="trend-insight-icon is-<%= item[:key] %>" aria-hidden="true">
+                  <i class="ti ti-<%= trend_insight_icon(item[:key]) %>"></i>
+                </span>
+                <div>
+                  <h3 class="trend-insight-title"><%= item[:title] %></h3>
+                  <p class="trend-insight-copy"><%= item[:body] %></p>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        </section>
+      <% elsif trend_filters_active? %>
+        <section class="card report-panel trend-state" data-testid="trend-empty-filtered">
+          <div class="report-panel-body">
+            <%= render "shared/empty_state",
+                  icon: "filter-off",
+                  title: t("reports.trend.empty_filtered"),
+                  cta: link_to(t("reports.trend.clear_filters"), reports_trends_path(report_clear_params),
+                               class: "btn btn-sm btn-primary", data: { report_navigation: true }) %>
+          </div>
+        </section>
+      <% else %>
+        <section class="card report-panel trend-state" data-testid="trend-empty">
+          <div class="report-panel-body">
+            <%= render "shared/empty_state", icon: "receipt-off", title: t("reports.trend.empty") %>
+          </div>
+        </section>
+      <% end %>
+    </div>
+  <% end %>
 </div>
 
 <%= render "reports/transactions/modal_container" %>

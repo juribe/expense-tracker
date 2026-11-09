@@ -20,7 +20,7 @@ class Reports::Base
 
   # Expenses that are consumption spending: no Payment applies them to a debt.
   def actual_expenses(range = period.range)
-    filter.expense_scope(range).where.missing(:payments)
+    filter.actual_expense_scope(range)
   end
 
   # Expenses that a Payment applies to a credit card or loan.

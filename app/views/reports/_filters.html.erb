@@ -5,6 +5,7 @@
 <% show_money_source = local_assigns.fetch(:money_source_filter, true) %>
 <%= form_with url: path, method: :get, local: true do |form| %>
   <%= hidden_field_tag :period, selected_period_preset %>
+  <%= hidden_field_tag :granularity, params[:granularity] if params[:granularity].present? %>
   <%= hidden_field_tag :uncategorized, params[:uncategorized] if params[:uncategorized].present? %>
   <% if params[:period] == "custom" %>
     <%= hidden_field_tag :start_date, params[:start_date] %>
@@ -51,7 +52,8 @@
     </div>
 
     <div class="filters-actions">
-      <%= link_to path, class: "btn btn-outline-secondary" do %>
+      <%= link_to url_for(report_clear_params), class: "btn btn-outline-secondary",
+                  data: { report_navigation: true } do %>
         <i class="ti ti-eraser"></i> <%= t("common.clear", default: "Limpiar") %>
       <% end %>
       <%= button_tag type: "submit", class: "btn btn-primary" do %>

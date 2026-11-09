@@ -1,0 +1,25 @@
+<%# Compact spending-trend KPI card. Locals: label, value, icon, tone, icon_tone,
+    note, testid, suffix (optional), url (optional modal drill-down). %>
+<% card = capture do %>
+  <div class="trend-stat">
+    <div class="trend-stat-head">
+      <span class="trend-stat-label"><%= label %></span>
+      <span class="trend-stat-icon is-<%= icon_tone %>" aria-hidden="true">
+        <i class="ti ti-<%= icon %>"></i>
+      </span>
+    </div>
+    <div class="trend-stat-value is-<%= tone %>" data-testid="<%= testid %>">
+      <%= value %>
+      <% if local_assigns[:suffix] %><span class="trend-stat-suffix"><%= suffix %></span><% end %>
+    </div>
+    <p class="trend-stat-note" data-testid="<%= "#{testid}-note" %>"><%= note %></p>
+  </div>
+<% end %>
+
+<% if local_assigns[:url].present? %>
+  <%= link_to card, url, class: "trend-metric-link",
+              data: { transactions_modal_url: url },
+              aria: { label: local_assigns[:link_label] } %>
+<% else %>
+  <%= card %>
+<% end %>

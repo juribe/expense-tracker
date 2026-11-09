@@ -21,30 +21,26 @@ class SpendingTrendDrillDownTest < ApplicationSystemTestCase
     visit reports_trends_path(period: "custom", start_date: "2026-09-01", end_date: "2026-09-30")
 
     assert_selector "[data-spending-trend]"
-    page.document.synchronize do
-      ready = page.evaluate_script(<<~JS)
-        (() => {
-          const chartkick = window.Chartkick && Chartkick.charts["spending-trend-chart"];
-          const chart = chartkick && chartkick.getChartObject();
-          return !!(chart && chart.getDatasetMeta(0) && chart.getDatasetMeta(0).data.length > 2);
-        })()
-      JS
-      raise Capybara::ElementNotFound, "trend chart not ready" unless ready
-    end
+    wait_for_trend_chart
 
-    page.execute_script(<<~JS)
+    assert_equal "function", page.evaluate_script(<<~JS)
       (() => {
         const chart = Chartkick.charts["spending-trend-chart"].getChartObject();
-        const bar = chart.getDatasetMeta(0).data[2];
-        const point = bar.getCenterPoint();
-        const rect = chart.canvas.getBoundingClientRect();
-        chart.canvas.dispatchEvent(new MouseEvent("click", {
-          clientX: rect.left + point.x,
-          clientY: rect.top + point.y,
-          bubbles: true
-        }));
+        const callbacks = chart.config._config.options.plugins.tooltip.callbacks;
+        return typeof callbacks.label;
       })()
     JS
+
+    tooltip = page.evaluate_script(<<~JS)
+      (() => {
+        const chart = Chartkick.charts["spending-trend-chart"].getChartObject();
+        const callbacks = chart.config._config.options.plugins.tooltip.callbacks;
+        return callbacks.label({ dataIndex: 2, formattedValue: "$100.000" });
+      })()
+    JS
+    assert_equal [ "Total gastado: $300.000", "2 transacciones" ], tooltip
+
+    click_trend_bar(2)
 
     assert_selector "[data-testid=report-transactions-modal].show"
     assert_selector "[data-testid=reports-transactions-table]"
@@ -63,10 +59,65 @@ class SpendingTrendDrillDownTest < ApplicationSystemTestCase
     page.execute_script(
       "bootstrap.Modal.getOrCreateInstance(document.getElementById('reportTransactionsModal')).hide()"
     )
-    assert_no_selector "[data-testid=report-transactions-modal].show"
+    wait_for_modal_closed
+
+    visit reports_trends_path(period: "custom", start_date: "2026-09-01",
+                              end_date: "2026-09-30", granularity: "week")
+    wait_for_trend_chart
+    click_trend_bar(0)
+    assert_selector "[data-testid=report-transactions-modal].show"
+    assert_text "Café del día"
+
+    visit reports_trends_path(period: "custom", start_date: "2026-09-01",
+                              end_date: "2026-09-30", granularity: "month")
+    wait_for_trend_chart
+    click_trend_bar(0)
+    assert_selector "[data-testid=report-transactions-modal].show"
+    assert_text "Café del día"
   end
 
   private
+
+  def wait_for_trend_chart
+    page.document.synchronize do
+      ready = page.evaluate_script(<<~JS)
+        (() => {
+          const chartkick = window.Chartkick && Chartkick.charts["spending-trend-chart"];
+          const chart = chartkick && chartkick.getChartObject();
+          return !!(chart && chart.getDatasetMeta(0) && chart.getDatasetMeta(0).data.length > 0);
+        })()
+      JS
+      raise Capybara::ElementNotFound, "trend chart not ready" unless ready
+    end
+  end
+
+  def click_trend_bar(index)
+    page.execute_script(<<~JS)
+      (() => {
+        const chart = Chartkick.charts["spending-trend-chart"].getChartObject();
+        const bar = chart.getDatasetMeta(0).data[#{index}];
+        const point = bar.getCenterPoint();
+        const rect = chart.canvas.getBoundingClientRect();
+        chart.canvas.dispatchEvent(new MouseEvent("click", {
+          clientX: rect.left + point.x,
+          clientY: rect.top + point.y,
+          bubbles: true
+        }));
+      })()
+    JS
+  end
+
+  def wait_for_modal_closed
+    page.document.synchronize do
+      closed = page.evaluate_script(<<~JS)
+        (() => {
+          const modal = document.getElementById("reportTransactionsModal");
+          return !modal || (!modal.classList.contains("show") && !document.querySelector(".modal-backdrop"));
+        })()
+      JS
+      raise Capybara::ElementNotFound, "modal still open" unless closed
+    end
+  end
 
   def transaction_descriptions
     page.evaluate_script(

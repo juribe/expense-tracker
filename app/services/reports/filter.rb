@@ -5,8 +5,8 @@
 # scoped relations shared by every report service.
 #
 # Associations: none (value object over the user's records)
-# Methods: expense_scope, income_scope, transfer_scope, applied_filters,
-#          active_category_id, active_source_id
+# Methods: expense_scope, actual_expense_scope, income_scope, transfer_scope,
+#          applied_filters, active_category_id, active_source_id
 #
 # Example: Reports::Filter.new(user: user, period: period, category_id: 7).expense_scope(period.range)
 class Reports::Filter
@@ -23,6 +23,12 @@ class Reports::Filter
 
   def expense_scope(range)
     scoped(Expense.all, range)
+  end
+
+  # Consumption spending: an Expense carrying a Payment is debt repayment,
+  # not spending, and must not be counted twice in trends or drill-down lists.
+  def actual_expense_scope(range)
+    expense_scope(range).where.missing(:payments)
   end
 
   def income_scope(range)

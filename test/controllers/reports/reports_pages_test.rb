@@ -476,6 +476,145 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "GET /reports/trends renders the period indicators and analysis" do
+    travel_to Date.new(2026, 9, 15) do
+      @user.expenses.create!(amount: -300_000, date: Date.new(2026, 9, 3),
+                             category: @category, money_source: @bank, description: "market")
+      @user.expenses.create!(amount: -100_000, date: Date.new(2026, 9, 5),
+                             category: @category, money_source: @bank, description: "taxi")
+
+      get reports_trends_path(period: "custom", start_date: Date.new(2026, 9, 1),
+                              end_date: Date.new(2026, 9, 30))
+
+      assert_response :success
+      assert_select "[data-testid=trend-metrics]"
+      assert_select "[data-testid=trend-total]", text: "$400.000"
+      assert_select "[data-testid=trend-average]", text: "$26.667"
+      assert_select "[data-testid=trend-peak]", text: /300\.000/
+      assert_select "[data-testid=trend-peak-note]", text: /3 de septiembre/
+      assert_select "[data-testid=trend-days-with-expenses]", text: /2\s*\/\s*15/
+      assert_select "[data-testid=trend-insights]"
+      assert_select "[data-testid=trend-granularity] a", count: 3
+      assert_select ".trend-granularity-btn.is-active", text: "Día"
+    end
+  end
+
+  test "GET /reports/trends changes the grouping and keeps weekly drill-down ranges" do
+    @user.expenses.create!(amount: -100_000, date: Date.new(2026, 9, 3),
+                           category: @category, money_source: @bank, description: "coffee")
+
+    get reports_trends_path(period: "custom", start_date: Date.new(2026, 9, 1),
+                            end_date: Date.new(2026, 9, 30), granularity: "week")
+
+    assert_response :success
+    assert_select ".trend-granularity-btn.is-active", text: "Semana"
+    assert_select "input[type=hidden][name=granularity][value=week]"
+
+    container = css_select("[data-spending-trend]").first
+    urls = JSON.parse(container["data-spending-trend-urls"])
+    assert_includes urls.first, "start_date=2026-09-01"
+    assert_includes urls.first, "end_date=2026-09-06"
+  end
+
+  test "GET /reports/trends groups a cycle across two months" do
+    @user.expenses.create!(amount: -100_000, date: Date.new(2026, 8, 25),
+                           category: @category, money_source: @bank, description: "august")
+    @user.expenses.create!(amount: -200_000, date: Date.new(2026, 9, 3),
+                           category: @category, money_source: @bank, description: "september")
+
+    get reports_trends_path(period: "custom", start_date: Date.new(2026, 8, 20),
+                            end_date: Date.new(2026, 9, 15), granularity: "month")
+
+    assert_response :success
+    assert_includes response.body, "Agosto 2026"
+    assert_includes response.body, "Septiembre 2026"
+
+    container = css_select("[data-spending-trend]").first
+    urls = JSON.parse(container["data-spending-trend-urls"])
+    assert_includes urls.first, "start_date=2026-08-20"
+    assert_includes urls.first, "end_date=2026-08-31"
+    assert_includes urls.last, "start_date=2026-09-01"
+    assert_includes urls.last, "end_date=2026-09-15"
+  end
+
+  test "GET /reports/trends distinguishes an empty period from empty filters" do
+    get reports_trends_path
+
+    assert_response :success
+    assert_select "[data-testid=trend-empty]", text: /No hay gastos registrados/
+
+    get reports_trends_path(period: "this_month", category_id: @category.id)
+
+    assert_response :success
+    assert_select "[data-testid=trend-empty-filtered]", text: /No encontramos gastos con los filtros/
+    clear = css_select("[data-testid=trend-empty-filtered] a").first
+    assert_includes clear["href"], "period=this_month"
+    assert_not_includes clear["href"], "category_id"
+  end
+
+  test "clearing report filters keeps the selected period" do
+    get reports_trends_path(period: "custom", start_date: Date.new(2026, 9, 1),
+                            end_date: Date.new(2026, 9, 30))
+
+    assert_response :success
+    clear = css_select(".filters-actions a").first
+    assert_includes clear["href"], "period=custom"
+    assert_includes clear["href"], "start_date=2026-09-01"
+    assert_includes clear["href"], "end_date=2026-09-30"
+  end
+
+  test "the trend view-gastos link keeps the period and filters" do
+    @user.expenses.create!(amount: -100_000, date: Date.current.beginning_of_month,
+                           category: @category, money_source: @bank, description: "coffee")
+
+    get reports_trends_path(period: "this_month", category_id: @category.id)
+
+    assert_response :success
+    view_gastos = css_select("a").find { |link| link.text.include?("Ver gastos") }
+    assert view_gastos, "Ver gastos link missing"
+    assert_includes view_gastos["href"], "period=this_month"
+    assert_includes view_gastos["href"], "category_id=#{@category.id}"
+  end
+
+  test "GET /reports/trends renders a recoverable error state" do
+    original = Reports::SpendingTrend
+    failing = Class.new(original) do
+      def call
+        raise ActiveRecord::StatementInvalid, "boom"
+      end
+    end
+
+    Reports.send(:remove_const, :SpendingTrend)
+    Reports.const_set(:SpendingTrend, failing)
+    get reports_trends_path
+
+    assert_response :service_unavailable
+    assert_select "[data-testid=trend-error]"
+    assert_select "[data-testid=trend-error] a", text: "Reintentar"
+  ensure
+    Reports.send(:remove_const, :SpendingTrend)
+    Reports.const_set(:SpendingTrend, original)
+  end
+
+  test "the transactions drill-down excludes debt payments from real spending" do
+    loan = @user.money_sources.create!(name: "Crédito", kind: "loan", active: true)
+    actual = @user.expenses.create!(amount: -100_000, date: Date.new(2026, 9, 3),
+                                    category: @category, money_source: @bank, description: "coffee")
+    installment = @user.expenses.create!(amount: -2_800_000, date: Date.new(2026, 9, 4),
+                                         category: @category, money_source: @bank, description: "loan")
+    Payment.create!(user: @user, expense: installment, money_source: loan, amount: 2_800_000,
+                    principal_amount: 2_800_000, date: Date.new(2026, 9, 4))
+
+    assert actual.persisted?
+
+    get reports_transactions_path(period: "custom", start_date: Date.new(2026, 9, 1),
+                                  end_date: Date.new(2026, 9, 30))
+
+    assert_response :success
+    assert_select "td", text: /100\.000/
+    assert_select "td", text: /2\.800\.000/, count: 0
+  end
+
   test "sidebar includes the reports link" do
     get reports_overview_path
     assert_select "a[href='#{reports_overview_path}']"
