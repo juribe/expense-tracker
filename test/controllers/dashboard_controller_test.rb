@@ -151,8 +151,8 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     titles = css_select("a.metric-card .metric-card-title").map { |node| node.text.strip }
     assert_equal [
       "Dinero en cuentas",
-      "Ingresos",
-      "Gastos",
+      "Ingresos del ciclo",
+      "Gastos del ciclo",
       "Gasto proyectado"
     ], titles
     assert_select "a.metric-card[href]", count: 4
@@ -183,7 +183,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select ".metric-card", count: 4
   end
 
-  test "GET /dashboard renders the recent expenses table in the full-width column" do
+  test "GET /dashboard renders the recent expenses table full width below the main grid" do
     sign_in @user
     @user.expenses.create!(amount: 10.00, date: Date.current, category: @category, description: "Coffee",
                            money_source: @default_source)
@@ -191,33 +191,171 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get dashboard_path
 
     assert_response :success
-    assert_select "div.col-12.col-lg-8 [data-testid=dashboard-recent-expenses]", count: 1
-    assert_select "div.table-responsive [data-testid=dashboard-recent-expenses]", count: 1
-    assert_select "div.col-lg-7 [data-testid=dashboard-recent-expenses]", count: 0
+    assert_select ".dashboard-page [data-testid=dashboard-recent-expenses]", count: 1
+    assert_select ".dashboard-main-grid [data-testid=dashboard-recent-expenses]", count: 0
+    assert_select ".dashboard-movements [data-testid=dashboard-recent-expenses]", count: 1
   end
 
-  test "GET /dashboard places the category breakdown in the right column between budgets and goals" do
+  test "GET /dashboard places budgets and categories together below the evolution chart" do
     Budget.create!(user: @user, category: @category, monthly_amount: 100_000, period: "monthly", active: true)
     sign_in @user
 
     get dashboard_path
 
     assert_response :success
-    right_column_titles = css_select("div.col-12.col-lg-4 h5.card-title").map { |node| node.text.strip }
-    categories_index = right_column_titles.index("Distribución por categoría")
-    assert categories_index, "expected the category breakdown card in the right column"
-    assert_operator categories_index, :>, right_column_titles.index("Presupuestos")
-    assert_operator categories_index, :<, right_column_titles.index("Metas financieras")
+    titles = css_select(".dashboard-bottom-grid h5.card-title").map { |node| node.text.strip }
+    assert_equal [ "Presupuesto del ciclo", "Distribución por categoría" ], titles
   end
 
-  test "GET /dashboard keeps the evolution chart and the upcoming payments panel" do
+  test "GET /dashboard keeps the evolution chart and the upcoming payments panel in the main grid" do
     sign_in @user
 
     get dashboard_path
 
     assert_response :success
-    assert_select "h5.card-title", text: /Evolución de ingresos y gastos/
-    assert_select "h5.card-title", text: /Próximos pagos/
+    assert_select ".dashboard-main-column h5.card-title", text: /Evolución de ingresos y gastos/
+    assert_select ".dashboard-side-column h5.card-title", text: /Próximos pagos/
+  end
+
+  test "GET /dashboard shows the financial summary heading and cycle selector" do
+    @user.update!(financial_cycle_start_day: 20)
+    cycle = PayCycle.containing(@user, Date.new(2026, 10, 25))
+
+    sign_in @user
+    get dashboard_path, params: { cycle: "2026-10-25" }
+
+    assert_response :success
+    assert_select ".dash-heading h1", text: "Tu resumen financiero"
+    assert_select ".dash-heading p", text: "Así se está moviendo tu dinero durante este ciclo."
+    assert_select "form.dash-period-selector select[name=cycle]" do
+      assert_select "option[selected][value=?]", cycle.starts.iso8601, text: /#{cycle.label}/
+    end
+  end
+
+  test "GET /dashboard shows the month selector without a configured schedule" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "form.dash-period-selector select[name=month]" do
+      assert_select "option[selected][value=?]", Date.current.strftime("%Y-%m")
+    end
+  end
+
+  test "GET /dashboard links to the analysis, budget, category and expenses screens preserving the cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    Budget.create!(user: @user, category: @category, monthly_amount: 100_000, period: "monthly", active: true)
+    sign_in @user
+
+    get dashboard_path, params: { cycle: "2026-10-25" }
+
+    assert_response :success
+    assert_select "a[href=?]", monthly_report_path("2026-10-20"), text: /Ver análisis/
+    assert_select "a[href=?]", budgets_path(cycle: "2026-10-20"), text: /Ver presupuesto/
+    assert_select "a[href=?]", reports_by_category_path(period: "custom", start_date: "2026-10-20", end_date: "2026-11-19"),
+                  text: /Ver todas/
+    assert_select "a[href=?]", monthly_expenses_path(period: "2026-10-20", status: "pending"), text: /Ver todos/
+    assert_select "a[href=?]", expenses_path(start_date: "2026-10-20", end_date: "2026-11-19"),
+                  text: /Ver todos los gastos/
+  end
+
+  test "GET /dashboard shows the cycle balance as income minus expenses" do
+    income_category = Category.create!(name: "Salario", is_default: true, category_type: "income")
+    @user.incomes.create!(amount: 20_000_000, date: Date.new(2026, 11, 3), category: income_category,
+                          description: "Salario", money_source: @default_source)
+    @user.expenses.create!(amount: 3_000_000, date: Date.new(2026, 11, 4), category: @category,
+                           description: "Gastos", money_source: @default_source)
+
+    sign_in @user
+    get dashboard_path, params: { month: "2026-11" }
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-balance]" do
+      assert_select ".dash-balance-amount.is-positive", text: "+$17.000.000"
+      assert_select ".dash-balance-copy small", text: "Ingresos menos gastos registrados"
+    end
+  end
+
+  test "GET /dashboard marks a negative cycle balance" do
+    @user.expenses.create!(amount: 500_000, date: Date.new(2026, 11, 4), category: @category,
+                           description: "Gastos", money_source: @default_source)
+
+    sign_in @user
+    get dashboard_path, params: { month: "2026-11" }
+
+    assert_response :success
+    assert_select ".dash-balance-amount.is-negative", text: "-$500.000"
+  end
+
+  test "GET /dashboard shows the cycle budget progress and remaining amount" do
+    other_category = Category.create!(name: "Transporte", is_default: true, category_type: "expense")
+    Budget.create!(user: @user, category: @category, monthly_amount: 100_000, period: "monthly", active: true)
+    Budget.create!(user: @user, category: other_category, monthly_amount: 200_000, period: "monthly", active: true)
+    @user.expenses.create!(amount: 80_000, date: Date.new(2026, 11, 3), category: @category,
+                           description: "Comida", money_source: @default_source)
+    @user.expenses.create!(amount: 50_000, date: Date.new(2026, 11, 4), category: other_category,
+                           description: "Bus", money_source: @default_source)
+
+    sign_in @user
+    get dashboard_path, params: { month: "2026-11" }
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-budget]" do
+      assert_select ".dash-budget-value", text: /\$130\.000/
+      assert_select ".dash-budget-value small", text: /\$300\.000/
+      assert_select ".dash-budget-bar--normal"
+      assert_select ".dash-budget-foot", text: /43% utilizado/
+      assert_select ".dash-budget-foot", text: /\$170\.000 disponibles/
+    end
+  end
+
+  test "GET /dashboard shows the total pending payments with pending and overdue statuses" do
+    @user.recurring_templates.create!(kind: "expense", amount: 170_000, category: @category,
+                                      description: "Agua", frequency: "monthly", payment_day: 10,
+                                      source: "manual", active: true)
+    @user.recurring_templates.create!(kind: "expense", amount: 50_000, category: @category,
+                                      description: "Luz", frequency: "monthly", payment_day: 5,
+                                      source: "manual", active: true)
+
+    sign_in @user
+    get dashboard_path, params: { month: "2026-11" }
+
+    assert_response :success
+    assert_select ".dashboard-side-column" do
+      assert_select ".dash-pending-total", text: /\$220\.000/
+      assert_select ".dash-payment-status--pending", text: "Pendiente"
+      assert_select ".dash-payment-status--overdue", text: "Vencido"
+      assert_select ".dash-payment--overdue", text: /Luz/
+    end
+  end
+
+  test "GET /dashboard shows the real money source of every recent movement" do
+    debit_card = @user.money_sources.create!(name: "Tarjeta débito", kind: "debit_card", starting_balance: 100_000)
+    @user.expenses.create!(amount: 10_000, date: Date.new(2026, 11, 3), category: @category,
+                           description: "Café", money_source: @default_source)
+    @user.expenses.create!(amount: 20_000, date: Date.new(2026, 11, 4), category: @category,
+                           description: "Almuerzo", money_source: debit_card)
+
+    sign_in @user
+    get dashboard_path, params: { month: "2026-11" }
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-recent-expenses] th", text: "Fuente de dinero"
+    assert_select "[data-testid=dashboard-recent-expenses] .dash-source-pill", text: /Cuenta/
+    assert_select "[data-testid=dashboard-recent-expenses] .dash-source-pill", text: /Tarjeta débito/
+    assert_select "[data-testid=dashboard-recent-expenses] tr[data-expense-drawer]", minimum: 2
+    assert_select "#expenseDrawer", count: 1
+  end
+
+  test "GET /dashboard keeps the recent expenses card visible without movements" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-recent-expenses]"
+    assert_select "[data-testid=dashboard-recent-expenses] .empty-state"
   end
 
   test "GET /dashboard charts format money values with whole pesos" do

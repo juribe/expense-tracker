@@ -1,42 +1,47 @@
-<%# Category breakdown donut card. %>
-<%= render "shared/section", title: t("dashboard.category_breakdown", default: "Distribución por categoría") do %>
-  <% if @expense_summary[:by_category].any? %>
-    <% ranked_categories = @expense_summary[:by_category].sort_by { |_name, total| -total }
-                                                  .first(8)
-                                                  .map { |name, total| { name: name, total: total } } %>
+<%# Category breakdown donut card: top spending categories for the period. %>
+<% ranked_categories = @cycle_summary[:top_categories] %>
+<section class="card dash-categories" data-testid="dashboard-categories">
+  <div class="dash-card-head">
+    <div>
+      <h5 class="card-title"><%= t("dashboard.category_breakdown", default: "Distribución por categoría") %></h5>
+      <p class="dash-card-subtitle"><%= t("dashboard.category_subtitle", default: "En qué estás gastando") %></p>
+    </div>
+    <%= link_to dashboard_category_analysis_path, class: "dash-link" do %>
+      <%= t("dashboard.view_all_categories", default: "Ver todas") %><i class="ti ti-arrow-right" aria-hidden="true"></i>
+    <% end %>
+  </div>
+
+  <% if ranked_categories.any? %>
     <% palette = dashboard_category_palette(ranked_categories.size) %>
-    <div class="donut-wrap position-relative mx-auto">
-      <%= pie_chart ranked_categories.map { |category| [ category[:name], category[:total] ] },
+    <div class="dash-donut-layout">
+      <div class="donut-wrap position-relative">
+        <%= pie_chart ranked_categories.map { |category| [ category[:name], category[:total] ] },
                       **chart_money_options,
-                      height: "170px",
+                      height: "100%",
                       donut: true,
                       legend: false,
                       colors: palette,
                       library: { cutout: "70%" } %>
-      <div class="donut-center text-center">
-        <span class="d-block fw-bold num"><%= number_to_currency(@cycle_summary[:expense_total]) %></span>
-        <span class="text-secondary small"><%= t("dashboard.total_expenses", default: "Total gastos") %></span>
+        <div class="donut-center text-center">
+          <span class="d-block fw-bold num"><%= number_to_currency(@cycle_summary[:expense_total]) %></span>
+          <span class="text-secondary small"><%= t("dashboard.total_expenses", default: "Total gastos") %></span>
+        </div>
       </div>
+
+      <ul class="list-unstyled mb-0 dash-catlist">
+        <% ranked_categories.each_with_index do |category, index| %>
+          <li class="dash-catrow">
+            <span class="dash-catdot" style="background: <%= palette[index] %>"></span>
+            <span class="dash-catname"><%= category[:name] %></span>
+            <b><%= number_to_percentage(category[:percentage], precision: 0) %></b>
+          </li>
+        <% end %>
+      </ul>
     </div>
-    <ul class="list-unstyled mb-0 mt-3 donut-legend">
-      <% ranked_categories.each_with_index do |category, index| %>
-        <li class="d-flex align-items-center gap-2 mb-1">
-          <span class="legend-dot et-swatch-d<%= index %>"></span>
-          <span class="small flex-grow-1"><%= category[:name] %></span>
-          <span class="small fw-bold num">
-            <% if @cycle_summary[:expense_total].to_f.positive? %>
-              <%= number_with_precision(category[:total] / @cycle_summary[:expense_total] * 100, precision: 0) %>%
-            <% else %>
-              0%
-            <% end %>
-          </span>
-        </li>
-      <% end %>
-    </ul>
   <% else %>
     <div class="text-center text-secondary py-4">
       <i class="ti ti-chart-pie display-5 d-block mb-2"></i>
       <span><%= dashboard_no_expenses_label(@cycle) %></span>
     </div>
   <% end %>
-<% end %>
+</section>

@@ -9,6 +9,12 @@ class Expense < Transaction
 
   scope :in_category, ->(category_id) { where(category_id: category_id) }
 
+  # Spending per category id for the budget card: one grouped query instead of
+  # one CategorySpend call per budget.
+  def self.spending_by_category_id(user:, range:)
+    for_user(user).where(date: range).group(:category_id).sum(Arel.sql("ABS(amount)"))
+  end
+
   # Helper for the dashboard. `month:` sums the calendar month; `range:` sums
   # an explicit span (pay-cycle callers pass the cycle's range). `count` is
   # the period's whole expense count — the recent list caps at 5 for display,
@@ -17,7 +23,7 @@ class Expense < Transaction
     expenses = range ? for_user(user).where(date: range) : for_user(user).in_month(month)
     total_amount = expenses.sum(:amount)
     by_category = expenses.joins(:category).group("categories.name").sum(Arel.sql("ABS(amount)"))
-    recent_expenses = expenses.recent(5).includes(:category)
+    recent_expenses = expenses.recent(5).includes(:category, :money_source)
     {
       count: expenses.count,
       total_amount: total_amount,

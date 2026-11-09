@@ -232,33 +232,68 @@ Income.create!(user: @user, category: @income_category, amount: 10_000_000, date
     end
   end
 
-  test "upcoming payments lists active expense templates due within 10 days" do
-    soon = @user.recurring_templates.create!(kind: "expense", amount: 820_000, category: @category, description: "Tarjeta de crédito",
-                                             frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: true)
-    @user.recurring_templates.create!(kind: "expense", amount: 2_818_000, category: @other_category, description: "Carro",
-                                      frequency: "monthly", payment_day: (Date.current + 20).day, source: "manual", active: true)
-    @user.recurring_templates.create!(kind: "income", amount: 1_000_000, category: @other_category, description: "Salario",
-                                      frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: true)
-    @user.recurring_templates.create!(kind: "expense", amount: 999, category: @other_category, description: "Inactivo",
-                                      frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: false)
+  test "upcoming payments lists active expense templates due inside the span with their status" do
+    travel_to Date.new(2026, 10, 10) do
+      soon = @user.recurring_templates.create!(kind: "expense", amount: 820_000, category: @category, description: "Tarjeta de crédito",
+                                               frequency: "monthly", payment_day: 13, source: "manual", active: true)
+      later = @user.recurring_templates.create!(kind: "expense", amount: 2_818_000, category: @other_category, description: "Carro",
+                                                frequency: "monthly", payment_day: 28, source: "manual", active: true)
+      @user.recurring_templates.create!(kind: "income", amount: 1_000_000, category: @other_category, description: "Salario",
+                                        frequency: "monthly", payment_day: 13, source: "manual", active: true)
+      @user.recurring_templates.create!(kind: "expense", amount: 999, category: @other_category, description: "Inactivo",
+                                        frequency: "monthly", payment_day: 13, source: "manual", active: false)
 
-    result = summary
+      result = summary
 
-    assert_equal [ soon.id ], result[:upcoming_payments].map { |p| p[:template].id }
-    assert_in_delta 820_000, result[:upcoming_payments].first[:amount], 0.01
-    assert_equal Date.current + 3, result[:upcoming_payments].first[:next_date]
+      assert_equal [ soon.id, later.id ], result[:upcoming_payments].map { |payment| payment[:template].id }
+      assert_equal [ :pending, :pending ], result[:upcoming_payments].map { |payment| payment[:status] }
+      assert_in_delta 820_000, result[:upcoming_payments].first[:amount], 0.01
+      assert_equal Date.new(2026, 10, 13), result[:upcoming_payments].first[:next_date]
+    end
   end
 
-  test "upcoming payments hides payments already made in the cycle" do
+  test "upcoming payments marks an unpaid occurrence before today as overdue" do
+    travel_to Date.new(2026, 10, 10) do
+      template = @user.recurring_templates.create!(kind: "expense", amount: 50_000, category: @category, description: "Luz",
+                                                  frequency: "monthly", payment_day: 5, source: "manual", active: true)
+
+      result = summary
+
+      payment = result[:upcoming_payments].find { |row| row[:template].id == template.id }
+      assert_equal :overdue, payment[:status]
+      assert_in_delta 50_000, result[:pending_payments_total], 0.01
+    end
+  end
+
+  test "upcoming payments marks a paid occurrence as paid and excludes it from the pending total" do
     travel_to Date.new(2026, 10, 10) do
       template = @user.recurring_templates.create!(kind: "expense", amount: 500_000, category: @category, description: "Servicio",
-                                                  frequency: "monthly", payment_day: (Date.current + 3).day, source: "manual", active: true)
-      Expense.create!(user: @user, category: @category, amount: 500_000, date: Date.current + 3,
+                                                  frequency: "monthly", payment_day: 8, source: "manual", active: true)
+      Expense.create!(user: @user, category: @category, amount: 500_000, date: Date.new(2026, 10, 8),
                       description: "Servicio", money_source: @money_source, recurring_template_id: template.id)
 
       result = summary
 
-      assert_not result[:upcoming_payments].any? { |payment| payment[:template].id == template.id }
+      payment = result[:upcoming_payments].find { |row| row[:template].id == template.id }
+      assert_equal :paid, payment[:status]
+      assert_in_delta 0, result[:pending_payments_total], 0.01
+    end
+  end
+
+  test "pending payments total sums the outstanding amount of pending and overdue payments" do
+    travel_to Date.new(2026, 10, 10) do
+      @user.recurring_templates.create!(kind: "expense", amount: 100_000, category: @category, description: "Pendiente",
+                                        frequency: "monthly", payment_day: 15, source: "manual", active: true)
+      @user.recurring_templates.create!(kind: "expense", amount: 50_000, category: @category, description: "Vencido",
+                                        frequency: "monthly", payment_day: 5, source: "manual", active: true)
+      partial = @user.recurring_templates.create!(kind: "expense", amount: 80_000, category: @category, description: "Parcial",
+                                                  frequency: "monthly", payment_day: 8, source: "manual", active: true)
+      Expense.create!(user: @user, category: @category, amount: 30_000, date: Date.new(2026, 10, 8),
+                      description: "Parcial", money_source: @money_source, recurring_template_id: partial.id)
+
+      result = summary
+
+      assert_in_delta 200_000, result[:pending_payments_total], 0.01
     end
   end
 

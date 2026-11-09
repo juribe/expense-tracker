@@ -70,15 +70,19 @@
     form.requestSubmit();
   }
 
+  function openFromTrigger(trigger) {
+    open({
+      viewUrl: trigger.dataset.viewUrl,
+      editUrl: trigger.dataset.editUrl,
+      deleteUrl: trigger.dataset.deleteUrl
+    });
+  }
+
   document.addEventListener("click", function (e) {
     var trigger = e.target.closest("[data-expense-drawer]");
     if (trigger) {
       e.preventDefault();
-      open({
-        viewUrl: trigger.dataset.viewUrl,
-        editUrl: trigger.dataset.editUrl,
-        deleteUrl: trigger.dataset.deleteUrl
-      });
+      openFromTrigger(trigger);
       return;
     }
 
@@ -89,6 +93,16 @@
         if (confirmed) submitDelete(url);
       });
     }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+
+    var trigger = e.target.closest("[data-expense-drawer]");
+    if (!trigger || trigger.tagName === "A" || trigger.tagName === "BUTTON") return;
+
+    e.preventDefault();
+    openFromTrigger(trigger);
   });
 
   window.ExpenseDrawer = { open: open };

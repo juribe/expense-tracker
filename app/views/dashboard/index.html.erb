@@ -2,34 +2,47 @@
   Answers, in order: how much money do I have / what does this cycle look
   like / what is coming / what needs attention. %>
 
+<%= content_for :body_class, "dashboard-body" %>
+
 <%= content_for :head do %>
   <%= stylesheet_link_tag :membership_banner, "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag :membership_hero, "data-turbo-track": "reload" %>
 <% end %>
 
-<%= render "dashboard/membership_renewal_hero" %>
+<div class="dashboard-page" data-testid="dashboard-page">
+  <%= render "dashboard/membership_renewal_hero" %>
 
-<%= render "dashboard/header" %>
+  <%= render "dashboard/header" %>
 
-<%= render "dashboard/membership_expiry_banner" %>
+  <%= render "dashboard/membership_expiry_banner" %>
 
-<%= render "dashboard/onboarding" %>
+  <%= render "dashboard/onboarding" %>
 
-<%= render "dashboard/metrics" %>
+  <%= render "dashboard/metrics" %>
 
-<%= render "dashboard/needs_attention" %>
+  <%= render "dashboard/balance" %>
 
-<div class="row g-3">
-  <div class="col-12 col-lg-8">
-    <%= render "dashboard/cash_flow" %>
+  <%= render "dashboard/needs_attention" %>
 
+  <div class="dashboard-main-grid">
+    <div class="dashboard-main-column">
+      <%= render "dashboard/cash_flow" %>
+
+      <div class="dashboard-bottom-grid">
+        <%= render "dashboard/budgets" %>
+        <%= render "dashboard/categories" %>
+      </div>
+    </div>
+
+    <aside class="dashboard-side-column">
+      <%= render "dashboard/upcoming_payments" %>
+      <%= render "dashboard/goals" %>
+    </aside>
+  </div>
+
+  <div class="dashboard-movements">
     <%= render "dashboard/recent_expenses" %>
   </div>
-
-  <div class="col-12 col-lg-4">
-    <%= render "dashboard/upcoming_payments" %>
-    <%= render "dashboard/budgets" %>
-    <%= render "dashboard/categories" %>
-    <%= render "dashboard/goals" %>
-  </div>
 </div>
+
+<%= render "shared/expense_drawer" %>

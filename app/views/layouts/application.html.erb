@@ -39,7 +39,7 @@
     <%= stylesheet_link_tag :utilities, "data-turbo-track": "reload" %>
   </head>
 
-  <body>
+  <body class="<%= content_for(:body_class) %>">
     <% if user_signed_in? %>
       <div id="main-wrapper">
         <%= render "shared/sidebar" %>

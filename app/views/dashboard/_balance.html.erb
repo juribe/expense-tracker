@@ -1,0 +1,14 @@
+<%# Cycle balance strip: income minus expenses for the resolved period. It is
+    a cash-flow indicator, not the money available in accounts. %>
+<section class="card dash-balance-strip" data-testid="dashboard-balance">
+  <div class="dash-balance-left">
+    <span class="dash-balance-mark" aria-hidden="true"><i class="ti ti-arrows-exchange"></i></span>
+    <div class="dash-balance-copy">
+      <strong><%= t("dashboard.balance_cycle", default: "Balance del ciclo") %></strong>
+      <small><%= t("dashboard.balance_cycle_desc", default: "Ingresos menos gastos registrados") %></small>
+    </div>
+  </div>
+  <div class="dash-balance-amount <%= dashboard_balance_class(@cycle_summary[:net_total]) %>">
+    <%= dashboard_signed_currency(@cycle_summary[:net_total]) %>
+  </div>
+</section>

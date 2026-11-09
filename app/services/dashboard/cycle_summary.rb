@@ -11,8 +11,6 @@
 #
 # Example: Dashboard::CycleSummary.new(user:, span:, previous_span:).call[:projected_spend]
 class Dashboard::CycleSummary
-  UPCOMING_DAYS = 10
-
   # A straight-line projection needs enough elapsed days to be meaningful:
   # extrapolating day 2 or 3 of a month-in-life cycle inflates the number an
   # order of magnitude. Below this, no projection is offered.
@@ -46,7 +44,8 @@ class Dashboard::CycleSummary
       projected_spend: projected_spend,
       projection_basis: projection_basis,
       on_track: on_track?,
-      upcoming_payments: upcoming_payments
+      upcoming_payments: upcoming_payments,
+      pending_payments_total: pending_payments_total
     }
   end
 
@@ -65,23 +64,39 @@ class Dashboard::CycleSummary
   private
 
   def income_total
-    @income_total ||= Income.dashboard_summary(user: @user, range: @span)[:total_amount].to_d
+    @income_total ||= income_summary[:total_amount].to_d
   end
 
   def expense_total
-    @expense_total ||= Expense.dashboard_summary(user: @user, range: @span)[:total_amount].to_d.abs
+    @expense_total ||= expense_summary[:total_amount].to_d.abs
   end
 
   def expense_count
-    @expense_count ||= Expense.dashboard_summary(user: @user, range: @span)[:count]
+    @expense_count ||= expense_summary[:count]
   end
 
   def previous_income_total
-    @previous_income_total ||= Income.dashboard_summary(user: @user, range: @previous_span)[:total_amount].to_d
+    @previous_income_total ||= previous_income_summary[:total_amount].to_d
   end
 
   def previous_expense_total
-    @previous_expense_total ||= Expense.dashboard_summary(user: @user, range: @previous_span)[:total_amount].to_d.abs
+    @previous_expense_total ||= previous_expense_summary[:total_amount].to_d.abs
+  end
+
+  def income_summary
+    @income_summary ||= Income.dashboard_summary(user: @user, range: @span)
+  end
+
+  def expense_summary
+    @expense_summary ||= Expense.dashboard_summary(user: @user, range: @span)
+  end
+
+  def previous_income_summary
+    @previous_income_summary ||= Income.dashboard_summary(user: @user, range: @previous_span)
+  end
+
+  def previous_expense_summary
+    @previous_expense_summary ||= Expense.dashboard_summary(user: @user, range: @previous_span)
   end
 
   def net_total
@@ -135,7 +150,7 @@ class Dashboard::CycleSummary
   end
 
   def top_categories
-    @top_categories ||= Expense.dashboard_summary(user: @user, range: @span)[:by_category]
+    @top_categories ||= expense_summary[:by_category]
                               .sort_by { |_name, total| -total }
                               .first(5)
                               .map do |name, total|
@@ -236,24 +251,40 @@ class Dashboard::CycleSummary
     eligible_recurring_templates.count >= MIN_RECURRING_TEMPLATES ? :recurring : :daily
   end
 
+  # Payments for the displayed period, with their real state: paid when the
+  # recorded transactions cover the template, overdue when the occurrence has
+  # already passed, pending otherwise. Sorting surfaces what still needs money
+  # first.
   def upcoming_payments
-    templates = RecurringTemplate.for_user(@user).expense.active.where.not(payment_day: nil)
-
-    templates.filter_map do |template|
-      next_date = self.class.next_occurrence_date(template.payment_day)
-      next unless next_date <= Date.current + UPCOMING_DAYS
-
+    @upcoming_payments ||= eligible_recurring_templates.map do |template|
+      amount = template.amount.to_d
       paid_amount = recurring_payments_by_template.fetch(template.id, 0)
-      # Hide payments that have already been made in this cycle: only pending
-      # (still owed) payments are shown as upcoming.
-      next if paid_amount >= template.amount.to_d
+      occurrence = template_occurrence(template)
 
       {
         template: template,
         label: template.description.presence || template.category.name,
         amount: template.amount,
-        next_date: next_date
+        next_date: occurrence,
+        status: payment_status(occurrence, paid_amount, amount),
+        pending_amount: [ amount - paid_amount, 0 ].max
       }
-    end.sort_by { |payment| payment[:next_date] }
+    end.sort_by { |payment| [ payment_sort_rank(payment[:status]), payment[:next_date], payment[:label] ] }
+  end
+
+  def payment_status(occurrence, paid_amount, amount)
+    return :paid if paid_amount >= amount
+    return :overdue if occurrence < Date.current
+
+    :pending
+  end
+
+  def payment_sort_rank(status)
+    { overdue: 0, pending: 1, paid: 2 }.fetch(status, 3)
+  end
+
+  def pending_payments_total
+    upcoming_payments.reject { |payment| payment[:status] == :paid }
+                     .sum { |payment| payment[:pending_amount] }
   end
 end

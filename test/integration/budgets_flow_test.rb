@@ -122,16 +122,16 @@ class BudgetsFlowTest < ActionDispatch::IntegrationTest
     get "/dashboard"
 
     assert_response :success
-    assert_select ".card", text: /Presupuestos/
-    assert_select "a[href=?]", budgets_path, text: /Ver todos/
-    assert_select ".progress-bar.bg-warning"
+    assert_select "[data-testid=dashboard-budget]", text: /Presupuesto del ciclo/
+    assert_select "a[href=?]", budgets_path(month: Date.current.strftime("%Y-%m")), text: /Ver presupuesto/
+    assert_select ".dash-budget-bar--warning"
   end
 
   test "dashboard does not show the budgets card when no budgets exist" do
     get "/dashboard"
 
     assert_response :success
-    assert_select "a[href=?]", budgets_path, text: /Ver todos/, count: 0
+    assert_select "[data-testid=dashboard-budget]", count: 0
   end
 
   test "budgets navigation appears in the sidebar" do

@@ -1,25 +1,41 @@
-<%# Budgets summary card. %>
+<%# Aggregated budget card for the resolved period. %>
 <% if @budgets.any? %>
-  <% counts = budget_summary_counts(@budgets, @budget_period) %>
-  <div class="card page-section">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="card-title"><i class="ti ti-calculator me-1 text-secondary"></i><%= t("budgets.dashboard_title") %></h5>
-      <%= link_to budgets_path, class: "small text-decoration-none text-secondary" do %><%= t("budgets.dashboard_view_all") %><i class="ti ti-arrow-right"></i><% end %>
-    </div>
-    <div class="card-body">
-      <% @budgets.first(4).each do |budget| %>
-        <% data = budget_progress_data(budget, @budget_period) %>
-        <div class="budget-mini mb-3">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <%= link_to category_badge(budget.category), category_path(budget.category), class: "text-decoration-none" %>
-            <span class="fw-bold small budget-amount num"><%= number_to_percentage(data[:percentage], precision: 0) %></span>
-          </div>
-          <div class="progress dashboard-progress" role="progressbar" aria-label="<%= t("budgets.progress_aria", name: budget.category.name) %>" aria-valuenow="<%= data[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar <%= budget_status_class(data[:status]) %> et-w-<% [ data[:percentage], 100 ].min.round %>"></div>
-          </div>
-        </div>
+  <% summary = dashboard_budget_summary(@budgets, @budget_period, spent_by_category: @spending_by_category_id) %>
+  <% used_pct = [ summary[:percentage], 100 ].min.round %>
+  <section class="card dash-budget" data-testid="dashboard-budget">
+    <div class="dash-card-head">
+      <div>
+        <h5 class="card-title"><%= t("dashboard.budget_cycle", default: "Presupuesto del ciclo") %></h5>
+        <p class="dash-card-subtitle"><%= t("dashboard.budget_subtitle", default: "Qué parte de tu presupuesto has utilizado") %></p>
+      </div>
+      <%= link_to dashboard_budget_path, class: "dash-link" do %>
+        <%= t("dashboard.view_budget", default: "Ver presupuesto") %><i class="ti ti-arrow-right" aria-hidden="true"></i>
       <% end %>
-      <p class="text-secondary small mb-0"><%= t("budgets.summary", count: counts[:total], near_limit: counts[:near_limit], over_budget: counts[:over_budget]) %></p>
     </div>
-  </div>
+
+    <div class="dash-budget-body">
+      <div class="dash-budget-top">
+        <div>
+          <strong><%= t("dashboard.budget_spent", default: "Gasto registrado") %></strong>
+          <small><%= t("dashboard.budget_total", default: "Presupuesto total del ciclo") %></small>
+        </div>
+        <div class="dash-budget-value">
+          <%= number_to_currency(summary[:spent]) %>
+          <small><%= t("dashboard.budget_of_total", default: "de %{amount}", amount: number_to_currency(summary[:total])) %></small>
+        </div>
+      </div>
+
+      <div class="progress dash-budget-progress" role="progressbar"
+           data-testid="dashboard-budget-progress"
+           aria-label="<%= t("dashboard.budget_used_aria", default: "Presupuesto utilizado") %>"
+           aria-valuenow="<%= summary[:percentage].round %>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar <%= dashboard_budget_bar_class(summary[:status]) %> et-w-<%= used_pct %>"></div>
+      </div>
+
+      <div class="dash-budget-foot">
+        <span><b><%= number_to_percentage(summary[:percentage], precision: 0) %></b> <%= t("dashboard.budget_used", default: "utilizado") %></span>
+        <span><%= t("dashboard.budget_available", default: "%{amount} disponibles", amount: number_to_currency(summary[:remaining])) %></span>
+      </div>
+    </div>
+  </section>
 <% end %>
