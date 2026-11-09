@@ -203,8 +203,19 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get dashboard_path
 
     assert_response :success
+    assert_select ".dashboard-bottom-grid:not(.dashboard-bottom-grid--single)"
     titles = css_select(".dashboard-bottom-grid h5.card-title").map { |node| node.text.strip }
     assert_equal [ "Presupuesto del ciclo", "Distribución por categoría" ], titles
+  end
+
+  test "GET /dashboard gives the category card the full bottom grid when there are no budgets" do
+    sign_in @user
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-budget]", count: 0
+    assert_select ".dashboard-bottom-grid.dashboard-bottom-grid--single [data-testid=dashboard-categories]", count: 1
   end
 
   test "GET /dashboard keeps the evolution chart and the upcoming payments panel in the main grid" do
@@ -272,6 +283,7 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid=dashboard-balance]" do
+      assert_select ".dash-balance-mark .ti-activity"
       assert_select ".dash-balance-amount.is-positive", text: "+$17.000.000"
       assert_select ".dash-balance-copy small", text: "Ingresos menos gastos registrados"
     end
@@ -328,6 +340,22 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
       assert_select ".dash-payment-status--overdue", text: "Vencido"
       assert_select ".dash-payment--overdue", text: /Luz/
     end
+  end
+
+  test "GET /dashboard does not list payments already made as upcoming" do
+    template = @user.recurring_templates.create!(kind: "expense", amount: 170_000, category: @category,
+                                                 description: "Agua", frequency: "monthly", payment_day: 10,
+                                                 source: "manual", active: true)
+    @user.expenses.create!(amount: 50_000, date: Date.new(2026, 11, 10), category: @category,
+                           description: "Agua", money_source: @default_source, recurring_template: template,
+                           recurring_paid_in_full: true)
+
+    sign_in @user
+    get dashboard_path, params: { month: "2026-11" }
+
+    assert_response :success
+    assert_select "[data-testid=dashboard-upcoming-payments] .dash-payment-name", text: /Agua/, count: 0
+    assert_select "[data-testid=dashboard-upcoming-payments] .dash-pending-total", text: /\$0/
   end
 
   test "GET /dashboard shows the real money source of every recent movement" do

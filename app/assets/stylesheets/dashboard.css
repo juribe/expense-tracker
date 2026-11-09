@@ -474,7 +474,6 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
-  margin-bottom: 14px;
 }
 .dashboard-page .metric-card {
   display: block;
@@ -536,6 +535,7 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   justify-content: space-between;
   gap: 14px;
   padding: 13px 17px;
+  margin-top: 14px;
   margin-bottom: 14px;
 }
 .dash-balance-left { display: flex; align-items: center; gap: 12px; }
@@ -543,15 +543,16 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: rgba(22, 137, 223, 0.10);
-  color: var(--dash-blue);
+  background: #edf5ff;
+  color: #287cf1;
   display: grid;
   place-items: center;
+  font-size: 17px;
 }
-.dash-balance-copy strong { display: block; font-size: 0.9rem; }
-.dash-balance-copy small { color: var(--dash-muted); font-size: 0.68rem; }
+.dash-balance-copy strong { display: block; font-size: 15px; }
+.dash-balance-copy small { display: block; color: var(--dash-muted); font-size: 11px; }
 .dash-balance-amount {
-  font-size: 1.15rem;
+  font-size: 18px;
   font-weight: 780;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -573,6 +574,7 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 14px;
 }
+.dashboard-bottom-grid--single { grid-template-columns: minmax(0, 1fr); }
 
 /* Shared card head */
 .dash-card-head {
@@ -761,6 +763,7 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
 }
 [data-bs-theme="dark"] .dash-metric-label { color: #9fb0c2; }
 [data-bs-theme="dark"] .dash-metric-foot { color: #8093a8; }
+[data-bs-theme="dark"] .dash-balance-mark { background: rgba(22, 137, 223, 0.18); color: #7fb6f5; }
 [data-bs-theme="dark"] .dash-payment { border-color: var(--dash-line); }
 [data-bs-theme="dark"] .dash-payment-icon { background: rgba(255, 255, 255, 0.06); }
 [data-bs-theme="dark"] .dash-payment-date { color: #7f93a8; }
@@ -801,6 +804,9 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   .dash-metric-label { font-size: 0.7rem; }
   .dash-metric-foot { font-size: 0.58rem; }
   .dash-metric-badge { display: none; }
+  .dash-balance-strip { padding: 12px; }
+  .dash-balance-copy strong { font-size: 13px; }
+  .dash-balance-amount { font-size: 14px; }
   .dash-donut-layout { padding: 12px; gap: 10px; }
   .dashboard-page .donut-wrap { width: 112px; height: 112px; }
 }

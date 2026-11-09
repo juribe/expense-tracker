@@ -251,32 +251,46 @@ class Dashboard::CycleSummary
     eligible_recurring_templates.count >= MIN_RECURRING_TEMPLATES ? :recurring : :daily
   end
 
-  # Payments for the displayed period, with their real state: paid when the
-  # recorded transactions cover the template, overdue when the occurrence has
-  # already passed, pending otherwise. Sorting surfaces what still needs money
-  # first.
+  # Payments for the displayed period that still need money: overdue when the
+  # occurrence has already passed, pending otherwise. Templates covered by a
+  # transaction or flagged as paid in full are left out.
   def upcoming_payments
-    @upcoming_payments ||= eligible_recurring_templates.map do |template|
+    @upcoming_payments ||= eligible_recurring_templates.filter_map do |template|
       amount = template.amount.to_d
       paid_amount = recurring_payments_by_template.fetch(template.id, 0)
       occurrence = template_occurrence(template)
+      paid_in_full = recurring_paid_in_full_template_ids.include?(template.id)
+      status = payment_status(occurrence, paid_amount, amount, paid_in_full: paid_in_full)
+      next if status == :paid
 
       {
         template: template,
         label: template.description.presence || template.category.name,
         amount: template.amount,
         next_date: occurrence,
-        status: payment_status(occurrence, paid_amount, amount),
+        status: status,
         pending_amount: [ amount - paid_amount, 0 ].max
       }
     end.sort_by { |payment| [ payment_sort_rank(payment[:status]), payment[:next_date], payment[:label] ] }
   end
 
-  def payment_status(occurrence, paid_amount, amount)
-    return :paid if paid_amount >= amount
+  def payment_status(occurrence, paid_amount, amount, paid_in_full: false)
+    return :paid if paid_in_full || paid_amount >= amount
     return :overdue if occurrence < Date.current
 
     :pending
+  end
+
+  # A template can be marked as covered even when the recorded transactions do
+  # not add up to its amount (partial payment flagged as completed).
+  def recurring_paid_in_full_template_ids
+    @recurring_paid_in_full_template_ids ||=
+      Expense.for_user(@user)
+             .where(recurring_template_id: eligible_recurring_templates.map(&:id), date: @span,
+                    recurring_paid_in_full: true)
+             .distinct
+             .pluck(:recurring_template_id)
+             .to_set
   end
 
   def payment_sort_rank(status)

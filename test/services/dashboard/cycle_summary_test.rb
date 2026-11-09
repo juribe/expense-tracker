@@ -265,7 +265,7 @@ Income.create!(user: @user, category: @income_category, amount: 10_000_000, date
     end
   end
 
-  test "upcoming payments marks a paid occurrence as paid and excludes it from the pending total" do
+  test "upcoming payments excludes payments already made in the cycle" do
     travel_to Date.new(2026, 10, 10) do
       template = @user.recurring_templates.create!(kind: "expense", amount: 500_000, category: @category, description: "Servicio",
                                                   frequency: "monthly", payment_day: 8, source: "manual", active: true)
@@ -274,8 +274,22 @@ Income.create!(user: @user, category: @income_category, amount: 10_000_000, date
 
       result = summary
 
-      payment = result[:upcoming_payments].find { |row| row[:template].id == template.id }
-      assert_equal :paid, payment[:status]
+      assert_nil result[:upcoming_payments].find { |row| row[:template].id == template.id }
+      assert_in_delta 0, result[:pending_payments_total], 0.01
+    end
+  end
+
+  test "upcoming payments excludes a template flagged as paid in full even with a partial amount" do
+    travel_to Date.new(2026, 10, 10) do
+      template = @user.recurring_templates.create!(kind: "expense", amount: 500_000, category: @category, description: "Servicio",
+                                                  frequency: "monthly", payment_day: 8, source: "manual", active: true)
+      Expense.create!(user: @user, category: @category, amount: 100_000, date: Date.new(2026, 10, 8),
+                      description: "Servicio parcial", money_source: @money_source, recurring_template_id: template.id,
+                      recurring_paid_in_full: true)
+
+      result = summary
+
+      assert_nil result[:upcoming_payments].find { |row| row[:template].id == template.id }
       assert_in_delta 0, result[:pending_payments_total], 0.01
     end
   end

@@ -28,7 +28,7 @@
     <div class="dashboard-main-column">
       <%= render "dashboard/cash_flow" %>
 
-      <div class="dashboard-bottom-grid">
+      <div class="dashboard-bottom-grid <%= "dashboard-bottom-grid--single" unless @budgets.any? %>">
         <%= render "dashboard/budgets" %>
         <%= render "dashboard/categories" %>
       </div>
