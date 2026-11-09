@@ -39,6 +39,13 @@ class RecurringListingFiltersBulletTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='empty-state']"
   end
 
+  test "monthly expenses summary does not preload categories the table never renders" do
+    get monthly_expenses_path(sort: "status", dir: "asc", status: "pending",
+                              category_id: "", query: "", commit: "Filtrar")
+
+    assert_response :success
+  end
+
   test "monthly incomes filtered to pending in a fully paid category" do
     get monthly_incomes_path(status: "pending", category_id: @paid_income_category.id)
 

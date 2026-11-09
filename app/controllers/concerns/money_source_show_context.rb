@@ -33,8 +33,9 @@ module MoneySourceShowContext
   end
 
   # Pockets display how their balance is distributed across their goals.
+  # Goal#saved_amount reads the pocket, so it must be eager loaded too.
   def load_pocket_context
-    @pocket_goals = @money_source.goals.active.order(:created_at, :id).includes(:goal_allocations)
+    @pocket_goals = @money_source.goals.active.order(:created_at, :id).includes(:goal_allocations, :pocket)
     @recent_allocations = @money_source.goal_allocations
                                        .includes(:financial_goal)
                                        .order(date: :desc, created_at: :desc)

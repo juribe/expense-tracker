@@ -80,6 +80,7 @@ class MonthlyExpensesFormModalTest < ApplicationSystemTestCase
 
   def open_edit_modal(template)
     within "tr[data-testid='recurring-row'][data-id='#{template.id}']" do
+      find('[data-testid="row-actions"]').click
       find('[data-testid="edit"]').click
     end
     assert_selector "#recurringFormModal.show", wait: 5

@@ -98,7 +98,8 @@
 
       $("#processCategory").textContent =
         row.querySelector("td .badge").textContent;
-      $("#processDescription").textContent = row.cells[1].textContent.trim();
+      $("#processDescription").textContent =
+        row.dataset.description || row.cells[1].textContent.trim();
       $("#processConfiguredAmount").textContent = row.cells[2].textContent.trim();
 
       var configuredAmount = Number(row.dataset.amount) || 0;
@@ -195,4 +196,130 @@
   if (pageRoot && window.RecurringUI && pageRoot.dataset.autoOpenFormModal) {
     RecurringUI.openFormModal(pageRoot.dataset.autoOpenFormModal);
   }
+})();
+
+// Client-side sorting for the recurring-expenses table. The sort headers
+// keep their href as a no-JS fallback; the delegated capture listener stops
+// Turbo before it can replace the page.
+(function () {
+  if (window.RecurringSort) return;
+  window.RecurringSort = true;
+
+  var STATUS_RANKS = { pending: 0, completed: 1, inactive: 2 };
+
+  function compareRows(left, right, column) {
+    var leftValue = valueFor(left, column);
+    var rightValue = valueFor(right, column);
+
+    if (typeof leftValue === "number" && typeof rightValue === "number") {
+      return leftValue - rightValue;
+    }
+
+    return String(leftValue).localeCompare(String(rightValue), "es", {
+      sensitivity: "base",
+      numeric: true
+    });
+  }
+
+  function valueFor(row, column) {
+    if (column === "category") return row.dataset.categoryName || "";
+    if (column === "description") return row.dataset.description || "";
+    if (column === "amount") return parseFloat(row.dataset.amount) || 0;
+    if (column === "payment_day") {
+      return row.dataset.paymentDay ? parseInt(row.dataset.paymentDay, 10) : Number.MAX_SAFE_INTEGER;
+    }
+    if (column === "status") {
+      var rank = STATUS_RANKS[row.dataset.status];
+      return rank === undefined ? 3 : rank;
+    }
+    return "";
+  }
+
+  function sortTable(table, column, direction) {
+    var tbody = table.tBodies[0];
+    if (!tbody) return;
+
+    var rows = [].slice.call(tbody.rows);
+    rows.sort(function (left, right) {
+      var result = compareRows(left, right, column);
+      return direction === "desc" ? -result : result;
+    });
+
+    rows.forEach(function (row) { tbody.appendChild(row); });
+  }
+
+  function updateLinks(column, direction) {
+    var links = [].slice.call(document.querySelectorAll("[data-recurring-sort-column]"));
+
+    links.forEach(function (link) {
+      var active = link.dataset.recurringSortColumn === column;
+      link.classList.toggle("active", active);
+      link.dataset.recurringSortDirection =
+        active && direction === "asc" ? "desc" : "asc";
+
+      var header = link.closest("th");
+      if (header) {
+        header.setAttribute("aria-sort", active ? (direction === "asc" ? "ascending" : "descending") : "none");
+      }
+
+      var icon = link.querySelector(".ti");
+      if (!icon) return;
+
+      icon.classList.remove("ti-arrow-up", "ti-arrow-down", "ti-arrows-sort", "text-secondary");
+      if (active) {
+        icon.classList.add(direction === "asc" ? "ti-arrow-up" : "ti-arrow-down");
+      } else {
+        icon.classList.add("ti-arrows-sort", "text-secondary");
+      }
+    });
+  }
+
+  function syncFilterFields(column, direction) {
+    var sortField = document.querySelector("input[name='sort']");
+    var directionField = document.querySelector("input[name='dir']");
+    if (sortField) sortField.value = column;
+    if (directionField) directionField.value = direction;
+  }
+
+  function updateUrl(column, direction) {
+    if (!window.history || !window.history.pushState) return;
+
+    var url = new URL(window.location.href);
+    url.searchParams.set("sort", column);
+    url.searchParams.set("dir", direction);
+    window.history.pushState({}, "", url);
+  }
+
+  function applyFromUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var column = params.get("sort");
+    var table = document.querySelector("[data-testid='recurring-table']");
+    if (!table || !column) return;
+
+    var direction = params.get("dir") === "desc" ? "desc" : "asc";
+    sortTable(table, column, direction);
+    updateLinks(column, direction);
+    syncFilterFields(column, direction);
+  }
+
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest("[data-recurring-sort-column]");
+    if (!link) return;
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    var table = document.querySelector("[data-testid='recurring-table']");
+    if (!table) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    var column = link.dataset.recurringSortColumn;
+    var direction = link.dataset.recurringSortDirection === "desc" ? "desc" : "asc";
+    sortTable(table, column, direction);
+    updateLinks(column, direction);
+    syncFilterFields(column, direction);
+    updateUrl(column, direction);
+  }, true);
+
+  window.addEventListener("popstate", applyFromUrl);
 })();

@@ -1237,3 +1237,107 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   .candidate-mobile-actions { flex-wrap: wrap; }
   .candidate-mobile-actions .btn { width: 100%; }
 }
+
+/* Recurring expenses page: compact KPI cards, status pills and a table that
+ * becomes a card list on phones. Scoped to .recurring-* so the expenses list
+ * keeps its current layout. */
+.recurring-summary-card .card-body { height: 100%; }
+.recurring-summary-progress { height: 0.35rem; border-radius: 999px; }
+.recurring-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+}
+.recurring-status--pending {
+  color: var(--et-attention);
+  background: rgba(178, 106, 0, 0.12);
+}
+.recurring-status--completed {
+  color: var(--et-positive);
+  background: rgba(14, 159, 110, 0.12);
+}
+.recurring-status--inactive {
+  color: var(--et-muted);
+  background: rgba(109, 125, 140, 0.14);
+}
+[data-bs-theme="dark"] .recurring-status--pending { background: rgba(216, 141, 27, 0.2); }
+[data-bs-theme="dark"] .recurring-status--completed { background: rgba(14, 159, 110, 0.22); }
+[data-bs-theme="dark"] .recurring-status--inactive { background: rgba(143, 163, 182, 0.18); }
+
+.recurring-sort-link { color: inherit; }
+.recurring-sort-link:hover,
+.recurring-sort-link:focus,
+.recurring-sort-link.active { color: var(--bs-primary); }
+
+.recurring-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+.recurring-actions-toggle { min-width: 2rem; }
+.recurring-desc .cell-strong { display: block; }
+.recurring-table .recurring-day { white-space: nowrap; }
+
+@media (min-width: 992px) {
+  .recurring-table-wrap { overflow: visible; }
+}
+
+@media (max-width: 767.98px) {
+  .recurring-summary-card .card-body { padding: 0.85rem; }
+  .recurring-summary-card .stat-label { font-size: 0.66rem; }
+  .recurring-summary-card .stat-value { font-size: 1.15rem; }
+
+  .recurring-table-wrap { overflow: visible; }
+  .recurring-table { display: block; }
+  .recurring-table thead { display: none; }
+  .recurring-table tbody {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  .recurring-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 0.75rem;
+    padding: 0.9rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--et-card-radius);
+    background: var(--bs-card-bg, var(--bs-body-bg));
+    box-shadow: 0 4px 12px rgba(31, 52, 80, 0.05);
+  }
+  .recurring-table tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+  .recurring-table .recurring-cat { grid-column: 1; grid-row: 1; }
+  .recurring-table .recurring-amount {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    text-align: right;
+  }
+  .recurring-table .recurring-desc { grid-column: 1 / -1; grid-row: 2; }
+  .recurring-table .recurring-day {
+    display: block !important;
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .recurring-table .recurring-status-cell {
+    grid-column: 2;
+    grid-row: 3;
+    text-align: right;
+  }
+  .recurring-table .recurring-actions-cell {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 0.4rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--bs-border-color);
+  }
+  .recurring-table .recurring-row-actions { width: 100%; }
+  .recurring-table .recurring-row-actions > .btn-primary { flex: 1 1 auto; }
+  .recurring-table .recurring-actions-toggle { flex: 0 0 auto; }
+}

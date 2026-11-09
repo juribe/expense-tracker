@@ -147,6 +147,69 @@ class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [], rendered_descriptions
   end
 
+  test "sort headers expose client-side sorting data and keep the server fallback" do
+    get monthly_expenses_path(sort: "amount", dir: "asc")
+
+    assert_select 'a.recurring-sort-link[data-recurring-sort-column="amount"]' \
+                  '[data-recurring-sort-direction="desc"]', count: 1
+    assert_select 'a.recurring-sort-link[data-recurring-sort-column="category"]' \
+                  '[data-recurring-sort-direction="asc"]', count: 1
+    assert_select 'a.recurring-sort-link[href*="sort=amount"]', minimum: 1
+  end
+
+  test "index renders the summary for the selected financial cycle" do
+    @user.update!(financial_cycle_start_day: 20)
+    @template.update!(amount: 100_000, payment_day: 25)
+    @template.transactions.create!(user: @user, category: @category, amount: 100_000,
+                                   date: Date.new(2026, 11, 1), kind: "expense",
+                                   source: "recurring_template", money_source: @account)
+    @user.recurring_templates.create!(
+      category: @category, kind: "expense", amount: 60_000, frequency: "monthly",
+      source: "manual", description: "Agua", payment_day: 5
+    )
+    @user.recurring_templates.create!(
+      category: @category, kind: "expense", amount: 80_000, frequency: "monthly",
+      source: "manual", description: "Inactivo", payment_day: 10, active: false
+    )
+
+    get monthly_expenses_path(period: "2026-10-25")
+
+    assert_response :success
+    assert_select '[data-testid="summary-monthly-commitment"]', text: /160/
+    assert_select '[data-testid="summary-pending"]', text: /1 pago/
+    assert_select '[data-testid="summary-pending"]', text: /60/
+    assert_select '[data-testid="summary-paid"]', text: /1 de 2/
+    assert_select '[data-testid="summary-paid"]', text: /50%/
+    assert_select '[data-testid="summary-next-due"]', text: /Agua/
+  end
+
+  test "invalid create re-renders the index with the summary strip" do
+    assert_no_difference "RecurringTemplate.count" do
+      post monthly_expenses_path, params: {
+        recurring_template: { category_id: @category.id, amount: "", description: "Sin monto" }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select '[data-testid="recurring-summary"]'
+  end
+
+  test "completed rows show one completed badge and no redundant pay action" do
+    @template.update!(active: true, payment_day: 10)
+    @template.transactions.create!(user: @user, category: @category, amount: 42_000,
+                                   date: Date.current, kind: "expense",
+                                   source: "recurring_template", money_source: @account)
+
+    get monthly_expenses_path
+
+    assert_select 'tr[data-id=?] td[data-testid="status"] .badge', @template.id.to_s,
+                  text: I18n.t("statuses.completed")
+    assert_select 'tr[data-id=?] [data-testid="process-disabled"]', @template.id.to_s,
+                  count: 0
+    assert_select "tr[data-id=?] td.recurring-actions-cell", @template.id.to_s,
+                  text: /Pagado/, count: 0
+  end
+
   private
 
   def row_ids

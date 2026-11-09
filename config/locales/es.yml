@@ -2246,6 +2246,31 @@ es:
     delete_confirmation_title: "¿Eliminar ingreso recurrente?"
     delete_confirmation_body: "La configuración y su historial se eliminarán permanentemente. Esta acción no se puede deshacer."
 
+  monthly_expenses:
+    subtitle: "Organiza tus compromisos y controla los pagos de cada ciclo."
+    list_title: "Compromisos registrados"
+    monthly_hint: "Mensual · Día %{day}"
+    no_payment_day: "Sin día definido"
+    row_actions: "Más acciones"
+    summary:
+      monthly_commitment: "Compromisos mensuales"
+      active_count:
+        one: "%{count} gasto recurrente activo"
+        other: "%{count} gastos recurrentes activos"
+      pending: "Pagos pendientes del ciclo"
+      pending_count:
+        one: "%{count} pago"
+        other: "%{count} pagos"
+      pending_total: "%{amount} por pagar"
+      paid: "Pagados este ciclo"
+      paid_progress: "%{paid} de %{expected}"
+      completion: "%{percentage}% de cumplimiento"
+      next_due: "Próximo vencimiento"
+      expected_date: "Fecha esperada"
+      none: "—"
+      no_pending: "Sin pagos pendientes"
+      no_date: "Sin fecha definida"
+
   recurring:
     filter_category: "Categoría"
     filter_description: "Descripción"
