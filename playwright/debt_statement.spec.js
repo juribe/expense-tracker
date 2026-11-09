@@ -21,7 +21,9 @@ test.describe('Debt statement (extracto de deuda)', () => {
   async function showPath(page, testId, name) {
     const source = page.locator(`[data-testid="${testId}"]`, { hasText: name }).first();
     const link = source.getByRole('link', { name }).first();
-    return link.getAttribute('href');
+    // Index links carry ?tab=resumen; specs build nested routes and ids from
+    // the bare source path.
+    return (await link.getAttribute('href')).split('?')[0];
   }
 
   async function createExpense(page, { amount, description, moneySourceId }) {

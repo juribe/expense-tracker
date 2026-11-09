@@ -15,7 +15,7 @@ async function createMoneySource(page, name, kind = 'wallet') {
   await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
   const href = await page.locator('a[href^="/money_sources/"]', { hasText: name }).first().getAttribute('href');
-  return href.split('/').filter(Boolean).pop();
+  return href.split('?')[0].split('/').filter(Boolean).pop();
 }
 
 // The parse endpoint asks the AI provider to split the text into expenses; CI

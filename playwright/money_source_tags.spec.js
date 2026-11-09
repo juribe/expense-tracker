@@ -24,7 +24,8 @@ test.describe('MoneySource recognition keywords', () => {
     await page.goto('/money_sources/credit_cards');
     await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
     const card = page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
-    return card.locator('a[href^="/money_sources/"]').first().getAttribute('href');
+    const href = await card.locator('a[href^="/money_sources/"]').first().getAttribute('href');
+    return href.split('?')[0];
   }
 
   // The recognition keywords live in the "Reconocimiento" tab of the money

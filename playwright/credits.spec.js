@@ -23,10 +23,15 @@ test.describe('Credit intelligence dashboard', () => {
     });
   }
 
+  // Index links carry ?tab=resumen; specs build nested routes from the path.
+  function sourcePath(href) {
+    return href.split('?')[0];
+  }
+
   async function showPath(page, name) {
     const source = page.locator('[data-testid="loan-card"]', { hasText: name }).first();
     const link = source.getByRole('link', { name }).first();
-    return link.getAttribute('href');
+    return sourcePath(await link.getAttribute('href'));
   }
 
   async function openCredits(page, sourcePath) {
@@ -121,7 +126,7 @@ test.describe('Credit intelligence dashboard', () => {
     });
 
     const card = page.locator('[data-testid="credit-card-card"]', { hasText: name }).first();
-    const cardPath = await card.getByRole('link', { name }).first().getAttribute('href');
+    const cardPath = sourcePath(await card.getByRole('link', { name }).first().getAttribute('href'));
 
     await page.goto(cardPath);
     await page.getByRole('link', { name: 'Ayúdame a ahorrar' }).first().click();
