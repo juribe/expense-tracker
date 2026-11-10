@@ -1,16 +1,17 @@
 <%# Compact KPI card shared by report pages. Locals: label, value, tone, icon,
-    icon_tone, note (optional html), testid, variant (income | expense | debt | net) %>
-<div class="col-6 col-lg-3">
-  <div class="card report-kpi report-kpi-<%= variant %> h-100">
+    icon_tone, note (optional html), testid, variant (income | expense | debt | net),
+    col_class (optional Bootstrap column classes, defaults to col-6 col-lg-3) %>
+<div class="<%= local_assigns.fetch(:col_class, "col-6 col-lg-3") %>">
+  <div class="card report-kpi report-kpi-<%= local_assigns.fetch(:variant, "net") %> h-100">
     <div class="card-body">
       <%= render "shared/stat",
             label: label,
             value: value,
-            tone: tone,
-            icon: icon,
-            icon_tone: icon_tone,
-            delta: note,
-            testid: testid %>
+            tone: local_assigns[:tone],
+            icon: local_assigns[:icon],
+            icon_tone: local_assigns[:icon_tone],
+            delta: local_assigns[:note],
+            testid: local_assigns[:testid] %>
     </div>
   </div>
 </div>

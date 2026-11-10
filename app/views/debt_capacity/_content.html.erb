@@ -2,12 +2,58 @@
   <% summary = @debt_capacity[:summary] %>
   <% recommendations = @debt_capacity[:recommendations] %>
 
+  <% ratio_tone = if summary[:debt_ratio].blank?
+                   nil
+                 elsif summary[:status] == :elevated
+                   :negative
+                 elsif summary[:status] == :precaution
+                   :attention
+                 else
+                   :positive
+                 end %>
+  <% ratio_icon_tone = summary[:status] == :elevated ? "red" : (summary[:status] == :precaution ? "amber" : "green") %>
+
   <section class="row g-3 mb-4" data-testid="debt-capacity-summary">
-    <div class="col-6 col-xl"><%= render "shared/stat", label: "Deuda total", value: money_amount(summary[:total_debt]), tone: :negative %></div>
-    <div class="col-6 col-xl"><%= render "shared/stat", label: "Cuotas mensuales", value: money_amount(summary[:monthly_installments]) %></div>
-    <div class="col-6 col-xl"><%= render "shared/stat", label: "Intereses estimados", value: money_amount(summary[:monthly_interest]), tone: :negative %></div>
-    <div class="col-6 col-xl"><%= render "shared/stat", label: "Endeudamiento", value: summary[:debt_ratio] ? number_to_percentage(summary[:debt_ratio], precision: 1) : "—", tone: summary[:status] == :elevated ? :negative : summary[:status] == :precaution ? nil : :positive %></div>
-    <div class="col-12 col-xl"><%= render "shared/stat", label: "Margen hasta 30%", value: money_amount(summary[:available_margin]), tone: :positive, delta: "Referencia fija de salud financiera" %></div>
+    <%= render "reports/metric",
+          col_class: "col-6 col-xl",
+          label: "Deuda total",
+          value: money_amount(summary[:total_debt]),
+          tone: :negative,
+          icon: "credit-card",
+          icon_tone: "red",
+          variant: "debt" %>
+    <%= render "reports/metric",
+          col_class: "col-6 col-xl",
+          label: "Cuotas mensuales",
+          value: money_amount(summary[:monthly_installments]),
+          icon: "cash",
+          icon_tone: "blue",
+          variant: "net" %>
+    <%= render "reports/metric",
+          col_class: "col-6 col-xl",
+          label: "Intereses estimados",
+          value: money_amount(summary[:monthly_interest]),
+          tone: :negative,
+          icon: "percentage",
+          icon_tone: "red",
+          variant: "expense" %>
+    <%= render "reports/metric",
+          col_class: "col-6 col-xl",
+          label: "Endeudamiento",
+          value: summary[:debt_ratio] ? number_to_percentage(summary[:debt_ratio], precision: 1) : "—",
+          tone: ratio_tone,
+          icon: "chart-donut",
+          icon_tone: ratio_icon_tone,
+          variant: summary[:status] == :elevated ? "debt" : "income" %>
+    <%= render "reports/metric",
+          col_class: "col-12 col-xl",
+          label: "Margen hasta 30%",
+          value: money_amount(summary[:available_margin]),
+          tone: :positive,
+          icon: "shield-check",
+          icon_tone: "green",
+          note: "Referencia fija de salud financiera",
+          variant: "income" %>
   </section>
 
   <ul class="nav nav-tabs mb-4" id="debt-capacity-tabs" role="tablist">

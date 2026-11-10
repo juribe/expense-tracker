@@ -24,7 +24,13 @@ class DebtCapacityControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: /Deudas y capacidad de endeudamiento/
     assert_select "[data-testid=debt-capacity-page]"
-    assert_select "[data-testid=debt-capacity-summary]"
+    assert_select "[data-testid=debt-capacity-summary] .report-kpi", count: 5
+    assert_select "[data-testid=debt-capacity-summary] .stat-label", text: /Deuda total/
+    assert_select "[data-testid=debt-capacity-summary] .stat-label", text: /Cuotas mensuales/
+    assert_select "[data-testid=debt-capacity-summary] .stat-label", text: /Intereses estimados/
+    assert_select "[data-testid=debt-capacity-summary] .stat-label", text: /Endeudamiento/
+    assert_select "[data-testid=debt-capacity-summary] .stat-label", text: /Margen hasta 30%/
+    assert_select "[data-testid=debt-capacity-summary] i.ti-cash", count: 1
     assert_select "[data-testid=debt-capacity-current]", text: /Estás aquí: 0,0%/
     assert_select "[data-testid=debt-capacity-cash-flow]", text: /Gastos esenciales/
     assert_select "[data-testid=debt-capacity-cash-flow] strong.amt-debt", count: 2
