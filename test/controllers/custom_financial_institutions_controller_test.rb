@@ -37,13 +37,14 @@ class CustomFinancialInstitutionsControllerTest < ActionDispatch::IntegrationTes
       assert_select ".card-header h4", text: "Nueva entidad propia"
       assert_select ".card-header .card-subtitle", text: /Agrega una entidad/
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", financial_institutions_path, text: "Cancelar"
-      assert_select ".card-footer input[type=submit].btn.btn-primary"
+      assert_select ".card-footer input[type=submit].btn.btn-primary[value=?]", "Crear entidad"
     end
 
     get edit_custom_financial_institution_path(institution)
     assert_response :success
     assert_select "form[action='#{custom_financial_institution_path(institution)}'] .card .card-header h4", text: "Editar entidad propia"
     assert_select "form[action='#{custom_financial_institution_path(institution)}'] .card .card-footer a.btn.btn-outline-secondary[href=?]", financial_institutions_path
+    assert_select "form[action='#{custom_financial_institution_path(institution)}'] .card .card-footer input[type=submit].btn.btn-primary[value=?]", "Guardar cambios"
   end
 
   test "another user's entity 404s" do

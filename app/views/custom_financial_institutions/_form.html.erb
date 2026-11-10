@@ -41,7 +41,8 @@
           </div>
 
           <%= render "shared/form_actions", cancel_path: financial_institutions_path do %>
-            <%= f.submit class: "btn btn-primary" %>
+            <%= f.submit(@custom_institution.new_record? ? t("custom_financial_institutions.submit_create") : t("custom_financial_institutions.submit_update"),
+                         class: "btn btn-primary") %>
           <% end %>
         </div>
       <% end %>

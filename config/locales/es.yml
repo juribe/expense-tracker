@@ -4308,6 +4308,8 @@ es:
     new_title: "Nueva entidad propia"
     edit_title: "Editar entidad propia"
     form_subtitle: "Agrega una entidad que no está en el catálogo."
+    submit_create: "Crear entidad"
+    submit_update: "Guardar cambios"
     name: "Nombre"
     name_hint: "p. ej. Cooperativa de mi empresa"
     delete_confirm: "¿Eliminar esta entidad? Las fuentes que la usen deberán reasociarse primero."

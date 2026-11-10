@@ -2125,6 +2125,8 @@ en:
     new_title: "New custom entity"
     edit_title: "Edit custom entity"
     form_subtitle: "Add an entity that is not in the catalog."
+    submit_create: "Create entity"
+    submit_update: "Save changes"
     name: "Name"
     name_hint: "e.g. My employer's cooperative"
     delete_confirm: "Delete this entity? Its money sources must be re-linked first."
