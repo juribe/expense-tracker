@@ -311,7 +311,7 @@ section.page-section { margin-bottom: 1.5rem; }
 }
 
 .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--et-muted); }
-.empty-state .ti { font-size: 2rem; opacity: 0.55; }
+.empty-state > .ti { font-size: 2rem; opacity: 0.55; }
 .empty-state p { font-size: 0.875rem; margin-bottom: 1rem; }
 
 .breadcrumb { font-size: 0.8125rem; }
