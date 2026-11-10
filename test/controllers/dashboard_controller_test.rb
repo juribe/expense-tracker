@@ -91,6 +91,30 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=table]", count: 0
   end
 
+  test "GET /dashboard does not query credit accounts for an accounts-only user" do
+    sign_in @user
+
+    queries = dashboard_queries_matching(/FROM "credit_accounts"/i)
+
+    assert_empty queries
+  end
+
+  test "GET /dashboard preloads credit accounts once for credit sources" do
+    3.times do |index|
+      card = @user.money_sources.create!(name: "Tarjeta #{index}", kind: "credit_card", starting_balance: 0)
+      card.create_credit_account!(credit_limit: 5_000_000, card_last_four: "123#{index}")
+    end
+    loan = @user.money_sources.create!(name: "Hipoteca", kind: "loan", starting_balance: 0)
+    loan.create_credit_account!(outstanding_balance: 10_000_000)
+
+    sign_in @user
+
+    queries = dashboard_queries_matching(/FROM "credit_accounts"/i)
+
+    assert_operator queries.length, :<=, 1,
+      "expected at most one credit_accounts query, got #{queries.length}: #{queries.join(' | ')}"
+  end
+
   test "GET /dashboard groups the summaries by pay cycle with a configured schedule" do
     sign_in @user
     @user.update!(financial_cycle_start_day: 20)
@@ -487,5 +511,22 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=onboarding-card-whatsapp]", count: 0
     assert_select "[data-testid=onboarding-card-initial]"
     assert_select "[data-testid=onboarding-card-gmail]"
+  end
+
+  private
+
+  def dashboard_queries_matching(pattern)
+    queries = []
+    callback = lambda do |_name, _start, _finish, _id, payload|
+      next if payload[:name] == "SCHEMA" || payload[:cached]
+
+      queries << payload[:sql] if payload[:sql].to_s.match?(pattern)
+    end
+
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+      get dashboard_path
+    end
+
+    queries
   end
 end

@@ -34,7 +34,24 @@ class Dashboard::PositionSnapshot
   private
 
   def sources
-    @sources ||= @user.money_sources.includes(:credit_account)
+    @sources ||= begin
+      sources = @user.money_sources.to_a
+      preload_credit_accounts(sources)
+      sources
+    end
+  end
+
+  # Only credit cards and loans read their credit_account (limit, debt,
+  # outstanding balance). Preloading it for liquid accounts and pockets is
+  # what Bullet flags as unused, so preload just the records that need it.
+  def preload_credit_accounts(sources)
+    credit_sources = sources.select { |source| source.credit_card? || source.loan? }
+    return if credit_sources.empty?
+
+    ActiveRecord::Associations::Preloader.new(
+      records: credit_sources,
+      associations: :credit_account
+    ).call
   end
 
   def accounts_balance

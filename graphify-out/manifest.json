@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "app/controllers/financial_setups_controller.rb": {
-    "mtime": 1794341694.3298147,
-    "seen": 1794341880.497761,
-    "ast_hash": "21cea65884103fe359e70ee7c2ab441d",
+    "mtime": 1794342855.5543973,
+    "seen": 1794343084.613682,
+    "ast_hash": "93e76402ef161750af9c8a3484fd2005",
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
@@ -660,9 +660,9 @@
     "semantic_hash": ""
   },
   "playwright/financial_setup_wizard.spec.js": {
-    "mtime": 1794339491.4212844,
-    "seen": 1794339762.6360588,
-    "ast_hash": "b6bd6d74ea6b43e848a8fe78920d8f81",
+    "mtime": 1794342765.499123,
+    "seen": 1794343084.615032,
+    "ast_hash": "a87a7eb5f77d1c329cd25159f6609697",
     "semantic_hash": ""
   },
   "playwright/helpers/auth.js": {
@@ -756,9 +756,9 @@
     "semantic_hash": ""
   },
   "test/controllers/financial_setups_controller_test.rb": {
-    "mtime": 1794341638.0699716,
-    "seen": 1794341880.499255,
-    "ast_hash": "ebb99c814ba111621806a56405b3cd5c",
+    "mtime": 1794342758.5434632,
+    "seen": 1794343084.6151419,
+    "ast_hash": "26c65dfceddc1dbe3e06c1b6c474e511",
     "semantic_hash": ""
   },
   "test/controllers/gmail_connections_controller_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794341698.154969,
-    "seen": 1794341880.500018,
-    "ast_hash": "c98ecc02069bd8f215129ef77a0e1549",
+    "mtime": 1794342874.0658329,
+    "seen": 1794343084.616197,
+    "ast_hash": "318c4359d49bbd4417e733944f53aed4",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794341698.1549919,
-    "seen": 1794341880.50002,
-    "ast_hash": "c75a6415b60f0b977b7e119bf9e54979",
+    "mtime": 1794342874.0658817,
+    "seen": 1794343084.6161978,
+    "ast_hash": "a9a366ee9a619f06a0e3823d27ead74e",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794341781.7880063,
-    "seen": 1794341880.500027,
+    "mtime": 1794343713.291861,
+    "seen": 1794343843.115096,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1464,9 +1464,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1794186963.5710313,
-    "seen": 1794187036.206142,
-    "ast_hash": "93ffce790eb8c2ba60c09cc8865b6878",
+    "mtime": 1794343362.6606998,
+    "seen": 1794343843.114174,
+    "ast_hash": "63e48844770ee35a0290dc036748f1ba",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
@@ -4428,9 +4428,9 @@
     "semantic_hash": ""
   },
   "app/services/dashboard/position_snapshot.rb": {
-    "mtime": 1792091766.385808,
-    "seen": 1793490696.634718,
-    "ast_hash": "b2a94efdcd9226cc1c5ed338a0d51633",
+    "mtime": 1794343276.7342265,
+    "seen": 1794343843.112844,
+    "ast_hash": "0f38ed40da31125e7458a8c4b3eb7c68",
     "semantic_hash": ""
   },
   "app/services/transfers/quick_actions.rb": {
@@ -4902,9 +4902,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/financial_setup_import_review.js": {
-    "mtime": 1793377145.1136928,
-    "seen": 1793490696.63429,
-    "ast_hash": "b143de98f5124e223291fab4937fa882",
+    "mtime": 1794342886.8735921,
+    "seen": 1794343084.613546,
+    "ast_hash": "2a9c0bb73be0292aa029bcc17857fa3f",
     "semantic_hash": ""
   },
   "app/assets/javascripts/financial_setup_manual.js": {
@@ -9795,6 +9795,18 @@
     "mtime": 1794340979.533967,
     "seen": 1794341177.8398468,
     "ast_hash": "cdd1f737a772f68dc627ebfa87875196",
+    "semantic_hash": ""
+  },
+  "playwright/pocket_summary_spacing.spec.js": {
+    "mtime": 1794342089.618967,
+    "seen": 1794342253.9837189,
+    "ast_hash": "d9ae0adcc10383fe6a4b696f4d3cce91",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/financial_setup_gmf_exemption.js": {
+    "mtime": 1794342878.9204094,
+    "seen": 1794343084.613544,
+    "ast_hash": "d9a8a9e8591d82c616778982f87a9f1c",
     "semantic_hash": ""
   }
 }
