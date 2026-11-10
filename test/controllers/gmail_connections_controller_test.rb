@@ -23,13 +23,47 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: I18n.t("gmail.title")
+    assert_select ".page-subtitle", text: I18n.t("gmail.subtitle")
     # The "how it works" guide is localized content, not hardcoded English.
-    assert_select "ol", 1
-    assert_select "ol li", count: 5
-    # The step copy renders its <strong> emphasis as real markup.
-    assert_select "ol strong",
-                  text: "Evitamos registrar el mismo correo dos veces"
-    assert_select "p", text: /^¡Así puedes mantener tus gastos al día/
+    assert_select ".gmail-step", count: 4
+    assert_select ".gmail-step", text: /Evitamos duplicados/
+    assert_select ".gmail-how-closing", text: /^¡Así puedes mantener tus gastos al día/
+  end
+
+  test "index renders the identification criteria form for a configured connection" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                            search_config: { senders: [ "a@bank.com" ], domains: [ "bank.com" ],
+                                             subject_keywords: [ "compra" ] })
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "[data-testid='config-completed-card']"
+    assert_select "form[action='#{gmail_connection_path}'] textarea[name='search_config[senders]']", count: 1
+    assert_select "textarea[name='search_config[domains]']", count: 1
+    assert_select "textarea[name='search_config[subject_keywords]']", count: 1
+    assert_select "input[type='submit'][value='#{I18n.t("gmail.save_criteria")}']"
+  end
+
+  test "index prefills gmail criteria from confirmed recognition when search config is empty" do
+    GmailConnection.create!(user: @user, email: "me@gmail.com",
+                            setup_suggestions: { "scanned" => 1, "passed" => 1, "suggestions" => 0,
+                                                 "senders" => [], "domains" => [],
+                                                 "subject_keywords" => [], "subject_templates" => [] })
+    source = @user.money_sources.create!(name: "Davibank", kind: "account",
+                                         starting_balance: 0, bank: "Davibank", identifier: "5678")
+    source.ensure_recognition.replace_identifiers(
+      sender: [ "DAVIbankInforma@davibank.com" ],
+      domain: [ "davibank.com" ]
+    )
+
+    get gmail_connection_path
+
+    assert_response :success
+    assert_select "textarea[name='search_config[senders]']",
+                  text: /DAVIbankInforma@davibank\.com/
+    assert_select "textarea[name='search_config[domains]']",
+                  text: /davibank\.com/
   end
 
   test "index marks imported expenses to open in the expense drawer" do

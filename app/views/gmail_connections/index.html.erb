@@ -1,259 +1,332 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="page-title mb-0"><i class="ti ti-mail me-2 text-secondary"></i><%= t("gmail.title") %></h1>
-  <% if @connection&.active? %>
-  <% syncing = @connection.sync_running? %>
-  <% configured = @connection.search_configured? %>
-  <div class="d-flex gap-2 align-items-center" <%= tag.attributes(data: { sync_in_progress: true }) if syncing %>>
-    <% if configured %>
-      <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-outline-primary",
-            disabled: syncing,
-            form: { data: { turbo_confirm: t("gmail.fetch_confirm") } },
-            data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
-                    sync_status_path: gmail_sync_status_path } do %>
-        <i class="ti ti-repeat me-1"></i><%= t("gmail.sync_now") %>
-      <% end %>
-    <% end %>
-    <% if syncing %>
-      <span class="badge bg-info text-dark" data-testid="sync-running-badge">
-        <span class="spinner-border spinner-border-sm me-1"></span><%= t("gmail.syncing") %>
-      </span>
-    <% end %>
-  </div>
-<% end %>
-</div>
-
-<% unless @configured %>
-  <div class="alert alert-warning">
-    <strong><%= t("gmail.oauth_missing") %></strong>
-    Set <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> (Google Cloud console,
-    Gmail API enabled, redirect URI <code>&lt;app-url&gt;/auth/google/callback</code>) to enable connections.
-  </div>
-<% end %>
-
-<div class="row g-4">
-  <div class="col-lg-5">
-    <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.search_configured? && !@connection.sync_running? %>      <div class="card mb-4 border-primary" data-testid="setup-suggestions-card">
-        <div class="card-body">
-          <h2 class="h5 card-title"><i class="ti ti-wand me-1"></i><%= t("gmail.setup.review_title") %></h2>
-          <p class="text-muted small mb-3"><%= t("gmail.setup.review_help") %></p>
-          <%= link_to money_sources_recognition_path, class: "btn btn-primary btn-sm" do %>
-            <%= t("gmail.setup.review_cta") %> <i class="ti ti-arrow-right ms-1"></i>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-
-    <div class="card mb-4">
-      <div class="card-body">
-        <h2 class="h5 card-title"><i class="ti ti-link me-1"></i><%= t("gmail.connection") %></h2>
-        <% if @connection %>
-          <% if @connection.active? && @connection.authorization_expired? %>
-            <div class="alert alert-warning py-2" data-testid="reauth-alert">
-              <p class="small mb-2"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.reauth_alert") %></p>
-              <%= link_to start_gmail_auth_path, class: "btn btn-warning btn-sm" do %>
-                <i class="ti ti-rotate me-1"></i><%= t("gmail.reconnect") %>
-              <% end %>
-            </div>
-          <% end %>
-          <p class="mb-1">
-            <i class="ti ti-mail-opened me-1 text-success"></i>
-            <strong><%= @connection.email %></strong>
-            <span class="badge bg-<%= @connection.active? ? 'success' : 'secondary' %>">
-              <%= @connection.active? ? t("gmail.active") : t("gmail.paused") %>
-            </span>
-          </p>
-          <p class="text-muted small mb-3">
-            <%= t("gmail.last_synced") %>:
-            <%= @connection.last_synced_at ? l(@connection.last_synced_at, format: :long) : t("gmail.never") %>
-          </p>
-          <div class="d-flex gap-2">
-            <%= button_to t("gmail.disconnect"), gmail_connection_path, method: :delete,
-                  class: "btn btn-outline-danger btn-sm",
-                  form: { data: { turbo_confirm: t("gmail.disconnect_confirm", email: @connection.email) } } %>
-          </div>
-        <% else %>
-          <p class="text-muted"><%= t("gmail.connect_help") %></p>
-          <% if @configured %>
-            <%= link_to start_gmail_auth_path, class: "btn btn-primary" do %>
-              <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
-            <% end %>
-          <% else %>
-            <button type="button" class="btn btn-primary" disabled>
-              <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
-            </button>
-          <% end %>
-        <% end %>
-      </div>
-    </div>
-
-    <% if @connection&.active? && !@connection.search_configured? && !@connection.setup_completed? && !@connection.sync_running? %>
-      <div class="card mb-4 border-primary" data-testid="initial-sync-card">
-        <div class="card-body">
-          <h2 class="h5 card-title"><i class="ti ti-wand me-1"></i><%= t("gmail.discover_title") %></h2>
-          <p class="text-muted small"><%= t("gmail.discover_body") %></p>
-          <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-primary btn-sm",
-                form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
+<div class="gmail-page">
+  <%= render "shared/page_header",
+        title: safe_join([ tag.i(class: "ti ti-mail"), t("gmail.title") ], " "),
+        subtitle: t("gmail.subtitle") do %>
+    <% if @connection&.active? %>
+      <% syncing = @connection.sync_running? %>
+      <% configured = @connection.search_configured? %>
+      <div class="d-flex gap-2 align-items-center" <%= tag.attributes(data: { sync_in_progress: true }) if syncing %>>
+        <% if configured %>
+          <%= button_to sync_gmail_connection_path, method: :post, class: "btn btn-primary",
+                disabled: syncing,
+                form: { data: { turbo_confirm: t("gmail.fetch_confirm") } },
                 data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
                         sync_status_path: gmail_sync_status_path } do %>
-            <i class="ti ti-search me-1"></i><%= t("gmail.find_notifications") %>
+            <i class="ti ti-repeat me-1"></i><%= t("gmail.sync_now") %>
           <% end %>
-        </div>
+        <% end %>
+        <% if syncing %>
+          <span class="badge bg-info text-dark" data-testid="sync-running-badge">
+            <span class="spinner-border spinner-border-sm me-1"></span><%= t("gmail.syncing") %>
+          </span>
+        <% end %>
       </div>
     <% end %>
+  <% end %>
 
-    <% if @connection&.active? && @connection.sync_running? %>
-      <div class="card mb-4 border-primary" data-testid="discovering-card">
-        <div class="card-body text-center">
-          <div class="spinner-border text-primary mb-2" role="status"></div>
-          <p class="text-muted small mb-0"><%= t("gmail.discovering") %></p>
-        </div>
-      </div>
-    <% end %>
+  <% unless @configured %>
+    <div class="alert alert-warning">
+      <strong><%= t("gmail.oauth_missing") %></strong>
+      Set <code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> (Google Cloud console,
+      Gmail API enabled, redirect URI <code>&lt;app-url&gt;/auth/google/callback</code>) to enable connections.
+    </div>
+  <% end %>
 
-    <% if @connection&.active? && @connection.setup_completed? && !@connection.search_configured? %>
-      <div class="card mb-4 border-info" data-testid="review-suggestions-card">
-        <div class="card-body">
-          <h2 class="h5 card-title"><i class="ti ti-bulb me-1"></i><%= t("gmail.setup.review_title") %></h2>
-          <p class="text-muted small mb-2"><%= t("gmail.setup.review_help") %></p>
-          <% if @connection.setup_suggestions.values_at("senders", "domains", "subject_keywords", "subject_templates").flatten.blank? %>
-            <div class="alert alert-warning py-2 small"><%= t("gmail.empty_discovery") %></div>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-
-    <% if @connection&.active? && @connection.search_configured? %>
-      <div class="card mb-4 border-success" data-testid="config-completed-card">
-        <div class="card-body">
-          <h2 class="h5 card-title"><i class="ti ti-circle-check me-1"></i><%= t("gmail.config_completed") %></h2>
-          <p class="text-muted small mb-0"><%= t("gmail.config_completed_help") %></p>
-        </div>
-      </div>
-    <% end %>
-
-    <% if @connection && (@connection.setup_completed? || @connection.search_configured?) %>
-      <div class="card">
-        <div class="card-body">
-          <h2 class="h5 card-title"><i class="ti ti-adjustments me-1"></i><%= t("gmail.criteria") %></h2>
-          <p class="text-muted small">
-            <%= t("gmail.criteria_help") %>
-          </p>
-          <%= form_with model: @connection, url: gmail_connection_path, method: :patch, scope: :search_config do |f| %>
-            <div class="mb-2">
-              <%= f.label :senders, t("gmail.senders"), class: "form-label small mb-1" %>
-              <%= f.text_area :senders, rows: 2, class: "form-control form-control-sm",
-                    placeholder: "notifications@bancolombia.com.co, alerts@nequi.co",
-                     value: @connection.criteria_form_values[:senders] %>
-
-            </div>
-            <div class="mb-2">
-              <%= f.label :domains, t("gmail.domains"), class: "form-label small mb-1" %>
-              <%= f.text_area :domains, rows: 2, class: "form-control form-control-sm",
-                    placeholder: "bank.com, creditcard.bank.com",
-                     value: @connection.criteria_form_values[:domains] %>
-
-            </div>
-            <div class="mb-3">
-              <%= f.label :subject_keywords, t("gmail.subject_keywords"), class: "form-label small mb-1" %>
-              <%= f.text_area :subject_keywords, rows: 2, class: "form-control form-control-sm",
-                    placeholder: "compra, transacción, pago",
-                     value: @connection.criteria_form_values[:subject_keywords] %>
-
-            </div>
-            <%= f.submit t("gmail.save_criteria"), class: "btn btn-sm btn-primary" %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="col-lg-7">
-    <% if @pending_reviews.any? %>
-      <div class="card mb-4 border-warning">
-        <div class="card-body">
-          <h2 class="h5 card-title"><i class="ti ti-eye me-1"></i><%= t("gmail.pending_review") %>
-            <span class="badge bg-warning text-dark"><%= @pending_reviews.size %></span></h2>
-          <p class="text-muted small"><%= t("gmail.pending_help") %></p>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle" data-testid="review-table">
-              <thead>
-                <tr><th><%= t("gmail.merchant") %></th><th><%= t("common.amount") %></th><th><%= t("common.date") %></th><th><%= t("gmail.confidence") %></th><th><%= t("gmail.card_bank") %></th><th></th></tr>
-              </thead>
-              <tbody>
-                <% @pending_reviews.each do |review| %>
-                  <% (review.payload_data["transactions"] || []).each do |t| %>
-                    <% candidate_sources = Array(MoneySources::Match.call(user: current_user, card_last_four: t["card_last_four"], bank: t["bank"])) %>
-                    <tr data-testid="review-row">
-                      <td><%= t["merchant"] %> <span class="badge bg-light text-dark"><%= t["type"] %></span></td>
-                      <td><%= number_to_currency(t["amount"].to_f, unit: "$ ", delimiter: ",", separator: ".") %></td>
-                      <td><%= t["occurred_at"]&.to_s&.first(10) %></td>
-                      <td><%= "#{(t['confidence'].to_f * 100).round}%".html_safe %></td>
-                      <td>
-                        <% if t["card_last_four"].present? %>
-                          <span class="badge bg-light text-dark"><i class="ti ti-credit-card me-1"></i>****<%= t["card_last_four"] %></span>
-                        <% end %>
-                        <% if t["bank"].present? %>
-                          <span class="badge bg-light text-dark"><i class="ti ti-building-bank me-1"></i><%= t["bank"] %></span>
-                        <% end %>
-                        <% if candidate_sources.one? %>
-                          <div class="small text-success mt-1"><i class="ti ti-circle-check me-1"></i><%= candidate_sources.first.display_name %></div>
-                        <% elsif candidate_sources.many? %>
-                          <div class="small text-warning mt-1"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.ambiguous_match", default: "Ambiguous match") %>: <%= candidate_sources.map(&:display_name).join(", ") %></div>
-                        <% end %>
-                      </td>
-                      <td class="text-end">
-                        <%= button_to t("gmail.approve"), approve_gmail_review_path(review.id), method: :post,
-                              class: "btn btn-success btn-sm me-1" %>
-                        <%= button_to t("gmail.discard"), reject_gmail_review_path(review.id), method: :post,
-                              class: "btn btn-outline-secondary btn-sm",
-                              form: { data: { turbo_confirm: t("gmail.discard_confirm") } } %>
-                      </td>
-                    </tr>
+  <div class="row g-3 gmail-layout">
+    <div class="col-12 col-lg-5">
+      <div class="gmail-stack">
+        <div class="card gmail-card gmail-connection-card">
+          <div class="card-body">
+            <div class="gmail-eyebrow"><%= t("gmail.connection_title") %></div>
+            <% if @connection %>
+              <% if @connection.active? && @connection.authorization_expired? %>
+                <div class="alert alert-warning py-2" data-testid="reauth-alert">
+                  <p class="small mb-2"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.reauth_alert") %></p>
+                  <%= link_to start_gmail_auth_path, class: "btn btn-warning btn-sm" do %>
+                    <i class="ti ti-rotate me-1"></i><%= t("gmail.reconnect") %>
                   <% end %>
-                <% end %>
-              </tbody>
-            </table>
+                </div>
+              <% end %>
+
+              <div class="gmail-connection-top">
+                <div class="gmail-identity">
+                  <span class="gmail-mark" aria-hidden="true"><i class="ti ti-brand-google"></i></span>
+                  <div class="gmail-identity-copy">
+                    <div class="gmail-email"><%= @connection.email %></div>
+                    <div class="gmail-meta">
+                      <span class="badge rounded-pill bg-<%= @connection.active? ? 'success' : 'secondary' %>">
+                        <%= @connection.active? ? t("gmail.active") : t("gmail.paused") %>
+                      </span>
+                      <span class="gmail-last-sync">
+                        <i class="ti ti-clock" aria-hidden="true"></i>
+                        <%= t("gmail.last_synced") %>:
+                        <%= @connection.last_synced_at ? l(@connection.last_synced_at, format: :long) : t("gmail.never") %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <%= button_to t("gmail.disconnect"), gmail_connection_path, method: :delete,
+                      class: "btn btn-sm btn-outline-danger gmail-disconnect-btn",
+                      form: { data: { turbo_confirm: t("gmail.disconnect_confirm", email: @connection.email) } } %>
+              </div>
+            <% else %>
+              <div class="gmail-empty-connection">
+                <span class="gmail-mark" aria-hidden="true"><i class="ti ti-brand-google"></i></span>
+                <div class="gmail-empty-copy">
+                  <p class="gmail-card-desc mb-3"><%= t("gmail.connect_help") %></p>
+                  <% if @configured %>
+                    <%= link_to start_gmail_auth_path, class: "btn btn-primary" do %>
+                      <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
+                    <% end %>
+                  <% else %>
+                    <button type="button" class="btn btn-primary" disabled>
+                      <i class="ti ti-brand-google me-1"></i><%= t("gmail.connect") %>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
-      </div>
-    <% end %>
 
-    <div class="card mb-4">
-      <div class="card-body">
-        <h2 class="h5 card-title"><i class="ti ti-history me-1"></i><%= t("gmail.recent_imports") %></h2>
-        <% if @recent_imports.any? %>
-          <ul class="list-group list-group-flush" data-testid="recent-imports">
-            <% @recent_imports.each do |expense| %>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>
-                  <%= link_to "#", class: "text-decoration-none",
-                              data: { expense_drawer: true,
-                                      view_url: expense_path(expense),
-                                      edit_url: edit_expense_path(expense),
-                                      delete_url: expense_path(expense) } do %>
-                    <%= expense.description.presence || t("gmail.no_description") %>
-                  <% end %>
-                  <small class="text-muted d-block"><%= expense.date %></small>
-                </span>
-                <strong><%= number_to_currency(expense.amount.to_f, unit: "$ ", delimiter: ",", separator: ".") %></strong>
-              </li>
-            <% end %>
-          </ul>
-        <% else %>
-          <p class="text-muted mb-0" data-testid="no-imports"><%= t("gmail.no_imports") %></p>
+        <% if @connection&.active? && @connection.setup_suggestions.present? && !@connection.search_configured? && !@connection.sync_running? %>
+          <div class="card gmail-card border-primary" data-testid="setup-suggestions-card">
+            <div class="card-body">
+              <div class="gmail-card-title">
+                <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-wand"></i></span>
+                <h2 class="card-title"><%= t("gmail.setup.review_title") %></h2>
+              </div>
+              <p class="gmail-card-desc"><%= t("gmail.setup.review_help") %></p>
+              <%= link_to money_sources_recognition_path, class: "btn btn-primary btn-sm" do %>
+                <%= t("gmail.setup.review_cta") %> <i class="ti ti-arrow-right ms-1"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @connection&.active? && !@connection.search_configured? && !@connection.setup_completed? && !@connection.sync_running? %>
+          <div class="card gmail-card border-primary" data-testid="initial-sync-card">
+            <div class="card-body">
+              <div class="gmail-card-title">
+                <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-wand"></i></span>
+                <h2 class="card-title"><%= t("gmail.discover_title") %></h2>
+              </div>
+              <p class="gmail-card-desc"><%= t("gmail.discover_body") %></p>
+              <%= button_to setup_sync_gmail_connection_path, method: :post, class: "btn btn-primary btn-sm",
+                    form: { data: { turbo_confirm: t("gmail.setup_sync_confirm") } },
+                    data: { turbo_submits_with: "<span class='spinner-border spinner-border-sm me-1'></span>#{t('gmail.syncing')}",
+                            sync_status_path: gmail_sync_status_path } do %>
+                <i class="ti ti-search me-1"></i><%= t("gmail.find_notifications") %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @connection&.active? && @connection.sync_running? %>
+          <div class="card gmail-card border-primary" data-testid="discovering-card">
+            <div class="card-body text-center">
+              <div class="spinner-border text-primary mb-2" role="status"></div>
+              <p class="text-muted small mb-0"><%= t("gmail.discovering") %></p>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @connection&.active? && @connection.setup_completed? && !@connection.search_configured? %>
+          <div class="card gmail-card border-info" data-testid="review-suggestions-card">
+            <div class="card-body">
+              <div class="gmail-card-title">
+                <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-bulb"></i></span>
+                <h2 class="card-title"><%= t("gmail.setup.review_title") %></h2>
+              </div>
+              <p class="gmail-card-desc"><%= t("gmail.setup.review_help") %></p>
+              <% if @connection.setup_suggestions.values_at("senders", "domains", "subject_keywords", "subject_templates").flatten.blank? %>
+                <div class="alert alert-warning py-2 small mb-0"><%= t("gmail.empty_discovery") %></div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @connection&.active? && @connection.search_configured? %>
+          <div class="card gmail-status-card" data-testid="config-completed-card">
+            <div class="card-body">
+              <span class="icon-chip icon-chip-green" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+              <div>
+                <div class="gmail-status-title"><%= t("gmail.config_completed") %></div>
+                <p class="gmail-status-text mb-0"><%= t("gmail.config_completed_help") %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @connection && (@connection.setup_completed? || @connection.search_configured?) %>
+          <div class="card gmail-card">
+            <div class="card-body">
+              <div class="gmail-card-title">
+                <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-adjustments"></i></span>
+                <h2 class="card-title"><%= t("gmail.criteria") %></h2>
+              </div>
+              <p class="gmail-card-desc"><%= t("gmail.criteria_help") %></p>
+
+              <% criteria_values = @connection.criteria_form_values %>
+              <%= form_with model: @connection, url: gmail_connection_path, method: :patch, scope: :search_config do |f| %>
+                <div class="gmail-field">
+                  <div class="gmail-field-head">
+                    <%= f.label :senders, t("gmail.senders"), class: "form-label" %>
+                    <span class="gmail-field-hint"><%= t("gmail.senders_help") %></span>
+                  </div>
+                  <%= f.text_area :senders, rows: 3, class: "form-control",
+                        placeholder: "notifications@bancolombia.com.co, alerts@nequi.co",
+                        value: criteria_values[:senders] %>
+                </div>
+
+                <div class="gmail-field">
+                  <div class="gmail-field-head">
+                    <%= f.label :domains, t("gmail.domains"), class: "form-label" %>
+                    <span class="gmail-field-hint"><%= t("gmail.domains_help") %></span>
+                  </div>
+                  <%= f.text_area :domains, rows: 3, class: "form-control",
+                        placeholder: "bank.com, creditcard.bank.com",
+                        value: criteria_values[:domains] %>
+                </div>
+
+                <div class="gmail-field">
+                  <div class="gmail-field-head">
+                    <%= f.label :subject_keywords, t("gmail.subject_keywords"), class: "form-label" %>
+                    <span class="gmail-field-hint"><%= t("gmail.subject_keywords_help") %></span>
+                  </div>
+                  <%= f.text_area :subject_keywords, rows: 3, class: "form-control",
+                        placeholder: "compra, transacción, pago",
+                        value: criteria_values[:subject_keywords] %>
+                </div>
+
+                <div class="gmail-form-actions">
+                  <%= f.submit t("gmail.save_criteria"), class: "btn btn-primary" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-body">
-        <h2 class="h5 card-title"><i class="ti ti-settings me-1"></i><%= t("gmail.how_it_works") %></h2>
-        <ol class="text-muted small mb-2">
-          <% (1..5).each do |step| %>
-            <li><%= t("gmail.how_step_#{step}_html") %></li>
-          <% end %>
-        </ol>
-        <p class="text-muted small mb-0"><%= t("gmail.how_closing_html") %></p>
+    <div class="col-12 col-lg-7">
+      <div class="gmail-stack">
+        <div class="card gmail-card">
+          <div class="card-body">
+            <div class="gmail-card-title">
+              <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-help"></i></span>
+              <h2 class="card-title"><%= t("gmail.how_it_works") %></h2>
+            </div>
+
+            <% how_steps = [
+              { icon: "ti-mail", title: t("gmail.how_step_connect_title"), body: t("gmail.how_step_connect_body") },
+              { icon: "ti-search", title: t("gmail.how_step_identify_title"), body: t("gmail.how_step_identify_body") },
+              { icon: "ti-receipt", title: t("gmail.how_step_process_title"), body: t("gmail.how_step_process_body") },
+              { icon: "ti-shield-check", title: t("gmail.how_step_dedupe_title"), body: t("gmail.how_step_dedupe_body") }
+            ] %>
+            <div class="gmail-steps">
+              <% how_steps.each_with_index do |step, index| %>
+                <div class="gmail-step">
+                  <span class="gmail-step-icon" aria-hidden="true"><i class="ti <%= step[:icon] %>"></i></span>
+                  <span class="gmail-step-title"><%= index + 1 %>. <%= step[:title] %></span>
+                  <p class="gmail-step-body"><%= step[:body] %></p>
+                </div>
+              <% end %>
+            </div>
+            <p class="gmail-how-closing mb-0"><%= t("gmail.how_closing_html") %></p>
+          </div>
+        </div>
+
+        <div class="card gmail-card">
+          <div class="card-body">
+            <div class="gmail-card-head">
+              <div class="gmail-card-title">
+                <span class="icon-chip icon-chip-blue icon-chip-sm" aria-hidden="true"><i class="ti ti-history"></i></span>
+                <h2 class="card-title"><%= t("gmail.recent_imports") %></h2>
+              </div>
+              <% if @recent_imports.any? %>
+                <span class="gmail-count"><%= t("gmail.imports_count", count: @recent_imports.size) %></span>
+              <% end %>
+            </div>
+
+            <% if @recent_imports.any? %>
+              <ul class="list-unstyled mb-0 gmail-import-list" data-testid="recent-imports">
+                <% @recent_imports.each do |expense| %>
+                  <li class="gmail-import-row">
+                    <div class="gmail-import-main">
+                      <%= link_to "#", class: "gmail-import-desc",
+                                  data: { expense_drawer: true,
+                                          view_url: expense_path(expense),
+                                          edit_url: edit_expense_path(expense),
+                                          delete_url: expense_path(expense) } do %>
+                        <%= expense.description.presence || t("gmail.no_description") %>
+                      <% end %>
+                      <span class="gmail-import-date"><%= expense.date %></span>
+                    </div>
+                    <strong class="gmail-import-amount num"><%= number_to_currency(expense.amount.to_f, unit: "$ ", delimiter: ",", separator: ".") %></strong>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="text-muted mb-0" data-testid="no-imports"><%= t("gmail.no_imports") %></p>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @pending_reviews.any? %>
+          <div class="card gmail-card border-warning">
+            <div class="card-body">
+              <div class="gmail-card-head">
+                <div class="gmail-card-title">
+                  <span class="icon-chip icon-chip-amber icon-chip-sm" aria-hidden="true"><i class="ti ti-eye"></i></span>
+                  <h2 class="card-title"><%= t("gmail.pending_review") %></h2>
+                </div>
+                <span class="badge bg-warning text-dark"><%= @pending_reviews.size %></span>
+              </div>
+              <p class="gmail-card-desc"><%= t("gmail.pending_help") %></p>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle" data-testid="review-table">
+                  <thead>
+                    <tr><th><%= t("gmail.merchant") %></th><th><%= t("common.amount") %></th><th><%= t("common.date") %></th><th><%= t("gmail.confidence") %></th><th><%= t("gmail.card_bank") %></th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <% @pending_reviews.each do |review| %>
+                      <% (review.payload_data["transactions"] || []).each do |t| %>
+                        <% candidate_sources = Array(MoneySources::Match.call(user: current_user, card_last_four: t["card_last_four"], bank: t["bank"])) %>
+                        <tr data-testid="review-row">
+                          <td><%= t["merchant"] %> <span class="badge bg-light text-dark"><%= t["type"] %></span></td>
+                          <td><%= number_to_currency(t["amount"].to_f, unit: "$ ", delimiter: ",", separator: ".") %></td>
+                          <td><%= t["occurred_at"]&.to_s&.first(10) %></td>
+                          <td><%= "#{(t['confidence'].to_f * 100).round}%".html_safe %></td>
+                          <td>
+                            <% if t["card_last_four"].present? %>
+                              <span class="badge bg-light text-dark"><i class="ti ti-credit-card me-1"></i>****<%= t["card_last_four"] %></span>
+                            <% end %>
+                            <% if t["bank"].present? %>
+                              <span class="badge bg-light text-dark"><i class="ti ti-building-bank me-1"></i><%= t["bank"] %></span>
+                            <% end %>
+                            <% if candidate_sources.one? %>
+                              <div class="small text-success mt-1"><i class="ti ti-circle-check me-1"></i><%= candidate_sources.first.display_name %></div>
+                            <% elsif candidate_sources.many? %>
+                              <div class="small text-warning mt-1"><i class="ti ti-alert-triangle me-1"></i><%= t("gmail.ambiguous_match", default: "Ambiguous match") %>: <%= candidate_sources.map(&:display_name).join(", ") %></div>
+                            <% end %>
+                          </td>
+                          <td class="text-end">
+                            <%= button_to t("gmail.approve"), approve_gmail_review_path(review.id), method: :post,
+                                  class: "btn btn-success btn-sm me-1" %>
+                            <%= button_to t("gmail.discard"), reject_gmail_review_path(review.id), method: :post,
+                                  class: "btn btn-outline-secondary btn-sm",
+                                  form: { data: { turbo_confirm: t("gmail.discard_confirm") } } %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

@@ -47325,7 +47325,7 @@
       "file_type": "code",
       "norm_label": ".create()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L46"
+      "source_location": "L45"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_destroy",
@@ -47337,7 +47337,7 @@
       "file_type": "code",
       "norm_label": ".destroy()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L67"
+      "source_location": "L66"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_dismiss_suggestion",
@@ -47349,7 +47349,7 @@
       "file_type": "code",
       "norm_label": ".dismiss_suggestion()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L77"
+      "source_location": "L76"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_edit",
@@ -47361,7 +47361,7 @@
       "file_type": "code",
       "norm_label": ".edit()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L56"
+      "source_location": "L55"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_keep_only_selected_fields",
@@ -47373,7 +47373,7 @@
       "file_type": "code",
       "norm_label": ".keep_only_selected_fields()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L112"
+      "source_location": "L111"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_new",
@@ -47385,7 +47385,7 @@
       "file_type": "code",
       "norm_label": ".new()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L41"
+      "source_location": "L40"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_normalize_blank_fields",
@@ -47397,7 +47397,7 @@
       "file_type": "code",
       "norm_label": ".normalize_blank_fields()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L119"
+      "source_location": "L118"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_prefill_from_suggestion",
@@ -47409,7 +47409,7 @@
       "file_type": "code",
       "norm_label": ".prefill_from_suggestion()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L125"
+      "source_location": "L124"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_rule_params",
@@ -47421,7 +47421,7 @@
       "file_type": "code",
       "norm_label": ".rule_params()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L96"
+      "source_location": "L95"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_set_form_data",
@@ -47433,7 +47433,7 @@
       "file_type": "code",
       "norm_label": ".set_form_data()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L91"
+      "source_location": "L90"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_set_rule",
@@ -47445,7 +47445,7 @@
       "file_type": "code",
       "norm_label": ".set_rule()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L84"
+      "source_location": "L83"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_toggle_active",
@@ -47457,7 +47457,7 @@
       "file_type": "code",
       "norm_label": ".toggle_active()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L72"
+      "source_location": "L71"
     },
     {
       "id": "app_controllers_transaction_rules_controller_transactionrulescontroller_update",
@@ -47469,7 +47469,7 @@
       "file_type": "code",
       "norm_label": ".update()",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L59"
+      "source_location": "L58"
     },
     {
       "id": "app_services_ai_configuration_ai_configuration_category_fill_disabled_pred",
@@ -91293,7 +91293,7 @@
       "file_type": "code",
       "norm_label": ".pending_review_for()",
       "source_file": "test/controllers/gmail_connections_controller_test.rb",
-      "source_location": "L474"
+      "source_location": "L487"
     },
     {
       "id": "test_services_mail_inbound_content_purger_test_mailinboundcontentpurgertest_processed_email",
@@ -98805,7 +98805,7 @@
       "file_type": "code",
       "norm_label": ".rule_search_terms()",
       "source_file": "app/helpers/transaction_rules_helper.rb",
-      "source_location": "L118"
+      "source_location": "L120"
     },
     {
       "id": "app_helpers_transaction_rules_helper_transactionruleshelper_selected_action_field",
@@ -159727,7 +159727,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L47",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -159739,7 +159739,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L33",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -159751,7 +159751,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L42",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -159763,7 +159763,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L103",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -159775,7 +159775,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L105",
+      "source_location": "L104",
       "weight": 1.0
     },
     {
@@ -159787,7 +159787,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L92",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -161347,7 +161347,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/transaction_rules_helper.rb",
-      "source_location": "L119",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -161359,7 +161359,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/transaction_rules_helper.rb",
-      "source_location": "L119",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -161371,7 +161371,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/transaction_rules_helper.rb",
-      "source_location": "L120",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -197035,7 +197035,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/controllers/gmail_connections_controller_test.rb",
-      "source_location": "L475",
+      "source_location": "L488",
       "weight": 1.0
     },
     {
@@ -266473,7 +266473,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L112",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -266484,7 +266484,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L119",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -266495,7 +266495,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L125",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -266517,7 +266517,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L41",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -266528,7 +266528,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L46",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -266539,7 +266539,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L56",
+      "source_location": "L55",
       "weight": 1.0
     },
     {
@@ -266550,7 +266550,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L59",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -266561,7 +266561,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L67",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -266572,7 +266572,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L72",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -266583,7 +266583,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L77",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -266594,7 +266594,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L84",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -266605,7 +266605,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L91",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -266616,7 +266616,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L96",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -270884,7 +270884,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/transaction_rules_helper.rb",
-      "source_location": "L118",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -309307,7 +309307,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/gmail_connections_controller_test.rb",
-      "source_location": "L474",
+      "source_location": "L487",
       "weight": 1.0
     },
     {
@@ -318128,7 +318128,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L52",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -318140,7 +318140,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/transaction_rules_controller.rb",
-      "source_location": "L63",
+      "source_location": "L62",
       "weight": 1.0
     },
     {
@@ -318368,7 +318368,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/helpers/transaction_rules_helper.rb",
-      "source_location": "L109",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -323160,5 +323160,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "716693bba8ea6ea374d339eb6fe4f2c1cc4e8288"
+  "built_at_commit": "14af8604d6a057f291c294e11a93c7aa3a33d4cb"
 }

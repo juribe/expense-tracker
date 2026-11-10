@@ -155,6 +155,57 @@ class GmailConnectionTest < ActiveSupport::TestCase
     assert_empty values[:domains]
   end
 
+  test "criteria_form_values falls back to confirmed recognition criteria when no search config is saved" do
+    @connection.save!
+    source = @user.money_sources.create!(name: "Davibank", kind: "account",
+                                         starting_balance: 0, bank: "Davibank", identifier: "5678")
+    source.ensure_recognition.replace_identifiers(
+      sender: [ "DAVIbankInforma@davibank.com" ],
+      domain: [ "davibank.com" ],
+      subject: [ "DAVIbank en Linea" ],
+      keyword: [ "banco davibank" ]
+    )
+
+    values = @connection.criteria_form_values
+
+    assert_equal "DAVIbankInforma@davibank.com", values[:senders]
+    assert_equal "davibank.com", values[:domains]
+    assert_includes values[:subject_keywords].split(", "), "banco davibank"
+    assert_includes values[:subject_keywords].split(", "), "DAVIbank en Linea"
+  end
+
+  test "criteria_form_values keeps saved search config authoritative over confirmed criteria" do
+    @connection.save!
+    source = @user.money_sources.create!(name: "Davibank", kind: "account",
+                                         starting_balance: 0, bank: "Davibank", identifier: "5678")
+    source.ensure_recognition.replace_identifiers(sender: [ "confirmed@bank.com" ],
+                                                   domain: [ "davibank.com" ])
+    @connection.update!(search_config: { senders: [ "manual@bank.com" ], domains: [],
+                                         subject_keywords: [ "" ] })
+
+    values = @connection.criteria_form_values
+
+    assert_equal "manual@bank.com", values[:senders]
+    assert_empty values[:domains]
+    assert_empty values[:subject_keywords]
+  end
+
+  test "criteria_form_values ignores suggested recognition criteria" do
+    @connection.save!
+    source = @user.money_sources.create!(name: "Davibank", kind: "account",
+                                         starting_balance: 0, bank: "Davibank", identifier: "5678")
+    recognition = source.ensure_recognition
+    recognition.save!
+    recognition.recognition_identifiers.create!(kind: "sender", value: "suggested@bank.com",
+                                                status: "suggested", origin: "gmail")
+
+    values = @connection.criteria_form_values
+
+    assert_empty values[:senders]
+    assert_empty values[:domains]
+    assert_empty values[:subject_keywords]
+  end
+
   test "claim_sync! lets only one run own the connection" do
     @connection.save!
 

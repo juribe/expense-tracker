@@ -1,7 +1,7 @@
-# Graph Report - expense-tracker  (2026-11-09)
+# Graph Report - expense-tracker  (2026-11-10)
 
 ## Corpus Check
-- 1482 files · ~1,656,239 words
+- 1482 files · ~1,656,377 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `716693bb`
+- Built from commit: `14af8604`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

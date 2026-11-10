@@ -115,20 +115,22 @@ class GmailConnection < ApplicationRecord
     }
   end
 
-  # What the Gmail criteria form on the recognition page shows: the saved
-  # search_config first (the user's own values, original casing kept), then
-  # the scan suggestions appended (deduplicated case-insensitively). Subject
-  # templates join the subject list — they search by subject exactly like
-  # keywords (Gmail::QueryBuilder quotes multi-word terms).
-  # Returns a { senders:, domains:, subject_keywords: } hash of joined
+  # What the Gmail criteria form shows: the saved search_config first (the
+  # user's own values, original casing kept), then the scan suggestions
+  # appended (deduplicated case-insensitively). When the connection has not
+  # saved any search config yet — for example right after reconnecting — the
+  # already-confirmed recognition criteria seed the form so the fields never
+  # look empty. Subject templates join the subject list — they search by
+  # subject exactly like keywords (Gmail::QueryBuilder quotes multi-word
+  # terms). Returns a { senders:, domains:, subject_keywords: } hash of joined
   # strings ready for the textareas.
   def criteria_form_values
     suggestions = setup_suggestions.is_a?(Hash) ? setup_suggestions : {}
-    saved = search_config_hash
+    base = saved_search_config? ? search_config_hash : confirmed_recognition_values
     {
-      senders: joined_for(saved[:senders], suggestions["senders"]),
-      domains: joined_for(saved[:domains], suggestions["domains"]),
-      subject_keywords: joined_for(saved[:subject_keywords],
+      senders: joined_for(base[:senders], suggestions["senders"]),
+      domains: joined_for(base[:domains], suggestions["domains"]),
+      subject_keywords: joined_for(base[:subject_keywords],
                                    Array(suggestions["subject_keywords"]) +
                                    Array(suggestions["subject_templates"]))
     }
@@ -151,6 +153,10 @@ class GmailConnection < ApplicationRecord
   end
 
   private
+
+  def confirmed_recognition_values
+    SourceRecognition::ApplyToSearchConfig.sections_for(user: user)
+  end
 
   def saved_search_config?
     return false unless search_config.is_a?(Hash)

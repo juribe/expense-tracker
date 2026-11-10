@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "test/controllers/gmail_connections_controller_test.rb": {
-    "mtime": 1793581365.557132,
-    "seen": 1793582558.4783401,
-    "ast_hash": "3b7f939f869a5e682d0da4017f3ac210",
+    "mtime": 1794309658.6924717,
+    "seen": 1794309749.4981709,
+    "ast_hash": "0d1375ee3c0b5966d046db0bc5f3a089",
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794276561.4737463,
-    "seen": 1794276839.23147,
-    "ast_hash": "ebfed1fcc08b441819ddc7f26b68d9a0",
+    "mtime": 1794309345.6839201,
+    "seen": 1794309626.770436,
+    "ast_hash": "5ede24ba4a03a16b2dc3ea0b542c951a",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794276559.2334692,
-    "seen": 1794276839.231472,
-    "ast_hash": "2202d5b68ea5214900fc472f0b98d619",
+    "mtime": 1794309702.2965512,
+    "seen": 1794309749.499242,
+    "ast_hash": "ffbabb39d690e6fa9494790287ef2448",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794276697.4594145,
-    "seen": 1794276839.231481,
+    "mtime": 1794309840.7278864,
+    "seen": 1794312417.838437,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1374,15 +1374,15 @@
     "semantic_hash": ""
   },
   "app/controllers/transaction_rules_controller.rb": {
-    "mtime": 1794276229.4339058,
-    "seen": 1794276839.2291121,
-    "ast_hash": "e9bc691487e624caddb564bad0aabf9d",
+    "mtime": 1794308523.1118033,
+    "seen": 1794308786.635073,
+    "ast_hash": "c1ae1db368e2e5db97840c3b4ed0e5bf",
     "semantic_hash": ""
   },
   "app/helpers/transaction_rules_helper.rb": {
-    "mtime": 1794276630.1626039,
-    "seen": 1794276839.229187,
-    "ast_hash": "ea36b4c416c84c1629aacd07d793a96f",
+    "mtime": 1794308568.0913153,
+    "seen": 1794308786.635297,
+    "ast_hash": "c6e727be85e450cc511acb1116836e51",
     "semantic_hash": ""
   },
   "app/models/transaction_rule.rb": {
@@ -2844,9 +2844,9 @@
     "semantic_hash": ""
   },
   "test/integration/sidebar_indexes_bullet_test.rb": {
-    "mtime": 1793401147.5370822,
-    "seen": 1793490696.635265,
-    "ast_hash": "cafccf400d12a84f6a756c7a67db8194",
+    "mtime": 1794308529.5473876,
+    "seen": 1794308786.645687,
+    "ast_hash": "91f072ed84c84e00a921d8877700afb2",
     "semantic_hash": ""
   },
   "app/controllers/payments_controller.rb": {

@@ -94,12 +94,13 @@
 
 <% if @gmail_connection&.active? %>
   <%# Gmail criteria: three recognition inputs (senders / domains / subjects),
-      prefilled with the saved config plus the setup-scan suggestions. Works
-      as a manual editor: the user can add, edit or remove criteria without
-      having scanned the mailbox at all. The rescan button lives OUTSIDE the
-      form (a nested form would corrupt the outer form's CSRF token).
-      Collapsed by default: the head is a summary row and the editor is
-      revealed by the toggle (auto-expanded while a scan runs). %>
+      prefilled with the saved config (or the already-confirmed recognition
+      criteria when no Gmail config is saved yet) plus the setup-scan
+      suggestions. Works as a manual editor: the user can add, edit or remove
+      criteria without having scanned the mailbox at all. The rescan button
+      lives OUTSIDE the form (a nested form would corrupt the outer form's
+      CSRF token). Collapsed by default: the head is a summary row and the
+      editor is revealed by the toggle (auto-expanded while a scan runs). %>
   <% gmail_values = @gmail_connection.criteria_form_values %>
   <% gmail_suggestions = @gmail_connection.criteria_suggestions %>
   <% gmail_scan = @gmail_connection.setup_suggestions.is_a?(Hash) ? @gmail_connection.setup_suggestions : {} %>

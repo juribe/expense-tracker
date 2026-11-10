@@ -31,6 +31,13 @@ module SourceRecognition
       def call(user:)
         new(user).call
       end
+
+      # Confirmed recognition values grouped by Gmail search section.
+      # Read-only: lets the criteria editors show what is already configured
+      # without waiting for a recognition save to copy it into search_config.
+      def sections_for(user:)
+        new(user).sections_for
+      end
     end
 
     def initialize(user)
@@ -41,24 +48,29 @@ module SourceRecognition
       connections = user.gmail_connections.to_a
       return false if connections.empty?
 
-      sections = confirmed_sections
+      sections = sections_for
       connections.each { |connection| merge_into(connection, sections) }
       true
     end
 
-    private
-
-    attr_reader :user
-
-    def confirmed_sections
+    # Public read model: { senders:, domains:, subject_keywords: } built from
+    # the user's CONFIRMED recognition identifiers. Suggestions never appear.
+    def sections_for
       categories = SECTION_KIND_MAP.keys.to_h { |section| [ section, [] ] }
       confirmed_values.each do |kind, value|
         SECTION_KIND_MAP.each do |section, kinds|
           categories[section] << value if kinds.include?(kind)
         end
       end
-      categories
+      categories.transform_values do |values|
+        values.map(&:to_s).map(&:strip).reject(&:blank?)
+              .uniq { |value| value.downcase }
+      end
     end
+
+    private
+
+    attr_reader :user
 
     def confirmed_values
       MoneySourceRecognitionIdentifier
