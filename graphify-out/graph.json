@@ -33114,7 +33114,7 @@
       "file_type": "code",
       "norm_label": ".dashboard_queries_matching()",
       "source_file": "test/controllers/dashboard_controller_test.rb",
-      "source_location": "L518"
+      "source_location": "L535"
     },
     {
       "id": "app_assets_javascripts_bootstrap_bundle_min_ae",
@@ -311061,7 +311061,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/dashboard_controller_test.rb",
-      "source_location": "L518",
+      "source_location": "L535",
       "weight": 1.0
     },
     {
@@ -322977,7 +322977,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "test/controllers/dashboard_controller_test.rb",
-      "source_location": "L527",
+      "source_location": "L544",
       "weight": 1.0
     },
     {
@@ -325237,5 +325237,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "300fa7ce00bc9a2d2e29d1b890685ec2edfcfcd5"
+  "built_at_commit": "d276072ad4e307fdd7e4cedde705f75d5c30bc92"
 }

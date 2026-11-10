@@ -23,7 +23,9 @@ class Expense < Transaction
     expenses = range ? for_user(user).where(date: range) : for_user(user).in_month(month)
     total_amount = expenses.sum(:amount)
     by_category = expenses.joins(:category).group("categories.name").sum(Arel.sql("ABS(amount)"))
-    recent_expenses = expenses.recent(5).includes(:category, :money_source)
+    # The dashboard table renders MoneySource#display_name, which reads
+    # credit_account; without the nested preload it is one query per row.
+    recent_expenses = expenses.recent(5).includes(:category, money_source: :credit_account)
     {
       count: expenses.count,
       total_amount: total_amount,

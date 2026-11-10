@@ -115,6 +115,23 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
       "expected at most one credit_accounts query, got #{queries.length}: #{queries.join(' | ')}"
   end
 
+  test "GET /dashboard does not query credit accounts once per recent expense" do
+    3.times do |index|
+      card = @user.money_sources.create!(name: "Tarjeta #{index}", kind: "credit_card", starting_balance: 0)
+      card.create_credit_account!(credit_limit: 5_000_000, card_last_four: "123#{index}")
+      @user.expenses.create!(amount: 10_000, date: Date.current, category: @category,
+                             description: "Compra #{index}", money_source: card)
+    end
+
+    sign_in @user
+
+    queries = dashboard_queries_matching(/FROM "credit_accounts"/i)
+
+    assert_operator queries.length, :<=, 2,
+      "expected at most two credit_accounts queries (position + recent expenses), " \
+      "got #{queries.length}: #{queries.join(' | ')}"
+  end
+
   test "GET /dashboard groups the summaries by pay cycle with a configured schedule" do
     sign_in @user
     @user.update!(financial_cycle_start_day: 20)

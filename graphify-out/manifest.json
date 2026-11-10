@@ -168,9 +168,9 @@
     "semantic_hash": "77e0c49840c1e9b01f1e01344914ea8c"
   },
   "app/models/expense.rb": {
-    "mtime": 1794183360.223692,
-    "seen": 1794183406.3571022,
-    "ast_hash": "809109d240b0749b6e4c6c6fef27918c",
+    "mtime": 1794345488.5786285,
+    "seen": 1794345770.0987892,
+    "ast_hash": "1d30b10c8069c386a8c37d943324edea",
     "semantic_hash": ""
   },
   "app/models/financial_institution.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794345024.352998,
-    "seen": 1794345074.915751,
+    "mtime": 1794345734.0602922,
+    "seen": 1794345770.100737,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1464,9 +1464,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1794343362.6606998,
-    "seen": 1794343843.114174,
-    "ast_hash": "63e48844770ee35a0290dc036748f1ba",
+    "mtime": 1794345344.129369,
+    "seen": 1794345770.099942,
+    "ast_hash": "e2be6a042457e71d47ae9b76cf98a7cb",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
