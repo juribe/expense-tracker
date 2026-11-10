@@ -29,9 +29,10 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     get transaction_rules_path
     assert_response :success
     assert_select "h1", text: /Reglas/
-    assert_select ".card-title", text: /SMARTFIT/
-    assert_select ".badge.bg-success", text: /Habilitada/
-    assert_match /reglas? habilitad/, response.body
+    assert_select "[data-testid='rule-card'] .rules-card-title", text: /SMARTFIT/
+    assert_select "[data-testid='rule-status']", text: /Habilitada/
+    assert_select "[data-testid='rules-total-count']", text: /1 regla/
+    assert_select "[data-testid='rules-enabled-count']", text: /1 habilitada/
   end
 
   test "rule toggle switches submit through data-auto-submit, not inline handlers" do
@@ -52,7 +53,8 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "section#suggested-rules"
     assert_select "a.btn.btn-sm.btn-primary[href=?]",
-                  new_transaction_rule_path(suggestion: "pattern", value: "smartfit bogotá", category_id: @fitness.id)
+                  new_transaction_rule_path(suggestion: "pattern", value: "smartfit bogotá",
+                                            category_id: @fitness.id, name: "Smartfit Bogotá")
   end
 
   test "manual expense creation applies an automatic rule to a blank category" do
@@ -138,7 +140,9 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
 
     get transaction_rules_path
     assert_response :success
-    assert_select "section#suggested-rules", count: 0
+    assert_select "section#suggested-rules"
+    assert_select "[data-testid='rule-suggestion']", count: 0
+    assert_select "[data-testid='rules-suggestions-empty']", text: I18n.t("transaction_rules.suggestions_empty")
   end
 
   test "creating a rule from a suggestion makes the suggestion disappear" do
@@ -154,8 +158,9 @@ class TransactionRulesFlowTest < ActionDispatch::IntegrationTest
 
     get transaction_rules_path
     assert_response :success
-    assert_select "section#suggested-rules", count: 0
-    assert_select ".card-title", text: /smartfit bogotá/
+    assert_select "section#suggested-rules"
+    assert_select "[data-testid='rule-suggestion']", count: 0
+    assert_select "[data-testid='rule-card'] .rules-card-title", text: /smartfit bogotá/
   end
 
   test "index shows the rules navigation in the sidebar" do

@@ -10,7 +10,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
     await createCategory(page, category);
 
     await page.goto('/transaction_rules');
-    await expect(page.getByRole('heading', { name: /\bReglas\b/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /Reglas automáticas/i })).toBeVisible();
 
     await page.getByRole('link', { name: /Nueva regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules\/new/);
@@ -66,7 +66,7 @@ test.describe('automatic rules (reglas automáticas)', () => {
     await expect(card).toContainText('Habilitada');
 
     await card.locator('input[role="switch"]').uncheck();
-    await expect(card.locator('.badge', { hasText: 'Deshabilitada' })).toBeVisible();
+    await expect(card.locator('[data-testid="rule-status"]', { hasText: 'Deshabilitada' })).toBeVisible();
 
     await page.locator('.card', { hasText: 'UBER' }).getByRole('link', { name: /Editar/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules\/[0-9a-f-]{36}\/edit/);

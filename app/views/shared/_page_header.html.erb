@@ -1,7 +1,7 @@
 <%# Page header: title (+ subtitle) on the left, actions on the right.
     Locals: title (string), subtitle (optional). Actions may come either as
     an `actions` local or as a captured content block. %>
-<div class="page-header">
+<div class="<%= [ "page-header", local_assigns[:class] ].compact.join(" ") %>">
   <div>
     <h1 class="page-title"><%= title %></h1>
     <% if local_assigns[:subtitle] %>

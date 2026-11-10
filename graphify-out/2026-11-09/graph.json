@@ -64100,7 +64100,7 @@
       "file_type": "code",
       "norm_label": ".after_recurring_total()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L100"
+      "source_location": "L98"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_call",
@@ -64124,7 +64124,7 @@
       "file_type": "code",
       "norm_label": ".default_scenario()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L161"
+      "source_location": "L166"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_income_total",
@@ -64136,7 +64136,7 @@
       "file_type": "code",
       "norm_label": ".income_total()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L84"
+      "source_location": "L82"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_initialize",
@@ -64160,19 +64160,7 @@
       "file_type": "code",
       "norm_label": ".normalize_percentage()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L169"
-    },
-    {
-      "id": "app_services_reports_savings_capacity_reports_savingscapacity_previous_cycle",
-      "label": ".previous_cycle()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 370,
-      "community_name": "Reports::SavingsCapacity",
-      "file_type": "code",
-      "norm_label": ".previous_cycle()",
-      "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L104"
+      "source_location": "L174"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_previous_variable_count",
@@ -64184,7 +64172,7 @@
       "file_type": "code",
       "norm_label": ".previous_variable_count()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L133"
+      "source_location": "L138"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_previous_variable_scope",
@@ -64196,7 +64184,7 @@
       "file_type": "code",
       "norm_label": ".previous_variable_scope()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L113"
+      "source_location": "L118"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_previous_variable_total",
@@ -64208,7 +64196,7 @@
       "file_type": "code",
       "norm_label": ".previous_variable_total()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L129"
+      "source_location": "L134"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_previous_variable_totals",
@@ -64220,7 +64208,7 @@
       "file_type": "code",
       "norm_label": ".previous_variable_totals()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L119"
+      "source_location": "L124"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_recurring_expense_total",
@@ -64232,7 +64220,7 @@
       "file_type": "code",
       "norm_label": ".recurring_expense_total()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L88"
+      "source_location": "L86"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_recurring_total",
@@ -64244,7 +64232,19 @@
       "file_type": "code",
       "norm_label": ".recurring_total()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L96"
+      "source_location": "L94"
+    },
+    {
+      "id": "app_services_reports_savings_capacity_reports_savingscapacity_reference_cycle",
+      "label": ".reference_cycle()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 370,
+      "community_name": "Reports::SavingsCapacity",
+      "file_type": "code",
+      "norm_label": ".reference_cycle()",
+      "source_file": "app/services/reports/savings_capacity.rb",
+      "source_location": "L105"
     },
     {
       "id": "app_services_reports_savings_capacity_reports_savingscapacity_scenarios",
@@ -64256,7 +64256,7 @@
       "file_type": "code",
       "norm_label": ".scenarios()",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L139"
+      "source_location": "L144"
     },
     {
       "id": "test_services_reports_savings_capacity_test_reportssavingscapacitytest_expense",
@@ -85448,7 +85448,7 @@
       "file_type": "code",
       "norm_label": ".sign_in()",
       "source_file": "test/system/savings_capacity_report_test.rb",
-      "source_location": "L75"
+      "source_location": "L76"
     },
     {
       "id": "test_system_savings_opportunities_refresh_test_savingsopportunitiesrefreshtest_sign_in",
@@ -188276,7 +188276,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L85",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -188304,18 +188304,6 @@
       "weight": 1.0
     },
     {
-      "source": "app_services_reports_savings_capacity_reports_savingscapacity_previous_cycle",
-      "target": "app_services_pay_cycle_paycycle",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L105",
-      "weight": 1.0
-    },
-    {
       "source": "app_services_reports_savings_capacity_reports_savingscapacity_recurring_expense_total",
       "target": "app_services_reports_savings_capacity_reports_savingscapacity_recurring_total",
       "relation": "calls",
@@ -188324,7 +188312,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L89",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -188336,7 +188324,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L97",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_reports_savings_capacity_reports_savingscapacity_reference_cycle",
+      "target": "app_services_pay_cycle_paycycle",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/services/reports/savings_capacity.rb",
+      "source_location": "L107",
       "weight": 1.0
     },
     {
@@ -299234,24 +299234,13 @@
     },
     {
       "source": "app_services_reports_savings_capacity_reports_savingscapacity",
-      "target": "app_services_reports_savings_capacity_reports_savingscapacity_after_recurring_total",
+      "target": "app_services_reports_savings_capacity_reports_savingscapacity_reference_cycle",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L100",
-      "weight": 1.0
-    },
-    {
-      "source": "app_services_reports_savings_capacity_reports_savingscapacity",
-      "target": "app_services_reports_savings_capacity_reports_savingscapacity_previous_cycle",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L104",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -299262,7 +299251,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L113",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
@@ -299273,7 +299262,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L119",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -299284,7 +299273,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L129",
+      "source_location": "L134",
       "weight": 1.0
     },
     {
@@ -299295,7 +299284,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L133",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
@@ -299306,7 +299295,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L139",
+      "source_location": "L144",
       "weight": 1.0
     },
     {
@@ -299317,7 +299306,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L161",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -299328,7 +299317,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L169",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -299361,7 +299350,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L84",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -299372,7 +299361,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L88",
+      "source_location": "L86",
       "weight": 1.0
     },
     {
@@ -299383,7 +299372,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/reports/savings_capacity.rb",
-      "source_location": "L96",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "app_services_reports_savings_capacity_reports_savingscapacity",
+      "target": "app_services_reports_savings_capacity_reports_savingscapacity_after_recurring_total",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/services/reports/savings_capacity.rb",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -315344,7 +315344,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/savings_capacity_report_test.rb",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0
     },
     {

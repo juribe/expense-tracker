@@ -22,15 +22,41 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "GET /transaction_rules renders the index" do
-    rule = create_rule
+  test "GET /transaction_rules renders the redesigned index" do
+    rule = create_rule(name: "Gimnasio")
     get transaction_rules_path
     assert_response :success
-    assert_select "h1", text: /Reglas/
+    assert_select "h1", text: I18n.t("transaction_rules.header_title")
+    assert_select ".page-subtitle", text: I18n.t("transaction_rules.page_subtitle")
     assert_select "a[href=?]", new_transaction_rule_path
-    assert_select "a[href=?]", edit_transaction_rule_path(rule)
-    assert_select "div.d-inline-flex a.btn-sm.btn-outline-primary", count: 1
-    assert_select "div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
+    assert_select "[data-testid='rules-search']"
+    assert_select "[data-testid='rules-filter-all']", text: I18n.t("transaction_rules.filter_all")
+    assert_select "[data-testid='rules-filter-enabled']", text: I18n.t("transaction_rules.filter_enabled")
+    assert_select "[data-testid='rules-filter-disabled']", text: I18n.t("transaction_rules.filter_disabled")
+
+    assert_select "[data-testid='rule-card']", count: 1 do
+      assert_select ".rules-card-title", text: "Gimnasio"
+      assert_select "[data-testid='rule-status']", text: I18n.t("transaction_rules.enabled")
+      assert_select "input[type=checkbox][data-auto-submit][aria-label=?]",
+                    I18n.t("transaction_rules.toggle_aria", name: "Gimnasio")
+      assert_select ".rules-card-condition-label", text: I18n.t("transaction_rules.condition_card_label")
+      assert_select ".rules-condition-type", text: I18n.t("transaction_rules.merchant_contains")
+      assert_select ".rules-match-value", text: "SMARTFIT"
+      assert_select ".rules-result-label", text: I18n.t("transaction_rules.result_category")
+      assert_select ".rules-result-pill", text: @category.name
+      assert_select "a[href=?]", edit_transaction_rule_path(rule)
+      assert_select "form[action=?] button", transaction_rule_path(rule)
+    end
+  end
+
+  test "index renders the suggestions section with a discreet empty state" do
+    get transaction_rules_path
+    assert_response :success
+    assert_select "section#suggested-rules"
+    assert_select "[data-testid='rules-suggestions-count']", text: I18n.t("transaction_rules.suggestions_pending", count: 0)
+    assert_select "[data-testid='rules-suggestions-empty']", text: I18n.t("transaction_rules.suggestions_empty")
+    assert_select "[data-testid='rule-suggestion']", count: 0
+    assert_select "a[href='#suggested-rules']", text: /#{I18n.t("transaction_rules.suggestions_title")}/
   end
 
   test "GET /transaction_rules/new renders the form" do
@@ -40,10 +66,38 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#transaction_rule_merchant_contains"
   end
 
+  test "index renders compact suggestion cards with the real pending count" do
+    source = @user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    5.times do
+      Expense.create!(user: @user, category: @category, amount: 50_000, date: Date.current,
+                      description: "smartfit bogotá", money_source: source)
+    end
+
+    get transaction_rules_path
+    assert_response :success
+    assert_select "[data-testid='rules-suggestions-count']", text: I18n.t("transaction_rules.suggestions_pending", count: 1)
+    assert_select "a[href='#suggested-rules']", text: /\(1\)/
+
+    assert_select "[data-testid='rule-suggestion']", count: 1 do
+      assert_select ".rules-suggestion-question",
+                    text: I18n.t("transaction_rules.suggestion_question",
+                                 merchant: "Smartfit Bogotá", category: @category.name)
+      assert_select ".rules-condition-type", text: I18n.t("transaction_rules.merchant_contains")
+      assert_select ".rules-match-value", text: "smartfit bogotá"
+      assert_select ".rules-suggestion-reason", text: /#{I18n.t("transaction_rules.suggestions_based_on_transactions", count: 5)}/
+      assert_select "a[href=?]", new_transaction_rule_path(
+        suggestion: "pattern", value: "smartfit bogotá", category_id: @category.id, name: "Smartfit Bogotá"
+      )
+      assert_select "form[action*=?] button", dismiss_suggestion_transaction_rules_path, text: /#{I18n.t("transaction_rules.dismiss")}/
+    end
+  end
+
   test "GET /transaction_rules/new prefills from a suggested rule" do
-    get new_transaction_rule_path(suggestion: "pattern", value: "smartfit", category_id: @category.id)
+    get new_transaction_rule_path(suggestion: "pattern", value: "smartfit", category_id: @category.id,
+                                  name: "Smartfit Gimnasio")
     assert_response :success
     assert_select "input#transaction_rule_merchant_contains[value='smartfit']"
+    assert_select "input#transaction_rule_name[value='Smartfit Gimnasio']"
     assert_select "select#transaction_rule_category_id option[value=?][selected='selected']", @category.id.to_s
     assert_select "[data-testid=transaction-rule-category-picker] [role=combobox]"
     assert_select "[data-testid=transaction-rule-category-picker] [role=option][data-value=?][aria-selected=true]",
@@ -59,6 +113,10 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".card-header .icon-chip i.ti-wand"
       assert_select ".card-header h4", text: "Nueva regla"
       assert_select ".card-header .card-subtitle", text: /Aplica categorías o fuentes/
+      assert_select "label[for='condition_field']", text: I18n.t("transaction_rules.condition_type")
+      assert_select "#condition_value_label", text: I18n.t("transaction_rules.condition_value")
+      assert_select "label[for='action_field']", text: I18n.t("transaction_rules.action_type")
+      assert_select "#action_value_label", text: I18n.t("transaction_rules.action_value")
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", transaction_rules_path, text: "Cancelar"
       assert_select ".card-footer input[type=submit].btn.btn-primary[value='Guardar regla']"
     end
@@ -164,7 +222,9 @@ class TransactionRulesControllerTest < ActionDispatch::IntegrationTest
 
     get transaction_rules_path
     assert_response :success
-    assert_select "section#suggested-rules", count: 0
+    assert_select "section#suggested-rules"
+    assert_select "[data-testid='rule-suggestion']", count: 0
+    assert_select "[data-testid='rules-suggestions-empty']", text: I18n.t("transaction_rules.suggestions_empty")
   end
 
   test "PATCH /transaction_rules/:id clears the old condition when changing condition type" do

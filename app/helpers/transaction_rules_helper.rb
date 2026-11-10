@@ -2,7 +2,8 @@
 
 # TransactionRulesHelper
 # Methods: condition_options, action_options, selected_condition_field,
-#   selected_action_field
+#   selected_action_field, rule_condition_text, rule_condition_value,
+#   rule_condition_icon, rule_actions, rule_search_terms, suggestion_reason
 #
 # Example: condition_options # => [["Merchant contains", "merchant_contains"], ...]
 module TransactionRulesHelper
@@ -63,12 +64,62 @@ module TransactionRulesHelper
     end
   end
 
-  # Localized action lines for a rule card, e.g. ["Category → Fitness"].
-  def rule_action_lines(rule)
-    lines = []
-    lines << "#{t("transaction_rules.action_category")} → #{rule.category.name}" if rule.category_id.present?
-    lines << "#{t("transaction_rules.action_tag")} → #{rule.tag}" if rule.tag.present?
-    lines << "#{t("transaction_rules.action_money_source")} → #{rule.action_money_source.display_name}" if rule.action_money_source_id.present?
-    lines
+  # Why the suggestion exists: repeated corrections or a dominant category
+  # across recent transactions. Count is pluralized through I18n.
+  def suggestion_reason(suggestion)
+    key = suggestion[:kind] == :correction ? "suggestions_based_on_corrections" : "suggestions_based_on_transactions"
+    t("transaction_rules.#{key}", count: suggestion[:count])
+  end
+
+  # Icon that matches the rule's active condition.
+  def rule_condition_icon(rule)
+    return "ti-building-store" if rule.merchant_contains.present?
+    return "ti-text-size" if rule.description_contains.present?
+    return "ti-wallet" if rule.money_source_condition_id.present?
+    return "ti-coin" if rule.amount_gt.present? || rule.amount_lt.present?
+
+    "ti-filter"
+  end
+
+  # Structured action rows for the redesigned rule card. Each row carries the
+  # localized label, the value and the icon that identifies the action type.
+  def rule_actions(rule)
+    actions = []
+
+    if rule.category.present?
+      actions << {
+        label: t("transaction_rules.result_category"),
+        value: rule.category.name,
+        icon: category_icon_klass(rule.category)
+      }
+    end
+
+    if rule.tag.present?
+      actions << {
+        label: t("transaction_rules.result_tag"),
+        value: rule.tag,
+        icon: "ti ti-hash"
+      }
+    end
+
+    action_money_source = rule.action_money_source if rule.action_money_source_id.present?
+
+    if action_money_source
+      actions << {
+        label: t("transaction_rules.result_money_source"),
+        value: action_money_source.display_name,
+        icon: "ti ti-#{source_kind_icon(action_money_source.kind)}"
+      }
+    end
+
+    actions
+  end
+
+  # Text used by the client-side search: rule name, condition and every action
+  # value. Keeps the search independent from the rendered markup.
+  def rule_search_terms(rule)
+    values = [ rule.title, rule_condition_text(rule), rule_condition_value(rule) ]
+    values.concat(rule_actions(rule).map { |action| action[:value] })
+    values.join(" ")
   end
 end

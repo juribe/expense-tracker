@@ -2679,3 +2679,313 @@ button.guided-source {
   .goal-card-actions { flex-direction: column; align-items: stretch; }
   .goal-card-actions .btn { width: 100%; }
 }
+
+/* ------------------------------------------------------- transaction rules */
+/* Suggestions stay compact and separated from the rule grid. Rule cards use
+ * the condition as the visual lead and the assigned action as the result. */
+.rules-suggestions { margin-bottom: 1.5rem; }
+.rules-suggestions .card-header { background: transparent; }
+.rules-suggestions-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: none;
+  border-radius: .55rem;
+  background: rgba(42, 109, 245, .10);
+  color: var(--bs-primary);
+  font-size: .95rem;
+}
+.rules-count-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(42, 109, 245, .10);
+  color: var(--bs-primary);
+  padding: .22rem .6rem;
+  font-size: .7rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.rules-suggestion-list { display: flex; flex-direction: column; gap: .7rem; }
+.rules-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .85rem 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .65rem;
+  background: var(--bs-body-bg);
+}
+.rules-suggestion-main { min-width: 0; }
+.rules-suggestion-question {
+  margin: 0 0 .35rem;
+  font-size: .875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.rules-suggestion-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .28rem .9rem;
+  color: var(--et-muted);
+  font-size: .75rem;
+}
+.rules-suggestion-condition { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .45rem; }
+.rules-suggestion-meta-label { color: var(--et-muted); }
+.rules-suggestion-actions { display: flex; flex-wrap: wrap; flex: none; gap: .4rem; }
+.rules-suggestion-actions .btn { white-space: nowrap; }
+.rules-suggestions-empty {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem .15rem;
+  color: var(--et-muted);
+  font-size: .8125rem;
+}
+.rules-suggestions-empty .ti { color: var(--et-positive); font-size: 1rem; }
+
+.rules-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.rules-summary-counts { font-size: .875rem; }
+.rules-controls { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.rules-search { position: relative; min-width: 17rem; }
+.rules-search .ti {
+  position: absolute;
+  left: .65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--et-muted);
+  font-size: .85rem;
+  pointer-events: none;
+}
+.rules-search .form-control {
+  min-height: 2.15rem;
+  padding-left: 2rem;
+  font-size: .8125rem;
+  background: var(--bs-body-bg);
+}
+.rules-filter {
+  display: inline-flex;
+  gap: .1rem;
+  padding: .18rem;
+  border-radius: .55rem;
+  background: var(--bs-tertiary-bg);
+}
+.rules-filter button {
+  border: 0;
+  border-radius: .4rem;
+  background: transparent;
+  color: var(--et-muted);
+  padding: .38rem .65rem;
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.rules-filter button:hover { color: var(--bs-body-color); }
+.rules-filter button.active {
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .08);
+}
+.rules-filter button:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 1px;
+}
+
+.rules-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 13.5rem;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+/* The card wrapper carries .d-flex for equal heights; that utility uses
+ * !important, so hiding a filtered card needs the same specificity. */
+.rules-card-col[hidden] { display: none !important; }
+.rules-card:hover {
+  border-color: rgba(42, 109, 245, .28);
+  box-shadow: 0 4px 14px rgba(15, 34, 58, .06);
+  transform: translateY(-1px);
+}
+[data-bs-theme="dark"] .rules-card:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, .4); }
+.rules-card.is-disabled { opacity: .74; }
+.rules-card .card-body { display: flex; flex-direction: column; }
+.rules-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .9rem;
+}
+.rules-card-title {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.rules-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  margin-top: .25rem;
+  color: var(--et-positive);
+  font-size: .72rem;
+  font-weight: 600;
+}
+.rules-card-status::before {
+  content: "";
+  width: .4rem;
+  height: .4rem;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+.rules-card-status.is-off { color: var(--et-muted); }
+.rules-card-switch { flex: none; }
+.rules-card-switch .form-check { min-height: 0; margin: 0; padding-left: 0; }
+.rules-card-switch .form-check-input {
+  width: 2.1rem;
+  height: 1.1rem;
+  margin: 0;
+  cursor: pointer;
+}
+.rules-card-switch .form-check-input:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 .2rem rgba(42, 109, 245, .15);
+}
+.rules-card-condition { margin-bottom: .85rem; }
+.rules-card-condition-label {
+  margin-bottom: .45rem;
+  color: var(--et-muted);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.rules-condition-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .35rem .5rem;
+}
+.rules-condition-type {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .35rem;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+  padding: .3rem .5rem;
+  font-size: .7rem;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.rules-match-value {
+  max-width: 100%;
+  border-radius: .35rem;
+  background: rgba(42, 109, 245, .08);
+  color: var(--bs-primary);
+  padding: .22rem .45rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.rules-card-results {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  margin-top: auto;
+  padding-top: .75rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+.rules-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4rem .75rem;
+  flex-wrap: wrap;
+}
+.rules-result-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  color: var(--et-muted);
+  font-size: .75rem;
+}
+.rules-result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  max-width: 100%;
+  border: 1px solid rgba(42, 109, 245, .18);
+  border-radius: 999px;
+  background: rgba(42, 109, 245, .09);
+  color: var(--bs-primary);
+  padding: .25rem .6rem;
+  font-size: .75rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.rules-card .card-footer { margin-top: auto; }
+.rules-card-actions .btn { white-space: nowrap; }
+
+.rules-no-results {
+  padding: 2.25rem 1rem;
+  border: 1px dashed var(--bs-border-color);
+  border-radius: var(--et-card-radius);
+  background: var(--bs-body-bg);
+  color: var(--et-muted);
+  text-align: center;
+}
+.rules-no-results .ti { font-size: 1.7rem; opacity: .55; }
+
+@media (max-width: 767.98px) {
+  .rules-controls { width: 100%; }
+  .rules-search { flex: 1 1 100%; min-width: 0; }
+  .rules-filter { flex: 1 1 100%; }
+  .rules-filter button { flex: 1 1 0; }
+  .rules-suggestion { align-items: stretch; flex-direction: column; }
+  .rules-suggestion-actions { width: 100%; }
+  .rules-suggestion-actions .btn { flex: 1 1 0; }
+}
+
+@media (max-width: 575.98px) {
+  .rules-suggestion { padding: .8rem; }
+  .rules-suggestion-actions .btn { flex: 1 1 100%; }
+  .rules-card { min-height: 0; }
+  .rules-card-actions .btn { flex: 1 1 0; }
+}
+
+.rules-page-header > div:first-child { flex: 1 1 24rem; min-width: 0; }
+.rules-page-header .page-actions { margin-left: auto; }
+.rules-page-header .page-subtitle { max-width: 46rem; }
+.rules-suggestion-actions > form { display: flex; flex: none; }
+.rules-suggestion-actions > form .btn { width: 100%; }
+@media (max-width: 767.98px) {
+  .rules-suggestion-actions > form { flex: 1 1 0; }
+}
+@media (max-width: 575.98px) {
+  .rules-suggestion-actions > form { flex: 1 1 100%; }
+}
+[data-bs-theme="dark"] .rules-filter button.active {
+  background: rgba(255, 255, 255, .12);
+  color: var(--bs-body-color);
+}

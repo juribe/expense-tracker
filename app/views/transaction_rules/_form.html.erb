@@ -19,14 +19,14 @@
           </ul>
         </div>
 
-        <div class="mb-4">
-          <label class="form-label fw-semibold">
+        <div class="form-section">
+          <div class="form-section-title">
             <i class="ti ti-arrow-right-circle me-1"></i><%= t("transaction_rules.when") %>
-          </label>
+          </div>
 
-          <div class="row g-2 align-items-end">
+          <div class="row g-3 align-items-start">
             <div class="col-12 col-md-4">
-              <label for="condition_field" class="form-label"><%= t("transaction_rules.condition_select") %></label>
+              <label for="condition_field" class="form-label"><%= t("transaction_rules.condition_type") %></label>
               <%= select_tag :condition_field,
                     options_for_select(condition_options, selected_condition_field(rule)),
                     class: "form-select",
@@ -34,43 +34,47 @@
                     data: { condition_field: true } %>
             </div>
             <div class="col-12 col-md-8">
-              <label for="condition_value" class="form-label"><%= t("transaction_rules.condition_select") %></label>
+              <div class="form-label" id="condition_value_label"><%= t("transaction_rules.condition_value") %></div>
 
               <div data-condition-input="merchant_contains">
-                <%= form.text_field :merchant_contains, class: "form-control", placeholder: "SMARTFIT" %>
+                <%= form.text_field :merchant_contains, class: "form-control", placeholder: "SMARTFIT",
+                                    aria: { labelledby: "condition_value_label" } %>
               </div>
               <div data-condition-input="description_contains" class="d-none">
-                <%= form.text_field :description_contains, class: "form-control", placeholder: "Rent" %>
+                <%= form.text_field :description_contains, class: "form-control", placeholder: "Rent",
+                                    aria: { labelledby: "condition_value_label" } %>
               </div>
               <div data-condition-input="money_source_condition" class="d-none">
                 <%= form.collection_select :money_source_condition_id, @money_sources, :id, :display_name,
                       { include_blank: t("transaction_rules.select_money_source") },
-                      class: "form-select" %>
+                      class: "form-select", aria: { labelledby: "condition_value_label" } %>
               </div>
               <div data-condition-input="amount_gt" class="d-none">
                 <div class="input-group">
                   <span class="input-group-text">$</span>
-                  <%= form.text_field :amount_gt, class: "form-control", inputmode: "decimal", autocomplete: "off" %>
+                  <%= form.text_field :amount_gt, class: "form-control", inputmode: "decimal", autocomplete: "off",
+                                      aria: { labelledby: "condition_value_label" } %>
                 </div>
               </div>
               <div data-condition-input="amount_lt" class="d-none">
                 <div class="input-group">
                   <span class="input-group-text">$</span>
-                  <%= form.text_field :amount_lt, class: "form-control", inputmode: "decimal", autocomplete: "off" %>
+                  <%= form.text_field :amount_lt, class: "form-control", inputmode: "decimal", autocomplete: "off",
+                                      aria: { labelledby: "condition_value_label" } %>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mb-4">
-          <label class="form-label fw-semibold">
+        <div class="form-section">
+          <div class="form-section-title">
             <i class="ti ti-arrow-right-circle me-1"></i><%= t("transaction_rules.then") %>
-          </label>
+          </div>
 
-          <div class="row g-2 align-items-end">
+          <div class="row g-3 align-items-start">
             <div class="col-12 col-md-4">
-              <label for="action_field" class="form-label"><%= t("transaction_rules.action_select") %></label>
+              <label for="action_field" class="form-label"><%= t("transaction_rules.action_type") %></label>
               <%= select_tag :action_field,
                     options_for_select(action_options, selected_action_field(rule)),
                     class: "form-select",
@@ -78,7 +82,7 @@
                     data: { action_field: true } %>
             </div>
             <div class="col-12 col-md-8">
-              <label for="action_value" class="form-label"><%= t("transaction_rules.action_select") %></label>
+              <div class="form-label" id="action_value_label"><%= t("transaction_rules.action_value") %></div>
 
               <div data-action-input="category">
                 <%= category_picker form, :category_id, @categories,
@@ -86,37 +90,50 @@
                                     testid: "transaction-rule-category-picker" %>
               </div>
               <div data-action-input="tag" class="d-none">
-                <%= form.text_field :tag, class: "form-control", placeholder: "Subscriptions" %>
+                <%= form.text_field :tag, class: "form-control", placeholder: "Subscriptions",
+                                    aria: { labelledby: "action_value_label" } %>
               </div>
               <div data-action-input="money_source" class="d-none">
                 <%= form.collection_select :action_money_source_id, @money_sources, :id, :display_name,
                       { include_blank: t("transaction_rules.select_money_source") },
-                      class: "form-select" %>
+                      class: "form-select", aria: { labelledby: "action_value_label" } %>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <%= form.label :name, t("transaction_rules.name"), class: "form-label" %>
-              <%= form.text_field :name, class: "form-control", placeholder: t("transaction_rules.name_placeholder") %>
+        <div class="form-section">
+          <div class="form-section-title"><%= t("transaction_rules.details") %></div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="mb-3">
+                <%= form.label :name, t("transaction_rules.name"), class: "form-label" %>
+                <%= form.text_field :name, class: "form-control #{field_class(rule, :name)}",
+                                    placeholder: t("transaction_rules.name_placeholder") %>
+                <% if field_error(rule, :name).present? %>
+                  <div class="invalid-feedback d-block"><%= field_error(rule, :name) %></div>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <div class="mb-3">
+                <%= form.label :priority, t("transaction_rules.priority"), class: "form-label" %>
+                <%= form.number_field :priority, class: "form-control #{field_class(rule, :priority)}",
+                                      value: rule.priority || 0, min: 0, aria: { describedby: "priorityHelp" } %>
+                <div class="form-text" id="priorityHelp"><%= t("transaction_rules.priority_help") %></div>
+                <% if field_error(rule, :priority).present? %>
+                  <div class="invalid-feedback d-block"><%= field_error(rule, :priority) %></div>
+                <% end %>
+              </div>
             </div>
           </div>
 
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <%= form.label :priority, "#{t("transaction_rules.priority")}", class: "form-label" %>
-              <%= form.number_field :priority, class: "form-control", value: rule.priority || 0, min: 0 %>
-              <div class="form-text" id="priorityHelp"><%= t("transaction_rules.priority_help") %></div>
-            </div>
+          <div class="form-check form-switch">
+            <%= form.check_box :enabled, class: "form-check-input", role: "switch", checked: rule.enabled? != false %>
+            <%= form.label :enabled, t("transaction_rules.enabled"), class: "form-check-label" %>
           </div>
-        </div>
-
-        <div class="form-check form-switch">
-          <%= form.check_box :enabled, class: "form-check-input", role: "switch", checked: rule.enabled? != false %>
-          <%= form.label :enabled, t("transaction_rules.enabled"), class: "form-check-label" %>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 # Graph Report - expense-tracker  (2026-11-09)
 
 ## Corpus Check
-- 1480 files · ~1,654,747 words
+- 1480 files · ~1,654,898 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

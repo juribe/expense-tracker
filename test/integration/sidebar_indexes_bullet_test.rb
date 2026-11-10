@@ -137,6 +137,29 @@ class SidebarIndexesBulletTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "transaction_rules index without money source rules has no N+1" do
+    user = User.create!(name: "Rules Only", email: "sidebar_bullet_rules_only@example.com",
+                        password: "password123")
+    user.transaction_rules.create!(name: "Only category", merchant_contains: "mercadito",
+                                   category_id: @categories.first.id)
+    sign_in user
+
+    get transaction_rules_path
+    assert_response :success
+  end
+
+  test "transaction_rules index with a condition-only money source has no N+1" do
+    user = User.create!(name: "Rules Condition", email: "sidebar_bullet_rules_condition@example.com",
+                        password: "password123")
+    source = user.money_sources.create!(name: "Cuenta", kind: "account", starting_balance: 1_000_000)
+    user.transaction_rules.create!(name: "Only condition", money_source_condition: source,
+                                   category_id: @categories.first.id)
+    sign_in user
+
+    get transaction_rules_path
+    assert_response :success
+  end
+
   test "transfers index has no N+1" do
     get transfers_path
     assert_response :success

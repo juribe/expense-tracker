@@ -24,13 +24,16 @@ class TransactionRulesController < ApplicationController
   def index
     rules = current_user.transaction_rules.order(:created_at)
     @rules = rules.includes(:category)
-    # The card helper only touches the money source associations when a rule
-    # actually references them; preload just in that case to avoid Bullet
-    # flagging unused eager loading when no rule uses them.
-    if rules.where.not(money_source_condition_id: nil).exists? || rules.where.not(action_money_source_id: nil).exists?
-      @rules = @rules.includes({ money_source_condition: :credit_account }, { action_money_source: :credit_account })
-    end
+    # The card helper only touches each money source association when a rule
+    # actually references it, so preload each one independently. A shared
+    # preload would be reported by Bullet as unused for the other association.
+    @rules = @rules.includes(money_source_condition: :credit_account) if rules.where.not(money_source_condition_id: nil).exists?
+    @rules = @rules.includes(action_money_source: :credit_account) if rules.where.not(action_money_source_id: nil).exists?
     @suggestions = TransactionRules::SuggestionService.new(current_user).suggestions
+    # Pattern and correction detectors can describe the same merchant. Present
+    # one card per merchant so the suggestion count and dismissal stay tied to
+    # a single, actionable rule.
+    @suggestions = @suggestions.uniq { |suggestion| suggestion[:merchant].downcase }
     @enabled_count = @rules.active.count
   end
 
@@ -124,6 +127,7 @@ class TransactionRulesController < ApplicationController
     category_id = params[:category_id]
     return if kind.blank? || value.blank?
 
+    @rule.name = params[:name].presence || value.titleize
     @rule.merchant_contains = value
     @rule.category_id = category_id if category_id.present?
   end

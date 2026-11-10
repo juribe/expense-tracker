@@ -1,28 +1,34 @@
-<div class="d-flex justify-content-between align-items-start gap-2 border rounded p-3 mb-3 <%= suggestion[:kind] == :correction ? 'bg-light' : '' %>">
-  <div>
-    <div class="fw-semibold">
-      <% if suggestion[:kind] == :correction %>
-        <%= t("transaction_rules.suggested_correction", merchant: suggestion[:merchant].titleize, category: suggestion[:category].name) %>
-      <% else %>
-        <i class="ti ti-building-store me-1"></i><%= suggestion[:merchant].titleize %> <span class="text-muted">→</span> <%= category_badge(suggestion[:category]) %>
-      <% end %>
-    </div>
-    <div class="small text-muted mt-1">
-      <% if suggestion[:kind] == :correction %>
-        <%= t("transaction_rules.suggested_correction_hint", count: suggestion[:count]) %>
-      <% else %>
-        <%= pluralize(suggestion[:count], "transaction") %> in <%= suggestion[:category].name %>
-      <% end %>
+<div class="rules-suggestion" data-testid="rule-suggestion">
+  <div class="rules-suggestion-main">
+    <p class="rules-suggestion-question">
+      <%= t("transaction_rules.suggestion_question",
+            merchant: suggestion[:merchant].titleize,
+            category: suggestion[:category].name) %>
+    </p>
+
+    <div class="rules-suggestion-meta">
+      <span class="rules-suggestion-condition">
+        <span class="rules-suggestion-meta-label"><%= t("transaction_rules.condition") %>:</span>
+        <span class="rules-condition-type">
+          <i class="ti ti-building-store me-1" aria-hidden="true"></i><%= t("transaction_rules.merchant_contains") %>
+        </span>
+        <span class="rules-match-value"><%= suggestion[:merchant] %></span>
+      </span>
+
+      <span class="rules-suggestion-reason"><%= suggestion_reason(suggestion) %></span>
     </div>
   </div>
-  <div class="d-flex gap-2 flex-shrink-0">
+
+  <div class="rules-suggestion-actions">
     <%= link_to new_transaction_rule_path(
           suggestion: suggestion[:kind],
           value: suggestion[:merchant],
-          category_id: suggestion[:category].id
+          category_id: suggestion[:category].id,
+          name: suggestion[:merchant].titleize
         ), class: "btn btn-sm btn-primary" do %>
       <i class="ti ti-plus me-1"></i><%= t("transaction_rules.create_rule") %>
     <% end %>
+
     <%= button_to dismiss_suggestion_transaction_rules_path(merchant: suggestion[:merchant]),
           method: :post, class: "btn btn-sm btn-outline-secondary" do %>
       <i class="ti ti-x me-1"></i><%= t("transaction_rules.dismiss") %>

@@ -1,56 +1,111 @@
-<%= render "shared/page_header", title: t("transaction_rules.header_title") do %>
-  <div class="d-flex gap-2">
-    <% if @suggestions.any? %>
-      <a class="btn btn-outline-secondary" href="#suggested-rules">
-        <i class="ti ti-bulb me-1"></i><%= t("transaction_rules.suggestions_title") %> (<%= @suggestions.size %>)
-      </a>
+<%= render "shared/page_header", title: t("transaction_rules.header_title"), subtitle: t("transaction_rules.page_subtitle"), class: "rules-page-header" do %>
+  <div class="d-flex flex-wrap gap-2">
+    <%= link_to "#suggested-rules", class: "btn btn-outline-secondary", data: { testid: "rules-suggestions-link" } do %>
+      <i class="ti ti-bulb me-1"></i><%= t("transaction_rules.suggestions_title") %>
+      <span class="rules-count-badge ms-1">(<%= @suggestions.size %>)</span>
     <% end %>
-    <%= link_to new_transaction_rule_path, class: "btn btn-primary" do %>
+    <%= link_to new_transaction_rule_path, class: "btn btn-primary", data: { testid: "rules-new" } do %>
       <i class="ti ti-plus me-1"></i><%= t("transaction_rules.new") %>
     <% end %>
   </div>
 <% end %>
 
-<p class="text-muted small mb-4"><%= t("transaction_rules.helper_text") %></p>
+<section id="suggested-rules" class="card rules-suggestions" data-testid="rules-suggestions">
+  <div class="card-header d-flex align-items-center justify-content-between gap-2">
+    <div class="d-flex align-items-center gap-2 min-w-0">
+      <span class="rules-suggestions-icon" aria-hidden="true"><i class="ti ti-bulb"></i></span>
+      <h2 class="h6 mb-0"><%= t("transaction_rules.suggestions_title") %></h2>
+    </div>
+    <span class="rules-count-badge flex-shrink-0" data-testid="rules-suggestions-count">
+      <%= t("transaction_rules.suggestions_pending", count: @suggestions.size) %>
+    </span>
+  </div>
 
-<% if @suggestions.any? %>
-  <section id="suggested-rules" class="mb-5">
-    <div class="card">
-      <div class="card-header bg-transparent">
-        <h5 class="mb-0">
-          <i class="ti ti-bulb me-2"></i><%= t("transaction_rules.suggestions_title") %>
-        </h5>
-      </div>
-      <div class="card-body text-body-secondary">
+  <div class="card-body">
+    <% if @suggestions.any? %>
+      <div class="rules-suggestion-list">
         <% @suggestions.each do |suggestion| %>
           <%= render "transaction_rules/suggestion", suggestion: suggestion %>
         <% end %>
       </div>
-    </div>
-  </section>
-<% end %>
+    <% else %>
+      <div class="rules-suggestions-empty" data-testid="rules-suggestions-empty">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <span><%= t("transaction_rules.suggestions_empty") %></span>
+      </div>
+    <% end %>
+  </div>
+</section>
 
 <% if @rules.any? %>
-  <p class="text-muted small mb-4">
-    <%= t("transaction_rules.summary_line", count: @enabled_count, enabled: @enabled_count, total: @rules.size) %>
-  </p>
+  <div class="rules-summary">
+    <div class="rules-summary-counts">
+      <span class="fw-semibold" data-testid="rules-total-count">
+        <%= t("transaction_rules.summary.total", count: @rules.size) %>
+      </span>
+      <span class="text-secondary mx-1" aria-hidden="true">·</span>
+      <span class="text-secondary" data-testid="rules-enabled-count">
+        <%= t("transaction_rules.summary.enabled", count: @enabled_count) %>
+      </span>
+    </div>
 
-  <div class="row g-3">
+    <div class="rules-controls">
+      <div class="rules-search">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="search"
+               id="rules-search"
+               class="form-control form-control-sm"
+               placeholder="<%= t("transaction_rules.search_placeholder") %>"
+               aria-label="<%= t("transaction_rules.search_aria") %>"
+               autocomplete="off"
+               data-rules-search
+               data-testid="rules-search">
+      </div>
+
+      <div class="rules-filter" role="group" aria-label="<%= t("transaction_rules.filters_aria") %>">
+        <button type="button" class="active" data-rules-filter="all" data-testid="rules-filter-all" aria-pressed="true">
+          <%= t("transaction_rules.filter_all") %>
+        </button>
+        <button type="button" data-rules-filter="enabled" data-testid="rules-filter-enabled" aria-pressed="false">
+          <%= t("transaction_rules.filter_enabled") %>
+        </button>
+        <button type="button" data-rules-filter="disabled" data-testid="rules-filter-disabled" aria-pressed="false">
+          <%= t("transaction_rules.filter_disabled") %>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3" data-rules-grid>
     <% @rules.each do |rule| %>
-      <div class="col-12 col-md-6 col-lg-4">
+      <div class="col-12 col-md-6 col-lg-4 d-flex rules-card-col"
+           data-testid="rule-card"
+           data-rule-name="<%= rule.title %>"
+           data-rule-search="<%= rule_search_terms(rule) %>"
+           data-rule-enabled="<%= rule.enabled? %>">
         <%= render "transaction_rules/rule_card", rule: rule %>
       </div>
     <% end %>
   </div>
+
+  <div class="rules-no-results" data-testid="rules-no-results" hidden>
+    <i class="ti ti-search-off" aria-hidden="true"></i>
+    <h3 class="h6 fw-bold mt-2 mb-1"><%= t("transaction_rules.no_results_title") %></h3>
+    <p class="mb-2"><%= t("transaction_rules.no_results_body") %></p>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-rules-clear>
+      <%= t("transaction_rules.clear_filters") %>
+    </button>
+  </div>
 <% else %>
   <div class="card">
-    <div class="p-5 text-center">
-      <i class="ti ti-wand display-4 text-muted mb-3 d-block"></i>
-      <h4 class="mb-2"><%= t("transaction_rules.no_rules_title") %></h4>
-      <p class="text-muted"><%= t("transaction_rules.no_rules_body") %></p>
-      <%= link_to new_transaction_rule_path, class: "btn btn-primary mt-3" do %>
-        <i class="ti ti-plus me-1"></i><%= t("transaction_rules.create_first_rule") %>
-      <% end %>
+    <div class="card-body">
+      <%= render "shared/empty_state",
+                 icon: "wand",
+                 title: t("transaction_rules.no_rules_title"),
+                 text: t("transaction_rules.no_rules_body"),
+                 cta: link_to(t("transaction_rules.create_first_rule"), new_transaction_rule_path, class: "btn btn-primary") %>
     </div>
   </div>
 <% end %>
+
+<%= javascript_include_tag "transaction_rules_index", defer: true %>

@@ -37,10 +37,12 @@ test.describe('suggested rules – dismiss and create from suggestion', () => {
 
     await panel.locator('form button', { hasText: 'Descartar' }).first().click();
     await expect(page.getByText('Sugerencia descartada.')).toBeVisible();
-    await expect(page.locator('section#suggested-rules')).toHaveCount(0);
+    await expect(page.locator('[data-testid="rule-suggestion"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="rules-suggestions-empty"]')).toBeVisible();
 
     await page.reload();
-    await expect(page.locator('section#suggested-rules')).toHaveCount(0);
+    await expect(page.locator('[data-testid="rule-suggestion"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="rules-suggestions-empty"]')).toBeVisible();
   });
 
   test('creating a rule from a suggestion makes the suggestion disappear', async ({ page }) => {
@@ -54,7 +56,8 @@ test.describe('suggested rules – dismiss and create from suggestion', () => {
 
     await page.getByRole('button', { name: /Guardar regla/i }).click();
     await expect(page).toHaveURL(/\/transaction_rules$/);
-    await expect(page.locator('section#suggested-rules')).toHaveCount(0);
+    await expect(page.locator('[data-testid="rule-suggestion"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="rules-suggestions-empty"]')).toBeVisible();
     await expect(page.locator('.card', { hasText: /smartfit bogot/i })).toBeVisible();
     await expect(page.locator('.card', { hasText: /smartfit bogot/i })).toContainText(category);
   });
