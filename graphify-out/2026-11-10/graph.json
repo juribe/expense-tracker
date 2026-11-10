@@ -97668,7 +97668,7 @@
       "file_type": "code",
       "norm_label": ".advance_or_save()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L338"
+      "source_location": "L345"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_blank_row",
@@ -97680,7 +97680,7 @@
       "file_type": "code",
       "norm_label": ".blank_row()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L346"
+      "source_location": "L353"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_clean_edit_rows",
@@ -97692,7 +97692,7 @@
       "file_type": "code",
       "norm_label": ".clean_edit_rows()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L382"
+      "source_location": "L389"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_clean_rows",
@@ -97704,7 +97704,7 @@
       "file_type": "code",
       "norm_label": ".clean_rows()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L365"
+      "source_location": "L372"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_complete",
@@ -97716,7 +97716,7 @@
       "file_type": "code",
       "norm_label": ".complete()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L289"
+      "source_location": "L296"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_dismiss",
@@ -97728,7 +97728,7 @@
       "file_type": "code",
       "norm_label": ".dismiss()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L310"
+      "source_location": "L317"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_done",
@@ -97740,7 +97740,7 @@
       "file_type": "code",
       "norm_label": ".done()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L300"
+      "source_location": "L307"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_duplicates_for",
@@ -97752,7 +97752,7 @@
       "file_type": "code",
       "norm_label": ".duplicates_for()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L408"
+      "source_location": "L415"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_edit_all",
@@ -97764,7 +97764,7 @@
       "file_type": "code",
       "norm_label": ".edit_all()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L172"
+      "source_location": "L179"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_edit_fields",
@@ -97776,7 +97776,7 @@
       "file_type": "code",
       "norm_label": ".edit_fields()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L419"
+      "source_location": "L426"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_find_stored_row",
@@ -97788,7 +97788,7 @@
       "file_type": "code",
       "norm_label": ".find_stored_row()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L357"
+      "source_location": "L364"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_import_confirm",
@@ -97800,7 +97800,7 @@
       "file_type": "code",
       "norm_label": ".import_confirm()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L256"
+      "source_location": "L263"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_import_review",
@@ -97812,7 +97812,7 @@
       "file_type": "code",
       "norm_label": ".import_review()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L243"
+      "source_location": "L250"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_manual",
@@ -97836,7 +97836,7 @@
       "file_type": "code",
       "norm_label": ".normalize_money_string()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L446"
+      "source_location": "L453"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_normalize_row_money",
@@ -97848,7 +97848,7 @@
       "file_type": "code",
       "norm_label": ".normalize_row_money()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L397"
+      "source_location": "L404"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_presenter_for",
@@ -97860,7 +97860,7 @@
       "file_type": "code",
       "norm_label": ".presenter_for()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L350"
+      "source_location": "L357"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_process_upload",
@@ -97872,7 +97872,7 @@
       "file_type": "code",
       "norm_label": ".process_upload()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L110"
+      "source_location": "L117"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_remove_source",
@@ -97884,7 +97884,7 @@
       "file_type": "code",
       "norm_label": ".remove_source()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L216"
+      "source_location": "L223"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_render_upload_error",
@@ -97896,7 +97896,7 @@
       "file_type": "code",
       "norm_label": ".render_upload_error()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L459"
+      "source_location": "L466"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_render_upload_renderer",
@@ -97908,7 +97908,7 @@
       "file_type": "code",
       "norm_label": ".render_upload_renderer()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L450"
+      "source_location": "L457"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_reset",
@@ -97920,7 +97920,7 @@
       "file_type": "code",
       "norm_label": ".reset()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L316"
+      "source_location": "L323"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_review_step_pred",
@@ -97932,7 +97932,7 @@
       "file_type": "code",
       "norm_label": ".review_step?()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L334"
+      "source_location": "L341"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_save_edits",
@@ -97944,7 +97944,7 @@
       "file_type": "code",
       "norm_label": ".save_edits()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L185"
+      "source_location": "L192"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_save_manual",
@@ -97956,7 +97956,7 @@
       "file_type": "code",
       "norm_label": ".save_manual()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L87"
+      "source_location": "L88"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_select",
@@ -97980,7 +97980,7 @@
       "file_type": "code",
       "norm_label": ".set_setup()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L323"
+      "source_location": "L330"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_show",
@@ -98016,7 +98016,7 @@
       "file_type": "code",
       "norm_label": ".step_index()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L330"
+      "source_location": "L337"
     },
     {
       "id": "app_controllers_financial_setups_controller_financialsetupscontroller_upload",
@@ -98028,7 +98028,7 @@
       "file_type": "code",
       "norm_label": ".upload()",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L97"
+      "source_location": "L104"
     },
     {
       "id": "app_services_statement_duplicate_detector_statementduplicatedetector_by_bank_and_last_four",
@@ -156904,7 +156904,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L339",
+      "source_location": "L346",
       "weight": 1.0
     },
     {
@@ -156916,7 +156916,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L340",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -156928,7 +156928,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L393",
+      "source_location": "L400",
       "weight": 1.0
     },
     {
@@ -156940,7 +156940,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L376",
+      "source_location": "L383",
       "weight": 1.0
     },
     {
@@ -156952,7 +156952,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L290",
+      "source_location": "L297",
       "weight": 1.0
     },
     {
@@ -156964,7 +156964,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L409",
+      "source_location": "L416",
       "weight": 1.0
     },
     {
@@ -156976,7 +156976,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L411",
+      "source_location": "L418",
       "weight": 1.0
     },
     {
@@ -156988,7 +156988,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L412",
+      "source_location": "L419",
       "weight": 1.0
     },
     {
@@ -157000,7 +157000,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L173",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -157012,7 +157012,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L175",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -157024,7 +157024,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L428",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -157036,7 +157036,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L359",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -157048,7 +157048,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L267",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -157060,7 +157060,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L283",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -157072,7 +157072,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L244",
+      "source_location": "L251",
       "weight": 1.0
     },
     {
@@ -157096,7 +157096,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L447",
+      "source_location": "L454",
       "weight": 1.0
     },
     {
@@ -157108,7 +157108,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L401",
+      "source_location": "L408",
       "weight": 1.0
     },
     {
@@ -157120,7 +157120,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L351",
+      "source_location": "L358",
       "weight": 1.0
     },
     {
@@ -157132,7 +157132,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L114",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -157144,7 +157144,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L117",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
@@ -157156,7 +157156,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L118",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -157168,7 +157168,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L138",
+      "source_location": "L145",
       "weight": 1.0
     },
     {
@@ -157180,7 +157180,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L142",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -157192,7 +157192,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L153",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -157204,7 +157204,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L158",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -157216,7 +157216,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L226",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -157228,7 +157228,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L226",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -157240,7 +157240,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L231",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -157252,7 +157252,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L463",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -157264,7 +157264,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L450",
+      "source_location": "L457",
       "weight": 1.0
     },
     {
@@ -157276,7 +157276,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L187",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -157288,7 +157288,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L197",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -157300,7 +157300,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L89",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -157312,7 +157312,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L93",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -157408,7 +157408,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L331",
+      "source_location": "L338",
       "weight": 1.0
     },
     {
@@ -157420,7 +157420,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L98",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -263753,13 +263753,24 @@
     },
     {
       "source": "app_controllers_financial_setups_controller_financialsetupscontroller",
+      "target": "app_controllers_financial_setups_controller_financialsetupscontroller_upload",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/financial_setups_controller.rb",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_financial_setups_controller_financialsetupscontroller",
       "target": "app_controllers_financial_setups_controller_financialsetupscontroller_process_upload",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L110",
+      "source_location": "L117",
       "weight": 1.0
     },
     {
@@ -263781,7 +263792,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L172",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -263792,7 +263803,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L185",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -263803,7 +263814,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L216",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -263814,7 +263825,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L243",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -263825,7 +263836,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L256",
+      "source_location": "L263",
       "weight": 1.0
     },
     {
@@ -263847,7 +263858,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L289",
+      "source_location": "L296",
       "weight": 1.0
     },
     {
@@ -263858,7 +263869,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L300",
+      "source_location": "L307",
       "weight": 1.0
     },
     {
@@ -263869,7 +263880,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L310",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -263880,7 +263891,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L316",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -263891,7 +263902,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L323",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -263902,7 +263913,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L330",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -263913,7 +263924,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L334",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -263924,7 +263935,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L338",
+      "source_location": "L345",
       "weight": 1.0
     },
     {
@@ -263935,7 +263946,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L346",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -263946,7 +263957,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L350",
+      "source_location": "L357",
       "weight": 1.0
     },
     {
@@ -263957,7 +263968,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L357",
+      "source_location": "L364",
       "weight": 1.0
     },
     {
@@ -263968,7 +263979,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L365",
+      "source_location": "L372",
       "weight": 1.0
     },
     {
@@ -263979,7 +263990,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L382",
+      "source_location": "L389",
       "weight": 1.0
     },
     {
@@ -263990,7 +264001,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L397",
+      "source_location": "L404",
       "weight": 1.0
     },
     {
@@ -264001,7 +264012,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L408",
+      "source_location": "L415",
       "weight": 1.0
     },
     {
@@ -264012,7 +264023,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L419",
+      "source_location": "L426",
       "weight": 1.0
     },
     {
@@ -264023,7 +264034,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L446",
+      "source_location": "L453",
       "weight": 1.0
     },
     {
@@ -264034,18 +264045,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L450",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_financial_setups_controller_financialsetupscontroller",
-      "target": "app_controllers_financial_setups_controller_financialsetupscontroller_render_upload_error",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L459",
+      "source_location": "L457",
       "weight": 1.0
     },
     {
@@ -264057,6 +264057,17 @@
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
       "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_financial_setups_controller_financialsetupscontroller",
+      "target": "app_controllers_financial_setups_controller_financialsetupscontroller_render_upload_error",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/financial_setups_controller.rb",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -264078,18 +264089,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L87",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_financial_setups_controller_financialsetupscontroller",
-      "target": "app_controllers_financial_setups_controller_financialsetupscontroller_upload",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L97",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -318210,7 +318210,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L306",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -318222,7 +318222,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L178",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -318234,7 +318234,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L250",
+      "source_location": "L257",
       "weight": 1.0
     },
     {
@@ -318258,7 +318258,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L165",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -318270,7 +318270,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L466",
+      "source_location": "L473",
       "weight": 1.0
     },
     {
@@ -318282,7 +318282,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L453",
+      "source_location": "L460",
       "weight": 1.0
     },
     {
@@ -318318,7 +318318,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/financial_setups_controller.rb",
-      "source_location": "L103",
+      "source_location": "L110",
       "weight": 1.0
     },
     {
@@ -323902,5 +323902,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "3a00d4aeff2ed2ca5ba48add4c45d5c3f1ce2398"
+  "built_at_commit": "be7c7495bbf1cc5950e70f66f45be1b6cffb5fc2"
 }

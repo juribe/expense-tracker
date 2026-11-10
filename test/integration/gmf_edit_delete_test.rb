@@ -46,4 +46,83 @@ class GmfEditDeleteTest < ActiveSupport::TestCase
     assert_not_nil charge
     assert_equal (200_000 * 0.004).to_d, charge.amount.abs
   end
+
+  test "deleting gmf charge recalculates the month with the current exemption" do
+    expense = create_expense(amount: 29_000)
+    assert_equal 29_000.to_d, accumulator.total_debits
+    assert_equal 116.to_d, accumulator.gmf_generated
+
+    @account.update!(gmf_exempt: true)
+    charge = Expense.find_by(gmf_origin_type: "Expense", gmf_origin_id: expense.id)
+    charge.destroy!
+
+    assert Expense.exists?(expense.id)
+    accumulator.reload
+    assert_equal 29_000.to_d, accumulator.total_debits
+    assert_equal 29_000.to_d, accumulator.covered_by_exemption
+    assert_equal 0.to_d, accumulator.taxable
+    assert_equal 0.to_d, accumulator.gmf_generated
+  end
+
+  test "deleting origin after marking the account exempt clears the accumulator" do
+    expense = create_expense(amount: 29_000)
+    @account.update!(gmf_exempt: true)
+
+    expense.destroy!
+
+    accumulator.reload
+    assert_equal 0.to_d, accumulator.total_debits
+    assert_equal 0.to_d, accumulator.covered_by_exemption
+    assert_equal 0.to_d, accumulator.taxable
+    assert_equal 0.to_d, accumulator.gmf_generated
+    assert_nil Expense.find_by(gmf_origin_type: "Expense", gmf_origin_id: expense.id)
+  end
+
+  test "editing origin after marking the account exempt recalculates the month" do
+    expense = create_expense(amount: 29_000)
+    @account.update!(gmf_exempt: true)
+
+    expense.update!(amount: 58_000)
+
+    accumulator.reload
+    assert_equal 58_000.to_d, accumulator.total_debits
+    assert_equal 58_000.to_d, accumulator.covered_by_exemption
+    assert_equal 0.to_d, accumulator.taxable
+    assert_equal 0.to_d, accumulator.gmf_generated
+    assert_nil Expense.find_by(gmf_origin_type: "Expense", gmf_origin_id: expense.id)
+  end
+
+  test "deleting transfer after marking the account exempt clears the accumulator" do
+    destination = @user.money_sources.create!(name: "Destino", kind: "account", starting_balance: 0)
+    transfer = Transfer.create!(
+      user: @user, from_source: @account, to_source: destination,
+      amount: 29_000, date: Date.new(2026, 11, 10)
+    )
+    assert_equal 29_000.to_d, accumulator.total_debits
+    @account.update!(gmf_exempt: true)
+
+    transfer.destroy!
+
+    accumulator.reload
+    assert_equal 0.to_d, accumulator.total_debits
+    assert_equal 0.to_d, accumulator.covered_by_exemption
+    assert_equal 0.to_d, accumulator.taxable
+    assert_equal 0.to_d, accumulator.gmf_generated
+  end
+
+  private
+
+  def create_expense(amount:, date: Date.new(2026, 11, 10))
+    @user.expenses.create!(
+      category: @category, amount:, date:,
+      source: "manual", money_source: @account, kind: "expense"
+    )
+  end
+
+  def accumulator
+    GmfMonthlyAccumulator.find_by(
+      user_id: @user.id, money_source_id: @account.id,
+      year: 2026, month: 11
+    )
+  end
 end

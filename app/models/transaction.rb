@@ -72,7 +72,11 @@ class Transaction < ApplicationRecord
   end
 
   after_commit on: [ :destroy ], if: :expense? do
-    Gmf::ExpenseDestroyHandler.call(self) unless source.to_s == "gmf"
+    if source.to_s == "gmf"
+      Gmf::ChargeDestroyHandler.call(self)
+    else
+      Gmf::ExpenseDestroyHandler.call(self)
+    end
   end
 
   # Keeps the owning money source's cached balance in sync. The delta equals
