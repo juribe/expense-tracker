@@ -1,0 +1,30 @@
+<%# Recommendations panel: complementary next actions derived from the data. %>
+<section class="card report-panel h-100" data-testid="perspective-recommendations">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.perspectives.recommendations_title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.perspectives.recommendations_subtitle") %></p>
+    </div>
+    <span class="report-analysis-icon" aria-hidden="true"><i class="ti ti-bulb"></i></span>
+  </div>
+
+  <div class="report-panel-body">
+    <% if perspectives[:recommendations].any? %>
+      <div class="perspective-recommendations">
+        <% perspectives[:recommendations].each do |recommendation| %>
+          <% action_url = perspective_action_url(recommendation[:action]) %>
+          <article class="perspective-recommendation">
+            <div class="perspective-recommendation-head">
+              <span class="perspective-recommendation-icon" aria-hidden="true">
+                <i class="ti ti-arrow-up-right"></i>
+              </span>
+              <h3><%= recommendation[:title] %></h3>
+            </div>
+            <p><%= recommendation[:body] %></p>
+            <%= link_to recommendation[:action][:label], action_url, class: "report-link" %>
+          </article>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

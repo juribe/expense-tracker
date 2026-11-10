@@ -1,0 +1,84 @@
+<%# Summary panel: four indicators plus a contextual reading of the period. %>
+<% metrics = perspectives[:metrics] %>
+<% comparison = perspectives[:comparison] %>
+<% variation_tone = if comparison[:available] && comparison[:delta_pct]
+     comparison[:delta_pct].positive? ? :attention : :positive
+   end %>
+
+<section class="card report-panel perspectives-summary" data-testid="perspectives-summary">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.perspectives.summary_title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.perspectives.summary_subtitle") %></p>
+    </div>
+    <span class="report-analysis-icon" aria-hidden="true"><i class="ti ti-sparkles"></i></span>
+  </div>
+
+  <div class="report-panel-body">
+    <% if perspectives[:partial] %>
+      <div class="perspective-partial-badge">
+        <i class="ti ti-clock" aria-hidden="true"></i>
+        <%= t("reports.perspectives.partial_badge") %>
+      </div>
+    <% end %>
+
+    <div class="row g-3 perspectives-metrics">
+      <%= render "reports/metric",
+            label: t("reports.perspectives.income"),
+            value: money_amount(metrics[:income][:total]),
+            tone: :positive,
+            icon: "trending-up",
+            icon_tone: "green",
+            note: t("reports.perspectives.income_note"),
+            testid: "perspectives-income",
+            variant: "income" %>
+
+      <%= render "reports/metric",
+            label: t("reports.perspectives.expenses"),
+            value: money_amount(metrics[:expenses][:total]),
+            tone: :negative,
+            icon: "trending-down",
+            icon_tone: "red",
+            note: t("reports.perspectives.expenses_note"),
+            testid: "perspectives-expenses-total",
+            variant: "expense" %>
+
+      <%= render "reports/metric",
+            label: t("reports.perspectives.balance"),
+            value: money_amount(metrics[:balance]),
+            tone: metrics[:balance].to_d.negative? ? :negative : :positive,
+            icon: "wallet",
+            icon_tone: metrics[:balance].to_d.negative? ? "red" : "green",
+            note: t("reports.perspectives.balance_note"),
+            testid: "perspectives-balance",
+            variant: metrics[:balance].to_d.negative? ? "debt" : "net" %>
+
+      <%= render "reports/metric",
+            label: t("reports.perspectives.variation"),
+            value: perspective_variation_value(comparison),
+            tone: variation_tone,
+            icon: "arrows-exchange",
+            icon_tone: variation_tone == :positive ? "green" : (variation_tone == :attention ? "amber" : "gray"),
+            note: perspective_variation_note(comparison),
+            testid: "perspectives-variation",
+            variant: "neutral" %>
+    </div>
+
+    <div class="perspective-summary-copy">
+      <strong><%= t("reports.perspectives.summary_prefix") %></strong>
+      <%= perspectives[:summary] %>
+    </div>
+
+    <% if perspectives[:partial] %>
+      <p class="perspective-partial-note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <%= t("reports.perspectives.partial_note") %>
+      </p>
+    <% end %>
+
+    <p class="perspective-disclaimer">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <%= t("reports.perspectives.balance_disclaimer") %>
+    </p>
+  </div>
+</section>

@@ -5,8 +5,9 @@
 # scoped relations shared by every report service.
 #
 # Associations: none (value object over the user's records)
-# Methods: expense_scope, actual_expense_scope, income_scope, transfer_scope,
-#          applied_filters, active_category_id, active_source_id
+# Methods: expense_scope, actual_expense_scope, income_scope,
+#          income_scope_without_category, transfer_scope, applied_filters,
+#          active_category_id, active_source_id
 #
 # Example: Reports::Filter.new(user: user, period: period, category_id: 7).expense_scope(period.range)
 class Reports::Filter
@@ -33,6 +34,17 @@ class Reports::Filter
 
   def income_scope(range)
     scoped(Income.all, range)
+  end
+
+  # Income has no expense category, so filtering the overview by a spending
+  # category must not zero the income total. The money-source filter still
+  # applies because incomes do have an origin. This is the counterpart used by
+  # the perspectives summary, not a change to the shared income_scope.
+  def income_scope_without_category(range)
+    scope = Income.for_user(@user).where(date: range)
+    source_id = active_source_id
+    scope = scope.where(money_source_id: source_id) if source_id
+    scope
   end
 
   def transfer_scope(range)

@@ -1,0 +1,30 @@
+<%# Single finding card. Locals: finding %>
+<% action_url = perspective_action_url(finding[:action]) %>
+<article class="perspective-finding perspective-finding--<%= finding[:importance] %>"
+         data-testid="insight">
+  <div class="perspective-finding-head">
+    <span class="perspective-finding-icon is-<%= finding[:importance] %>" aria-hidden="true">
+      <i class="ti ti-<%= perspective_finding_icon(finding[:type]) %>"></i>
+    </span>
+    <div class="perspective-finding-title">
+      <h3><%= finding[:title] %></h3>
+      <span class="perspective-tag is-<%= finding[:importance] %>">
+        <%= perspective_importance_label(finding[:importance]) %>
+      </span>
+    </div>
+  </div>
+
+  <div class="perspective-finding-body">
+    <div class="perspective-finding-metric <%= perspective_metric_class(finding[:metric_tone]) %>">
+      <%= finding[:metric] %>
+    </div>
+    <p><%= finding[:explanation] %></p>
+  </div>
+
+  <div class="perspective-finding-foot">
+    <span class="perspective-finding-period"><%= finding[:period_label] %></span>
+    <%= link_to finding[:action][:label], action_url,
+                class: "report-link",
+                data: perspective_action_data(finding[:action], action_url) %>
+  </div>
+</article>

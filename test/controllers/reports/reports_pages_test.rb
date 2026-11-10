@@ -352,6 +352,57 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid=insight]", count: 0
   end
 
+  test "GET /reports/insights renders the perspectives summary, findings, recommendations and evolution" do
+    income_category = Category.create!(name: "Salario Perspectives", is_default: true, category_type: "income")
+    @user.incomes.create!(amount: 5_000_000, date: Date.new(2026, 9, 2), category: income_category,
+                          money_source: @bank, description: "salary")
+    @user.expenses.create!(amount: -2_000_000, date: Date.new(2026, 9, 10), category: @category,
+                           money_source: @bank, description: "current")
+    @user.expenses.create!(amount: -1_000_000, date: Date.new(2026, 8, 10), category: @category,
+                           money_source: @bank, description: "previous")
+
+    get reports_insights_path(period: "custom", start_date: "2026-09-01", end_date: "2026-09-30")
+
+    assert_response :success
+    assert_select "[data-testid=perspectives-summary]"
+    assert_select "[data-testid=perspectives-income]"
+    assert_select "[data-testid=perspectives-expenses-total]", text: /\$2\.000\.000/
+    assert_select "[data-testid=perspectives-balance]"
+    assert_select "[data-testid=perspectives-variation]"
+    assert_select "[data-testid=insight]", minimum: 1
+    assert_select "[data-testid=perspective-recommendations]"
+    assert_select "[data-testid=perspectives-evolution]"
+    assert_select "#perspectives-evolution-chart"
+    assert_select "a[href*='/reports/trends']"
+    assert_select "#reportTransactionsModal"
+    assert_not_includes response.body, "translation_missing"
+  end
+
+  test "GET /reports/insights applies the category filter to the summary" do
+    other = Category.create!(name: "Transporte Perspectives", is_default: true, category_type: "expense")
+    @user.expenses.create!(amount: -2_000_000, date: Date.new(2026, 9, 10), category: @category,
+                           money_source: @bank, description: "selected")
+    @user.expenses.create!(amount: -3_000_000, date: Date.new(2026, 9, 11), category: other,
+                           money_source: @bank, description: "other")
+    @user.expenses.create!(amount: -1_000_000, date: Date.new(2026, 8, 10), category: @category,
+                           money_source: @bank, description: "previous")
+
+    get reports_insights_path(period: "custom", start_date: "2026-09-01", end_date: "2026-09-30",
+                              category_id: @category.id)
+
+    assert_response :success
+    assert_select "[data-testid=perspectives-expenses-total]", text: /\$2\.000\.000/
+    assert_select "[data-testid=perspectives-expenses-total]", text: /\$5\.000\.000/, count: 0
+  end
+
+  test "GET /reports/insights renders an empty state without movements" do
+    get reports_insights_path
+
+    assert_response :success
+    assert_select "[data-testid=perspectives-empty]"
+    assert_select "[data-testid=insight]", count: 0
+  end
+
   test "reports filters omit the kind filter and only list payment sources" do
     card = @user.money_sources.create!(name: "Visa", kind: "credit_card", active: true)
     cash = @user.money_sources.create!(name: "Efectivo", kind: "cash", active: true)

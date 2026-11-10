@@ -4635,3 +4635,346 @@ a.category-distribution-row:hover {
     gap: 0.15rem;
   }
 }
+
+/* -------------------------------------------------
+ * Perspectives: summary, findings, recommendations
+ * and spending evolution.
+ * ------------------------------------------------- */
+
+.perspectives-summary {
+  margin-bottom: 1rem;
+}
+
+.perspectives-metrics .report-kpi {
+  height: 100%;
+}
+
+.perspective-summary-copy {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.perspective-summary-copy strong {
+  color: var(--bs-body-color);
+}
+
+.perspective-partial-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(178, 106, 0, 0.12);
+  color: var(--et-attention);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.perspective-partial-note,
+.perspective-disclaimer {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.55rem 0 0;
+  color: var(--et-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.perspective-disclaimer {
+  margin-top: 0.35rem;
+}
+
+.perspective-partial-note .ti,
+.perspective-disclaimer .ti {
+  flex: 0 0 auto;
+  margin-top: 0.1rem;
+}
+
+.perspectives-columns {
+  margin-bottom: 1rem;
+}
+
+.perspective-findings {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.perspective-finding {
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.9rem;
+  background: var(--bs-body-bg);
+}
+
+.perspective-finding--attention {
+  border-left: 3px solid var(--et-attention);
+}
+
+.perspective-finding--positive {
+  border-left: 3px solid var(--et-positive);
+}
+
+.perspective-finding--opportunity {
+  border-left: 3px solid var(--et-balance);
+}
+
+.perspective-finding-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.perspective-finding-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.7rem;
+  font-size: 1.05rem;
+}
+
+.perspective-finding-icon.is-attention {
+  background: rgba(178, 106, 0, 0.12);
+  color: var(--et-attention);
+}
+
+.perspective-finding-icon.is-positive {
+  background: rgba(14, 159, 110, 0.12);
+  color: var(--et-positive);
+}
+
+.perspective-finding-icon.is-opportunity {
+  background: rgba(42, 109, 245, 0.12);
+  color: var(--et-balance);
+}
+
+.perspective-finding-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.perspective-finding-title h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.perspective-tag {
+  margin-left: auto;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.perspective-tag.is-attention {
+  background: rgba(178, 106, 0, 0.12);
+  color: var(--et-attention);
+}
+
+.perspective-tag.is-positive {
+  background: rgba(14, 159, 110, 0.12);
+  color: var(--et-positive);
+}
+
+.perspective-tag.is-opportunity {
+  background: rgba(42, 109, 245, 0.12);
+  color: var(--et-balance);
+}
+
+.perspective-finding-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
+  margin-top: 0.6rem;
+}
+
+.perspective-finding-metric {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.perspective-finding-metric.is-negative {
+  color: var(--et-negative);
+}
+
+.perspective-finding-metric.is-positive {
+  color: var(--et-positive);
+}
+
+.perspective-finding-metric.is-neutral {
+  color: var(--et-balance);
+}
+
+.perspective-finding-body p {
+  margin: 0;
+  color: var(--et-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.perspective-finding-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.perspective-finding-period {
+  color: var(--et-muted);
+  font-size: 0.7rem;
+}
+
+.perspective-recommendations {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.perspective-recommendation {
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.8rem;
+  background: var(--bs-tertiary-bg);
+}
+
+.perspective-recommendation-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.perspective-recommendation-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 0.55rem;
+  background: rgba(42, 109, 245, 0.12);
+  color: var(--et-balance);
+  font-size: 0.85rem;
+}
+
+.perspective-recommendation h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.perspective-recommendation p {
+  margin: 0.45rem 0 0.5rem;
+  color: var(--et-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.perspective-evolution-meta {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.perspective-evolution-label {
+  display: block;
+  color: var(--et-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.perspective-evolution-total {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.perspective-evolution-delta {
+  color: var(--et-positive);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.perspective-evolution-delta.is-attention {
+  color: var(--et-attention);
+}
+
+.perspective-evolution-delta.is-neutral {
+  color: var(--et-muted);
+}
+
+[data-bs-theme="dark"] .perspective-finding-icon.is-attention,
+[data-bs-theme="dark"] .perspective-tag.is-attention,
+[data-bs-theme="dark"] .perspective-partial-badge {
+  background: rgba(255, 183, 77, 0.14);
+}
+
+[data-bs-theme="dark"] .perspective-finding-icon.is-positive,
+[data-bs-theme="dark"] .perspective-tag.is-positive {
+  background: rgba(14, 159, 110, 0.18);
+}
+
+[data-bs-theme="dark"] .perspective-finding-icon.is-opportunity,
+[data-bs-theme="dark"] .perspective-tag.is-opportunity,
+[data-bs-theme="dark"] .perspective-recommendation-icon {
+  background: rgba(42, 109, 245, 0.2);
+}
+
+@media (max-width: 767.98px) {
+  .perspective-finding-body {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .perspective-finding-foot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .perspective-evolution-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .perspective-finding {
+    padding: 0.75rem;
+  }
+
+  .perspective-finding-metric {
+    font-size: 1.3rem;
+  }
+
+  .perspective-finding-title h3 {
+    font-size: 0.86rem;
+  }
+
+  .perspective-tag {
+    margin-left: 0;
+  }
+}

@@ -22,11 +22,15 @@ module SavingsOpportunities
     STOPWORDS = %w[de del la el los las y en pago compra com www co ltda sa sas].freeze
     MONTHLY_FACTORS = Reports::Recurring::MONTHLY_FACTORS
 
-    attr_reader :user, :window
+    attr_reader :user, :window, :scope
 
-    def initialize(user:, window:)
+    # `scope` is optional and lets another report reuse the detection with its
+    # own user/category/source filters. It must be an Expense relation; the
+    # existing user scope remains the default.
+    def initialize(user:, window:, scope: nil)
       @user = user
       @window = window
+      @scope = scope
     end
 
     def call
@@ -47,12 +51,16 @@ module SavingsOpportunities
     private
 
     def expenses
-      @expenses ||= Expense.for_user(user)
+      @expenses ||= source_scope
                            .where(date: window.recurring_range)
                            .where.missing(:payments)
                            .where(gmf_origin_type: nil)
                            .order(date: :desc, created_at: :desc)
                            .to_a
+    end
+
+    def source_scope
+      scope || Expense.for_user(user)
     end
 
     def build_row(key, group)

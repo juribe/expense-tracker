@@ -1,0 +1,31 @@
+<%# Findings panel: deterministic signals with importance, metric and action. %>
+<section class="card report-panel h-100" data-testid="perspectives-findings">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.perspectives.findings_title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.perspectives.findings_subtitle") %></p>
+    </div>
+    <span class="report-analysis-icon" aria-hidden="true"><i class="ti ti-search"></i></span>
+  </div>
+
+  <div class="report-panel-body">
+    <% if perspectives[:findings].any? %>
+      <div class="perspective-findings">
+        <%= render partial: "reports/insights/finding", collection: perspectives[:findings],
+                   as: :finding %>
+      </div>
+    <% elsif perspectives[:insufficient_data] %>
+      <div class="report-analysis-empty" data-testid="insights-insufficient-data">
+        <span class="report-analysis-empty-icon" aria-hidden="true"><i class="ti ti-chart-line"></i></span>
+        <h3><%= t("reports.perspectives.insufficient_title") %></h3>
+        <p><%= t("reports.perspectives.insufficient_body") %></p>
+      </div>
+    <% else %>
+      <div class="report-analysis-empty" data-testid="insights-empty">
+        <span class="report-analysis-empty-icon" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+        <h3><%= t("reports.perspectives.empty_title") %></h3>
+        <p><%= t("reports.perspectives.empty_body") %></p>
+      </div>
+    <% end %>
+  </div>
+</section>

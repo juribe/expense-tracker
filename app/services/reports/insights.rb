@@ -5,6 +5,9 @@
 # emits an insight when the underlying data clearly supports it, capped to a
 # small set to avoid noise. Thresholds live in Reports::Thresholds.
 #
+# The overview's financial analysis still consumes this service; the dedicated
+# "Perspectivas financieras" page is powered by Reports::Perspectives.
+#
 # Methods: call
 #
 # Example: Reports::Insights.new(user: user, filter: filter).call

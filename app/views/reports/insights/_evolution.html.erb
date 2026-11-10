@@ -1,0 +1,49 @@
+<%# Compact spending evolution: total, variation and the last cycles chart. %>
+<% evolution = perspectives[:evolution] %>
+<% series = evolution[:series] %>
+
+<section class="card report-panel perspectives-evolution" data-testid="perspectives-evolution">
+  <div class="report-panel-head">
+    <div>
+      <h2 class="report-panel-title"><%= t("reports.perspectives.evolution_title") %></h2>
+      <p class="report-panel-subtitle"><%= t("reports.perspectives.evolution_subtitle") %></p>
+    </div>
+    <%= link_to reports_trends_path(filter_params_for), class: "report-link" do %>
+      <%= t("reports.perspectives.evolution_link") %> <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    <% end %>
+  </div>
+
+  <div class="report-panel-body">
+    <% if perspectives[:metrics][:expenses][:total].to_d.positive? %>
+      <div class="perspective-evolution-meta">
+        <div>
+          <span class="perspective-evolution-label"><%= t("reports.perspectives.evolution_total") %></span>
+          <strong class="perspective-evolution-total"><%= money_amount(perspectives[:metrics][:expenses][:total]) %></strong>
+        </div>
+        <span class="perspective-evolution-delta <%= "is-attention" if perspectives[:comparison][:delta_pct].to_f.positive? %> <%= "is-neutral" unless perspectives[:comparison][:available] && perspectives[:comparison][:delta_pct] && !perspectives[:comparison][:delta_pct].zero? %>">
+          <%= perspective_evolution_delta_label(perspectives[:comparison]) %>
+        </span>
+      </div>
+
+      <%= column_chart series.map { |point| [ point[:short_label], point[:total] ] },
+            **chart_money_options,
+            id: "perspectives-evolution-chart",
+            height: "220px",
+            legend: false,
+            colors: [ "#0788df" ],
+            library: {
+              animation: false,
+              scales: {
+                x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+                y: { beginAtZero: true }
+              }
+            } %>
+
+    <% else %>
+      <div class="report-analysis-empty">
+        <span class="report-analysis-empty-icon" aria-hidden="true"><i class="ti ti-chart-line"></i></span>
+        <p><%= t("reports.perspectives.evolution_empty") %></p>
+      </div>
+    <% end %>
+  </div>
+</section>

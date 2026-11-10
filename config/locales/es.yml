@@ -2804,6 +2804,129 @@ es:
       recurring_commitment_increase: "Tienes %{amount} más en compromisos recurrentes que el mes pasado."
       debt_payment_increase: "Tus pagos de deuda subieron %{pct}% frente al periodo anterior."
 
+    perspectives:
+      title: "Perspectivas financieras"
+      subtitle: "Tu analista financiero personal. Lo más importante que detectamos en tus datos."
+      summary_title: "Resumen de tu situación"
+      summary_subtitle: "Una lectura rápida de tu comportamiento financiero durante este ciclo."
+      income: "Ingresos"
+      income_note: "Ingresos registrados en el ciclo"
+      expenses: "Gastos reales"
+      expenses_note: "Gastos del periodo"
+      balance: "Saldo del periodo"
+      balance_note: "Ingresos menos gastos reales"
+      balance_disclaimer: "El saldo del periodo es la diferencia entre ingresos y gastos registrados; no representa necesariamente el dinero disponible en tus cuentas."
+      variation: "Variación de gastos"
+      variation_note: "%{amount} frente al %{period}"
+      variation_no_base: "Sin base de comparación suficiente"
+      partial_badge: "Ciclo en curso · resultados parciales"
+      partial_note: "El ciclo aún no termina. La comparación usa el mismo número de días del ciclo anterior."
+      summary_prefix: "Tu situación:"
+      findings_title: "Hallazgos importantes"
+      findings_subtitle: "Señales relevantes detectadas en tus movimientos."
+      recommendations_title: "Oportunidades de mejora"
+      recommendations_subtitle: "Acciones prácticas basadas en tus hábitos."
+      evolution_title: "Evolución de tus gastos"
+      evolution_subtitle: "Una referencia rápida de cómo se ha comportado tu gasto en los últimos ciclos."
+      evolution_total: "Gasto de este ciclo"
+      evolution_link: "Ver tendencia completa"
+      evolution_empty: "Aún no hay gastos suficientes para mostrar la evolución."
+      insufficient_title: "Falta información para generar hallazgos"
+      insufficient_body: "Necesitamos movimientos de periodos anteriores para comparar tus datos. Sigue registrando tus finanzas y los hallazgos aparecerán cuando haya suficiente historial."
+      empty_title: "Aún no hay movimientos en este ciclo"
+      empty_body: "Registra ingresos y gastos para que podamos construir tu análisis financiero."
+      unknown_source: "Sin fuente"
+      importance:
+        attention: "Atención"
+        positive: "Positivo"
+        opportunity: "Oportunidad"
+      period_labels:
+        current_cycle: "Ciclo seleccionado"
+        income_vs_expenses: "Ingresos menos gastos reales"
+        history: "Frente a tu historial reciente"
+        previous: "ciclo anterior"
+        previous_partial: "mismo tramo del ciclo anterior"
+        comparison: "Comparación con el %{period}"
+      actions:
+        compare: "Ver comparación"
+        movements: "Consultar movimientos"
+        movement: "Ver movimiento"
+        summary: "Ver resumen"
+        category: "Ver gastos de %{name}"
+        recurring: "Ver recurrentes"
+        recurring_movements: "Ver movimientos de %{name}"
+        budget: "Ver presupuestos"
+        goals: "Ver mis metas"
+        money_sources: "Ver fuentes"
+        trends: "Ver tendencia"
+      findings:
+        spending_increase:
+          title: "Aumento de gastos"
+          explanation: "Tus gastos reales aumentaron %{pct} frente al %{period}. La diferencia equivale a %{amount}."
+        spending_decrease:
+          title: "Reducción de gastos"
+          explanation: "Tus gastos reales disminuyeron %{pct} frente al %{period}. La diferencia equivale a %{amount}."
+        spending_decrease_records:
+          title: "Menos gastos registrados"
+          explanation: "Tus gastos disminuyeron %{pct}, pero también hay menos movimientos registrados (%{current_count} frente a %{previous_count}). Revisa si faltan registros antes de tomarlo como una mejora."
+        category_growth:
+          title: "Categoría con mayor crecimiento"
+          explanation: "%{name} presenta un aumento de %{amount} frente al periodo anterior (%{pct})."
+          explanation_no_base: "%{name} no tenía gasto en el periodo anterior y ahora suma %{amount}."
+        category_reduction:
+          title: "Categoría con mayor reducción"
+          explanation: "Redujiste tus gastos en %{name} en %{amount} (%{pct}) frente al periodo anterior."
+          explanation_no_base: "Tus gastos en %{name} bajaron %{amount} frente al periodo anterior."
+        unusual_expense:
+          title: "Gasto inusual"
+          explanation: "Registraste un gasto de %{amount} en %{name}, donde normalmente gastas alrededor de %{average} por movimiento."
+        concentration:
+          title: "Concentración de gastos"
+          explanation: "%{name} representa el %{pct} de tus gastos durante este ciclo."
+        income_positive:
+          title: "Ingresos superiores a tus gastos"
+          explanation: "Tus ingresos superaron tus gastos reales en %{amount} durante este ciclo. No equivale necesariamente al dinero disponible en tus cuentas."
+        income_negative:
+          title: "Gastos superiores a tus ingresos"
+          explanation: "Tus gastos reales superaron tus ingresos registrados en %{amount}. Revisa el flujo del ciclo y las categorías que explican la diferencia."
+        no_income:
+          title: "Sin ingresos registrados"
+          explanation: "No registraste ingresos en este ciclo y tus gastos reales suman %{amount}. Si recibiste ingresos, regístralos para que el análisis sea completo."
+        recurring:
+          title: "Pagos recurrentes detectados"
+          metric: "%{amount}/mes"
+          explanation: "Detectamos %{count} pagos recurrentes que representan %{amount} al mes, aproximadamente el %{pct} de tus gastos del ciclo."
+      recommendations:
+        budget_growth:
+          title: "Define un presupuesto para %{name}"
+          body: "Esta categoría creció %{pct} frente al periodo anterior. Un presupuesto te ayuda a mantener el gasto bajo control."
+          body_no_base: "Esta categoría no tenía gasto en el periodo anterior y ahora suma %{amount}. Un presupuesto te ayuda a mantenerla bajo control."
+        savings:
+          title: "Aprovecha tu capacidad de ahorro"
+          body: "Tus ingresos registrados superan tus gastos reales. Si el excedente se mantiene después de tus compromisos, considera asignar una parte a tus metas financieras."
+        source_concentration:
+          title: "Revisa tus fuentes de dinero"
+          body: "%{name} concentra el %{pct} de tus gastos. Revisa si su uso está alineado con tus prioridades."
+        compare_cycles:
+          title: "Compara tus próximos ciclos"
+          body: "Revisar la evolución de tus gastos te ayudará a distinguir cambios puntuales de tendencias sostenidas."
+        review_movements:
+          title: "Sigue registrando tus movimientos"
+          body: "Con más historial podremos detectar patrones y generar recomendaciones basadas en tus hábitos."
+      summary:
+        positive_balance: "Tus ingresos registrados superan tus gastos reales en %{amount} durante este ciclo."
+        negative_balance: "Tus gastos reales superan tus ingresos registrados en %{amount} durante este ciclo."
+        balanced: "Tus ingresos registrados igualan tus gastos reales durante este ciclo."
+        no_income: "No hay ingresos registrados en este ciclo, así que el saldo no refleja una capacidad real de ahorro."
+        no_expenses: "No hay gastos reales registrados en este ciclo."
+        no_expenses_comparison: "No hay gastos reales registrados en este ciclo; revisa si faltan movimientos antes de comparar con el periodo anterior."
+        no_comparison: "No hay una base de comparación suficiente para medir la variación frente al periodo anterior."
+        no_variation: "Los gastos se mantuvieron estables frente al periodo anterior."
+        increase: "Sin embargo, tus gastos aumentaron %{pct} (%{amount}) frente al %{period}; conviene revisar las categorías que explican el incremento."
+        decrease: "Además, tus gastos disminuyeron %{pct} (%{amount}) frente al %{period}."
+        partial: "El ciclo aún no termina, así que los resultados son parciales."
+        no_data: "Aún no hay movimientos suficientes en este ciclo para construir un análisis."
+
   gmail:
     title: "Importación de gastos desde Gmail"
     sync_now: "Sincronizar ahora"
