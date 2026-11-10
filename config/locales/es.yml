@@ -4146,6 +4146,7 @@ es:
       strategies:
         reduce_term:
           description: "Mantienes tu cuota y sales de la deuda más rápido. Es la opción que más intereses suele ahorrar."
+          recurring_description: "Pagas tu cuota actual más el abono adicional cada cuota y terminas antes. Es la opción que más intereses suele ahorrar."
         reduce_installment:
           description: "Bajas el valor de tu cuota mensual y conservas una fecha de terminación parecida."
         prepay_installments:
@@ -4173,6 +4174,8 @@ es:
             intro: "Priorizamos reducir el tiempo que estarás pagando la deuda."
             primary_label: "Tu cuota mensual se mantiene"
             primary_detail: "Sigues pagando una cuota similar a la actual."
+            recurring_primary_label: "Tu cuota mensual subiría a"
+            recurring_primary_detail: "Incluye tu cuota actual más el abono constante de %{amount} cada cuota."
             third_label: "Cuotas que eliminarías"
             third_detail: "Terminarías de pagar varios meses antes."
           reduce_installment:

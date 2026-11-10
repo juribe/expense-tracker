@@ -57,10 +57,14 @@ test.describe('Credit intelligence dashboard', () => {
 
     await page.getByRole('tab', { name: 'Cómo ahorrar' }).click();
     await expect(page.locator('[data-testid="credit-quick"]')).toBeVisible();
+    await expect(page.locator('#quick_goal_reduce_term')).toHaveCount(0);
+    await expect(page.locator('#quick_goal_reduce_installment')).toBeVisible();
+    await expect(page.locator('#quick_goal_prepay_installments')).toBeVisible();
     await page.locator('#quick_amount').fill('300000');
     await page.getByRole('button', { name: 'Comparar formas de ahorrar' }).click();
 
     await expect(page.locator('#quick-results')).toBeVisible();
+    await expect(page.locator('#credit-strategy-reduce_term')).toHaveCount(0);
     await expect(page.locator('[data-testid="quick-primary"]')).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`${creditsPath}$`));
 
@@ -71,6 +75,25 @@ test.describe('Credit intelligence dashboard', () => {
     await page.getByRole('link', { name: 'Real vs proyectado' }).click();
     await expect(page).toHaveURL(/view=actual/);
     await expect(page.getByText(/Real \(arriba\) vs proyectado/)).toBeVisible();
+  });
+
+  test('constant extra hides the other savings goals', async ({ page }) => {
+    const name = `Préstamo Abono-${Date.now()}`;
+    await createProjectableLoan(page, name);
+    const loanPath = await showPath(page, name);
+    await openCredits(page, loanPath);
+
+    await page.getByRole('tab', { name: 'Cómo ahorrar' }).click();
+    await page.locator('#quick_mode').selectOption('recurring');
+
+    await expect(page.locator('[data-quick-goal-option="reduce_term"]')).toBeVisible();
+    await expect(page.locator('[data-quick-goal-option="reduce_installment"]')).toBeHidden();
+    await expect(page.locator('[data-quick-goal-option="prepay_installments"]')).toBeHidden();
+
+    await page.locator('#quick_mode').selectOption('once');
+
+    await expect(page.locator('[data-quick-goal-option="reduce_installment"]')).toBeVisible();
+    await expect(page.locator('[data-quick-goal-option="prepay_installments"]')).toBeVisible();
   });
 
   test('quick simulation can be saved as a scenario', async ({ page }) => {

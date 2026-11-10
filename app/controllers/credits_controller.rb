@@ -125,7 +125,7 @@ class CreditsController < ApplicationController
   end
 
   def recurring_quick_mode?
-    params[:mode] == "recurring"
+    params[:mode] == "recurring" && !@loan.revolving?
   end
 
   # Opportunity hint: the impact of putting one extra installment into the

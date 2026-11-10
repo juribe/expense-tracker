@@ -5,7 +5,7 @@ require "test_helper"
 # CreditsHelper: pure view derivation over the transient quick comparison
 # returned by Credits::Comparison.quick. No business logic here.
 class CreditsHelperTest < ActionView::TestCase
-  Quick = Struct.new(:current, :strategies, keyword_init: true)
+  Quick = Struct.new(:current, :strategies, :amount, :mode, keyword_init: true)
 
   CURRENT = {
     "payment" => "1130642.0",
@@ -31,6 +31,8 @@ class CreditsHelperTest < ActionView::TestCase
   def quick
     Quick.new(
       current: CURRENT,
+      amount: 0,
+      mode: "once",
       strategies: [
         strategy("reduce_term", savings: 7_030_968, installments: 104, payment: 1_130_642,
                                 eliminated: 8, payoff_date: "2035-05-01"),
@@ -76,6 +78,36 @@ class CreditsHelperTest < ActionView::TestCase
                  result[:primary][:label]
     assert_equal I18n.t("credits.quick.result.interest_none"), result[:interest][:value]
     assert_equal 6, result[:third][:value]
+  end
+
+  test "credit_quick_result shows the higher recurring payment" do
+    result = credit_quick_result(recurring_quick, "reduce_term")
+
+    assert_equal I18n.t("credits.quick.result.goals.reduce_term.recurring_primary_label"),
+                 result[:primary][:label]
+    assert_equal number_to_currency(1_330_642), result[:primary][:value]
+    assert_equal I18n.t("credits.quick.result.goals.reduce_term.recurring_primary_detail",
+                        amount: number_to_currency(200_000)),
+                 result[:primary][:detail]
+  end
+
+  test "credit_quick_result describes the recurring extra as an addition to the payment" do
+    result = credit_quick_result(recurring_quick, "reduce_term")
+
+    assert_equal I18n.t("credits.quick.strategies.reduce_term.recurring_description"),
+                 result[:alternatives].first[:description]
+  end
+
+  def recurring_quick
+    Quick.new(
+      current: CURRENT,
+      amount: BigDecimal("200000"),
+      mode: "recurring",
+      strategies: [
+        strategy("reduce_term", savings: 7_030_968, installments: 104,
+                                payment: 1_330_642, eliminated: 8)
+      ]
+    )
   end
 
   test "credit_quick_result recommends the bigger saver but keeps the user's goal as the headline" do
@@ -126,5 +158,28 @@ class CreditsHelperTest < ActionView::TestCase
 
     assert picked[:chosen]
     assert picked[:best]
+  end
+
+  test "credit_quick_goals excludes finishing earlier for revolving credits" do
+    revolving = MoneySource.new(kind: "loan", sub_kind: "revolving")
+    traditional = MoneySource.new(kind: "loan", sub_kind: "personal")
+
+    assert_equal %w[reduce_installment prepay_installments], credit_quick_goals(revolving)
+    assert_equal Credits::Comparison::QUICK_STRATEGIES, credit_quick_goals(traditional)
+  end
+
+  test "credit_quick_goals limits recurring comparisons to finishing earlier" do
+    traditional = MoneySource.new(kind: "loan", sub_kind: "personal")
+
+    assert_equal %w[reduce_term], credit_quick_goals(traditional, recurring: true)
+  end
+
+  test "credit_quick_result only presents the supported goals" do
+    goals = %w[reduce_installment prepay_installments]
+    result = credit_quick_result(quick, "reduce_term", goals: goals)
+
+    assert_equal "reduce_installment", result[:goal]
+    assert_equal goals, result[:alternatives].map { |row| row[:key] }
+    assert_nil result[:recommendation]
   end
 end

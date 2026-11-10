@@ -168,6 +168,115 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, @loan.reload.credit_scenarios.count
   end
 
+  test "traditional credit savings panel keeps every goal and the recurring mode" do
+    create_projection
+
+    get money_source_credits_path(@loan)
+
+    assert_response :success
+    assert_select "#quick_goal_reduce_term"
+    assert_select "#quick_goal_reduce_installment"
+    assert_select "#quick_goal_prepay_installments"
+    assert_select "[data-quick-goal-option][hidden]", count: 0
+    assert_select "#quick_mode"
+  end
+
+  test "recurring quick comparison only offers finishing earlier" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "200000", mode: "recurring")
+
+    assert_response :success
+    assert_select "#quick_goal_reduce_term[checked]"
+    assert_select "[data-quick-goal-option='reduce_installment'][hidden]"
+    assert_select "[data-quick-goal-option='prepay_installments'][hidden]"
+    assert_select "#credit-strategy-reduce_installment", count: 0
+    assert_select "#credit-strategy-prepay_installments", count: 0
+    assert_select "[data-testid='quick-primary'] .stat-label",
+                  text: I18n.t("credits.quick.result.goals.reduce_term.recurring_primary_label")
+
+    recurring_description = I18n.t("credits.quick.strategies.reduce_term.recurring_description")
+    assert_select "[data-quick-goal-option='reduce_term']", text: /#{Regexp.escape(recurring_description)}/
+    assert_select "#credit-strategy-reduce_term", text: /#{Regexp.escape(recurring_description)}/
+    assert_select "#quick", text: /Mantienes tu cuota/, count: 0
+  end
+
+  test "recurring quick comparison ignores another selected goal" do
+    create_projection
+
+    get money_source_credits_path(@loan, amount: "200000", mode: "recurring",
+                                        goal: "reduce_installment")
+
+    assert_response :success
+    assert_select "#quick_goal_reduce_term[checked]"
+    assert_select "#credit-strategy-reduce_term [data-testid='quick-chosen']"
+    assert_select "#credit-strategy-reduce_installment", count: 0
+  end
+
+  test "revolving credit savings panel does not offer finishing earlier" do
+    revolving = create_revolving_projection
+
+    get money_source_credits_path(revolving)
+
+    assert_response :success
+    assert_select "#quick_goal_reduce_term", count: 0
+    assert_select "#quick_goal_reduce_installment"
+    assert_select "#quick_goal_prepay_installments"
+  end
+
+  test "revolving credit savings panel does not offer the recurring extra mode" do
+    revolving = create_revolving_projection
+
+    get money_source_credits_path(revolving)
+
+    assert_response :success
+    assert_select "#quick_mode", count: 0
+    assert_select "form[data-quick-form] input[type='hidden'][name='mode'][value='once']"
+  end
+
+  test "revolving credit savings comparison hides finishing earlier" do
+    revolving = create_revolving_projection
+
+    get money_source_credits_path(revolving, amount: "300000")
+
+    assert_response :success
+    assert_select "#credit-strategy-reduce_term", count: 0
+    assert_select "#credit-strategy-reduce_installment"
+    assert_select "#credit-strategy-prepay_installments"
+    assert_select "[data-testid='quick-full-comparison'] th",
+                  text: I18n.t("credits.simulators.strategies.reduce_term"), count: 0
+  end
+
+  test "revolving credit savings headline defaults to lowering the monthly payment" do
+    revolving = create_revolving_projection
+
+    get money_source_credits_path(revolving, amount: "300000")
+
+    assert_response :success
+    assert_select "[data-testid='quick-primary'] .stat-label",
+                  text: I18n.t("credits.quick.result.goals.reduce_installment.primary_label")
+  end
+
+  test "revolving credit ignores a finishing-earlier goal" do
+    revolving = create_revolving_projection
+
+    get money_source_credits_path(revolving, amount: "300000", goal: "reduce_term")
+
+    assert_response :success
+    assert_select "#credit-strategy-reduce_term", count: 0
+    assert_select "#credit-strategy-reduce_installment [data-testid='quick-chosen']"
+  end
+
+  test "revolving credit ignores the recurring mode request" do
+    revolving = create_revolving_projection
+
+    get money_source_credits_path(revolving, amount: "300000", mode: "recurring")
+
+    assert_response :success
+    assert_select "#credit-strategy-reduce_term", count: 0
+    assert_select "#credit-strategy-reduce_installment"
+  end
+
   test "show renders the friendly savings experience for an entered amount" do
     create_projection
 
@@ -322,6 +431,17 @@ class CreditsControllerTest < ActionDispatch::IntegrationTest
       start_date: Date.new(2026, 1, 5), payment_frequency: "monthly"
     )
     Credits::Projection::Builder.call(money_source: @loan).result
+  end
+
+  def create_revolving_projection
+    revolving = @user.money_sources.create!(name: "Rotativo", kind: "loan", sub_kind: "revolving")
+    revolving.create_credit_account!(
+      outstanding_balance: 1_200_000, interest_rate: 1.0, interest_rate_type: "monthly",
+      installment_amount: 300_000, installment_count: 5, installments_paid: 0,
+      start_date: Date.new(2026, 1, 5), payment_frequency: "monthly"
+    )
+    Credits::Projection::Builder.call(money_source: revolving).result
+    revolving
   end
 
   def create_scenario_record(index)

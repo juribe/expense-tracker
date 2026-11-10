@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794342874.0658817,
-    "seen": 1794343084.6161978,
-    "ast_hash": "a9a366ee9a619f06a0e3823d27ead74e",
+    "mtime": 1794350848.3240824,
+    "seen": 1794351023.063724,
+    "ast_hash": "a0874454938e97957ee0570f0401668e",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794346876.8305,
-    "seen": 1794346931.352534,
+    "mtime": 1794350984.4497855,
+    "seen": 1794351023.063734,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3858,9 +3858,9 @@
     "semantic_hash": ""
   },
   "app/controllers/credits_controller.rb": {
-    "mtime": 1791926227.2610505,
-    "seen": 1793490696.6343522,
-    "ast_hash": "13c813837ab730568dbd75311d747ce1",
+    "mtime": 1794348584.8482409,
+    "seen": 1794348664.308595,
+    "ast_hash": "c0663c485b0bb09af0a610723dd71fc1",
     "semantic_hash": ""
   },
   "app/models/credit_extra_payment.rb": {
@@ -3948,9 +3948,9 @@
     "semantic_hash": ""
   },
   "test/controllers/credits_controller_test.rb": {
-    "mtime": 1791929101.133049,
-    "seen": 1793490696.635187,
-    "ast_hash": "47cdd4e18fdccf245c2a47834bed03f0",
+    "mtime": 1794350834.1582892,
+    "seen": 1794351023.062891,
+    "ast_hash": "673a8cef0d2c3757a27128a11c65c5a6",
     "semantic_hash": ""
   },
   "test/services/credits/amortization/schedule_builder_test.rb": {
@@ -4314,21 +4314,21 @@
     "semantic_hash": ""
   },
   "app/helpers/credits_helper.rb": {
-    "mtime": 1791929089.2484386,
-    "seen": 1793490696.634443,
-    "ast_hash": "ebf64b193293526738118a9629347f83",
+    "mtime": 1794350857.7557588,
+    "seen": 1794351023.061497,
+    "ast_hash": "0ecbb50c6ab35967ed59c939ef852879",
     "semantic_hash": ""
   },
   "test/helpers/credits_helper_test.rb": {
-    "mtime": 1791929083.5712624,
-    "seen": 1793490696.635255,
-    "ast_hash": "5c1822f006d5dd75077036c73f1ab927",
+    "mtime": 1794350824.1541336,
+    "seen": 1794351023.0630012,
+    "ast_hash": "2508f8b1e0aea492607a87f2554b77bb",
     "semantic_hash": ""
   },
   "app/assets/javascripts/credits.js": {
-    "mtime": 1791928620.677347,
-    "seen": 1793490696.6342678,
-    "ast_hash": "fa0ef0dfeae9169972a720a6d0fc8613",
+    "mtime": 1794350091.6102679,
+    "seen": 1794350749.3933141,
+    "ast_hash": "59937baa304c6c71c018c854773737de",
     "semantic_hash": ""
   },
   "app/models/statement_format_mapping.rb": {
@@ -5124,9 +5124,9 @@
     "semantic_hash": ""
   },
   "playwright/credits.spec.js": {
-    "mtime": 1794193987.2115707,
-    "seen": 1794221554.862931,
-    "ast_hash": "444b89c2a9cbbc893b9c82a03be0536a",
+    "mtime": 1794349851.8203049,
+    "seen": 1794350058.635715,
+    "ast_hash": "d52e1bd1b815e3b0bfbd2ff961bfb7aa",
     "semantic_hash": ""
   },
   "playwright/debt_statement.spec.js": {

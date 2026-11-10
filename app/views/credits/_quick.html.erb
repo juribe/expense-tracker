@@ -5,7 +5,15 @@
   # The whole panel is the swap unit: "Comparar" POSTs here via credits.js, the
   # controller answers with this partial alone and the panel swaps in place —
   # the URL stays clean (no ?amount=&goal=&mode=).
-  selected_goal = Credits::Comparison::QUICK_STRATEGIES.include?(params[:goal]) ? params[:goal] : "reduce_term"
+  recurring_mode = @quick_comparison&.mode == "recurring"
+  goals = credit_quick_goals(@loan)
+  selected_goal = if recurring_mode && goals.include?("reduce_term")
+                    "reduce_term"
+                  elsif goals.include?(params[:goal])
+                    params[:goal]
+                  else
+                    goals.first
+                  end
   goal_icons = { "reduce_term" => "hourglass", "reduce_installment" => "coin", "prepay_installments" => "calendar-event" }
 %>
 <div class="card border-primary" id="quick" data-testid="credit-quick">
@@ -41,15 +49,18 @@
           <span class="fw-semibold d-block"><%= t("credits.quick.goal_label") %></span>
           <p class="text-muted small mb-2"><%= t("credits.quick.goal_hint") %></p>
           <div class="d-grid gap-2" role="radiogroup" aria-label="<%= t("credits.quick.goal_label") %>">
-            <% Credits::Comparison::QUICK_STRATEGIES.each do |key| %>
-              <%= radio_button_tag "goal", key, key == selected_goal,
-                                   id: "quick_goal_#{key}", class: "btn-check", autocomplete: "off" %>
-              <%= label_tag "quick_goal_#{key}", class: "btn btn-outline-primary text-start d-flex gap-2 align-items-start" do %>
-                <i class="ti ti-<%= goal_icons[key] %> mt-1" aria-hidden="true"></i>
-                <span>
-                  <span class="d-block fw-semibold"><%= t("credits.simulators.strategies.#{key}") %></span>
-                  <span class="d-block small fw-normal"><%= t("credits.quick.strategies.#{key}.description") %></span>
-                </span>
+            <% goals.each do |key| %>
+              <%= tag.div data: { quick_goal_option: key },
+                          hidden: recurring_mode && key != "reduce_term" do %>
+                <%= radio_button_tag "goal", key, key == selected_goal,
+                                     id: "quick_goal_#{key}", class: "btn-check", autocomplete: "off" %>
+                <%= label_tag "quick_goal_#{key}", class: "btn btn-outline-primary text-start d-flex gap-2 align-items-start" do %>
+                  <i class="ti ti-<%= goal_icons[key] %> mt-1" aria-hidden="true"></i>
+                  <span>
+                    <span class="d-block fw-semibold"><%= t("credits.simulators.strategies.#{key}") %></span>
+                    <span class="d-block small fw-normal"><%= credit_quick_strategy_description(key, recurring: recurring_mode) %></span>
+                  </span>
+                <% end %>
               <% end %>
             <% end %>
           </div>
@@ -57,17 +68,21 @@
       </div>
 
       <div class="row g-3 align-items-end mt-2">
-        <div class="col-12 col-md-4">
-          <label class="form-label" for="quick_mode"><%= t("credits.quick.mode") %></label>
-          <select class="form-select" id="quick_mode" name="mode">
-            <option value="once" <%= "selected" unless @quick_comparison&.mode == "recurring" %>>
-              <%= t("credits.quick.mode_once") %>
-            </option>
-            <option value="recurring" <%= "selected" if @quick_comparison&.mode == "recurring" %>>
-              <%= t("credits.quick.mode_recurring") %>
-            </option>
-          </select>
-        </div>
+        <% if @loan.revolving? %>
+          <input type="hidden" name="mode" value="once">
+        <% else %>
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="quick_mode"><%= t("credits.quick.mode") %></label>
+            <select class="form-select" id="quick_mode" name="mode">
+              <option value="once" <%= "selected" unless @quick_comparison&.mode == "recurring" %>>
+                <%= t("credits.quick.mode_once") %>
+              </option>
+              <option value="recurring" <%= "selected" if @quick_comparison&.mode == "recurring" %>>
+                <%= t("credits.quick.mode_recurring") %>
+              </option>
+            </select>
+          </div>
+        <% end %>
         <% if params[:objective].present? %><input type="hidden" name="objective" value="<%= params[:objective] %>"><% end %>
         <div class="col-12 col-md-auto">
           <button type="submit" class="btn btn-primary"

@@ -2,10 +2,11 @@
 //
 // "Comparar" POSTs the form (see the credits/quick route) so the params never
 // end up in the address bar, and the answer is just the savings panel — no full
-// page rebuild. The results re-render when the goal changes too: picking a
-// different objetivo (radio or "Elegir esta opción") re-submits the form so the
-// server re-prioritizes the headline. Turbo is not loaded in this app, so this
-// is plain fetch, the same approach as debt_capacity.js.
+// page rebuild. The results re-render when the goal or the application mode
+// changes: picking a different objetivo (radio or "Elegir esta opción") or
+// switching to a recurring extra re-submits the form so the server
+// re-prioritizes the headline. Turbo is not loaded in this app, so this is
+// plain fetch, the same approach as debt_capacity.js.
 (function () {
   function panel() {
     return document.querySelector("[data-testid='credit-quick']");
@@ -40,6 +41,29 @@
     if (!results) return;
     results.scrollIntoView({ behavior: "smooth", block: "start" });
     results.focus({ preventScroll: true });
+  }
+
+  // A recurring extra is simulated as finishing earlier: only that goal applies.
+  function syncGoalOptions(form, recurring) {
+    var options = form.querySelectorAll("[data-quick-goal-option]");
+    var current = form.querySelector("input[name='goal']:checked");
+    if (recurring && current) {
+      form.dataset.quickPreviousGoal = current.value;
+    }
+
+    options.forEach(function (option) {
+      option.hidden = recurring && option.dataset.quickGoalOption !== "reduce_term";
+    });
+
+    if (!recurring) {
+      var previous = form.dataset.quickPreviousGoal;
+      var restore = previous && form.querySelector("input[name='goal'][value='" + previous + "']");
+      if (restore) restore.checked = true;
+      return;
+    }
+
+    var recurringGoal = form.querySelector("input[name='goal'][value='reduce_term']");
+    if (recurringGoal) recurringGoal.checked = true;
   }
 
   function request(form) {
@@ -87,6 +111,17 @@
     if (!goal) return;
 
     var form = goal.closest("[data-quick-form]");
+    if (document.querySelector("#quick-results")) request(form);
+  });
+
+  // A recurring extra only supports finishing earlier: hide the other goals
+  // while that mode is selected.
+  document.addEventListener("change", function (event) {
+    var mode = event.target.closest("[data-quick-form] select[name='mode']");
+    if (!mode) return;
+
+    var form = mode.closest("[data-quick-form]");
+    syncGoalOptions(form, mode.value === "recurring");
     if (document.querySelector("#quick-results")) request(form);
   });
 
