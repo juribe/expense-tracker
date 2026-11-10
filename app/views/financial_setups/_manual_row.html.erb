@@ -122,15 +122,19 @@
       <% end %>
 
       <% if kind == "account" %>
+        <% existing_exempt = MoneySource.gmf_exempt_for(current_user) if defined?(current_user) %>
+        <% gmf_locked = existing_exempt.present? %>
         <div class="col-12">
           <div class="form-check form-switch">
             <%= hidden_field_tag "sources[#{index}][gmf_exempt]", "0", id: nil %>
-            <%= check_box_tag "sources[#{index}][gmf_exempt]", "1", row["gmf_exempt"].to_s == "1",
-                              class: "form-check-input", id: "gmf_exempt_#{index}" %>
+            <%= check_box_tag "sources[#{index}][gmf_exempt]", "1", !gmf_locked && row["gmf_exempt"].to_s == "1",
+                              class: "form-check-input",
+                              id: "gmf_exempt_#{index}",
+                              disabled: gmf_locked,
+                              data: { gmf_exempt: true, gmf_exempt_locked: gmf_locked } %>
             <label class="form-check-label" for="gmf_exempt_<%= index %>"><%= t("wizard.manual.gmf_exempt") %></label>
           </div>
           <div class="form-text"><%= t("wizard.manual.gmf_exempt_hint") %></div>
-          <% existing_exempt = MoneySource.gmf_exempt_for(current_user) if defined?(current_user) %>
           <% if existing_exempt %>
             <div class="form-text text-warning"><%= t("wizard.manual.gmf_exempt_taken", name: existing_exempt.name) %></div>
           <% end %>

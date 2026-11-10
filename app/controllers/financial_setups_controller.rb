@@ -89,6 +89,11 @@ class FinancialSetupsController < ApplicationController
     step_key = params.require(:step)
     rows = clean_rows(params[:sources] || [])
 
+    if more_than_one_gmf_exempt?(rows)
+      return redirect_to financial_setup_manual_screen_path(step: step_key),
+                         alert: t("wizard.manual.gmf_exempt_only_one")
+    end
+
     @setup.set_choice(step_key, "manual")
     @setup.replace_draft_sources(step_key, rows)
 
@@ -193,6 +198,11 @@ class FinancialSetupsController < ApplicationController
     step_key = params.require(:step)
     rows = clean_edit_rows(params[:sources] || [])
 
+    if more_than_one_gmf_exempt?(rows)
+      return redirect_to financial_setup_edit_all_path(step: step_key),
+                         alert: t("wizard.manual.gmf_exempt_only_one")
+    end
+
     manual_store = @setup.draft_sources(step_key)
     import_store = Array(@setup.import_state(step_key)["sources"])
 
@@ -272,6 +282,11 @@ class FinancialSetupsController < ApplicationController
       next if keep.present? && keep[idx.to_s].blank?
 
       merged_sources << source.merge(edit_fields(idx, source["kind"]))
+    end
+
+    if more_than_one_gmf_exempt?(merged_sources)
+      return redirect_to financial_setup_import_review_path(step: step_key),
+                         alert: t("wizard.manual.gmf_exempt_only_one")
     end
 
     choices = params[:duplicates] || {}
@@ -367,6 +382,10 @@ class FinancialSetupsController < ApplicationController
     else
       FinancialSetups::StepPresenter.dedup_key(entry) == FinancialSetups::StepPresenter.dedup_key(row)
     end
+  end
+
+  def more_than_one_gmf_exempt?(rows)
+    rows.count { |row| row["gmf_exempt"].to_s == "1" } > 1
   end
 
   def clean_rows(rows)

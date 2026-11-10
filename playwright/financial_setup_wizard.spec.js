@@ -265,4 +265,27 @@ test.describe('Hybrid financial setup wizard', () => {
     await expect(page).toHaveURL(/\/financial_setup\/step\/accounts\/manual/);
     await expect(page.locator('[data-institution-search]')).toBeFocused();
   });
+
+  test('only one account can be marked as gmf exempt at a time', async ({ page }) => {
+    await startWizard(page);
+    await skipCash(page);
+
+    await expect(page.getByText('¿Cómo quieres agregar tus cuentas?')).toBeVisible();
+    await choose(page, 'Agregar manualmente');
+    await page.getByRole('button', { name: 'Agregar otra' }).click();
+
+    const first = page.locator('input[name="sources[0][gmf_exempt]"][type="checkbox"]');
+    const second = page.locator('input[name="sources[1][gmf_exempt]"][type="checkbox"]');
+    await expect(first).toBeEnabled();
+    await expect(second).toBeEnabled();
+
+    await first.check();
+    await expect(second).toBeDisabled();
+
+    await first.uncheck();
+    await expect(second).toBeEnabled();
+
+    await second.check();
+    await expect(first).toBeDisabled();
+  });
 });

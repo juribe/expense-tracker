@@ -250,9 +250,20 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
   test "GET manual renders the gmf exemption field for accounts" do
     get financial_setup_manual_screen_path(step: :accounts)
     assert_response :success
-    assert_select "input[type='checkbox'][name='sources[0][gmf_exempt]'][value='1']"
+    assert_select "input[type='checkbox'][name='sources[0][gmf_exempt]'][value='1'][data-gmf-exempt='true']"
     assert_select "input[type='hidden'][name='sources[0][gmf_exempt]'][value='0']"
     assert_select "label", text: I18n.t("wizard.manual.gmf_exempt")
+  end
+
+  test "GET manual disables gmf exemption when an account is already exempt" do
+    setup_record
+    @user.money_sources.create!(name: "Cuenta exenta", kind: "account", starting_balance: 0, gmf_exempt: true)
+
+    get financial_setup_manual_screen_path(step: :accounts)
+
+    assert_response :success
+    assert_select "input[type='checkbox'][name='sources[0][gmf_exempt]'][disabled]"
+    assert_match I18n.t("wizard.manual.gmf_exempt_taken", name: "Cuenta exenta"), response.body
   end
 
   test "GET manual hides the gmf exemption field outside accounts" do
@@ -376,6 +387,22 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_equal "1", @setup.reload.draft_sources("accounts").first["gmf_exempt"]
+  end
+
+  test "POST manual rejects more than one gmf exempt account" do
+    setup_record
+
+    post financial_setup_manual_path, params: {
+      step: "accounts",
+      sources: {
+        "0" => { name: "Ahorros", bank: "Bancolombia", balance: "1000", gmf_exempt: "1" },
+        "1" => { name: "Corriente", bank: "Davivienda", balance: "2000", gmf_exempt: "1" }
+      }
+    }
+
+    assert_redirected_to financial_setup_manual_screen_path(step: :accounts)
+    assert_equal I18n.t("wizard.manual.gmf_exempt_only_one"), flash[:alert]
+    assert_empty @setup.reload.draft_sources("accounts")
   end
 
   test "POST manual keeps the loan subtype in the draft row" do
@@ -621,8 +648,25 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
 
     get financial_setup_import_review_path(step: :accounts)
     assert_response :success
-    assert_select "input[type='checkbox'][name='sources[0][gmf_exempt]'][value='1']"
+    assert_select "input[type='checkbox'][name='sources[0][gmf_exempt]'][value='1'][data-gmf-exempt='true']"
     assert_select "input[type='hidden'][name='sources[0][gmf_exempt]'][value='0']"
+  end
+
+  test "GET import_review disables gmf exemption when an account is already exempt" do
+    setup_record
+    @user.money_sources.create!(name: "Cuenta exenta", kind: "account", starting_balance: 0, gmf_exempt: true)
+    @setup.set_choice("accounts", "import")
+    @setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "1234", "name" => "Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "1000" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    get financial_setup_import_review_path(step: :accounts)
+    assert_response :success
+    assert_select "input[type='checkbox'][name='sources[0][gmf_exempt]'][disabled]"
   end
 
   test "GET import_review hides the gmf exemption field for credit cards" do
@@ -658,6 +702,31 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_equal "1", @setup.reload.import_state("accounts")["sources"].first["gmf_exempt"]
+  end
+
+  test "POST import_confirm rejects more than one gmf exempt account" do
+    setup_record
+    @setup.set_choice("accounts", "import")
+    @setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "1111", "name" => "Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "1000" },
+        { "identifier" => "2222", "name" => "Corriente", "bank" => "Davivienda", "kind" => "account", "balance" => "2000" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    post financial_setup_import_confirm_path, params: {
+      step: "accounts",
+      sources: {
+        "0" => { gmf_exempt: "1" },
+        "1" => { gmf_exempt: "1" }
+      }
+    }
+
+    assert_redirected_to financial_setup_import_review_path(step: :accounts)
+    assert_equal I18n.t("wizard.manual.gmf_exempt_only_one"), flash[:alert]
+    assert_nil @setup.reload.import_state("accounts")["sources"].first["gmf_exempt"]
   end
 
   test "POST upload drops sources whose kind does not match the step" do
@@ -1075,6 +1144,30 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_equal "0", @setup.reload.draft_sources("accounts").first["gmf_exempt"]
+  end
+
+  test "POST save_edits rejects more than one gmf exempt account" do
+    setup_record
+    @setup.set_choice("accounts", "manual")
+    @setup.replace_draft_sources("accounts", [
+      { "name" => "Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "1000", "gmf_exempt" => "0" },
+      { "name" => "Corriente", "bank" => "Davivienda", "kind" => "account", "balance" => "2000", "gmf_exempt" => "0" }
+    ])
+    @setup.save!
+
+    post financial_setup_save_edits_path, params: {
+      step: "accounts",
+      sources: {
+        "0" => { origin: "manual", orig_key: "Bancolombia-Ahorros", name: "Ahorros",
+                 bank: "Bancolombia", kind: "account", balance: "1000", gmf_exempt: "1" },
+        "1" => { origin: "manual", orig_key: "Davivienda-Corriente", name: "Corriente",
+                 bank: "Davivienda", kind: "account", balance: "2000", gmf_exempt: "1" }
+      }
+    }
+
+    assert_redirected_to financial_setup_edit_all_path(step: :accounts)
+    assert_equal I18n.t("wizard.manual.gmf_exempt_only_one"), flash[:alert]
+    assert_equal [ "0", "0" ], @setup.reload.draft_sources("accounts").map { |row| row["gmf_exempt"] }
   end
 
   test "POST save_edits routes each row back to its own store" do

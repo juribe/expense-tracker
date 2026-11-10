@@ -20,6 +20,7 @@
       card.classList.add('d-none');
       var keepInput = card.querySelector('input[name^="keep["]');
       if (keepInput) keepInput.value = '';
+      document.dispatchEvent(new CustomEvent('financial-setup:gmf-refresh'));
     });
   });
 })();
