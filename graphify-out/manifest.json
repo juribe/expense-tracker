@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "app/controllers/financial_setups_controller.rb": {
-    "mtime": 1794339052.1529164,
-    "seen": 1794339210.164566,
-    "ast_hash": "f3b40d3298e4039ea51c2ff28bfed588",
+    "mtime": 1794341694.3298147,
+    "seen": 1794341880.497761,
+    "ast_hash": "21cea65884103fe359e70ee7c2ab441d",
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
@@ -756,9 +756,9 @@
     "semantic_hash": ""
   },
   "test/controllers/financial_setups_controller_test.rb": {
-    "mtime": 1794339487.5222368,
-    "seen": 1794339762.6361668,
-    "ast_hash": "6c765fd9de36df6e34e655b478774252",
+    "mtime": 1794341638.0699716,
+    "seen": 1794341880.499255,
+    "ast_hash": "ebb99c814ba111621806a56405b3cd5c",
     "semantic_hash": ""
   },
   "test/controllers/gmail_connections_controller_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794339074.7662168,
-    "seen": 1794339210.1668081,
-    "ast_hash": "6e399d4e5d46cbd87072db41592e4f49",
+    "mtime": 1794341698.154969,
+    "seen": 1794341880.500018,
+    "ast_hash": "c98ecc02069bd8f215129ef77a0e1549",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794339074.766188,
-    "seen": 1794339210.16681,
-    "ast_hash": "2121c4fae15b2b6449fba0495b72624f",
+    "mtime": 1794341698.1549919,
+    "seen": 1794341880.50002,
+    "ast_hash": "c75a6415b60f0b977b7e119bf9e54979",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794341055.1536381,
-    "seen": 1794341177.8414268,
+    "mtime": 1794341781.7880063,
+    "seen": 1794341880.500027,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },

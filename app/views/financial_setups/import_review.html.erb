@@ -157,6 +157,21 @@
               <input type="text" class="form-control" name="sources[<%= idx %>][identifier]" value="<%= source["identifier"].to_s.scan(/\d/).join[-4..].to_s %>" maxlength="4" inputmode="numeric" placeholder="<%= t("wizard.manual.identifier_hint") %>">
             </div>
           <% end %>
+          <% if source["kind"] == "account" %>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <%= hidden_field_tag "sources[#{idx}][gmf_exempt]", "0", id: nil %>
+                <%= check_box_tag "sources[#{idx}][gmf_exempt]", "1", source["gmf_exempt"].to_s == "1",
+                                  class: "form-check-input", id: "gmf_exempt_#{idx}" %>
+                <label class="form-check-label" for="gmf_exempt_<%= idx %>"><%= t("wizard.manual.gmf_exempt") %></label>
+              </div>
+              <div class="form-text"><%= t("wizard.manual.gmf_exempt_hint") %></div>
+              <% existing_exempt = MoneySource.gmf_exempt_for(current_user) %>
+              <% if existing_exempt %>
+                <div class="form-text text-warning"><%= t("wizard.manual.gmf_exempt_taken", name: existing_exempt.name) %></div>
+              <% end %>
+            </div>
+          <% end %>
         </fieldset>
 
         <div class="bg-primary-subtle rounded-3 p-3 mt-4 small text-muted">

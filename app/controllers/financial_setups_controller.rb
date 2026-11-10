@@ -376,7 +376,7 @@ class FinancialSetupsController < ApplicationController
                        :credit_limit, :interest_rate, :interest_rate_type,
                        :card_brand, :card_last_four, :identifier, :principal_amount,
                        :outstanding_balance, :monthly_payment, :installment_count, :installments_paid, :payment_frequency,
-                       :statement_day)
+                       :statement_day, :gmf_exempt)
       h = row.to_h
       next if Array(h).blank?
 
@@ -393,7 +393,7 @@ class FinancialSetupsController < ApplicationController
                        :credit_limit, :interest_rate, :interest_rate_type,
                        :card_brand, :card_last_four, :identifier, :principal_amount,
                        :outstanding_balance, :monthly_payment, :installment_count, :installments_paid, :payment_frequency,
-                       :statement_day)
+                       :statement_day, :gmf_exempt)
       h = row.to_h
       next if Array(h).blank?
 
@@ -429,7 +429,7 @@ class FinancialSetupsController < ApplicationController
 
     fields = %w[name bank institution_ref balance outstanding_balance credit_limit card_last_four
                 interest_rate interest_rate_type monthly_payment principal_amount
-                installment_count installments_paid kind identifier sub_kind]
+                installment_count installments_paid kind identifier sub_kind gmf_exempt]
       .to_h do |key|
         value = raw[key].to_s.strip
         value = normalize_money_string(value) if %w[balance outstanding_balance credit_limit monthly_payment principal_amount].include?(key)
