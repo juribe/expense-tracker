@@ -4288,13 +4288,22 @@ es:
   # configuración privada de reconocimiento por entidad.
   financial_institutions:
     title: "Mis entidades"
-    subtitle: "Tus propias entidades financieras: re-nómbralas o elimínalas; el catálogo compartido se elige al crear una fuente."
+    subtitle: "Tus propias entidades financieras. Agrega instituciones que no encuentres en el catálogo compartido de Yogasto."
 
     my_entities: "Mis entidades"
     col_name: "Nombre"
     col_type: "Tipo"
     inactive_marker: "(inactiva)"
     new_custom: "Nueva entidad"
+    search_placeholder: "Buscar entidad..."
+    search_hint: "Entidades personalizadas de tu cuenta"
+    no_results: "No se encontraron entidades coincidentes."
+    note_title: "Sobre tus entidades propias"
+    note_body: "Estas entidades complementan el catálogo compartido. Puedes asociarlas a tus fuentes de dinero cuando corresponda."
+    rename_entity: "Renombrar entidad"
+    rename_entity_aria: "Renombrar %{name}"
+    delete_entity: "Eliminar entidad"
+    delete_entity_aria: "Eliminar %{name}"
     no_custom: "Aún no tienes entidades propias"
     no_custom_hint: "Crea una \"otra entidad\" cuando la que necesitas no aparece en el catálogo/solo tú la ves."
     types:

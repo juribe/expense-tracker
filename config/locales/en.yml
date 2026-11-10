@@ -2105,13 +2105,22 @@ en:
   # per-institution recognition settings.
   financial_institutions:
     title: "My entities"
-    subtitle: "Your own financial entities: rename or delete them; the shared catalog is picked when you create a source."
+    subtitle: "Your own financial entities. Add institutions you cannot find in Yogasto's shared catalog."
 
     my_entities: "My entities"
     col_name: "Name"
     col_type: "Type"
     inactive_marker: "(inactive)"
     new_custom: "New entity"
+    search_placeholder: "Search entity..."
+    search_hint: "Custom entities in your account"
+    no_results: "No matching entities found."
+    note_title: "About your own entities"
+    note_body: "These entities complement the shared catalog. You can link them to your money sources when appropriate."
+    rename_entity: "Rename entity"
+    rename_entity_aria: "Rename %{name}"
+    delete_entity: "Delete entity"
+    delete_entity_aria: "Delete %{name}"
     no_custom: "You have no custom entities yet"
     no_custom_hint: "Create an \"other entity\" when the one you need is missing from the catalog or only you know it."
     types:

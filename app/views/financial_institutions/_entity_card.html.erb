@@ -1,0 +1,38 @@
+<%#
+  Compact card for a user-owned financial entity. Mirrors the Categorías card
+  language: avatar, name (primary), real type (secondary) and right-aligned
+  actions. The edit link and delete form keep the existing controller paths,
+  confirmation and permissions.
+%>
+<article class="card card-hover h-100 entity-card" data-testid="custom-institution-row">
+  <div class="card-body d-flex align-items-center gap-3 p-3">
+    <span class="icon-chip icon-chip-blue entity-card__avatar flex-shrink-0" aria-hidden="true">
+      <%= financial_institution_initial(institution) %>
+    </span>
+
+    <div class="flex-grow-1 min-w-0">
+      <div class="entity-card__name fw-semibold text-truncate" title="<%= institution.display_name %>">
+        <%= institution.display_name %>
+      </div>
+      <% if (type_label = financial_institution_type_label(institution)) %>
+        <div class="entity-card__type small text-secondary"><%= type_label %></div>
+      <% end %>
+    </div>
+
+    <div class="entity-card__actions d-flex gap-1 flex-shrink-0">
+      <%= link_to edit_custom_financial_institution_path(institution),
+                  class: "btn btn-sm btn-outline-primary",
+                  title: t("financial_institutions.rename_entity"),
+                  aria: { label: t("financial_institutions.rename_entity_aria", name: institution.display_name) } do %>
+        <i class="ti ti-pencil" aria-hidden="true"></i>
+      <% end %>
+      <%= button_to custom_financial_institution_path(institution), method: :delete,
+                    class: "btn btn-sm btn-outline-danger",
+                    title: t("financial_institutions.delete_entity"),
+                    aria: { label: t("financial_institutions.delete_entity_aria", name: institution.display_name) },
+                    form: { data: { turbo_confirm: t("custom_financial_institutions.delete_confirm") } } do %>
+        <i class="ti ti-trash" aria-hidden="true"></i>
+      <% end %>
+    </div>
+  </div>
+</article>

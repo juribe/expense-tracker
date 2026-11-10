@@ -68,7 +68,48 @@ class CustomFinancialInstitutionsControllerTest < ActionDispatch::IntegrationTes
       delete custom_financial_institution_path(institution)
     end
 
+    assert_redirected_to financial_institutions_path
+    assert_equal I18n.t("custom_financial_institutions.flashes.blocked_by_sources"), flash[:alert]
     assert institution.reload.persisted?
+  end
+
+  test "delete an entity whose money source has expenses is blocked with an error" do
+    institution = @user.custom_financial_institutions.create!(name: "Con gastos")
+    source = @user.money_sources.create!(name: "Cuenta con gastos", kind: "account", starting_balance: 1_000_000,
+                                          institution_type: "CustomFinancialInstitution",
+                                          institution_id: institution.id)
+    category = Category.create!(name: "Gastos entidad", category_type: "expense",
+                                is_default: false, user: @user)
+    @user.expenses.create!(money_source: source, category: category, amount: 25_000,
+                           date: Date.current, description: "Gasto de prueba", source: "manual")
+
+    assert_no_difference "CustomFinancialInstitution.count" do
+      delete custom_financial_institution_path(institution)
+    end
+
+    assert_redirected_to financial_institutions_path
+    assert_equal I18n.t("custom_financial_institutions.flashes.blocked_by_sources"), flash[:alert]
+    assert institution.reload.persisted?
+    assert source.reload.persisted?
+  end
+
+  test "delete an entity whose money source has transfers is blocked with an error" do
+    institution = @user.custom_financial_institutions.create!(name: "Con transferencias")
+    source = @user.money_sources.create!(name: "Cuenta origen", kind: "account", starting_balance: 1_000_000,
+                                          institution_type: "CustomFinancialInstitution",
+                                          institution_id: institution.id)
+    destination = @user.money_sources.create!(name: "Cuenta destino", kind: "account", starting_balance: 0)
+    Transfer.create!(user: @user, from_source: source, to_source: destination,
+                     amount: 50_000, date: Date.current)
+
+    assert_no_difference "CustomFinancialInstitution.count" do
+      delete custom_financial_institution_path(institution)
+    end
+
+    assert_redirected_to financial_institutions_path
+    assert_equal I18n.t("custom_financial_institutions.flashes.blocked_by_sources"), flash[:alert]
+    assert institution.reload.persisted?
+    assert source.reload.persisted?
   end
 
   test "free delete removes the entity (and only its owner's row)" do

@@ -42,6 +42,20 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "JS", user_initials(User.new(name: "", email: "jse.uribe@gmail.com"))
   end
 
+  test "financial_institution_initial uses the first letter of the real entity name" do
+    assert_equal "W", financial_institution_initial(CustomFinancialInstitution.new(name: "wise"))
+    assert_equal "C", financial_institution_initial(CustomFinancialInstitution.new(name: "Cooperativa ejemplo"))
+    assert_equal "?", financial_institution_initial(CustomFinancialInstitution.new(name: ""))
+  end
+
+  test "financial_institution_type_label translates the stored type and omits blanks" do
+    assert_equal "Banco digital",
+                 financial_institution_type_label(CustomFinancialInstitution.new(institution_type: "digital_bank"))
+    assert_equal "Otra entidad financiera",
+                 financial_institution_type_label(CustomFinancialInstitution.new(institution_type: "other"))
+    assert_nil financial_institution_type_label(CustomFinancialInstitution.new(institution_type: ""))
+  end
+
   setup do
     @user = User.create!(name: "Test User", email: "app_helper_loans@example.com", password: "password123")
     @loan = @user.money_sources.create!(name: "Crédito Hipotecario en Pesos", kind: "loan", bank: "Davibank", active: true)

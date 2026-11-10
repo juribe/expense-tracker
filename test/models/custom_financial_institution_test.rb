@@ -44,6 +44,20 @@ class CustomFinancialInstitutionTest < ActiveSupport::TestCase
     assert_equal 2, institution.money_sources.count
   end
 
+  test "destroy is blocked while money sources still reference it" do
+    institution = @user.custom_financial_institutions.create!(name: "Protegida")
+    @user.money_sources.create!(name: "Cuenta asociada", kind: "account", starting_balance: 0,
+                                institution_type: "CustomFinancialInstitution",
+                                institution_id: institution.id)
+
+    assert_no_difference "CustomFinancialInstitution.count" do
+      assert_not institution.destroy
+    end
+
+    assert institution.reload.persisted?
+    assert institution.errors.any?
+  end
+
   test "is never a global catalog row" do
     FinancialCatalogSeeder.run
     before = FinancialInstitution.count

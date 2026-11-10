@@ -115,7 +115,19 @@ module ApplicationHelper
              class: "badge #{class_map.fetch(type, 'bg-light text-dark border')}")
   end
 
+  # Avatar letter for the user's own entity cards. Derived from the real name;
+  # no extra column or classification is introduced.
+  def financial_institution_initial(institution)
+    institution.display_name.to_s.strip.first&.upcase.presence || "?"
+  end
 
+  # Real taxonomy label for a custom entity, or nil when it was stored blank.
+  def financial_institution_type_label(institution)
+    type = institution.institution_type.presence
+    return if type.blank?
+
+    t("financial_institutions.types.#{type}", default: type)
+  end
 
   def savings_potential_label(value)
     {
