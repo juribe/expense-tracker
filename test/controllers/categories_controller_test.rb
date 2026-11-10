@@ -22,6 +22,53 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "div.d-inline-flex form button.btn-sm.btn-outline-danger", count: 1
   end
 
+  test "GET /categories/index renders the redesigned header, search, filters and note" do
+    get categories_path
+
+    assert_response :success
+    assert_select ".page-header .page-title", text: I18n.t("categories.title")
+    assert_select ".page-header .page-subtitle", text: I18n.t("categories.index_subtitle")
+    assert_select "input[type=search][data-category-search]"
+    assert_select "button.filter-chip[data-category-filter=all].active", text: I18n.t("categories.filter_all")
+    assert_select "button.filter-chip[data-category-filter=default]", text: I18n.t("categories.filter_default")
+    assert_select "button.filter-chip[data-category-filter=custom]", text: I18n.t("categories.filter_custom")
+    assert_select "[data-category-no-results][hidden]", text: I18n.t("categories.no_results")
+    assert_select ".category-note", text: /#{I18n.t('categories.note_title')}/
+    assert_select ".category-note", text: /#{I18n.t('categories.note_body')}/
+  end
+
+  test "GET /categories/index renders default categories as protected cards" do
+    category = Category.create!(name: "Comida", is_default: true, category_type: "expense")
+
+    get categories_path
+
+    assert_select "[data-category-group=default] [data-category-card][data-category-name='#{category.name}'][data-category-kind=default]"
+    assert_select "[data-category-group=default] .category-card__tag", text: I18n.t("categories.default_badge")
+    assert_select "[data-category-group=default] i.ti-lock.category-card__lock[title=?]", I18n.t("categories.protected_title")
+    assert_select "[data-category-group=default] a.btn-outline-primary", count: 0
+    assert_select "[data-category-group=default] button.btn-outline-danger", count: 0
+  end
+
+  test "GET /categories/index renders custom categories with their existing actions" do
+    category = Category.create!(name: "Hobby", user: @user, is_default: false, category_type: "expense")
+
+    get categories_path
+
+    assert_select "[data-category-group=custom] [data-category-card][data-category-kind=custom]"
+    assert_select "[data-category-group=custom] .category-card__meta", text: I18n.t("types.expense")
+    assert_select "[data-category-group=custom] .category-card__actions a.btn.btn-sm.btn-outline-primary[href=?]", edit_category_path(category)
+    assert_select "[data-category-group=custom] .category-card__actions form[action=?] button.btn.btn-sm.btn-outline-danger", category_path(category)
+  end
+
+  test "GET /categories/index shows the custom empty message without demo cards" do
+    Category.create!(name: "Comida", is_default: true, category_type: "expense")
+
+    get categories_path
+
+    assert_select "[data-category-group=custom] [data-category-empty]", text: I18n.t("categories.custom_empty")
+    assert_select "[data-category-group=custom] [data-category-card]", count: 0
+  end
+
   test "GET /categories/new renders the form" do
     get new_category_path
     assert_response :success

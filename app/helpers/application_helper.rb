@@ -44,7 +44,6 @@ module ApplicationHelper
   rescue StandardError
     (membership.expires_at - membership.starts_at).to_f / 1.day
   end
-  CATEGORY_COLORS = %w[primary success danger warning info secondary dark].freeze
   BANK_ICON_TONES = 8
   # Chartkick understands these options natively and uses them to format both
   # the hover tooltip and the axis ticks, so charts read "$12.345.678" instead
@@ -132,7 +131,7 @@ module ApplicationHelper
   def category_badge(category)
     return tag.span(t("common.uncategorized", default: "Sin categoría"), class: "badge bg-light text-dark border") if category.nil?
 
-    color = CATEGORY_COLORS[category.id.to_s.bytes.sum % CATEGORY_COLORS.length]
+    color = category_accent(category)
     tag.span(class: "badge bg-#{color}") do
       safe_join([
                   tag.i(nil, class: "#{category_icon_klass(category)} me-1", "aria-hidden": true),

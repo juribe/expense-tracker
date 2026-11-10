@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 module CategoriesHelper
+  # Paleta estable para el acento visual de una categoría. No existe una
+  # columna de color: el tono se deriva del identificador, igual que el badge
+  # histórico, para que la identidad no cambie entre requests.
+  ACCENTS = %w[primary success danger warning info secondary dark].freeze
+
+  # Token de color (`primary`, `success`…) asociado a la categoría.
+  def category_accent(category)
+    ACCENTS[category&.id.to_s.bytes.sum % ACCENTS.length]
+  end
+
   # Clase de icono (`ti-*`) para una categoría. El icono estándar `ti-tag`
   # cubre categorías nuevas sin icono y datos históricos con `icon` nulo o
   # malformado, de modo que ningún request rompe por un icono faltante.

@@ -1,0 +1,44 @@
+<%# Tarjeta compacta de categoría.
+    Locals: category.
+    El nombre enlaza al detalle; el resto de la tarjeta sigue ese enlace y las
+    acciones de las categorías propias quedan por encima. %>
+<article class="category-card"
+         data-category-card
+         data-category-name="<%= category.name %>"
+         data-category-kind="<%= category.default? ? "default" : "custom" %>">
+  <span class="category-card__icon category-card__icon--<%= category_accent(category) %>">
+    <%= category_icon(category) %>
+  </span>
+
+  <div class="category-card__body">
+    <div class="category-card__heading">
+      <%= link_to category.name, category_path(category), class: "category-card__name" %>
+    </div>
+    <div class="category-card__meta">
+      <span><%= category_type_label(category.category_type) %></span>
+      <% if category.default? %>
+        <span class="category-card__tag"><%= t("categories.default_badge") %></span>
+      <% end %>
+      <% unless category.active %>
+        <span class="category-card__state"><%= t("categories.inactive") %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <% if category.default? %>
+    <span class="category-card__aside">
+      <i class="ti ti-lock category-card__lock"
+         title="<%= t("categories.protected_title") %>"
+         aria-label="<%= t("categories.protected_title") %>"></i>
+    </span>
+  <% else %>
+    <div class="category-card__actions d-inline-flex align-items-center gap-2 d-print-none">
+      <%= link_to edit_category_path(category), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("categories.edit_aria", name: category.name) } do %>
+        <i class="ti ti-pencil"></i>
+      <% end %>
+      <%= button_to category_path(category), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("categories.delete_aria", name: category.name) }, data: { confirm: t("common.confirm") }, form: { data: { turbo: true } } do %>
+        <i class="ti ti-trash"></i>
+      <% end %>
+    </div>
+  <% end %>
+</article>

@@ -35,4 +35,15 @@ class CategoriesHelperTest < ActionView::TestCase
     assert_includes html, 'class="ti ti-star"'
     assert_includes html, 'aria-hidden="true"'
   end
+
+  test "category_accent returns a stable palette token" do
+    category = Category.new(id: "11111111-1111-1111-1111-111111111111")
+
+    assert_includes CategoriesHelper::ACCENTS, category_accent(category)
+    assert_equal category_accent(category), category_accent(category)
+  end
+
+  test "category_accent falls back to the first palette token without an id" do
+    assert_equal "primary", category_accent(Category.new)
+  end
 end

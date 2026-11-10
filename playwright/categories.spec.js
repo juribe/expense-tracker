@@ -47,6 +47,34 @@ test.describe('category pages are working', () => {
     await expect(page.getByText(expenseName)).toHaveCount(0);
   });
 
+  test('categories page searches and filters within the active tab', async ({ page }) => {
+    const name = `Mascotas-${Date.now()}`;
+    await createCategory(page, name, 'Pets and supplies');
+
+    await page.goto('/categories');
+    const search = page.locator('[data-category-search]');
+
+    await search.fill(name);
+    await expect(page.locator(`[data-category-card][data-category-name="${name}"]`)).toBeVisible();
+    await expect(page.locator('[data-category-group="default"]')).toBeHidden();
+    await expect(page.locator('[data-category-card]:visible')).toHaveCount(1);
+
+    await search.fill('zzz-no-matching-category');
+    await expect(page.locator('[data-category-no-results]')).toBeVisible();
+    await expect(page.locator('[data-category-card]:visible')).toHaveCount(0);
+
+    await search.fill('');
+    await page.locator('[data-category-filter="custom"]').click();
+    await expect(page.locator('[data-category-group="custom"]')).toBeVisible();
+    await expect(page.locator('[data-category-group="default"]')).toBeHidden();
+    await expect(page.locator('[data-category-card][data-category-kind="custom"]')).toBeVisible();
+
+    await page.locator('[data-category-filter="default"]').click();
+    await expect(page.locator('[data-category-group="custom"]')).toBeHidden();
+    await expect(page.locator('[data-category-group="default"]')).toBeVisible();
+    await expect(page.locator('[data-category-no-results]')).toBeHidden();
+  });
+
   test('income form only offers income categories', async ({ page }) => {
     const expenseName = `ExpenseOnly-${Date.now()}`;
     const incomeName = `IncomeOnly-${Date.now()}`;

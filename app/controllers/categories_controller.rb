@@ -6,7 +6,7 @@ class CategoriesController < ApplicationController
   def index
     @category_type = %w[expense income].include?(params[:type]) ? params[:type] : "expense"
     @default_categories = Category.defaults.where(category_type: @category_type)
-    @custom_categories = Category.custom_for_user(current_user).includes(:parent).where(category_type: @category_type)
+    @custom_categories = Category.custom_for_user(current_user).where(category_type: @category_type)
   end
 
   # GET /categories/1

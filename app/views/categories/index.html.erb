@@ -10,86 +10,51 @@
   <%= javascript_include_tag "toasts", defer: true %>
 <% end %>
 
-<%= render "shared/page_header", title: t("categories.title") do %>
+<%= render "shared/page_header", title: t("categories.title"), subtitle: t("categories.index_subtitle"), class: "category-page-header" do %>
   <%= link_to new_category_path(type: @category_type), class: "btn btn-primary" do %>
     <i class="ti ti-plus me-1"></i><%= t("categories.new") %>
   <% end %>
 <% end %>
 
-<ul class="nav nav-tabs mb-4">
-  <li class="nav-item">
-    <%= link_to categories_path(type: "expense"), class: "nav-link #{@category_type == 'expense' ? 'active' : ''}" do %>
-      <i class="ti ti-arrow-up-circle me-1"></i><%= t("types.expense_plural") %>
-    <% end %>
-  </li>
-  <li class="nav-item">
-    <%= link_to categories_path(type: "income"), class: "nav-link #{@category_type == 'income' ? 'active' : ''}" do %>
-      <i class="ti ti-arrow-down-circle me-1"></i><%= t("types.income_plural") %>
-    <% end %>
-  </li>
-</ul>
+<nav class="category-tabs" aria-label="<%= t("categories.title") %>">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <%= link_to categories_path(type: "expense"), class: "nav-link #{@category_type == 'expense' ? 'active' : ''}" do %>
+        <i class="ti ti-arrow-up-circle me-1"></i><%= t("types.expense_plural") %>
+      <% end %>
+    </li>
+    <li class="nav-item">
+      <%= link_to categories_path(type: "income"), class: "nav-link #{@category_type == 'income' ? 'active' : ''}" do %>
+        <i class="ti ti-arrow-down-circle me-1"></i><%= t("types.income_plural") %>
+      <% end %>
+    </li>
+  </ul>
+</nav>
 
-<% if @default_categories.any? %>
-  <h5 class="section-title"><i class="ti ti-shield-lock me-1"></i><%= t("categories.default_section") %></h5>
-  <div class="row g-3 mb-4">
-    <% @default_categories.each do |category| %>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 card-hover">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <%= link_to category_badge(category), category_path(category), class: "text-decoration-none" %>
-              <span class="badge bg-secondary" title="<%= t('categories.default_title') %>"><i class="ti ti-lock"></i></span>
-            </div>
-            <p class="text-secondary fs-7 mb-0"><%= category.description %></p>
-            <small class="text-secondary d-block">
-              <%= category_type_label(category.category_type) %>
-            </small>
-          </div>
-        </div>
-      </div>
-    <% end %>
+<div class="category-toolbar">
+  <div class="category-search">
+    <i class="ti ti-search" aria-hidden="true"></i>
+    <%= search_field_tag :category_search, nil,
+                         id: "category-search",
+                         class: "form-control",
+                         placeholder: t("categories.search_placeholder"),
+                         autocomplete: "off",
+                         aria: { label: t("categories.search_placeholder") },
+                         data: { category_search: true } %>
   </div>
-<% end %>
 
-<% if @custom_categories.any? %>
-  <h5 class="section-title"><i class="ti ti-user me-1"></i><%= t("categories.custom_section") %></h5>
-  <div class="row g-3">
-    <% @custom_categories.each do |category| %>
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 card-hover">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <%= link_to category_badge(category), category_path(category), class: "text-decoration-none" %>
-              <div class="d-inline-flex align-items-center gap-2 d-print-none">
-                <%= link_to edit_category_path(category), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("categories.edit_aria", name: category.name) } do %>
-                  <i class="ti ti-pencil"></i>
-                <% end %>
-                <%= button_to category_path(category), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("categories.delete_aria", name: category.name) }, data: { confirm: t("common.confirm") }, form: { data: { turbo: true } } do %>
-                  <i class="ti ti-trash"></i>
-                <% end %>
-              </div>
-            </div>
-            <p class="text-secondary fs-7 mb-0"><%= category.description %></p>
-            <small class="text-secondary d-block">
-              <i class="ti ti-sitemap me-1"></i><%= category.parent&.name || t("categories.root") %>
-            </small>
-            <% if @category_type == "expense" %>
-              <small class="text-secondary">
-                <%= t("categories.expenses_count", count: category.expenses_count) %>
-              </small>
-            <% end %>
-            <small class="text-secondary d-block">
-              <%= category_type_label(category.category_type) %>
-            </small>
-            <% unless category.active %>
-              <span class="badge bg-secondary ms-1"><%= t("categories.inactive") %></span>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
+  <div class="category-filters" role="group" aria-label="<%= t("categories.title") %>">
+    <button type="button" class="filter-chip active" data-category-filter="all" aria-pressed="true">
+      <%= t("categories.filter_all") %>
+    </button>
+    <button type="button" class="filter-chip" data-category-filter="default" aria-pressed="false">
+      <%= t("categories.filter_default") %>
+    </button>
+    <button type="button" class="filter-chip" data-category-filter="custom" aria-pressed="false">
+      <%= t("categories.filter_custom") %>
+    </button>
   </div>
-<% end %>
+</div>
 
 <% if @default_categories.empty? && @custom_categories.empty? %>
   <div class="card">
@@ -102,4 +67,48 @@
       <% end %>
     </div>
   </div>
+<% else %>
+  <% if @default_categories.any? %>
+    <section class="category-group" data-category-group="default">
+      <div class="category-group__header">
+        <h2 class="section-title"><%= t("categories.default_section") %></h2>
+        <span class="category-group__count">· <span data-category-count><%= @default_categories.size %></span></span>
+      </div>
+      <div class="category-grid">
+        <%= render partial: "category_card", collection: @default_categories, as: :category %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="category-group" data-category-group="custom">
+    <div class="category-group__header">
+      <h2 class="section-title"><%= t("categories.custom_section") %></h2>
+      <span class="category-group__count">· <span data-category-count><%= @custom_categories.size %></span></span>
+    </div>
+    <% if @custom_categories.any? %>
+      <div class="category-grid">
+        <%= render partial: "category_card", collection: @custom_categories, as: :category %>
+      </div>
+    <% else %>
+      <div class="category-empty" data-category-empty>
+        <i class="ti ti-tag" aria-hidden="true"></i>
+        <span><%= t("categories.custom_empty") %></span>
+      </div>
+    <% end %>
+  </section>
 <% end %>
+
+<div class="empty-state category-no-results" data-category-no-results hidden>
+  <i class="ti ti-search" aria-hidden="true"></i>
+  <p class="mb-0"><%= t("categories.no_results") %></p>
+</div>
+
+<aside class="category-note">
+  <i class="ti ti-info-circle" aria-hidden="true"></i>
+  <div>
+    <strong><%= t("categories.note_title") %></strong>
+    <p class="mb-0"><%= t("categories.note_body") %></p>
+  </div>
+</aside>
+
+<%= javascript_include_tag "categories_index", defer: true %>

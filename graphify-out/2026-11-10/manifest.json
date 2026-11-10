@@ -2694,9 +2694,9 @@
     "semantic_hash": ""
   },
   "test/controllers/whatsapp_settings_controller_test.rb": {
-    "mtime": 1794318964.7488241,
-    "seen": 1794319113.7296598,
-    "ast_hash": "a22290aaf131c86737aa73718dfdc90e",
+    "mtime": 1794320879.3391778,
+    "seen": 1794321047.366225,
+    "ast_hash": "349665e65bfdd889b9c437ae3490009c",
     "semantic_hash": ""
   },
   "test/models/pending_whatsapp_connection_test.rb": {
@@ -9756,9 +9756,9 @@
     "semantic_hash": ""
   },
   "test/system/whatsapp_settings_test.rb": {
-    "mtime": 1794319221.0983112,
-    "seen": 1794319524.052866,
-    "ast_hash": "b2cf3c2cab9e8cb0161c458b50fe9549",
+    "mtime": 1794320886.5622663,
+    "seen": 1794321047.366849,
+    "ast_hash": "ebcfca23154018d6461b286658b1b871",
     "semantic_hash": ""
   }
 }

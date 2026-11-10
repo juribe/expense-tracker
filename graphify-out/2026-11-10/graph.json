@@ -85462,7 +85462,7 @@
       "file_type": "code",
       "norm_label": ".grid_columns()",
       "source_file": "test/system/whatsapp_settings_test.rb",
-      "source_location": "L69"
+      "source_location": "L70"
     },
     {
       "id": "test_system_whatsapp_settings_test_whatsappsettingstest_sign_in",
@@ -85474,7 +85474,7 @@
       "file_type": "code",
       "norm_label": ".sign_in()",
       "source_file": "test/system/whatsapp_settings_test.rb",
-      "source_location": "L75"
+      "source_location": "L76"
     },
     {
       "id": "test_test_helper_bulletintegrationhook_process",
@@ -316028,7 +316028,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/whatsapp_settings_test.rb",
-      "source_location": "L69",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -316039,7 +316039,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/system/whatsapp_settings_test.rb",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
