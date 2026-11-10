@@ -30,24 +30,6 @@
     </div>
   <% end %>
 
-  <% if @opportunity && @opportunity[:results]["interest_saved"].to_d.positive? && @quick_comparison.nil? %>
-    <div class="alert alert-info d-flex justify-content-between align-items-center" id="opportunity">
-      <div>
-        <i class="ti ti-bulb me-2"></i>
-        <strong><%= t("credits.opportunity.title") %>:</strong>
-        <%= t("credits.opportunity.text",
-              amount: number_to_currency(@opportunity[:amount]),
-              savings: number_to_currency(@opportunity[:results]["interest_saved"].to_d),
-              installments: t("credits.opportunity.installments_text",
-                              count: @opportunity[:results]["installments_eliminated"].to_i)) %>
-      </div>
-      <button type="button" class="btn btn-primary btn-sm text-nowrap"
-              data-bs-toggle="tab" data-bs-target="#credit-tab-simulador">
-        <i class="ti ti-calculator me-1"></i><%= t("credits.opportunity.button") %>
-      </button>
-    </div>
-  <% end %>
-
   <%
     tabs = [
       { slug: "resumen", label: t("credits.tabs.summary"), icon: "ti-gauge" },
@@ -58,6 +40,24 @@
   %>
 
   <div data-source-tabs="credit-<%= @loan.id %>">
+    <% if @opportunity && @opportunity[:results]["interest_saved"].to_d.positive? && @quick_comparison.nil? %>
+      <div class="alert alert-info d-flex justify-content-between align-items-center" id="opportunity">
+        <div>
+          <i class="ti ti-bulb me-2"></i>
+          <strong><%= t("credits.opportunity.title") %>:</strong>
+          <%= t("credits.opportunity.text",
+                amount: number_to_currency(@opportunity[:amount]),
+                savings: number_to_currency(@opportunity[:results]["interest_saved"].to_d),
+                installments: t("credits.opportunity.installments_text",
+                                count: @opportunity[:results]["installments_eliminated"].to_i)) %>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm text-nowrap"
+                data-source-tab-goto="simulador">
+          <i class="ti ti-calculator me-1"></i><%= t("credits.opportunity.button") %>
+        </button>
+      </div>
+    <% end %>
+
     <ul class="nav nav-tabs mb-4" id="credit-tabs" role="tablist">
       <% tabs.each do |tab| %>
         <% active = tab[:slug] == @active_tab %>

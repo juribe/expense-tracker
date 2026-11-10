@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "app/controllers/monthly_reports_controller.rb": {
-    "mtime": 1794177865.9145336,
-    "seen": 1794177908.011601,
-    "ast_hash": "8589519a2616f5436ecb18b92107b358",
+    "mtime": 1794270373.8852642,
+    "seen": 1794270519.1256719,
+    "ast_hash": "7838af0b991df54fddf0a92577d8b679",
     "semantic_hash": ""
   },
   "app/controllers/recurring_templates_controller.rb": {
@@ -678,9 +678,9 @@
     "semantic_hash": ""
   },
   "playwright/monthly-reports.spec.js": {
-    "mtime": 1794177833.7865782,
-    "seen": 1794177908.012983,
-    "ast_hash": "ef316c60939b881dc04246224082923b",
+    "mtime": 1794270019.2370684,
+    "seen": 1794270315.160063,
+    "ast_hash": "dc934a41f0777d0b845907417a0fec1c",
     "semantic_hash": ""
   },
   "playwright/page-ai_powered_expense_entry-working.spec.js": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794263754.5384398,
-    "seen": 1794263920.879457,
-    "ast_hash": "0ecc9a1306b1033f14e8db436eaffe1d",
+    "mtime": 1794270047.7679384,
+    "seen": 1794270315.1609228,
+    "ast_hash": "4c4095d47a89f9e5de32c01359ea19d3",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794263828.1061375,
-    "seen": 1794263920.8794649,
+    "mtime": 1794270621.1449964,
+    "seen": 1794270747.650908,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3420,9 +3420,9 @@
     "semantic_hash": ""
   },
   "app/helpers/reports_helper.rb": {
-    "mtime": 1794261270.6315193,
-    "seen": 1794261517.328691,
-    "ast_hash": "e3589231ac9ca692eeebc8f55e2988ff",
+    "mtime": 1794270582.6188512,
+    "seen": 1794270747.648861,
+    "ast_hash": "7ed61b4088e9b12f9588c634dd50eb1f",
     "semantic_hash": ""
   },
   "app/services/loans/next_payment.rb": {
@@ -3462,9 +3462,9 @@
     "semantic_hash": ""
   },
   "app/services/reports/insights.rb": {
-    "mtime": 1794085397.7593036,
-    "seen": 1794085466.079458,
-    "ast_hash": "3dddedacd7d81bc0b2cdd46984e08939",
+    "mtime": 1794263947.9233453,
+    "seen": 1794270315.1594281,
+    "ast_hash": "32f2ec42da1f54b5ad687e9689687832",
     "semantic_hash": ""
   },
   "app/services/reports/loans.rb": {
@@ -4014,9 +4014,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/shell.js": {
-    "mtime": 1794187770.1995878,
-    "seen": 1794187839.110404,
-    "ast_hash": "332fb4d20cbe8bf7255c45773e197f95",
+    "mtime": 1794270985.7137976,
+    "seen": 1794270998.381521,
+    "ast_hash": "6eb48275cd8aee6cbd0d73cf646acad8",
     "semantic_hash": ""
   },
   "app/assets/vendor/fonts/tabler-icons/fonts/tabler-icons.svg": {
@@ -4746,9 +4746,9 @@
     "semantic_hash": ""
   },
   "test/controllers/monthly_reports_controller_test.rb": {
-    "mtime": 1794177655.1444933,
-    "seen": 1794177908.0130959,
-    "ast_hash": "b68e697615ec5b7236e61737c67383de",
+    "mtime": 1794270114.2369833,
+    "seen": 1794270315.160181,
+    "ast_hash": "27781d7bfd744562daa59e8763b6651f",
     "semantic_hash": ""
   },
   "test/services/expense_resolver/amounts/service_test.rb": {
@@ -9651,6 +9651,60 @@
     "mtime": 1794263251.9607902,
     "seen": 1794263529.25591,
     "ast_hash": "734c8df2898e4668fd88138e87c1898e",
+    "semantic_hash": ""
+  },
+  "app/services/reports/cycle_balances.rb": {
+    "mtime": 1794270352.6045485,
+    "seen": 1794270519.1264791,
+    "ast_hash": "20a3a1369a0b737a61c8cb268fee26d8",
+    "semantic_hash": ""
+  },
+  "app/services/reports/cycle_comparison.rb": {
+    "mtime": 1794270359.9964614,
+    "seen": 1794270519.1264799,
+    "ast_hash": "82982c2d7f3d946e19ce1e61422525dd",
+    "semantic_hash": ""
+  },
+  "app/services/reports/cycle_transactions_csv.rb": {
+    "mtime": 1794269723.1105347,
+    "seen": 1794270315.1594229,
+    "ast_hash": "3c8b693b83b9d44ace1190f80f7bb01c",
+    "semantic_hash": ""
+  },
+  "app/services/reports/cycle_transactions_query.rb": {
+    "mtime": 1794270934.6494496,
+    "seen": 1794270998.383018,
+    "ast_hash": "8201312317818c3aa424fe2ab554cd69",
+    "semantic_hash": ""
+  },
+  "test/services/reports/cycle_balances_test.rb": {
+    "mtime": 1794269747.5586627,
+    "seen": 1794270315.160686,
+    "ast_hash": "374fd0453ed0a3aa17ba770decae7c7b",
+    "semantic_hash": ""
+  },
+  "test/services/reports/cycle_comparison_test.rb": {
+    "mtime": 1794269626.2063272,
+    "seen": 1794270315.1606882,
+    "ast_hash": "24974c60349b927232bf1df093731b5e",
+    "semantic_hash": ""
+  },
+  "test/services/reports/cycle_transactions_csv_test.rb": {
+    "mtime": 1794269642.2217607,
+    "seen": 1794270315.1606889,
+    "ast_hash": "2bf0094b479dc634ad06e8549173b048",
+    "semantic_hash": ""
+  },
+  "test/services/reports/cycle_transactions_query_test.rb": {
+    "mtime": 1794269636.4193401,
+    "seen": 1794270315.160691,
+    "ast_hash": "258672597eee791d942341e7e4d0b118",
+    "semantic_hash": ""
+  },
+  "test/system/credits_opportunity_tab_test.rb": {
+    "mtime": 1794270748.7030876,
+    "seen": 1794270998.384398,
+    "ast_hash": "befa97218640777f0e64886a10bfd081",
     "semantic_hash": ""
   }
 }

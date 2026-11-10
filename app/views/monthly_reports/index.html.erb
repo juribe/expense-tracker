@@ -4,51 +4,188 @@
            path: monthly_reports_path,
            filters: false %>
 
-<div class="row mt-4">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0"><%= t("reports.income_vs_expense", default: "Ingresos y gastos por ciclo") %></h5>
+<% if @cycle_balances.any? { |balance| balance[:movement_count].positive? } %>
+  <% focus = @focus_balance %>
+  <% net_tone = cycle_tone(focus[:net_total]) %>
+
+  <div class="row g-3 mb-3 report-metrics" data-testid="cycle-balance-metrics">
+    <%= render "reports/metric",
+          label: t("reports.cycle_balance.income", default: "Ingresos del ciclo"),
+          value: money_amount(focus[:income_total]),
+          tone: :positive,
+          icon: "trending-up",
+          icon_tone: "green",
+          note: cycle_comparison_note(@comparison[:income], good_direction: :up,
+                                      same_elapsed_days: @comparison[:same_elapsed_days],
+                                      testid: "cycle-income-comparison"),
+          testid: "cycle-income-total",
+          variant: "income" %>
+
+    <%= render "reports/metric",
+          label: t("reports.cycle_balance.expenses", default: "Gastos reales"),
+          value: money_amount(focus[:expense_total]),
+          tone: :attention,
+          icon: "receipt",
+          icon_tone: "amber",
+          note: cycle_comparison_note(@comparison[:expense], good_direction: :down,
+                                      same_elapsed_days: @comparison[:same_elapsed_days],
+                                      testid: "cycle-expense-comparison"),
+          testid: "cycle-expense-total",
+          variant: "expense" %>
+
+    <%= render "reports/metric",
+          label: t("reports.cycle_balance.net", default: "Resultado neto"),
+          value: money_amount(focus[:net_total]),
+          tone: net_tone,
+          icon: "scale",
+          icon_tone: net_tone == :negative ? "red" : "green",
+          note: t("reports.cycle_balance.net_hint", default: "Ingresos menos gastos reales. Flujo registrado del ciclo, no saldo bancario."),
+          testid: "cycle-net-total",
+          variant: "net" %>
+
+    <%= render "reports/metric",
+          label: t("reports.cycle_balance.savings", default: "Tasa de ahorro"),
+          value: cycle_savings_label(focus[:savings_rate]),
+          tone: :balance,
+          icon: "pig-money",
+          icon_tone: "blue",
+          note: t("reports.cycle_balance.savings_hint", default: "Porcentaje de tus ingresos que no se destinó a gastos reales."),
+          testid: "cycle-savings-rate",
+          variant: "savings" %>
+  </div>
+
+  <section class="card report-panel mb-3" data-testid="cycle-balance-chart">
+    <div class="report-panel-head">
+      <div>
+        <h2 class="report-panel-title"><%= t("reports.cycle_balance.chart_title", default: "Comportamiento por ciclo") %></h2>
+        <p class="report-panel-subtitle"><%= t("reports.cycle_balance.chart_subtitle", default: "Compara tus ingresos y gastos en los últimos periodos.") %></p>
       </div>
-      <div class="card-body">
-        <% if @cycles.any? { |cycle| cycle[:count].positive? } %>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle" data-testid="monthly-balance-table">
-              <thead class="table-light">
-                <tr>
-                  <th scope="col"><%= t("reports.monthly_balance_cycle", default: "Ciclo") %></th>
-                  <th scope="col" class="text-end"><%= t("types.income_plural") %></th>
-                  <th scope="col" class="text-end"><%= t("types.expense_plural") %></th>
-                  <th scope="col" class="text-end"><%= t("reports.net", default: "Neto") %></th>
-                  <th scope="col" class="text-end"><%= t("reports.transactions.title", default: "Transacciones") %></th>
-                  <th scope="col"><%= t("common.actions") %></th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @cycles.each do |cycle| %>
-                  <tr>
-                    <td>
-                      <div class="fw-semibold"><%= cycle[:label] %></div>
-                      <div class="text-muted small"><%= cycle[:range_label] %></div>
-                    </td>
-                    <td class="text-end text-success"><%= number_to_currency(cycle[:income_total]) %></td>
-                    <td class="text-end text-danger"><%= number_to_currency(cycle[:expense_total]) %></td>
-                    <td class="text-end fw-bold <%= cycle[:net_total].negative? ? 'text-danger' : 'text-success' %>">
-                      <%= number_to_currency(cycle[:net_total]) %>
-                    </td>
-                    <td class="text-end"><%= cycle[:count] %></td>
-                    <td>
-                      <%= link_to t("reports.view_details", default: "Ver detalles"), monthly_report_path(cycle[:key]), class: "btn btn-sm btn-primary" %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
+      <span class="cycle-status-badge <%= cycle_status_class(focus[:status]) %>" data-testid="cycle-status">
+        <%= cycle_status_label(focus[:status]) %>
+      </span>
+    </div>
+
+    <div class="report-panel-body">
+      <% if @chart_balances.any? { |balance| balance[:income_total].positive? || balance[:expense_total].positive? } %>
+        <div class="cycle-chart-layout">
+          <div class="cycle-chart-main">
+            <div class="cycle-chart-legend">
+              <span><i class="cycle-legend-dot is-income"></i><%= t("reports.cycle_balance.chart_income", default: "Ingresos") %></span>
+              <span><i class="cycle-legend-dot is-expense"></i><%= t("reports.cycle_balance.chart_expense", default: "Gastos reales") %></span>
+            </div>
+            <%= column_chart [
+                  { name: t("reports.cycle_balance.chart_income", default: "Ingresos"),
+                    data: @chart_balances.map { |balance| [ balance[:short_label], balance[:income_total].to_f ] } },
+                  { name: t("reports.cycle_balance.chart_expense", default: "Gastos reales"),
+                    data: @chart_balances.map { |balance| [ balance[:short_label], balance[:expense_total].to_f ] } }
+                ],
+                **chart_money_options,
+                id: "cycle-balance-chart-canvas",
+                height: "320px",
+                colors: [ "#12a875", "#f08a3c" ],
+                legend: false,
+                library: { animation: false,
+                           scales: { x: { grid: { display: false },
+                                          ticks: { maxTicksLimit: 8, autoSkip: true, maxRotation: 0 } },
+                                     y: { beginAtZero: true } } } %>
           </div>
-        <% else %>
-          <p><%= t("reports.no_transactions", default: "Aún no hay transacciones registradas.") %></p>
-        <% end %>
+
+          <aside class="cycle-result-card" data-testid="cycle-result-card">
+            <span class="cycle-result-label"><%= t("reports.cycle_balance.result_title", default: "Resultado del ciclo") %></span>
+            <div class="cycle-result-value is-<%= net_tone %>">
+              <%= money_amount(focus[:net_total]) %>
+            </div>
+            <p class="cycle-result-copy"><%= cycle_narrative(focus) %></p>
+            <div class="cycle-result-meta">
+              <span class="cycle-result-pill">
+                <i class="ti ti-pig-money" aria-hidden="true"></i>
+                <%= cycle_savings_label(focus[:savings_rate]) %> <%= t("reports.cycle_balance.of_income", default: "de tus ingresos") %>
+              </span>
+              <% if focus[:partial] %>
+                <span class="cycle-partial-note">
+                  <i class="ti ti-clock" aria-hidden="true"></i>
+                  <%= t("reports.cycle_balance.partial_note", default: "Datos parciales: el ciclo está en curso.") %>
+                </span>
+              <% end %>
+            </div>
+            <p class="cycle-result-disclaimer"><%= t("reports.cycle_balance.result_disclaimer", default: "Este resultado representa el flujo registrado durante el ciclo, no necesariamente el saldo disponible en tus cuentas.") %></p>
+          </aside>
+        </div>
+      <% else %>
+        <%= render "shared/empty_state", icon: "chart-bar",
+              title: t("reports.cycle_balance.chart_empty", default: "Aún no hay datos para comparar ciclos.") %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="card report-panel" data-testid="cycle-balance-history">
+    <div class="report-panel-head">
+      <div>
+        <h2 class="report-panel-title"><%= t("reports.cycle_balance.history_title", default: "Historial de balances") %></h2>
+        <p class="report-panel-subtitle"><%= t("reports.cycle_balance.history_subtitle", default: "Consulta el resultado financiero de cada ciclo.") %></p>
       </div>
     </div>
+
+    <div class="report-panel-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle cycle-balance-table mb-0" data-testid="monthly-balance-table">
+          <thead>
+            <tr>
+              <th scope="col"><%= t("reports.cycle_balance.cycle", default: "Ciclo") %></th>
+              <th scope="col" class="text-end"><%= t("reports.cycle_balance.income", default: "Ingresos") %></th>
+              <th scope="col" class="text-end"><%= t("reports.cycle_balance.expenses", default: "Gastos") %></th>
+              <th scope="col" class="text-end"><%= t("reports.cycle_balance.net", default: "Resultado neto") %></th>
+              <th scope="col" class="text-end"><%= t("reports.cycle_balance.movements", default: "Movimientos") %></th>
+              <th scope="col"><%= t("reports.cycle_balance.status", default: "Estado") %></th>
+              <th scope="col" class="text-end"><%= t("reports.cycle_balance.actions", default: "Acciones") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @paged_cycles.each do |balance| %>
+              <tr class="<%= "is-current" if balance[:current] %>">
+                <td>
+                  <div class="cycle-name"><%= balance[:label] %></div>
+                  <div class="cycle-date"><%= balance[:range_label] %></div>
+                </td>
+                <td class="text-end cycle-amount-income"><%= money_amount(balance[:income_total]) %></td>
+                <td class="text-end cycle-amount-expense"><%= money_amount(balance[:expense_total]) %></td>
+                <td class="text-end fw-bold <%= balance[:net_total].negative? ? "cycle-amount-expense" : "cycle-amount-income" %>">
+                  <%= money_amount(balance[:net_total]) %>
+                </td>
+                <td class="text-end"><%= balance[:movement_count] %></td>
+                <td>
+                  <span class="cycle-status-badge <%= cycle_status_class(balance[:status]) %>">
+                    <%= cycle_status_label(balance[:status]) %>
+                  </span>
+                </td>
+                <td class="text-end">
+                  <%= link_to monthly_report_path(balance[:key]), class: "btn btn-sm btn-primary cycle-details-button" do %>
+                    <%= t("reports.cycle_balance.view_details", default: "Ver detalles") %>
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @paged_cycles.total_pages > 1 %>
+        <div class="cycle-pagination">
+          <span class="text-secondary small">
+            <%= t("reports.cycle_balance.cycle_page", default: "Página %{page} de %{pages}",
+                  page: @paged_cycles.current_page, pages: @paged_cycles.total_pages) %>
+          </span>
+          <%= will_paginate @paged_cycles, params: filter_params_for,
+                previous_label: t("common.previous"), next_label: t("common.next") %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% else %>
+  <div class="card report-panel" data-testid="monthly-balance-empty">
+    <%= render "shared/empty_state", icon: "chart-bar",
+          title: t("reports.cycle_balance.no_cycles_title", default: "Todavía no hay balances"),
+          text: t("reports.cycle_balance.no_cycles", default: "Cuando registres ingresos y gastos, aquí podrás consultar el balance de tus ciclos.") %>
   </div>
-</div>
+<% end %>

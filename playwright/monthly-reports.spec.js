@@ -31,7 +31,7 @@ test.describe('monthly reports are working', () => {
     const response = await page.goto('/monthly_reports');
     expect(response && response.ok()).toBeTruthy();
     await expect(page.getByRole('heading', { name: 'Balance del ciclo' })).toBeVisible();
-    await expect(page.getByText('Aún no hay transacciones registradas.')).toBeVisible();
+    await expect(page.getByText('Cuando registres ingresos y gastos, aquí podrás consultar el balance de tus ciclos.')).toBeVisible();
   });
 
   test('user can view a cycle report after adding an expense', async ({ page }) => {
@@ -43,7 +43,7 @@ test.describe('monthly reports are working', () => {
     await openJanuary2023(page);
 
     await expect(page.getByText('Enero 2023')).toBeVisible();
-    await expect(page.getByText('-$1.250').first()).toBeVisible();
+    await expect(page.getByText('$1.250').first()).toBeVisible();
 
     await page.getByRole('link', { name: 'Ver detalles' }).click();
     await expect(page).toHaveURL(/\/monthly_reports\/2023-01/);

@@ -18,6 +18,104 @@ module ReportsHelper
     number_to_currency(value.to_d, precision: 0)
   end
 
+  # Balance del ciclo: status, comparison, narrative and table presentation
+  # helpers shared by the list and detail screens.
+  def cycle_status_label(status)
+    t("reports.cycle_balance.status_#{status}", default: status.to_s.humanize)
+  end
+
+  def cycle_status_class(status)
+    "is-#{status.to_s.tr('_', '-')}"
+  end
+
+  def cycle_tone(amount)
+    value = amount.to_d
+    return :positive if value.positive?
+    return :negative if value.negative?
+
+    :neutral
+  end
+
+  def cycle_savings_label(rate)
+    rate.nil? ? t("reports.cycle_balance.not_available", default: "N/A") : number_to_percentage(rate, precision: 1)
+  end
+
+  def cycle_date_range_label(starts, ends)
+    start_format = starts.year == ends.year ? "%d de %B" : "%d de %B de %Y"
+    "#{l(starts, format: start_format).downcase} – #{l(ends, format: '%d de %B de %Y').downcase}"
+  end
+
+  # "↑ +$1.000.000 (+12,4%) frente al ciclo anterior". A zero previous value
+  # has no percentage base, so it says so instead of dividing by zero.
+  def cycle_comparison_note(delta, good_direction: :up, same_elapsed_days: false, testid: nil)
+    unless delta[:base_available]
+      return content_tag(:span, t("reports.cycle_balance.no_comparison_base", default: "Sin base de comparación"),
+                         class: "text-secondary", data: { testid: testid }.compact)
+    end
+
+    improved = good_direction == :down ? delta[:direction] == :down : delta[:direction] == :up
+    tone = if delta[:direction] == :flat
+      "is-neutral"
+    elsif improved
+      "is-positive"
+    else
+      "is-negative"
+    end
+    arrow = { up: "ti-arrow-up-right", down: "ti-arrow-down-right" }.fetch(delta[:direction], "ti-minus")
+    context = same_elapsed_days ? t("reports.cycle_balance.vs_previous_partial", default: "frente al mismo tramo del ciclo anterior") :
+                                  t("reports.cycle_balance.vs_previous", default: "frente al ciclo anterior")
+    signed_amount = "#{delta[:amount].negative? ? '-' : '+'}#{number_to_currency(delta[:amount].abs, precision: 0)}"
+    percentage = number_to_percentage(delta[:pct].abs, precision: 1)
+
+    content_tag(:span, class: class_names("cycle-delta", tone),
+                      data: { testid: testid }.compact) do
+      safe_join([
+        content_tag(:i, "", class: "ti #{arrow}", aria: { hidden: true }),
+        "#{signed_amount} (#{percentage}) #{context}"
+      ])
+    end
+  end
+
+  def cycle_narrative(balance)
+    return t("reports.cycle_balance.narrative_empty", default: "Este ciclo todavía no tiene movimientos registrados.") if balance[:movement_count].zero?
+
+    if balance[:income_total].zero?
+      t("reports.cycle_balance.narrative_no_income",
+        default: "No registraste ingresos en este ciclo. Tus gastos reales fueron de %{amount}.",
+        amount: money_amount(balance[:expense_total]))
+    elsif balance[:net_total].positive?
+      t("reports.cycle_balance.narrative_positive",
+        default: "Durante este ciclo tus ingresos superaron tus gastos reales. Tu resultado neto fue de %{amount}.",
+        amount: money_amount(balance[:net_total]))
+    elsif balance[:net_total].negative?
+      t("reports.cycle_balance.narrative_negative",
+        default: "Durante este ciclo tus gastos superaron tus ingresos registrados. Tu resultado neto fue de %{amount}.",
+        amount: money_amount(balance[:net_total]))
+    else
+      t("reports.cycle_balance.narrative_equal",
+        default: "Durante este ciclo tus ingresos y gastos reales fueron iguales.")
+    end
+  end
+
+  def cycle_transaction_type_label(transaction)
+    transaction.kind == "income" ? t("types.income") : t("types.expense")
+  end
+
+  def cycle_transaction_type_class(transaction)
+    transaction.kind == "income" ? "is-income" : "is-expense"
+  end
+
+  def cycle_transaction_date(transaction)
+    l(transaction.date, format: "%d %b %Y").squeeze(" ")
+  end
+
+  def cycle_transaction_amount(transaction)
+    amount = transaction.amount.to_d
+    sign = amount.negative? ? "-" : "+"
+    content_tag(:span, "#{sign}#{number_to_currency(amount.abs, precision: 0)}",
+                class: amount.negative? ? "cycle-amount-expense" : "cycle-amount-income")
+  end
+
   # Category icons are stored as full `ti-*` classes; legacy categories may
   # have none, so the report falls back to the generic tag icon.
   def budget_category_icon(icon)

@@ -1,98 +1,260 @@
-<%= render "shared/page_header",
-           title: t("reports.monthly_balance", default: "Balance del ciclo"),
-           subtitle: "#{l(@range.begin, format: :long)} – #{l(@range.end, format: :long)}" %>
+<% net_tone = cycle_tone(@cycle_balance[:net_total]) %>
 
-<div class="row mt-4">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><%= t("reports.transactions.title", default: "Transacciones") %></h5>
-      </div>
-      <div class="card-body">
-        <% if @transactions.any? %>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0"
-                   data-sortable-table
-                   data-testid="monthly-balance-transactions-table">
-              <thead class="table-light">
-                <tr>
-                  <th scope="col" aria-sort="descending">
-                    <button type="button" class="report-sort-button" data-sort-key="date" data-sort-type="date">
-                      <%= t("common.date") %>
-                      <i class="ti ti-sort-descending" data-sort-icon aria-hidden="true"></i>
-                    </button>
-                  </th>
-                  <th scope="col" aria-sort="none">
-                    <button type="button" class="report-sort-button" data-sort-key="type" data-sort-type="text">
-                      <%= t("common.type", default: "Tipo") %>
-                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                    </button>
-                  </th>
-                  <th scope="col" aria-sort="none">
-                    <button type="button" class="report-sort-button" data-sort-key="description" data-sort-type="text">
-                      <%= t("common.description") %>
-                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                    </button>
-                  </th>
-                  <th scope="col" aria-sort="none">
-                    <button type="button" class="report-sort-button" data-sort-key="category" data-sort-type="text">
-                      <%= t("common.category") %>
-                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                    </button>
-                  </th>
-                  <th scope="col" class="text-end" aria-sort="none">
-                    <button type="button" class="report-sort-button" data-sort-key="amount" data-sort-type="number">
-                      <%= t("common.amount") %>
-                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <% @transactions.each do |transaction| %>
-                  <% type_label = transaction.is_a?(Income) ? t("types.income") : t("types.expense") %>
-                  <tr>
-                    <td data-sort-value="<%= transaction.date.iso8601 %>"><%= l(transaction.date, format: :long) %></td>
-                    <td data-sort-value="<%= type_label %>">
-                      <span class="badge <%= transaction.is_a?(Income) ? 'bg-success' : 'bg-danger' %>">
-                        <%= type_label %>
-                      </span>
-                    </td>
-                    <td data-sort-value="<%= transaction.description.to_s %>"><%= transaction.description.presence || "—" %></td>
-                    <td data-sort-value="<%= transaction.category&.name.to_s %>"><%= transaction.category&.name || t("common.uncategorized", default: "Sin categoría") %></td>
-                    <td class="text-end fw-bold <%= transaction.amount.negative? ? 'text-danger' : 'text-success' %>"
-                        data-sort-value="<%= transaction.amount.to_s %>">
-                      <%= number_to_currency(transaction.amount) %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        <% else %>
-          <p><%= t("reports.no_month_transactions", default: "No hay transacciones para este ciclo.") %></p>
-        <% end %>
-      </div>
-    </div>
+<div class="cycle-detail-header" data-testid="cycle-balance-detail">
+  <div class="cycle-detail-heading">
+    <span class="cycle-eyebrow"><%= t("reports.monthly_balance", default: "Balance del ciclo") %></span>
+    <h1 class="reports-title" data-testid="cycle-detail-title"><%= @cycle_balance[:label] %></h1>
+    <p class="reports-subtitle" data-testid="cycle-detail-range">
+      <%= cycle_date_range_label(@cycle_balance[:starts], @cycle_balance[:ends]) %>
+    </p>
   </div>
 
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><%= t("reports.summary", default: "Resumen") %></h5>
-      </div>
-      <div class="card-body">
-        <p><strong><%= t("types.income") %>:</strong> <%= number_to_currency(@income_total) %></p>
-        <p><strong><%= t("types.expense_plural") %>:</strong> <%= number_to_currency(@expense_total) %></p>
-        <p>
-          <strong><%= t("reports.net", default: "Neto") %>:</strong>
-          <span class="fw-bold <%= @net_total.negative? ? 'text-danger' : 'text-success' %>">
-            <%= number_to_currency(@net_total) %>
-          </span>
-        </p>
-      </div>
-    </div>
+  <div class="cycle-detail-actions">
+    <span class="cycle-status-badge <%= cycle_status_class(@cycle_balance[:status]) %>" data-testid="cycle-detail-status">
+      <%= cycle_status_label(@cycle_balance[:status]) %>
+    </span>
+    <%= link_to monthly_reports_path(report_clear_params), class: "btn btn-outline-secondary" do %>
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      <%= t("reports.cycle_balance.back", default: "Volver") %>
+    <% end %>
   </div>
 </div>
 
-<%= link_to t("reports.back", default: "Volver al balance del ciclo"), monthly_reports_path(filter_params_for), class: "btn btn-secondary mt-3" %>
+<% if @cycle_balance[:partial] %>
+  <div class="alert alert-info d-flex align-items-center gap-2 cycle-partial-alert" role="status">
+    <i class="ti ti-clock" aria-hidden="true"></i>
+    <span><%= t("reports.cycle_balance.detail_partial_note", default: "Este ciclo está en curso; los movimientos y totales todavía pueden cambiar.") %></span>
+  </div>
+<% end %>
+
+<div class="row g-3 mb-3 report-metrics" data-testid="cycle-detail-metrics">
+  <%= render "reports/metric",
+        label: t("reports.cycle_balance.income", default: "Ingresos"),
+        value: money_amount(@cycle_balance[:income_total]),
+        tone: :positive,
+        icon: "trending-up",
+        icon_tone: "green",
+        note: nil,
+        testid: "cycle-detail-income",
+        variant: "income" %>
+
+  <%= render "reports/metric",
+        label: t("reports.cycle_balance.expenses", default: "Gastos reales"),
+        value: money_amount(@cycle_balance[:expense_total]),
+        tone: :attention,
+        icon: "receipt",
+        icon_tone: "amber",
+        note: nil,
+        testid: "cycle-detail-expense",
+        variant: "expense" %>
+
+  <%= render "reports/metric",
+        label: t("reports.cycle_balance.net", default: "Resultado neto"),
+        value: money_amount(@cycle_balance[:net_total]),
+        tone: net_tone,
+        icon: "scale",
+        icon_tone: net_tone == :negative ? "red" : "green",
+        note: nil,
+        testid: "cycle-detail-net",
+        variant: "net" %>
+</div>
+
+<div class="cycle-detail-layout">
+  <section class="card report-panel cycle-transactions-panel">
+    <div class="report-panel-head">
+      <div>
+        <h2 class="report-panel-title"><%= t("reports.cycle_balance.movements_title", default: "Movimientos del ciclo") %></h2>
+        <p class="report-panel-subtitle"><%= t("reports.cycle_balance.movements_subtitle", default: "Consulta los ingresos y gastos registrados en este periodo.") %></p>
+      </div>
+      <%= link_to monthly_report_path(@cycle_balance[:key], format: :csv, q: params[:q],
+                                      type: params[:type], category_id: params[:category_id]),
+                  class: "btn btn-outline-secondary btn-sm", data: { testid: "cycle-export" } do %>
+        <i class="ti ti-download" aria-hidden="true"></i>
+        <%= t("reports.cycle_balance.export", default: "Exportar") %>
+      <% end %>
+    </div>
+
+    <div class="cycle-filters-wrap">
+      <%= form_with url: monthly_report_path(@cycle_balance[:key]), method: :get, local: true,
+                    class: "cycle-filters" do %>
+        <% report_clear_params.each do |key, value| %>
+          <%= hidden_field_tag key, value %>
+        <% end %>
+
+        <label class="cycle-filter cycle-filter-search">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <%= search_field_tag :q, params[:q], class: "form-control",
+                placeholder: t("reports.cycle_balance.search_placeholder", default: "Buscar descripción o comercio..."),
+                aria: { label: t("reports.cycle_balance.search_placeholder", default: "Buscar descripción o comercio...") } %>
+        </label>
+
+        <label class="cycle-filter">
+          <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
+          <%= select_tag :type,
+                options_for_select([
+                  [ t("reports.cycle_balance.all_movements", default: "Todos los movimientos"), "all" ],
+                  [ t("reports.cycle_balance.only_expenses", default: "Gastos"), "expense" ],
+                  [ t("reports.cycle_balance.only_incomes", default: "Ingresos"), "income" ]
+                ], @type_filter),
+                class: "form-select", data: { auto_submit: true } %>
+        </label>
+
+        <label class="cycle-filter">
+          <i class="ti ti-tag" aria-hidden="true"></i>
+          <%= select_tag :category_id,
+                grouped_options_for_select(@category_options, params[:category_id],
+                                           include_blank: t("reports.cycle_balance.all_categories", default: "Todas las categorías")),
+                class: "form-select", data: { auto_submit: true } %>
+        </label>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="ti ti-filter" aria-hidden="true"></i>
+          <%= t("common.filter", default: "Filtrar") %>
+        </button>
+
+        <% if @filters_active %>
+          <%= link_to monthly_report_path(@cycle_balance[:key], report_clear_params),
+                      class: "btn btn-outline-secondary" do %>
+            <i class="ti ti-eraser" aria-hidden="true"></i>
+            <%= t("common.clear", default: "Limpiar") %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if @transactions.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle cycle-transactions-table mb-0"
+               data-sortable-table
+               data-testid="monthly-balance-transactions-table">
+          <thead>
+            <tr>
+              <th scope="col" aria-sort="descending">
+                <button type="button" class="report-sort-button" data-sort-key="date" data-sort-type="date">
+                  <%= t("common.date") %>
+                  <i class="ti ti-sort-descending" data-sort-icon aria-hidden="true"></i>
+                </button>
+              </th>
+              <th scope="col" aria-sort="none">
+                <button type="button" class="report-sort-button" data-sort-key="type" data-sort-type="text">
+                  <%= t("common.type") %>
+                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                </button>
+              </th>
+              <th scope="col" aria-sort="none">
+                <button type="button" class="report-sort-button" data-sort-key="description" data-sort-type="text">
+                  <%= t("common.description") %>
+                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                </button>
+              </th>
+              <th scope="col" aria-sort="none">
+                <button type="button" class="report-sort-button" data-sort-key="category" data-sort-type="text">
+                  <%= t("common.category") %>
+                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                </button>
+              </th>
+              <th scope="col" class="text-end" aria-sort="none">
+                <button type="button" class="report-sort-button" data-sort-key="amount" data-sort-type="number">
+                  <%= t("common.amount") %>
+                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @transactions.each do |transaction| %>
+              <tr>
+                <td data-sort-value="<%= transaction.date.iso8601 %>" class="cycle-transaction-date">
+                  <%= cycle_transaction_date(transaction) %>
+                </td>
+                <td data-sort-value="<%= cycle_transaction_type_label(transaction) %>">
+                  <span class="cycle-type-badge <%= cycle_transaction_type_class(transaction) %>">
+                    <%= cycle_transaction_type_label(transaction) %>
+                  </span>
+                </td>
+                <td data-sort-value="<%= transaction.description.to_s %>" class="cycle-transaction-description">
+                  <%= transaction.description.presence || "—" %>
+                </td>
+                <td data-sort-value="<%= transaction.category&.name.to_s %>">
+                  <% if transaction.category %>
+                    <%= category_badge(transaction.category) %>
+                  <% else %>
+                    <span class="text-secondary"><%= t("common.uncategorized", default: "Sin categoría") %></span>
+                  <% end %>
+                </td>
+                <td class="text-end" data-sort-value="<%= transaction.amount.to_s %>">
+                  <%= cycle_transaction_amount(transaction) %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cycle-table-foot">
+        <span class="text-secondary small">
+          <%= t("reports.cycle_balance.showing_movements",
+                default: "Mostrando %{from}–%{to} de %{total} movimientos",
+                from: @transactions.offset + 1,
+                to: @transactions.offset + @transactions.length,
+                total: @transactions.total_entries) %>
+        </span>
+        <% if @transactions.total_pages > 1 %>
+          <%= will_paginate @transactions, params: request.query_parameters,
+                previous_label: t("common.previous"), next_label: t("common.next") %>
+        <% end %>
+      </div>
+    <% elsif @cycle_balance[:movement_count].zero? %>
+      <div data-testid="cycle-movements-empty">
+        <%= render "shared/empty_state", icon: "receipt-2",
+              title: t("reports.cycle_balance.cycle_empty_title", default: "Ciclo sin movimientos"),
+              text: t("reports.cycle_balance.cycle_empty", default: "Este ciclo todavía no tiene movimientos registrados.") %>
+      </div>
+    <% else %>
+      <div data-testid="cycle-movements-no-results">
+        <%= render "shared/empty_state", icon: "filter-off",
+              title: t("reports.cycle_balance.no_results_title", default: "Sin resultados"),
+              text: t("reports.cycle_balance.no_results", default: "No encontramos movimientos con estos criterios."),
+              cta: link_to(t("common.clear", default: "Limpiar"),
+                           monthly_report_path(@cycle_balance[:key], report_clear_params),
+                           class: "btn btn-outline-secondary btn-sm") %>
+      </div>
+    <% end %>
+  </section>
+
+  <aside class="card report-panel cycle-summary-card" data-testid="cycle-summary-card">
+    <div class="cycle-summary-head">
+      <h2 class="report-panel-title"><%= t("reports.cycle_balance.summary_title", default: "Resumen del ciclo") %></h2>
+      <span class="cycle-status-badge <%= cycle_status_class(@cycle_balance[:status]) %>">
+        <%= cycle_status_label(@cycle_balance[:status]) %>
+      </span>
+    </div>
+
+    <dl class="cycle-summary-list">
+      <div class="cycle-summary-row">
+        <dt><%= t("reports.cycle_balance.summary_income", default: "Ingresos") %></dt>
+        <dd class="cycle-amount-income" data-testid="cycle-summary-income"><%= money_amount(@cycle_balance[:income_total]) %></dd>
+      </div>
+      <div class="cycle-summary-row">
+        <dt><%= t("reports.cycle_balance.summary_expenses", default: "Gastos reales") %></dt>
+        <dd class="cycle-amount-expense" data-testid="cycle-summary-expenses"><%= money_amount(-@cycle_balance[:expense_total]) %></dd>
+      </div>
+      <div class="cycle-summary-divider"></div>
+      <div class="cycle-summary-row is-total">
+        <dt><%= t("reports.cycle_balance.summary_net", default: "Resultado neto") %></dt>
+        <dd class="<%= @cycle_balance[:net_total].negative? ? "cycle-amount-expense" : "cycle-amount-income" %>"
+            data-testid="cycle-summary-net"><%= money_amount(@cycle_balance[:net_total]) %></dd>
+      </div>
+      <div class="cycle-summary-row">
+        <dt><%= t("reports.cycle_balance.summary_movements", default: "Movimientos") %></dt>
+        <dd data-testid="cycle-summary-movements"><%= @cycle_balance[:movement_count] %></dd>
+      </div>
+      <div class="cycle-summary-row">
+        <dt><%= t("reports.cycle_balance.summary_savings", default: "Tasa de ahorro") %></dt>
+        <dd data-testid="cycle-summary-savings"><%= cycle_savings_label(@cycle_balance[:savings_rate]) %></dd>
+      </div>
+    </dl>
+
+    <p class="cycle-summary-note"><%= t("reports.cycle_balance.summary_note", default: "El resultado neto corresponde a la diferencia entre los ingresos y gastos reales registrados durante este ciclo. No representa necesariamente el saldo disponible en tus cuentas.") %></p>
+  </aside>
+</div>

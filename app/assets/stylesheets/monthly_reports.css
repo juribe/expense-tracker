@@ -1,0 +1,554 @@
+/* -------------------------------------------------
+ * Balance del ciclo
+ * Cycle KPIs, behaviour chart, result reading, history
+ * and the cycle movement detail.
+ * ------------------------------------------------- */
+
+.cycle-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cycle-detail-heading {
+  min-width: 0;
+}
+
+.cycle-eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--et-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cycle-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cycle-partial-alert {
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+}
+
+.cycle-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cycle-delta.is-positive { color: var(--et-positive); }
+.cycle-delta.is-negative { color: var(--et-negative); }
+.cycle-delta.is-neutral { color: var(--et-muted); }
+
+.cycle-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cycle-status-badge.is-in-progress {
+  color: var(--et-attention);
+  background: rgba(178, 106, 0, 0.12);
+}
+
+.cycle-status-badge.is-completed {
+  color: var(--et-positive);
+  background: rgba(14, 159, 110, 0.12);
+}
+
+.cycle-status-badge.is-upcoming {
+  color: var(--et-muted);
+  background: rgba(109, 125, 140, 0.14);
+}
+
+.cycle-chart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(230px, 0.85fr);
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.cycle-chart-main {
+  min-width: 0;
+}
+
+.cycle-chart-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.55rem;
+  color: var(--et-muted);
+  font-size: 0.72rem;
+}
+
+.cycle-chart-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cycle-legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cycle-legend-dot.is-income { background: #12a875; }
+.cycle-legend-dot.is-expense { background: #e07a2f; }
+
+.cycle-result-card {
+  min-width: 0;
+  padding: 0.25rem 0 0.25rem 1.5rem;
+  border-left: 1px solid var(--bs-border-color);
+}
+
+.cycle-result-label {
+  display: block;
+  color: var(--et-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cycle-result-value {
+  margin: 0.45rem 0 0.55rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.cycle-result-value.is-positive { color: var(--et-positive); }
+.cycle-result-value.is-negative { color: var(--et-negative); }
+.cycle-result-value.is-neutral { color: var(--bs-body-color); }
+
+.cycle-result-copy {
+  margin: 0;
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.cycle-result-meta {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.cycle-result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  color: var(--et-positive);
+  background: rgba(14, 159, 110, 0.1);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.cycle-partial-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--et-attention);
+  font-size: 0.7rem;
+}
+
+.cycle-result-disclaimer {
+  margin: 0.9rem 0 0;
+  color: var(--et-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.cycle-balance-table {
+  --bs-table-bg: transparent;
+}
+
+.cycle-balance-table thead th {
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  color: var(--et-muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cycle-balance-table tbody td {
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.82rem;
+  vertical-align: middle;
+}
+
+.cycle-balance-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cycle-balance-table tbody tr.is-current {
+  background: rgba(42, 109, 245, 0.045);
+  box-shadow: inset 3px 0 0 var(--bs-primary);
+}
+
+.cycle-balance-table tbody tr:hover {
+  background: rgba(42, 109, 245, 0.06);
+}
+
+.cycle-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.cycle-date {
+  margin-top: 0.15rem;
+  color: var(--et-muted);
+  font-size: 0.72rem;
+}
+
+.cycle-amount-income {
+  color: var(--et-positive) !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cycle-amount-expense {
+  color: #d97706 !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .cycle-amount-expense {
+  color: #f5a54a !important;
+}
+
+.cycle-details-button {
+  white-space: nowrap;
+}
+
+.cycle-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.cycle-pagination .pagination {
+  margin-bottom: 0;
+}
+
+/* -------------------------------------------------
+ * Cycle detail layout
+ * ------------------------------------------------- */
+
+.cycle-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.cycle-transactions-panel {
+  min-width: 0;
+}
+
+.cycle-filters-wrap {
+  padding: 0.75rem 1.15rem;
+  border-top: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.cycle-filters {
+  display: grid;
+  grid-template-columns: minmax(190px, 2fr) minmax(145px, 1fr) minmax(170px, 1fr) auto auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.cycle-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.15rem 0.65rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.65rem;
+  background: var(--bs-body-bg);
+}
+
+.cycle-filter > i {
+  flex: 0 0 auto;
+  color: var(--et-muted);
+  font-size: 0.95rem;
+}
+
+.cycle-filter .form-control,
+.cycle-filter .form-select {
+  border: 0;
+  padding: 0.45rem 0;
+  background-color: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bs-body-color);
+  box-shadow: none;
+}
+
+.cycle-filter .form-select {
+  padding-right: 1.4rem;
+}
+
+.cycle-transactions-table thead th {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  color: var(--et-muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cycle-transactions-table tbody td {
+  padding: 0.78rem 0.8rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+
+.cycle-transactions-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cycle-transactions-table tbody tr:hover {
+  background: rgba(42, 109, 245, 0.045);
+}
+
+.cycle-transaction-date {
+  color: var(--et-muted);
+  white-space: nowrap;
+}
+
+.cycle-transaction-description {
+  min-width: 170px;
+  font-weight: 600;
+}
+
+.cycle-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.24rem 0.48rem;
+  border-radius: 0.4rem;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cycle-type-badge.is-expense {
+  color: #c2410c;
+  background: rgba(224, 122, 47, 0.12);
+}
+
+.cycle-type-badge.is-income {
+  color: var(--et-positive);
+  background: rgba(14, 159, 110, 0.12);
+}
+
+[data-bs-theme="dark"] .cycle-type-badge.is-expense {
+  color: #fdba74;
+  background: rgba(224, 122, 47, 0.18);
+}
+
+/* The net result is the headline of the four indicators. */
+.report-kpi.report-kpi-net {
+  border-color: rgba(42, 109, 245, 0.28);
+  background: linear-gradient(180deg, rgba(42, 109, 245, 0.055), transparent 70%);
+}
+
+.report-kpi.report-kpi-net .stat-value {
+  font-size: 1.55rem;
+}
+
+.report-kpi.report-kpi-savings .stat-value {
+  color: var(--et-balance);
+}
+
+.cycle-table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.15rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.cycle-table-foot .pagination {
+  margin-bottom: 0;
+}
+
+.cycle-summary-card {
+  position: sticky;
+  top: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.cycle-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.cycle-summary-list {
+  margin: 0;
+}
+
+.cycle-summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0.7rem 0;
+  font-size: 0.8rem;
+}
+
+.cycle-summary-row dt {
+  color: var(--et-muted);
+  font-weight: 500;
+}
+
+.cycle-summary-row dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cycle-summary-row.is-total dt,
+.cycle-summary-row.is-total dd {
+  font-weight: 800;
+}
+
+.cycle-summary-divider {
+  height: 1px;
+  margin: 0.85rem 0;
+  background: var(--bs-border-color);
+}
+
+.cycle-summary-note {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.65rem;
+  color: var(--et-muted);
+  background: rgba(42, 109, 245, 0.06);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------
+ * Responsive
+ * ------------------------------------------------- */
+
+@media (max-width: 1199.98px) {
+  .cycle-filters {
+    grid-template-columns: minmax(180px, 2fr) minmax(140px, 1fr) minmax(160px, 1fr) auto;
+  }
+
+  .cycle-filters .btn-outline-secondary {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .cycle-chart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cycle-result-card {
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--bs-border-color);
+    border-left: 0;
+  }
+
+  .cycle-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cycle-summary-card {
+    position: static;
+    order: -1;
+  }
+
+  .cycle-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cycle-filter-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .cycle-detail-header {
+    flex-direction: column;
+  }
+
+  .cycle-detail-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .cycle-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .cycle-filters .btn {
+    width: 100%;
+  }
+
+  .cycle-filters .btn-outline-secondary {
+    grid-column: auto;
+  }
+
+  .cycle-table-foot,
+  .cycle-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cycle-balance-table,
+  .cycle-transactions-table {
+    min-width: 660px;
+  }
+
+  .cycle-transactions-table .cycle-transaction-description {
+    min-width: 150px;
+  }
+}

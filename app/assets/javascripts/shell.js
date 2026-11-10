@@ -157,7 +157,22 @@
     });
   }
 
-  function init() { initTheme(); initSidebar(); initSourceTabs(); }
+  // Buttons outside the tab list (e.g. the credit opportunity banner) cannot
+  // use Bootstrap's data API: the Tab instance resolves its parent through
+  // closest(".nav, .list-group, [role=tablist]"), which returns null there.
+  function initSourceTabShortcuts() {
+    document.querySelectorAll("[data-source-tab-goto]").forEach(function (trigger) {
+      if (trigger.dataset.sourceTabGotoWired) { return; }
+      trigger.dataset.sourceTabGotoWired = "1";
+      trigger.addEventListener("click", function () {
+        var container = trigger.closest("[data-source-tabs]");
+        if (!container) { return; }
+        activateSourceTab(container, trigger.getAttribute("data-source-tab-goto"));
+      });
+    });
+  }
+
+  function init() { initTheme(); initSidebar(); initSourceTabs(); initSourceTabShortcuts(); }
 
   document.addEventListener("DOMContentLoaded", init);
   document.addEventListener("turbo:load", init);
