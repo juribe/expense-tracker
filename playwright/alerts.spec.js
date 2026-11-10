@@ -31,7 +31,7 @@ async function createExpense(page, { amount, date, category, description, source
 
 async function enableSpendingIncreaseAlerts(page) {
   await page.goto('/settings/alerts');
-  await page.getByLabel(/notablemente mayor que el mes pasado/).check();
+  await page.getByLabel(/Cuando tus gastos aumenten notablemente/).check();
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByText('Preferencias guardadas')).toBeVisible();
 }
@@ -52,15 +52,15 @@ test.describe('spending alerts (alertas de gasto)', () => {
     await signUp(page);
 
     await page.goto('/settings/alerts');
-    await expect(page.getByLabel(/80% de mi presupuesto/)).toBeChecked();
-    await expect(page.getByLabel(/supere mi presupuesto/)).toBeChecked();
-    await expect(page.getByLabel(/notablemente mayor que el mes pasado/)).not.toBeChecked();
+    await expect(page.getByLabel(/Al llegar al límite del presupuesto/)).toBeChecked();
+    await expect(page.getByLabel(/Al superar el presupuesto/)).toBeChecked();
+    await expect(page.getByLabel(/Cuando tus gastos aumenten notablemente/)).not.toBeChecked();
 
-    await page.getByLabel(/notablemente mayor que el mes pasado/).check();
+    await page.getByLabel(/Cuando tus gastos aumenten notablemente/).check();
     await page.getByRole('button', { name: 'Guardar' }).click();
 
     await expect(page.getByText('Preferencias guardadas')).toBeVisible();
-    await expect(page.getByLabel(/notablemente mayor que el mes pasado/)).toBeChecked();
+    await expect(page.getByLabel(/Cuando tus gastos aumenten notablemente/)).toBeChecked();
   });
 
   test('alerts the user when spending increases vs previous month', async ({ page }) => {
