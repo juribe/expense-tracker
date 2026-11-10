@@ -49,7 +49,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.locator('input[name="sources[0][name]"]').fill(name);
     await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('5420000');
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
 
     // Credit cards & loans: skip
     await skipSteps(page);
@@ -89,7 +89,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.locator('input[name="sources[1][name]"]').fill(accountB);
     await pickBank(page, 1, 'Davivienda');
     await page.locator('input[name="sources[1][balance]"]').fill('2180000');
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
 
     // Credit cards: add one manually
     await expect(page.getByText('¿Cómo quieres agregar tus tarjetas de crédito?')).toBeVisible();
@@ -103,7 +103,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.locator('input[name="sources[0][credit_limit]"]').fill('8000000');
     await page.locator('input[name="sources[0][interest_rate]"]').fill('12');
     await page.locator('select[name="sources[0][interest_rate_type]"]').selectOption('effective_annual');
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
 
     // Loans: add one manually
     await expect(page.getByText('¿Cómo quieres agregar tus préstamos?')).toBeVisible();
@@ -117,7 +117,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.locator('input[name="sources[0][monthly_payment]"]').fill('3100000');
     await page.locator('input[name="sources[0][installment_count]"]').fill('72');
     await page.locator('select[name="sources[0][interest_rate_type]"]').selectOption('effective_annual');
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
 
     // Final review: summary counts across all kinds
     await expect(page.getByText('2 Cuentas')).toBeVisible();
@@ -151,7 +151,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.locator('input[name="sources[0][name]"]').fill(name);
     await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('100000');
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
     await expect(page.getByText('¿Cómo quieres agregar tus tarjetas de crédito?')).toBeVisible();
 
     // Leave from the credit cards step
@@ -181,7 +181,7 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.locator('input[name="sources[0][name]"]').fill(original);
     await pickBank(page, 0, 'Bancolombia');
     await page.locator('input[name="sources[0][balance]"]').fill('100000');
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
 
     // Skip through the remaining steps to reach review
     await expect(page.getByText('¿Cómo quieres agregar tus tarjetas de crédito?')).toBeVisible();
@@ -207,7 +207,7 @@ test.describe('Hybrid financial setup wizard', () => {
 
     const edited = `${original} editado`;
     await page.locator('input[name="sources[0][name]"]').fill(edited);
-    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
 
     // Skip through again and confirm the edited name appears in review
     await expect(page.getByText('¿Cómo quieres agregar tus tarjetas de crédito?')).toBeVisible();
@@ -219,5 +219,50 @@ test.describe('Hybrid financial setup wizard', () => {
     await page.getByText('1 Cuenta').click();
     await expect(page.getByText(edited)).toBeVisible();
     await expect(page.getByText(original, { exact: true })).toBeHidden();
+  });
+
+  test('user can save a manual step without advancing and continue later', async ({ page }) => {
+    await startWizard(page);
+    await skipCash(page);
+
+    await expect(page.getByText('¿Cómo quieres agregar tus cuentas?')).toBeVisible();
+    await choose(page, 'Agregar manualmente');
+
+    const name = `Ahorros Guardar-${Date.now()}`;
+    await page.locator('input[name="sources[0][name]"]').fill(name);
+    await pickBank(page, 0, 'Bancolombia');
+    await page.locator('input[name="sources[0][balance]"]').fill('250000');
+    await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+
+    // Save-only returns to the same step with the source already added.
+    await expect(page.getByText('¿Cómo quieres agregar tus cuentas?')).toBeVisible();
+    await expect(page.getByText('Agregados (1)')).toBeVisible();
+
+    // The step's continue card advances without losing the saved source.
+    await choose(page, 'Continuar');
+    await expect(page.getByText('¿Cómo quieres agregar tus tarjetas de crédito?')).toBeVisible();
+  });
+
+  test('browser blocks saving a manual source without name, bank or balance', async ({ page }) => {
+    await startWizard(page);
+    await skipCash(page);
+
+    await expect(page.getByText('¿Cómo quieres agregar tus cuentas?')).toBeVisible();
+    await choose(page, 'Agregar manualmente');
+
+    const nameInput = page.locator('input[name="sources[0][name]"]');
+    await expect(nameInput).toHaveJSProperty('required', true);
+
+    // Empty row: the browser keeps the user on the manual screen.
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
+    await expect(page).toHaveURL(/\/financial_setup\/step\/accounts\/manual/);
+    await expect(nameInput).toBeFocused();
+
+    // Name and balance present but bank missing: still blocked.
+    await nameInput.fill('Cuenta sin banco');
+    await page.locator('input[name="sources[0][balance]"]').fill('1000');
+    await page.getByRole('button', { name: 'Guardar y continuar', exact: true }).click();
+    await expect(page).toHaveURL(/\/financial_setup\/step\/accounts\/manual/);
+    await expect(page.locator('[data-institution-search]')).toBeFocused();
   });
 });

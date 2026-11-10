@@ -28,7 +28,8 @@
          </div>
          <div>
            <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted me-2" %>
-           <%= submit_tag t("wizard.continue"), class: "btn btn-primary" %>
+           <%= submit_tag t("wizard.manual.save_only"), name: "save_only", class: "btn btn-outline-primary me-2" %>
+           <%= submit_tag t("wizard.manual.save_and_continue"), class: "btn btn-primary" %>
          </div>
        </div>
     <% end %>

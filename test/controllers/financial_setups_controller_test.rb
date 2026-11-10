@@ -216,6 +216,37 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='sources[0][name]']"
   end
 
+  test "GET manual renders save and save-and-continue actions" do
+    get financial_setup_manual_screen_path(step: :accounts)
+    assert_response :success
+    assert_select "input[type='submit'][name='save_only'][value=?]", I18n.t("wizard.manual.save_only")
+    assert_select "input[type='submit'][value=?]", I18n.t("wizard.manual.save_and_continue")
+  end
+
+  test "GET manual requires name, bank and balance for accounts" do
+    get financial_setup_manual_screen_path(step: :accounts)
+    assert_response :success
+    assert_select "input[name='sources[0][name]'][required]"
+    assert_select "[data-institution-search][required]"
+    assert_select "input[name='sources[0][balance]'][required]"
+  end
+
+  test "GET manual requires name and balance for cash without requiring a bank" do
+    get financial_setup_manual_screen_path(step: :cash)
+    assert_response :success
+    assert_select "input[name='sources[0][name]'][required]"
+    assert_select "input[name='sources[0][balance]'][required]"
+    assert_select "[data-institution-combobox]", count: 0
+  end
+
+  test "GET manual requires name, lender and outstanding balance for loans" do
+    get financial_setup_manual_screen_path(step: :loans)
+    assert_response :success
+    assert_select "input[name='sources[0][name]'][required]"
+    assert_select "[data-institution-search][required]"
+    assert_select "input[name='sources[0][outstanding_balance]'][required]"
+  end
+
   test "GET manual for cash renders the cash balance field" do
     get financial_setup_manual_screen_path(step: :cash)
     assert_response :success
@@ -297,6 +328,25 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to financial_setup_step_path(step: :credit_cards)
     assert_equal [ "Savings" ], @setup.reload.draft_sources("accounts").map { |row| row["name"] }
+  end
+
+  test "POST manual with save_only keeps the same step" do
+    setup_record
+    current = @setup.current_step
+
+    post financial_setup_manual_path, params: {
+      step: "accounts",
+      save_only: "1",
+      sources: {
+        "0" => { name: "Savings", bank: "Bancolombia", balance: "5420000" }
+      }
+    }
+
+    assert_redirected_to financial_setup_step_path(step: :accounts)
+    assert_equal current, @setup.reload.current_step
+    rows = @setup.reload.draft_sources("accounts")
+    assert_equal [ "Savings" ], rows.map { |row| row["name"] }
+    assert_equal "manual", @setup.choice_for("accounts")
   end
 
   test "POST manual keeps the loan subtype in the draft row" do
@@ -471,6 +521,47 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
   test "GET import_review shows extracted sources" do
     get financial_setup_import_review_path(step: :accounts)
     assert_response :success
+  end
+
+  test "GET import_review renders save and save-and-continue actions" do
+    get financial_setup_import_review_path(step: :accounts)
+    assert_response :success
+    assert_select "button[name='save_only'][value='1']", text: I18n.t("wizard.review_extract.save_only")
+    assert_select "button[type='submit']", text: /#{Regexp.escape(I18n.t("wizard.review_extract.save_and_continue"))}/
+  end
+
+  test "GET import_review requires name, bank and amount when the extracted bank is missing" do
+    setup_record
+    @setup.set_choice("accounts", "import")
+    @setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "1234", "name" => "Ahorros", "bank" => "", "kind" => "account", "balance" => "1000" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    get financial_setup_import_review_path(step: :accounts)
+    assert_response :success
+    assert_select "input[name='sources[0][name]'][required]"
+    assert_select "[data-institution-search][required]"
+    assert_select "input[name='sources[0][balance]'][required]"
+  end
+
+  test "GET import_review does not force re-selecting an extracted bank" do
+    setup_record
+    @setup.set_choice("accounts", "import")
+    @setup.set_import_state("accounts", {
+      "sources" => [
+        { "identifier" => "1234", "name" => "Ahorros", "bank" => "Bancolombia", "kind" => "account", "balance" => "1000" }
+      ],
+      "duplicates" => {}
+    })
+    @setup.save!
+
+    get financial_setup_import_review_path(step: :accounts)
+    assert_response :success
+    assert_select "[data-institution-search][required]", count: 0
   end
 
   test "POST upload drops sources whose kind does not match the step" do
@@ -854,6 +945,21 @@ class FinancialSetupsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Cuenta de Ahorros/, response.body)
     assert_select "input[name='sources[0][origin]'][value='manual']"
     assert_select "input[name='sources[1][origin]'][value='import']"
+  end
+
+  test "GET edit_all requires name, bank and balance" do
+    setup_record
+    @setup.set_choice("accounts", "manual")
+    @setup.replace_draft_sources("accounts", [
+      { "name" => "Cuenta sin banco", "bank" => "", "kind" => "account", "balance" => "1000" }
+    ])
+    @setup.save!
+
+    get financial_setup_edit_all_path(step: :accounts)
+    assert_response :success
+    assert_select "input[name='sources[0][name]'][required]"
+    assert_select "[data-institution-search][required]"
+    assert_select "input[name='sources[0][balance]'][required]"
   end
 
   test "POST save_edits routes each row back to its own store" do

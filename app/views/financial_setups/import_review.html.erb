@@ -84,13 +84,13 @@
           <legend class="visually-hidden"><%= t("wizard.manual.edit") %></legend>
           <div class="col-12 col-md-4">
             <label class="form-label small text-muted mb-1"><%= t("wizard.manual.name") %></label>
-            <input type="text" class="form-control" name="sources[<%= idx %>][name]" value="<%= source["name"] %>">
+            <input type="text" class="form-control" name="sources[<%= idx %>][name]" value="<%= source["name"] %>" required>
           </div>
           <%= render "bank_select", index: idx, value: source["bank"], kind: kind, col_class: "col-12 col-md-4", compact: true,
-                                     institution_ref: source["institution_ref"] %>
+                                     institution_ref: source["institution_ref"], required: true %>
            <div class="col-12 col-md-4">
              <label class="form-label small text-muted mb-1"><%= balance_label %></label>
-             <input type="text" class="form-control" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>" data-money-input="true" <%= source["kind"] == "credit_card" ? 'data-ca-balance="true"' : "" %>>
+             <input type="text" class="form-control" name="sources[<%= idx %>][<%= money_key %>]" value="<%= money_field_value(source[money_key]) %>" data-money-input="true" required <%= source["kind"] == "credit_card" ? 'data-ca-balance="true"' : "" %>>
            </div>
            <% if source["kind"] == "credit_card" %>
              <div class="col-12 col-md-4">
@@ -191,7 +191,7 @@
       <%= link_to t("wizard.exit_resume"), dashboard_path, class: "btn btn-link text-muted text-decoration-none" %>
       <%= button_tag t("wizard.review_extract.save_only"), type: "submit", name: "save_only", value: "1", class: "btn btn-outline-primary" %>
       <%= button_tag type: "submit", class: "btn btn-primary btn-lg" do %>
-        <%= t("wizard.review_extract.confirm") %> <i class="ti ti-arrow-right ms-1"></i>
+        <%= t("wizard.review_extract.save_and_continue") %> <i class="ti ti-arrow-right ms-1"></i>
       <% end %>
     </div>
   </div>

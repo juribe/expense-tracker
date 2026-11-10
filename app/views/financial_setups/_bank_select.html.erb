@@ -11,6 +11,7 @@
 <% col_class ||= "col-md-6" %>
 <% compact = local_assigns.fetch(:compact, false) %>
 <% selected_ref = local_assigns.fetch(:institution_ref, "") %>
+<% required = local_assigns.fetch(:required, false) && value.blank? %>
 <% label_class = compact ? "form-label small text-muted mb-1" : "form-label" %>
 <% label = kind == "loan" ? t("wizard.manual.lender") : t("wizard.manual.bank") %>
 <div class="<%= col_class %> mb-3">
@@ -25,7 +26,8 @@
              placeholder="<%= t('wizard.manual.bank_placeholder') %>"
              autocomplete="off" spellcheck="false"
              role="combobox" aria-autocomplete="list" aria-expanded="false"
-             aria-haspopup="listbox" aria-label="<%= label %>">
+             aria-haspopup="listbox" aria-label="<%= label %>"
+             <%= "required" if required %>>
       <button type="button" class="btn btn-outline-secondary" data-institution-clear
               aria-label="<%= t('money_sources.form.institution_none') %>" hidden>
         <i class="ti ti-x" aria-hidden="true"></i>

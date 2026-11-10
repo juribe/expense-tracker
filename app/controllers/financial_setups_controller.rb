@@ -83,14 +83,21 @@ class FinancialSetupsController < ApplicationController
   end
 
   # POST /financial_setup/manual
-  # Persists manually entered draft rows and advances.
+  # Persists manually entered draft rows, then either advances or — with
+  # save_only — returns to the step so the user can keep working there.
   def save_manual
     step_key = params.require(:step)
     rows = clean_rows(params[:sources] || [])
 
     @setup.set_choice(step_key, "manual")
     @setup.replace_draft_sources(step_key, rows)
-    advance_or_save(step_key)
+
+    if params[:save_only].present?
+      @setup.save!
+      redirect_to financial_setup_step_path(step: step_key), notice: t("wizard.manual.saved")
+    else
+      advance_or_save(step_key)
+    end
   end
 
   # GET /financial_setup/step/:step/upload

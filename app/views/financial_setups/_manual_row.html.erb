@@ -12,11 +12,11 @@
 
       <div class="col-md-6">
         <label class="form-label"><%= t("wizard.manual.name") %></label>
-        <input type="text" name="sources[<%= index %>][name]" value="<%= row["name"] %>" class="form-control">
+        <input type="text" name="sources[<%= index %>][name]" value="<%= row["name"] %>" class="form-control" required>
       </div>
       <% unless kind == "cash" %>
         <%= render "bank_select", index: index, value: row["bank"], kind: kind,
-                                   institution_ref: row["institution_ref"] %>
+                                   institution_ref: row["institution_ref"], required: true %>
       <% end %>
 
        <% if kind == "cash" %>
@@ -24,7 +24,7 @@
            <label class="form-label"><%= t("wizard.manual.current_cash") %></label>
            <div class="input-group">
              <span class="input-group-text">$</span>
-             <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true">
+             <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true" required>
            </div>
          </div>
        <% elsif %w[account credit_card].include?(kind) %>
@@ -36,7 +36,7 @@
           <label class="form-label"><%= kind == "credit_card" ? t("wizard.manual.current_debt") : t("wizard.manual.starting_balance") %></label>
           <div class="input-group">
             <span class="input-group-text">$</span>
-            <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true" <%= kind == "credit_card" ? 'data-ca-balance="true"' : "" %>>
+            <input type="text" name="sources[<%= index %>][balance]" value="<%= money_field_value(row["balance"]) %>" class="form-control" data-money-input="true" <%= kind == "credit_card" ? 'data-ca-balance="true"' : "" %> required>
           </div>
         </div>
        <% end %>
@@ -84,7 +84,7 @@
           <label class="form-label"><%= t("wizard.manual.outstanding_balance") %></label>
           <div class="input-group">
             <span class="input-group-text">$</span>
-            <input type="text" name="sources[<%= index %>][outstanding_balance]" value="<%= money_field_value(row["outstanding_balance"]) %>" class="form-control" data-money-input="true">
+            <input type="text" name="sources[<%= index %>][outstanding_balance]" value="<%= money_field_value(row["outstanding_balance"]) %>" class="form-control" data-money-input="true" required>
           </div>
         </div>
         <div class="col-md-6">
