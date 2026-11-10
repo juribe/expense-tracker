@@ -1,82 +1,214 @@
-<% wa_status = capture do %>
-  <% if @connection %>
-    <span class="badge bg-success fs-6"><i class="ti ti-circle-check me-1"></i>Conectado</span>
-  <% else %>
-    <span class="badge bg-secondary fs-6">No conectado</span>
-  <% end %>
-<% end %>
-<%= render "shared/page_header", title: "WhatsApp", subtitle: wa_status %>
+<% receiving = @connection.present? %>
+<% phone = receiving ? format_whatsapp_phone(@connection.whatsapp_identity.phone_number) : nil %>
 
-<div class="card" id="whatsapp-connect-card"
+<div class="whatsapp-page" id="whatsapp-connect-card"
      data-status-url="<%= status_whatsapp_settings_path %>"
      data-cancel-url="<%= cancel_whatsapp_settings_path %>"
      data-expired-url="<%= whatsapp_settings_path(expired: 1) %>"
      data-clean-url="<%= whatsapp_settings_path %>">
-  <div class="card-header <%= @connection ? "bg-success" : "bg-secondary" %> text-white">
-    <i class="ti ti-brand-whatsapp me-2"></i>Estado de la conexión
-  </div>
-  <div class="card-body">
 
-    <%# ── Connected ── %>
-    <div data-connect-state="connected" <%= 'hidden' unless @connection %>>
-      <p class="mb-1 small text-muted fw-semibold text-uppercase">Teléfono</p>
-      <p class="fs-5 mb-4"><%= @connection ? format_whatsapp_phone(@connection.whatsapp_identity.phone_number) : "" %></p>
-      <%= button_to whatsapp_settings_path, method: :delete, form: { data: { turbo_confirm: "¿Desconectar WhatsApp? No se borrarán tus gastos." } }, class: "btn btn-outline-danger" do %>
-        <i class="ti ti-circle-x me-1"></i>Desconectar WhatsApp
+  <%= render "shared/page_header",
+        title: safe_join([ tag.i(class: "ti ti-brand-whatsapp icon-chip icon-chip-green icon-chip-sm"), "Gastos por WhatsApp" ], " "),
+        subtitle: "Envía tus gastos a Yogasto directamente desde WhatsApp. Puedes utilizar mensajes de texto, notas de voz o imágenes." do %>
+    <span class="whatsapp-status <%= receiving ? "is-on" : "is-off" %>">
+      <span class="whatsapp-status-dot" aria-hidden="true"></span>
+      <%= receiving ? "Gastos por WhatsApp activos" : "Gastos por WhatsApp inactivos" %>
+    </span>
+  <% end %>
+
+  <section class="card whatsapp-state-card">
+    <div class="card-body">
+
+      <%# ── Connected: the number is already linked ── %>
+      <div data-connect-state="connected" <%= 'hidden' unless receiving %>>
+        <div class="whatsapp-state-grid">
+          <div>
+            <div class="whatsapp-card-heading">
+              <span class="icon-chip icon-chip-green" aria-hidden="true"><i class="ti ti-brand-whatsapp"></i></span>
+              <h2 class="whatsapp-state-title">Recibiendo tus gastos por WhatsApp</h2>
+            </div>
+            <p class="whatsapp-lead">
+              Una vez asociamos tu número de WhatsApp con tu cuenta, no necesitas iniciar una conversación
+              ni escribir comandos. Simplemente envía tu gasto.
+            </p>
+            <div class="whatsapp-phone">
+              <span class="whatsapp-phone-icon" aria-hidden="true"><i class="ti ti-device-mobile"></i></span>
+              <span class="whatsapp-phone-copy">
+                <span class="whatsapp-phone-label">Número asociado</span>
+                <strong class="whatsapp-phone-number num"><%= phone %></strong>
+              </span>
+              <i class="ti ti-circle-check whatsapp-phone-check" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="whatsapp-action-stack">
+            <%= button_to whatsapp_settings_path, method: :delete,
+                  form: { data: { turbo_confirm: "¿Desconectar WhatsApp? No se borrarán tus gastos." } },
+                  class: "btn btn-outline-danger" do %>
+              <i class="ti ti-circle-x me-1"></i>Desconectar WhatsApp
+            <% end %>
+            <p class="whatsapp-hint">
+              Para cambiar de número, desconecta y envía el mensaje inicial desde el nuevo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <%# ── Connecting…: client-only state from the button click until the webhook confirms ── %>
+      <div data-connect-state="connecting" hidden>
+        <div class="whatsapp-connecting">
+          <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
+          <h2 class="whatsapp-state-title mb-1">Conectando tu WhatsApp</h2>
+          <p class="whatsapp-lead mb-3">Termina la conexión en WhatsApp.</p>
+          <p class="whatsapp-polling">
+            <span class="spinner-grow spinner-grow-sm text-muted me-2" role="status" aria-hidden="true"></span>
+            Esperando confirmación… revisamos automáticamente cada 30 segundos.
+          </p>
+          <p class="mb-3">
+            <%= link_to "#", target: "_blank", rel: "noopener", class: "btn btn-sm btn-outline-success d-none",
+                        data: { reopen_link: true } do %>
+              <i class="ti ti-brand-whatsapp me-1"></i>Abrir WhatsApp de nuevo
+            <% end %>
+          </p>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-cancel-action>Cancelar</button>
+        </div>
+      </div>
+
+      <%# ── Disconnected: primary action opens WhatsApp with the initial message ── %>
+      <div data-connect-state="idle" <%= 'hidden' if receiving %>>
+        <div class="whatsapp-state-grid">
+          <div>
+            <div class="whatsapp-card-heading">
+              <span class="icon-chip icon-chip-green" aria-hidden="true"><i class="ti ti-brand-whatsapp"></i></span>
+              <h2 class="whatsapp-state-title">Registra tus gastos por WhatsApp</h2>
+            </div>
+            <p class="whatsapp-lead">
+              Envía un mensaje inicial a Yogasto desde el WhatsApp que quieres usar. Así podremos
+              reconocer tu número y asociar los gastos que nos envíes con tu cuenta.
+            </p>
+            <p class="whatsapp-once-note">
+              <i class="ti ti-info-circle" aria-hidden="true"></i>
+              El mensaje inicial solo necesitas enviarlo una vez.
+            </p>
+          </div>
+          <div class="whatsapp-action-stack">
+            <% if @connect_code %>
+              <%= link_to wa_connect_url(@connect_code), target: "_blank", rel: "noopener",
+                          class: "btn btn-success btn-lg whatsapp-cta",
+                          data: { connect_action: true } do %>
+                <i class="ti ti-brand-whatsapp me-2"></i>Enviar mensaje a Yogasto
+              <% end %>
+              <p class="whatsapp-hint">Se abrirá WhatsApp con el mensaje inicial listo para enviar.</p>
+            <% else %>
+              <p class="text-muted mb-0">Generando código de conexión…</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if params[:expired].present? && !receiving %>
+        <div class="alert alert-warning mt-4 mb-0">
+          <i class="ti ti-hourglass me-1" aria-hidden="true"></i>
+          <strong>Intento de conexión expirado.</strong>
+          No recibimos la confirmación de WhatsApp. Intenta de nuevo.
+        </div>
       <% end %>
     </div>
+  </section>
 
-    <%# ── Connecting… (client-only state: shown from the button click until the webhook confirms, the user cancels or the attempt expires) ── %>
-    <div data-connect-state="connecting" hidden>
-      <div class="text-center py-4">
-        <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
-        <h5 class="mb-1">Conectando tu WhatsApp</h5>
-        <p class="text-muted mb-3">Termina la conexión en WhatsApp.</p>
-        <p class="mb-4">
-          <span class="spinner-grow spinner-grow-sm text-muted me-2" role="status" aria-hidden="true"></span>
-          <span class="text-muted">Esperando confirmación… revisamos automáticamente cada 30 segundos.</span>
-        </p>
-        <p class="mb-4">
-          <%= link_to "#", target: "_blank", rel: "noopener", class: "btn btn-sm btn-outline-success d-none",
-                      data: { reopen_link: true } do %>
-            <i class="ti ti-brand-whatsapp me-1"></i>Abrir WhatsApp de nuevo
-          <% end %>
-        </p>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-cancel-action>Cancelar</button>
+  <section class="card whatsapp-privacy">
+    <span class="whatsapp-privacy-icon" aria-hidden="true"><i class="ti ti-shield-lock"></i></span>
+    <div>
+      <h2 class="whatsapp-privacy-title">Tu privacidad está protegida</h2>
+      <p class="mb-0">
+        Yogasto no tiene acceso a tus conversaciones personales ni lee los mensajes de tu cuenta
+        de WhatsApp. Únicamente procesa los mensajes que tú decides enviar directamente al número
+        de WhatsApp de Yogasto.
+      </p>
+    </div>
+  </section>
+
+  <section class="whatsapp-section">
+    <div class="whatsapp-section-head">
+      <div>
+        <h2 class="whatsapp-section-title">Tipos de gastos que puedes enviar</h2>
+        <p class="whatsapp-section-sub">Elige la forma que te resulte más cómoda.</p>
       </div>
     </div>
+    <div class="whatsapp-examples">
+      <article class="card whatsapp-example">
+        <div class="whatsapp-example-head">
+          <span class="whatsapp-example-icon" aria-hidden="true"><i class="ti ti-message-2"></i></span>
+          <h3 class="whatsapp-example-title">Texto</h3>
+        </div>
+        <p>Escribe un gasto de forma natural.</p>
+        <div class="whatsapp-sample">Almuerzo 35.000</div>
+      </article>
 
-    <%# ── Not connected: primary token button ── %>
-    <div data-connect-state="idle" <%= 'hidden' if @connection %>>
-      <p class="text-muted mb-4">Conecta tu WhatsApp para registrar gastos enviando un mensaje desde tu celular.</p>
-      <div class="text-center">
-        <% if @connect_code %>
-          <%= link_to wa_connect_url(@connect_code), target: "_blank", rel: "noopener",
-                      class: "btn btn-success btn-lg fw-bold btn-letter-spacing-1",
-                      data: { connect_action: true } do %>
-            <i class="ti ti-brand-whatsapp me-2"></i>CONNECT <%= @connect_code %>
-          <% end %>
-          <p class="small text-muted mt-3 mb-0 text-center">
-            <i class="ti ti-clock me-1"></i>Al abrir WhatsApp se enviará automáticamente el mensaje de conexión.
-          </p>
-        <% else %>
-          <p class="text-muted mb-0">Generando código de conexión…</p>
-        <% end %>
-      </div>
+      <article class="card whatsapp-example">
+        <div class="whatsapp-example-head">
+          <span class="whatsapp-example-icon" aria-hidden="true"><i class="ti ti-microphone"></i></span>
+          <h3 class="whatsapp-example-title">Audio</h3>
+        </div>
+        <p>Envía una nota de voz describiendo el gasto.</p>
+        <div class="whatsapp-sample whatsapp-sample-audio">
+          <span class="whatsapp-play" aria-hidden="true"><i class="ti ti-player-play-filled"></i></span>
+          <span class="whatsapp-wave" aria-hidden="true"></span>
+          <span>0:08</span>
+        </div>
+      </article>
+
+      <article class="card whatsapp-example">
+        <div class="whatsapp-example-head">
+          <span class="whatsapp-example-icon" aria-hidden="true"><i class="ti ti-photo"></i></span>
+          <h3 class="whatsapp-example-title">Imagen</h3>
+        </div>
+        <p>Envía una foto de un recibo o comprobante.</p>
+        <div class="whatsapp-sample whatsapp-sample-receipt">
+          <span class="whatsapp-thumb" aria-hidden="true"><i class="ti ti-receipt"></i></span>
+          <span>recibo_almuerzo.jpg</span>
+        </div>
+      </article>
     </div>
+  </section>
 
-    <%# ── Expired attempt notice ── %>
-    <% if params[:expired].present? %>
-      <div class="alert alert-warning mt-4 mb-0">
-        <i class="ti ti-hourglass me-1"></i><strong>Intento de conexión expirado.</strong>
-        No recibimos la confirmación de WhatsApp. Intenta de nuevo.
+  <section class="card whatsapp-instructions">
+    <div class="card-body">
+      <div class="whatsapp-section-head">
+        <div>
+          <h2 class="whatsapp-section-title">Instrucciones de uso</h2>
+          <p class="whatsapp-section-sub">Asociar tu número toma menos de un minuto.</p>
+        </div>
+        <span class="whatsapp-once"><i class="ti ti-circle-check" aria-hidden="true"></i>Solo se hace la primera vez</span>
       </div>
+      <ol class="whatsapp-steps">
+        <li>
+          <span class="whatsapp-step-num" aria-hidden="true">1</span>
+          <span>
+            <strong>Envía el mensaje inicial</strong>
+            desde el número que deseas asociar.
+          </span>
+        </li>
+        <li>
+          <span class="whatsapp-step-num" aria-hidden="true">2</span>
+          <span>
+            <strong>Yogasto reconoce tu número</strong>
+            y lo asocia con tu cuenta.
+          </span>
+        </li>
+        <li>
+          <span class="whatsapp-step-num" aria-hidden="true">3</span>
+          <span>
+            <strong>Después, simplemente envía tus gastos</strong>
+            por WhatsApp, sin comandos.
+          </span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <p class="whatsapp-settings-link small mb-0">
+    <%= link_to alert_settings_path, class: "text-decoration-none" do %>
+      <i class="ti ti-settings me-1"></i>Configurar alertas
     <% end %>
-  </div>
-</div>
-
-<div class="mt-4 small">
-  <%= link_to alert_settings_path, class: "text-decoration-none" do %>
-    <i class="ti ti-settings me-1"></i>Configurar alertas
-  <% end %>
+  </p>
 </div>

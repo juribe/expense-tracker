@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 # Whatsapp::ConnectService
-# Handles the "CONNECT <code>" command received by the webhook. Proves number
-# ownership (the command must come from the WhatsApp number itself), claims or
-# reuses the permanent WhatsappIdentity, enforces the anti-abuse ownership
-# rules and opens the active WhatsappConnection. The pending token is consumed
+# Handles the initial WhatsApp message ("Hola yogasto…") carrying a CONNECT
+# token, plus the bare "CONNECT <code>" command. Proves number ownership (the
+# token must arrive from the WhatsApp number itself), claims or reuses the
+# permanent WhatsappIdentity, enforces the anti-abuse ownership rules and
+# opens the active WhatsappConnection. The pending token is consumed
 # atomically; the user is confirmed through WhatsApp.
+#
+# The greeting alone never identifies an account: without a valid single-use
+# token nothing is linked.
 #
 # Rejection rules (generic messages, no other-account details are revealed):
 #   * invalid / expired / already-used codes
@@ -14,10 +18,21 @@
 # Example: Whatsapp::ConnectService.call(event: message_event)
 module Whatsapp
   class ConnectService
-    CONNECT_PATTERN = /\A\s*CONNECT\s+([A-Z0-9]{4,10})\z/i
+    INITIAL_MESSAGE = "Hola yogasto quiero registrar mis gastos usando whatsapp"
+    CONNECT_PATTERN =
+      /\A\s*(?:#{Regexp.escape(INITIAL_MESSAGE)}\.?\s+)?CONNECT\s+([A-Z0-9]{4,10})\s*\z/i
+    # Broad routing signal used by the webhook: malformed codes still reach
+    # this service and get the generic rejection instead of being parsed as
+    # an expense.
+    CONNECT_INTENT_PATTERN =
+      /\A\s*(?:#{Regexp.escape(INITIAL_MESSAGE)}\.?\s+)?CONNECT\s+\S+/i
 
     def self.call(event:)
       new(event: event).call
+    end
+
+    def self.connect_command?(text)
+      CONNECT_INTENT_PATTERN.match?(text.to_s)
     end
 
     def initialize(event:)

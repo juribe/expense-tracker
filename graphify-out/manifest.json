@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794315044.0149844,
-    "seen": 1794315131.480148,
+    "mtime": 1794319016.9007537,
+    "seen": 1794319113.730361,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2634,9 +2634,9 @@
     "semantic_hash": ""
   },
   "app/services/web_hook_handler/whatsapp_service.rb": {
-    "mtime": 1793464925.6182675,
-    "seen": 1793490696.634989,
-    "ast_hash": "b6663f560bf829fd0bc88e32b8284655",
+    "mtime": 1794318960.7969916,
+    "seen": 1794319113.7290041,
+    "ast_hash": "c85da85921b69d6bdef20d3f1e7a9929",
     "semantic_hash": ""
   },
   "test/controllers/webhooks/whatsapp_controller_test.rb": {
@@ -2646,27 +2646,27 @@
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
-    "mtime": 1793464892.312401,
-    "seen": 1793490696.635584,
-    "ast_hash": "08ee57548e989294d90f49488335a794",
+    "mtime": 1794318426.249774,
+    "seen": 1794319113.730186,
+    "ast_hash": "3368f6677becf5b6c77be708882f5063",
     "semantic_hash": ""
   },
   "app/controllers/whatsapp_settings_controller.rb": {
-    "mtime": 1792193826.1786234,
-    "seen": 1793490696.634432,
-    "ast_hash": "e23c78f6291d7c161a93d8c0872e3c72",
+    "mtime": 1794318836.9972248,
+    "seen": 1794319113.7281349,
+    "ast_hash": "63954f421704dc9e84acec66cf24f525",
     "semantic_hash": ""
   },
   "app/helpers/whatsapp_helper.rb": {
-    "mtime": 1790560256.3578134,
-    "seen": 1793490696.6344562,
-    "ast_hash": "109aaea10d488803a67b1d9a9d743401",
+    "mtime": 1794318443.9385402,
+    "seen": 1794319113.728178,
+    "ast_hash": "77d6c4f4811c556ad8784e438f0b9ed4",
     "semantic_hash": ""
   },
   "app/models/pending_whatsapp_connection.rb": {
-    "mtime": 1790560256.359067,
-    "seen": 1793490696.634628,
-    "ast_hash": "9223370261c2a007bde212a111a51802",
+    "mtime": 1794318956.9253676,
+    "seen": 1794319113.7284229,
+    "ast_hash": "539ca2cd2af15d4cdd550e72ae7dd98b",
     "semantic_hash": ""
   },
   "app/models/whatsapp_connection.rb": {
@@ -2682,9 +2682,9 @@
     "semantic_hash": ""
   },
   "app/services/whatsapp/connect_service.rb": {
-    "mtime": 1793464915.918213,
-    "seen": 1793490696.63499,
-    "ast_hash": "155b8132af46e41f21087a41db1f634f",
+    "mtime": 1794318451.5286348,
+    "seen": 1794319113.729005,
+    "ast_hash": "e5baed56386c9af908d41f2637a1a631",
     "semantic_hash": ""
   },
   "app/services/whatsapp/reply_sender.rb": {
@@ -2694,9 +2694,9 @@
     "semantic_hash": ""
   },
   "test/controllers/whatsapp_settings_controller_test.rb": {
-    "mtime": 1792620906.9434643,
-    "seen": 1793490696.635249,
-    "ast_hash": "a142d4d41c2ec3a05b74212b9c548167",
+    "mtime": 1794320879.3391778,
+    "seen": 1794321047.366225,
+    "ast_hash": "349665e65bfdd889b9c437ae3490009c",
     "semantic_hash": ""
   },
   "test/models/pending_whatsapp_connection_test.rb": {
@@ -2718,9 +2718,9 @@
     "semantic_hash": ""
   },
   "test/services/whatsapp/connect_service_test.rb": {
-    "mtime": 1793464892.3124006,
-    "seen": 1793490696.635585,
-    "ast_hash": "9b5b5fa0ed76187e1e3ea944878eee56",
+    "mtime": 1794318411.159772,
+    "seen": 1794319113.730187,
+    "ast_hash": "b7b0bddb4060c0876282802747ccd2a6",
     "semantic_hash": ""
   },
   "app/services/whatsapp/media_fetcher.rb": {
@@ -4686,9 +4686,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/whatsapp_connect.js": {
-    "mtime": 1792598760.0682325,
-    "seen": 1793490696.63433,
-    "ast_hash": "9b50e6b00c1c223d192d6f5a703150f7",
+    "mtime": 1794318840.7856238,
+    "seen": 1794319113.727951,
+    "ast_hash": "1f8e47d781ef3713d0095bd8c19843fa",
     "semantic_hash": ""
   },
   "db/migrate/20261021000000_add_recurring_paid_in_full_to_transactions.rb": {
@@ -9753,6 +9753,12 @@
     "mtime": 1794276729.4768806,
     "seen": 1794276839.2313652,
     "ast_hash": "5fe02928bab2a22d67cce86026325105",
+    "semantic_hash": ""
+  },
+  "test/system/whatsapp_settings_test.rb": {
+    "mtime": 1794320886.5622663,
+    "seen": 1794321047.366849,
+    "ast_hash": "ebcfca23154018d6461b286658b1b871",
     "semantic_hash": ""
   }
 }

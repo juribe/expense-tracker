@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 # WebHookHandler::WhatsappService
-# Routes incoming WhatsApp Cloud API webhook payloads. CONNECT commands are
-# delegated to Whatsapp::ConnectService (account linking); every other text
-# message resolves the user through the active WhatsappConnection (via the
-# permanent WhatsappIdentity) and feeds the standard expense ingestion
-# pipeline. Messages from unconnected numbers get connection instructions and
-# never create expenses.
+# Routes incoming WhatsApp Cloud API webhook payloads. The initial greeting
+# carrying a CONNECT token (and bare CONNECT commands) are delegated to
+# Whatsapp::ConnectService (account linking); every other text message
+# resolves the user through the active WhatsappConnection (via the permanent
+# WhatsappIdentity) and feeds the standard expense ingestion pipeline.
+# Messages from unconnected numbers get connection instructions and never
+# create expenses.
 #
 # Example: WebHookHandler::WhatsappService.call(raw_body: request.raw_post)
 module WebHookHandler
@@ -65,7 +66,7 @@ module WebHookHandler
     end
 
     def connect_command?(event)
-      event.message? && event.text.to_s.match?(/\A\s*CONNECT\s+\S+/i)
+      event.message? && Whatsapp::ConnectService.connect_command?(event.text)
     end
 
     def process_message(event)

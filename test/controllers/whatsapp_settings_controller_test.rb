@@ -2,10 +2,11 @@
 
 require "test_helper"
 
-# Settings → WhatsApp section: status display, the primary CONNECT token
-# button with deep link, the polling status endpoint, and disconnect/cancel.
-# Authentication required; the phone number is never typed by the user —
-# ownership is proven by the CONNECT command sent from WhatsApp.
+# Settings → WhatsApp section: the two association states, the primary
+# "Enviar mensaje" deep link (greeting + single-use CONNECT token), the polling
+# status endpoint, and disconnect/cancel. Authentication required; the phone
+# number is never typed by the user — ownership is proven by the token sent
+# from WhatsApp itself.
 class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
@@ -30,12 +31,28 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
-  test "GET /settings/whatsapp shows Not connected with a ready-to-use token button" do
-    get whatsapp_settings_path
+  test "GET /settings/whatsapp shows the disconnected state and a secure WhatsApp deep link" do
+    with_env("WHATSAPP_BUSINESS_NUMBER" => "573001112233") do
+      get whatsapp_settings_path
+    end
 
     assert_response :success
-    assert_match "No conectado", response.body
-    assert_match(/CONNECT\s+[A-Z2-9]{5}/, response.body)
+    assert_select "h1", text: /Gastos por WhatsApp/
+    assert_match "Gastos por WhatsApp inactivos", response.body
+    assert_match "Registra tus gastos por WhatsApp", response.body
+    assert_match "Tu privacidad está protegida", response.body
+
+    link = css_select("a[data-connect-action]").first
+    assert_not_nil link, "the primary action must open WhatsApp"
+    uri = URI.parse(link["href"])
+    assert_equal "wa.me", uri.host
+    assert_equal "/573001112233", uri.path
+
+    message = Rack::Utils.parse_query(uri.query).fetch("text")
+    assert message.start_with?("Hola yogasto quiero registrar mis gastos usando whatsapp"), message
+    code = message[/CONNECT ([A-Z2-9]{5})\z/, 1]
+    assert_not_nil code, "the initial message must carry a single-use connect token"
+    assert PendingWhatsappConnection.valid_pending_for(code).present?
     assert @user.pending_whatsapp_connections.unused.unexpired.last.present?
   end
 
@@ -56,9 +73,9 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
     get whatsapp_settings_path
 
     assert_response :success
-    assert_match "No conectado", response.body
-    assert_match 'data-connect-state="connecting" hidden', response.body
-    assert_match 'data-connect-state="idle" >', response.body
+    assert_match "Gastos por WhatsApp inactivos", response.body
+    assert_select "[data-connect-state='connecting'][hidden]", count: 1
+    assert_select "[data-connect-state='idle']:not([hidden])", count: 1
   end
 
   test "GET /settings/whatsapp shows the connected phone when connected" do
@@ -72,8 +89,10 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
     get whatsapp_settings_path
 
     assert_response :success
-    assert_match "Conectado", response.body
+    assert_match "Gastos por WhatsApp activos", response.body
+    assert_match "Recibiendo tus gastos por WhatsApp", response.body
     assert_match "+57 300 123 4567", response.body
+    assert_match "Desconectar WhatsApp", response.body
     assert_no_difference -> { PendingWhatsappConnection.count } do
       get whatsapp_settings_path
     end

@@ -72,6 +72,34 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     assert @sent_replies.any? { |(phone, _)| phone == OWNER_WA_ID }
   end
 
+  test "the initial greeting with a valid token connects the sender number securely" do
+    code = PendingWhatsappConnection.generate_for!(@user)
+    text = "Hola yogasto quiero registrar mis gastos usando whatsapp\n\nCONNECT #{code}"
+
+    result = nil
+    with_reply_stub do
+      result = Whatsapp::ConnectService.call(event: connect_event(text: text))
+    end
+
+    assert result.success?
+    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    assert_equal @user.id, identity.claimed_by_user_id
+    assert result.result.active?
+  end
+
+  test "the initial greeting without a valid token does not connect anything" do
+    assert_no_difference [ -> { WhatsappIdentity.count }, -> { WhatsappConnection.count } ] do
+      result = nil
+      with_reply_stub do
+        result = Whatsapp::ConnectService.call(
+          event: connect_event(text: "Hola yogasto quiero registrar mis gastos usando whatsapp")
+        )
+      end
+
+      assert result.failure?
+    end
+  end
+
   test "2. invalid token is rejected with a generic message and nothing is connected" do
     assert_no_difference [ -> { WhatsappIdentity.count }, -> { WhatsappConnection.count } ] do
       result = nil

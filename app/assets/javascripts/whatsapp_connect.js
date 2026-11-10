@@ -1,5 +1,6 @@
-// Settings → WhatsApp connection flow. Clicking the primary CONNECT token
-// button opens WhatsApp and switches the section to a "Connecting…" state.
+// Settings → WhatsApp connection flow. Clicking the primary WhatsApp button
+// opens a chat with the initial greeting plus the single-use CONNECT token and
+// switches the section to a "Connecting…" state.
 // The status endpoint is polled every 30 seconds for up to 3 minutes (6
 // attempts, never more frequently); a single timer is guaranteed and cleaned
 // up on cancel, on navigation and as soon as the backend reports connected.

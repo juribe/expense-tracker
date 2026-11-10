@@ -2,10 +2,10 @@
 
 # PendingWhatsappConnection
 # Short-lived, single-use connect tokens shown in Settings → WhatsApp. The
-# user sends "CONNECT <code>" from the WhatsApp number being linked; only a
-# SHA-256 digest of the code is stored, so a DB leak never exposes usable
-# tokens. Codes use an unambiguous alphabet (no I/L/O/0/1) so they can be
-# safely copied by hand from the instructions page.
+# user sends the initial greeting carrying "CONNECT <code>" from the WhatsApp
+# number being linked; only a SHA-256 digest of the code is stored, so a DB
+# leak never exposes usable tokens. Codes use an unambiguous alphabet (no
+# I/L/O/0/1) so they can be safely copied by hand from the instructions page.
 #
 # Associations: belongs_to :user.
 #

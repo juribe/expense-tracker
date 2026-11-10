@@ -312,6 +312,32 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     assert replies.any?
   end
 
+  test "the initial greeting with a token is delegated to Whatsapp::ConnectService" do
+    code = PendingWhatsappConnection.generate_for!(@user)
+    text = "Hola yogasto quiero registrar mis gastos usando whatsapp\n\nCONNECT #{code}"
+    replies = []
+    stub_method(Whatsapp::ReplySender, :send_to, ->(phone, message) { replies << [ phone, message ] }) do
+      assert_no_difference -> { ExpenseCandidate.count } do
+        WebHookHandler::WhatsappService.call(raw_body: message_payload(text: text))
+      end
+    end
+
+    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    assert_equal @user.id, identity.claimed_by_user_id
+    assert WhatsappConnection.active.exists?(user: @user, whatsapp_identity: identity)
+    assert replies.any?
+  end
+
+  test "the greeting alone does not connect an unconnected number" do
+    assert_no_difference -> { WhatsappConnection.count } do
+      stub_method(Whatsapp::ReplySender, :send_to, ->(_phone, _message) {}) do
+        WebHookHandler::WhatsappService.call(
+          raw_body: message_payload(text: "Hola yogasto quiero registrar mis gastos usando whatsapp")
+        )
+      end
+    end
+  end
+
   test "a voice note is processed through the audio channel with the downloaded media" do
     connect_user!
     data_uri = "data:audio/ogg;base64,#{Base64.strict_encode64("fake-audio")}"

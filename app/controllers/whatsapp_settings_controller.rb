@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # WhatsappSettingsController
-# GET    /settings/whatsapp            : status card — connected phone,
+# GET    /settings/whatsapp            : association status — connected phone,
 #                                        "Connecting…" while a token is pending,
-#                                        or the primary CONNECT token button
+#                                        or the primary "Enviar mensaje" button
 # GET    /settings/whatsapp/status     : lightweight JSON for frontend polling
 # DELETE /settings/whatsapp/pending    : cancels the pending connect attempt
 # DELETE /settings/whatsapp            : disconnects (keeps expenses + identity)
