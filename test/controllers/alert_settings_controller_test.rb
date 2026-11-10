@@ -33,6 +33,28 @@ class AlertSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type=checkbox]", count: 3
   end
 
+  test "GET /settings/alerts renders the grouped alert cards with visual percentages" do
+    get alert_settings_path
+
+    assert_response :success
+    assert_select ".alert-settings-group", count: 2
+    assert_select ".alert-settings-row", count: 3
+    assert_select ".alert-settings-badge", text: "80%"
+    assert_select ".alert-settings-badge", text: "35%"
+    assert_select ".alert-settings-note",
+                  text: /Recibirás cada alerta solo una vez por mes y por categoría/
+    assert_select "form button[type=submit]", text: /Guardar/
+    assert_select "form a[href='#{alerts_path}']", text: /Cancelar/
+  end
+
+  test "GET /settings/alerts keeps each switch bound to its preference attribute" do
+    get alert_settings_path
+
+    assert_select "input[type=checkbox][name='alert_preference[budget_threshold_enabled]']", count: 1
+    assert_select "input[type=checkbox][name='alert_preference[budget_exceeded_enabled]']", count: 1
+    assert_select "input[type=checkbox][name='alert_preference[spending_increase_enabled]']", count: 1
+  end
+
   test "PATCH /settings/alerts saves the toggles" do
     patch alert_settings_path, params: {
       alert_preference: {
