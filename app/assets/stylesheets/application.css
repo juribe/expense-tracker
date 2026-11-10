@@ -2366,6 +2366,8 @@ button.guided-source {
   --pocket-allocated-bar: #f5b64f;
   --pocket-free: var(--et-positive);
   --pocket-track: var(--bs-secondary-bg, #edf1f6);
+  display: grid;
+  gap: 1.25rem;
 }
 
 [data-bs-theme="dark"] .pocket-summary {
