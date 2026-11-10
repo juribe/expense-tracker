@@ -110,7 +110,44 @@ class GmfEditDeleteTest < ActiveSupport::TestCase
     assert_equal 0.to_d, accumulator.gmf_generated
   end
 
+  test "recalculating a month does not query each movement money source" do
+    3.times { create_expense(amount: 10_000) }
+    destination = @user.money_sources.create!(name: "Destino", kind: "account", starting_balance: 0)
+    Transfer.create!(
+      user: @user, from_source: @account, to_source: destination,
+      amount: 5_000, date: Date.new(2026, 11, 10)
+    )
+
+    # The query cache would collapse the repeated belongs-to lookups into one;
+    # disabling it exposes the N+1 the way a request with distinct rows does.
+    queries = ActiveRecord::Base.uncached do
+      money_source_id_queries do
+        Gmf::AccumulatorRecalculator.call(user: @user, money_source: @account, date: Date.new(2026, 11, 10))
+      end
+    end
+
+    assert_operator queries.length, :<=, 2,
+      "expected at most two money-source lookups (expenses and transfers), " \
+      "got #{queries.length}: #{queries.join(' | ')}"
+  end
+
   private
+
+  # Belongs-to lookups issued per record when an association is not
+  # preloaded. Eager loading uses the same WHERE "money_sources"."id" form
+  # but only once, so it must not scale with the number of movements.
+  def money_source_id_queries
+    queries = []
+    callback = lambda do |_name, _start, _finish, _id, payload|
+      next if payload[:name] == "SCHEMA" || payload[:cached]
+
+      sql = payload[:sql].to_s
+      queries << sql if sql.match?(/WHERE "money_sources"\."id"/i)
+    end
+
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") { yield }
+    queries
+  end
 
   def create_expense(amount:, date: Date.new(2026, 11, 10))
     @user.expenses.create!(

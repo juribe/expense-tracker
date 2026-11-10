@@ -93,6 +93,7 @@ module Gmf
       @user.expenses
            .where(date: range, money_source_id: source_ids)
            .where.not(source: "gmf")
+           .includes(:money_source)
            .reject { |expense| Gmf::BankChargeDetector.bank_charge?(expense.description) }
            .map do |expense|
         Movement.new(
@@ -109,6 +110,7 @@ module Gmf
       range = Gmf::Period.range(@date.year, @date.month)
       @user.transfers
            .where(date: range, from_source_id: source_ids)
+           .includes(:from_source)
            .map do |transfer|
         Movement.new(
           record: transfer,
