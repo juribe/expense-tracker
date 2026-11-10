@@ -219,6 +219,7 @@ Rails.application.routes.draw do
     get "/insights", to: "reports/insights#index", as: :insights
     get "/transactions", to: "reports/transactions#index", as: :transactions
     get "/available_cycle", to: "reports/available_cycle#index", as: :available_cycle
+    get "/savings_capacity", to: "reports/savings_capacity#index", as: :savings_capacity
   end
 
   post "imports/upload", to: "imports#upload", as: :import_upload

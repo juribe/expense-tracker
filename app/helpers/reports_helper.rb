@@ -601,4 +601,25 @@ module ReportsHelper
 
     "#{(value.to_d / total * 100).round}%"
   end
+
+  # Savings-capacity report: the server precomputes every percentage/option
+  # combination, so the browser only selects a value and never repeats the
+  # financial calculation. BigDecimal values travel as exact decimal strings.
+  def savings_capacity_scenarios_json(scenarios)
+    scenarios.map do |scenario|
+      scenario.transform_values { |value| value.is_a?(BigDecimal) ? value.to_s("F") : value }
+    end.to_json
+  end
+
+  def savings_capacity_cycle_option_label(cycle, index)
+    prefix = if index.zero?
+      t("reports.savings_capacity.next_cycle", default: "Próximo ciclo")
+    elsif index == 1
+      t("reports.savings_capacity.following_cycle", default: "Ciclo siguiente")
+    else
+      cycle.label
+    end
+
+    "#{prefix} · #{cycle.range_label}"
+  end
 end

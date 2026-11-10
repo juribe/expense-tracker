@@ -1,0 +1,261 @@
+<% report = @report %>
+<% default = report[:default_scenario] %>
+<% result = default[:result] %>
+<% goal_name = t("reports.savings_capacity.goal_default_name", default: "Ahorro del próximo ciclo") %>
+<% goal_url = new_goal_path(name: goal_name) %>
+<% goal_amount = result.positive? ? result.round(0).to_i : nil %>
+
+<div class="savings-capacity-page"
+     data-savings-capacity
+     data-savings-capacity-scenarios="<%= h(savings_capacity_scenarios_json(report[:scenarios])) %>"
+     data-testid="savings-capacity">
+  <header class="savings-capacity-heading">
+    <div class="savings-capacity-heading-main">
+      <span class="savings-capacity-heading-icon" aria-hidden="true"><i class="ti ti-stars"></i></span>
+      <div>
+        <span class="savings-capacity-eyebrow"><%= t("reports.savings_capacity.eyebrow", default: "Proyección financiera") %></span>
+        <h1 class="reports-title"><%= t("reports.savings_capacity.title", default: "Capacidad de ahorro") %></h1>
+        <p class="reports-subtitle"><%= t("reports.savings_capacity.subtitle", default: "Descubre cuánto podrías ahorrar en tu próximo ciclo según tus ingresos y compromisos habituales.") %></p>
+      </div>
+    </div>
+
+    <%= form_with url: reports_savings_capacity_path, method: :get, local: true, class: "savings-capacity-cycle-form" do %>
+      <label class="savings-capacity-cycle-label" for="savingsCapacityCycle"><%= t("reports.savings_capacity.cycle_label", default: "Ciclo a proyectar") %></label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="ti ti-calendar-event"></i></span>
+        <%= select_tag :cycle,
+              options_for_select(
+                report[:cycles].each_with_index.map do |cycle, index|
+                  [ savings_capacity_cycle_option_label(cycle, index), cycle.starts.iso8601 ]
+                end,
+                report[:cycle].starts.iso8601
+              ),
+              id: "savingsCapacityCycle",
+              class: "form-select",
+              data: { auto_submit: true } %>
+      </div>
+      <%= hidden_field_tag :basic_reserve,
+            report[:basic_reserve_enabled] ? "1" : "0",
+            data: { savings_capacity_basic_hidden: true } %>
+      <%= hidden_field_tag :include_previous_expenses,
+            report[:include_previous_expenses] ? "1" : "0",
+            data: { savings_capacity_history_hidden: true } %>
+      <%= hidden_field_tag :basic_reserve_percentage,
+            report[:percentage],
+            data: { savings_capacity_percentage_hidden: true } %>
+    <% end %>
+  </header>
+
+  <section class="card savings-capacity-hero" aria-labelledby="savingsCapacityHeroTitle">
+    <div class="savings-capacity-hero-main">
+      <div class="savings-capacity-hero-label" id="savingsCapacityHeroTitle">
+        <span class="savings-capacity-spark" aria-hidden="true"><i class="ti ti-stars"></i></span>
+        <%= t("reports.savings_capacity.hero_label", default: "Capacidad estimada de ahorro") %>
+      </div>
+      <div class="savings-capacity-amount <%= "is-negative" if result.negative? %>"
+           data-savings-capacity-result
+           data-testid="savings-capacity-result">
+        <%= money_amount(result) %>
+      </div>
+      <p class="savings-capacity-hero-note"><%= t("reports.savings_capacity.hero_note", default: "Lo que podría quedarte después de cubrir tus compromisos y estimaciones activas.") %></p>
+      <span class="savings-capacity-pill">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <%= t("reports.savings_capacity.projection_badge", default: "Proyección, no saldo real") %>
+      </span>
+      <div class="savings-capacity-negative-note"
+           data-savings-capacity-negative-note
+           <%= "hidden" unless result.negative? %>>
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <span><%= t("reports.savings_capacity.negative_note", default: "Tus compromisos y estimaciones superan los ingresos recurrentes proyectados. El resultado se muestra sin ocultarse.") %></span>
+      </div>
+    </div>
+
+    <div class="savings-capacity-hero-side">
+      <div>
+        <div class="savings-capacity-side-label"><%= t("reports.savings_capacity.after_recurring", default: "Después de gastos recurrentes") %></div>
+        <div class="savings-capacity-side-amount" data-savings-capacity-after-recurring><%= money_amount(report[:after_recurring_total]) %></div>
+        <div class="savings-capacity-side-caption"><%= t("reports.savings_capacity.after_recurring_caption", default: "Ingresos menos compromisos fijos") %></div>
+      </div>
+      <div>
+        <div class="savings-capacity-side-label"><%= t("reports.savings_capacity.additional_estimates", default: "Estimaciones adicionales") %></div>
+        <div class="savings-capacity-side-amount" data-savings-capacity-additional><%= money_amount(default[:additional_total]) %></div>
+        <div class="savings-capacity-side-caption"><%= t("reports.savings_capacity.additional_estimates_caption", default: "Según las opciones seleccionadas") %></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="savings-capacity-grid">
+    <section class="card savings-capacity-breakdown" aria-labelledby="savingsCapacityBreakdownTitle">
+      <div class="savings-capacity-section-head">
+        <h2 class="h5 card-title" id="savingsCapacityBreakdownTitle"><%= t("reports.savings_capacity.breakdown_title", default: "Desglose de la proyección") %></h2>
+        <span><%= t("reports.savings_capacity.breakdown_note", default: "Valores estimados · COP") %></span>
+      </div>
+
+      <div class="savings-capacity-row">
+        <div class="savings-capacity-row-left">
+          <span class="savings-capacity-row-icon is-income" aria-hidden="true"><i class="ti ti-arrow-up-right"></i></span>
+          <div>
+            <div class="savings-capacity-row-title"><%= t("reports.savings_capacity.income", default: "Ingresos recurrentes") %></div>
+            <div class="savings-capacity-row-sub"><%= t("reports.savings_capacity.income_hint", default: "Ingresos programados para este ciclo") %></div>
+            <% if report[:income_total].zero? %>
+              <div class="savings-capacity-empty-hint" data-testid="savings-capacity-empty-income"><%= t("reports.savings_capacity.empty_income", default: "No tienes ingresos recurrentes configurados para este ciclo.") %></div>
+            <% end %>
+          </div>
+        </div>
+        <div class="savings-capacity-row-money is-positive" data-savings-capacity-income data-testid="savings-capacity-income">
+          +<%= money_amount(report[:income_total]) %>
+        </div>
+      </div>
+
+      <div class="savings-capacity-row">
+        <div class="savings-capacity-row-left">
+          <span class="savings-capacity-row-icon is-expense" aria-hidden="true"><i class="ti ti-arrow-down-right"></i></span>
+          <div>
+            <div class="savings-capacity-row-title"><%= t("reports.savings_capacity.expenses", default: "Gastos recurrentes") %></div>
+            <div class="savings-capacity-row-sub"><%= t("reports.savings_capacity.expenses_hint", default: "Pagos y compromisos programados") %></div>
+            <% if report[:recurring_expense_total].zero? %>
+              <div class="savings-capacity-empty-hint" data-testid="savings-capacity-empty-expenses"><%= t("reports.savings_capacity.empty_expenses", default: "No tienes gastos recurrentes configurados para este ciclo.") %></div>
+            <% end %>
+          </div>
+        </div>
+        <div class="savings-capacity-row-money" data-savings-capacity-recurring-expense data-testid="savings-capacity-recurring-expense">
+          −<%= money_amount(report[:recurring_expense_total]) %>
+        </div>
+      </div>
+
+      <div class="savings-capacity-rule"></div>
+      <div class="savings-capacity-total">
+        <strong><%= t("reports.savings_capacity.after_recurring_row", default: "Disponible después de recurrentes") %></strong>
+        <b data-savings-capacity-subtotal data-testid="savings-capacity-subtotal"><%= money_amount(report[:after_recurring_total]) %></b>
+      </div>
+
+      <div class="savings-capacity-row" data-savings-capacity-basic-row>
+        <div class="savings-capacity-row-left">
+          <span class="savings-capacity-row-icon is-basic" aria-hidden="true"><i class="ti ti-circle-check"></i></span>
+          <div>
+            <div class="savings-capacity-row-title"><%= t("reports.savings_capacity.basic_reserve", default: "Reserva para gastos básicos") %></div>
+            <div class="savings-capacity-row-sub"
+                 data-savings-capacity-basic-subtitle
+                 data-active-template="<%= t("reports.savings_capacity.basic_reserve_hint", default: "%{percentage}% de los ingresos recurrentes", percentage: "__PERCENTAGE__") %>"
+                 data-inactive-text="<%= t("reports.savings_capacity.basic_reserve_inactive", default: "Desactivado") %>">
+              <%= report[:basic_reserve_enabled] ? t("reports.savings_capacity.basic_reserve_hint", default: "%{percentage}% de los ingresos recurrentes", percentage: report[:percentage]) : t("reports.savings_capacity.basic_reserve_inactive", default: "Desactivado") %>
+            </div>
+          </div>
+        </div>
+        <div class="savings-capacity-row-money" data-savings-capacity-basic-value data-testid="savings-capacity-basic-reserve">
+          −<%= money_amount(default[:basic_reserve]) %>
+        </div>
+      </div>
+
+      <div class="savings-capacity-row" data-savings-capacity-history-row>
+        <div class="savings-capacity-row-left">
+          <span class="savings-capacity-row-icon is-history" aria-hidden="true"><i class="ti ti-repeat"></i></span>
+          <div>
+            <div class="savings-capacity-row-title"><%= t("reports.savings_capacity.previous_variable", default: "Gastos variables de referencia") %></div>
+            <div class="savings-capacity-row-sub"
+                 data-savings-capacity-history-subtitle
+                 data-active-text="<%= t("reports.savings_capacity.previous_variable_hint", default: "Basado en el último ciclo cerrado · No recurrentes") %>"
+                 data-inactive-text="<%= t("reports.savings_capacity.previous_variable_inactive", default: "No incluido en la proyección") %>">
+              <%= report[:include_previous_expenses] ? t("reports.savings_capacity.previous_variable_hint", default: "Basado en el último ciclo cerrado · No recurrentes") : t("reports.savings_capacity.previous_variable_inactive", default: "No incluido en la proyección") %>
+            </div>
+          </div>
+        </div>
+        <div class="savings-capacity-row-money" data-savings-capacity-history-value data-testid="savings-capacity-previous-variable">
+          −<%= money_amount(default[:previous_variable]) %>
+        </div>
+      </div>
+
+      <div class="savings-capacity-rule"></div>
+      <div class="savings-capacity-total is-result">
+        <strong><%= t("reports.savings_capacity.result", default: "Capacidad estimada de ahorro") %></strong>
+        <b class="<%= "is-negative" if result.negative? %>" data-savings-capacity-result data-testid="savings-capacity-breakdown-result"><%= money_amount(result) %></b>
+      </div>
+      <p class="savings-capacity-footnote"><%= t("reports.savings_capacity.breakdown_footnote", default: "Los valores son una simulación basada en tu configuración recurrente.") %></p>
+    </section>
+
+    <aside class="card savings-capacity-options" aria-labelledby="savingsCapacityOptionsTitle">
+      <div class="savings-capacity-section-head">
+        <h2 class="h5 card-title" id="savingsCapacityOptionsTitle"><%= t("reports.savings_capacity.options_title", default: "Ajusta tu proyección") %></h2>
+        <span><%= t("reports.savings_capacity.optional", default: "Opcional") %></span>
+      </div>
+
+      <div class="savings-capacity-option">
+        <div class="savings-capacity-option-top">
+          <div class="savings-capacity-option-name">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>
+            <%= t("reports.savings_capacity.basic_toggle", default: "Reservar para gastos básicos") %>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="savingsCapacityBasicToggle"
+                   data-savings-capacity-basic-toggle
+                   <%= "checked" if report[:basic_reserve_enabled] %>>
+          </div>
+        </div>
+        <p class="savings-capacity-option-desc"><%= t("reports.savings_capacity.basic_toggle_hint", default: "Considera un porcentaje de tus ingresos para alimentación, transporte y otros gastos cotidianos.") %></p>
+        <div class="savings-capacity-range" data-savings-capacity-basic-control>
+          <input type="range" min="5" max="50" step="5" value="<%= report[:percentage] %>"
+                 aria-label="<%= t("reports.savings_capacity.basic_percentage_label", default: "Porcentaje para gastos básicos") %>"
+                 data-savings-capacity-percentage
+                 <%= "disabled" unless report[:basic_reserve_enabled] %>>
+          <span class="savings-capacity-range-value" data-savings-capacity-percentage-label><%= report[:percentage] %>%</span>
+        </div>
+        <div class="savings-capacity-option-foot"><%= t("reports.savings_capacity.basic_range_hint", default: "Es una hipótesis de planificación; puedes ajustar el porcentaje según tus hábitos.") %></div>
+      </div>
+
+      <div class="savings-capacity-option">
+        <div class="savings-capacity-option-top">
+          <div class="savings-capacity-option-name">
+            <i class="ti ti-repeat" aria-hidden="true"></i>
+            <%= t("reports.savings_capacity.history_toggle", default: "Considerar gastos del último ciclo cerrado") %>
+          </div>
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="savingsCapacityHistoryToggle"
+                   data-savings-capacity-history-toggle
+                   <%= "checked" if report[:include_previous_expenses] %>>
+          </div>
+        </div>
+        <p class="savings-capacity-option-desc"><%= t("reports.savings_capacity.history_toggle_hint", default: "Usa tus gastos no recurrentes del último ciclo cerrado como referencia para estimar gastos variables del próximo ciclo.") %></p>
+        <div class="savings-capacity-option-foot">
+          <%= t("reports.savings_capacity.previous_cycle_label", default: "Último ciclo cerrado:") %>
+          <strong><%= report[:reference_cycle].range_label %></strong>
+          · <%= money_amount(report[:previous_variable_total]) %>
+        </div>
+        <div class="savings-capacity-empty-hint"><%= t("reports.savings_capacity.reference_cycle_note", default: "Usamos el último ciclo cerrado para no estimar con datos parciales del ciclo en curso.") %></div>
+        <% if report[:previous_variable_count].zero? %>
+          <div class="savings-capacity-empty-hint" data-testid="savings-capacity-empty-history"><%= t("reports.savings_capacity.previous_cycle_empty", default: "No hay gastos variables de referencia en el último ciclo cerrado.") %></div>
+        <% end %>
+      </div>
+
+      <div class="savings-capacity-info">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <div>
+          <strong><%= t("reports.savings_capacity.info_title", default: "Una proyección, no dinero apartado.") %></strong>
+          <%= t("reports.savings_capacity.info_body", default: "Este reporte no descuenta gastos del ciclo actual, no crea movimientos ni modifica saldos o bolsillos.") %>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card savings-capacity-cta" aria-labelledby="savingsCapacityCtaTitle">
+    <div class="savings-capacity-cta-copy">
+      <h2 class="h5 card-title" id="savingsCapacityCtaTitle"><%= t("reports.savings_capacity.cta_title", default: "¿Quieres convertir esta proyección en un objetivo?") %></h2>
+      <p><%= t("reports.savings_capacity.cta_body", default: "Crea una meta de ahorro con este valor como sugerencia. Podrás ajustarlo antes de guardarla.") %></p>
+      <p class="savings-capacity-cta-note"
+         data-savings-capacity-goal-note
+         data-positive-text="<%= t("reports.savings_capacity.cta_positive_hint", default: "Podrás ajustar el nombre y el monto antes de guardar.") %>"
+         data-negative-text="<%= t("reports.savings_capacity.cta_negative_hint", default: "La proyección es negativa; ajusta tus estimaciones para crear una meta.") %>">
+        <%= result.positive? ? t("reports.savings_capacity.cta_positive_hint", default: "Podrás ajustar el nombre y el monto antes de guardar.") : t("reports.savings_capacity.cta_negative_hint", default: "La proyección es negativa; ajusta tus estimaciones para crear una meta.") %>
+      </p>
+    </div>
+    <%= link_to (goal_amount ? new_goal_path(name: goal_name, target_amount: goal_amount) : "#"),
+          class: class_names("btn btn-primary savings-capacity-cta-button", "disabled" => goal_amount.nil?),
+          data: { savings_capacity_goal_link: true, savings_capacity_goal_url: goal_url },
+          aria: { disabled: goal_amount ? nil : "true" },
+          tabindex: goal_amount ? nil : "-1" do %>
+      <i class="ti ti-plus" aria-hidden="true"></i>
+      <%= t("reports.savings_capacity.cta_button", default: "Crear meta de ahorro") %>
+    <% end %>
+  </section>
+
+  <p class="savings-capacity-footer-note"><%= t("reports.savings_capacity.footer_note", default: "Cálculo orientativo basado en ingresos y gastos recurrentes configurados para el ciclo seleccionado.") %></p>
+</div>

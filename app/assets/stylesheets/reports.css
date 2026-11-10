@@ -4978,3 +4978,579 @@ a.category-distribution-row:hover {
     margin-left: 0;
   }
 }
+
+/* -------------------------------------------------
+ * Savings-capacity report
+ * Read-only projection: recurring commitments, optional
+ * estimates and the resulting capacity. Uses the same
+ * semantic money colors as the rest of the reports.
+ * ------------------------------------------------- */
+
+.savings-capacity-page {
+  --sc-accent: var(--bs-primary);
+  --sc-positive: var(--et-positive);
+  --sc-negative: var(--et-negative);
+  --sc-attention: var(--et-attention);
+  --sc-muted: var(--et-muted);
+  --sc-line: var(--bs-border-color);
+  --sc-soft: var(--bs-tertiary-bg);
+  --sc-radius: 1.25rem;
+  background: var(--sc-soft);
+  border-radius: 1.5rem;
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  margin: -0.5rem -0.5rem 0;
+  color: var(--bs-body-color);
+}
+
+.savings-capacity-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+}
+
+.savings-capacity-heading-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.95rem;
+  min-width: 0;
+}
+
+.savings-capacity-heading-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  flex: 0 0 3.1rem;
+  border-radius: 1rem;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--sc-accent);
+  font-size: 1.35rem;
+}
+
+.savings-capacity-eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--sc-accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.savings-capacity-heading .reports-title {
+  margin: 0;
+}
+
+.savings-capacity-heading .reports-subtitle {
+  max-width: 42rem;
+  margin: 0.25rem 0 0;
+}
+
+.savings-capacity-cycle-form {
+  flex: 0 0 auto;
+  min-width: 19rem;
+}
+
+.savings-capacity-cycle-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--sc-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.savings-capacity-cycle-form .input-group-text {
+  border-color: var(--sc-line);
+  background: var(--bs-body-bg);
+  color: var(--sc-accent);
+}
+
+.savings-capacity-cycle-form .form-select {
+  border-color: var(--sc-line);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-weight: 600;
+}
+
+.savings-capacity-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 0.65fr);
+  gap: 1.5rem;
+  overflow: hidden;
+  padding: clamp(1.25rem, 2.5vw, 1.7rem);
+  border: 1px solid var(--sc-line);
+  border-radius: var(--sc-radius);
+  background: linear-gradient(135deg, var(--bs-primary-bg-subtle) 0%, var(--bs-body-bg) 68%);
+}
+
+.savings-capacity-hero::after {
+  content: "";
+  position: absolute;
+  top: -9rem;
+  right: 24%;
+  width: 17rem;
+  height: 17rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--bs-primary-rgb), 0.16) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.savings-capacity-hero-main,
+.savings-capacity-hero-side {
+  position: relative;
+  z-index: 1;
+}
+
+.savings-capacity-hero-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--sc-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.savings-capacity-spark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 0.55rem;
+  background: var(--bs-body-bg);
+  color: var(--sc-accent);
+}
+
+.savings-capacity-amount {
+  margin: 0.6rem 0 0.3rem;
+  color: var(--sc-positive);
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+}
+
+.savings-capacity-amount.is-negative {
+  color: var(--sc-negative);
+}
+
+.savings-capacity-hero-note {
+  max-width: 36rem;
+  margin: 0;
+  color: var(--sc-muted);
+  font-size: 0.82rem;
+}
+
+.savings-capacity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(14, 159, 110, 0.12);
+  color: var(--sc-positive);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.savings-capacity-negative-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(224, 37, 75, 0.22);
+  border-radius: 0.75rem;
+  background: rgba(224, 37, 75, 0.08);
+  color: var(--sc-negative);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.savings-capacity-hero-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  padding-left: 1.35rem;
+  border-left: 1px solid var(--sc-line);
+}
+
+.savings-capacity-side-label {
+  margin-bottom: 0.25rem;
+  color: var(--sc-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.savings-capacity-side-amount {
+  color: var(--bs-body-color);
+  font-size: 1.2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.savings-capacity-side-caption {
+  margin-top: 0.15rem;
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+}
+
+.savings-capacity-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 0.85fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+.savings-capacity-breakdown,
+.savings-capacity-options {
+  padding: clamp(1.1rem, 2vw, 1.4rem);
+  border-radius: var(--sc-radius);
+}
+
+.savings-capacity-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.savings-capacity-section-head .card-title {
+  margin: 0;
+}
+
+.savings-capacity-section-head > span {
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.savings-capacity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--sc-line);
+  transition: opacity 0.2s ease;
+}
+
+.savings-capacity-row:last-of-type {
+  border-bottom: 0;
+}
+
+.savings-capacity-row.is-disabled {
+  opacity: 0.45;
+}
+
+.savings-capacity-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.savings-capacity-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: 0 0 2.1rem;
+  border-radius: 0.7rem;
+  font-size: 1rem;
+}
+
+.savings-capacity-row-icon.is-income {
+  background: rgba(14, 159, 110, 0.12);
+  color: var(--sc-positive);
+}
+
+.savings-capacity-row-icon.is-expense {
+  background: rgba(224, 37, 75, 0.1);
+  color: var(--sc-negative);
+}
+
+.savings-capacity-row-icon.is-basic {
+  background: var(--bs-primary-bg-subtle);
+  color: var(--sc-accent);
+}
+
+.savings-capacity-row-icon.is-history {
+  background: rgba(178, 106, 0, 0.13);
+  color: var(--sc-attention);
+}
+
+.savings-capacity-row-title {
+  color: var(--bs-body-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.savings-capacity-row-sub {
+  margin-top: 0.12rem;
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+}
+
+.savings-capacity-empty-hint {
+  margin-top: 0.25rem;
+  color: var(--sc-muted);
+  font-size: 0.68rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.savings-capacity-row-money {
+  flex: 0 0 auto;
+  color: var(--bs-body-color);
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.savings-capacity-row-money.is-positive {
+  color: var(--sc-positive);
+}
+
+.savings-capacity-rule {
+  height: 1px;
+  margin: 0.2rem 0;
+  background: var(--sc-line);
+}
+
+.savings-capacity-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 0 0.2rem;
+}
+
+.savings-capacity-total strong {
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+}
+
+.savings-capacity-total b {
+  color: var(--sc-accent);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.savings-capacity-total.is-result {
+  padding-top: 0.95rem;
+}
+
+.savings-capacity-total.is-result b {
+  font-size: 1.15rem;
+}
+
+.savings-capacity-total.is-result b.is-negative {
+  color: var(--sc-negative);
+}
+
+.savings-capacity-footnote {
+  margin: 0.55rem 0 0;
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+}
+
+.savings-capacity-option {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--sc-line);
+}
+
+.savings-capacity-option:last-of-type {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.savings-capacity-option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.savings-capacity-option-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.savings-capacity-option-name .ti {
+  color: var(--sc-accent);
+}
+
+.savings-capacity-option-desc {
+  margin: 0.4rem 0 0;
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.savings-capacity-range {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.65rem;
+}
+
+.savings-capacity-range input[type="range"] {
+  width: 100%;
+  accent-color: var(--sc-accent);
+}
+
+.savings-capacity-range input[type="range"]:disabled {
+  opacity: 0.4;
+}
+
+.savings-capacity-range-value {
+  min-width: 2.3rem;
+  color: var(--sc-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.savings-capacity-option-foot {
+  margin-top: 0.45rem;
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+}
+
+.savings-capacity-option-foot strong {
+  color: var(--bs-body-color);
+}
+
+.savings-capacity-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--sc-line);
+  border-radius: 0.85rem;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--sc-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.savings-capacity-info > .ti {
+  color: var(--sc-accent);
+  flex: 0 0 auto;
+}
+
+.savings-capacity-info strong {
+  color: var(--bs-body-color);
+}
+
+.savings-capacity-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.15rem 1.35rem;
+  border-radius: var(--sc-radius);
+}
+
+.savings-capacity-cta-copy .card-title {
+  margin: 0 0 0.25rem;
+}
+
+.savings-capacity-cta-copy p {
+  margin: 0;
+  color: var(--sc-muted);
+  font-size: 0.75rem;
+}
+
+.savings-capacity-cta-note {
+  margin-top: 0.3rem !important;
+  font-size: 0.7rem !important;
+}
+
+.savings-capacity-cta-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.savings-capacity-footer-note {
+  margin: 1rem 0 0;
+  color: var(--sc-muted);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+@media (max-width: 991.98px) {
+  .savings-capacity-heading {
+    flex-direction: column;
+  }
+
+  .savings-capacity-cycle-form {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .savings-capacity-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .savings-capacity-hero-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 1rem;
+    padding-left: 0;
+    border-top: 1px solid var(--sc-line);
+    border-left: 0;
+  }
+
+  .savings-capacity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .savings-capacity-page {
+    padding: 0.85rem;
+    border-radius: 1rem;
+  }
+
+  .savings-capacity-hero-side {
+    grid-template-columns: 1fr;
+  }
+
+  .savings-capacity-cta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .savings-capacity-cta-button {
+    width: 100%;
+  }
+
+  .savings-capacity-row {
+    align-items: flex-start;
+  }
+
+  .savings-capacity-row-money {
+    padding-top: 0.15rem;
+  }
+}
