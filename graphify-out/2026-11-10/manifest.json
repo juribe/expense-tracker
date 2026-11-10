@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794342977.031979,
-    "seen": 1794343084.6162071,
+    "mtime": 1794343713.291861,
+    "seen": 1794343843.115096,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1464,9 +1464,9 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1794186963.5710313,
-    "seen": 1794187036.206142,
-    "ast_hash": "93ffce790eb8c2ba60c09cc8865b6878",
+    "mtime": 1794343362.6606998,
+    "seen": 1794343843.114174,
+    "ast_hash": "63e48844770ee35a0290dc036748f1ba",
     "semantic_hash": ""
   },
   "test/integration/app_health_test.rb": {
@@ -4428,9 +4428,9 @@
     "semantic_hash": ""
   },
   "app/services/dashboard/position_snapshot.rb": {
-    "mtime": 1792091766.385808,
-    "seen": 1793490696.634718,
-    "ast_hash": "b2a94efdcd9226cc1c5ed338a0d51633",
+    "mtime": 1794343276.7342265,
+    "seen": 1794343843.112844,
+    "ast_hash": "0f38ed40da31125e7458a8c4b3eb7c68",
     "semantic_hash": ""
   },
   "app/services/transfers/quick_actions.rb": {

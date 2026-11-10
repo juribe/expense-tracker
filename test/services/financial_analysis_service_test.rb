@@ -110,6 +110,38 @@ class FinancialAnalysisServiceTest < ActionCable::TestCase
     assert_includes system_prompt, "(Yogasto)"
   end
 
+  test "the system prompt declares the chat as read-only" do
+    @fake.responses << { content: "ok" }
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/solo lectura/i, system_prompt)
+    assert_match(/no puedes crear, editar, eliminar ni registrar/i, system_prompt)
+    assert_includes system_prompt.downcase, "presupuestos"
+    assert_includes system_prompt.downcase, "metas de ahorro"
+  end
+
+  test "the system prompt allows suggesting budgets and goals without creating them" do
+    @fake.responses << { content: "ok" }
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/sugerir presupuestos y metas/i, system_prompt)
+    assert_match(/indica que el usuario debe crearlos/i, system_prompt)
+    assert_match(/no los crees/i, system_prompt)
+  end
+
+  test "the system prompt forbids claiming records were created or modified" do
+    @fake.responses << { content: "ok" }
+
+    run_service
+
+    system_prompt = @fake.calls.sole.first[:content]
+    assert_match(/nunca digas que ya creaste, registraste, editaste o eliminaste/i, system_prompt)
+  end
+
   test "includes expense, income and budget data in the system prompt" do
     @fake.responses << { content: "ok" }
     category = Category.create!(name: "Restaurantes", is_default: true, category_type: "expense")
