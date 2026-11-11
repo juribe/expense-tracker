@@ -2471,3 +2471,7 @@ en:
       granted_notice: "You agreed to receive commercial communications."
       withdrawn_notice: "You withdrew your consent for commercial communications."
       unchanged: "Your communications preference did not change."
+
+  whatsapp:
+    premium_membership:
+      expired_notice: "Your Premium membership is not active, so this expense will not be saved. Renew your plan in %{app_name} to keep recording expenses on WhatsApp."

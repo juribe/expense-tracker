@@ -768,9 +768,9 @@
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
-    "mtime": 1794238720.4410796,
-    "seen": 1794240026.2297862,
-    "ast_hash": "8018f6d65cc7477f2542547e3ea6f11f",
+    "mtime": 1794426891.9511552,
+    "seen": 1794427181.543414,
+    "ast_hash": "b6fc007a23eea3635c8d04056fd6b85a",
     "semantic_hash": ""
   },
   "test/controllers/sessions_controller_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794426559.8298776,
-    "seen": 1794426673.9020212,
+    "mtime": 1794431459.0982978,
+    "seen": 1794431554.2385652,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2634,9 +2634,9 @@
     "semantic_hash": ""
   },
   "app/services/web_hook_handler/whatsapp_service.rb": {
-    "mtime": 1794318960.7969916,
-    "seen": 1794319113.7290041,
-    "ast_hash": "c85da85921b69d6bdef20d3f1e7a9929",
+    "mtime": 1794431356.3703914,
+    "seen": 1794431554.237212,
+    "ast_hash": "cf88bc53efc8e546977bf4e2f79d350f",
     "semantic_hash": ""
   },
   "test/controllers/webhooks/whatsapp_controller_test.rb": {
@@ -2646,9 +2646,9 @@
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
-    "mtime": 1794318426.249774,
-    "seen": 1794319113.730186,
-    "ast_hash": "3368f6677becf5b6c77be708882f5063",
+    "mtime": 1794431043.8541286,
+    "seen": 1794431314.9307158,
+    "ast_hash": "66b798be2e65fec3563f84c3e791c9f1",
     "semantic_hash": ""
   },
   "app/controllers/whatsapp_settings_controller.rb": {
@@ -9840,9 +9840,21 @@
     "semantic_hash": ""
   },
   "test/system/statement_import_premium_lock_test.rb": {
-    "mtime": 1794426451.704962,
-    "seen": 1794426673.9019158,
-    "ast_hash": "3c5d48a634048c631552facb248e5e4b",
+    "mtime": 1794426950.5077486,
+    "seen": 1794427181.5440938,
+    "ast_hash": "fc65c88eff8dcce53c0699895315f547",
+    "semantic_hash": ""
+  },
+  "app/services/whatsapp/premium_membership_gate.rb": {
+    "mtime": 1794431407.9395285,
+    "seen": 1794431554.237219,
+    "ast_hash": "132490b1c26dc7918b9b1390a9c42ac2",
+    "semantic_hash": ""
+  },
+  "test/services/whatsapp/premium_membership_gate_test.rb": {
+    "mtime": 1794431138.940472,
+    "seen": 1794431314.930722,
+    "ast_hash": "e20c189e0e49291dd8b1d8defe4669fb",
     "semantic_hash": ""
   }
 }

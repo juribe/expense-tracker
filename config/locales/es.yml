@@ -4690,3 +4690,7 @@ es:
       granted_notice: "Aceptaste recibir comunicaciones comerciales."
       withdrawn_notice: "Retiraste tu consentimiento para comunicaciones comerciales."
       unchanged: "Tu preferencia de comunicaciones no cambió."
+
+  whatsapp:
+    premium_membership:
+      expired_notice: "Tu membresía Premium no está activa, así que este gasto no se guardará. Renueva tu plan en %{app_name} para seguir registrando gastos por WhatsApp."

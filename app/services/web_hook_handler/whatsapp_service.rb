@@ -83,6 +83,14 @@ module WebHookHandler
         return
       end
 
+      # Membership is checked before any clarification, parsing or AI work:
+      # expired users get one notice per membership version per day.
+      if Whatsapp::PremiumMembershipGate.blocks?(user: user, phone_number: event.sender_id)
+        Rails.logger.info "[WhatsappService] Premium membership inactive for user=#{user.id}; " \
+                          "message #{event.mid} ignored"
+        return
+      end
+
       # A pending clarification consumes the message unless the resolver
       # detected a brand-new expense fragment in the reply; that fragment is
       # parsed by the normal pipeline (which already returns ARRAYS) while

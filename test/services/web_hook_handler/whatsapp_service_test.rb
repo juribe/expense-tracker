@@ -70,6 +70,37 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     session
   end
 
+  def require_paid_access!
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+  end
+
+  def create_membership(status:, expires_at:)
+    PaymentEngine::Membership.create!(
+      owner: @user,
+      membership_type: premium_membership_type,
+      status: status,
+      source: "purchase",
+      starts_at: 1.month.ago,
+      expires_at: expires_at
+    )
+  end
+
+  def premium_membership_type
+    @premium_membership_type ||= PaymentEngine::MembershipType.create!(
+      name: "WhatsApp Premium Test",
+      code: "WHATSAPP_PREMIUM_#{SecureRandom.hex(6)}",
+      status: "active"
+    )
+  end
+
+  def with_memory_cache
+    original = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    yield
+  ensure
+    Rails.cache = original
+  end
+
   test "a ready candidate auto-confirms into a final Expense; needs_review stays for review" do
     connect_user!
     ready_candidate = @user.expense_candidates.create!(
@@ -679,5 +710,82 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     assert_equal "confirmed", new_candidate.reload.status
     assert new_candidate.expense_id.present?
     assert_equal 0, @user.expense_clarifications.where(status: "pending").count
+  end
+
+  test "an expired premium membership blocks parsing, AI, and expense registration" do
+    connect_user!
+    require_paid_access!
+    create_membership(status: "expired", expires_at: 1.day.ago)
+    texts = []
+    pipeline_calls = 0
+
+    with_memory_cache do
+      stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) {
+        texts << [ phone, text ]
+        true
+      }) do
+        stub_method(Expenses::Input, :from_params, ->(*_args) { raise "parsing must not run" }) do
+          stub_method(Expenses::Processor, :call, ->(**_kwargs) {
+            pipeline_calls += 1
+            raise "pipeline must not run for an expired membership"
+          }) do
+            assert_no_difference -> { ExpenseCandidate.count } do
+              WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "gasté 50 mil en almuerzo"))
+            end
+          end
+        end
+      end
+    end
+
+    assert_equal 0, pipeline_calls
+    assert_equal 1, texts.size
+    assert_match(/membresía Premium/i, texts.first.last)
+    assert_no_match(/problema procesando/i, texts.first.last)
+  end
+
+  test "further messages from an expired membership are ignored silently for the rest of the day" do
+    connect_user!
+    require_paid_access!
+    create_membership(status: "expired", expires_at: 1.day.ago)
+    texts = []
+
+    with_memory_cache do
+      stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) {
+        texts << [ phone, text ]
+        true
+      }) do
+        stub_method(Expenses::Processor, :call, ->(**_kwargs) { raise "pipeline must not run" }) do
+          WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "gasté 50 mil en almuerzo"))
+          WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "y 20 mil en taxi"))
+        end
+      end
+    end
+
+    assert_equal 1, texts.size
+  end
+
+  test "an active premium membership keeps the normal WhatsApp expense flow" do
+    connect_user!
+    require_paid_access!
+    create_membership(status: "active", expires_at: 1.month.from_now)
+    texts = []
+    pipeline_calls = 0
+
+    with_memory_cache do
+      stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) {
+        texts << [ phone, text ]
+        true
+      }) do
+        stub_method(Expenses::Processor, :call, ->(**_kwargs) {
+          pipeline_calls += 1
+          Expenses::Result.new(candidates: [], errors: [], engine: "test")
+        }) do
+          WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "gasté 50 mil en almuerzo"))
+        end
+      end
+    end
+
+    assert_equal 1, pipeline_calls
+    assert texts.none? { |(_, text)| text.match?(/membresía Premium/i) }
   end
 end
