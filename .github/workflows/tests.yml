@@ -61,33 +61,11 @@ jobs:
     name: Playwright
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Official Playwright image: browsers and their OS libraries are baked in,
-    # so CI no longer downloads browsers or apt-installs browser dependencies
-    # (that step kept failing on the runner's Ubuntu mirror DNS).
-    # Keep this tag in sync with the @playwright/test version in package-lock.
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
-    env:
-      # From inside the job container the postgres service is reached by name.
-      DATABASE_HOST: postgres
     services:
       postgres: *postgres-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # The image has the browsers but not a C toolchain; bcrypt, msgpack,
-      # puma and bootsnap build native extensions during bundle install.
-      - name: Install build dependencies
-        run: |
-          for attempt in 1 2 3; do
-            if apt-get update && apt-get install -y --no-install-recommends build-essential; then
-              exit 0
-            fi
-            echo "apt attempt ${attempt} failed; retrying in 15s"
-            sleep 15
-          done
-          exit 1
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -103,9 +81,23 @@ jobs:
       - name: Install JavaScript dependencies
         run: npm ci
 
+      # No --with-deps on purpose: this runner failed repeatedly to resolve the
+      # Ubuntu mirrors (azure.archive.ubuntu.com, security.ubuntu.com), which
+      # made `playwright install --with-deps` die in apt. The ubuntu-latest
+      # image already ships Chromium and every library it needs, so only the
+      # browser binary is downloaded here.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
       - name: Prepare Playwright database
         env:
-          DATABASE_URL: postgres://postgres:postgres@postgres:5432/expense_tracker_playwright
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/expense_tracker_playwright
         run: bin/rails db:prepare
 
       - name: Run Playwright tests
