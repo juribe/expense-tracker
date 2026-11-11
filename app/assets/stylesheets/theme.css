@@ -604,6 +604,15 @@ section.page-section { margin-bottom: 1.5rem; }
   gap: 8px;
   min-width: 0;
 }
+.left-sidebar .sidebar-nav .nav-section-heading--badged {
+  flex: 1;
+}
+.left-sidebar .sidebar-nav .nav-section-badge {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 0.35rem 0.45rem;
+}
 .left-sidebar .sidebar-nav .nav-section-icon {
   font-size: 15px;
   line-height: 1;

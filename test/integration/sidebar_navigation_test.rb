@@ -98,6 +98,27 @@ class SidebarNavigationTest < ActionDispatch::IntegrationTest
     assert_select "#sidebarnav .sidebar-pro", count: 2
   end
 
+  test "the Inicio section header shows the pending candidates count" do
+    create_expense_candidate(status: "needs_review")
+    create_expense_candidate(status: "needs_review")
+    create_expense_candidate(status: "confirmed")
+    create_expense_candidate(status: "needs_review", user: other_user)
+
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a.nav-section-toggle[href='#sidebarSectionHome'] .nav-section-badge", text: "2"
+    assert_select "#sidebarSectionHome a.sidebar-link[href=?] .badge", expense_candidates_path, text: "2"
+  end
+
+  test "the Inicio section header hides the badge when there are no pending candidates" do
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a.nav-section-toggle[href='#sidebarSectionHome'] .nav-section-badge", count: 0
+    assert_select "#sidebarSectionHome a.sidebar-link[href=?] .badge", expense_candidates_path, count: 0
+  end
+
   test "sidebar only uses icons available in the bundled Tabler font" do
     get dashboard_path
 
@@ -113,6 +134,25 @@ class SidebarNavigationTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def create_expense_candidate(status:, user: @user)
+    ExpenseCandidate.create!(
+      user: user,
+      source: "gmail",
+      status: status,
+      amount: 45_000,
+      date: Date.current,
+      description: "Candidato #{status}"
+    )
+  end
+
+  def other_user
+    @other_user ||= User.create!(
+      name: "Other Sidebar User",
+      email: "other_sidebar_navigation@example.com",
+      password: "password123"
+    )
+  end
 
   def report_paths
     [

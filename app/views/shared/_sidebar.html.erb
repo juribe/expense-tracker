@@ -19,9 +19,16 @@
         <%# Inicio %>
         <li class="nav-small-cap">
           <a class="nav-section-toggle" data-bs-toggle="collapse" href="#sidebarSectionHome" role="button" aria-expanded="<%= sidebar_section_active?(:home) %>" aria-controls="sidebarSectionHome">
-            <span class="nav-section-heading">
+            <span class="nav-section-heading nav-section-heading--badged">
               <i class="ti ti-home nav-section-icon" aria-hidden="true"></i>
               <span class="hide-menu"><%= t("nav.section_home", default: "Inicio") %></span>
+              <% if pending_expense_candidates_count.positive? %>
+                <span class="nav-section-badge badge bg-warning text-dark rounded-pill"
+                      title="<%= t("nav.pending_candidates", default: "Candidatos pendientes") %>"
+                      aria-label="<%= t("nav.pending_candidates", default: "Candidatos pendientes") %>">
+                  <%= pending_expense_candidates_count %>
+                </span>
+              <% end %>
             </span>
             <i class="ti ti-chevron-right nav-section-chevron" aria-hidden="true"></i>
           </a>
@@ -38,9 +45,8 @@
               <%= link_to expense_candidates_path, class: "sidebar-link #{active_class('expense_candidates')}" do %>
                 <span class="aside-icon p-2 bg-warning-subtle rounded-1"><i class="ti ti-inbox fs-5"></i></span>
                 <span class="hide-menu"><%= t("nav.candidates", default: "Candidatos") %></span>
-                <% pending_count = current_user.expense_candidates.needs_review.count %>
-                <% if pending_count.positive? %>
-                  <span class="badge bg-warning text-dark rounded-pill ms-auto"><%= pending_count %></span>
+                <% if pending_expense_candidates_count.positive? %>
+                  <span class="badge bg-warning text-dark rounded-pill ms-auto"><%= pending_expense_candidates_count %></span>
                 <% end %>
               <% end %>
             </li>

@@ -240,6 +240,11 @@ module ApplicationHelper
     @filter == filter ? "active" : ""
   end
 
+  # Pending work stays visible even when its sidebar section is collapsed.
+  def pending_expense_candidates_count
+    @pending_expense_candidates_count ||= current_user.expense_candidates.needs_review.count
+  end
+
   # Contextual quick transfer actions for a money source card. The compact
   # form (TransfersController#quick_new) re-validates compatibility, so these
   # two must agree. The concept table lives in Transfers::QuickActions:
