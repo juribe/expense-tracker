@@ -4,6 +4,7 @@ require "test_helper"
 
 class ImportsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(name: "Imports User", email: "imports_test@example.com", password: "password123")
@@ -99,6 +100,52 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_import_path
     assert_includes flash[:alert], "la categoría \"Inexistente\" no existe"
     assert_empty @user.recurring_templates
+  end
+
+  test "free users cannot open the importer" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    get new_import_path
+
+    assert_premium_lock_page
+    assert_select "form[action='#{import_upload_path}']", count: 0
+  end
+
+  test "free users cannot upload or confirm an import" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    assert_no_difference "RecurringTemplate.count" do
+      upload_csv(<<~CSV)
+        categoría,tipo,monto,descripción,día de pago
+        Comida,gasto,50000,Almuerzo,15
+      CSV
+    end
+    assert_premium_lock_page
+
+    assert_no_difference "RecurringTemplate.count" do
+      post imports_path
+    end
+    assert_premium_lock_page
+  end
+
+  test "premium users keep the import flow" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+
+    get new_import_path
+
+    assert_response :success
+    assert_select "form[action='#{import_upload_path}']"
+    assert_select "[data-testid='premium-locked']", count: 0
+
+    upload_csv(<<~CSV)
+      categoría,tipo,monto,descripción,día de pago
+      Comida,gasto,50000,Almuerzo,15
+    CSV
+
+    assert_redirected_to import_preview_path
   end
 
   private

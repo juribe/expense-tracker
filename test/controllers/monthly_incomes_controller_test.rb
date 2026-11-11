@@ -7,6 +7,7 @@ require "test_helper"
 # acciones existentes sin duplicar ingresos ya recibidos.
 class MonthlyIncomesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(
@@ -124,5 +125,34 @@ class MonthlyIncomesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'tr[data-id=?] td[data-testid="status"] .badge', @template.id.to_s,
                   text: I18n.t("monthly_incomes.received")
     assert_select 'tr[data-id=?] [data-testid="process"]', @template.id.to_s, count: 0
+  end
+
+  test "free users see the import templates action locked" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    get monthly_incomes_path
+
+    assert_response :success
+    assert_select "button[data-testid='import-templates-locked'][data-bs-target='#importPremiumModal']" do
+      assert_select "i.ti-lock"
+      assert_select ".recurring-import-premium", text: /PREMIUM/
+    end
+    assert_select "a[href='#{new_import_path}']", count: 0
+    assert_select "#importPremiumModal" do
+      assert_select "a[href='#{plans_path}']", text: /Conocer Premium/
+    end
+  end
+
+  test "premium users keep the import templates link" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+
+    get monthly_incomes_path
+
+    assert_response :success
+    assert_select "a[href='#{new_import_path}']"
+    assert_select "#importPremiumModal", count: 0
+    assert_select "[data-testid='import-templates-locked']", count: 0
   end
 end

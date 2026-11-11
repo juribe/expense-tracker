@@ -873,8 +873,8 @@ es:
     incomes: "Ingresos"
     transfers: "Transferencias"
     recurring: "Recurrentes"
-    recurring_incomes: "Ingresos Recurrentes"
-    recurring_expenses: "Gastos Recurrentes"
+    recurring_incomes: "Ingresos Mensuales"
+    recurring_expenses: "Gastos Mensuales"
     reports: "Informes"
     reports_title: "Reportes"
     budgets: "Presupuestos"
@@ -3318,6 +3318,13 @@ es:
 
   imports:
     subtitle: "Sube un archivo CSV con tus plantillas recurrentes."
+    premium_lock:
+      title: "Importar plantillas es Premium"
+      description: "Importa tus plantillas recurrentes desde un CSV y ahorra tiempo. Esta funcionalidad está disponible con un plan Premium."
+      badge: "PREMIUM"
+      button_aria: "Importar plantillas (función Premium)"
+      cta: "Conocer Premium"
+      dismiss: "Ahora no"
     file_required: "Selecciona un archivo CSV."
     review_button: "Revisar importación"
     default_category_help: "Si una fila no resuelve su categoría con el CSV, se usará esta (si su tipo coincide)."

@@ -5,6 +5,9 @@ class ImportsController < ApplicationController
   DRAFT_SESSION_KEY = :imports_draft_token
 
   before_action :authenticate_user!
+  # Importing templates is a Premium capability; free users keep the entry
+  # point in the UI but cannot reach any step of the importer.
+  require_premium
 
   def new
     @categories = Category.for_user(current_user)

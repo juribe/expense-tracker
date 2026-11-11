@@ -7,6 +7,7 @@ require "test_helper"
 # hasta la transacción creada; sin elección aplica la fuente de la plantilla.
 class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(
@@ -208,6 +209,35 @@ class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
                   count: 0
     assert_select "tr[data-id=?] td.recurring-actions-cell", @template.id.to_s,
                   text: /Pagado/, count: 0
+  end
+
+  test "free users see the import templates action locked" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    get monthly_expenses_path
+
+    assert_response :success
+    assert_select "button[data-testid='import-templates-locked'][data-bs-target='#importPremiumModal']" do
+      assert_select "i.ti-lock"
+      assert_select ".recurring-import-premium", text: /PREMIUM/
+    end
+    assert_select "a[href='#{new_import_path}']", count: 0
+    assert_select "#importPremiumModal" do
+      assert_select "a[href='#{plans_path}']", text: /Conocer Premium/
+    end
+  end
+
+  test "premium users keep the import templates link" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+
+    get monthly_expenses_path
+
+    assert_response :success
+    assert_select "a[href='#{new_import_path}']"
+    assert_select "#importPremiumModal", count: 0
+    assert_select "[data-testid='import-templates-locked']", count: 0
   end
 
   private

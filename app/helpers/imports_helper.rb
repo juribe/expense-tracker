@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 module ImportsHelper
+  # Free users keep the entry point visible but locked; the button opens the
+  # Premium upsell modal instead of the importer.
+  def import_templates_locked?
+    !user_access.access_premium?
+  end
+
   # Only category problems are fixable from the preview (with a category
   # list to choose from); invalid amount/kind values come from the file and
   # need a re-upload.

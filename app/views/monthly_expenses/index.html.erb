@@ -15,9 +15,7 @@
   <%= render "shared/page_header",
              title: t("nav.recurring_expenses"),
              subtitle: t("monthly_expenses.subtitle", default: "Organiza tus compromisos y controla los pagos de cada ciclo.") do %>
-    <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
-      <i class="ti ti-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
-    <% end %>
+    <%= render "imports/templates_action" %>
     <button type="button" class="btn btn-primary" data-testid="add-recurring"
             data-rt-action="create">
       <i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %>
@@ -373,6 +371,7 @@
   </div>
 </div>
 
+<%= render "imports/premium_lock_modal" %>
 
 <% if @open_form_modal %>
   <% end %>

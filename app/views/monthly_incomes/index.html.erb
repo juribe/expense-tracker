@@ -17,9 +17,7 @@
   <%= render "shared/page_header",
              title: t("monthly_incomes.title"),
              subtitle: t("monthly_incomes.subtitle") do %>
-    <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
-      <i class="ti ti-upload me-1"></i><%= t("monthly_incomes.import_templates") %>
-    <% end %>
+    <%= render "imports/templates_action" %>
     <button type="button" class="btn btn-primary" data-testid="add-recurring"
             data-rt-action="create">
       <i class="ti ti-plus me-1"></i><%= t("monthly_incomes.add_income") %>
@@ -373,6 +371,7 @@
   </div>
 </div>
 
+<%= render "imports/premium_lock_modal" %>
 
 <% if @open_form_modal %>
   <% end %>
