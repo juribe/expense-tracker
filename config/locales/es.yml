@@ -234,6 +234,7 @@ es:
 
   premium_lock:
     eyebrow: "Función Premium"
+    badge: "PREMIUM"
     title: "Esta función es Premium"
     description: "Esta función forma parte de los planes Premium. Elige un plan y sigue sacándole todo el partido a %{app_name}."
     cta: "Conocer planes"
@@ -3321,7 +3322,6 @@ es:
     premium_lock:
       title: "Importar plantillas es Premium"
       description: "Importa tus plantillas recurrentes desde un CSV y ahorra tiempo. Esta funcionalidad está disponible con un plan Premium."
-      badge: "PREMIUM"
       button_aria: "Importar plantillas (función Premium)"
       cta: "Conocer Premium"
       dismiss: "Ahora no"
@@ -3745,6 +3745,12 @@ es:
 
   statement_imports:
     title: "Importar extracto"
+    premium_lock:
+      title: "Importar extractos es Premium"
+      description: "Importa el extracto de tu tarjeta de crédito o préstamo y registra los movimientos automáticamente. Esta funcionalidad está disponible con un plan Premium."
+      button_aria: "Importar extracto (función Premium)"
+      cta: "Conocer Premium"
+      dismiss: "Ahora no"
     new_title: "Importar un extracto"
     new_hint: "Sube el extracto de tu tarjeta de crédito o crédito (PDF, CSV o Excel). Los movimientos se comparan con tus gastos actuales; confirmas todo antes de crearlo."
     file_label: "Archivo del extracto"

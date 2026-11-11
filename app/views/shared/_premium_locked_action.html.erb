@@ -1,0 +1,13 @@
+<%# Premium-locked page action: visible but muted; opens the upsell modal.
+    Locals: modal_id, label, testid, aria_label, extra_classes, icon. %>
+<% extra_classes = local_assigns.fetch(:extra_classes, "btn-outline-secondary") %>
+<% icon = local_assigns.fetch(:icon, "upload") %>
+<button type="button" class="btn <%= extra_classes %> premium-action-locked"
+        data-bs-toggle="modal" data-bs-target="#<%= modal_id %>"
+        data-testid="<%= testid %>"
+        aria-label="<%= aria_label %>">
+  <i class="ti ti-<%= icon %> me-1" aria-hidden="true"></i><%= label %>
+  <span class="premium-action-badge">
+    <i class="ti ti-lock" aria-hidden="true"></i><%= t("premium_lock.badge") %>
+  </span>
+</button>

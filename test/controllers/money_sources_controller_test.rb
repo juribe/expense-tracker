@@ -4,6 +4,7 @@ require "test_helper"
 
 class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(
@@ -1400,6 +1401,40 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     get money_source_path(source)
     assert_response :success
     assert_select ".card-debt"
+  end
+
+  test "free users see the statement import action locked on the debt show page" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    [ [ "Visa", "credit_card" ], [ "Car Loan", "loan" ] ].each do |name, kind|
+      source = create_source(name: name, kind: kind)
+      source.create_credit_account!(principal_amount: 10_000_000, outstanding_balance: 5_000_000)
+
+      get money_source_path(source)
+
+      assert_response :success
+      assert_select "button[data-testid='statement-import-locked'][data-bs-target='#statementImportPremiumModal']" do
+        assert_select "i.ti-lock"
+        assert_select ".premium-action-badge", text: /PREMIUM/
+      end
+      assert_select "a[href='#{new_money_source_statement_import_path(source)}']", count: 0
+      assert_select "#statementImportPremiumModal a[href='#{plans_path}']", text: /Conocer Premium/
+    end
+  end
+
+  test "premium users keep the statement import link on the debt show page" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+    source = create_source(name: "Visa", kind: "credit_card")
+    source.create_credit_account!(principal_amount: 10_000_000, outstanding_balance: 5_000_000)
+
+    get money_source_path(source)
+
+    assert_response :success
+    assert_select "a[href='#{new_money_source_statement_import_path(source)}']"
+    assert_select "#statementImportPremiumModal", count: 0
+    assert_select "[data-testid='statement-import-locked']", count: 0
   end
 
   test "GET show renders loan outstanding balance, not zero" do

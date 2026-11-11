@@ -6,6 +6,7 @@ require "test_helper"
 # apply-payment flow of a credit card / loan money source.
 class StatementImportsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(name: "Import User", email: "statement_imports@example.com", password: "password123")
@@ -540,6 +541,45 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal card_before - 63_500 + 60_000, @card.reload.balance
     assert_equal BigDecimal("3500"), @card.reload.used_credit
     assert_equal account_before - 63_000, @account.reload.balance
+  end
+
+  # ------------------------------------------------------------- premium
+  test "free users cannot open the statement importer" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    get new_money_source_statement_import_path(@card)
+
+    assert_premium_lock_page
+    assert_select "input[type='file']", count: 0
+  end
+
+  test "free users cannot parse, confirm or pay a statement import" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+
+    assert_no_difference [ "Expense.count", "Payment.count", "Transaction.count" ] do
+      [
+        money_source_statement_imports_path(@card),
+        confirm_money_source_statement_imports_path(@card),
+        pay_money_source_statement_imports_path(@card)
+      ].each do |path|
+        post path, params: { file: "pdf-bytes", filename: "extracto.pdf" }
+        assert_premium_lock_page
+      end
+    end
+  end
+
+  test "premium users keep the statement import flow" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+
+    get new_money_source_statement_import_path(@card)
+
+    assert_response :success
+    assert_select "form[action*='statement_imports']"
+    assert_select "input[type='file']"
+    assert_select "[data-testid='premium-locked']", count: 0
   end
 
   private

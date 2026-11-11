@@ -7,6 +7,7 @@ require "test_helper"
 class PaymentsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   include ActionView::Helpers::NumberHelper
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(name: "Test User", email: "payments_ctrl@example.com", password: "password123")
@@ -454,6 +455,38 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, Expense.count
     assert_equal 1, Payment.count
     assert_equal BigDecimal("29_100_000.00"), @mortgage.reload.credit_account.outstanding_balance.to_d
+  end
+
+  # ------------------------------------------------- statement import lock
+  test "free users see the statement import action locked on debts" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+    expense = create_expense(amount: 1_500_000, money_source: @account)
+
+    [ @card, @mortgage ].each do |debt|
+      get new_money_source_payment_path(debt, expense_id: expense.id)
+
+      assert_response :success
+      assert_select "button[data-testid='statement-import-locked'][data-bs-target='#statementImportPremiumModal']" do
+        assert_select "i.ti-lock"
+        assert_select ".premium-action-badge", text: /PREMIUM/
+      end
+      assert_select "a[href='#{new_money_source_statement_import_path(debt)}']", count: 0
+      assert_select "#statementImportPremiumModal a[href='#{plans_path}']", text: /Conocer Premium/
+    end
+  end
+
+  test "premium users keep the statement import link" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+    expense = create_expense(amount: 1_500_000, money_source: @account)
+
+    get new_money_source_payment_path(@card, expense_id: expense.id)
+
+    assert_response :success
+    assert_select "a[href='#{new_money_source_statement_import_path(@card)}']"
+    assert_select "#statementImportPremiumModal", count: 0
+    assert_select "[data-testid='statement-import-locked']", count: 0
   end
 
   private

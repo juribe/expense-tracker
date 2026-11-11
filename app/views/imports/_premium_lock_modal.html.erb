@@ -1,29 +1,10 @@
 <%# Premium upsell shown when importing templates is locked. %>
 <% if import_templates_locked? %>
-  <div class="modal fade recurring-import-modal" id="importPremiumModal" tabindex="-1"
-       aria-labelledby="importPremiumModalTitle" aria-hidden="true"
-       data-testid="import-premium-modal">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="importPremiumModalTitle"><%= t("imports.premium_lock.title") %></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"
-                  aria-label="<%= t("common.close") %>"></button>
-        </div>
-        <div class="modal-body text-center">
-          <span class="recurring-import-modal__icon" aria-hidden="true"><i class="ti ti-lock"></i></span>
-          <p class="mb-0"><%= t("imports.premium_lock.description") %></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-            <%= t("imports.premium_lock.dismiss") %>
-          </button>
-          <%= link_to plans_path, class: "btn btn-primary" do %>
-            <%= t("imports.premium_lock.cta") %>
-            <i class="ti ti-arrow-right ms-1" aria-hidden="true"></i>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
+  <%= render "shared/premium_upsell_modal",
+             id: "importPremiumModal",
+             testid: "import-premium-modal",
+             title: t("imports.premium_lock.title"),
+             description: t("imports.premium_lock.description"),
+             cta: t("imports.premium_lock.cta"),
+             dismiss: t("imports.premium_lock.dismiss") %>
 <% end %>

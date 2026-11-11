@@ -11,6 +11,9 @@ class StatementImportsController < ApplicationController
   include ActionView::Helpers::NumberHelper
 
   before_action :authenticate_user!
+  # Statement imports are a Premium capability; free users cannot open the
+  # upload page or run any step of the import through a direct request.
+  require_premium
   before_action :set_money_source
   before_action :ensure_debt_source
 

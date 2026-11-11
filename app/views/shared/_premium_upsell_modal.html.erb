@@ -1,0 +1,28 @@
+<%# Small Premium upsell modal shared by locked actions.
+    Locals: id, title, description, cta, dismiss, testid. %>
+<div class="modal fade premium-upsell-modal" id="<%= id %>" tabindex="-1"
+     aria-labelledby="<%= id %>Title" aria-hidden="true"
+     data-testid="<%= testid %>">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="<%= id %>Title"><%= title %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="<%= t("common.close") %>"></button>
+      </div>
+      <div class="modal-body text-center">
+        <span class="premium-upsell-modal__icon" aria-hidden="true"><i class="ti ti-lock"></i></span>
+        <p class="mb-0"><%= description %></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <%= dismiss %>
+        </button>
+        <%= link_to plans_path, class: "btn btn-primary" do %>
+          <%= cta %>
+          <i class="ti ti-arrow-right ms-1" aria-hidden="true"></i>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<%# Statement import entry point. Free users see it locked; the click opens
+    statement_imports/premium_lock_modal. %>
+<% if statement_import_locked? %>
+  <%= render "shared/premium_locked_action",
+             modal_id: "statementImportPremiumModal",
+             label: t("statement_imports.title"),
+             testid: "statement-import-locked",
+             aria_label: t("statement_imports.premium_lock.button_aria"),
+             icon: "file-upload",
+             extra_classes: "btn-sm btn-outline-primary" %>
+<% else %>
+  <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
+    <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
+  <% end %>
+<% end %>

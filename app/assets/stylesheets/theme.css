@@ -965,6 +965,57 @@ section.page-section { margin-bottom: 1.5rem; }
   font-size: 0.6875rem;
   line-height: 1.6;
 }
+
+/* Premium-locked actions (Importar Plantillas, Importar extracto): the entry
+ * point stays visible but reads as disabled and opens the upsell modal. */
+.premium-action-locked {
+  --bs-btn-color: var(--et-muted);
+  --bs-btn-border-color: var(--bs-border-color);
+  --bs-btn-bg: transparent;
+  opacity: 0.72;
+  cursor: pointer;
+}
+.premium-action-locked:hover,
+.premium-action-locked:focus-visible {
+  --bs-btn-hover-color: var(--et-muted);
+  --bs-btn-hover-border-color: var(--bs-border-color);
+  --bs-btn-hover-bg: var(--bs-tertiary-bg);
+  opacity: 0.85;
+}
+.premium-action-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.4rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.3rem;
+  background: rgba(121, 41, 232, 0.1);
+  color: var(--et-saving);
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+[data-bs-theme="dark"] .premium-action-badge { background: rgba(167, 139, 250, 0.14); }
+
+.premium-upsell-modal .modal-dialog { max-width: 24rem; }
+.premium-upsell-modal__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.85rem;
+  border-radius: 1rem;
+  color: var(--et-saving);
+  background: rgba(121, 41, 232, 0.1);
+}
+[data-bs-theme="dark"] .premium-upsell-modal__icon { background: rgba(167, 139, 250, 0.14); }
+.premium-upsell-modal__icon i { font-size: 1.35rem; }
+.premium-upsell-modal .modal-body p {
+  color: var(--et-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 767.98px) {
   .premium-lock-workspace { min-height: 28rem; padding: 2rem 1.15rem; }
   .premium-lock-title { font-size: 1.35rem; }

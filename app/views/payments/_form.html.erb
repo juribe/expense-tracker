@@ -15,9 +15,7 @@
               <%= t("payments.form.hint", target: @money_source.name) %>
             </p>
             <p class="text-muted mb-3">
-              <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
-                <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
-              <% end %>
+              <%= render "statement_imports/action" %>
             </p>
 
             <div class="bg-light rounded p-3 mb-3">
@@ -120,3 +118,5 @@
     </div>
   </div>
 </div>
+
+<%= render "statement_imports/premium_lock_modal" %>

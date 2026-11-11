@@ -7,9 +7,7 @@
                 data-bs-target="#manualPaymentModal" data-testid="manual-payment-open">
           <i class="ti ti-plus me-1"></i><%= t("payments.manual.button") %>
         </button>
-        <%= link_to new_money_source_statement_import_path(@money_source), class: "btn btn-sm btn-outline-primary" do %>
-          <i class="ti ti-file-upload me-1"></i><%= t("statement_imports.title") %>
-        <% end %>
+        <%= render "statement_imports/action" %>
       </div>
     </div>
 
@@ -127,3 +125,4 @@
 </div>
 
 <%= render "money_sources/manual_payment_modal" %>
+<%= render "statement_imports/premium_lock_modal" %>

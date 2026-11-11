@@ -1,15 +1,11 @@
 <%# Page action for importing recurring templates. Free users keep the button
     visible but locked; it opens imports/premium_lock_modal. %>
 <% if import_templates_locked? %>
-  <button type="button" class="btn btn-outline-secondary recurring-import-locked"
-          data-bs-toggle="modal" data-bs-target="#importPremiumModal"
-          data-testid="import-templates-locked"
-          aria-label="<%= t("imports.premium_lock.button_aria") %>">
-    <i class="ti ti-upload me-1" aria-hidden="true"></i><%= t("monthly_incomes.import_templates") %>
-    <span class="recurring-import-premium">
-      <i class="ti ti-lock" aria-hidden="true"></i><%= t("imports.premium_lock.badge") %>
-    </span>
-  </button>
+  <%= render "shared/premium_locked_action",
+             modal_id: "importPremiumModal",
+             label: t("monthly_incomes.import_templates"),
+             testid: "import-templates-locked",
+             aria_label: t("imports.premium_lock.button_aria") %>
 <% else %>
   <%= link_to new_import_path, class: "btn btn-outline-secondary", data: { turbo: false } do %>
     <i class="ti ti-upload me-1" aria-hidden="true"></i><%= t("monthly_incomes.import_templates") %>

@@ -220,7 +220,7 @@ class MonthlyExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "button[data-testid='import-templates-locked'][data-bs-target='#importPremiumModal']" do
       assert_select "i.ti-lock"
-      assert_select ".recurring-import-premium", text: /PREMIUM/
+      assert_select ".premium-action-badge", text: /PREMIUM/
     end
     assert_select "a[href='#{new_import_path}']", count: 0
     assert_select "#importPremiumModal" do

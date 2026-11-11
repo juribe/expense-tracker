@@ -1,0 +1,10 @@
+<%# Premium upsell shown when importing statements is locked. %>
+<% if statement_import_locked? %>
+  <%= render "shared/premium_upsell_modal",
+             id: "statementImportPremiumModal",
+             testid: "statement-import-premium-modal",
+             title: t("statement_imports.premium_lock.title"),
+             description: t("statement_imports.premium_lock.description"),
+             cta: t("statement_imports.premium_lock.cta"),
+             dismiss: t("statement_imports.premium_lock.dismiss") %>
+<% end %>
