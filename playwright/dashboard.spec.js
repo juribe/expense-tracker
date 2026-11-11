@@ -9,7 +9,7 @@ test.describe('dashboard is working', () => {
     const response = await page.goto('/dashboard');
     expect(response && response.ok()).toBeTruthy();
     await expect(page.getByText('Dinero en cuentas').first()).toBeVisible();
-    await expect(page.getByText('Gastos', { exact: true }).first()).toBeVisible();
+    await expect(page.getByTestId('dashboard-cash-flow').getByText('Gastos', { exact: true }).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Distribución por categoría' })).toBeVisible();
     await expect(page.getByTestId('dashboard-recent-expenses')).toBeVisible();
   });
