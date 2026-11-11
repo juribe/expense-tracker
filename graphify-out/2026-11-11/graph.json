@@ -104548,7 +104548,7 @@
       "file_type": "code",
       "norm_label": ".create_membership()",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L164"
+      "source_location": "L179"
     },
     {
       "id": "test_services_whatsapp_premium_membership_gate_test_whatsapppremiummembershipgatetest_gate_blocks_pred",
@@ -104560,7 +104560,7 @@
       "file_type": "code",
       "norm_label": ".gate_blocks?()",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L155"
+      "source_location": "L170"
     },
     {
       "id": "test_services_whatsapp_premium_membership_gate_test_whatsapppremiummembershipgatetest_membership_type",
@@ -104572,7 +104572,7 @@
       "file_type": "code",
       "norm_label": ".membership_type()",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L175"
+      "source_location": "L190"
     },
     {
       "id": "test_services_whatsapp_premium_membership_gate_test_whatsapppremiummembershipgatetest_with_memory_cache",
@@ -104584,7 +104584,7 @@
       "file_type": "code",
       "norm_label": ".with_memory_cache()",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L183"
+      "source_location": "L198"
     },
     {
       "id": "db_migrate_20261105235818_create_maglev_sites_maglev_createmaglevsites_change",
@@ -196022,7 +196022,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/whatsapp/premium_membership_gate.rb",
-      "source_location": "L70",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -202994,7 +202994,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L165",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -203006,7 +203006,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L160",
+      "source_location": "L175",
       "weight": 1.0
     },
     {
@@ -203018,7 +203018,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L176",
+      "source_location": "L191",
       "weight": 1.0
     },
     {
@@ -318705,7 +318705,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L155",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -318716,7 +318716,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L164",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -318727,7 +318727,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L175",
+      "source_location": "L190",
       "weight": 1.0
     },
     {
@@ -318738,7 +318738,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L183",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -325565,7 +325565,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "test/services/whatsapp/premium_membership_gate_test.rb",
-      "source_location": "L156",
+      "source_location": "L171",
       "weight": 1.0
     },
     {

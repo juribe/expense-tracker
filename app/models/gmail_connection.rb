@@ -20,6 +20,16 @@ class GmailConnection < ApplicationRecord
 
   scope :active, -> { where(active: true) }
 
+  # Connections whose owner has a premium membership granting access right now.
+  # The membership ids travel as a subquery so the dispatcher stays at a
+  # constant number of queries regardless of how many connections exist.
+  scope :with_active_membership, -> {
+    where(user_id: PaymentEngine::Membership.active
+      .where(owner_type: "User")
+      .where("expires_at IS NULL OR expires_at >= ?", Time.current)
+      .select(Arel.sql("owner_id::uuid")))
+  }
+
   def token_expired?
     return true if token_expires_at.blank?
 
