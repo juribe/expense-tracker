@@ -917,6 +917,7 @@ es:
     section_settings: "Configuración"
     section_admin: "Admin"
     candidates: "Candidatos"
+    pending_candidates: "Candidatos pendientes"
 
   evaluations:
     subtitle: "Sube un dataset CSV y evalúa el pipeline completo con un proveedor/modelo concreto."
@@ -2251,6 +2252,10 @@ es:
     ai_title: "Tu asistente de gastos"
     ai_badge: "Con IA"
     ai_subtitle: "Registra tus gastos en segundos. La IA se encarga de organizarlos."
+    ai_premium_badge: "PREMIUM"
+    ai_premium_lock_title: "Desbloquea tu asistente con Premium"
+    ai_premium_lock_description: "Registra gastos con inteligencia artificial y ahorra tiempo organizando tus finanzas."
+    ai_premium_lock_cta: "Conocer Premium"
     ai_examples_label: "Ejemplos de gastos"
     ai_helper: "Detecta montos, categorías, fechas y fuentes de dinero."
     ai_review_subtitle: "Verifica los datos antes de guardarlos."

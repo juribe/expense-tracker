@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "app/helpers/expenses_helper.rb": {
-    "mtime": 1793554296.0311701,
-    "seen": 1793554336.862179,
-    "ast_hash": "541c03abcc06af563b4036e0827d40df",
+    "mtime": 1794416411.1455824,
+    "seen": 1794416723.77421,
+    "ast_hash": "90437517ff48071d613c5c5aebaa0860",
     "semantic_hash": ""
   },
   "app/jobs/application_job.rb": {
@@ -744,9 +744,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expenses_ai_entry_test.rb": {
-    "mtime": 1792620140.67955,
-    "seen": 1793490696.635197,
-    "ast_hash": "40e4cfae429708228b7a4114af07c257",
+    "mtime": 1794415217.4514828,
+    "seen": 1794416723.778368,
+    "ast_hash": "fbad89276d505740b270ad652019564c",
     "semantic_hash": ""
   },
   "test/controllers/expenses_controller_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794396092.9265351,
-    "seen": 1794396170.079891,
-    "ast_hash": "1a477bda4008c0d1c6800de01e9c51df",
+    "mtime": 1794415392.1530137,
+    "seen": 1794416723.780731,
+    "ast_hash": "c526404d9fce59d62205617fd6267458",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794396100.6899703,
-    "seen": 1794396170.0798929,
-    "ast_hash": "c20043d8b5ab970ea866c003aae50064",
+    "mtime": 1794415392.14806,
+    "seen": 1794416723.7807329,
+    "ast_hash": "49a1fefb9e23abc407b652bfe447b8eb",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794396490.5708518,
-    "seen": 1794405808.577421,
+    "mtime": 1794408589.2083104,
+    "seen": 1794416723.780742,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -3702,9 +3702,9 @@
     "semantic_hash": ""
   },
   "test/controllers/reconciliations_controller_test.rb": {
-    "mtime": 1794183114.707232,
-    "seen": 1794183224.7895029,
-    "ast_hash": "7ec29527b2adfed62cd09631133504b4",
+    "mtime": 1794408443.3732123,
+    "seen": 1794416723.778427,
+    "ast_hash": "b955d1930207f875dcf575de7619f2b6",
     "semantic_hash": ""
   },
   "test/services/reconciliation/check_balance_test.rb": {
@@ -4500,9 +4500,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/tests.yml": {
-    "mtime": 1792237317.8581161,
-    "seen": 1793490696.635608,
-    "ast_hash": "62771ed973e5b952293371a065f7e81e",
+    "mtime": 1794414577.5882533,
+    "seen": 1794416723.780451,
+    "ast_hash": "19efa746710defc21f64d02541e7c52a",
     "semantic_hash": ""
   },
   "db/migrate/20261017000000_add_suggested_savings_percentage_to_categories.rb": {
@@ -7944,9 +7944,9 @@
     "semantic_hash": ""
   },
   "app/controllers/concerns/premium_access.rb": {
-    "mtime": 1793829218.318715,
-    "seen": 1793829840.6789708,
-    "ast_hash": "f6d9e74f640316b6df11f41575def6a0",
+    "mtime": 1794406752.1512616,
+    "seen": 1794406872.3172631,
+    "ast_hash": "d21cbce1dfb7c1fb8223cb487c699851",
     "semantic_hash": ""
   },
   "db/cache_schema.rb": {
@@ -7956,9 +7956,9 @@
     "semantic_hash": ""
   },
   "test/controllers/premium_access_test.rb": {
-    "mtime": 1793828033.0788782,
-    "seen": 1793828428.196241,
-    "ast_hash": "7524398db22b350d354b4f15c204d24a",
+    "mtime": 1794406800.850002,
+    "seen": 1794406872.3189929,
+    "ast_hash": "65914da856a0a6825878979e6280db9a",
     "semantic_hash": ""
   },
   "config/cache.yml": {
@@ -8046,9 +8046,9 @@
     "semantic_hash": ""
   },
   "test/controllers/savings_opportunities_controller_test.rb": {
-    "mtime": 1793879355.8303657,
-    "seen": 1793880336.1568441,
-    "ast_hash": "5af922e90c50af5a8fe36f38d20d8766",
+    "mtime": 1794406709.422078,
+    "seen": 1794406872.319015,
+    "ast_hash": "b3836f1b5f686870c582c76c3183c0ba",
     "semantic_hash": ""
   },
   "test/services/ai/tasks/savings_opportunity_analysis_test.rb": {
@@ -9822,9 +9822,9 @@
     "semantic_hash": ""
   },
   "test/support/premium_access_test_helper.rb": {
-    "mtime": 1794405535.0690036,
-    "seen": 1794405808.57725,
-    "ast_hash": "783808119620cb7d41a02e16d14f95e2",
+    "mtime": 1794406800.850002,
+    "seen": 1794406872.3196428,
+    "ast_hash": "cb35378f48ce3526895a5ca533e1c04d",
     "semantic_hash": ""
   }
 }

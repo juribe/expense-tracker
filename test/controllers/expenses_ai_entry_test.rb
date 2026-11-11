@@ -4,6 +4,7 @@ require "test_helper"
 
 class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PremiumAccessTestHelper
 
   setup do
     @user = User.create!(name: "AI Entry User", email: "ai-entry@example.com", password: "password123")
@@ -209,5 +210,114 @@ class ExpensesAiEntryTest < ActionDispatch::IntegrationTest
     assert_redirected_to expenses_path
     follow_redirect!
     assert_equal I18n.t("expenses.bulk_created", count: 1, default: "1 gasto creado."), flash[:notice]
+  end
+
+  test "users without premium see the expense assistant locked" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+    sign_in @user
+
+    get expenses_path
+
+    assert_response :success
+    assert_select "[data-testid='ai-entry-card']" do
+      assert_select ".ai-entry-premium", text: /PREMIUM/
+      assert_select "textarea#aiExpenseText[disabled]"
+      assert_select "button#aiMicButton[disabled]"
+      assert_select "button#aiParseButton[disabled]"
+      assert_select "button[data-ai-example][disabled]", count: 3
+    end
+  end
+
+  test "the locked expense assistant offers the premium upgrade panel" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+    sign_in @user
+
+    get expenses_path
+
+    assert_response :success
+    assert_select "[data-testid='ai-entry-premium-lock']" do
+      assert_select ".ai-entry-lock .ti-lock"
+      assert_select "strong", text: "Desbloquea tu asistente con Premium"
+      assert_select "a[href=?]", plans_path, text: /Conocer Premium/
+    end
+    assert_select "#aiPreviewModal", count: 0
+  end
+
+  test "premium users keep the expense assistant fully enabled" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+    sign_in @user
+
+    get expenses_path
+
+    assert_response :success
+    assert_select "[data-testid='ai-entry-card']" do
+      assert_select "textarea#aiExpenseText:not([disabled])"
+      assert_select "button#aiMicButton:not([disabled])"
+      assert_select "button#aiParseButton:not([disabled])"
+      assert_select "[data-testid='ai-entry-premium-lock']", count: 0
+    end
+    assert_select "#aiPreviewModal", count: 1
+  end
+
+  test "the expense assistant stays enabled when paid access is not required" do
+    sign_in @user
+
+    get expenses_path
+
+    assert_response :success
+    assert_select "textarea#aiExpenseText:not([disabled])"
+    assert_select "[data-testid='ai-entry-premium-lock']", count: 0
+  end
+
+  test "POST /expenses/parse denies users without premium" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+    sign_in @user
+
+    post parse_expenses_path(format: :json), params: { text: "50 mil en almuerzo" }
+
+    assert_response :forbidden
+    assert_equal I18n.t("errors.premium_only"), JSON.parse(response.body)["error"]
+  end
+
+  test "POST /expenses/bulk_create denies users without premium without persisting expenses" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    revoke_premium(@user)
+    sign_in @user
+
+    assert_no_difference -> { Expense.count } do
+      post bulk_create_expenses_path(format: :json), params: {
+        expenses: [
+          { amount: "50000", description: "Almuerzo", transaction_date: Date.current.iso8601,
+            category_id: @restaurants.id, money_source_id: @source.id }
+        ]
+      }
+    end
+
+    assert_response :forbidden
+    assert_equal I18n.t("errors.premium_only"), JSON.parse(response.body)["error"]
+  end
+
+  test "premium users keep using parse and bulk create" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    grant_premium(@user)
+    sign_in @user
+
+    post parse_expenses_path(format: :json),
+         params: { text: "Me gasté 50 mil en un restaurante y 20 mil en parqueadero" }
+    assert_response :success
+
+    assert_difference -> { Expense.count }, +1 do
+      post bulk_create_expenses_path(format: :json), params: {
+        expenses: [
+          { amount: "50000", description: "Almuerzo", transaction_date: Date.current.iso8601,
+            category_id: @restaurants.id, money_source_id: @source.id }
+        ]
+      }
+    end
+    assert_response :created
   end
 end

@@ -2,6 +2,12 @@ module ExpensesHelper
   SORTABLE_COLUMNS = %w[date description category amount].freeze
   DEFAULT_SORT_DIR = { "date" => "desc", "amount" => "desc" }.freeze
 
+  # The AI expense assistant is part of the Premium plan. Users without access
+  # still see the card, but in a locked state.
+  def expenses_ai_assistant_locked?
+    !user_access.access_premium?
+  end
+
   # Builds a sortable table header button (<a>) that navigates with the
   # current filters and toggles asc/desc. First click on a new column uses
   # the column default (dates/amounts desc, text asc); second click toggles.

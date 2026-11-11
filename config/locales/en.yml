@@ -422,6 +422,7 @@ en:
     section_admin: "Admin"
     reconciliation: "Balance Day"
     candidates: "Candidates"
+    pending_candidates: "Candidates pending review"
 
   evaluations:
     subtitle: "Upload a CSV dataset and evaluate the full pipeline with a specific provider/model."
@@ -1289,6 +1290,10 @@ en:
     ai_title: "Your expense assistant"
     ai_badge: "With AI"
     ai_subtitle: "Log your expenses in seconds. The AI takes care of organizing them."
+    ai_premium_badge: "PREMIUM"
+    ai_premium_lock_title: "Unlock your assistant with Premium"
+    ai_premium_lock_description: "Log expenses with artificial intelligence and save time organizing your finances."
+    ai_premium_lock_cta: "Explore Premium"
     ai_examples_label: "Expense examples"
     ai_helper: "Detects amounts, categories, dates and money sources."
     ai_review_subtitle: "Review the details before saving them."
