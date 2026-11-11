@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class GmailConnectionsController < ApplicationController
+  require_premium
+
   # A sync scans a live mailbox and bills AI work: one trigger per minute is
   # generous for a human, hostile for a script. Keyed by user so accounts
   # sharing an IP do not throttle each other.

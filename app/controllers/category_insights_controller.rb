@@ -5,6 +5,8 @@
 class CategoryInsightsController < ApplicationController
   POTENTIAL_RANK = { "high" => 0, "medium" => 1, "low" => 2 }.freeze
 
+  require_premium
+
   before_action :authenticate_user!
   before_action :set_category, only: [ :show ]
 

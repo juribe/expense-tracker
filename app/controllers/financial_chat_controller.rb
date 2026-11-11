@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class FinancialChatController < ApplicationController
+  require_premium
+
   before_action :authenticate_user!
 
   def show

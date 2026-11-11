@@ -4,6 +4,8 @@
 # RESTful for TransactionRule, plus a member `patch :toggle_active`.
 # Rules are always scoped to current_user.
 class TransactionRulesController < ApplicationController
+  require_premium
+
   CONDITION_FIELDS = {
     "merchant_contains" => "merchant_contains",
     "description_contains" => "description_contains",

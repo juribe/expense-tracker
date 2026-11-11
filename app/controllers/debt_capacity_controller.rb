@@ -3,6 +3,8 @@
 # DebtCapacityController
 # GET /debt_capacity — independent debt and borrowing-capacity overview.
 class DebtCapacityController < ApplicationController
+  require_premium
+
   before_action :authenticate_user!
 
   def show

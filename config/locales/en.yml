@@ -2153,14 +2153,13 @@ en:
       deleted: "Entity deleted."
       blocked_by_sources: "Cannot delete: money sources still use it. Re-link them first."
 
-  reconciliation:
-    premium_lock:
-      eyebrow: "Premium feature"
-      title: "This feature is Premium"
-      description: "Your free trial has ended. To keep enjoying all %{app_name} features, choose one of our Premium plans."
-      cta: "View plans"
-      back: "Back to %{app_name}"
-      note: "Your data and the information you have already recorded remain available in %{app_name}."
+  premium_lock:
+    eyebrow: "Premium feature"
+    title: "This feature is Premium"
+    description: "This feature is part of the Premium plans. Pick a plan and keep getting the most out of %{app_name}."
+    cta: "View plans"
+    back: "Back to %{app_name}"
+    note: "Your data and everything you have already recorded stay available in %{app_name}."
 
   errors:
     not_authorized: "You do not have permission to access this section."

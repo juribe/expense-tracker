@@ -12,6 +12,8 @@
 # (the flow initiation) and is REUSED on refresh until connected, cancelled or
 # expired — polling never generates tokens.
 class WhatsappSettingsController < ApplicationController
+  require_premium
+
   before_action :authenticate_user!
 
   def show

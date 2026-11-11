@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 # PremiumAccess
-# Declares premium-only controller actions and blocks users without access.
+# Declares premium-only controller actions and renders the shared lock page
+# (view: shared/premium_locked) for users without access. JSON requests get a
+# 403 with the premium error so API callers can react without HTML.
 #
 # Example:
 #   require_premium
@@ -25,6 +27,10 @@ module PremiumAccess
   end
 
   def handle_premium_access_denied
-    redirect_to dashboard_path, alert: t("errors.premium_only")
+    respond_to do |format|
+      format.html { render "shared/premium_locked" }
+      format.json { render json: { error: t("errors.premium_only") }, status: :forbidden }
+      format.any { head :forbidden }
+    end
   end
 end

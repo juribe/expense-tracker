@@ -1,0 +1,35 @@
+<% content_for :title, t("premium_lock.title") %>
+
+<div class="container-xxl">
+  <section class="card premium-lock-workspace" data-testid="premium-locked">
+    <div class="premium-lock-card">
+      <div class="premium-lock-icon" aria-hidden="true">
+        <i class="ti ti-lock"></i>
+      </div>
+
+      <span class="premium-lock-pill">
+        <i class="ti ti-sparkles" aria-hidden="true"></i>
+        <%= t("premium_lock.eyebrow") %>
+      </span>
+
+      <h1 class="premium-lock-title"><%= t("premium_lock.title") %></h1>
+
+      <p class="premium-lock-description">
+        <%= t("premium_lock.description", app_name: AppName.current) %>
+      </p>
+
+      <%= link_to plans_path, class: "btn btn-primary premium-lock-primary" do %>
+        <%= t("premium_lock.cta") %>
+        <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      <% end %>
+
+      <%= link_to t("premium_lock.back", app_name: AppName.current),
+                  dashboard_path,
+                  class: "premium-lock-back" %>
+
+      <p class="premium-lock-note">
+        <%= t("premium_lock.note", app_name: AppName.current) %>
+      </p>
+    </div>
+  </section>
+</div>

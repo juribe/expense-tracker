@@ -171,7 +171,6 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".rec-hero"
     assert_select "[data-testid='premium-locked']", count: 0
-    assert_select ".rec-premium-locked", count: 0
   end
 
   test "sidebar shows the Día de Balance link without a PRO label" do

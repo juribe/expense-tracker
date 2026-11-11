@@ -5,6 +5,8 @@ module Mcp
   # RESTful token management for external MCP clients. Tokens are shown once
   # and can be revoked; they never reuse the web session as a credential.
   class SettingsController < ApplicationController
+    require_premium
+
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
     def show

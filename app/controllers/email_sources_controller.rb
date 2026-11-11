@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class EmailSourcesController < ApplicationController
+  require_premium
+
   before_action :authenticate_user!
 
   def index

@@ -1,5 +1,7 @@
 module FinancialChats
   class MessagesController < ApplicationController
+    require_premium
+
     before_action :authenticate_user!
 
     # Every AI message costs money: a per-user ceiling for the assistant.

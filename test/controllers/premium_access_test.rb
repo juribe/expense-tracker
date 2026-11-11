@@ -46,6 +46,7 @@ class PremiumAccessTest < ActionDispatch::IntegrationTest
   with_routing do |set|
     set.draw do
       get "/dashboard", to: "dashboard#index", as: :dashboard
+      get "/plans", to: "plans#index", as: :plans
       get "/premium-gate/premium", to: "premium_gate_test#premium"
       get "/premium-gate/free", to: "premium_gate_test#free"
       get "/premium-gate-except/premium", to: "premium_gate_except_test#premium"
@@ -69,15 +70,19 @@ class PremiumAccessTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "require_premium redirects non-premium users to the dashboard with an alert" do
+  test "require_premium renders the premium lock page for non-premium users" do
     @setting.update!(paid_access_required: true)
     create_membership(source: "purchase", status: "expired", expires_at: 1.day.ago)
     sign_in @user
 
     get "/premium-gate/premium"
 
-    assert_redirected_to "/dashboard"
-    assert_equal "Necesitas un plan premium para utilizar esta función.", flash[:alert]
+    assert_response :success
+    assert_select "[data-testid='premium-locked']" do
+      assert_select "h1", text: "Esta función es Premium"
+      assert_select "a[href=?]", plans_path
+      assert_select "a[href=?]", dashboard_path
+    end
   end
 
   test "require_premium allows users with an active trial" do
@@ -119,8 +124,19 @@ class PremiumAccessTest < ActionDispatch::IntegrationTest
 
     get "/premium-gate-all/free"
 
-    assert_redirected_to "/dashboard"
-    assert_equal "Necesitas un plan premium para utilizar esta función.", flash[:alert]
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
+  end
+
+  test "require_premium answers JSON requests with a forbidden error" do
+    @setting.update!(paid_access_required: true)
+    create_membership(source: "purchase", status: "expired", expires_at: 1.day.ago)
+    sign_in @user
+
+    get "/premium-gate/premium", as: :json
+
+    assert_response :forbidden
+    assert_equal PremiumAccessTestHelper::PREMIUM_ALERT, response.parsed_body["error"]
   end
 
   test "require_premium supports only" do
@@ -146,8 +162,8 @@ class PremiumAccessTest < ActionDispatch::IntegrationTest
 
     get "/premium-gate-except/premium"
 
-    assert_redirected_to "/dashboard"
-    assert_equal "Necesitas un plan premium para utilizar esta función.", flash[:alert]
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
   end
 
   private

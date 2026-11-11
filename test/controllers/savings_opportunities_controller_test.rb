@@ -61,13 +61,13 @@ class SavingsOpportunitiesControllerTest < ActionDispatch::IntegrationTest
     assert_match "Análisis inteligente de tus gastos", response.body
   end
 
-  test "users without the Pro plan are redirected with the premium alert" do
+  test "users without the Pro plan see the premium lock page" do
     revoke_premium
 
     get savings_opportunities_path
 
-    assert_redirected_to dashboard_path
-    assert_equal "Necesitas un plan premium para utilizar esta función.", flash[:alert]
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
   end
 
   test "users without the Pro plan cannot use the refresh endpoint" do
@@ -75,7 +75,8 @@ class SavingsOpportunitiesControllerTest < ActionDispatch::IntegrationTest
 
     post refresh_savings_opportunities_path
 
-    assert_redirected_to dashboard_path
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
   end
 
   test "users without the Pro plan cannot use the scenario endpoint" do
@@ -83,7 +84,8 @@ class SavingsOpportunitiesControllerTest < ActionDispatch::IntegrationTest
 
     post scenario_savings_opportunities_path, params: { reductions: {} }
 
-    assert_redirected_to dashboard_path
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
   end
 
   test "users without the Pro plan cannot read the analysis status" do
@@ -91,7 +93,8 @@ class SavingsOpportunitiesControllerTest < ActionDispatch::IntegrationTest
 
     get status_savings_opportunities_path
 
-    assert_redirected_to dashboard_path
+    assert_response :success
+    assert_select "[data-testid='premium-locked']"
   end
 
   test "shows the empty state without movements" do
