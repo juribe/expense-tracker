@@ -696,6 +696,8 @@ section.page-section { margin-bottom: 1.5rem; }
   font-weight: 800;
   letter-spacing: 0.05em;
   line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 [data-bs-theme="dark"] .left-sidebar .sidebar-nav .sidebar-pro {
   background: rgba(112, 72, 232, 0.22);

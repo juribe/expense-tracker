@@ -904,6 +904,7 @@ es:
     section_debt: "Deudas"
     section_reports: "Informes"
     section_insights: "Análisis"
+    premium: "Premium"
     section_automation: "Automatización"
     section_settings: "Configuración"
     section_admin: "Admin"

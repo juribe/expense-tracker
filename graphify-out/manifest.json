@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794394879.2803805,
-    "seen": 1794394944.3346088,
-    "ast_hash": "4b4100d242d1dddd70ef0a67a6eaf4bc",
+    "mtime": 1794396092.9265351,
+    "seen": 1794396170.079891,
+    "ast_hash": "1a477bda4008c0d1c6800de01e9c51df",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794394879.2803996,
-    "seen": 1794394944.334611,
-    "ast_hash": "612b19c680522179c879484940f13f43",
+    "mtime": 1794396100.6899703,
+    "seen": 1794396170.0798929,
+    "ast_hash": "c20043d8b5ab970ea866c003aae50064",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -9810,9 +9810,9 @@
     "semantic_hash": ""
   },
   "test/integration/sidebar_navigation_test.rb": {
-    "mtime": 1794395302.0340722,
-    "seen": 1794395398.3052318,
-    "ast_hash": "795bd2dc2a90000e588bbf3a1eda2842",
+    "mtime": 1794396127.5327163,
+    "seen": 1794396170.079285,
+    "ast_hash": "8a67b7ea17d4092b77a027a0fddfd250",
     "semantic_hash": ""
   }
 }

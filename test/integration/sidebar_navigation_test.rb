@@ -89,6 +89,15 @@ class SidebarNavigationTest < ActionDispatch::IntegrationTest
     assert_select "#sidebarSectionReports.show", count: 0
   end
 
+  test "premium badge marks Analisis and Automatizacion" do
+    get dashboard_path
+
+    assert_response :success
+    assert_select "a.nav-section-toggle[href='#sidebarSectionInsights'] .sidebar-pro", text: "Premium"
+    assert_select "a.nav-section-toggle[href='#sidebarSectionAutomation'] .sidebar-pro", text: "Premium"
+    assert_select "#sidebarnav .sidebar-pro", count: 2
+  end
+
   test "sidebar only uses icons available in the bundled Tabler font" do
     get dashboard_path
 
@@ -131,7 +140,7 @@ class SidebarNavigationTest < ActionDispatch::IntegrationTest
 
   def section_links(header_text)
     header = css_select("#sidebarnav > li.nav-small-cap").find do |node|
-      node.text.strip == header_text
+      node.at_css(".hide-menu")&.text&.strip == header_text
     end
     assert header, "Expected a #{header_text.inspect} sidebar section"
 

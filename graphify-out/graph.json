@@ -99391,7 +99391,7 @@
       "file_type": "code",
       "norm_label": ".analysis_paths()",
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L120"
+      "source_location": "L131"
     },
     {
       "id": "test_integration_sidebar_navigation_test_sidebarnavigationtest_report_paths",
@@ -99403,7 +99403,7 @@
       "file_type": "code",
       "norm_label": ".report_paths()",
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L106"
+      "source_location": "L117"
     },
     {
       "id": "test_integration_sidebar_navigation_test_sidebarnavigationtest_section_links",
@@ -99415,7 +99415,7 @@
       "file_type": "code",
       "norm_label": ".section_links()",
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L130"
+      "source_location": "L141"
     },
     {
       "id": "app_helpers_maglev_theme_helper_maglevthemehelper_canonical_and_og_url_tags",
@@ -312621,7 +312621,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L106",
+      "source_location": "L117",
       "weight": 1.0
     },
     {
@@ -312632,7 +312632,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L120",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
@@ -312643,7 +312643,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L130",
+      "source_location": "L141",
       "weight": 1.0
     },
     {
@@ -325620,5 +325620,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "4799989e0c72a560ce10b132715b06b900e0fce6"
+  "built_at_commit": "3f7d6371ee55171f6498ec07311a7ce62a2aa264"
 }
