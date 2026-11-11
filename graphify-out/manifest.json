@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1794327248.8741615,
-    "seen": 1794327296.487015,
-    "ast_hash": "537b600fea940be9c7d12c8f1ea95620",
+    "mtime": 1794394879.280539,
+    "seen": 1794394944.332461,
+    "ast_hash": "d9614ebef9c96358badc1416491e0cd7",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794342874.0658329,
-    "seen": 1794343084.616197,
-    "ast_hash": "318c4359d49bbd4417e733944f53aed4",
+    "mtime": 1794394879.2803805,
+    "seen": 1794394944.3346088,
+    "ast_hash": "4b4100d242d1dddd70ef0a67a6eaf4bc",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794350848.3240824,
-    "seen": 1794351023.063724,
-    "ast_hash": "a0874454938e97957ee0570f0401668e",
+    "mtime": 1794394879.2803996,
+    "seen": 1794394944.334611,
+    "ast_hash": "612b19c680522179c879484940f13f43",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -9807,6 +9807,12 @@
     "mtime": 1794342878.9204094,
     "seen": 1794343084.613544,
     "ast_hash": "d9a8a9e8591d82c616778982f87a9f1c",
+    "semantic_hash": ""
+  },
+  "test/integration/sidebar_navigation_test.rb": {
+    "mtime": 1794395050.5136874,
+    "seen": 1794395091.274506,
+    "ast_hash": "eeb21dac24b116f7c314c2d67e043ad7",
     "semantic_hash": ""
   }
 }

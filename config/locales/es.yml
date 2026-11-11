@@ -902,6 +902,7 @@ es:
     section_money: "Dinero"
     section_planning: "Planificación"
     section_debt: "Deudas"
+    section_reports: "Informes"
     section_insights: "Análisis"
     section_automation: "Automatización"
     section_settings: "Configuración"

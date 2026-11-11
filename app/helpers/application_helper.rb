@@ -196,12 +196,6 @@ module ApplicationHelper
     controller_path == path_name ? "active" : ""
   end
 
-  # Sidebar Reports submenu stays expanded on any reports page, including the
-  # old monthly reports page and the drill-down.
-  def reports_section_active?
-    controller_path.to_s.start_with?("reports", "monthly_reports")
-  end
-
   def money_source_filter_active?(filter)
     @filter == filter ? "active" : ""
   end
