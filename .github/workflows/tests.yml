@@ -81,17 +81,10 @@ jobs:
       - name: Install JavaScript dependencies
         run: npm ci
 
-      # No --with-deps on purpose: this runner failed repeatedly to resolve the
-      # Ubuntu mirrors (azure.archive.ubuntu.com, security.ubuntu.com), which
-      # made `playwright install --with-deps` die in apt. The ubuntu-latest
-      # image already ships Chromium and every library it needs, so only the
-      # browser binary is downloaded here.
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
+      # NOTE (Nov 2026): this runner cannot resolve the Ubuntu mirrors
+      # (azure.archive.ubuntu.com / security.ubuntu.com), so `--with-deps`
+      # dies inside apt. For now we skip the apt part: the ubuntu-latest image
+      # already ships Chromium and the libraries it needs.
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
