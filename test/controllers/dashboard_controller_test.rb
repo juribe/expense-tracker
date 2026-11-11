@@ -376,22 +376,26 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /dashboard shows the total pending payments with pending and overdue statuses" do
-    @user.recurring_templates.create!(kind: "expense", amount: 170_000, category: @category,
-                                      description: "Agua", frequency: "monthly", payment_day: 10,
-                                      source: "manual", active: true)
-    @user.recurring_templates.create!(kind: "expense", amount: 50_000, category: @category,
-                                      description: "Luz", frequency: "monthly", payment_day: 5,
-                                      source: "manual", active: true)
+    # Freeze mid-cycle so "Agua" (day 10) is still pending and "Luz" (day 5)
+    # is already overdue; otherwise the assertion flips with the calendar date.
+    travel_to Time.zone.local(2026, 11, 10, 12) do
+      @user.recurring_templates.create!(kind: "expense", amount: 170_000, category: @category,
+                                        description: "Agua", frequency: "monthly", payment_day: 10,
+                                        source: "manual", active: true)
+      @user.recurring_templates.create!(kind: "expense", amount: 50_000, category: @category,
+                                        description: "Luz", frequency: "monthly", payment_day: 5,
+                                        source: "manual", active: true)
 
-    sign_in @user
-    get dashboard_path, params: { month: "2026-11" }
+      sign_in @user
+      get dashboard_path, params: { month: "2026-11" }
 
-    assert_response :success
-    assert_select ".dashboard-side-column" do
-      assert_select ".dash-pending-total", text: /\$220\.000/
-      assert_select ".dash-payment-status--pending", text: "Pendiente"
-      assert_select ".dash-payment-status--overdue", text: "Vencido"
-      assert_select ".dash-payment--overdue", text: /Luz/
+      assert_response :success
+      assert_select ".dashboard-side-column" do
+        assert_select ".dash-pending-total", text: /\$220\.000/
+        assert_select ".dash-payment-status--pending", text: "Pendiente"
+        assert_select ".dash-payment-status--overdue", text: "Vencido"
+        assert_select ".dash-payment--overdue", text: /Luz/
+      end
     end
   end
 
