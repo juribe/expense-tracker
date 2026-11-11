@@ -587,6 +587,60 @@ section.page-section { margin-bottom: 1.5rem; }
   letter-spacing: 0.09em;
   color: #8493aa;
 }
+/* Section dropdown headers: the small cap doubles as the collapse toggle. */
+.left-sidebar .sidebar-nav .nav-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  color: inherit;
+  text-decoration: none;
+}
+.left-sidebar .sidebar-nav .nav-section-toggle:hover { color: #245be4; }
+.left-sidebar .sidebar-nav .nav-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.left-sidebar .sidebar-nav .nav-section-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+.left-sidebar .sidebar-nav .nav-section-chevron {
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+.left-sidebar .sidebar-nav .nav-section-toggle[aria-expanded="true"] .nav-section-chevron {
+  transform: rotate(90deg);
+}
+.left-sidebar .sidebar-nav ul .sidebar-section-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Section items sit one level deeper than before, so keep the same active
+ * rail that top-level links used to show. */
+.left-sidebar .sidebar-nav .sidebar-section-list .sidebar-item > .sidebar-link.active::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: #356dff;
+}
+/* The mini rail keeps every section expanded so its icon-only links and the
+ * expand-on-hover interaction still work when labels are hidden. */
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:not(:hover) .sidebar-section.collapse {
+  display: block !important;
+}
+[data-layout="vertical"] body[data-sidebartype="mini-sidebar"] .left-sidebar:not(:hover) .nav-small-cap {
+  display: none;
+}
 
 .left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link,
 .left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item > .sidebar-link {
@@ -761,6 +815,10 @@ section.page-section { margin-bottom: 1.5rem; }
 }
 [data-bs-theme="dark"] .left-sidebar .brand-logo { border-bottom-color: var(--bs-border-color); }
 [data-bs-theme="dark"] .left-sidebar .sidebar-nav .nav-small-cap { color: var(--et-muted); }
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav .nav-section-toggle:hover { color: #9db9ff; }
+[data-bs-theme="dark"] .left-sidebar .sidebar-nav .sidebar-section-list .sidebar-item > .sidebar-link.active::before {
+  background: #9db9ff;
+}
 [data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .sidebar-link,
 [data-bs-theme="dark"] .left-sidebar .sidebar-nav ul .sidebar-item .first-level .sidebar-item > .sidebar-link {
   color: var(--bs-body-color);

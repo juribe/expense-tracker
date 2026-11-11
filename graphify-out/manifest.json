@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1794394879.280539,
-    "seen": 1794394944.332461,
-    "ast_hash": "d9614ebef9c96358badc1416491e0cd7",
+    "mtime": 1794395322.5853553,
+    "seen": 1794395398.303724,
+    "ast_hash": "c03f994d3ea01a098788c5a8458ee557",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -9810,9 +9810,9 @@
     "semantic_hash": ""
   },
   "test/integration/sidebar_navigation_test.rb": {
-    "mtime": 1794395050.5136874,
-    "seen": 1794395091.274506,
-    "ast_hash": "eeb21dac24b116f7c314c2d67e043ad7",
+    "mtime": 1794395302.0340722,
+    "seen": 1794395398.3052318,
+    "ast_hash": "795bd2dc2a90000e588bbf3a1eda2842",
     "semantic_hash": ""
   }
 }

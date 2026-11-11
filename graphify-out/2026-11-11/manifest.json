@@ -9810,9 +9810,9 @@
     "semantic_hash": ""
   },
   "test/integration/sidebar_navigation_test.rb": {
-    "mtime": 1794394842.933761,
-    "seen": 1794394944.333977,
-    "ast_hash": "3705ffd265e79bcae27229261786c826",
+    "mtime": 1794395050.5136874,
+    "seen": 1794395091.274506,
+    "ast_hash": "eeb21dac24b116f7c314c2d67e043ad7",
     "semantic_hash": ""
   }
 }

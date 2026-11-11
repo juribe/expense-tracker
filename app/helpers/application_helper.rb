@@ -196,6 +196,46 @@ module ApplicationHelper
     controller_path == path_name ? "active" : ""
   end
 
+  # Sidebar sections render as dropdowns and only the section that owns the
+  # current page starts expanded. Most sections map one controller to one
+  # group; money_sources serves four of them and distinguishes its views with
+  # @filter, so those cases are explicit.
+  SIDEBAR_SECTION_CONTROLLERS = {
+    home: %w[dashboard expense_candidates reconciliations financial_setups],
+    activity: %w[expenses incomes],
+    planning: %w[monthly_expenses monthly_incomes budgets goals],
+    reports: %w[monthly_reports],
+    insights: %w[financial_chat debt_capacity savings_opportunities financial_habits
+                 category_insights],
+    automation: %w[transaction_rules gmail_connections whatsapp_settings email_sources],
+    settings: %w[categories alert_settings financial_institutions custom_financial_institutions],
+    admin: %w[expense_playground expense_evaluations gmf_uvt_years]
+  }.freeze
+
+  def sidebar_section_active?(section)
+    case section
+    when :money
+      controller_name == "money_sources" && %w[cash pockets].include?(@filter)
+    when :debt
+      controller_name == "money_sources" && %w[credit_cards loans].include?(@filter)
+    when :activity
+      controller_path == "reports/transfers" ||
+        SIDEBAR_SECTION_CONTROLLERS[:activity].include?(controller_name)
+    when :reports
+      (controller_path.start_with?("reports/") && controller_path != "reports/transfers") ||
+        SIDEBAR_SECTION_CONTROLLERS[:reports].include?(controller_name)
+    when :automation
+      controller_path == "mcp/settings" ||
+        (controller_name == "money_sources" && action_name == "recognition") ||
+        SIDEBAR_SECTION_CONTROLLERS[:automation].include?(controller_name)
+    when :admin
+      request.path.start_with?("/payment_engine/") ||
+        SIDEBAR_SECTION_CONTROLLERS[:admin].include?(controller_name)
+    else
+      SIDEBAR_SECTION_CONTROLLERS.fetch(section).include?(controller_name)
+    end
+  end
+
   def money_source_filter_active?(filter)
     @filter == filter ? "active" : ""
   end

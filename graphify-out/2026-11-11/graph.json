@@ -84931,7 +84931,7 @@
       "file_type": "code",
       "norm_label": ".analysis_paths()",
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L51"
+      "source_location": "L65"
     },
     {
       "id": "test_integration_sidebar_navigation_test_sidebarnavigationtest_report_paths",
@@ -84943,7 +84943,7 @@
       "file_type": "code",
       "norm_label": ".report_paths()",
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L37"
+      "source_location": "L51"
     },
     {
       "id": "test_integration_sidebar_navigation_test_sidebarnavigationtest_section_links",
@@ -84955,7 +84955,7 @@
       "file_type": "code",
       "norm_label": ".section_links()",
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L61"
+      "source_location": "L75"
     },
     {
       "id": "test_test_helper_devise_test_integrationhelpers_sign_in",
@@ -312598,7 +312598,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L37",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -312609,7 +312609,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L51",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -312620,7 +312620,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/integration/sidebar_navigation_test.rb",
-      "source_location": "L61",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
