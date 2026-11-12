@@ -6,6 +6,10 @@
 namespace :db do
   desc "Back up the development database (pg_dump custom format)"
   task :backup, [ :retention_days ] => :environment do |_, args|
+    unless Rails.env.development? || ENV["ALLOW_DB_BACKUP"] == "1"
+      abort "db:backup only runs in development (set ALLOW_DB_BACKUP=1 to override)."
+    end
+
     retention = args[:retention_days] || 14
     script = Rails.root.join("script", "db_backup.sh")
     abort "Backup script not found: #{script}" unless script.exist?
