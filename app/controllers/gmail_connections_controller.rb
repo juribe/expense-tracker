@@ -59,6 +59,9 @@ class GmailConnectionsController < ApplicationController
     tokens = Gmail::OauthClient.exchange_code(code: params[:code], redirect_uri: google_callback_url)
     info = Gmail::OauthClient.userinfo(tokens[:access_token])
     raise Gmail::OauthClient::Error, "Google did not return an email address" if info[:email].blank?
+    unless info[:email_verified]
+      raise Gmail::OauthClient::Error, "Google no verificó este correo electrónico"
+    end
 
     connection = current_user.gmail_connections.find_or_initialize_by(email: info[:email])
     connection.google_account_id = info[:sub]

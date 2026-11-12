@@ -34,6 +34,10 @@ class EmailSource < ApplicationRecord
     status == "pending_verification"
   end
 
+  def pending?
+    pending_setup? || pending_verification?
+  end
+
   def active?
     status == "active"
   end

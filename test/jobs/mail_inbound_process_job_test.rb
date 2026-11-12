@@ -228,7 +228,94 @@ class MailInboundProcessJobTest < ActiveJob::TestCase
     assert_operator InboundEmailProcessJob, :<, MailInboundProcessJob
   end
 
+  test "activates and claims a pending source on an authenticated email" do
+    PaymentEngine::Setting.current.update!(paid_access_required: false)
+    source = @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "pending-source@bank.example",
+      status: "pending_setup"
+    )
+    record = inbound_record(from: "Banco <pending-source@bank.example>", headers: authenticated_headers)
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(record.id)
+    end
+
+    assert_equal "active", source.reload.status
+    identity = PremiumIdentity.find_by(identity_type: "redirect_email")
+    assert identity
+    assert_equal @user.id, identity.first_user_id
+    assert_equal 1, processor.calls.size
+  end
+
+  test "does not activate a pending source on an unauthenticated email" do
+    PaymentEngine::Setting.current.update!(paid_access_required: false)
+    source = @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "pending-source@bank.example",
+      status: "pending_setup"
+    )
+    record = inbound_record(from: "Banco <pending-source@bank.example>", headers: [])
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(record.id)
+    end
+
+    assert_equal "pending_setup", source.reload.status
+    assert_nil PremiumIdentity.find_by(identity_type: "redirect_email")
+    assert_equal "ignored", record.reload.status
+    assert_empty processor.calls
+  end
+
+  test "does not activate an unknown authenticated sender" do
+    PaymentEngine::Setting.current.update!(paid_access_required: false)
+    record = inbound_record(from: "Desconocido <unknown@bank.example>", headers: authenticated_headers)
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(record.id)
+    end
+
+    source = @user.email_sources.find_by(email: "unknown@bank.example")
+    assert source
+    assert_equal "pending_setup", source.status
+    assert_nil PremiumIdentity.find_by(identity_type: "redirect_email")
+    assert_equal "ignored", record.reload.status
+    assert_empty processor.calls
+  end
+
   private
+
+  def authenticated_headers
+    [
+      { "name" => "From", "value" => "Banco <pending-source@bank.example>" },
+      { "name" => "Authentication-Results", "value" => "mx.cloudflare.net; dkim=pass; dmarc=pass header.from=bank.example" }
+    ]
+  end
+
+  def inbound_record(from:, headers:)
+    ProcessedEmail.create!(
+      user: @user,
+      provider: "cloudflare",
+      message_id: "pending-source-#{SecureRandom.hex(4)}@example.com",
+      status: "queued",
+      payload: JSON.generate(
+        "email" => {
+          "id" => "pending-source-#{SecureRandom.hex(4)}@example.com",
+          "from" => from,
+          "to" => [ "receive+user1@samyreplies.com" ],
+          "subject" => "Compra aprobada",
+          "body_text" => "Compra por $48.500",
+          "html" => nil,
+          "internal_date" => "2026-08-23T14:30:00Z",
+          "headers" => headers,
+          "attachments" => []
+        }
+      )
+    )
+  end
 
   def create_membership(status:, expires_at:)
     PaymentEngine::Membership.create!(

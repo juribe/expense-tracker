@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "app/controllers/gmail_connections_controller.rb": {
-    "mtime": 1794488854.9812698,
-    "seen": 1794489739.785194,
-    "ast_hash": "3ae918c500307faa706ceee7f0dbb28b",
+    "mtime": 1794522275.9144664,
+    "seen": 1794522666.8213482,
+    "ast_hash": "617137ca6d6e21ba73b010a586de787e",
     "semantic_hash": ""
   },
   "app/controllers/imports_controller.rb": {
@@ -318,10 +318,10 @@
     "semantic_hash": ""
   },
   "app/services/gmail/oauth_client.rb": {
-    "mtime": 1788486798.1324167,
-    "seen": 1793490696.63485,
-    "ast_hash": "46e08a4a431b02793b93dc36569d0990",
-    "semantic_hash": "46e08a4a431b02793b93dc36569d0990"
+    "mtime": 1794522275.9144847,
+    "seen": 1794522666.8220081,
+    "ast_hash": "c97b0d02cdf6cf9ffdd831f4044c99d0",
+    "semantic_hash": ""
   },
   "app/services/gmail/query_builder.rb": {
     "mtime": 1790640335.8887315,
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "test/controllers/gmail_connections_controller_test.rb": {
-    "mtime": 1794489259.0385597,
-    "seen": 1794489739.786658,
-    "ast_hash": "99cedd3a712dab868d386b9b2caf7674",
+    "mtime": 1794521884.7375941,
+    "seen": 1794522666.8228438,
+    "ast_hash": "2c9c13677ae2c0cd6de842279dafa35a",
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794521177.0738816,
-    "seen": 1794521307.170671,
+    "mtime": 1794522573.875823,
+    "seen": 1794522666.823646,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5178,9 +5178,9 @@
     "semantic_hash": ""
   },
   "app/jobs/mail_inbound_process_job.rb": {
-    "mtime": 1794481264.2266197,
-    "seen": 1794481438.874062,
-    "ast_hash": "d1a7e4bba65ecfc9df298a370e732afc",
+    "mtime": 1794522386.3078263,
+    "seen": 1794522666.8215098,
+    "ast_hash": "1ee4c52c6d3755ec47e1a80ef369d819",
     "semantic_hash": ""
   },
   "app/models/mail_inbound_delivery.rb": {
@@ -5292,9 +5292,9 @@
     "semantic_hash": ""
   },
   "test/jobs/mail_inbound_process_job_test.rb": {
-    "mtime": 1794481291.0473688,
-    "seen": 1794481438.87565,
-    "ast_hash": "e5aa08e69aaf1bfc956f22dcf820255e",
+    "mtime": 1794521843.211766,
+    "seen": 1794522666.8230069,
+    "ast_hash": "3b22b3746627bbfdda6969b6dcab91f2",
     "semantic_hash": ""
   },
   "test/models/mail_inbound_delivery_test.rb": {
@@ -5352,9 +5352,9 @@
     "semantic_hash": ""
   },
   "app/controllers/email_sources_controller.rb": {
-    "mtime": 1794488877.0866888,
-    "seen": 1794489739.7851741,
-    "ast_hash": "25b73d7ee42a93c11f0c6058fdd70647",
+    "mtime": 1794522275.9405704,
+    "seen": 1794522666.821328,
+    "ast_hash": "5c37c93a75cec12c5499d79ccb150d44",
     "semantic_hash": ""
   },
   "app/models/email_forwarding_verification.rb": {
@@ -5364,9 +5364,9 @@
     "semantic_hash": ""
   },
   "app/models/email_source.rb": {
-    "mtime": 1793705599.5873306,
-    "seen": 1793738613.789232,
-    "ast_hash": "36dc15d912c3f4494c2932f5025ad8c7",
+    "mtime": 1794522619.715881,
+    "seen": 1794522666.821663,
+    "ast_hash": "e390d6f08c9bd9630fc6a6e3e9694d51",
     "semantic_hash": ""
   },
   "app/services/mail_inbound/forwarding_verification_detector.rb": {
@@ -5382,9 +5382,9 @@
     "semantic_hash": ""
   },
   "test/controllers/email_sources_controller_test.rb": {
-    "mtime": 1794488674.1311724,
-    "seen": 1794489739.786638,
-    "ast_hash": "e443b1b79042cab812c6c33528279e29",
+    "mtime": 1794521816.876966,
+    "seen": 1794522666.8228228,
+    "ast_hash": "b5bb0fb2438a29ca1896bbf3a26d70ee",
     "semantic_hash": ""
   },
   "test/jobs/mail_inbound_process_job_verification_test.rb": {
