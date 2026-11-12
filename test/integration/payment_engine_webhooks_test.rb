@@ -39,6 +39,10 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     @purchase = PaymentEngine::Purchase.create!(owner: @owner, payment_option: @payment_option, amount: 14_900, currency: "COP", status: "pending")
     @payment = PaymentEngine::Payment.create!(purchase: @purchase, amount: @purchase.amount, currency: "COP", status: "pending", provider_code: "epayco")
     @purchase.update!(payment: @payment)
+
+    # Provider adapters are memoized per process; start each test from the
+    # credentials configured above instead of a previous test's instance.
+    PaymentEngine.reset_providers!
   end
 
   test "rejected unauthorized notification keeps purchase pending" do
@@ -60,6 +64,32 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     assert_equal "pending", @payment.reload.status
   end
 
+  test "notification without configured credentials is rejected" do
+    @provider.update!(credentials: {}, settings: {})
+    PaymentEngine.reset_providers!
+
+    assert_no_difference [ "PaymentEngine::WebhookEvent.count", "PaymentEngine::Membership.count" ] do
+      post "/payment_engine/webhooks/epayco", params: webhook_payload(customer_id: "", p_key: "")
+    end
+
+    assert_response :unauthorized
+    assert_equal "pending", @purchase.reload.status
+    assert_equal "pending", @payment.reload.status
+  end
+
+  test "rotating provider credentials invalidates the memoized adapter" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    assert_response :ok
+
+    @provider.update!(credentials: { customer_id: @customer_id, p_key: "rotated-p-key" })
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload(p_key: "rotated-p-key")
+    assert_response :ok
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    assert_response :unauthorized
+  end
+
   test "approved notification updates payment, purchase and membership" do
     post "/payment_engine/webhooks/epayco", params: webhook_payload
 
@@ -78,9 +108,9 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
 
   private
 
-  def webhook_payload
+  def webhook_payload(customer_id: @customer_id, p_key: @p_key)
     signature = Digest::SHA256.hexdigest(
-      [ @customer_id, @p_key, "ref-1", "txn-1", "14900.00", "COP" ].join("^")
+      [ customer_id, p_key, "ref-1", "txn-1", "14900.00", "COP" ].join("^")
     )
     {
       "x_ref_payco" => "ref-1",
