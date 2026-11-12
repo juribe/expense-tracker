@@ -10,6 +10,21 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
     @user.confirm
   end
 
+  test "a session expires after the configured timeout" do
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
+    assert_redirected_to root_path
+
+    travel 31.minutes do
+      get dashboard_path
+
+      assert_redirected_to dashboard_path
+      assert flash[:timedout]
+
+      follow_redirect!
+      assert_redirected_to new_user_session_path
+    end
+  end
+
   test "POST rate limits the sign-in attempt after 100 posts in a minute" do
     original_cache = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new

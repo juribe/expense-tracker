@@ -44,6 +44,34 @@ class Users::TwoFactorAuthenticationsControllerTest < ActionDispatch::Integratio
     assert_equal @user.id, session["warden.user.user.key"].first.first
   end
 
+  test "a first-factor passkey cannot satisfy the second factor" do
+    passkey_client = new_webauthn_client
+    recovery_code = RecoveryCode.generate_for(@user).first
+    sign_in @user
+    register_passkey(
+      @user,
+      name: "Mi passkey",
+      client: passkey_client,
+      extra_params: { recovery_code: recovery_code }
+    )
+    delete destroy_user_session_path
+
+    sign_in_with_password(@user)
+    post user_security_key_authentication_options_path
+    options = JSON.parse(response.body)
+    credential = passkey_client.get(
+      challenge: options.fetch("challenge"),
+      rp_id: "localhost",
+      user_verified: false,
+      user_handle: webauthn_user_handle(@user)
+    )
+
+    post user_two_factor_authentication_path, params: { public_key_credential: credential.to_json }
+
+    assert_nil session["warden.user.user.key"]
+    refute_equal root_url, response.location if response.redirect?
+  end
+
   test "an invalid security key does not complete the sign in" do
     sign_in_with_password(@user)
     post user_security_key_authentication_options_path

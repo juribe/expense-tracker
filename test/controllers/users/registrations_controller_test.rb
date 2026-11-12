@@ -75,6 +75,18 @@ class Users::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, I18n.t("auth.consents.terms_required", default: "Debes aceptar los Términos y condiciones para crear tu cuenta.")
   end
 
+  test "sign up rejects a password shorter than the minimum" do
+    sign_out :user
+
+    assert_no_difference("User.count") do
+      post user_registration_path, params: {
+        user: sign_up_params(password: "short1234", password_confirmation: "short1234")
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
   test "sign up requires terms acceptance independently from privacy" do
     sign_out :user
 

@@ -2,7 +2,7 @@
 
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :confirmable,
+         :recoverable, :rememberable, :validatable, :confirmable, :timeoutable,
          :passkey_authenticatable, :webauthn_two_factor_authenticatable
 
   attr_accessor :terms_accepted, :privacy_accepted, :marketing_consent, :registration_form
