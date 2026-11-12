@@ -15,7 +15,10 @@ class MailInbound::ProcessorTest < ActiveSupport::TestCase
       body_text: "Compra realizada por $48.500 en RESTAURANTE XYZ con tarjeta terminada en 1234.",
       html: "<p>Compra realizada por $48.500 en RESTAURANTE XYZ.</p>",
       internal_date: "2026-08-23T14:30:00Z",
-      headers: [ { "name" => "From", "value" => "Banco <notificaciones@bank.example>" } ],
+      headers: [
+        { "name" => "From", "value" => "Banco <notificaciones@bank.example>" },
+        { "name" => "Authentication-Results", "value" => "mx; dkim=pass header.d=bank.example" }
+      ],
       attachments: []
     }
     @record = ProcessedEmail.create!(
@@ -83,6 +86,16 @@ class MailInbound::ProcessorTest < ActiveSupport::TestCase
     assert_equal @message[:id], expense.gmail_message_id
     assert_equal @money_source, expense.money_source
     assert_equal "processed", @record.reload.status
+  end
+
+  test "an unauthenticated sender routes transactions to review" do
+    @message[:headers] = [ { "name" => "From", "value" => @message[:from] } ]
+
+    result = processor.call(@message)
+
+    assert_equal :needs_review, result.status
+    assert_equal "needs_review", @record.reload.status
+    assert_equal 0, Expense.where(gmail_message_id: @message[:id]).count
   end
 
   test "a retry does not create a second expense" do

@@ -312,9 +312,9 @@
     "semantic_hash": "d433dbcbb161277529d867a6378f165e"
   },
   "app/services/gmail/expense_importer.rb": {
-    "mtime": 1793581977.637677,
-    "seen": 1793582558.4779022,
-    "ast_hash": "008f958ec364653e044b48a8f2424346",
+    "mtime": 1794519113.706678,
+    "seen": 1794519351.8125172,
+    "ast_hash": "9167834cbdcbd66b77cb70ed3bc51d4c",
     "semantic_hash": ""
   },
   "app/services/gmail/oauth_client.rb": {
@@ -900,9 +900,9 @@
     "semantic_hash": "efaa10682baa8ebed14a050c8e60500c"
   },
   "test/services/gmail/expense_importer_test.rb": {
-    "mtime": 1793581519.38542,
-    "seen": 1793582558.4786549,
-    "ast_hash": "9c17e3e9c89e12218ccb257e7b99ea80",
+    "mtime": 1794519021.772687,
+    "seen": 1794519351.813766,
+    "ast_hash": "7b724bcf2a19a276b3f8e31673263544",
     "semantic_hash": ""
   },
   "test/services/gmail/query_builder_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794518670.660905,
-    "seen": 1794518779.5256178,
+    "mtime": 1794519232.1308923,
+    "seen": 1794519351.814116,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5220,9 +5220,9 @@
     "semantic_hash": ""
   },
   "app/services/mail_inbound/processor.rb": {
-    "mtime": 1793034606.3280685,
-    "seen": 1793490696.6348748,
-    "ast_hash": "d0d09f1f4c85314ffa97e524d6cfdda9",
+    "mtime": 1794519113.6968777,
+    "seen": 1794519351.812592,
+    "ast_hash": "67a8eedeac86581f2bacf1c92e6a6698",
     "semantic_hash": ""
   },
   "app/services/mail_inbound/providers/base.rb": {
@@ -5310,9 +5310,9 @@
     "semantic_hash": ""
   },
   "test/services/mail_inbound/processor_test.rb": {
-    "mtime": 1792977786.0643017,
-    "seen": 1793490696.6354969,
-    "ast_hash": "d2aa652ec92c1cb426949ae9fe21c54d",
+    "mtime": 1794519013.2668598,
+    "seen": 1794519351.8138041,
+    "ast_hash": "f98f8fb3dc1ad96982d00985b9dde72f",
     "semantic_hash": ""
   },
   "test/services/mail_inbound/providers/cloudflare_test.rb": {
@@ -10053,6 +10053,18 @@
     "mtime": 1794518199.8663146,
     "seen": 1794518779.524987,
     "ast_hash": "3b788e9a7dad2b84c53ca0406d903f24",
+    "semantic_hash": ""
+  },
+  "app/services/mail_inbound/sender_authentication.rb": {
+    "mtime": 1794519113.6954544,
+    "seen": 1794519351.812607,
+    "ast_hash": "6b67391a8f45c605be8a90b55733f7f8",
+    "semantic_hash": ""
+  },
+  "test/services/mail_inbound/sender_authentication_test.rb": {
+    "mtime": 1794519013.2566056,
+    "seen": 1794519351.8138099,
+    "ast_hash": "814936ba0203b12ec5d6b22837912589",
     "semantic_hash": ""
   }
 }

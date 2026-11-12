@@ -110,6 +110,13 @@ module Gmail
       assert_equal expense.id, processed.expense_id
     end
 
+    test "an unauthenticated sender never auto-creates an expense" do
+      result = importer.call(@message, auto_create: false)
+
+      assert_equal :needs_review, result.status
+      assert_equal 0, Expense.where(gmail_message_id: "msg-100").count
+    end
+
     test "uses the configured provider and source for non-gmail email imports" do
       payment_source
       result = importer(provider: "cloudflare", source: "cloudflare").call(@message)
