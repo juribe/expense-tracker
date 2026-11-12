@@ -160,7 +160,92 @@ class MailInboundProcessJobTest < ActiveJob::TestCase
     assert_nil @record.payload_data["email"]
   end
 
+  test "ignores inbound email when the user has no active premium membership" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(@record.id)
+    end
+
+    @record.reload
+    assert_equal "ignored", @record.status
+    assert_match(/premium/i, @record.failure_reason)
+    assert_nil @record.payload_data["email"]
+    assert_empty processor.calls
+  end
+
+  test "ignores inbound email when the premium membership is expired" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(status: "active", expires_at: 1.day.ago)
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(@record.id)
+    end
+
+    @record.reload
+    assert_equal "ignored", @record.status
+    assert_match(/premium/i, @record.failure_reason)
+    assert_empty processor.calls
+  end
+
+  test "processes inbound email for a user with an active premium membership" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(status: "active", expires_at: 1.month.from_now)
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(@record.id)
+    end
+
+    assert_equal 1, processor.calls.size
+  end
+
+  test "processes inbound email when paid access is not required" do
+    PaymentEngine::Setting.current.update!(paid_access_required: false)
+    processor = FakeProcessor.new(result: result)
+
+    stub_method(MailInbound::Processor, :new, ->(*, **) { processor }) do
+      MailInboundProcessJob.perform_now(@record.id)
+    end
+
+    assert_equal 1, processor.calls.size
+  end
+
+  test "does not downgrade a terminal row when the user has no premium membership" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    @record.update!(status: "processed")
+
+    MailInboundProcessJob.perform_now(@record.id)
+
+    @record.reload
+    assert_equal "processed", @record.status
+    assert_nil @record.failure_reason
+  end
+
   test "keeps the legacy job name as a compatibility shim" do
     assert_operator InboundEmailProcessJob, :<, MailInboundProcessJob
+  end
+
+  private
+
+  def create_membership(status:, expires_at:)
+    PaymentEngine::Membership.create!(
+      owner: @user,
+      membership_type: membership_type,
+      status: status,
+      source: "purchase",
+      starts_at: 1.month.ago,
+      expires_at: expires_at
+    )
+  end
+
+  def membership_type
+    @membership_type ||= PaymentEngine::MembershipType.create!(
+      name: "Mail Inbound Process Premium",
+      code: "MAIL_INBOUND_PROCESS_#{SecureRandom.hex(6)}",
+      status: "active"
+    )
   end
 end

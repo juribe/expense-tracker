@@ -15,10 +15,16 @@ class MailInboundProcessJob < ApplicationJob
 
   def perform(processed_email_id)
     email = ProcessedEmail.find(processed_email_id)
-    return unless MailInbound::PROVIDERS.key?(email.provider)
 
     if terminal?(email)
       email.purge_email_content!
+      return
+    end
+
+    return unless MailInbound::PROVIDERS.key?(email.provider)
+
+    unless PaymentEngine::AccessPolicy.premium_access?(email.user)
+      ignore_without_premium(email)
       return
     end
 
@@ -30,6 +36,18 @@ class MailInboundProcessJob < ApplicationJob
   end
 
   private
+
+  # Access is decided before any extraction: a user without premium keeps the
+  # email as an ignored terminal row, and its content is dropped immediately.
+  def ignore_without_premium(email)
+    email.update!(
+      status: "ignored",
+      failure_reason: "premium membership required",
+      processed_at: Time.current
+    )
+    email.purge_email_content!
+    Rails.logger.info("[MailInboundProcessJob] id=#{email.id} status=ignored reason=premium_membership")
+  end
 
   # A terminal row is never reprocessed: its content may already be purged, and
   # a duplicate job must not turn a successful import into a failure. Failed
