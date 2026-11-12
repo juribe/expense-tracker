@@ -29,6 +29,11 @@ class Users::PasswordsController < Devise::PasswordsController
     if resource.errors.empty?
       resource.unlock_access! if unlockable?(resource)
 
+      if resource.second_factor_enabled? && Devise.sign_in_after_reset_password
+        start_second_factor_challenge(resource)
+        return
+      end
+
       if Devise.sign_in_after_reset_password
         flash_message = resource.active_for_authentication? ? :updated : :updated_not_active
         set_flash_message!(:notice, flash_message)
@@ -44,5 +49,15 @@ class Users::PasswordsController < Devise::PasswordsController
       set_minimum_password_length
       respond_with resource, location: nil
     end
+  end
+
+  private
+
+  # The reset token proves control of the mailbox only. Accounts protected by a
+  # second factor must complete it before a session is created.
+  def start_second_factor_challenge(resource)
+    set_flash_message!(:notice, :updated)
+    session[:current_authentication_resource_id] = resource.id
+    redirect_to new_user_two_factor_authentication_path
   end
 end

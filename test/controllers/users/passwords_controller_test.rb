@@ -9,6 +9,33 @@ class Users::PasswordsControllerTest < ActionDispatch::IntegrationTest
     @user = User.create!(name: "Reset User", email: "users_passwords@example.com", password: "password123")
   end
 
+  test "reset for a second-factor account stays pending until the second factor" do
+    user = confirmed_user(email: "mfa_reset@example.com")
+    user.create_totp_credential!(secret: TotpCredential.generate_secret)
+    token = user.send_reset_password_instructions
+
+    put user_password_path, params: {
+      user: { reset_password_token: token, password: "newpassword123", password_confirmation: "newpassword123" }
+    }
+
+    assert_redirected_to new_user_two_factor_authentication_path
+    assert_nil session["warden.user.user.key"]
+    assert_equal user.id, session[:current_authentication_resource_id]
+    assert user.reload.valid_password?("newpassword123")
+  end
+
+  test "reset without a second factor still signs in" do
+    user = confirmed_user(email: "plain_reset@example.com")
+    token = user.send_reset_password_instructions
+
+    put user_password_path, params: {
+      user: { reset_password_token: token, password: "newpassword123", password_confirmation: "newpassword123" }
+    }
+
+    assert session["warden.user.user.key"].present?
+    assert_nil session[:current_authentication_resource_id]
+  end
+
   test "POST rate limits the reset request after 5 posts in a minute" do
     original_cache = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new
@@ -25,5 +52,17 @@ class Users::PasswordsControllerTest < ActionDispatch::IntegrationTest
     ensure
       Rails.cache = original_cache
     end
+  end
+
+  private
+
+  def confirmed_user(email:)
+    User.create!(
+      name: "Reset User",
+      email: email,
+      password: "password123",
+      password_confirmation: "password123",
+      confirmed_at: Time.current
+    )
   end
 end
