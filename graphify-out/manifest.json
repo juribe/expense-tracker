@@ -330,15 +330,15 @@
     "semantic_hash": ""
   },
   "app/services/gmail/sync_service.rb": {
-    "mtime": 1793581883.5338702,
-    "seen": 1793582558.477908,
-    "ast_hash": "ab31798bc501322280d9ded3e8b7d30d",
+    "mtime": 1794518389.919374,
+    "seen": 1794518779.523984,
+    "ast_hash": "e0cab917273872a14d3da95676f0b854",
     "semantic_hash": ""
   },
   "app/services/import_pipeline.rb": {
-    "mtime": 1792254675.8037481,
-    "seen": 1793490696.634858,
-    "ast_hash": "0e00ba0b6fbbd0e61c3132aa4ec04854",
+    "mtime": 1794518389.9199622,
+    "seen": 1794518779.524033,
+    "ast_hash": "582a6feb68256cdcc6c591a9cdea6986",
     "semantic_hash": ""
   },
   "app/services/money_format.rb": {
@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "config/initializers/filter_parameter_logging.rb": {
-    "mtime": 1794070433.904896,
-    "seen": 1794072545.725054,
-    "ast_hash": "f38b9a68633a060819f791746763094d",
+    "mtime": 1794518389.9104302,
+    "seen": 1794518779.524307,
+    "ast_hash": "dab5d44f6f20305855f4ec9959422fe2",
     "semantic_hash": ""
   },
   "config/initializers/inflections.rb": {
@@ -918,9 +918,9 @@
     "semantic_hash": ""
   },
   "test/services/import_pipeline_test.rb": {
-    "mtime": 1792254156.9051611,
-    "seen": 1793490696.635486,
-    "ast_hash": "2216d58487cd4576791a252e7d3a80b8",
+    "mtime": 1794518199.8718772,
+    "seen": 1794518779.525284,
+    "ast_hash": "7b05ad6255da1f0a721f130ec42b26fc",
     "semantic_hash": ""
   },
   "test/services/money_sources/match_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794517872.5544727,
-    "seen": 1794517998.337131,
+    "mtime": 1794518670.660905,
+    "seen": 1794518779.5256178,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2634,9 +2634,9 @@
     "semantic_hash": ""
   },
   "app/services/web_hook_handler/whatsapp_service.rb": {
-    "mtime": 1794485794.8654416,
-    "seen": 1794486176.384833,
-    "ast_hash": "99587262715f5a6d5df3b5ba5579fdea",
+    "mtime": 1794518389.913136,
+    "seen": 1794518779.524251,
+    "ast_hash": "f2bcac700a18c176bcfe1370e8f18530",
     "semantic_hash": ""
   },
   "test/controllers/webhooks/whatsapp_controller_test.rb": {
@@ -2646,9 +2646,9 @@
     "semantic_hash": ""
   },
   "test/services/web_hook_handler/whatsapp_service_test.rb": {
-    "mtime": 1794485819.0953727,
-    "seen": 1794486176.386007,
-    "ast_hash": "84d6fe7cf8130576ca77f930e30c5325",
+    "mtime": 1794518199.8719132,
+    "seen": 1794518779.525443,
+    "ast_hash": "e7b87e0811c0ccc043af1a7c6ee47be3",
     "semantic_hash": ""
   },
   "app/controllers/whatsapp_settings_controller.rb": {
@@ -2766,9 +2766,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/clarification/resolver.rb": {
-    "mtime": 1793464915.9181156,
-    "seen": 1793490696.634775,
-    "ast_hash": "0bdf020a85f76de319dfdc9ecc01045b",
+    "mtime": 1794518389.936446,
+    "seen": 1794518779.5238662,
+    "ast_hash": "40f96b9eac8035e42e3dfd922cfa77a4",
     "semantic_hash": ""
   },
   "app/services/whatsapp/garbage_filter.rb": {
@@ -6234,9 +6234,9 @@
     "semantic_hash": ""
   },
   "app/lib/mcp/server_factory.rb": {
-    "mtime": 1793486580.6494842,
-    "seen": 1793490696.6345038,
-    "ast_hash": "6268e4290404938ffae953e760ac8bbe",
+    "mtime": 1794518389.9104319,
+    "seen": 1794518779.523519,
+    "ast_hash": "13c88addacb73b864b9ca51707deb155",
     "semantic_hash": ""
   },
   "app/lib/mcp/tool_arguments.rb": {
@@ -10035,6 +10035,24 @@
     "mtime": 1794517490.8985384,
     "seen": 1794517998.336342,
     "ast_hash": "edf85decd8670592e20c3d0be6b4ec5a",
+    "semantic_hash": ""
+  },
+  "app/lib/mcp/safe_logger.rb": {
+    "mtime": 1794518389.9132192,
+    "seen": 1794518779.523517,
+    "ast_hash": "a8b52de4864a91e9cd80b2f5657448b9",
+    "semantic_hash": ""
+  },
+  "test/config/filter_parameter_logging_test.rb": {
+    "mtime": 1794518633.6154366,
+    "seen": 1794518779.5247822,
+    "ast_hash": "0d20a38347b24105d78c53a80d4fa8d0",
+    "semantic_hash": ""
+  },
+  "test/lib/mcp/safe_logger_test.rb": {
+    "mtime": 1794518199.8663146,
+    "seen": 1794518779.524987,
+    "ast_hash": "3b788e9a7dad2b84c53ca0406d903f24",
     "semantic_hash": ""
   }
 }

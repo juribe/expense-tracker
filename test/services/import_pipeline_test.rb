@@ -36,6 +36,31 @@ class ImportPipelineTest < ActiveSupport::TestCase
     FakeExtractor.new({ ok?: true, data: data, error: nil })
   end
 
+  test "does not log the extracted content" do
+    data = {
+      sources: [],
+      transactions: [ { date: "2026-08-01", description: "CANARIO-SECRETO", amount: "-10000", type: "expense" } ]
+    }
+    csv = "date,description,amount\n2026-08-01,CANARIO-SECRETO,-10000\n"
+
+    log = capture_log do
+      ImportPipeline.new(user: @user, extractor: successful_extractor(data))
+                    .call(file: uploaded_file(csv, "statement.csv"))
+    end
+
+    refute_includes log, "CANARIO-SECRETO"
+  end
+
+  def capture_log
+    original = Rails.logger
+    io = StringIO.new
+    Rails.logger = ActiveSupport::TaggedLogging.new(Logger.new(io))
+    yield
+    io.string
+  ensure
+    Rails.logger = original
+  end
+
   test "rejects a missing file" do
     result = ImportPipeline.new(user: @user, extractor: successful_extractor).call(file: nil)
     assert_not result.ok?

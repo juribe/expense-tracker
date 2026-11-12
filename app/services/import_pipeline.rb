@@ -35,7 +35,9 @@ class ImportPipeline
       Rails.logger.error "[ImportPipeline] AI extractor returned NIL"
       return failure("AI extractor returned no result")
     end
-    Rails.logger.info "[ImportPipeline] AI extraction result: #{extraction.inspect}"
+    Rails.logger.info "[ImportPipeline] AI extraction completed. " \
+                      "Sources: #{Array(extraction.dig(:data, :sources)).size}, " \
+                      "Transactions: #{Array(extraction.dig(:data, :transactions)).size}"
     return failure(extraction[:error]) unless extraction[:ok?]
 
     sources = build_sources(extraction.dig(:data, :sources) || [])

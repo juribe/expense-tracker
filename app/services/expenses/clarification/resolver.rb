@@ -64,8 +64,7 @@ module Expenses
             return [ :stale, nil ]
           end
 
-          Rails.logger.info "[Clarification::Resolver] Reply for session=#{clarification.id}: " \
-                            "#{reply_text.to_s.strip[0, 80].inspect} " \
+          Rails.logger.info "[Clarification::Resolver] Reply for session=#{clarification.id} " \
                             "(pending=#{clarification.pending_candidates.count})"
 
           # A pending category proposal short-circuits the LLM: a textual
@@ -100,9 +99,9 @@ module Expenses
 
           data = result.data
           Rails.logger.info "[Clarification::Resolver] LLM result for session=#{clarification.id}: " \
-                            "resolutions=#{Array(data[:resolutions]).inspect[0, 200]} " \
-                            "new_category=#{data[:new_category_name].inspect} " \
-                            "new_expense=#{data[:new_expense_text].inspect}"
+                            "resolutions=#{Array(data[:resolutions]).size} " \
+                            "new_category=#{data[:new_category_name].present?} " \
+                            "new_expense=#{data[:new_expense_text].present?}"
 
           # The user clearly named a category that does not exist: propose it
           # with Sí/No buttons instead of creating it right away. This turn

@@ -35,7 +35,7 @@ module WebHookHandler
         end
 
         Rails.logger.info "[WhatsappService] Inbound event mid=#{event.mid} " \
-                          "type=#{event.message.type} text=#{event.text.to_s.strip[0, 80].inspect}"
+                          "type=#{event.message.type}"
 
         if connect_command?(event)
           Rails.logger.info "[WhatsappService] CONNECT command received"

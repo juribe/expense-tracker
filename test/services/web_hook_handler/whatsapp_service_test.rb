@@ -51,6 +51,24 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     }.to_json
   end
 
+  test "does not log the message text" do
+    log = capture_log do
+      WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "CANARIO mercado 98765"))
+    end
+
+    refute_includes log, "CANARIO"
+  end
+
+  def capture_log
+    original = Rails.logger
+    io = StringIO.new
+    Rails.logger = ActiveSupport::TaggedLogging.new(Logger.new(io))
+    yield
+    io.string
+  ensure
+    Rails.logger = original
+  end
+
   def connect_user!
     identity = WhatsappIdentity.claim_for!(@user, OWNER_WA_ID)
     WhatsappConnection.create!(user: @user, whatsapp_identity: identity, connected_at: Time.current)

@@ -64,8 +64,9 @@ module Mcp
     end
 
     def build
-      server = ::FastMcp::Server.new(name: NAME, version: VERSION, logger: Rails.logger)
-      server.transport = Mcp::HttpTransport.new(server, logger: Rails.logger)
+      logger = Mcp::SafeLogger.new(Rails.logger)
+      server = ::FastMcp::Server.new(name: NAME, version: VERSION, logger: logger)
+      server.transport = Mcp::HttpTransport.new(server, logger: logger)
       server.register_tools(*allowed_tools)
       server
     end
