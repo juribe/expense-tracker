@@ -321,6 +321,9 @@ Rails.application.routes.draw do
   # Dashboard is the app's home
   mount PaymentEngine::Engine => "/payment_engine"
 
+  # Development-only web UI for the emails captured by letter_opener.
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+
   get "plans", to: "plans#index", as: :plans
   get "profile", to: "profiles#show", as: :profile
   patch "profile/communications", to: "profiles#update_communications", as: :profile_communications

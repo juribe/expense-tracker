@@ -116,6 +116,18 @@ background jobs. The form includes a honeypot, per-IP rate limiting and a short
 deduplication window; it does not use a CAPTCHA. The internal recipient is never
 rendered on the public page.
 
+### Email previews in development
+
+Development captures outgoing mail with `letter_opener` in `tmp/letter_opener`.
+Open the web inbox at:
+
+```text
+http://localhost:3000/letter_opener
+```
+
+The web inbox works even when the server cannot launch a desktop browser
+automatically.
+
 When deploying new pages from `app/theme/theme.yml`, create only the missing
 Maglev pages without overwriting edited content:
 

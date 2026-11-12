@@ -80,6 +80,8 @@ group :development do
 
   # Preview emails in the browser instead of sending them in development.
   gem "letter_opener"
+  # Web UI at /letter_opener, more reliable than auto-opening a browser.
+  gem "letter_opener_web", "~> 3.0"
 end
 
 group :test do
