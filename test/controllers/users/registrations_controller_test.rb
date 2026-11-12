@@ -209,6 +209,73 @@ class Users::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "new-email@example.com", @user.unconfirmed_email
   end
 
+  test "deleting the account without the current password is rejected" do
+    assert_no_difference("User.count") do
+      delete user_registration_path, params: { confirmation: "ELIMINAR" }
+    end
+
+    assert_redirected_to profile_path
+    assert User.exists?(@user.id)
+  end
+
+  test "deleting the account without the confirmation word is rejected" do
+    assert_no_difference("User.count") do
+      delete user_registration_path, params: { current_password: "password123", confirmation: "BORRAR" }
+    end
+
+    assert_redirected_to profile_path
+    assert User.exists?(@user.id)
+  end
+
+  test "deleting an account without a second factor requires password and word" do
+    assert_difference("User.count", -1) do
+      delete user_registration_path, params: { current_password: "password123", confirmation: "ELIMINAR" }
+    end
+
+    assert_redirected_to root_path
+  end
+
+  test "deleting a second-factor account without the code is rejected" do
+    @user.create_totp_credential!(secret: TotpCredential.generate_secret)
+
+    assert_no_difference("User.count") do
+      delete user_registration_path, params: { current_password: "password123", confirmation: "ELIMINAR" }
+    end
+
+    assert_redirected_to profile_path
+    assert User.exists?(@user.id)
+  end
+
+  test "deleting a second-factor account with a TOTP code succeeds" do
+    credential = @user.create_totp_credential!(secret: TotpCredential.generate_secret)
+    code = ROTP::TOTP.new(credential.secret).now
+
+    assert_difference("User.count", -1) do
+      delete user_registration_path, params: {
+        current_password: "password123",
+        confirmation: "ELIMINAR",
+        totp_code: code
+      }
+    end
+
+    assert_redirected_to root_path
+  end
+
+  test "deleting a second-factor account with a recovery code succeeds" do
+    @user.create_totp_credential!(secret: TotpCredential.generate_secret)
+    recovery_code = RecoveryCode.generate_for(@user).first
+
+    assert_difference("User.count", -1) do
+      delete user_registration_path, params: {
+        current_password: "password123",
+        confirmation: "ELIMINAR",
+        recovery_code: recovery_code
+      }
+    end
+
+    assert_redirected_to root_path
+  end
+
   private
 
   def sign_up_params(overrides = {})

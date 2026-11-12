@@ -93,9 +93,34 @@
           <h2>¿Quieres dejar Yogasto?</h2>
           <p>Si decides cancelar tu cuenta, se eliminará tu acceso y la información asociada según nuestra política de eliminación de datos. Esta acción es permanente.</p>
         </div>
-        <%= button_to "Cancelar mi cuenta", registration_path(:user),
-              data: { confirm: "¿Estás seguro?", turbo_confirm: "¿Estás seguro?" },
-              method: :delete, class: "btn btn-danger" %>
+        <%= form_with url: registration_path(:user), method: :delete, local: true do %>
+          <div class="mb-2">
+            <%= label_tag :current_password, "Contraseña actual", class: "form-label" %>
+            <%= password_field_tag :current_password, nil, class: "form-control",
+                  required: true, autocomplete: "current-password" %>
+          </div>
+
+          <% if current_user.second_factor_enabled? %>
+            <div class="mb-2">
+              <%= label_tag :totp_code, "Código de verificación", class: "form-label" %>
+              <%= text_field_tag :totp_code, nil, class: "form-control",
+                    inputmode: "numeric", autocomplete: "one-time-code" %>
+            </div>
+            <div class="mb-2">
+              <%= label_tag :recovery_code, "o un código de recuperación", class: "form-label" %>
+              <%= text_field_tag :recovery_code, nil, class: "form-control", autocomplete: "off" %>
+            </div>
+          <% end %>
+
+          <div class="mb-2">
+            <%= label_tag :confirmation, "Escribe ELIMINAR para confirmar", class: "form-label" %>
+            <%= text_field_tag :confirmation, nil, class: "form-control",
+                  required: true, autocomplete: "off" %>
+          </div>
+
+          <%= submit_tag "Cancelar mi cuenta", class: "btn btn-danger",
+                data: { turbo_confirm: "¿Estás seguro?" } %>
+        <% end %>
       </section>
     </div>
 
