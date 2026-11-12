@@ -4,6 +4,7 @@ require "test_helper"
 
 class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PublicCmsTestSupport
 
   setup do
     @user = User.create!(
@@ -33,6 +34,12 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_select "button[type='submit']", text: I18n.t("auth.sign_up")
     assert_select "a[href='#{new_user_session_path}']", text: I18n.t("auth.log_in")
     assert_select "a[href='#{new_user_confirmation_path}']", text: I18n.t("auth.resend_confirmation")
+  end
+
+  test "password visibility toggles are not in the tab order on sign up" do
+    get new_user_registration_path
+
+    assert_select ".auth-toggle[tabindex='-1']", count: 2
   end
 
   test "sign up page makes legal consents required and leaves marketing optional" do
@@ -127,6 +134,27 @@ class DeviseAuthFlowsTest < ActionDispatch::IntegrationTest
     assert_equal 2, user.user_consents.legal.count
     assert_equal 1, user.user_consents.marketing.count
     assert_redirected_to root_path
+  end
+
+  test "sign up lands on the home page with the confirmation email notice" do
+    create_maglev_site!
+
+    post user_registration_path, params: {
+      user: {
+        name: "Jane Doe",
+        email: "jane@example.com",
+        password: "password123",
+        password_confirmation: "password123",
+        terms_accepted: "1",
+        privacy_accepted: "1",
+        marketing_consent: "0"
+      }
+    }
+    assert_redirected_to root_path
+    follow_redirect!
+
+    assert_response :success
+    assert_select "#flashTitle", text: I18n.t("devise.registrations.signed_up_but_unconfirmed")
   end
 
   test "sign up with mismatched passwords re-renders the form with errors" do

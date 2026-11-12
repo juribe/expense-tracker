@@ -45,6 +45,35 @@
   </head>
   <body class="<%= "security-page" if maglev_page.path == "seguridad" %>">
     <main data-maglev-dropzone>
+      <%
+        flash_type = flash[:notice].present? ? "success" : (flash[:alert].present? ? "error" : (flash[:info].present? ? "info" : nil))
+        flash_message = flash[:notice].presence || flash[:alert].presence || flash[:info]
+      %>
+      <% if !help_center_page?(maglev_page) && flash_type.present? %>
+        <div class="flash-wrap" id="flashWrap" aria-live="polite">
+          <div class="flash <%= flash_type %>" id="flash">
+            <div class="flash-icon" id="flashIcon">
+              <% if flash_type == "success" %>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+              <% elsif flash_type == "error" %>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/></svg>
+              <% else %>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v-4m0-4h.01"/><circle cx="12" cy="12" r="9"/></svg>
+              <% end %>
+            </div>
+            <div class="flash-copy">
+              <div class="flash-title" id="flashTitle"><%= flash_message %></div>
+              <% if flash[:flash_description].present? %>
+                <div class="flash-desc" id="flashDesc"><%= flash[:flash_description] %></div>
+              <% end %>
+            </div>
+            <button class="flash-close" id="flashClose" aria-label="Cerrar notificación">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+            <div class="flash-progress"></div>
+          </div>
+        </div>
+      <% end %>
       <% if help_center_page?(maglev_page) && (flash[:notice].present? || flash[:alert].present?) %>
         <div class="help-flash-wrap">
           <div class="help-center-container">
