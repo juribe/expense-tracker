@@ -14,6 +14,12 @@ module Statements
     class RowCompiler
       class InvalidSpec < StandardError; end
 
+      SUPPORTED_TOKENS = %w[date ref description amount installments ignore].freeze
+      MAX_FIELDS = 12
+      # A learned recipe is applied to every line of the uploaded statement;
+      # cap the matching time so one ambiguous line cannot pin a worker.
+      DEFAULT_TIMEOUT = 0.5
+
       DATE_PATTERNS = {
         "DD/MM/YYYY" => '\\d{2}/\\d{2}/\\d{4}',
         "DD-MM-YYYY" => '\\d{2}-\\d{2}-\\d{4}',
@@ -21,18 +27,19 @@ module Statements
       }.freeze
       DEFAULT_DATE_PATTERN = '\\d{2}[/-]\\d{2}[/-]\\d{4}'
 
-      def self.compile(row_spec)
-        new(row_spec).compile
+      def self.compile(row_spec, timeout: DEFAULT_TIMEOUT)
+        new(row_spec, timeout: timeout).compile
       end
 
-      def initialize(row_spec)
+      def initialize(row_spec, timeout: DEFAULT_TIMEOUT)
         @row_spec = (row_spec || {}).to_h
         @fields = Array(@row_spec["fields"])
+        @timeout = timeout
       end
 
       def compile
         validate!
-        Regexp.new("\\A\\s*#{fragments.join('\\s*')}\\z")
+        Regexp.new("\\A\\s*#{fragments.join('\\s*')}\\z", timeout: @timeout)
       end
 
       private
@@ -40,8 +47,12 @@ module Statements
       def validate!
         tokens = @fields.map { |field| field["token"].to_s }
         raise InvalidSpec, "row spec has no fields" if tokens.empty?
+        raise InvalidSpec, "row spec has too many fields" if tokens.size > MAX_FIELDS
         raise InvalidSpec, "row spec is missing a date token" unless tokens.include?("date")
         raise InvalidSpec, "row spec is missing an amount token" unless tokens.include?("amount")
+
+        unknown = tokens - SUPPORTED_TOKENS
+        raise InvalidSpec, "row spec has unknown tokens: #{unknown.join(', ')}" if unknown.any?
       end
 
       def fragments
@@ -55,7 +66,8 @@ module Statements
         when "description" then description_fragment(field)
         when "amount" then amount_fragment(field)
         when "installments" then '(?<installments>\d+/\d+)'
-        else ".*"
+        when "ignore" then "[^\\n|]*"
+        else raise InvalidSpec, "unknown token: #{field['token']}"
         end
       end
 
