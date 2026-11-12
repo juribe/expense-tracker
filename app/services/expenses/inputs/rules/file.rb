@@ -8,7 +8,7 @@ module Expenses
       # input class and are reached through the extended singleton.
       module File
         SUPPORTED_EXTENSIONS = %w[pdf csv xlsx xls].freeze
-        FILE_MAX_BYTES = 20.megabytes
+        FILE_MAX_BYTES = 5.megabytes
 
         def file_errors(input)
           errors = []

@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "app/services/import_pipeline.rb": {
-    "mtime": 1794518389.9199622,
-    "seen": 1794518779.524033,
-    "ast_hash": "582a6feb68256cdcc6c591a9cdea6986",
+    "mtime": 1794524400.6930778,
+    "seen": 1794524628.742722,
+    "ast_hash": "0694bf9411a873487d92fc1753c09f4b",
     "semantic_hash": ""
   },
   "app/services/money_format.rb": {
@@ -918,9 +918,9 @@
     "semantic_hash": ""
   },
   "test/services/import_pipeline_test.rb": {
-    "mtime": 1794518199.8718772,
-    "seen": 1794518779.525284,
-    "ast_hash": "7b05ad6255da1f0a721f130ec42b26fc",
+    "mtime": 1794524340.0910826,
+    "seen": 1794524628.7439559,
+    "ast_hash": "c2173504e48cdab2730925ef837890d2",
     "semantic_hash": ""
   },
   "test/services/money_sources/match_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794523402.985843,
-    "seen": 1794523588.030129,
-    "ast_hash": "f0b5c5a52473ef52da1f24d70bc1c738",
+    "mtime": 1794524409.9012818,
+    "seen": 1794524628.744274,
+    "ast_hash": "129f320c9a64eb5aa5e907de04e0e29b",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794523402.9858456,
-    "seen": 1794523588.0301309,
-    "ast_hash": "660353bcf3babc78e6cc31dcd473e7e2",
+    "mtime": 1794524400.677718,
+    "seen": 1794524628.7442749,
+    "ast_hash": "969586b0148fa987da48b636593bf9be",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794523454.007214,
-    "seen": 1794523588.030139,
+    "mtime": 1794524501.2470405,
+    "seen": 1794524628.744283,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2022,9 +2022,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/inputs/rules/file.rb": {
-    "mtime": 1793311634.5017302,
-    "seen": 1793490696.6348128,
-    "ast_hash": "4537d058d16d8c33d2a21e72a3359a2c",
+    "mtime": 1794524400.660331,
+    "seen": 1794524628.742603,
+    "ast_hash": "55caec07a42314ba02327b8dd850f5b5",
     "semantic_hash": ""
   },
   "app/services/expenses/inputs/rules/image.rb": {
@@ -2556,9 +2556,9 @@
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/readers/csv.rb": {
-    "mtime": 1790560256.3659258,
-    "seen": 1793490696.634793,
-    "ast_hash": "6576c2413dd30510b1a63c9314b30c23",
+    "mtime": 1794524400.6930888,
+    "seen": 1794524628.742579,
+    "ast_hash": "bef10e5927cc1055912dc70c559fd71b",
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/readers/extraction.rb": {
@@ -2568,15 +2568,15 @@
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/readers/pdf.rb": {
-    "mtime": 1790560256.3664618,
-    "seen": 1793490696.634795,
-    "ast_hash": "3b763eeec02f6096de1f2533d072c5da",
+    "mtime": 1794524400.693095,
+    "seen": 1794524628.742583,
+    "ast_hash": "6c9372a5a29f42fe8fb8d3161c0e1b94",
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/readers/xlsx.rb": {
-    "mtime": 1790560256.3667653,
-    "seen": 1793490696.634797,
-    "ast_hash": "633eec6acc46785bf0861dba7bd2ddf6",
+    "mtime": 1794524400.702913,
+    "seen": 1794524628.742584,
+    "ast_hash": "a0e6adc84aebadccc42aec6efa6a7249",
     "semantic_hash": ""
   },
   "app/services/expenses/file_import/result.rb": {
@@ -10083,6 +10083,12 @@
     "mtime": 1794520836.8734565,
     "seen": 1794521307.17009,
     "ast_hash": "d7972c280a43e0bf2520429932a7368f",
+    "semantic_hash": ""
+  },
+  "test/services/expenses/file_import/readers/limits_test.rb": {
+    "mtime": 1794524340.0911355,
+    "seen": 1794524628.743902,
+    "ast_hash": "96410c4b5b88675f72b099ade2d03b19",
     "semantic_hash": ""
   }
 }

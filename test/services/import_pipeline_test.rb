@@ -74,6 +74,23 @@ class ImportPipelineTest < ActiveSupport::TestCase
     assert_equal I18n.t("wizard.upload.unsupported_type"), result.error
   end
 
+  test "rejects a zip upload" do
+    result = ImportPipeline.new(user: @user, extractor: successful_extractor)
+                           .call(file: uploaded_file("PK\u0003\u0004", "statement.zip"))
+
+    assert_not result.ok?
+    assert_equal I18n.t("wizard.upload.unsupported_type"), result.error
+  end
+
+  test "rejects an upload over the size limit" do
+    large = "x" * (Expenses::Inputs::Rules::File::FILE_MAX_BYTES + 10)
+    result = ImportPipeline.new(user: @user, extractor: successful_extractor)
+                           .call(file: uploaded_file(large, "statement.csv"))
+
+    assert_not result.ok?
+    assert_equal I18n.t("wizard.upload.file_too_large"), result.error
+  end
+
   test "rejects an empty file" do
     result = ImportPipeline.new(user: @user, extractor: successful_extractor)
                            .call(file: uploaded_file("", "statement.csv"))

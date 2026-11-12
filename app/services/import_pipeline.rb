@@ -59,11 +59,18 @@ class ImportPipeline
   def validate_upload(file)
     return I18n.t("wizard.upload.no_file") if file.blank?
     return I18n.t("wizard.upload.empty_file") if file.respond_to?(:size) && file.size.zero?
+    return I18n.t("wizard.upload.file_too_large") if upload_size(file) > Expenses::Inputs::Rules::File::FILE_MAX_BYTES
 
     original = file.respond_to?(:original_filename) ? file.original_filename : file.path.to_s
     return I18n.t("wizard.upload.unsupported_type") unless SUPPORTED_FORMATS.include?(File.extname(original.to_s).downcase)
 
     nil
+  end
+
+  def upload_size(file)
+    return file.size if file.respond_to?(:size)
+
+    File.size(file.path)
   end
 
   def detect_format(file)

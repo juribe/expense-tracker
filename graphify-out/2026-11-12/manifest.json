@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1794081331.8849201,
-    "seen": 1794081772.442094,
-    "ast_hash": "b6828df9868640098d2bcef4c42916ba",
+    "mtime": 1794523275.182047,
+    "seen": 1794523588.027681,
+    "ast_hash": "5c937f0fda56ee1e95b66523d3f05207",
     "semantic_hash": ""
   },
   "app/controllers/categories_controller.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794521052.03905,
-    "seen": 1794521307.170662,
-    "ast_hash": "81e88beda0ed61c1bc67a9c8bd7149fd",
+    "mtime": 1794523402.985843,
+    "seen": 1794523588.030129,
+    "ast_hash": "f0b5c5a52473ef52da1f24d70bc1c738",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794520902.6975608,
-    "seen": 1794521307.1706629,
-    "ast_hash": "b8fa624413bf4a7c36f5419c5c352af9",
+    "mtime": 1794523402.9858456,
+    "seen": 1794523588.0301309,
+    "ast_hash": "660353bcf3babc78e6cc31dcd473e7e2",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794522573.875823,
-    "seen": 1794522666.823646,
+    "mtime": 1794523454.007214,
+    "seen": 1794523588.030139,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -8454,9 +8454,9 @@
     "semantic_hash": ""
   },
   "test/integration/maglev_editor_authorization_test.rb": {
-    "mtime": 1793931180.9820347,
-    "seen": 1793932183.014549,
-    "ast_hash": "e56133724a1284d5b9e613ea1733a90d",
+    "mtime": 1794523191.8638892,
+    "seen": 1794523588.029411,
+    "ast_hash": "1764ccf2b9535c0f5bbdd0dacc5276f0",
     "semantic_hash": ""
   },
   "test/integration/public_cms_home_test.rb": {
@@ -9810,9 +9810,9 @@
     "semantic_hash": ""
   },
   "test/integration/sidebar_navigation_test.rb": {
-    "mtime": 1794417161.8107781,
-    "seen": 1794417334.5580192,
-    "ast_hash": "b1a96dd0b0b792c9cd10a61bfd47b8e3",
+    "mtime": 1794523376.379745,
+    "seen": 1794523588.02946,
+    "ast_hash": "4beba4f8ee7b2781731a61eb8636ef26",
     "semantic_hash": ""
   },
   "test/integration/premium_sections_access_test.rb": {

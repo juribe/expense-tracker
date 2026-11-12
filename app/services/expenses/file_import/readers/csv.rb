@@ -9,6 +9,8 @@ module Expenses
       # text the AI statement extractor would receive when the deterministic
       # pass fails, and the raw rows + headers the deterministic pass walks.
       class Csv < Base
+        MAX_ROWS = 200
+
         def call
           table = parse_csv
           return Extraction.empty if table.nil? || table.empty?
@@ -17,6 +19,8 @@ module Expenses
           rows = []
           lines = []
           table.each do |row|
+            break if rows.size >= MAX_ROWS
+
             fields = headers.map { |header| row[header].to_s.strip }.reject(&:blank?)
             lines << fields.join(" | ")
             rows << row.fields
