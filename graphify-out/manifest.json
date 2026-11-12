@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1794496655.037383,
-    "seen": 1794496894.974308,
-    "ast_hash": "0f053a9000dac5f7720339aeba4c94d8",
+    "mtime": 1794512757.772661,
+    "seen": 1794513078.5962062,
+    "ast_hash": "a42094f01b63d9bf96fa7add5b0f3b71",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794512237.2731445,
-    "seen": 1794512367.339054,
+    "mtime": 1794512951.2901733,
+    "seen": 1794513078.597375,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -7764,9 +7764,9 @@
     "semantic_hash": ""
   },
   "payment_engine/app/services/payment_engine/payments/verify.rb": {
-    "mtime": 1793739287.6546924,
-    "seen": 1793739495.741546,
-    "ast_hash": "dd1aab0846918025414a221d69dd7e9f",
+    "mtime": 1794513029.78428,
+    "seen": 1794513078.5963159,
+    "ast_hash": "bf3ad11986a1b24ab243fd60812acc50",
     "semantic_hash": ""
   },
   "payment_engine/lib/payment_engine/events.rb": {
@@ -7836,9 +7836,9 @@
     "semantic_hash": ""
   },
   "test/integration/payment_engine_renewal_test.rb": {
-    "mtime": 1793738646.554638,
-    "seen": 1793738999.785367,
-    "ast_hash": "9420d075340b1a65700d84ed07ced285",
+    "mtime": 1794512862.150966,
+    "seen": 1794513078.596692,
+    "ast_hash": "5e1df88e538a722872315a31a6c3d760",
     "semantic_hash": ""
   },
   "test/integration/payment_engine_subscriptions_test.rb": {
@@ -7866,9 +7866,9 @@
     "semantic_hash": ""
   },
   "test/integration/checkout_status_test.rb": {
-    "mtime": 1793830346.2158117,
-    "seen": 1793830525.885689,
-    "ast_hash": "bc451dec191c14313b98b2056277b6b3",
+    "mtime": 1794512649.2113895,
+    "seen": 1794513078.596664,
+    "ast_hash": "525a29db882bf424acfc9591dd6f7d03",
     "semantic_hash": ""
   },
   "config/initializers/active_record_encryption.rb": {
@@ -10017,6 +10017,12 @@
     "mtime": 1794498101.9350848,
     "seen": 1794498462.4584908,
     "ast_hash": "46b05729fef8f773836308309c454a2c",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261112152000_add_unique_external_reference_to_payment_engine_payments.rb": {
+    "mtime": 1794512732.0354927,
+    "seen": 1794513078.596203,
+    "ast_hash": "2900a2568fddcdc1939a5ec0ae822849",
     "semantic_hash": ""
   }
 }

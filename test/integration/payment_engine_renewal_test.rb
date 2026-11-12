@@ -1,6 +1,24 @@
 require "test_helper"
 require "digest"
 
+# Returns a provider transaction bound to the purchase id used as reference.
+class RenewalVerifyProvider < PaymentEngine::Providers::Base
+  def fetch_payment(provider_transaction_id:)
+    PaymentEngine::Result.success(
+      data: {
+        "success" => true,
+        "data" => {
+          "x_cod_response" => "1",
+          "x_id_factura" => provider_transaction_id,
+          "x_amount" => "14900.00",
+          "x_currency_code" => "COP"
+        }
+      }
+    )
+  end
+end
+PaymentEngine.register_provider(:renewal_verify, RenewalVerifyProvider)
+
 # Covers the early-renewal rule: remaining subscription time is preserved.
 class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
@@ -211,7 +229,7 @@ class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
 
     purchase = PaymentEngine::Purchase.create!(owner: @owner, payment_option: @monthly, amount: 14_900, currency: "COP", status: "pending")
 
-    result = PaymentEngine::Payments::Verify.call(provider: "fake", reference: "ref-verify", purchase: purchase)
+    result = PaymentEngine::Payments::Verify.call(provider: "renewal_verify", reference: purchase.id.to_s, purchase: purchase)
     assert result.success?
     assert_equal "succeeded", result.data[:state]
 
@@ -219,7 +237,7 @@ class PaymentEngineRenewalTest < ActionDispatch::IntegrationTest
     first_expires = purchase.reload.membership.expires_at.to_i
     assert_in_range expected, (first_expires - 2)..(first_expires + 2)
 
-    again = PaymentEngine::Payments::Verify.call(provider: "fake", reference: "ref-verify", purchase: purchase.reload)
+    again = PaymentEngine::Payments::Verify.call(provider: "renewal_verify", reference: purchase.id.to_s, purchase: purchase.reload)
     assert again.success?
     assert_equal first_expires, purchase.reload.membership.expires_at.to_i
   end

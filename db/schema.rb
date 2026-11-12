@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_12_152000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -845,6 +845,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
     t.text "error_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["external_reference"], name: "index_payment_engine_payments_on_external_reference", unique: true, where: "((external_reference IS NOT NULL) AND ((external_reference)::text <> ''::text))"
     t.index ["purchase_id"], name: "index_payment_engine_payments_on_purchase_id"
   end
 
