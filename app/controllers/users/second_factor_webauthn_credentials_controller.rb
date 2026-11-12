@@ -4,6 +4,7 @@ class Users::SecondFactorWebauthnCredentialsController < Devise::SecondFactorWeb
   include SecurityReauthentication
 
   before_action :require_recent_reauthentication
+  before_action :require_current_second_factor, only: :create, if: -> { resource.second_factor_enabled? }
   before_action :ensure_challenge_fresh, only: :create
 
   def new

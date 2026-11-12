@@ -158,13 +158,6 @@ class SecuritySettingsController < ApplicationController
     redirect_to security_settings_path, alert: t("security.second_factor.required")
   end
 
-  def current_second_factor_valid?
-    return true if current_user.totp_credential&.verify_and_consume!(params[:totp_code])
-    return true if RecoveryCode.consume!(current_user, params[:recovery_code]).present?
-
-    false
-  end
-
   def pending_totp_setup
     setup = session[TOTP_SETUP_SESSION_KEY]
     return nil unless setup.is_a?(Hash)

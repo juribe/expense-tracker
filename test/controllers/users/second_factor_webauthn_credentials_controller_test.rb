@@ -22,6 +22,38 @@ class Users::SecondFactorWebauthnCredentialsControllerTest < ActionDispatch::Int
                  flash[:notice]
   end
 
+  test "adding another credential to an MFA account requires the current code" do
+    @user.create_totp_credential!(secret: TotpCredential.generate_secret)
+    post reauthenticate_security_settings_path, params: { current_password: "password123" }
+    post user_security_key_registration_options_path
+    options = JSON.parse(response.body)
+    credential = webauthn_client.create(
+      challenge: options.fetch("challenge"),
+      rp_id: "localhost",
+      user_verified: false
+    )
+
+    assert_no_difference -> { @user.second_factor_webauthn_credentials.count } do
+      post user_second_factor_webauthn_credentials_path,
+           params: { name: "Llave", public_key_credential: credential.to_json }
+    end
+
+    assert_redirected_to security_settings_path
+    assert flash[:alert].present?
+  end
+
+  test "adding a credential to an MFA account succeeds with the current code" do
+    totp = @user.create_totp_credential!(secret: TotpCredential.generate_secret)
+
+    assert_difference -> { @user.second_factor_webauthn_credentials.count }, 1 do
+      register_second_factor_credential(
+        @user,
+        name: "Llave",
+        extra_params: { totp_code: ROTP::TOTP.new(totp.secret).now }
+      )
+    end
+  end
+
   test "registration options require a recent reauthentication" do
     post user_security_key_registration_options_path
 

@@ -4,6 +4,7 @@ class Users::PasskeysController < Devise::PasskeysController
   include SecurityReauthentication
 
   before_action :require_recent_reauthentication
+  before_action :require_current_second_factor, only: :create, if: -> { resource.second_factor_enabled? }
 
   def new
     redirect_to security_settings_path
