@@ -84,6 +84,27 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /expense_candidates labels inbound email providers as email" do
+    create_candidate(status: "needs_review", source: "cloudflare")
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select ".candidate-source", text: /Correo/
+    assert_select "select[name='source'] option", text: /Correo/
+    assert_select "body", text: /Cloudflare/, count: 0
+  end
+
+  test "GET /expense_candidates/:id labels inbound email providers as email" do
+    candidate = create_candidate(status: "needs_review", source: "cloudflare")
+
+    get expense_candidate_path(candidate)
+
+    assert_response :success
+    assert_select "dd .badge", text: /Correo/
+    assert_select "body", text: /Cloudflare/, count: 0
+  end
+
   test "GET /expense_candidates offers only payment sources in the source dropdown" do
     loan = MoneySource.create!(user: @user, name: "Crédito Vehículo", kind: "loan", sub_kind: "vehicle")
     create_candidate(status: "needs_review", description: "Test expense")

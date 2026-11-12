@@ -379,10 +379,18 @@ module ApplicationHelper
     end
   end
 
+  # Inbound email providers are an implementation detail the user should not
+  # see; candidates show the generic email channel instead.
+  CANDIDATE_SOURCE_ALIASES = {
+    "cloudflare" => "email",
+    "resend" => "email"
+  }.freeze
+
   # Human label for an expense-candidate ingestion source. Falls back to the
   # titleized raw value so new channels keep working without a code change.
   def candidate_source_label(source)
-    t("expense_candidates.queue.sources.#{source}", default: source.to_s.titleize)
+    key = CANDIDATE_SOURCE_ALIASES.fetch(source.to_s, source)
+    t("expense_candidates.queue.sources.#{key}", default: source.to_s.titleize)
   end
 
   # Queue state shown in the candidates table: the internal `ready` state is

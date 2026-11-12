@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794481347.7709758,
-    "seen": 1794481438.876328,
+    "mtime": 1794482745.072812,
+    "seen": 1794482817.040246,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -6102,9 +6102,9 @@
     "semantic_hash": ""
   },
   "app/controllers/mcp/endpoint_controller.rb": {
-    "mtime": 1793486580.642039,
-    "seen": 1793490696.634382,
-    "ast_hash": "9c09a6753b354978f0401d30632bd9e4",
+    "mtime": 1794482654.0908034,
+    "seen": 1794482817.037961,
+    "ast_hash": "9a30d5964315dc586cdf9ea62a654858",
     "semantic_hash": ""
   },
   "app/controllers/mcp/settings_controller.rb": {
@@ -6552,9 +6552,9 @@
     "semantic_hash": ""
   },
   "test/integration/mcp_endpoint_test.rb": {
-    "mtime": 1793486580.767696,
-    "seen": 1793490696.635262,
-    "ast_hash": "06a1e601d72000c75c5feb19d9a89022",
+    "mtime": 1794482670.5015953,
+    "seen": 1794482817.0395598,
+    "ast_hash": "88d877f805f9e2d197b1c99e0052dd21",
     "semantic_hash": ""
   },
   "test/integration/mcp_settings_test.rb": {

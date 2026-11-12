@@ -25,6 +25,20 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal({ prefix: "$", thousands: ".", decimal: ",", round: 0 }, chart_money_options)
   end
 
+  test "candidate_source_label shows inbound email providers as the email channel" do
+    assert_equal "Correo", candidate_source_label("cloudflare")
+    assert_equal "Correo", candidate_source_label("resend")
+
+    I18n.with_locale(:en) do
+      assert_equal "Email", candidate_source_label("cloudflare")
+    end
+  end
+
+  test "candidate_source_label keeps the label for other channels" do
+    assert_equal "Gmail", candidate_source_label("gmail")
+    assert_equal "WhatsApp", candidate_source_label("whatsapp")
+  end
+
   test "user_display_name prefers the stored name over the email local part" do
     assert_equal "José Uribe", user_display_name(User.new(name: "José Uribe", email: "jse.uribe@gmail.com"))
   end

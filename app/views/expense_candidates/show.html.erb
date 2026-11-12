@@ -209,7 +209,7 @@
       <div class="card-body">
         <dl class="mb-0">
           <dt class="small text-muted"><%= t("common.source") %></dt>
-          <dd class="mb-2"><span class="badge bg-light text-dark"><i class="ti ti-<%= source_icon(@candidate.source) %> me-1"></i><%= @candidate.source.titleize %></span></dd>
+          <dd class="mb-2"><span class="badge bg-light text-dark"><i class="ti ti-<%= source_icon(@candidate.source) %> me-1"></i><%= candidate_source_label(@candidate.source) %></span></dd>
 
           <dt class="small text-muted"><%= t("common.created_at", default: "Creado") %></dt>
           <dd class="mb-2"><%= l(@candidate.created_at, format: :long) if @candidate.created_at %></dd>
