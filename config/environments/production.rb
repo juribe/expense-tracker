@@ -24,10 +24,10 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # Access reaches the app through Cloudflare/Tunnel, which terminates TLS and
+  # forwards X-Forwarded-Proto: https. Do not assume SSL here: that would make
+  # the force_ssl redirect unreachable and hide a direct plaintext request.
+  # Cloudflare must use Full (strict) so the edge-to-origin hop is encrypted.
   config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
