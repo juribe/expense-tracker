@@ -117,7 +117,102 @@ class McpEndpointTest < ActionDispatch::IntegrationTest
     assert_includes names, "create_transfer"
   end
 
+  test "rejects every MCP method when the user has no premium access" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+
+    [
+      { jsonrpc: "2.0", id: 30, method: "initialize",
+        params: { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "test", version: "1" } } },
+      { jsonrpc: "2.0", id: 31, method: "tools/list" },
+      { jsonrpc: "2.0", id: 32, method: "tools/call",
+        params: { name: "get_categories", arguments: {} } },
+      { jsonrpc: "2.0", method: "notifications/initialized" }
+    ].each do |payload|
+      post_mcp(payload)
+
+      assert_response :forbidden
+      assert_equal(-32_003, json_body.dig("error", "code"))
+      assert_match(/premium membership/i, json_body.dig("error", "message"))
+    end
+  end
+
+  test "rejects requests when the premium membership is expired" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(status: "active", expires_at: 1.day.ago)
+
+    post_mcp(jsonrpc: "2.0", id: 33, method: "tools/list")
+
+    assert_response :forbidden
+    assert_equal(-32_003, json_body.dig("error", "code"))
+  end
+
+  test "allows requests when the user has an active premium membership" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(status: "active", expires_at: 1.month.from_now)
+
+    post_mcp(jsonrpc: "2.0", id: 34, method: "tools/list")
+
+    assert_response :success
+    names = json_body.dig("result", "tools").map { |tool| tool["name"] }
+    assert_includes names, "get_categories"
+  end
+
+  test "allows requests without membership when paid access is not required" do
+    PaymentEngine::Setting.current.update!(paid_access_required: false)
+
+    post_mcp(jsonrpc: "2.0", id: 35, method: "tools/list")
+
+    assert_response :success
+  end
+
+  test "renewing the membership restores access for the same token" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    membership = create_membership(status: "expired", expires_at: 1.day.ago)
+
+    post_mcp(jsonrpc: "2.0", id: 36, method: "tools/list")
+    assert_response :forbidden
+
+    membership.update!(status: "active", expires_at: 1.month.from_now)
+
+    post_mcp(jsonrpc: "2.0", id: 37, method: "tools/list")
+    assert_response :success
+  end
+
+  test "an expired user does not affect another user's access" do
+    PaymentEngine::Setting.current.update!(paid_access_required: true)
+    create_membership(status: "expired", expires_at: 1.day.ago)
+
+    other_user = User.create!(name: "MCP Premium", email: "mcp_premium@example.com", password: "password123")
+    create_membership(user: other_user, status: "active", expires_at: 1.month.from_now)
+    _other_token, other_plain = McpAccessToken.issue!(user: other_user, name: "Premium client", scopes: [ :read ])
+
+    post_mcp(jsonrpc: "2.0", id: 40, method: "tools/list")
+    assert_response :forbidden
+
+    post_mcp({ jsonrpc: "2.0", id: 41, method: "tools/list" }, token: other_plain)
+    assert_response :success
+  end
+
   private
+
+  def create_membership(status:, expires_at:, user: @user)
+    PaymentEngine::Membership.create!(
+      owner: user,
+      membership_type: membership_type,
+      status: status,
+      source: "purchase",
+      starts_at: 1.month.ago,
+      expires_at: expires_at
+    )
+  end
+
+  def membership_type
+    @membership_type ||= PaymentEngine::MembershipType.create!(
+      name: "MCP Endpoint Premium",
+      code: "MCP_ENDPOINT_#{SecureRandom.hex(6)}",
+      status: "active"
+    )
+  end
 
   def post_mcp(payload = nil, token: @plain, **payload_keywords)
     payload ||= payload_keywords

@@ -6,6 +6,7 @@ module Mcp
   # decides the user and the tool scopes; nothing is kept between requests.
   class EndpointController < ActionController::API
     before_action :authenticate_mcp!
+    before_action :authorize_premium_access!, only: :create
 
     def create
       Mcp::Current.user = @mcp_token.user
@@ -36,6 +37,19 @@ module Mcp
         error: { code: -32_001, message: "Unauthorized" },
         id: nil
       }, status: :unauthorized
+    end
+
+    # Membership is evaluated per authenticated user, so one expired account
+    # never affects other MCP callers. Renewing restores access immediately:
+    # tokens are not revoked and no state is cached between requests.
+    def authorize_premium_access!
+      return if PaymentEngine::AccessPolicy.premium_access?(@mcp_token.user)
+
+      render json: {
+        jsonrpc: "2.0",
+        error: { code: -32_003, message: "Premium membership required" },
+        id: nil
+      }, status: :forbidden
     end
 
     def request_headers
