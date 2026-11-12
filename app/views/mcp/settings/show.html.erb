@@ -94,6 +94,10 @@
                       html: { id: "keyForm" },
                       data: (@tokens.any? ? { turbo_confirm: t("mcp.settings.key_replace_confirm") } : {}) do |form| %>
           <%= form.hidden_field :name, value: "Mi asistente" %>
+          <div class="mcp-keynote">
+            <%= form.check_box :write_access %>
+            <%= form.label :write_access, t("mcp.settings.write_access", default: "Permitir escritura (crear y editar gastos)") %>
+          </div>
           <button type="submit" class="mcp-primary" id="generate">
             ＋ <%= t("mcp.settings.generate_key") %>
           </button>

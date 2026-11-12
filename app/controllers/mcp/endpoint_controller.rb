@@ -54,7 +54,7 @@ module Mcp
 
     def request_headers
       request.headers.to_h
-             .select { |name, _value| name.start_with?("HTTP_") }
+             .select { |name, _value| name.start_with?("HTTP_") && name != "HTTP_AUTHORIZATION" }
              .transform_keys { |name| name.delete_prefix("HTTP_").downcase.tr("_", "-") }
     end
   end

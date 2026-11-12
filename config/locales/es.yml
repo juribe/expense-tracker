@@ -4379,6 +4379,7 @@ es:
       key_warn: "No compartas esta clave con otras personas. Si creas una nueva, la anterior debería dejar de funcionar."
       key_replace_confirm: "¿Reemplazar la clave actual? La anterior dejará de funcionar."
       generate_key: "Crear clave de conexión"
+      write_access: "Permitir escritura (crear y editar gastos)"
       reveal: "Mostrar"
       hide: "Ocultar"
       copy_key: "Copiar clave"

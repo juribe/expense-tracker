@@ -73,10 +73,12 @@ module Mcp
 
     private
 
+    # Default deny: a tool must declare a scope the token holds. A future tool
+    # that forgets requires_scope is not silently exposed to every token.
     def allowed_tools
       TOOL_NAMES.map(&:constantize).select do |tool|
         scope = tool.required_scope
-        scope.nil? || @scopes.include?(scope)
+        scope.present? && @scopes.include?(scope)
       end
     end
   end

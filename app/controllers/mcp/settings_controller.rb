@@ -46,13 +46,11 @@ module Mcp
       params.expect(mcp_token: [ :name, :write_access ])
     end
 
+    # Read-only unless write access is explicitly requested: an absent
+    # checkbox must never grant write authority.
     def scopes_param
       scopes = [ "read" ]
-      if token_params.key?(:write_access)
-        scopes << "write" if token_params[:write_access].to_s == "1"
-      else
-        scopes << "write"
-      end
+      scopes << "write" if token_params[:write_access].to_s == "1"
       scopes
     end
 
