@@ -2083,6 +2083,7 @@ es:
       tabular_fallback: "No se pudo interpretar la tabla de forma fiable; se usará la extracción con IA."
 
   expenses:
+    invalid_category: "La categoría no es válida."
     page_title: "Gastos"
     monthly: "Gasto Mensual"
     automatic_rules: "Reglas automáticas"

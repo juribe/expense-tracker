@@ -45,6 +45,8 @@ class ExpenseCandidate < ApplicationRecord
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :source, presence: true
   validates :amount, numericality: { greater_than: 0 }, allow_nil: true
+  validate :category_belongs_to_user
+  validate :money_source_belongs_to_user
 
   scope :for_user, ->(user) { where(user: user) }
   scope :pending, -> { needs_review }
@@ -251,6 +253,20 @@ class ExpenseCandidate < ApplicationRecord
 
   def sync_missing_fields
     recalculate_missing_fields!
+  end
+
+  # Shared categories (user_id nil) are allowed; another user's custom
+  # category or money source must never attach to this candidate.
+  def category_belongs_to_user
+    return if user_id.nil? || category.nil? || category.user_id.nil?
+
+    errors.add(:category, :other_user) if category.user_id != user_id
+  end
+
+  def money_source_belongs_to_user
+    return if user_id.nil? || money_source.nil?
+
+    errors.add(:money_source, :other_user) if money_source.user_id != user_id
   end
 
   def create_expense_from_candidate!

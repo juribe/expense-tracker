@@ -17,6 +17,14 @@ class ActivityClassificationTest < ActiveSupport::TestCase
     assert_equal "did food", ActivityClassification.normalize_name("Did*Food")
   end
 
+  test "a category from another user is ignored" do
+    other = User.create!(name: "Other", email: "clf_other@example.com", password: "password123")
+    foreign = Category.create!(name: "Ajena", user: other, is_default: false, category_type: "expense")
+
+    assert_nil ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: foreign, source: "user")
+    assert_equal 0, @user.activity_classifications.count
+  end
+
   test "record! is idempotent per user and normalized name" do
     ActivityClassification.record!(user: @user, name: "DIDI FOOD", category: @food, source: "ai")
     ActivityClassification.record!(user: @user, name: "didi FOOD", category: @transport, source: "ai")

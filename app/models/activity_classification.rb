@@ -76,7 +76,8 @@ class ActivityClassification < ApplicationRecord
 
   def self.category_for(user, category)
     case category
-    when Category then category
+    when Category
+      category if category.user_id.nil? || category.user_id == user.id
     when nil then nil
     else Category.for_user(user).find_by("lower(name) = ?", category.to_s.downcase)
     end

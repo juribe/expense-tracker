@@ -22,6 +22,22 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
+  test "PATCH with another user's category and money source is rejected" do
+    candidate = create_candidate(status: "needs_review")
+    other = User.create!(name: "Other", email: "other_ids_#{SecureRandom.hex(4)}@example.com", password: "password123")
+    foreign_category = Category.create!(name: "Ajena", user: other, is_default: false, category_type: "expense")
+    foreign_source = MoneySource.create!(user: other, name: "Ajena", kind: "cash", starting_balance: 1_000)
+
+    patch expense_candidate_path(candidate), params: {
+      expense_candidate: { category_id: foreign_category.id, money_source_id: foreign_source.id }
+    }
+
+    assert_response :unprocessable_entity
+    candidate.reload
+    assert_nil candidate.category_id
+    assert_nil candidate.money_source_id
+  end
+
   # --- INDEX ---
 
   test "GET /expense_candidates renders the list" do
@@ -506,9 +522,10 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
 
   test "POST /expense_candidates/bulk_confirm ignores candidates not owned by the current user" do
     other_user = User.create!(name: "Other", email: "bulk_conf_#{SecureRandom.hex(4)}@example.com", password: "password123")
+    other_category = Category.create!(name: "Ajena bulk", user: other_user, is_default: false, category_type: "expense")
     other_candidate = ExpenseCandidate.create!(
       user: other_user, amount: 100, date: Date.current, source: "text",
-      category_id: @category.id, status: "ready"
+      category_id: other_category.id, status: "ready"
     )
     mine = create_candidate(
       category_id: @category.id, money_source_id: @money_source.id,

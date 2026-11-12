@@ -115,7 +115,9 @@ module Expenses
       new_name = input[:new_category_name].to_s.strip
 
       if category_id.present?
-        Category.find(category_id)
+        normalized = UuidParams.normalize(category_id)
+        Category.for_user(user).find_by(id: normalized) ||
+          raise(ArgumentError, I18n.t("expenses.invalid_category"))
       elsif new_name.present?
         # Fold "very close" names into an existing category before ever creating
         # a near-duplicate; similarity folds are recorded as rule knowledge.

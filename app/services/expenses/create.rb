@@ -125,7 +125,8 @@ module Expenses
       return @category if @category.is_a?(Category)
 
       if (category_id = UuidParams.normalize(@category))
-        return Category.find(category_id)
+        return Category.for_user(@user).find_by(id: category_id) ||
+               raise(Invalid, I18n.t("expenses.invalid_category"))
       end
 
       name = @category.to_s.strip
