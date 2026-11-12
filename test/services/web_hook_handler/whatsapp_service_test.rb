@@ -337,7 +337,7 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
       WebHookHandler::WhatsappService.call(raw_body: message_payload(text: "CONNECT #{code}"))
     end
 
-    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
     assert_equal @user.id, identity.claimed_by_user_id
     assert WhatsappConnection.active.exists?(user: @user, whatsapp_identity: identity)
     assert replies.any?
@@ -353,7 +353,7 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
       end
     end
 
-    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
     assert_equal @user.id, identity.claimed_by_user_id
     assert WhatsappConnection.active.exists?(user: @user, whatsapp_identity: identity)
     assert replies.any?

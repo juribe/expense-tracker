@@ -64,12 +64,12 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     end
 
     assert result.success?
-    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
     assert_equal @user.id, identity.claimed_by_user_id
     assert result.result.active?
     assert_equal identity.id, result.result.whatsapp_identity_id
     assert_not_nil pending_row.reload.used_at
-    assert @sent_replies.any? { |(phone, _)| phone == OWNER_WA_ID }
+    assert @sent_replies.any? { |(phone, _)| phone == WhatsappIdentity.normalize(OWNER_WA_ID) }
   end
 
   test "the initial greeting with a valid token connects the sender number securely" do
@@ -82,7 +82,7 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     end
 
     assert result.success?
-    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
     assert_equal @user.id, identity.claimed_by_user_id
     assert result.result.active?
   end
@@ -167,7 +167,7 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     assert result.success?
     assert result.result.active?
     assert_equal identity.id, result.result.whatsapp_identity_id
-    assert_equal 1, WhatsappIdentity.where(phone_number: OWNER_WA_ID).count
+    assert_equal 1, WhatsappIdentity.where(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID)).count
   end
 
   test "6. a number claimed by another account is rejected: no transfer, no second identity" do
@@ -181,9 +181,9 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     end
 
     assert result.failure?
-    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
     assert_equal owner.id, identity.claimed_by_user_id
-    assert_equal 1, WhatsappIdentity.where(phone_number: OWNER_WA_ID).count
+    assert_equal 1, WhatsappIdentity.where(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID)).count
     assert_equal 0, WhatsappConnection.where(user: @user).count
     assert @sent_replies.any? { |(_, text)| text.include?("no se puede conectar") }
   end
@@ -214,9 +214,9 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
       assert result.failure?
     end
 
-    identity = WhatsappIdentity.find_by(phone_number: OWNER_WA_ID)
+    identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
     assert_equal owner.id, identity.claimed_by_user_id
-    assert_equal 1, WhatsappIdentity.where(phone_number: OWNER_WA_ID).count
+    assert_equal 1, WhatsappIdentity.where(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID)).count
     assert_equal 0, WhatsappConnection.where(user: @user).count
   end
 end

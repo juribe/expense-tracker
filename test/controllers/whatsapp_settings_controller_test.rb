@@ -125,7 +125,7 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "status" => "disconnected" }, JSON.parse(response.body))
   end
 
-  test "GET /status reports connected with the phone number when connected" do
+  test "GET /status reports connected without exposing the phone number" do
     identity = WhatsappIdentity.create!(
       phone_number: "573001234567",
       claimed_by_user: @user,
@@ -136,7 +136,7 @@ class WhatsappSettingsControllerTest < ActionDispatch::IntegrationTest
     get status_whatsapp_settings_path, as: :json
 
     assert_response :success
-    assert_equal({ "status" => "connected", "phone_number" => "+573001234567" }, JSON.parse(response.body))
+    assert_equal({ "status" => "connected" }, JSON.parse(response.body))
   end
 
   test "DELETE /settings/whatsapp/pending cancels the pending attempt" do

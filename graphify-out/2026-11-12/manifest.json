@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1794417209.4609916,
-    "seen": 1794417334.556234,
-    "ast_hash": "22446761a7bfaf6e3ed5973475cb9695",
+    "mtime": 1794483701.6690023,
+    "seen": 1794483944.02989,
+    "ast_hash": "a192b27c85d3b0f04fca7cfd7d79121b",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -786,9 +786,9 @@
     "semantic_hash": ""
   },
   "test/helpers/application_helper_test.rb": {
-    "mtime": 1794327239.799009,
-    "seen": 1794327296.488874,
-    "ast_hash": "cf6e2314ff07a77ee24a8479e2b64028",
+    "mtime": 1794483652.8531785,
+    "seen": 1794483944.031761,
+    "ast_hash": "2fa3889fb0b7990f0737e0029bd96e49",
     "semantic_hash": ""
   },
   "test/integration/devise_auth_flows_test.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794482745.072812,
-    "seen": 1794482817.040246,
+    "mtime": 1794483871.0029387,
+    "seen": 1794483944.032477,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -2334,9 +2334,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expense_candidates_controller_test.rb": {
-    "mtime": 1794182195.6534624,
-    "seen": 1794182243.3102431,
-    "ast_hash": "7e81294eeb97a3d548526f33673dacca",
+    "mtime": 1794483760.3087904,
+    "seen": 1794483944.031662,
+    "ast_hash": "4e98c6b8a527a288511a1ff297b1412d",
     "semantic_hash": ""
   },
   ".opencode/skills/expense-tracker-design/SKILL.md": {
@@ -6552,9 +6552,9 @@
     "semantic_hash": ""
   },
   "test/integration/mcp_endpoint_test.rb": {
-    "mtime": 1794482670.5015953,
-    "seen": 1794482817.0395598,
-    "ast_hash": "88d877f805f9e2d197b1c99e0052dd21",
+    "mtime": 1794482839.0321624,
+    "seen": 1794483944.031786,
+    "ast_hash": "e441cfcae124064255e2e30480d619ff",
     "semantic_hash": ""
   },
   "test/integration/mcp_settings_test.rb": {

@@ -12,16 +12,29 @@
 #
 # Example: WhatsappIdentity.claim_for!(user, "+57 300 123 4567")
 class WhatsappIdentity < ApplicationRecord
+  E164_FORMAT = /\A\+[1-9]\d{7,14}\z/
+
+  encrypts :phone_number, deterministic: true
+
   belongs_to :claimed_by_user, class_name: "User", optional: true
   has_many :whatsapp_connections
 
-  validates :phone_number, presence: true, uniqueness: true
+  validates :phone_number, presence: true, uniqueness: true, format: { with: E164_FORMAT }
 
   before_validation { self.phone_number = self.class.normalize(phone_number) }
 
-  # Digits-only normalization so "+57 300 123 4567" and "573001234567" are the
-  # same real-world WhatsApp number.
+  # E.164 normalization so "+57 300 123 4567", "573001234567" and local
+  # international prefixes resolve to the same real-world WhatsApp number.
   def self.normalize(phone_number)
+    digits = phone_number.to_s.gsub(/\D/, "")
+    return "" if digits.blank?
+
+    digits = digits.delete_prefix("00") if digits.start_with?("00")
+    "+#{digits}"
+  end
+
+  # WhatsApp's wa_id is digits-only, even though the stored number is E.164.
+  def self.wa_id(phone_number)
     phone_number.to_s.gsub(/\D/, "")
   end
 

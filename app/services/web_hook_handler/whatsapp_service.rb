@@ -34,11 +34,11 @@ module WebHookHandler
           next
         end
 
-        Rails.logger.info "[WhatsappService] Inbound event mid=#{event.mid} sender=#{event.sender_id} " \
+        Rails.logger.info "[WhatsappService] Inbound event mid=#{event.mid} " \
                           "type=#{event.message.type} text=#{event.text.to_s.strip[0, 80].inspect}"
 
         if connect_command?(event)
-          Rails.logger.info "[WhatsappService] CONNECT command from #{event.sender_id}"
+          Rails.logger.info "[WhatsappService] CONNECT command received"
           Whatsapp::ConnectService.call(event: event)
         else
           process_message(event)
@@ -71,11 +71,10 @@ module WebHookHandler
 
     def process_message(event)
       user = resolve_user(event.sender_id)
-      Rails.logger.info "[WhatsappService] User resolved: #{user ? "id=#{user.id}" : 'unconnected'} " \
-                        "(sender=#{event.sender_id})"
+      Rails.logger.info "[WhatsappService] User resolved: #{user ? "id=#{user.id}" : 'unconnected'}"
 
       unless user
-        Rails.logger.info "[WhatsappService] Unconnected number #{event.sender_id}; sending connect instructions"
+        Rails.logger.info "[WhatsappService] Unconnected number; sending connect instructions"
         Whatsapp::ReplySender.send_to(
           event.sender_id,
           "Hola 👋 Conecta tu WhatsApp desde Configuración → WhatsApp de #{AppName.current} para registrar gastos por este chat."
@@ -113,7 +112,7 @@ module WebHookHandler
 
       # Gibberish never reaches the AI pipeline: filter first, no credits.
       if event.message? && Whatsapp::GarbageFilter.garbage?(event.text.to_s)
-        Rails.logger.info "[WhatsappService] Gibberish message ignored from #{event.sender_id}"
+        Rails.logger.info "[WhatsappService] Gibberish message ignored"
         Whatsapp::ReplySender.send_to(
           event.sender_id,
           "No entendí 🤔 Escríbelo como gasto, ej: \"gasté 50 mil en mercado\"."
@@ -126,7 +125,7 @@ module WebHookHandler
         # A re-sent interactive reply whose session already closed must not
         # die in silence: tell the user nothing is pending anymore.
         if event.message.type == "interactive"
-          Rails.logger.info "[WhatsappService] Interactive reply without pending session from #{event.sender_id}"
+          Rails.logger.info "[WhatsappService] Interactive reply without pending session"
           Whatsapp::ReplySender.send_to(
             event.sender_id,
             "Esta respuesta ya no aplica: no hay ninguna aclaración pendiente 🤔 " \
@@ -134,8 +133,7 @@ module WebHookHandler
           )
           return
         end
-        Rails.logger.info "[WhatsappService] Ignored unsupported message type #{event.message.type} " \
-                          "from #{event.sender_id}"
+        Rails.logger.info "[WhatsappService] Ignored unsupported message type #{event.message.type}"
         return
       end
 
@@ -232,7 +230,7 @@ module WebHookHandler
 
     def run_pipeline(user, event, input)
       unless input.valid?
-        Rails.logger.warn "[WhatsappService] Invalid #{event.message.type} input from #{event.sender_id}: " \
+        Rails.logger.warn "[WhatsappService] Invalid #{event.message.type} input for user=#{user.id}: " \
                           "#{input.errors.inspect}"
         return
       end

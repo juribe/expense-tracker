@@ -87,26 +87,26 @@ module Whatsapp
       end
 
       uri = URI("#{GRAPH_URL}/#{phone_number_id}/messages")
-      body = payload.merge(messaging_product: "whatsapp", to: phone_number).to_json
+      body = payload.merge(messaging_product: "whatsapp", to: WhatsappIdentity.wa_id(phone_number)).to_json
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       request = Net::HTTP::Post.new(uri, "Content-Type" => "application/json", "Authorization" => "Bearer #{token}")
 
-      response_code = deliver_with_retries(http, request, body, phone_number)
+      response_code = deliver_with_retries(http, request, body)
       unless response_code == "200"
-        Rails.logger.error "[ReplySender] Failed to deliver reply to #{phone_number}: #{response_code}"
+        Rails.logger.error "[ReplySender] Failed to deliver reply: #{response_code}"
         return false
       end
       Rails.logger.info "[ReplySender] Delivered #{payload.dig(:interactive) ? 'list' : 'text'} " \
-                        "to #{phone_number} (#{body.bytesize} bytes)"
+                        "(#{body.bytesize} bytes)"
       true
     end
 
     # Transient Meta API failures (service unavailable, throttling, rate
     # limits, network timeouts) are retried with a doubling backoff;
     # permanent client errors (auth, payload, permissions) are not.
-    def self.deliver_with_retries(http, request, body, phone_number)
+    def self.deliver_with_retries(http, request, body)
       attempts = 0
       delay = 1
       loop do
@@ -115,7 +115,7 @@ module Whatsapp
         return code if code == "200" || !transient?(code)
         return "gave_up" if attempts >= MAX_DELIVERY_ATTEMPTS
 
-        Rails.logger.warn "[ReplySender] Transient failure (#{code}) for #{phone_number}, " \
+        Rails.logger.warn "[ReplySender] Transient failure (#{code}), " \
                           "attempt #{attempts}/#{MAX_DELIVERY_ATTEMPTS}"
         sleep(delay)
         delay *= 2

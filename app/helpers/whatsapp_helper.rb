@@ -10,11 +10,12 @@ module WhatsappHelper
   # is bound to the signed-in account, never to whoever sent the greeting.
   INITIAL_MESSAGE = "Hola yogasto quiero registrar mis gastos usando whatsapp"
 
-  def format_whatsapp_phone(digits)
-    normalized = WhatsappIdentity.normalize(digits)
-    return "+#{normalized}" unless normalized.match?(/\A\d{12}\z/) && normalized.start_with?("57")
+  def format_whatsapp_phone(phone_number)
+    digits = WhatsappIdentity.wa_id(phone_number)
+    return "" if digits.blank?
+    return "+#{digits}" unless digits.match?(/\A57\d{10}\z/)
 
-    "+#{normalized[0, 2]} #{normalized[2, 3]} #{normalized[5, 3]} #{normalized[8, 4]}"
+    "+#{digits[0, 2]} #{digits[2, 3]} #{digits[5, 3]} #{digits[8, 4]}"
   end
 
   # Deep link that opens the business chat with the initial greeting and the

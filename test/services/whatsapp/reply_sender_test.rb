@@ -6,7 +6,7 @@ require "test_helper"
 # payload respecting Meta's field length limits (header ≤ 60, row title ≤ 24,
 # description ≤ 72).
 class Whatsapp::ReplySenderTest < ActiveSupport::TestCase
-  def capture_list_payload(text, rows)
+  def capture_list_payload(text, rows, phone_number: "573001112233")
     delivered = nil
     fake_http = Object.new
     fake_http.define_singleton_method(:use_ssl=) { |_| }
@@ -24,10 +24,17 @@ class Whatsapp::ReplySenderTest < ActiveSupport::TestCase
       end
     }) do
       stub_method(Net::HTTP, :new, ->(*_args) { fake_http }) do
-        Whatsapp::ReplySender.send_list("573001112233", text, rows)
+        Whatsapp::ReplySender.send_list(phone_number, text, rows)
       end
     end
     delivered
+  end
+
+  test "sends to the digits-only wa_id when given an E.164 number" do
+    payload = capture_list_payload("¿Fuente?", [ { id: "source:1", title: "Davibank" } ],
+                                   phone_number: "+573001112233")
+
+    assert_equal "573001112233", payload["to"]
   end
 
   test "uses the fixed header and keeps the full question in the body" do

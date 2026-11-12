@@ -14,14 +14,18 @@ class ExpenseClarification < ApplicationRecord
   STATUSES = %w[pending resolved cancelled abandoned].freeze
   MAX_QUESTIONS = 3
 
+  encrypts :phone_number
+
   belongs_to :user
   has_many :expense_clarification_candidates, dependent: :destroy
   has_many :candidates, through: :expense_clarification_candidates,
                         source: :expense_candidate
 
   validates :status, presence: true, inclusion: { in: STATUSES }
-  validates :phone_number, presence: true
+  validates :phone_number, presence: true, format: { with: WhatsappIdentity::E164_FORMAT }
   validates :questions_count, numericality: { greater_than_or_equal_to: 0 }
+
+  before_validation { self.phone_number = WhatsappIdentity.normalize(phone_number) }
 
   scope :pending, -> { where(status: "pending") }
 

@@ -29,7 +29,7 @@ class WhatsappSettingsController < ApplicationController
 
   def status
     if active_connection
-      render json: { status: "connected", phone_number: "+#{active_connection.whatsapp_identity.phone_number}" }
+      render json: { status: "connected" }
     elsif valid_pending
       render json: { status: "pending" }
     else
