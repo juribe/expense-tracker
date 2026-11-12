@@ -10,12 +10,13 @@ module PaymentEngine
         payment_engine_provider = params[:provider]
         payload = request.request_parameters rescue params.to_unsafe_h
 
-        payment_engine_adapter = PaymentEngine.provider(payment_engine_provider) rescue nil
-
-        # Only trust the provider-specific adapter for signature verification.
-        if payment_engine_adapter.respond_to?(:verify_webhook)
-          return head :unauthorized unless payment_engine_adapter.verify_webhook(payload: payload, headers: request.headers.to_h, raw_body: request.raw_post)
-        end
+        # Fail closed: an unknown provider has no way to authenticate the
+        # producer, so its payload must never reach normalization or Process.
+        payment_engine_adapter = PaymentEngine.provider(payment_engine_provider)
+        verified = payment_engine_adapter.verify_webhook(
+          payload: payload, headers: request.headers.to_h, raw_body: request.raw_post
+        )
+        return head :unauthorized unless verified
 
         normalized = nil
         if payment_engine_adapter.respond_to?(:parse_webhook)
@@ -36,6 +37,8 @@ module PaymentEngine
 
         PaymentEngine::Webhooks::Process.call(webhook_event: event, data: normalized.empty? ? payload.deep_stringify_keys : normalized)
         head :ok
+      rescue PaymentEngine::UnknownProviderError, PaymentEngine::ConfigurationError
+        head :unauthorized
       rescue StandardError => e
         Rails.logger.error("Webhook error: #{e.message}")
         head :bad_request

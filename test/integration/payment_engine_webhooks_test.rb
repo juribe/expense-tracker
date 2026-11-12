@@ -50,6 +50,16 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     assert_equal 0, PaymentEngine::WebhookEvent.count
   end
 
+  test "unregistered provider notification is rejected and grants no access" do
+    assert_no_difference [ "PaymentEngine::WebhookEvent.count", "PaymentEngine::Membership.count" ] do
+      post "/payment_engine/webhooks/unregistered_provider", params: webhook_payload
+    end
+
+    assert_response :unauthorized
+    assert_equal "pending", @purchase.reload.status
+    assert_equal "pending", @payment.reload.status
+  end
+
   test "approved notification updates payment, purchase and membership" do
     post "/payment_engine/webhooks/epayco", params: webhook_payload
 
