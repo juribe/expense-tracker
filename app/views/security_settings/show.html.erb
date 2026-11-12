@@ -82,18 +82,24 @@
 
       <% if security_reauthenticated? %>
         <div class="security-action" data-testid="totp-actions">
-          <%= button_to(@totp_enabled ? t("security.totp.change") : t("security.totp.setup"),
-                        start_totp_setup_security_settings_path,
-                        method: :post,
-                        class: "btn btn-primary",
-                        form: { data: { testid: @totp_enabled ? "totp-change-button" : "totp-setup-button" } }) %>
-
           <% if @totp_enabled %>
-            <%= button_to t("security.totp.disable"),
-                          disable_totp_security_settings_path,
-                          method: :delete,
-                          class: "btn btn-outline-danger",
-                          form: { data: { testid: "totp-disable-button", turbo_confirm: t("security.totp.disable_confirm") } } %>
+            <%= form_with url: start_totp_setup_security_settings_path, method: :post, local: true do %>
+              <%= render "security_settings/second_factor_fields" %>
+              <%= submit_tag t("security.totp.change"), class: "btn btn-primary",
+                    data: { testid: "totp-change-button" } %>
+            <% end %>
+
+            <%= form_with url: disable_totp_security_settings_path, method: :delete, local: true do %>
+              <%= render "security_settings/second_factor_fields" %>
+              <%= submit_tag t("security.totp.disable"), class: "btn btn-outline-danger",
+                    data: { testid: "totp-disable-button", turbo_confirm: t("security.totp.disable_confirm") } %>
+            <% end %>
+          <% else %>
+            <%= button_to t("security.totp.setup"),
+                          start_totp_setup_security_settings_path,
+                          method: :post,
+                          class: "btn btn-primary",
+                          form: { data: { testid: "totp-setup-button" } } %>
           <% end %>
         </div>
       <% end %>
@@ -150,11 +156,11 @@
           <% end %>
 
           <% if @second_factor_credentials.any? %>
-            <%= button_to t("security.two_factor.disable"),
-                          disable_two_factor_security_settings_path,
-                          method: :delete,
-                          class: "btn btn-outline-danger",
-                          form: { data: { turbo_confirm: t("security.two_factor.disable_confirm") } } %>
+            <%= form_with url: disable_two_factor_security_settings_path, method: :delete, local: true do %>
+              <%= render "security_settings/second_factor_fields" %>
+              <%= submit_tag t("security.two_factor.disable"), class: "btn btn-outline-danger",
+                    data: { turbo_confirm: t("security.two_factor.disable_confirm") } %>
+            <% end %>
           <% end %>
         </div>
       <% end %>

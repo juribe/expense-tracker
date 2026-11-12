@@ -183,7 +183,7 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
       old_code = ROTP::TOTP.new(old_credential.secret).now
       reauthenticate
 
-      post start_totp_setup_security_settings_path
+      post start_totp_setup_security_settings_path, params: { totp_code: old_code }
       new_secret = session[:totp_setup]["secret"]
       assert @user.reload.totp_enabled?
 
@@ -225,12 +225,34 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='security-locked']"
   end
 
-  test "disabling TOTP removes it and its recovery codes when no MFA remains" do
+  test "disabling TOTP without a verification code is rejected" do
+    create_totp_credential(@user)
+    reauthenticate
+
+    delete disable_totp_security_settings_path
+
+    assert_redirected_to security_settings_path
+    assert @user.reload.totp_enabled?
+  end
+
+  test "disabling TOTP with the current code removes it and its recovery codes when no MFA remains" do
     create_totp_credential(@user)
     RecoveryCode.generate_for(@user)
     reauthenticate
 
-    delete disable_totp_security_settings_path
+    delete disable_totp_security_settings_path, params: { totp_code: current_totp_code(@user) }
+
+    assert_redirected_to security_settings_path
+    refute @user.reload.totp_enabled?
+    assert_equal 0, RecoveryCode.where(user: @user).count
+  end
+
+  test "disabling TOTP with a recovery code removes it" do
+    create_totp_credential(@user)
+    recovery_code = RecoveryCode.generate_for(@user).first
+    reauthenticate
+
+    delete disable_totp_security_settings_path, params: { recovery_code: recovery_code }
 
     assert_redirected_to security_settings_path
     refute @user.reload.totp_enabled?
@@ -243,7 +265,7 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     RecoveryCode.generate_for(@user)
     reauthenticate
 
-    delete disable_totp_security_settings_path
+    delete disable_totp_security_settings_path, params: { totp_code: current_totp_code(@user) }
 
     assert_redirected_to security_settings_path
     refute @user.reload.totp_enabled?
@@ -257,7 +279,7 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     RecoveryCode.generate_for(@user)
     reauthenticate
 
-    delete disable_two_factor_security_settings_path
+    delete disable_two_factor_security_settings_path, params: { totp_code: current_totp_code(@user) }
 
     assert_redirected_to security_settings_path
     assert_equal 0, @user.second_factor_webauthn_credentials.count
@@ -271,11 +293,32 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     create_totp_credential(@user)
     reauthenticate
 
-    delete disable_totp_security_settings_path
+    delete disable_totp_security_settings_path, params: { totp_code: current_totp_code(@user) }
 
     refute @user.reload.totp_enabled?
     assert other_user.reload.totp_enabled?
     assert_equal other_secret, other_user.totp_credential.secret
+  end
+
+  test "rotating TOTP requires the current code" do
+    create_totp_credential(@user)
+    reauthenticate
+
+    post start_totp_setup_security_settings_path
+
+    assert_redirected_to security_settings_path
+    assert_nil session[:totp_setup]
+  end
+
+  test "rotating TOTP with the current code starts a new setup" do
+    create_totp_credential(@user)
+    reauthenticate
+
+    post start_totp_setup_security_settings_path, params: { totp_code: current_totp_code(@user) }
+
+    assert_redirected_to totp_setup_security_settings_path
+    assert session[:totp_setup]["secret"].present?
+    refute_equal @user.totp_credential.secret, session[:totp_setup]["secret"]
   end
 
   test "shows recovery codes for a TOTP-only account" do
@@ -379,14 +422,26 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     refute_includes response.body, codes.first
   end
 
-  test "disabling two factor removes second factor credentials and recovery codes but keeps passkeys" do
-    create_credential(@user, factor: :first_factor, name: "MacBook personal")
+  test "disabling two factor without a verification code is rejected" do
     create_credential(@user, factor: :second_factor, name: "Llave de seguridad")
     RecoveryCode.generate_for(@user)
+    reauthenticate
+
+    assert_no_difference -> { @user.second_factor_webauthn_credentials.count } do
+      delete disable_two_factor_security_settings_path
+    end
+
+    assert_redirected_to security_settings_path
+  end
+
+  test "disabling two factor with a recovery code removes credentials but keeps passkeys" do
+    create_credential(@user, factor: :first_factor, name: "MacBook personal")
+    create_credential(@user, factor: :second_factor, name: "Llave de seguridad")
+    recovery_code = RecoveryCode.generate_for(@user).first
     post reauthenticate_security_settings_path, params: { current_password: "password123" }
 
     assert_difference -> { @user.second_factor_webauthn_credentials.count }, -1 do
-      delete disable_two_factor_security_settings_path
+      delete disable_two_factor_security_settings_path, params: { recovery_code: recovery_code }
     end
 
     assert_equal 0, RecoveryCode.where(user: @user).count
@@ -436,6 +491,10 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
 
   def create_totp_credential(user, secret: TotpCredential.generate_secret)
     user.create_totp_credential!(secret: secret)
+  end
+
+  def current_totp_code(user)
+    ROTP::TOTP.new(user.totp_credential.secret).now
   end
 
   def create_user(email:)

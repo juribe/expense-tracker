@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "app/controllers/users/registrations_controller.rb": {
-    "mtime": 1794078542.1505146,
-    "seen": 1794078780.086009,
-    "ast_hash": "9ed0c9b04019bd160f6585749128e83e",
+    "mtime": 1794515448.225495,
+    "seen": 1794516034.75333,
+    "ast_hash": "6b8ef1ad5671c8589d31ab389b0044e5",
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794432546.9628901,
-    "seen": 1794432712.27273,
-    "ast_hash": "eaad78fa4ceb5af783bdcadade6ef14d",
+    "mtime": 1794515453.8131728,
+    "seen": 1794516034.755502,
+    "ast_hash": "80413d873975cb69a06666b869d1ccbe",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794514744.4180107,
-    "seen": 1794514802.213195,
+    "mtime": 1794515924.6013258,
+    "seen": 1794516034.755509,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4998,9 +4998,9 @@
     "semantic_hash": ""
   },
   "test/controllers/users/registrations_controller_test.rb": {
-    "mtime": 1794079518.9809403,
-    "seen": 1794079720.406124,
-    "ast_hash": "8b7c62db150cc9dfb47bd5e09d7129dc",
+    "mtime": 1794515276.929974,
+    "seen": 1794516034.754796,
+    "ast_hash": "c41f9d29e123d410ab08cc096e575830",
     "semantic_hash": ""
   },
   "test/models/user_test.rb": {

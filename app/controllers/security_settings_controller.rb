@@ -15,6 +15,8 @@ class SecuritySettingsController < ApplicationController
                   start_totp_setup totp_setup cancel_totp_setup
                   confirm_totp disable_totp
                 ]
+  before_action :require_current_second_factor,
+                only: %i[disable_totp disable_two_factor start_totp_setup]
   before_action :prevent_security_page_caching
 
   rate_limit to: 10, within: 1.minute, only: :reauthenticate,
@@ -145,6 +147,23 @@ class SecuritySettingsController < ApplicationController
   end
 
   private
+
+  # Removing or rotating a factor requires proving the current one, not only the
+  # password reauthentication window.
+  def require_current_second_factor
+    # The first TOTP enrollment has no existing factor to prove.
+    return if action_name == "start_totp_setup" && !current_user.totp_enabled?
+    return if current_second_factor_valid?
+
+    redirect_to security_settings_path, alert: t("security.second_factor.required")
+  end
+
+  def current_second_factor_valid?
+    return true if current_user.totp_credential&.verify_and_consume!(params[:totp_code])
+    return true if RecoveryCode.consume!(current_user, params[:recovery_code]).present?
+
+    false
+  end
 
   def pending_totp_setup
     setup = session[TOTP_SETUP_SESSION_KEY]
