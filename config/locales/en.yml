@@ -398,6 +398,7 @@ en:
     source_recognition: "Source Recognition"
     entities: "Bank entities"
     playground: "Playground"
+    cms_editor: "CMS editor"
     evaluations: "Evaluations"
     assistant: "Assistant"
     financial_chat: "Financial Chat"

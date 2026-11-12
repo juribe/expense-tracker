@@ -893,6 +893,7 @@ es:
     source_recognition: "Reconocimiento de fuentes"
     entities: "Entidades bancarias"
     playground: "Playground"
+    cms_editor: "Editor CMS"
     evaluations: "Evaluaciones"
     assistant: "Asistente"
     financial_chat: "Chat Financiero"
