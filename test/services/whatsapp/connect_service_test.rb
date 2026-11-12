@@ -191,32 +191,89 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
   test "9. losing a claim race does not transfer ownership or duplicate identities" do
     owner = User.create!(name: "Race Owner", email: "race_owner@example.com", password: "password123")
     code = PendingWhatsappConnection.generate_for!(@user)
+    winner = WhatsappIdentity.create!(
+      phone_number: WhatsappIdentity.normalize(OWNER_WA_ID),
+      claimed_by_user: owner,
+      claimed_at: Time.current
+    )
+    original_find = WhatsappIdentity.method(:find_by)
+    calls = 0
 
-    # Simulate the concurrency loser: the INSERT loses the unique race but,
-    # by the time the error is rescued, the winner's identity row exists.
-    winner_created = false
-    stub_method(WhatsappIdentity, :create!, lambda { |attrs|
-      unless winner_created
-        winner_created = true
-        winner = WhatsappIdentity.new(phone_number: OWNER_WA_ID, claimed_by_user: owner, claimed_at: Time.current)
-        winner.save!
-        raise ActiveRecord::RecordNotUnique
+    # Simulate the concurrency loser: the winner committed in another
+    # transaction, this request did not see it and its INSERT loses the race.
+    stub_method(WhatsappIdentity, :find_by, lambda { |*args, **kwargs|
+      if kwargs[:phone_number].present? && calls.zero?
+        calls += 1
+        nil
+      else
+        original_find.call(*args, **kwargs)
       end
-      identity = WhatsappIdentity.new(attrs)
-      identity.save!
-      identity
     }) do
-      result = nil
-      with_reply_stub do
-        result = Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT #{code}"))
-      end
+      stub_method(WhatsappIdentity, :create!, ->(_attrs) { raise ActiveRecord::RecordNotUnique }) do
+        result = nil
+        with_reply_stub do
+          result = Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT #{code}"))
+        end
 
-      assert result.failure?
+        assert result.failure?
+      end
     end
 
     identity = WhatsappIdentity.find_by(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID))
+    assert_equal winner.id, identity.id
     assert_equal owner.id, identity.claimed_by_user_id
     assert_equal 1, WhatsappIdentity.where(phone_number: WhatsappIdentity.normalize(OWNER_WA_ID)).count
     assert_equal 0, WhatsappConnection.where(user: @user).count
+  end
+
+  test "connecting a number records a permanent premium identity" do
+    code = PendingWhatsappConnection.generate_for!(@user)
+
+    with_reply_stub do
+      assert Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT #{code}")).success?
+    end
+
+    identity = PremiumIdentity.find_by(identity_type: "whatsapp")
+    assert identity
+    assert_equal @user.id, identity.first_user_id
+    assert_equal WhatsappIdentity.normalize(OWNER_WA_ID), @user.whatsapp_connections.active.first.whatsapp_identity.phone_number
+  end
+
+  test "disconnecting does not free the number for another account" do
+    identity = WhatsappIdentity.claim_for!(@user, OWNER_WA_ID)
+    connection = WhatsappConnection.create!(user: @user, whatsapp_identity: identity, connected_at: 1.day.ago)
+    connection.disconnect!
+
+    other = User.create!(name: "Reconnect Other", email: "reconnect_other@example.com", password: "password123")
+    code = PendingWhatsappConnection.generate_for!(other)
+
+    result = nil
+    with_reply_stub do
+      result = Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT #{code}"))
+    end
+
+    assert result.failure?
+    assert_equal 0, WhatsappConnection.where(user: other).count
+    assert_equal 0, PremiumIdentity.where(identity_type: "whatsapp").count
+  end
+
+  test "deleting the account does not free the number for another account" do
+    identity = WhatsappIdentity.claim_for!(@user, OWNER_WA_ID)
+    connection = WhatsappConnection.create!(user: @user, whatsapp_identity: identity, connected_at: 1.day.ago)
+    connection.disconnect!
+    PremiumIdentities::Protection.claim!(identity_type: "whatsapp", value: OWNER_WA_ID, user: @user)
+    @user.destroy!
+
+    other = User.create!(name: "Deleted Owner Other", email: "deleted_owner_other@example.com", password: "password123")
+    code = PendingWhatsappConnection.generate_for!(other)
+
+    result = nil
+    with_reply_stub do
+      result = Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT #{code}"))
+    end
+
+    assert result.failure?
+    assert_equal 0, WhatsappConnection.where(user: other).count
+    assert PremiumIdentity.find_by(identity_type: "whatsapp").present?
   end
 end

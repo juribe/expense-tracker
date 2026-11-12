@@ -503,7 +503,61 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/Cafe Ajeno/, response.body)
   end
 
+  test "callback records the connected Gmail address as a premium identity" do
+    connect_gmail_callback(email: "premium-inbox@gmail.com")
+
+    assert_redirected_to gmail_connection_path
+    identity = PremiumIdentity.find_by(
+      identity_type: "gmail",
+      fingerprint: PremiumIdentities::Fingerprint.call(identity_type: "gmail", value: "premium-inbox@gmail.com")
+    )
+    assert identity
+    assert_equal @user.id, identity.first_user_id
+  end
+
+  test "callback rejects a Gmail address already used by another account" do
+    owner = User.create!(name: "Gmail Owner", email: "gmail_owner@example.com", password: "password123")
+    PremiumIdentities::Protection.claim!(identity_type: "gmail", value: "blocked-inbox@gmail.com", user: owner)
+
+    connect_gmail_callback(email: "blocked-inbox@gmail.com")
+
+    assert_redirected_to gmail_connection_path
+    assert_match(/otra cuenta/i, flash[:alert])
+    assert_equal 0, @user.gmail_connections.count
+  end
+
+  test "disconnecting Gmail keeps the identity blocked for other accounts" do
+    connect_gmail_callback(email: "kept-inbox@gmail.com")
+    connection = @user.gmail_connections.last
+    delete gmail_connection_path(connection)
+    assert_redirected_to gmail_connection_path
+
+    other = User.create!(name: "Other Gmail", email: "other_gmail_identity@example.com", password: "password123")
+    identity = PremiumIdentity.find_by(identity_type: "gmail")
+    assert identity
+    assert_not identity.released?
+    assert_not PremiumIdentities::Protection.available?(
+      identity_type: "gmail", value: "kept-inbox@gmail.com", user: other
+    )
+  end
+
   private
+
+  def connect_gmail_callback(email:)
+    @user.money_sources.create!(name: "Gmail Callback Bank", kind: "account",
+                                starting_balance: 0, bank: "davibank")
+    with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
+      post start_gmail_auth_path
+    end
+    state = session[:gmail_oauth_state]
+    exchange_result = { access_token: "at", refresh_token: "rt", expires_at: 1.hour.from_now, id_token: nil }
+
+    stub_method(Gmail::OauthClient, :exchange_code, exchange_result) do
+      stub_method(Gmail::OauthClient, :userinfo, { sub: "google-sub-#{SecureRandom.hex(4)}", email: email }) do
+        get google_callback_path, params: { code: "abc", state: state }
+      end
+    end
+  end
 
   def pending_review_for(user, message_id, merchant)
     ProcessedEmail.create!(

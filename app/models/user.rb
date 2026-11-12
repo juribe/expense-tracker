@@ -16,12 +16,15 @@ class User < ApplicationRecord
   validates :inbound_email_token, uniqueness: true, allow_nil: true
 
   before_create :generate_inbound_email_token
+  before_destroy :capture_premium_identities, prepend: true
   after_create :record_registration_consents, if: :registration_form?, prepend: true
+  after_update :record_premium_account_email_identity, if: :saved_change_to_email?
 
   validates :debt_capacity_target_percentage, :debt_capacity_alert_percentage,
             numericality: { greater_than: 0, less_than_or_equal_to: 100 }
   validate :debt_capacity_thresholds_are_ordered
   validate :registration_consents_accepted, on: :create, if: :registration_form?
+  validate :account_email_not_claimed_by_another_premium_account, if: :email_identity_changing?
 
   # A start day of 1 means plain calendar months; anything else turns on the
   # pay-cycle grouping everywhere (reports, budgets, dashboard, cuadre).
@@ -77,6 +80,9 @@ class User < ApplicationRecord
   has_many :whatsapp_connections, dependent: :destroy
   has_many :pending_whatsapp_connections, dependent: :destroy
   has_many :whatsapp_identities, foreign_key: :claimed_by_user_id, dependent: :nullify, inverse_of: :claimed_by_user
+  has_many :premium_identities, foreign_key: :first_user_id, dependent: :nullify, inverse_of: :first_user
+  has_many :released_premium_identities, class_name: "PremiumIdentity",
+           foreign_key: :released_by_user_id, dependent: :nullify, inverse_of: :released_by_user
 
   # Two-factor authentication is opt-in. A passkey is a complete primary
   # authentication method and does not enable a second factor by itself.
@@ -146,6 +152,55 @@ class User < ApplicationRecord
   end
 
   private
+
+  def account_email_not_claimed_by_another_premium_account
+    return unless persisted?
+
+    return if PremiumIdentities::Protection.available?(
+      identity_type: "account_email",
+      value: pending_account_email,
+      user: self
+    )
+
+    errors.add(:email, "ya fue utilizada por una cuenta con membresía premium")
+  end
+
+  # Closing an account must not release its premium identities. This also
+  # captures memberships created before the protection existed.
+  def capture_premium_identities
+    return unless PaymentEngine::Membership.where(owner: self).exists?
+
+    PremiumIdentities::Capture.call(self)
+  end
+
+  def email_identity_changing?
+    return true if will_save_change_to_email?
+
+    respond_to?(:will_save_change_to_unconfirmed_email?) &&
+      will_save_change_to_unconfirmed_email? &&
+      unconfirmed_email.present?
+  end
+
+  def pending_account_email
+    unconfirmed_email.presence || email
+  end
+
+  # A premium account keeps changing its main email over time. The new address
+  # is also a premium identity, otherwise closing the account would free it for
+  # a fresh trial.
+  def record_premium_account_email_identity
+    membership = PaymentEngine::Membership.where(owner: self).order(expires_at: :desc).first
+    return unless membership
+
+    PremiumIdentities::Protection.claim!(
+      identity_type: "account_email",
+      value: email,
+      user: self,
+      membership: membership
+    )
+  rescue PremiumIdentities::Protection::Conflict => e
+    Rails.logger.warn("Premium identity email change skipped for user #{id}: #{e.message}")
+  end
 
   def name_required?
     registration_form? || (persisted? && will_save_change_to_name?)

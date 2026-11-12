@@ -175,6 +175,34 @@ measures, unverified items and editorial instructions are documented in
 [docs/security_page.md](docs/security_page.md) and
 [docs/security_page_audit.md](docs/security_page_audit.md).
 
+### Premium identity fingerprints
+
+Premium identities (account email, WhatsApp number, Gmail address and redirect
+email) are stored as HMAC-SHA256 fingerprints, never as raw identifiers. Set a
+dedicated secret in production and keep it stable across deployments and
+secret-key rotations:
+
+```sh
+export PREMIUM_IDENTITY_HMAC_SECRET="a-long-random-secret"
+```
+
+When the variable is absent, development and test derive the key from
+`secret_key_base`. The migration that introduces the protection also backfills
+memberships, Gmail connections, redirect emails and WhatsApp claims that already
+exist. Closing an account records its current identities before deletion, so
+legacy memberships do not lose their history. A returning identity keeps free
+access: the dashboard shows the old membership as expired, premium features stay
+locked and no new trial can be started. For manual re-runs:
+
+```sh
+bin/rails premium_identities:backfill
+```
+
+The task reports conflicts instead of aborting: a conflict means the same
+identity was already claimed by another account and needs administrative review.
+Accounts deleted before the backfill migration ran cannot be reconstructed if no
+other record of their email remains.
+
 ### Local Speech-to-Text (faster-whisper)
 
 Audio notes in the Expense Playground are transcribed LOCALLY with

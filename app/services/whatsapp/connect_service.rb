@@ -48,16 +48,26 @@ module Whatsapp
         return ServiceResult.error([ "Invalid, expired or already-used connect token." ])
       end
 
-      identity = WhatsappIdentity.claim_for!(pending.user, sender)
-      if identity.claimed_by_user_id != pending.user_id
-        reject(sender, "Este número de WhatsApp no se puede conectar a esta cuenta.")
-        return ServiceResult.error([ "WhatsApp number already claimed by another account." ])
-      end
+      connection = ActiveRecord::Base.transaction do
+        PremiumIdentities::Protection.claim!(
+          identity_type: "whatsapp",
+          value: sender,
+          user: pending.user,
+          membership: PaymentEngine::UserAccess.new(pending.user.id).current_membership
+        )
+        identity = WhatsappIdentity.claim_for!(pending.user, sender)
+        unless identity.claimed_by_user_id == pending.user_id
+          raise PremiumIdentities::Protection::Conflict, "WhatsApp number already claimed by another account."
+        end
 
-      connection = establish_connection!(pending.user, identity)
+        establish_connection!(pending.user, identity)
+      end
       pending.consume!
       Whatsapp::ReplySender.send_to(sender, "✅ WhatsApp conectado. Ya puedes enviarme tus gastos por este chat.")
       ServiceResult.success(connection)
+    rescue PremiumIdentities::Protection::Conflict => e
+      reject(sender, "Este número de WhatsApp no se puede conectar a esta cuenta.")
+      ServiceResult.error([ e.message ])
     end
 
     private

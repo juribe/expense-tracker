@@ -21,12 +21,17 @@ class EmailSourcesController < ApplicationController
   end
 
   def create
-    source = current_user.email_sources.create!(
-      source_type: params[:source_type].presence || "forwarding",
-      email: params[:email].presence,
-      status: "pending_setup"
-    )
+    ActiveRecord::Base.transaction do
+      claim_redirect_email!(params[:email])
+      current_user.email_sources.create!(
+        source_type: params[:source_type].presence || "forwarding",
+        email: params[:email].presence,
+        status: "pending_setup"
+      )
+    end
     redirect_to email_sources_path, notice: t("email_sources.created", default: "Fuente agregada.")
+  rescue PremiumIdentities::Protection::Conflict => e
+    redirect_to email_sources_path, alert: e.message
   rescue ActiveRecord::RecordInvalid => e
     redirect_to email_sources_path, alert: e.message
   end
@@ -39,11 +44,20 @@ class EmailSourcesController < ApplicationController
 
   def confirm
     source = current_user.email_sources.find(params[:id])
-    source.mark_active!
+
+    ActiveRecord::Base.transaction do
+      claim_redirect_email!(source.email)
+      source.mark_active!
+    end
 
     respond_to do |format|
       format.html { redirect_to email_sources_path, notice: t("email_sources.confirmed", default: "Configuración confirmada.") }
       format.json { render json: { ok: true, source: source_payload(source) } }
+    end
+  rescue PremiumIdentities::Protection::Conflict => e
+    respond_to do |format|
+      format.html { redirect_to email_sources_path, alert: e.message }
+      format.json { render json: { ok: false, error: e.message }, status: :unprocessable_entity }
     end
   end
 
@@ -100,32 +114,54 @@ class EmailSourcesController < ApplicationController
 
     subject_email = EmailForwardingVerification.origin_email_from_subject(verification.subject)
     origin_email = subject_email || verification.detected_sender
-    source = current_user.email_sources.forwarding.where("LOWER(email) = ?", subject_email.downcase).first if subject_email.present?
-    linked_source = verification.email_source
-    # Never activate a linked source for a different address; the subject names
-    # the mailbox the verification belongs to.
-    source ||= linked_source if linked_source && (subject_email.blank? || linked_source.email.blank? || linked_source.email.casecmp?(subject_email))
+    source = nil
 
-    if source.nil?
-      source = current_user.email_sources.create!(
-        source_type: "forwarding",
-        email: origin_email,
-        status: "pending_verification"
-      )
-    elsif source.email.blank? && origin_email.present?
-      source.update!(email: origin_email)
+    ActiveRecord::Base.transaction do
+      source = current_user.email_sources.forwarding.where("LOWER(email) = ?", subject_email.downcase).first if subject_email.present?
+      linked_source = verification.email_source
+      # Never activate a linked source for a different address; the subject names
+      # the mailbox the verification belongs to.
+      source ||= linked_source if linked_source && (subject_email.blank? || linked_source.email.blank? || linked_source.email.casecmp?(subject_email))
+
+      if source.nil?
+        source = current_user.email_sources.create!(
+          source_type: "forwarding",
+          email: origin_email,
+          status: "pending_verification"
+        )
+      elsif source.email.blank? && origin_email.present?
+        source.update!(email: origin_email)
+      end
+
+      claim_redirect_email!(source.email.presence || origin_email)
+      verification.update!(email_source: source) unless verification.email_source_id == source.id
+      source.mark_active!
+      verification.consume!
     end
 
-    verification.update!(email_source: source) unless verification.email_source_id == source.id
-    source.mark_active!
-    verification.consume!
     respond_to do |format|
       format.html { redirect_to email_sources_path, notice: t("email_sources.verified", default: "Configuración confirmada. El reenvío está activo.") }
       format.json { render json: { ok: true, source: source_payload(source) } }
     end
+  rescue PremiumIdentities::Protection::Conflict => e
+    respond_to do |format|
+      format.html { redirect_to email_sources_path, alert: e.message }
+      format.json { render json: { ok: false, error: e.message }, status: :unprocessable_entity }
+    end
   end
 
   private
+
+  def claim_redirect_email!(email)
+    return if email.blank?
+
+    PremiumIdentities::Protection.claim!(
+      identity_type: "redirect_email",
+      value: email,
+      user: current_user,
+      membership: current_membership
+    )
+  end
 
   def source_payload(source)
     {

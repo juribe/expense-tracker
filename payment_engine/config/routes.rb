@@ -15,6 +15,10 @@ PaymentEngine::Engine.routes.draw do
       end
     end
 
+    resources :premium_identities, only: [ :index, :show ] do
+      member { post :release }
+    end
+
     resources :subscriptions do
       member do
         post :cancel

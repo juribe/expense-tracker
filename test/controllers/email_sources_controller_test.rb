@@ -232,4 +232,100 @@ class EmailSourcesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "active", gmail_source.status
     refute_equal unrelated, gmail_source
   end
+
+  test "creating a forwarding source records a redirect email premium identity" do
+    post email_sources_path, params: { source_type: "forwarding", email: "Redirect@Example.com" }
+
+    assert_redirected_to email_sources_path
+    identity = PremiumIdentity.find_by(
+      identity_type: "redirect_email",
+      fingerprint: PremiumIdentities::Fingerprint.call(identity_type: "redirect_email", value: "redirect@example.com")
+    )
+    assert identity
+    assert_equal @user.id, identity.first_user_id
+  end
+
+  test "another account cannot add a redirect email already used by a premium account" do
+    owner = User.create!(name: "Redirect Owner", email: "redirect_owner@example.com", password: "password123")
+    PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "used-redirect@example.com", user: owner)
+
+    assert_no_difference -> { @user.email_sources.count } do
+      post email_sources_path, params: { source_type: "forwarding", email: "used-redirect@example.com" }
+    end
+
+    assert_redirected_to email_sources_path
+    assert_match(/otra cuenta/i, flash[:alert])
+  end
+
+  test "confirming a source records the redirect email premium identity" do
+    source = @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "confirm-redirect@example.com",
+      status: "pending_setup"
+    )
+
+    post confirm_email_source_path(source)
+
+    assert_redirected_to email_sources_path
+    assert_equal "active", source.reload.status
+    identity = PremiumIdentity.find_by(identity_type: "redirect_email")
+    assert identity
+    assert_equal @user.id, identity.first_user_id
+  end
+
+  test "confirming a source does not activate it when the redirect email belongs to another account" do
+    owner = User.create!(name: "Confirm Owner", email: "confirm_owner@example.com", password: "password123")
+    PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "blocked-confirm@example.com", user: owner)
+    source = @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "blocked-confirm@example.com",
+      status: "pending_setup"
+    )
+
+    post confirm_email_source_path(source)
+
+    assert_redirected_to email_sources_path
+    assert_match(/otra cuenta/i, flash[:alert])
+    assert_equal "pending_setup", source.reload.status
+  end
+
+  test "deleting a forwarding source does not free its premium identity" do
+    source = @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "delete-redirect@example.com",
+      status: "pending_setup"
+    )
+    post confirm_email_source_path(source)
+    identity = PremiumIdentity.find_by(identity_type: "redirect_email")
+    assert identity
+
+    delete email_source_path(source)
+
+    assert_redirected_to email_sources_path
+    assert identity.reload.persisted?
+    assert_not identity.released?
+  end
+
+  test "confirming a verification does not activate a source whose redirect email belongs to another account" do
+    owner = User.create!(name: "Verification Owner", email: "verification_owner@example.com", password: "password123")
+    PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "blocked-verification@example.com", user: owner)
+    source = @user.email_sources.create!(
+      source_type: "forwarding",
+      email: "blocked-verification@example.com",
+      status: "pending_verification"
+    )
+    verification = @user.email_forwarding_verifications.create!(
+      email_source: source,
+      confirmation_url: "https://mail-settings.google.com/mail/vf-abc123",
+      sender_email: "forwarding-noreply@google.com",
+      subject: "Confirmación de reenvío de Gmail: recibir correo de blocked-verification@example.com",
+      expires_at: 1.day.from_now
+    )
+
+    post confirm_email_verification_path(verification), headers: { "Accept" => "application/json" }
+
+    assert_response :unprocessable_entity
+    assert_equal "pending_verification", source.reload.status
+    assert_not verification.reload.consumed?
+  end
 end

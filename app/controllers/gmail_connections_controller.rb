@@ -19,6 +19,10 @@ class GmailConnectionsController < ApplicationController
     redirect_to gmail_connection_path, alert: t("gmail_messages.oauth_error", message: exception.message)
   end
 
+  rescue_from PremiumIdentities::Protection::Conflict do |exception|
+    redirect_to gmail_connection_path, alert: exception.message
+  end
+
   def index
     @connection = current_user.gmail_connections.order(:created_at, :id).last
     @configured = Gmail::OauthClient.configured?
@@ -62,7 +66,16 @@ class GmailConnectionsController < ApplicationController
     connection.refresh_token = tokens[:refresh_token] if tokens[:refresh_token].present?
     connection.token_expires_at = tokens[:expires_at]
     connection.active = true
-    connection.save!
+
+    ActiveRecord::Base.transaction do
+      PremiumIdentities::Protection.claim!(
+        identity_type: "gmail",
+        value: info[:email],
+        user: current_user,
+        membership: current_membership
+      )
+      connection.save!
+    end
 
     session.delete(:gmail_oauth_state)
     redirect_to gmail_connection_path, notice: t("gmail_messages.connected", email: info[:email])

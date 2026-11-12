@@ -36,9 +36,39 @@ class PaymentEngineAdminTest < ActionDispatch::IntegrationTest
 
   test "admin can access all admin routes" do
     sign_in @admin
-    [ "/payment_engine/admin/membership_types", "/payment_engine/admin/payment_options", "/payment_engine/admin/memberships", "/payment_engine/admin/subscriptions", "/payment_engine/admin/purchases", "/payment_engine/admin/payments", "/payment_engine/admin/providers", "/payment_engine/admin/webhook_events", "/payment_engine/admin/settings" ].each do |path|
+    [ "/payment_engine/admin/membership_types", "/payment_engine/admin/payment_options", "/payment_engine/admin/memberships", "/payment_engine/admin/subscriptions", "/payment_engine/admin/purchases", "/payment_engine/admin/payments", "/payment_engine/admin/providers", "/payment_engine/admin/webhook_events", "/payment_engine/admin/settings", "/payment_engine/admin/premium_identities" ].each do |path|
       get path
       assert_response :success, "Failed for #{path}"
     end
+  end
+
+  test "normal user cannot access premium identities" do
+    sign_in @user
+
+    get "/payment_engine/admin/premium_identities"
+
+    assert_redirected_to "/dashboard"
+  end
+
+  test "admin can release a premium identity with an audit entry" do
+    identity = PremiumIdentities::Protection.claim!(
+      identity_type: "account_email",
+      value: "admin-release@example.com",
+      user: @user
+    )
+    sign_in @admin
+
+    get "/payment_engine/admin/premium_identities/#{identity.id}"
+    assert_response :success
+
+    post "/payment_engine/admin/premium_identities/#{identity.id}/release",
+         params: { reason: "Verified support request" }
+
+    assert_redirected_to "/payment_engine/admin/premium_identities/#{identity.id}"
+    assert identity.reload.released?
+    audit = PaymentEngine::AuditLog.where(action: "premium_identity.released").last
+    assert audit
+    assert_equal @admin.id.to_s, audit.actor_id
+    assert_equal "Verified support request", audit.reason
   end
 end

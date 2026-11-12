@@ -26,6 +26,10 @@ module PaymentEngine
           return PaymentEngine::Result.new(success: false, errors: [ "El usuario ya tiene una membresía activa" ])
         end
 
+        unless PaymentEngine::AccessPolicy.premium_identity_available?(owner)
+          return PaymentEngine::Result.new(success: false, errors: [ PremiumIdentities::Protection::CONFLICT_MESSAGE ])
+        end
+
         duration = settings.free_trial_duration_days.days
         starts_at = Time.current
         expires_at = starts_at + duration
@@ -40,6 +44,7 @@ module PaymentEngine
             starts_at: starts_at,
             expires_at: expires_at
           )
+          PremiumIdentities::Protection.claim_membership_owner!(membership)
           PaymentEngine::AuditLog.create!(
             actor_type: actor&.class&.name || owner.class.name,
             actor_id: actor&.id || owner.id,
@@ -56,6 +61,8 @@ module PaymentEngine
         PaymentEngine::Result.new(success: false, errors: e.record.errors.full_messages)
       rescue ActiveRecord::RecordNotUnique
         PaymentEngine::Result.new(success: false, errors: [ "El usuario ya utilizó su prueba gratuita" ])
+      rescue PremiumIdentities::Protection::Conflict => e
+        PaymentEngine::Result.new(success: false, errors: [ e.message ])
       rescue StandardError => e
         PaymentEngine::Result.new(success: false, errors: [ e.message ])
       end

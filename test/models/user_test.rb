@@ -127,6 +127,89 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 2, user.reload.financial_cycle_start_day
   end
 
+  test "cannot change the account email to one used by another premium account" do
+    owner = User.create!(
+      name: "Premium Email Owner",
+      email: "premium-email-owner-#{SecureRandom.hex(4)}@example.com",
+      password: "password123"
+    )
+    PremiumIdentities::Protection.claim!(
+      identity_type: "account_email",
+      value: "claimed-account@example.com",
+      user: owner
+    )
+    user = User.create!(
+      name: "Email Changer",
+      email: "email-changer-#{SecureRandom.hex(4)}@example.com",
+      password: "password123"
+    )
+
+    assert_not user.update(email: "claimed-account@example.com")
+    assert_includes user.errors[:email], "ya fue utilizada por una cuenta con membresía premium"
+  end
+
+  test "can change the account email to one already claimed by the same user" do
+    user = User.create!(
+      name: "Own Email Identity",
+      email: "own-email-#{SecureRandom.hex(4)}@example.com",
+      password: "password123"
+    )
+    PremiumIdentities::Protection.claim!(
+      identity_type: "account_email",
+      value: "own-new-email@example.com",
+      user: user
+    )
+
+    assert user.update(email: "own-new-email@example.com")
+    assert_equal "own-new-email@example.com", user.reload.unconfirmed_email
+  end
+
+  test "changing the email of a premium account records the new account identity" do
+    membership_type = PaymentEngine::MembershipType.create!(
+      name: "Email Change Premium",
+      code: "EMAIL_CHANGE_#{SecureRandom.hex(6)}",
+      status: "active"
+    )
+    user = User.create!(
+      name: "Premium Email Change",
+      email: "premium-email-change-#{SecureRandom.hex(4)}@example.com",
+      password: "password123"
+    )
+    PaymentEngine::Membership.create!(
+      owner: user,
+      membership_type: membership_type,
+      status: "active",
+      source: "purchase",
+      starts_at: 1.day.ago,
+      expires_at: 1.month.from_now
+    )
+    new_email = "premium-email-changed-#{SecureRandom.hex(4)}@example.com"
+
+    user.update!(email: new_email)
+    user.confirm
+
+    identity = PremiumIdentity.find_by(
+      identity_type: "account_email",
+      fingerprint: PremiumIdentities::Fingerprint.call(identity_type: "account_email", value: new_email)
+    )
+    assert identity
+    assert_equal user.id, identity.first_user_id
+  end
+
+  test "changing the email of a free account does not record a premium identity" do
+    user = User.create!(
+      name: "Free Email Change",
+      email: "free-email-change-#{SecureRandom.hex(4)}@example.com",
+      password: "password123"
+    )
+    new_email = "free-email-changed-#{SecureRandom.hex(4)}@example.com"
+
+    assert_no_difference -> { PremiumIdentity.count } do
+      user.update!(email: new_email)
+      user.confirm
+    end
+  end
+
   private
 
   def build_registration_user(overrides = {})

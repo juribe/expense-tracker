@@ -1,0 +1,48 @@
+<h1>Identidades premium</h1>
+<p class="pe-empty">Registros históricos usados para impedir la reutilización de identidades premium. Liberar una identidad es una excepción auditada y no borra el historial.</p>
+<div class="pe-filters">
+  <%= form_with url: admin_premium_identities_path, method: :get, local: true do %>
+    <select name="identity_type" class="pe-select">
+      <option value="">Todos los tipos</option>
+      <% PremiumIdentity::IDENTITY_TYPES.each do |type| %>
+        <option value="<%= type %>" <%= "selected" if params[:identity_type] == type %>><%= type %></option>
+      <% end %>
+    </select>
+    <select name="status" class="pe-select">
+      <option value="">Todos los estados</option>
+      <option value="active" <%= "selected" if params[:status] == "active" %>>Activas</option>
+      <option value="released" <%= "selected" if params[:status] == "released" %>>Liberadas</option>
+    </select>
+    <button class="pe-btn" type="submit">Filtrar</button>
+  <% end %>
+</div>
+<table class="pe-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Tipo</th>
+      <th>Fingerprint</th>
+      <th>Primer usuario</th>
+      <th>Membresía</th>
+      <th>Primer uso</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @records.each do |record| %>
+      <tr>
+        <td><%= link_to record.id, admin_premium_identity_path(record) %></td>
+        <td><%= record.identity_type %></td>
+        <td><code><%= truncate(record.fingerprint, length: 16) %></code></td>
+        <td><%= record.first_user&.email || "Usuario eliminado" %></td>
+        <td><%= record.payment_engine_membership_id || "—" %></td>
+        <td><%= record.first_used_at %></td>
+        <td><%= record.released? ? status_badge("cancelled") : status_badge("active") %></td>
+        <td><%= link_to "Ver", admin_premium_identity_path(record), class: "pe-btn" %></td>
+      </tr>
+    <% end %>
+    <% if @records.empty? %><tr><td colspan="8" class="pe-empty">Sin registros</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pe-pagination"><%= will_paginate @records %></div>

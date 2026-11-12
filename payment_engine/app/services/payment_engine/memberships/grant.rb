@@ -17,6 +17,7 @@ module PaymentEngine
         )
         ActiveRecord::Base.transaction do
           membership.save!
+          PremiumIdentities::Protection.claim_membership_owner!(membership)
           AuditLog.create!(
             actor_type: actor&.class&.name || "System",
             actor_id: actor&.id,
@@ -31,8 +32,10 @@ module PaymentEngine
         PaymentEngine::Result.new(success: true, record: membership)
       rescue ActiveRecord::RecordInvalid => e
         PaymentEngine::Result.new(success: false, errors: e.record.errors.full_messages)
+      rescue PremiumIdentities::Protection::Conflict => e
+        PaymentEngine::Result.new(success: false, errors: [ e.message ])
       rescue StandardError => e
-        PaymentEngine::Result.new(success: false, errors: [e.message])
+        PaymentEngine::Result.new(success: false, errors: [ e.message ])
       end
     end
   end

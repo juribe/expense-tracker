@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_12_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -974,6 +974,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_120000) do
     t.index ["user_id"], name: "index_pending_whatsapp_connections_on_user_id"
   end
 
+  create_table "premium_identities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "identity_type", null: false
+    t.string "fingerprint", null: false
+    t.uuid "first_user_id"
+    t.bigint "payment_engine_membership_id"
+    t.datetime "first_used_at", null: false
+    t.datetime "released_at"
+    t.uuid "released_by_user_id"
+    t.text "release_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fingerprint"], name: "index_premium_identities_on_fingerprint", unique: true
+    t.index ["first_user_id"], name: "index_premium_identities_on_first_user_id"
+    t.index ["payment_engine_membership_id"], name: "index_premium_identities_on_payment_engine_membership_id"
+    t.index ["released_by_user_id"], name: "index_premium_identities_on_released_by_user_id"
+    t.check_constraint "identity_type::text = ANY (ARRAY['account_email'::character varying, 'whatsapp'::character varying, 'gmail'::character varying, 'redirect_email'::character varying]::text[])", name: "premium_identities_identity_type_check"
+  end
+
   create_table "processed_emails", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "expense_id"
@@ -1311,7 +1329,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_120000) do
     t.index ["user_id", "gmf_origin_type", "gmf_origin_id"], name: "index_transactions_gmf_origin"
     t.index ["user_id", "kind", "date"], name: "index_transactions_on_user_id_and_kind_and_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
-    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying::text, 'income'::character varying::text])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
+    t.check_constraint "(kind::text <> ALL (ARRAY['expense'::character varying, 'income'::character varying]::text[])) OR money_source_id IS NOT NULL", name: "transactions_money_source_presence"
   end
 
   create_table "transfers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1478,6 +1496,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_120000) do
   add_foreign_key "payment_engine_subscriptions", "payment_engine_payment_options", column: "payment_option_id"
   add_foreign_key "payments", "transactions", column: "expense_id"
   add_foreign_key "pending_whatsapp_connections", "users"
+  add_foreign_key "premium_identities", "payment_engine_memberships", on_delete: :nullify
+  add_foreign_key "premium_identities", "users", column: "first_user_id", on_delete: :nullify
+  add_foreign_key "premium_identities", "users", column: "released_by_user_id", on_delete: :nullify
   add_foreign_key "processed_emails", "transactions", column: "expense_id", on_delete: :nullify
   add_foreign_key "processed_emails", "users"
   add_foreign_key "reconciliation_snapshots", "money_sources"
