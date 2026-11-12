@@ -72,6 +72,24 @@ class Whatsapp::ConnectServiceTest < ActiveSupport::TestCase
     assert @sent_replies.any? { |(phone, _)| phone == WhatsappIdentity.normalize(OWNER_WA_ID) }
   end
 
+  test "does not link when the token was already consumed concurrently" do
+    code = PendingWhatsappConnection.generate_for!(@user)
+    pending = PendingWhatsappConnection.valid_pending_for(code)
+    pending.define_singleton_method(:consume!) { false }
+
+    result = nil
+    with_reply_stub do
+      stub_method(PendingWhatsappConnection, :valid_pending_for, pending) do
+        result = Whatsapp::ConnectService.call(event: connect_event(text: "CONNECT #{code}"))
+      end
+    end
+
+    assert_not result.success?
+    assert_equal 0, WhatsappConnection.count
+    assert_equal 0, WhatsappIdentity.count
+    assert_equal 0, PremiumIdentity.where(identity_type: "whatsapp").count
+  end
+
   test "the initial greeting with a valid token connects the sender number securely" do
     code = PendingWhatsappConnection.generate_for!(@user)
     text = "Hola yogasto quiero registrar mis gastos usando whatsapp\n\nCONNECT #{code}"

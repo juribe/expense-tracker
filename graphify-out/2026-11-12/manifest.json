@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794524400.677718,
-    "seen": 1794524628.7442749,
-    "ast_hash": "969586b0148fa987da48b636593bf9be",
+    "mtime": 1794526733.4337845,
+    "seen": 1794526907.466217,
+    "ast_hash": "b9eecb4755911eb4db78041383882331",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794526307.740575,
-    "seen": 1794526401.8263822,
+    "mtime": 1794526853.5578942,
+    "seen": 1794526907.466225,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -6102,15 +6102,15 @@
     "semantic_hash": ""
   },
   "app/controllers/mcp/endpoint_controller.rb": {
-    "mtime": 1794482654.0908034,
-    "seen": 1794482817.037961,
-    "ast_hash": "9a30d5964315dc586cdf9ea62a654858",
+    "mtime": 1794526676.7548888,
+    "seen": 1794526907.463914,
+    "ast_hash": "2f74501edab055560bbd719d2f8c4d86",
     "semantic_hash": ""
   },
   "app/controllers/mcp/settings_controller.rb": {
-    "mtime": 1794405735.2884955,
-    "seen": 1794405808.5749388,
-    "ast_hash": "69b30fc720dccd4255e933a8a139669f",
+    "mtime": 1794526676.7548964,
+    "seen": 1794526907.463916,
+    "ast_hash": "1846579cff009635ce32c6fd4c9be2de",
     "semantic_hash": ""
   },
   "app/lib/mcp/application_tool.rb": {
@@ -6234,9 +6234,9 @@
     "semantic_hash": ""
   },
   "app/lib/mcp/server_factory.rb": {
-    "mtime": 1794518389.9104319,
-    "seen": 1794518779.523519,
-    "ast_hash": "13c88addacb73b864b9ca51707deb155",
+    "mtime": 1794526676.7549307,
+    "seen": 1794526907.464109,
+    "ast_hash": "888347e88f68b3be1e776cd05b2edb6c",
     "semantic_hash": ""
   },
   "app/lib/mcp/tool_arguments.rb": {
@@ -6504,9 +6504,9 @@
     "semantic_hash": ""
   },
   "app/models/mcp_access_token.rb": {
-    "mtime": 1793486580.6594505,
-    "seen": 1793490696.634617,
-    "ast_hash": "28fa79cc2f216aa57c6e22f79ed694fc",
+    "mtime": 1794526676.7548885,
+    "seen": 1794526907.4642618,
+    "ast_hash": "0ab5ca7b82061d26bfc28f386f8c60fb",
     "semantic_hash": ""
   },
   "app/models/mcp_idempotency_record.rb": {
@@ -6558,9 +6558,9 @@
     "semantic_hash": ""
   },
   "test/integration/mcp_settings_test.rb": {
-    "mtime": 1793552264.163678,
-    "seen": 1793552342.151791,
-    "ast_hash": "d635066e34b08f83d749b855b76e37ac",
+    "mtime": 1794526438.6187844,
+    "seen": 1794526907.465525,
+    "ast_hash": "a26e7b9e2b203b81454a7ba2946119ce",
     "semantic_hash": ""
   },
   "test/mcp/tools/account_tools_test.rb": {
@@ -6648,9 +6648,9 @@
     "semantic_hash": ""
   },
   "test/models/mcp_access_token_test.rb": {
-    "mtime": 1793486580.776091,
-    "seen": 1793490696.63533,
-    "ast_hash": "3a309941d83dd9ce2767673296bee572",
+    "mtime": 1794526438.601506,
+    "seen": 1794526907.465659,
+    "ast_hash": "ed953f2bae72ea05c23b7c2649b56c9e",
     "semantic_hash": ""
   },
   "test/services/mcp/authentication_test.rb": {
@@ -10107,6 +10107,12 @@
     "mtime": 1794526235.8197322,
     "seen": 1794526401.8256881,
     "ast_hash": "ce29b676e8bc53abcf8ff7764ab50f35",
+    "semantic_hash": ""
+  },
+  "test/controllers/mcp/endpoint_controller_test.rb": {
+    "mtime": 1794526438.6013858,
+    "seen": 1794526907.465431,
+    "ast_hash": "546848c5628273978b86222010057ec3",
     "semantic_hash": ""
   }
 }
