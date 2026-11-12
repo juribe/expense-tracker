@@ -77,23 +77,18 @@
         </ul>
 
         <% if @can_trial %>
-          <div class="plans-divider"></div>
-          <div class="plans-section-label">FUNCIONES PRO INCLUIDAS POR <%= @trial_days %> DÍAS</div>
-          <ul class="plans-features plans-features--pro">
-            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Chat financiero con IA</li>
-            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Análisis y oportunidades de ahorro</li>
-            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Registro automático de gastos por correo</li>
-            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Creación de gastos por WhatsApp</li>
-            <li><span class="plans-pro-icon" aria-hidden="true">✦</span>Herramientas avanzadas de planificación</li>
-          </ul>
-        <% end %>
-
-        <% if @free_access_available %>
+          <div class="plans-cta-note">
+            <strong>Siempre gratis</strong><br>
+            Al terminar tus <%= @trial_days %> días de Pro, continuarás con estas funciones sin costo.
+            No necesitas pagar para seguir usando Yogasto.
+          </div>
+          <div class="plans-undercta">Este será tu plan al terminar la prueba.</div>
+        <% elsif @free_access_available %>
           <%= link_to "Continuar con el plan gratis", dashboard_path, class: "plans-cta plans-cta--free" %>
+          <div class="plans-undercta">Gratis, sin fecha de vencimiento.</div>
         <% else %>
-          <div class="plans-cta-note">Disponible cuando termine tu prueba</div>
+          <div class="plans-undercta">Gratis, sin fecha de vencimiento.</div>
         <% end %>
-        <div class="plans-undercta">Gratis, sin fecha de vencimiento.</div>
       </article>
     <% end %>
 

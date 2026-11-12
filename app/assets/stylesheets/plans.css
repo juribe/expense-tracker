@@ -352,8 +352,6 @@
 [data-bs-theme="dark"] .plans-page .plans-features li { color: #b8c7d8; }
 
 .plans-page .plans-check { color: var(--plans-green); font-weight: 900; line-height: 1.2; }
-.plans-page .plans-pro-icon { color: var(--plans-purple); font-weight: 900; line-height: 1.2; }
-.plans-page .plans-features--pro li { color: var(--plans-muted); }
 
 .plans-page .plans-probox {
   background: var(--plans-probox-bg);

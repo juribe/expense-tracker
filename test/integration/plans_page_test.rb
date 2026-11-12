@@ -65,8 +65,12 @@ class PlansPageTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Pro mensual"
     assert_includes response.body, "Pro anual"
     assert_includes response.body, "30 días"
-    assert_includes response.body, "FUNCIONES PRO INCLUIDAS POR 30 DÍAS"
-    refute_includes response.body, "FUNCIONES PRO NO INCLUIDAS"
+    assert_includes response.body, "Siempre gratis"
+    assert_includes response.body, "Al terminar tus 30 días de Pro, continuarás con estas funciones sin costo"
+    assert_includes response.body, "Este será tu plan al terminar la prueba."
+    refute_includes response.body, "SI ACTIVAS LA PRUEBA PRO"
+    refute_includes response.body, "plans-features--pro"
+    refute_includes response.body, "Este será tu plan cuando termine la prueba"
     assert_includes response.body, "14.900"
     assert_includes response.body, "149.900"
     assert_includes response.body, "Ahorras $28.900 al año"
@@ -122,7 +126,27 @@ class PlansPageTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_no_match(/Continuar con el plan gratis/, response.body)
-    assert_includes response.body, "Disponible cuando termine tu prueba"
+    assert_includes response.body, "Este será tu plan al terminar la prueba."
+  end
+
+  test "offers the free plan button when paid access is not required and trials are disabled" do
+    @setting.update!(paid_access_required: false, free_trial_enabled: false)
+
+    get plans_path
+
+    assert_response :success
+    assert_includes response.body, "Continuar con el plan gratis"
+    assert_no_match(/Este será tu plan al terminar la prueba/, response.body)
+  end
+
+  test "keeps the free plan note over the free button when a trial can be started" do
+    @setting.update!(paid_access_required: false, free_trial_enabled: true)
+
+    get plans_path
+
+    assert_response :success
+    assert_includes response.body, "Siempre gratis"
+    assert_no_match(/Continuar con el plan gratis/, response.body)
   end
 
   test "highlights an active trial instead of offering a new one" do
@@ -151,5 +175,6 @@ class PlansPageTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_match(/Disfruta de Yogasto Pro gratis/, response.body)
     assert_no_match(/Comenzar prueba gratis/, response.body)
+    assert_no_match(/Al terminar tus/, response.body)
   end
 end
