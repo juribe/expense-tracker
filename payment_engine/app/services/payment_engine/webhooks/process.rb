@@ -120,6 +120,7 @@ module PaymentEngine
           status: "refunded"
         )
         purchase.update!(status: "refunded")
+        Memberships::RevokeForRefund.call(purchase: purchase, actor: actor, reason: "refund")
         audit!(action: "payment.refunded", auditable: purchase, changes: { status: "refunded" })
         Result.new(success: true, record: payment)
       end

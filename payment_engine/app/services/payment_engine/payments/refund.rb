@@ -7,6 +7,13 @@ module PaymentEngine
         amount ||= payment.amount
         ActiveRecord::Base.transaction do
           payment.update!(status: "refunded")
+
+          purchase = payment.purchase
+          if purchase
+            purchase.update!(status: "refunded") unless purchase.status == "refunded"
+            Memberships::RevokeForRefund.call(purchase: purchase, actor: actor, reason: reason)
+          end
+
           AuditLog.create!(
             actor_type: actor&.class&.name || "System",
             actor_id: actor&.id,

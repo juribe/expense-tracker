@@ -106,7 +106,55 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     assert_equal "paid", @purchase.reload.status
   end
 
+  test "refund notification revokes the membership granted by the purchase" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    assert_response :ok
+    membership = PaymentEngine::Membership.find_by!(purchase: @purchase)
+    assert membership.active?
+
+    post "/payment_engine/webhooks/epayco", params: refund_payload
+
+    assert_response :ok
+    assert_equal "refunded", @payment.reload.status
+    assert_equal "refunded", @purchase.reload.status
+    assert_equal "cancelled", membership.reload.status
+    refute membership.access_granted?
+  end
+
+  test "refund keeps the membership when revoke_access_on_refund is disabled" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    membership = PaymentEngine::Membership.find_by!(purchase: @purchase)
+    previous = PaymentEngine.configuration.revoke_access_on_refund
+
+    begin
+      PaymentEngine.configuration.revoke_access_on_refund = false
+      post "/payment_engine/webhooks/epayco", params: refund_payload
+    ensure
+      PaymentEngine.configuration.revoke_access_on_refund = previous
+    end
+
+    assert_response :ok
+    assert_equal "refunded", @purchase.reload.status
+    assert_equal "active", membership.reload.status
+  end
+
+  test "admin refund revokes the membership and marks the purchase refunded" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    membership = PaymentEngine::Membership.find_by!(purchase: @purchase)
+
+    result = PaymentEngine::Payments::Refund.call(payment: @payment, reason: "prueba")
+
+    assert result.success?
+    assert_equal "refunded", @payment.reload.status
+    assert_equal "refunded", @purchase.reload.status
+    assert_equal "cancelled", membership.reload.status
+  end
+
   private
+
+  def refund_payload
+    webhook_payload.merge("x_cod_response" => "6", "x_response" => "Reversada")
+  end
 
   def webhook_payload(customer_id: @customer_id, p_key: @p_key)
     signature = Digest::SHA256.hexdigest(
