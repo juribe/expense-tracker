@@ -31,7 +31,7 @@
       </div>
       <div class="auth-input-wrap">
         <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "auth-input auth-input-password", placeholder: t("auth.new_password_placeholder") %>
-        <button type="button" class="auth-toggle" data-toggle-pw-target="#user_password"
+        <button type="button" class="auth-toggle" data-toggle-pw-target="#user_password" tabindex="-1"
                 aria-label="<%= t('auth.show_password') %>" title="<%= t('auth.show_password') %>">
           <i class="ti ti-eye"></i>
         </button>
@@ -42,7 +42,7 @@
       <%= f.label :password_confirmation, t("auth.password_confirmation_label"), class: "auth-label" %>
       <div class="auth-input-wrap">
         <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "auth-input auth-input-password", placeholder: t("auth.password_repeat_placeholder") %>
-        <button type="button" class="auth-toggle" data-toggle-pw-target="#user_password_confirmation"
+        <button type="button" class="auth-toggle" data-toggle-pw-target="#user_password_confirmation" tabindex="-1"
                 aria-label="<%= t('auth.show_password') %>" title="<%= t('auth.show_password') %>">
           <i class="ti ti-eye"></i>
         </button>

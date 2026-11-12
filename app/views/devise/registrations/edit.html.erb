@@ -28,7 +28,7 @@
             <span class="text-muted small"><%= t("auth.password_change_blank") %></span>
             <div class="position-relative">
               <%= f.password_field :password, autocomplete: "new-password", class: "form-control password-field", placeholder: t("auth.new_password_placeholder") %>
-              <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
+              <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw" tabindex="-1"
                       data-toggle-pw-target="#user_password" aria-label="<%= t('auth.show_password') %>">
                 <i class="ti ti-eye"></i>
               </button>
@@ -42,7 +42,7 @@
             <%= f.label :password_confirmation, class: "form-label" %>
             <div class="position-relative">
               <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control password-field", placeholder: t("auth.password_repeat_placeholder") %>
-              <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw"
+              <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y toggle-pw" tabindex="-1"
                       data-toggle-pw-target="#user_password_confirmation" aria-label="<%= t('auth.show_password') %>">
                 <i class="ti ti-eye"></i>
               </button>

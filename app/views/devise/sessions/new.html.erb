@@ -25,7 +25,7 @@
     </div>
     <div class="auth-input-wrap">
       <%= f.password_field :password, autocomplete: "current-password", class: "auth-input auth-input-password", placeholder: "••••••••" %>
-      <button type="button" class="auth-toggle" data-toggle-pw-target="#user_password"
+      <button type="button" class="auth-toggle" data-toggle-pw-target="#user_password" tabindex="-1"
               aria-label="<%= t('auth.show_password') %>" title="<%= t('auth.show_password') %>">
         <i class="ti ti-eye"></i>
       </button>
