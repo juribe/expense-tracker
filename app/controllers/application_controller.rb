@@ -13,6 +13,7 @@ class ApplicationController < ActionController::Base
   # gate is provided by Maglev itself through `config.is_authenticated`), but
   # the published CMS pages and the sitemap must stay publicly accessible.
   before_action :authenticate_user!, unless: :maglev_request?
+  before_action :authorize_maglev_preview!
   before_action :require_membership_selection, if: -> { user_signed_in? }
   before_action :set_page_title, if: -> { request.get? }
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
@@ -144,6 +145,20 @@ class ApplicationController < ActionController::Base
   # The CMS home page (root) would end the marketing page for every visitor.
   # Keep the historical behavior of HomeController#index: signed-in users are
   # taken straight to their dashboard.
+  # The engine's preview controller renders the draft working copy of a page,
+  # not the published one. It is the only Maglev controller outside the editor
+  # gate, so it needs the same admin check.
+  def authorize_maglev_preview!
+    return unless controller_path == "maglev/page_preview"
+    return if current_user&.admin?
+
+    if user_signed_in?
+      redirect_to main_app.root_path, alert: t("errors.not_authorized")
+    else
+      redirect_to main_app.new_user_session_path
+    end
+  end
+
   def redirect_signed_in_from_cms_home
     return unless user_signed_in?
     return unless request.path == "/"

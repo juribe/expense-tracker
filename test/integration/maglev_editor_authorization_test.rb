@@ -40,6 +40,32 @@ class MaglevEditorAuthorizationTest < ActionDispatch::IntegrationTest
     assert_match %r{^/maglev/editor/es/[a-f0-9-]+$}, URI.parse(response.location).path
   end
 
+  test "anonymous users cannot open the draft preview" do
+    get "https://yogasto.co/maglev/preview/index"
+
+    assert_response :redirect
+    assert_equal "/users/sign_in", URI.parse(response.location).path
+  end
+
+  test "regular users cannot open the draft preview" do
+    user = User.create!(name: "Preview Wannabe", email: "preview_wannabe@example.com", password: "password123")
+    sign_in user
+
+    get "https://yogasto.co/maglev/preview/index"
+
+    assert_response :redirect
+    assert_equal "/", URI.parse(response.location).path
+  end
+
+  test "admins can open the draft preview" do
+    admin = User.create!(name: "Preview Admin", email: "preview_admin@example.com", password: "password123", admin: true)
+    sign_in admin
+
+    get "https://yogasto.co/maglev/preview/index"
+
+    assert_response :success
+  end
+
   test "admins can persist page SEO edits through the editor" do
     admin = User.create!(name: "SEO Admin", email: "seo_admin@example.com", password: "password123", admin: true)
     sign_in admin
