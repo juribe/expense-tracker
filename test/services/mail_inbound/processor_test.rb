@@ -17,7 +17,7 @@ class MailInbound::ProcessorTest < ActiveSupport::TestCase
       internal_date: "2026-08-23T14:30:00Z",
       headers: [
         { "name" => "From", "value" => "Banco <notificaciones@bank.example>" },
-        { "name" => "Authentication-Results", "value" => "mx; dkim=pass header.d=bank.example" }
+        { "name" => "Authentication-Results", "value" => "mx.cloudflare.net; dkim=pass; dmarc=pass header.from=bank.example" }
       ],
       attachments: []
     }
