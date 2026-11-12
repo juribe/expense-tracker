@@ -48,7 +48,13 @@ module PaymentEngine
       end
 
       def update
+        before = @record.attributes.dup
         if @record.update(membership_params.except(:owner_type, :owner_id))
+          record_audit(
+            action: "membership.updated",
+            auditable: @record,
+            changes: { before: before, after: @record.attributes }
+          )
           redirect_to admin_membership_path(@record), notice: "Actualizado."
         else
           render :edit, status: :unprocessable_entity

@@ -9,7 +9,9 @@ module PaymentEngine
 
       def update
         @setting = Setting.current
+        old = @setting.attributes.dup
         if @setting.update(settings_params)
+          record_audit(action: "settings.updated", auditable: @setting, changes: { before: old, after: @setting.attributes })
           redirect_to admin_settings_path, notice: "Configuración actualizada."
         else
           render :show, status: :unprocessable_entity

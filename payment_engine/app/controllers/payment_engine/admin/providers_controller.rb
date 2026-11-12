@@ -18,6 +18,7 @@ module PaymentEngine
       def create
         @record = Provider.new(provider_params)
         if @record.save
+          record_audit(action: "provider.created", auditable: @record, changes: { after: audit_attributes })
           redirect_to admin_provider_path(@record), notice: "Creado."
         else
           render :new, status: :unprocessable_entity
@@ -28,7 +29,17 @@ module PaymentEngine
 
       def update
         # merge credentials: only update provided non-blank
+        before = audit_attributes
         if @record.update(provider_params)
+          record_audit(
+            action: "provider.updated",
+            auditable: @record,
+            changes: {
+              before: before,
+              after: audit_attributes,
+              credentials_changed: @record.saved_change_to_credentials?.present?
+            }
+          )
           redirect_to admin_provider_path(@record), notice: "Actualizado."
         else
           render :edit, status: :unprocessable_entity
@@ -36,6 +47,7 @@ module PaymentEngine
       end
 
       def destroy
+        record_audit(action: "provider.destroyed", auditable: @record, changes: { before: audit_attributes })
         @record.destroy
         redirect_to admin_providers_path, notice: "Eliminado."
       end
@@ -62,6 +74,11 @@ module PaymentEngine
         base = base.merge(capabilities: caps) if caps
         base = base.merge(settings: settings) if settings
         base
+      end
+
+      # Credentials and settings never go into the audit trail.
+      def audit_attributes
+        @record.attributes.slice("code", "name", "environment", "active")
       end
 
       def parse_json_field(val)
