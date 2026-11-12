@@ -17,23 +17,35 @@ payment_engine_membership_expiration: &payment_engine_membership_expiration
   queue: default
   schedule: every 15 minutes
 
+# Drops inbound email content that outlived its processing lifecycle.
+mail_inbound_content_purge: &mail_inbound_content_purge
+  class: MailInboundContentPurgeJob
+  queue: default
+  schedule: every hour
+
 development:
   gmail_sync:
     <<: *gmail_sync
   payment_engine_membership_expiration:
     <<: *payment_engine_membership_expiration
+  mail_inbound_content_purge:
+    <<: *mail_inbound_content_purge
 
 test:
   gmail_sync:
     <<: *gmail_sync
   payment_engine_membership_expiration:
     <<: *payment_engine_membership_expiration
+  mail_inbound_content_purge:
+    <<: *mail_inbound_content_purge
 
 production:
   gmail_sync:
     <<: *gmail_sync
   payment_engine_membership_expiration:
     <<: *payment_engine_membership_expiration
+  mail_inbound_content_purge:
+    <<: *mail_inbound_content_purge
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

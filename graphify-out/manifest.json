@@ -1038,9 +1038,9 @@
     "semantic_hash": "8a0ede4bdad64c58e952add72f1205e3"
   },
   "config/recurring.yml": {
-    "mtime": 1793716283.8806384,
-    "seen": 1793738613.79069,
-    "ast_hash": "af9c69d4e52271ceb9349e48b2a6c501",
+    "mtime": 1794520333.7902775,
+    "seen": 1794520540.656356,
+    "ast_hash": "347233f6f3597cd1f3755ebc9fa2abe6",
     "semantic_hash": ""
   },
   "config/storage.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794519772.5786593,
-    "seen": 1794519878.75772,
+    "mtime": 1794520496.252087,
+    "seen": 1794520540.656359,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5118,9 +5118,9 @@
     "semantic_hash": ""
   },
   "app/controllers/webhooks/email_controller.rb": {
-    "mtime": 1792977684.3709211,
-    "seen": 1793490696.634429,
-    "ast_hash": "05a335e370593c5386c2936646b33ef5",
+    "mtime": 1794520333.7852376,
+    "seen": 1794520540.654149,
+    "ast_hash": "9e6604160f9938b06a46a9d5932eee6d",
     "semantic_hash": ""
   },
   "playwright/credits.spec.js": {
@@ -5136,9 +5136,9 @@
     "semantic_hash": ""
   },
   "test/controllers/webhooks/email_controller_test.rb": {
-    "mtime": 1792978032.1522064,
-    "seen": 1793490696.635247,
-    "ast_hash": "0c95f99b7c1975fffb8e897699751d7b",
+    "mtime": 1794520207.5451813,
+    "seen": 1794520540.6556349,
+    "ast_hash": "d7811f1e36425c6b8afeaf0229c58747",
     "semantic_hash": ""
   },
   "app/jobs/inbound_email_process_job.rb": {
@@ -5508,9 +5508,9 @@
     "semantic_hash": ""
   },
   "app/services/mail_inbound/content_purger.rb": {
-    "mtime": 1793148153.1963196,
-    "seen": 1793490696.634868,
-    "ast_hash": "fb7d9886e4a3176f6ee119ddf1a83927",
+    "mtime": 1794520333.7872262,
+    "seen": 1794520540.654788,
+    "ast_hash": "07baf5db352fbe23f47e52ce58498911",
     "semantic_hash": ""
   },
   "lib/tasks/inbound_email.rake": {
@@ -5520,9 +5520,9 @@
     "semantic_hash": ""
   },
   "test/services/mail_inbound/content_purger_test.rb": {
-    "mtime": 1793148366.5848112,
-    "seen": 1793490696.635492,
-    "ast_hash": "2b8a39485ddc25f7b4d385f3d69cf92d",
+    "mtime": 1794520351.2685792,
+    "seen": 1794520540.656034,
+    "ast_hash": "461d4e2f86c7d24e2c8b93c6bd5c0519",
     "semantic_hash": ""
   },
   "test/services/mail_inbound/message_test.rb": {
@@ -10065,6 +10065,18 @@
     "mtime": 1794519639.0124083,
     "seen": 1794519878.757409,
     "ast_hash": "7263d9116d55bf1a1f21585142e128de",
+    "semantic_hash": ""
+  },
+  "app/jobs/mail_inbound_content_purge_job.rb": {
+    "mtime": 1794520333.7698212,
+    "seen": 1794520540.6542149,
+    "ast_hash": "dc2a1f7016085081eb717c7c821ebf9e",
+    "semantic_hash": ""
+  },
+  "test/config/recurring_tasks_test.rb": {
+    "mtime": 1794520185.8185325,
+    "seen": 1794520540.6555252,
+    "ast_hash": "2e0700675f729597f785a6d037f028e7",
     "semantic_hash": ""
   }
 }

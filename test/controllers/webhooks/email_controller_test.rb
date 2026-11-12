@@ -25,7 +25,7 @@ class EmailWebhookControllerTest < ActionDispatch::IntegrationTest
     mail.to_s
   end
 
-  def with_env(&block)
+  def with_env(overrides = {}, &block)
     values = {
       "MAIL_INBOUND_PROVIDER" => "cloudflare",
       "INBOUND_EMAIL_SECRET" => SECRET,
@@ -33,7 +33,7 @@ class EmailWebhookControllerTest < ActionDispatch::IntegrationTest
       "INBOUND_EMAIL_USER_EMAIL" => @user.email,
       "INBOUND_EMAIL_USER_MAP" => "user1=#{@user.email}",
       "INBOUND_EMAIL_MAX_BYTES" => 10.megabytes.to_s
-    }
+    }.merge(overrides)
     original = values.keys.to_h { |key| [ key, ENV[key] ] }
     values.each { |key, value| ENV[key] = value.to_s }
     block.call
@@ -57,6 +57,37 @@ class EmailWebhookControllerTest < ActionDispatch::IntegrationTest
 
   def post_email(body: @raw, headers: nil)
     post webhooks_email_path, params: body, headers: headers || signed_headers(body)
+  end
+
+  test "rejects an oversized payload before verifying the signature" do
+    with_env("INBOUND_EMAIL_MAX_BYTES" => "50") do
+      assert_no_difference(-> { MailInboundDelivery.count }) do
+        post_email(headers: signed_headers(@raw, secret: "wrong-secret"))
+      end
+    end
+
+    assert_response 413
+    assert_equal "payload_too_large", JSON.parse(response.body)["status"]
+  end
+
+  test "POST rate limits deliveries after 30 posts in a minute" do
+    original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    begin
+      with_env do
+        30.times do
+          post_email
+          assert_includes [ 200, 202 ], response.status
+        end
+
+        post_email
+      end
+
+      assert_equal 429, response.status
+    ensure
+      Rails.cache = original_cache
+    end
   end
 
   test "accepts a signed delivery and enqueues only the handle job" do
