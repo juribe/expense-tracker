@@ -48,3 +48,6 @@
 # Local TDD report output
 /.tmp/
 /db/backups/
+
+# Local SQLite artifacts are not part of this PostgreSQL app.
+db/*.sqlite3

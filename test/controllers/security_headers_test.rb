@@ -29,7 +29,8 @@ class SecurityHeadersTest < ActionDispatch::IntegrationTest
     script_directive = find_directive(response.headers["Content-Security-Policy"], "script-src")
     assert_not_nil script_directive
     assert_includes script_directive, "'self'"
-    assert_includes script_directive, "cdn.jsdelivr.net"
+    assert_includes script_directive, "https://*.epayco.co"
+    assert_not_includes script_directive, "cdn.jsdelivr.net"
     assert_not_includes script_directive, "unsafe-inline"
   end
 
