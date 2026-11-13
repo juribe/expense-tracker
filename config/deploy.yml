@@ -26,9 +26,9 @@ builder:
   arch: amd64
 
 ssh:
-  user: root
+  user: deploy
   key_data:
-    - KAMAL_SSH_PRIVATE_KEY
+    - DEPLOY_SSH_PRIVATE_KEY
 
 env:
   clear:
