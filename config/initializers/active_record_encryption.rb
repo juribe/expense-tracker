@@ -38,8 +38,8 @@ ActiveRecord::Encryption.configure(
   primary_key: primary_key,
   deterministic_key: deterministic_key,
   key_derivation_salt: key_derivation_salt,
-  # Existing provider rows were stored as plaintext jsonb before encryption was
-  # enabled. This allows them to be read (and re-encrypted on save) during the
-  # transition without blocking the application.
-  support_unencrypted_data: true
+  # Legacy plaintext rows were re-encrypted with `rails encryption:backfill`.
+  # Keep this off so a future write that bypasses encryption fails loudly
+  # instead of silently storing plaintext.
+  support_unencrypted_data: false
 )

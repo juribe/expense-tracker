@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794529431.015344,
-    "seen": 1794529558.151875,
+    "mtime": 1794530230.546326,
+    "seen": 1794530451.550108,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -7872,9 +7872,9 @@
     "semantic_hash": ""
   },
   "config/initializers/active_record_encryption.rb": {
-    "mtime": 1793740813.513336,
-    "seen": 1793741312.664435,
-    "ast_hash": "3d025e21854d3efdbb2d0a922372ca43",
+    "mtime": 1794529931.2279785,
+    "seen": 1794530451.548776,
+    "ast_hash": "80fbc5a841ffd4ef1112988ce1e5264d",
     "semantic_hash": ""
   },
   "db/migrate/20261103212002_encrypt_payment_engine_provider_configuration.rb": {
@@ -7896,9 +7896,9 @@
     "semantic_hash": ""
   },
   "test/models/payment_engine_provider_encryption_test.rb": {
-    "mtime": 1793740790.2368817,
-    "seen": 1793741312.665023,
-    "ast_hash": "6e8df8f235ed7818fcbcbd278fab56b3",
+    "mtime": 1794530200.1585128,
+    "seen": 1794530451.5495648,
+    "ast_hash": "efb10f3be214311841d1e20760ed420c",
     "semantic_hash": ""
   },
   "db/migrate/20261103213956_remove_dummy_epayco_provider.rb": {
@@ -10155,6 +10155,24 @@
     "mtime": 1794528594.3565545,
     "seen": 1794528785.205802,
     "ast_hash": "7dbdde7590c530b8581bc4987ec2094c",
+    "semantic_hash": ""
+  },
+  "app/services/encryption_backfill.rb": {
+    "mtime": 1794530216.6768134,
+    "seen": 1794530451.548285,
+    "ast_hash": "9a275354cb5c944d67d5838a9070ecec",
+    "semantic_hash": ""
+  },
+  "lib/tasks/encryption.rake": {
+    "mtime": 1794529875.1173377,
+    "seen": 1794530451.548958,
+    "ast_hash": "4b2524a48bcb08c7ef4996197e092cc7",
+    "semantic_hash": ""
+  },
+  "test/services/encryption_backfill_test.rb": {
+    "mtime": 1794529931.2526724,
+    "seen": 1794530451.549669,
+    "ast_hash": "25429214659c82d68aa0bbd23f743373",
     "semantic_hash": ""
   }
 }
