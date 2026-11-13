@@ -28,7 +28,7 @@ builder:
 ssh:
   user: deploy
   key_data:
-    - DEPLOY_SSH_PRIVATE_KEY
+    - KAMAL_SSH_PRIVATE_KEY
 
 env:
   clear:
