@@ -34811,7 +34811,7 @@
       "file_type": "code",
       "norm_label": ".checkout()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L41"
+      "source_location": "L49"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_start_trial",
@@ -34823,7 +34823,7 @@
       "file_type": "code",
       "norm_label": ".start_trial()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L30"
+      "source_location": "L38"
     },
     {
       "id": "payment_engine_app_controllers_payment_engine_admin_settings_controller_paymentengine_admin_settingscontroller_commercial",
@@ -46379,7 +46379,7 @@
       "file_type": "code",
       "norm_label": ".active_trial?()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L196"
+      "source_location": "L204"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_annual_savings",
@@ -46391,7 +46391,7 @@
       "file_type": "code",
       "norm_label": ".annual_savings()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L204"
+      "source_location": "L212"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_checkout_result",
@@ -46403,7 +46403,7 @@
       "file_type": "code",
       "norm_label": ".checkout_result()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L48"
+      "source_location": "L56"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_checkout_status",
@@ -46415,7 +46415,7 @@
       "file_type": "code",
       "norm_label": ".checkout_status()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L56"
+      "source_location": "L64"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_create_checkout",
@@ -46427,7 +46427,7 @@
       "file_type": "code",
       "norm_label": ".create_checkout()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L79"
+      "source_location": "L87"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_find_or_build_purchase",
@@ -46439,7 +46439,7 @@
       "file_type": "code",
       "norm_label": ".find_or_build_purchase()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L140"
+      "source_location": "L148"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_index",
@@ -46451,7 +46451,7 @@
       "file_type": "code",
       "norm_label": ".index()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L7"
+      "source_location": "L15"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_normalized_status",
@@ -46463,7 +46463,7 @@
       "file_type": "code",
       "norm_label": ".normalized_status()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L215"
+      "source_location": "L223"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_start_checkout",
@@ -46475,7 +46475,7 @@
       "file_type": "code",
       "norm_label": ".start_checkout()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L100"
+      "source_location": "L108"
     },
     {
       "id": "app_controllers_plans_controller_planscontroller_terminal_status_pred",
@@ -46487,7 +46487,7 @@
       "file_type": "code",
       "norm_label": ".terminal_status?()",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L224"
+      "source_location": "L232"
     },
     {
       "id": "payment_engine_app_controllers_payment_engine_admin_payment_options_controller_paymentengine_admin_paymentoptionscontroller_destroy",
@@ -85907,7 +85907,7 @@
       "file_type": "code",
       "norm_label": ".assert_style_allows_inline()",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L81"
+      "source_location": "L100"
     },
     {
       "id": "test_controllers_security_headers_test_securityheaderstest_assert_style_rejects_inline",
@@ -85919,7 +85919,7 @@
       "file_type": "code",
       "norm_label": ".assert_style_rejects_inline()",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L88"
+      "source_location": "L107"
     },
     {
       "id": "test_controllers_security_headers_test_securityheaderstest_find_directive",
@@ -85931,7 +85931,7 @@
       "file_type": "code",
       "norm_label": ".find_directive()",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L77"
+      "source_location": "L96"
     },
     {
       "id": "test_controllers_security_headers_test_securityheaderstest_sign_in_user",
@@ -85943,7 +85943,7 @@
       "file_type": "code",
       "norm_label": ".sign_in_user()",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L72"
+      "source_location": "L91"
     },
     {
       "id": "app_services_reports_perspectives_recommendations_reports_perspectives_recommendations_budget_growth",
@@ -164336,7 +164336,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L42",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -164348,35 +164348,11 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L43",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
       "source": "app_controllers_plans_controller_planscontroller_checkout_result",
-      "target": "payment_engine_app_models_payment_engine_purchase_paymentengine_purchase",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L50",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_checkout_result",
-      "target": "app_controllers_plans_controller_planscontroller_normalized_status",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L53",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_checkout_status",
       "target": "payment_engine_app_models_payment_engine_purchase_paymentengine_purchase",
       "relation": "calls",
       "_origin": "ast",
@@ -164388,7 +164364,7 @@
       "weight": 1.0
     },
     {
-      "source": "app_controllers_plans_controller_planscontroller_checkout_status",
+      "source": "app_controllers_plans_controller_planscontroller_checkout_result",
       "target": "app_controllers_plans_controller_planscontroller_normalized_status",
       "relation": "calls",
       "_origin": "ast",
@@ -164401,6 +164377,30 @@
     },
     {
       "source": "app_controllers_plans_controller_planscontroller_checkout_status",
+      "target": "payment_engine_app_models_payment_engine_purchase_paymentengine_purchase",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_checkout_status",
+      "target": "app_controllers_plans_controller_planscontroller_normalized_status",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_checkout_status",
       "target": "app_controllers_plans_controller_planscontroller_terminal_status_pred",
       "relation": "calls",
       "_origin": "ast",
@@ -164408,7 +164408,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L63",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -164420,43 +164420,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L66",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_create_checkout",
-      "target": "payment_engine_app_models_payment_engine_payment_option_paymentengine_paymentoption",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L80",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_create_checkout",
-      "target": "payment_engine_lib_payment_engine_configuration_paymentengine_configuration_payments_enabled_pred",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L81",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_create_checkout",
-      "target": "app_controllers_plans_controller_planscontroller_find_or_build_purchase",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L88",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
@@ -164468,7 +164432,43 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L95",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_create_checkout",
+      "target": "payment_engine_app_models_payment_engine_payment_option_paymentengine_paymentoption",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_create_checkout",
+      "target": "payment_engine_lib_payment_engine_configuration_paymentengine_configuration_payments_enabled_pred",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_create_checkout",
+      "target": "app_controllers_plans_controller_planscontroller_find_or_build_purchase",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -164480,7 +164480,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L143",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -164492,55 +164492,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L154",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_index",
-      "target": "payment_engine_lib_payment_engine_access_policy_paymentengine_accesspolicy_can_start_trial_pred",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L10",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_index",
-      "target": "payment_engine_lib_payment_engine_configuration_paymentengine_configuration_free_trial_duration_days",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L11",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_index",
-      "target": "payment_engine_lib_payment_engine_configuration_paymentengine_configuration_payments_enabled_pred",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L12",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller_index",
-      "target": "app_controllers_plans_controller_planscontroller_active_trial_pred",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L15",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -164552,7 +164504,55 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L8",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_index",
+      "target": "payment_engine_lib_payment_engine_access_policy_paymentengine_accesspolicy_can_start_trial_pred",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_index",
+      "target": "payment_engine_lib_payment_engine_configuration_paymentengine_configuration_free_trial_duration_days",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_index",
+      "target": "payment_engine_lib_payment_engine_configuration_paymentengine_configuration_payments_enabled_pred",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller_index",
+      "target": "app_controllers_plans_controller_planscontroller_active_trial_pred",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -164564,7 +164564,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L31",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -204692,7 +204692,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L82",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -204704,7 +204704,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L89",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
@@ -204716,7 +204716,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L73",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -275396,7 +275396,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L100",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
@@ -275407,95 +275407,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L140",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_active_trial_pred",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L196",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_annual_savings",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L204",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_normalized_status",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L215",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_terminal_status_pred",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L224",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_start_trial",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L30",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_checkout",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L41",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_checkout_result",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L48",
-      "weight": 1.0
-    },
-    {
-      "source": "app_controllers_plans_controller_planscontroller",
-      "target": "app_controllers_plans_controller_planscontroller_checkout_status",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L56",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -275506,7 +275418,95 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L7",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_active_trial_pred",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L204",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_annual_savings",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L212",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_normalized_status",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L223",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_terminal_status_pred",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L232",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_start_trial",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_checkout",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_checkout_result",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "app_controllers_plans_controller_planscontroller",
+      "target": "app_controllers_plans_controller_planscontroller_checkout_status",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/controllers/plans_controller.rb",
+      "source_location": "L64",
       "weight": 1.0
     },
     {
@@ -275517,7 +275517,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L79",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -321579,35 +321579,13 @@
     },
     {
       "source": "test_controllers_security_headers_test_securityheaderstest",
-      "target": "test_controllers_security_headers_test_securityheaderstest_sign_in_user",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L72",
-      "weight": 1.0
-    },
-    {
-      "source": "test_controllers_security_headers_test_securityheaderstest",
-      "target": "test_controllers_security_headers_test_securityheaderstest_find_directive",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L77",
-      "weight": 1.0
-    },
-    {
-      "source": "test_controllers_security_headers_test_securityheaderstest",
       "target": "test_controllers_security_headers_test_securityheaderstest_assert_style_allows_inline",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L81",
+      "source_location": "L100",
       "weight": 1.0
     },
     {
@@ -321618,7 +321596,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "test/controllers/security_headers_test.rb",
-      "source_location": "L88",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "test_controllers_security_headers_test_securityheaderstest",
+      "target": "test_controllers_security_headers_test_securityheaderstest_sign_in_user",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/controllers/security_headers_test.rb",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "test_controllers_security_headers_test_securityheaderstest",
+      "target": "test_controllers_security_headers_test_securityheaderstest_find_directive",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "test/controllers/security_headers_test.rb",
+      "source_location": "L96",
       "weight": 1.0
     },
     {
@@ -330687,7 +330687,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/plans_controller.rb",
-      "source_location": "L76",
+      "source_location": "L84",
       "weight": 1.0
     },
     {
@@ -336199,5 +336199,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "091d03494ebaf8d9c1ed6bcabffca31e050affc3"
+  "built_at_commit": "85453223394ce640aae62434b72124a439f8198d"
 }

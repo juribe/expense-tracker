@@ -29,9 +29,28 @@ class SecurityHeadersTest < ActionDispatch::IntegrationTest
     script_directive = find_directive(response.headers["Content-Security-Policy"], "script-src")
     assert_not_nil script_directive
     assert_includes script_directive, "'self'"
-    assert_includes script_directive, "https://*.epayco.co"
+    assert_not_includes script_directive, "epayco"
     assert_not_includes script_directive, "cdn.jsdelivr.net"
     assert_not_includes script_directive, "unsafe-inline"
+  end
+
+  test "img-src does not allow arbitrary https images" do
+    get root_path
+
+    img_directive = find_directive(response.headers["Content-Security-Policy"], "img-src")
+
+    assert_equal "img-src 'self' data:", img_directive
+  end
+
+  test "epayco scripts are only allowed on the plans page" do
+    get root_path
+    refute_includes find_directive(response.headers["Content-Security-Policy"], "script-src"), "epayco"
+
+    sign_in_user
+    get plans_path
+    script_directive = find_directive(response.headers["Content-Security-Policy"], "script-src")
+
+    assert_includes script_directive, "https://*.epayco.co"
   end
 
   test "style-src is strict outside chart pages" do

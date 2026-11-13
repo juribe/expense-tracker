@@ -522,9 +522,9 @@
     "semantic_hash": ""
   },
   "config/initializers/content_security_policy.rb": {
-    "mtime": 1794527312.2659917,
-    "seen": 1794527561.568671,
-    "ast_hash": "9c52d6948bcd1fcc7aad6e1d073f0102",
+    "mtime": 1794530783.120106,
+    "seen": 1794531019.422202,
+    "ast_hash": "5d94873a6d3d1d84203d814c8f1bf66d",
     "semantic_hash": ""
   },
   "config/initializers/devise.rb": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794530230.546326,
-    "seen": 1794530451.550108,
+    "mtime": 1794530939.3773327,
+    "seen": 1794531019.423554,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4818,9 +4818,9 @@
     "semantic_hash": ""
   },
   "test/controllers/security_headers_test.rb": {
-    "mtime": 1794527297.726227,
-    "seen": 1794527561.569242,
-    "ast_hash": "8ed157b870f5d137a0aee0b8b02ec7b7",
+    "mtime": 1794530762.1789675,
+    "seen": 1794531019.422773,
+    "ast_hash": "60d4e8077bfe8ec684c3b37ddcd8fb1e",
     "semantic_hash": ""
   },
   "db/migrate/20261023142925_delete_plaintext_ai_requests.rb": {
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "app/controllers/plans_controller.rb": {
-    "mtime": 1794502416.9411366,
-    "seen": 1794502563.7117598,
-    "ast_hash": "bf36c222612ba53e0b96423eb276ab67",
+    "mtime": 1794530783.1115685,
+    "seen": 1794531019.42123,
+    "ast_hash": "586dc94927fa0da5ef7f95a4c3f73734",
     "semantic_hash": ""
   },
   "db/migrate/20261102150846_change_payment_engine_owner_ids_to_string.rb": {
