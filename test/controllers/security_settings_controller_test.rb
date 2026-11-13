@@ -214,6 +214,29 @@ class SecuritySettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-testid='totp-disable-button']"
   end
 
+  test "uses one confirmation dialog instead of repeating second factor fields in every card" do
+    create_totp_credential(@user)
+    reauthenticate
+
+    get security_settings_path
+
+    assert_response :success
+    assert_select "[data-testid='security-confirmation-modal']", count: 1
+    assert_select "[data-testid='security-confirmation-modal'] input[name='totp_code']", count: 1
+    assert_select "[data-testid='security-confirmation-modal'] input[name='recovery_code']", count: 1
+    assert_select ".security-card input[name='totp_code']", count: 0
+    assert_select ".security-card input[name='recovery_code']", count: 0
+  end
+
+  test "provides a localized WebAuthn error message for security actions" do
+    create_totp_credential(@user)
+    reauthenticate
+
+    get security_settings_path
+
+    assert_select "[data-security-webauthn-error][data-default-message='#{I18n.t("security.webauthn.error")}']"
+  end
+
   test "disabling TOTP requires reauthentication" do
     create_totp_credential(@user)
 

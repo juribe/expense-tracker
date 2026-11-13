@@ -9,6 +9,11 @@
              title: t("security.title"),
              subtitle: t("security.subtitle") %>
 
+  <div class="alert alert-danger" role="alert" hidden
+       data-security-webauthn-error
+       data-default-message="<%= t("security.webauthn.error") %>"
+       data-cancelled-message="<%= t("security.webauthn.cancelled") %>"></div>
+
   <div class="security-grid">
     <section class="card security-card" data-testid="passkeys-card">
       <div class="security-section-head">
@@ -44,7 +49,14 @@
 
       <% if security_reauthenticated? %>
         <div class="security-action" data-testid="passkey-form">
-          <%= passkey_creation_form_for(:user, local: true, data: { testid: "passkey-creation-form" }) do |form| %>
+          <%= passkey_creation_form_for(:user,
+                                        local: true,
+                                        data: {
+                                          testid: "passkey-creation-form",
+                                          security_confirmation: @mfa_enabled,
+                                          security_confirmation_title: t("security.confirmation.passkey_title"),
+                                          security_confirmation_action: t("security.passkeys.add")
+                                        }) do |form| %>
             <div class="security-field">
               <%= form.label :name, t("security.passkeys.name_label"), class: "form-label" %>
               <%= form.text_field :name,
@@ -53,9 +65,6 @@
                                   class: "form-control",
                                   placeholder: t("security.passkeys.name_placeholder") %>
             </div>
-            <% if @mfa_enabled %>
-              <%= render "security_settings/second_factor_fields", prefix: "passkey_" %>
-            <% end %>
             <%= form.submit t("security.passkeys.add"), class: "btn btn-primary" %>
           <% end %>
         </div>
@@ -86,16 +95,29 @@
       <% if security_reauthenticated? %>
         <div class="security-action" data-testid="totp-actions">
           <% if @totp_enabled %>
-            <%= form_with url: start_totp_setup_security_settings_path, method: :post, local: true do %>
-              <%= render "security_settings/second_factor_fields", prefix: "totp_change_" %>
+            <%= form_with url: start_totp_setup_security_settings_path,
+                          method: :post,
+                          local: true,
+                          data: {
+                            security_confirmation: true,
+                            security_confirmation_title: t("security.confirmation.totp_change_title"),
+                            security_confirmation_action: t("security.totp.change")
+                          } do %>
               <%= submit_tag t("security.totp.change"), class: "btn btn-primary",
                     data: { testid: "totp-change-button" } %>
             <% end %>
 
-            <%= form_with url: disable_totp_security_settings_path, method: :delete, local: true do %>
-              <%= render "security_settings/second_factor_fields", prefix: "totp_disable_" %>
+            <%= form_with url: disable_totp_security_settings_path,
+                          method: :delete,
+                          local: true,
+                          data: {
+                            security_confirmation: true,
+                            security_confirmation_title: t("security.confirmation.totp_disable_title"),
+                            security_confirmation_action: t("security.totp.disable"),
+                            security_confirmation_danger: true
+                          } do %>
               <%= submit_tag t("security.totp.disable"), class: "btn btn-outline-danger",
-                    data: { testid: "totp-disable-button", turbo_confirm: t("security.totp.disable_confirm") } %>
+                    data: { testid: "totp-disable-button" } %>
             <% end %>
           <% else %>
             <%= button_to t("security.totp.setup"),
@@ -145,7 +167,14 @@
 
       <% if security_reauthenticated? %>
         <div class="security-action" data-testid="two-factor-form">
-          <%= security_key_creation_form_for(:user, local: true, data: { testid: "security-key-creation-form" }) do |form| %>
+          <%= security_key_creation_form_for(:user,
+                                             local: true,
+                                             data: {
+                                               testid: "security-key-creation-form",
+                                               security_confirmation: @mfa_enabled,
+                                               security_confirmation_title: t("security.confirmation.security_key_title"),
+                                               security_confirmation_action: t("security.two_factor.add_another")
+                                             }) do |form| %>
             <div class="security-field">
               <%= form.label :name, t("security.two_factor.name_label"), class: "form-label" %>
               <%= form.text_field :name,
@@ -154,24 +183,32 @@
                                   class: "form-control",
                                   placeholder: t("security.two_factor.name_placeholder") %>
             </div>
-            <% if @mfa_enabled %>
-              <%= render "security_settings/second_factor_fields", prefix: "security_key_" %>
-            <% end %>
             <%= form.submit(@second_factor_credentials.any? ? t("security.two_factor.add_another") : t("security.two_factor.add"),
                             class: "btn btn-primary") %>
           <% end %>
 
           <% if @second_factor_credentials.any? %>
-            <%= form_with url: disable_two_factor_security_settings_path, method: :delete, local: true do %>
-              <%= render "security_settings/second_factor_fields", prefix: "two_factor_disable_" %>
+            <%= form_with url: disable_two_factor_security_settings_path,
+                          method: :delete,
+                          local: true,
+                          data: {
+                            security_confirmation: true,
+                            security_confirmation_title: t("security.confirmation.two_factor_disable_title"),
+                            security_confirmation_action: t("security.two_factor.disable"),
+                            security_confirmation_danger: true
+                          } do %>
               <%= submit_tag t("security.two_factor.disable"), class: "btn btn-outline-danger",
-                    data: { turbo_confirm: t("security.two_factor.disable_confirm") } %>
+                    data: { testid: "two-factor-disable-button" } %>
             <% end %>
           <% end %>
         </div>
       <% end %>
     </section>
   </div>
+
+  <% if @mfa_enabled %>
+    <%= render "security_settings/confirmation_modal" %>
+  <% end %>
 
   <section class="card security-card" data-testid="recovery-codes-card">
     <div class="security-section-head">

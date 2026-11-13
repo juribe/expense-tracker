@@ -261,6 +261,26 @@
   margin-bottom: 0;
 }
 
+.security-confirmation-dialog {
+  --bs-modal-width: 30rem;
+}
+
+.security-confirmation-choice .form-control {
+  min-height: 2.9rem;
+  border-radius: 0.8rem;
+  border-color: var(--security-border);
+}
+
+.security-confirmation-choice .btn-link {
+  color: var(--security-purple);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.security-confirmation-choice .btn-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 991.98px) {
   .security-grid {
     grid-template-columns: 1fr;

@@ -2345,6 +2345,21 @@ en:
       back_to_profile: "Back to my profile"
       password_label: "Current password"
       submit: "Confirm"
+    second_factor:
+      required: "Enter your verification code or a recovery code to continue."
+      code_label: "Verification code"
+      recovery_label: "or a recovery code"
+    confirmation:
+      title: "Confirm this change"
+      help: "Enter a code from your authenticator app to continue."
+      confirm: "Confirm change"
+      use_recovery: "Use a recovery code"
+      use_totp: "Use an authenticator app code"
+      passkey_title: "Confirm that you want to add a passkey"
+      security_key_title: "Confirm that you want to add a security key"
+      totp_change_title: "Confirm that you want to change the app"
+      totp_disable_title: "Confirm that you want to disable the app"
+      two_factor_disable_title: "Confirm that you want to disable two-factor authentication"
     passkeys:
       title: "Passkeys"
       description: "Sign in without a password using the fingerprint, face or PIN of your devices."
@@ -2430,6 +2445,8 @@ en:
       session_note: "Your current session is protected by your password and, if enabled, two-step verification."
     webauthn:
       challenge_expired: "Verification expired. Please try again."
+      error: "We could not complete the verification with your passkey or security key. Please try again."
+      cancelled: "The operation was cancelled or timed out. Please try again."
 
   auth:
     continue_with_passkey: "Continue with Passkey"

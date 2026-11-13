@@ -1,0 +1,45 @@
+<div class="modal fade" id="securityConfirmationModal" tabindex="-1"
+     aria-labelledby="securityConfirmationTitle" aria-hidden="true"
+     data-testid="security-confirmation-modal">
+  <div class="modal-dialog modal-dialog-centered security-confirmation-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title h5 mb-1" id="securityConfirmationTitle" data-security-confirmation-title>
+            <%= t("security.confirmation.title") %>
+          </h2>
+          <p class="mb-0 text-muted small"><%= t("security.confirmation.help") %></p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+
+      <%= form_with url: "#", method: :post, local: true, data: { security_confirmation_form: true } do %>
+        <div class="modal-body">
+          <div class="security-confirmation-choice" data-security-totp-choice>
+            <label for="security-confirmation-totp-code" class="form-label"><%= t("security.second_factor.code_label") %></label>
+            <input id="security-confirmation-totp-code" name="totp_code" type="text" class="form-control"
+                   inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+            <button type="button" class="btn btn-link btn-sm px-0" data-security-use-recovery>
+              <%= t("security.confirmation.use_recovery") %>
+            </button>
+          </div>
+
+          <div class="security-confirmation-choice d-none" data-security-recovery-choice>
+            <label for="security-confirmation-recovery-code" class="form-label"><%= t("security.second_factor.recovery_label") %></label>
+            <input id="security-confirmation-recovery-code" name="recovery_code" type="text" class="form-control"
+                   autocomplete="off" disabled>
+            <button type="button" class="btn btn-link btn-sm px-0" data-security-use-totp>
+              <%= t("security.confirmation.use_totp") %>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel", default: "Cancelar") %></button>
+          <button type="submit" class="btn btn-primary" data-security-confirmation-submit>
+            <%= t("security.confirmation.confirm") %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
