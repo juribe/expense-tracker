@@ -74,8 +74,6 @@ jobs:
 
       - name: Configure Kamal secrets
         run: |
-          mkdir -p .kamal
-          cp .kamal/secrets .kamal/secrets
           chmod 600 .kamal/secrets
 
       - name: Configure SSH private key
