@@ -4,6 +4,7 @@ module PaymentEngine
   module Admin
     class MembershipsController < BaseController
       before_action :set_record, only: [:show, :edit, :update, :destroy, :suspend, :reactivate, :extend]
+      before_action :pe_require_password_confirmation, only: [ :update, :suspend, :reactivate, :extend ]
 
       def index
         @records = Membership.includes(:membership_type, :owner).order(created_at: :desc)

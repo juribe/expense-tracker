@@ -3,6 +3,8 @@
 module PaymentEngine
   module Admin
     class SettingsController < BaseController
+      before_action :pe_require_password_confirmation, only: [ :update, :update_commercial ]
+
       def show
         @setting = Setting.current
       end

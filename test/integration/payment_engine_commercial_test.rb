@@ -10,7 +10,8 @@ class PaymentEngineCommercialTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
   test "update duration" do
-    patch "/payment_engine/admin/settings/commercial", params: { setting: { free_trial_duration_days: 30 } }
+    patch "/payment_engine/admin/settings/commercial",
+          params: { setting: { free_trial_duration_days: 30 }, admin_password: "password123" }
     assert_response :redirect
     assert_equal 30, PaymentEngine::Setting.current.free_trial_duration_days
     assert_equal 30, PaymentEngine::Configuration.free_trial_duration_days

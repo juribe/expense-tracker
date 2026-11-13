@@ -9,6 +9,7 @@ module PaymentEngine
     # POST /payment_engine/admin/premium_identities/:id/release
     class PremiumIdentitiesController < PaymentEngine::Admin::BaseController
       before_action :set_record, only: [ :show, :release ]
+      before_action :pe_require_password_confirmation, only: :release
 
       def index
         @records = ::PremiumIdentity.includes(:first_user, :membership).order(first_used_at: :desc)

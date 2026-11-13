@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794528529.9673007,
-    "seen": 1794528585.087151,
+    "mtime": 1794528725.901874,
+    "seen": 1794528785.206433,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -9240,9 +9240,9 @@
     "semantic_hash": ""
   },
   "config/initializers/webauthn.rb": {
-    "mtime": 1794065469.0592604,
-    "seen": 1794065635.426712,
-    "ast_hash": "82148163dd03f3629f0f03454be05b52",
+    "mtime": 1794528604.6056445,
+    "seen": 1794528785.205133,
+    "ast_hash": "d6f0278ea8cfd7981da48ca8fc56b0b2",
     "semantic_hash": ""
   },
   "db/migrate/20261107125532_create_webauthn_credentials.rb": {
@@ -10143,6 +10143,18 @@
     "mtime": 1794527658.9492114,
     "seen": 1794528392.3965282,
     "ast_hash": "b9d9d96a7fd7806a5273c721c74aca48",
+    "semantic_hash": ""
+  },
+  "app/lib/webauthn_config.rb": {
+    "mtime": 1794528604.6027668,
+    "seen": 1794528785.20441,
+    "ast_hash": "7d753ab4c039c3cad5b67e66dba6e3d1",
+    "semantic_hash": ""
+  },
+  "test/lib/webauthn_config_test.rb": {
+    "mtime": 1794528594.3565545,
+    "seen": 1794528785.205802,
+    "ast_hash": "7dbdde7590c530b8581bc4987ec2094c",
     "semantic_hash": ""
   }
 }

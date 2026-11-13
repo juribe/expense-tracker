@@ -4,6 +4,7 @@ module PaymentEngine
   module Admin
     class ProvidersController < BaseController
       before_action :set_record, only: [:show, :edit, :update, :destroy, :test_connection]
+      before_action :pe_require_password_confirmation, only: [ :create, :update, :destroy ]
 
       def index
         @records = Provider.order(:name)

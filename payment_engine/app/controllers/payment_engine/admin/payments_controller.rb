@@ -3,7 +3,8 @@
 module PaymentEngine
   module Admin
     class PaymentsController < BaseController
-      before_action :set_record, only: [:show]
+      before_action :set_record, only: [:show, :refund]
+      before_action :pe_require_password_confirmation, only: :refund
 
       def index
         @records = Payment.includes(:purchase).order(created_at: :desc)

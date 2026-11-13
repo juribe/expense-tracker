@@ -8,6 +8,7 @@
     <div class="pe-form-group"><label>Credenciales (JSON)</label><textarea name="provider[credentials]" class="pe-textarea"><%= (record.credentials || {}).to_json %></textarea></div>
     <div class="pe-form-group"><label>Configuración (JSON)</label><textarea name="provider[settings]" class="pe-textarea"><%= (record.settings || {}).to_json %></textarea></div>
     <div class="pe-form-group"><label>Capacidades (JSON)</label><textarea name="provider[capabilities]" class="pe-textarea"><%= record.capabilities.to_json %></textarea></div>
+    <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
     <%= f.submit "Guardar", class: "pe-btn pe-btn-primary" %>
     <%= link_to "Cancelar", admin_providers_path, class: "pe-btn" %>
   </div>

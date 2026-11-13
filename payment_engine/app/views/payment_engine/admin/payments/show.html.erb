@@ -11,6 +11,7 @@
 <div class="pe-card">
   <%= form_with url: refund_admin_payment_path(@record), method: :post, local: true do %>
     <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
     <button class="pe-btn pe-btn-danger" type="submit">Solicitar reembolso</button>
   <% end %>
 </div>
