@@ -27,8 +27,8 @@ builder:
 
 ssh:
   user: deploy
-  key_data:
-    - KAMAL_SSH_PRIVATE_KEY
+  keys:
+    - ~/.ssh/yogasto_deploy_key
 
 env:
   clear:

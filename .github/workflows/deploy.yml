@@ -74,9 +74,14 @@ jobs:
 
       - name: Configure Kamal secrets
         run: |
-          mkdir -p .kamal
-          cp .kamal/secrets.example .kamal/secrets
           chmod 600 .kamal/secrets
+
+      - name: Configure SSH private key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/yogasto_deploy_key
+          chmod 600 ~/.ssh/yogasto_deploy_key
+          ssh-keygen -y -f ~/.ssh/yogasto_deploy_key > /dev/null
 
       - name: Deploy with Kamal
         run: bundle exec kamal setup
