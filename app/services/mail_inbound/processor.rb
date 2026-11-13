@@ -26,7 +26,10 @@ module MailInbound
         )
       end
 
-      importer.call(normalized)
+      importer.call(
+        normalized,
+        auto_create: MailInbound::SenderAuthentication.authenticated?(normalized[:headers])
+      )
     end
 
     private

@@ -18,6 +18,8 @@
 # Example: Whatsapp::ConnectService.call(event: message_event)
 module Whatsapp
   class ConnectService
+    class AlreadyConsumed < StandardError; end
+
     INITIAL_MESSAGE = "Hola yogasto quiero registrar mis gastos usando whatsapp"
     CONNECT_PATTERN =
       /\A\s*(?:#{Regexp.escape(INITIAL_MESSAGE)}\.?\s+)?CONNECT\s+([A-Z0-9]{4,10})\s*\z/i
@@ -49,6 +51,8 @@ module Whatsapp
       end
 
       connection = ActiveRecord::Base.transaction do
+        raise AlreadyConsumed unless pending.consume!
+
         PremiumIdentities::Protection.claim!(
           identity_type: "whatsapp",
           value: sender,
@@ -62,9 +66,11 @@ module Whatsapp
 
         establish_connection!(pending.user, identity)
       end
-      pending.consume!
       Whatsapp::ReplySender.send_to(sender, "✅ WhatsApp conectado. Ya puedes enviarme tus gastos por este chat.")
       ServiceResult.success(connection)
+    rescue AlreadyConsumed
+      reject(sender, "Ese código no es válido o ya expiró. Genera uno nuevo en Configuración → WhatsApp de #{AppName.current}.")
+      ServiceResult.error([ "Connect token was already used." ])
     rescue PremiumIdentities::Protection::Conflict => e
       reject(sender, "Este número de WhatsApp no se puede conectar a esta cuenta.")
       ServiceResult.error([ e.message ])

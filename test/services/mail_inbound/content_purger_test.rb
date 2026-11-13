@@ -100,6 +100,36 @@ class MailInboundContentPurgerTest < ActiveSupport::TestCase
     assert_equal "Compra", @gmail_review.reload.payload_data["subject"]
   end
 
+  test "purges stale handling deliveries and marks them failed" do
+    stale = MailInboundDelivery.create!(
+      user: @user,
+      provider: "cloudflare",
+      external_id: "purge-stale-handling",
+      raw_body: "From: bank@example.com\r\n\r\nCompra",
+      headers: { "from" => "bank@example.com" },
+      params: { "body" => "Compra" },
+      status: "handling"
+    )
+    stale.update_columns(updated_at: 2.days.ago)
+    recent = MailInboundDelivery.create!(
+      user: @user,
+      provider: "cloudflare",
+      external_id: "purge-recent-handling",
+      raw_body: "From: bank@example.com\r\n\r\nCompra",
+      status: "handling"
+    )
+
+    MailInbound::ContentPurger.new.run
+
+    stale.reload
+    assert_nil stale.raw_body
+    assert_equal "failed", stale.status
+    assert_equal "handling", recent.reload.status
+    assert recent.raw_body.present?
+    assert_equal "received", @pending_delivery.reload.status
+    assert @pending_delivery.raw_body.present?
+  end
+
   test "is idempotent" do
     MailInbound::ContentPurger.new.run
     counts = MailInbound::ContentPurger.new.run

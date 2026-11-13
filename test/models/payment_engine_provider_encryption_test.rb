@@ -37,7 +37,7 @@ class PaymentEngineProviderEncryptionTest < ActiveSupport::TestCase
     assert_equal "settings-secret", settings[:webhook_secret]
   end
 
-  test "legacy plaintext values remain readable and are encrypted on save" do
+  test "legacy plaintext values are rejected by default and re-encrypted by the backfill" do
     connection = PaymentEngine::Provider.connection
     connection.execute <<~SQL.squish
       UPDATE payment_engine_providers
@@ -46,14 +46,22 @@ class PaymentEngineProviderEncryptionTest < ActiveSupport::TestCase
     SQL
 
     provider = PaymentEngine::Provider.find(@provider.id)
+    assert_raises(ActiveRecord::Encryption::Errors::Decryption) { provider.credentials }
+
+    previous = ActiveRecord::Encryption.config.support_unencrypted_data
+    begin
+      ActiveRecord::Encryption.config.support_unencrypted_data = true
+      EncryptionBackfill.run!
+    ensure
+      ActiveRecord::Encryption.config.support_unencrypted_data = previous
+    end
+
+    raw = raw_columns(@provider.id)
+    assert_not_includes raw[:credentials].to_s, "legacy-secret"
+
+    provider = PaymentEngine::Provider.find(@provider.id)
     assert_equal "legacy-secret", provider.credentials["p_key"]
     assert_equal "value", provider.settings["legacy"]
-
-    provider.update!(credentials: provider.credentials.merge("p_key" => "updated-secret"))
-    raw = raw_columns(@provider.id)
-
-    assert_not_includes raw[:credentials].to_s, "updated-secret"
-    assert_equal "updated-secret", PaymentEngine::Provider.find(@provider.id).credentials["p_key"]
   end
 
   private

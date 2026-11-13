@@ -3,13 +3,17 @@
 module PaymentEngine
   module Admin
     class SettingsController < BaseController
+      before_action :pe_require_password_confirmation, only: [ :update, :update_commercial ]
+
       def show
         @setting = Setting.current
       end
 
       def update
         @setting = Setting.current
+        old = @setting.attributes.dup
         if @setting.update(settings_params)
+          record_audit(action: "settings.updated", auditable: @setting, changes: { before: old, after: @setting.attributes })
           redirect_to admin_settings_path, notice: "Configuración actualizada."
         else
           render :show, status: :unprocessable_entity

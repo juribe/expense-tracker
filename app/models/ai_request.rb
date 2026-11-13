@@ -9,11 +9,20 @@ class AiRequest < ApplicationRecord
 
   belongs_to :user, optional: true
 
+  MAX_ERROR_LENGTH = 1_000
+
   include EncryptedSecret
   # Telemetry rows carry full conversation content: encrypted at rest with
   # the app secret, same scheme as the OAuth tokens. The prompt keeps its
   # array-of-messages shape through a JSON roundtrip (jsonb typing).
   encrypts_secret :output
+  # Provider error bodies can echo prompt content, so they are encrypted and
+  # truncated like the rest of the telemetry.
+  encrypts_secret :error
+
+  def error=(value)
+    self[:error] = value.blank? ? nil : encrypt_secret(value.to_s.truncate(MAX_ERROR_LENGTH))
+  end
 
   def prompt
     raw = decrypt_secret(self[:prompt])

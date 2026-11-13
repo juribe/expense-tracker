@@ -31,6 +31,11 @@ Rails.application.config.to_prepare do
   normalized_origin += ":#{uri.port}" unless uri.port == uri.default_port
   rp_id = ENV["WEBAUTHN_RP_ID"].presence || uri.host
 
+  unless WebauthnConfig.valid_rp_id?(host: uri.host, rp_id: rp_id)
+    raise "WEBAUTHN_RP_ID must equal the origin host or be one of its parent domains " \
+          "(origin host #{uri.host.inspect}, got #{rp_id.inspect})"
+  end
+
   WebAuthn.configure do |config|
     config.rp_name = "Yogasto"
     config.rp_id = rp_id

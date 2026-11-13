@@ -36,6 +36,31 @@ class ImportPipelineTest < ActiveSupport::TestCase
     FakeExtractor.new({ ok?: true, data: data, error: nil })
   end
 
+  test "does not log the extracted content" do
+    data = {
+      sources: [],
+      transactions: [ { date: "2026-08-01", description: "CANARIO-SECRETO", amount: "-10000", type: "expense" } ]
+    }
+    csv = "date,description,amount\n2026-08-01,CANARIO-SECRETO,-10000\n"
+
+    log = capture_log do
+      ImportPipeline.new(user: @user, extractor: successful_extractor(data))
+                    .call(file: uploaded_file(csv, "statement.csv"))
+    end
+
+    refute_includes log, "CANARIO-SECRETO"
+  end
+
+  def capture_log
+    original = Rails.logger
+    io = StringIO.new
+    Rails.logger = ActiveSupport::TaggedLogging.new(Logger.new(io))
+    yield
+    io.string
+  ensure
+    Rails.logger = original
+  end
+
   test "rejects a missing file" do
     result = ImportPipeline.new(user: @user, extractor: successful_extractor).call(file: nil)
     assert_not result.ok?
@@ -47,6 +72,23 @@ class ImportPipelineTest < ActiveSupport::TestCase
                            .call(file: uploaded_file("1234", "statement.txt"))
     assert_not result.ok?
     assert_equal I18n.t("wizard.upload.unsupported_type"), result.error
+  end
+
+  test "rejects a zip upload" do
+    result = ImportPipeline.new(user: @user, extractor: successful_extractor)
+                           .call(file: uploaded_file("PK\u0003\u0004", "statement.zip"))
+
+    assert_not result.ok?
+    assert_equal I18n.t("wizard.upload.unsupported_type"), result.error
+  end
+
+  test "rejects an upload over the size limit" do
+    large = "x" * (Expenses::Inputs::Rules::File::FILE_MAX_BYTES + 10)
+    result = ImportPipeline.new(user: @user, extractor: successful_extractor)
+                           .call(file: uploaded_file(large, "statement.csv"))
+
+    assert_not result.ok?
+    assert_equal I18n.t("wizard.upload.file_too_large"), result.error
   end
 
   test "rejects an empty file" do

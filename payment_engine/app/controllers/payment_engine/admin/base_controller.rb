@@ -53,6 +53,15 @@ module PaymentEngine
         render "payment_engine/admin/forbidden", status: :forbidden, layout: "payment_engine/admin"
       end
 
+      # Destructive admin actions must prove the acting admin's password, not
+      # just an authenticated admin session.
+      def pe_require_password_confirmation
+        return if current_host_user&.valid_password?(params[:admin_password])
+
+        redirect_back fallback_location: admin_root_path,
+                      alert: "Confirma tu contraseña para continuar."
+      end
+
       def audit_actor
         current_host_user
       end

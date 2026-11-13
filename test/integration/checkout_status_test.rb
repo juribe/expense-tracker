@@ -16,8 +16,19 @@ class VerifyCancelledProvider < PaymentEngine::Providers::Base
   end
 end
 
+class VerifyApprovedProvider < PaymentEngine::Providers::Base
+  class << self
+    attr_accessor :data
+  end
+
+  def fetch_payment(provider_transaction_id:)
+    PaymentEngine::Result.success(data: { "success" => true, "data" => self.class.data })
+  end
+end
+
 PaymentEngine.register_provider(:verify_error_test, VerifyErrorProvider)
 PaymentEngine.register_provider(:verify_cancelled_test, VerifyCancelledProvider)
+PaymentEngine.register_provider(:verify_approved_test, VerifyApprovedProvider)
 
 # The checkout result page polls this endpoint; it must return normalized
 # statuses and treat an already-paid purchase as a successful payment.
@@ -132,6 +143,88 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
     assert_equal "failed", purchase.reload.status
   end
 
+  test "verification rejects a transaction for a different invoice" do
+    purchase = create_purchase(status: "pending")
+    VerifyApprovedProvider.data = provider_transaction(purchase, invoice: purchase.id + 1)
+
+    result = verify_purchase(purchase, reference: "ref-approved")
+
+    refute result.success?
+    assert_equal :invoice_mismatch, result.code
+    assert_equal "pending", purchase.reload.status
+    assert_equal 0, PaymentEngine::Membership.where(purchase: purchase).count
+  end
+
+  test "verification rejects a transaction with a different amount" do
+    purchase = create_purchase(status: "pending")
+    VerifyApprovedProvider.data = provider_transaction(purchase, amount: "100.00")
+
+    result = verify_purchase(purchase, reference: "ref-approved")
+
+    refute result.success?
+    assert_equal :amount_mismatch, result.code
+    assert_equal "pending", purchase.reload.status
+  end
+
+  test "verification rejects a transaction with a different currency" do
+    purchase = create_purchase(status: "pending")
+    VerifyApprovedProvider.data = provider_transaction(purchase, currency: "USD")
+
+    result = verify_purchase(purchase, reference: "ref-approved")
+
+    refute result.success?
+    assert_equal :currency_mismatch, result.code
+    assert_equal "pending", purchase.reload.status
+  end
+
+  test "verification rejects a reference already stored on another payment" do
+    used = create_purchase(status: "paid")
+    used.payment.update!(external_reference: "ref-used")
+    purchase = create_purchase(status: "pending")
+    VerifyApprovedProvider.data = provider_transaction(purchase)
+
+    result = verify_purchase(purchase, reference: "ref-used")
+
+    refute result.success?
+    assert_equal :reference_already_used, result.code
+    assert_equal "pending", purchase.reload.status
+    assert_equal 0, PaymentEngine::Membership.where(purchase: purchase).count
+  end
+
+  test "verification settles a matching transaction" do
+    purchase = create_purchase(status: "pending")
+    VerifyApprovedProvider.data = provider_transaction(purchase)
+
+    result = verify_purchase(purchase, reference: "ref-new")
+
+    assert result.success?
+    assert_equal "succeeded", result.data[:state]
+    assert_equal "paid", purchase.reload.status
+    assert_equal "ref-new", purchase.payment.reload.external_reference
+    assert PaymentEngine::Membership.where(owner: @owner, purchase: purchase).exists?
+  end
+
+  test "verification rejects a response that cannot be bound to the purchase" do
+    purchase = create_purchase(status: "pending")
+    VerifyApprovedProvider.data = { "x_cod_response" => "1", "x_response" => "Aceptada" }
+
+    result = verify_purchase(purchase, reference: "ref-unbound")
+
+    refute result.success?
+    assert_equal :unverifiable_transaction, result.code
+    assert_equal "pending", purchase.reload.status
+  end
+
+  test "database rejects duplicate provider references" do
+    first = create_purchase(status: "paid")
+    first.payment.update!(external_reference: "dup-ref")
+    second = create_purchase(status: "pending")
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      second.payment.update_column(:external_reference, "dup-ref")
+    end
+  end
+
   test "webhook maps a cancelled response to rejected" do
     handler = PaymentEngine::Providers::Epayco::WebhookHandler.new(
       settings: { customer_id: "customer", p_key: "key" }
@@ -162,6 +255,31 @@ class CheckoutStatusTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def teardown
+    VerifyApprovedProvider.data = nil
+  end
+
+  def verify_purchase(purchase, reference:)
+    PaymentEngine::Payments::Verify.call(
+      provider: "verify_approved_test",
+      reference: reference,
+      purchase: purchase,
+      payment: purchase.payment
+    )
+  end
+
+  def provider_transaction(purchase, invoice: purchase.id, amount: "14900.00", currency: "COP")
+    {
+      "x_cod_response" => "1",
+      "x_response" => "Aceptada",
+      "x_ref_payco" => "ref-approved",
+      "x_transaction_id" => "txn-approved",
+      "x_id_factura" => invoice.to_s,
+      "x_amount" => amount,
+      "x_currency_code" => currency
+    }
+  end
 
   def create_purchase(status:)
     purchase = PaymentEngine::Purchase.create!(

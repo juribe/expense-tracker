@@ -25,6 +25,20 @@ module Statements
         @document = DynamicAdapter.new(@mapping).call(@extraction)
       end
 
+      test "compiles the learned regexp with a timeout" do
+        captured = nil
+        original = Regexp.method(:new)
+
+        stub_method(Regexp, :new, lambda { |*args, **kwargs|
+          captured = kwargs[:timeout]
+          original.call(*args, **kwargs)
+        }) do
+          DynamicAdapter.new(@mapping)
+        end
+
+        assert_equal RowCompiler::DEFAULT_TIMEOUT, captured
+      end
+
       test "builds an adapter-engine document" do
         assert_equal :adapter, @document.engine
       end

@@ -7,6 +7,9 @@ module Expenses
       # password prompt through the pipeline when none was supplied, and an
       # incorrect-password error when one was supplied and still fails.
       class Pdf < Base
+        MAX_PAGES = 15
+        MAX_TEXT_BYTES = 2.megabytes
+
         def call
           with_tempfile("pdf") do |tmp|
             reader = if password.present?
@@ -15,8 +18,13 @@ module Expenses
               PDF::Reader.new(tmp)
             end
 
-            text = reader.pages.map(&:text).join("\n\n").presence
-            Extraction.new(text: text, rows: [], headers: [])
+            text = +""
+            [ reader.page_count, MAX_PAGES ].min.times do |index|
+              text << reader.page(index + 1).text.to_s << "\n\n"
+              break if text.bytesize >= MAX_TEXT_BYTES
+            end
+
+            Extraction.new(text: text[0, MAX_TEXT_BYTES].presence, rows: [], headers: [])
           end
         rescue PDF::Reader::EncryptedPDFError
           # The caller presents the password prompt when none was supplied; when

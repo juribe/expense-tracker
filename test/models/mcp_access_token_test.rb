@@ -16,6 +16,13 @@ class McpAccessTokenTest < ActiveSupport::TestCase
     assert_equal [ "read" ], token.scopes
   end
 
+  test "issues tokens with a bounded default lifetime" do
+    token, = McpAccessToken.issue!(user: @user, name: "Claude", scopes: [ :read ])
+
+    assert token.expires_at.present?
+    assert_in_delta 90.days.from_now.to_i, token.expires_at.to_i, 120
+  end
+
   test "authenticates an active token" do
     _token, plain = McpAccessToken.issue!(user: @user, name: "Claude", scopes: [ :read, :write ])
 

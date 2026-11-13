@@ -25,7 +25,7 @@ class PendingWhatsappConnection < ApplicationRecord
 
   # Returns the raw code (for the UI) and persists only its digest.
   def self.generate_for!(user, ttl: TOKEN_TTL)
-    code = CODE_LENGTH.times.map { ALPHABET.chars.sample }.join
+    code = Array.new(CODE_LENGTH) { ALPHABET[SecureRandom.random_number(ALPHABET.length)] }.join
     user.pending_whatsapp_connections.create!(token_digest: digest_of(code), expires_at: ttl.from_now)
     code
   end

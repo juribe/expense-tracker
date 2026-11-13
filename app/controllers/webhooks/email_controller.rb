@@ -6,6 +6,11 @@ module Webhooks
   # Signature validation, delivery persistence and provider details live in
   # MailInboundService and its provider strategies.
   class EmailController < ActionController::Base
+    MAX_PAYLOAD_BYTES = 25.megabytes
+
+    # A compromised or misconfigured relay could otherwise flood the endpoint.
+    rate_limit to: 30, within: 1.minute, only: :create, store: RateLimitProxy.new
+
     HTTP_STATUS = {
       accepted: :accepted,
       duplicate: :ok,
@@ -21,11 +26,26 @@ module Webhooks
     skip_before_action :verify_authenticity_token, only: :create
 
     def create
+      # Reject before the HMAC and the provider parse: the size cap belongs at
+      # the HTTP boundary, not inside the provider.
+      if payload_too_large?
+        return render json: { status: "payload_too_large" }, status: 413
+      end
+
       result = MailInboundService.new.accept(mail_inbound_request)
       render_result(result)
     end
 
     private
+
+    def payload_too_large?
+      request.content_length.to_i > max_payload_bytes ||
+        request.raw_post.bytesize > max_payload_bytes
+    end
+
+    def max_payload_bytes
+      ENV.fetch("INBOUND_EMAIL_MAX_BYTES", MAX_PAYLOAD_BYTES).to_i.clamp(1, MAX_PAYLOAD_BYTES)
+    end
 
     def mail_inbound_request
       raw_body = request.raw_post

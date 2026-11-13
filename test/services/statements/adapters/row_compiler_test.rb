@@ -24,6 +24,28 @@ module Statements
         }
       end
 
+      test "rejects unknown tokens" do
+        spec = row_spec.merge("fields" => row_spec["fields"] + [ { "token" => "ignore_everything" } ])
+
+        assert_raises(RowCompiler::InvalidSpec) { RowCompiler.compile(spec) }
+      end
+
+      test "rejects a field list over the limit" do
+        fields = Array.new(20) { { "token" => "ignore" } }
+        fields << { "token" => "date" }
+        fields << { "token" => "amount" }
+
+        assert_raises(RowCompiler::InvalidSpec) do
+          RowCompiler.compile({ "fields" => fields })
+        end
+      end
+
+      test "does not emit unbounded wildcards" do
+        compiled = RowCompiler.compile(row_spec)
+
+        refute_match(/\.\*/, compiled.source)
+      end
+
       test "compiles a regexp from declarative tokens" do
         assert_kind_of Regexp, RowCompiler.compile(row_spec)
       end
@@ -86,7 +108,7 @@ module Statements
       end
 
       test "raises InvalidSpec without date or amount tokens" do
-        assert_raises(RowCompiler::InvalidSpec) { RowCompiler.compile("fields" => [ { "token" => "description" } ]) }
+        assert_raises(RowCompiler::InvalidSpec) { RowCompiler.compile({ "fields" => [ { "token" => "description" } ] }) }
         assert_raises(RowCompiler::InvalidSpec) { RowCompiler.compile({}) }
       end
     end

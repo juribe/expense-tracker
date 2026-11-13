@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_13_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -70,7 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
     t.integer "latency_ms"
     t.decimal "confidence", precision: 4, scale: 3
     t.boolean "escalated", default: false, null: false
-    t.string "error"
+    t.text "error"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "prompt"
@@ -845,6 +845,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
     t.text "error_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["external_reference"], name: "index_payment_engine_payments_on_external_reference", unique: true, where: "((external_reference IS NOT NULL) AND ((external_reference)::text <> ''::text))"
     t.index ["purchase_id"], name: "index_payment_engine_payments_on_purchase_id"
   end
 
@@ -970,7 +971,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_140000) do
     t.datetime "used_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["token_digest"], name: "index_pending_whatsapp_connections_on_token_digest"
+    t.index ["token_digest"], name: "index_pending_whatsapp_connections_on_token_digest", unique: true
     t.index ["user_id"], name: "index_pending_whatsapp_connections_on_user_id"
   end
 

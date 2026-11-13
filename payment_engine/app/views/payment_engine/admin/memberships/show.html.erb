@@ -14,15 +14,18 @@
   <h3>Acciones</h3>
   <%= form_with url: suspend_admin_membership_path(@record), method: :post, local: true do %>
     <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
     <button class="pe-btn pe-btn-danger" type="submit">Suspender</button>
   <% end %>
   <%= form_with url: reactivate_admin_membership_path(@record), method: :post, local: true do %>
     <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
     <button class="pe-btn" type="submit">Reactivar</button>
   <% end %>
   <%= form_with url: extend_admin_membership_path(@record), method: :post, local: true do %>
     <div class="pe-form-group"><label>Nueva expiración</label><input type="datetime-local" name="new_expires_at" class="pe-input"></div>
     <div class="pe-form-group"><label>Motivo</label><input type="text" name="reason" class="pe-input"></div>
+    <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
     <button class="pe-btn pe-btn-primary" type="submit">Extender</button>
   <% end %>
 </div>

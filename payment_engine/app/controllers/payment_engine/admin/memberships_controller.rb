@@ -4,6 +4,7 @@ module PaymentEngine
   module Admin
     class MembershipsController < BaseController
       before_action :set_record, only: [:show, :edit, :update, :destroy, :suspend, :reactivate, :extend]
+      before_action :pe_require_password_confirmation, only: [ :update, :suspend, :reactivate, :extend ]
 
       def index
         @records = Membership.includes(:membership_type, :owner).order(created_at: :desc)
@@ -48,7 +49,13 @@ module PaymentEngine
       end
 
       def update
+        before = @record.attributes.dup
         if @record.update(membership_params.except(:owner_type, :owner_id))
+          record_audit(
+            action: "membership.updated",
+            auditable: @record,
+            changes: { before: before, after: @record.attributes }
+          )
           redirect_to admin_membership_path(@record), notice: "Actualizado."
         else
           render :edit, status: :unprocessable_entity

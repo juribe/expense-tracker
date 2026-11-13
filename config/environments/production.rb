@@ -24,10 +24,10 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # Access reaches the app through Cloudflare/Tunnel, which terminates TLS and
+  # forwards X-Forwarded-Proto: https. Do not assume SSL here: that would make
+  # the force_ssl redirect unreachable and hide a direct plaintext request.
+  # Cloudflare must use Full (strict) so the edge-to-origin hop is encrypted.
   config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
@@ -57,7 +57,25 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("APP_HOST", "yogasto.co"),
+    protocol: "https"
+  }
+  config.action_mailer.default_options = { from: ENV.fetch("MAILER_FROM", "no-reply@yogasto.co") }
+
+  # Optional SMTP delivery. Without SMTP_ADDRESS the deployment keeps Rails'
+  # default (localhost) behaviour instead of silently using a placeholder.
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_ADDRESS"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_USERNAME"],
+      password: ENV["SMTP_PASSWORD"],
+      authentication: :plain,
+      enable_starttls_auto: true
+    }.compact
+  end
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {

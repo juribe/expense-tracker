@@ -92,8 +92,8 @@ module Gmail
       result = discovery.process(message)
       @suggestions_created += result.suggestions_created if result
       @logger.info(
-        "[GmailSync] discovery message=#{message[:id]} source=#{message[:from]}" \
-        " subject=#{message[:subject].to_s[0, 60].inspect} lines=#{message[:body_text].to_s.lines.size}" \
+        "[GmailSync] discovery message=#{message[:id]}" \
+        " lines=#{message[:body_text].to_s.lines.size}" \
         " passed=#{result && result.passed?} suggestions=#{result && result.suggestions_created}"
       )
     rescue StandardError => e

@@ -11,5 +11,7 @@ Rails.application.config.filter_parameters += [
   # WebAuthn responses and recovery codes are one-time secrets.
   :public_key_credential, :public_key, :recovery_code, :code_digest,
   # TOTP codes and provisioning secrets must never reach request logs.
-  :totp_code, :otp_code, :totp_secret
+  :totp_code, :otp_code, :totp_secret,
+  # Financial domain content is per-user data; keep it out of request logs.
+  :description, :amount, :content, :text, :body_text, :transcript
 ]

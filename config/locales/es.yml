@@ -688,7 +688,7 @@ es:
       upload: "Subir y procesar"
       retry: "Intentar de nuevo"
       file_required: "Elige un archivo para subir."
-      file_too_large: "El archivo es demasiado grande (máximo 20 MB)."
+      file_too_large: "El archivo es demasiado grande (máximo 5 MB)."
       processing: "Procesando tu extracto…"
       step_upload: "Cargando archivo…"
       password_title: "Este documento está protegido con contraseña"
@@ -893,6 +893,7 @@ es:
     source_recognition: "Reconocimiento de fuentes"
     entities: "Entidades bancarias"
     playground: "Playground"
+    cms_editor: "Editor CMS"
     evaluations: "Evaluaciones"
     assistant: "Asistente"
     financial_chat: "Chat Financiero"
@@ -2083,6 +2084,7 @@ es:
       tabular_fallback: "No se pudo interpretar la tabla de forma fiable; se usará la extracción con IA."
 
   expenses:
+    invalid_category: "La categoría no es válida."
     page_title: "Gastos"
     monthly: "Gasto Mensual"
     automatic_rules: "Reglas automáticas"
@@ -4377,6 +4379,7 @@ es:
       key_warn: "No compartas esta clave con otras personas. Si creas una nueva, la anterior debería dejar de funcionar."
       key_replace_confirm: "¿Reemplazar la clave actual? La anterior dejará de funcionar."
       generate_key: "Crear clave de conexión"
+      write_access: "Permitir escritura (crear y editar gastos)"
       reveal: "Mostrar"
       hide: "Ocultar"
       copy_key: "Copiar clave"
@@ -4590,6 +4593,10 @@ es:
       back_to_profile: "Volver a mi perfil"
       password_label: "Contraseña actual"
       submit: "Confirmar"
+    second_factor:
+      required: "Ingresa tu código de verificación o un código de recuperación para continuar."
+      code_label: "Código de verificación"
+      recovery_label: "o un código de recuperación"
     passkeys:
       title: "Passkeys"
       description: "Inicia sesión sin contraseña usando la huella, el rostro o el PIN de tus dispositivos."
@@ -4677,6 +4684,10 @@ es:
       challenge_expired: "La verificación expiró. Inténtalo nuevamente."
 
   profile:
+    deletion:
+      password_required: "Confirma tu contraseña para cancelar la cuenta."
+      confirmation_required: "Escribe ELIMINAR para confirmar la cancelación."
+      second_factor_required: "Ingresa tu código de verificación o un código de recuperación."
     communications:
       title: "Comunicaciones"
       note: "Preferencias"

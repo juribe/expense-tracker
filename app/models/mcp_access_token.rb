@@ -22,7 +22,9 @@ class McpAccessToken < ApplicationRecord
 
   scope :active, -> { where(revoked_at: nil).where("expires_at IS NULL OR expires_at > ?", Time.current) }
 
-  def self.issue!(user:, name:, scopes: [ "read" ], expires_at: nil)
+  DEFAULT_LIFETIME = 90.days
+
+  def self.issue!(user:, name:, scopes: [ "read" ], expires_at: DEFAULT_LIFETIME.from_now)
     plain = "ygm_#{SecureRandom.urlsafe_base64(32)}"
     token = create!(
       user: user,

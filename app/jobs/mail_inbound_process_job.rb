@@ -57,6 +57,31 @@ class MailInboundProcessJob < ApplicationJob
       (email.failed? && email.payload_data["email"].blank?)
   end
 
+  # A user proves control of a redirect address by sending an authenticated
+  # (dmarc=pass) message from it to their alias. The pending source becomes
+  # active and the premium identity is claimed. Unknown senders are registered
+  # as pending and ignored, never auto-activated.
+  def activate_pending_source(email, origin, authenticated)
+    return nil if origin.blank?
+
+    source = email.user.email_sources.forwarding.where("LOWER(email) = ?", origin.downcase).first
+    return source || MailInbound::SourceRegistrar.find_or_register(email.user, origin) unless source&.pending?
+    return source unless authenticated
+
+    ActiveRecord::Base.transaction do
+      PremiumIdentities::Protection.claim!(
+        identity_type: "redirect_email",
+        value: source.email,
+        user: email.user
+      )
+      source.mark_active!
+    end
+    source
+  rescue PremiumIdentities::Protection::Conflict => e
+    source.mark_error!(e.message)
+    source
+  end
+
   def process_email(email)
     message = email.payload_data["email"]
     if message.blank?
@@ -84,7 +109,9 @@ class MailInboundProcessJob < ApplicationJob
     end
 
     origin = MailInbound::SourceRegistrar.origin_email(message)
-    source = MailInbound::SourceRegistrar.find_or_register(email.user, origin)
+    headers = message["headers"] || message[:headers]
+    authenticated = MailInbound::SenderAuthentication.authenticated?(headers)
+    source = activate_pending_source(email, origin, authenticated)
 
     unless source&.active?
       email.update!(

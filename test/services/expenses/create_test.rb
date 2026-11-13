@@ -42,6 +42,17 @@ module Expenses
       assert_equal "18f0c2abc", expense.gmail_message_id
     end
 
+    test "rejects a category owned by another user" do
+      other = User.create!(name: "Other", email: "create_other_#{SecureRandom.hex(4)}@example.com", password: "password123")
+      foreign = Category.create!(name: "Ajena", user: other, is_default: false, category_type: "expense")
+
+      assert_raises(Expenses::Create::Invalid) do
+        create(category: foreign.id)
+      end
+
+      assert_equal 0, Expense.where(user: @user, category: foreign).count
+    end
+
     test "rejects an expense without a money source" do
       assert_no_difference -> { Expense.count } do
         error = assert_raises(Expenses::Create::Invalid) { create(money_source: nil) }

@@ -31,7 +31,12 @@ module MailInbound
         next unless purgeable_delivery?(delivery)
 
         counts[:deliveries] += 1
-        delivery.purge_email_content! unless @dry_run
+        next if @dry_run
+
+        # A delivery stuck in "handling" after a worker death is never retried
+        # nor completed; drop its content and close the lifecycle.
+        delivery.failed!("stale handling purged") if delivery.status == "handling"
+        delivery.purge_email_content!
       end
 
       ProcessedEmail.where(provider: INBOUND_PROVIDERS).find_each do |email|
@@ -49,8 +54,9 @@ module MailInbound
     def purgeable_delivery?(delivery)
       return false if delivery.raw_body.blank? && delivery.headers.blank? && delivery.params.blank?
       return true if delivery.status == "handled"
+      return true if delivery.status == "failed" && delivery.updated_at < RETRY_GRACE.ago
 
-      delivery.status == "failed" && delivery.updated_at < RETRY_GRACE.ago
+      delivery.status == "handling" && delivery.updated_at < RETRY_GRACE.ago
     end
 
     def purgeable_processed_email?(email)

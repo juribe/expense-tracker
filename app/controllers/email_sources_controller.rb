@@ -21,17 +21,12 @@ class EmailSourcesController < ApplicationController
   end
 
   def create
-    ActiveRecord::Base.transaction do
-      claim_redirect_email!(params[:email])
-      current_user.email_sources.create!(
-        source_type: params[:source_type].presence || "forwarding",
-        email: params[:email].presence,
-        status: "pending_setup"
-      )
-    end
+    current_user.email_sources.create!(
+      source_type: params[:source_type].presence || "forwarding",
+      email: params[:email].presence,
+      status: "pending_setup"
+    )
     redirect_to email_sources_path, notice: t("email_sources.created", default: "Fuente agregada.")
-  rescue PremiumIdentities::Protection::Conflict => e
-    redirect_to email_sources_path, alert: e.message
   rescue ActiveRecord::RecordInvalid => e
     redirect_to email_sources_path, alert: e.message
   end
@@ -42,22 +37,15 @@ class EmailSourcesController < ApplicationController
     redirect_to email_sources_path, notice: t("email_sources.removed", default: "Fuente eliminada.")
   end
 
+  # Activation alone does not prove control of the address; the redirect
+  # identity is claimed when an authenticated email arrives from it.
   def confirm
     source = current_user.email_sources.find(params[:id])
-
-    ActiveRecord::Base.transaction do
-      claim_redirect_email!(source.email)
-      source.mark_active!
-    end
+    source.mark_active!
 
     respond_to do |format|
       format.html { redirect_to email_sources_path, notice: t("email_sources.confirmed", default: "Configuración confirmada.") }
       format.json { render json: { ok: true, source: source_payload(source) } }
-    end
-  rescue PremiumIdentities::Protection::Conflict => e
-    respond_to do |format|
-      format.html { redirect_to email_sources_path, alert: e.message }
-      format.json { render json: { ok: false, error: e.message }, status: :unprocessable_entity }
     end
   end
 

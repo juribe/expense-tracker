@@ -4,6 +4,14 @@ class PlansController < ApplicationController
   before_action :authenticate_user!
   REUSE_WINDOW_MINUTES = 45
 
+  # ePayco's checkout script and modal are loaded only from the plans page;
+  # keep the global policy strict for every other action.
+  content_security_policy do |policy|
+    policy.script_src :self, "https://*.epayco.co"
+    policy.connect_src :self, "https://*.epayco.co"
+    policy.frame_src :self, "https://*.epayco.co"
+  end
+
   def index
     @monthly = PaymentEngine::PaymentOption.find_by(name: "Mensual")
     @annual = PaymentEngine::PaymentOption.find_by(name: "Anual")

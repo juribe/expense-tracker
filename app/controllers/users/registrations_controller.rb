@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
+  ACCOUNT_DELETION_CONFIRMATION = "ELIMINAR"
+
   before_action :store_commercial_intent, only: [ :new, :create ]
+  before_action :verify_account_deletion!, only: :destroy
 
   # Devise's default update_resource always demands the current password,
   # even for name-only edits. Only password/e-mail changes keep the
@@ -30,6 +33,30 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   private
+
+  # Closing the account destroys every financial record and is irreversible, so
+  # it needs a fresh proof of identity, not just an authenticated session.
+  def verify_account_deletion!
+    unless current_user.valid_password?(params[:current_password])
+      return redirect_to profile_path, alert: t("profile.deletion.password_required")
+    end
+
+    unless params[:confirmation].to_s.strip.casecmp?(ACCOUNT_DELETION_CONFIRMATION)
+      return redirect_to profile_path, alert: t("profile.deletion.confirmation_required")
+    end
+
+    return unless current_user.second_factor_enabled?
+    return if second_factor_confirmed?
+
+    redirect_to profile_path, alert: t("profile.deletion.second_factor_required")
+  end
+
+  def second_factor_confirmed?
+    credential = current_user.totp_credential
+    return true if credential&.verify_and_consume!(params[:totp_code])
+
+    RecoveryCode.consume!(current_user, params[:recovery_code]).present?
+  end
 
   # The registration form carries virtual consent fields. Mark the resource so
   # the model validates and records them only for this flow.

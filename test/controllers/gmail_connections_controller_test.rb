@@ -176,7 +176,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
 
       exchange_result = { access_token: "at", refresh_token: "rt", expires_at: 1.hour.from_now, id_token: nil }
       stub_method(Gmail::OauthClient, :exchange_code, exchange_result) do
-        stub_method(Gmail::OauthClient, :userinfo, { sub: "google-sub-123", email: "me@gmail.com" }) do
+        stub_method(Gmail::OauthClient, :userinfo, { sub: "google-sub-123", email: "me@gmail.com", email_verified: true }) do
           get google_callback_path, params: { code: "abc", state: state }
         end
       end
@@ -192,6 +192,28 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "rt", connection.refresh_token
     assert connection.active?
     assert_nil session[:gmail_oauth_state]
+  end
+
+  test "callback rejects an unverified Google email" do
+    @user.money_sources.create!(name: "Gmail Unverified Bank", kind: "account",
+                                starting_balance: 0, bank: "davibank")
+    with_env({ "GOOGLE_CLIENT_ID" => "client-id", "GOOGLE_CLIENT_SECRET" => "client-secret" }) do
+      post start_gmail_auth_path
+    end
+    state = session[:gmail_oauth_state]
+    exchange_result = { access_token: "at", refresh_token: "rt", expires_at: 1.hour.from_now, id_token: nil }
+
+    stub_method(Gmail::OauthClient, :exchange_code, exchange_result) do
+      stub_method(Gmail::OauthClient, :userinfo,
+                  { sub: "google-sub-unverified", email: "unverified@gmail.com", email_verified: false }) do
+        get google_callback_path, params: { code: "abc", state: state }
+      end
+    end
+
+    assert_redirected_to gmail_connection_path
+    assert_match(/verific/i, flash[:alert])
+    assert_equal 0, GmailConnection.where(email: "unverified@gmail.com").count
+    assert_nil PremiumIdentity.find_by(identity_type: "gmail")
   end
 
   test "update saves search criteria under the search_config column" do
@@ -553,7 +575,7 @@ class GmailConnectionsControllerTest < ActionDispatch::IntegrationTest
     exchange_result = { access_token: "at", refresh_token: "rt", expires_at: 1.hour.from_now, id_token: nil }
 
     stub_method(Gmail::OauthClient, :exchange_code, exchange_result) do
-      stub_method(Gmail::OauthClient, :userinfo, { sub: "google-sub-#{SecureRandom.hex(4)}", email: email }) do
+      stub_method(Gmail::OauthClient, :userinfo, { sub: "google-sub-#{SecureRandom.hex(4)}", email: email, email_verified: true }) do
         get google_callback_path, params: { code: "abc", state: state }
       end
     end

@@ -37,7 +37,13 @@ module PaymentEngine
         purchase = resolve_purchase(data)
         return Result.failure(code: :unknown_purchase, errors: ["Compra no encontrada"]) unless purchase
 
-        payment = @payment || purchase.payment || Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: @provider.to_s)
+        payment = @payment || purchase.payment
+
+        if (problem = binding_error(data, purchase, payment))
+          return problem
+        end
+
+        payment ||= Payment.create!(purchase: purchase, amount: purchase.amount, currency: purchase.currency, status: "pending", provider_code: @provider.to_s)
 
         ActiveRecord::Base.transaction do
           case state
@@ -67,9 +73,72 @@ module PaymentEngine
       def resolve_purchase(data)
         return @purchase if @purchase
 
-        purchase_id = data["x_id_factura"] || data["x_extra1"] || data["invoice"] || data["purchase_id"] || data["bill"]
-        purchase_id = purchase_id.to_i if purchase_id.to_s.match?(/\A\d+\z/)
+        purchase_id = invoice_id(data)
         Purchase.find_by(id: purchase_id) if purchase_id.present?
+      end
+
+      # Binds the provider transaction to the local purchase. A reference that
+      # is already stored on another payment, or a transaction whose invoice,
+      # amount or currency disagree with the purchase, must not settle it.
+      def binding_error(data, purchase, payment)
+        invoice = invoice_id(data)
+        amount = binding_value(data, "x_amount", "amount")
+        currency = binding_value(data, "x_currency_code", "currency")
+
+        if invoice.blank? && amount.blank? && currency.blank?
+          return mismatch(:unverifiable_transaction, "La transacción no identifica la compra")
+        end
+
+        if invoice.present? && invoice.to_s != purchase.id.to_s
+          return mismatch(:invoice_mismatch, "La factura no corresponde a la compra")
+        end
+
+        if amount.present? && to_decimal(amount) != purchase.amount
+          return mismatch(:amount_mismatch, "El monto no corresponde a la compra")
+        end
+
+        if currency.present? && !currency.to_s.casecmp?(purchase.currency.to_s)
+          return mismatch(:currency_mismatch, "La moneda no corresponde a la compra")
+        end
+
+        if reference_used_elsewhere?(payment)
+          return mismatch(:reference_already_used, "La referencia ya fue usada por otro pago")
+        end
+
+        nil
+      end
+
+      def invoice_id(data)
+        value = binding_value(data, "x_id_factura", "x_extra1", "invoice", "purchase_id", "bill")
+        return if value.blank?
+
+        value.to_s.match?(/\A\d+\z/) ? value.to_i : value
+      end
+
+      def binding_value(data, *keys)
+        keys.each do |key|
+          value = data[key] || data[key.to_sym]
+          return value if value.present?
+        end
+        nil
+      end
+
+      def to_decimal(value)
+        BigDecimal(value.to_s)
+      rescue ArgumentError, TypeError
+        nil
+      end
+
+      def reference_used_elsewhere?(payment)
+        return false if @reference.blank?
+
+        scope = Payment.where(external_reference: @reference)
+        scope = scope.where.not(id: payment.id) if payment
+        scope.exists?
+      end
+
+      def mismatch(code, message)
+        Result.failure(code: code, errors: [ message ])
       end
 
       def map_state(data)

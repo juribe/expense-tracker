@@ -52,6 +52,15 @@ class PendingWhatsappConnectionTest < ActiveSupport::TestCase
     assert_not pending_row.consume!
   end
 
+  test "token_digest is unique at the database level" do
+    expires_at = 5.minutes.from_now
+    PendingWhatsappConnection.create!(user: @user, token_digest: "same-digest", expires_at: expires_at)
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      PendingWhatsappConnection.create!(user: @user, token_digest: "same-digest", expires_at: expires_at)
+    end
+  end
+
   test "code comparison is case-insensitive" do
     code = PendingWhatsappConnection.generate_for!(@user)
 

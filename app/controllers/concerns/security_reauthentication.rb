@@ -33,4 +33,18 @@ module SecurityReauthentication
 
     redirect_to security_settings_path, alert: t("security.reauthentication.required")
   end
+
+  # Verifies the factor the account already has (TOTP or a recovery code).
+  def current_second_factor_valid?
+    return true if current_user.totp_credential&.verify_and_consume!(params[:totp_code])
+    return true if RecoveryCode.consume!(current_user, params[:recovery_code]).present?
+
+    false
+  end
+
+  def require_current_second_factor
+    return if current_second_factor_valid?
+
+    redirect_to security_settings_path, alert: t("security.second_factor.required")
+  end
 end

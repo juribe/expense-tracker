@@ -64,18 +64,21 @@ module Mcp
     end
 
     def build
-      server = ::FastMcp::Server.new(name: NAME, version: VERSION, logger: Rails.logger)
-      server.transport = Mcp::HttpTransport.new(server, logger: Rails.logger)
+      logger = Mcp::SafeLogger.new(Rails.logger)
+      server = ::FastMcp::Server.new(name: NAME, version: VERSION, logger: logger)
+      server.transport = Mcp::HttpTransport.new(server, logger: logger)
       server.register_tools(*allowed_tools)
       server
     end
 
     private
 
+    # Default deny: a tool must declare a scope the token holds. A future tool
+    # that forgets requires_scope is not silently exposed to every token.
     def allowed_tools
       TOOL_NAMES.map(&:constantize).select do |tool|
         scope = tool.required_scope
-        scope.nil? || @scopes.include?(scope)
+        scope.present? && @scopes.include?(scope)
       end
     end
   end

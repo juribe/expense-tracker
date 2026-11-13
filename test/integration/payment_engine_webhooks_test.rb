@@ -39,6 +39,10 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     @purchase = PaymentEngine::Purchase.create!(owner: @owner, payment_option: @payment_option, amount: 14_900, currency: "COP", status: "pending")
     @payment = PaymentEngine::Payment.create!(purchase: @purchase, amount: @purchase.amount, currency: "COP", status: "pending", provider_code: "epayco")
     @purchase.update!(payment: @payment)
+
+    # Provider adapters are memoized per process; start each test from the
+    # credentials configured above instead of a previous test's instance.
+    PaymentEngine.reset_providers!
   end
 
   test "rejected unauthorized notification keeps purchase pending" do
@@ -48,6 +52,42 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     assert_equal "pending", @purchase.reload.status
     assert_equal "pending", @payment.reload.status
     assert_equal 0, PaymentEngine::WebhookEvent.count
+  end
+
+  test "unregistered provider notification is rejected and grants no access" do
+    assert_no_difference [ "PaymentEngine::WebhookEvent.count", "PaymentEngine::Membership.count" ] do
+      post "/payment_engine/webhooks/unregistered_provider", params: webhook_payload
+    end
+
+    assert_response :unauthorized
+    assert_equal "pending", @purchase.reload.status
+    assert_equal "pending", @payment.reload.status
+  end
+
+  test "notification without configured credentials is rejected" do
+    @provider.update!(credentials: {}, settings: {})
+    PaymentEngine.reset_providers!
+
+    assert_no_difference [ "PaymentEngine::WebhookEvent.count", "PaymentEngine::Membership.count" ] do
+      post "/payment_engine/webhooks/epayco", params: webhook_payload(customer_id: "", p_key: "")
+    end
+
+    assert_response :unauthorized
+    assert_equal "pending", @purchase.reload.status
+    assert_equal "pending", @payment.reload.status
+  end
+
+  test "rotating provider credentials invalidates the memoized adapter" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    assert_response :ok
+
+    @provider.update!(credentials: { customer_id: @customer_id, p_key: "rotated-p-key" })
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload(p_key: "rotated-p-key")
+    assert_response :ok
+
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    assert_response :unauthorized
   end
 
   test "approved notification updates payment, purchase and membership" do
@@ -66,11 +106,59 @@ class PaymentEngineWebhooksTest < ActionDispatch::IntegrationTest
     assert_equal "paid", @purchase.reload.status
   end
 
+  test "refund notification revokes the membership granted by the purchase" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    assert_response :ok
+    membership = PaymentEngine::Membership.find_by!(purchase: @purchase)
+    assert membership.active?
+
+    post "/payment_engine/webhooks/epayco", params: refund_payload
+
+    assert_response :ok
+    assert_equal "refunded", @payment.reload.status
+    assert_equal "refunded", @purchase.reload.status
+    assert_equal "cancelled", membership.reload.status
+    refute membership.access_granted?
+  end
+
+  test "refund keeps the membership when revoke_access_on_refund is disabled" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    membership = PaymentEngine::Membership.find_by!(purchase: @purchase)
+    previous = PaymentEngine.configuration.revoke_access_on_refund
+
+    begin
+      PaymentEngine.configuration.revoke_access_on_refund = false
+      post "/payment_engine/webhooks/epayco", params: refund_payload
+    ensure
+      PaymentEngine.configuration.revoke_access_on_refund = previous
+    end
+
+    assert_response :ok
+    assert_equal "refunded", @purchase.reload.status
+    assert_equal "active", membership.reload.status
+  end
+
+  test "admin refund revokes the membership and marks the purchase refunded" do
+    post "/payment_engine/webhooks/epayco", params: webhook_payload
+    membership = PaymentEngine::Membership.find_by!(purchase: @purchase)
+
+    result = PaymentEngine::Payments::Refund.call(payment: @payment, reason: "prueba")
+
+    assert result.success?
+    assert_equal "refunded", @payment.reload.status
+    assert_equal "refunded", @purchase.reload.status
+    assert_equal "cancelled", membership.reload.status
+  end
+
   private
 
-  def webhook_payload
+  def refund_payload
+    webhook_payload.merge("x_cod_response" => "6", "x_response" => "Reversada")
+  end
+
+  def webhook_payload(customer_id: @customer_id, p_key: @p_key)
     signature = Digest::SHA256.hexdigest(
-      [ @customer_id, @p_key, "ref-1", "txn-1", "14900.00", "COP" ].join("^")
+      [ customer_id, p_key, "ref-1", "txn-1", "14900.00", "COP" ].join("^")
     )
     {
       "x_ref_payco" => "ref-1",

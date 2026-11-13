@@ -78,7 +78,8 @@ module Gmail
 
         {
           sub: body["sub"].to_s,
-          email: body["email"].to_s
+          email: body["email"].to_s,
+          email_verified: body["email_verified"] == true
         }
       rescue JSON::ParserError => e
         raise Error, "invalid userinfo response (#{e.message})"

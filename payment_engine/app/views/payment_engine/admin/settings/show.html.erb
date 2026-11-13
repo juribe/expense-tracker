@@ -17,6 +17,7 @@
     <div class="pe-form-group"><%= f.label :free_trial_duration_days, "Duración del trial (días)" %><%= f.number_field :free_trial_duration_days, class: "pe-input" %></div>
     <div class="pe-form-group"><%= f.label :free_trial_requires_card, "Requiere tarjeta" %><%= f.check_box :free_trial_requires_card %></div>
     <div class="pe-form-group"><%= f.label :free_trial_once_per_user, "Un trial por usuario" %><%= f.check_box :free_trial_once_per_user %></div>
+    <div class="pe-form-group"><label>Contraseña</label><input type="password" name="admin_password" class="pe-input" required autocomplete="current-password"></div>
     <%= f.submit "Guardar", class: "pe-btn pe-btn-primary" %>
   </div>
 <% end %>

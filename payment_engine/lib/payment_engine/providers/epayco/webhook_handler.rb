@@ -19,6 +19,9 @@ module PaymentEngine
         def verify(payload:, headers: {}, raw_body: nil)
           signature = field(payload, "x_signature").to_s
           return false if signature.empty?
+          # Without a shared secret the digest would be computable from public
+          # payload fields, so an unconfigured provider must fail closed.
+          return false if customer_id.blank? || p_key.blank?
 
           expected = Digest::SHA256.hexdigest(
             [ customer_id, p_key,

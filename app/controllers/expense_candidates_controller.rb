@@ -7,8 +7,8 @@ class ExpenseCandidatesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :set_candidate, only: [ :show, :update, :confirm, :discard, :accept_suggestion, :restore ]
-  before_action :set_categories, only: [ :show, :index, :bulk_update, :bulk_confirm ]
-  before_action :set_money_sources, only: [ :show, :index, :bulk_update, :bulk_confirm ]
+  before_action :set_categories, only: [ :show, :update, :index, :bulk_update, :bulk_confirm ]
+  before_action :set_money_sources, only: [ :show, :update, :index, :bulk_update, :bulk_confirm ]
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -266,10 +266,20 @@ class ExpenseCandidatesController < ApplicationController
   end
 
   def candidate_params
-    params.expect(expense_candidate: [
+    permitted = params.expect(expense_candidate: [
       :amount, :date, :description, :category_id, :money_source_id,
       :original_input, :original_text, :confidence
     ])
+
+    %i[category_id money_source_id].each do |key|
+      value = permitted[key]
+      next if value.blank?
+
+      normalized = UuidParams.normalize(value)
+      normalized ? permitted[key] = normalized : permitted.delete(key)
+    end
+
+    permitted
   end
 
   def not_found

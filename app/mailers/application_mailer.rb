@@ -4,7 +4,10 @@ class ApplicationMailer < ActionMailer::Base
   layout "mailer"
 
   def default_url_options
-    Rails.application.config.action_mailer.default_url_options || { host: "localhost", port: 3000 }
+    options = (Rails.application.config.action_mailer.default_url_options || {}).dup
+    options[:host] = ENV["APP_HOST"] if ENV["APP_HOST"].present?
+    options[:protocol] ||= "https" if Rails.env.production?
+    options.presence || { host: "localhost", port: 3000 }
   end
 
   def greeting_name(resource)

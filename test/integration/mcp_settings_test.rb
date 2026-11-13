@@ -39,11 +39,20 @@ class McpSettingsTest < ActionDispatch::IntegrationTest
 
     token = @user.mcp_access_tokens.order(:created_at).last
     assert_equal "Mi asistente", token.name
-    assert_equal %w[read write], token.scopes
+    assert_equal %w[read], token.scopes
 
     get mcp_settings_path
     assert_no_match(/#{Regexp.escape(plain)}/, response.body)
     assert_select "#keyStatus", text: /Clave activa/
+  end
+
+  test "creates a write key only when write access is requested" do
+    sign_in @user
+
+    post mcp_settings_path, params: { mcp_token: { name: "Escritura", write_access: "1" } }
+
+    token = @user.mcp_access_tokens.order(:created_at).last
+    assert_equal %w[read write], token.scopes
   end
 
   test "replaces the previous key when creating a new one" do

@@ -233,49 +233,44 @@ class EmailSourcesControllerTest < ActionDispatch::IntegrationTest
     refute_equal unrelated, gmail_source
   end
 
-  test "creating a forwarding source records a redirect email premium identity" do
-    post email_sources_path, params: { source_type: "forwarding", email: "Redirect@Example.com" }
+  test "creating a forwarding source does not claim a redirect identity" do
+    assert_no_difference -> { PremiumIdentity.where(identity_type: "redirect_email").count } do
+      post email_sources_path, params: { source_type: "forwarding", email: "Redirect@Example.com" }
+    end
 
     assert_redirected_to email_sources_path
-    identity = PremiumIdentity.find_by(
-      identity_type: "redirect_email",
-      fingerprint: PremiumIdentities::Fingerprint.call(identity_type: "redirect_email", value: "redirect@example.com")
-    )
-    assert identity
-    assert_equal @user.id, identity.first_user_id
   end
 
-  test "another account cannot add a redirect email already used by a premium account" do
+  test "another account can add a redirect email claimed by a premium account" do
     owner = User.create!(name: "Redirect Owner", email: "redirect_owner@example.com", password: "password123")
     PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "used-redirect@example.com", user: owner)
 
-    assert_no_difference -> { @user.email_sources.count } do
+    assert_difference -> { @user.email_sources.count }, 1 do
       post email_sources_path, params: { source_type: "forwarding", email: "used-redirect@example.com" }
     end
 
     assert_redirected_to email_sources_path
-    assert_match(/otra cuenta/i, flash[:alert])
+    assert_equal "pending_setup", @user.email_sources.find_by(email: "used-redirect@example.com").status
   end
 
-  test "confirming a source records the redirect email premium identity" do
+  test "confirming a source activates it without claiming a redirect identity" do
     source = @user.email_sources.create!(
       source_type: "forwarding",
       email: "confirm-redirect@example.com",
       status: "pending_setup"
     )
 
-    post confirm_email_source_path(source)
+    assert_no_difference -> { PremiumIdentity.where(identity_type: "redirect_email").count } do
+      post confirm_email_source_path(source)
+    end
 
     assert_redirected_to email_sources_path
     assert_equal "active", source.reload.status
-    identity = PremiumIdentity.find_by(identity_type: "redirect_email")
-    assert identity
-    assert_equal @user.id, identity.first_user_id
   end
 
-  test "confirming a source does not activate it when the redirect email belongs to another account" do
+  test "confirming a source does not transfer an existing redirect identity" do
     owner = User.create!(name: "Confirm Owner", email: "confirm_owner@example.com", password: "password123")
-    PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "blocked-confirm@example.com", user: owner)
+    identity = PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "blocked-confirm@example.com", user: owner)
     source = @user.email_sources.create!(
       source_type: "forwarding",
       email: "blocked-confirm@example.com",
@@ -285,19 +280,18 @@ class EmailSourcesControllerTest < ActionDispatch::IntegrationTest
     post confirm_email_source_path(source)
 
     assert_redirected_to email_sources_path
-    assert_match(/otra cuenta/i, flash[:alert])
-    assert_equal "pending_setup", source.reload.status
+    assert_equal "active", source.reload.status
+    assert_equal owner.id, identity.reload.first_user_id
   end
 
-  test "deleting a forwarding source does not free its premium identity" do
+  test "deleting a forwarding source does not free a redirect identity claimed elsewhere" do
+    owner = User.create!(name: "Delete Owner", email: "delete_owner@example.com", password: "password123")
+    identity = PremiumIdentities::Protection.claim!(identity_type: "redirect_email", value: "delete-redirect@example.com", user: owner)
     source = @user.email_sources.create!(
       source_type: "forwarding",
       email: "delete-redirect@example.com",
       status: "pending_setup"
     )
-    post confirm_email_source_path(source)
-    identity = PremiumIdentity.find_by(identity_type: "redirect_email")
-    assert identity
 
     delete email_source_path(source)
 

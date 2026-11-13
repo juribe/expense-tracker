@@ -22,6 +22,17 @@ class AiRequestTest < ActiveSupport::TestCase
     assert_not_includes raw_output, "El gasto se registró"
   end
 
+  test "provider errors are encrypted and truncated" do
+    message = "provider boom: #{'x' * 2_000}"
+    record = AiRequest.create!(user: @user, task: "expense_extraction", strategy: "cheap_ai",
+                               status: "error", error: message)
+
+    raw_error = record.read_attribute(:error)
+    assert_not_includes raw_error, "provider boom"
+    assert_equal 1_000, record.reload.error.length
+    assert record.error.start_with?("provider boom")
+  end
+
   test "prompt roundtrips as the message array" do
     record = AiRequest.create!(user: @user, task: "expense_extraction", strategy: "cache", status: "ok",
                                prompt: [ { role: "user", content: "gasto 40000 uber" },

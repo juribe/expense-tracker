@@ -1,5 +1,15 @@
 require "test_helper"
 
+# Normalizes a stored raw payload into a payment.rejected event.
+class AdminReplayProvider < PaymentEngine::Providers::Base
+  def parse_webhook(payload:, headers: {}, raw_body: nil)
+    PaymentEngine::Result.success(
+      data: { event_type: "payment.rejected", purchase_id: payload["purchase_id"] }
+    )
+  end
+end
+PaymentEngine.register_provider(:admin_replay_test, AdminReplayProvider)
+
 class PaymentEngineAdminTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   setup do
@@ -42,6 +52,139 @@ class PaymentEngineAdminTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "membership update is audited" do
+    sign_in @admin
+    membership = create_membership
+
+    patch "/payment_engine/admin/memberships/#{membership.id}",
+          params: { membership: { status: "suspended" }, admin_password: "password123" }
+
+    assert_redirected_to "/payment_engine/admin/memberships/#{membership.id}"
+    assert_equal "suspended", membership.reload.status
+    audit = PaymentEngine::AuditLog.where(action: "membership.updated").last
+    assert audit
+    assert_equal @admin.id.to_s, audit.actor_id
+    assert_equal membership.id.to_s, audit.auditable_id
+  end
+
+  test "settings update is audited" do
+    sign_in @admin
+
+    patch "/payment_engine/admin/settings",
+          params: { setting: { default_currency: "USD" }, admin_password: "password123" }
+
+    assert_redirected_to "/payment_engine/admin/settings"
+    audit = PaymentEngine::AuditLog.where(action: "settings.updated").last
+    assert audit
+    assert_equal @admin.id.to_s, audit.actor_id
+  end
+
+  test "provider create, update and destroy are audited" do
+    sign_in @admin
+
+    post "/payment_engine/admin/providers",
+         params: { provider: { code: "audit_provider", name: "Audit Provider", environment: "sandbox" },
+                   admin_password: "password123" }
+    provider = PaymentEngine::Provider.find_by!(code: "audit_provider")
+    patch "/payment_engine/admin/providers/#{provider.id}",
+          params: { provider: { name: "Audit Provider 2" }, admin_password: "password123" }
+    delete "/payment_engine/admin/providers/#{provider.id}", params: { admin_password: "password123" }
+
+    actions = PaymentEngine::AuditLog.where(action: %w[provider.created provider.updated provider.destroyed]).order(:id).pluck(:action)
+    assert_equal %w[provider.created provider.updated provider.destroyed], actions
+    assert PaymentEngine::AuditLog.where(action: "provider.updated").last.actor_id == @admin.id.to_s
+  end
+
+  test "reprocess applies the stored payload through the provider adapter" do
+    sign_in @admin
+    purchase = PaymentEngine::Purchase.create!(owner: @user, amount: 1_000, currency: "COP", status: "pending")
+    event = PaymentEngine::WebhookEvent.create!(
+      provider_code: "admin_replay_test",
+      external_id: "evt-replay",
+      status: "failed",
+      payload: { "purchase_id" => purchase.id },
+      received_at: Time.current
+    )
+
+    post "/payment_engine/admin/webhook_events/#{event.id}/reprocess"
+
+    assert_redirected_to "/payment_engine/admin/webhook_events/#{event.id}"
+    assert_equal "processed", event.reload.status
+    assert_equal "failed", purchase.reload.status
+  end
+
+  test "reprocess keeps the event failed when the provider cannot be resolved" do
+    sign_in @admin
+    event = PaymentEngine::WebhookEvent.create!(
+      provider_code: "missing_provider",
+      external_id: "evt-missing",
+      status: "failed",
+      payload: { "event_type" => "payment.rejected" },
+      received_at: Time.current
+    )
+
+    post "/payment_engine/admin/webhook_events/#{event.id}/reprocess"
+
+    assert_redirected_to "/payment_engine/admin/webhook_events/#{event.id}"
+    assert_equal "failed", event.reload.status
+    assert_match(/no se pudo/i, flash[:alert].to_s)
+  end
+
+  test "refund requires the admin password" do
+    sign_in @admin
+    purchase = PaymentEngine::Purchase.create!(owner: @user, amount: 1_000, currency: "COP", status: "paid")
+    payment = PaymentEngine::Payment.create!(purchase: purchase, amount: 1_000, currency: "COP",
+                                              status: "succeeded", provider_code: "epayco")
+
+    post "/payment_engine/admin/payments/#{payment.id}/refund", params: { reason: "test" }
+    assert_equal "succeeded", payment.reload.status
+
+    post "/payment_engine/admin/payments/#{payment.id}/refund",
+         params: { reason: "test", admin_password: "password123" }
+    assert_equal "refunded", payment.reload.status
+  end
+
+  test "creating a provider requires the admin password" do
+    sign_in @admin
+
+    post "/payment_engine/admin/providers",
+         params: { provider: { code: "audit_gate", name: "Gate", environment: "sandbox" } }
+    assert_nil PaymentEngine::Provider.find_by(code: "audit_gate")
+
+    post "/payment_engine/admin/providers",
+         params: { provider: { code: "audit_gate", name: "Gate", environment: "sandbox" },
+                   admin_password: "password123" }
+    assert PaymentEngine::Provider.find_by(code: "audit_gate")
+  end
+
+  test "suspending a membership requires the admin password" do
+    sign_in @admin
+    membership = create_membership
+
+    post "/payment_engine/admin/memberships/#{membership.id}/suspend", params: { reason: "test" }
+    assert_equal "active", membership.reload.status
+
+    post "/payment_engine/admin/memberships/#{membership.id}/suspend",
+         params: { reason: "test", admin_password: "password123" }
+    assert_equal "suspended", membership.reload.status
+  end
+
+  test "releasing a premium identity requires the admin password" do
+    identity = PremiumIdentities::Protection.claim!(
+      identity_type: "account_email",
+      value: "admin-password-release@example.com",
+      user: @user
+    )
+    sign_in @admin
+
+    post "/payment_engine/admin/premium_identities/#{identity.id}/release", params: { reason: "test" }
+    refute identity.reload.released?
+
+    post "/payment_engine/admin/premium_identities/#{identity.id}/release",
+         params: { reason: "test", admin_password: "password123" }
+    assert identity.reload.released?
+  end
+
   test "normal user cannot access premium identities" do
     sign_in @user
 
@@ -62,7 +205,7 @@ class PaymentEngineAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     post "/payment_engine/admin/premium_identities/#{identity.id}/release",
-         params: { reason: "Verified support request" }
+         params: { reason: "Verified support request", admin_password: "password123" }
 
     assert_redirected_to "/payment_engine/admin/premium_identities/#{identity.id}"
     assert identity.reload.released?
@@ -70,5 +213,18 @@ class PaymentEngineAdminTest < ActionDispatch::IntegrationTest
     assert audit
     assert_equal @admin.id.to_s, audit.actor_id
     assert_equal "Verified support request", audit.reason
+  end
+
+  private
+
+  def create_membership
+    membership_type = PaymentEngine::MembershipType.create!(code: "ADMIN_AUDIT", name: "Admin Audit", status: "active")
+    PaymentEngine::Membership.create!(
+      owner: @user,
+      membership_type: membership_type,
+      status: "active",
+      starts_at: Time.current,
+      expires_at: 1.month.from_now
+    )
   end
 end

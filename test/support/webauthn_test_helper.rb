@@ -17,7 +17,7 @@ module WebauthnTestHelper
     WebAuthn::FakeClient.new(origin)
   end
 
-  def register_passkey(user, name: "Mi MacBook", client: webauthn_client)
+  def register_passkey(user, name: "Mi MacBook", client: webauthn_client, extra_params: {})
     post reauthenticate_security_settings_path, params: { current_password: "password123" }
     post user_passkey_registration_options_path
     assert_response :success
@@ -29,7 +29,8 @@ module WebauthnTestHelper
       user_verified: true
     )
 
-    post user_passkeys_path, params: { name: name, public_key_credential: credential.to_json }
+    post user_passkeys_path,
+         params: { name: name, public_key_credential: credential.to_json }.merge(extra_params)
     credential
   end
 
@@ -55,7 +56,7 @@ module WebauthnTestHelper
     WebAuthn.configuration.encoder.decode(user.reload.webauthn_id)
   end
 
-  def register_second_factor_credential(user, name: "Llave de seguridad", client: webauthn_client)
+  def register_second_factor_credential(user, name: "Llave de seguridad", client: webauthn_client, extra_params: {})
     post reauthenticate_security_settings_path, params: { current_password: "password123" }
     post user_security_key_registration_options_path
     assert_response :success
@@ -68,7 +69,7 @@ module WebauthnTestHelper
     )
 
     post user_second_factor_webauthn_credentials_path,
-         params: { name: name, public_key_credential: credential.to_json }
+         params: { name: name, public_key_credential: credential.to_json }.merge(extra_params)
     credential
   end
 

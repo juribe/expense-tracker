@@ -34,9 +34,10 @@ module Gmail
 
     # `message` is the normalized hash produced by Gmail::Client#get_message:
     #   { id:, from:, subject:, body_text:, internal_date:, snippet:, headers: }
-    def call(message)
+    def call(message, auto_create: true)
       @message_id = message[:id].to_s
       @subject = message[:subject].to_s
+      @auto_create = auto_create
       return skipped("already processed") unless claim_message!
 
       run_import_pipeline(message)
@@ -135,6 +136,14 @@ module Gmail
     def handle_transactions(data)
       transactions = data[:transactions]
       min_confidence = transactions.map { |t| t[:confidence].to_f }.min || 0.0
+
+      unless @auto_create
+        return record!(
+          :needs_review,
+          payload: { subject: @subject, transactions: transactions },
+          reason: "sender not authenticated"
+        )
+      end
 
       if min_confidence < AUTO_CREATE_THRESHOLD
         return record!(

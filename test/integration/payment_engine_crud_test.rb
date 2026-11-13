@@ -17,12 +17,11 @@ class PaymentEngineCrudTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     assert PaymentEngine::Membership.where(owner: user).exists?
   end
-  test "webhook idempotency" do
-    post "/payment_engine/webhooks/stripe", params: { id: "evt1", type: "payment.succeeded" }
-    assert_response :ok
-    assert_equal 1, PaymentEngine::WebhookEvent.where(external_id: "evt1").count
-    post "/payment_engine/webhooks/stripe", params: { id: "evt1", type: "payment.succeeded" }
-    assert_response :ok
-    assert_equal 1, PaymentEngine::WebhookEvent.where(external_id: "evt1").count
+  test "unknown provider webhook is rejected" do
+    assert_no_difference "PaymentEngine::WebhookEvent.count" do
+      post "/payment_engine/webhooks/stripe", params: { id: "evt1", type: "payment.succeeded" }
+    end
+
+    assert_response :unauthorized
   end
 end

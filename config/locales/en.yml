@@ -156,7 +156,7 @@ en:
       upload: "Upload & process"
       retry: "Try again"
       file_required: "Please choose a file to upload."
-      file_too_large: "File is too large (max 20 MB)."
+      file_too_large: "File is too large (max 5 MB)."
       processing: "Processing your statement…"
       step_upload: "Uploading file…"
       password_title: "This document is password protected"
@@ -398,6 +398,7 @@ en:
     source_recognition: "Source Recognition"
     entities: "Bank entities"
     playground: "Playground"
+    cms_editor: "CMS editor"
     evaluations: "Evaluations"
     assistant: "Assistant"
     financial_chat: "Financial Chat"
@@ -1258,6 +1259,7 @@ en:
       tabular_fallback: "Tabular parsing could not be matched reliably; falling back to AI extraction."
 
   expenses:
+    invalid_category: "The category is invalid."
     automatic_rules: "Auto-categorize"
     form_subtitle: "Record your expense and keep your finances up to date."
     search_label: "Description"
@@ -1353,7 +1355,7 @@ en:
     file_edit_hint: "Review the extracted transactions. Categories and money sources were resolved automatically; you can edit them from the expenses page afterwards."
     file_create_all: "Create all expenses"
     file_unsupported: "Unsupported file format. Use PDF, CSV or Excel."
-    file_too_large: "File is too large (max 20 MB)."
+    file_too_large: "File is too large (max 5 MB)."
     file_no_transactions: "No transactions could be extracted from this file."
     file_creating: "Creating…"
     file_created: "%{count} expense(s) created successfully."
