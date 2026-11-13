@@ -23,6 +23,12 @@ mail_inbound_content_purge: &mail_inbound_content_purge
   queue: default
   schedule: every hour
 
+# Drops WhatsApp message-id claims past the redelivery window.
+whatsapp_inbound_message_purge: &whatsapp_inbound_message_purge
+  class: WhatsappInboundMessagePurgeJob
+  queue: default
+  schedule: every day at 3am
+
 development:
   gmail_sync:
     <<: *gmail_sync
@@ -30,6 +36,8 @@ development:
     <<: *payment_engine_membership_expiration
   mail_inbound_content_purge:
     <<: *mail_inbound_content_purge
+  whatsapp_inbound_message_purge:
+    <<: *whatsapp_inbound_message_purge
 
 test:
   gmail_sync:
@@ -38,6 +46,8 @@ test:
     <<: *payment_engine_membership_expiration
   mail_inbound_content_purge:
     <<: *mail_inbound_content_purge
+  whatsapp_inbound_message_purge:
+    <<: *whatsapp_inbound_message_purge
 
 production:
   gmail_sync:
@@ -46,6 +56,8 @@ production:
     <<: *payment_engine_membership_expiration
   mail_inbound_content_purge:
     <<: *mail_inbound_content_purge
+  whatsapp_inbound_message_purge:
+    <<: *whatsapp_inbound_message_purge
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
