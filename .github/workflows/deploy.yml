@@ -43,6 +43,20 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
+      - name: Debug GitHub OIDC claims
+        env:
+          AUDIENCE: ${{ secrets.TS_AUDIENCE }}
+        run: |
+          RESPONSE=$(curl --fail --silent --show-error \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${AUDIENCE}")
+
+          TOKEN=$(echo "$RESPONSE" | jq -r '.value')
+
+          echo "$TOKEN" | cut -d. -f2 | \
+            base64 -d 2>/dev/null | \
+            jq '{iss, sub, aud, repository, environment, ref}'
+
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
