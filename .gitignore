@@ -42,6 +42,9 @@
 # Git worktrees
 /.worktrees/
 
+# Kamal evaluates this file locally; it may reference deployment credentials.
+/.kamal/secrets
+
 # Local Python venv for faster-whisper (see docs/speech_to_text.md)
 /whisper-env/
 

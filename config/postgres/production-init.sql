@@ -1,0 +1,1 @@
+CREATE DATABASE expense_tracker_cache_production;

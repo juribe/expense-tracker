@@ -1,0 +1,65 @@
+<% server = ENV.fetch("KAMAL_SERVER") %>
+<% host = ENV.fetch("KAMAL_HOST") %>
+<% registry_user = ENV.fetch("KAMAL_REGISTRY_USERNAME") %>
+
+service: expense-tracker
+image: ghcr.io/<%= registry_user %>/expense-tracker
+
+servers:
+  web:
+    - <%= server %>
+
+proxy:
+  ssl: true
+  host: <%= host %>
+  forward_headers: true
+  healthcheck:
+    path: /up
+
+registry:
+  server: ghcr.io
+  username: <%= registry_user %>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+
+ssh:
+  user: root
+  key_data:
+    - KAMAL_SSH_PRIVATE_KEY
+
+env:
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: "true"
+    RAILS_SERVE_STATIC_FILES: "true"
+    RAILS_MAX_THREADS: "3"
+    SOLID_QUEUE_IN_PUMA: "true"
+    DATABASE_HOST: postgres
+    DATABASE_PORT: "5432"
+    DATABASE_USERNAME: expense_tracker
+    DATABASE_NAME: expense_tracker_production
+    CACHE_DATABASE_NAME: expense_tracker_cache_production
+    APP_HOST: <%= host %>
+    RAILS_PUBLIC_HOSTS: <%= host %>
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_PASSWORD
+
+accessories:
+  postgres:
+    service: postgres
+    image: postgres:16
+    host: <%= server %>
+    env:
+      clear:
+        POSTGRES_USER: expense_tracker
+        POSTGRES_DB: expense_tracker_production
+      secret:
+        - POSTGRES_PASSWORD:DATABASE_PASSWORD
+    files:
+      - config/postgres/production-init.sql:/docker-entrypoint-initdb.d/production-init.sql:ro
+    directories:
+      - postgres-data:/var/lib/postgresql/data
