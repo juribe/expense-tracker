@@ -3,7 +3,7 @@
 <% registry_user = ENV.fetch("KAMAL_REGISTRY_USERNAME") %>
 
 service: expense-tracker
-image: ghcr.io/<%= registry_user %>/expense-tracker
+image: <%= registry_user %>/expense-tracker
 
 servers:
   web:
@@ -37,7 +37,7 @@ env:
     RAILS_SERVE_STATIC_FILES: "true"
     RAILS_MAX_THREADS: "3"
     SOLID_QUEUE_IN_PUMA: "true"
-    DATABASE_HOST: postgres
+    DATABASE_HOST: 172.30.0.1
     DATABASE_PORT: "5432"
     DATABASE_USERNAME: expense_tracker
     DATABASE_NAME: expense_tracker_production
@@ -47,19 +47,3 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_PASSWORD
-
-accessories:
-  postgres:
-    service: postgres
-    image: postgres:16
-    host: <%= server %>
-    env:
-      clear:
-        POSTGRES_USER: expense_tracker
-        POSTGRES_DB: expense_tracker_production
-      secret:
-        - POSTGRES_PASSWORD:DATABASE_PASSWORD
-    files:
-      - config/postgres/production-init.sql:/docker-entrypoint-initdb.d/production-init.sql:ro
-    directories:
-      - postgres-data:/var/lib/postgresql/data
