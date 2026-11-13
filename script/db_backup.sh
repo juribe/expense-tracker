@@ -26,7 +26,12 @@ if [ "$ENCRYPTION" = "openssl" ]; then
     exit 1
   fi
 
-  KEY_MODE="$(stat -f '%Lp' "$KEY_FILE" 2>/dev/null || stat -c '%a' "$KEY_FILE" 2>/dev/null || echo unknown)"
+  # GNU stat (-c) on Linux, BSD stat (-f) on macOS.
+  if stat -c '%a' "$KEY_FILE" >/dev/null 2>&1; then
+    KEY_MODE="$(stat -c '%a' "$KEY_FILE")"
+  else
+    KEY_MODE="$(stat -f '%Lp' "$KEY_FILE" 2>/dev/null || echo unknown)"
+  fi
   case "$KEY_MODE" in
     600|400) ;;
     *)
