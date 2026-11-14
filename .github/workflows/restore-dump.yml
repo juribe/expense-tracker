@@ -1,0 +1,167 @@
+name: Restore database from dump
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag that contains the dump asset
+        required: true
+        type: string
+      asset_name:
+        description: Release asset file name
+        required: true
+        default: dev_dump.sql.gz
+        type: string
+      confirm:
+        description: Type RESTORE to replace the production database
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    name: Restore production database
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    env:
+      KAMAL_SERVER: ${{ secrets.KAMAL_SERVER }}
+      KAMAL_HOST: ${{ secrets.KAMAL_HOST }}
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+
+    steps:
+      - name: Validate confirmation
+        if: inputs.confirm != 'RESTORE'
+        run: |
+          echo "Set confirm=RESTORE to run this workflow." >&2
+          exit 1
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          audience: ${{ secrets.TS_AUDIENCE }}
+          tags: tag:ci
+          ping: ${{ secrets.KAMAL_SERVER }}
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 700 ~/.ssh
+          chmod 600 ~/.ssh/known_hosts ~/.ssh/deploy_key
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
+
+      - name: Download dump
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${{ inputs.release_tag }}" \
+            --pattern "${{ inputs.asset_name }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir .
+          gunzip -c "${{ inputs.asset_name }}" > dev_dump.sql
+          test -s dev_dump.sql
+          ls -lh dev_dump.sql
+
+      - name: Prepare restore script
+        run: |
+          cat > restore_dump.rb <<'RUBY'
+          # frozen_string_literal: true
+
+          dump_path = ENV.fetch("DUMP_PATH", "/tmp/dev_dump.sql")
+          connection = ActiveRecord::Base.connection.raw_connection
+
+          puts "Restoring #{dump_path} (#{File.size(dump_path)} bytes)"
+
+          connection.exec("BEGIN")
+          begin
+            connection.exec(File.read(dump_path))
+            connection.exec("UPDATE ar_internal_metadata SET value = 'production' WHERE key = 'environment'")
+            connection.exec("COMMIT")
+          rescue StandardError
+            begin
+              connection.exec("ROLLBACK")
+            rescue StandardError
+              nil
+            end
+            raise
+          end
+
+          begin
+            Rails.cache.clear
+            puts "Rails cache cleared"
+          rescue StandardError => e
+            warn "Rails cache clear failed: #{e.class}"
+          end
+
+          puts "Restore committed"
+          RUBY
+
+      - name: Locate application container
+        run: |
+          SSH="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes deploy@$KAMAL_SERVER"
+          $SSH 'test -f $HOME/.kamal/apps/expense-tracker/env/roles/web.env'
+          CONTAINER=$($SSH 'docker ps -q --filter label=service=expense-tracker --filter status=running | head -1')
+          test -n "$CONTAINER"
+          IMAGE=$($SSH "docker inspect --format '{{.Config.Image}}' $CONTAINER")
+          echo "CONTAINER=$CONTAINER" >> "$GITHUB_ENV"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          echo "container=$CONTAINER image=$IMAGE"
+
+      - name: Upload dump and restore script
+        run: |
+          scp -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            dev_dump.sql restore_dump.rb "deploy@$KAMAL_SERVER:/tmp/"
+
+      - name: Stop application
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "deploy@$KAMAL_SERVER" "docker stop $CONTAINER"
+
+      - name: Restore database
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "deploy@$KAMAL_SERVER" "docker run --rm --network kamal \
+              --env-file \$HOME/.kamal/apps/expense-tracker/env/roles/web.env \
+              -v /tmp/dev_dump.sql:/tmp/dev_dump.sql:ro \
+              -v /tmp/restore_dump.rb:/tmp/restore_dump.rb:ro \
+              $IMAGE bin/rails runner /tmp/restore_dump.rb"
+
+      - name: Start application
+        if: always() && env.CONTAINER != ''
+        run: |
+          SSH="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes deploy@$KAMAL_SERVER"
+          $SSH "docker start $CONTAINER"
+          READY=0
+          for _ in $(seq 1 24); do
+            if curl -fsS -o /dev/null "https://$KAMAL_HOST/up"; then
+              READY=1
+              break
+            fi
+            sleep 5
+          done
+          test "$READY" = 1
+          $SSH "docker exec $CONTAINER bin/rails runner 'puts \"users=#{User.count} transactions=#{Transaction.count}\"'"
+
+      - name: Cleanup remote files
+        if: always()
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "deploy@$KAMAL_SERVER" "rm -f /tmp/dev_dump.sql /tmp/restore_dump.rb" || true
+
+      - name: Delete dump release
+        if: always() && inputs.confirm == 'RESTORE'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete "${{ inputs.release_tag }}" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
