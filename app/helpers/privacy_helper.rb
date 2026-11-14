@@ -3,7 +3,7 @@
 #
 # Example: privacy_anchor(section_block)
 module PrivacyHelper
-  LEGAL_DOCUMENT_PATHS = %w[privacidad terminos-y-condiciones].freeze
+  LEGAL_DOCUMENT_PATHS = %w[privacidad terminos-y-condiciones eliminacion-de-datos].freeze
 
   def legal_document_page?(page)
     LEGAL_DOCUMENT_PATHS.include?(page.path)

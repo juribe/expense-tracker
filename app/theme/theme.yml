@@ -438,6 +438,8 @@ pages:
       - type: link
         settings: { label: "Política de privacidad", link: { link_type: "url", href: "/privacidad", open_new_window: false } }
       - type: link
+        settings: { label: "Eliminación de datos", link: { link_type: "url", href: "/eliminacion-de-datos", open_new_window: false } }
+      - type: link
         settings: { label: "Términos y condiciones", link: { link_type: "url", href: "/terminos-y-condiciones", open_new_window: false } }
       - type: link
         settings: { label: "Seguridad", link: { link_type: "url", href: "/seguridad", open_new_window: false } }
@@ -840,6 +842,38 @@ pages:
       cta_title: "¿Necesitas que te ayudemos?"
       cta_text: "Estamos aquí para resolver tus dudas sobre el uso de Yogasto."
       cta_link: { link_type: "url", href: "/ayuda", text: "Visitar centro de ayuda", open_new_window: false }
+  - type: footer
+
+- title: "Eliminación de datos"
+  path: "eliminacion-de-datos"
+  seo_title: "Eliminación de datos"
+  meta_description: "Conoce cómo eliminar tu cuenta de Yogasto, qué ocurre con tus datos y cómo solicitar la eliminación de tu información."
+  og_title: "Eliminación de datos"
+  og_description: "Pasos y canales para eliminar tu cuenta y los datos asociados a Yogasto."
+  sections:
+  - type: navbar
+  - type: privacy_document
+    settings:
+      eyebrow: "CONTROL Y TRANSPARENCIA"
+      title: "Tú decides qué pasa con tus datos."
+      description: "Esta página explica cómo eliminar tu cuenta y la información asociada a Yogasto, qué ocurre con tus datos y cómo solicitar la eliminación si no puedes acceder a tu cuenta."
+      last_updated: "14 de noviembre de 2026"
+      reading_time: "5 minutos"
+      breadcrumb_parent_label: "Información legal"
+      breadcrumb_parent_url: ""
+      breadcrumb_current_label: "Eliminación de datos"
+      toc_label: "EN ESTA PÁGINA"
+      help_title: "¿Necesitas ayuda con tu solicitud?"
+      help_text: "Escríbenos y revisamos tu caso."
+      help_link: { link_type: "url", href: "/contactanos", text: "Contactar a Yogasto", open_new_window: false }
+      intro: "En Yogasto puedes eliminar tu cuenta cuando quieras. Aquí encuentras los pasos, lo que ocurre con tu información y los canales disponibles si no puedes hacerlo desde la aplicación."
+      notice_title: "Antes de continuar"
+      notice_text: "La eliminación de la cuenta es permanente. Si solo quieres dejar de usar una integración o cambiar tus preferencias, revisa las opciones disponibles en tu perfil."
+      review_title: ""
+      review_text: ""
+      cta_title: "¿Tienes dudas sobre tus datos?"
+      cta_text: "Escríbenos y te ayudamos a revisar tu solicitud."
+      cta_link: { link_type: "url", href: "/contactanos", text: "Contactar a Yogasto", open_new_window: false }
   - type: footer
 
 # List of CSS class names used by your library of icons (font awesome, remixicons, ...etc)

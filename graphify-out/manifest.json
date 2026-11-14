@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "config/environments/production.rb": {
-    "mtime": 1794531394.7928097,
-    "seen": 1794582007.7861419,
-    "ast_hash": "bc5032e44ba40f064c66b9ed82e3f909",
+    "mtime": 1794623789.6259942,
+    "seen": 1794638041.631655,
+    "ast_hash": "b192e33e409e1aeb6f6c7a4b5d0a2002",
     "semantic_hash": ""
   },
   "config/environments/test.rb": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "db/seeds.rb": {
-    "mtime": 1793933445.9100318,
-    "seen": 1793973303.771232,
-    "ast_hash": "84b1b8b29e133be40054ba36ebd9ecc3",
+    "mtime": 1794626370.5684981,
+    "seen": 1794638041.6428459,
+    "ast_hash": "8e87700427bc4634bcf8ff3da702c414",
     "semantic_hash": ""
   },
   "lib/tasks/cssbundling_override.rake": {
@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1794499310.3498232,
-    "seen": 1794499650.840936,
-    "ast_hash": "bd1d1e8fb9ea250f8396e6ba29b647d3",
+    "mtime": 1794637944.0062792,
+    "seen": 1794638041.707526,
+    "ast_hash": "715e66daa024109b54751c68427b374e",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1464,8 +1464,8 @@
     "semantic_hash": ""
   },
   "test/controllers/dashboard_controller_test.rb": {
-    "mtime": 1794396358.8974352,
-    "seen": 1794405808.576555,
+    "mtime": 1794637868.2979984,
+    "seen": 1794638041.663071,
     "ast_hash": "2f85fffe22db86bd6bf33dd428841f73",
     "semantic_hash": ""
   },
@@ -2736,9 +2736,9 @@
     "semantic_hash": ""
   },
   "opencode.json": {
-    "mtime": 1790560256.4463227,
-    "seen": 1793490696.635092,
-    "ast_hash": "a07cb2a919f63524189e0a1fcc6cac24",
+    "mtime": 1794635369.1626475,
+    "seen": 1794638041.643851,
+    "ast_hash": "52c83878ba4fc2832337ca6095e3c4b7",
     "semantic_hash": ""
   },
   "app/models/expense_clarification.rb": {
@@ -5160,9 +5160,9 @@
     "semantic_hash": ""
   },
   "cloudflare/email-router/README.md": {
-    "mtime": 1792978257.686084,
-    "seen": 1793490696.635629,
-    "ast_hash": "9e1aac9cb1d7bc02dbf25ea402c3caae",
+    "mtime": 1794634753.2239943,
+    "seen": 1794638041.709439,
+    "ast_hash": "5299d250816b17364992ff6849231656",
     "semantic_hash": ""
   },
   "cloudflare/email-router/test/worker.test.mjs": {
@@ -5334,9 +5334,9 @@
     "semantic_hash": ""
   },
   "docs/mail_inbound.md": {
-    "mtime": 1792978206.771762,
-    "seen": 1793490696.6356878,
-    "ast_hash": "9fc6341d6352424e89036d7f109a72b5",
+    "mtime": 1794634740.4816015,
+    "seen": 1794638041.7126029,
+    "ast_hash": "a4c5cef7ebd496d6b35a40d1c7e492fa",
     "semantic_hash": ""
   },
   "playwright/expenses-assign-recurring.spec.js": {
@@ -7854,15 +7854,15 @@
     "semantic_hash": ""
   },
   "test/integration/pricing_page_test.rb": {
-    "mtime": 1793906870.3262148,
-    "seen": 1793906921.857719,
-    "ast_hash": "3737a3da4373be609c1d7411244fb330",
+    "mtime": 1794637868.298002,
+    "seen": 1794638041.67077,
+    "ast_hash": "505666ce800b0b98bd73f37b6e0eb252",
     "semantic_hash": ""
   },
   "test/integration/profile_page_test.rb": {
-    "mtime": 1794055947.0815978,
-    "seen": 1794064990.2733471,
-    "ast_hash": "f62389dc196d21ebb38ca3ff7578bbb1",
+    "mtime": 1794637976.129784,
+    "seen": 1794638041.670773,
+    "ast_hash": "6a47393b74148ff25ebbae2aa0a5c7a0",
     "semantic_hash": ""
   },
   "test/integration/checkout_status_test.rb": {
@@ -7872,9 +7872,9 @@
     "semantic_hash": ""
   },
   "config/initializers/active_record_encryption.rb": {
-    "mtime": 1794531394.7935073,
-    "seen": 1794582007.7861462,
-    "ast_hash": "80fbc5a841ffd4ef1112988ce1e5264d",
+    "mtime": 1794623327.4194195,
+    "seen": 1794638041.631712,
+    "ast_hash": "f0d32c8a63680112540673a90ae0ded4",
     "semantic_hash": ""
   },
   "db/migrate/20261103212002_encrypt_payment_engine_provider_configuration.rb": {
@@ -8442,9 +8442,9 @@
     "semantic_hash": ""
   },
   "lib/tasks/publish_cms.rake": {
-    "mtime": 1793986799.3929114,
-    "seen": 1793987004.211552,
-    "ast_hash": "6ff31368a8d0e743702fd8a4fe340a10",
+    "mtime": 1794626370.5685287,
+    "seen": 1794638041.64361,
+    "ast_hash": "5a2b4f7926f33e359aa804655b6edd93",
     "semantic_hash": ""
   },
   "test/controllers/public_cms/sitemap_controller_test.rb": {
@@ -8496,9 +8496,9 @@
     "semantic_hash": ""
   },
   "app/theme/sections/footer.yml": {
-    "mtime": 1794025862.2780554,
-    "seen": 1794026425.608622,
-    "ast_hash": "3b1267deefd3a4812cc907120e2b77a6",
+    "mtime": 1794637677.0269835,
+    "seen": 1794638041.7078001,
+    "ast_hash": "c3541c580dec55efebd45a3839b808cc",
     "semantic_hash": ""
   },
   "app/theme/sections/hero.yml": {
@@ -8544,9 +8544,9 @@
     "semantic_hash": ""
   },
   "app/theme/theme.yml": {
-    "mtime": 1794082797.0018346,
-    "seen": 1794082991.695262,
-    "ast_hash": "36e63f4d8b0e61e9da5ddbb56106f85e",
+    "mtime": 1794637875.1641154,
+    "seen": 1794638041.709436,
+    "ast_hash": "30c235ede0554b5c80e817ce882bb5fc",
     "semantic_hash": ""
   },
   "config/locales/maglev_page_seo.yml": {
@@ -8622,9 +8622,9 @@
     "semantic_hash": ""
   },
   "test/integration/public_cms_institutional_pages_test.rb": {
-    "mtime": 1794025683.5442307,
-    "seen": 1794026425.608108,
-    "ast_hash": "d80c1cd711d338c74c6eb25b49ea5d30",
+    "mtime": 1794637532.894584,
+    "seen": 1794638041.6709309,
+    "ast_hash": "faedee7d53180201cb4231c3e6a5928a",
     "semantic_hash": ""
   },
   "test/mailers/contact_mailer_test.rb": {
@@ -8994,15 +8994,15 @@
     "semantic_hash": ""
   },
   "app/helpers/privacy_helper.rb": {
-    "mtime": 1794023818.3584259,
-    "seen": 1794024043.7770739,
-    "ast_hash": "f325ac225438106c302c77ca9f787a84",
+    "mtime": 1794637680.5078902,
+    "seen": 1794638041.565397,
+    "ast_hash": "5925abdb05e29efea9f21fafc197bdd2",
     "semantic_hash": ""
   },
   "db/seeds/privacy_policy.rb": {
-    "mtime": 1794083469.1966505,
-    "seen": 1794083597.2820742,
-    "ast_hash": "860ddd0ccb3f5ecc911046472681d36c",
+    "mtime": 1794637694.6041684,
+    "seen": 1794638041.642952,
+    "ast_hash": "c39c1353835d0be747c31bf660bc73a3",
     "semantic_hash": ""
   },
   "lib/tasks/privacy_policy.rake": {
@@ -9018,9 +9018,9 @@
     "semantic_hash": ""
   },
   "test/support/privacy_policy_test_support.rb": {
-    "mtime": 1794023683.479871,
-    "seen": 1794024043.779465,
-    "ast_hash": "809edc4e1b57c769801a70347bb0ff67",
+    "mtime": 1794637492.925665,
+    "seen": 1794638041.704732,
+    "ast_hash": "4b91ad745401e0a1e9498bb8d16abae1",
     "semantic_hash": ""
   },
   "test/system/privacy_policy_test.rb": {
@@ -10179,6 +10179,48 @@
     "mtime": 1794581817.9286768,
     "seen": 1794582007.7874,
     "ast_hash": "431d649fe3f15a638d0e0164e4f1a428",
+    "semantic_hash": ""
+  },
+  "db/seeds/data_deletion.rb": {
+    "mtime": 1794637656.7802384,
+    "seen": 1794638041.642849,
+    "ast_hash": "64b02a0f24b74829da92af8532602caa",
+    "semantic_hash": ""
+  },
+  "lib/tasks/data_deletion.rake": {
+    "mtime": 1794637661.3498366,
+    "seen": 1794638041.6431859,
+    "ast_hash": "0a6b4f8f07a224d5aaaf44cb88124636",
+    "semantic_hash": ""
+  },
+  "test/integration/public_cms_data_deletion_test.rb": {
+    "mtime": 1794637501.7458727,
+    "seen": 1794638041.670828,
+    "ast_hash": "e19200bbe74b6f7a78c2178f56ea3215",
+    "semantic_hash": ""
+  },
+  ".github/workflows/deploy.yml": {
+    "mtime": 1794626405.2617743,
+    "seen": 1794638041.7065542,
+    "ast_hash": "c005d8e4227e1831e4bc61e892b180b0",
+    "semantic_hash": ""
+  },
+  ".github/workflows/restore-dump.yml": {
+    "mtime": 1794628937.1218386,
+    "seen": 1794638041.706558,
+    "ast_hash": "5babdbdc275cf53d7c42afb86e75e773",
+    "semantic_hash": ""
+  },
+  "config/deploy.yml": {
+    "mtime": 1794635011.5472844,
+    "seen": 1794638041.709579,
+    "ast_hash": "585c97c3b5d1120b26a354d5e1fe5f22",
+    "semantic_hash": ""
+  },
+  "docs/data_deletion.md": {
+    "mtime": 1794638016.084222,
+    "seen": 1794638041.7110999,
+    "ast_hash": "cff35f3a5739f9502db3bddae12b4ab6",
     "semantic_hash": ""
   }
 }

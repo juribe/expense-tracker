@@ -8,6 +8,13 @@ class PricingPageTest < ActionDispatch::IntegrationTest
     assert_match "149.900", response.body
   end
 
+  test "el footer enlaza la página de eliminación de datos" do
+    get pricing_path
+
+    assert_response :success
+    assert_select "footer.site-footer a[href='/eliminacion-de-datos']", count: 1
+  end
+
   test "pricing page shows dynamic trial days" do
     PaymentEngine::Setting.current.update!(free_trial_duration_days: 45)
     get pricing_path

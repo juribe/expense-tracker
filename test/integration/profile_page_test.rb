@@ -21,4 +21,11 @@ class ProfilePageTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a[href='#{security_settings_path}']"
   end
+
+  test "profile page links to the data deletion policy" do
+    get profile_path
+
+    assert_response :success
+    assert_select "a[href='/eliminacion-de-datos']"
+  end
 end

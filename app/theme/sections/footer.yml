@@ -110,6 +110,10 @@ sample:
         link: { link_type: "url", href: "/privacidad", open_new_window: false }
     - type: link
       settings:
+        label: "Eliminación de datos"
+        link: { link_type: "url", href: "/eliminacion-de-datos", open_new_window: false }
+    - type: link
+      settings:
         label: "Términos y condiciones"
         link: { link_type: "url", href: "/terminos-y-condiciones", open_new_window: false }
     - type: link

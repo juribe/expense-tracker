@@ -223,6 +223,16 @@ decisions are documented in
 editorial instructions are in
 [docs/terms_and_conditions.md](docs/terms_and_conditions.md).
 
+### Data deletion
+
+The public data deletion page lives at `/eliminacion-de-datos` and is
+administered from Maglev. It explains how to close an account from the profile,
+how to request deletion by email (including WhatsApp data), what may be retained
+and the applicable response times. It is published with `index,follow` and is
+linked from the profile and both footers. Editorial instructions, verified
+claims and pending decisions are documented in
+[docs/data_deletion.md](docs/data_deletion.md).
+
 ### Security
 
 The public security page lives at `/seguridad` and is administered from Maglev.
