@@ -32,6 +32,41 @@ jobs:
       RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      AI_CHEAP_CONFIDENCE_THRESHOLD: ${{ secrets.AI_CHEAP_CONFIDENCE_THRESHOLD }}
+      AI_CHEAP_MODEL: ${{ secrets.AI_CHEAP_MODEL }}
+      AI_CHEAP_PROVIDER: ${{ secrets.AI_CHEAP_PROVIDER }}
+      AI_DISABLE_CATEGORY_FILL: ${{ secrets.AI_DISABLE_CATEGORY_FILL }}
+      AI_DISABLE_STRONG_TIER: ${{ secrets.AI_DISABLE_STRONG_TIER }}
+      APP_NAME: ${{ secrets.APP_NAME }}
+      CLIKUP_API_TOKEN: ${{ secrets.CLIKUP_API_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      FB_APP_ID: ${{ secrets.FB_APP_ID }}
+      FB_APP_SECRET: ${{ secrets.FB_APP_SECRET }}
+      FB_VERIFY_TOKEN: ${{ secrets.FB_VERIFY_TOKEN }}
+      FFMPEG_BIN: ${{ secrets.FFMPEG_BIN }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      INBOUND_EMAIL_MAX_BYTES: ${{ secrets.INBOUND_EMAIL_MAX_BYTES }}
+      INBOUND_EMAIL_RECIPIENT: ${{ secrets.INBOUND_EMAIL_RECIPIENT }}
+      INBOUND_EMAIL_SECRET: ${{ secrets.INBOUND_EMAIL_SECRET }}
+      INBOUND_EMAIL_USER_EMAIL: ${{ secrets.INBOUND_EMAIL_USER_EMAIL }}
+      INBOUND_EMAIL_USER_MAP: ${{ secrets.INBOUND_EMAIL_USER_MAP }}
+      MAIL_INBOUND_PROVIDER: ${{ secrets.MAIL_INBOUND_PROVIDER }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      MISTRAL_MODEL: ${{ secrets.MISTRAL_MODEL }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_APP_NAME: ${{ secrets.OPENROUTER_APP_NAME }}
+      PREMIUM_IDENTITY_HMAC_SECRET: ${{ secrets.PREMIUM_IDENTITY_HMAC_SECRET }}
+      RESEND_WEBHOOK_SECRET: ${{ secrets.RESEND_WEBHOOK_SECRET }}
+      SPEECH_TO_TEXT_PROVIDER: ${{ secrets.SPEECH_TO_TEXT_PROVIDER }}
+      TESSERACT_BIN: ${{ secrets.TESSERACT_BIN }}
+      USE_SSL: ${{ secrets.USE_SSL }}
+      WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+      WHATSAPP_BUSINESS_NUMBER: ${{ secrets.WHATSAPP_BUSINESS_NUMBER }}
+      WHATSAPP_BUSINESS_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_BUSINESS_PHONE_NUMBER_ID }}
+      WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
+      WHISPER_LANGUAGE: ${{ secrets.WHISPER_LANGUAGE }}
+      WHISPER_MODEL: ${{ secrets.WHISPER_MODEL }}
 
     steps:
       - name: Checkout code
@@ -80,16 +115,28 @@ jobs:
           ssh-keygen -y -f ~/.ssh/yogasto_deploy_key > /dev/null
 
       # Kamal only reads secrets from .kamal/secrets; environment variables are
-      # not used directly. The file holds references, not values.
+      # not used directly. The file holds references, not values, for every
+      # secret declared in config/deploy.yml plus the registry password.
       - name: Write Kamal secrets file
         run: |
           umask 077
           mkdir -p .kamal
-          cat > .kamal/secrets <<'EOF'
-          KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD
-          RAILS_MASTER_KEY=$RAILS_MASTER_KEY
-          DATABASE_PASSWORD=$DATABASE_PASSWORD
-          EOF
+          bundle exec ruby -e '
+            require "pathname"
+            require "kamal"
+
+            config = Kamal::Configuration.create_from(config_file: Pathname("config/deploy.yml"))
+            names = config.env.secret_keys.map { |key| key.split(":", 2).first }
+            names << "KAMAL_REGISTRY_PASSWORD"
+            names.uniq!
+
+            missing = names.reject { |name| ENV[name].to_s.strip.present? }
+            abort "Missing environment values for: #{missing.join(", ")}" if missing.any?
+
+            File.open(".kamal/secrets", "w", 0600) do |file|
+              names.each { |name| file.puts "#{name}=$#{name}" }
+            end
+          '
 
       - name: Deploy with Kamal
         run: bundle exec kamal setup

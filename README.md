@@ -85,11 +85,14 @@ these **production environment** secrets in GitHub:
 | `DATABASE_PASSWORD` | Long, unique password for the PostgreSQL application role |
 
 Kamal only reads secrets from `.kamal/secrets`, so the workflow writes that file
-from the environment variables before deploying. Kamal obtains the GHCR token
-from the GitHub Actions token, so no registry token needs to be stored manually.
-Ports 80 and 443 must be publicly reachable; SSH is reached through Tailscale.
-Kamal Proxy provisions and renews the Let's Encrypt certificate, so the DNS
-record must resolve before the initial deployment.
+from the environment variables before deploying. Application secrets (AI
+providers, inbound email, WhatsApp, speech to text, and so on) are stored as
+repository secrets and passed to the container through `env.secret` in
+`config/deploy.yml`. Kamal obtains the GHCR token from the GitHub Actions token,
+so no registry token needs to be stored manually. Ports 80 and 443 must be
+publicly reachable; SSH is reached through Tailscale. Kamal Proxy provisions and
+renews the Let's Encrypt certificate, so the DNS record must resolve before the
+initial deployment.
 
 For a manual deployment, export the same variables, copy
 `.kamal/secrets.example` to `.kamal/secrets`, and run:
