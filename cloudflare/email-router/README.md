@@ -34,7 +34,7 @@ Edit `wrangler.toml`:
 
 - `RAILS_INBOUND_EMAIL_URL`: public HTTPS Rails endpoint
 - `ALLOWED_RECIPIENTS`: comma-separated recipients or wildcard patterns
-  (for example, `receive@samyreplies.com,receive+*@samyreplies.com`)
+  (for example, `receive@yogasto.co,receive+*@yogasto.co`)
 - `MAX_EMAIL_BYTES`: default 10 MiB; Cloudflare's inbound ceiling is 25 MiB
 - `REQUEST_TIMEOUT_MS`: Rails request timeout
 
@@ -58,7 +58,7 @@ Rails environment:
 
 ```sh
 INBOUND_EMAIL_SECRET=dev_inbound_secret
-INBOUND_EMAIL_RECIPIENT=receive@samyreplies.com
+INBOUND_EMAIL_RECIPIENT=receive@yogasto.co
 INBOUND_EMAIL_USER_EMAIL=your-user@example.com
 INBOUND_EMAIL_USER_MAP=user1=your-user@example.com
 ```
@@ -89,7 +89,7 @@ In another terminal:
 ```sh
 curl --request POST 'http://localhost:8787/cdn-cgi/local/email' \
   --url-query 'from=notificaciones@bank.example' \
-  --url-query 'to=receive+user1@samyreplies.com' \
+  --url-query 'to=receive+user1@yogasto.co' \
   --data-binary @fixtures/bank-alert.eml
 ```
 
@@ -105,14 +105,14 @@ npx wrangler deploy
 
 Then create the Email Routing rule in the Cloudflare dashboard:
 
-- Domain: `samyreplies.com`
+- Domain: `yogasto.co`
 - Email pattern: `receive` (with subaddressing enabled, so
-  `receive+anything@samyreplies.com` matches)
+  `receive+anything@yogasto.co` matches)
 - Action: **Send to a Worker**
 - Worker: `expense-tracker-inbound-email`
 
 Alternatively, after verifying that no existing rule uses the address, uncomment
-`addresses = ["receive@samyreplies.com"]` in `wrangler.toml` and deploy.
+`addresses = ["receive@yogasto.co"]` in `wrangler.toml` and deploy.
 Wrangler will create/manage that rule.
 
 Do not change existing MX records or other routing rules. Email Routing onboarding

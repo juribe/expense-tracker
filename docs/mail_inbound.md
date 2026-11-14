@@ -108,12 +108,12 @@ before the refactor.
 
 ```sh
 MAIL_INBOUND_PROVIDER=cloudflare
-INBOUND_EMAIL_RECIPIENT=receive@samyreplies.com
+INBOUND_EMAIL_RECIPIENT=receive@yogasto.co
 INBOUND_EMAIL_USER_EMAIL=jse.uribe@gmail.com
 INBOUND_EMAIL_USER_MAP=user1=jse.uribe@gmail.com
 ```
 
-`receive+user1@samyreplies.com` maps to the configured user. Tokens not present
+`receive+user1@yogasto.co` maps to the configured user. Tokens not present
 in the map are rejected when the map is configured. Without a map, every token
 uses `INBOUND_EMAIL_USER_EMAIL`.
 
@@ -128,8 +128,8 @@ INBOUND_EMAIL_MAX_SKEW_SECONDS=300
 
 Worker config lives in `cloudflare/email-router/wrangler.toml`:
 
-- `RAILS_INBOUND_EMAIL_URL=https://whatsapp.samyreplies.com/webhooks/email`
-- `ALLOWED_RECIPIENTS=receive@samyreplies.com,receive+*@samyreplies.com`
+- `RAILS_INBOUND_EMAIL_URL=https://yogasto.co/webhooks/email`
+- `ALLOWED_RECIPIENTS=receive@yogasto.co,receive+*@yogasto.co`
 - `MAX_EMAIL_BYTES=10485760`
 - `REQUEST_TIMEOUT_MS=15000`
 
@@ -151,11 +151,15 @@ Resend webhooks must be configured for `email.received`.
 
 ## Cloudflare setup already applied
 
-- Root MX moved from the previous inbound provider to Cloudflare Email Routing.
+- Root MX for `yogasto.co` point to Cloudflare Email Routing
+  (`route1/2/3.mx.cloudflare.net`); the apex SPF is
+  `v=spf1 include:_spf.mx.cloudflare.net ~all`.
 - `support_subaddress=true` and `status=ready`.
-- Rule `Expense Tracker inbound` routes `receive@samyreplies.com` to
+- Rule `Expense Tracker inbound` routes `receive@yogasto.co` to
   `expense-tracker-inbound-email`.
 - Worker variables and `INBOUND_EMAIL_SECRET` are configured.
+- Inbound email was migrated from `samyreplies.com`; that zone no longer has a
+  routing rule and its previous address is rejected at SMTP.
 
 The Cloudflare Worker remains Cloudflare-specific; Rails no longer depends on it.
 

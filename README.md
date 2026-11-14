@@ -139,7 +139,7 @@ import pipeline.
 
 ```sh
 export MAIL_INBOUND_PROVIDER="cloudflare" # or resend
-export INBOUND_EMAIL_RECIPIENT="receive@samyreplies.com"
+export INBOUND_EMAIL_RECIPIENT="receive@yogasto.co"
 export INBOUND_EMAIL_USER_EMAIL="your-user@example.com"
 export INBOUND_EMAIL_USER_MAP="user1=your-user@example.com"
 ```
@@ -148,9 +148,9 @@ Cloudflare additionally needs `INBOUND_EMAIL_SECRET`; Resend needs
 `RESEND_WEBHOOK_SECRET` and `RESEND_API_KEY`.
 
 `INBOUND_EMAIL_RECIPIENT` is the base address. With Cloudflare subaddressing
-enabled, any `receive+<token>@samyreplies.com` is accepted. If
+enabled, any `receive+<token>@yogasto.co` is accepted. If
 `INBOUND_EMAIL_USER_MAP` is present, `<token>` selects the user; for example,
-`receive+user1@samyreplies.com` maps through `user1=your-user@example.com`.
+`receive+user1@yogasto.co` maps through `user1=your-user@example.com`.
 If no map is configured, all tokens use `INBOUND_EMAIL_USER_EMAIL`.
 
 Full setup, deployment, local testing and limitations are documented in

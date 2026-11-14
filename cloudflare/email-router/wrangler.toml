@@ -15,7 +15,7 @@ REQUEST_TIMEOUT_MS = "15000"
 #
 # If you prefer Wrangler to manage the Email Routing rule, confirm first that
 # no existing rule uses this address, then uncomment:
-# addresses = ["receive@samyreplies.com"]
+# addresses = ["receive@yogasto.co"]
 
 [observability]
 enabled = true
