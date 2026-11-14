@@ -111,10 +111,15 @@ jobs:
       - name: Locate application container
         run: |
           SSH="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes deploy@$KAMAL_SERVER"
-          $SSH 'test -f $HOME/.kamal/apps/expense-tracker/env/roles/web.env'
           CONTAINER=$($SSH 'docker ps -q --filter label=service=expense-tracker --filter status=running | head -1')
-          test -n "$CONTAINER"
+          if [ -z "$CONTAINER" ]; then
+            echo "No running expense-tracker container" >&2
+            $SSH 'docker ps -a --format "{{.Names}} {{.Status}}" | head -20' >&2
+            exit 1
+          fi
           IMAGE=$($SSH "docker inspect --format '{{.Config.Image}}' $CONTAINER")
+          $SSH "umask 077; docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' $CONTAINER > /tmp/app.env"
+          $SSH 'test -s /tmp/app.env'
           echo "CONTAINER=$CONTAINER" >> "$GITHUB_ENV"
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
           echo "container=$CONTAINER image=$IMAGE"
@@ -133,7 +138,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
             "deploy@$KAMAL_SERVER" "docker run --rm --network kamal \
-              --env-file \$HOME/.kamal/apps/expense-tracker/env/roles/web.env \
+              --env-file /tmp/app.env \
               -v /tmp/dev_dump.sql:/tmp/dev_dump.sql:ro \
               -v /tmp/restore_dump.rb:/tmp/restore_dump.rb:ro \
               $IMAGE bin/rails runner /tmp/restore_dump.rb"
@@ -158,7 +163,7 @@ jobs:
         if: always()
         run: |
           ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
-            "deploy@$KAMAL_SERVER" "rm -f /tmp/dev_dump.sql /tmp/restore_dump.rb" || true
+            "deploy@$KAMAL_SERVER" "rm -f /tmp/dev_dump.sql /tmp/restore_dump.rb /tmp/app.env" || true
 
       - name: Delete dump release
         if: always() && inputs.confirm == 'RESTORE'
