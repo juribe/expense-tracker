@@ -87,7 +87,8 @@ jobs:
           connection.exec("BEGIN")
           begin
             connection.exec(File.read(dump_path))
-            connection.exec("UPDATE ar_internal_metadata SET value = 'production' WHERE key = 'environment'")
+            connection.exec("SET search_path = public")
+            connection.exec("UPDATE public.ar_internal_metadata SET value = 'production' WHERE key = 'environment'")
             connection.exec("COMMIT")
           rescue StandardError
             begin
