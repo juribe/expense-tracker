@@ -19,7 +19,10 @@ deterministic_key = ENV["ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY"].presence |
 key_derivation_salt = ENV["ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"].presence || credential_keys[:key_derivation_salt].presence
 
 if primary_key.blank? || deterministic_key.blank? || key_derivation_salt.blank?
-  if Rails.env.production?
+  # Asset precompilation boots the app with SECRET_KEY_BASE_DUMMY instead of the
+  # real deployment secrets. Derive throwaway keys for that build-only boot;
+  # production runtime still requires the real keys.
+  if Rails.env.production? && ENV["SECRET_KEY_BASE_DUMMY"].blank?
     raise <<~MESSAGE.squish
       Missing ActiveRecord Encryption keys.
       Set ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY,

@@ -84,6 +84,10 @@ these **production environment** secrets in GitHub:
 | `RAILS_MASTER_KEY` | Contents of the local `config/master.key` |
 | `DATABASE_PASSWORD` | Long, unique password for the PostgreSQL application role |
 
+The three `ACTIVE_RECORD_ENCRYPTION_*` keys are also required for the
+application to boot in production and are stored the same way (repository
+secrets, listed under `env.secret` in `config/deploy.yml`).
+
 Kamal only reads secrets from `.kamal/secrets`, so the workflow writes that file
 from the environment variables before deploying. Application secrets (AI
 providers, inbound email, WhatsApp, speech to text, and so on) are stored as

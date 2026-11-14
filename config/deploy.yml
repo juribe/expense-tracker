@@ -24,10 +24,6 @@ registry:
 
 builder:
   arch: amd64
-  # Assets are precompiled during the build, which boots the app and needs the
-  # credentials key to read config/credentials.yml.enc.
-  secrets:
-    - RAILS_MASTER_KEY
 
 ssh:
   user: deploy
@@ -51,6 +47,9 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_PASSWORD
+    - ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
+    - ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+    - ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
     - AI_CHEAP_CONFIDENCE_THRESHOLD
     - AI_CHEAP_MODEL
     - AI_CHEAP_PROVIDER
