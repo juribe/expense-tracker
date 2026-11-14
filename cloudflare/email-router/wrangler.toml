@@ -6,9 +6,7 @@ upload_source_maps = true
 # Public Rails endpoint. Replace with the production domain/tunnel URL.
 [vars]
 RAILS_INBOUND_EMAIL_URL = "https://yogasto.co/webhooks/email"
-# samyreplies.com stays allowed during the migration window; drop it once
-# receive@samyreplies.com no longer receives mail.
-ALLOWED_RECIPIENTS = "receive@yogasto.co,receive+*@yogasto.co,receive@samyreplies.com,receive+*@samyreplies.com"
+ALLOWED_RECIPIENTS = "receive@yogasto.co,receive+*@yogasto.co"
 MAX_EMAIL_BYTES = "10485760"
 REQUEST_TIMEOUT_MS = "15000"
 
