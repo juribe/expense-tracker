@@ -11,6 +11,10 @@ on:
         description: Release a stale Kamal deploy lock before deploying
         type: boolean
         default: false
+      dump_logs:
+        description: Only print the deployed application logs
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -162,5 +166,10 @@ jobs:
         if: inputs.release_lock
         run: bundle exec kamal lock release
 
+      - name: Dump application logs
+        if: inputs.dump_logs
+        run: bundle exec kamal app logs --lines 200
+
       - name: Deploy with Kamal
+        if: ${{ !inputs.dump_logs }}
         run: bundle exec kamal setup
