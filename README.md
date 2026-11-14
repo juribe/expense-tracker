@@ -156,6 +156,17 @@ If no map is configured, all tokens use `INBOUND_EMAIL_USER_EMAIL`.
 Full setup, deployment, local testing and limitations are documented in
 [docs/mail_inbound.md](docs/mail_inbound.md).
 
+### Outbound email
+
+Production delivers transactional email (Devise and the contact form) through
+[Resend](https://resend.com) using `RESEND_API_KEY`, stored as a repository
+secret so the deploy passes it to the container. The `MAILER_FROM` sender
+defaults to `no-reply@yogasto.co`, so that domain must be verified in Resend.
+
+If `RESEND_API_KEY` is unset, delivery falls back to SMTP when `SMTP_ADDRESS` is
+configured (optionally `SMTP_PORT`, `SMTP_USERNAME` and `SMTP_PASSWORD`). With
+neither configured, production does not deliver email.
+
 ### Contact form email
 
 The public Contáctanos page (`/contact`) delivers messages through

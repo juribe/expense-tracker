@@ -65,9 +65,14 @@ Rails.application.configure do
   }
   config.action_mailer.default_options = { from: ENV.fetch("MAILER_FROM", "no-reply@yogasto.co") }
 
-  # Optional SMTP delivery. Without SMTP_ADDRESS the deployment keeps Rails'
-  # default (localhost) behaviour instead of silently using a placeholder.
-  if ENV["SMTP_ADDRESS"].present?
+  # Transactional email is delivered through Resend's HTTP API. The API key is
+  # read into Resend.api_key by config/initializers/resend.rb.
+  #
+  # SMTP remains an explicit fallback for deployments that still configure it.
+  # config/initializers/resend.rb warns at boot when neither provider is set.
+  if ENV["RESEND_API_KEY"].present?
+    config.action_mailer.delivery_method = :resend
+  elsif ENV["SMTP_ADDRESS"].present?
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings = {
       address: ENV["SMTP_ADDRESS"],
@@ -78,15 +83,6 @@ Rails.application.configure do
       enable_starttls_auto: true
     }.compact
   end
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

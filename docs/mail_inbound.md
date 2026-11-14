@@ -149,6 +149,9 @@ RESEND_API_KEY=...
 
 Resend webhooks must be configured for `email.received`.
 
+The same `RESEND_API_KEY` powers outbound transactional email in production;
+see the "Outbound email" section of the README.
+
 ## Cloudflare setup already applied
 
 - Root MX for `yogasto.co` point to Cloudflare Email Routing
