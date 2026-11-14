@@ -206,8 +206,8 @@ pe_annual.update!(
 # The public home (GET /) is served by Maglev, so the Playwright environment
 # — which creates its database with `db:prepare` — needs an existing site with
 # a published Home. Production creates and publishes the site explicitly
-# (`maglev:create_site` + `yogasto:publish_cms`) so content editors control
-# what goes live; republishing from seeds there could leak drafts.
+# (`yogasto:create_cms_site` or `yogasto:publish_cms`) so content editors
+# control what goes live; republishing from seeds there could leak drafts.
 if !Rails.env.production? && Maglev::Site.none?
   Maglev::GenerateSite.call(theme: Maglev.local_themes.first)
 

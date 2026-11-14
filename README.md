@@ -105,6 +105,13 @@ For a manual deployment, export the same variables, copy
 bundle exec kamal setup
 ```
 
+The public home is served by Maglev. On the first deployment, create and
+publish the CMS site once:
+
+```sh
+bundle exec kamal app exec --reuse "bin/rails yogasto:create_cms_site"
+```
+
 Do not commit `.kamal/secrets`. Optional production variables for mail, inbound
 email, encryption and integrations remain managed as environment secrets and
 must be added to the Kamal secret file if those features are enabled.

@@ -15,6 +15,10 @@ on:
         description: Only print the deployed application logs
         type: boolean
         default: false
+      setup_cms:
+        description: Create the Maglev site when missing and publish its pages
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -170,6 +174,10 @@ jobs:
         if: inputs.dump_logs
         run: bundle exec kamal app logs --lines 200
 
+      - name: Set up the CMS site
+        if: inputs.setup_cms
+        run: bundle exec kamal app exec --reuse "bin/rails yogasto:create_cms_site"
+
       - name: Deploy with Kamal
-        if: ${{ !inputs.dump_logs }}
+        if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
         run: bundle exec kamal setup

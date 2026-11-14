@@ -7,6 +7,16 @@
 # This task wraps the service with the proper context so it can be used in
 # production right after `maglev:create_site`.
 namespace :yogasto do
+  desc "Create the Maglev site when missing and publish all its pages"
+  task create_cms_site: :environment do
+    if Maglev::Site.none?
+      Maglev::GenerateSite.call(theme: Maglev.local_themes.first)
+      Rails.logger&.info("[yogasto:create_cms_site] Maglev site created")
+    end
+
+    Rake::Task["yogasto:publish_cms"].invoke
+  end
+
   desc "Publish every Maglev CMS page (useful idempotently: drafts get a new published snapshot)"
   task publish_cms: :environment do
     site = Maglev::Site.first
