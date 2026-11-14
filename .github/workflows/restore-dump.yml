@@ -111,9 +111,17 @@ jobs:
       - name: Locate application container
         run: |
           SSH="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes deploy@$KAMAL_SERVER"
-          CONTAINER=$($SSH 'docker ps -q --filter label=service=expense-tracker --filter status=running | head -1')
+          CONTAINER=$($SSH 'docker ps -q --filter label=service=expense-tracker --filter label=role=web --filter status=running | head -1')
+          if [ -n "$CONTAINER" ]; then
+            echo "WAS_RUNNING=true" >> "$GITHUB_ENV"
+          else
+            CONTAINER=$($SSH 'docker ps -a -q --filter label=service=expense-tracker --filter label=role=web | head -1')
+            echo "WAS_RUNNING=false" >> "$GITHUB_ENV"
+            echo "No running application container; using the latest stopped one for its env and image." >&2
+            $SSH "docker logs --tail 40 $CONTAINER" >&2 || true
+          fi
           if [ -z "$CONTAINER" ]; then
-            echo "No running expense-tracker container" >&2
+            echo "No expense-tracker container found" >&2
             $SSH 'docker ps -a --format "{{.Names}} {{.Status}}" | head -20' >&2
             exit 1
           fi
@@ -130,6 +138,7 @@ jobs:
             dev_dump.sql restore_dump.rb "deploy@$KAMAL_SERVER:/tmp/"
 
       - name: Stop application
+        if: env.WAS_RUNNING == 'true'
         run: |
           ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
             "deploy@$KAMAL_SERVER" "docker stop $CONTAINER"
@@ -156,7 +165,10 @@ jobs:
             fi
             sleep 5
           done
-          test "$READY" = 1
+          if [ "$READY" != 1 ]; then
+            $SSH "docker logs --tail 100 $CONTAINER" || true
+            exit 1
+          fi
           $SSH "docker exec $CONTAINER bin/rails runner 'puts \"users=#{User.count} transactions=#{Transaction.count}\"'"
 
       - name: Cleanup remote files
