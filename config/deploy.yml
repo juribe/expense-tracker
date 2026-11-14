@@ -7,7 +7,11 @@ image: <%= registry_user %>/expense-tracker
 
 servers:
   web:
-    - <%= server %>
+    hosts:
+      - <%= server %>
+    options:
+      cap-drop: ALL
+      security-opt: no-new-privileges
 
 proxy:
   ssl: true
