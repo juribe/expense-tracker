@@ -6,6 +6,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      release_lock:
+        description: Release a stale Kamal deploy lock before deploying
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -140,6 +145,10 @@ jobs:
               names.each { |name| file.puts "#{name}=$#{name}" }
             end
           '
+
+      - name: Release stale deploy lock
+        if: inputs.release_lock
+        run: bundle exec kamal lock release
 
       - name: Deploy with Kamal
         run: bundle exec kamal setup
