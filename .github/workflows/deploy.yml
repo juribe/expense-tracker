@@ -146,6 +146,15 @@ jobs:
             end
           '
 
+      - name: Check RAILS_MASTER_KEY format
+        run: |
+          bundle exec ruby -e '
+            key = ENV.fetch("RAILS_MASTER_KEY")
+            unless key.match?(/\A[0-9a-f]{32}\z/i)
+              abort "RAILS_MASTER_KEY must be the 32-character hex key from config/master.key (got #{key.length} characters)."
+            end
+          '
+
       - name: Verify production boot
         run: RAILS_ENV=production bundle exec ruby -e 'require "./config/environment"; puts "production boot ok"'
 
