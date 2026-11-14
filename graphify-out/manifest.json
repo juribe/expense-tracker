@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1794637944.0062792,
-    "seen": 1794638041.707526,
-    "ast_hash": "715e66daa024109b54751c68427b374e",
+    "mtime": 1794654719.8469505,
+    "seen": 1794655474.165218,
+    "ast_hash": "1f1a7f38535c6ea36b795f8fb81a5b46",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794531490.4790652,
-    "seen": 1794582007.787508,
+    "mtime": 1794655331.6573753,
+    "seen": 1794655474.167291,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -8496,9 +8496,9 @@
     "semantic_hash": ""
   },
   "app/theme/sections/footer.yml": {
-    "mtime": 1794637677.0269835,
-    "seen": 1794638041.7078001,
-    "ast_hash": "c3541c580dec55efebd45a3839b808cc",
+    "mtime": 1794654510.7192538,
+    "seen": 1794655474.165462,
+    "ast_hash": "562df4fb52703578c108cd2ddbc04d14",
     "semantic_hash": ""
   },
   "app/theme/sections/hero.yml": {
@@ -10188,9 +10188,9 @@
     "semantic_hash": ""
   },
   "lib/tasks/data_deletion.rake": {
-    "mtime": 1794637661.3498366,
-    "seen": 1794638041.6431859,
-    "ast_hash": "0a6b4f8f07a224d5aaaf44cb88124636",
+    "mtime": 1794654535.5050066,
+    "seen": 1794655474.132483,
+    "ast_hash": "06a0dfadd61a966a86e3a93b9fe8f5aa",
     "semantic_hash": ""
   },
   "test/integration/public_cms_data_deletion_test.rb": {
@@ -10200,9 +10200,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794626405.2617743,
-    "seen": 1794638041.7065542,
-    "ast_hash": "c005d8e4227e1831e4bc61e892b180b0",
+    "mtime": 1794654543.6188173,
+    "seen": 1794655474.164505,
+    "ast_hash": "f389d9b9d6014e34298ead4bcb55a6ae",
     "semantic_hash": ""
   },
   ".github/workflows/restore-dump.yml": {
@@ -10218,9 +10218,33 @@
     "semantic_hash": ""
   },
   "docs/data_deletion.md": {
-    "mtime": 1794638016.084222,
-    "seen": 1794638041.7110999,
-    "ast_hash": "cff35f3a5739f9502db3bddae12b4ab6",
+    "mtime": 1794654713.763675,
+    "seen": 1794655474.168191,
+    "ast_hash": "9ddca296954d421fdc07303cafa1a322",
+    "semantic_hash": ""
+  },
+  "app/services/cms_page/footer_link.rb": {
+    "mtime": 1794654823.0583565,
+    "seen": 1794655474.11085,
+    "ast_hash": "6b56e8542fc509df963e35c1074e9e55",
+    "semantic_hash": ""
+  },
+  "test/integration/public_cms_footer_link_test.rb": {
+    "mtime": 1794654794.1171777,
+    "seen": 1794655474.147989,
+    "ast_hash": "b9029a6937477e17a00a2a63e2e3d874",
+    "semantic_hash": ""
+  },
+  "test/lib/deploy_workflow_test.rb": {
+    "mtime": 1794654488.9275472,
+    "seen": 1794655474.148905,
+    "ast_hash": "da2737ffff3b298f32ea218e13d0eada",
+    "semantic_hash": ""
+  },
+  "test/lib/maglev_footer_theme_test.rb": {
+    "mtime": 1794654482.411974,
+    "seen": 1794655474.1489081,
+    "ast_hash": "c9c623106a82d147fc511e6bd2a9e24c",
     "semantic_hash": ""
   }
 }

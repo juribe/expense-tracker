@@ -181,3 +181,14 @@ jobs:
       - name: Deploy with Kamal
         if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
         run: bundle exec kamal setup
+
+      # Temporary: keep the public data deletion page and its footer link in
+      # sync on every deploy until the content and the editor flow are verified.
+      # Both tasks are idempotent and preserve existing Maglev content.
+      - name: Publish the data deletion page
+        if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
+        run: bundle exec kamal app exec --reuse "bin/rails yogasto:setup_data_deletion"
+
+      - name: Link the data deletion page in the footer
+        if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
+        run: bundle exec kamal app exec --reuse "bin/rails yogasto:link_data_deletion_in_footer"

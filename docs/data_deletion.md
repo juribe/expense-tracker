@@ -28,10 +28,16 @@ está publicada. Los enlaces de acceso son:
 - La tarjeta de cancelación de cuenta en `Perfil`.
 
 En un sitio Maglev ya existente, el footer conserva el contenido guardado en la
-base de datos: después de publicar la página hay que agregar el enlace
-**Eliminación de datos** desde el editor (Sitio → Pie de página). Las
-instalaciones nuevas lo reciben desde el tema. La Política de privacidad enlaza
-esta página cuando se vuelve a ejecutar su semilla con `FORCE=1`.
+base de datos. La tarea `yogasto:link_data_deletion_in_footer` agrega el enlace
+a la columna **Confianza y legal** sin reemplazar el resto del contenido y
+refresca el footer publicado. Las instalaciones nuevas lo reciben desde el tema.
+La Política de privacidad enlaza esta página cuando se vuelve a ejecutar su
+semilla con `FORCE=1`.
+
+El bloque **Columna** del footer declara `accept: [link]`, por lo que el editor
+permite agregar enlaces dentro de las columnas. Antes de ese ajuste la interfaz
+solo mostraba las columnas raíz y no ofrecía el botón para agregar un enlace
+hijo.
 
 La ruta no reemplaza la baja de la cuenta: solo explica el procedimiento y los
 canales de solicitud.
@@ -78,10 +84,28 @@ FORCE=1 bin/rails yogasto:setup_data_deletion
 
 # Crea la página sin publicar.
 PUBLISH=0 bin/rails yogasto:setup_data_deletion
+
+# Agrega el enlace al footer del sitio sin borrar el contenido existente.
+bin/rails yogasto:link_data_deletion_in_footer
 ```
 
 La semilla está en `db/seeds/data_deletion.rb`. Después de la primera creación,
 la fuente de verdad es el contenido almacenado en Maglev.
+
+## Deploy temporal
+
+Mientras la página y el enlace no se administren desde el editor,
+`.github/workflows/deploy.yml` ejecuta después de `kamal setup`:
+
+```sh
+bin/rails yogasto:setup_data_deletion
+bin/rails yogasto:link_data_deletion_in_footer
+```
+
+Ambas tareas son idempotentes y conservan el contenido editado. Eliminar esos
+dos pasos del workflow cuando la página y el enlace estén verificados en
+producción. La prueba `test/lib/deploy_workflow_test.rb` protege la presencia de
+ambos comandos.
 
 ## Pruebas
 

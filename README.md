@@ -233,6 +233,14 @@ linked from the profile and both footers. Editorial instructions, verified
 claims and pending decisions are documented in
 [docs/data_deletion.md](docs/data_deletion.md).
 
+While the content is not edited from Maglev, the production deploy runs these
+idempotent tasks after `kamal setup`:
+
+```sh
+bin/rails yogasto:setup_data_deletion
+bin/rails yogasto:link_data_deletion_in_footer
+```
+
 ### Security
 
 The public security page lives at `/seguridad` and is administered from Maglev.
