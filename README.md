@@ -63,26 +63,33 @@ bin/rails test
 ## Production deployment (Kamal + Hetzner)
 
 Pushing to `main` deploys the application to the configured Debian server through
-Kamal. The workflow builds the image, publishes it privately to GitHub Container
-Registry (GHCR), and runs `kamal setup`. The first run installs Docker, starts
-PostgreSQL and deploys the application; later runs perform a rolling application
-deployment. PostgreSQL is available only on Docker's private `kamal` network.
+Kamal. The workflow connects to the server over Tailscale, builds the image,
+publishes it privately to GitHub Container Registry (GHCR), and runs `kamal
+setup`. The first run installs Docker if needed and deploys the application;
+later runs perform a rolling application deployment. Kamal does not deploy
+PostgreSQL: the application connects to the database configured by
+`DATABASE_HOST`.
 
-Before the first push, point the production DNS record at the Hetzner server and
-add these **production environment** secrets in GitHub:
+Before the first push, point the production DNS record at the server and add
+these **production environment** secrets in GitHub:
 
 | Secret | Purpose |
 | --- | --- |
-| `KAMAL_SERVER` | Public IPv4 or hostname of the Debian server |
-| `KAMAL_HOST` | Public application hostname, already pointing to `KAMAL_SERVER` |
-| `KAMAL_SSH_PRIVATE_KEY` | Private key permitted to SSH as `root` on the server |
+| `KAMAL_SERVER` | Tailscale IP or hostname of the Debian server |
+| `KAMAL_HOST` | Public application hostname, already pointing to the server |
+| `DEPLOY_SSH_PRIVATE_KEY` | Private key permitted to SSH as `deploy` on the server |
+| `DEPLOY_KNOWN_HOSTS` | `known_hosts` entries for the server |
+| `TS_OAUTH_CLIENT_ID` | Tailscale OAuth client used by the workflow runner |
+| `TS_AUDIENCE` | Tailscale OIDC audience for the OAuth client |
 | `RAILS_MASTER_KEY` | Contents of the local `config/master.key` |
 | `DATABASE_PASSWORD` | Long, unique password for the PostgreSQL application role |
 
-Kamal obtains the GHCR token from the GitHub Actions token, so no registry token
-needs to be stored manually. Ports 80, 443 and 22 must be reachable on the
-server. Kamal Proxy provisions and renews the Let's Encrypt certificate, so the
-DNS record must resolve before the initial deployment.
+Kamal only reads secrets from `.kamal/secrets`, so the workflow writes that file
+from the environment variables before deploying. Kamal obtains the GHCR token
+from the GitHub Actions token, so no registry token needs to be stored manually.
+Ports 80 and 443 must be publicly reachable; SSH is reached through Tailscale.
+Kamal Proxy provisions and renews the Let's Encrypt certificate, so the DNS
+record must resolve before the initial deployment.
 
 For a manual deployment, export the same variables, copy
 `.kamal/secrets.example` to `.kamal/secrets`, and run:
