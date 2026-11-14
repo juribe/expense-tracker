@@ -146,6 +146,9 @@ jobs:
             end
           '
 
+      - name: Verify production boot
+        run: RAILS_ENV=production bundle exec ruby -e 'require "./config/environment"; puts "production boot ok"'
+
       - name: Release stale deploy lock
         if: inputs.release_lock
         run: bundle exec kamal lock release
