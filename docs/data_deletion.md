@@ -92,21 +92,6 @@ bin/rails yogasto:link_data_deletion_in_footer
 La semilla está en `db/seeds/data_deletion.rb`. Después de la primera creación,
 la fuente de verdad es el contenido almacenado en Maglev.
 
-## Deploy temporal
-
-Mientras la página y el enlace no se administren desde el editor,
-`.github/workflows/deploy.yml` ejecuta después de `kamal setup`:
-
-```sh
-bin/rails yogasto:setup_data_deletion
-bin/rails yogasto:link_data_deletion_in_footer
-```
-
-Ambas tareas son idempotentes y conservan el contenido editado. Eliminar esos
-dos pasos del workflow cuando la página y el enlace estén verificados en
-producción. La prueba `test/lib/deploy_workflow_test.rb` protege la presencia de
-ambos comandos.
-
 ## Pruebas
 
 ```sh
