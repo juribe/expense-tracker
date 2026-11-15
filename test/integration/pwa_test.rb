@@ -7,6 +7,7 @@ require "test_helper"
 # points in the signed-in shell.
 class PwaTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include PublicCmsTestSupport
 
   setup do
     @user = User.create!(
@@ -80,7 +81,9 @@ class PwaTest < ActionDispatch::IntegrationTest
   end
 
   test "signed out landing page links the manifest and apple metadata" do
-    get root_path
+    create_maglev_site!
+
+    get "https://yogasto.co/"
 
     assert_response :success
     assert_select "link[rel='manifest'][href='#{pwa_manifest_path}']"
