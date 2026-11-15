@@ -17,7 +17,8 @@ WORKDIR /rails
 # Install base packages
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libvips libpq5 \
-      tesseract-ocr tesseract-ocr-spa tesseract-ocr-eng ffmpeg && \
+      tesseract-ocr tesseract-ocr-spa tesseract-ocr-eng ffmpeg \
+      python3 python3-venv libgomp1 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
@@ -25,6 +26,22 @@ ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
+
+# Speech-to-text runtime. faster-whisper lives in its own venv and the model is
+# downloaded at build time into HF_HOME, so transcription runs offline with no
+# download on the first request. WHISPER_PYTHON is the interpreter
+# SpeechToText::Whisper invokes; without it the provider would fall back to a
+# bare "python3" that has no faster-whisper installed.
+ARG WHISPER_MODEL=small
+ENV WHISPER_PYTHON="/opt/whisper-venv/bin/python" \
+    HF_HOME="/opt/whisper-models" \
+    WHISPER_MODEL="${WHISPER_MODEL}"
+
+RUN python3 -m venv /opt/whisper-venv && \
+    /opt/whisper-venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /opt/whisper-venv/bin/pip install --no-cache-dir faster-whisper && \
+    /opt/whisper-venv/bin/python -c 'import os, faster_whisper; faster_whisper.WhisperModel(os.environ["WHISPER_MODEL"], device="cpu", compute_type="int8")' && \
+    chmod -R a+rX /opt/whisper-models /opt/whisper-venv
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -76,7 +93,7 @@ COPY --from=build /rails /rails
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
+    chown -R rails:rails db log storage tmp /opt/whisper-models
 USER 1000:1000
 
 # Entrypoint prepares the database.

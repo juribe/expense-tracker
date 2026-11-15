@@ -153,6 +153,11 @@ module SpeechToText
       raise TranscriptionError, I18n.t("speech_to_text.whisper.timeout", seconds: timeout_seconds)
     rescue JSON::ParserError
       raise TranscriptionError, I18n.t("speech_to_text.whisper.unreadable_response")
+    rescue Errno::ENOENT
+      # The configured interpreter does not exist (missing runtime in the
+      # image, or a WHISPER_PYTHON path that is not mounted).
+      Rails.logger.warn("[speech_to_text] python interpreter not found: #{python_bin}")
+      raise ProviderUnavailableError, I18n.t("speech_to_text.whisper.missing_interpreter", bin: python_bin)
     end
 
     def python_args(audio_path)

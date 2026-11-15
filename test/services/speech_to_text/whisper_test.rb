@@ -24,7 +24,7 @@ module SpeechToText
     end
 
     setup do
-      @saved = %w[WHISPER_MODEL WHISPER_LANGUAGE WHISPER_DEVICE WHISPER_COMPUTE_TYPE].to_h do |key|
+      @saved = %w[WHISPER_MODEL WHISPER_LANGUAGE WHISPER_DEVICE WHISPER_COMPUTE_TYPE WHISPER_PYTHON].to_h do |key|
         [ key, ENV.delete(key) ]
       end
     end
@@ -137,6 +137,29 @@ module SpeechToText
         stub_method(AudioPreprocessor, :call, ->(**_kwargs) { Tempfile.new("wav") }) do
           assert_raises(TranscriptionError) { Whisper.call(audio_data: AUDIO, filename: "note.ogg") }
         end
+      end
+    end
+
+    test "a missing python interpreter raises ProviderUnavailableError instead of ENOENT" do
+      with_env("WHISPER_PYTHON" => "/opt/whisper-venv/bin/python") do
+        stub_method(Open3, :capture3, ->(*_args) { raise Errno::ENOENT, "python3" }) do
+          stub_method(AudioPreprocessor, :call, ->(**_kwargs) { Tempfile.new("wav") }) do
+            error = assert_raises(ProviderUnavailableError) do
+              Whisper.call(audio_data: AUDIO, filename: "note.ogg")
+            end
+
+            assert_match(/no está disponible en este servidor/, error.message)
+            assert_match(%r{/opt/whisper-venv/bin/python}, error.message)
+          end
+        end
+      end
+    end
+
+    test "WHISPER_PYTHON selects the interpreter that runs the script" do
+      with_env("WHISPER_PYTHON" => "/opt/whisper-venv/bin/python") do
+        args = Whisper.new(audio_data: AUDIO, filename: "note.ogg").send(:python_args, "/tmp/preprocessed.wav")
+
+        assert_equal "/opt/whisper-venv/bin/python", args.first
       end
     end
 

@@ -1241,6 +1241,7 @@ en:
       unreadable_audio: "Could not read the audio payload (unsupported or corrupted audio)."
       decode_failed: "Could not decode the audio payload."
       unsupported_format: "Unsupported audio format. Use OGG, OPUS, M4A, MP3, WAV or WEBM."
+      missing_interpreter: "Speech-to-text is not available on this server (Python interpreter not found: %{bin})."
     ffmpeg:
       failure: "ffmpeg could not process the audio."
       missing: "FFmpeg is not available (%{bin})."

@@ -557,6 +557,29 @@ class WebHookHandlerWhatsappServiceTest < ActiveSupport::TestCase
     assert texts.any? { |(_, text)| text.include?("problema procesando") }
   end
 
+  test "a voice note whose transcription fails still notifies the user instead of silence" do
+    connect_user!
+    data_uri = "data:audio/ogg;base64,#{Base64.strict_encode64("fake-audio")}"
+    texts = []
+    stub_method(Whatsapp::MediaFetcher, :call, ->(media_id:, mime_type:) { data_uri }) do
+      stub_method(Expenses::Processor, :call, ->(**_kwargs) {
+        Expenses::Result.new(
+          candidates: [],
+          errors: [ "El reconocimiento de voz no está disponible en este servidor" ],
+          engine: nil
+        )
+      }) do
+        stub_method(Whatsapp::ReplySender, :send_to, ->(phone, text) { texts << [ phone, text ] }) do
+          assert_no_difference -> { ExpenseCandidate.count } do
+            WebHookHandler::WhatsappService.call(raw_body: message_payload(type: "audio"))
+          end
+        end
+      end
+    end
+
+    assert texts.any? { |(_, text)| text.include?("problema procesando") }
+  end
+
   test "an unexpected failure while processing a message still notifies the user" do
     connect_user!
     texts = []

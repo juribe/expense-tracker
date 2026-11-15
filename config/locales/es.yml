@@ -2088,6 +2088,7 @@ es:
       unreadable_audio: "No se pudo leer el audio (formato no compatible o archivo dañado)."
       decode_failed: "No se pudo decodificar el audio."
       unsupported_format: "Formato de audio no compatible. Usa OGG, OPUS, M4A, MP3, WAV o WEBM."
+      missing_interpreter: "El reconocimiento de voz no está disponible en este servidor (no se encontró el intérprete de Python: %{bin})."
     ffmpeg:
       failure: "ffmpeg no pudo procesar el audio."
       missing: "FFmpeg no está disponible (%{bin})."

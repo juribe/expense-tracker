@@ -49,7 +49,7 @@ offline.
 | `WHISPER_DEVICE` | `cpu` | No GPU requirements |
 | `WHISPER_COMPUTE_TYPE` | `int8` | |
 | `WHISPER_TIMEOUT` | `300` | Seconds before the Python process is killed |
-| `WHISPER_PYTHON` | (unset) | Full path override; falls back to `whisper-env/bin/python`, then `python3` |
+| `WHISPER_PYTHON` | (unset) | Full path override; falls back to `whisper-env/bin/python`, then `python3`. The production image sets it to `/opt/whisper-venv/bin/python`. |
 | `FFMPEG_BIN` | `ffmpeg` | Full path override (MacPorts: `/opt/local/bin/ffmpeg`). Leave unset or blank in containers: the image installs ffmpeg on `PATH` (`/usr/bin/ffmpeg`), and a blank value falls back to `ffmpeg`. |
 
 ## Transcription settings (initial)
@@ -95,7 +95,16 @@ stack traces are logged server-side, never shown to users.
 - Whisper on CPU is slow for long audio; move processing into a Solid Queue
   job (`ProcessAudioJob`) once audio leaves the Playground. The service is
   already a single `SpeechToText.transcribe` call, so no rewrite needed.
-- The container image needs `ffmpeg` (added to the Dockerfile) and a
-  Python runtime with `faster-whisper` + the model baked or cached.
+- The container image installs `ffmpeg`, `python3` and a dedicated venv at
+  `/opt/whisper-venv` with `faster-whisper`, and downloads the model at build
+  time into `HF_HOME=/opt/whisper-models`. `WHISPER_PYTHON` is baked into the
+  image so the provider never falls back to a bare `python3` without
+  `faster-whisper`.
+- The baked model is the `WHISPER_MODEL` build arg (default `small`). Changing
+  the `WHISPER_MODEL` secret to a different model is not served by the image
+  cache: the first request would try to download it. Rebuild with the matching
+  build arg instead.
 - Model loading per invocation is fine for development; for production,
   consider a persistent worker process to avoid repeated model loads.
+- A missing interpreter is reported as `ProviderUnavailableError`, so a
+  misconfigured image produces a readable pipeline error instead of a 500.

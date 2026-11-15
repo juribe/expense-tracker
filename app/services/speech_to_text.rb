@@ -29,7 +29,8 @@ module SpeechToText
   # crashed process, timeout, unreadable audio, ...).
   class TranscriptionError < Error; end
 
-  # No provider is registered for the configured name.
+  # No provider is registered for the configured name, or the registered
+  # provider cannot run in this deployment (missing Python runtime, ...).
   class ProviderUnavailableError < Error; end
 
   class << self

@@ -250,6 +250,14 @@ module WebHookHandler
                         "engine=#{result.engine.inspect} duration=#{result.duration_ms}ms " \
                         "candidates=#{candidates.size} errors=#{result.errors.inspect}"
 
+      # A channel processor swallows its own failures (a voice note that cannot
+      # be transcribed, an unreadable image) and reports them as errors with no
+      # candidates. Leaving that unanswered would drop the message in silence.
+      if candidates.empty? && result.errors.present?
+        notify_failure(event.sender_id)
+        return
+      end
+
       auto_confirm!(candidates)
       reply_summary(user, event, candidates)
 
