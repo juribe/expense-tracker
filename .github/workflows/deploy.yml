@@ -27,7 +27,10 @@ permissions:
 
 concurrency:
   group: production-deploy
-  cancel-in-progress: false
+  # A newer deploy supersedes a running one, so production is never left
+  # waiting on a build that is already obsolete. The last step of the job
+  # releases the Kamal lock the cancelled run may have taken.
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -191,3 +194,11 @@ jobs:
       - name: Link the data deletion page in the footer
         if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
         run: bundle exec kamal app exec --reuse "bin/rails yogasto:link_data_deletion_in_footer"
+
+      # Cancelling a run in the middle of `kamal setup` leaves the deploy lock
+      # held on the server, which would block the deploy that superseded it.
+      # Release it best-effort; a run cancelled before the secrets file or SSH
+      # access exists simply has nothing to release.
+      - name: Release the deploy lock after cancellation
+        if: cancelled()
+        run: bundle exec kamal lock release || true
