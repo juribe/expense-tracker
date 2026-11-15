@@ -14,7 +14,7 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
     post user_session_path, params: { user: { email: @user.email, password: "password123" } }
     assert_redirected_to root_path
 
-    travel 31.minutes do
+    travel User.timeout_in + 1.minute do
       get dashboard_path
 
       assert_redirected_to dashboard_path
