@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794758514.950887,
-    "seen": 1794759366.277038,
-    "ast_hash": "7381a0bd38c5226ff4eec10fe26d9df1",
+    "mtime": 1794770488.7084527,
+    "seen": 1794771042.4603982,
+    "ast_hash": "a8c39fc7533d813088d92152a6fbc911",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794758510.9393253,
-    "seen": 1794759366.277041,
-    "ast_hash": "b24c99ccc0510b078c3d47b273d40575",
+    "mtime": 1794770488.7085376,
+    "seen": 1794771042.4604,
+    "ast_hash": "6830b0435492e46102d8f7e2e9fbcac7",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794756783.309817,
-    "seen": 1794757149.7998521,
+    "mtime": 1794770967.424893,
+    "seen": 1794771042.4605792,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -1566,9 +1566,9 @@
     "semantic_hash": ""
   },
   "app/services/speech_to_text.rb": {
-    "mtime": 1788990768.043497,
-    "seen": 1793490696.634963,
-    "ast_hash": "cd44ba4980a7c1b6a3e842cb49147f9f",
+    "mtime": 1794770453.9095664,
+    "seen": 1794771042.4089868,
+    "ast_hash": "302c2c09443bff760c74fc83d4151ace",
     "semantic_hash": ""
   },
   "app/services/speech_to_text/audio_preprocessor.rb": {
@@ -1584,9 +1584,9 @@
     "semantic_hash": ""
   },
   "app/services/speech_to_text/whisper.rb": {
-    "mtime": 1793311563.9384027,
-    "seen": 1793490696.634967,
-    "ast_hash": "bc907acd6ccaeff57eeb5316b475a582",
+    "mtime": 1794770450.7017443,
+    "seen": 1794771042.409097,
+    "ast_hash": "0f10471aa38c216c514e50205181b186",
     "semantic_hash": ""
   },
   "script/whisper_transcribe.py": {
@@ -1608,9 +1608,9 @@
     "semantic_hash": ""
   },
   "test/services/speech_to_text/whisper_test.rb": {
-    "mtime": 1793311656.4545782,
-    "seen": 1793490696.635564,
-    "ast_hash": "38177d5b9af050a97157901e7b54c14b",
+    "mtime": 1794770368.927095,
+    "seen": 1794771042.449482,
+    "ast_hash": "2116a9ecda2128b19294b2ef10514ddd",
     "semantic_hash": ""
   },
   "test/services/speech_to_text_test.rb": {
@@ -1620,9 +1620,9 @@
     "semantic_hash": ""
   },
   "docs/speech_to_text.md": {
-    "mtime": 1794757487.8823068,
-    "seen": 1794757596.9883058,
-    "ast_hash": "c44f890ea552d5031b7a94558d72e230",
+    "mtime": 1794770592.721912,
+    "seen": 1794771042.463149,
+    "ast_hash": "1653bcdf7787e5941d8c8898c3638ec3",
     "semantic_hash": ""
   },
   "app/models/activity_classification.rb": {
@@ -5652,9 +5652,9 @@
     "semantic_hash": ""
   },
   "public/apple-touch-icon.png": {
-    "mtime": 1794758441.5386975,
-    "seen": 1794759366.2982569,
-    "ast_hash": "4fbef14f7cd148242fec69b319177bd9",
+    "mtime": 1794761489.691462,
+    "seen": 1794762081.762687,
+    "ast_hash": "53b82c96f9e945ed58aec1b682400775",
     "semantic_hash": ""
   },
   "public/brand/apple-touch-icon.png": {
@@ -8322,9 +8322,9 @@
     "semantic_hash": ""
   },
   "config/initializers/maglev.rb": {
-    "mtime": 1794025874.6900508,
-    "seen": 1794026425.6075149,
-    "ast_hash": "9ca71012a9bffc3cfb9e7ce690586093",
+    "mtime": 1794759572.136089,
+    "seen": 1794762081.708704,
+    "ast_hash": "ff415aeb96a03619f6d480b3d3328d5a",
     "semantic_hash": ""
   },
   "db/migrate/20261105235815_create_active_storage_tables.active_storage.rb": {
@@ -10200,9 +10200,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794759019.6620178,
-    "seen": 1794759366.2685719,
-    "ast_hash": "f6f66a85cc683db310bb4920f6e17aa8",
+    "mtime": 1794760825.195869,
+    "seen": 1794762081.752486,
+    "ast_hash": "736e686ae47c0255c9a70629a84df723",
     "semantic_hash": ""
   },
   ".github/workflows/restore-dump.yml": {
@@ -10254,9 +10254,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/pwa_install.js": {
-    "mtime": 1794759095.385301,
-    "seen": 1794759366.0374799,
-    "ast_hash": "c5e5d47a2e2d4c1301295fe579a4af6a",
+    "mtime": 1794759538.6455781,
+    "seen": 1794762081.649617,
+    "ast_hash": "b709be1b83b3c01c6177b8da73d44582",
     "semantic_hash": ""
   },
   "app/controllers/pwa/manifests_controller.rb": {
@@ -10272,9 +10272,9 @@
     "semantic_hash": ""
   },
   "app/lib/pwa.rb": {
-    "mtime": 1794758841.534105,
-    "seen": 1794759366.070105,
-    "ast_hash": "e38122a104884897407cec63f79d2c0d",
+    "mtime": 1794761496.441922,
+    "seen": 1794762081.666942,
+    "ast_hash": "24f9f650bdcc2bbc14caf2cc3ddf59fc",
     "semantic_hash": ""
   },
   "playwright/pwa.spec.js": {
@@ -10284,9 +10284,9 @@
     "semantic_hash": ""
   },
   "test/integration/pwa_test.rb": {
-    "mtime": 1794758640.6755617,
-    "seen": 1794759366.2061791,
-    "ast_hash": "70244d11291fb10da8043df0185253da",
+    "mtime": 1794761127.1744242,
+    "seen": 1794762081.732054,
+    "ast_hash": "2d7eb9003d0df72254fb84c83c3c70d4",
     "semantic_hash": ""
   },
   "public/offline.html": {
@@ -10296,27 +10296,27 @@
     "semantic_hash": ""
   },
   "public/pwa/icon-192.png": {
-    "mtime": 1794758440.819786,
-    "seen": 1794759366.3024561,
-    "ast_hash": "40c8ff649510ff142819cf315c7bd130",
+    "mtime": 1794761489.2422743,
+    "seen": 1794762081.7646348,
+    "ast_hash": "1f05ce1f68b05018265bd07ef84773ff",
     "semantic_hash": ""
   },
   "public/pwa/icon-512.png": {
-    "mtime": 1794758440.605271,
-    "seen": 1794759366.302461,
-    "ast_hash": "d4fd18fbfb417f92be18dfe46f6bd401",
+    "mtime": 1794761489.0893638,
+    "seen": 1794762081.764638,
+    "ast_hash": "3c2a889e15fbb4a7e307a2eaed60a7f4",
     "semantic_hash": ""
   },
   "public/pwa/maskable-192.png": {
-    "mtime": 1794758441.311867,
-    "seen": 1794759366.3024662,
-    "ast_hash": "f3577ddacae0aedae74ce419942dadd4",
+    "mtime": 1794761489.5839713,
+    "seen": 1794762081.764641,
+    "ast_hash": "ccb456ae844316ecee3fa02e2b4fed0f",
     "semantic_hash": ""
   },
   "public/pwa/maskable-512.png": {
-    "mtime": 1794758441.0786831,
-    "seen": 1794759366.302471,
-    "ast_hash": "97539e95273bd8fdbc4214b88fa66a9a",
+    "mtime": 1794761489.466644,
+    "seen": 1794762081.7646441,
+    "ast_hash": "f0d600558b4ec10270823aee7c6d67ec",
     "semantic_hash": ""
   }
 }
