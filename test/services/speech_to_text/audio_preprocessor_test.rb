@@ -26,6 +26,18 @@ module SpeechToText
       end
     end
 
+    # Production containers install ffmpeg on PATH; a stale or empty
+    # FFMPEG_BIN must not shadow it.
+    test "a blank FFMPEG_BIN falls back to the PATH ffmpeg" do
+      with_env("FFMPEG_BIN" => "") do
+        assert_equal "ffmpeg", AudioPreprocessor.bin
+      end
+
+      with_env("FFMPEG_BIN" => "   ") do
+        assert_equal "ffmpeg", AudioPreprocessor.bin
+      end
+    end
+
     test "a missing or failing ffmpeg raises PreprocessingError and cleans up" do
       with_env("FFMPEG_BIN" => "/nonexistent/ffmpeg") do
         error = assert_raises(PreprocessingError) { AudioPreprocessor.call(audio_path: "input.ogg") }

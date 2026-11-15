@@ -1572,9 +1572,9 @@
     "semantic_hash": ""
   },
   "app/services/speech_to_text/audio_preprocessor.rb": {
-    "mtime": 1793311563.9388235,
-    "seen": 1793490696.634964,
-    "ast_hash": "dff7361d2d50b931008652ae5e96ee2c",
+    "mtime": 1794757340.1271598,
+    "seen": 1794757596.9403331,
+    "ast_hash": "aef2a52d2ed9c37fb4d0a4d28f52117f",
     "semantic_hash": ""
   },
   "app/services/speech_to_text/result.rb": {
@@ -1602,9 +1602,9 @@
     "semantic_hash": ""
   },
   "test/services/speech_to_text/audio_preprocessor_test.rb": {
-    "mtime": 1788991735.0937402,
-    "seen": 1793490696.635562,
-    "ast_hash": "903bd5c752eccc9c7f684e42d4b62caf",
+    "mtime": 1794757233.5589764,
+    "seen": 1794757596.977087,
+    "ast_hash": "93c19011d4c603160d78ec57e762f7e9",
     "semantic_hash": ""
   },
   "test/services/speech_to_text/whisper_test.rb": {
@@ -1620,9 +1620,9 @@
     "semantic_hash": ""
   },
   "docs/speech_to_text.md": {
-    "mtime": 1790454777.369043,
-    "seen": 1793490696.635703,
-    "ast_hash": "f5dcaf2158ff4c8ecbfcb8663cbdcbec",
+    "mtime": 1794757487.8823068,
+    "seen": 1794757596.9883058,
+    "ast_hash": "c44f890ea552d5031b7a94558d72e230",
     "semantic_hash": ""
   },
   "app/models/activity_classification.rb": {
@@ -4842,9 +4842,9 @@
     "semantic_hash": ""
   },
   "test/controllers/users/sessions_controller_test.rb": {
-    "mtime": 1794531395.018016,
-    "seen": 1794582007.786772,
-    "ast_hash": "5eccd5e941de3c4e526b12ed5ef8ec8e",
+    "mtime": 1794757563.7042334,
+    "seen": 1794757596.959677,
+    "ast_hash": "42adb382fece062ca0661178e1ef7fa4",
     "semantic_hash": ""
   },
   "app/assets/javascripts/ai_entry.js": {
@@ -10200,9 +10200,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794663430.3452785,
-    "seen": 1794757149.7968209,
-    "ast_hash": "ef780406f10c38d2c4a005adf41ad1a8",
+    "mtime": 1794757479.6373463,
+    "seen": 1794757596.9823968,
+    "ast_hash": "1a52325f9f8697b38b32e874fef8b844",
     "semantic_hash": ""
   },
   ".github/workflows/restore-dump.yml": {
@@ -10212,9 +10212,9 @@
     "semantic_hash": ""
   },
   "config/deploy.yml": {
-    "mtime": 1794663430.3452194,
-    "seen": 1794757149.7994921,
-    "ast_hash": "96c870ab04261ee8bcd553bd0d5e949f",
+    "mtime": 1794757471.3648736,
+    "seen": 1794757596.985389,
+    "ast_hash": "ecb7b0265e22e583ee7533b873b4460b",
     "semantic_hash": ""
   },
   "docs/data_deletion.md": {

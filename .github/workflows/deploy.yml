@@ -59,7 +59,6 @@ jobs:
       FB_APP_ID: ${{ secrets.FB_APP_ID }}
       FB_APP_SECRET: ${{ secrets.FB_APP_SECRET }}
       FB_VERIFY_TOKEN: ${{ secrets.FB_VERIFY_TOKEN }}
-      FFMPEG_BIN: ${{ secrets.FFMPEG_BIN }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       INBOUND_EMAIL_MAX_BYTES: ${{ secrets.INBOUND_EMAIL_MAX_BYTES }}
@@ -76,7 +75,6 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       RESEND_WEBHOOK_SECRET: ${{ secrets.RESEND_WEBHOOK_SECRET }}
       SPEECH_TO_TEXT_PROVIDER: ${{ secrets.SPEECH_TO_TEXT_PROVIDER }}
-      TESSERACT_BIN: ${{ secrets.TESSERACT_BIN }}
       USE_SSL: ${{ secrets.USE_SSL }}
       WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
       WHATSAPP_BUSINESS_NUMBER: ${{ secrets.WHATSAPP_BUSINESS_NUMBER }}

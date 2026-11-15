@@ -50,7 +50,7 @@ offline.
 | `WHISPER_COMPUTE_TYPE` | `int8` | |
 | `WHISPER_TIMEOUT` | `300` | Seconds before the Python process is killed |
 | `WHISPER_PYTHON` | (unset) | Full path override; falls back to `whisper-env/bin/python`, then `python3` |
-| `FFMPEG_BIN` | `ffmpeg` | Full path override (MacPorts: `/opt/local/bin/ffmpeg`) |
+| `FFMPEG_BIN` | `ffmpeg` | Full path override (MacPorts: `/opt/local/bin/ffmpeg`). Leave unset or blank in containers: the image installs ffmpeg on `PATH` (`/usr/bin/ffmpeg`), and a blank value falls back to `ffmpeg`. |
 
 ## Transcription settings (initial)
 

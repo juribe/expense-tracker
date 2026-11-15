@@ -99812,7 +99812,7 @@
       "file_type": "code",
       "norm_label": "available?()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L33"
+      "source_location": "L35"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_bin",
@@ -99824,7 +99824,7 @@
       "file_type": "code",
       "norm_label": "bin()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L29"
+      "source_location": "L31"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_call",
@@ -99836,7 +99836,7 @@
       "file_type": "code",
       "norm_label": "call()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L25"
+      "source_location": "L27"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_speechtotext_audiopreprocessor_call",
@@ -99848,7 +99848,7 @@
       "file_type": "code",
       "norm_label": ".call()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L42"
+      "source_location": "L44"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_speechtotext_audiopreprocessor_cleanup",
@@ -99860,7 +99860,7 @@
       "file_type": "code",
       "norm_label": ".cleanup()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L58"
+      "source_location": "L60"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_speechtotext_audiopreprocessor_ffmpeg_args",
@@ -99872,7 +99872,7 @@
       "file_type": "code",
       "norm_label": ".ffmpeg_args()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L68"
+      "source_location": "L70"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_speechtotext_audiopreprocessor_ffmpeg_failure_message",
@@ -99884,7 +99884,7 @@
       "file_type": "code",
       "norm_label": ".ffmpeg_failure_message()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L85"
+      "source_location": "L87"
     },
     {
       "id": "app_services_speech_to_text_audio_preprocessor_speechtotext_audiopreprocessor_initialize",
@@ -99896,7 +99896,7 @@
       "file_type": "code",
       "norm_label": ".initialize()",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L38"
+      "source_location": "L40"
     },
     {
       "id": "app_services_speech_to_text_whisper_call",
@@ -199444,7 +199444,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L26",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -199456,7 +199456,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L44",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -199468,7 +199468,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -199480,7 +199480,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L49",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -199492,7 +199492,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L50",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -199504,7 +199504,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L70",
+      "source_location": "L72",
       "weight": 1.0
     },
     {
@@ -238597,7 +238597,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L25",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -238608,7 +238608,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L29",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -238619,7 +238619,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L33",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -315542,7 +315542,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L38",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -315553,7 +315553,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -315564,7 +315564,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L58",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -315575,7 +315575,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L68",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -315586,7 +315586,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/services/speech_to_text/audio_preprocessor.rb",
-      "source_location": "L85",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -338178,5 +338178,6 @@
       "confidence_score": 0.9,
       "source_file": "public/icon.svg"
     }
-  ]
+  ],
+  "built_at_commit": "f4e478411194ab6ecb2557d6db11f981503e4c6d"
 }

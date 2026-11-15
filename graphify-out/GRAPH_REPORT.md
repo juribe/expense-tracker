@@ -1,13 +1,18 @@
 # Graph Report - expense-tracker  (2026-11-15)
 
 ## Corpus Check
-- 1563 files · ~1,689,767 words
+- 1563 files · ~1,689,846 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
 - 12088 nodes · 16940 edges · 1179 communities (541 shown, 509 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 549 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `f4e47841`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - GmailConnectionsController

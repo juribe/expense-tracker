@@ -16,7 +16,9 @@ module SpeechToText
   # SpeechToText::PreprocessingError on any FFmpeg failure.
   class AudioPreprocessor
     # Full path override for non-PATH installs (e.g. MacPorts:
-    # /opt/local/bin/ffmpeg), mirroring the TESSERACT_BIN convention.
+    # /opt/local/bin/ffmpeg), mirroring the TESSERACT_BIN convention. Blank
+    # values fall back to the PATH binary, which is where container images
+    # install it (/usr/bin/ffmpeg in the Debian-based production image).
     TARGET_SAMPLE_RATE = 16_000
     TARGET_CHANNELS = 1
     LOUDNESS_FILTER = "loudnorm=I=-16:TP=-1.5:LRA=11"
@@ -27,7 +29,7 @@ module SpeechToText
       end
 
       def bin
-        ENV.fetch("FFMPEG_BIN", "ffmpeg")
+        ENV["FFMPEG_BIN"].presence || "ffmpeg"
       end
 
       def available?
