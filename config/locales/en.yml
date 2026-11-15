@@ -1120,10 +1120,6 @@ en:
     queue:
       title: "Expense candidates"
       subtitle: "Review the movements Yogasto detected and complete the information required to record them as expenses."
-      summary:
-        total: "Total candidates"
-        pending: "Needs attention"
-        discarded: "Discarded"
       tabs:
         pending: "Pending"
         discarded: "Discarded"

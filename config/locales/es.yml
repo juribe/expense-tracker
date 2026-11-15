@@ -1967,10 +1967,6 @@ es:
     queue:
       title: "Candidatos de gastos"
       subtitle: "Revisa los movimientos detectados por Yogasto y completa la información necesaria para registrarlos como gastos."
-      summary:
-        total: "Total de candidatos"
-        pending: "Requieren atención"
-        discarded: "Descartados"
       tabs:
         pending: "Pendientes"
         discarded: "Descartados"

@@ -88,6 +88,35 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href*='page=1']"
   end
 
+  test "GET /expense_candidates paginates discarded candidates at 25 rows" do
+    30.times { |i| create_candidate(status: "discarded", description: "Descartado #{i}") }
+
+    get expense_candidates_path(status: "discarded"), params: { page: 1 }
+
+    assert_response :success
+    assert_select "tr[data-testid=candidate-row]", count: 25
+
+    get expense_candidates_path(status: "discarded"), params: { page: 2 }
+
+    assert_response :success
+    assert_select "tr[data-testid=candidate-row]", count: 5
+  end
+
+  test "GET /expense_candidates keeps the discarded tab when paginating" do
+    30.times { |i| create_candidate(status: "discarded", description: "Descartado #{i}") }
+    create_candidate(status: "needs_review", description: "Pendiente visible")
+
+    get expense_candidates_path(status: "discarded")
+
+    assert_select "nav[data-testid=pagination] a[href*='status=discarded'][href*='page=2']"
+
+    get expense_candidates_path(status: "discarded"), params: { page: 2 }
+
+    assert_response :success
+    assert_select "tr[data-testid=candidate-row]", count: 5
+    assert_select "tr[data-testid=candidate-row]", text: /Pendiente visible/, count: 0
+  end
+
   # --- SHOW ---
 
   test "GET /expense_candidates/:id shows candidate details" do
@@ -695,7 +724,7 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
 
   # --- REDESIGNED QUEUE ---
 
-  test "GET /expense_candidates renders dynamic summary and tab counters" do
+  test "GET /expense_candidates renders tab counters without the summary cards" do
     create_candidate(status: "needs_review", description: "Pendiente")
     create_candidate(status: "discarded", description: "Descartado")
     create_candidate(status: "confirmed", description: "Confirmado")
@@ -703,10 +732,10 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     get expense_candidates_path
 
     assert_response :success
-    assert_select "[data-testid='candidates-summary']"
-    assert_select "[data-testid='summary-total']", text: "2"
-    assert_select "[data-testid='summary-pending']", text: "1"
-    assert_select "[data-testid='summary-discarded']", text: "1"
+    assert_select "[data-testid='candidates-summary']", count: 0
+    assert_select "[data-testid='summary-total']", count: 0
+    assert_select "[data-testid='summary-pending']", count: 0
+    assert_select "[data-testid='summary-discarded']", count: 0
     assert_select "[data-testid='pending-tab-count']", text: "1"
     assert_select "[data-testid='discarded-tab-count']", text: "1"
   end
@@ -729,6 +758,29 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "tr[data-testid='candidate-row']", count: 1
     assert_select "tr[data-testid='candidate-row']", text: /PRICESMART COLOMBIA/
+  end
+
+  test "GET /expense_candidates truncates long descriptions in the table" do
+    description = "Transferencia entre las cosas según el banco"
+    create_candidate(status: "needs_review", description: description)
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row'] .candidate-description" do |element|
+      assert_equal "Transferencia entre las cosas...", element.first.text.strip
+      assert_equal description, element.first["title"]
+    end
+  end
+
+  test "GET /expense_candidates keeps descriptions up to 32 characters intact in the table" do
+    description = "Transferencia entre las cosas se"
+    create_candidate(status: "needs_review", description: description)
+
+    get expense_candidates_path
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row'] .candidate-description", text: description
   end
 
   test "GET /expense_candidates filters by source" do
@@ -825,8 +877,28 @@ class ExpenseCandidatesControllerTest < ActionDispatch::IntegrationTest
 
     get expense_candidates_path(status: "discarded")
 
-    assert_select "a[href='#{expense_candidate_path(discarded)}']", text: /Revisar/
-    assert_select "form[action='#{restore_expense_candidate_path(discarded)}']"
+    assert_select "a[href='#{expense_candidate_path(discarded)}'] i.ti-eye"
+    assert_select "form[action='#{restore_expense_candidate_path(discarded)}'] i.ti-arrow-back-up"
+  end
+
+  test "GET /expense_candidates renders the row actions as icon-only buttons" do
+    discarded = create_candidate(status: "discarded", description: "Descartado recuperable")
+
+    get expense_candidates_path(status: "discarded")
+
+    assert_response :success
+    assert_select "tr[data-testid='candidate-row'] a[href='#{expense_candidate_path(discarded)}']" do |links|
+      assert_empty links.first.text.strip
+      assert_equal "Revisar", links.first["aria-label"]
+      assert_equal "Revisar", links.first["title"]
+    end
+    assert_select "tr[data-testid='candidate-row'] form[action='#{restore_expense_candidate_path(discarded)}'] button" do |buttons|
+      assert_empty buttons.first.text.strip
+      assert_equal "Recuperar", buttons.first["aria-label"]
+      assert_equal "Recuperar", buttons.first["title"]
+    end
+    assert_select "article[data-testid='candidate-mobile-card'] a[href='#{expense_candidate_path(discarded)}'][aria-label='Revisar']"
+    assert_select "article[data-testid='candidate-mobile-card'] form[action='#{restore_expense_candidate_path(discarded)}'] button[aria-label='Recuperar']"
   end
 
   # --- RESTORE ---

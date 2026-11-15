@@ -7,42 +7,6 @@
 <% end %>
 
 <div class="candidates-page" data-testid="expense-candidates-page" data-status="<%= @status %>">
-  <section class="row g-3 mb-4" data-testid="candidates-summary">
-    <div class="col-6 col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <%= render "shared/stat",
-                     label: t("#{t_queue}.summary.total", default: "Total de candidatos"),
-                     value: tag.span(@total_count, data: { testid: "summary-total" }),
-                     icon: "inbox",
-                     icon_tone: "blue" %>
-        </div>
-      </div>
-    </div>
-    <div class="col-6 col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <%= render "shared/stat",
-                     label: t("#{t_queue}.summary.pending", default: "Requieren atención"),
-                     value: tag.span(@pending_count, data: { testid: "summary-pending" }),
-                     icon: "alert-triangle",
-                     icon_tone: "amber" %>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <%= render "shared/stat",
-                     label: t("#{t_queue}.summary.discarded", default: "Descartados"),
-                     value: tag.span(@discarded_count, data: { testid: "summary-discarded" }),
-                     icon: "trash",
-                     icon_tone: "gray" %>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <nav class="candidates-tabs mb-3" aria-label="<%= t("#{t_queue}.title", default: "Candidatos de gastos") %>">
     <ul class="nav nav-pills gap-2">
       <li class="nav-item">
@@ -206,7 +170,10 @@
                   </span>
                 </td>
                 <td>
-                  <div class="candidate-description"><%= candidate.description.presence || secondary_text&.truncate(70) || "—" %></div>
+                  <% description_text = candidate.description.presence || secondary_text %>
+                  <%= tag.div(description_text.present? ? truncate(description_text, length: 32) : "—",
+                              class: "candidate-description",
+                              title: description_text.presence) %>
                   <% if candidate.description.present? && secondary_text.present? && secondary_text != candidate.description %>
                     <div class="candidate-description-sub"><%= truncate(secondary_text, length: 90) %></div>
                   <% end %>
@@ -248,15 +215,20 @@
                 <td><%= candidate_queue_status_badge(candidate.status) %></td>
                 <td class="text-end">
                   <div class="candidates-row-actions">
-                    <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
-                      <i class="ti ti-eye me-1"></i><%= t("#{t_queue}.actions.review", default: "Revisar") %>
+                    <%= link_to expense_candidate_path(candidate),
+                                class: "btn btn-sm btn-outline-primary",
+                                title: t("#{t_queue}.actions.review", default: "Revisar"),
+                                aria: { label: t("#{t_queue}.actions.review", default: "Revisar") } do %>
+                      <i class="ti ti-eye" aria-hidden="true"></i>
                     <% end %>
                     <% if @status == "discarded" %>
                       <%= button_to restore_expense_candidate_path(candidate),
                                     method: :post,
                                     class: "btn btn-sm btn-outline-secondary",
-                                    form: { class: "d-inline" } do %>
-                        <i class="ti ti-arrow-back-up me-1"></i><%= t("#{t_queue}.actions.restore", default: "Recuperar") %>
+                                    form: { class: "d-inline" },
+                                    title: t("#{t_queue}.actions.restore", default: "Recuperar"),
+                                    aria: { label: t("#{t_queue}.actions.restore", default: "Recuperar") } do %>
+                        <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
                       <% end %>
                     <% end %>
                   </div>
@@ -336,15 +308,20 @@
             </div>
 
             <div class="candidate-mobile-actions">
-              <%= link_to expense_candidate_path(candidate), class: "btn btn-sm btn-outline-primary" do %>
-                <i class="ti ti-eye me-1"></i><%= t("#{t_queue}.actions.review", default: "Revisar") %>
+              <%= link_to expense_candidate_path(candidate),
+                          class: "btn btn-sm btn-outline-primary",
+                          title: t("#{t_queue}.actions.review", default: "Revisar"),
+                          aria: { label: t("#{t_queue}.actions.review", default: "Revisar") } do %>
+                <i class="ti ti-eye" aria-hidden="true"></i>
               <% end %>
               <% if @status == "discarded" %>
                 <%= button_to restore_expense_candidate_path(candidate),
                               method: :post,
                               class: "btn btn-sm btn-outline-secondary",
-                              form: { class: "d-inline" } do %>
-                  <i class="ti ti-arrow-back-up me-1"></i><%= t("#{t_queue}.actions.restore", default: "Recuperar") %>
+                              form: { class: "d-inline" },
+                              title: t("#{t_queue}.actions.restore", default: "Recuperar"),
+                              aria: { label: t("#{t_queue}.actions.restore", default: "Recuperar") } do %>
+                  <i class="ti ti-arrow-back-up" aria-hidden="true"></i>
                 <% end %>
               <% end %>
             </div>

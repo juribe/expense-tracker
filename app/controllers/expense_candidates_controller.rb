@@ -19,7 +19,6 @@ class ExpenseCandidatesController < ApplicationController
     queue_scope = current_user.expense_candidates
     @pending_count = queue_scope.needs_review.count
     @discarded_count = queue_scope.discarded.count
-    @total_count = @pending_count + @discarded_count
     @sources = queue_scope.where.not(source: nil).distinct.order(:source).pluck(:source)
     @filters_active = filter_params_present?
 
