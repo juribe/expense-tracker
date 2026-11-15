@@ -6,8 +6,8 @@
     "semantic_hash": ""
   },
   "app/controllers/application_controller.rb": {
-    "mtime": 1794531394.7728002,
-    "seen": 1794582007.785037,
+    "mtime": 1794775650.8488162,
+    "seen": 1794775877.2924218,
     "ast_hash": "5c937f0fda56ee1e95b66523d3f05207",
     "semantic_hash": ""
   },
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794770488.7084527,
-    "seen": 1794771042.4603982,
-    "ast_hash": "a8c39fc7533d813088d92152a6fbc911",
+    "mtime": 1794775169.36126,
+    "seen": 1794775228.347959,
+    "ast_hash": "3ee580018338a3acb0ed2bb94bdee4cb",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794770488.7085376,
-    "seen": 1794771042.4604,
-    "ast_hash": "6830b0435492e46102d8f7e2e9fbcac7",
+    "mtime": 1794775169.3623211,
+    "seen": 1794775228.3479621,
+    "ast_hash": "429cf2df5dc66b2c90482713a208fbdf",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -2328,15 +2328,15 @@
     "semantic_hash": ""
   },
   "app/controllers/expense_candidates_controller.rb": {
-    "mtime": 1794531394.7734225,
-    "seen": 1794582007.7850711,
-    "ast_hash": "202a7a54ff3d7479030953de71a8a9e2",
+    "mtime": 1794775169.360047,
+    "seen": 1794775228.266876,
+    "ast_hash": "69c395c57d90d688624e7b057c9a3f02",
     "semantic_hash": ""
   },
   "test/controllers/expense_candidates_controller_test.rb": {
-    "mtime": 1794531395.012608,
-    "seen": 1794582007.7866838,
-    "ast_hash": "1e3ff85f026c9b28f5cb5d2195b0c284",
+    "mtime": 1794776961.5117078,
+    "seen": 1794777138.4413922,
+    "ast_hash": "177dae5cbc89223e1db015daf5b92164",
     "semantic_hash": ""
   },
   ".opencode/skills/expense-tracker-design/SKILL.md": {

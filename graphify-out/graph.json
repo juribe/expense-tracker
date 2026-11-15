@@ -64009,7 +64009,7 @@
       "file_type": "code",
       "norm_label": ".bulk_discard()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L159"
+      "source_location": "L158"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_bulk_redirect_path",
@@ -64021,7 +64021,7 @@
       "file_type": "code",
       "norm_label": ".bulk_redirect_path()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L264"
+      "source_location": "L263"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_candidate_params",
@@ -64033,7 +64033,7 @@
       "file_type": "code",
       "norm_label": ".candidate_params()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L268"
+      "source_location": "L267"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_confirm",
@@ -64045,7 +64045,7 @@
       "file_type": "code",
       "norm_label": ".confirm()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L46"
+      "source_location": "L45"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_discard",
@@ -64057,7 +64057,7 @@
       "file_type": "code",
       "norm_label": ".discard()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L63"
+      "source_location": "L62"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filter_by_category",
@@ -64069,7 +64069,7 @@
       "file_type": "code",
       "norm_label": ".filter_by_category()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L211"
+      "source_location": "L210"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filter_by_missing_information",
@@ -64081,7 +64081,7 @@
       "file_type": "code",
       "norm_label": ".filter_by_missing_information()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L231"
+      "source_location": "L230"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filter_by_money_source",
@@ -64093,7 +64093,7 @@
       "file_type": "code",
       "norm_label": ".filter_by_money_source()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L220"
+      "source_location": "L219"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filter_by_single_missing_field",
@@ -64105,7 +64105,7 @@
       "file_type": "code",
       "norm_label": ".filter_by_single_missing_field()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L247"
+      "source_location": "L246"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filter_by_source",
@@ -64117,7 +64117,7 @@
       "file_type": "code",
       "norm_label": ".filter_by_source()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L203"
+      "source_location": "L202"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filter_params_present_pred",
@@ -64129,7 +64129,7 @@
       "file_type": "code",
       "norm_label": ".filter_params_present?()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L258"
+      "source_location": "L257"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_filtered_candidates",
@@ -64141,7 +64141,7 @@
       "file_type": "code",
       "norm_label": ".filtered_candidates()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L186"
+      "source_location": "L185"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_index",
@@ -64165,7 +64165,7 @@
       "file_type": "code",
       "norm_label": ".not_found()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L285"
+      "source_location": "L284"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_restore",
@@ -64177,7 +64177,7 @@
       "file_type": "code",
       "norm_label": ".restore()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L71"
+      "source_location": "L70"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_search_candidates",
@@ -64189,7 +64189,7 @@
       "file_type": "code",
       "norm_label": ".search_candidates()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L195"
+      "source_location": "L194"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_set_candidate",
@@ -64201,7 +64201,7 @@
       "file_type": "code",
       "norm_label": ".set_candidate()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L174"
+      "source_location": "L173"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_set_categories",
@@ -64213,7 +64213,7 @@
       "file_type": "code",
       "norm_label": ".set_categories()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L178"
+      "source_location": "L177"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_show",
@@ -64225,7 +64225,7 @@
       "file_type": "code",
       "norm_label": ".show()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L32"
+      "source_location": "L31"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_update",
@@ -64237,7 +64237,7 @@
       "file_type": "code",
       "norm_label": ".update()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L35"
+      "source_location": "L34"
     },
     {
       "id": "app_services_expense_candidates_bulk_discard_expensecandidates_bulkdiscard_call",
@@ -80149,7 +80149,7 @@
       "file_type": "code",
       "norm_label": ".bulk_confirm()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L131"
+      "source_location": "L130"
     },
     {
       "id": "app_controllers_expense_candidates_controller_expensecandidatescontroller_set_money_sources",
@@ -80161,7 +80161,7 @@
       "file_type": "code",
       "norm_label": ".set_money_sources()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L182"
+      "source_location": "L181"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_set_money_sources",
@@ -95761,7 +95761,7 @@
       "file_type": "code",
       "norm_label": ".accept_suggestion()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L81"
+      "source_location": "L80"
     },
     {
       "id": "app_controllers_expense_playground_controller_expenseplaygroundcontroller_resolve_mapping_category_bang",
@@ -101701,7 +101701,7 @@
       "file_type": "code",
       "norm_label": ".bulk_update()",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L106"
+      "source_location": "L105"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_bulk_destroy",
@@ -162888,7 +162888,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L89",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -162900,7 +162900,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L91",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -162912,7 +162912,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L132",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
@@ -162924,7 +162924,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L160",
+      "source_location": "L159",
       "weight": 1.0
     },
     {
@@ -162936,7 +162936,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L107",
+      "source_location": "L106",
       "weight": 1.0
     },
     {
@@ -162948,7 +162948,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L278",
+      "source_location": "L277",
       "weight": 1.0
     },
     {
@@ -162960,7 +162960,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L214",
+      "source_location": "L213",
       "weight": 1.0
     },
     {
@@ -162972,7 +162972,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L241",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -162984,7 +162984,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L223",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -162996,7 +162996,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L188",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -163008,7 +163008,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L189",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
@@ -163020,7 +163020,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L190",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -163032,7 +163032,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L191",
+      "source_location": "L190",
       "weight": 1.0
     },
     {
@@ -163044,7 +163044,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L192",
+      "source_location": "L191",
       "weight": 1.0
     },
     {
@@ -163056,7 +163056,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -163068,7 +163068,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L179",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -163080,7 +163080,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L183",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -275025,7 +275025,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L106",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -275036,7 +275036,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L131",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -275058,7 +275058,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L159",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -275069,7 +275069,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L174",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -275080,7 +275080,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L178",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -275091,7 +275091,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L182",
+      "source_location": "L181",
       "weight": 1.0
     },
     {
@@ -275102,7 +275102,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L186",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -275113,7 +275113,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L195",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -275124,7 +275124,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L203",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -275135,7 +275135,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L211",
+      "source_location": "L210",
       "weight": 1.0
     },
     {
@@ -275146,7 +275146,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L220",
+      "source_location": "L219",
       "weight": 1.0
     },
     {
@@ -275157,7 +275157,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L231",
+      "source_location": "L230",
       "weight": 1.0
     },
     {
@@ -275168,7 +275168,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L247",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -275179,7 +275179,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L258",
+      "source_location": "L257",
       "weight": 1.0
     },
     {
@@ -275190,7 +275190,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L264",
+      "source_location": "L263",
       "weight": 1.0
     },
     {
@@ -275201,7 +275201,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L268",
+      "source_location": "L267",
       "weight": 1.0
     },
     {
@@ -275212,7 +275212,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L285",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -275223,7 +275223,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L32",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -275234,7 +275234,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L35",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -275245,7 +275245,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L46",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -275256,7 +275256,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L63",
+      "source_location": "L62",
       "weight": 1.0
     },
     {
@@ -275267,7 +275267,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L71",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -275278,7 +275278,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L81",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -333153,7 +333153,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/expense_candidates_controller.rb",
-      "source_location": "L42",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -339721,5 +339721,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "75c8e80de52364fb035490ea8cd0a63278c2ca2c"
+  "built_at_commit": "eabd1fa0d1d57121aff3f31b131650a1e8de4505"
 }
