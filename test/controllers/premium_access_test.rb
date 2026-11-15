@@ -40,6 +40,18 @@ class PremiumGateAllTestController < ApplicationController
   end
 end
 
+# Mirrors controllers that declared `before_action :authenticate_user!` after
+# `require_premium`: the premium gate must never run before authentication.
+class PremiumGateAuthOrderTestController < ApplicationController
+  require_premium
+
+  before_action :authenticate_user!
+
+  def premium
+    render plain: "premium"
+  end
+end
+
 class PremiumAccessTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
@@ -53,6 +65,8 @@ class PremiumAccessTest < ActionDispatch::IntegrationTest
       get "/premium-gate-except/free", to: "premium_gate_except_test#free"
       get "/premium-gate-all/premium", to: "premium_gate_all_test#premium"
       get "/premium-gate-all/free", to: "premium_gate_all_test#free"
+      get "/premium-gate-auth-order/premium", to: "premium_gate_auth_order_test#premium"
+      devise_for :users
     end
   end
 
@@ -126,6 +140,45 @@ class PremiumAccessTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-testid='premium-locked']"
+  end
+
+  test "require_premium relies on the inherited authentication callback" do
+    @setting.update!(paid_access_required: true)
+
+    get "/premium-gate/premium"
+
+    assert_redirected_to new_user_session_path
+  end
+
+  test "require_premium sends signed-out visitors to sign in instead of the lock page" do
+    @setting.update!(paid_access_required: true)
+
+    get "/premium-gate-auth-order/premium"
+
+    assert_redirected_to new_user_session_path
+    assert_equal I18n.t("devise.failure.unauthenticated"), flash[:alert]
+  end
+
+  test "an expired session on a premium page redirects to sign in" do
+    @setting.update!(paid_access_required: true)
+    @user.confirm
+
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
+    assert_redirected_to "/"
+
+    travel User.timeout_in + 1.minute do
+      get "/premium-gate-auth-order/premium"
+
+      assert_redirected_to "/premium-gate-auth-order/premium"
+      follow_redirect!
+
+      assert_redirected_to new_user_session_path
+      follow_redirect!
+
+      assert_response :success
+      assert_select "[data-testid='premium-locked']", count: 0
+      assert_equal I18n.t("devise.failure.timeout"), flash[:alert]
+    end
   end
 
   test "require_premium answers JSON requests with a forbidden error" do

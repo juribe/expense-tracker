@@ -3,7 +3,6 @@
 class FinancialHabitsController < ApplicationController
   require_premium
 
-  before_action :authenticate_user!
   before_action :set_analysis, only: [ :show, :refresh, :status ]
 
   def show

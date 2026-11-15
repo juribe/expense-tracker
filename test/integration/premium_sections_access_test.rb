@@ -46,6 +46,20 @@ class PremiumSectionsAccessTest < ActionDispatch::IntegrationTest
   should_allow_premium("mcp tokens") { get mcp_settings_path }
   should_allow_premium("source recognition") { get money_sources_recognition_path }
 
+  # Authentication precedes the premium gate. A visitor without a session must
+  # reach the sign-in flow (so a timed-out session can sign in again) instead
+  # of seeing the premium lock page.
+  should_require_sign_in("financial chat") { get financial_chat_path }
+  should_require_sign_in("debt capacity") { get debt_capacity_path }
+  should_require_sign_in("financial habits") { get financial_habits_path }
+  should_require_sign_in("category insights") { get category_insights_path }
+  should_require_sign_in("transaction rules") { get transaction_rules_path }
+  should_require_sign_in("gmail connection") { get gmail_connection_path }
+  should_require_sign_in("whatsapp connection") { get whatsapp_settings_path }
+  should_require_sign_in("email sources") { get email_sources_path }
+  should_require_sign_in("mcp tokens") { get mcp_settings_path }
+  should_require_sign_in("source recognition") { get money_sources_recognition_path }
+
   test "free users keep the money and debt pages served by MoneySourcesController" do
     PaymentEngine::Setting.current.update!(paid_access_required: true)
     revoke_premium(premium_test_user)

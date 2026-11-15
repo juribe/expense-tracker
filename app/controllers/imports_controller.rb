@@ -4,7 +4,6 @@ class ImportsController < ApplicationController
   DRAFT_CACHE_TTL = 30.minutes
   DRAFT_SESSION_KEY = :imports_draft_token
 
-  before_action :authenticate_user!
   # Importing templates is a Premium capability; free users keep the entry
   # point in the UI but cannot reach any step of the importer.
   require_premium

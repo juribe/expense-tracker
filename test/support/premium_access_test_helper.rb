@@ -43,6 +43,15 @@ module PremiumAccessTestHelper
         assert_response :success
       end
     end
+
+    def should_require_sign_in(description, &request)
+      test("#{description} requires a signed-in user") do
+        PaymentEngine::Setting.current.update!(paid_access_required: true)
+        instance_exec(&request)
+
+        assert_redirected_to new_user_session_path
+      end
+    end
   end
 
   # Reuses the class setup user when there is one so premium pages render with

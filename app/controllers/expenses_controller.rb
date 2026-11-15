@@ -1,7 +1,4 @@
 class ExpensesController < ApplicationController
-  # Ensure the user is authenticated before any other filters or actions
-  before_action :authenticate_user!
-
   # The AI assistant endpoints (natural-language parsing and bulk save) belong
   # to the Premium plan; the index locks the component for users without it.
   require_premium only: [ :parse, :bulk_create ]

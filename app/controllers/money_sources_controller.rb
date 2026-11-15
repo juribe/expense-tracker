@@ -3,7 +3,6 @@
 class MoneySourcesController < ApplicationController
   include MoneySourceShowContext
 
-  before_action :authenticate_user!
   # Source recognition belongs to the premium Automatización section, but the
   # rest of this controller serves the free money and debt pages.
   require_premium only: [ :recognition, :update_recognition, :destroy_recognition ]

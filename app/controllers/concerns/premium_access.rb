@@ -21,6 +21,11 @@ module PremiumAccess
   private
 
   def require_premium_access
+    # Authentication takes precedence over the commercial gate: a visitor
+    # without a session must reach the sign-in flow (and its timeout message)
+    # instead of seeing the premium lock page. ApplicationController already
+    # authenticates every request, so returning lets that callback run.
+    return unless user_signed_in?
     return if user_access.access_premium?
 
     handle_premium_access_denied

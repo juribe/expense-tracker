@@ -7,7 +7,6 @@ class CategoryInsightsController < ApplicationController
 
   require_premium
 
-  before_action :authenticate_user!
   before_action :set_category, only: [ :show ]
 
   def index

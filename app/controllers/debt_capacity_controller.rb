@@ -5,8 +5,6 @@
 class DebtCapacityController < ApplicationController
   require_premium
 
-  before_action :authenticate_user!
-
   def show
     @debt_capacity = build_overview
   end

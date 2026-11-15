@@ -14,8 +14,6 @@
 class WhatsappSettingsController < ApplicationController
   require_premium
 
-  before_action :authenticate_user!
-
   def show
     load_connection
     return if @connection

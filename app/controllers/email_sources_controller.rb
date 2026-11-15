@@ -3,8 +3,6 @@
 class EmailSourcesController < ApplicationController
   require_premium
 
-  before_action :authenticate_user!
-
   def index
     @forwarding_address = current_user.forwarding_address
     @gmail_connections = current_user.gmail_connections.order(:created_at, :id)
