@@ -98,6 +98,13 @@ publicly reachable; SSH is reached through Tailscale. Kamal Proxy provisions and
 renews the Let's Encrypt certificate, so the DNS record must resolve before the
 initial deployment.
 
+The workflow clears a stale Kamal deploy lock before deploying. A cancelled or
+killed run never reaches Kamal's own lock release, and every later run would
+stop with `Deploy lock already in place!`. Deploys are serialised by the
+workflow's concurrency group, so any lock found at that point belongs to a
+finished run. Avoid running a manual `kamal deploy` while an automated deploy is
+queued: the workflow would clear the lock that manual run took.
+
 For a manual deployment, export the same variables, copy
 `.kamal/secrets.example` to `.kamal/secrets`, and run:
 

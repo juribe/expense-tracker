@@ -7,10 +7,6 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      release_lock:
-        description: Release a stale Kamal deploy lock before deploying
-        type: boolean
-        default: false
       dump_logs:
         description: Only print the deployed application logs
         type: boolean
@@ -168,9 +164,40 @@ jobs:
       - name: Verify production boot
         run: RAILS_ENV=production bundle exec ruby -e 'require "./config/environment"; puts "production boot ok"'
 
-      - name: Release stale deploy lock
-        if: inputs.release_lock
-        run: bundle exec kamal lock release
+      # A cancelled or killed deploy never reaches Kamal's own lock release, so
+      # every later deploy fails with "Deploy lock already in place!" until
+      # someone releases it by hand. The concurrency group guarantees no other
+      # GitHub deploy is running while this step executes, so any lock found
+      # here belongs to a finished run and can be cleared. Do not run a manual
+      # `kamal deploy` from a laptop while a workflow deploy is queued.
+      - name: Clear a stale deploy lock
+        if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
+        run: |
+          status=$(bundle exec kamal lock status --quiet 2>&1 || true)
+
+          if [ -z "$status" ] || printf '%s' "$status" | grep -q 'There is no deploy lock'; then
+            echo "No deploy lock in place."
+            exit 0
+          fi
+
+          if ! printf '%s' "$status" | grep -q '^Locked by:'; then
+            echo "Could not read the deploy lock status:" >&2
+            printf '%s\n' "$status" >&2
+            exit 1
+          fi
+
+          printf '%s\n' "$status"
+          echo "::warning::Clearing the deploy lock left behind by an earlier run."
+          bundle exec kamal lock release --quiet
+
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            {
+              echo "### Stale Kamal deploy lock cleared"
+              echo '```'
+              printf '%s\n' "$status"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Dump application logs
         if: inputs.dump_logs
