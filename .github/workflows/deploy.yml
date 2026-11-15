@@ -2,7 +2,13 @@
 name: Deploy production
 
 on:
-  push:
+  # Production deploys start only after the Tests workflow finishes for a push
+  # to main. A failed, cancelled or skipped test run never reaches Kamal.
+  workflow_run:
+    workflows:
+      - Tests
+    types:
+      - completed
     branches:
       - main
   workflow_dispatch:
@@ -20,6 +26,7 @@ permissions:
   contents: read
   packages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: production-deploy
@@ -31,6 +38,14 @@ concurrency:
 jobs:
   deploy:
     name: Kamal deploy
+    # Automatic deploys require the Tests workflow for this exact push to pass.
+    # Manual runs stay available for operational tasks (logs, CMS setup) and
+    # for a deliberate redeploy, which is checked below.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
@@ -85,6 +100,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Deploy exactly the commit whose Tests run succeeded.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      # Manual deploys bypass the workflow_run gate, so verify that the Tests
+      # workflow already passed for this commit before touching production.
+      - name: Require passing tests for manual deploys
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.dump_logs && !inputs.setup_cms }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          runs=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/tests.yml/runs?head_sha=${GITHUB_SHA}&per_page=20" \
+            --jq '[.workflow_runs[] | select(.conclusion == "success")] | length')
+
+          if [ "${runs:-0}" -eq 0 ]; then
+            echo "The Tests workflow has not passed for ${GITHUB_SHA}. Run it before deploying." >&2
+            exit 1
+          fi
+
+          echo "Tests passed for ${GITHUB_SHA}."
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
