@@ -558,9 +558,9 @@
     "semantic_hash": "a0485cfed7bf98be5b26bd8b06846da7"
   },
   "config/routes.rb": {
-    "mtime": 1794492048.074311,
-    "seen": 1794492122.462594,
-    "ast_hash": "6541ce8dbcf56fad9c792edebf7194e7",
+    "mtime": 1794758492.6261518,
+    "seen": 1794759366.140987,
+    "ast_hash": "d5e24029f6a84926080c8daecac11116",
     "semantic_hash": ""
   },
   "db/queue_schema.rb": {
@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1794663620.6428323,
-    "seen": 1794757149.79757,
-    "ast_hash": "48667ac853d018ccebb17c500adca474",
+    "mtime": 1794759058.7252474,
+    "seen": 1794759366.2723808,
+    "ast_hash": "c27dcd2e16b040390a92a4e95641f2d4",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794583236.6020534,
-    "seen": 1794583337.705909,
-    "ast_hash": "cecdce2fbacc2e08bbe6e89b9fc1a9fd",
+    "mtime": 1794758514.950887,
+    "seen": 1794759366.277038,
+    "ast_hash": "7381a0bd38c5226ff4eec10fe26d9df1",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794583236.5795748,
-    "seen": 1794583337.70591,
-    "ast_hash": "ce460c0277702a339b91390814b2ba57",
+    "mtime": 1794758510.9393253,
+    "seen": 1794759366.277041,
+    "ast_hash": "b24c99ccc0510b078c3d47b273d40575",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794756783.309817,
-    "seen": 1794757149.7998521,
+    "mtime": 1794759908.1509507,
+    "seen": 1794762081.75592,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -5652,9 +5652,9 @@
     "semantic_hash": ""
   },
   "public/apple-touch-icon.png": {
-    "mtime": 1793397410.2359,
-    "seen": 1793490696.635763,
-    "ast_hash": "283be69a80a6167138fad2661126386a",
+    "mtime": 1794761489.691462,
+    "seen": 1794762081.762687,
+    "ast_hash": "53b82c96f9e945ed58aec1b682400775",
     "semantic_hash": ""
   },
   "public/brand/apple-touch-icon.png": {
@@ -8322,9 +8322,9 @@
     "semantic_hash": ""
   },
   "config/initializers/maglev.rb": {
-    "mtime": 1794025874.6900508,
-    "seen": 1794026425.6075149,
-    "ast_hash": "9ca71012a9bffc3cfb9e7ce690586093",
+    "mtime": 1794759572.136089,
+    "seen": 1794762081.708704,
+    "ast_hash": "ff415aeb96a03619f6d480b3d3328d5a",
     "semantic_hash": ""
   },
   "db/migrate/20261105235815_create_active_storage_tables.active_storage.rb": {
@@ -10200,9 +10200,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794757479.6373463,
-    "seen": 1794757596.9823968,
-    "ast_hash": "1a52325f9f8697b38b32e874fef8b844",
+    "mtime": 1794760825.195869,
+    "seen": 1794762081.752486,
+    "ast_hash": "736e686ae47c0255c9a70629a84df723",
     "semantic_hash": ""
   },
   ".github/workflows/restore-dump.yml": {
@@ -10218,9 +10218,9 @@
     "semantic_hash": ""
   },
   "docs/data_deletion.md": {
-    "mtime": 1794654713.763675,
-    "seen": 1794655474.168191,
-    "ast_hash": "9ddca296954d421fdc07303cafa1a322",
+    "mtime": 1794759045.1083512,
+    "seen": 1794759366.284489,
+    "ast_hash": "b06abd5ee74511029e0bceab2396d61c",
     "semantic_hash": ""
   },
   "app/services/cms_page/footer_link.rb": {
@@ -10235,12 +10235,6 @@
     "ast_hash": "b9029a6937477e17a00a2a63e2e3d874",
     "semantic_hash": ""
   },
-  "test/lib/deploy_workflow_test.rb": {
-    "mtime": 1794654488.9275472,
-    "seen": 1794655474.148905,
-    "ast_hash": "da2737ffff3b298f32ea218e13d0eada",
-    "semantic_hash": ""
-  },
   "test/lib/maglev_footer_theme_test.rb": {
     "mtime": 1794654482.411974,
     "seen": 1794655474.1489081,
@@ -10251,6 +10245,78 @@
     "mtime": 1794663538.6811829,
     "seen": 1794757149.738008,
     "ast_hash": "e03d805ff631fc83a001b65d9542ea29",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/pwa.js": {
+    "mtime": 1794758529.2988968,
+    "seen": 1794759366.037472,
+    "ast_hash": "d06e84b4f46ce37098fdfdc2a5ba2de0",
+    "semantic_hash": ""
+  },
+  "app/assets/javascripts/pwa_install.js": {
+    "mtime": 1794759538.6455781,
+    "seen": 1794762081.649617,
+    "ast_hash": "b709be1b83b3c01c6177b8da73d44582",
+    "semantic_hash": ""
+  },
+  "app/controllers/pwa/manifests_controller.rb": {
+    "mtime": 1794758482.7054837,
+    "seen": 1794759366.049004,
+    "ast_hash": "a88eb4fc348f574911710e19e23d2b75",
+    "semantic_hash": ""
+  },
+  "app/controllers/pwa/service_workers_controller.rb": {
+    "mtime": 1794758629.2062786,
+    "seen": 1794759366.0490072,
+    "ast_hash": "4926490f920854c26924e926b63bcee4",
+    "semantic_hash": ""
+  },
+  "app/lib/pwa.rb": {
+    "mtime": 1794761496.441922,
+    "seen": 1794762081.666942,
+    "ast_hash": "24f9f650bdcc2bbc14caf2cc3ddf59fc",
+    "semantic_hash": ""
+  },
+  "playwright/pwa.spec.js": {
+    "mtime": 1794758987.9838443,
+    "seen": 1794759366.189004,
+    "ast_hash": "cea6211c4cf59433f1bed0b134e1531d",
+    "semantic_hash": ""
+  },
+  "test/integration/pwa_test.rb": {
+    "mtime": 1794761127.1744242,
+    "seen": 1794762081.732054,
+    "ast_hash": "2d7eb9003d0df72254fb84c83c3c70d4",
+    "semantic_hash": ""
+  },
+  "public/offline.html": {
+    "mtime": 1794758521.8175304,
+    "seen": 1794759366.292639,
+    "ast_hash": "3400f69a21bf4ea13afde854c5bebb04",
+    "semantic_hash": ""
+  },
+  "public/pwa/icon-192.png": {
+    "mtime": 1794761489.2422743,
+    "seen": 1794762081.7646348,
+    "ast_hash": "1f05ce1f68b05018265bd07ef84773ff",
+    "semantic_hash": ""
+  },
+  "public/pwa/icon-512.png": {
+    "mtime": 1794761489.0893638,
+    "seen": 1794762081.764638,
+    "ast_hash": "3c2a889e15fbb4a7e307a2eaed60a7f4",
+    "semantic_hash": ""
+  },
+  "public/pwa/maskable-192.png": {
+    "mtime": 1794761489.5839713,
+    "seen": 1794762081.764641,
+    "ast_hash": "ccb456ae844316ecee3fa02e2b4fed0f",
+    "semantic_hash": ""
+  },
+  "public/pwa/maskable-512.png": {
+    "mtime": 1794761489.466644,
+    "seen": 1794762081.7646441,
+    "ast_hash": "f0d600558b4ec10270823aee7c6d67ec",
     "semantic_hash": ""
   }
 }
