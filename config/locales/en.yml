@@ -2494,3 +2494,25 @@ en:
   whatsapp:
     premium_membership:
       expired_notice: "Your Premium membership is not active, so this expense will not be saved. Renew your plan in %{app_name} to keep recording expenses on WhatsApp."
+
+  pwa:
+    install:
+      title: "Install Yogasto"
+      description: "Open it in one tap from your home screen."
+      action: "Install"
+      dismiss: "Not now"
+      menu: "Install Yogasto"
+      settings_description: "Add it to your home screen and open it like an app."
+    ios:
+      title: "Install Yogasto on your iPhone or iPad"
+      intro: "Follow these steps from Safari:"
+      step_1: "Open Yogasto in the Safari browser."
+      step_2: "Tap the Share button in the browser bar."
+      step_3: "Choose “Add to Home Screen”."
+      step_4: "Confirm by tapping “Add”."
+      close: "Got it"
+    update:
+      title: "A new version is available"
+      description: "Update to see the latest changes."
+      action: "Update now"
+      dismiss: "Later"

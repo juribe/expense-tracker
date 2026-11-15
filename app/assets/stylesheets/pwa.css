@@ -1,0 +1,190 @@
+/*
+ * PWA chrome: install/update prompts, the iOS instructions dialog and the
+ * standalone safe-area adjustments. Tokens come from theme.css.
+ */
+
+.pwa-prompts {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 1080;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(34rem, calc(100vw - 2rem));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.pwa-prompt {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--bs-border-color, #e8edf3);
+  border-radius: 0.75rem;
+  background: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #1d2b3a);
+  box-shadow: 0 12px 30px rgba(16, 42, 67, 0.16);
+  pointer-events: auto;
+}
+
+.pwa-prompt[hidden] {
+  display: none;
+}
+
+.pwa-prompt-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.pwa-prompt-copy strong {
+  font-size: 0.82rem;
+}
+
+.pwa-prompt-copy span {
+  color: var(--bs-secondary-color, #6d7d8c);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.pwa-prompt-icon {
+  flex: none;
+  border-radius: 0.6rem;
+}
+
+.pwa-prompt .btn {
+  flex: none;
+}
+
+.pwa-prompt-close {
+  flex: none;
+  padding: 0.15rem 0.3rem;
+  border: 0;
+  background: transparent;
+  color: var(--bs-secondary-color, #6d7d8c);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pwa-prompt-close:focus-visible {
+  outline: 2px solid var(--bs-primary, #0085db);
+  outline-offset: 2px;
+}
+
+.pwa-dialog {
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: 1px solid var(--bs-border-color, #e8edf3);
+  border-radius: 0.9rem;
+  background: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #1d2b3a);
+}
+
+.pwa-dialog:not([open]) {
+  display: none;
+}
+
+.pwa-dialog::backdrop {
+  background: rgba(10, 20, 34, 0.55);
+}
+
+.pwa-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pwa-dialog-head img {
+  flex: none;
+  border-radius: 0.65rem;
+}
+
+.pwa-dialog-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.pwa-dialog-intro {
+  margin: 0.9rem 0 0.5rem;
+  color: var(--bs-secondary-color, #6d7d8c);
+  font-size: 0.82rem;
+}
+
+.pwa-dialog-steps {
+  margin: 0 0 1.1rem;
+  padding-left: 1.2rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+[data-pwa-install-menu][hidden],
+[data-pwa-install-settings][hidden] {
+  display: none !important;
+}
+
+.profile-page .quick-link[data-pwa-install-settings] {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #f0f2f6;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.body-wrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Keep the shell clear of the status bar, the home indicator and the
+ * gesture bars of standalone Android and iOS. */
+@supports (padding: max(0px)) {
+  .topbar {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  .left-sidebar {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .body-wrapper {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-wrap {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .auth-page {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .pwa-prompt {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .pwa-prompt-copy {
+    flex-basis: calc(100% - 3.5rem);
+  }
+
+  .pwa-prompt .btn {
+    margin-left: auto;
+  }
+}

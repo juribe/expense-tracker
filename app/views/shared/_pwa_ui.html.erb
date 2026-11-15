@@ -1,0 +1,45 @@
+<%# Install and update prompts. Hidden by default; pwa_install.js reveals the
+    install prompts only when the browser allows it or on iOS. %>
+<div class="pwa-prompts">
+  <section class="pwa-prompt" data-pwa-update hidden aria-live="polite">
+    <div class="pwa-prompt-copy">
+      <strong><%= t("pwa.update.title") %></strong>
+      <span><%= t("pwa.update.description") %></span>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" data-pwa-update-accept>
+      <%= t("pwa.update.action") %>
+    </button>
+    <button type="button" class="pwa-prompt-close" data-pwa-update-dismiss
+            aria-label="<%= t("pwa.update.dismiss") %>">&times;</button>
+  </section>
+
+  <section class="pwa-prompt" data-pwa-install-banner hidden>
+    <img class="pwa-prompt-icon" src="/pwa/icon-192.png" alt="" width="40" height="40">
+    <div class="pwa-prompt-copy">
+      <strong><%= t("pwa.install.title") %></strong>
+      <span><%= t("pwa.install.description") %></span>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" data-pwa-install-trigger>
+      <%= t("pwa.install.action") %>
+    </button>
+    <button type="button" class="pwa-prompt-close" data-pwa-install-dismiss
+            aria-label="<%= t("pwa.install.dismiss") %>">&times;</button>
+  </section>
+</div>
+
+<dialog class="pwa-dialog" data-pwa-ios-dialog aria-labelledby="pwaIosDialogTitle">
+  <div class="pwa-dialog-head">
+    <img src="/pwa/icon-192.png" alt="" width="44" height="44">
+    <h2 id="pwaIosDialogTitle"><%= t("pwa.ios.title") %></h2>
+  </div>
+  <p class="pwa-dialog-intro"><%= t("pwa.ios.intro") %></p>
+  <ol class="pwa-dialog-steps">
+    <li><%= t("pwa.ios.step_1") %></li>
+    <li><%= t("pwa.ios.step_2") %></li>
+    <li><%= t("pwa.ios.step_3") %></li>
+    <li><%= t("pwa.ios.step_4") %></li>
+  </ol>
+  <button type="button" class="btn btn-primary w-100" data-pwa-dialog-close>
+    <%= t("pwa.ios.close") %>
+  </button>
+</dialog>

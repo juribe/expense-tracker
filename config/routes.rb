@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # PWA shell: public manifest and root-scoped service worker.
+  get "manifest", to: "pwa/manifests#show", as: :pwa_manifest
+  get "service-worker", to: "pwa/service_workers#show", as: :pwa_service_worker
+
   # MCP endpoint for external AI agents. JSON-RPC over HTTP, stateless:
   # the Bearer token (not a request argument) identifies the user.
   post "mcp", to: "mcp/endpoint#create", as: :mcp_endpoint

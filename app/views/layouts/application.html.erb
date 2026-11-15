@@ -3,9 +3,8 @@
   <head>
     <title><%= @page_title.present? ? "#{@page_title} | #{AppName.current}" : (content_for(:title) || AppName.current) %></title>
     <meta name="robots" content="<%= (controller_name == "home" && action_name == "index") ? "index, follow" : "noindex, nofollow" %>">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="<%= Pwa::THEME_COLOR %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -17,7 +16,7 @@
     <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <%= render "shared/pwa_head" %>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +40,7 @@
     <%= stylesheet_link_tag :whatsapp, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "flatpickr/flatpickr.min.css", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :utilities, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :pwa, "data-turbo-track": "reload" %>
   </head>
 
   <body class="<%= content_for(:body_class) %>">
@@ -98,6 +98,8 @@
       </div>
     <% end %>
 
+    <%= render "shared/pwa_ui" %>
+
     <%= javascript_include_tag "bootstrap.bundle.min", defer: true %>
     <%= javascript_include_tag "Chart.bundle", defer: true %>
     <%= javascript_include_tag "chartkick", defer: true %>
@@ -135,6 +137,8 @@
     <%= javascript_include_tag "click_delegates", defer: true %>
     <%= javascript_include_tag "auto_submit", defer: true %>
     <%= javascript_include_tag "shell", defer: true %>
+    <%= javascript_include_tag "pwa", defer: true %>
+    <%= javascript_include_tag "pwa_install", defer: true %>
     <%= javascript_include_tag "actioncable", defer: true %>
     <%= javascript_include_tag "financial_chat", defer: true %>
     <%= javascript_include_tag "reconciliation", defer: true %>

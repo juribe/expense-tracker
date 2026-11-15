@@ -65,6 +65,11 @@
               <i class="ti ti-user-circle fs-5"></i><span><%= t("nav.profile", default: "Mi perfil") %></span><% end %></li>
             <li><%= link_to alert_settings_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
               <i class="ti ti-adjustments fs-5"></i><span><%= t("nav.alert_settings", default: "Preferencias de alertas") %></span><% end %></li>
+            <li data-pwa-install-menu hidden>
+              <button type="button" class="dropdown-item d-flex align-items-center gap-2" data-pwa-install-trigger>
+                <i class="ti ti-device-mobile-down fs-5"></i><span><%= t("pwa.install.menu") %></span>
+              </button>
+            </li>
             <li><div class="dropdown-divider"></div></li>
             <li><%= button_to destroy_user_session_path, method: :delete, form: { data: { turbo: false } }, class: "dropdown-item d-flex align-items-center gap-2 text-danger" do %>
               <i class="ti ti-logout fs-5"></i><span><%= t("nav.sign_out") %></span><% end %></li>

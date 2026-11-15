@@ -282,6 +282,28 @@ es:
   layout:
     footer: "© %{year} %{app_name}"
 
+  pwa:
+    install:
+      title: "Instala Yogasto"
+      description: "Accede en un toque desde tu pantalla de inicio."
+      action: "Instalar"
+      dismiss: "Ahora no"
+      menu: "Instalar Yogasto"
+      settings_description: "Añádela a tu pantalla de inicio y ábrela como una app."
+    ios:
+      title: "Instala Yogasto en tu iPhone o iPad"
+      intro: "Sigue estos pasos desde Safari:"
+      step_1: "Abre Yogasto en el navegador Safari."
+      step_2: "Toca el botón Compartir de la barra del navegador."
+      step_3: "Elige «Añadir a pantalla de inicio»."
+      step_4: "Confirma tocando «Añadir»."
+      close: "Entendido"
+    update:
+      title: "Hay una nueva versión disponible"
+      description: "Actualiza para ver los últimos cambios."
+      action: "Actualizar ahora"
+      dismiss: "Más tarde"
+
   page:
     titles:
       # Público / inicio

@@ -2,8 +2,9 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="<%= maglev_page.meta_robots.presence || 'index,follow' %>">
+    <meta name="theme-color" content="<%= Pwa::THEME_COLOR %>">
     <title><%= [maglev_page.seo_title.presence, maglev_site.name].compact.first %> | Yogasto</title>
 
     <meta name="description" content="<%= maglev_page.meta_description %>">
@@ -35,9 +36,11 @@
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= render "shared/pwa_head" %>
 
     <%= stylesheet_link_tag :home, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :institutional, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :pwa, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :security, "data-turbo-track": "reload" if maglev_page.path == "seguridad" %>
     <%= stylesheet_link_tag :help_center, "data-turbo-track": "reload" if help_center_page?(maglev_page) %>
     <%= stylesheet_link_tag :privacy, "data-turbo-track": "reload" if legal_document_page?(maglev_page) %>
@@ -94,5 +97,6 @@
     <%= javascript_include_tag "help_center", defer: true if help_center_page?(maglev_page) %>
     <%= javascript_include_tag "privacy", defer: true if legal_document_page?(maglev_page) %>
     <%= javascript_include_tag "flash", defer: true %>
+    <%= javascript_include_tag "pwa", defer: true %>
   </body>
 </html>

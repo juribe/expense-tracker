@@ -1,0 +1,77 @@
+/* Yogasto service worker.
+ * Installs the app shell files and keeps them current. It never stores
+ * documents, authenticated responses or financial data: navigations always go
+ * to the network and only the static offline page is served as a fallback. */
+const CACHE_NAME = "yogasto-static-<%= Pwa::CACHE_VERSION %>";
+const OFFLINE_URL = "/offline.html";
+const PRECACHE_URLS = [
+  OFFLINE_URL,
+  "/offline.css",
+  "/pwa/icon-192.png",
+  "/pwa/icon-512.png",
+  "/pwa/maskable-192.png",
+  "/pwa/maskable-512.png"
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        PRECACHE_URLS.map((url) =>
+          // Bypass the HTTP cache so a new worker never installs stale files.
+          fetch(new Request(url, { cache: "reload" })).then((response) => {
+            if (!response.ok) throw new Error(`Precache failed: ${url}`);
+            return cache.put(url, response);
+          })
+        )
+      )
+    )
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => keys.filter((key) => key.startsWith("yogasto-") && key !== CACHE_NAME))
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+function isPrecached(pathname) {
+  return pathname.startsWith("/pwa/");
+}
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // Documents may contain private financial data, so they are always fetched
+  // from the network. Offline navigations land on the static offline page.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() =>
+        caches.match(OFFLINE_URL).then((cached) =>
+          cached || new Response("Sin conexión", { status: 503, headers: { "Content-Type": "text/plain" } })
+        )
+      )
+    );
+    return;
+  }
+
+  if (!isPrecached(url.pathname)) return;
+
+  event.respondWith(
+    caches.match(request).then((cached) => cached || fetch(request))
+  );
+});

@@ -2,10 +2,12 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title><%= @page_title.present? ? "#{@page_title} | Yogasto" : (content_for(:title) || "Yogasto") %></title>
+    <meta name="theme-color" content="<%= Pwa::THEME_COLOR %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= render "shared/pwa_head" %>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +15,7 @@
 
     <%= yield :head %>
     <%= stylesheet_link_tag :home, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :pwa, "data-turbo-track": "reload" %>
   </head>
   <body>
     <%= render "shared/header" %>
@@ -50,5 +53,6 @@
 
     <%= javascript_include_tag "home", defer: true %>
     <%= javascript_include_tag "flash", defer: true %>
+    <%= javascript_include_tag "pwa", defer: true %>
   </body>
 </html>

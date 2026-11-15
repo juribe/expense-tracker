@@ -3,9 +3,7 @@
   <head>
     <title><%= @page_title.present? ? "#{@page_title} | #{AppName.current}" : (content_for(:title) || AppName.current) %></title>
     <meta name="robots" content="<%= (controller_name == "home" && action_name == "index") ? "index, follow" : "noindex, nofollow" %>">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="theme-color" content="#eaf2ff">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -18,7 +16,7 @@
     <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <%= render "shared/pwa_head" %>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +25,7 @@
     <%= stylesheet_link_tag "themes/spike", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :theme, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :auth, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag :pwa, "data-turbo-track": "reload" %>
   </head>
 
   <body class="auth-body">
@@ -179,5 +178,6 @@
     </div>
 
     <%= javascript_include_tag "auth_form", defer: true %>
+    <%= javascript_include_tag "pwa", defer: true %>
   </body>
 </html>
