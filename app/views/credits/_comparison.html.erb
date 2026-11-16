@@ -1,43 +1,75 @@
-<div class="d-flex justify-content-between align-items-center mb-2">
+<div class="credit-comparison-head">
   <h5 class="card-title mb-0"><i class="ti ti-trophy me-2"></i><%= t("credits.comparison.title") %></h5>
-  <div>
-    <span class="small text-muted"><%= t("credits.comparison.objective") %>:</span>
-    <% Credits::Comparison::OBJECTIVES.each do |objective| %>
-      <%= link_to money_source_credits_path(@loan, objective: objective),
-                  class: "badge rounded-pill #{objective == comparison.objective ? 'bg-primary' : 'bg-light text-dark'}" do %>
-        <%= t("credits.comparison.objectives.#{objective}") %>
+  <div class="credit-comparison-objectives">
+    <span class="credit-comparison-objectives-label small text-muted"><%= t("credits.comparison.objective") %>:</span>
+    <div class="credit-comparison-objective-links">
+      <% Credits::Comparison::OBJECTIVES.each do |objective| %>
+        <%= link_to money_source_credits_path(@loan, objective: objective),
+                    class: "badge rounded-pill #{objective == comparison.objective ? 'bg-primary' : 'bg-light text-dark'}" do %>
+          <%= t("credits.comparison.objectives.#{objective}") %>
+        <% end %>
       <% end %>
-    <% end %>
+    </div>
   </div>
 </div>
 
-<table class="table table-hover align-middle mb-2">
-  <thead>
-    <tr>
-      <th><%= t("credits.comparison.columns.scenario") %></th>
-      <th class="text-end"><%= t("credits.comparison.columns.payment") %></th>
-      <th class="text-end"><%= t("credits.comparison.columns.payoff") %></th>
-      <th class="text-end"><%= t("credits.comparison.columns.interest") %></th>
-      <th class="text-end"><%= t("credits.comparison.columns.saved") %></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% comparison.rows.each do |row| %>
-      <tr class="<%= "table-success" if comparison.best && row["kind"] == "scenario" && row["scenario_id"] == comparison.best["scenario_id"] %>">
-        <td>
-          <div class="fw-semibold"><%= row["name"] %></div>
-          <% if row["kind"] == "scenario" %>
-            <span class="badge bg-light text-dark"><%= row["kind_label"] %></span>
-          <% end %>
-        </td>
-        <td class="text-end"><%= number_to_currency(row["payment"].to_d) %></td>
-        <td class="text-end"><%= payoff_label(row["payoff_date"]) %></td>
-        <td class="text-end"><%= number_to_currency(row["future_interest"].to_d) %></td>
-        <td class="text-end fw-bold <%= row["interest_saved"].to_d.positive? ? "text-success" : "text-muted" %>">
-          <%= row["interest_saved"].to_d.positive? ? number_to_currency(row["interest_saved"].to_d) : "—" %>
-        </td>
-        <td class="text-end">
+<div class="desktop-table">
+  <table class="table table-hover align-middle mb-2">
+    <thead>
+      <tr>
+        <th><%= t("credits.comparison.columns.scenario") %></th>
+        <th class="text-end"><%= t("credits.comparison.columns.payment") %></th>
+        <th class="text-end"><%= t("credits.comparison.columns.payoff") %></th>
+        <th class="text-end"><%= t("credits.comparison.columns.interest") %></th>
+        <th class="text-end"><%= t("credits.comparison.columns.saved") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% comparison.rows.each do |row| %>
+        <tr class="<%= "table-success" if comparison.best && row["kind"] == "scenario" && row["scenario_id"] == comparison.best["scenario_id"] %>">
+          <td>
+            <div class="fw-semibold"><%= row["name"] %></div>
+            <% if row["kind"] == "scenario" %>
+              <span class="badge bg-light text-dark"><%= row["kind_label"] %></span>
+            <% end %>
+          </td>
+          <td class="text-end"><%= number_to_currency(row["payment"].to_d) %></td>
+          <td class="text-end"><%= payoff_label(row["payoff_date"]) %></td>
+          <td class="text-end"><%= number_to_currency(row["future_interest"].to_d) %></td>
+          <td class="text-end fw-bold <%= row["interest_saved"].to_d.positive? ? "text-success" : "text-muted" %>">
+            <%= row["interest_saved"].to_d.positive? ? number_to_currency(row["interest_saved"].to_d) : "—" %>
+          </td>
+          <td class="text-end">
+            <% if row["kind"] == "scenario" %>
+              <%= button_to money_source_credit_scenario_path(@loan, row["scenario_id"]),
+                            method: :delete,
+                            form_class: "d-inline",
+                            class: "btn btn-outline-danger btn-sm",
+                            data: { turbo_confirm: t("credits.scenarios.delete_confirm") } do %>
+                <i class="ti ti-trash"></i>
+              <% end %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%# Phone layout: same card list used by the expenses/incomes ledger. %>
+<div class="mobile-list credit-comparison-mobile">
+  <% comparison.rows.each do |row| %>
+    <% best = comparison.best && row["kind"] == "scenario" && row["scenario_id"] == comparison.best["scenario_id"] %>
+    <div class="mobile-item <%= "credit-comparison-best" if best %>">
+      <div class="mobile-item-body">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <div class="fw-semibold"><%= row["name"] %></div>
+            <% if row["kind"] == "scenario" %>
+              <span class="badge bg-light text-dark mt-1"><%= row["kind_label"] %></span>
+            <% end %>
+          </div>
           <% if row["kind"] == "scenario" %>
             <%= button_to money_source_credit_scenario_path(@loan, row["scenario_id"]),
                           method: :delete,
@@ -47,11 +79,31 @@
               <i class="ti ti-trash"></i>
             <% end %>
           <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+        </div>
+        <div class="row g-2 small mt-2">
+          <div class="col-6">
+            <div class="text-muted"><%= t("credits.comparison.columns.payment") %></div>
+            <div class="fw-bold"><%= number_to_currency(row["payment"].to_d) %></div>
+          </div>
+          <div class="col-6">
+            <div class="text-muted"><%= t("credits.comparison.columns.payoff") %></div>
+            <div class="fw-bold"><%= payoff_label(row["payoff_date"]) %></div>
+          </div>
+          <div class="col-6">
+            <div class="text-muted"><%= t("credits.comparison.columns.interest") %></div>
+            <div class="fw-bold"><%= number_to_currency(row["future_interest"].to_d) %></div>
+          </div>
+          <div class="col-6">
+            <div class="text-muted"><%= t("credits.comparison.columns.saved") %></div>
+            <div class="fw-bold <%= row["interest_saved"].to_d.positive? ? "text-success" : "text-muted" %>">
+              <%= row["interest_saved"].to_d.positive? ? number_to_currency(row["interest_saved"].to_d) : "—" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
 
 <% if comparison.best %>
   <div class="bg-light rounded p-3 small">

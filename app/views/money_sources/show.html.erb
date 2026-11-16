@@ -63,9 +63,9 @@
   %>
 
   <div data-source-tabs="<%= @money_source.id %>" <% if forced_tab %>data-source-tabs-force="<%= forced_tab %>"<% end %>>
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs<%= " source-tabs-with-more" if tabs.length > 3 %>" role="tablist" data-source-tabs-nav>
       <% tabs.each do |tab| %>
-        <li class="nav-item" role="presentation">
+        <li class="nav-item" role="presentation" data-source-tabs-item>
           <% if tab[:slug] == "movimientos" %>
             <%= link_to extractos_money_source_path(@money_source),
                         class: "nav-link#{' active' if @active_tab == 'movimientos'}",
@@ -88,6 +88,14 @@
               <i class="ti <%= tab[:icon] %> me-1"></i><%= tab[:label] %>
             </button>
           <% end %>
+        </li>
+      <% end %>
+      <% if tabs.length > 3 %>
+        <li class="nav-item dropdown d-none" role="presentation" data-source-tabs-more>
+          <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="ti ti-dots me-1" aria-hidden="true"></i><%= t("money_sources.show.tabs.more", default: "Más") %><i class="ti ti-chevron-down ms-1" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" data-source-tabs-more-menu></ul>
         </li>
       <% end %>
     </ul>

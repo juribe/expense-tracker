@@ -3047,15 +3047,18 @@ button.guided-source {
   }
   .money-source-actions .money-source-back i { font-size: 1rem; margin-right: .35rem !important; }
 
-  .money-source-detail .nav-tabs {
+  .money-source-detail .nav-tabs,
+  .nav-tabs.source-tabs-credit {
     flex-wrap: nowrap;
     gap: .4rem;
     padding-bottom: .25rem;
     border-bottom: 0;
     overflow-x: auto;
   }
-  .money-source-detail .nav-tabs .nav-item { flex: 0 0 auto; }
-  .money-source-detail .nav-tabs .nav-link {
+  .money-source-detail .nav-tabs .nav-item,
+  .nav-tabs.source-tabs-credit .nav-item { flex: 0 0 auto; }
+  .money-source-detail .nav-tabs .nav-link,
+  .nav-tabs.source-tabs-credit .nav-link {
     padding: .5rem .9rem;
     border: 1px solid var(--bs-border-color);
     border-radius: 999px;
@@ -3064,8 +3067,72 @@ button.guided-source {
     font-weight: 650;
     white-space: nowrap;
   }
-  .money-source-detail .nav-tabs .nav-link.active {
+  .money-source-detail .nav-tabs .nav-link.active,
+  .nav-tabs.source-tabs-credit .nav-link.active {
     border-color: var(--bs-primary);
+    background: var(--bs-primary);
+    color: #fff;
+  }
+
+  /* Debt tabs: only three pills stay in the row; the surplus ones move into
+   * a "Más" dropdown (see initSourceTabOverflow in shell.js). The row must
+   * not clip the menu, so it drops horizontal scrolling for this variant. */
+  .nav-tabs.source-tabs-with-more {
+    flex-wrap: nowrap;
+    gap: .2rem;
+    overflow: visible;
+  }
+  /* Hide the surplus pills until the dropdown relocates them (no flash). */
+  .nav-tabs.source-tabs-with-more > .nav-item:not([data-source-tabs-more]):nth-child(n+4) {
+    display: none;
+  }
+  .nav-tabs.source-tabs-with-more .nav-link {
+    padding: .35rem .45rem;
+    font-size: .75rem;
+  }
+  .nav-tabs.source-tabs-with-more .nav-link .ti {
+    margin-right: .2rem !important;
+    font-size: .8rem;
+  }
+  .nav-tabs.source-tabs-with-more .dropdown-toggle::after { display: none; }
+  /* The "…" glyph does not fit next to three pills on narrow phones. */
+  .nav-tabs.source-tabs-with-more .dropdown-toggle .ti-dots { display: none; }
+  .nav-tabs.source-tabs-with-more .dropdown-toggle .ti-chevron-down {
+    margin-left: .1rem !important;
+    margin-right: 0 !important;
+    font-size: .7rem;
+  }
+  /* Credit tab labels are longer ("Cómo ahorrar"), so this row keeps only the
+   * text and tightens the pills to fit three tabs plus the "Más" trigger. */
+  .nav-tabs.source-tabs-credit.source-tabs-with-more { gap: .15rem; }
+  .nav-tabs.source-tabs-credit.source-tabs-with-more .nav-item:not([data-source-tabs-more]) .nav-link .ti {
+    display: none;
+  }
+  .nav-tabs.source-tabs-credit.source-tabs-with-more .nav-link { padding: .35rem; }
+  .nav-tabs.source-tabs-with-more .nav-link.is-current {
+    border-color: var(--bs-primary);
+    background: var(--bs-primary);
+    color: #fff;
+  }
+  .nav-tabs.source-tabs-with-more .dropdown-menu {
+    margin-top: .35rem;
+    padding: .35rem;
+    border-radius: .85rem;
+    box-shadow: 0 .6rem 1.6rem rgba(17, 28, 45, .14);
+  }
+  .nav-tabs.source-tabs-with-more .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .55rem .65rem;
+    border-radius: .55rem;
+    font-weight: 600;
+  }
+  .nav-tabs.source-tabs-with-more .dropdown-item .ti {
+    margin: 0 !important;
+    font-size: 1rem;
+  }
+  .nav-tabs.source-tabs-with-more .dropdown-item.active {
     background: var(--bs-primary);
     color: #fff;
   }
@@ -3092,4 +3159,79 @@ button.guided-source {
   [data-bs-theme="dark"] .money-source-balance-art .ti-coin:first-child { opacity: .3; }
   [data-bs-theme="dark"] .money-source-balance-art .ti-coin:last-child { opacity: .6; }
   [data-bs-theme="dark"] .money-source-detail .money-source-balance { background: rgba(14, 159, 110, .16); }
+}
+
+/* Very narrow phones: drop the tab icons and tighten the pills so the three
+ * visible tabs plus the "Más" trigger still fit in a single row. */
+@media (max-width: 369.98px) {
+  .nav-tabs.source-tabs-with-more .nav-item:not([data-source-tabs-more]) .nav-link .ti {
+    display: none;
+  }
+}
+@media (max-width: 339.98px) {
+  .nav-tabs.source-tabs-with-more .nav-link {
+    padding: .35rem .3rem;
+  }
+  .nav-tabs.source-tabs-credit.source-tabs-with-more .nav-link {
+    padding: .3rem;
+    font-size: .7rem;
+  }
+}
+
+/* Credits: the opportunity banner and the comparison header keep their
+ * one-line desktop layout and stack on phones. */
+.credit-opportunity {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.credit-comparison-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .5rem;
+}
+.credit-comparison-objectives {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+.credit-comparison-objective-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+/* Credits comparison: on phones the six-column table becomes the same compact
+ * card list used by the expenses/incomes ledger. */
+.credit-comparison-mobile .mobile-item {
+  display: block;
+  cursor: default;
+}
+.credit-comparison-mobile .mobile-item-body { min-width: 0; }
+.credit-comparison-mobile .credit-comparison-best { background: var(--bs-success-bg-subtle); }
+
+@media (max-width: 767.98px) {
+  .credit-opportunity {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .credit-opportunity .credit-opportunity-message {
+    display: block;
+    margin-top: .35rem;
+  }
+  .credit-opportunity .btn { width: 100%; }
+
+  .credit-comparison-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .credit-comparison-objectives {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
 }

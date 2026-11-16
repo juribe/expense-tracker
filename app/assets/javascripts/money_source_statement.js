@@ -10,7 +10,7 @@
       return null;
     }
 
-    document.querySelectorAll(".statement-row").forEach(function (row) {
+    document.querySelectorAll(".statement-row, .statement-card").forEach(function (row) {
       if (row.dataset.statementBound === "true") return;
       row.dataset.statementBound = "true";
       row.addEventListener("click", function (e) {

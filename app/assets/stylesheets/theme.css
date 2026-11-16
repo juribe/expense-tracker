@@ -310,6 +310,20 @@ section.page-section { margin-bottom: 1.5rem; }
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
+/* Movements list on phones: the ledger table becomes the same compact card
+ * list used by the expenses/incomes indexes (.mobile-list / .mobile-item). */
+.statement-mobile-list .mobile-item {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+}
+.statement-mobile-list .mobile-item-body { min-width: 0; }
+.statement-mobile-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.statement-mobile-empty { padding: 2rem 1rem; }
+
 .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--et-muted); }
 .empty-state > .ti { font-size: 2rem; opacity: 0.55; }
 .empty-state p { font-size: 0.875rem; margin-bottom: 1rem; }

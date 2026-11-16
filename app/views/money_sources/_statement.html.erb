@@ -113,7 +113,7 @@
         </div>
       </div>
 
-      <div class="table-responsive">
+      <div class="table-responsive desktop-table">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
@@ -192,6 +192,64 @@
             <% end %>
           </tbody>
         </table>
+      </div>
+
+      <%# Phone layout: same compact card list used by the expenses/incomes ledger. %>
+      <div class="mobile-list statement-mobile-list">
+        <% if s.movements.empty? %>
+          <div class="statement-mobile-empty text-center text-muted">
+            <% if params[:q].present? || params[:kind].present? %>
+              No hay movimientos que coincidan con estos filtros.
+            <% else %>
+              No hay movimientos en este período.
+            <% end %>
+          </div>
+        <% else %>
+          <% s.movements.each do |m| %>
+            <div class="mobile-item statement-card"
+                data-direction="<%= m.direction %>"
+                data-date="<%= m.date %>"
+                data-amount="<%= m.amount %>"
+                data-description="<%= m.description %>"
+                data-secondary="<%= m.secondary %>"
+                data-category="<%= m.category&.name %>"
+                data-type="<%= m.movement_type %>"
+                data-related="<%= m.related_source&.name %>"
+                data-reference="<%= m.reference %>">
+              <div class="mobile-item-body">
+                <div class="small text-muted">
+                  <%= l(m.date, format: :short) %>
+                  ·
+                  <% if m.category.present? %>
+                    <%= category_badge(m.category) %>
+                  <% elsif m.movement_type.include?("Transferencia") %>
+                    <span class="badge bg-light text-dark"><i class="ti ti-arrows-exchange me-1" aria-hidden="true"></i>Transferencia</span>
+                  <% end %>
+                </div>
+                <div class="mt-1"><%= m.description %></div>
+                <% if m.secondary.present? %>
+                  <div class="text-muted small"><%= m.secondary %></div>
+                <% end %>
+              </div>
+              <div class="text-end">
+                <div class="statement-mobile-amount <%= m.direction == "in" ? "text-success" : "text-danger" %>">
+                  <%= m.direction == "in" ? "+" : "−" %><%= MoneyFormat.currency(m.amount) %>
+                </div>
+                <% if m.movement_type == "Ajuste de saldo" %>
+                  <span class="badge text-bg-secondary mt-1">Ajuste</span>
+                <% elsif debt %>
+                  <span class="badge <%= m.direction == "in" ? "text-bg-success" : "text-bg-danger" %> mt-1">
+                    <%= m.movement_type %>
+                  </span>
+                <% else %>
+                  <span class="badge <%= m.direction == "in" ? "text-bg-success" : "text-bg-danger" %> mt-1">
+                    <%= m.direction == "in" ? "Entrada" : "Salida" %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
       </div>
 
       <div class="d-flex justify-content-between align-items-center mt-3">

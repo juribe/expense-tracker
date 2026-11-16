@@ -6,6 +6,7 @@
   "use strict";
 
   var DESKTOP = "(min-width: 1300px)";
+  var TABS_COMPACT = "(max-width: 767.98px)";
   var MOBILE_OPEN_CLASS = "show-sidebar";
 
   function wrapper() { return document.getElementById("main-wrapper"); }
@@ -118,6 +119,75 @@
     window.history.replaceState(window.history.state, "", url.toString());
   }
 
+  // Debt tabs are pills on phones. Keeping more than three would force a
+  // horizontal scroll, so the surplus tabs move into a "Más" dropdown. The
+  // markup stays single-instance (no duplicated selectors/ids): the same tab
+  // buttons are relocated between the nav row and the dropdown menu.
+  function initSourceTabOverflow() {
+    var compact = window.matchMedia(TABS_COMPACT);
+
+    document.querySelectorAll("[data-source-tabs]").forEach(function (container) {
+      var nav = container.querySelector("[data-source-tabs-nav]");
+      var more = nav && nav.querySelector("[data-source-tabs-more]");
+      var menu = more && more.querySelector("[data-source-tabs-more-menu]");
+      if (!nav || !more || !menu) { return; }
+      // Re-apply the layout when init runs twice for the same DOM (initial
+      // load). A Turbo cache restore rebuilds the nodes, so the saved
+      // callback is gone and the enhancement is wired again.
+      if (nav._sourceTabsApplyLayout) {
+        nav._sourceTabsApplyLayout();
+        return;
+      }
+
+      var items = Array.prototype.slice.call(nav.querySelectorAll("[data-source-tabs-item]"));
+      items.forEach(function (item, index) { item.dataset.sourceTabsOrder = String(index); });
+      var toggle = more.querySelector(".dropdown-toggle");
+
+      function setCompactMode(item, isCompact) {
+        var trigger = item.querySelector("[data-tab-slug]");
+        if (!trigger) { return; }
+        trigger.classList.toggle("nav-link", !isCompact);
+        trigger.classList.toggle("dropdown-item", isCompact);
+      }
+
+      function updateMoreState() {
+        if (!toggle) { return; }
+        toggle.classList.toggle("is-current", Boolean(menu.querySelector("[data-tab-slug].active")));
+      }
+
+      function applyLayout() {
+        if (compact.matches) {
+          items.slice(3).forEach(function (item) {
+            menu.appendChild(item);
+            setCompactMode(item, true);
+          });
+          more.classList.remove("d-none");
+        } else {
+          items
+            .slice()
+            .sort(function (a, b) {
+              return Number(a.dataset.sourceTabsOrder) - Number(b.dataset.sourceTabsOrder);
+            })
+            .forEach(function (item) {
+              nav.insertBefore(item, more);
+              setCompactMode(item, false);
+            });
+          more.classList.add("d-none");
+        }
+        updateMoreState();
+      }
+
+      nav._sourceTabsApplyLayout = applyLayout;
+      container.addEventListener("shown.bs.tab", updateMoreState);
+      if (compact.addEventListener) {
+        compact.addEventListener("change", applyLayout);
+      } else {
+        compact.addListener(applyLayout);
+      }
+      applyLayout();
+    });
+  }
+
   function initSourceTabs() {
     document.querySelectorAll("[data-source-tabs]").forEach(function (container) {
       var id = container.getAttribute("data-source-tabs");
@@ -172,7 +242,7 @@
     });
   }
 
-  function init() { initTheme(); initSidebar(); initSourceTabs(); initSourceTabShortcuts(); }
+  function init() { initTheme(); initSidebar(); initSourceTabOverflow(); initSourceTabs(); initSourceTabShortcuts(); }
 
   document.addEventListener("DOMContentLoaded", init);
   document.addEventListener("turbo:load", init);

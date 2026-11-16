@@ -459,6 +459,7 @@ en:
         extras: "Extra payments"
         recognition: "Recognition"
         movements: "Movements"
+        more: "More"
       pocket_subtitle: "Organize your money and assign it to your goals."
     pocket:
       distribution_title: "Money distribution"
@@ -1824,6 +1825,7 @@ en:
       simulator: "How to save"
       scenarios: "Scenarios"
       schedule: "Schedule"
+      more: "More"
     rebuilt: "Projection generated successfully."
     refreshed: "Projection updated with the latest data."
     needs_data: "The credit is missing data to compute the projection. Complete it here."
