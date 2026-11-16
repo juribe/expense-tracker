@@ -1249,12 +1249,38 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   gap: 0.4rem;
   margin-top: 0.65rem;
 }
+/* The money-source badge helper applies the Bootstrap text-nowrap utility
+   (!important), so on the narrow mobile card a long source label overflows
+   the card edge. Allow wrapping inside this row only. */
+.candidate-mobile-meta .badge {
+  max-width: 100%;
+  white-space: normal !important;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
 .candidate-mobile-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 0.8rem;
 }
-.candidate-mobile-actions .btn { flex: 1 1 auto; min-height: 44px; }
+/* The mobile card only holds icon-only actions (review / restore). Stretching
+   them turned the review icon into a full-width empty bar, while the restore
+   button — rendered inside its own form — stayed small. Keep both as compact
+   44px tap targets, with the icon centered (an <a class="btn"> lays its
+   content out from the top, a <button> centers it, so pin both). */
+.candidate-mobile-actions .btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+.candidate-mobile-actions .btn i { line-height: 1; }
+.candidate-mobile-actions form { display: flex; margin: 0; }
 
 .candidates-empty { padding: 1rem; }
 .candidates-empty .empty-state { padding: 2.5rem 1rem; }
@@ -1318,8 +1344,6 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
 @media (max-width: 575.98px) {
   .candidate-mobile-main { flex-direction: column; gap: 0.35rem; }
   .candidate-mobile-money { text-align: left; }
-  .candidate-mobile-actions { flex-wrap: wrap; }
-  .candidate-mobile-actions .btn { width: 100%; }
 }
 
 /* Recurring expenses page: compact KPI cards, status pills and a table that

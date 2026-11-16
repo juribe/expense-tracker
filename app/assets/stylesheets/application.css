@@ -847,11 +847,57 @@
 @media (prefers-reduced-motion: reduce) {
   .recognition-drawer-overlay, .recognition-drawer { animation: none; }
 }
+/* Between md and lg the identifiers column does not fit next to the status
+   and actions: keep it hidden (it is still available in the drawer) so the
+   edit/delete buttons stay inside the card. */
+@media (max-width: 991.98px) {
+  .recognition-table th:nth-child(3),
+  .recognition-table td:nth-child(3) { display: none !important; }
+}
+/* Tighter cell padding on tablets/phones keeps the remaining columns inside
+   the card instead of overflowing it. */
+@media (max-width: 767.98px) {
+  .recognition-table th,
+  .recognition-table td { padding-left: 1rem; padding-right: 1rem; }
+}
 @media (max-width: 575.98px) {
   .recognition-header { flex-wrap: wrap; }
   .recognition-header-actions { width: 100%; }
+  /* Card head stacks: the toggle keeps the full width and the status/action
+     row sits underneath. Side by side, the fixed-width actions left the
+     identity ~0px wide on phones, so Gmail's description broke one word per
+     line and the bank chips wrapped into balloons. */
+  .recognition-bank-head { flex-direction: column; align-items: stretch; gap: .75rem; }
+  .recognition-bank-identity { flex: 1 1 auto; }
+  .recognition-bank-actions { flex-wrap: wrap; }
   .recognition-criteria { padding: 1.25rem; }
   .recognition-table th:nth-child(2), .recognition-table td:nth-child(2) { display: none; }
+  /* Expanded bank table on phones: the table's intrinsic width overflows the
+     card, so the actions column (edit/delete) was clipped away. Each row
+     becomes a small stacked layout: source on top, status below, actions
+     pinned to the right. */
+  .recognition-table,
+  .recognition-table tbody { display: block; }
+  .recognition-table thead { display: none; }
+  .recognition-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "source actions"
+      "status actions";
+    align-items: center;
+    gap: .35rem .75rem;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid var(--loan-card-border);
+  }
+  .recognition-table tbody tr:last-child { border-bottom: 0; }
+  .recognition-table td { display: block; padding: 0; border: 0; }
+  .recognition-table td:nth-child(1) { grid-area: source; }
+  .recognition-table td:nth-child(4) { grid-area: status; }
+  .recognition-table td:nth-child(5) { grid-area: actions; text-align: right; }
+  .recognition-table tbody tr:hover td { background: transparent; }
+  .recognition-table tbody tr.recognition-row-active { background: var(--loan-accent-soft); }
+  .recognition-table tbody tr.recognition-row-active td { background: transparent !important; }
   .recognition-drawer-body { padding: 1.25rem; }
   .recognition-drawer-head, .recognition-drawer-foot { padding-left: 1.25rem; padding-right: 1.25rem; }
 }
@@ -1867,8 +1913,18 @@
   .reconciliation-page .rec-balance-grid { grid-template-columns: 1fr; gap: 0.9rem; }
   .reconciliation-page .rec-movement-item { grid-template-columns: 4rem minmax(0, 1fr) auto; }
   .reconciliation-page .rec-movement-meta { display: none; }
+  /* Load-more is a primary action in the movements list on phones: give it
+     the full width and a readable size instead of the tiny inline pill. */
+  .reconciliation-page .rec-load-more-wrap .rec-btn-soft {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.625rem;
+  }
   .reconciliation-page .rec-modal-footer { align-items: stretch; flex-direction: column; }
   .reconciliation-page .rec-footer-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .reconciliation-page .rec-footer-actions .rec-btn-good,
   .reconciliation-page .rec-footer-actions .rec-btn-primary { grid-column: 1 / -1; }
   .reconciliation-page .rec-payment-footer { align-items: stretch; flex-direction: column; }
   .reconciliation-page .rec-payment-actions { display: grid; grid-template-columns: 1fr 1fr; }

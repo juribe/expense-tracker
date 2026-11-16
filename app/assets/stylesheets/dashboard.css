@@ -716,6 +716,7 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
 .dashboard-bottom-grid .dash-categories { display: flex; flex-direction: column; }
 .dashboard-bottom-grid .dash-categories .dash-donut-layout {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 32px;
@@ -724,11 +725,14 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
   min-height: 0;
 }
 .dashboard-page .donut-wrap { width: 200px; height: 200px; flex-shrink: 0; }
-.dash-catlist { flex: 0 1 auto; min-width: 0; }
+/* The legend wraps under the donut when the card is too narrow for a
+   side-by-side layout (two-column bottom grid), so category names never
+   collapse to zero width next to the fixed-size donut. */
+.dash-catlist { flex: 1 1 220px; min-width: min(220px, 100%); }
 .dash-catrow { display: flex; align-items: center; gap: 7px; margin: 10px 0; font-size: 0.7rem; color: #617087; }
 .dash-catdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.dash-catname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dash-catrow b { margin-left: 24px; color: #435168; font-size: 0.7rem; }
+.dash-catname { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-catrow b { margin-left: auto; padding-left: 12px; color: #435168; font-size: 0.7rem; }
 
 /* Recent movements */
 .dash-movements-card { overflow: hidden; }
