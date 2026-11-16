@@ -4500,9 +4500,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/tests.yml": {
-    "mtime": 1794531738.5998843,
-    "seen": 1794582007.787411,
-    "ast_hash": "b44c61c915b75349e6a9ace2c7608a1d",
+    "mtime": 1794845903.7164328,
+    "seen": 1794846809.254072,
+    "ast_hash": "98ac0e716d0ec4903e0d3928b5081dfc",
     "semantic_hash": ""
   },
   "db/migrate/20261017000000_add_suggested_savings_percentage_to_categories.rb": {
