@@ -76,7 +76,9 @@ class AccountToolsTest < ActiveSupport::TestCase
     assert_equal "300000.0", card["used_credit"]
     assert_equal "700000.0", card["available_credit"]
     assert_equal 30.0, card["utilization_pct"]
-    assert_equal "2026-11-15", card["next_payment_date"]
+    # Date-independent: the presenter exposes the next occurrence of the
+    # configured due day (15), which rolls to next month once that day passes.
+    assert_equal Mcp::NextPaymentDate.for(15).iso8601, card["next_payment_date"]
   end
 
   test "returns one credit card and rejects a loan id" do
@@ -104,7 +106,7 @@ class AccountToolsTest < ActiveSupport::TestCase
     assert_equal "loan", debt["kind"]
     assert_equal "500000.0", debt["installment_amount"]
     assert_equal "1.5", debt["interest_rate"]
-    assert_equal "2026-11-15", debt["next_payment_date"]
+    assert_equal Mcp::NextPaymentDate.for(15).iso8601, debt["next_payment_date"]
     assert_equal 12, debt["remaining_installments"]
     assert_equal 60.0, debt["progress_pct"]
   end
