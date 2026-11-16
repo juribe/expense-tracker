@@ -2961,3 +2961,135 @@ button.guided-source {
     margin: 0;
   }
 }
+
+/* -------------------------------------------------
+ * Money source detail (phones)
+ * The shared page header keeps the title on desktop; on phones the detail
+ * opens with an identity block (icon, kind, name, bank badges), the actions
+ * become a 2x2 tile grid, "Volver" turns into a plain back link and the tabs
+ * read as pills.
+ * ------------------------------------------------- */
+.ms-detail-head {
+  display: flex;
+  align-items: flex-start;
+  gap: .85rem;
+  margin: 1.25rem 0 .85rem;
+}
+.ms-detail-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 1rem;
+  font-size: 1.35rem;
+  color: var(--bs-primary);
+  background: var(--bs-primary-bg-subtle);
+}
+.ms-detail-copy { min-width: 0; }
+.ms-detail-kind { font-size: .8125rem; color: var(--bs-secondary-color); }
+.ms-detail-name {
+  margin: .1rem 0 .4rem;
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--bs-heading-color);
+  overflow-wrap: anywhere;
+}
+.ms-detail-subtitle { margin: 0 0 .4rem; font-size: .8125rem; color: var(--bs-secondary-color); }
+.ms-detail-badges { display: flex; flex-wrap: wrap; gap: .35rem; }
+.ms-detail-badges .badge {
+  padding: .35rem .6rem;
+  border-radius: .5rem;
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+  font-size: .75rem;
+  font-weight: 650;
+}
+.money-source-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+@media (max-width: 767.98px) {
+  /* The dedicated phone header replaces the shared page title. */
+  .money-source-detail .page-header { margin-top: 0; margin-bottom: .85rem; }
+  .money-source-detail .page-header > div:first-child { display: none; }
+
+  .money-source-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+    width: 100%;
+  }
+  .money-source-actions .btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    min-height: 78px;
+    padding: .7rem .5rem;
+    border-radius: .85rem;
+    font-weight: 650;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+  }
+  .money-source-actions .btn i { margin: 0 !important; font-size: 1.25rem; }
+  .money-source-actions .btn span { margin: 0 !important; }
+
+  /* "Volver" is a quiet link under the tiles, not a fifth button. */
+  .money-source-actions .money-source-back {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: flex-start;
+    min-height: 0;
+    padding: .4rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--bs-primary);
+    font-weight: 650;
+  }
+  .money-source-actions .money-source-back i { font-size: 1rem; margin-right: .35rem !important; }
+
+  .money-source-detail .nav-tabs {
+    flex-wrap: nowrap;
+    gap: .4rem;
+    padding-bottom: .25rem;
+    border-bottom: 0;
+    overflow-x: auto;
+  }
+  .money-source-detail .nav-tabs .nav-item { flex: 0 0 auto; }
+  .money-source-detail .nav-tabs .nav-link {
+    padding: .5rem .9rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .money-source-detail .nav-tabs .nav-link.active {
+    border-color: var(--bs-primary);
+    background: var(--bs-primary);
+    color: #fff;
+  }
+
+  .money-source-detail .money-source-balance {
+    border-color: rgba(14, 159, 110, .25);
+    background: rgba(14, 159, 110, .08);
+  }
+  .money-source-detail .money-source-balance .card-body { position: relative; padding-right: 4.5rem; }
+  .money-source-detail .money-source-balance .stat-value { font-size: 2rem; font-weight: 800; }
+  /* Decorative coin pair (Tabler ships "ti-coin"; there is no "ti-coins"). */
+  .money-source-balance-art {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    width: 64px;
+    height: 64px;
+    pointer-events: none;
+  }
+  .money-source-balance-art .ti-coin { position: absolute; color: var(--et-positive); line-height: 1; }
+  .money-source-balance-art .ti-coin:first-child { right: 0; bottom: 0; font-size: 3.25rem; opacity: .2; }
+  .money-source-balance-art .ti-coin:last-child { top: 0; left: .35rem; font-size: 2rem; opacity: .4; }
+  [data-bs-theme="dark"] .money-source-balance-art .ti-coin { color: #6ee7b7; }
+  [data-bs-theme="dark"] .money-source-balance-art .ti-coin:first-child { opacity: .3; }
+  [data-bs-theme="dark"] .money-source-balance-art .ti-coin:last-child { opacity: .6; }
+  [data-bs-theme="dark"] .money-source-detail .money-source-balance { background: rgba(14, 159, 110, .16); }
+}

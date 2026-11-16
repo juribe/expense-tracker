@@ -1,5 +1,6 @@
+<div class="money-source-detail">
 <% source_actions = capture do %>
-    <div class="d-flex gap-2 flex-wrap">
+    <div class="money-source-actions">
       <% if @money_source.payment_source? %>
         <%= render "money_sources/quick_transfer_actions", source: @money_source, with_text: true %>
       <% end %>
@@ -15,13 +16,35 @@
       <%= link_to edit_money_source_path(@money_source), class: "btn btn-outline-primary" do %>
         <i class="ti ti-pencil me-1"></i><%= t("common.edit") %>
       <% end %>
-      <%= link_to money_sources_section_path(@money_source), class: "btn btn-outline-secondary" do %>
+      <%= link_to money_sources_section_path(@money_source), class: "btn btn-outline-secondary money-source-back" do %>
         <i class="ti ti-arrow-left me-1"></i><%= t("common.back") %>
       <% end %>
     </div>
 <% end %>
-<% header_options = { title: (@money_source.name.presence || @money_source.display_name), actions: source_actions } %>
+<% header_options = { title: (@money_source.name.presence || @money_source.display_name), actions: source_actions, class: "money-source-header" } %>
 <% header_options[:subtitle] = t("money_sources.show.pocket_subtitle") if @money_source.pocket? %>
+
+<%# Phone header: icon, kind, name and the bank / loan-type badges. The shared
+    page header keeps the title on desktop and only renders its actions here. %>
+<% source_badges = [ @money_source.institution_name.presence,
+                     (@money_source.sub_kind.present? ? source_sub_kind_label(@money_source.sub_kind) : nil) ].compact %>
+<div class="ms-detail-head d-md-none">
+  <span class="ms-detail-icon icon-chip" aria-hidden="true"><i class="ti ti-<%= source_kind_icon(@money_source.kind) %>"></i></span>
+  <div class="ms-detail-copy">
+    <span class="ms-detail-kind"><%= source_kind_label(@money_source.kind) %></span>
+    <h1 class="ms-detail-name"><%= @money_source.name.presence || @money_source.display_name %></h1>
+    <% if @money_source.pocket? %>
+      <p class="ms-detail-subtitle"><%= t("money_sources.show.pocket_subtitle") %></p>
+    <% end %>
+    <% if source_badges.any? %>
+      <div class="ms-detail-badges">
+        <% source_badges.each do |badge| %>
+          <span class="badge"><%= badge %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
 <%= render "shared/page_header", **header_options %>
 
 <%# A forced tab bypasses the sessionStorage restore so index links can
@@ -178,8 +201,11 @@
             </div>
           <% else %>
             <div class="col-lg-7">
-              <div class="card">
+              <div class="card money-source-balance">
                 <div class="card-body">
+                  <span class="money-source-balance-art d-md-none" aria-hidden="true">
+                    <i class="ti ti-coin"></i><i class="ti ti-coin"></i>
+                  </span>
                   <h5 class="card-title"><%= t("money_sources.show.current_balance") %></h5>
                   <div class="stat-value text-success mb-2"><%= @money_source.balance_label %></div>
                   <% if @money_source.negative_balance_warning? %>
@@ -272,5 +298,7 @@
     </div>
   </div>
 <% end %>
+
+</div>
 
 <%= render "money_sources/quick_transfer_modal" %>
