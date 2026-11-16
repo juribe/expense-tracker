@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794775169.36126,
-    "seen": 1794775228.347959,
-    "ast_hash": "3ee580018338a3acb0ed2bb94bdee4cb",
+    "mtime": 1794861780.8684306,
+    "seen": 1794863965.891501,
+    "ast_hash": "1060b1f5ff037940e972a0a0b54ff7a7",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794775169.3623211,
-    "seen": 1794775228.3479621,
-    "ast_hash": "429cf2df5dc66b2c90482713a208fbdf",
+    "mtime": 1794861780.8684368,
+    "seen": 1794863965.891504,
+    "ast_hash": "c93dadb99076f9d1d9e6b8f04a3045ab",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -4014,9 +4014,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/shell.js": {
-    "mtime": 1794270985.7137976,
-    "seen": 1794270998.381521,
-    "ast_hash": "6eb48275cd8aee6cbd0d73cf646acad8",
+    "mtime": 1794860439.9681396,
+    "seen": 1794860757.79675,
+    "ast_hash": "e3d10965269287439f3750814ff5f276",
     "semantic_hash": ""
   },
   "app/assets/vendor/fonts/tabler-icons/fonts/tabler-icons.svg": {
