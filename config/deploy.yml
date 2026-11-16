@@ -1,6 +1,8 @@
 <% server = ENV.fetch("KAMAL_SERVER") %>
 <% host = ENV.fetch("KAMAL_HOST") %>
 <% registry_user = ENV.fetch("KAMAL_REGISTRY_USERNAME") %>
+<% app_version = ENV["APP_VERSION"].to_s.strip %>
+<% app_version = `git rev-parse HEAD 2>/dev/null`.strip if app_version.empty? %>
 
 service: expense-tracker
 image: <%= registry_user %>/expense-tracker
@@ -48,6 +50,8 @@ env:
     CACHE_DATABASE_NAME: expense_tracker_cache_production
     APP_HOST: <%= host %>
     RAILS_PUBLIC_HOSTS: <%= host %>
+    # Rollbar code_version and deployment correlation (Git commit SHA).
+    APP_VERSION: <%= app_version %>
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_PASSWORD
@@ -80,6 +84,7 @@ env:
     - PREMIUM_IDENTITY_HMAC_SECRET
     - RESEND_API_KEY
     - RESEND_WEBHOOK_SECRET
+    - ROLLBAR_ACCESS_TOKEN
     - SPEECH_TO_TEXT_PROVIDER
     - USE_SSL
     - WHATSAPP_ACCESS_TOKEN

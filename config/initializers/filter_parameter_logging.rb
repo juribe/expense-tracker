@@ -13,5 +13,12 @@ Rails.application.config.filter_parameters += [
   # TOTP codes and provisioning secrets must never reach request logs.
   :totp_code, :otp_code, :totp_secret,
   # Financial domain content is per-user data; keep it out of request logs.
-  :description, :amount, :content, :text, :body_text, :transcript
+  :description, :amount, :content, :text, :body_text, :transcript,
+  # Bank, identity and payment details must never reach request logs.
+  :phone, :mobile, :address, :ssn, :account, :account_number, :card,
+  :card_number, :iban, :routing_number, :recipient, :sender, :subject,
+  # Inbound email, WhatsApp, uploads and API payloads carry third-party data.
+  :raw_body, :payload, :headers, :html, :email_body, :message_body,
+  :file, :files, :upload, :uploads, :attachment, :attachments,
+  :whatsapp, :epayco, :inbound_email
 ]

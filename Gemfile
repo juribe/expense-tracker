@@ -98,3 +98,5 @@ gem "devise-webauthn", "~> 0.5.1"
 gem "rotp", "~> 6.4"
 
 gem "rqrcode", "~> 3.2"
+
+gem "rollbar", "~> 3.8"
