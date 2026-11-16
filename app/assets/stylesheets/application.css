@@ -2943,3 +2943,21 @@ button.guided-source {
   background: rgba(255, 255, 255, .12);
   color: var(--bs-body-color);
 }
+
+/* -------------------------------------------------
+ * Modal footers on phones
+ * A footer with exactly two actions shares the row evenly: "Cancelar" gets
+ * the same touch target as the primary button instead of shrinking to its
+ * label while the primary takes the rest.
+ * ------------------------------------------------- */
+@media (max-width: 575.98px) {
+  .modal-footer:has(> :nth-child(2)):not(:has(> :nth-child(3))) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .modal-footer:has(> :nth-child(2)):not(:has(> :nth-child(3))) > * {
+    width: 100%;
+    margin: 0;
+  }
+}

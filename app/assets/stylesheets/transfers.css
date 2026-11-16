@@ -133,3 +133,13 @@
   .transfers-page-header .transfers-header-utility { display: none; }
   .transfers-summary-secondary { display: none; }
 }
+
+/* Quick transfer form (money source modals): its actions live inside a
+   fetched fragment, not in a .modal-footer, so they need the same mobile
+   split as the modal footers (each button half of the row). */
+.quick-transfer-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+@media (max-width: 575.98px) {
+  .quick-transfer-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quick-transfer-actions > .btn { width: 100%; }
+}
