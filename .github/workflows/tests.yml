@@ -1,11 +1,12 @@
 name: Tests
 
 on:
+  # Run the suite on every push, whatever the branch. Production deploys stay
+  # gated to main: deploy.yml is triggered by workflow_run of this workflow on
+  # branch main only.
   push:
     branches:
-      - main
-      - develop
-  pull_request:
+      - "**"
   workflow_dispatch:
 
 permissions:
