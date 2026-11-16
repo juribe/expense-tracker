@@ -38,6 +38,10 @@ test.describe('Money source statement (extracto)', () => {
     // search non-existent text -> empty state
     await page.locator('input[name="q"]').fill('no-existe-xyz');
     await page.locator('button[aria-label="Buscar movimientos"]').click();
-    await expect(page.getByText(/No hay movimientos que coincidan/)).toBeVisible();
+    // The page renders the same empty state for the desktop table and the
+    // mobile card list, so scope the assertion to the visible desktop layout.
+    await expect(
+      page.locator('.desktop-table').getByText(/No hay movimientos que coincidan/)
+    ).toBeVisible();
   });
 });
