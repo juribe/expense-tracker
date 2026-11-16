@@ -11,7 +11,7 @@ async function createMoneySource(page, name, kind = 'wallet') {
   await page.locator('#money_source_name').fill(name);
   await page.locator('#money_source_kind').selectOption(kind);
   await page.locator('#money_source_active').check();
-  await page.locator('form input[type="submit"]').click();
+  await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
   await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
   const href = await page.locator('a[href^="/money_sources/"]', { hasText: name }).first().getAttribute('href');
@@ -73,7 +73,7 @@ test.describe('AI expense detection selects the money source', () => {
     await page.locator('#money_source_name').fill('Visa');
     await page.locator('#money_source_kind').selectOption('credit_card');
     await page.locator('#money_source_active').check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
     await page.goto('/money_sources/recognition');

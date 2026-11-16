@@ -79,7 +79,10 @@
       </div>
 
       <%= render "shared/form_actions", cancel_path: budgets_path do %>
-        <%= form.submit budget.new_record? ? t("budgets.form.submit_create") : t("budgets.form.submit_update"), class: "btn btn-primary" %>
+        <%= button_tag type: "submit", class: "btn btn-primary",
+                       value: budget.new_record? ? t("budgets.form.submit_create") : t("budgets.form.submit_update") do %>
+          <%= budget.new_record? ? t("budgets.form.submit_create") : t("budgets.form.submit_update") %>
+        <% end %>
       <% end %>
     </div>
   <% end %>

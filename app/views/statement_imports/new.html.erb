@@ -60,7 +60,10 @@
           <%= render "shared/form_actions",
                      cancel_path: money_source_path(@money_source),
                      cancel_label: t("statement_imports.back") do %>
-            <%= f.submit t("statement_imports.submit"), class: "btn btn-primary", id: "statementImportSubmit" %>
+            <%= button_tag type: "submit", class: "btn btn-primary", id: "statementImportSubmit",
+                           value: t("statement_imports.submit") do %>
+              <%= t("statement_imports.submit") %>
+            <% end %>
           <% end %>
         </div>
       <% end %>

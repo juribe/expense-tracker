@@ -40,7 +40,7 @@ class ImportsControllerTest < ActionDispatch::IntegrationTest
       assert_select ".card-header h4", text: "Importar plantillas recurrentes"
       assert_select ".card-header .card-subtitle", text: /Sube un archivo CSV/
       assert_select ".card-footer a.btn.btn-outline-secondary", text: "Cancelar"
-      assert_select ".card-footer input[type=submit].btn.btn-primary#import-btn"
+      assert_select ".card-footer button[type=submit].btn.btn-primary#import-btn"
     end
   end
 

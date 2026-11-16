@@ -97,7 +97,9 @@
       </div>
 
       <%= render "shared/form_actions", cancel_path: categories_path do %>
-        <%= form.submit t("categories.save"), class: "btn btn-primary", id: "save-category-btn" %>
+        <%= button_tag type: "submit", class: "btn btn-primary", id: "save-category-btn", value: t("categories.save") do %>
+          <%= t("categories.save") %>
+        <% end %>
       <% end %>
     </div>
 

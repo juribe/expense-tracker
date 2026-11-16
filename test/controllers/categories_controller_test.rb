@@ -88,13 +88,13 @@ class CategoriesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".card-header h4", text: "Crear Categoría"
       assert_select ".card-header .card-subtitle", text: /Agrupa tus gastos e ingresos/
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", categories_path, text: "Cancelar"
-      assert_select ".card-footer input[type=submit].btn.btn-primary#save-category-btn"
+      assert_select ".card-footer button[type=submit].btn.btn-primary#save-category-btn"
     end
 
     get edit_category_path(category)
     assert_response :success
     assert_select "form[action='#{category_path(category)}'] .card .card-header h4", text: "Editar Categoría"
-    assert_select "form[action='#{category_path(category)}'] .card .card-footer input[type=submit].btn.btn-primary#save-category-btn"
+    assert_select "form[action='#{category_path(category)}'] .card .card-footer button[type=submit].btn.btn-primary#save-category-btn"
   end
 
   test "GET /categories defaults to the expense tab" do

@@ -95,14 +95,14 @@ class BudgetsControllerTest < ActionDispatch::IntegrationTest
       assert_select ".card-header h4", text: "Nuevo presupuesto"
       assert_select ".card-header .card-subtitle", text: /Define cuánto quieres gastar/
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", budgets_path, text: "Cancelar"
-      assert_select ".card-footer input[type=submit].btn.btn-primary"
+      assert_select ".card-footer button[type=submit].btn.btn-primary"
     end
 
     get edit_budget_path(budget)
     assert_response :success
     assert_select "form[action='#{budget_path(budget)}'] .card .card-header h4", text: "Editar presupuesto"
     assert_select "form[action='#{budget_path(budget)}'] .card .card-footer a.btn.btn-outline-secondary[href=?]", budgets_path
-    assert_select "form[action='#{budget_path(budget)}'] .card .card-footer input[type=submit].btn.btn-primary"
+    assert_select "form[action='#{budget_path(budget)}'] .card .card-footer button[type=submit].btn.btn-primary"
   end
 
   test "POST /budgets creates a budget for the current user" do

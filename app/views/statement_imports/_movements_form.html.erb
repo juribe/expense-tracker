@@ -107,7 +107,7 @@
       <%= hidden_field_tag :summary, @review.summary.to_h.to_json, id: nil if @review.summary %>
       <%= hidden_field_tag :engine, @review.engine, id: nil %>
 
-      <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="form-actions form-actions-between mt-3">
         <div data-movement-submit>
           <%= submit_tag t("statement_imports.confirm"), class: "btn btn-primary" %>
         </div>

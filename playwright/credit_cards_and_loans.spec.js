@@ -27,7 +27,7 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.locator('#money_source_credit_account_attributes_statement_day').fill('15');
     await page.locator('#money_source_credit_account_attributes_payment_due_day').fill('30');
     await page.locator('#money_source_active').check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
 
     await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
@@ -57,7 +57,7 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.locator('#money_source_credit_account_attributes_statement_day').fill('15');
     await page.locator('#money_source_credit_account_attributes_payment_due_day').fill('30');
     await page.locator('#money_source_active').check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
 
     const card = cardContaining(page, name);
@@ -86,7 +86,7 @@ test.describe('Credit cards and loans as money sources', () => {
     await page.locator('#money_source_credit_account_attributes_start_date').fill('01/01/2025');
     await page.locator('#money_source_credit_account_attributes_end_date').fill('31/12/2030');
     await page.locator('#money_source_active').check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
 
     await expect(page).toHaveURL(/\/money_sources\/loans$/);
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();

@@ -50,7 +50,10 @@
       </div>
 
       <%= render "shared/form_actions", cancel_path: categories_path do %>
-        <%= form.submit t("imports.review_button", default: "Revisar importación"), class: "btn btn-primary", id: "import-btn" %>
+        <%= button_tag type: "submit", class: "btn btn-primary", id: "import-btn",
+                       value: t("imports.review_button", default: "Revisar importación") do %>
+          <%= t("imports.review_button", default: "Revisar importación") %>
+        <% end %>
       <% end %>
     </div>
   <% end %>

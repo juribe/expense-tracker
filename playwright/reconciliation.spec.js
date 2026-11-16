@@ -8,7 +8,7 @@ async function createAccount(page, name, startingBalance) {
   await page.locator('input[name="money_source[name]"]').fill(name);
   await page.locator('#money_source_kind').selectOption({ label: 'Cuenta' });
   await page.locator('[data-kind-panel~="account"] input[name="money_source[starting_balance]"]').fill(startingBalance);
-  await page.locator('form input[type="submit"]').first().click();
+  await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').first().click();
   await expect(page).not.toHaveURL(/\/money_sources\/new(\?|$)/);
 }
 

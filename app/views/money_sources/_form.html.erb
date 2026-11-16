@@ -316,7 +316,9 @@
           </div>
 
           <%= render "shared/form_actions", cancel_path: money_sources_section_path(@money_source) do %>
-            <%= f.submit money_source_submit_label(@money_source), class: "btn btn-primary" %>
+            <%= button_tag type: "submit", class: "btn btn-primary", value: money_source_submit_label(@money_source) do %>
+              <%= money_source_submit_label(@money_source) %>
+            <% end %>
           <% end %>
         </div>
       <% end %>
