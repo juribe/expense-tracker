@@ -416,6 +416,7 @@ GEM
       actionpack (>= 7.0)
       railties (>= 7.0)
     rexml (3.4.4)
+    rollbar (3.8.0)
     rotp (6.4.0)
     rqrcode (3.2.0)
       chunky_png (~> 1.0)
@@ -583,6 +584,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 8.1.4, >= 8.1.4.1)
   resend
+  rollbar (~> 3.8)
   rotp (~> 6.4)
   rqrcode (~> 3.2)
   rubocop-rails-omakase

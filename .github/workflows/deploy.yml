@@ -51,6 +51,9 @@ jobs:
     environment: production
 
     env:
+      # The exact commit checked out and deployed below. Rollbar uses it as
+      # code_version and as the revision of the deployment notification.
+      APP_VERSION: ${{ github.event.workflow_run.head_sha || github.sha }}
       KAMAL_SERVER: ${{ secrets.KAMAL_SERVER }}
       KAMAL_HOST: ${{ secrets.KAMAL_HOST }}
       KAMAL_REGISTRY_USERNAME: ${{ github.repository_owner }}
@@ -86,6 +89,7 @@ jobs:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       OPENROUTER_APP_NAME: ${{ secrets.OPENROUTER_APP_NAME }}
       PREMIUM_IDENTITY_HMAC_SECRET: ${{ secrets.PREMIUM_IDENTITY_HMAC_SECRET }}
+      ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       RESEND_WEBHOOK_SECRET: ${{ secrets.RESEND_WEBHOOK_SECRET }}
       SPEECH_TO_TEXT_PROVIDER: ${{ secrets.SPEECH_TO_TEXT_PROVIDER }}
@@ -246,3 +250,33 @@ jobs:
       - name: Deploy with Kamal
         if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
         run: bundle exec kamal setup
+
+      # Deployment tracking runs only after Kamal succeeded, so a failed deploy
+      # is never recorded as a successful Rollbar revision. The notification is
+      # best-effort: monitoring problems must not turn a good deploy into a
+      # failed one. A dedicated ROLLBAR_SERVER_ACCESS_TOKEN is preferred; the
+      # runtime token is a fallback for projects that use a single token.
+      - name: Report deployment to Rollbar
+        if: ${{ success() && !inputs.dump_logs && !inputs.setup_cms }}
+        env:
+          ROLLBAR_DEPLOY_TOKEN: ${{ secrets.ROLLBAR_SERVER_ACCESS_TOKEN || secrets.ROLLBAR_ACCESS_TOKEN }}
+          APP_VERSION: ${{ env.APP_VERSION }}
+        run: |
+          if [ -z "$ROLLBAR_DEPLOY_TOKEN" ]; then
+            echo "::warning::Rollbar token is not configured; skipping the deployment notification."
+            exit 0
+          fi
+
+          payload=$(jq -n \
+            --arg access_token "$ROLLBAR_DEPLOY_TOKEN" \
+            --arg environment "production" \
+            --arg revision "$APP_VERSION" \
+            --arg local_username "github-actions" \
+            '{"access_token": $access_token, "environment": $environment, "revision": $revision, "local_username": $local_username, "status": "succeeded", "comment": ("Deployed " + $revision)}')
+
+          if ! curl --fail --silent --show-error --retry 2 --max-time 20 \
+            -X POST "https://api.rollbar.com/api/1/deploy/" \
+            -H "Content-Type: application/json" \
+            -d "$payload" > /dev/null; then
+            echo "::warning::Rollbar deployment notification failed; the deployment itself succeeded."
+          fi

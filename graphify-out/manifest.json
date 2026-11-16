@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "config/initializers/filter_parameter_logging.rb": {
-    "mtime": 1794531394.7960136,
-    "seen": 1794582007.786162,
-    "ast_hash": "dab5d44f6f20305855f4ec9959422fe2",
+    "mtime": 1794865057.0234873,
+    "seen": 1794866001.296981,
+    "ast_hash": "89572b2c6bff1c275966bbb7bc459f67",
     "semantic_hash": ""
   },
   "config/initializers/inflections.rb": {
@@ -570,8 +570,8 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1794531394.8034685,
-    "seen": 1794582007.786329,
+    "mtime": 1794837203.3323927,
+    "seen": 1794866001.301891,
     "ast_hash": "28fd25aa4a3a0b15b3ff5fe3471fa58a",
     "semantic_hash": ""
   },
@@ -990,9 +990,9 @@
     "semantic_hash": "92030e5fe8fd4b6c8a222e6369cc77ee"
   },
   "README.md": {
-    "mtime": 1794759058.7252474,
-    "seen": 1794759366.2723808,
-    "ast_hash": "c27dcd2e16b040390a92a4e95641f2d4",
+    "mtime": 1794865125.627539,
+    "seen": 1794866001.3387241,
+    "ast_hash": "152e02eefbf2077d4301c1b6cba8dc94",
     "semantic_hash": ""
   },
   "config/cable.yml": {
@@ -1020,14 +1020,14 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1794775169.36126,
-    "seen": 1794775228.347959,
+    "mtime": 1794864447.6812851,
+    "seen": 1794866001.340838,
     "ast_hash": "3ee580018338a3acb0ed2bb94bdee4cb",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1794775169.3623211,
-    "seen": 1794775228.3479621,
+    "mtime": 1794864447.6823976,
+    "seen": 1794866001.3408399,
     "ast_hash": "429cf2df5dc66b2c90482713a208fbdf",
     "semantic_hash": ""
   },
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1794771570.1538577,
-    "seen": 1794771928.782659,
+    "mtime": 1794866396.8319726,
+    "seen": 1794866648.0311208,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4014,8 +4014,8 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/shell.js": {
-    "mtime": 1794270985.7137976,
-    "seen": 1794270998.381521,
+    "mtime": 1794864447.6632137,
+    "seen": 1794866001.262811,
     "ast_hash": "6eb48275cd8aee6cbd0d73cf646acad8",
     "semantic_hash": ""
   },
@@ -4500,8 +4500,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/tests.yml": {
-    "mtime": 1794531738.5998843,
-    "seen": 1794582007.787411,
+    "mtime": 1794864447.6609294,
+    "seen": 1794866001.338044,
     "ast_hash": "b44c61c915b75349e6a9ace2c7608a1d",
     "semantic_hash": ""
   },
@@ -5064,8 +5064,8 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/money_source_statement.js": {
-    "mtime": 1792951600.4844363,
-    "seen": 1793490696.634304,
+    "mtime": 1794864447.6619964,
+    "seen": 1794866001.261633,
     "ast_hash": "fde2cf1f31d4acdf56d8ddddeb948eae",
     "semantic_hash": ""
   },
@@ -6564,8 +6564,8 @@
     "semantic_hash": ""
   },
   "test/mcp/tools/account_tools_test.rb": {
-    "mtime": 1793489225.2033641,
-    "seen": 1793490696.6352792,
+    "mtime": 1794864447.7370856,
+    "seen": 1794866001.320694,
     "ast_hash": "68d2f578f46d9423cf6be56b8cf09b99",
     "semantic_hash": ""
   },
@@ -10044,9 +10044,9 @@
     "semantic_hash": ""
   },
   "test/config/filter_parameter_logging_test.rb": {
-    "mtime": 1794531395.0097613,
-    "seen": 1794582007.7866602,
-    "ast_hash": "0d20a38347b24105d78c53a80d4fa8d0",
+    "mtime": 1794864940.5268962,
+    "seen": 1794866001.31292,
+    "ast_hash": "a0d3ac4188c43d19716f52734d936126",
     "semantic_hash": ""
   },
   "test/lib/mcp/safe_logger_test.rb": {
@@ -10200,9 +10200,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
-    "mtime": 1794760825.195869,
-    "seen": 1794762081.752486,
-    "ast_hash": "736e686ae47c0255c9a70629a84df723",
+    "mtime": 1794865207.0806756,
+    "seen": 1794866001.337985,
+    "ast_hash": "6b8f38c8459dc3c322bd891f7c69394c",
     "semantic_hash": ""
   },
   ".github/workflows/restore-dump.yml": {
@@ -10212,9 +10212,9 @@
     "semantic_hash": ""
   },
   "config/deploy.yml": {
-    "mtime": 1794757471.3648736,
-    "seen": 1794757596.985389,
-    "ast_hash": "ecb7b0265e22e583ee7533b873b4460b",
+    "mtime": 1794866182.3119442,
+    "seen": 1794866320.64366,
+    "ast_hash": "cb1b2c51813fc9dd856765bb96ab9ffe",
     "semantic_hash": ""
   },
   "docs/data_deletion.md": {
@@ -10317,6 +10317,54 @@
     "mtime": 1794761489.466644,
     "seen": 1794762081.7646441,
     "ast_hash": "f0d600558b4ec10270823aee7c6d67ec",
+    "semantic_hash": ""
+  },
+  "app/services/error_reporting/rollbar_payload_sanitizer.rb": {
+    "mtime": 1794866501.6481888,
+    "seen": 1794866647.975669,
+    "ast_hash": "0dad653661ea76a8390c820bf6a519e2",
+    "semantic_hash": ""
+  },
+  "app/services/error_reporting/rollbar_settings.rb": {
+    "mtime": 1794866767.3652718,
+    "seen": 1794866801.23339,
+    "ast_hash": "76ef29ce9ff3d164c30ad6a067e90898",
+    "semantic_hash": ""
+  },
+  "config/initializers/rollbar.rb": {
+    "mtime": 1794865147.8570385,
+    "seen": 1794866001.297311,
+    "ast_hash": "db564fbb1c7f36e45422d1068c2e34d8",
+    "semantic_hash": ""
+  },
+  "test/config/deployment_tracking_test.rb": {
+    "mtime": 1794866185.3325279,
+    "seen": 1794866320.61974,
+    "ast_hash": "1e6b3264ea545829eb3855406cb4d48c",
+    "semantic_hash": ""
+  },
+  "test/lib/rollbar_error_reporting_test.rb": {
+    "mtime": 1794865202.156716,
+    "seen": 1794866001.3205,
+    "ast_hash": "a7b995a8e0256d7f8e14212095a175f5",
+    "semantic_hash": ""
+  },
+  "test/services/error_reporting/rollbar_payload_sanitizer_test.rb": {
+    "mtime": 1794866507.4470067,
+    "seen": 1794866648.018146,
+    "ast_hash": "752717855d0598abc2f5ab14d8d0b7c6",
+    "semantic_hash": ""
+  },
+  "test/services/error_reporting/rollbar_settings_test.rb": {
+    "mtime": 1794864879.566432,
+    "seen": 1794866001.326803,
+    "ast_hash": "2f237bedbc4038cb8cebe3c872b868d4",
+    "semantic_hash": ""
+  },
+  "docs/error_monitoring.md": {
+    "mtime": 1794866720.0854347,
+    "seen": 1794866747.317099,
+    "ast_hash": "e87f0488fd889ecf2d18526d6f352104",
     "semantic_hash": ""
   }
 }

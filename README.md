@@ -83,6 +83,7 @@ these **production environment** secrets in GitHub:
 | `TS_AUDIENCE` | Tailscale OIDC audience for the OAuth client |
 | `RAILS_MASTER_KEY` | Contents of the local `config/master.key` |
 | `DATABASE_PASSWORD` | Long, unique password for the PostgreSQL application role |
+| `ROLLBAR_ACCESS_TOKEN` | Rollbar `post_server_item` token used for production error monitoring |
 
 The three `ACTIVE_RECORD_ENCRYPTION_*` keys are also required for the
 application to boot in production and are stored the same way (repository
@@ -97,6 +98,11 @@ so no registry token needs to be stored manually. Ports 80 and 443 must be
 publicly reachable; SSH is reached through Tailscale. Kamal Proxy provisions and
 renews the Let's Encrypt certificate, so the DNS record must resolve before the
 initial deployment.
+
+Production error monitoring uses Rollbar. The deploy workflow passes the tested
+Git SHA as `APP_VERSION` and records successful deployments after Kamal
+finishes. Setup, required variables, privacy controls and verification steps are
+documented in [docs/error_monitoring.md](docs/error_monitoring.md).
 
 The workflow clears a stale Kamal deploy lock before deploying. A cancelled or
 killed run never reaches Kamal's own lock release, and every later run would
