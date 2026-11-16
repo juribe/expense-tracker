@@ -25,3 +25,111 @@
     max-width: 22rem;
   }
 }
+
+/* ---------------------------------------------------------------
+ * Transfers index (mobile)
+ * The ledger table is replaced by the same card list used by the
+ * expenses and incomes indexes (.mobile-list / .mobile-item). The header
+ * shortcut and the transfer-count card are hidden on phones.
+ * --------------------------------------------------------------- */
+.transfers-mobile-list .mobile-item { cursor: default; }
+/* Receipt-like transfer card: date + kind, origin → destination with their
+   bank subtitles, note, status + amount and the actions on their own row. */
+.transfers-mobile-list .transfer-mobile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+}
+.transfer-mobile-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.transfer-mobile-date { color: var(--et-muted); font-size: 0.8125rem; font-weight: 650; }
+.transfer-mobile-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(123, 97, 224, 0.12);
+  color: #6a4fe0;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.transfer-mobile-route { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+.transfer-mobile-stop { display: flex; align-items: center; gap: 0.75rem; min-width: 0; max-width: 100%; }
+.transfer-mobile-icon { width: 44px; height: 44px; border-radius: 0.75rem; font-size: 1.15rem; }
+.transfer-mobile-stop-copy { min-width: 0; }
+.transfer-mobile-name {
+  font-size: 0.9375rem;
+  font-weight: 750;
+  color: var(--bs-body-color);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.transfer-mobile-meta { margin-top: 0.1rem; font-size: 0.8125rem; color: var(--et-muted); }
+.transfer-mobile-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+  color: var(--et-muted);
+  font-size: 0.9rem;
+}
+/* Thin connector from the origin tile to the destination tile through the
+   arrow, as in the transfer receipt layout. */
+.transfer-mobile-link::before,
+.transfer-mobile-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 0.4rem;
+  background: var(--bs-border-color);
+  transform: translateX(-50%);
+}
+.transfer-mobile-link::before { bottom: 100%; }
+.transfer-mobile-link::after { top: 100%; }
+.transfer-mobile-note {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--et-muted);
+  overflow-wrap: anywhere;
+}
+.transfer-mobile-note .ti { flex-shrink: 0; margin-top: 0.1rem; }
+.transfer-mobile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+[data-bs-theme="dark"] .transfer-mobile-kind { color: #b9a8ff; background: rgba(123, 97, 224, 0.24); }
+.transfer-mobile-amount {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--bs-body-color);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.transfer-mobile-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+.transfer-mobile-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+@media (max-width: 767.98px) {
+  .transfers-page-header .page-actions { width: 100%; }
+  .transfers-page-header .transfers-header-utility { display: none; }
+  .transfers-summary-secondary { display: none; }
+}

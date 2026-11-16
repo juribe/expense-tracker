@@ -6,12 +6,12 @@
     </span>
   <% end %>
 <% end %>
-<%= render "shared/page_header", title: t("incomes.index.title"), subtitle: subtitle do %>
+<%= render "shared/page_header", title: t("incomes.index.title"), subtitle: subtitle, class: "incomes-page-header" do %>
   <div class="d-flex flex-column flex-sm-row gap-2">
-    <%= link_to monthly_incomes_path, class: "btn btn-outline-secondary text-nowrap" do %>
+    <%= link_to monthly_incomes_path, class: "btn btn-outline-secondary text-nowrap incomes-header-utility" do %>
       <i class="ti ti-repeat me-1"></i> <%= t("incomes.index.monthly_income") %>
     <% end %>
-    <%= link_to new_income_path, class: "btn btn-primary text-nowrap" do %>
+    <%= link_to new_income_path, class: "btn btn-primary text-nowrap incomes-header-add" do %>
       <i class="ti ti-plus me-1"></i> <%= t("incomes.index.add_income") %>
     <% end %>
   </div>
@@ -31,7 +31,7 @@
       </div>
     </div>
   </div>
-  <div class="col-12 col-md-4">
+  <div class="col-12 col-md-4 incomes-summary-secondary">
     <div class="card h-100">
       <div class="card-body">
         <%= render "shared/stat",
@@ -43,7 +43,7 @@
       </div>
     </div>
   </div>
-  <div class="col-12 col-md-4">
+  <div class="col-12 col-md-4 incomes-summary-secondary">
     <div class="card h-100">
       <div class="card-body">
         <%= render "shared/stat",
@@ -97,7 +97,7 @@
   </div>
 
   <% if @incomes.any? %>
-    <div class="table-responsive">
+    <div class="table-responsive desktop-table">
       <table class="table table-hover ledger-table align-middle mb-0" id="incomeTable">
         <caption class="visually-hidden"><%= t("incomes.index.caption") %></caption>
         <thead class="table-light">
@@ -140,6 +140,44 @@
           <% end %>
         </tbody>
       </table>
+    </div>
+
+    <%# Phone layout: same card list used by the expenses ledger. %>
+    <div class="mobile-list incomes-mobile-list" data-testid="incomes-mobile-list">
+      <% @incomes.each do |income| %>
+        <div class="mobile-item" data-id="<%= income.id %>" data-testid="income-mobile-row">
+          <div class="mobile-item-body">
+            <div class="small text-muted">
+              <%= l(income.date, format: :short) %>
+              · <%= category_badge(income.category) %>
+              <%# Same as the expenses ledger: the money-source badge always
+                  sits on its own line under the date/category row. %>
+              <div class="mt-1"><%= money_source_badge(income.money_source) %></div>
+            </div>
+            <div class="mt-1">
+              <% if income.description.present? %>
+                <%= income.description %>
+              <% else %>
+                <span class="text-muted"><%= t("incomes.index.no_description") %></span>
+              <% end %>
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="amount amt-pos"><%= number_to_currency(income.amount) %></div>
+            <div class="mobile-actions mt-2">
+              <%= link_to edit_income_path(income), class: "btn btn-outline-primary",
+                          aria: { label: t("common.edit") } do %>
+                <i class="ti ti-pencil"></i>
+              <% end %>
+              <%= button_to income_path(income), method: :delete, class: "btn btn-outline-danger",
+                            data: { turbo_confirm: t("incomes.delete_confirm", default: "¿Eliminar este ingreso?") },
+                            form: { class: "d-inline", data: { turbo: true } } do %>
+                <i class="ti ti-trash"></i>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
     <div class="card-footer d-flex flex-column flex-sm-row justify-content-between gap-2 text-secondary small">
       <span><%= t("incomes.index.showing", count: @incomes.size, total: @filtered_count) %></span>

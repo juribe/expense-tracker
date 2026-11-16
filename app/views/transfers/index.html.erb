@@ -6,9 +6,9 @@
     </span>
   <% end %>
 <% end %>
-<%= render "shared/page_header", title: t("transfers.index.title"), subtitle: subtitle do %>
+<%= render "shared/page_header", title: t("transfers.index.title"), subtitle: subtitle, class: "transfers-page-header" do %>
   <div class="d-flex gap-2">
-    <%= link_to money_sources_cash_path, class: "btn btn-outline-secondary" do %>
+    <%= link_to money_sources_cash_path, class: "btn btn-outline-secondary transfers-header-utility" do %>
       <i class="ti ti-wallet me-1"></i><%= t("nav.money_sources") %>
     <% end %>
   </div>
@@ -27,7 +27,7 @@
       </div>
     </div>
   </div>
-  <div class="col-12 col-md-6">
+  <div class="col-12 col-md-6 transfers-summary-secondary">
     <div class="card h-100">
       <div class="card-body">
         <%= render "shared/stat",
@@ -98,7 +98,7 @@
   </div>
 
   <% if @transfers.any? %>
-    <div class="table-responsive">
+    <div class="table-responsive desktop-table">
       <table class="table table-hover ledger-table align-middle mb-0">
         <caption class="visually-hidden"><%= t("transfers.index.caption") %></caption>
         <thead class="table-light">
@@ -149,6 +149,72 @@
           <% end %>
         </tbody>
       </table>
+    </div>
+
+    <%# Phone layout: receipt-like card per transfer. %>
+    <div class="mobile-list transfers-mobile-list" data-testid="transfers-mobile-list">
+      <% @transfers.each do |transfer| %>
+        <% from_meta = [ transfer.from_source.institution_name,
+                         (transfer.from_source.last_four if transfer.from_source.credit_card?) ].compact_blank.join(" · ") %>
+        <% to_meta = [ transfer.to_source.institution_name,
+                       (transfer.to_source.last_four if transfer.to_source.credit_card?) ].compact_blank.join(" · ") %>
+        <div class="mobile-item transfer-mobile-card" data-id="<%= transfer.id %>" data-testid="transfer-mobile-row">
+          <div class="transfer-mobile-head">
+            <span class="transfer-mobile-date"><%= l(transfer.date, format: :short) %></span>
+            <span class="transfer-mobile-kind">
+              <i class="ti ti-arrows-exchange" aria-hidden="true"></i><%= t("transfers.quick.title") %>
+            </span>
+          </div>
+
+          <div class="transfer-mobile-route">
+            <div class="transfer-mobile-stop">
+              <span class="icon-chip transfer-mobile-icon icon-chip-blue" aria-hidden="true">
+                <i class="ti ti-<%= source_kind_icon(transfer.from_source.kind) %>"></i>
+              </span>
+              <div class="transfer-mobile-stop-copy">
+                <div class="transfer-mobile-name"><%= transfer.from_source.name %></div>
+                <% if from_meta.present? %>
+                  <div class="transfer-mobile-meta"><%= from_meta %></div>
+                <% end %>
+              </div>
+            </div>
+            <span class="transfer-mobile-link" aria-hidden="true"><i class="ti ti-arrow-right"></i></span>
+            <div class="transfer-mobile-stop">
+              <span class="icon-chip transfer-mobile-icon icon-chip-green" aria-hidden="true">
+                <i class="ti ti-<%= source_kind_icon(transfer.to_source.kind) %>"></i>
+              </span>
+              <div class="transfer-mobile-stop-copy">
+                <div class="transfer-mobile-name"><%= transfer.to_source.name %></div>
+                <% if to_meta.present? %>
+                  <div class="transfer-mobile-meta"><%= to_meta %></div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <% if transfer.note.present? %>
+            <div class="transfer-mobile-note">
+              <i class="ti ti-file-text" aria-hidden="true"></i>
+              <span><%= transfer.note %></span>
+            </div>
+          <% end %>
+
+          <div class="transfer-mobile-foot">
+            <span class="transfer-mobile-amount"><%= number_to_currency(transfer.amount) %></span>
+          </div>
+
+          <div class="transfer-mobile-actions">
+            <%= button_to transfer_path(transfer), method: :delete,
+                          class: "btn btn-outline-danger",
+                          title: t("common.delete"),
+                          aria: { label: t("transfers.index.delete_confirm") },
+                          data: { confirm: t("transfers.index.delete_confirm") },
+                          form: { class: "d-inline-block" } do %>
+              <i class="ti ti-trash"></i>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
     <div class="card-footer d-flex flex-column flex-sm-row justify-content-between gap-2 text-secondary small">
       <span><%= t("transfers.index.showing", count: @filtered_count, shown: @transfers.size, total: @filtered_count) %></span>

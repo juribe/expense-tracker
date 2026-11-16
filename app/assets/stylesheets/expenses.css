@@ -1344,6 +1344,14 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
 @media (max-width: 575.98px) {
   .candidate-mobile-main { flex-direction: column; gap: 0.35rem; }
   .candidate-mobile-money { text-align: left; }
+
+  /* Expenses header on phones: the rules / monthly / CSV shortcuts live in
+     their own screens, so keep only "Agregar gasto" and let it fill the
+     width instead of sharing the header with four buttons. */
+  .expenses-page-header .page-actions,
+  .expenses-page-header .page-actions > div { width: 100%; }
+  .expenses-page-header .expenses-header-utility { display: none; }
+  .expenses-page-header .expenses-header-add { width: 100%; }
 }
 
 /* Recurring expenses page: compact KPI cards, status pills and a table that
@@ -1457,4 +1465,21 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   .recurring-table .recurring-row-actions { width: 100%; }
   .recurring-table .recurring-row-actions > .btn-primary { flex: 1 1 auto; }
   .recurring-table .recurring-actions-toggle { flex: 0 0 auto; }
+}
+
+/* ---------------------------------------------------------------
+ * Incomes index (mobile)
+ * The ledger table is replaced by the same card list used by the
+ * expenses index (.mobile-list / .mobile-item above). The header keeps
+ * only "Agregar ingreso" and the summary drops the secondary stats.
+ * --------------------------------------------------------------- */
+.incomes-mobile-list .mobile-item { cursor: default; }
+.incomes-mobile-list .mobile-item-body { grid-column: 1 / -1; }
+
+@media (max-width: 767.98px) {
+  .incomes-page-header .page-actions,
+  .incomes-page-header .page-actions > div { width: 100%; }
+  .incomes-page-header .incomes-header-utility { display: none; }
+  .incomes-page-header .incomes-header-add { width: 100%; }
+  .incomes-summary-secondary { display: none; }
 }

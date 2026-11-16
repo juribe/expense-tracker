@@ -5,24 +5,24 @@
     </span>
   <% end %>
 <% end %>
-<%= render "shared/page_header", title: t("expenses.page_title"), subtitle: subtitle do %>
+<%= render "shared/page_header", title: t("expenses.page_title"), subtitle: subtitle, class: "expenses-page-header" do %>
   <div class="d-flex flex-column flex-sm-row gap-2">
-    <%= link_to transaction_rules_path, class: "btn btn-outline-secondary" do %>
+    <%= link_to transaction_rules_path, class: "btn btn-outline-secondary expenses-header-utility" do %>
       <i class="ti ti-wand me-1"></i> <%= t("expenses.automatic_rules") %>
     <% end %>
-    <%= link_to monthly_expenses_path, class: "btn btn-outline-secondary" do %>
+    <%= link_to monthly_expenses_path, class: "btn btn-outline-secondary expenses-header-utility" do %>
       <i class="ti ti-arrow-up-circle me-1"></i> <%= t("expenses.monthly") %>
     <% end %>
     <% if @total_count.to_i > 0 %>
-      <%= link_to expenses_path(page_params.merge(format: :csv)), class: "btn btn-outline-secondary" do %>
+      <%= link_to expenses_path(page_params.merge(format: :csv)), class: "btn btn-outline-secondary expenses-header-utility" do %>
         <i class="ti ti-download me-1"></i><%= t("expenses.export_csv") %>
       <% end %>
     <% else %>
-      <button type="button" class="btn btn-outline-secondary" aria-disabled="true" disabled title="<%= t('expenses.nothing_to_export') %>">
+      <button type="button" class="btn btn-outline-secondary expenses-header-utility" aria-disabled="true" disabled title="<%= t('expenses.nothing_to_export') %>">
         <i class="ti ti-download me-1"></i><%= t("expenses.export_csv") %>
       </button>
     <% end %>
-    <%= link_to new_expense_path, class: "btn btn-primary" do %>
+    <%= link_to new_expense_path, class: "btn btn-primary expenses-header-add" do %>
       <i class="ti ti-plus me-1"></i> <%= t("expenses.add_expense") %>
     <% end %>
   </div>
