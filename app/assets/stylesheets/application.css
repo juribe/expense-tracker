@@ -2906,6 +2906,13 @@ button.guided-source {
 }
 .rules-card .card-footer { margin-top: auto; }
 .rules-card-actions .btn { white-space: nowrap; }
+.rules-card-action .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+.rules-card-action form { display: flex; margin: 0; }
 
 .rules-no-results {
   padding: 2.25rem 1rem;
@@ -2931,7 +2938,12 @@ button.guided-source {
   .rules-suggestion { padding: .8rem; }
   .rules-suggestion-actions .btn { flex: 1 1 100%; }
   .rules-card { min-height: 0; }
-  .rules-card-actions .btn { flex: 1 1 0; }
+  .rules-card-action { flex: 1 1 0; min-width: 0; }
+  .rules-card-action .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
 }
 
 .rules-page-header > div:first-child { flex: 1 1 24rem; min-width: 0; }

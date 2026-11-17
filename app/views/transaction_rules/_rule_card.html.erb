@@ -45,11 +45,15 @@
   </div>
 
   <div class="card-footer rules-card-actions d-flex justify-content-end gap-2">
-    <%= link_to edit_transaction_rule_path(rule), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("transaction_rules.edit_aria", name: rule.title) } do %>
-      <i class="ti ti-pencil"></i><span class="ms-1"><%= t("transaction_rules.edit") %></span>
-    <% end %>
-    <%= button_to transaction_rule_path(rule), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("transaction_rules.delete_aria", name: rule.title) }, data: { confirm: t("transaction_rules.delete_confirm") }, form: { data: { turbo: true } } do %>
-      <i class="ti ti-trash"></i><span class="ms-1"><%= t("transaction_rules.delete") %></span>
-    <% end %>
+    <div class="rules-card-action">
+      <%= link_to edit_transaction_rule_path(rule), class: "btn btn-sm btn-outline-primary", title: t("common.edit"), aria: { label: t("transaction_rules.edit_aria", name: rule.title) } do %>
+        <i class="ti ti-pencil"></i><span class="ms-1"><%= t("transaction_rules.edit") %></span>
+      <% end %>
+    </div>
+    <div class="rules-card-action">
+      <%= button_to transaction_rule_path(rule), method: :delete, class: "btn btn-sm btn-outline-danger", title: t("common.delete"), aria: { label: t("transaction_rules.delete_aria", name: rule.title) }, data: { confirm: t("transaction_rules.delete_confirm") }, form: { data: { turbo: true } } do %>
+        <i class="ti ti-trash"></i><span class="ms-1"><%= t("transaction_rules.delete") %></span>
+      <% end %>
+    </div>
   </div>
 </article>

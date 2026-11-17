@@ -554,4 +554,19 @@
   .ci-metrics { grid-template-columns: 1fr; }
   .ci-detail-head { flex-direction: column; }
   .ci-back { width: 100%; }
+
+  .ci-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ci-actions .btn {
+    width: 100%;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
 }

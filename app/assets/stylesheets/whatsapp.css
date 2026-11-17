@@ -420,16 +420,6 @@
   font-weight: 800;
 }
 
-.whatsapp-settings-link {
-  text-align: center;
-}
-.whatsapp-settings-link a {
-  color: var(--et-muted);
-}
-.whatsapp-settings-link a:hover {
-  color: var(--wa-accent);
-}
-
 /* --------------------------------------------------------------------- mobile */
 @media (max-width: 767.98px) {
   .whatsapp-page {
