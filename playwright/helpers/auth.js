@@ -66,14 +66,24 @@ async function signIn(page, email, password) {
 }
 
 async function createCategory(page, name, description = '') {
+  return createCategoryOfType(page, name, 'Gasto', description);
+}
+
+// Incomes and monthly incomes only accept income categories, so specs that
+// exercise them need a category of that type.
+async function createIncomeCategory(page, name, description = '') {
+  return createCategoryOfType(page, name, 'Ingreso', description);
+}
+
+async function createCategoryOfType(page, name, type, description = '') {
   await page.goto('/categories/new');
   await page.locator('#category_name').fill(name);
   if (description) {
     await page.locator('#category_description').fill(description);
   }
-  await page.locator('#category_category_type').selectOption({ label: 'Gasto' });
+  await page.locator('#category_category_type').selectOption({ label: type });
   await page.getByRole('button', { name: 'Guardar Categoría' }).click();
   await expect(page).toHaveURL(/\/categories\/[0-9a-f-]{36}/);
 }
 
-module.exports = { uniqueEmail, signUp, signIn, createCategory };
+module.exports = { uniqueEmail, signUp, signIn, createCategory, createIncomeCategory };
