@@ -14,6 +14,26 @@
         return direction === "desc" ? -comparison : comparison;
       })
       .forEach(function (row) { body.appendChild(row); });
+
+    syncMobileCards(table);
+  }
+
+  // The phone cards render the same obligations as the table. Mirror the
+  // sorted order so both representations stay consistent.
+  function syncMobileCards(table) {
+    var cards = document.querySelector("[data-debt-cards]");
+    if (!cards) return;
+
+    var cardsByKey = {};
+    Array.prototype.slice.call(cards.children).forEach(function (card) {
+      var key = card.getAttribute("data-debt-key");
+      if (key) cardsByKey[key] = card;
+    });
+
+    Array.prototype.slice.call(table.tBodies[0].rows).forEach(function (row) {
+      var card = cardsByKey[row.getAttribute("data-debt-key")];
+      if (card) cards.appendChild(card);
+    });
   }
 
   document.addEventListener("click", function (event) {

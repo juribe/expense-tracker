@@ -98,13 +98,29 @@
 
 @media (max-width: 991.98px) {
   .debt-capacity-simulation-form,
+  .debt-capacity-simulation-form:not(.is-revolving):not(.is-no-amortization),
   .debt-capacity-simulation-form.is-revolving,
-  .debt-capacity-simulation-form.is-no-amortization { grid-template-columns: 1fr 1fr; }
+  .debt-capacity-simulation-form.is-no-amortization,
+  .debt-capacity-simulation-form.is-revolving.is-no-amortization { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 575.98px) {
   .debt-capacity-comparison-intro { align-items: flex-start; flex-direction: column; }
-  .debt-capacity-simulation-form { grid-template-columns: 1fr; }
+  .debt-capacity-simulation-form,
+  .debt-capacity-simulation-form:not(.is-revolving):not(.is-no-amortization),
+  .debt-capacity-simulation-form.is-revolving,
+  .debt-capacity-simulation-form.is-no-amortization,
+  .debt-capacity-simulation-form.is-revolving.is-no-amortization {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 0.85rem;
+    padding: 0.85rem;
+  }
+  .debt-capacity-simulation-form > [data-debt-comparison-submit] {
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+  }
   .debt-capacity-mode-options { flex-direction: column; }
   .debt-capacity-comparison-table { min-width: 38rem; }
 }
@@ -412,6 +428,109 @@ th[aria-sort="descending"] .report-sort-button .ti {
 .report-transaction-amount {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.report-transactions-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+/* Phone layout for the debt obligations table: same compact cards used by the
+ * expenses ledger, with the totals kept at the end of the list. */
+.debt-capacity-mobile .mobile-item {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0;
+}
+.debt-capacity-mobile .mobile-item-body { min-width: 0; }
+.debt-mobile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.debt-mobile-identity { min-width: 0; }
+.debt-mobile-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.debt-mobile-institution {
+  color: var(--et-muted);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.debt-mobile-head .badge { flex: 0 0 auto; }
+.debt-mobile-grid,
+.debt-mobile-total-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--bs-border-color);
+}
+.debt-mobile-total-grid > div:last-child { grid-column: 1 / -1; }
+.debt-mobile-grid > div,
+.debt-mobile-total-grid > div { min-width: 0; }
+.debt-mobile-grid span,
+.debt-mobile-total-grid span {
+  display: block;
+  color: var(--et-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.debt-mobile-grid strong,
+.debt-mobile-total-grid strong {
+  display: block;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.debt-mobile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+.debt-capacity-total { background: var(--bs-tertiary-bg); }
+
+/* Phone layout for the simulator comparison table. */
+.debt-comparison-mobile .mobile-item {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0.85rem 1rem;
+  border-radius: 0;
+}
+.debt-comparison-mobile .mobile-item-body { min-width: 0; }
+.debt-comparison-label { font-weight: 600; }
+.debt-comparison-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.45rem;
+}
+.debt-comparison-values > div { min-width: 0; }
+.debt-comparison-values span {
+  display: block;
+  color: var(--et-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.debt-comparison-values strong {
+  display: block;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
 /* Below the desktop breakpoint, let the two chip columns shrink to fit. */
@@ -2266,6 +2385,32 @@ th[aria-sort="descending"] .report-sort-button .ti {
   .so-sim-row { grid-template-columns: 7rem minmax(0, 1fr); }
   .so-sim-save { grid-column: 2; text-align: left; }
   .so-movements { margin-left: 0; }
+
+  /* Recurring payments: stack the row on phones, move the amount under the
+   * merchant text and hide the repetitive configured explanation. */
+  .so-list-rows .so-list-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: start;
+    padding: 0.9rem 0;
+  }
+  .so-list-rows .so-list-row .so-amount {
+    margin-left: 2.55rem;
+    font-size: 1rem;
+  }
+  .so-list-rows .so-subtext { margin-top: 0.25rem; }
+  .so-list-rows .so-inline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.35rem;
+    padding: 0.28rem 0.55rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    text-decoration: none;
+  }
+  .so-list-rows.is-configured .so-small-note { display: none !important; }
 }
 
 [data-bs-theme="dark"] .so-ai-card {

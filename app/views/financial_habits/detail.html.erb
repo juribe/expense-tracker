@@ -139,8 +139,10 @@
   <div class="fhd-rec">
     <b>✦ Una idea para aprovechar este descubrimiento</b>
     <p><%= @detail[:recommendation] %></p>
-    <%= link_to "Ver movimientos relacionados", @detail[:expenses_link] || expenses_path, class: "btn btn-primary" %>
-    <%= link_to "Entendido", financial_habits_path, class: "btn btn-outline-secondary ms-2" %>
+    <div class="fhd-rec-actions">
+      <%= link_to "Ver movimientos relacionados", @detail[:expenses_link] || expenses_path, class: "btn btn-primary" %>
+      <%= link_to "Entendido", financial_habits_path, class: "btn btn-outline-secondary" %>
+    </div>
   </div>
 
   <% if @detail[:related_movements].any? %>

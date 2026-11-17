@@ -825,6 +825,20 @@
 
 .financial-habit-detail .fhd-rec { margin-top: 14px; }
 
+.financial-habit-detail .fhd-rec-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.financial-habit-detail .fhd-rec-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
 .financial-habit-detail .fhd-rec p {
   color: #60677a;
   margin: 8px 0 14px;
@@ -850,6 +864,16 @@
   .financial-habit-detail { padding: 1rem; }
   .financial-habit-detail .fhd-grid { grid-template-columns: 1fr; }
   .financial-habit-detail .fhd-title h1 { font-size: 23px; }
+  .financial-habit-detail .fhd-rec-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .financial-habit-detail .fhd-rec-actions .btn {
+    width: 100%;
+    padding-inline: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
 }
 
 [data-bs-theme="dark"] .financial-habit-detail {

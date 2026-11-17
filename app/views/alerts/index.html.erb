@@ -11,18 +11,19 @@
 <% unread_count = current_user.spending_alerts.unread.count %>
 <% budget_count = current_user.spending_alerts.budget.count %>
 <% spending_count = current_user.spending_alerts.spending.count %>
+<% pills = [
+     [ "all", t("alerts.filters.all", default: "Todas"), total_count, alerts_path ],
+     [ "unread", t("alerts.filters.unread", default: "No leídas"), unread_count, alerts_path(filter: "unread") ],
+     [ "budget", t("alerts.filters.budget", default: "Presupuesto"), budget_count, alerts_path(filter: "budget") ],
+     [ "spending", t("alerts.filters.spending", default: "Gasto"), spending_count, alerts_path(filter: "spending") ]
+   ] %>
+<% active_pill = pills.find { |key, _label, _count, _path| @filter == key || (@filter.blank? && key == "all") } || pills.first %>
 
-<ul class="nav nav-pills gap-2 mb-4">
-  <% pills = [
-       [ "all", t("alerts.filters.all", default: "Todas"), total_count, alerts_path ],
-       [ "unread", t("alerts.filters.unread", default: "No leídas"), unread_count, alerts_path(filter: "unread") ],
-       [ "budget", t("alerts.filters.budget", default: "Presupuesto"), budget_count, alerts_path(filter: "budget") ],
-       [ "spending", t("alerts.filters.spending", default: "Gasto"), spending_count, alerts_path(filter: "spending") ]
-     ] %>
+<ul class="nav nav-pills gap-2 mb-4 d-none d-md-flex">
   <% pills.each do |key, label, count, path| %>
     <% active = @filter == key || (@filter.blank? && key == "all") %>
     <li class="nav-item">
-      <%= link_to path, class: "nav-link btn-sm #{'bg-primary text-white' if active}" do %>
+      <%= link_to path, class: "nav-link btn-sm #{'bg-primary text-white' if active}", aria: { current: ("page" if active) } do %>
         <%= label %>
         <% if active %>
           <span class="badge bg-white text-primary"><%= count %></span>
@@ -33,6 +34,33 @@
     </li>
   <% end %>
 </ul>
+
+<%# Phones: the filter pills wrap onto several rows, so they collapse into a
+    dropdown that shows the current filter and the remaining options. %>
+<div class="dropdown d-md-none mb-4">
+  <button type="button" id="alertsFilterToggle"
+          class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-between"
+          data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="d-inline-flex align-items-center gap-2">
+      <i class="ti ti-filter" aria-hidden="true"></i>
+      <span class="fw-semibold"><%= active_pill[1] %></span>
+      <span class="badge bg-primary"><%= active_pill[2] %></span>
+    </span>
+    <i class="ti ti-chevron-down" aria-hidden="true"></i>
+  </button>
+  <ul class="dropdown-menu w-100" aria-labelledby="alertsFilterToggle">
+    <% pills.each do |key, label, count, path| %>
+      <% active = @filter == key || (@filter.blank? && key == "all") %>
+      <li>
+        <%= link_to path, class: "dropdown-item d-flex align-items-center justify-content-between gap-2 #{'active' if active}",
+                    aria: { current: ("page" if active) } do %>
+          <span><%= label %></span>
+          <span class="badge <%= active ? 'bg-white text-primary' : 'bg-secondary bg-opacity-10 text-secondary' %>"><%= count %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>
 
 <% if @alerts.empty? && @filter.blank? %>
   <div class="card text-center py-5">

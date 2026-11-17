@@ -7,6 +7,11 @@
   </div>
   <div class="card-body">
     <%= render "reports/transactions/list", transactions: @transactions, sortable: true %>
-    <%= will_paginate @transactions if @transactions.any? %>
+    <% if @transactions.total_pages > 1 %>
+      <div class="report-transactions-pagination">
+        <%= will_paginate @transactions, renderer: WillPaginate::ActionView::BootstrapLinkRenderer,
+              previous_label: "<<", next_label: ">>" %>
+      </div>
+    <% end %>
   </div>
 </div>

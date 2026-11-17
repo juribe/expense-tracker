@@ -56,20 +56,52 @@
           variant: "income" %>
   </section>
 
-  <ul class="nav nav-tabs mb-4" id="debt-capacity-tabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="dc-capacity-tab" data-bs-toggle="tab" data-bs-target="#dc-capacity" type="button" role="tab" aria-controls="dc-capacity" aria-selected="true"><i class="ti ti-chart-donut me-1"></i>Capacidad</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="dc-obligations-tab" data-bs-toggle="tab" data-bs-target="#dc-obligations" type="button" role="tab" aria-controls="dc-obligations" aria-selected="false"><i class="ti ti-list-details me-1"></i>Obligaciones</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="dc-simulator-tab" data-bs-toggle="tab" data-bs-target="#dc-simulator" type="button" role="tab" aria-controls="dc-simulator" aria-selected="false"><i class="ti ti-arrows-left-right me-1"></i>Simulador</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="dc-recommendations-tab" data-bs-toggle="tab" data-bs-target="#dc-recommendations" type="button" role="tab" aria-controls="dc-recommendations" aria-selected="false"><i class="ti ti-target-arrow me-1"></i>Recomendaciones</button>
-    </li>
+  <%
+    debt_tabs = [
+      { button: "dc-capacity-tab", target: "dc-capacity", label: "Capacidad", icon: "chart-donut" },
+      { button: "dc-obligations-tab", target: "dc-obligations", label: "Obligaciones", icon: "list-details" },
+      { button: "dc-simulator-tab", target: "dc-simulator", label: "Simulador", icon: "arrows-left-right" },
+      { button: "dc-recommendations-tab", target: "dc-recommendations", label: "Recomendaciones", icon: "target-arrow" }
+    ]
+  %>
+  <ul class="nav nav-tabs mb-4 d-none d-md-flex" id="debt-capacity-tabs" role="tablist">
+    <% debt_tabs.each_with_index do |tab, index| %>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link<%= " active" if index.zero? %>" id="<%= tab[:button] %>"
+                data-bs-toggle="tab" data-bs-target="#<%= tab[:target] %>" type="button" role="tab"
+                aria-controls="<%= tab[:target] %>" aria-selected="<%= index.zero? %>">
+          <i class="ti ti-<%= tab[:icon] %> me-1"></i><%= tab[:label] %>
+        </button>
+      </li>
+    <% end %>
   </ul>
+
+  <%# Phones: the four tabs wrap onto two rows, so they collapse into a
+      dropdown that shows the current tab and lets the user switch. %>
+  <div class="dropdown d-md-none mb-4">
+    <button type="button" id="debtCapacityTabToggle"
+            class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-between"
+            data-bs-toggle="dropdown" aria-expanded="false">
+      <span class="d-inline-flex align-items-center gap-2">
+        <i class="ti ti-<%= debt_tabs.first[:icon] %>" data-debt-tab-trigger-icon aria-hidden="true"></i>
+        <span class="fw-semibold" data-debt-tab-trigger-label><%= debt_tabs.first[:label] %></span>
+      </span>
+      <i class="ti ti-chevron-down" aria-hidden="true"></i>
+    </button>
+    <ul class="dropdown-menu w-100" aria-labelledby="debtCapacityTabToggle">
+      <% debt_tabs.each do |tab| %>
+        <li>
+          <button type="button" class="dropdown-item d-flex align-items-center gap-2"
+                  data-debt-tab-target="<%= tab[:button] %>"
+                  data-debt-tab-icon="ti-<%= tab[:icon] %>"
+                  data-debt-tab-label="<%= tab[:label] %>">
+            <i class="ti ti-<%= tab[:icon] %>" aria-hidden="true"></i>
+            <span><%= tab[:label] %></span>
+          </button>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 
   <div class="tab-content" id="debt-capacity-tab-content">
     <div class="tab-pane fade show active" id="dc-capacity" role="tabpanel" aria-labelledby="dc-capacity-tab" tabindex="0">
@@ -116,7 +148,108 @@
     <div class="tab-pane fade" id="dc-obligations" role="tabpanel" aria-labelledby="dc-obligations-tab" tabindex="0">
       <%= render "shared/section", title: "Obligaciones financieras", icon: "list-details", actions: content_tag(:span, "#{@debt_capacity[:debts].size} registradas", class: "small text-secondary") do %>
         <p class="small text-secondary mb-3">Ordena por saldo, cuota, tasa o estado. Los datos provienen de tus fuentes de dinero.</p>
-        <div class="table-responsive"><table class="table table-hover align-middle mb-0" data-testid="debt-capacity-table"><thead><tr><% [["Deuda", 0], ["Tipo", 1], ["Saldo", 2], ["Cuota", 3], ["Tasa E.A.", 4], ["Interés mensual", 5], ["Estado", 6]].each do |label, index| %><th><button type="button" class="btn btn-link btn-sm p-0 text-reset text-decoration-none" data-debt-sort="<%= index %>"><%= label %> <i class="ti ti-selector"></i></button></th><% end %><th></th></tr></thead><tbody><% @debt_capacity[:debts].each do |debt| %><tr><td class="cell-strong"><%= debt[:name] %><span class="cell-muted"><%= debt[:institution].presence || "Entidad no registrada" %></span></td><td><%= debt[:type].to_s.humanize %></td><td class="cell-amount amt-debt" data-sort-value="<%= debt[:balance] %>"><%= money_amount(debt[:balance]) %></td><td class="cell-amount" data-sort-value="<%= debt[:monthly_installment] %>"><%= money_amount(debt[:monthly_installment]) %></td><td class="cell-amount" data-sort-value="<%= debt[:annual_rate] %>"><%= debt[:interest_rate_label].presence || "—" %></td><td class="cell-amount" data-sort-value="<%= debt[:monthly_interest] %>"><%= money_amount(debt[:monthly_interest]) %></td><td><span class="badge <%= debt[:status] == :current ? 'text-bg-success' : 'text-bg-warning' %>"><%= debt[:status].to_s.humanize %></span></td><td><%= link_to "Detalle", debt[:detail_path], class: "btn btn-sm btn-outline-primary" %></td></tr><% end %></tbody><tfoot><tr class="table-light" data-testid="debt-capacity-table-totals"><th colspan="2">Total</th><th class="cell-amount amt-debt"><%= money_amount(summary[:total_debt]) %></th><th class="cell-amount"><%= money_amount(summary[:monthly_installments]) %></th><th></th><th class="cell-amount"><%= money_amount(summary[:monthly_interest]) %></th><th colspan="2"></th></tr></tfoot></table></div>
+
+        <div class="desktop-table">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" data-testid="debt-capacity-table">
+              <thead>
+                <tr>
+                  <% [["Deuda", 0], ["Tipo", 1], ["Saldo", 2], ["Cuota", 3], ["Tasa E.A.", 4], ["Interés mensual", 5], ["Estado", 6]].each do |label, index| %>
+                    <th>
+                      <button type="button" class="btn btn-link btn-sm p-0 text-reset text-decoration-none" data-debt-sort="<%= index %>">
+                        <%= label %> <i class="ti ti-selector"></i>
+                      </button>
+                    </th>
+                  <% end %>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @debt_capacity[:debts].each do |debt| %>
+                  <tr data-debt-key="<%= debt[:id] %>">
+                    <td class="cell-strong"><%= debt[:name] %><span class="cell-muted"><%= debt[:institution].presence || "Entidad no registrada" %></span></td>
+                    <td><%= debt[:type].to_s.humanize %></td>
+                    <td class="cell-amount amt-debt" data-sort-value="<%= debt[:balance] %>"><%= money_amount(debt[:balance]) %></td>
+                    <td class="cell-amount" data-sort-value="<%= debt[:monthly_installment] %>"><%= money_amount(debt[:monthly_installment]) %></td>
+                    <td class="cell-amount" data-sort-value="<%= debt[:annual_rate] %>"><%= debt[:interest_rate_label].presence || "—" %></td>
+                    <td class="cell-amount" data-sort-value="<%= debt[:monthly_interest] %>"><%= money_amount(debt[:monthly_interest]) %></td>
+                    <td><span class="badge <%= debt[:status] == :current ? "text-bg-success" : "text-bg-warning" %>"><%= debt[:status].to_s.humanize %></span></td>
+                    <td><%= link_to "Detalle", debt[:detail_path], class: "btn btn-sm btn-outline-primary" %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+              <tfoot>
+                <tr class="table-light" data-testid="debt-capacity-table-totals">
+                  <th colspan="2">Total</th>
+                  <th class="cell-amount amt-debt"><%= money_amount(summary[:total_debt]) %></th>
+                  <th class="cell-amount"><%= money_amount(summary[:monthly_installments]) %></th>
+                  <th></th>
+                  <th class="cell-amount"><%= money_amount(summary[:monthly_interest]) %></th>
+                  <th colspan="2"></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <%# Phone layout: same compact card list used by the expenses ledger. %>
+        <div class="mobile-list debt-capacity-mobile" data-debt-cards data-testid="debt-capacity-mobile-list">
+          <% @debt_capacity[:debts].each do |debt| %>
+            <div class="mobile-item" data-debt-key="<%= debt[:id] %>" data-testid="debt-capacity-mobile-card">
+              <div class="mobile-item-body">
+                <div class="debt-mobile-head">
+                  <div class="debt-mobile-identity">
+                    <div class="debt-mobile-name"><%= debt[:name] %></div>
+                    <div class="debt-mobile-institution"><%= debt[:institution].presence || "Entidad no registrada" %></div>
+                  </div>
+                  <span class="badge <%= debt[:status] == :current ? "text-bg-success" : "text-bg-warning" %>"><%= debt[:status].to_s.humanize %></span>
+                </div>
+
+                <div class="small text-secondary mt-1"><%= debt[:type].to_s.humanize %></div>
+
+                <div class="debt-mobile-grid">
+                  <div>
+                    <span>Saldo</span>
+                    <strong class="amt-debt"><%= money_amount(debt[:balance]) %></strong>
+                  </div>
+                  <div>
+                    <span>Cuota</span>
+                    <strong><%= money_amount(debt[:monthly_installment]) %></strong>
+                  </div>
+                  <div>
+                    <span>Tasa E.A.</span>
+                    <strong><%= debt[:interest_rate_label].presence || "—" %></strong>
+                  </div>
+                  <div>
+                    <span>Interés mensual</span>
+                    <strong><%= money_amount(debt[:monthly_interest]) %></strong>
+                  </div>
+                </div>
+
+                <%= link_to "Detalle", debt[:detail_path], class: "btn btn-sm btn-outline-primary debt-mobile-link mt-2" %>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="mobile-item debt-capacity-total">
+            <div class="mobile-item-body">
+              <div class="debt-mobile-total-grid">
+                <div>
+                  <span>Total saldo</span>
+                  <strong class="amt-debt"><%= money_amount(summary[:total_debt]) %></strong>
+                </div>
+                <div>
+                  <span>Total cuota</span>
+                  <strong><%= money_amount(summary[:monthly_installments]) %></strong>
+                </div>
+                <div>
+                  <span>Interés mensual</span>
+                  <strong><%= money_amount(summary[:monthly_interest]) %></strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       <% end %>
     </div>
 
