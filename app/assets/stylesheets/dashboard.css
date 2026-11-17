@@ -781,6 +781,23 @@ body.dashboard-body #main-wrapper { background: #f5f7fb; }
 .dash-source-empty { color: var(--dash-muted); }
 .dash-movement-table .badge { font-size: 0.58rem; font-weight: 700; padding: 4px 7px; border-radius: 6px; }
 
+/* Phone layout: the desktop table is replaced by the same compact card list
+ * used by the expenses ledger (.mobile-list / .mobile-item in expenses.css).
+ * The amount stays on the right and the money source gets its own line, so a
+ * long source name wraps instead of forcing horizontal scroll. */
+.dash-mobile-list .mobile-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+.dash-mobile-list .mobile-item-body { min-width: 0; }
+.dash-mobile-list .mobile-item > .text-end { grid-column: auto; }
+.dash-mobile-list .dash-movement-name { overflow-wrap: anywhere; }
+.dash-mobile-list .dash-source-pill {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 /* Dark mode adjustments */
 [data-bs-theme="dark"] .dashboard-page .card.metric-card--accounts {
   background: linear-gradient(135deg, rgba(18, 168, 117, 0.14), transparent 70%);

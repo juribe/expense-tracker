@@ -10,6 +10,13 @@
     return Array.prototype.slice.call(root.querySelectorAll("[data-available-cycle-row]"));
   }
 
+  // The desktop table and the phone card list render the same rows. Keep both
+  // containers while sorting/filtering with the same rule so their order and
+  // visibility always agree.
+  function rowContainersFor(root) {
+    return Array.prototype.slice.call(root.querySelectorAll("[data-available-cycle-rows]"));
+  }
+
   function updateCount(root, count) {
     var label = root.querySelector("[data-available-cycle-count]");
     if (!label) return;
@@ -23,8 +30,6 @@
   function sortRows(root, rows) {
     var mode = root.dataset.availableCycleSortMode || "due_date";
     var direction = root.dataset.availableCycleSortDirection || "asc";
-    var tbody = root.querySelector("[data-available-cycle-rows]");
-    if (!tbody) return;
 
     rows.sort(function (left, right) {
       if (mode === "missing") {
@@ -44,8 +49,10 @@
       return direction === "desc" ? rightDate.localeCompare(leftDate) : leftDate.localeCompare(rightDate);
     });
 
-    rows.forEach(function (row) {
-      tbody.appendChild(row);
+    rowContainersFor(root).forEach(function (container) {
+      rows.forEach(function (row) {
+        if (row.parentElement === container) container.appendChild(row);
+      });
     });
   }
 
@@ -61,8 +68,11 @@
 
     sortRows(root, rows);
 
+    // Count only the primary (desktop table) copy: the phone cards are a
+    // second rendering of the same expenses, not extra pending rows.
+    var primaryContainer = rowContainersFor(root)[0];
     var visibleCount = rows.filter(function (row) {
-      return !row.hidden;
+      return (!primaryContainer || row.parentElement === primaryContainer) && !row.hidden;
     }).length;
     updateCount(root, visibleCount);
   }

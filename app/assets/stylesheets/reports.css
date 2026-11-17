@@ -1102,6 +1102,62 @@ th[aria-sort="descending"] .report-sort-button .ti {
   font-size: 0.6875rem;
 }
 
+/* Phone layout for the pending expenses: the wide ledger table becomes the
+ * same compact card list used by the expenses index (.mobile-list /
+ * .mobile-item in expenses.css). The header keeps the total, search and sort
+ * controls; each card shows the missing amount first and the breakdown below. */
+.available-mobile-list {
+  overflow: hidden;
+  border: 1px solid var(--available-line);
+  border-radius: 14px;
+}
+.available-mobile-list .mobile-item {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0;
+}
+.available-mobile-list .mobile-item[hidden] { display: none; }
+.available-mobile-list .mobile-item-body { min-width: 0; }
+.available-mobile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.available-mobile-name { min-width: 0; }
+.available-mobile-name .available-expense-name { overflow-wrap: anywhere; }
+.available-mobile-head .available-missing { flex: 0 0 auto; }
+.available-mobile-due {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.available-mobile-due .available-due-tag { margin-top: 0; }
+.available-mobile-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--available-line);
+}
+.available-mobile-breakdown > div { min-width: 0; }
+.available-mobile-breakdown span {
+  display: block;
+  font-size: 0.625rem;
+  color: #9096b2;
+}
+.available-mobile-breakdown strong {
+  font-size: 0.75rem;
+  color: var(--available-ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
 .available-empty {
   display: flex;
   flex-direction: column;

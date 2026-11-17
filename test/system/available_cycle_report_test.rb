@@ -28,7 +28,7 @@ class AvailableCycleReportTest < ApplicationSystemTestCase
 
     find("[data-available-cycle-search]").set("Internet")
     visible_rows = page.evaluate_script(
-      "Array.from(document.querySelectorAll('[data-available-cycle-row]')).filter((row) => !row.hidden).map((row) => row.dataset.search)"
+      "Array.from(document.querySelectorAll('[data-testid=\"pending-expenses\"] [data-available-cycle-row]')).filter((row) => !row.hidden).map((row) => row.dataset.search)"
     )
     assert_equal [ "Internet Servicios" ], visible_rows
     assert_text "1 gasto pendiente"
@@ -39,7 +39,7 @@ class AvailableCycleReportTest < ApplicationSystemTestCase
     find("button[data-available-cycle-sort='due_date']").click
     assert_equal "Fecha inversa", find("button[data-available-cycle-sort='due_date'] [data-available-cycle-sort-label]").text
     order = page.evaluate_script(
-      "Array.from(document.querySelectorAll('[data-available-cycle-row]')).map((row) => row.dataset.dueDate || 'none')"
+      "Array.from(document.querySelectorAll('[data-testid=\"pending-expenses\"] [data-available-cycle-row]')).map((row) => row.dataset.dueDate || 'none')"
     )
     assert_equal "none", order.last
     dated_order = order[0..-2]
@@ -48,7 +48,7 @@ class AvailableCycleReportTest < ApplicationSystemTestCase
     find("button[data-available-cycle-sort='missing']").click
     assert_equal "Mayor faltante", find("button[data-available-cycle-sort='missing'] [data-available-cycle-sort-label]").text
     missing_order = page.evaluate_script(
-      "Array.from(document.querySelectorAll('[data-available-cycle-row]')).map((row) => parseFloat(row.dataset.missing))"
+      "Array.from(document.querySelectorAll('[data-testid=\"pending-expenses\"] [data-available-cycle-row]')).map((row) => parseFloat(row.dataset.missing))"
     )
     assert_equal missing_order.sort.reverse, missing_order
 

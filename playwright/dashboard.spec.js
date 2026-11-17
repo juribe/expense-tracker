@@ -30,8 +30,9 @@ test.describe('dashboard is working', () => {
 
     await expect(page.getByText('El gasto se creó correctamente.')).toBeVisible();
     await page.goto('/dashboard');
-    await expect(page.getByText('Grocery Store')).toBeVisible();
-    await expect(page.getByText('$50').first()).toBeVisible();
+    const recentMovements = page.getByTestId('dashboard-recent-expenses');
+    await expect(recentMovements.locator('.desktop-table').getByText('Grocery Store')).toBeVisible();
+    await expect(recentMovements.locator('.desktop-table').getByText('$50')).toBeVisible();
   });
 
   test('user can navigate to add new expense', async ({ page }) => {

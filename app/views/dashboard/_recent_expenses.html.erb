@@ -11,34 +11,57 @@
   </div>
 
   <% if @expense_summary[:recent_expenses].any? %>
-    <div class="table-responsive">
-      <table class="table dash-movement-table mb-0">
-        <thead>
-          <tr>
-            <th scope="col"><%= t("common.date") %></th>
-            <th scope="col"><%= t("common.category") %></th>
-            <th scope="col"><%= t("common.description") %></th>
-            <th scope="col"><%= t("dashboard.money_source", default: "Fuente de dinero") %></th>
-            <th scope="col" class="text-end"><%= t("common.amount") %></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @expense_summary[:recent_expenses].each do |expense| %>
-            <tr class="dash-movement-row"
-                tabindex="0" role="button"
-                aria-label="<%= t("dashboard.open_expense", default: "Abrir detalle del gasto %{description}", description: expense.description.presence || t("common.uncategorized", default: "Sin categoría")) %>"
-                data-expense-drawer
-                data-view-url="<%= expense_path(expense) %>"
-                data-edit-url="<%= edit_expense_path(expense) %>">
-              <td class="dash-movement-date"><%= l(expense.date, format: :long) %></td>
-              <td><%= category_badge(expense.category) %></td>
-              <td class="dash-movement-name"><%= expense.description.presence || t("expenses.no_description") %></td>
-              <td><%= dashboard_money_source_badge(expense.money_source) %></td>
-              <td class="text-end dash-movement-amount"><%= number_to_currency(expense.amount.abs) %></td>
+    <div class="desktop-table">
+      <div class="table-responsive">
+        <table class="table dash-movement-table mb-0">
+          <thead>
+            <tr>
+              <th scope="col"><%= t("common.date") %></th>
+              <th scope="col"><%= t("common.category") %></th>
+              <th scope="col"><%= t("common.description") %></th>
+              <th scope="col"><%= t("dashboard.money_source", default: "Fuente de dinero") %></th>
+              <th scope="col" class="text-end"><%= t("common.amount") %></th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% @expense_summary[:recent_expenses].each do |expense| %>
+              <tr class="dash-movement-row"
+                  tabindex="0" role="button"
+                  aria-label="<%= t("dashboard.open_expense", default: "Abrir detalle del gasto %{description}", description: expense.description.presence || t("common.uncategorized", default: "Sin categoría")) %>"
+                  data-expense-drawer
+                  data-view-url="<%= expense_path(expense) %>"
+                  data-edit-url="<%= edit_expense_path(expense) %>">
+                <td class="dash-movement-date"><%= l(expense.date, format: :long) %></td>
+                <td><%= category_badge(expense.category) %></td>
+                <td class="dash-movement-name"><%= expense.description.presence || t("expenses.no_description") %></td>
+                <td><%= dashboard_money_source_badge(expense.money_source) %></td>
+                <td class="text-end dash-movement-amount"><%= number_to_currency(expense.amount.abs) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <%# Phone layout: same compact card list used by the expenses ledger. %>
+    <div class="mobile-list dash-mobile-list">
+      <% @expense_summary[:recent_expenses].each do |expense| %>
+        <div class="mobile-item"
+             tabindex="0" role="button"
+             aria-label="<%= t("dashboard.open_expense", default: "Abrir detalle del gasto %{description}", description: expense.description.presence || t("common.uncategorized", default: "Sin categoría")) %>"
+             data-expense-drawer
+             data-view-url="<%= expense_path(expense) %>"
+             data-edit-url="<%= edit_expense_path(expense) %>">
+          <div class="mobile-item-body">
+            <div class="small text-muted">
+              <%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %>
+            </div>
+            <div class="mt-1 dash-movement-name"><%= expense.description.presence || t("expenses.no_description") %></div>
+            <div class="mt-1"><%= dashboard_money_source_badge(expense.money_source) %></div>
+          </div>
+          <div class="text-end dash-movement-amount"><%= number_to_currency(expense.amount.abs) %></div>
+        </div>
+      <% end %>
     </div>
   <% else %>
     <% new_expense_cta = link_to(new_expense_path, class: "btn btn-primary btn-sm") do %><i class="ti ti-plus me-1"></i><%= t("expenses.add_expense") %><% end %>

@@ -101,6 +101,14 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
    * the card beyond the viewport. */
   .mobile-item { grid-template-columns: auto minmax(0, 1fr); }
   .mobile-item-body { min-width: 0; }
+  /* Long money-source names wrap inside the card instead of widening it and
+   * forcing a horizontal scrollbar on phones. Bootstrap's .text-nowrap uses
+   * !important, so the mobile override has to as well. */
+  .mobile-item .badge {
+    max-width: 100%;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
   .mobile-item > .text-end { grid-column: 1 / -1; }
   .mobile-actions { flex-wrap: wrap; justify-content: flex-end; }
   .mobile-actions .btn { width: 44px; min-width: 44px; padding-left: 0; padding-right: 0; }
@@ -1318,8 +1326,19 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
 @media (max-width: 767.98px) {
   .candidates-tabs { width: 100%; }
   .candidates-tabs .nav { width: 100%; flex-wrap: nowrap; }
-  .candidates-tabs .nav-item { flex: 1 1 0; }
-  .candidates-tabs .nav-link { width: 100%; justify-content: center; }
+  /* The two tab labels ("Pendientes" / "Descartados") plus their counts need
+   * less room on phones, otherwise their min-content width beats the 50/50
+   * split and the row overflows the viewport horizontally. */
+  .candidates-tabs .nav-item { flex: 1 1 0; min-width: 0; }
+  .candidates-tabs .nav-link {
+    width: 100%;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+  .candidates-tabs .nav-link .ti { font-size: 0.9rem; }
+  .candidates-tabs .candidates-tab-count { padding: 0.2rem 0.45rem; font-size: 0.68rem; }
   .candidates-page .card-body { padding: 1rem; }
 
   .candidates-filters { display: grid; grid-template-columns: 1fr; }

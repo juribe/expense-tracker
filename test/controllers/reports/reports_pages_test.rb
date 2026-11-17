@@ -448,7 +448,8 @@ class ReportsPagesTest < ActionDispatch::IntegrationTest
     get reports_available_cycle_path
 
     assert_response :success
-    assert_select "[data-available-cycle-row]", 1
+    assert_select "tr[data-available-cycle-row]", 1
+    assert_select "[data-testid=pending-expense-mobile-row]", 1
     assert_select "tr[data-available-cycle-row][data-missing]"
     assert_select ".available-expense-name", text: "Internet"
     assert_select ".available-missing"

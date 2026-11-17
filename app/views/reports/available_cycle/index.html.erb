@@ -142,7 +142,7 @@
     </div>
 
     <% if @report[:pending_expenses].any? %>
-      <div class="available-table-wrap">
+      <div class="available-table-wrap desktop-table">
         <table class="available-table" data-testid="pending-expenses">
           <thead>
             <tr>
@@ -186,6 +186,53 @@
             <% end %>
           </tbody>
         </table>
+      </div>
+
+      <%# Phone layout: same compact card list used by the expenses ledger. %>
+      <div class="mobile-list available-mobile-list" data-available-cycle-rows data-testid="pending-expenses-mobile">
+        <% @report[:pending_expenses].each do |expense| %>
+          <div class="mobile-item available-mobile-card"
+               data-available-cycle-row
+               data-due-date="<%= expense[:due_date]&.iso8601 %>"
+               data-missing="<%= expense[:missing].to_s("F") %>"
+               data-search="<%= [expense[:name], expense[:category]].compact.join(' ') %>"
+               data-testid="pending-expense-mobile-row">
+            <span class="available-expense-icon is-<%= available_cycle_category_tone(expense[:category]) %>" aria-hidden="true">
+              <i class="ti <%= available_cycle_category_icon(expense[:category], expense[:category_icon]) %>"></i>
+            </span>
+            <div class="mobile-item-body">
+              <div class="available-mobile-head">
+                <div class="available-mobile-name">
+                  <div class="available-expense-name"><%= expense[:name] %></div>
+                  <div class="available-expense-category"><%= expense[:category].presence || t("reports.available_cycle.no_category", default: "Sin categoría") %></div>
+                </div>
+                <span class="available-missing">
+                  <span class="visually-hidden"><%= t("reports.available_cycle.missing", default: "Faltante") %>: </span><%= money_amount(expense[:missing]) %>
+                </span>
+              </div>
+
+              <div class="available-mobile-due">
+                <% if expense[:due_date].present? %>
+                  <span class="available-due-date"><%= l(expense[:due_date], format: :short) %></span>
+                <% else %>
+                  <span class="available-due-date is-empty"><%= t("reports.available_cycle.no_date", default: "Sin fecha") %></span>
+                <% end %>
+                <span class="available-due-tag <%= available_cycle_due_class(expense) %>"><%= available_cycle_due_label(expense) %></span>
+              </div>
+
+              <div class="available-mobile-breakdown">
+                <div>
+                  <span><%= t("reports.available_cycle.original", default: "Valor original") %></span>
+                  <strong><%= money_amount(expense[:original]) %></strong>
+                </div>
+                <div>
+                  <span><%= t("reports.available_cycle.paid", default: "Abonado") %></span>
+                  <strong><%= money_amount(expense[:paid]) %></strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
       </div>
       <div class="available-table-foot">
         <span data-available-cycle-count
