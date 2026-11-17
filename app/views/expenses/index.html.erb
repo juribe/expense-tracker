@@ -316,7 +316,12 @@
             <%= t("expenses.page_info", offset: @expenses.offset_value + 1, last: @expenses.offset_value + @expenses.length, total: @total_count, page_subtotal: number_to_currency(@page_subtotal), filtered_total: number_to_currency(@filtered_total)) %>
           </span>
         </div>
-        <%= will_paginate @expenses, renderer: WillPaginate::ActionView::BootstrapLinkRenderer, previous_label: t("common.previous"), next_label: t("common.next") if @expenses.total_pages > 1 %>
+        <% if @expenses.total_pages > 1 %>
+          <div class="expenses-pagination">
+            <%= will_paginate @expenses, renderer: WillPaginate::ActionView::BootstrapLinkRenderer,
+                  previous_label: "<<", next_label: ">>" %>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </div>

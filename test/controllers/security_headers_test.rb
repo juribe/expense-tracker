@@ -74,6 +74,9 @@ class SecurityHeadersTest < ActionDispatch::IntegrationTest
 
     get reports_trends_path
     assert_style_allows_inline "the spending trend renders server-generated charts"
+
+    get monthly_reports_path
+    assert_style_allows_inline "the cycle balance renders a server-generated chart"
   end
 
   test "chart pages keep script-src strict" do

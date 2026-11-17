@@ -123,72 +123,107 @@
     </div>
 
     <% if @transactions.any? %>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle cycle-transactions-table mb-0"
-               data-sortable-table
-               data-testid="monthly-balance-transactions-table">
-          <thead>
-            <tr>
-              <th scope="col" aria-sort="descending">
-                <button type="button" class="report-sort-button" data-sort-key="date" data-sort-type="date">
-                  <%= t("common.date") %>
-                  <i class="ti ti-sort-descending" data-sort-icon aria-hidden="true"></i>
-                </button>
-              </th>
-              <th scope="col" aria-sort="none">
-                <button type="button" class="report-sort-button" data-sort-key="type" data-sort-type="text">
-                  <%= t("common.type") %>
-                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                </button>
-              </th>
-              <th scope="col" aria-sort="none">
-                <button type="button" class="report-sort-button" data-sort-key="description" data-sort-type="text">
-                  <%= t("common.description") %>
-                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                </button>
-              </th>
-              <th scope="col" aria-sort="none">
-                <button type="button" class="report-sort-button" data-sort-key="category" data-sort-type="text">
-                  <%= t("common.category") %>
-                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                </button>
-              </th>
-              <th scope="col" class="text-end" aria-sort="none">
-                <button type="button" class="report-sort-button" data-sort-key="amount" data-sort-type="number">
-                  <%= t("common.amount") %>
-                  <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @transactions.each do |transaction| %>
-              <tr>
-                <td data-sort-value="<%= transaction.date.iso8601 %>" class="cycle-transaction-date">
+      <div class="cycle-transactions-list" data-report-transactions-list>
+        <div class="desktop-table">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle cycle-transactions-table mb-0"
+                   data-sortable-table
+                   data-testid="monthly-balance-transactions-table">
+              <thead>
+                <tr>
+                  <th scope="col" aria-sort="descending">
+                    <button type="button" class="report-sort-button" data-sort-key="date" data-sort-type="date">
+                      <%= t("common.date") %>
+                      <i class="ti ti-sort-descending" data-sort-icon aria-hidden="true"></i>
+                    </button>
+                  </th>
+                  <th scope="col" aria-sort="none">
+                    <button type="button" class="report-sort-button" data-sort-key="type" data-sort-type="text">
+                      <%= t("common.type") %>
+                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                    </button>
+                  </th>
+                  <th scope="col" aria-sort="none">
+                    <button type="button" class="report-sort-button" data-sort-key="description" data-sort-type="text">
+                      <%= t("common.description") %>
+                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                    </button>
+                  </th>
+                  <th scope="col" aria-sort="none">
+                    <button type="button" class="report-sort-button" data-sort-key="category" data-sort-type="text">
+                      <%= t("common.category") %>
+                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                    </button>
+                  </th>
+                  <th scope="col" class="text-end" aria-sort="none">
+                    <button type="button" class="report-sort-button" data-sort-key="amount" data-sort-type="number">
+                      <%= t("common.amount") %>
+                      <i class="ti ti-arrows-sort" data-sort-icon aria-hidden="true"></i>
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @transactions.each do |transaction| %>
+                  <tr data-transaction-key="<%= transaction.id %>">
+                    <td data-sort-value="<%= transaction.date.iso8601 %>" class="cycle-transaction-date">
+                      <%= cycle_transaction_date(transaction) %>
+                    </td>
+                    <td data-sort-value="<%= cycle_transaction_type_label(transaction) %>">
+                      <span class="cycle-type-badge <%= cycle_transaction_type_class(transaction) %>">
+                        <%= cycle_transaction_type_label(transaction) %>
+                      </span>
+                    </td>
+                    <td data-sort-value="<%= transaction.description.to_s %>" class="cycle-transaction-description">
+                      <%= transaction.description.presence || "—" %>
+                    </td>
+                    <td data-sort-value="<%= transaction.category&.name.to_s %>">
+                      <% if transaction.category %>
+                        <%= category_badge(transaction.category) %>
+                      <% else %>
+                        <span class="text-secondary"><%= t("common.uncategorized", default: "Sin categoría") %></span>
+                      <% end %>
+                    </td>
+                    <td class="text-end" data-sort-value="<%= transaction.amount.to_s %>">
+                      <%= cycle_transaction_amount(transaction) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <%# Phone layout: same compact card list used by the expenses ledger. %>
+        <div class="mobile-list cycle-transactions-mobile" data-report-transactions-cards
+             data-testid="monthly-balance-transactions-mobile-list">
+          <% @transactions.each do |transaction| %>
+            <div class="mobile-item" data-transaction-key="<%= transaction.id %>"
+                 data-testid="cycle-transaction-mobile">
+              <div class="mobile-item-body">
+                <div class="small text-muted">
                   <%= cycle_transaction_date(transaction) %>
-                </td>
-                <td data-sort-value="<%= cycle_transaction_type_label(transaction) %>">
-                  <span class="cycle-type-badge <%= cycle_transaction_type_class(transaction) %>">
+                  <span class="cycle-type-badge <%= cycle_transaction_type_class(transaction) %> ms-1">
                     <%= cycle_transaction_type_label(transaction) %>
                   </span>
-                </td>
-                <td data-sort-value="<%= transaction.description.to_s %>" class="cycle-transaction-description">
+                </div>
+                <div class="mt-1 cycle-transaction-mobile-name">
                   <%= transaction.description.presence || "—" %>
-                </td>
-                <td data-sort-value="<%= transaction.category&.name.to_s %>">
+                </div>
+                <div class="mt-1">
                   <% if transaction.category %>
                     <%= category_badge(transaction.category) %>
                   <% else %>
                     <span class="text-secondary"><%= t("common.uncategorized", default: "Sin categoría") %></span>
                   <% end %>
-                </td>
-                <td class="text-end" data-sort-value="<%= transaction.amount.to_s %>">
-                  <%= cycle_transaction_amount(transaction) %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+                </div>
+              </div>
+              <div class="text-end cycle-transaction-mobile-amount">
+                <%= cycle_transaction_amount(transaction) %>
+              </div>
+            </div>
+          <% end %>
+        </div>
       </div>
 
       <div class="cycle-table-foot">
@@ -201,7 +236,8 @@
         </span>
         <% if @transactions.total_pages > 1 %>
           <%= will_paginate @transactions, params: request.query_parameters,
-                previous_label: t("common.previous"), next_label: t("common.next") %>
+                renderer: WillPaginate::ActionView::BootstrapLinkRenderer,
+                previous_label: "<<", next_label: ">>" %>
         <% end %>
       </div>
     <% elsif @cycle_balance[:movement_count].zero? %>

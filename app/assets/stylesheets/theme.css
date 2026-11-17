@@ -434,6 +434,82 @@ section.page-section { margin-bottom: 1.5rem; }
 .pagination { margin-bottom: 0; }
 .pagination .page-link { border-radius: var(--et-radius-sm) !important; border-color: var(--bs-border-color); font-size: 0.8125rem; }
 
+/* Shared pill pagination: monthly reports and the expenses ledger wrap the
+ * Bootstrap pagination in one of these containers. */
+.cycle-pagination .pagination,
+.cycle-table-foot .pagination,
+.expenses-pagination .pagination {
+  display: inline-flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 999px;
+  background: var(--bs-body-bg);
+}
+
+.cycle-pagination .page-item,
+.cycle-table-foot .page-item,
+.expenses-pagination .page-item {
+  margin: 0;
+}
+
+.cycle-pagination .page-link,
+.cycle-table-foot .page-link,
+.expenses-pagination .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-right: 1px solid var(--bs-border-color);
+  border-radius: 0 !important;
+  background: transparent;
+  color: var(--bs-body-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cycle-pagination .page-item:last-child .page-link,
+.cycle-table-foot .page-item:last-child .page-link,
+.expenses-pagination .page-item:last-child .page-link {
+  border-right: 0;
+}
+
+.cycle-pagination .page-item:not(.active):not(.disabled) .page-link:hover,
+.cycle-table-foot .page-item:not(.active):not(.disabled) .page-link:hover,
+.expenses-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+}
+
+.cycle-pagination .page-item.active .page-link,
+.cycle-table-foot .page-item.active .page-link,
+.expenses-pagination .page-item.active .page-link {
+  background: var(--bs-primary);
+  color: #fff;
+}
+
+.cycle-pagination .page-item.disabled .page-link,
+.cycle-table-foot .page-item.disabled .page-link,
+.expenses-pagination .page-item.disabled .page-link {
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+}
+
+.cycle-pagination .page-link:focus-visible,
+.cycle-table-foot .page-link:focus-visible,
+.expenses-pagination .page-link:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: -2px;
+}
+
 /* Forms */
 .form-label { font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.3rem; }
 .form-text { font-size: 0.78rem; color: var(--et-muted); }

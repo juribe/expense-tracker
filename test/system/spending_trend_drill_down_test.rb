@@ -6,6 +6,10 @@ require "application_system_test_case"
 # that bucket, the same drill-down the category report offers.
 class SpendingTrendDrillDownTest < ApplicationSystemTestCase
   setup do
+    # This test exercises the desktop table and its sortable headers; the phone
+    # layout replaces them with cards (covered separately).
+    page.driver.browser.manage.window.resize_to(1400, 1000)
+
     @user = User.create!(name: "Trend UI", email: "spending_trend_ui@example.com", password: "password123")
     @user.confirm
     @category = Category.create!(user: @user, name: "Café", category_type: "expense")

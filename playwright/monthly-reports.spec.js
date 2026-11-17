@@ -42,14 +42,14 @@ test.describe('monthly reports are working', () => {
     await addExpense(page, { amount: '1250', date: '15/01/2023', description: 'January rent', source: efectivo });
     await openJanuary2023(page);
 
-    await expect(page.getByText('Enero 2023')).toBeVisible();
+    await expect(page.locator('.desktop-table').getByText('Enero 2023')).toBeVisible();
     await expect(page.getByText('$1.250').first()).toBeVisible();
 
     await page.getByRole('link', { name: 'Ver detalles' }).click();
     await expect(page).toHaveURL(/\/monthly_reports\/2023-01/);
     await expect(page.getByTestId('cycle-detail-title')).toHaveText('Enero 2023');
     await expect(page.getByTestId('cycle-balance-detail').getByText('Balance del ciclo')).toBeVisible();
-    await expect(page.getByText('January rent')).toBeVisible();
+    await expect(page.locator('.desktop-table').getByText('January rent')).toBeVisible();
   });
 
   test('cycle transactions can be sorted by amount', async ({ page }) => {

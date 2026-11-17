@@ -6,7 +6,7 @@
 class Reports::TransactionsController < Reports::BaseController
   def index
     scope = report_filters.actual_expense_scope(@period.range)
-    ordered = scope.includes(:category, :money_source).order(date: :desc, created_at: :desc)
+    ordered = scope.includes(:category, money_source: :credit_account).order(date: :desc, created_at: :desc)
 
     if params[:modal].present?
       render partial: "reports/transactions/modal",

@@ -127,47 +127,94 @@
     </div>
 
     <div class="report-panel-body">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle cycle-balance-table mb-0" data-testid="monthly-balance-table">
-          <thead>
-            <tr>
-              <th scope="col"><%= t("reports.cycle_balance.cycle", default: "Ciclo") %></th>
-              <th scope="col" class="text-end"><%= t("reports.cycle_balance.income", default: "Ingresos") %></th>
-              <th scope="col" class="text-end"><%= t("reports.cycle_balance.expenses", default: "Gastos") %></th>
-              <th scope="col" class="text-end"><%= t("reports.cycle_balance.net", default: "Resultado neto") %></th>
-              <th scope="col" class="text-end"><%= t("reports.cycle_balance.movements", default: "Movimientos") %></th>
-              <th scope="col"><%= t("reports.cycle_balance.status", default: "Estado") %></th>
-              <th scope="col" class="text-end"><%= t("reports.cycle_balance.actions", default: "Acciones") %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @paged_cycles.each do |balance| %>
-              <tr class="<%= "is-current" if balance[:current] %>">
-                <td>
+      <div class="desktop-table">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle cycle-balance-table mb-0" data-testid="monthly-balance-table">
+            <thead>
+              <tr>
+                <th scope="col"><%= t("reports.cycle_balance.cycle", default: "Ciclo") %></th>
+                <th scope="col" class="text-end"><%= t("reports.cycle_balance.income", default: "Ingresos") %></th>
+                <th scope="col" class="text-end"><%= t("reports.cycle_balance.expenses", default: "Gastos") %></th>
+                <th scope="col" class="text-end"><%= t("reports.cycle_balance.net", default: "Resultado neto") %></th>
+                <th scope="col" class="text-end"><%= t("reports.cycle_balance.movements", default: "Movimientos") %></th>
+                <th scope="col"><%= t("reports.cycle_balance.status", default: "Estado") %></th>
+                <th scope="col" class="text-end"><%= t("reports.cycle_balance.actions", default: "Acciones") %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @paged_cycles.each do |balance| %>
+                <tr class="<%= "is-current" if balance[:current] %>">
+                  <td>
+                    <div class="cycle-name"><%= balance[:label] %></div>
+                    <div class="cycle-date"><%= balance[:range_label] %></div>
+                  </td>
+                  <td class="text-end cycle-amount-income"><%= money_amount(balance[:income_total]) %></td>
+                  <td class="text-end cycle-amount-expense"><%= money_amount(balance[:expense_total]) %></td>
+                  <td class="text-end fw-bold <%= balance[:net_total].negative? ? "cycle-amount-expense" : "cycle-amount-income" %>">
+                    <%= money_amount(balance[:net_total]) %>
+                  </td>
+                  <td class="text-end"><%= balance[:movement_count] %></td>
+                  <td>
+                    <span class="cycle-status-badge <%= cycle_status_class(balance[:status]) %>">
+                      <%= cycle_status_label(balance[:status]) %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <%= link_to monthly_report_path(balance[:key]), class: "btn btn-sm btn-primary cycle-details-button" do %>
+                      <%= t("reports.cycle_balance.view_details", default: "Ver detalles") %>
+                      <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <%# Phone layout: same compact card list used by the expenses ledger. %>
+      <div class="mobile-list cycle-balance-mobile" data-testid="monthly-balance-mobile-list">
+        <% @paged_cycles.each do |balance| %>
+          <div class="mobile-item cycle-balance-card <%= "is-current" if balance[:current] %>">
+            <div class="mobile-item-body">
+              <div class="cycle-mobile-head">
+                <div>
                   <div class="cycle-name"><%= balance[:label] %></div>
                   <div class="cycle-date"><%= balance[:range_label] %></div>
-                </td>
-                <td class="text-end cycle-amount-income"><%= money_amount(balance[:income_total]) %></td>
-                <td class="text-end cycle-amount-expense"><%= money_amount(balance[:expense_total]) %></td>
-                <td class="text-end fw-bold <%= balance[:net_total].negative? ? "cycle-amount-expense" : "cycle-amount-income" %>">
-                  <%= money_amount(balance[:net_total]) %>
-                </td>
-                <td class="text-end"><%= balance[:movement_count] %></td>
-                <td>
-                  <span class="cycle-status-badge <%= cycle_status_class(balance[:status]) %>">
-                    <%= cycle_status_label(balance[:status]) %>
-                  </span>
-                </td>
-                <td class="text-end">
-                  <%= link_to monthly_report_path(balance[:key]), class: "btn btn-sm btn-primary cycle-details-button" do %>
-                    <%= t("reports.cycle_balance.view_details", default: "Ver detalles") %>
-                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+                </div>
+                <span class="cycle-status-badge <%= cycle_status_class(balance[:status]) %>">
+                  <%= cycle_status_label(balance[:status]) %>
+                </span>
+              </div>
+
+              <div class="cycle-mobile-grid">
+                <div>
+                  <span><%= t("reports.cycle_balance.income", default: "Ingresos") %></span>
+                  <strong class="cycle-amount-income"><%= money_amount(balance[:income_total]) %></strong>
+                </div>
+                <div>
+                  <span><%= t("reports.cycle_balance.expenses", default: "Gastos") %></span>
+                  <strong class="cycle-amount-expense"><%= money_amount(balance[:expense_total]) %></strong>
+                </div>
+                <div>
+                  <span><%= t("reports.cycle_balance.net", default: "Resultado neto") %></span>
+                  <strong class="<%= balance[:net_total].negative? ? "cycle-amount-expense" : "cycle-amount-income" %>">
+                    <%= money_amount(balance[:net_total]) %>
+                  </strong>
+                </div>
+                <div>
+                  <span><%= t("reports.cycle_balance.movements", default: "Movimientos") %></span>
+                  <strong><%= balance[:movement_count] %></strong>
+                </div>
+              </div>
+
+              <%= link_to monthly_report_path(balance[:key]), class: "btn btn-sm btn-primary cycle-details-button cycle-mobile-link" do %>
+                <%= t("reports.cycle_balance.view_details", default: "Ver detalles") %>
+                <i class="ti ti-arrow-right" aria-hidden="true"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       </div>
 
       <% if @paged_cycles.total_pages > 1 %>
@@ -177,7 +224,8 @@
                   page: @paged_cycles.current_page, pages: @paged_cycles.total_pages) %>
           </span>
           <%= will_paginate @paged_cycles, params: filter_params_for,
-                previous_label: t("common.previous"), next_label: t("common.next") %>
+                renderer: WillPaginate::ActionView::BootstrapLinkRenderer,
+                previous_label: "<<", next_label: ">>" %>
         </div>
       <% end %>
     </div>

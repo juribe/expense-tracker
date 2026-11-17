@@ -8,6 +8,10 @@ class MoneySourcesReportSystemTest < ApplicationSystemTestCase
   driven_by :selenium_chrome_headless
 
   setup do
+    # The drill-down assertion inspects the desktop transactions table; phones
+    # render the same transactions as cards.
+    page.driver.browser.manage.window.resize_to(1400, 1000)
+
     @user = User.create!(name: "Money Sources System", email: "money_sources_system@example.com",
                          password: "password123")
     @user.confirm

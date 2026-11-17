@@ -394,6 +394,26 @@ th[aria-sort="descending"] .report-sort-button .ti {
   cursor: pointer;
 }
 
+/* Phone layout for the shared report transactions list: the ledger table is
+ * replaced by the same compact card list used by the expenses index
+ * (.mobile-list / .mobile-item in expenses.css). */
+.report-transactions-mobile .mobile-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.35rem 0.75rem;
+  padding: 0.85rem 1rem;
+}
+.report-transactions-mobile .mobile-item-body { min-width: 0; }
+.report-transactions-mobile .mobile-item > .text-end { grid-column: auto; }
+.report-transaction-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.report-transaction-amount {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Below the desktop breakpoint, let the two chip columns shrink to fit. */
 @media (max-width: 991.98px) {
   .filters-grid {
@@ -3685,10 +3705,6 @@ a.category-distribution-row:hover {
 
   .category-report-note {
     padding: 0.7rem 0.8rem;
-  }
-
-  .category-table {
-    min-width: 600px;
   }
 }
 

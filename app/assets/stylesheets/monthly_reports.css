@@ -250,15 +250,87 @@
 
 .cycle-pagination {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 0.5rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--bs-border-color);
+  text-align: center;
 }
 
-.cycle-pagination .pagination {
-  margin-bottom: 0;
+.cycle-pagination .small,
+.cycle-table-foot .small {
+  font-size: 0.875rem;
+}
+
+/* Phone layout for the cycle history: the wide balance table becomes the same
+ * compact card list used by the expenses index (.mobile-list / .mobile-item in
+ * expenses.css). */
+.cycle-balance-mobile .mobile-item {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.65rem;
+  padding: 0.95rem 1rem;
+  border-radius: 0;
+}
+.cycle-balance-mobile .mobile-item.is-current {
+  background: rgba(42, 109, 245, 0.045);
+  box-shadow: inset 3px 0 0 var(--bs-primary);
+}
+.cycle-mobile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.cycle-mobile-head > div { min-width: 0; }
+.cycle-mobile-head .cycle-name { overflow-wrap: anywhere; }
+.cycle-mobile-head .cycle-status-badge { flex: 0 0 auto; }
+.cycle-mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 0.75rem;
+}
+.cycle-mobile-grid > div { min-width: 0; }
+.cycle-mobile-grid span {
+  display: block;
+  color: var(--et-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cycle-mobile-grid strong {
+  display: block;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.cycle-mobile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 44px;
+}
+
+/* Phone layout for the cycle movements: same cards, amount on the right. */
+.cycle-transactions-mobile .mobile-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.35rem 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0;
+}
+.cycle-transactions-mobile .mobile-item > .text-end { grid-column: auto; }
+.cycle-transaction-mobile-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.cycle-transaction-mobile-amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* -------------------------------------------------
@@ -400,12 +472,13 @@
 
 .cycle-table-foot {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 0.85rem 1.15rem;
   border-top: 1px solid var(--bs-border-color);
+  text-align: center;
 }
 
 .cycle-table-foot .pagination {
@@ -535,12 +608,6 @@
 
   .cycle-filters .btn-outline-secondary {
     grid-column: auto;
-  }
-
-  .cycle-table-foot,
-  .cycle-pagination {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .cycle-balance-table,

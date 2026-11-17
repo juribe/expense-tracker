@@ -18,6 +18,42 @@
     body.querySelector("p").textContent = message || "";
   }
 
+  var lastTrigger = null;
+
+  function focusableTrigger(target) {
+    if (!target) return null;
+    var selector = "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])";
+    if (target.matches && target.matches(selector)) return target;
+    return target.querySelector ? target.querySelector(selector) : null;
+  }
+
+  // Bootstrap 5.3 does not return focus to the opener when the modal closes,
+  // so aria-hidden ends up on a container whose close button still has focus.
+  // Move focus out before that happens; the opener is restored when it can
+  // take focus, otherwise focus falls back to the document body.
+  function restoreFocus(modal) {
+    var target = focusableTrigger(lastTrigger);
+    lastTrigger = null;
+
+    // Leave the modal before aria-hidden is applied, then restore the opener.
+    // The focus trap is still active during the hide event, so focusing the
+    // opener immediately would be pulled back to the modal close button.
+    if (modal.contains(document.activeElement)) document.activeElement.blur();
+
+    window.setTimeout(function () {
+      if (target && document.body.contains(target)) target.focus();
+    }, 0);
+  }
+
+  function prepareFocusRestore(modal) {
+    if (modal.dataset.focusRestoreBound === "true") return;
+
+    modal.dataset.focusRestoreBound = "true";
+    modal.addEventListener("hide.bs.modal", function () {
+      restoreFocus(modal);
+    });
+  }
+
   function showLoading(modal, body) {
     body.innerHTML = '<div class="text-center text-muted py-4">' +
       '<div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>' +
@@ -25,7 +61,7 @@
     body.querySelector("p").textContent = modal.dataset.transactionsLoading || "";
   }
 
-  function open(url) {
+  function open(url, trigger) {
     var modal = modalElement();
     var body = modalBody();
 
@@ -33,6 +69,9 @@
       window.location.href = url;
       return;
     }
+
+    lastTrigger = trigger || document.activeElement;
+    prepareFocusRestore(modal);
 
     showLoading(modal, body);
     window.bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -106,6 +145,26 @@
       .forEach(function (row) {
         tbody.appendChild(row);
       });
+
+    syncCardOrder(table);
+  }
+
+  // The phone cards render the same transactions as the table. When the table
+  // is sorted, mirror that order in the card list so both stay consistent.
+  function syncCardOrder(table) {
+    var list = table.closest("[data-report-transactions-list]");
+    var cards = list && list.querySelector("[data-report-transactions-cards]");
+    if (!cards) return;
+
+    var cardsByKey = {};
+    Array.prototype.slice.call(cards.children).forEach(function (card) {
+      cardsByKey[card.getAttribute("data-transaction-key")] = card;
+    });
+
+    Array.prototype.slice.call(table.tBodies[0].rows).forEach(function (row) {
+      var card = cardsByKey[row.getAttribute("data-transaction-key")];
+      if (card) cards.appendChild(card);
+    });
   }
 
   function handleTrigger(event) {
@@ -118,7 +177,7 @@
     if (!url) return false;
 
     event.preventDefault();
-    open(url);
+    open(url, trigger);
     return true;
   }
 

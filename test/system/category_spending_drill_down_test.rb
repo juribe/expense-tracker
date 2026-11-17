@@ -6,6 +6,10 @@ require "application_system_test_case"
 # report modal instead of navigating away from the category report.
 class CategorySpendingDrillDownTest < ApplicationSystemTestCase
   setup do
+    # This test inspects the desktop transactions table inside the modal; the
+    # phone layout renders the same rows as cards instead.
+    page.driver.browser.manage.window.resize_to(1400, 1000)
+
     @user = User.create!(name: "Category UI", email: "category_spending_ui@example.com", password: "password123")
     @user.confirm
     @food = Category.create!(user: @user, name: "Café", category_type: "expense")

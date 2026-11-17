@@ -7,6 +7,12 @@
 # pagination and CSV export. Both screens share Reports::CycleBalances so their
 # indicators always agree.
 class MonthlyReportsController < Reports::BaseController
+  # The cycle balance renders a Chartkick chart, which injects inline styles.
+  # Relax style-src for these pages only (see the CSP initializer).
+  content_security_policy do |policy|
+    policy.style_src :self, "https://fonts.googleapis.com", :unsafe_inline
+  end
+
   CYCLES_PER_PAGE = 8
   TRANSACTIONS_PER_PAGE = ApplicationController::PER_PAGE
 
