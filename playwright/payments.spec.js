@@ -16,7 +16,7 @@ test.describe('Debt payments', () => {
     await page.locator('#money_source_kind').selectOption('account');
     await page.locator('[data-kind-panel~="account"] #money_source_starting_balance').fill('1000000');
     await page.locator('#money_source_active').first().check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
     await expect(page).toHaveURL(/\/money_sources/);
 
     await page.goto('/money_sources/new');
@@ -28,7 +28,7 @@ test.describe('Debt payments', () => {
     await page.locator('#money_source_credit_account_attributes_statement_day').fill('15');
     await page.locator('#money_source_credit_account_attributes_payment_due_day').fill('30');
     await page.locator('#money_source_active').check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
     await expect(page).toHaveURL(/\/money_sources\/credit_cards$/);
 
     await page.goto('/expenses/new');

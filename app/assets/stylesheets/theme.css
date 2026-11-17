@@ -146,6 +146,39 @@ h4, .h4 { font-size: 1rem; }
 .card > .card-footer { border-top: 1px solid var(--bs-border-color); }
 .card > .card-footer.form-card-actions { padding-top: 1rem; padding-bottom: 1rem; }
 
+/* Form action rows (cancel + primary). Desktop keeps the actions inline and
+   aligned to the end; on phones they share the row, half the width each, so
+   "Cancelar" gets the same touch target as the primary action. */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.form-actions-between { justify-content: space-between; }
+
+@media (max-width: 575.98px) {
+  .form-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .form-actions > .btn,
+  .form-actions > * > .btn {
+    --bs-btn-padding-x: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    white-space: normal;
+  }
+  .form-actions > .form-actions-hint { grid-column: 1 / -1; margin-right: 0 !important; }
+  /* When one of the two actions is hidden (e.g. the statement import
+     "pay only" mode), the remaining one takes the whole row. */
+  .form-actions:has(> .d-none) > .btn { grid-column: 1 / -1; }
+}
+
 /* Interactive cards get one consistent hover affordance */
 .card-hover { transition: box-shadow 0.15s ease, transform 0.15s ease; }
 .card-hover:hover { box-shadow: 0 4px 14px rgba(15, 34, 58, 0.06); }

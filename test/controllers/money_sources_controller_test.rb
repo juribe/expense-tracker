@@ -967,7 +967,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h4", text: "Nuevo préstamo"
-    assert_select "input[type=submit][value='Guardar préstamo']"
+    assert_select "button[type=submit][value='Guardar préstamo']"
   end
 
   test "GET /money_sources/new for a credit card preselects the kind and hides the selector" do
@@ -975,7 +975,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h4", text: "Nueva tarjeta de crédito"
-    assert_select "input[type=submit][value='Guardar tarjeta de crédito']"
+    assert_select "button[type=submit][value='Guardar tarjeta de crédito']"
     assert_select "input[type=hidden][name='money_source[kind]'][value='credit_card']"
     assert_select "select#money_source_kind", count: 0
   end
@@ -1016,7 +1016,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h4", text: "Nueva cuenta"
-    assert_select "input[type=submit][value='Guardar cuenta']"
+    assert_select "button[type=submit][value='Guardar cuenta']"
     assert_select "input[type=hidden][name='money_source[kind]'][value='account']"
     assert_select "select#money_source_kind", count: 0
     assert_select "[data-kind-panel='account wallet']" do
@@ -1042,7 +1042,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h4", text: "Nuevo bolsillo"
-    assert_select "input[type=submit][value='Guardar bolsillo']"
+    assert_select "button[type=submit][value='Guardar bolsillo']"
     assert_select "input[type=hidden][name='money_source[kind]'][value='pocket']"
     assert_select "select#money_source_kind", count: 0
   end
@@ -1072,7 +1072,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".card-header .icon-chip i.ti-pig-money"
       assert_select ".card-header h4", text: "Nuevo bolsillo"
       assert_select ".card-header .card-subtitle", text: "Completa los datos de tu bolsillo."
-      assert_select ".card-footer input[type=submit].btn.btn-primary[value='Guardar bolsillo']"
+      assert_select ".card-footer button[type=submit].btn.btn-primary[value='Guardar bolsillo']"
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_sources_pockets_path, text: "Cancelar"
     end
     assert_select ".d-grid", count: 0
@@ -1161,7 +1161,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{money_source_path(card)}'] .card" do
       assert_select ".card-header .icon-chip i.ti-credit-card"
       assert_select ".card-header .card-subtitle", text: "Completa los datos de tu tarjeta de crédito."
-      assert_select ".card-footer input[type=submit].btn.btn-primary[value='Guardar tarjeta de crédito']"
+      assert_select ".card-footer button[type=submit].btn.btn-primary[value='Guardar tarjeta de crédito']"
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_sources_credit_cards_path, text: "Cancelar"
     end
     assert_select ".d-grid", count: 0
@@ -1174,7 +1174,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h4", text: "Editar tarjeta de crédito"
-    assert_select "input[type=submit][value='Guardar tarjeta de crédito']"
+    assert_select "button[type=submit][value='Guardar tarjeta de crédito']"
   end
 
   test "GET /money_sources/:id/edit for an account uses the account wording in the title and submit button" do
@@ -1184,7 +1184,7 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h4", text: "Editar cuenta"
-    assert_select "input[type=submit][value='Guardar cuenta']"
+    assert_select "button[type=submit][value='Guardar cuenta']"
   end
 
   test "POST /money_sources creates a money source" do

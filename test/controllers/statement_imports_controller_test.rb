@@ -46,7 +46,7 @@ class StatementImportsControllerTest < ActionDispatch::IntegrationTest
       assert_select ".card-header .card-subtitle", text: /Sube el extracto/
       assert_select ".card-header .badge", text: @card.name
       assert_select ".card-footer a.btn.btn-outline-secondary[href=?]", money_source_path(@card), text: "Volver"
-      assert_select ".card-footer input[type=submit].btn.btn-primary#statementImportSubmit"
+      assert_select ".card-footer button[type=submit].btn.btn-primary#statementImportSubmit"
     end
   end
 

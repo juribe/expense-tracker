@@ -11,7 +11,7 @@ test.describe('MoneySource recognition keywords', () => {
     await page.locator('#money_source_name').fill(name);
     await page.locator('#money_source_kind').selectOption(kind);
     await page.locator('#money_source_active').check();
-    await page.locator('form input[type="submit"]').click();
+    await page.locator('form[data-money-source-form] input[type="submit"], form[data-money-source-form] button[type="submit"]').click();
     const url = kind === 'credit_card' ? /\/money_sources\/credit_cards$/ : /\/money_sources\/loans$/;
     await expect(page).toHaveURL(url);
     await expect(page.getByText('La fuente de dinero se creó correctamente.')).toBeVisible();
