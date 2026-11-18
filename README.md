@@ -118,11 +118,21 @@ For a manual deployment, export the same variables, copy
 bundle exec kamal setup
 ```
 
-The public home is served by Maglev. On the first deployment, create and
-publish the CMS site once:
+The public home is served by Maglev. Every production deploy applies the
+versioned CMS catalog after Kamal reports the new container healthy:
 
 ```sh
-bundle exec kamal app exec --reuse "bin/rails yogasto:create_cms_site"
+bin/rails yogasto:deploy_cms_content
+```
+
+That task creates the Maglev site on a fresh install, creates missing theme
+pages, seeds the help center when needed, refreshes the SEO articles and
+landing pages, adds the internal links and republishes only pages whose content
+actually changed. The same task can be triggered manually from the Deploy
+workflow with `setup_cms`, or run directly with:
+
+```sh
+bundle exec kamal app exec --reuse "bin/rails yogasto:deploy_cms_content"
 ```
 
 Do not commit `.kamal/secrets`. Optional production variables for mail, inbound
@@ -227,6 +237,20 @@ bin/rails yogasto:setup_help_center
 
 Editorial rules, page paths, section names and reindexing commands are documented
 in [docs/help_center.md](docs/help_center.md).
+
+### SEO and commercial landing pages
+
+The public SEO catalog (five refreshed help articles, five commercial landing
+pages, metadata, JSON-LD, internal links, sitemap and robots.txt) is applied
+idempotently with:
+
+```sh
+bin/rails yogasto:setup_seo_content
+```
+
+Architecture, canonical URLs, structured data and content commands are
+documented in [docs/seo.md](docs/seo.md). The canonical origin defaults to
+`https://yogasto.co` and can be overridden with `PUBLIC_SITE_URL`.
 
 ### Privacy policy
 

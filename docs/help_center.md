@@ -63,6 +63,10 @@ editorial sin allowlist.
 # Crea /ayuda, las cinco categorías y los artículos iniciales. Es idempotente.
 bin/rails yogasto:setup_help_center
 
+# Refresca el contenido SEO de los cinco artículos destacados y crea las
+# landing pages comerciales. Es idempotente.
+bin/rails yogasto:setup_seo_content
+
 # Solo crea contenido inicial que falte.
 bin/rails yogasto:seed_help_center
 

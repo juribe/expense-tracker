@@ -1,0 +1,89 @@
+# Long-form editorial content for commercial landing pages. Headings stay
+# below the single H1 rendered by the hero, and paragraphs accept the same
+# safe HTML subset used by the help center.
+name: "Contenido de landing"
+category: content
+singleton: true
+insert_button: true
+max_width_pane: 480
+settings:
+- label: "Etiqueta superior"
+  id: kicker
+  type: text
+  default: "Cómo funciona"
+- label: "Título de la sección"
+  id: title
+  type: text
+  default: "Todo lo que necesitas para organizar tu dinero"
+- label: "Texto destacado con gradiente"
+  id: gradient_text
+  type: text
+  default: ""
+- label: "Descripción"
+  id: description
+  type: text
+  default: ""
+blocks_label: "Bloques de contenido"
+blocks:
+- name: "Encabezado"
+  type: heading
+  settings:
+  - label: "Nivel"
+    id: level
+    type: select
+    select: ["2", "3"]
+    default: "2"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Un subtítulo claro"
+- name: "Párrafo"
+  type: paragraph
+  settings:
+  - label: "Contenido (HTML seguro permitido)"
+    id: text
+    type: text
+    default: "Escribe aquí el contenido de la sección."
+- name: "Lista"
+  type: list
+  settings:
+  - label: "Estilo"
+    id: style
+    type: select
+    select: ["unordered", "ordered"]
+    default: "unordered"
+  - label: "Elementos (uno por línea)"
+    id: items
+    type: text
+    default: "Primer elemento\nSegundo elemento"
+- name: "Consejo o advertencia"
+  type: callout
+  settings:
+  - label: "Tipo"
+    id: variant
+    type: select
+    select: ["tip", "warning", "note"]
+    default: "tip"
+  - label: "Título"
+    id: title
+    type: text
+    default: "Consejo"
+  - label: "Texto"
+    id: text
+    type: text
+    default: "Una aclaración breve."
+- name: "Ejemplo"
+  type: example
+  settings:
+  - label: "Etiqueta"
+    id: label
+    type: text
+    default: "EJEMPLO"
+  - label: "Texto del ejemplo"
+    id: text
+    type: text
+    default: "Pagué 35.000 en gasolina."
+  - label: "Resultado o aclaración"
+    id: note
+    type: text
+    default: "Yogasto lo convierte en un gasto listo para revisar."

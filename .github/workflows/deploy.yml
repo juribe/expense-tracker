@@ -18,7 +18,7 @@ on:
         type: boolean
         default: false
       setup_cms:
-        description: Create the Maglev site when missing and publish its pages
+        description: Apply and publish all public Maglev content without a new deploy
         type: boolean
         default: false
 
@@ -243,13 +243,17 @@ jobs:
         if: inputs.dump_logs
         run: bundle exec kamal app logs --lines 200
 
-      - name: Set up the CMS site
-        if: inputs.setup_cms
-        run: bundle exec kamal app exec --reuse "bin/rails yogasto:create_cms_site"
-
       - name: Deploy with Kamal
         if: ${{ !inputs.dump_logs && !inputs.setup_cms }}
         run: bundle exec kamal setup
+
+      # Applies the versioned Maglev catalog after the new container is
+      # healthy: creates missing theme pages, seeds the help center on a fresh
+      # install, refreshes the SEO articles and landing pages, adds the
+      # internal links and republishes only what actually changed.
+      - name: Apply and publish CMS content
+        if: ${{ success() && !inputs.dump_logs }}
+        run: bundle exec kamal app exec --reuse "bin/rails yogasto:deploy_cms_content"
 
       # Deployment tracking runs only after Kamal succeeded, so a failed deploy
       # is never recorded as a successful Rollbar revision. The notification is

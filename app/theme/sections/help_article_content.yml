@@ -60,6 +60,21 @@ blocks:
     id: text
     type: text
     default: "Un consejo breve para aplicar."
+- name: "Ejemplo"
+  type: example
+  settings:
+  - label: "Etiqueta"
+    id: label
+    type: text
+    default: "EJEMPLO"
+  - label: "Texto del ejemplo"
+    id: text
+    type: text
+    default: "Pagué 35.000 en gasolina."
+  - label: "Resultado o aclaración"
+    id: note
+    type: text
+    default: "Yogasto lo convierte en un gasto listo para revisar."
 - name: "Enlace a video o recurso"
   type: video
   settings:

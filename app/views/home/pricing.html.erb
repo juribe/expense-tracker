@@ -1,5 +1,18 @@
 <% content_for :head do %>
   <%= stylesheet_link_tag :pricing, "data-turbo-track": "reload" %>
+  <meta name="description" content="Compara los planes de Yogasto, conoce los precios en pesos colombianos y elige cómo empezar a organizar tus finanzas.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="<%= public_cms_absolute_url("precios") %>">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= public_cms_absolute_url("precios") %>">
+  <meta property="og:title" content="Precios y planes | Yogasto">
+  <meta property="og:description" content="Consulta los planes vigentes de Yogasto, sus precios en pesos colombianos y las condiciones de pago.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Precios y planes | Yogasto">
+  <meta name="twitter:description" content="Consulta los planes vigentes de Yogasto, sus precios en pesos colombianos y las condiciones de pago.">
+  <% public_cms_pricing_seo_data.each do |entry| %>
+    <script type="application/ld+json"><%= raw(json_escape(JSON.generate(entry))) %></script>
+  <% end %>
 <% end %>
 
 <div class="page-shell">

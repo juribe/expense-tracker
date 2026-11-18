@@ -27,6 +27,14 @@
             <p class="help-callout__title"><%= block.settings.title %></p>
             <div><%= help_sanitize_html(block.settings.text) %></div>
           </aside>
+        <% when "example" %>
+          <figure class="landing-example">
+            <figcaption><%= block.settings.label %></figcaption>
+            <blockquote><%= block.settings.text %></blockquote>
+            <% if block.settings.note.present? %>
+              <p><%= block.settings.note %></p>
+            <% end %>
+          </figure>
         <% when "video" %>
           <% url = help_safe_external_url(block.settings.url) %>
           <% if url %>

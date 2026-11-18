@@ -8,10 +8,11 @@ module CmsPage
     COLUMN_TITLE = "Confianza y legal"
     REFERENCE_HREF = "/privacidad"
 
-    def initialize(site:, label:, href:)
+    def initialize(site:, label:, href:, column_title: COLUMN_TITLE)
       @site = site
       @label = label
       @href = href
+      @column_title = column_title
     end
 
     def call
@@ -33,7 +34,7 @@ module CmsPage
             :created
           end
 
-          publish
+          publish unless result == :present
           result
         end
       end
@@ -44,7 +45,7 @@ module CmsPage
     attr_reader :site, :label, :href
 
     def column_for(blocks)
-      blocks.find { |block| column_title(block) == COLUMN_TITLE } ||
+      blocks.find { |block| column_title(block) == @column_title } ||
         blocks.select { |block| block["type"] == "column" }.last ||
         add_column(blocks)
     end
@@ -53,7 +54,7 @@ module CmsPage
       column = {
         "id" => block_id,
         "type" => "column",
-        "settings" => [ { "id" => "title", "value" => COLUMN_TITLE } ]
+        "settings" => [ { "id" => "title", "value" => @column_title } ]
       }
       blocks.push(column)
       column

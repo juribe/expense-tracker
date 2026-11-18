@@ -1,12 +1,32 @@
-# Helper shared by the Maglev theme (public CMS pages) to render SEO metadata
-# server-side. Only available to Maglev controllers because public pages are
-# rendered through engine controllers that inherit ApplicationController.
+# MaglevThemeHelper
+# Public CMS URLs, canonical tags and alternate language links rendered
+# server-side by the Maglev theme layout.
+#
+# Example: canonical_and_og_url_tags(maglev_page)
 module MaglevThemeHelper
+  # Canonical origin shared by metadata, JSON-LD and the sitemap.
+  def public_cms_base_url
+    PublicSiteUrl.base
+  end
+
+  # Absolute HTTPS URL for a CMS path. Paths are stored without a leading
+  # slash; the home page ("index") resolves to the origin root.
+  def public_cms_absolute_url(path)
+    normalized = path.to_s.sub(%r{\A/+}, "").sub(%r{/+\z}, "")
+    return "#{public_cms_base_url}/" if normalized.blank? || normalized == "index"
+
+    "#{public_cms_base_url}/#{normalized}"
+  end
+
+  # Splits a Maglev text setting into non-empty lines.
+  def public_cms_text_lines(value)
+    value.to_s.lines.map(&:strip).reject(&:blank?)
+  end
+
   # Canonical URL of a CMS page: the explicit canonical_url when the editor
-  # set one, otherwise the requested URL (the query part is not desirable for
-  # canonical URLs, so we rebuild it from base_url + path).
+  # set one, otherwise the canonical host plus the page path.
   def public_cms_canonical_url(page)
-    page.canonical_url.presence || (request.base_url + normalized_cms_path(page))
+    page.canonical_url.presence || public_cms_absolute_url(page.index? ? "index" : page.path)
   end
 
   def normalized_cms_path(page)

@@ -337,7 +337,7 @@ module HelpCenterSeed
         paragraph("<p>El <a href='/reconciliation'>Día de Balance</a> es un espacio para revisar que lo que tienes registrado coincida con la realidad: saldos de cuentas, deudas y pagos pendientes del periodo.</p>"),
         heading("Para qué sirve"),
         paragraph("<ol><li>Ver el saldo que Yogasto calcula para cada cuenta o deuda.</li><li>Compararlo con el saldo real que consultas en tu banco o tarjeta.</li><li>Asignar pagos pendientes a los movimientos que ya registraste.</li><li>Marcar como revisado lo que ya está cuadrado.</li></ol>"),
-        callout("Herramienta Pro", "El Día de Balance hace parte de las funciones Pro. Si tu plan no la incluye, puedes conocer las opciones en <a href='/precios'>Precios y planes</a>.", "note")
+        callout("Disponible en tu cuenta", "El Día de Balance no requiere una membresía Pro. Puedes abrirlo desde <a href='/reconciliation'>Día de Balance</a> cuando quieras comparar tus saldos con la realidad y revisar los pagos pendientes del periodo.")
       ]
     ),
 

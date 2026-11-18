@@ -1,0 +1,48 @@
+<%= maglev_section.wrapper_tag.section class: "landing-content" do %>
+  <div class="container">
+    <div class="landing-content-head">
+      <% if maglev_section.settings.kicker.present? %>
+        <%= maglev_section.setting_tag :kicker, html_tag: "div", class: "kicker" %>
+      <% end %>
+      <h2>
+        <%= maglev_section.setting_tag :title, html_tag: "span" %><% if maglev_section.settings.gradient_text.present? %><span class="gradient-text"><%= maglev_section.setting_tag :gradient_text, html_tag: "span" %></span><% end %>
+      </h2>
+      <% if maglev_section.settings.description.present? %>
+        <%= maglev_section.setting_tag :description, html_tag: "p" %>
+      <% end %>
+    </div>
+
+    <div class="landing-prose">
+      <% maglev_section.blocks.each do |block| %>
+        <% case block.type %>
+        <% when "heading" %>
+          <% level = block.settings.level.to_s == "3" ? "h3" : "h2" %>
+          <<%= level %>><%= help_sanitize_inline(block.settings.text) %></<%= level %>>
+        <% when "paragraph" %>
+          <div class="landing-prose__html"><%= help_sanitize_html(block.settings.text) %></div>
+        <% when "list" %>
+          <% tag_name = block.settings.style.to_s == "ordered" ? "ol" : "ul" %>
+          <<%= tag_name %> class="landing-prose__list">
+            <% public_cms_text_lines(block.settings.items).each do |item| %>
+              <li><%= help_sanitize_inline(item) %></li>
+            <% end %>
+          </<%= tag_name %>>
+        <% when "callout" %>
+          <% variant = %w[tip warning note].include?(block.settings.variant.to_s) ? block.settings.variant.to_s : "tip" %>
+          <aside class="help-callout help-callout--<%= variant %>">
+            <p class="help-callout__title"><%= block.settings.title %></p>
+            <div><%= help_sanitize_html(block.settings.text) %></div>
+          </aside>
+        <% when "example" %>
+          <figure class="landing-example">
+            <figcaption><%= block.settings.label %></figcaption>
+            <blockquote><%= block.settings.text %></blockquote>
+            <% if block.settings.note.present? %>
+              <p><%= block.settings.note %></p>
+            <% end %>
+          </figure>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -15,6 +15,18 @@ class PricingPageTest < ActionDispatch::IntegrationTest
     assert_select "footer.site-footer a[href='/eliminacion-de-datos']", count: 1
   end
 
+  test "pricing page exposes SEO metadata and structured data" do
+    get "https://yogasto.co/precios"
+
+    assert_response :success
+    assert_match "<title>Precios y planes | Yogasto</title>", response.body
+    assert_match 'name="description" content="Compara los planes de Yogasto', response.body
+    assert_match 'rel="canonical" href="https://yogasto.co/precios"', response.body
+    assert_match 'name="robots" content="index,follow"', response.body
+    assert_match '"@type":"SoftwareApplication"', response.body
+    assert_match '"priceCurrency":"COP"', response.body
+  end
+
   test "pricing page shows dynamic trial days" do
     PaymentEngine::Setting.current.update!(free_trial_duration_days: 45)
     get pricing_path

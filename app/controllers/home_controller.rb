@@ -15,6 +15,7 @@ class HomeController < ApplicationController
   end
 
   def pricing
+    @page_title = "Precios y planes"
     @settings = PaymentEngine::Setting.current rescue nil
     @membership_type = PaymentEngine::MembershipType.active.first
     @options = PaymentEngine::PaymentOption.where(status: "active").order(:position)

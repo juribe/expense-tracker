@@ -53,6 +53,11 @@ module ExpenseTracker
     public_hosts = ENV["RAILS_PUBLIC_HOSTS"].to_s.split(",").map(&:strip).compact_blank
     config.x.public_hosts = public_hosts.any? ? public_hosts : [ "expensetracker.com", "samyreplies.com" ]
 
+    # Canonical public origin used by CMS metadata, JSON-LD and the sitemap.
+    # Marketing content always points to the HTTPS yogasto.co host, even when
+    # the request arrives through www or plain HTTP.
+    config.x.public_site_url = ENV.fetch("PUBLIC_SITE_URL", "https://yogasto.co").sub(%r{/+\z}, "")
+
     # Don't generate system test files.
     config.generators.system_tests = nil
   end
