@@ -9,10 +9,30 @@ module MoneySources
     Result = Struct.new(:source, :range, :period_label, :opening_balance,
                         :entries_total, :exits_total, :closing_balance,
                         :movements, :total_count, :page, :per_page,
-                        keyword_init: true)
+                        keyword_init: true) do
+      def debt?
+        source.debt?
+      end
+
+      def entries_label
+        debt? ? "Pagos" : "Entradas"
+      end
+
+      def exits_label
+        return "Salidas" unless debt?
+        return "Compras" if source.credit_card?
+        return "Usos y transferencias" if source.revolving?
+
+        "Cargos"
+      end
+
+      def net_change
+        entries_total - exits_total
+      end
+    end
 
     def initialize(user:, source:, period: "current", start_date: nil, end_date: nil,
-                   kind: "all", query: nil, page: 1, per_page: 25)
+                   kind: "all", query: nil, page: 1, per_page: 25, paginate: true)
       @user = user
       @source = source
       @period_key = period.to_s.presence || "current"
@@ -22,13 +42,14 @@ module MoneySources
       @query = query.to_s.strip
       @page = page.to_i.positive? ? page.to_i : 1
       @per_page = per_page.to_i.positive? ? per_page.to_i : 25
+      @paginate = paginate
     end
 
     def call
       range = resolve_range
       all_movements = build_movements(range)
       filtered = filter_movements(all_movements)
-      paginated = paginate(filtered)
+      visible = @paginate ? paginate(filtered) : filtered
 
       Result.new(
         source: @source,
@@ -38,7 +59,7 @@ module MoneySources
         entries_total: filtered.select { |m| m.direction == "in" }.sum { |m| m.amount.to_d },
         exits_total: filtered.select { |m| m.direction == "out" }.sum { |m| m.amount.to_d },
         closing_balance: nil,
-        movements: paginated,
+        movements: visible,
         total_count: filtered.size,
         page: @page,
         per_page: @per_page

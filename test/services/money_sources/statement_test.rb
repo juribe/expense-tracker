@@ -62,6 +62,19 @@ class MoneySources::StatementTest < ActiveSupport::TestCase
     assert_equal 5, result.total_count
   end
 
+  test "paginate false returns every filtered movement" do
+    30.times do |i|
+      @user.expenses.create!(money_source: @source, amount: 10, date: Date.current, description: "Gasto #{i}", source: "manual")
+    end
+
+    result = MoneySources::Statement.new(
+      user: @user, source: @source, period: "current", per_page: 2, page: 2, paginate: false
+    ).call
+
+    assert_equal 30, result.movements.size
+    assert_equal 30, result.total_count
+  end
+
   test "manual adjustment appears as movement" do
     BalanceAdjustment.create!(user: @user, money_source: @source, effective_date: Date.current, delta: 300, note: "Ajuste manual")
     result = MoneySources::Statement.new(user: @user, source: @source, period: "current").call
