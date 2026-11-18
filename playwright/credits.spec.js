@@ -158,4 +158,36 @@ test.describe('Credit intelligence dashboard', () => {
     await expect(page.getByRole('heading', { name: 'Reconstruir crédito' })).toBeVisible();
     await expect(page.getByText(name)).toBeVisible();
   });
+
+  test('credits page exposes resumen, como ahorrar, escenarios and cronograma', async ({ page }) => {
+    const name = `Préstamo Tabs-${Date.now()}`;
+    await createProjectableLoan(page, name);
+    const loanPath = await showPath(page, name);
+    const creditsPath = `${loanPath}/credits`;
+
+    await page.goto(creditsPath);
+    await expect(page).toHaveURL(new RegExp(`${creditsPath}$`));
+
+    await expect(page.getByRole('tab', { name: 'Resumen' })).toHaveClass(/active/);
+    await expect(page.getByText('Estado actual')).toBeVisible();
+    await expect(page.getByText('Costo futuro')).toBeVisible();
+    await expect(page.getByText('Total restante por pagar')).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Cómo ahorrar' }).click();
+    await expect(page.locator('[data-testid="credit-quick"]')).toBeVisible();
+    await page.locator('#quick_amount').fill('300000');
+    await page.getByRole('button', { name: 'Comparar formas de ahorrar' }).click();
+    await expect(page.locator('#quick-results')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Guardar como escenario' }).first().click();
+    await expect(page.getByText('Escenario guardado.')).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Escenarios' }).click();
+    await expect(page.getByRole('heading', { name: 'Comparar escenarios' })).toBeVisible();
+    await expect(page.getByText(/para terminar antes/).first()).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Cronograma' }).click();
+    await expect(page.getByRole('heading', { name: 'Tabla de amortización' })).toBeVisible();
+    await expect(page.locator('#credit-tab-cronograma .table-responsive tbody tr').first()).toBeVisible();
+  });
 });
