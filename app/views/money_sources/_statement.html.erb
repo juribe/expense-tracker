@@ -1,16 +1,7 @@
 <% s = statement %>
 <% debt = source.debt? %>
-<% entries_label = debt ? "Pagos" : "Entradas" %>
-<% exits_label =
-     if !debt
-       "Salidas"
-     elsif source.credit_card?
-       "Compras"
-     elsif source.revolving?
-       "Usos y transferencias"
-     else
-       "Cargos"
-     end %>
+<% entries_label = s.entries_label %>
+<% exits_label = s.exits_label %>
 <% selected_period = params[:period].presence || "current" %>
 <% current_page = (params[:page].presence || 1).to_i %>
 <% per_page = s.per_page %>
@@ -35,6 +26,28 @@
           <option value="30days" <%= "selected" if selected_period == "30days" %>>Últimos 30 días</option>
           <option value="custom" <%= "selected" if selected_period == "custom" %>>Rango personalizado…</option>
         </select>
+        <% export_params = request.query_parameters.to_h.symbolize_keys.except(:page, :format) %>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                  id="statementExportMenu" data-bs-toggle="dropdown" aria-expanded="false"
+                  data-testid="statement-export">
+            <i class="ti ti-download me-1" aria-hidden="true"></i>Exportar
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="statementExportMenu">
+            <li>
+              <%= link_to "CSV", extractos_money_source_path(source, export_params.merge(format: :csv)),
+                          class: "dropdown-item", data: { turbo: false } %>
+            </li>
+            <li>
+              <%= link_to "Excel (XLSX)", extractos_money_source_path(source, export_params.merge(format: :xlsx)),
+                          class: "dropdown-item", data: { turbo: false } %>
+            </li>
+            <li>
+              <%= link_to "PDF", extractos_money_source_path(source, export_params.merge(format: :pdf)),
+                          class: "dropdown-item", data: { turbo: false } %>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div id="customDates" class="d-flex gap-2 flex-wrap mb-3 <%= "d-none" unless selected_period == "custom" %>">

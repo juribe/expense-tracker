@@ -42,6 +42,10 @@ gem "thruster", require: false
 
 gem "devise"
 gem "pdf-reader"
+# Excel and PDF exports for money source statements.
+gem "caxlsx"
+gem "prawn"
+gem "prawn-table"
 gem "resend"
 gem "svix"
 gem "will_paginate", "~> 4.0"
