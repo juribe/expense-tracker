@@ -22,7 +22,19 @@ async function pickCategory(page, fieldId, label) {
       .poll(async () => listbox.locator('[role="option"]:not([hidden])').count())
       .toBeLessThan(total);
   }
-  await option.click();
+
+  // Selecting with the keyboard avoids racing the picker's deferred blur
+  // handler, which can close the listbox while Playwright is clicking.
+  const visibleOptions = listbox.locator('[role="option"]:not([hidden])');
+  const index = await visibleOptions.evaluateAll(
+    (options, wanted) => options.findIndex((candidate) => candidate.textContent.trim() === wanted),
+    label
+  );
+  expect(index).toBeGreaterThanOrEqual(0);
+  for (let step = 0; step < index; step += 1) {
+    await input.press('ArrowDown');
+  }
+  await input.press('Enter');
 
   await expect(input).toHaveValue(label);
   await expect(page.locator(`#${fieldId}`)).toHaveValue(/^[0-9a-f-]{36}$/);
