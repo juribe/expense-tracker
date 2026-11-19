@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1795119102.8598583,
-    "seen": 1795119605.835305,
-    "ast_hash": "e9a4bd093bdf04b00ffe2a4d43976cee",
+    "mtime": 1795123943.167339,
+    "seen": 1795124166.7074938,
+    "ast_hash": "a3d7c21c05af2acf162b8c350ae0f704",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1795119100.3347719,
-    "seen": 1795119605.835306,
-    "ast_hash": "2fdc4ca95d91075a8ef87344b835c0de",
+    "mtime": 1795123939.8688557,
+    "seen": 1795124166.707496,
+    "ast_hash": "47ddead3b55a14409dba5704d7854cb2",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795119954.5799148,
-    "seen": 1795120037.196584,
+    "mtime": 1795122244.5050294,
+    "seen": 1795124166.707668,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4890,9 +4890,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/expenses_table.js": {
-    "mtime": 1793379198.3554485,
-    "seen": 1793490696.634284,
-    "ast_hash": "3998d89fac4028166f867e53ef1bd28e",
+    "mtime": 1795123888.4111054,
+    "seen": 1795124166.6156852,
+    "ast_hash": "54b4af21184463e3b239c09ff0986204",
     "semantic_hash": ""
   },
   "app/assets/javascripts/financial_setup_edit_all.js": {
