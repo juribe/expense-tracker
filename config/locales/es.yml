@@ -915,6 +915,7 @@ es:
     source_recognition: "Reconocimiento de fuentes"
     entities: "Entidades bancarias"
     playground: "Playground"
+    users: "Usuarios"
     cms_editor: "Editor CMS"
     evaluations: "Evaluaciones"
     assistant: "Asistente"
@@ -942,6 +943,40 @@ es:
     section_admin: "Admin"
     candidates: "Candidatos"
     pending_candidates: "Candidatos pendientes"
+
+  admin:
+    users:
+      title: "Usuarios"
+      subtitle: "Revisa las cuentas registradas, su verificación y actividad."
+      list_title: "Usuarios registrados"
+      caption: "Listado de usuarios registrados"
+      columns:
+        user: "Usuario"
+        verified: "Email verificado"
+        created_at: "Creado"
+        accounts: "Cuentas"
+        actions: "Acciones"
+      verified: "Verificado"
+      pending: "Pendiente"
+      delete: "Eliminar usuario"
+      delete_aria: "Eliminar la cuenta de %{email}"
+      delete_confirm: "¿Eliminar la cuenta de %{email}? Esta acción borra todos sus datos financieros y no se puede deshacer."
+      deleted: "Usuario eliminado."
+      delete_failed: "No se pudo eliminar el usuario."
+      cannot_delete_self: "No puedes eliminar tu propia cuenta."
+      empty: "Aún no hay usuarios registrados."
+      bulk:
+        selected: "seleccionados"
+        select_all: "Seleccionar todos los usuarios"
+        select_user: "Seleccionar la cuenta de %{email}"
+        delete_selected: "Eliminar seleccionados"
+        delete_confirm: "¿Eliminar las cuentas seleccionadas? Esta acción borra todos sus datos financieros y no se puede deshacer."
+        deleted:
+          one: "1 usuario eliminado."
+          other: "%{count} usuarios eliminados."
+        partially_deleted: "%{deleted} usuarios eliminados; %{failed} no se pudieron eliminar."
+        delete_failed: "No se pudieron eliminar los usuarios seleccionados."
+        none_selected: "Selecciona al menos un usuario."
 
   evaluations:
     subtitle: "Sube un dataset CSV y evalúa el pipeline completo con un proveedor/modelo concreto."

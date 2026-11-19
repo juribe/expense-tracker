@@ -272,6 +272,13 @@ Rails.application.routes.draw do
   get "settings/pay", to: "pay_settings#show", as: :pay_settings
   patch "settings/pay", to: "pay_settings#update"
 
+  # Admin user management
+  namespace :admin do
+    resources :users, only: [ :index, :destroy ] do
+      delete :bulk_destroy, on: :collection
+    end
+  end
+
   # Expense ingestion playground (internal testing / debugging page)
   get "expense-playground", to: "expense_playground#show", as: :expense_playground
   post "expense-playground/process", to: "expense_playground#run", as: :expense_playground_process

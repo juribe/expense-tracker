@@ -398,6 +398,7 @@ en:
     source_recognition: "Source Recognition"
     entities: "Bank entities"
     playground: "Playground"
+    users: "Users"
     cms_editor: "CMS editor"
     evaluations: "Evaluations"
     assistant: "Assistant"
@@ -424,6 +425,40 @@ en:
     reconciliation: "Balance Day"
     candidates: "Candidates"
     pending_candidates: "Candidates pending review"
+
+  admin:
+    users:
+      title: "Users"
+      subtitle: "Review registered accounts, their verification and activity."
+      list_title: "Registered users"
+      caption: "Registered users list"
+      columns:
+        user: "User"
+        verified: "Email verified"
+        created_at: "Created"
+        accounts: "Accounts"
+        actions: "Actions"
+      verified: "Verified"
+      pending: "Pending"
+      delete: "Delete user"
+      delete_aria: "Delete the account for %{email}"
+      delete_confirm: "Delete the account for %{email}? This removes all their financial data and cannot be undone."
+      deleted: "User deleted."
+      delete_failed: "The user could not be deleted."
+      cannot_delete_self: "You cannot delete your own account."
+      empty: "There are no registered users yet."
+      bulk:
+        selected: "selected"
+        select_all: "Select all users"
+        select_user: "Select the account for %{email}"
+        delete_selected: "Delete selected"
+        delete_confirm: "Delete the selected accounts? This removes all their financial data and cannot be undone."
+        deleted:
+          one: "1 user deleted."
+          other: "%{count} users deleted."
+        partially_deleted: "%{deleted} users deleted; %{failed} could not be deleted."
+        delete_failed: "The selected users could not be deleted."
+        none_selected: "Select at least one user."
 
   evaluations:
     subtitle: "Upload a CSV dataset and evaluate the full pipeline with a specific provider/model."

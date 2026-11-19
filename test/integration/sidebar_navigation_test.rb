@@ -126,6 +126,13 @@ class SidebarNavigationTest < ActionDispatch::IntegrationTest
     assert_select "#sidebarSectionAdmin a.sidebar-link[href='/maglev/editor']", text: "Editor CMS"
   end
 
+  test "the Admin section links to the registered users page" do
+    get dashboard_path
+
+    assert_response :success
+    assert_select "#sidebarSectionAdmin a.sidebar-link[href='#{admin_users_path}']", text: "Usuarios"
+  end
+
   test "sidebar only uses icons available in the bundled Tabler font" do
     get dashboard_path
 

@@ -209,7 +209,7 @@ module ApplicationHelper
                  category_insights],
     automation: %w[transaction_rules gmail_connections whatsapp_settings email_sources],
     settings: %w[categories alert_settings financial_institutions custom_financial_institutions],
-    admin: %w[expense_playground expense_evaluations gmf_uvt_years]
+    admin: %w[users expense_playground expense_evaluations gmf_uvt_years]
   }.freeze
 
   def sidebar_section_active?(section)

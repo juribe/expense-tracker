@@ -17,7 +17,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # cascade stays a single query batch. The redirect lands on the app root
   # (the sign-in screen once signed out) instead of the meaningless /users.
   def destroy
-    self.resource = User.includes(money_sources: [ :outgoing_transfers, :incoming_transfers, :goals, :payments, :credit_scenarios, :credit_extra_payments, :gmf_monthly_accumulators ]).find(resource.id)
+    self.resource = User.with_deletion_dependencies.find(resource.id)
     super
   end
 

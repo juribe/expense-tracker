@@ -9,6 +9,21 @@ class User < ApplicationRecord
 
   NAME_MAX_LENGTH = 255
 
+  # Associations destroyed with an account. Eager-loaded when deleting users
+  # so the cascade does not issue an N+1 per account.
+  DELETION_DEPENDENCIES = %i[
+    webauthn_credentials recurring_templates
+    gmail_connections mail_inbound_deliveries processed_emails
+    reconciliation_states reconciliation_snapshots balance_adjustments
+    statement_format_mappings spreadsheet_format_mappings ai_requests
+    categories goals gmf_monthly_accumulators transfers financial_setups
+    budgets spending_alerts transaction_rules
+    expense_playground_runs evaluation_runs activity_classifications
+    expense_candidates expense_clarifications custom_financial_institutions
+    email_sources email_forwarding_verifications mcp_access_tokens recovery_codes
+    user_consents whatsapp_connections pending_whatsapp_connections
+  ].freeze
+
   validates :name, presence: true, if: :name_required?
   validates :name, length: { maximum: NAME_MAX_LENGTH }
   validates :financial_cycle_start_day,
@@ -83,6 +98,18 @@ class User < ApplicationRecord
   has_many :premium_identities, foreign_key: :first_user_id, dependent: :nullify, inverse_of: :first_user
   has_many :released_premium_identities, class_name: "PremiumIdentity",
            foreign_key: :released_by_user_id, dependent: :nullify, inverse_of: :released_by_user
+
+  # Loading the cascade up front keeps bulk account deletion from issuing an
+  # N+1 across each account's dependent records.
+  scope :with_deletion_dependencies, -> {
+    includes(*DELETION_DEPENDENCIES,
+             transactions: [ :payments, :expense_candidates ],
+             incomes: [ :payments, :expense_candidates ],
+             expenses: [ :payments, :expense_candidates ],
+             money_sources: [ :outgoing_transfers, :incoming_transfers, :goals, :payments,
+                              :credit_scenarios, :credit_extra_payments,
+                              :gmf_monthly_accumulators ])
+  }
 
   # Two-factor authentication is opt-in. A passkey is a complete primary
   # authentication method and does not enable a second factor by itself.
