@@ -83,6 +83,14 @@ class AlertsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(@increase_alert)}"
   end
 
+  test "GET /alerts renders the alert icon with the Tabler base class" do
+    get alerts_path
+    assert_response :success
+
+    chip_icon = css_select("##{dom_id(@threshold_alert)} i.ti.ti-alert-triangle").first
+    assert chip_icon, "the alert chip should render the icon with the ti base class"
+  end
+
   test "GET /alerts shows the unread badge count" do
     get alerts_path
     assert_response :success
