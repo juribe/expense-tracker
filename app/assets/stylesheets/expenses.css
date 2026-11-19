@@ -1513,3 +1513,301 @@ tbody tr:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: -
   .incomes-page-header .incomes-header-add { width: 100%; }
   .incomes-summary-secondary { display: none; }
 }
+
+/* ---------------------------------------------------------------
+ * Apply to monthly expense modal
+ * Visual treatment for #bulkRecurringModal: selected transaction
+ * summary, monthly expense picker, accumulated amount preview and
+ * the completion checkbox. Behaviour stays in expenses_table.js.
+ * --------------------------------------------------------------- */
+.assign-recurring-dialog { max-width: 660px; }
+
+.assign-recurring-modal {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1.1rem;
+  box-shadow: 0 24px 80px rgba(16, 37, 61, 0.22);
+}
+
+.assign-recurring-header {
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.2rem 1.55rem 0.3rem;
+  border-bottom: 0;
+}
+
+.assign-recurring-heading { min-width: 0; }
+
+.assign-recurring-modal .modal-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--bs-body-color);
+}
+
+.assign-recurring-intro {
+  margin: 0.45rem 0 0;
+  max-width: 52ch;
+  color: var(--bs-secondary-color);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.assign-recurring-body { padding: 0.9rem 1.55rem 1.1rem; }
+
+.assign-recurring-selected {
+  margin-bottom: 1rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #e7edf2;
+  border-radius: 0.75rem;
+  background: #f4f7fa;
+}
+
+.assign-recurring-eyebrow {
+  margin-bottom: 0.45rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.assign-recurring-transaction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.assign-recurring-copy { min-width: 0; }
+
+.assign-recurring-description {
+  color: var(--bs-body-color);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.assign-recurring-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.3rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.76rem;
+}
+
+.assign-recurring-dot { opacity: 0.6; }
+
+.assign-recurring-category { display: inline-flex; max-width: 100%; }
+.assign-recurring-category .badge {
+  max-width: 28ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.assign-recurring-amount {
+  flex: 0 0 auto;
+  color: var(--bs-danger);
+  font-size: 1.05rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.assign-recurring-field .form-label {
+  margin-bottom: 0.5rem;
+  color: var(--bs-body-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.assign-recurring-select {
+  padding: 0.7rem 2.75rem 0.7rem 0.9rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.65rem;
+  color: var(--bs-body-color);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.assign-recurring-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.16);
+}
+
+.assign-recurring-details {
+  margin-top: 0.8rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  background: var(--bs-body-bg);
+}
+
+.assign-recurring-details-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--bs-body-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.assign-recurring-template-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assign-recurring-percentage {
+  flex: 0 0 auto;
+  color: var(--et-positive);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.assign-recurring-progress {
+  height: 0.4rem;
+  margin: 0.6rem 0 0.85rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bs-secondary-bg);
+}
+
+.assign-recurring-progress > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--et-positive);
+  transition: width 0.2s ease;
+}
+
+.assign-recurring-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.assign-recurring-detail { min-width: 0; }
+
+.assign-recurring-detail-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.assign-recurring-detail-value {
+  display: block;
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.assign-recurring-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.85rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--bs-border-color);
+  cursor: pointer;
+}
+
+.assign-recurring-check .form-check-input {
+  flex: 0 0 auto;
+  float: none;
+  margin: 0.1rem 0 0;
+}
+
+.assign-recurring-check-copy { min-width: 0; }
+
+.assign-recurring-check-title {
+  display: block;
+  color: var(--bs-body-color);
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.assign-recurring-check-hint {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.73rem;
+  line-height: 1.4;
+}
+
+.assign-recurring-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.65rem;
+  background: #f3f7fa;
+  color: var(--bs-secondary-color);
+  font-size: 0.77rem;
+  line-height: 1.45;
+}
+
+.assign-recurring-info .ti {
+  flex: 0 0 auto;
+  color: var(--bs-primary);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.assign-recurring-info p { margin: 0; }
+
+.assign-recurring-footer {
+  gap: 0.6rem;
+  padding: 0.2rem 1.55rem 1.15rem;
+  border-top: 0;
+}
+
+.assign-recurring-footer .btn {
+  height: 44px;
+  padding: 0 1.2rem;
+  border-radius: 0.6rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.assign-recurring-footer .btn-primary { min-width: 130px; }
+
+[data-bs-theme="dark"] .assign-recurring-selected,
+[data-bs-theme="dark"] .assign-recurring-info {
+  border-color: var(--bs-border-color);
+  background: var(--bs-tertiary-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assign-recurring-progress > span { transition: none; }
+}
+
+@media (max-width: 575.98px) {
+  .assign-recurring-header { padding: 1.15rem 1.05rem 0.3rem; }
+  .assign-recurring-body { padding: 0.95rem 1.05rem 1.1rem; }
+  .assign-recurring-footer { padding: 0.15rem 1.05rem 1.1rem; }
+
+  .assign-recurring-modal .modal-title { font-size: 1.18rem; }
+  .assign-recurring-intro { font-size: 0.85rem; }
+  .assign-recurring-transaction { gap: 0.7rem; }
+  .assign-recurring-detail-label { font-size: 0.6rem; }
+  .assign-recurring-detail-value { font-size: 0.76rem; }
+}

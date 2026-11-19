@@ -215,6 +215,8 @@
                     data-category-id="<%= expense.category_id %>"
                     data-recurring-id="<%= expense.recurring_template_id %>"
                     data-amount="<%= expense.amount.to_d.to_s("F") %>"
+                    data-expense-description="<%= expense.description.presence || t("expenses.no_description") %>"
+                    data-expense-date="<%= l(expense.date, format: :long) %>"
                     data-view-url="<%= expense_path(expense) %>"
                     data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                     data-delete-url="<%= expense_path(expense, state_query) %>">
@@ -230,7 +232,7 @@
                       <span class="text-muted"><%= t("expenses.no_description") %></span>
                     <% end %>
                   </td>
-                  <td><%= category_badge(expense.category) %></td>
+                  <td class="row-category"><%= category_badge(expense.category) %></td>
                   <td><%= money_source_badge(expense.money_source) %></td>
                   <td class="text-end amount"><%= number_to_currency(expense.amount) %></td>
                   <td class="text-end text-nowrap" data-stop="1">
@@ -241,8 +243,9 @@
                     <% if expense.recurring_template_id.nil? %>
                       <button type="button" class="btn btn-sm btn-outline-primary" data-assign-recurring
                               data-testid="row-assign-recurring"
+                              title="<%= t('expenses.assign_recurring.row_button_title', default: 'Aplicar a gasto mensual') %>"
                               aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
-                        <i class="ti ti-repeat"></i>
+                        <i class="ti ti-calendar-plus"></i>
                       </button>
                     <% end %>
                     <%= link_to edit_expense_path(expense, state_query), class: "btn btn-sm btn-outline-primary",
@@ -268,13 +271,15 @@
                  data-category-id="<%= expense.category_id %>"
                  data-recurring-id="<%= expense.recurring_template_id %>"
                  data-amount="<%= expense.amount.to_d.to_s("F") %>"
+                 data-expense-description="<%= expense.description.presence || t("expenses.no_description") %>"
+                 data-expense-date="<%= l(expense.date, format: :long) %>"
                  data-view-url="<%= expense_path(expense) %>"
                  data-edit-url="<%= edit_expense_path(expense, state_query) %>"
                  data-delete-url="<%= expense_path(expense, state_query) %>">
               <input type="checkbox" class="form-check-input row-check mt-2"
                      aria-label="<%= t('expenses.select_expense', date: l(expense.date, format: :short), description: decorated.lowercase_description) %>">
               <div class="mobile-item-body">
-                <div class="small text-muted"><%= l(expense.date, format: :short) %> · <%= category_badge(expense.category) %> · <%= money_source_badge(expense.money_source) %></div>
+                <div class="small text-muted"><%= l(expense.date, format: :short) %> · <span class="row-category"><%= category_badge(expense.category) %></span> · <%= money_source_badge(expense.money_source) %></div>
                 <div class="mt-1">
                   <% if expense.description.present? %>
                     <%= expense.description %>
@@ -292,8 +297,9 @@
                   </button>
                   <% if expense.recurring_template_id.nil? %>
                     <button type="button" class="btn btn-outline-primary" data-assign-recurring
+                            title="<%= t('expenses.assign_recurring.row_button_title', default: 'Aplicar a gasto mensual') %>"
                             aria-label="<%= t('expenses.assign_recurring.row_button_aria', description: decorated.lowercase_description) %>">
-                      <i class="ti ti-repeat"></i>
+                      <i class="ti ti-calendar-plus"></i>
                     </button>
                   <% end %>
                   <%= link_to edit_expense_path(expense, state_query), class: "btn btn-outline-primary",
@@ -422,28 +428,48 @@
            amount_hint: nil,
            testid: "expense-process-modal" %>
 
-<!-- Modal: aplicar un gasto existente a una plantilla recurrente -->
+<!-- Modal: aplicar un gasto existente a un gasto mensual -->
 <%= form_with url: assign_recurring_expenses_path, method: :post, id: "bulkRecurringForm", data: { testid: "assign-recurring-form" } do %>
   <div class="modal fade" id="bulkRecurringModal" tabindex="-1" aria-labelledby="bulkRecurringTitle" aria-hidden="true" data-testid="assign-recurring-modal">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.assign_recurring.modal_title", default: "Aplicar a gasto recurrente") %></h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable assign-recurring-dialog">
+      <div class="modal-content assign-recurring-modal">
+        <div class="modal-header assign-recurring-header">
+          <div class="assign-recurring-heading">
+            <h2 class="modal-title h5" id="bulkRecurringTitle"><%= t("expenses.assign_recurring.modal_title", default: "Aplicar a gasto mensual") %></h2>
+            <p class="assign-recurring-intro"><%= t("expenses.assign_recurring.modal_hint", default: "Asocia este movimiento a uno de tus gastos mensuales para llevar el control de los pagos realizados.") %></p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close', default: 'Cerrar') %>"></button>
         </div>
-        <div class="modal-body">
+
+        <div class="modal-body assign-recurring-body">
           <%= hidden_field_tag :expense_id, nil, id: "recurringExpenseId" %>
-          <p class="text-muted mb-3"><%= t("expenses.assign_recurring.modal_hint", default: "El gasto seleccionado queda registrado como el pago del gasto recurrente para su mes (la plantilla pasará a \"Pagado\").") %></p>
-          <div class="mb-0">
-            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.assign_recurring.template_label", default: "Gasto recurrente") %></label>
-            <select id="bulkRecurringSelect" name="recurring_template_id" class="form-select" required>
-              <option value=""><%= t("expenses.assign_recurring.choose_template", default: "Selecciona una plantilla...") %></option>
+
+          <section class="assign-recurring-selected" aria-label="<%= t('expenses.assign_recurring.selected_label', default: 'Movimiento seleccionado') %>">
+            <div class="assign-recurring-eyebrow"><%= t("expenses.assign_recurring.selected_label", default: "Movimiento seleccionado") %></div>
+            <div class="assign-recurring-transaction">
+              <div class="assign-recurring-copy">
+                <div class="assign-recurring-description" id="recurringExpenseDescription"></div>
+                <div class="assign-recurring-meta">
+                  <span id="recurringExpenseDate"></span>
+                  <span class="assign-recurring-dot" aria-hidden="true">·</span>
+                  <span class="assign-recurring-category" id="recurringExpenseCategory"></span>
+                </div>
+              </div>
+              <div class="assign-recurring-amount" id="recurringExpenseAmount"></div>
+            </div>
+          </section>
+
+          <div class="assign-recurring-field">
+            <label for="bulkRecurringSelect" class="form-label"><%= t("expenses.assign_recurring.template_label", default: "Gasto mensual") %></label>
+            <select id="bulkRecurringSelect" name="recurring_template_id" class="form-select assign-recurring-select" required>
+              <option value=""><%= t("expenses.assign_recurring.choose_template", default: "Selecciona un gasto mensual...") %></option>
               <% @recurring_templates.each do |template| %>
                 <% paid = @paid_template_ids.include?(template.id) %>
                 <% paid_total = @recurring_template_paid_totals[template.id].to_d %>
                 <% remaining = [template.amount.to_d - paid_total, BigDecimal("0")].max %>
                 <option value="<%= template.id %>"
                         data-category-id="<%= template.category_id %>"
+                        data-template-name="<%= template.description.presence || template.category&.name || t("expenses.assign_recurring.template_fallback", default: "Gasto mensual") %>"
                         data-amount="<%= template.amount.to_d.to_s("F") %>"
                         data-paid="<%= paid_total.to_s("F") %>"
                         data-expected-label="<%= number_to_currency(template.amount) %>"
@@ -456,30 +482,49 @@
             </select>
           </div>
 
-          <div id="recurringTemplateDetails" class="border rounded p-3 mt-3 d-none" data-testid="recurring-template-details">
-            <div class="d-flex justify-content-between small mb-1">
-              <span class="text-muted"><%= t("expenses.assign_recurring.expected_amount", default: "Monto esperado") %></span>
-              <strong id="recurringExpectedAmount"></strong>
+          <div id="recurringTemplateDetails"
+               class="assign-recurring-details d-none"
+               data-testid="recurring-template-details"
+               data-progress-suffix="<%= t('expenses.assign_recurring.progress_suffix', default: 'pagado') %>">
+            <div class="assign-recurring-details-top">
+              <span class="assign-recurring-template-name" id="recurringTemplateName"></span>
+              <span class="assign-recurring-percentage" id="recurringProgressLabel"></span>
             </div>
-            <div class="d-flex justify-content-between small mb-1">
-              <span class="text-muted"><%= t("expenses.assign_recurring.already_registered", default: "Ya registrado este período") %></span>
-              <span id="recurringPaidAmount"></span>
+            <div class="assign-recurring-progress" role="presentation">
+              <span id="recurringProgressBar"></span>
             </div>
-            <div class="d-flex justify-content-between small mb-2">
-              <span class="text-muted"><%= t("expenses.assign_recurring.remaining", default: "Restante") %></span>
-              <span id="recurringRemainingAmount"></span>
+            <div class="assign-recurring-details-grid">
+              <div class="assign-recurring-detail">
+                <span class="assign-recurring-detail-label"><%= t("expenses.assign_recurring.expected_amount", default: "Monto esperado") %></span>
+                <strong class="assign-recurring-detail-value" id="recurringExpectedAmount"></strong>
+              </div>
+              <div class="assign-recurring-detail">
+                <span class="assign-recurring-detail-label"><%= t("expenses.assign_recurring.already_registered", default: "Ya registrado este período") %></span>
+                <strong class="assign-recurring-detail-value" id="recurringPaidAmount"></strong>
+              </div>
+              <div class="assign-recurring-detail">
+                <span class="assign-recurring-detail-label"><%= t("expenses.assign_recurring.remaining", default: "Restante") %></span>
+                <strong class="assign-recurring-detail-value" id="recurringRemainingAmount"></strong>
+              </div>
             </div>
+
             <%= hidden_field_tag :completed, "0", id: "recurringCompletedHidden" %>
-            <div class="form-check mb-0">
+            <label class="assign-recurring-check" for="recurringCompleted">
               <input class="form-check-input" type="checkbox" id="recurringCompleted" name="completed" value="1" checked>
-              <label class="form-check-label small" for="recurringCompleted">
-                <%= t("expenses.assign_recurring.completed_label", default: "Este gasto completa el período") %>
-              </label>
-              <div class="form-text small"><%= t("expenses.assign_recurring.completed_hint", default: "Desmárcalo para un pago parcial y asignar más gastos al mismo período.") %></div>
-            </div>
+              <span class="assign-recurring-check-copy">
+                <span class="assign-recurring-check-title"><%= t("expenses.assign_recurring.completed_label", default: "Marcar gasto mensual como pagado") %></span>
+                <small class="assign-recurring-check-hint"><%= t("expenses.assign_recurring.completed_hint", default: "Activa esta opción para completar el pago de este período.") %></small>
+              </span>
+            </label>
+          </div>
+
+          <div class="assign-recurring-info">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>
+            <p><%= t("expenses.assign_recurring.info", default: "El valor de este movimiento se sumará a los pagos del gasto mensual seleccionado. Puedes aplicar varios movimientos al mismo gasto hasta completar el monto esperado.") %></p>
           </div>
         </div>
-        <div class="modal-footer">
+
+        <div class="modal-footer assign-recurring-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><%= t("common.cancel") %></button>
           <button type="submit" class="btn btn-primary" id="confirmBulkRecurring" data-testid="confirm-assign-recurring" disabled>
             <i class="ti ti-check me-1"></i><%= t("expenses.assign_recurring.apply_button", default: "Aplicar") %>

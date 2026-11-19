@@ -85,6 +85,23 @@
     bootstrap.Modal.getOrCreateInstance("#bulkEditModal").show();
   }
 
+  function fillRecurringSummary(row) {
+    var description = $("#recurringExpenseDescription");
+    if (description) description.textContent = row.dataset.expenseDescription || "";
+    var date = $("#recurringExpenseDate");
+    if (date) date.textContent = row.dataset.expenseDate || "";
+    var amountSource = row.querySelector(".amount");
+    var amount = $("#recurringExpenseAmount");
+    if (amount) amount.textContent = amountSource ? amountSource.textContent.trim() : "";
+
+    var category = $("#recurringExpenseCategory");
+    if (category) {
+      category.textContent = "";
+      var badge = row.querySelector(".row-category .badge");
+      if (badge) category.appendChild(badge.cloneNode(true));
+    }
+  }
+
   function openBulkRecurring(row) {
     if (!row) return;
 
@@ -108,11 +125,18 @@
 
     select.dataset.expenseAmount = row.dataset.amount || "0";
     select.value = "";
+    fillRecurringSummary(row);
     $("#recurringExpenseId").value = row.dataset.id;
     $("#bulkRecurringForm").action = urlWithState(payload.assign_recurring_url);
     $("#confirmBulkRecurring").disabled = true;
     var details = $("#recurringTemplateDetails");
     if (details) details.classList.add("d-none");
+    var progress = $("#recurringProgressBar");
+    if (progress) progress.style.width = "0%";
+    var progressLabel = $("#recurringProgressLabel");
+    if (progressLabel) progressLabel.textContent = "";
+    var templateName = $("#recurringTemplateName");
+    if (templateName) templateName.textContent = "";
     var checkbox = $("#recurringCompleted");
     if (checkbox) checkbox.checked = true;
     bootstrap.Modal.getOrCreateInstance("#bulkRecurringModal").show();
@@ -127,6 +151,10 @@
       return;
     }
     var option = select.options[select.selectedIndex];
+    var templateName = $("#recurringTemplateName");
+    if (templateName) {
+      templateName.textContent = option.dataset.templateName || option.textContent.trim();
+    }
     var expectedEl = $("#recurringExpectedAmount");
     if (expectedEl) expectedEl.textContent = option.dataset.expectedLabel || "";
     var paidEl = $("#recurringPaidAmount");
@@ -139,6 +167,14 @@
     var expenseAmount = Number(select.dataset.expenseAmount || 0);
     var checkbox = $("#recurringCompleted");
     if (checkbox) checkbox.checked = (paid + expenseAmount >= expected);
+
+    var percentage = expected > 0 ? Math.min(100, Math.round((paid / expected) * 100)) : 0;
+    var progress = $("#recurringProgressBar");
+    if (progress) progress.style.width = percentage + "%";
+    var progressLabel = $("#recurringProgressLabel");
+    if (progressLabel) {
+      progressLabel.textContent = percentage + "% " + (panel.dataset.progressSuffix || "pagado");
+    }
 
     panel.classList.remove("d-none");
     $("#confirmBulkRecurring").disabled = false;
