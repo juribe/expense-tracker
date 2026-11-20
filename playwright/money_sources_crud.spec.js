@@ -84,9 +84,7 @@ test.describe('money source creation', () => {
               .selectOption('monthly');
     await page.locator('#money_source_credit_account_attributes_installment_amount').fill('500000');
     await page.locator('#money_source_credit_account_attributes_installment_count').fill('24');
-    await page.locator('#money_source_credit_account_attributes_payment_frequency').selectOption('monthly');
-    await page.locator('#money_source_credit_account_attributes_start_date').fill('2026-01-05');
-    await page.locator('#money_source_credit_account_attributes_end_date').fill('2028-01-05');
+    await page.locator('#money_source_credit_account_attributes_start_date').fill('05/01/2026');
     await page.locator('#money_source_active').check();
     await submitMoneySource(page);
 

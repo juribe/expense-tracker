@@ -17,7 +17,6 @@ test.describe('Credit intelligence dashboard', () => {
         await loanPanel.locator('#money_source_credit_account_attributes_interest_rate_type').selectOption('monthly');
         await loanPanel.locator('#money_source_credit_account_attributes_installment_amount').fill('300000');
         await loanPanel.locator('#money_source_credit_account_attributes_installment_count').fill('5');
-        await loanPanel.locator('#money_source_credit_account_attributes_payment_frequency').selectOption('monthly');
         await loanPanel.locator('#money_source_credit_account_attributes_start_date').fill('05/01/2026');
       }
     });

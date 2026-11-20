@@ -47,8 +47,7 @@ test.describe('extraordinary debt payments', () => {
         await loanPanel.locator('#money_source_credit_account_attributes_interest_rate_type').selectOption('monthly');
         await loanPanel.locator('#money_source_credit_account_attributes_installment_amount').fill('500000');
         await loanPanel.locator('#money_source_credit_account_attributes_installment_count').fill('24');
-        await loanPanel.locator('#money_source_credit_account_attributes_payment_frequency').selectOption('monthly');
-        await loanPanel.locator('#money_source_credit_account_attributes_start_date').fill('2026-01-05');
+        await loanPanel.locator('#money_source_credit_account_attributes_start_date').fill('05/01/2026');
       }
     });
 
@@ -113,8 +112,8 @@ test.describe('extraordinary debt payments', () => {
     await expect(page.getByText('Abono aplicado al saldo del crédito. La proyección se actualizará.')).toBeVisible();
 
     const debtPanel = page.locator('.card-debt');
-    await expect(debtPanel.locator('.col-4').filter({ hasText: 'Usado' }).locator('.fs-5')).toHaveText('$200.000');
-    await expect(debtPanel.locator('.col-4').filter({ hasText: 'Disponible' }).locator('.fs-5')).toHaveText('$4.800.000');
+    await expect(debtPanel.locator('.col-4').filter({ hasText: 'Usado' }).locator('.debt-panel-metric-value')).toHaveText('$200.000');
+    await expect(debtPanel.locator('.col-4').filter({ hasText: 'Disponible' }).locator('.debt-panel-metric-value')).toHaveText('$4.800.000');
 
     await page.locator('[data-tab-slug="abonos"]').click();
     const abonos = page.locator('#source-tab-abonos');
