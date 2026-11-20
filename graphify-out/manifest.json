@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "app/controllers/money_sources_controller.rb": {
-    "mtime": 1794756460.3750277,
-    "seen": 1794757149.63362,
-    "ast_hash": "cb4ac18272326a3a2baadca474cf6787",
+    "mtime": 1795193351.1018586,
+    "seen": 1795194194.691164,
+    "ast_hash": "51ad098b8dd128044c9d946f6bafe18f",
     "semantic_hash": ""
   },
   "app/controllers/monthly_expenses_controller.rb": {
@@ -162,10 +162,10 @@
     "semantic_hash": "ee684e30990b5d2fc661e0688fee4b65"
   },
   "app/models/credit_account.rb": {
-    "mtime": 1788316853.6642187,
-    "seen": 1793490696.634582,
-    "ast_hash": "77e0c49840c1e9b01f1e01344914ea8c",
-    "semantic_hash": "77e0c49840c1e9b01f1e01344914ea8c"
+    "mtime": 1795194459.5109699,
+    "seen": 1795194652.0582201,
+    "ast_hash": "a78e7f003fa4f818a1b516b8b6d09c29",
+    "semantic_hash": ""
   },
   "app/models/expense.rb": {
     "mtime": 1794345488.5786285,
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "app/models/money_source.rb": {
-    "mtime": 1793561083.0247934,
-    "seen": 1793562712.252498,
-    "ast_hash": "5e408b0dc8fdb0007def5f9419f42ef7",
+    "mtime": 1795193347.3228486,
+    "seen": 1795194194.7015738,
+    "ast_hash": "5c96cce489a00a48fa7771396e6a0f5d",
     "semantic_hash": ""
   },
   "app/models/money_source_recognition.rb": {
@@ -570,9 +570,9 @@
     "semantic_hash": "37121f2e5f9ecb933fc1babcf03043a1"
   },
   "db/schema.rb": {
-    "mtime": 1794837203.3323927,
-    "seen": 1794837586.158311,
-    "ast_hash": "28fd25aa4a3a0b15b3ff5fe3471fa58a",
+    "mtime": 1795193219.917478,
+    "seen": 1795194194.724575,
+    "ast_hash": "2e543a64048d607d6daad8f94aada60e",
     "semantic_hash": ""
   },
   "db/seed_data/financial_catalog_seeder.rb": {
@@ -768,9 +768,9 @@
     "semantic_hash": ""
   },
   "test/controllers/money_sources_controller_test.rb": {
-    "mtime": 1794873942.445944,
-    "seen": 1794955977.961799,
-    "ast_hash": "d4abfed169dc5ddbf4b66a0e6e50a10c",
+    "mtime": 1795193626.6664095,
+    "seen": 1795194194.736188,
+    "ast_hash": "645feec8f51f15aeeb768e97ec3b062f",
     "semantic_hash": ""
   },
   "test/controllers/sessions_controller_test.rb": {
@@ -810,9 +810,9 @@
     "semantic_hash": ""
   },
   "test/models/credit_account_test.rb": {
-    "mtime": 1793492501.842465,
-    "seen": 1793492827.859596,
-    "ast_hash": "b374604a56de19f11dc7ca8a4c95592b",
+    "mtime": 1795194444.2906911,
+    "seen": 1795194652.099802,
+    "ast_hash": "ac7f89ac37360fc07641da7382494efe",
     "semantic_hash": ""
   },
   "test/models/financial_institution_test.rb": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "config/locales/en.yml": {
-    "mtime": 1795123943.167339,
-    "seen": 1795124166.7074938,
-    "ast_hash": "a3d7c21c05af2acf162b8c350ae0f704",
+    "mtime": 1795196980.5924094,
+    "seen": 1795197211.282482,
+    "ast_hash": "80e1e42220fbd2b384593a17a6f43405",
     "semantic_hash": ""
   },
   "config/locales/es.yml": {
-    "mtime": 1795123939.8688557,
-    "seen": 1795124166.707496,
-    "ast_hash": "47ddead3b55a14409dba5704d7854cb2",
+    "mtime": 1795196985.2623413,
+    "seen": 1795197211.282484,
+    "ast_hash": "97e17e931d7a30cabe26a74784bebdc7",
     "semantic_hash": ""
   },
   "config/queue.yml": {
@@ -1050,8 +1050,8 @@
     "semantic_hash": "e496195eff725be31c96c856982de36f"
   },
   "db/seed_data/financial_institutions.yml": {
-    "mtime": 1795122244.5050294,
-    "seen": 1795124166.707668,
+    "mtime": 1795199074.7353666,
+    "seen": 1795199143.109348,
     "ast_hash": "e45792175dfd470a736fac899f79dd8d",
     "semantic_hash": ""
   },
@@ -4770,9 +4770,9 @@
     "semantic_hash": ""
   },
   "app/assets/javascripts/money_source_form.js": {
-    "mtime": 1792703593.2920294,
-    "seen": 1793490696.634302,
-    "ast_hash": "42975477c63f2c089cac2add5541c1c6",
+    "mtime": 1795193794.794112,
+    "seen": 1795194194.687577,
+    "ast_hash": "a047d0cc9efb228c7ae552d6d976e003",
     "semantic_hash": ""
   },
   "playwright/helpers/money_sources.js": {
@@ -10569,6 +10569,66 @@
     "mtime": 1795120180.9956279,
     "seen": 1795120259.5203998,
     "ast_hash": "4f57a8e9fd12f7c3c4f149c675822ed1",
+    "semantic_hash": ""
+  },
+  "app/services/loans/interest_calculator.rb": {
+    "mtime": 1795193324.0103443,
+    "seen": 1795194194.712557,
+    "ast_hash": "c3b54f7489c7c2d22d39f12164804d74",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261120120000_add_interest_calculation_to_credit_accounts.rb": {
+    "mtime": 1795178294.63845,
+    "seen": 1795178849.114413,
+    "ast_hash": "bd47ca755e93c535c4797cf374dc6542",
+    "semantic_hash": ""
+  },
+  "test/controllers/money_sources_loan_interest_test.rb": {
+    "mtime": 1795198888.6854475,
+    "seen": 1795198938.113258,
+    "ast_hash": "9ecf9821f7790aec3be45b269cdbc2ca",
+    "semantic_hash": ""
+  },
+  "test/models/money_source_loan_interest_test.rb": {
+    "mtime": 1795193972.2399724,
+    "seen": 1795194194.7430131,
+    "ast_hash": "f7f6491a9b4de952c6aec4c8b9cba37a",
+    "semantic_hash": ""
+  },
+  "test/services/loans/interest_calculator_test.rb": {
+    "mtime": 1795193508.4482532,
+    "seen": 1795194194.74955,
+    "ast_hash": "829dd088ad289f67643f9408a17e662a",
+    "semantic_hash": ""
+  },
+  "test/services/payments/loan_interest_effects_test.rb": {
+    "mtime": 1795193603.239544,
+    "seen": 1795194194.7507389,
+    "ast_hash": "9da61ab0f501b388206c33e8959ca8d5",
+    "semantic_hash": ""
+  },
+  "app/services/loans/accrual_cycle.rb": {
+    "mtime": 1795194145.2613113,
+    "seen": 1795194194.712555,
+    "ast_hash": "00396b5baf7bd56e3c84284f0979bd01",
+    "semantic_hash": ""
+  },
+  "db/migrate/20261120130000_use_monthly_day_for_loan_interest.rb": {
+    "mtime": 1795193207.1003375,
+    "seen": 1795194194.724532,
+    "ast_hash": "ceeb114f5142d8472debfa616c31e882",
+    "semantic_hash": ""
+  },
+  "test/services/loans/accrual_cycle_test.rb": {
+    "mtime": 1795193519.0837066,
+    "seen": 1795194194.749548,
+    "ast_hash": "9f0a25827211bf4b61c49e21b2951721",
+    "semantic_hash": ""
+  },
+  "test/system/loan_interest_settings_test.rb": {
+    "mtime": 1795197074.2734258,
+    "seen": 1795197211.278625,
+    "ast_hash": "c8f23c646b07ab1d142cf80c46930ca4",
     "semantic_hash": ""
   }
 }
