@@ -60,6 +60,22 @@ class CreditAccountTest < ActiveSupport::TestCase
     assert account.errors[:payment_frequency].any?
   end
 
+  test "interest_calculation_day must be between 1 and 31" do
+    account = @source.build_credit_account(interest_calculation_day: 0)
+    assert_not account.valid?
+    assert account.errors[:interest_calculation_day].any?
+
+    account = @source.build_credit_account(interest_calculation_day: 32)
+    assert_not account.valid?
+  end
+
+  test "interest_calculation_day 31 is normalized to 30" do
+    account = @source.build_credit_account(interest_calculation_day: 31)
+    account.valid?
+
+    assert_equal 30, account.interest_calculation_day
+  end
+
   test "end_date must be after start_date" do
     account = @source.build_credit_account(start_date: Date.current, end_date: Date.yesterday)
     assert_not account.valid?

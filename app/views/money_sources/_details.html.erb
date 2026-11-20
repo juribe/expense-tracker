@@ -10,8 +10,8 @@
         <%= institution_type_badge(@money_source.institution) if @money_source.institution? %>
       </dd>
       <% if @money_source.debt? %>
-        <dt class="col-sm-5"><%= t("money_sources.show.current_balance") %></dt>
-        <dd class="col-sm-7 fw-bold text-danger">
+        <dt class="col-sm-5"><%= @money_source.loan? ? t("money_sources.show.loan_principal") : t("money_sources.show.current_balance") %></dt>
+        <dd class="col-sm-7 fw-bold text-danger" data-testid="<%= "loan-details-principal" if @money_source.loan? %>">
           <%= number_to_currency(@money_source.loan? ? @money_source.outstanding_balance : @money_source.used_credit) %>
         </dd>
       <% else %>
@@ -55,5 +55,64 @@
         </dd>
       <% end %>
     </dl>
+
+    <% if @money_source.loan? %>
+      <div class="border-top mt-3 pt-3">
+        <button type="button" class="btn btn-outline-primary w-100"
+                data-bs-toggle="collapse" data-bs-target="#loan-bank-comparison"
+                aria-expanded="<%= @bank_comparison.present? || @bank_comparison_error.present? %>"
+                aria-controls="loan-bank-comparison">
+          <i class="ti ti-scale me-1" aria-hidden="true"></i><%= t("money_sources.show.compare_bank_balance") %>
+        </button>
+        <div class="collapse <%= "show" if @bank_comparison.present? || @bank_comparison_error.present? %>"
+             id="loan-bank-comparison">
+          <%= form_with url: money_source_path(@money_source), method: :get, local: true, class: "mt-3" do %>
+            <%= hidden_field_tag :tab, "resumen" %>
+            <div class="mb-2">
+              <%= label_tag :bank_balance, t("money_sources.show.bank_balance_label"), class: "form-label small" %>
+              <%= text_field_tag :bank_balance, @bank_balance.present? ? money_field_value(@bank_balance) : nil,
+                    class: "form-control",
+                    inputmode: "decimal",
+                    autocomplete: "off",
+                    placeholder: t("money_sources.show.bank_balance_placeholder"),
+                    data: { money_input: true } %>
+            </div>
+            <%= submit_tag t("money_sources.show.compare_button"), class: "btn btn-primary btn-sm w-100" %>
+          <% end %>
+
+          <% if @bank_comparison.present? %>
+            <div class="mt-3" data-testid="loan-bank-comparison">
+              <table class="table table-sm align-middle mb-0">
+                <tbody>
+                  <tr>
+                    <th class="fw-normal text-muted"><%= t("money_sources.show.yogasto_estimated_balance") %></th>
+                    <td class="text-end fw-semibold" data-testid="yogasto-estimated-balance">
+                      <%= number_to_currency(@bank_comparison[:estimated_balance]) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="fw-normal text-muted"><%= t("money_sources.show.bank_reported_balance") %></th>
+                    <td class="text-end fw-semibold" data-testid="bank-reported-balance">
+                      <%= number_to_currency(@bank_comparison[:bank_balance]) %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="fw-bold"><%= t("money_sources.show.bank_difference") %></th>
+                    <td class="text-end fw-bold" data-testid="bank-comparison-difference">
+                      <%= reconciliation_signed_money(@bank_comparison[:difference]) %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="small text-muted mt-2 mb-0"><%= t("money_sources.show.bank_comparison_disclaimer") %></p>
+            </div>
+          <% elsif @bank_comparison_error.present? %>
+            <div class="alert alert-danger small mt-3 mb-0" data-testid="bank-comparison-error">
+              <%= @bank_comparison_error %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>

@@ -567,6 +567,266 @@
   background: rgba(14, 159, 110, .16);
 }
 
+/* -------------------------------------------------
+ * Money source form: loan accrued-interest settings
+ * ------------------------------------------------- */
+.loan-interest-section {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+.loan-interest-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.loan-interest-copy { flex: 1 1 20rem; min-width: 0; }
+.loan-interest-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+}
+.loan-interest-description {
+  margin: .35rem 0 0;
+  max-width: 62ch;
+  font-size: .875rem;
+  line-height: 1.45;
+  color: var(--et-muted);
+}
+.loan-interest-switch {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex: 0 0 auto;
+  min-height: 0;
+  margin: 0;
+  padding-left: 0;
+}
+.loan-interest-switch .form-check-input { margin: 0; cursor: pointer; }
+.loan-interest-switch .form-check-label {
+  margin: 0;
+  font-size: .875rem;
+  font-weight: 650;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+}
+.loan-interest-switch:has(.form-check-input:checked) .form-check-label { color: var(--et-positive); }
+.loan-interest-state-on { display: none; }
+.loan-interest-state-off { display: inline; }
+.loan-interest-switch:has(.form-check-input:checked) .loan-interest-state-on { display: inline; }
+.loan-interest-switch:has(.form-check-input:checked) .loan-interest-state-off { display: none; }
+
+.loan-interest-panel {
+  padding: 1.25rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--et-card-radius);
+  background: var(--bs-secondary-bg);
+}
+.loan-interest-section:has(.loan-interest-switch .form-check-input:not(:checked)) .loan-interest-panel {
+  display: none;
+}
+.loan-interest-panel .form-label { color: var(--bs-body-color); }
+.loan-interest-panel .form-control { background-color: var(--bs-body-bg); }
+.loan-interest-panel .form-control[readonly],
+.form-control.loan-readonly-field {
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+}
+.loan-interest-note {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  margin-top: 1rem;
+  padding: .85rem 1rem;
+  border-radius: var(--et-radius-sm);
+  background: rgba(var(--bs-primary-rgb), .07);
+  color: var(--bs-body-color);
+  font-size: .8125rem;
+  line-height: 1.5;
+}
+.loan-interest-note .ti {
+  flex: 0 0 auto;
+  margin-top: .1rem;
+  color: var(--bs-primary);
+}
+
+/* -------------------------------------------------
+ * Debt panel summary: balance, metrics and progress
+ * ------------------------------------------------- */
+.debt-panel-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+.debt-panel-badges .badge {
+  padding: .5rem .9rem;
+  border-radius: .75rem;
+  font-size: .9375rem;
+  font-weight: 700;
+}
+.debt-panel-balance-label {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--et-muted);
+}
+.debt-panel-balance-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.debt-panel-metrics { margin-top: 1.25rem; }
+.debt-panel-metric-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.debt-panel-metric-label {
+  margin-top: .15rem;
+  font-size: 1.0625rem;
+  color: var(--et-muted);
+}
+.progress.debt-panel-progress { height: .875rem; }
+.debt-panel-caption {
+  margin-top: .5rem;
+  font-size: 1.0625rem;
+  color: var(--et-muted);
+}
+
+/* -------------------------------------------------
+ * Loan detail: debt callout and accrued-interest estimate
+ * ------------------------------------------------- */
+.loan-debt-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  margin-top: 1rem;
+  padding: .95rem 1.1rem;
+  border: 1px solid rgba(178, 106, 0, .28);
+  border-radius: var(--et-card-radius);
+  background: rgba(178, 106, 0, .04);
+  color: var(--bs-body-color);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+.loan-debt-callout .ti { flex: 0 0 auto; margin-top: .1rem; color: var(--et-attention); }
+
+.loan-interest-summary {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--et-card-radius);
+  background: transparent;
+}
+.loan-interest-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.loan-interest-summary-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+}
+.loan-interest-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: .35rem .8rem;
+  border-radius: 999px;
+  background: rgba(178, 106, 0, .12);
+  color: var(--et-attention);
+  font-size: .8125rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.loan-interest-summary-amount {
+  margin-top: .85rem;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--et-attention);
+}
+.loan-interest-summary-period {
+  margin: .35rem 0 0;
+  font-size: .9375rem;
+  color: var(--et-muted);
+}
+.loan-interest-summary-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem 2rem;
+  margin: 1.25rem 0 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.loan-interest-summary-metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: .9375rem;
+}
+.loan-interest-summary-metric dt {
+  font-weight: 400;
+  color: var(--et-muted);
+}
+.loan-interest-summary-metric dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--bs-body-color);
+  text-align: right;
+}
+.loan-interest-summary-total {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+.loan-interest-summary-total-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+}
+.loan-interest-summary-total-note {
+  margin-top: .15rem;
+  font-size: .875rem;
+  color: var(--et-muted);
+}
+.loan-interest-summary-total-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--bs-body-color);
+  text-align: right;
+}
+.loan-interest-summary-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  margin: 1.25rem 0 0;
+  font-size: .875rem;
+  line-height: 1.5;
+  color: var(--et-muted);
+}
+.loan-interest-summary-disclaimer .ti { flex: 0 0 auto; margin-top: .1rem; }
+
+@media (max-width: 575.98px) {
+  .loan-interest-summary { padding: 1.15rem; }
+  .loan-interest-summary-metrics { grid-template-columns: 1fr; }
+  .loan-interest-summary-total { flex-direction: column; align-items: flex-start; }
+  .loan-interest-summary-total-value { text-align: left; }
+}
+
 .money-source-recognition {
   display: flex;
   align-items: flex-start;

@@ -1,0 +1,56 @@
+<%# Informational accrued-interest estimate for a loan. Locals: source, estimate. %>
+<% estimate = local_assigns[:estimate] || source.loan_interest_estimate %>
+<% if estimate.displayable? %>
+  <section class="loan-interest-summary" data-testid="loan-accrued-interest">
+    <div class="loan-interest-summary-head">
+      <h6 class="loan-interest-summary-title"><%= t("money_sources.show.accrued_interest") %></h6>
+      <span class="loan-interest-summary-badge"><%= t("money_sources.show.estimated_badge") %></span>
+    </div>
+
+    <% if estimate.paid_in_cycle? %>
+      <div class="loan-interest-summary-amount" data-testid="loan-accrued-interest-amount">
+        <%= number_to_currency(estimate.estimated_interest) %>
+      </div>
+      <p class="loan-interest-summary-period"><%= t("money_sources.show.interest_paid_in_cycle") %></p>
+      <p class="loan-interest-summary-period" data-testid="loan-interest-resumes">
+        <%= t("money_sources.show.interest_resumes_on",
+              date: l(estimate.next_cycle_date, format: :long)) %>
+      </p>
+    <% else %>
+      <div class="loan-interest-summary-amount" data-testid="loan-accrued-interest-amount">
+        +<%= number_to_currency(estimate.estimated_interest) %>
+      </div>
+      <p class="loan-interest-summary-period">
+        <%= t("money_sources.show.accrued_interest_period",
+              date: l(estimate.cycle_start_date, format: :day_month),
+              days: estimate.elapsed_days) %>
+      </p>
+    <% end %>
+
+    <dl class="loan-interest-summary-metrics">
+      <div class="loan-interest-summary-metric">
+        <dt><%= t("money_sources.show.applied_rate") %></dt>
+        <dd><%= source.interest_rate_label || "—" %></dd>
+      </div>
+      <div class="loan-interest-summary-metric">
+        <dt><%= t("money_sources.show.daily_interest") %></dt>
+        <dd><%= t("money_sources.show.estimated_label") %></dd>
+      </div>
+    </dl>
+
+    <div class="loan-interest-summary-total">
+      <div>
+        <div class="loan-interest-summary-total-label"><%= t("money_sources.show.estimated_total_balance") %></div>
+        <div class="loan-interest-summary-total-note"><%= t("money_sources.show.estimated_total_note") %></div>
+      </div>
+      <div class="loan-interest-summary-total-value" data-testid="loan-estimated-total">
+        <%= number_to_currency(estimate.estimated_total_balance) %>
+      </div>
+    </div>
+
+    <p class="loan-interest-summary-disclaimer">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span><%= t("money_sources.show.interest_estimate_disclaimer") %></span>
+    </p>
+  </section>
+<% end %>

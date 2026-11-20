@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_13_080000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_20_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -159,6 +159,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_080000) do
     t.datetime "updated_at", null: false
     t.integer "installments_paid"
     t.boolean "outstanding_usage_replayed", default: false, null: false
+    t.boolean "interest_calculation_enabled", default: false, null: false
+    t.integer "interest_calculation_day"
     t.index ["money_source_id"], name: "index_credit_accounts_on_money_source_id", unique: true
   end
 

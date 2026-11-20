@@ -279,7 +279,63 @@ class MoneySource < ApplicationRecord
            :payment_frequency, :statement_day, :payment_due_day,
            :interest_rate, :interest_rate_type, :card_brand, :card_last_four,
            :start_date, :end_date, :interest_rate_label,
+           :interest_calculation_enabled, :interest_calculation_day,
            to: :credit_account, allow_nil: true
+
+  # Informational accrued-interest estimate. Only active loans that opted into
+  # the calculation produce a displayable amount; every other case returns an
+  # unavailable result so callers never render a fabricated estimate. Read-only.
+  def loan_interest_estimate(calculation_date: Date.current)
+    return Loans::InterestCalculator.unavailable(:not_a_loan) unless loan?
+    return Loans::InterestCalculator.unavailable(:inactive) unless active?
+
+    account = credit_account
+    return Loans::InterestCalculator.unavailable(:not_configured) if account.nil?
+    return Loans::InterestCalculator.unavailable(:disabled) unless account.interest_calculation_enabled?
+
+    cycle = Loans::AccrualCycle.new(
+      reference_day: account.interest_calculation_day,
+      calculation_date: calculation_date,
+      start_date: account.start_date
+    )
+    return Loans::InterestCalculator.unavailable(:missing_reference_day) unless cycle.available?
+    return Loans::InterestCalculator.unavailable(:before_loan_start) if cycle.before_loan_start?
+
+    if interest_paid_in_current_cycle?(cycle)
+      Loans::InterestCalculator.paid_in_cycle(
+        principal_balance: outstanding_balance,
+        cycle_start_date: cycle.cycle_start_date,
+        next_cycle_date: cycle.next_cycle_date,
+        calculation_date: calculation_date,
+        accrual_start_date: cycle.accrual_start_date
+      )
+    else
+      Loans::InterestCalculator.call(
+        principal_balance: outstanding_balance,
+        interest_rate: account.interest_rate,
+        interest_rate_type: account.interest_rate_type,
+        cycle_start_date: cycle.cycle_start_date,
+        next_cycle_date: cycle.next_cycle_date,
+        calculation_date: calculation_date,
+        accrual_start_date: cycle.accrual_start_date
+      )
+    end
+  end
+
+  def estimated_accrued_interest(calculation_date: Date.current)
+    estimate = loan_interest_estimate(calculation_date: calculation_date)
+    estimate.estimated_interest if estimate.displayable?
+  end
+  alias estimated_interest estimated_accrued_interest
+
+  def estimated_total_balance(calculation_date: Date.current)
+    estimate = loan_interest_estimate(calculation_date: calculation_date)
+    estimate.estimated_total_balance if estimate.displayable?
+  end
+
+  def interest_calculation_enabled?
+    loan? && credit_account&.interest_calculation_enabled? || false
+  end
 
   def remaining_installments
     return nil if installment_count.nil? || principal_amount.to_i <= 0 || outstanding_balance.nil?
@@ -404,6 +460,17 @@ class MoneySource < ApplicationRecord
   end
 
   private
+
+  # Only a payment that actually allocated interest covers the cycle. A
+  # principal-only extra payment must not hide the estimate. Derived from
+  # existing payments, so deleting/editing one recalculates automatically.
+  def interest_paid_in_current_cycle?(cycle)
+    payments
+      .where("date >= ?", cycle.accrual_start_date)
+      .where("date <= ?", cycle.calculation_date)
+      .where("interest_amount > 0")
+      .exists?
+  end
 
   # When marking this account as exempt, unmark any other exempt account
   # for the same user inside the same save (transactional).

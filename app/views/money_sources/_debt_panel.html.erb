@@ -1,8 +1,9 @@
+<% loan_interest_estimate = source.loan_interest_estimate if source.loan? %>
 <div class="card card-debt">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-      <div>
-        <span class="badge bg-danger mb-2"><%= source_kind_label(source.kind) %></span>
+      <div class="debt-panel-badges">
+        <span class="badge bg-danger"><%= source_kind_label(source.kind) %></span>
         <% if source.credit_card? %>
           <span class="badge bg-light text-dark"><%= [ source.card_brand, source.card_last_four ].compact_blank.join(" · ") %></span>
         <% elsif source.institution_name.present? %>
@@ -10,30 +11,34 @@
         <% end %>
       </div>
       <div class="text-end">
-        <div class="small text-muted"><%= source.credit_card? ? t("money_sources.index.current_debt") : t("money_sources.index.outstanding_balance") %></div>
-        <div class="fs-4 fw-bold text-danger"><%= number_to_currency(source.credit_card? ? source.used_credit : source.outstanding_balance) %></div>
+        <div class="debt-panel-balance-label" data-testid="<%= source.loan? ? "loan-principal-label" : "credit-card-debt-label" %>">
+          <%= source.credit_card? ? t("money_sources.index.current_debt") : t("money_sources.show.loan_principal") %>
+        </div>
+        <div class="debt-panel-balance-value text-danger" data-testid="<%= source.loan? ? "loan-principal-balance" : "credit-card-debt-balance" %>">
+          <%= number_to_currency(source.credit_card? ? source.used_credit : source.outstanding_balance) %>
+        </div>
       </div>
     </div>
 
     <% if source.credit_card? %>
-      <div class="row text-center g-0 mt-3">
+      <div class="row text-center g-0 debt-panel-metrics">
         <div class="col-4">
-          <div class="fs-5 fw-bold"><%= number_to_currency(source.credit_limit) %></div>
-          <div class="small text-muted"><%= t("money_sources.show.approved") %></div>
+          <div class="debt-panel-metric-value"><%= number_to_currency(source.credit_limit) %></div>
+          <div class="debt-panel-metric-label"><%= t("money_sources.show.approved") %></div>
         </div>
         <div class="col-4 border-start">
-          <div class="fs-5 fw-bold text-danger"><%= number_to_currency(source.used_credit) %></div>
-          <div class="small text-muted"><%= t("money_sources.show.used") %></div>
+          <div class="debt-panel-metric-value text-danger"><%= number_to_currency(source.used_credit) %></div>
+          <div class="debt-panel-metric-label"><%= t("money_sources.show.used") %></div>
         </div>
         <div class="col-4 border-start">
-          <div class="fs-5 fw-bold text-success"><%= number_to_currency(source.available_credit) %></div>
-          <div class="small text-muted"><%= t("money_sources.show.available") %></div>
+          <div class="debt-panel-metric-value text-success"><%= number_to_currency(source.available_credit) %></div>
+          <div class="debt-panel-metric-label"><%= t("money_sources.show.available") %></div>
         </div>
       </div>
-      <div class="progress mt-3 et-progress-10" role="progressbar" aria-label="<%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress mt-3 et-progress-10 debt-panel-progress" role="progressbar" aria-label="<%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %>" aria-valuenow="<%= source.credit_utilization %>" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar <%= credit_utilization_class(source.credit_utilization) %> et-w-<%= [ source.credit_utilization, 100 ].min.round %>"></div>
       </div>
-      <div class="small text-muted mt-2"><%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %></div>
+      <div class="debt-panel-caption"><%= t("money_sources.index.credit_utilization", pct: source.credit_utilization) %></div>
 
       <% if source.statement_day.present? && source.payment_due_day.present? %>
         <div class="alert alert-warning py-2 px-3 small mt-3 mb-0">
@@ -70,29 +75,40 @@
         <% end %>
       </dl>
     <% else %>
-      <div class="row text-center g-0 mt-3">
+      <div class="row text-center g-0 debt-panel-metrics">
         <div class="col-6">
-          <div class="fs-5 fw-bold"><%= number_to_currency(source.principal_amount) %></div>
-          <div class="small text-muted"><%= t("money_sources.index.original_amount") %></div>
+          <div class="debt-panel-metric-value"><%= number_to_currency(source.principal_amount) %></div>
+          <div class="debt-panel-metric-label"><%= t("money_sources.index.original_amount") %></div>
         </div>
         <div class="col-6 border-start">
-          <div class="fs-5 fw-bold"><%= number_to_currency(source.installment_amount) %></div>
-          <div class="small text-muted"><%= t("money_sources.index.installment_amount") %></div>
+          <div class="debt-panel-metric-value"><%= number_to_currency(source.installment_amount) %></div>
+          <div class="debt-panel-metric-label"><%= t("money_sources.index.installment_amount") %></div>
         </div>
       </div>
-      <div class="progress mt-3 et-progress-10" role="progressbar" aria-label="<%= t("money_sources.index.repaid", pct: 100 - source.repayment_progress) %>" aria-valuenow="<%= 100 - source.repayment_progress %>" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress mt-3 et-progress-10 debt-panel-progress" role="progressbar" aria-label="<%= t("money_sources.index.repaid", pct: 100 - source.repayment_progress) %>" aria-valuenow="<%= 100 - source.repayment_progress %>" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar bg-success et-w-<%= [ 100 - source.repayment_progress, 0 ].max.round %>"></div>
       </div>
-      <div class="small text-muted mt-2">
+      <div class="debt-panel-caption">
         <%= t("money_sources.index.repaid", pct: 100 - source.repayment_progress) %>
         <% if source.remaining_installments.present? %>
           · <%= t("money_sources.index.remaining_installments", count: source.remaining_installments, total: source.installment_count) %>
         <% end %>
       </div>
 
-      <div class="alert alert-warning py-2 px-3 small mt-3 mb-0">
-        <i class="ti ti-info-circle me-1"></i><%= t("money_sources.show.loan_debt_alert") %>
+      <div class="loan-debt-callout">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <span><%= t("money_sources.show.loan_debt_alert") %></span>
       </div>
+
+      <%= render "money_sources/loan_interest", source: source, estimate: loan_interest_estimate %>
+
+      <% if source.active? && source.interest_calculation_enabled? && loan_interest_estimate&.unavailable? %>
+        <div class="alert alert-warning py-2 px-3 small mt-3 mb-0" data-testid="loan-interest-unavailable">
+          <i class="ti ti-info-circle me-1"></i>
+          <%= t("money_sources.show.interest_unavailable.#{loan_interest_estimate.status}",
+                default: t("money_sources.show.interest_unavailable.generic")) %>
+        </div>
+      <% end %>
 
       <dl class="row mb-0 mt-3">
         <dt class="col-sm-5"><%= t("common.type", default: "Tipo") %></dt>

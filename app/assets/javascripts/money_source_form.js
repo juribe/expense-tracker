@@ -23,15 +23,18 @@
   }
 
   function bind(form) {
-    if (form.dataset.moneySourceBound) return;
-    form.dataset.moneySourceBound = "true";
-
     var kindInput = form.querySelector("#money_source_kind");
     if (!kindInput) return;
 
+    // Re-apply the panel state on every Turbo load, including restored
+    // snapshots, so a cached disabled panel never hides or drops its inputs.
+    applyPanels(form, kindInput.value);
+
+    if (form.dataset.moneySourceBound) return;
+    form.dataset.moneySourceBound = "true";
+
     // The initial placeholder comes from the server (it already matches the
     // preselected kind); it only changes when the user picks another kind.
-    applyPanels(form, kindInput.value);
     kindInput.addEventListener("change", function () {
       applyPanels(form, kindInput.value);
       updateNamePlaceholder(form);

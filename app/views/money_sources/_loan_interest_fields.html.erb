@@ -1,0 +1,48 @@
+<%# Monthly loan interest settings. Locals: ca_f (credit account form builder). %>
+<div class="loan-interest-section" id="loan-interest-calculation">
+  <div class="loan-interest-heading">
+    <div class="loan-interest-copy">
+      <h5 class="loan-interest-title"><%= t("money_sources.form.interest_calculation_title") %></h5>
+      <p class="loan-interest-description"><%= t("money_sources.form.interest_calculation_enabled_hint") %></p>
+    </div>
+
+    <div class="form-check form-switch loan-interest-switch">
+      <%= ca_f.check_box :interest_calculation_enabled, class: "form-check-input", role: "switch" %>
+      <%= ca_f.label :interest_calculation_enabled, class: "form-check-label" do %>
+        <span class="visually-hidden"><%= t("money_sources.form.interest_calculation_enabled") %></span>
+        <span class="loan-interest-state-on"><%= t("money_sources.form.interest_calculation_state_on") %></span>
+        <span class="loan-interest-state-off"><%= t("money_sources.form.interest_calculation_state_off") %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="loan-interest-panel">
+    <div class="row">
+      <div class="col-md-6 mb-3 mb-md-0">
+        <%= ca_f.label :interest_calculation_day, t("money_sources.form.interest_calculation_day"), class: "form-label" %>
+        <%= ca_f.number_field :interest_calculation_day,
+              class: "form-control",
+              min: 1,
+              max: 31,
+              inputmode: "numeric",
+              placeholder: t("money_sources.form.interest_calculation_day_placeholder") %>
+        <div class="form-text"><%= t("money_sources.form.interest_calculation_day_hint") %></div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="loan_interest_calculation_frequency"><%= t("money_sources.form.interest_calculation_frequency") %></label>
+        <input type="text"
+               class="form-control"
+               id="loan_interest_calculation_frequency"
+               value="<%= t("money_sources.form.interest_calculation_frequency_value") %>"
+               readonly
+               aria-readonly="true">
+        <div class="form-text"><%= t("money_sources.form.interest_calculation_frequency_hint") %></div>
+      </div>
+    </div>
+
+    <div class="loan-interest-note">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span><%= t("money_sources.form.interest_calculation_info") %></span>
+    </div>
+  </div>
+</div>

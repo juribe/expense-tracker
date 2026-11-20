@@ -980,12 +980,13 @@ class MoneySourcesControllerTest < ActionDispatch::IntegrationTest
     assert_select "select#money_source_kind", count: 0
   end
 
-  test "GET /money_sources/new for a loan labels the dates as first and last payment" do
+  test "GET /money_sources/new for a loan keeps the first payment date and adds interest settings" do
     get new_money_source_path(kind: "loan")
 
     assert_response :success
     assert_select "label[for=money_source_credit_account_attributes_start_date]", text: "Fecha del primer pago"
-    assert_select "label[for=money_source_credit_account_attributes_end_date]", text: "Fecha del último pago"
+    assert_select "label[for=money_source_credit_account_attributes_end_date]", count: 0
+    assert_select "label[for=money_source_credit_account_attributes_interest_calculation_day]", text: "Día de referencia mensual"
   end
 
   test "GET /money_sources/new uses a name placeholder per kind" do

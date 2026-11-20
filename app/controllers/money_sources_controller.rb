@@ -63,6 +63,7 @@ class MoneySourcesController < ApplicationController
   def show
     load_payment_context if @money_source.debt?
     load_pocket_context if @money_source.pocket?
+    load_loan_interest_context
     @active_tab = "resumen"
     # Index cards pass tab=resumen so entering a source from a list always
     # starts on its detail tab instead of restoring the last visited tab.
@@ -330,6 +331,38 @@ class MoneySourcesController < ApplicationController
 
   private
 
+  # The loan summary renders the informational estimate and, when the user
+  # enters a bank figure, a read-only comparison. Nothing is persisted here:
+  # the bank balance is never stored and never touches reconciliation.
+  def load_loan_interest_context
+    return unless @money_source.loan?
+
+    @loan_interest_estimate = @money_source.loan_interest_estimate
+    return if params[:bank_balance].blank?
+
+    @bank_balance = parse_bank_balance(params[:bank_balance])
+    if @bank_balance.nil?
+      @bank_comparison_error = t("money_sources.show.bank_comparison_invalid")
+      return
+    end
+
+    estimated = @loan_interest_estimate.estimated_total_balance || @money_source.outstanding_balance
+    return if estimated.nil?
+
+    @bank_comparison = {
+      estimated_balance: estimated.to_d,
+      bank_balance: @bank_balance,
+      difference: estimated.to_d - @bank_balance
+    }
+  end
+
+  def parse_bank_balance(value)
+    number = BigDecimal(MoneyFormat.normalize(value).to_s)
+    number.negative? ? nil : number
+  rescue ArgumentError, TypeError
+    nil
+  end
+
   # Maps the (already sanitized) filter to its concrete template. The case
   # keeps the value a literal so no request parameter ever selects a path.
   def index_template
@@ -473,7 +506,8 @@ class MoneySourcesController < ApplicationController
         credit_account_attributes: [ :id, :credit_limit, :interest_rate, :interest_rate_type,
                                      :card_brand, :card_last_four, :statement_day, :payment_due_day,
                                      :principal_amount, :outstanding_balance, :installment_amount,
-                                     :installment_count, :installments_paid, :payment_frequency, :start_date, :end_date ]
+                                     :installment_count, :installments_paid, :payment_frequency, :start_date, :end_date,
+                                     :interest_calculation_enabled, :interest_calculation_day ]
       }
     end
 

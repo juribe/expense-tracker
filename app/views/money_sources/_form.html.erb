@@ -265,26 +265,34 @@
                 </div>
                 <div class="row">
                   <div class="col-md-6 mb-3">
-                    <%= ca_f.label :payment_frequency, t("money_sources.form.payment_frequency"), class: "form-label" %>
-                    <%= ca_f.select :payment_frequency,
-                        options_for_select(CreditAccount::PAYMENT_FREQUENCIES.map { |t| [ t("money_sources.form.frequency.#{t}"), t ] }, ca.payment_frequency),
-                        { include_blank: true },
-                        class: "form-select" %>
+                    <%= ca_f.label :start_date, t("money_sources.form.start_date"), class: "form-label" %>
+                    <%= ca_f.date_field :start_date, class: "form-control" %>
+                    <div class="form-text"><%= t("money_sources.form.start_date_hint") %></div>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <div class="row">
-                      <div class="col-6">
-                        <%= ca_f.label :start_date, t("money_sources.form.start_date"), class: "form-label" %>
-                        <%= ca_f.date_field :start_date, class: "form-control" %>
-                      </div>
-                      <div class="col-6">
-                        <%= ca_f.label :end_date, t("money_sources.form.end_date"), class: "form-label" %>
-                        <%= ca_f.date_field :end_date, class: "form-control" %>
-                      </div>
-                    </div>
+                    <label class="form-label" for="loan_outstanding_balance_display"><%= t("money_sources.form.capital_pending") %></label>
+                    <input type="text"
+                           class="form-control loan-readonly-field"
+                           id="loan_outstanding_balance_display"
+                           value="<%= number_to_currency(ca.outstanding_balance) %>"
+                           readonly
+                           aria-readonly="true">
+                    <div class="form-text"><%= t("money_sources.form.capital_pending_hint") %></div>
                   </div>
                 </div>
+
+                <%# Existing loans render the interest fields outside the kind
+                    panels: the form script can disable inactive panels, and the
+                    settings must always be submitted. New loans keep them inside
+                    the loan panel selected by the type control. %>
+                <% unless @money_source.persisted? && @money_source.loan? %>
+                  <%= render "money_sources/loan_interest_fields", ca_f: ca_f %>
+                <% end %>
               </div>
+
+              <% if @money_source.persisted? && @money_source.loan? %>
+                <%= render "money_sources/loan_interest_fields", ca_f: ca_f %>
+              <% end %>
             <% end %>
 
             <div class="money-source-status">
