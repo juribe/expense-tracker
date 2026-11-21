@@ -668,14 +668,19 @@ class ExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_not @controller.view_assigns["recurring_templates"].any? { |t| t.money_source&.debt_payment_target? }
   end
 
-  test "GET /expenses eager loads recurring-template categories (no N+1)" do
+  test "GET /expenses preloads recurring-template categories only for undecorated templates" do
     template_for(amount: 12_000)
     template_for(amount: 33_000)
+    @user.recurring_templates.create!(
+      category: @category, kind: "expense", amount: 45_000, frequency: "monthly",
+      source: "wizard", description: ""
+    )
 
     assert_page_has_no_bullet_notifications { get expenses_path }
 
     assert_response :success
-    assert_select "#bulkRecurringSelect option", count: 4
+    assert_select "#bulkRecurringSelect option", count: 5
+    assert_select "#bulkRecurringSelect option", text: /#{Regexp.escape(@category.name)}/
   end
 
   test "GET /expenses does not preload categories for debt-target templates" do

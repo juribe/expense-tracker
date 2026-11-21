@@ -517,12 +517,11 @@ module ApplicationHelper
   end
 
   # Label for a recurring template's select option in the "apply to recurring"
-  # modal: the most identifying bits without taking too much width.
+  # modal: name and amount only, keeping the option short.
   def recurring_template_option_label(template)
-    parts = [ template.description.presence, template.category&.name,
-              number_to_currency(template.amount, unit: "") ]
-    parts << "día #{template.payment_day}" if template.payment_day.present?
-    parts.compact.join(" · ")
+    name = template.description.presence || template.category&.name ||
+           t("expenses.assign_recurring.template_fallback", default: "Gasto mensual")
+    "#{name} · #{number_to_currency(template.amount)}"
   end
 
   def source_kind_options

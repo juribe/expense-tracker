@@ -248,11 +248,12 @@ class ExpensesController < ApplicationController
     relation = current_user.recurring_templates.active.expense.includes(:money_source).ordered
     @recurring_templates = relation.to_a.reject { |template| template.money_source&.debt_payment_target? }
 
-    # Category names are only rendered by the HTML modal, and only for the
-    # templates that survive the debt filter. Preloading the unfiltered
-    # relation eager loads categories that are never used (Bullet flags it
-    # when every template is a debt-payment target).
-    if request.format.html? && @recurring_templates.any?
+    # Category names are only rendered by the HTML modal as a fallback name
+    # for templates without a description. Preloading them for described
+    # templates would trigger Bullet's unused-eager-load warning, and the
+    # unfiltered relation would preload categories of debt-payment targets
+    # that never render.
+    if request.format.html? && @recurring_templates.any? { |template| template.description.blank? }
       ActiveRecord::Associations::Preloader.new(
         records: @recurring_templates, associations: :category
       ).call

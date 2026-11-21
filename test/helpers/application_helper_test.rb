@@ -154,6 +154,23 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal 0, summary[:unallocated_percentage]
   end
 
+  test "recurring_template_option_label shows only the name and the amount" do
+    template = RecurringTemplate.new(
+      description: "Arriendo", amount: 1_500_000, payment_day: 5,
+      category: Category.new(name: "Vivienda")
+    )
+
+    assert_equal "Arriendo · $1.500.000", recurring_template_option_label(template)
+  end
+
+  test "recurring_template_option_label falls back to the category name" do
+    template = RecurringTemplate.new(
+      amount: 250_000, category: Category.new(name: "Internet")
+    )
+
+    assert_equal "Internet · $250.000", recurring_template_option_label(template)
+  end
+
   test "goals_summary aggregates saved, target, remaining and progress" do
     pocket = @user.money_sources.create!(name: "Bolsillo Metas", kind: "pocket", starting_balance: 10_000_000)
     travel = Goal.create!(user: @user, pocket: pocket, name: "Viaje", target_amount: 5_000_000)
