@@ -1,16 +1,16 @@
 # Graph Report - expense-tracker  (2026-11-20)
 
 ## Corpus Check
-- 1620 files · ~1,727,441 words
+- 1620 files · ~1,728,815 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 12527 nodes · 17627 edges · 1198 communities (559 shown, 513 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 581 edges (avg confidence: 0.85)
+- 12539 nodes · 17665 edges · 1217 communities (564 shown, 529 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 583 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `961010b0`
+- Built from commit: `4194eb27`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -63,7 +63,7 @@
 - bindModal
 - Credits::Projection::Builder
 - Source Recognition Implementation Guide
-- Budget
+- SpendingAlertService
 - Credit Cards & Loans — UI/UX Design Specification
 - Reglas automáticas — UI/UX Design Spec
 - SavingsOpportunitiesController
@@ -115,10 +115,10 @@
 - InitSchemaWithUuid
 - Transfer
 - MailInbound::MessageParser
-- FinancialHabits::Narrative
+- Expenses::ValueParsing
 - .money
 - Dashboard::PositionSnapshot
-- .call
+- Categories::ClosestResolver
 - k
 - expense_evaluations_index.js
 - TransactionRule
@@ -126,10 +126,10 @@
 - Security Problems — Expense Tracker
 - PublicCmsFooterLinkTest
 - recognition.js
-- SpendingAlertService
+- PaymentEngine::Admin::MembershipsController
 - CategoryPicker
 - bootstrap.bundle.min.js
-- .call
+- TestSupport::MembershipsController
 - MailInbound
 - MailInbound::Providers::Resend
 - PaymentEngine::UserAccess
@@ -137,7 +137,7 @@
 - Mcp::Presenters::CategoryPresenter
 - institution_autocomplete.js
 - FinancialHabits::Detail
-- Expenses::FileImport::CandidateBuilder
+- Expenses::FileImport::Pipeline
 - init
 - .render
 - Income
@@ -162,7 +162,7 @@
 - Reports::CycleTransactionsQuery
 - ExpenseResolver::Categories::Service
 - Statements::ReviewBuilder
-- ExpenseResolver::HeuristicResolver
+- .configuration
 - .success
 - CategoryPickerField
 - .add_column
@@ -189,8 +189,8 @@
 - EvaluationRun
 - Plan: Prevent Gmail normal sync from running before setup/manual criteria
 - Payments::CreateManual
-- sn
-- .call
+- W
+- Mcp::Presenters::GoalPresenter
 - AlertPreferenceTest
 - SpendingAlertTest
 - 3. Full acceptance criteria (must all hold after implementation)
@@ -202,7 +202,7 @@
 - Reports::Overview
 - Dashboard::Onboarding
 - inputs/base.rb
-- Expenses::FileImport::Enrichers::Confidence
+- .index
 - Ai::Tasks::ExpenseExtraction
 - ErrorReporting::RollbarPayloadSanitizer
 - PaymentEngine::WebhookEvent
@@ -242,7 +242,7 @@
 - SavingsOpportunities::RecurringDetection
 - ActivityClassificationTest
 - ExpenseClarification
-- WhatsappIdentity
+- .call
 - TDD Workflow
 - FinancialSummaryService
 - whisper_transcribe.py
@@ -275,7 +275,7 @@
 - Ai
 - Ai
 - whatsapp_business_tools
-- .call
+- ReconciliationSnapshot
 - Reports::Analysis
 - MoneySources::Detector
 - WillPaginate::ActionView::BootstrapLinkRenderer
@@ -292,15 +292,15 @@
 - RSpec Standards
 - Credits::DataCollector
 - CreateSubcategorySavingTips
-- Expenses::ValueParsing
+- Expenses::FileImport::Enrichers::MoneySource
 - Users::SecondFactorWebauthnCredentialsController
-- .current
+- Pwa::ManifestsController
 - SubcategorySavingTipTest
 - 3. Puntos que requieren decisión o validación legal
 - AiExecutionTest
 - cs
 - ExpenseResolver::CategoryResult
-- Statements::Summary
+- Statements::Document
 - ApplicationController
 - Statements::Confirmation
 - CmsPage::FooterLink
@@ -359,8 +359,8 @@
 - credits.js
 - Reports::SavingsCapacity
 - SavingsOpportunities::SmallExpenses
-- remove
-- Mcp::EndpointController
+- ExpenseResolverServiceTest
+- Budget
 - Jn
 - RecurringTemplatesController
 - PayCycle
@@ -401,7 +401,7 @@
 - Reports::SpendingTrendInsights
 - HelpCenter::PagePath
 - garbage_filter.rb
-- .fresh?
+- Ai::FakeStreamingHttp
 - PendingWhatsappConnectionTest
 - WhatsappConnectionTest
 - WhatsappIdentityTest
@@ -411,7 +411,7 @@
 - Ks
 - financial_setup_upload.js
 - MoneySourceCapabilitiesTest
-- PaymentEngine::AuditLog
+- PaymentEngine::Admin::SubscriptionsController
 - CreditProjection
 - transaction_rules_focused.spec.js
 - Reports::Perspectives::Metrics
@@ -441,7 +441,7 @@
 - Es
 - ReportsHelper
 - RateLimitProxy
-- Reports::Base
+- PremiumIdentity
 - CategoryCatalogTest
 - ExpenseCandidates::BulkConfirmTest
 - ExpenseCandidates::BulkUpdateTest
@@ -458,7 +458,7 @@
 - FinancialChatMessage
 - HelpCenterTestSupport
 - BalanceAdjustment
-- Mcp::SettingsController
+- remove
 - Payment
 - RecurringTemplates::CycleSummary
 - ApplicationCable
@@ -467,8 +467,8 @@
 - FinancialHabits::SpendingTimePatternAnalyzer
 - AddMoneySourcePresenceCheckToTransactions
 - financial_chat_channel_test.rb
-- PremiumIdentities::Capture
-- PlansController
+- .call
+- Payments::RecurringLink
 - FinancialHabits::CycleEndSpendingAnalyzer
 - ProviderDoubles
 - ReconciliationsController
@@ -482,9 +482,9 @@
 - FinancialChatTest
 - Payments::CreateManualTest
 - Ai::Router
-- ExpenseEvaluationsController
+- .render
 - pay_cycle.rb
-- SavingsOpportunities::Analysis
+- identity_for
 - MonthlyReportsController
 - Auditoría de la página de Seguridad
 - Statements
@@ -493,7 +493,7 @@
 - ExpenseResolver
 - SavingsOpportunitiesNarrativeTest
 - .call
-- MailInbound::ProcessorTest
+- EmailTransactionDetectorTest
 - PremiumIdentities::UserAccessExtension
 - Reports::CreditCards
 - Expenses::FileImport::Readers::Pdf
@@ -501,7 +501,7 @@
 - TransactionMoneySourceTest
 - CmsPage::PathSync
 - AddRecurringPaidInFullToTransactions
-- .render
+- ExpensesController
 - AiRequest
 - quick_transfer_modal.js
 - CheckoutStatusTest
@@ -511,13 +511,13 @@
 - init
 - Speech-to-Text (local, faster-whisper)
 - Reconciliation::StateTest
-- Ai::Tasks::TransactionExtraction
-- .answer
+- Statements::Summary
+- .write
 - Mcp::Presenters::TransactionPresenter
 - Error monitoring with Rollbar
 - Reconciliation
 - GmailSyncJob
-- .call
+- extra_payments_create_test.rb
 - SecurityHeadersTest
 - Reports::Perspectives::Recommendations
 - Cloudflare Email Worker — Expense Tracker
@@ -530,7 +530,7 @@
 - thresholds.rb
 - CreditsHelperTest
 - CategoryInsightsHelper
-- ExpenseResolverServiceTest
+- .call
 - SourceRecognition::MatcherBankGroupTest
 - Reports::Perspectives::Summary
 - FinancialAnalysisServiceTest
@@ -545,7 +545,7 @@
 - Reports::PerspectivesHelper
 - Ai::RouterTest::FakeTask
 - ImportsController
-- Ai::Tasks::ClarificationResolution
+- .parse_json
 - Devise::Test::IntegrationHelpers
 - PublicHostsConfigTest
 - Reports::Budgets
@@ -563,9 +563,9 @@
 - PeriodConverterTest
 - PublicCmsTestSupport
 - ApplicationSystemTestCase
-- ActiveSupport::TestCase
+- TestParallelism
 - savings_opportunities/analysis_state.rb
-- .call
+- WhatsappSettingsController
 - Mcp::Idempotency
 - Mcp::Tools::Accounts::GetAccountsTool
 - WhatsappPayload::Message
@@ -573,7 +573,7 @@
 - MailInboundHandleJobTest
 - InstitutionCachedNameCascadeTest
 - Statements::Adapters::RowCompilerTest
-- PaymentEngine::ReconcilePaymentsJob
+- PaymentEngine::AuditLog
 - InstitutionsBankMigratorTest
 - Expenses::SearchTest
 - HelpCenter::NavigationSync
@@ -581,7 +581,7 @@
 - savings_opportunities.js
 - category_insights.js
 - PaymentEngine::Result
-- Mcp::Presenters::PocketPresenter
+- Mcp::Tools::Pockets::GetPocketsTool
 - Mcp::Tools::Expenses::GetExpensesTool
 - Mcp::Tools::CreditCards::GetCreditCardsTool
 - CustomFinancialInstitutionTest
@@ -624,8 +624,8 @@
 - Users::PasswordsController
 - message.rb
 - FinancialHabits::MerchantFrequencyAnalyzer
-- ExpenseCandidates::BulkDiscard
-- ExtraPaymentsController
+- Mcp::SafeLogger
+- PremiumIdentities::Capture
 - Centro de ayuda
 - Expenses::FileImport::ImportContext
 - VerificationSourceLinkTest
@@ -649,13 +649,13 @@
 - Expenses::FileImport::Readers::Base
 - Mcp::Tools::Budgets::GetBudgetProgressTool
 - Whatsapp::PremiumMembershipGate
-- ProcessedEmail
+- GmailConnectionsControllerTest
 - FinancialHabits::BehaviorChangeAnalyzer
 - design_add_expense_form.md
 - HelpCenter::Search
 - initializeExpenseFilters
 - Ai::Providers
-- Gmf::ChargeCreator
+- .call
 - SecondFactorAuthentication
 - Eliminación de datos
 - BankSetupWizardSystemTest
@@ -671,8 +671,8 @@
 - StatementFormatMapping
 - Expenses::ProcessorTest
 - SourceRecognition::GuidedWizardTest
-- Payments::RecurringLink
-- PaymentEngine::Admin::BaseController
+- .call
+- Admin::UsersController
 - Credits::Rate::PeriodConverter
 - Mcp::Tools::Expenses::UpdateExpenseTool
 - Auditoría de la política de privacidad
@@ -694,7 +694,7 @@
 - Gmf::ChargeDestroyHandler
 - Whatsapp::ReplySender
 - Reports::CashFlowTrend
-- .call
+- Expenses::Processors::Recording
 - Mcp::Tools::Pockets::CreatePocketTool
 - Mcp::Tools::Pockets::UpdatePocketTool
 - Mcp::Tools::Pockets::WithdrawFromPocketTool
@@ -709,13 +709,13 @@
 - GoalAllocationsController
 - PaymentEngine::Purchase
 - Expenses::BulkDestroy
-- ReportsAnalysisTest
+- Ai::Tasks::TransactionExtraction
 - initializeCategoryIndex
 - PaymentEngine::ApplicationController
 - home.js
-- MailInbound::Acceptance
+- .advance
 - McpAccessToken
-- EmailForwardingVerification
+- Ai::Tasks::CategoryClassification
 - Users::PasskeysController
 - Mcp
 - fingerprint.rb
@@ -727,51 +727,52 @@
 - McpToolHelper
 - SourceRecognition::ApplyToSearchConfig
 - HelpCenterSeed
-- Mcp::Authentication
+- ui
 - PaymentEngine
-- Expenses::Inputs::TextImage
-- .parse_ids
+- PaymentsControllerTest
+- Expenses::BulkUpdate
 - SourceRecognition::ValueClassifier
-- Mcp::SafeLogger
+- Reports::TimeBuckets
 - SecuritySettingsControllerTest
 - McpAccessTokenTest
-- PaymentsControllerTest
+- ExpensePlayground::Evaluations::Runner
 - theme.spec.js
 - PaymentEngine::Result
 - Mcp::HttpTransport
-- MoneySourceExtractsController
+- TransactionRules::SuggestionService
 - ExpensesControllerTest
-- PaymentEngineAdminTest
+- .call
 - Database backups
 - Loans::NextPayment
-- Mcp::Tools::SavingsGoals::GetSavingsGoalsTool
+- MonthlyIncomesController
 - ScopeProcessedEmailsUniquenessToUser
-- financial_habits/analysis_state.rb
+- Gmf::ChargeCreator
 - Gmf::Period
 - RemoveRequiresMembershipFromUsers
-- .advance
-- Mcp::Tools::Context::GetFinancialContextTool
+- RecurringExpenses::CycleSummary
+- Mcp::Tools::Debts::GetDebtsTool
 - PaymentEngine::Provider
 - Payments::ApplyTest
 - Ai::Tasks::FinancialHabitsNarrative
 - HelpCenterNavigationSyncTest
-- AddCounterCachesToMembershipTypes
+- .refresh!
 - PaymentEngine
 - TransactionRulesHelper
 - SidebarNavigationTest
-- ExpensePlaygroundEvaluationsDatasetTest
-- sender_authentication.rb
+- .record_audit
+- Gmail::TransactionRecorder::Result
 - .call
 - MoneySourceGmfTest
+- Users::PasskeysControllerTest
 - FinancialInstitutionsController
 - SavingsOpportunities::Simulator
-- .create
-- SpendingAlert
+- Users::SecondFactorWebauthnCredentialsControllerTest
+- PaymentTest
 - CreateGmfUvtYears
 - CreateGmfMonthlyAccumulators
 - Gmf::Calculator
 - GmfMonthlyAccumulator
-- ao
+- Q
 - EncryptPaymentEngineProviderConfiguration
 - GmfEditDeleteTest
 - GmfIntegrationTest
@@ -792,7 +793,7 @@
 - Dummy
 - .call
 - Expenses::Inputs::DataUri
-- ReportsCreditCardsTest
+- TotpCredentialTest
 - ApplicationJob
 - AlertPreference
 - ApplicationRecord
@@ -834,31 +835,31 @@
 - dummy/app/helpers/application_helper.rb
 - db_backup.sh
 - lib/payment_engine.rb
-- ExpenseEvaluationsControllerTest
-- .call
+- MailInbound::Acceptance
+- CategoryPickerHelperTest
 - EmailWebhookControllerTest
 - Maglev
 - CreateActiveStorageTables
 - checkout_poll.js
 - AlertSettingsController
 - UserConsent
-- SpendingAlertServiceTest
+- MaglevThemeHelper
 - monthly-reports.spec.js
 - Users::ConfirmationsController
 - PrivacyHelper
 - CategoriesHelper
-- ReportsLoansTest
+- Expenses::FileImport::Enrichers::Confidence
 - Seguridad
 - ChangePaymentEngineOwnerIdsToString
 - ChangePaymentEngineOwnerIdsToString
-- PaymentEngine::Admin::PremiumIdentitiesController
+- .call
 - PaymentEngine::Webhooks::EventsController
 - Expenses::Result
 - FinancialHabits
-- Reports::BudgetsController
-- .call
+- PaymentEngineAdminTest
+- ReportsOverviewTest
 - Mcp::Tools::Pockets::GetPocketDetailsTool
-- Gmail::TransactionRecorder::Result
+- SpendingAlertServiceTest
 - AddTrialUniqueIndex
 - AddAccessDurationToPaymentOptions
 - SEO y GEO del sitio público
@@ -866,27 +867,27 @@
 - ReportsPerspectivesRecommendationsTest
 - ContactMessagesControllerTest
 - SavingsOpportunitiesAnalysisStateTest
-- HelpCenter::RatingsController
+- HelpCenter::RatingFingerprint
 - FinancialHabitsHelper
 - ContactMailerTest
 - ContactMessageTest
 - PaymentEngineOptionsTest
-- MailInbound::Result
+- ReportsPerspectivesFindingsTest
 - .claim!
-- .write
+- MonthlyExpensesController
 - PricingPageTest
 - CreateMaglevSites
 - CreateMaglevPages
-- Whatsapp::ConnectServiceTest
+- Gmail::TransactionRecorderTest
 - CreateMaglevSectionContent
 - CreateMaglevAssets
 - CreateMaglevPagePaths
-- AddCanonicalToPages
+- ImportsHelper
 - Expenses::Inputs::Image
 - AddLocalesToSites
-- PaymentEngine::ExpireMembershipsJob
+- RecurringTablesHelper
 - TranslateSectionContent
-- PaymentEngine::Setting
+- Mcp::Current
 - ImportPipeline
 - FinancialHabits
 - BetterPagePathCanonicalIndices
@@ -911,24 +912,25 @@
 - ReportsPagesTest
 - MonthlyExpensesControllerTest
 - TransactionRules::SuggestionServiceTest
-- ReportsOverviewTest
-- Users::PasskeysControllerTest
+- sender_authentication.rb
+- ReportsAnalysisTest
 - financial_setup_gmf_exemption.js
-- RollbarErrorReportingTest
+- Whatsapp::ConnectServiceTest
+- PaymentEngine::ExpireMembershipsJob
 - ReportsSavingsCapacityControllerTest
 - SourceRecognition::MatcherTest
 - DeletePlaintextAiRequests
 - reports_budgets.js
 - ChangeAiRequestsErrorToText
 - SourceRecognition::AmbiguousTokens
-- BudgetTest
-- FinancialHabitsAnalysisTest
+- ReportsCategorySpendingTest
+- Expenses::ConfidenceCalculatorTest
 - init
-- FinancialInstitutionsIndexTest
+- MonthlyIncomesRedesignTest
 - .call
 - Loans::InterestCalculator::Result
 - HttpsEnforcementTest
-- PaymentEngineMembershipTypeCounterCacheTest
+- ActiveSupport::TestCase
 - ExpenseCandidates::BulkDiscardTest
 - SourceRecognition::SubjectTemplates
 - ContactMessagesController
@@ -943,7 +945,7 @@
 - Ai::MetricsTest
 - PostgreSQL Database Setup
 - Payments::LoanInterestEffectsTest
-- DataCollectorTest
+- BalanceEffectTest
 - spending_trend.js
 - Users::RegistrationsControllerTest
 - TransactionRules::Applicator
@@ -958,18 +960,18 @@
 - EnablePgTrgm
 - CreateHelpCenterIndices
 - CreateHelpArticleRatings
-- Expenses::Inputs::Rules::Audio
+- Expenses
 - ReportsAvailableCycleTest
 - Statements::ReviewBuilderTest
-- Dashboard::CycleSummaryTest
+- RecurringIncomes::CycleSummaryTest
 - WebauthnCredential
 - money_sources_crud.spec.js
 - GuidedRecognitionControllerTest
-- Gmail::TransactionRecorderTest
+- Reports::CategorySpendingController
 - WhatsappHelperTest
 - CreateWebauthnCredentials
-- Expenses::Inputs::Rules::File
-- PremiumIdentitiesCaptureTest
+- Expenses
+- ExpenseCandidatesControllerTest
 - HelpCenterPagePathTest
 - HelpCenterRatingFingerprintTest
 - HelpCenterTextNormalizerTest
@@ -982,12 +984,12 @@
 - CreateTotpCredentials
 - MoneySourcesStatementExportsTest
 - FilterParameterLoggingTest
-- PremiumIdentitiesMembershipHistoryTest
+- HelpCenterRatingsControllerTest
 - RecoveryCodeTest
 - ExpenseClarificationTest
 - FinancialChats::MessagesControllerTest
 - CreateUserConsents
-- ReportsBudgetsTest
+- IncomesControllerTest
 - AddSeoFieldsToMaglevPages
 - initializeFinancialInstitutionsIndex
 - CreatePremiumIdentities
@@ -996,25 +998,25 @@
 - MoneySourceStatementExportsTest
 - AddTrialConfigToSettings
 - reports.spec.js
-- CustomFinancialInstitutionsControllerTest
+- .index
 - ProgressBarsTest
 - McpSafeLoggerTest
 - MonthlyExpensesProcessModalTest
-- DashboardControllerTest
+- .get
 - WhatsappInboundMessagePurgeJobTest
 - UserMfaTest
 - UserConsentTest
-- AvailableCycleReportTest
-- ReportsCategorySpendingTest
+- ExpenseCandidateOwnershipTest
+- ExpenseCandidateTest
 - DeploymentTrackingTest
 - HelpCenter::CategoryArticles
-- ExpenseCandidatesControllerTest
-- StatementImportsControllerTest
+- .call
+- MoneySourcesLoanInterestTest
 - admin_users.js
 - PaySettingsControllerTest
-- CategoryReportNavigationTest
-- AppHealthTest
-- ExpenseCandidateOwnershipTest
+- Mcp
+- Users::PasswordsControllerTest
+- UserWebauthnTest
 - StatementImportsHelper
 - Expenses
 - HelpCategoryIndexTest
@@ -1037,10 +1039,10 @@
 - Reconciliation::ExpenseSearchTest
 - SimulatorTest
 - AddGmfExemptToMoneySources
-- ExpenseCandidateTest
 - ExpensePlaygroundEvaluationsResultBuilderTest
+- MonthlyExpensesSortTest
 - EncryptionBackfillTest
-- HelpCenterSeederTest
+- FinancialHabitsDetailTest
 - perspectives/thresholds.rb
 - AddSuggestedSavingsPercentageToCategories
 - pwa.rb
@@ -1052,7 +1054,7 @@
 - FinancialChatControllerTest
 - FinancialSummaryControllerTest
 - ReportsRecurringTest
-- GoalAllocationsControllerTest
+- ExpensePlayground
 - CategoriesControllerTest
 - WebauthnConfig
 - Users::ConfirmationsControllerTest
@@ -1068,25 +1070,44 @@
 - TransactionRuleTest
 - OnboardingControllerTest
 - Users::TwoFactorAuthenticationsControllerTest
-- WhatsappSettingsControllerTest
-- McpSettingsTest
+- AddCanonicalToPages
+- AddCounterCachesToMembershipTypes
 - FinancialInstitutionsControllerTest
 - DebtCapacityControllerTest
-- PaymentEngineTrialTest
-- PaymentEngineCrudTest
+- GoalAllocationsControllerTest
+- PageTitlesTest
 - PaymentEngineMembershipStatusTest
 - RobotsTxtTest
 - TransactionRulesControllerTest
 - Users::RecoveryCodeAuthenticationsControllerTest
 - TransactionRulesFlowTest
 - PackagingTest
-- PageTitlesTest
+- RecurringTemplatesControllerTest
 - MaglevFooterThemeTest
-- PlansPageTest
+- PaymentEngineTrialTest
 - ProfilePageTest
+- BankSetupWizardTest
+- MoneySourcesControllerTest
+- MailInboundContentPurgerTest
+- PlansPageTest
 - CmsPage
-- MonthlyIncomesRedesignTest
+- HelpCenterSeederTest
+- AvailableCycleReportTest
 - Reports::AvailableCycleController
+- WhatsappSettingsTest
+- BudgetToolsTest
+- BudgetsControllerTest
+- MoneySourcesInstitutionTest
+- PaymentEngineDoubleCheckoutTest
+- ContextToolsTest
+- ExpenseToolsTest
+- PocketToolsTest
+- SavingsGoalToolsTest
+- McpSecurityTest
+- WritePaymentToolsTest
+- WritePlanningToolsTest
+- WriteTransferToolsTest
+- MoneySourcesReportSystemTest
 
 ## God Nodes (most connected - your core abstractions)
 1. `Category` - 107 edges
@@ -1126,7 +1147,7 @@
 - **Public Static Web Assets** — public_400_html, public_404_html, public_406_unsupported_browser_html, public_422_html, public_500_html, public_robots_txt, public_icon_png, public_icon_svg [INFERRED 0.85]
 - **Application Icon in Multiple Formats** — public_icon_png, public_icon_svg, app_brand_icon [INFERRED 0.90]
 
-## Communities (1198 total, 513 thin omitted)
+## Communities (1217 total, 529 thin omitted)
 
 ### Community 1 - "MoneySources::StatementExports::Base"
 Cohesion: 0.05
@@ -1141,8 +1162,8 @@ Cohesion: 0.06
 Nodes (29): { signUp, createCategory }, { test, expect }, { signUp, signIn }, { test, expect }, { signUp, createCategory }, { test, expect }, { signUp }, { test, expect } (+21 more)
 
 ### Community 5 - "Gmail::ExpenseImporterTest"
-Cohesion: 0.13
-Nodes (5): Gmail, Gmail::ExpenseImporterTest, Gmail::ExpenseImporterTest::FakeDetector, Gmail::ExpenseImporterTest::FakeExtractor, TestCase
+Cohesion: 0.12
+Nodes (6): Gmail, Gmail::ExpenseImporterTest, Gmail::ExpenseImporterTest::FailingSuggester, Gmail::ExpenseImporterTest::FakeDetector, Gmail::ExpenseImporterTest::FakeExtractor, TestCase
 
 ### Community 6 - "Category Management UI/UX Spec"
 Cohesion: 0.06
@@ -1181,8 +1202,8 @@ Cohesion: 0.10
 Nodes (8): ExpenseResolver, ExpenseResolver::Amounts, ExpenseResolver::Amounts::SumValidator, ExpenseResolver::Amounts::SumValidator::Result, ExpenseResolver, ExpenseResolver::Amounts, ExpenseResolver::Amounts::SumValidatorTest, TestCase
 
 ### Community 18 - "reconciliation.js"
-Cohesion: 0.15
-Nodes (36): assignCreateUrl(), assignEmptyMessage(), assignModal(), assignResultRow(), assignSearchUrl(), clearBalanceError(), csrfToken(), emptyRow() (+28 more)
+Cohesion: 0.14
+Nodes (42): activeModal(), applyLoanPresentation(), assignCreateUrl(), assignEmptyMessage(), assignModal(), assignResultRow(), assignSearchUrl(), clearBalanceError() (+34 more)
 
 ### Community 19 - "Gmail::QueryBuilder"
 Cohesion: 0.11
@@ -1197,8 +1218,8 @@ Cohesion: 0.08
 Nodes (24): 10. Accessibility, 11. What to implement (engineering), 12. Acceptance criteria (UI), 13. Assumptions, 14. Out of scope, 15. Mockup, 1. Existing product (source of truth), 2. User flow (+16 more)
 
 ### Community 22 - "Category"
-Cohesion: 0.04
-Nodes (13): CategoriesController, ApplicationController, Category, ApplicationRecord, adjust_counters(), IncomesControllerTest, IntegrationTest, MoneySourcesLoanInterestTest (+5 more)
+Cohesion: 0.05
+Nodes (9): CategoriesController, ApplicationController, Category, ApplicationRecord, adjust_counters(), CategoryOptionListTest, TestCase, CategoriesClosestResolverTest (+1 more)
 
 ### Community 23 - "ExpensePlaygroundController"
 Cohesion: 0.08
@@ -1212,10 +1233,6 @@ Nodes (4): call(), SourceRecognition, SourceRecognition::DiscoveryService, Sourc
 Cohesion: 0.10
 Nodes (19): Architecture, Cloudflare, Cloudflare, Cloudflare setup already applied, Common, Configuration, Delivery persistence, Gmail (+11 more)
 
-### Community 27 - "RecurringTemplateActions"
-Cohesion: 0.08
-Nodes (4): RecurringTemplateActions, MonthlyExpensesController, ApplicationController, RecurringTemplateProcessor
-
 ### Community 29 - "FinancialSetups::StepPresenter"
 Cohesion: 0.10
 Nodes (5): FinancialSetups, FinancialSetups::StepPresenter, FinancialSetups, FinancialSetups::StepPresenterTest, TestCase
@@ -1225,8 +1242,8 @@ Cohesion: 0.19
 Nodes (4): Gmail, Gmail::Client, Gmail::Client::Error, StandardError
 
 ### Community 31 - "MailInboundService"
-Cohesion: 0.13
-Nodes (5): MailInboundHandleJob, ApplicationJob, MailInboundDelivery, ApplicationRecord, MailInboundService
+Cohesion: 0.10
+Nodes (7): MailInboundHandleJob, ApplicationJob, MailInboundDelivery, ApplicationRecord, MailInbound, MailInbound::Result, MailInboundService
 
 ### Community 32 - "analyze_benchmark_500.py"
 Cohesion: 0.25
@@ -1237,7 +1254,7 @@ Cohesion: 0.18
 Nodes (5): configure(), Gmail, Gmail::SetupScanServiceTest, Gmail::SetupScanServiceTest::FakeClient, TestCase
 
 ### Community 34 - "ExpenseResolver::CandidateDetector"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (5): ExpenseResolver, ExpenseResolver::CandidateDetector, ExpenseResolver, ExpenseResolver::Text, ExpenseResolver::Text::Service
 
 ### Community 35 - "Detailed relationships"
@@ -1269,12 +1286,16 @@ Cohesion: 0.12
 Nodes (39): addAlias(), addKeyword(), addValue(), aliasContainer(), bindModal(), activeForm(), anyDirty(), clearError() (+31 more)
 
 ### Community 46 - "Credits::Projection::Builder"
-Cohesion: 0.09
-Nodes (3): Credits, Credits::Projection, Credits::Projection::Builder
+Cohesion: 0.08
+Nodes (4): Credits, Credits::Projection, Credits::Projection::Builder, MoneyFormat
 
 ### Community 47 - "Source Recognition Implementation Guide"
 Cohesion: 0.31
 Nodes (10): Source Recognition Implementation Guide, Recognition Edit Panel, Gmail Connection Guard, MoneySourceRecognition Data Model, MoneySourceRecognitionIdentifier Data Model, Recognition Configured Predicate, Recognition Controller Action, Suggestion Chips UI (+2 more)
+
+### Community 48 - "SpendingAlertService"
+Cohesion: 0.11
+Nodes (4): ApplicationRecord, SpendingAlert, CategorySpend, SpendingAlertService
 
 ### Community 49 - "Credit Cards & Loans — UI/UX Design Specification"
 Cohesion: 0.10
@@ -1285,7 +1306,7 @@ Cohesion: 0.10
 Nodes (19): 1. Placement & navigation, 2. Data model (for design reference, implemented by Developer), 3. Main page — Rules index, 4. New / Edit rule — builder, 5. Interactions, 6. States, 7. Responsive behavior, 8. Accessibility (+11 more)
 
 ### Community 51 - "SavingsOpportunitiesController"
-Cohesion: 0.13
+Cohesion: 0.15
 Nodes (6): ApplicationController, SavingsOpportunitiesController, ApplicationJob, SavingsOpportunityAnalysisJob, SavingsOpportunities, SavingsOpportunities::AnalysisState
 
 ### Community 52 - "CategoryInsight"
@@ -1321,12 +1342,8 @@ Cohesion: 0.29
 Nodes (3): TestCase, SourceRecognition, SourceRecognition::DiscoveryServiceTest
 
 ### Community 61 - "Ai::Provider"
-Cohesion: 0.06
-Nodes (15): Ai, Ai::Provider, Ai::Provider::Error, Ai::Provider::Response, StandardError, Ai, Ai::FakeStreamingHttp, Ai::FakeStreamingResponse (+7 more)
-
-### Community 62 - "Reports::CategorySpending"
-Cohesion: 0.21
-Nodes (4): BaseController, Reports::CategorySpendingController, Base, Reports::CategorySpending
+Cohesion: 0.14
+Nodes (6): Ai, Ai::Provider, Ai::Provider::Error, Ai::Provider::Response, StandardError, FakeAiProvider
 
 ### Community 63 - "initializePlayground"
 Cohesion: 0.07
@@ -1373,7 +1390,7 @@ Cohesion: 0.09
 Nodes (7): bin(), call(), SpeechToText, SpeechToText::AudioPreprocessor, call(), SpeechToText, SpeechToText::Whisper
 
 ### Community 78 - "Reconciliation::Calculator"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (5): call(), reconcilable_balance(), Reconciliation, Reconciliation::Calculator, Reconciliation::Calculator::Result
 
 ### Community 79 - "SpeechToText"
@@ -1381,8 +1398,8 @@ Cohesion: 0.19
 Nodes (8): Error, StandardError, SpeechToText, SpeechToText::Error, SpeechToText::PreprocessingError, SpeechToText::ProviderUnavailableError, SpeechToText::TranscriptionError, SpeechToText::UnsupportedFormatError
 
 ### Community 80 - ".normalize"
-Cohesion: 0.12
-Nodes (4): MoneyFormat, call(), Payments, Payments::Apply
+Cohesion: 0.14
+Nodes (3): call(), Payments, Payments::Apply
 
 ### Community 81 - "Reports::Filter"
 Cohesion: 0.07
@@ -1402,7 +1419,7 @@ Nodes (3): Application Brand Icon, Application Icon (PNG Raster), Application Ic
 
 ### Community 90 - "PaymentEngine::Membership"
 Cohesion: 0.04
-Nodes (22): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::MembershipsController, BaseController, PaymentEngine, PaymentEngine::Membership, ApplicationRecord, PaymentEngine (+14 more)
+Nodes (21): PaymentEngine, PaymentEngine::Membership, ApplicationRecord, PaymentEngine, PaymentEngine::Access, IntegrationTest, ReconciliationsControllerTest, IntegrationTest (+13 more)
 
 ### Community 91 - "Expenses::BulkCreate"
 Cohesion: 0.18
@@ -1417,40 +1434,36 @@ Cohesion: 0.13
 Nodes (8): Ai, Ai::Tasks, Ai::Tasks::StatementExtraction, Base, Ai, Ai::Tasks, Ai::Tasks::StatementExtractionTest, TestCase
 
 ### Community 95 - "Reports::MoneySources"
-Cohesion: 0.12
-Nodes (6): BaseController, Reports::MoneySourcesController, Base, Reports::MoneySources, TestCase, ReportsMoneySourcesTest
-
-### Community 96 - "PublicCmsSeoHelper"
-Cohesion: 0.09
-Nodes (3): HelpCenterHelper, MaglevThemeHelper, PublicCmsSeoHelper
+Cohesion: 0.06
+Nodes (11): BaseController, Reports::MoneySourcesController, Reports::Base, Base, Reports::MoneySources, Base, TestCase, ReportsBaseTest (+3 more)
 
 ### Community 98 - "Transfer"
-Cohesion: 0.10
-Nodes (8): ApplicationRecord, Transfer, MoneySources, rebuild!(), IntegrationTest, TransfersControllerTest, TestCase, TransferTest
+Cohesion: 0.09
+Nodes (8): Reconciliation, Reconciliation::Invalidatable, ApplicationRecord, Transfer, IntegrationTest, TransfersControllerTest, TestCase, TransferTest
 
 ### Community 99 - "MailInbound::MessageParser"
 Cohesion: 0.18
 Nodes (5): call(), MailInbound, MailInbound::MessageParser, MailInbound::MessageParser::Error, StandardError
 
-### Community 100 - "FinancialHabits::Narrative"
-Cohesion: 0.09
-Nodes (8): FinancialHabitsController, ApplicationController, FinancialHabitsAnalysisJob, ApplicationJob, FinancialHabits, FinancialHabits::AnalysisState, FinancialHabits, FinancialHabits::Narrative
+### Community 100 - "Expenses::ValueParsing"
+Cohesion: 0.15
+Nodes (5): Expenses, Expenses::FileImport, Expenses::FileImport::CandidateBuilder, Expenses, Expenses::ValueParsing
 
 ### Community 101 - ".money"
 Cohesion: 0.04
-Nodes (28): Mcp, Mcp::NextPaymentDate, Mcp, Mcp::Presenters, Mcp::Presenters::CreditCardPresenter, Mcp, Mcp::Presenters, Mcp::Presenters::DebtBalance (+20 more)
+Nodes (33): Mcp, Mcp::NextPaymentDate, Mcp, Mcp::Presenters, Mcp::Presenters::CreditCardPresenter, Mcp, Mcp::Presenters, Mcp::Presenters::DebtPresenter (+25 more)
 
 ### Community 102 - "Dashboard::PositionSnapshot"
 Cohesion: 0.09
 Nodes (5): DashboardController, ApplicationController, Dashboard::PositionSnapshot, Dashboard::PositionSnapshotTest, TestCase
 
-### Community 103 - ".call"
-Cohesion: 0.15
-Nodes (5): Categories::ClosestResolver, FinancialHabits, FinancialHabits::Aliases, CategoriesClosestResolverTest, TestCase
+### Community 103 - "Categories::ClosestResolver"
+Cohesion: 0.26
+Nodes (3): Categories::ClosestResolver, FinancialHabits, FinancialHabits::Aliases
 
 ### Community 104 - "k"
 Cohesion: 0.07
-Nodes (46): st, d(), E(), f(), g(), k(), A(), B() (+38 more)
+Nodes (45): st, d(), E(), f(), g(), k(), A(), B() (+37 more)
 
 ### Community 105 - "expense_evaluations_index.js"
 Cohesion: 0.31
@@ -1468,6 +1481,10 @@ Nodes (27): Comandos útiles, Convenciones, Cómo usar este documento, Estado gl
 Cohesion: 0.15
 Nodes (18): bindRecognition(), bindRecognitionHelp(), hideRecognitionVeil(), recognitionAcceptChip(), recognitionCountEl(), recognitionFieldName(), recognitionForm(), recognitionHelpShow() (+10 more)
 
+### Community 111 - "PaymentEngine::Admin::MembershipsController"
+Cohesion: 0.08
+Nodes (10): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::MembershipsController, BaseController, PaymentEngine, PaymentEngine::Memberships, PaymentEngine::Memberships::Grant, PaymentEngine (+2 more)
+
 ### Community 112 - "CategoryPicker"
 Cohesion: 0.23
 Nodes (4): bindAll(), CategoryPicker(), forNode(), normalize()
@@ -1476,9 +1493,9 @@ Nodes (4): bindAll(), CategoryPicker(), forNode(), normalize()
 Cohesion: 0.09
 Nodes (47): Ae(), be(), Ce(), D(), De(), di(), $e(), Ee() (+39 more)
 
-### Community 114 - ".call"
-Cohesion: 0.11
-Nodes (8): Base, TestSupport, TestSupport::MembershipsController, PaymentEngine, PaymentEngine::Memberships, PaymentEngine::Memberships::StartFreeTrial, PaymentEngine, PaymentEngine::AccessPolicy
+### Community 114 - "TestSupport::MembershipsController"
+Cohesion: 0.33
+Nodes (3): Base, TestSupport, TestSupport::MembershipsController
 
 ### Community 115 - "MailInbound"
 Cohesion: 0.18
@@ -1504,9 +1521,13 @@ Nodes (8): Mcp, Mcp::Presenters, Mcp::Presenters::CategoryPresenter, Mcp, Mcp::T
 Cohesion: 0.26
 Nodes (13): escapeInstitutionHtml(), institutionBind(), institutionCloseList(), institutionExhaustiveData(), institutionFold(), institutionHiddenInput(), institutionItemHtml(), institutionLabelFor() (+5 more)
 
-### Community 122 - "Expenses::FileImport::CandidateBuilder"
-Cohesion: 0.13
-Nodes (6): Expenses, Expenses::FileImport, Expenses::FileImport::CandidateBuilder, Expenses, Expenses::FileImport, Expenses::FileImport::Pipeline
+### Community 121 - "FinancialHabits::Detail"
+Cohesion: 0.06
+Nodes (16): FinancialHabitsController, ApplicationController, FinancialHabitsAnalysisJob, ApplicationJob, acquire_lock(), FinancialHabits, FinancialHabits::AnalysisState, lock_key() (+8 more)
+
+### Community 122 - "Expenses::FileImport::Pipeline"
+Cohesion: 0.27
+Nodes (3): Expenses, Expenses::FileImport, Expenses::FileImport::Pipeline
 
 ### Community 123 - "init"
 Cohesion: 0.16
@@ -1517,8 +1538,8 @@ Cohesion: 0.15
 Nodes (9): PremiumAccessTest, PremiumGateAllTestController, PremiumGateAuthOrderTestController, PremiumGateExceptTestController, PremiumGateTestController, ApplicationController, IntegrationTest, FinancialChatMarkdownRendererTest (+1 more)
 
 ### Community 125 - "Income"
-Cohesion: 0.14
-Nodes (3): IncomesController, ApplicationController, Income
+Cohesion: 0.09
+Nodes (5): IncomesController, ApplicationController, Income, FinancialHabitsAnalysisTest, TestCase
 
 ### Community 126 - "HelpArticleIndex"
 Cohesion: 0.09
@@ -1553,12 +1574,12 @@ Cohesion: 0.33
 Nodes (4): ExpenseResolver, ExpenseResolver::Categories, ExpenseResolver::Categories::Service, ExpenseResolver::Categories::Service::Resolution
 
 ### Community 147 - "Statements::ReviewBuilder"
-Cohesion: 0.10
-Nodes (6): Statements, Statements::ReviewBuilder, Statements::ReviewBuilder::Review, MoneySources, MoneySources::MatchTest, TestCase
+Cohesion: 0.16
+Nodes (3): Statements, Statements::ReviewBuilder, Statements::ReviewBuilder::Review
 
-### Community 148 - "ExpenseResolver::HeuristicResolver"
-Cohesion: 0.14
-Nodes (5): ExpenseResolver, ExpenseResolver::ConfidenceGate, ExpenseResolver::HeuristicResolver, ExpenseResolverHeuristicResolverTest, TestCase
+### Community 148 - ".configuration"
+Cohesion: 0.12
+Nodes (6): Ai, ExpenseResolver, ExpenseResolver::ConfidenceGate, ExpenseResolver::HeuristicResolver, ExpenseResolverHeuristicResolverTest, TestCase
 
 ### Community 149 - ".success"
 Cohesion: 0.15
@@ -1573,11 +1594,11 @@ Cohesion: 0.06
 Nodes (10): UpdateCategoriesRemoveSlugImageAddTags, AddSavingsPotentialToCategories, AddCreatedExpenseToPayments, AddEmailSourceOnboarding, AddGmfMetadataToTransactions, AddRequiresMembershipToUsers, AddCounterCachesToMembershipTypes, SwitchToLocalizedPageFields (+2 more)
 
 ### Community 178 - "Expenses::Inputs::File"
-Cohesion: 0.22
-Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::File, Base
+Cohesion: 0.19
+Nodes (5): Expenses, Expenses::Inputs, Expenses::Inputs::File, Base, Expenses::Inputs::Rules::File
 
 ### Community 179 - "MoneySources::Statement"
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (4): MoneySources, MoneySources::Statement, MoneySources::Statement::Movement, MoneySources::Statement::Result
 
 ### Community 181 - "AGENTS.md — Expense Tracker"
@@ -1593,7 +1614,7 @@ Cohesion: 0.15
 Nodes (5): FinancialKeyword, ApplicationRecord, FinancialSubjectPattern, ApplicationRecord, FinancialCatalogSeeder
 
 ### Community 186 - "PaymentEngine::Configuration"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (3): HomeController, ApplicationController, PaymentEngine::Configuration
 
 ### Community 188 - "financial_setup_wizard.spec.js"
@@ -1603,6 +1624,10 @@ Nodes (5): choose(), { signUp }, skipCash(), skipSteps(), { test, expect }
 ### Community 189 - "Ai::ImageExpenseExtractor"
 Cohesion: 0.13
 Nodes (4): Ai, Ai::ImageExpenseExtractor, Ai::ImageExpenseExtractor::ExtractionError, StandardError
+
+### Community 190 - "Dashboard::CycleSummary"
+Cohesion: 0.05
+Nodes (3): Dashboard::CycleSummary, Dashboard::CycleSummaryTest, TestCase
 
 ### Community 192 - "Plan: Improve Gmail initial setup discovery flow"
 Cohesion: 0.22
@@ -1621,12 +1646,12 @@ Cohesion: 0.25
 Nodes (7): enabled, type, url, mcp, cloudflare, plugin, $schema
 
 ### Community 197 - "WhatsappPayload"
-Cohesion: 0.13
+Cohesion: 0.16
 Nodes (5): WhatsappPayload, WhatsappPayload::Change, WhatsappPayload::Contact, WhatsappPayload::Entry, WhatsappPayload::Value
 
 ### Community 198 - "EvaluationRun"
-Cohesion: 0.09
-Nodes (5): EvaluationRun, ApplicationRecord, ExpensePlayground, ExpensePlayground::Evaluations, ExpensePlayground::Evaluations::Runner
+Cohesion: 0.10
+Nodes (4): EvaluationRun, ApplicationRecord, ExpenseEvaluationsControllerTest, IntegrationTest
 
 ### Community 199 - "Plan: Prevent Gmail normal sync from running before setup/manual criteria"
 Cohesion: 0.20
@@ -1636,17 +1661,17 @@ Nodes (9): 1. `app/models/gmail_connection.rb`, 2. `app/services/gmail/sync_serv
 Cohesion: 0.18
 Nodes (5): call(), Payments, Payments::CreateManual, Payments::CreateManual::Rollback, StandardError
 
-### Community 202 - ".call"
-Cohesion: 0.29
-Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::SavingsGoals, Mcp::Tools::SavingsGoals::GetSavingsGoalDetailsTool, ApplicationTool
+### Community 201 - "W"
+Cohesion: 0.07
+Nodes (5): focusableChildren(), H, sn, W, Y
+
+### Community 202 - "Mcp::Presenters::GoalPresenter"
+Cohesion: 0.10
+Nodes (13): Mcp, Mcp::Presenters, Mcp::Presenters::GoalPresenter, Mcp, Mcp::Tools, Mcp::Tools::SavingsGoals, Mcp::Tools::SavingsGoals::GetSavingsGoalDetailsTool, ApplicationTool (+5 more)
 
 ### Community 205 - "3. Full acceptance criteria (must all hold after implementation)"
 Cohesion: 0.07
 Nodes (27): 1. Ground rules (must govern every decision), 2. Current architecture facts (verified — do not re-derive), 2. Tasks, 3.1 Regression checklist (how to verify each criterion), 3. Full acceptance criteria (must all hold after implementation), 4. Commit order, Ambiguous transfer, Complete extraction (+19 more)
-
-### Community 206 - "ExpenseResolver::Service"
-Cohesion: 0.12
-Nodes (4): ExpenseResolver, ExpenseResolver::Serializer, ExpenseResolver, ExpenseResolver::Service
 
 ### Community 208 - "expenses_table.js"
 Cohesion: 0.24
@@ -1660,10 +1685,6 @@ Nodes (9): capabilities(), PaymentEngine, PaymentEngine::Providers, PaymentEngin
 Cohesion: 0.08
 Nodes (23): Action order, Associations, Authorization, Background Work, Real-Time, Concerns and Service Objects, Controllers, Controllers, Database, File layout (+15 more)
 
-### Community 211 - "Reports::Overview"
-Cohesion: 0.16
-Nodes (4): BaseController, Reports::OverviewController, Base, Reports::Overview
-
 ### Community 212 - "Dashboard::Onboarding"
 Cohesion: 0.09
 Nodes (6): OnboardingController, ApplicationController, OnboardingProgress, ApplicationRecord, Dashboard::Onboarding, Dashboard::Onboarding::Step
@@ -1672,9 +1693,9 @@ Nodes (6): OnboardingController, ApplicationController, OnboardingProgress, Appl
 Cohesion: 0.22
 Nodes (12): channel_errors(), errors(), Expenses, Expenses::Inputs, Expenses::Inputs::Base, metadata(), presence_errors(), symbolize() (+4 more)
 
-### Community 214 - "Expenses::FileImport::Enrichers::Confidence"
-Cohesion: 0.33
-Nodes (4): Expenses, Expenses::FileImport, Expenses::FileImport::Enrichers, Expenses::FileImport::Enrichers::Confidence
+### Community 214 - ".index"
+Cohesion: 0.15
+Nodes (5): Expenses, Expenses::CsvExporter, Expenses, Expenses::CsvExporterTest, TestCase
 
 ### Community 215 - "Ai::Tasks::ExpenseExtraction"
 Cohesion: 0.24
@@ -1704,6 +1725,10 @@ Nodes (5): filterCases(), handleEvaluationRoute(), mockEvaluationApi(), { signUp
 Cohesion: 0.11
 Nodes (6): call(), PremiumIdentities, PremiumIdentities::Release, ServiceResult, Statements, Statements::Parser
 
+### Community 222 - "Gmail::ExpenseImporter"
+Cohesion: 0.15
+Nodes (3): ProcessedEmail, ApplicationRecord, Gmail::ExpenseImporter
+
 ### Community 223 - "Gmail::SyncService"
 Cohesion: 0.18
 Nodes (5): Gmail, Gmail::ExpenseImporter::Result, call(), Gmail, Gmail::SyncService
@@ -1725,32 +1750,28 @@ Cohesion: 0.11
 Nodes (9): PublicCmsDataDeletionTest, IntegrationTest, PublicCmsPrivacyPolicyTest, IntegrationTest, PublicCmsTermsAndConditionsTest, IntegrationTest, PrivacyPolicyTestSupport, PrivacyPolicyTest (+1 more)
 
 ### Community 228 - ".post"
-Cohesion: 0.16
+Cohesion: 0.18
 Nodes (3): PaymentEngine::Providers::Epayco::Client, PaymentEngine::Providers::Epayco::Client::ResultError, StandardError
 
 ### Community 229 - "Expenses::Inputs::Audio"
-Cohesion: 0.22
-Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::Audio, Base
+Cohesion: 0.18
+Nodes (5): Expenses, Expenses::Inputs, Expenses::Inputs::Audio, Base, Expenses::Inputs::Rules::Audio
 
 ### Community 230 - "Payments::BalanceEffect"
-Cohesion: 0.21
-Nodes (3): MoneySources::BalanceSync, Payments, Payments::BalanceEffect
+Cohesion: 0.15
+Nodes (5): MoneySources, MoneySources::BalanceSync, rebuild!(), Payments, Payments::BalanceEffect
 
 ### Community 231 - "Expenses::Processors::Image::VisionCandidateBuilder"
 Cohesion: 0.15
 Nodes (5): Expenses::Processors::Image, Expenses::Processors::Image::VisionCandidateBuilder, Expenses::Processors::Image, Expenses::Processors::Image::VisionExtraction, Expenses::Processors::Image::VisionExtraction::Result
 
 ### Community 232 - "RecurringTemplateImporter"
-Cohesion: 0.10
-Nodes (4): ImportsHelper, RecurringTemplateImporter, TestCase, RecurringTemplateImporterTest
+Cohesion: 0.14
+Nodes (3): RecurringTemplateImporter, TestCase, RecurringTemplateImporterTest
 
 ### Community 233 - "Institutions::BankMigrator"
 Cohesion: 0.06
 Nodes (12): CustomFinancialInstitution, ApplicationRecord, Institutions, Institutions::BankMigrator, Institutions::BankMigrator::MigrationOutcome, Institutions, Institutions::BankRecognitionConsolidator, Institutions::BankRecognitionConsolidator::Outcome (+4 more)
-
-### Community 234 - "TransactionRulesController"
-Cohesion: 0.09
-Nodes (4): ApplicationController, TransactionRulesController, TransactionRules, TransactionRules::SuggestionService
 
 ### Community 236 - "Gmail::SetupScanService"
 Cohesion: 0.17
@@ -1761,8 +1782,8 @@ Cohesion: 0.17
 Nodes (5): InboundEmailProcessJob, MailInboundProcessJob, ApplicationJob, MailInbound, MailInbound::SourceRegistrar
 
 ### Community 238 - "PaymentEngine::PaymentOption"
-Cohesion: 0.11
-Nodes (7): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::PaymentOptionsController, BaseController, PaymentEngine, PaymentEngine::PaymentOption, ApplicationRecord
+Cohesion: 0.09
+Nodes (9): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::PaymentOptionsController, BaseController, PaymentEngine, PaymentEngine::PaymentOption, ApplicationRecord, PaymentEngineMembershipTypeCounterCacheTest (+1 more)
 
 ### Community 239 - "createMoneySource"
 Cohesion: 0.07
@@ -1781,16 +1802,12 @@ Cohesion: 0.50
 Nodes (3): Ocr, Ocr::LocalReaderTest, TestCase
 
 ### Community 245 - "MonthlyExpensesFormModalTest"
-Cohesion: 0.10
-Nodes (3): ImportTemplatesPremiumLockTest, MonthlyExpensesFormModalTest, StatementImportPremiumLockTest
+Cohesion: 0.08
+Nodes (4): ImportTemplatesPremiumLockTest, MonthlyExpensesFormModalTest, ReconciliationReconcileModalTest, StatementImportPremiumLockTest
 
 ### Community 246 - "onboarding.js"
 Cohesion: 0.37
 Nodes (12): applyLaterSteps(), bindBanner(), bindLaterButtons(), hideForSession(), init(), laterSteps(), postponeCard(), remainingVisibleCards() (+4 more)
-
-### Community 247 - "ExpensePlayground::Evaluations::Comparator"
-Cohesion: 0.25
-Nodes (3): ExpensePlayground, ExpensePlayground::Evaluations, ExpensePlayground::Evaluations::Comparator
 
 ### Community 248 - "SpeechToText::Result"
 Cohesion: 0.17
@@ -1808,9 +1825,9 @@ Nodes (8): 1. `app/services/source_recognition/matcher.rb`, 2. Efecto esperado c
 Cohesion: 0.13
 Nodes (4): SavingsOpportunities, SavingsOpportunities::RecurringDetection, TestCase, SavingsOpportunitiesRecurringDetectionTest
 
-### Community 254 - "WhatsappIdentity"
-Cohesion: 0.14
-Nodes (5): ApplicationRecord, WhatsappConnection, ApplicationRecord, WhatsappIdentity, EncryptWhatsappPhoneNumbers
+### Community 254 - ".call"
+Cohesion: 0.11
+Nodes (7): ApplicationRecord, WhatsappIdentity, StandardError, Whatsapp, Whatsapp::ConnectService, Whatsapp::ConnectService::AlreadyConsumed, EncryptWhatsappPhoneNumbers
 
 ### Community 255 - "TDD Workflow"
 Cohesion: 0.06
@@ -1829,7 +1846,7 @@ Cohesion: 0.40
 Nodes (3): TestCase, SpeechToText::FutureTestProvider, SpeechToTextTest
 
 ### Community 261 - "Ai::Tasks::SpreadsheetMapping"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (4): Ai, Ai::Tasks, Ai::Tasks::SpreadsheetMapping, Base
 
 ### Community 262 - "SpeechToText"
@@ -1916,9 +1933,9 @@ Nodes (3): Ai, Ai::ProvidersTest, TestCase
 Cohesion: 0.18
 Nodes (10): mcp, servers, client_id, client_secret, scope, $schema, whatsapp_business_tools, oauth (+2 more)
 
-### Community 287 - ".call"
-Cohesion: 0.12
-Nodes (10): ApplicationRecord, ReconciliationSnapshot, call(), Reconciliation, Reconciliation::CheckBalance, Reconciliation::CheckBalance::Result, Reconciliation, Reconciliation::Invalidate (+2 more)
+### Community 287 - "ReconciliationSnapshot"
+Cohesion: 0.15
+Nodes (7): ApplicationRecord, ReconciliationSnapshot, Reconciliation, Reconciliation::Invalidate, call(), Reconciliation, Reconciliation::LeavePending
 
 ### Community 289 - "MoneySources::Detector"
 Cohesion: 0.18
@@ -1941,8 +1958,8 @@ Cohesion: 0.29
 Nodes (16): addUserBubble(), appendDelta(), autoGrow(), completeStreaming(), csrfToken(), currentTime(), escapeHtml(), failStreaming() (+8 more)
 
 ### Community 294 - "PaymentEngine::Webhooks::Process"
-Cohesion: 0.20
-Nodes (3): PaymentEngine, PaymentEngine::Webhooks, PaymentEngine::Webhooks::Process
+Cohesion: 0.14
+Nodes (4): FinancialAnalysisService::DeltaBuffer, PaymentEngine, PaymentEngine::Webhooks, PaymentEngine::Webhooks::Process
 
 ### Community 295 - "PaymentEngine::Providers::Epayco"
 Cohesion: 0.12
@@ -1951,6 +1968,10 @@ Nodes (4): PaymentEngine, PaymentEngine::Providers, PaymentEngine::Providers::Ep
 ### Community 297 - "FinancialHabits::Analysis"
 Cohesion: 0.18
 Nodes (4): FinancialHabitAnalyzer, FinancialHabits, FinancialHabits, FinancialHabits::Analysis
+
+### Community 298 - "WebHookHandlerWhatsappServiceTest"
+Cohesion: 0.13
+Nodes (4): ApplicationRecord, WhatsappConnection, TestCase, WebHookHandlerWhatsappServiceTest
 
 ### Community 299 - "ExpensePlayground::Evaluations::ResultBuilder"
 Cohesion: 0.38
@@ -1964,25 +1985,29 @@ Nodes (6): ImportPipeline::Result, ParsedStatement, FinancialSetupsControllerTes
 Cohesion: 0.12
 Nodes (16): Controller Specs, Descriptions, File Structure, Guiding Principles, Model spec ordering, Model Spec Template, Quality Loop, Related Skills (+8 more)
 
-### Community 305 - "Expenses::ValueParsing"
-Cohesion: 0.11
-Nodes (10): Expenses, Expenses::FileImport, Expenses::FileImport::Enrichers, Expenses::FileImport::Enrichers::Activity, Expenses, Expenses::FileImport, Expenses::FileImport::Enrichers, Expenses::FileImport::Enrichers::MoneySource (+2 more)
+### Community 305 - "Expenses::FileImport::Enrichers::MoneySource"
+Cohesion: 0.14
+Nodes (8): Expenses, Expenses::FileImport, Expenses::FileImport::Enrichers, Expenses::FileImport::Enrichers::Activity, Expenses, Expenses::FileImport, Expenses::FileImport::Enrichers, Expenses::FileImport::Enrichers::MoneySource
 
-### Community 307 - ".current"
-Cohesion: 0.17
-Nodes (4): Pwa, Pwa::ManifestsController, Base, AppName
+### Community 307 - "Pwa::ManifestsController"
+Cohesion: 0.33
+Nodes (3): Pwa, Pwa::ManifestsController, Base
 
 ### Community 309 - "3. Puntos que requieren decisión o validación legal"
 Cohesion: 0.12
 Nodes (16): 1. Coincidencias verificadas con las reglas del prompt, 2. Contradicciones y cambios frente al documento anterior, 3.10. Declaración de edad en el registro, 3.1. Identificación del proveedor en comercio electrónico, 3.2. Retracto, reversión y devoluciones, 3.3. Aceptación en el checkout, 3.4. Medios de pago y facturación, 3.5. Plan Gratis y control de acceso (+8 more)
 
+### Community 311 - "cs"
+Cohesion: 0.07
+Nodes (3): Bt, cs, us
+
 ### Community 312 - "ExpenseResolver::CategoryResult"
 Cohesion: 0.17
 Nodes (3): ExpenseResolver, ExpenseResolver::CategoryResult, ExpenseResolver::CategoryResult::Result
 
-### Community 313 - "Statements::Summary"
-Cohesion: 0.09
-Nodes (9): Statements, Statements::Document, Statements, Statements::Summary, call(), TestCase, Statements, Statements::ParserTest (+1 more)
+### Community 313 - "Statements::Document"
+Cohesion: 0.11
+Nodes (7): Statements, Statements::Document, call(), TestCase, Statements, Statements::ParserTest, Statements::ParserTest::FakeExtractor
 
 ### Community 314 - "ApplicationController"
 Cohesion: 0.10
@@ -2001,7 +2026,7 @@ Cohesion: 0.33
 Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::Text, Base
 
 ### Community 320 - ".send_to"
-Cohesion: 0.20
+Cohesion: 0.21
 Nodes (4): Expenses::Clarification::Questions, Expenses, Expenses::Clarification, Expenses::Clarification::Resolver
 
 ### Community 322 - "CreditAccount"
@@ -2037,24 +2062,32 @@ Cohesion: 0.24
 Nodes (3): SourceRecognition, SourceRecognition::BankSetupWizard, SourceRecognition::BankSetupWizard::Step
 
 ### Community 332 - ".call"
-Cohesion: 0.10
-Nodes (10): Ai, Ai::Tasks, Ai::Tasks::ParsedExpense, ExpenseResolver, ExpenseResolver::HeuristicParser, ExpenseResolverHeuristicParserTest, TestCase, Expenses (+2 more)
+Cohesion: 0.12
+Nodes (7): Ai, Ai::Tasks, Ai::Tasks::ParsedExpense, ExpenseResolver, ExpenseResolver::HeuristicParser, ExpenseResolverHeuristicParserTest, TestCase
 
 ### Community 333 - "ExpensePlayground::Evaluations::Metrics"
-Cohesion: 0.20
+Cohesion: 0.24
 Nodes (3): ExpensePlayground, ExpensePlayground::Evaluations, ExpensePlayground::Evaluations::Metrics
+
+### Community 337 - "ExpenseCandidatesController"
+Cohesion: 0.04
+Nodes (10): BulkParamsParsing, ExpenseCandidatesController, ApplicationController, UuidParams, ExpenseCandidates, ExpenseCandidates::BulkConfirm, ExpenseCandidates, ExpenseCandidates::BulkDiscard (+2 more)
 
 ### Community 338 - "Ai::CategoryClassifier"
 Cohesion: 0.13
 Nodes (8): Ai, Ai::CategoryClassifier, Ai::CategoryClassifier::ExtractionError, parse(), StandardError, Ai, Ai::CategoryClassifierTest, TestCase
 
 ### Community 339 - "Expense"
-Cohesion: 0.05
-Nodes (19): Expense, BudgetsFlowTest, IntegrationTest, PaymentTest, TestCase, TestCase, TransactionOutstandingSyncTest, TestCase (+11 more)
+Cohesion: 0.04
+Nodes (21): Expense, SavingsOpportunities, SavingsOpportunities::Analysis, BudgetsFlowTest, IntegrationTest, TestCase, TransactionOutstandingSyncTest, TestCase (+13 more)
 
 ### Community 340 - "ExpenseResolver::DateResult"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (6): ExpenseResolver, ExpenseResolver::DateResult, ExpenseResolver::DateResult::Result, ExpenseResolver, ExpenseResolver::Dates, ExpenseResolver::Dates::Service
+
+### Community 341 - "WebHookHandler::WhatsappService"
+Cohesion: 0.14
+Nodes (4): AppName, WebHookHandler, WebHookHandler::WhatsappService, Whatsapp::GarbageFilter
 
 ### Community 342 - "Reports::CycleComparison"
 Cohesion: 0.17
@@ -2073,8 +2106,8 @@ Cohesion: 0.40
 Nodes (4): ExpenseResolver, ExpenseResolver::Text, ExpenseResolver::Text::ServiceTest, TestCase
 
 ### Community 349 - "Transaction"
-Cohesion: 0.07
-Nodes (6): Reconciliation, Reconciliation::Invalidatable, ApplicationRecord, Transaction, TestCase, TransactionCategoryTypeTest
+Cohesion: 0.09
+Nodes (4): ApplicationRecord, Transaction, TestCase, TransactionCategoryTypeTest
 
 ### Community 350 - "PublicCms::SitemapController"
 Cohesion: 0.17
@@ -2101,8 +2134,8 @@ Cohesion: 0.40
 Nodes (3): ExpensePlayground, ExpensePlayground::EvaluationTest, TestCase
 
 ### Community 357 - "Credits::ExtraPayments::Create"
-Cohesion: 0.09
-Nodes (9): Credits, Credits::ExtraPayments, Credits::ExtraPayments::Create, ExtraPaymentsCreateTest, ExtraPaymentsReversalTest, ExtraPaymentsRevolvingCardTest, ExtraPaymentsRevolvingLoanTest, ExtraPaymentsRevolvingReversalTest (+1 more)
+Cohesion: 0.08
+Nodes (5): ExtraPaymentsController, ApplicationController, Credits, Credits::ExtraPayments, Credits::ExtraPayments::Create
 
 ### Community 358 - "ExpenseResolver"
 Cohesion: 0.40
@@ -2114,7 +2147,7 @@ Nodes (11): 1. Catálogo global compartido, 2. Asociación MoneySource ⇄ entid
 
 ### Community 361 - "PremiumAccessTestHelper"
 Cohesion: 0.07
-Nodes (12): ExpensesAiEntryTest, IntegrationTest, ImportsControllerTest, IntegrationTest, MoneySourcesControllerTest, IntegrationTest, MonthlyIncomesControllerTest, IntegrationTest (+4 more)
+Nodes (12): ExpensesAiEntryTest, IntegrationTest, ImportsControllerTest, IntegrationTest, MonthlyIncomesControllerTest, IntegrationTest, IntegrationTest, StatementImportsControllerTest (+4 more)
 
 ### Community 362 - "Categories"
 Cohesion: 0.50
@@ -2137,8 +2170,8 @@ Cohesion: 0.70
 Nodes (4): applyPanels(), bind(), init(), updateNamePlaceholder()
 
 ### Community 368 - "CreditsController"
-Cohesion: 0.06
-Nodes (10): CreditsController, ApplicationController, Credits, Credits::Scenarios, Credits::Scenarios::Create, CreditsControllerTest, IntegrationTest, ComparisonTest (+2 more)
+Cohesion: 0.10
+Nodes (4): CreditsController, ApplicationController, CreditsControllerTest, IntegrationTest
 
 ### Community 369 - "credits.js"
 Cohesion: 0.48
@@ -2152,16 +2185,16 @@ Nodes (8): BaseController, Reports::SavingsCapacityController, cycle_from_param(
 Cohesion: 0.14
 Nodes (4): SavingsOpportunities, SavingsOpportunities::SmallExpenses, TestCase, SavingsOpportunitiesSmallExpensesTest
 
-### Community 372 - "remove"
-Cohesion: 0.09
-Nodes (4): Bt, d(), on(), remove()
+### Community 372 - "ExpenseResolverServiceTest"
+Cohesion: 0.20
+Nodes (4): ExpenseResolver, ExpenseResolver::HeuristicResolver::Resolution, ExpenseResolverServiceTest, TestCase
 
-### Community 373 - "Mcp::EndpointController"
-Cohesion: 0.25
-Nodes (3): API, Mcp, Mcp::EndpointController
+### Community 373 - "Budget"
+Cohesion: 0.14
+Nodes (4): Budget, ApplicationRecord, BudgetTest, TestCase
 
 ### Community 376 - "PayCycle"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (6): FinancialSummaryController, ApplicationController, PaySettingsController, ApplicationController, AlertsHelper, PayCycle
 
 ### Community 379 - "expense_drawer.js"
@@ -2169,8 +2202,8 @@ Cohesion: 0.47
 Nodes (4): csrfToken(), open(), setBusy(), submitDelete()
 
 ### Community 380 - "MailInbound::Processor"
-Cohesion: 0.25
-Nodes (3): MailInbound, MailInbound::Processor, MailInbound::Processor::Connection
+Cohesion: 0.12
+Nodes (6): MailInbound, MailInbound::Processor, MailInbound::Processor::Connection, MailInbound::ProcessorTest, MailInbound::ProcessorTest::FakeExtractor, TestCase
 
 ### Community 382 - "ExpensePlaygroundEvaluationsRunnerTest"
 Cohesion: 0.17
@@ -2185,20 +2218,16 @@ Cohesion: 0.12
 Nodes (6): CreditExtraPayment, ApplicationRecord, destroy!(), Expenses, Expenses::BulkDestroyTest, TestCase
 
 ### Community 388 - "User"
-Cohesion: 0.04
-Nodes (20): Admin::UsersController, ApplicationController, ApplicationRecord, User, IntegrationTest, SessionsControllerTest, IntegrationTest, Users::PasswordsControllerTest (+12 more)
+Cohesion: 0.07
+Nodes (8): ApplicationRecord, User, IntegrationTest, SessionsControllerTest, TestCase, UserTest, CategoryOptionTest, TestCase
 
 ### Community 390 - "MailInbound::ContentPurger"
 Cohesion: 0.22
 Nodes (4): MailInboundContentPurgeJob, ApplicationJob, MailInbound, MailInbound::ContentPurger
 
-### Community 391 - "qi"
-Cohesion: 0.08
-Nodes (3): qi, W, Y
-
 ### Community 392 - ".stub_method"
-Cohesion: 0.09
-Nodes (9): Expenses, Expenses::Clarification, Expenses::Clarification::ResolverTest, TestCase, Expenses, Expenses::FileProcessorTest, TestCase, TestCase (+1 more)
+Cohesion: 0.07
+Nodes (11): TestCase, RollbarErrorReportingTest, Expenses, Expenses::Clarification, Expenses::Clarification::ResolverTest, TestCase, Expenses, Expenses::FileProcessorTest (+3 more)
 
 ### Community 393 - "Expenses::Processors::Text"
 Cohesion: 0.27
@@ -2257,24 +2286,24 @@ Cohesion: 0.05
 Nodes (9): BaseController, Reports::SpendingTrendController, Reports::SpendingTrendInsights, Base, Reports::SpendingTrend, TestCase, ReportsSpendingTrendInsightsTest, TestCase (+1 more)
 
 ### Community 417 - "garbage_filter.rb"
-Cohesion: 0.39
-Nodes (7): garbage?(), no_expense_signal_and_noisy?(), noisy?(), token_repetition?(), unique_ratio(), Whatsapp, Whatsapp::GarbageFilter
+Cohesion: 0.48
+Nodes (6): garbage?(), no_expense_signal_and_noisy?(), noisy?(), token_repetition?(), unique_ratio(), Whatsapp
 
-### Community 418 - ".fresh?"
-Cohesion: 0.19
-Nodes (5): WebauthnChallenge, YogastoPasskeyAccountStatusGuard, YogastoPasskeyChallengeExpiryGuard, YogastoTwoFactorChallengeExpiryGuard, YogastoTwoFactorCredentialScopeGuard
+### Community 418 - "Ai::FakeStreamingHttp"
+Cohesion: 0.13
+Nodes (7): Ai, Ai::FakeStreamingHttp, Ai::FakeStreamingResponse, Ai::ProviderTest, Ai::ProviderTest::FakeHttp, Ai::ProviderTest::FakeResponse, TestCase
 
 ### Community 423 - "MailInbound::ForwardingVerificationDetector"
-Cohesion: 0.20
-Nodes (4): MailInbound, MailInbound::ConfirmationUrlValidator, MailInbound, MailInbound::ForwardingVerificationDetector
+Cohesion: 0.12
+Nodes (6): EmailForwardingVerification, ApplicationRecord, MailInbound, MailInbound::ConfirmationUrlValidator, MailInbound, MailInbound::ForwardingVerificationDetector
 
 ### Community 424 - "Ai::Tasks::SavingsOpportunityAnalysis"
 Cohesion: 0.14
 Nodes (6): Ai, Ai::Tasks, Ai::Tasks::SavingsOpportunityAnalysis, Base, TestCase, SavingsOpportunityAnalysisTaskTest
 
-### Community 428 - "PaymentEngine::AuditLog"
-Cohesion: 0.05
-Nodes (22): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::SubscriptionsController, BaseController, PaymentEngine, PaymentEngine::AuditLog, ApplicationRecord, PaymentEngine (+14 more)
+### Community 428 - "PaymentEngine::Admin::SubscriptionsController"
+Cohesion: 0.10
+Nodes (10): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::SubscriptionsController, BaseController, PaymentEngine, PaymentEngine::Subscriptions, PaymentEngine::Subscriptions::Cancel, PaymentEngine (+2 more)
 
 ### Community 430 - "transaction_rules_focused.spec.js"
 Cohesion: 0.33
@@ -2293,8 +2322,8 @@ Cohesion: 0.52
 Nodes (5): applyFilter(), rowContainersFor(), rowsFor(), sortRows(), updateCount()
 
 ### Community 435 - ".current"
-Cohesion: 0.16
-Nodes (4): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::SettingsController, BaseController
+Cohesion: 0.06
+Nodes (15): API, Mcp, Mcp::EndpointController, PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::SettingsController, BaseController, PaymentEngine (+7 more)
 
 ### Community 436 - "payments.js"
 Cohesion: 0.28
@@ -2348,9 +2377,9 @@ Nodes (3): ApplicationCable, ApplicationCable::Connection, Base
 Cohesion: 0.22
 Nodes (4): MailInbound, MailInbound::Providers, MailInbound::Providers::Cloudflare, Base
 
-### Community 458 - "Reports::Base"
-Cohesion: 0.14
-Nodes (5): Reports::Base, Base, TestCase, ReportsBaseTest, ReportsBaseTest::Probe
+### Community 458 - "PremiumIdentity"
+Cohesion: 0.16
+Nodes (6): PremiumIdentity, ApplicationRecord, PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::PremiumIdentitiesController, BaseController
 
 ### Community 461 - "ExpenseCandidates::BulkConfirmTest"
 Cohesion: 0.40
@@ -2369,16 +2398,16 @@ Cohesion: 0.12
 Nodes (7): build_payment_source_actions(), for(), Transfers, Transfers::QuickActions, TestCase, Transfers, Transfers::QuickActionsTest
 
 ### Community 468 - ".payment_origins"
-Cohesion: 0.12
-Nodes (3): MoneySourceShowContext, ExpenseCandidates, ExpenseCandidates::BulkUpdate
+Cohesion: 0.13
+Nodes (3): MoneySourceShowContext, MoneySourceExtractsController, ApplicationController
 
 ### Community 469 - "events.rb"
 Cohesion: 0.21
 Nodes (7): invoke(), PaymentEngine, PaymentEngine::Events, PaymentEngine::Events::Event, publish(), publish_after_commit(), on()
 
 ### Community 471 - "Mcp::ApplicationTool"
-Cohesion: 0.09
-Nodes (11): Mcp, Mcp::ApplicationTool, required_scope(), Mcp, Mcp::Audit, Mcp, Mcp::Current, McpToolInvocation (+3 more)
+Cohesion: 0.22
+Nodes (4): Mcp, Mcp::ApplicationTool, required_scope(), Tool
 
 ### Community 472 - "connection_test.rb"
 Cohesion: 0.40
@@ -2389,28 +2418,24 @@ Cohesion: 0.19
 Nodes (4): FinancialChat, FinancialChatMessage, ApplicationRecord, ApplicationRecord
 
 ### Community 475 - "HelpCenterTestSupport"
-Cohesion: 0.12
-Nodes (11): HelpCenterSearchControllerTest, IntegrationTest, HelpCenterIndexingTest, IntegrationTest, PublicCmsHelpCenterTest, IntegrationTest, HelpCenterIndexerTest, TestCase (+3 more)
+Cohesion: 0.15
+Nodes (8): HelpCenterIndexingTest, IntegrationTest, PublicCmsHelpCenterTest, IntegrationTest, HelpCenterIndexerTest, TestCase, HelpCenterTestSupport, HelpCenterTest
 
 ### Community 476 - "BalanceAdjustment"
 Cohesion: 0.16
 Nodes (8): BalanceAdjustment, ApplicationRecord, adjust_loan(), adjust_offset(), call(), MoneySources, MoneySources::BalanceAdjust, CreateBalanceAdjustments
 
-### Community 477 - "Mcp::SettingsController"
-Cohesion: 0.18
-Nodes (3): Mcp, Mcp::SettingsController, ApplicationController
-
-### Community 479 - "RecurringTemplates::CycleSummary"
-Cohesion: 0.05
-Nodes (10): MonthlyIncomesController, ApplicationController, RecurringTablesHelper, RecurringExpenses::CycleSummary, RecurringIncomes::CycleSummary, RecurringTemplates::CycleSummary, TestCase, RecurringExpenses::CycleSummaryTest (+2 more)
+### Community 477 - "remove"
+Cohesion: 0.09
+Nodes (4): ao, d(), on(), remove()
 
 ### Community 480 - "ApplicationCable"
 Cohesion: 0.50
 Nodes (3): ApplicationCable, ApplicationCable::Channel, Base
 
 ### Community 481 - "Reports::Loans"
-Cohesion: 0.18
-Nodes (4): BaseController, Reports::LoansController, Base, Reports::Loans
+Cohesion: 0.12
+Nodes (6): BaseController, Reports::LoansController, Base, Reports::Loans, TestCase, ReportsLoansTest
 
 ### Community 482 - "Statements::Adapters::DynamicAdapter"
 Cohesion: 0.23
@@ -2420,17 +2445,17 @@ Nodes (3): Statements, Statements::Adapters, Statements::Adapters::DynamicAdapte
 Cohesion: 0.67
 Nodes (3): FinancialChatBroadcastTest, FinancialChatChannelTest, TestCase
 
-### Community 486 - "PremiumIdentities::Capture"
-Cohesion: 0.28
-Nodes (3): call(), PremiumIdentities, PremiumIdentities::Capture
+### Community 486 - ".call"
+Cohesion: 0.16
+Nodes (4): ExpenseResolver, ExpenseResolver::NaturalLanguageParser, ExpenseResolverNaturalLanguageParserTest, TestCase
+
+### Community 487 - "Payments::RecurringLink"
+Cohesion: 0.23
+Nodes (3): call(), Payments, Payments::RecurringLink
 
 ### Community 489 - "ProviderDoubles"
 Cohesion: 0.20
 Nodes (5): ProviderDoubles, ProviderDoubles::Failing, ProviderDoubles::Limited, ProviderDoubles::Raising, Base
-
-### Community 490 - "ReconciliationsController"
-Cohesion: 0.10
-Nodes (7): ApplicationController, ReconciliationsController, Reconciliation, Reconciliation::ExpenseSearch, Reconciliation::LeavePending, Reconciliation, Reconciliation::State
 
 ### Community 491 - "datepicker.js"
 Cohesion: 0.70
@@ -2461,20 +2486,20 @@ Cohesion: 0.29
 Nodes (3): Payments, Payments::CreateManualTest, TestCase
 
 ### Community 500 - "Ai::Router"
-Cohesion: 0.16
-Nodes (4): Ai, Ai, Ai::Router, call()
+Cohesion: 0.20
+Nodes (3): Ai, Ai::Router, call()
 
-### Community 501 - "ExpenseEvaluationsController"
-Cohesion: 0.16
-Nodes (4): ExpenseEvaluationsController, ApplicationController, ExpensePlaygroundEvaluationCaseJob, ApplicationJob
+### Community 501 - ".render"
+Cohesion: 0.10
+Nodes (8): ExpenseEvaluationsController, ApplicationController, HelpCenter::RatingsController, ApplicationController, BaseController, Reports::TransactionsController, HelpArticleRating, ApplicationRecord
 
 ### Community 502 - "pay_cycle.rb"
 Cohesion: 0.28
 Nodes (9): back(), calendar_month_range(), containing(), current(), cycles_between(), key_range(), PayCycle::Cycle, period_for() (+1 more)
 
-### Community 503 - "SavingsOpportunities::Analysis"
-Cohesion: 0.16
-Nodes (4): SavingsOpportunities, SavingsOpportunities::Analysis, TestCase, SavingsOpportunitiesAnalysisTest
+### Community 503 - "identity_for"
+Cohesion: 0.20
+Nodes (7): PremiumIdentities::Fingerprint, identity_for(), membership_for(), PremiumIdentities, used_by?(), PaymentEnginePremiumIdentityTest, TestCase
 
 ### Community 504 - "MonthlyReportsController"
 Cohesion: 0.13
@@ -2508,17 +2533,17 @@ Nodes (4): TestCase, SavingsOpportunitiesNarrativeTest, SavingsOpportunitiesNarr
 Cohesion: 0.12
 Nodes (8): ApplicationRecord, SpreadsheetFormatMapping, Ai, Ai::SpreadsheetMapper, Expenses, Expenses::FileImport, Expenses::FileImport::TabularParser, Expenses::FileImport::TabularParser::Mapping
 
-### Community 513 - "MailInbound::ProcessorTest"
-Cohesion: 0.10
-Nodes (8): EmailTransactionDetector, EmailTransactionDetector::Result, EmailTransactionDetectorTest, TestCase, MailInbound::ProcessorTest, MailInbound::ProcessorTest::FakeDetector, MailInbound::ProcessorTest::FakeExtractor, TestCase
+### Community 513 - "EmailTransactionDetectorTest"
+Cohesion: 0.17
+Nodes (5): EmailTransactionDetector, EmailTransactionDetector::Result, EmailTransactionDetectorTest, TestCase, MailInbound::ProcessorTest::FakeDetector
 
 ### Community 515 - "PremiumIdentities::UserAccessExtension"
 Cohesion: 0.27
 Nodes (3): PremiumIdentities::MembershipHistory, PremiumIdentities, PremiumIdentities::UserAccessExtension
 
 ### Community 516 - "Reports::CreditCards"
-Cohesion: 0.18
-Nodes (4): BaseController, Reports::CreditCardsController, Base, Reports::CreditCards
+Cohesion: 0.12
+Nodes (6): BaseController, Reports::CreditCardsController, Base, Reports::CreditCards, TestCase, ReportsCreditCardsTest
 
 ### Community 517 - "Expenses::FileImport::Readers::Pdf"
 Cohesion: 0.33
@@ -2528,12 +2553,12 @@ Nodes (5): Expenses, Expenses::FileImport, Expenses::FileImport::Readers, Expens
 Cohesion: 0.18
 Nodes (3): MailInboundProcessJobTest, MailInboundProcessJobTest::FakeProcessor, TestCase
 
-### Community 522 - ".render"
+### Community 522 - "ExpensesController"
 Cohesion: 0.08
-Nodes (4): ExpensesController, ApplicationController, BaseController, Reports::TransactionsController
+Nodes (4): ExpensesController, ApplicationController, ExpenseResolver, ExpenseResolver::Serializer
 
 ### Community 523 - "AiRequest"
-Cohesion: 0.20
+Cohesion: 0.22
 Nodes (5): AiRequest, ApplicationRecord, EncryptedSecret, encrypts_secret(), secret_encryptor()
 
 ### Community 524 - "quick_transfer_modal.js"
@@ -2553,8 +2578,8 @@ Cohesion: 0.18
 Nodes (3): Credits, Credits::Amortization, Credits::Amortization::Result
 
 ### Community 528 - "Ai::Router::Result"
-Cohesion: 0.07
-Nodes (12): Ai::Router::Result, ExpensePlaygroundAudioControllerTest, IntegrationTest, ExpensePlaygroundControllerTest, IntegrationTest, Gmail, Gmail::CategoryPrefillTest, Gmail::CategoryPrefillTest::FailingSuggester (+4 more)
+Cohesion: 0.08
+Nodes (11): Ai::Router::Result, ExpensePlaygroundAudioControllerTest, IntegrationTest, ExpensePlaygroundControllerTest, IntegrationTest, Gmail, Gmail::CategoryPrefillTest, Gmail::CategoryPrefillTest::FailingSuggester (+3 more)
 
 ### Community 529 - "init"
 Cohesion: 0.39
@@ -2565,12 +2590,8 @@ Cohesion: 0.20
 Nodes (9): Components, Configuration, Error handling, Local setup, Production considerations / TODO, Speech-to-Text (local, faster-whisper), Supported formats, Transcription settings (initial) (+1 more)
 
 ### Community 531 - "Reconciliation::StateTest"
-Cohesion: 0.40
+Cohesion: 0.33
 Nodes (3): TestCase, Reconciliation, Reconciliation::StateTest
-
-### Community 532 - "Ai::Tasks::TransactionExtraction"
-Cohesion: 0.25
-Nodes (4): Ai, Ai::Tasks, Ai::Tasks::TransactionExtraction, Base
 
 ### Community 534 - "Mcp::Presenters::TransactionPresenter"
 Cohesion: 0.10
@@ -2588,6 +2609,10 @@ Nodes (3): TestCase, Reconciliation, Reconciliation::CheckBalanceTest
 Cohesion: 0.20
 Nodes (4): GmailSyncDispatchJob, ApplicationJob, GmailSyncJob, ApplicationJob
 
+### Community 538 - "extra_payments_create_test.rb"
+Cohesion: 0.33
+Nodes (6): ExtraPaymentsCreateTest, ExtraPaymentsReversalTest, ExtraPaymentsRevolvingCardTest, ExtraPaymentsRevolvingLoanTest, ExtraPaymentsRevolvingReversalTest, TestCase
+
 ### Community 541 - "Cloudflare Email Worker — Expense Tracker"
 Cohesion: 0.25
 Nodes (7): Cloudflare Email Worker — Expense Tracker, Configure, Deploy, How it works, Inspect failures, Local test, Requirements
@@ -2604,9 +2629,9 @@ Nodes (4): addKeywords(), expandGroupFor(), { signUp }, { test, expect }
 Cohesion: 0.60
 Nodes (3): CreditsHelperTest, CreditsHelperTest::Quick, TestCase
 
-### Community 551 - "ExpenseResolverServiceTest"
-Cohesion: 0.20
-Nodes (4): ExpenseResolver, ExpenseResolver::HeuristicResolver::Resolution, ExpenseResolverServiceTest, TestCase
+### Community 551 - ".call"
+Cohesion: 0.16
+Nodes (6): Credits, Credits::Scenarios, Credits::Scenarios::Create, ComparisonTest, TestCase, ScenarioNamesFormattingTest
 
 ### Community 552 - "SourceRecognition::MatcherBankGroupTest"
 Cohesion: 0.29
@@ -2628,13 +2653,17 @@ Nodes (6): applyFromUrl(), compareRows(), sortTable(), syncFilterFields(), updat
 Cohesion: 0.17
 Nodes (5): Ai, Ai::RouterTest, Ai::RouterTest::FakeTask, Base, TestCase
 
-### Community 568 - "Ai::Tasks::ClarificationResolution"
-Cohesion: 0.29
+### Community 568 - ".parse_json"
+Cohesion: 0.20
 Nodes (4): Ai, Ai::Tasks, Ai::Tasks::ClarificationResolution, Base
 
 ### Community 569 - "Devise::Test::IntegrationHelpers"
 Cohesion: 0.09
-Nodes (17): BankSetupWizardTest, IntegrationTest, BudgetsControllerTest, IntegrationTest, ExtraPaymentsControllerTest, ExtraPaymentsPlacementTest, ExtraPaymentsRevolvingControllerTest, IntegrationTest (+9 more)
+Nodes (17): CustomFinancialInstitutionsControllerTest, IntegrationTest, ExtraPaymentsControllerTest, ExtraPaymentsPlacementTest, ExtraPaymentsRevolvingControllerTest, IntegrationTest, GoalsControllerTest, IntegrationTest (+9 more)
+
+### Community 578 - "Reports::Budgets"
+Cohesion: 0.17
+Nodes (4): BaseController, Reports::BudgetsController, Base, Reports::Budgets
 
 ### Community 584 - "row.rb"
 Cohesion: 0.50
@@ -2654,23 +2683,23 @@ Nodes (3): MailerHelper, ApplicationMailer, Base
 
 ### Community 599 - "PublicCmsTestSupport"
 Cohesion: 0.05
-Nodes (23): HelpCenterRatingsControllerTest, IntegrationTest, PublicCmsSitemapControllerTest, IntegrationTest, DeviseAuthFlowsTest, IntegrationTest, MaglevEditorAuthorizationTest, IntegrationTest (+15 more)
+Nodes (24): HelpCenterSearchControllerTest, IntegrationTest, PublicCmsSitemapControllerTest, IntegrationTest, DeviseAuthFlowsTest, IntegrationTest, MaglevEditorAuthorizationTest, IntegrationTest (+16 more)
 
 ### Community 600 - "ApplicationSystemTestCase"
-Cohesion: 0.03
-Nodes (20): SystemTestCase, ApplicationSystemTestCase, AdminUsersBulkDeleteTest, CategoryInsightsSystemTest, CategorySpendingDrillDownTest, CreditsOpportunityTabTest, EmailSourcesSetupFlowTest, ExpenseCandidatesBulkBarTest (+12 more)
+Cohesion: 0.04
+Nodes (18): SystemTestCase, ApplicationSystemTestCase, AdminUsersBulkDeleteTest, CategoryInsightsSystemTest, CategoryReportNavigationTest, CategorySpendingDrillDownTest, CreditsOpportunityTabTest, EmailSourcesSetupFlowTest (+10 more)
 
-### Community 601 - "ActiveSupport::TestCase"
-Cohesion: 0.12
-Nodes (7): ActionDispatch, ActionDispatch::IntegrationTest, ActiveSupport, ActiveSupport::TestCase, ActiveSupport::TestCase::SlowTestTiming, BulletIntegrationHook, TestParallelism
+### Community 601 - "TestParallelism"
+Cohesion: 0.17
+Nodes (5): ActionDispatch, ActionDispatch::IntegrationTest, ActiveSupport, BulletIntegrationHook, TestParallelism
 
 ### Community 602 - "savings_opportunities/analysis_state.rb"
 Cohesion: 0.43
 Nodes (6): acquire_lock(), lock_key(), read(), stale?(), state_key(), write()
 
-### Community 603 - ".call"
-Cohesion: 0.09
-Nodes (8): ApplicationController, WhatsappSettingsController, PendingWhatsappConnection, ApplicationRecord, StandardError, Whatsapp, Whatsapp::ConnectService, Whatsapp::ConnectService::AlreadyConsumed
+### Community 603 - "WhatsappSettingsController"
+Cohesion: 0.13
+Nodes (4): ApplicationController, WhatsappSettingsController, PendingWhatsappConnection, ApplicationRecord
 
 ### Community 604 - "Mcp::Idempotency"
 Cohesion: 0.25
@@ -2684,13 +2713,13 @@ Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Accounts, Mcp::Tools::Accounts::GetAccou
 Cohesion: 0.33
 Nodes (4): TestCase, Statements, Statements::Adapters, Statements::Adapters::RowCompilerTest
 
-### Community 611 - "PaymentEngine::ReconcilePaymentsJob"
-Cohesion: 0.33
-Nodes (3): PaymentEngine, PaymentEngine::ReconcilePaymentsJob, Base
+### Community 611 - "PaymentEngine::AuditLog"
+Cohesion: 0.10
+Nodes (12): PaymentEngine, PaymentEngine::ReconcilePaymentsJob, Base, PaymentEngine, PaymentEngine::AuditLog, ApplicationRecord, PaymentEngine, PaymentEngine::Memberships (+4 more)
 
 ### Community 613 - "Expenses::SearchTest"
-Cohesion: 0.10
-Nodes (8): Expenses, Expenses::CsvExporter, Expenses, Expenses::CsvExporterTest, TestCase, Expenses, Expenses::SearchTest, TestCase
+Cohesion: 0.29
+Nodes (3): Expenses, Expenses::SearchTest, TestCase
 
 ### Community 615 - "PaymentEngine::Providers::Registry"
 Cohesion: 0.13
@@ -2704,9 +2733,9 @@ Nodes (8): bindChoices(), bindRefresh(), bindSimulator(), init(), setErrorNote()
 Cohesion: 0.47
 Nodes (5): init(), apply(), sorted(), normalize(), potentialRank()
 
-### Community 619 - "Mcp::Presenters::PocketPresenter"
-Cohesion: 0.14
-Nodes (8): Mcp, Mcp::Presenters, Mcp::Presenters::PocketPresenter, Mcp, Mcp::Tools, Mcp::Tools::Pockets, Mcp::Tools::Pockets::GetPocketsTool, ApplicationTool
+### Community 619 - "Mcp::Tools::Pockets::GetPocketsTool"
+Cohesion: 0.29
+Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Pockets, Mcp::Tools::Pockets::GetPocketsTool, ApplicationTool
 
 ### Community 620 - "Mcp::Tools::Expenses::GetExpensesTool"
 Cohesion: 0.33
@@ -2716,17 +2745,17 @@ Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Expenses, Mcp::Tools::Expenses::GetExpen
 Cohesion: 0.29
 Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::CreditCards, Mcp::Tools::CreditCards::GetCreditCardsTool, ApplicationTool
 
+### Community 624 - "Expenses::Inputs::Rules::Image"
+Cohesion: 0.17
+Nodes (5): Expenses::Inputs::Rules::Image, Expenses, Expenses::Inputs, Expenses::Inputs::TextImage, Base
+
 ### Community 626 - "TestSupport::AdminsController"
 Cohesion: 0.33
 Nodes (3): Base, TestSupport, TestSupport::AdminsController
 
 ### Community 631 - "PaymentEngine::Admin::ProvidersController"
-Cohesion: 0.14
-Nodes (4): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::ProvidersController, BaseController
-
-### Community 632 - "Reports::Perspectives::Comparison"
-Cohesion: 0.16
-Nodes (3): Reports::Perspectives::Comparison, TestCase, ReportsPerspectivesFindingsTest
+Cohesion: 0.08
+Nodes (8): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::BaseController, ApplicationController, PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::ProvidersController, BaseController
 
 ### Community 634 - "pwa.js"
 Cohesion: 0.47
@@ -2761,7 +2790,7 @@ Cohesion: 0.33
 Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Incomes, Mcp::Tools::Incomes::GetIncomesTool, ApplicationTool
 
 ### Community 649 - "Webhooks::EmailController"
-Cohesion: 0.32
+Cohesion: 0.28
 Nodes (3): Base, Webhooks, Webhooks::EmailController
 
 ### Community 650 - "Statements"
@@ -2796,12 +2825,20 @@ Nodes (4): TestCase, Statements, Statements::Adapters, Statements::Adapters::Sum
 Cohesion: 0.29
 Nodes (4): Users::PasswordsController, PasswordsController, Devise, Devise::Test
 
+### Community 665 - "Mcp::SafeLogger"
+Cohesion: 0.22
+Nodes (3): Mcp, Mcp::SafeLogger, SimpleDelegator
+
+### Community 666 - "PremiumIdentities::Capture"
+Cohesion: 0.28
+Nodes (3): call(), PremiumIdentities, PremiumIdentities::Capture
+
 ### Community 667 - "Centro de ayuda"
 Cohesion: 0.22
 Nodes (8): Centro de ayuda, Comandos, Contenido enriquecido, Crear un artículo, Crear una categoría, PSE, URLs, Índice y datos derivados
 
 ### Community 668 - "Expenses::FileImport::ImportContext"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (3): Expenses, Expenses::FileImport, Expenses::FileImport::ImportContext
 
 ### Community 672 - "debt_capacity_tabs.js"
@@ -2840,13 +2877,13 @@ Nodes (9): Expenses, Expenses::FileImport, Expenses::FileImport::Readers, Expens
 Cohesion: 0.33
 Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Budgets, Mcp::Tools::Budgets::GetBudgetProgressTool, ApplicationTool
 
-### Community 694 - "ProcessedEmail"
-Cohesion: 0.12
-Nodes (6): ProcessedEmail, ApplicationRecord, GmailConnectionsControllerTest, IntegrationTest, MailInboundContentPurgerTest, TestCase
-
 ### Community 697 - "HelpCenter::Search"
 Cohesion: 0.21
 Nodes (3): HelpCenter::SearchController, ApplicationController, HelpCenter::Search
+
+### Community 701 - ".call"
+Cohesion: 0.18
+Nodes (4): Gmf, Gmf::MonthlyAccumulator, Gmf, Gmf::TransferHandler
 
 ### Community 704 - "SecondFactorAuthentication"
 Cohesion: 0.16
@@ -2861,8 +2898,8 @@ Cohesion: 0.25
 Nodes (6): Gmail, Gmail::OauthClient, Gmail::OauthClient::ConfigurationError, Gmail::OauthClient::Error, Error, StandardError
 
 ### Community 713 - "ExpensePlayground::Evaluations::Dataset"
-Cohesion: 0.16
-Nodes (6): ExpensePlayground, ExpensePlayground::Evaluations, ExpensePlayground::Evaluations::Dataset, ExpensePlayground::Evaluations::Dataset::Invalid, ExpensePlayground::Evaluations::Dataset::Row, StandardError
+Cohesion: 0.11
+Nodes (8): ExpensePlayground, ExpensePlayground::Evaluations, ExpensePlayground::Evaluations::Dataset, ExpensePlayground::Evaluations::Dataset::Invalid, ExpensePlayground::Evaluations::Dataset::Row, StandardError, ExpensePlaygroundEvaluationsDatasetTest, TestCase
 
 ### Community 716 - "Mcp::Tools::CreditCards::GetCreditCardDetailsTool"
 Cohesion: 0.33
@@ -2888,13 +2925,9 @@ Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Expenses, Mcp::Tools::Expenses::DeleteEx
 Cohesion: 0.33
 Nodes (3): Expenses, Expenses::ProcessorTest, TestCase
 
-### Community 725 - "Payments::RecurringLink"
-Cohesion: 0.23
-Nodes (3): call(), Payments, Payments::RecurringLink
-
-### Community 726 - "PaymentEngine::Admin::BaseController"
-Cohesion: 0.20
-Nodes (4): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::BaseController, ApplicationController
+### Community 725 - ".call"
+Cohesion: 0.36
+Nodes (3): call(), Expenses, Expenses::Processor
 
 ### Community 727 - "Credits::Rate::PeriodConverter"
 Cohesion: 0.18
@@ -2949,16 +2982,12 @@ Cohesion: 0.18
 Nodes (6): Ai, Ai::Tasks, Ai::Tasks::ConversationExpenseParsing, Base, Ai::Tasks::ConversationExpenseParsingTest, TestCase
 
 ### Community 746 - "Whatsapp::ReplySender"
-Cohesion: 0.20
-Nodes (3): WhatsappHelper, Whatsapp, Whatsapp::ReplySender
+Cohesion: 0.12
+Nodes (4): WhatsappHelper, Whatsapp, Whatsapp::ReplySender, GuidedRecognitionWizardSystemTest
 
-### Community 747 - "Reports::CashFlowTrend"
-Cohesion: 0.11
-Nodes (3): Base, Reports::CashFlowTrend, Reports::TimeBuckets
-
-### Community 748 - ".call"
-Cohesion: 0.14
-Nodes (6): call(), Expenses, Expenses::Processor, Expenses, Expenses::Processors, Expenses::Processors::Recording
+### Community 748 - "Expenses::Processors::Recording"
+Cohesion: 0.22
+Nodes (3): Expenses, Expenses::Processors, Expenses::Processors::Recording
 
 ### Community 749 - "Mcp::Tools::Pockets::CreatePocketTool"
 Cohesion: 0.33
@@ -3001,8 +3030,12 @@ Cohesion: 0.12
 Nodes (4): GoalAllocationsController, ApplicationController, GoalAllocations, GoalAllocations::Reallocate
 
 ### Community 761 - "PaymentEngine::Purchase"
-Cohesion: 0.11
-Nodes (10): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::PurchasesController, BaseController, PaymentEngine, PaymentEngine::Payment, ApplicationRecord, PaymentEngine (+2 more)
+Cohesion: 0.08
+Nodes (12): PlansController, ApplicationController, PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::PurchasesController, BaseController, PaymentEngine, PaymentEngine::Payment (+4 more)
+
+### Community 763 - "Ai::Tasks::TransactionExtraction"
+Cohesion: 0.25
+Nodes (4): Ai, Ai::Tasks, Ai::Tasks::TransactionExtraction, Base
 
 ### Community 764 - "initializeCategoryIndex"
 Cohesion: 0.60
@@ -3011,6 +3044,22 @@ Nodes (5): initializeCategoryIndex(), apply(), matches(), normalize(), updateCou
 ### Community 765 - "PaymentEngine::ApplicationController"
 Cohesion: 0.33
 Nodes (3): PaymentEngine, PaymentEngine::ApplicationController, Base
+
+### Community 767 - ".advance"
+Cohesion: 0.29
+Nodes (3): Credits, Credits::Amortization, Credits::Amortization::Period
+
+### Community 768 - "McpAccessToken"
+Cohesion: 0.07
+Nodes (9): Mcp, Mcp::SettingsController, ApplicationController, Mcp, Mcp::Authentication, Mcp::Authentication::Unauthenticated, StandardError, McpAccessToken (+1 more)
+
+### Community 769 - "Ai::Tasks::CategoryClassification"
+Cohesion: 0.21
+Nodes (4): Ai, Ai::Tasks, Ai::Tasks::CategoryClassification, Base
+
+### Community 770 - "Users::PasskeysController"
+Cohesion: 0.11
+Nodes (7): Users::PasskeysController, WebauthnChallenge, YogastoPasskeyAccountStatusGuard, YogastoPasskeyChallengeExpiryGuard, YogastoTwoFactorChallengeExpiryGuard, YogastoTwoFactorCredentialScopeGuard, PasskeysController
 
 ### Community 771 - "Mcp"
 Cohesion: 0.50
@@ -3021,64 +3070,48 @@ Cohesion: 0.33
 Nodes (3): PaymentEngine, PaymentEngine::Subscription, ApplicationRecord
 
 ### Community 778 - "McpToolHelper"
-Cohesion: 0.04
-Nodes (29): AccountToolsTest, TestCase, BudgetToolsTest, TestCase, ContextToolsTest, TestCase, ExpenseToolsTest, TestCase (+21 more)
+Cohesion: 0.11
+Nodes (11): AccountToolsTest, TestCase, IncomeToolsTest, TestCase, TestCase, ReportToolsTest, TestCase, WriteExpenseToolsTest (+3 more)
 
 ### Community 779 - "SourceRecognition::ApplyToSearchConfig"
 Cohesion: 0.24
 Nodes (4): call(), sections_for(), SourceRecognition, SourceRecognition::ApplyToSearchConfig
 
-### Community 781 - "Mcp::Authentication"
-Cohesion: 0.29
-Nodes (4): Mcp, Mcp::Authentication, Mcp::Authentication::Unauthenticated, StandardError
-
 ### Community 783 - "PaymentEngine"
 Cohesion: 0.33
 Nodes (5): Contributing, Installation, License, PaymentEngine, Usage
 
-### Community 784 - "Expenses::Inputs::TextImage"
-Cohesion: 0.29
-Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::TextImage, Base
-
-### Community 785 - ".parse_ids"
-Cohesion: 0.08
-Nodes (6): BulkParamsParsing, UuidParams, ExpenseCandidates, ExpenseCandidates::BulkConfirm, Expenses, Expenses::BulkUpdate
-
-### Community 787 - "Mcp::SafeLogger"
-Cohesion: 0.22
-Nodes (3): Mcp, Mcp::SafeLogger, SimpleDelegator
+### Community 790 - "ExpensePlayground::Evaluations::Runner"
+Cohesion: 0.12
+Nodes (5): ExpensePlaygroundEvaluationCaseJob, ApplicationJob, ExpensePlayground, ExpensePlayground::Evaluations, ExpensePlayground::Evaluations::Runner
 
 ### Community 791 - "theme.spec.js"
 Cohesion: 0.50
 Nodes (4): contrastRatio(), luminance(), { signUp }, { test, expect }
 
 ### Community 793 - "Mcp::HttpTransport"
-Cohesion: 0.29
-Nodes (3): Mcp, Mcp::HttpTransport, BaseTransport
+Cohesion: 0.14
+Nodes (5): Mcp, Mcp::HttpTransport, Mcp, Mcp::ServerFactory, BaseTransport
 
-### Community 797 - "PaymentEngineAdminTest"
+### Community 797 - ".call"
 Cohesion: 0.29
-Nodes (4): AdminReplayProvider, PaymentEngineAdminTest, Base, IntegrationTest
+Nodes (4): call(), Reconciliation, Reconciliation::CheckBalance, Reconciliation::CheckBalance::Result
 
 ### Community 798 - "Database backups"
 Cohesion: 0.33
 Nodes (5): Daily automatic backup (macOS), Database backups, Encryption key, Manual backup, Restore
 
-### Community 800 - "Mcp::Tools::SavingsGoals::GetSavingsGoalsTool"
+### Community 800 - "MonthlyIncomesController"
+Cohesion: 0.20
+Nodes (3): MonthlyIncomesController, ApplicationController, RecurringIncomes::CycleSummary
+
+### Community 805 - "RecurringExpenses::CycleSummary"
+Cohesion: 0.20
+Nodes (3): RecurringExpenses::CycleSummary, TestCase, RecurringExpenses::CycleSummaryTest
+
+### Community 806 - "Mcp::Tools::Debts::GetDebtsTool"
 Cohesion: 0.29
-Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::SavingsGoals, Mcp::Tools::SavingsGoals::GetSavingsGoalsTool, ApplicationTool
-
-### Community 802 - "financial_habits/analysis_state.rb"
-Cohesion: 0.43
-Nodes (6): acquire_lock(), lock_key(), read(), stale?(), state_key(), write()
-
-### Community 805 - ".advance"
-Cohesion: 0.29
-Nodes (3): Credits, Credits::Amortization, Credits::Amortization::Period
-
-### Community 806 - "Mcp::Tools::Context::GetFinancialContextTool"
-Cohesion: 0.09
-Nodes (13): Mcp, Mcp::Presenters, Mcp::Presenters::DebtPresenter, Mcp, Mcp::Tools, Mcp::Tools::Context, Mcp::Tools::Context::GetFinancialContextTool, ApplicationTool (+5 more)
+Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Debts, Mcp::Tools::Debts::GetDebtsTool, ApplicationTool
 
 ### Community 807 - "PaymentEngine::Provider"
 Cohesion: 0.11
@@ -3096,17 +3129,13 @@ Nodes (4): Ai, Ai::Tasks, Ai::Tasks::FinancialHabitsNarrative, Base
 Cohesion: 0.40
 Nodes (6): PaymentEngine, PaymentEngine::ConfigurationError, PaymentEngine::Error, PaymentEngine::UnknownProviderError, Error, StandardError
 
-### Community 816 - "sender_authentication.rb"
-Cohesion: 0.40
-Nodes (4): authenticated?(), first_authentication_results(), MailInbound, MailInbound::SenderAuthentication
+### Community 815 - ".record_audit"
+Cohesion: 0.25
+Nodes (4): Mcp, Mcp::Audit, McpToolInvocation, ApplicationRecord
 
 ### Community 826 - "Gmf::Calculator"
 Cohesion: 0.29
 Nodes (3): Gmf, Gmf::Calculator, Gmf::Calculator::Result
-
-### Community 828 - "ao"
-Cohesion: 0.10
-Nodes (3): ao, Q, ui()
 
 ### Community 836 - "PaymentEngine::Providers::Epayco"
 Cohesion: 0.40
@@ -3141,7 +3170,7 @@ Cohesion: 0.50
 Nodes (3): Dummy, Dummy::Application, Application
 
 ### Community 848 - "Expenses::Inputs::DataUri"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (3): Expenses, Expenses::Inputs, Expenses::Inputs::DataUri
 
 ### Community 883 - "money_source_exports.spec.js"
@@ -3156,16 +3185,12 @@ Nodes (6): MailInbound, MailInbound::Request, MailInbound::Providers::ResendTest
 Cohesion: 0.17
 Nodes (8): PaymentEngine, configure(), provider(), provider_settings_for(), register_provider(), reset_configuration!(), reset_providers!(), resolve_provider_name()
 
-### Community 917 - ".call"
-Cohesion: 0.18
-Nodes (4): Gmf, Gmf::MonthlyAccumulator, Gmf, Gmf::TransferHandler
-
 ### Community 921 - "checkout_poll.js"
 Cohesion: 0.70
 Nodes (4): applyStatus(), poll(), schedule(), stop()
 
 ### Community 923 - "UserConsent"
-Cohesion: 0.17
+Cohesion: 0.16
 Nodes (4): ProfilesController, ApplicationController, ApplicationRecord, UserConsent
 
 ### Community 925 - "monthly-reports.spec.js"
@@ -3176,17 +3201,25 @@ Nodes (3): { createMoneySource }, { signUp, createCategory }, { test, expect }
 Cohesion: 0.13
 Nodes (4): PrivacyHelper, ErrorReporting, ErrorReporting::RollbarPayloadSanitizerTest, TestCase
 
+### Community 929 - "Expenses::FileImport::Enrichers::Confidence"
+Cohesion: 0.33
+Nodes (4): Expenses, Expenses::FileImport, Expenses::FileImport::Enrichers, Expenses::FileImport::Enrichers::Confidence
+
 ### Community 930 - "Seguridad"
 Cohesion: 0.33
 Nodes (6): Administración, Afirmaciones verificadas, Comandos, Pendiente de confirmación, Pruebas, Seguridad
 
-### Community 933 - "PaymentEngine::Admin::PremiumIdentitiesController"
-Cohesion: 0.22
-Nodes (4): PaymentEngine, PaymentEngine::Admin, PaymentEngine::Admin::PremiumIdentitiesController, BaseController
+### Community 933 - ".call"
+Cohesion: 0.29
+Nodes (3): MoneySources, MoneySources::MatchTest, TestCase
 
 ### Community 934 - "PaymentEngine::Webhooks::EventsController"
 Cohesion: 0.32
 Nodes (4): PaymentEngine, PaymentEngine::Webhooks, PaymentEngine::Webhooks::EventsController, ApplicationController
+
+### Community 937 - "PaymentEngineAdminTest"
+Cohesion: 0.29
+Nodes (4): AdminReplayProvider, PaymentEngineAdminTest, Base, IntegrationTest
 
 ### Community 939 - "Mcp::Tools::Pockets::GetPocketDetailsTool"
 Cohesion: 0.33
@@ -3196,25 +3229,21 @@ Nodes (5): Mcp, Mcp::Tools, Mcp::Tools::Pockets, Mcp::Tools::Pockets::GetPocketD
 Cohesion: 0.22
 Nodes (8): Arquitectura, Comandos, Contenido nuevo, Datos estructurados, Metadatos, SEO y GEO del sitio público, Sitemap y robots, URLs públicas
 
-### Community 948 - "HelpCenter::RatingsController"
-Cohesion: 0.12
-Nodes (5): HelpCenter::RatingsController, ApplicationController, HelpArticleRating, ApplicationRecord, HelpCenter::RatingFingerprint
-
 ### Community 954 - ".claim!"
-Cohesion: 0.08
-Nodes (16): PremiumIdentity, ApplicationRecord, PremiumIdentities::Fingerprint, identity_for(), membership_for(), PremiumIdentities, used_by?(), available?() (+8 more)
+Cohesion: 0.18
+Nodes (7): available?(), claim!(), claim_membership_owner!(), PremiumIdentities, PremiumIdentities::Protection, PremiumIdentities::Protection::Conflict, StandardError
+
+### Community 965 - "Gmail::TransactionRecorderTest"
+Cohesion: 0.40
+Nodes (3): Gmail, Gmail::TransactionRecorderTest, TestCase
 
 ### Community 971 - "Expenses::Inputs::Image"
 Cohesion: 0.33
 Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::Image, Base
 
-### Community 973 - "PaymentEngine::ExpireMembershipsJob"
-Cohesion: 0.40
-Nodes (3): PaymentEngine, PaymentEngine::ExpireMembershipsJob, Base
-
-### Community 975 - "PaymentEngine::Setting"
-Cohesion: 0.40
-Nodes (3): PaymentEngine, PaymentEngine::Setting, ApplicationRecord
+### Community 975 - "Mcp::Current"
+Cohesion: 0.33
+Nodes (3): Mcp, Mcp::Current, CurrentAttributes
 
 ### Community 979 - "Expenses::BulkUpdateTest"
 Cohesion: 0.40
@@ -3229,8 +3258,8 @@ Cohesion: 0.40
 Nodes (3): TestCase, Whatsapp::MediaFetcherTest, Whatsapp::MediaFetcherTest::FakeResponse
 
 ### Community 991 - ".normalize_name"
-Cohesion: 0.09
-Nodes (8): ActivityClassification, ApplicationRecord, Ai, Ai::Tasks, Ai::Tasks::CategoryClassification, Base, Expenses, Expenses::ActivityClassifier
+Cohesion: 0.16
+Nodes (4): ActivityClassification, ApplicationRecord, Expenses, Expenses::ActivityClassifier
 
 ### Community 992 - "Expenses::RecurringAssignmentTest"
 Cohesion: 0.40
@@ -3244,9 +3273,17 @@ Nodes (3): Ai, Ai::StatementExtractorTest, TestCase
 Cohesion: 0.40
 Nodes (3): TestCase, TransactionRules, TransactionRules::SuggestionServiceTest
 
+### Community 1000 - "sender_authentication.rb"
+Cohesion: 0.40
+Nodes (4): authenticated?(), first_authentication_results(), MailInbound, MailInbound::SenderAuthentication
+
 ### Community 1002 - "financial_setup_gmf_exemption.js"
 Cohesion: 0.80
 Nodes (4): boxes(), init(), observeRows(), sync()
+
+### Community 1004 - "PaymentEngine::ExpireMembershipsJob"
+Cohesion: 0.40
+Nodes (3): PaymentEngine, PaymentEngine::ExpireMembershipsJob, Base
 
 ### Community 1006 - "SourceRecognition::MatcherTest"
 Cohesion: 0.29
@@ -3255,6 +3292,10 @@ Nodes (3): TestCase, SourceRecognition, SourceRecognition::MatcherTest
 ### Community 1008 - "reports_budgets.js"
 Cohesion: 0.60
 Nodes (4): chartObject(), init(), activate(), resizeChart()
+
+### Community 1013 - "Expenses::ConfidenceCalculatorTest"
+Cohesion: 0.33
+Nodes (3): Expenses, Expenses::ConfidenceCalculatorTest, TestCase
 
 ### Community 1014 - "init"
 Cohesion: 0.60
@@ -3296,9 +3337,9 @@ Nodes (14): attach(), averageLineOptions(), chartFor(), drawAverageLine(), init(
 Cohesion: 0.40
 Nodes (3): Expenses, Expenses::MoneySourceDetectionTest, TestCase
 
-### Community 1051 - "Expenses::Inputs::Rules::Audio"
-Cohesion: 0.29
-Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::Rules, Expenses::Inputs::Rules::Audio
+### Community 1051 - "Expenses"
+Cohesion: 0.50
+Nodes (3): Expenses, Expenses::Inputs, Expenses::Inputs::Rules
 
 ### Community 1053 - "Statements::ReviewBuilderTest"
 Cohesion: 0.40
@@ -3308,13 +3349,9 @@ Nodes (3): TestCase, Statements, Statements::ReviewBuilderTest
 Cohesion: 0.29
 Nodes (3): { createMoneySource }, { signUp }, { test, expect }
 
-### Community 1058 - "Gmail::TransactionRecorderTest"
-Cohesion: 0.40
-Nodes (3): Gmail, Gmail::TransactionRecorderTest, TestCase
-
-### Community 1061 - "Expenses::Inputs::Rules::File"
-Cohesion: 0.29
-Nodes (4): Expenses, Expenses::Inputs, Expenses::Inputs::Rules, Expenses::Inputs::Rules::File
+### Community 1061 - "Expenses"
+Cohesion: 0.50
+Nodes (3): Expenses, Expenses::Inputs, Expenses::Inputs::Rules
 
 ### Community 1069 - "Expenses"
 Cohesion: 0.50
@@ -3335,6 +3372,10 @@ Nodes (3): initializeFinancialInstitutionsIndex(), apply(), normalize()
 ### Community 1094 - "reports.spec.js"
 Cohesion: 0.33
 Nodes (5): { createMoneySource }, { pickCategory }, REPORT_PAGES, { signUp, createCategory }, { test, expect }
+
+### Community 1113 - "Mcp"
+Cohesion: 0.50
+Nodes (3): Mcp, Mcp::Presenters, Mcp::Presenters::DebtBalance
 
 ### Community 1117 - "Expenses"
 Cohesion: 0.40
@@ -3364,24 +3405,24 @@ Nodes (4): { createMoneySource }, { pickCategory }, { signUp, createCategory }, 
 Cohesion: 0.40
 Nodes (3): TestCase, Reconciliation, Reconciliation::ExpenseSearchTest
 
-### Community 1143 - "HelpCenterSeederTest"
+### Community 1200 - "HelpCenterSeederTest"
 Cohesion: 0.50
 Nodes (3): HelpCenterSeederTest, HelpCenterSeederTestData, TestCase
 
 ## Knowledge Gaps
 - **798 isolated node(s):** `$schema`, `plugin`, `type`, `url`, `enabled` (+793 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 5188 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **513 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 5189 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **529 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Category` connect `Category` to `FinancialSetups::Completer`, `.render`, `Expenses::Search`, `Gmail::CategoryPrefill`, `.parse_ids`, `Reports::CycleTransactionsQuery`, `Reports::Insights`, `.success`, `PaymentsControllerTest`, `ExpensePlaygroundController`, `ExpenseResolver::HeuristicResolver`, `.call`, `RecurringTemplateActions`, `Expenses::FileImport::ImportContext`, `WebHookHandlerWhatsappServiceTest`, `ExpensePlayground::Evaluations::ResultBuilder`, `Expenses::ValueParsing`, `CategoryInsight`, `ImportsController`, `Statements::Confirmation`, `Gmf::ChargeCreator`, `.send_to`, `Reports::Budgets`, `questions.rb`, `BudgetsController`, `.call`, `ExpenseResolver::Service`, `Mcp::DebtPaymentCreation`, `ExpenseCandidatesController`, `Reports::Filter`, `Ai::CategoryClassifier`, `.payment_origins`, `CategoryInsightsControllerTest`, `Expenses::BulkCreate`, `SavingsOpportunities::CategoryAnalysis`, `.success?`, `Gmail::ExpenseImporter`, `.normalize_name`, `RecurringTemplatesController`, `PayCycle`, `Credits::ExtraPayments::Create`, `.call`, `Expenses::Processors::Image::VisionCandidateBuilder`, `RecurringTemplateImporter`, `TransactionRulesController`, `Categories::HeuristicResolver`, `SavingsOpportunities::SmallExpenses`, `ExpenseEvaluationsController`, `Mcp::Presenters::CategoryPresenter`, `MonthlyReportsController`, `SavingsOpportunities::RecurringDetection`, `Income`?**
-  _High betweenness centrality (0.119) - this node is a cross-community bridge._
-- **Why does `Devise::Test::IntegrationHelpers` connect `Devise::Test::IntegrationHelpers` to `PaymentEngineRenewalTest`, `TotpCredential`, `FinancialChatControllerTest`, `User`, `FinancialSummaryControllerTest`, `RecurringListingFiltersBulletTest`, `GoalAllocationsControllerTest`, `CategoriesControllerTest`, `Users::PasswordsController`, `PaymentEngineCommercialTest`, `EmailSourcesControllerTest`, `Users::RegistrationsControllerTest`, `CheckoutStatusTest`, `Ai::Router::Result`, `SidebarIndexesBulletTest`, `AlertSettingsControllerTest`, `MoneySourceStatementTest`, `ExpenseEvaluationsControllerTest`, `SecuritySettingsControllerTest`, `Category`, `OnboardingControllerTest`, `PaymentsControllerTest`, `Users::TwoFactorAuthenticationsControllerTest`, `WhatsappSettingsControllerTest`, `SecurityHeadersTest`, `FinancialInstitutionsControllerTest`, `ExpensesControllerTest`, `DebtCapacityControllerTest`, `McpSettingsTest`, `PaymentEngineAdminTest`, `GuidedRecognitionControllerTest`, `TransactionRulesControllerTest`, `Users::RecoveryCodeAuthenticationsControllerTest`, `PaymentEngineCrudTest`, `PaymentEngineMembershipStatusTest`, `PaymentEngineTrialTest`, `PageTitlesTest`, `TransactionRulesFlowTest`, `PlansPageTest`, `ProfilePageTest`, `ParsedStatement`, `MonthlyReportsControllerTest`, `SidebarNavigationTest`, `ProcessedEmail`, `FinancialChats::MessagesControllerTest`, `AlertsControllerTest`, `MoneySourceStatementExportsTest`, `CustomFinancialInstitutionsControllerTest`, `DashboardControllerTest`, `Expense`, `ExpenseCandidatesControllerTest`, `StatementImportsControllerTest`, `PublicCmsTestSupport`, `PaySettingsControllerTest`, `ProfilesControllerTest`, `CategoryInsightsControllerTest`, `PaymentEngine::Membership`, `AppHealthTest`, `Admin::UsersControllerTest`, `Transfer`, `PaymentEngineWebhooksTest`, `PaymentEngine::MembershipType`, `ReportsPagesTest`, `MonthlyExpensesControllerTest`, `PremiumAccessTestHelper`, `Users::PasskeysControllerTest`, `ReportsSavingsCapacityControllerTest`, `CreditsController`, `ReportsMoneySourcesReportTest`, `.render`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
-- **Why does `Expense` connect `Expense` to `FinancialSummaryService`, `ReportsInsightsTest`, `.call`, `FinancialHabits::PlanningOpportunityAnalyzer`, `CreditExtraPayment`, `Gmf::Reconciler`, `SavingsOpportunitiesNarrativeTest`, `DataCollectorTest`, `Expenses::Search`, `Reports::CycleTransactionsQuery`, `Reconciliation::StateTest`, `.success`, `PaymentsControllerTest`, `TransactionRuleTest`, `FinancialHabits::MerchantFrequencyAnalyzer`, `Gmf::ExpenseUpdateHandler`, `SpendingAlertServiceTest`, `Reports::CycleBalances`, `Dashboard::CycleSummaryTest`, `Reports::SpendingTrendInsights`, `Statements::ReviewBuilderTest`, `ReportsLoansTest`, `DebtCapacity::Overview`, `ExpenseResolver::CandidateDetector`, `.bank_charge?`, `Payments::ApplyTest`, `FinancialHabits::Analysis`, `.call`, `FinancialHabits::IncomeSpendingPatternAnalyzer`, `Payments::RecurringLinkTest`, `ReportsPerspectivesRecommendationsTest`, `CategoryInsight`, `FinancialHabits::BehaviorChangeAnalyzer`, `ReportsBudgetsTest`, `Dashboard::CycleSummary`, `Reports::Base`, `.call`, `Reports::Filter`, `ReportsCategorySpendingTest`, `Expenses::BulkUpdateTest`, `ReportsCreditCardsTest`, `Reports::CycleComparison`, `CategoryInsightsControllerTest`, `Expenses::BulkCreate`, `SavingsOpportunities::CategoryAnalysis`, `Transaction`, `PaymentEngine::Membership`, `Reports::MoneySources`, `Expenses::RecurringAssignmentTest`, `FinancialHabits::SpendingTimePatternAnalyzer`, `Expenses::SearchTest`, `Dashboard::PositionSnapshot`, `Credits::ExtraPayments::Create`, `FinancialHabits::CycleEndSpendingAnalyzer`, `Gmf::ChargeDestroyHandler`, `ReportsOverviewTest`, `TransactionRules::SuggestionServiceTest`, `Reports::Perspectives::Comparison`, `Mcp::Presenters::BudgetPresenter`, `Reconciliation::ExpenseSearchTest`, `Reports::SavingsCapacity`, `SavingsOpportunities::SmallExpenses`, `BudgetTest`, `FinancialHabitsAnalysisTest`, `SavingsOpportunities::Analysis`, `.call`, `FinancialHabits::Detail`, `SavingsOpportunities::RecurringDetection`, `FinancialHabits::CreditUsagePatternAnalyzer`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `Category` connect `Category` to `FinancialSetups::Completer`, `ExpensesController`, `Expenses::Search`, `Gmail::CategoryPrefill`, `Expenses::BulkUpdate`, `Reports::CycleTransactionsQuery`, `PaymentsControllerTest`, `Reports::Insights`, `.success`, `CategoryPickerHelperTest`, `ExpensePlaygroundController`, `.configuration`, `TransactionRules::SuggestionService`, `RecurringTemplateActions`, `Expenses::FileImport::ImportContext`, `Gmf::ChargeCreator`, `WebHookHandlerWhatsappServiceTest`, `ExpensePlayground::Evaluations::ResultBuilder`, `Expenses::FileImport::Enrichers::MoneySource`, `CategoryInsight`, `ImportsController`, `IncomesControllerTest`, `Statements::Confirmation`, `.send_to`, `Reports::Budgets`, `questions.rb`, `BudgetsController`, `.call`, `ExpenseResolver::Service`, `Mcp::DebtPaymentCreation`, `ExpenseCandidatesController`, `Reports::Filter`, `Ai::CategoryClassifier`, `.payment_origins`, `MoneySourcesLoanInterestTest`, `CategoryInsightsControllerTest`, `Expenses::BulkCreate`, `SavingsOpportunities::CategoryAnalysis`, `.success?`, `Gmail::ExpenseImporter`, `.normalize_name`, `RecurringTemplatesController`, `PayCycle`, `Credits::ExtraPayments::Create`, `.call`, `Categories::ClosestResolver`, `Expenses::Processors::Image::VisionCandidateBuilder`, `RecurringTemplateImporter`, `TransactionRulesController`, `Categories::HeuristicResolver`, `SavingsOpportunities::SmallExpenses`, `.render`, `Mcp::Presenters::CategoryPresenter`, `MonthlyReportsController`, `SavingsOpportunities::RecurringDetection`, `Income`?**
+  _High betweenness centrality (0.122) - this node is a cross-community bridge._
+- **Why does `Expense` connect `Expense` to `FinancialSummaryService`, `ReportsInsightsTest`, `.call`, `FinancialHabits::PlanningOpportunityAnalyzer`, `CreditExtraPayment`, `Gmf::Reconciler`, `Reports::CreditCards`, `SavingsOpportunitiesNarrativeTest`, `BalanceEffectTest`, `Expenses::Search`, `PaymentsControllerTest`, `Reports::CycleTransactionsQuery`, `Reconciliation::StateTest`, `.success`, `TransactionRuleTest`, `FinancialHabits::MerchantFrequencyAnalyzer`, `Gmf::ExpenseUpdateHandler`, `Reports::CycleBalances`, `Reports::SpendingTrendInsights`, `Statements::ReviewBuilderTest`, `DebtCapacity::Overview`, `ExpenseResolver::CandidateDetector`, `.bank_charge?`, `Payments::ApplyTest`, `FinancialHabits::Analysis`, `ReportsOverviewTest`, `SpendingAlertServiceTest`, `FinancialHabits::IncomeSpendingPatternAnalyzer`, `Payments::RecurringLinkTest`, `SpendingAlertService`, `ReportsPerspectivesRecommendationsTest`, `CategoryInsight`, `FinancialHabits::BehaviorChangeAnalyzer`, `PaymentTest`, `ReportsPerspectivesFindingsTest`, `Dashboard::CycleSummary`, `.call`, `Reports::Filter`, `Expenses::BulkUpdateTest`, `.index`, `Reports::CycleComparison`, `CategoryInsightsControllerTest`, `Expenses::BulkCreate`, `SavingsOpportunities::CategoryAnalysis`, `Transaction`, `PaymentEngine::Membership`, `Reports::MoneySources`, `Expenses::RecurringAssignmentTest`, `Reports::Loans`, `FinancialHabits::SpendingTimePatternAnalyzer`, `Credits::ExtraPayments::Create`, `Dashboard::PositionSnapshot`, `Expenses::SearchTest`, `FinancialHabits::CycleEndSpendingAnalyzer`, `Gmf::ChargeDestroyHandler`, `TransactionRules::SuggestionServiceTest`, `Mcp::Presenters::BudgetPresenter`, `Reconciliation::ExpenseSearchTest`, `Reports::SavingsCapacity`, `SavingsOpportunities::SmallExpenses`, `ReportsCategorySpendingTest`, `Budget`, `FinancialHabitsDetailTest`, `.call`, `FinancialHabits::Detail`, `SavingsOpportunities::RecurringDetection`, `Income`, `FinancialHabits::CreditUsagePatternAnalyzer`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+- **Why does `Devise::Test::IntegrationHelpers` connect `Devise::Test::IntegrationHelpers` to `PaymentEngineRenewalTest`, `TotpCredential`, `FinancialChatControllerTest`, `User`, `FinancialSummaryControllerTest`, `RecurringListingFiltersBulletTest`, `CategoriesControllerTest`, `PaymentEngineCommercialTest`, `EmailSourcesControllerTest`, `Users::RegistrationsControllerTest`, `CheckoutStatusTest`, `Ai::Router::Result`, `PaymentsControllerTest`, `AlertSettingsControllerTest`, `MoneySourceStatementTest`, `SecuritySettingsControllerTest`, `SidebarIndexesBulletTest`, `OnboardingControllerTest`, `Users::TwoFactorAuthenticationsControllerTest`, `Users::PasswordsController`, `SecurityHeadersTest`, `FinancialInstitutionsControllerTest`, `ExpensesControllerTest`, `GoalAllocationsControllerTest`, `PageTitlesTest`, `DebtCapacityControllerTest`, `GuidedRecognitionControllerTest`, `TransactionRulesControllerTest`, `Users::RecoveryCodeAuthenticationsControllerTest`, `PaymentEngineMembershipStatusTest`, `TransactionRulesFlowTest`, `ExpenseCandidatesControllerTest`, `RecurringTemplatesControllerTest`, `PaymentEngineAdminTest`, `PaymentEngineTrialTest`, `BankSetupWizardTest`, `ParsedStatement`, `MoneySourcesControllerTest`, `MonthlyReportsControllerTest`, `PlansPageTest`, `ProfilePageTest`, `SidebarNavigationTest`, `Users::PasskeysControllerTest`, `BudgetsControllerTest`, `GmailConnectionsControllerTest`, `MoneySourcesInstitutionTest`, `FinancialChats::MessagesControllerTest`, `Users::SecondFactorWebauthnCredentialsControllerTest`, `IncomesControllerTest`, `PaymentEngineDoubleCheckoutTest`, `AlertsControllerTest`, `MoneySourceStatementExportsTest`, `EvaluationRun`, `.get`, `Expense`, `MoneySourcesLoanInterestTest`, `PublicCmsTestSupport`, `PaySettingsControllerTest`, `ProfilesControllerTest`, `CategoryInsightsControllerTest`, `PaymentEngine::Membership`, `Admin::UsersControllerTest`, `Transfer`, `PaymentEngineWebhooksTest`, `PaymentEngine::MembershipType`, `ReportsPagesTest`, `MonthlyExpensesControllerTest`, `PremiumAccessTestHelper`, `ReportsSavingsCapacityControllerTest`, `CreditsController`, `ReportsMoneySourcesReportTest`, `.render`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `type` to the rest of the system?**
   _798 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MoneySources::StatementExports::Base` be split into smaller, more focused modules?**
