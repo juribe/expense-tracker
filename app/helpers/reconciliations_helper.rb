@@ -72,6 +72,8 @@ module ReconciliationsHelper
   def reconciliation_balance_action_label(balance)
     if reconciliation_verified_balance?(balance)
       t("reconciliation.balances.change_balance")
+    elsif reconciliation_debt_balance?(balance)
+      t("reconciliation.balances.verify_debt")
     else
       t("reconciliation.balances.reconcile")
     end
@@ -113,6 +115,20 @@ module ReconciliationsHelper
 
   def reconciliation_money(value)
     number_to_currency(value.to_d)
+  end
+
+  # Extra data attributes for the reconcile modal when the row is a loan with
+  # an available accrued-interest estimate. Empty for every other source so
+  # the shared modal keeps its current behaviour.
+  def reconciliation_loan_interest_attributes(balance)
+    interest = balance["loan_interest"]
+    return {} if interest.blank?
+
+    {
+      "data-loan-interest-enabled" => "true",
+      "data-loan-accrued-interest-formatted" => reconciliation_money(interest["accrued_interest"]),
+      "data-loan-estimated-total-formatted" => reconciliation_money(interest["estimated_total"])
+    }
   end
 
   def reconciliation_signed_money(value)

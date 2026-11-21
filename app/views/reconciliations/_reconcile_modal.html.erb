@@ -1,7 +1,7 @@
 <%# Conciliar / Movimientos modal — populated by app/assets/javascripts/reconciliation.js
     from the data-* attributes of the clicked row action. A discrepancy is
     NEVER auto-converted into a "Descuadre" expense; crear gasto/ingreso
-    reuse the standard forms. %>
+    reuse the standard forms. Loans use reconcile_loan_modal instead. %>
 <div class="modal fade" id="reconcileModal" tabindex="-1" aria-hidden="true"
      data-balance-url="<%= reconciliation_actual_balance_path("SOURCE_ID") %>"
      data-leave-url="<%= reconciliation_leave_pending_path("SOURCE_ID") %>"
@@ -53,12 +53,12 @@
             <label for="reconcileActualBalance"><%= t("reconciliation.reconcile.actual_balance") %></label>
             <input type="text"
                    id="reconcileActualBalance"
-                   class="form-control rec-money-input"
+                   class="form-control rec-money-input js-actual-input"
                    inputmode="decimal"
                    autocomplete="off"
                    data-money-input="true"
                    placeholder="<%= t("reconciliation.reconcile.actual_balance_placeholder") %>">
-            <div class="invalid-feedback" id="reconcileBalanceError"></div>
+            <div class="invalid-feedback js-balance-error" id="reconcileBalanceError"></div>
           </div>
           <div class="rec-balance-cell">
             <label><%= t("reconciliation.reconcile.difference") %></label>
@@ -71,7 +71,7 @@
           <%= label_tag :reconcileNote, t("reconciliation.reconcile.note_label"), class: "rec-field-label" %>
           <input type="text"
                  id="reconcileNote"
-                 class="form-control rec-reason-input"
+                 class="form-control rec-reason-input js-note"
                  maxlength="140"
                  autocomplete="off"
                  placeholder="<%= t("reconciliation.reconcile.note_placeholder") %>">
@@ -85,20 +85,20 @@
           <div class="rec-search-row">
             <input type="search"
                    id="reconcileSearchInput"
-                   class="form-control rec-search-input"
+                   class="form-control rec-search-input js-movement-search"
                    placeholder="<%= t("reconciliation.reconcile.search_placeholder") %>"
                    autocomplete="off"
                    aria-label="<%= t("reconciliation.reconcile.search_placeholder") %>">
           </div>
           <div id="reconcileSearchResults"
-               class="rec-movement-list"
+               class="rec-movement-list js-movement-results"
                role="list"
                aria-live="polite"
                data-hint="<%= t("reconciliation.reconcile.search_hint") %>">
             <div class="rec-movement-empty js-search-empty"><%= t("reconciliation.reconcile.search_hint") %></div>
           </div>
           <div class="rec-load-more-wrap">
-            <button type="button" id="reconcileLoadMore" class="btn rec-btn-soft d-none">
+            <button type="button" id="reconcileLoadMore" class="btn rec-btn-soft js-load-more d-none">
               <%= t("reconciliation.reconcile.load_more") %> <i class="ti ti-arrow-down" aria-hidden="true"></i>
             </button>
           </div>
@@ -106,24 +106,24 @@
 
         <div class="rec-create-actions">
           <span><%= t("reconciliation.reconcile.create_hint") %></span>
-          <%= link_to "#", id: "reconcileCreateExpense", target: "_blank", rel: "noopener", class: "rec-link" do %>
+          <%= link_to "#", id: "reconcileCreateExpense", target: "_blank", rel: "noopener", class: "rec-link js-create-expense" do %>
             <%= t("reconciliation.reconcile.create_expense") %>
           <% end %>
-          <%= link_to "#", id: "reconcileCreateIncome", target: "_blank", rel: "noopener", class: "rec-link" do %>
+          <%= link_to "#", id: "reconcileCreateIncome", target: "_blank", rel: "noopener", class: "rec-link js-create-income" do %>
             <%= t("reconciliation.reconcile.create_income") %>
           <% end %>
         </div>
       </div>
 
       <div class="rec-modal-footer">
-        <button type="button" id="reconcileLeavePending" class="btn rec-btn-pending">
+        <button type="button" id="reconcileLeavePending" class="btn rec-btn-pending js-reconcile-leave-pending">
           <%= t("reconciliation.reconcile.leave_pending") %>
         </button>
         <div class="rec-footer-actions">
-          <button type="button" id="reconcileAllGood" class="btn rec-btn-good">
+          <button type="button" id="reconcileAllGood" class="btn rec-btn-good js-reconcile-all-good">
             <i class="ti ti-checks me-1" aria-hidden="true"></i><%= t("reconciliation.reconcile.all_good") %>
           </button>
-          <button type="button" id="reconcileAdjust" class="btn rec-btn-primary">
+          <button type="button" id="reconcileAdjust" class="btn rec-btn-primary js-reconcile-adjust">
             <%= t("reconciliation.reconcile.save_balance") %>
           </button>
         </div>

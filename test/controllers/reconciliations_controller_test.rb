@@ -618,7 +618,7 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     debt_row = css_select("[data-testid='debt-row']").find { |item| item.text.include?(loan.name) }
     assert_not_nil debt_row
     assert_includes debt_row.text, "Deuda en #{AppName.current}"
-    assert_includes debt_row.text, "Verificar saldo"
+    assert_includes debt_row.text, "Verificar deuda"
     assert_includes debt_row.text, "Movimientos"
 
     accounts_panel = css_select(".rec-panel").find { |panel| panel.text.include?("Saldos de tus cuentas") }
@@ -641,6 +641,52 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
     assert_includes debt_row.text, "Deuda en Mis Gastos"
   end
 
+  test "loan with interest calculation enabled exposes the estimated interest for the reconcile modal" do
+    loan = create_interest_loan
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    button = css_select("button.js-reconcile[data-mode='balance'][data-source-id='#{loan.id}']").first
+    assert_not_nil button
+    assert_equal "true", button["data-loan-interest-enabled"]
+    assert_match(/\A\$/, button["data-loan-accrued-interest-formatted"])
+    assert_match(/\A\$/, button["data-loan-estimated-total-formatted"])
+    assert_select "#reconcileLoanModal .rec-loan-summary"
+    assert_select "#reconcileLoanModal .rec-loan-notice"
+    assert_select "#reconcileLoanModal .rec-loan-entry-grid"
+    assert_select "#reconcileLoanModal .rec-loan-footer"
+    assert_select "#reconcileModal .rec-loan-summary", count: 0
+    assert_select "#reconcileModal .rec-loan-notice", count: 0
+  end
+
+  test "loan without interest calculation enabled does not expose an estimated interest" do
+    loan = create_interest_loan(enabled: false)
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    button = css_select("button.js-reconcile[data-mode='balance'][data-source-id='#{loan.id}']").first
+    assert_not_nil button
+    assert_nil button["data-loan-interest-enabled"]
+    assert_nil button["data-loan-accrued-interest-formatted"]
+    assert_nil button["data-loan-estimated-total-formatted"]
+  end
+
+  test "non-loan sources do not receive loan interest data" do
+    sign_in @user
+
+    get reconciliation_path
+
+    assert_response :success
+    button = css_select("button.js-reconcile[data-mode='balance'][data-source-id='#{@account.id}']").first
+    assert_not_nil button
+    assert_nil button["data-loan-interest-enabled"]
+    assert_nil button["data-loan-accrued-interest-formatted"]
+  end
+
   test "a verified source can be changed again in the same cycle" do
     sign_in @user
 
@@ -656,6 +702,21 @@ class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def create_interest_loan(enabled: true)
+    loan = MoneySource.create!(user: @user, name: "Crédito hipotecario", kind: "loan")
+    loan.create_credit_account!(
+      principal_amount: 40_000_000,
+      outstanding_balance: 32_000_000,
+      interest_rate: 18.05,
+      interest_rate_type: "effective_annual",
+      interest_calculation_enabled: enabled,
+      interest_calculation_day: 11,
+      start_date: Date.new(2025, 1, 11),
+      payment_frequency: "monthly"
+    )
+    loan
+  end
 
   def create_membership(expires_at:, status:, source: "purchase")
     PaymentEngine::Membership.create!(

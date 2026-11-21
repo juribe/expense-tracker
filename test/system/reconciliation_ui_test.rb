@@ -77,9 +77,9 @@ class ReconciliationUiTest < ApplicationSystemTestCase
     sign_in @user
     visit reconciliation_path
 
-    scroll_and_click(find("[data-testid='debt-row']", text: loan.name).find("button", text: "Verificar saldo"))
-    assert_selector "#reconcileModal.show"
-    assert_text "Deuda en #{AppName.current}"
+    scroll_and_click(find("[data-testid='debt-row']", text: loan.name).find("button", text: "Verificar deuda"))
+    assert_selector "#reconcileLoanModal.show"
+    assert_text "Capital pendiente en Yogasto"
     assert_no_selector "#reconcileCreateExpense", visible: true
     assert_no_selector "#reconcileCreateIncome", visible: true
   end

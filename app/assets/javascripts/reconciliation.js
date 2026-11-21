@@ -260,80 +260,154 @@
 
   // -------------------------------------------------------------- Reconcile
 
-  var reconcileState = { sourceId: null, kind: null, appBalance: 0, isDebt: false };
+  // Loans use their own modal so the mockup layout does not constrain the
+  // shared modal used by accounts, cards and wallets.
+  var reconcileState = {
+    modalId: null, sourceId: null, kind: null, appBalance: 0,
+    isDebt: false, isLoan: false, loanInterest: null
+  };
 
-  function reconcileModal() {
-    return document.getElementById("reconcileModal");
+  function activeModal() {
+    return document.getElementById(reconcileState.modalId);
+  }
+
+  function q(selector) {
+    var modal = activeModal();
+    return modal ? modal.querySelector(selector) : null;
   }
 
   function openReconcile(button) {
-    var modal = reconcileModal();
     var kind = button.dataset.kind || "account";
+    var isLoan = kind === "loan";
+    var modal = document.getElementById(isLoan ? "reconcileLoanModal" : "reconcileModal");
+    if (!modal) return;
+
+    var loanInterest = null;
+    if (isLoan && button.dataset.loanInterestEnabled === "true") {
+      loanInterest = {
+        accruedFormatted: button.dataset.loanAccruedInterestFormatted || "",
+        totalFormatted: button.dataset.loanEstimatedTotalFormatted || ""
+      };
+    }
+
     reconcileState = {
+      modalId: modal.id,
       sourceId: button.dataset.sourceId,
       kind: kind,
       appBalance: parseMoney(button.dataset.appBalance),
-      isDebt: kind === "credit_card" || kind === "loan"
+      isDebt: kind === "credit_card" || isLoan,
+      isLoan: isLoan,
+      loanInterest: loanInterest
     };
 
     modal.querySelector(".js-modal-title").textContent = button.dataset.modalTitle ||
-      modal.dataset.accountModalTitle || "Conciliar";
+      (isLoan ? modal.dataset.debtModalTitle : modal.dataset.accountModalTitle) || "Conciliar";
     modal.querySelector(".js-source-name").textContent = button.dataset.name;
     modal.querySelector(".js-source-meta").textContent = button.dataset.meta || "—";
-    modal.querySelector(".js-balance-label").textContent = button.dataset.balanceLabel ||
-      (reconcileState.isDebt ? modal.dataset.debtBalanceLabel : modal.dataset.accountBalanceLabel);
+
+    var balanceLabel = modal.querySelector(".js-balance-label");
+    if (balanceLabel) {
+      balanceLabel.textContent = button.dataset.balanceLabel ||
+        (reconcileState.isDebt ? modal.dataset.debtBalanceLabel : modal.dataset.accountBalanceLabel);
+    }
+
     modal.querySelector(".js-movements-title").textContent = button.dataset.movementsTitle ||
       (reconcileState.isDebt ? modal.dataset.debtMovementsTitle : modal.dataset.accountMovementsTitle);
-    modal.querySelector(".js-app-balance").textContent = button.dataset.appBalanceFormatted ||
-      formatMoney(reconcileState.appBalance);
+    var appBalance = modal.querySelector(".js-app-balance");
+    if (appBalance) {
+      appBalance.textContent = button.dataset.appBalanceFormatted || formatMoney(reconcileState.appBalance);
+    }
     modal.querySelector(".js-movement-count").textContent = "";
+
+    applyLoanPresentation(button);
 
     // The real balance is intentionally not remembered: every reconciliation
     // starts from the current app balance and an empty input.
-    var actual = modal.querySelector("#reconcileActualBalance");
+    var actual = modal.querySelector(".js-actual-input");
     actual.value = "";
     actual.classList.remove("is-invalid");
-    modal.querySelector("#reconcileBalanceError").textContent = "";
+    clearBalanceError();
     updateDifference();
 
-    modal.querySelector("#reconcileSearchInput").value = "";
+    modal.querySelector(".js-movement-search").value = "";
     resetMovementResults();
     noteInput().value = "";
 
-    // Populate the Crear expense / Crear ingreso links BEFORE the user types
-    // anything — otherwise they keep href="#" and the first click is dead.
-    updatePrefillLinks();
-
-    // A loan difference is resolved by registering the real Payment from the
-    // loan page, so the expense/income shortcuts would be misleading there.
-    var isLoan = kind === "loan";
-    modal.querySelector("#reconcileCreateExpense").classList.toggle("d-none", isLoan);
-    modal.querySelector("#reconcileCreateIncome").classList.toggle("d-none", isLoan);
+    // The expense/income shortcuts only exist in the shared modal.
+    if (!isLoan) updatePrefillLinks();
 
     movementState = { page: 1, perPage: 8, hasMore: false, loading: false };
     bootstrap.Modal.getOrCreateInstance(modal).show();
     fetchMovements();
 
     var mode = button.dataset.mode || "balance";
+
+    if (isLoan) {
+      // The loan modal leads with the principal/interest breakdown. Focusing a
+      // field would scroll the modal body past that information, so it always
+      // opens at the top and never focuses the principal input.
+      var loanBody = modal.querySelector(".rec-loan-body") || modal.querySelector(".modal-body");
+      var resetLoanScroll = function () {
+        if (loanBody) loanBody.scrollTop = 0;
+      };
+      modal.addEventListener("shown.bs.modal", resetLoanScroll, { once: true });
+      resetLoanScroll();
+      return;
+    }
+
+    var focusTarget = mode === "movements" ? modal.querySelector(".js-movement-search") : actual;
+    modal.addEventListener("shown.bs.modal", function focusReconcileTarget() {
+      focusTarget.focus();
+    }, { once: true });
     setTimeout(function () {
-      if (mode === "movements") {
-        modal.querySelector("#reconcileSearchInput").focus();
-      } else {
-        actual.focus();
-      }
+      focusTarget.focus();
     }, 120);
   }
 
+  // The loan modal always shows the principal card. The interest-card and its
+  // values only appear when the server supplied a displayable estimate.
+  function applyLoanPresentation(button) {
+    if (!reconcileState.isLoan) return;
+
+    var modal = activeModal();
+    var interest = reconcileState.loanInterest;
+    var summary = modal.querySelector(".js-loan-summary");
+    var breakdown = modal.querySelector(".js-loan-breakdown");
+
+    summary.classList.toggle("is-single", !interest);
+    breakdown.classList.toggle("d-none", !interest);
+
+    var principal = button.dataset.appBalanceFormatted || formatMoney(reconcileState.appBalance);
+    modal.querySelector(".js-loan-principal").textContent = principal;
+    modal.querySelector(".js-loan-principal-part").textContent = principal;
+
+    if (!interest) return;
+
+    modal.querySelector(".js-loan-accrued").textContent = interest.accruedFormatted;
+    modal.querySelector(".js-loan-total").textContent = interest.totalFormatted;
+  }
+
+  function differenceCopy() {
+    var modal = activeModal();
+    return {
+      hint: modal.dataset.differenceHint,
+      zero: modal.dataset.differenceZero,
+      positive: modal.dataset.differencePositive,
+      negative: modal.dataset.differenceNegative
+    };
+  }
+
   function updateDifference() {
-    var modal = reconcileModal();
-    var input = modal.querySelector("#reconcileActualBalance");
+    var modal = activeModal();
+    var input = modal.querySelector(".js-actual-input");
     var target = modal.querySelector(".js-difference");
     var hint = modal.querySelector(".js-difference-hint");
+    var copy = differenceCopy();
 
     if (input.value.trim() === "") {
       target.textContent = "—";
       target.classList.remove("is-zero", "is-positive", "is-negative");
-      hint.textContent = modal.dataset.differenceHint || "";
+      hint.textContent = copy.hint || "";
       return;
     }
 
@@ -344,52 +418,64 @@
     target.classList.toggle("is-positive", difference !== 0);
     target.classList.remove("is-negative");
     if (difference === 0) {
-      hint.textContent = modal.dataset.differenceZero || "";
+      hint.textContent = copy.zero || "";
     } else if (difference > 0) {
-      hint.textContent = modal.dataset.differencePositive || "";
+      hint.textContent = copy.positive || "";
     } else {
-      hint.textContent = modal.dataset.differenceNegative || "";
+      hint.textContent = copy.negative || "";
     }
   }
 
   // Raw text as typed — the server normalizes es-CO money with
   // MoneyFormat.normalize, which also preserves negative balances.
   function rawActualBalance() {
-    return reconcileModal().querySelector("#reconcileActualBalance").value.trim();
+    return q(".js-actual-input").value.trim();
   }
 
   function showBalanceError(message) {
-    var modal = reconcileModal();
-    var input = modal.querySelector("#reconcileActualBalance");
+    var input = q(".js-actual-input");
+    var error = q(".js-balance-error");
     input.classList.add("is-invalid");
-    modal.querySelector("#reconcileBalanceError").textContent = message;
+    var wrapper = input.closest(".rec-loan-input");
+    if (wrapper) wrapper.classList.add("is-invalid");
+    error.textContent = message;
+    error.hidden = false;
     input.focus();
   }
 
   function clearBalanceError() {
-    var modal = reconcileModal();
-    modal.querySelector("#reconcileActualBalance").classList.remove("is-invalid");
-    modal.querySelector("#reconcileBalanceError").textContent = "";
+    var input = q(".js-actual-input");
+    var error = q(".js-balance-error");
+    if (input) {
+      input.classList.remove("is-invalid");
+      var wrapper = input.closest(".rec-loan-input");
+      if (wrapper) wrapper.classList.remove("is-invalid");
+    }
+    if (error) {
+      error.textContent = "";
+      error.hidden = true;
+    }
   }
 
   function submitAdjust() {
     var value = rawActualBalance();
+    var modal = activeModal();
     if (!validUserMoney(value)) {
-      showBalanceError(reconcileModal().dataset.invalidBalance || "Ingresa un saldo válido.");
+      showBalanceError(modal.dataset.invalidBalance || "Ingresa un saldo válido.");
       return;
     }
     clearBalanceError();
 
-    var button = document.getElementById("reconcileAdjust");
+    var button = q(".js-reconcile-adjust");
     button.disabled = true;
 
-    post(reconcileModal().dataset.balanceUrl.replace("SOURCE_ID", reconcileState.sourceId), {
+    post(modal.dataset.balanceUrl.replace("SOURCE_ID", reconcileState.sourceId), {
       actual_balance: value,
       adjust: true,
       note: noteInput().value.trim(),
-      period: reconcileModal().dataset.period || ""
+      period: modal.dataset.period || ""
     }).then(function () {
-      bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
+      bootstrap.Modal.getOrCreateInstance(modal).hide();
       window.location.reload();
     }).catch(function () {
       button.disabled = false;
@@ -399,14 +485,15 @@
   // "Todo está bien": no balance change, no note — the current balance is
   // confirmed as the real one and the row turns verified.
   function submitAllGood() {
-    var button = document.getElementById("reconcileAllGood");
+    var modal = activeModal();
+    var button = q(".js-reconcile-all-good");
     button.disabled = true;
 
-    post(reconcileModal().dataset.balanceUrl.replace("SOURCE_ID", reconcileState.sourceId), {
+    post(modal.dataset.balanceUrl.replace("SOURCE_ID", reconcileState.sourceId), {
       mark_ok: true,
-      period: reconcileModal().dataset.period || ""
+      period: modal.dataset.period || ""
     }).then(function () {
-      bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
+      bootstrap.Modal.getOrCreateInstance(modal).hide();
       window.location.reload();
     }).catch(function () {
       button.disabled = false;
@@ -414,17 +501,18 @@
   }
 
   function noteInput() {
-    return reconcileModal().querySelector("#reconcileNote");
+    return q(".js-note");
   }
 
   function submitLeavePending() {
-    var button = document.getElementById("reconcileLeavePending");
+    var modal = activeModal();
+    var button = q(".js-reconcile-leave-pending");
     button.disabled = true;
 
-    post(reconcileModal().dataset.leaveUrl.replace("SOURCE_ID", reconcileState.sourceId), {
-      period: reconcileModal().dataset.period || ""
+    post(modal.dataset.leaveUrl.replace("SOURCE_ID", reconcileState.sourceId), {
+      period: modal.dataset.period || ""
     }).then(function () {
-      bootstrap.Modal.getOrCreateInstance(reconcileModal()).hide();
+      bootstrap.Modal.getOrCreateInstance(modal).hide();
       window.location.reload();
     }).catch(function () {
       button.disabled = false;
@@ -432,13 +520,15 @@
   }
 
   function updatePrefillLinks() {
-    var modal = reconcileModal();
+    var modal = activeModal();
+    var createExpense = modal.querySelector(".js-create-expense");
+    var createIncome = modal.querySelector(".js-create-income");
+    if (!createExpense || !createIncome) return;
+
     var actual = rawActualBalance();
     var difference = parseUserMoney(actual) - reconcileState.appBalance;
     var today = new Date().toISOString().slice(0, 10);
 
-    var create = modal.dataset.createExpenseUrl;
-    var income = modal.dataset.createIncomeUrl;
     // Without a typed "Saldo real" the difference is unknown: prefill only
     // the money source and the date, and let the user enter the amount.
     var params = {
@@ -449,19 +539,48 @@
       params.amount = Math.abs(difference).toFixed(2);
     }
 
-    modal.querySelector("#reconcileCreateExpense").href =
-      create + "?" + new URLSearchParams(params).toString();
-    modal.querySelector("#reconcileCreateIncome").href =
-      income + "?" + new URLSearchParams(params).toString();
+    createExpense.href = modal.dataset.createExpenseUrl + "?" + new URLSearchParams(params).toString();
+    createIncome.href = modal.dataset.createIncomeUrl + "?" + new URLSearchParams(params).toString();
+  }
+
+  function isLoanMovementLayout() {
+    return activeModal().dataset.movementLayout === "loan";
+  }
+
+  function movementEmptyMarkup(label, isError) {
+    if (isLoanMovementLayout()) {
+      return "<div class='rec-loan-empty" + (isError ? " is-error" : "") + "'>" +
+        escapeHtml(label || "") + "</div>";
+    }
+    return "<div class='rec-movement-empty" + (isError ? " is-error" : "") + "'>" +
+      escapeHtml(label || "") + "</div>";
   }
 
   function resetMovementResults() {
-    var list = document.getElementById("reconcileSearchResults");
-    list.innerHTML = "<div class='rec-movement-empty js-search-empty'>" +
-      escapeHtml(list.dataset.hint || "") + "</div>";
+    var list = q(".js-movement-results");
+    list.innerHTML = movementEmptyMarkup(list.dataset.hint || "");
+  }
+
+  function loanMovementResultRow(movement) {
+    var kindLabel = movement.kind_label || (movement.kind === "income" ? "Ingreso" : "Gasto");
+    var directionClass = movement.kind === "income" ? "is-in" : "is-out";
+    var secondary = movement.secondary ? " · " + movement.secondary : "";
+    return "<div class='rec-loan-movement' role='listitem'>" +
+      "<span class='rec-loan-movement-dot " + directionClass + "'></span>" +
+      "<div class='rec-loan-movement-copy'>" +
+      "<span class='rec-loan-movement-name'>" + escapeHtml(movement.description) + "</span>" +
+      "<span class='rec-loan-movement-type'>" + escapeHtml(kindLabel) + escapeHtml(secondary) + "</span>" +
+      "</div>" +
+      "<span class='rec-loan-movement-value'>" + escapeHtml(formatMoney(movement.amount)) + " · " +
+      escapeHtml(formatDate(movement.date)) + "</span>" +
+      "<a class='rec-loan-movement-open' href='" + escapeHtml(movement.edit_url) +
+      "' target='_blank' rel='noopener'>" + escapeHtml(activeModal().dataset.openLabel || "Abrir") + "</a>" +
+      "</div>";
   }
 
   function movementResultRow(movement) {
+    if (isLoanMovementLayout()) return loanMovementResultRow(movement);
+
     var kindLabel = movement.kind_label || (movement.kind === "income" ? "Ingreso" : "Gasto");
     var directionClass = movement.kind === "income" ? "is-in" : "is-out";
     var secondary = movement.secondary ? "<span class='rec-movement-secondary'>" + escapeHtml(movement.secondary) + "</span>" : "";
@@ -471,7 +590,7 @@
       "<span class='rec-movement-meta'>" + escapeHtml(formatMoney(movement.amount)) + " · " +
       escapeHtml(formatDate(movement.date)) + "</span>" +
       "<a class='rec-movement-open' href='" + escapeHtml(movement.edit_url) +
-      "' target='_blank' rel='noopener'>" + escapeHtml(reconcileModal().dataset.openLabel || "Abrir") + "</a>" +
+      "' target='_blank' rel='noopener'>" + escapeHtml(activeModal().dataset.openLabel || "Abrir") + "</a>" +
       "</div>";
   }
 
@@ -479,14 +598,14 @@
     if (movementState.loading) return;
     movementState.loading = true;
 
-    var modal = reconcileModal();
-    var list = document.getElementById("reconcileSearchResults");
-    var loadMore = document.getElementById("reconcileLoadMore");
-    var query = modal.querySelector("#reconcileSearchInput").value.trim();
+    var modal = activeModal();
+    var list = q(".js-movement-results");
+    var loadMore = q(".js-load-more");
+    var query = q(".js-movement-search").value.trim();
 
     if (!append) {
       movementState.page = 1;
-      list.innerHTML = "<div class='rec-movement-empty'>" + escapeHtml(modal.dataset.loading || "") + "</div>";
+      list.innerHTML = movementEmptyMarkup(modal.dataset.loading || "");
     } else {
       loadMore.disabled = true;
     }
@@ -504,7 +623,7 @@
       if (!append) list.innerHTML = "";
 
       if (!movements.length && !append) {
-        list.innerHTML = "<div class='rec-movement-empty'>" + escapeHtml(modal.dataset.noMovements || "") + "</div>";
+        list.innerHTML = movementEmptyMarkup(modal.dataset.noMovements || "");
       } else {
         movements.forEach(function (movement) {
           list.insertAdjacentHTML("beforeend", movementResultRow(movement));
@@ -526,7 +645,7 @@
         loadMore.classList.remove("d-none");
         loadMore.disabled = false;
         loadMore.innerHTML = escapeHtml(modal.dataset.loadMore || "") + " <i class='ti ti-arrow-down' aria-hidden='true'></i>";
-      } else if (list.querySelector(".rec-movement-item")) {
+      } else if (list.querySelector(".rec-movement-item, .rec-loan-movement")) {
         loadMore.classList.remove("d-none");
         loadMore.disabled = true;
         loadMore.textContent = modal.dataset.noMore || "";
@@ -536,8 +655,7 @@
     }).catch(function () {
       if (append) movementState.page -= 1;
       if (!append) {
-        list.innerHTML = "<div class='rec-movement-empty is-error'>" +
-          escapeHtml(modal.dataset.movementError || "") + "</div>";
+        list.innerHTML = movementEmptyMarkup(modal.dataset.movementError || "", true);
       }
       loadMore.classList.add("d-none");
     }).finally(function () {
@@ -582,22 +700,22 @@
       return;
     }
 
-    if (event.target.closest("#reconcileAdjust")) {
+    if (event.target.closest(".js-reconcile-adjust")) {
       submitAdjust();
       return;
     }
 
-    if (event.target.closest("#reconcileAllGood")) {
+    if (event.target.closest(".js-reconcile-all-good")) {
       submitAllGood();
       return;
     }
 
-    if (event.target.closest("#reconcileLeavePending")) {
+    if (event.target.closest(".js-reconcile-leave-pending")) {
       submitLeavePending();
       return;
     }
 
-    if (event.target.closest("#reconcileLoadMore")) {
+    if (event.target.closest(".js-load-more")) {
       loadMoreMovements();
     }
   });
@@ -611,7 +729,7 @@
   });
 
   document.addEventListener("input", function (event) {
-    if (event.target.id === "reconcileActualBalance") {
+    if (event.target.classList.contains("js-actual-input")) {
       clearBalanceError();
       updateDifference();
       updatePrefillLinks();
@@ -619,7 +737,7 @@
     if (event.target.id === "assignExpenseSearch") {
       fetchAssignResults(event.target.value);
     }
-    if (event.target.id === "reconcileSearchInput") {
+    if (event.target.classList.contains("js-movement-search")) {
       debounceFetchMovements();
     }
   });

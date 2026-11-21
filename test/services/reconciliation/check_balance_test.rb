@@ -136,6 +136,36 @@ module Reconciliation
       assert_equal 0.to_d, loan.balance_offset
     end
 
+    test "saving a loan reconciliation never adds the estimated interest to principal" do
+      loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
+      loan.create_credit_account!(
+        principal_amount: 40_000_000,
+        outstanding_balance: 32_000_000,
+        interest_rate: 18.05,
+        interest_rate_type: "effective_annual",
+        interest_calculation_enabled: true,
+        interest_calculation_day: 11,
+        start_date: Date.new(2025, 1, 11),
+        payment_frequency: "monthly"
+      )
+      estimate = loan.reload.estimated_accrued_interest
+      assert_operator estimate, :>, 0
+
+      result = nil
+      assert_no_difference -> { Transaction.count } do
+        assert_no_difference -> { Payment.count } do
+          result = CheckBalance.call(user: @user, money_source: loan, actual_balance: "30.500.000", adjust: true)
+        end
+      end
+
+      assert_equal 30_500_000.to_d, loan.credit_account.reload.outstanding_balance
+      refute_equal 30_500_000.to_d + estimate, loan.credit_account.reload.outstanding_balance
+      assert_equal 0.to_d, result.difference
+      assert_equal "ok", result.snapshot.resolution
+      assert_equal 1, BalanceAdjustment.where(money_source: loan).count
+      assert_equal(-1_500_000.to_d, BalanceAdjustment.find_by(money_source: loan).delta)
+    end
+
     test "a later payment keeps reducing the adjusted loan outstanding" do
       loan = MoneySource.create!(user: @user, name: "Crédito carro", kind: "loan")
       loan.create_credit_account!(principal_amount: 40_000_000, outstanding_balance: 32_000_000)

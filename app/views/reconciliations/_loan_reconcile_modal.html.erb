@@ -1,0 +1,156 @@
+<%# Dedicated loan reconcile modal, built from the "verificar deuda con
+    intereses" mockup. Non-loan sources keep reconcile_modal. The
+    reconciliation operation and endpoints are identical; this template only
+    changes the presentation and makes the principal/interest distinction clear. %>
+<div class="modal fade" id="reconcileLoanModal" tabindex="-1" aria-hidden="true"
+     data-balance-url="<%= reconciliation_actual_balance_path("SOURCE_ID") %>"
+     data-leave-url="<%= reconciliation_leave_pending_path("SOURCE_ID") %>"
+     data-movements-url="<%= reconciliation_search_movements_path %>"
+     data-period="<%= @period %>"
+     data-movement-layout="loan"
+     data-debt-modal-title="<%= t("reconciliation.reconcile.debt_title") %>"
+     data-debt-movements-title="<%= t("reconciliation.reconcile.debt_movements_title") %>"
+     data-difference-hint="<%= t("reconciliation.reconcile.loan.difference_hint") %>"
+     data-difference-zero="<%= t("reconciliation.reconcile.loan.difference_zero") %>"
+     data-difference-positive="<%= t("reconciliation.reconcile.loan.difference_positive") %>"
+     data-difference-negative="<%= t("reconciliation.reconcile.loan.difference_negative") %>"
+     data-invalid-balance="<%= t("reconciliation.reconcile.invalid_balance") %>"
+     data-no-movements="<%= t("reconciliation.reconcile.no_movements") %>"
+     data-movement-error="<%= t("reconciliation.reconcile.movement_error") %>"
+     data-loading="<%= t("reconciliation.reconcile.loading") %>"
+     data-load-more="<%= t("reconciliation.reconcile.load_more") %>"
+     data-no-more="<%= t("reconciliation.reconcile.no_more") %>"
+     data-count-one="<%= t("reconciliation.movements.count_one", count: "%{count}") %>"
+     data-count-other="<%= t("reconciliation.movements.count_other", count: "%{count}") %>"
+     data-open-label="<%= t("reconciliation.reconcile.open") %>">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable rec-loan-modal">
+    <div class="modal-content">
+      <div class="modal-header rec-loan-header">
+        <div>
+          <h5 class="modal-title">
+            <span class="js-modal-title"><%= t("reconciliation.reconcile.debt_title") %></span>
+            <span class="rec-loan-title-sep" aria-hidden="true">·</span>
+            <span class="js-source-name">—</span>
+          </h5>
+          <p class="rec-loan-subtitle js-source-meta">—</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t("common.close", default: "Cerrar") %>"></button>
+      </div>
+
+      <div class="modal-body rec-loan-body">
+        <div class="rec-loan-summary js-loan-summary" data-testid="loan-principal-summary">
+          <div class="rec-loan-card">
+            <div class="rec-loan-eyebrow"><%= t("reconciliation.reconcile.loan.principal_label") %></div>
+            <div class="rec-loan-amount js-loan-principal">—</div>
+            <p class="rec-loan-note"><%= t("reconciliation.reconcile.loan.principal_note") %></p>
+          </div>
+          <div class="rec-loan-card rec-loan-breakdown js-loan-breakdown" data-testid="loan-interest-breakdown">
+            <div class="rec-loan-eyebrow"><%= t("reconciliation.reconcile.loan.breakdown_title") %></div>
+            <div class="rec-loan-break-row">
+              <span><%= t("reconciliation.reconcile.loan.principal") %></span>
+              <strong class="js-loan-principal-part">—</strong>
+            </div>
+            <div class="rec-loan-break-row">
+              <span><%= t("reconciliation.reconcile.loan.accrued_interest") %></span>
+              <strong class="js-loan-accrued">—</strong>
+            </div>
+            <div class="rec-loan-break-row is-total">
+              <span><%= t("reconciliation.reconcile.loan.estimated_total") %></span>
+              <strong class="js-loan-total">—</strong>
+            </div>
+            <span class="rec-loan-pill">
+              <i class="ti ti-info-circle" aria-hidden="true"></i>
+              <%= t("reconciliation.reconcile.loan.estimate_note") %>
+            </span>
+          </div>
+        </div>
+
+        <div class="rec-loan-notice" role="note" data-testid="loan-interest-warning">
+          <span class="rec-loan-notice-icon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></span>
+          <div>
+            <strong><%= t("reconciliation.reconcile.loan.warning_title") %></strong>
+            <p><%= t("reconciliation.reconcile.loan.warning_body") %></p>
+          </div>
+        </div>
+
+        <div class="rec-loan-entry-grid">
+          <div class="rec-loan-field">
+            <label for="loanReconcileActualBalance"><%= t("reconciliation.reconcile.loan.bank_principal_label") %></label>
+            <div class="rec-loan-input">
+              <span class="rec-loan-currency" aria-hidden="true">$</span>
+              <input type="text"
+                     id="loanReconcileActualBalance"
+                     class="js-actual-input"
+                     inputmode="decimal"
+                     autocomplete="off"
+                     data-money-input="true"
+                     placeholder="<%= t("reconciliation.reconcile.loan.bank_principal_placeholder") %>">
+            </div>
+            <div class="rec-loan-error js-balance-error" hidden></div>
+            <p class="rec-loan-help"><%= t("reconciliation.reconcile.loan.bank_principal_hint") %></p>
+          </div>
+          <div class="rec-loan-field">
+            <label><%= t("reconciliation.reconcile.loan.difference_label") %></label>
+            <div class="rec-loan-difference js-difference">—</div>
+            <p class="rec-loan-help js-difference-hint"><%= t("reconciliation.reconcile.loan.difference_hint") %></p>
+          </div>
+        </div>
+
+        <div class="rec-loan-field rec-loan-reason">
+          <label for="loanReconcileNote"><%= t("reconciliation.reconcile.note_label") %></label>
+          <input type="text"
+                 id="loanReconcileNote"
+                 class="js-note"
+                 maxlength="140"
+                 autocomplete="off"
+                 placeholder="<%= t("reconciliation.reconcile.note_placeholder") %>">
+        </div>
+
+        <div class="rec-loan-section-head">
+          <h4 class="js-movements-title"><%= t("reconciliation.reconcile.debt_movements_title") %></h4>
+          <span class="rec-loan-movement-count js-movement-count"></span>
+        </div>
+
+        <div class="rec-loan-movements">
+          <div class="rec-loan-search">
+            <i class="ti ti-search" aria-hidden="true"></i>
+            <input type="search"
+                   id="loanReconcileSearchInput"
+                   class="js-movement-search"
+                   placeholder="<%= t("reconciliation.reconcile.search_placeholder") %>"
+                   autocomplete="off"
+                   aria-label="<%= t("reconciliation.reconcile.search_placeholder") %>">
+          </div>
+          <div id="loanReconcileSearchResults"
+               class="rec-loan-movements-list js-movement-results"
+               role="list"
+               aria-live="polite"
+               data-hint="<%= t("reconciliation.reconcile.search_hint") %>">
+            <div class="rec-loan-empty js-search-empty"><%= t("reconciliation.reconcile.search_hint") %></div>
+          </div>
+          <div class="rec-loan-load-more-wrap">
+            <button type="button" class="rec-loan-btn-soft js-load-more d-none">
+              <%= t("reconciliation.reconcile.load_more") %> <i class="ti ti-arrow-down" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec-loan-footer">
+        <div class="rec-loan-footer-left">
+          <button type="button" class="rec-loan-btn-light js-reconcile-leave-pending">
+            <%= t("reconciliation.reconcile.leave_pending") %>
+          </button>
+        </div>
+        <div class="rec-loan-footer-actions">
+          <button type="button" class="rec-loan-btn-ok js-reconcile-all-good">
+            <i class="ti ti-check" aria-hidden="true"></i><%= t("reconciliation.reconcile.all_good") %>
+          </button>
+          <button type="button" class="rec-loan-btn-primary js-reconcile-adjust">
+            <%= t("reconciliation.reconcile.save_balance") %>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -32,7 +32,8 @@
             data-kind="<%= balance["kind"] %>"
             data-modal-title="<%= reconciliation_modal_title(balance, "movements") %>"
             data-movements-title="<%= reconciliation_movements_title(balance) %>"
-            data-balance-label="<%= reconciliation_balance_label(balance) %>">
+            data-balance-label="<%= reconciliation_balance_label(balance) %>"
+            <%= tag.attributes(reconciliation_loan_interest_attributes(balance)) %>>
       <i class="ti ti-list me-1"></i><%= t("reconciliation.balances.movements") %>
     </button>
     <button type="button"
@@ -46,7 +47,8 @@
             data-kind="<%= balance["kind"] %>"
             data-modal-title="<%= reconciliation_modal_title(balance, "balance") %>"
             data-movements-title="<%= reconciliation_movements_title(balance) %>"
-            data-balance-label="<%= reconciliation_balance_label(balance) %>">
+            data-balance-label="<%= reconciliation_balance_label(balance) %>"
+            <%= tag.attributes(reconciliation_loan_interest_attributes(balance)) %>>
       <%= reconciliation_balance_action_label(balance) %>
     </button>
   </div>

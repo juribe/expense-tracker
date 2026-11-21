@@ -274,6 +274,22 @@ module Reconciliation
       assert_equal [ card.id, loan.id ].sort, state.debt_balances.map { |row| row["source_id"] }.sort
     end
 
+    test "loan interest estimate is exposed only for loans with the calculation enabled" do
+      enabled_loan = build_interest_loan(name: "Hipotecario", enabled: true)
+      disabled_loan = build_interest_loan(name: "Libre inversión", enabled: false)
+
+      state = State.refresh!(@user)
+
+      rows = state.snapshot["balances"].index_by { |row| row["source_id"] }
+      interest = rows.fetch(enabled_loan.id).fetch("loan_interest")
+      accrued = enabled_loan.estimated_accrued_interest
+
+      assert_not_nil accrued
+      assert_equal accrued.to_s, interest["accrued_interest"]
+      assert_equal (enabled_loan.outstanding_balance + accrued).to_s, interest["estimated_total"]
+      assert_nil rows.fetch(disabled_loan.id)["loan_interest"]
+    end
+
     test "progress counts only verified balances" do
       card = MoneySource.create!(user: @user, name: "TC Davibank", kind: "credit_card", starting_balance: 0)
       card.create_credit_account!(credit_limit: 8_000_000)
@@ -287,6 +303,23 @@ module Reconciliation
       assert_equal 50, state.progress_percentage
       assert_equal 0, state.unverified_accounts_count
       assert_equal 1, state.unverified_debts_count
+    end
+
+    private
+
+    def build_interest_loan(name:, enabled:)
+      loan = MoneySource.create!(user: @user, name: name, kind: "loan")
+      loan.create_credit_account!(
+        principal_amount: 40_000_000,
+        outstanding_balance: 32_000_000,
+        interest_rate: 18.05,
+        interest_rate_type: "effective_annual",
+        interest_calculation_enabled: enabled,
+        interest_calculation_day: 11,
+        start_date: Date.new(2025, 1, 11),
+        payment_frequency: "monthly"
+      )
+      loan
     end
   end
 end

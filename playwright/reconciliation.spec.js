@@ -186,11 +186,11 @@ test.describe('día de balance', () => {
     await expect(row.getByText('Deuda en Yogasto')).toBeVisible();
     await expect(row.getByRole('button', { name: 'Movimientos' })).toBeVisible();
 
-    await row.getByRole('button', { name: 'Verificar saldo' }).click();
-    await expect(page.locator('#reconcileModal')).toBeVisible();
-    await expect(page.locator('#reconcileModal')).toContainText('Deuda en Yogasto');
-    await expect(page.locator('#reconcileCreateExpense')).not.toBeVisible();
-    await expect(page.locator('#reconcileCreateIncome')).not.toBeVisible();
+    await row.getByRole('button', { name: 'Verificar deuda' }).click();
+    await expect(page.locator('#reconcileLoanModal')).toBeVisible();
+    await expect(page.locator('#reconcileLoanModal')).toContainText('Capital pendiente en Yogasto');
+    await expect(page.locator('#reconcileLoanModal')).toContainText('Capital pendiente según el banco');
+    await expect(page.locator('#reconcileLoanModal .rec-loan-footer')).toBeVisible();
   });
 
   test('account rows stay usable on a narrow viewport', async ({ page }) => {

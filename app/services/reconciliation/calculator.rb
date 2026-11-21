@@ -16,7 +16,7 @@ module Reconciliation
 
     # Bump whenever the snapshot payload shape changes: persisted states built
     # with an older shape are recalculated transparently on the next visit.
-    SNAPSHOT_VERSION = "5"
+    SNAPSHOT_VERSION = "6"
 
     # Loans are included through their outstanding balance: the user compares
     # it against the bank figure and can adjust it. Loans without a
@@ -156,12 +156,32 @@ module Reconciliation
     def balance_row(source, snapshot, app_balance)
       status = snapshot&.resolution || "unverified"
 
-      { source_id: source.id, name: source.display_name, account_name: source.name,
-        institution_name: source.institution_name,
-        identifier: source.identifier.presence || source.credit_account&.card_last_four,
-        sub_kind: source.sub_kind, kind: source.kind,
-        app_balance: app_balance.to_s, status: status,
-        checked_at: snapshot&.checked_at&.iso8601 }
+      row = { source_id: source.id, name: source.display_name, account_name: source.name,
+              institution_name: source.institution_name,
+              identifier: source.identifier.presence || source.credit_account&.card_last_four,
+              sub_kind: source.sub_kind, kind: source.kind,
+              app_balance: app_balance.to_s, status: status,
+              checked_at: snapshot&.checked_at&.iso8601 }
+
+      interest = loan_interest_row(source)
+      row[:loan_interest] = interest if interest
+      row
+    end
+
+    # Informational accrued-interest estimate for the reconcile modal. Reuses
+    # MoneySource#loan_interest_estimate (the same calculation as the loan
+    # page); a disabled or unavailable estimate yields no payload so the modal
+    # never renders an invented figure.
+    def loan_interest_row(source)
+      return unless source.interest_calculation_enabled?
+
+      estimate = source.loan_interest_estimate
+      return unless estimate.displayable?
+
+      {
+        accrued_interest: estimate.estimated_interest.to_s,
+        estimated_total: estimate.estimated_total_balance.to_s
+      }
     end
   end
 end
