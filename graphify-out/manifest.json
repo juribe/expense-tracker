@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "app/controllers/expenses_controller.rb": {
-    "mtime": 1794756453.7671123,
-    "seen": 1794757149.626765,
-    "ast_hash": "568464835c06a493cd961ab927033620",
+    "mtime": 1795222243.3840833,
+    "seen": 1795222281.6923451,
+    "ast_hash": "b75f5c69204013fd169c9aad5744a161",
     "semantic_hash": ""
   },
   "app/controllers/financial_setups_controller.rb": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "app/helpers/application_helper.rb": {
-    "mtime": 1795118827.0726964,
-    "seen": 1795119605.769359,
-    "ast_hash": "7589c1b0e6e4dd29adf1f9336a74f05f",
+    "mtime": 1795222166.3436744,
+    "seen": 1795222281.695709,
+    "ast_hash": "dcd708165ee40f500e7fa5299b878fc4",
     "semantic_hash": ""
   },
   "app/helpers/dashboard_helper.rb": {
@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "test/controllers/expenses_controller_test.rb": {
-    "mtime": 1793554727.2262611,
-    "seen": 1793554832.3428328,
-    "ast_hash": "4ec0ad0a3fcfa239f00b6dce53b6d0d8",
+    "mtime": 1795222243.3840852,
+    "seen": 1795222281.737889,
+    "ast_hash": "29371e32ba87155f200bfc2475577e40",
     "semantic_hash": ""
   },
   "test/controllers/financial_setups_controller_test.rb": {
@@ -786,9 +786,9 @@
     "semantic_hash": ""
   },
   "test/helpers/application_helper_test.rb": {
-    "mtime": 1794483652.8531785,
-    "seen": 1794483944.031761,
-    "ast_hash": "2fa3889fb0b7990f0737e0029bd96e49",
+    "mtime": 1795222162.9601166,
+    "seen": 1795222281.740463,
+    "ast_hash": "1693bd982ed8792cf852000749bbf2b2",
     "semantic_hash": ""
   },
   "test/integration/devise_auth_flows_test.rb": {

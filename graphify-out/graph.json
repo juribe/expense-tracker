@@ -39289,7 +39289,7 @@
       "file_type": "code",
       "norm_label": ".available_credit_for()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L646"
+      "source_location": "L645"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_bank_icon_tone",
@@ -39349,7 +39349,7 @@
       "file_type": "code",
       "norm_label": ".category_type_label()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L762"
+      "source_location": "L761"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_chart_money_options",
@@ -39469,7 +39469,7 @@
       "file_type": "code",
       "norm_label": ".financial_setup_completed?()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L789"
+      "source_location": "L788"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_category_emoji",
@@ -39481,7 +39481,7 @@
       "file_type": "code",
       "norm_label": ".goal_category_emoji()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L543"
+      "source_location": "L542"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_category_label",
@@ -39493,7 +39493,7 @@
       "file_type": "code",
       "norm_label": ".goal_category_label()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L551"
+      "source_location": "L550"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_category_options",
@@ -39505,7 +39505,7 @@
       "file_type": "code",
       "norm_label": ".goal_category_options()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L547"
+      "source_location": "L546"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_health_badge",
@@ -39517,7 +39517,7 @@
       "file_type": "code",
       "norm_label": ".goal_health_badge()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L573"
+      "source_location": "L572"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_health_progress_class",
@@ -39529,7 +39529,7 @@
       "file_type": "code",
       "norm_label": ".goal_health_progress_class()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L588"
+      "source_location": "L587"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_priority_options",
@@ -39541,7 +39541,7 @@
       "file_type": "code",
       "norm_label": ".goal_priority_options()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L555"
+      "source_location": "L554"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goal_status_options",
@@ -39553,7 +39553,7 @@
       "file_type": "code",
       "norm_label": ".goal_status_options()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L559"
+      "source_location": "L558"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_goals_summary",
@@ -39565,7 +39565,7 @@
       "file_type": "code",
       "norm_label": ".goals_summary()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L597"
+      "source_location": "L596"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_institution_type_badge",
@@ -39589,7 +39589,7 @@
       "file_type": "code",
       "norm_label": ".loan_identity()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L665"
+      "source_location": "L664"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_loan_sub_kind_options",
@@ -39601,7 +39601,7 @@
       "file_type": "code",
       "norm_label": ".loan_sub_kind_options()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L690"
+      "source_location": "L689"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_loan_summary",
@@ -39613,7 +39613,7 @@
       "file_type": "code",
       "norm_label": ".loan_summary()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L708"
+      "source_location": "L707"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_money_field_value",
@@ -39637,7 +39637,7 @@
       "file_type": "code",
       "norm_label": ".money_share_percentage()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L631"
+      "source_location": "L630"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_money_source_filter_active_pred",
@@ -39781,7 +39781,7 @@
       "file_type": "code",
       "norm_label": ".pocket_goal_groups()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L566"
+      "source_location": "L565"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_pocket_money_summary",
@@ -39793,7 +39793,7 @@
       "file_type": "code",
       "norm_label": ".pocket_money_summary()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L617"
+      "source_location": "L616"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_quick_cash_destination",
@@ -39829,7 +39829,7 @@
       "file_type": "code",
       "norm_label": ".rate_type_options()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L639"
+      "source_location": "L638"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_recognition_highlight",
@@ -39841,7 +39841,7 @@
       "file_type": "code",
       "norm_label": ".recognition_highlight()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L823"
+      "source_location": "L822"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_recurring_template_option_label",
@@ -39913,7 +39913,7 @@
       "file_type": "code",
       "norm_label": ".source_kind_options()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L528"
+      "source_location": "L527"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_source_sub_kind_label",
@@ -39925,7 +39925,7 @@
       "file_type": "code",
       "norm_label": ".source_sub_kind_label()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L695"
+      "source_location": "L694"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_status_badge",
@@ -39949,7 +39949,7 @@
       "file_type": "code",
       "norm_label": ".status_label()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L770"
+      "source_location": "L769"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_statuses_label",
@@ -39961,7 +39961,7 @@
       "file_type": "code",
       "norm_label": ".statuses_label()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L780"
+      "source_location": "L779"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_suggestion_provenance",
@@ -39973,7 +39973,7 @@
       "file_type": "code",
       "norm_label": ".suggestion_provenance()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L798"
+      "source_location": "L797"
     },
     {
       "id": "app_helpers_application_helper_applicationhelper_user_display_name",
@@ -40009,7 +40009,7 @@
       "file_type": "code",
       "norm_label": ".wizard_choice_cards()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L723"
+      "source_location": "L722"
     },
     {
       "id": "playwright_expense_playground_file_import_spec_mockbatchcreate",
@@ -47869,7 +47869,7 @@
       "file_type": "code",
       "norm_label": ".render_csv()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L336"
+      "source_location": "L337"
     },
     {
       "id": "app_services_expenses_csv_exporter_expenses_csvexporter_call",
@@ -70969,7 +70969,7 @@
       "file_type": "code",
       "norm_label": ".cycle_prefill()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L286"
+      "source_location": "L287"
     },
     {
       "id": "app_controllers_financial_summary_controller_financialsummarycontroller_show",
@@ -87637,7 +87637,7 @@
       "file_type": "code",
       "norm_label": ".assign_expense_prefill()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L300"
+      "source_location": "L301"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_bulk_create",
@@ -87661,7 +87661,7 @@
       "file_type": "code",
       "norm_label": ".bulk_update_state()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L329"
+      "source_location": "L330"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_create",
@@ -87709,7 +87709,7 @@
       "file_type": "code",
       "norm_label": ".expense_params()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L293"
+      "source_location": "L294"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_filter_query",
@@ -87721,7 +87721,7 @@
       "file_type": "code",
       "norm_label": ".filter_query()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L314"
+      "source_location": "L315"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_new",
@@ -87769,7 +87769,7 @@
       "file_type": "code",
       "norm_label": ".redirect_params()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L318"
+      "source_location": "L319"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_respond_bulk_error",
@@ -87781,7 +87781,7 @@
       "file_type": "code",
       "norm_label": ".respond_bulk_error()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L350"
+      "source_location": "L351"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_respond_parse_error",
@@ -87793,7 +87793,7 @@
       "file_type": "code",
       "norm_label": ".respond_parse_error()",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L341"
+      "source_location": "L342"
     },
     {
       "id": "app_controllers_expenses_controller_expensescontroller_set_categories",
@@ -105349,7 +105349,7 @@
       "file_type": "code",
       "norm_label": ".next_payment_date()",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L701"
+      "source_location": "L700"
     },
     {
       "id": "app_services_loans_next_payment_loans_nextpayment_call",
@@ -168980,7 +168980,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L288",
+      "source_location": "L289",
       "weight": 1.0
     },
     {
@@ -168992,7 +168992,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L290",
+      "source_location": "L291",
       "weight": 1.0
     },
     {
@@ -169076,7 +169076,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L337",
+      "source_location": "L338",
       "weight": 1.0
     },
     {
@@ -169088,7 +169088,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L338",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -169124,7 +169124,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L260",
+      "source_location": "L261",
       "weight": 1.0
     },
     {
@@ -169136,7 +169136,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L265",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -173312,7 +173312,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L548",
+      "source_location": "L547",
       "weight": 1.0
     },
     {
@@ -173420,7 +173420,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L692",
+      "source_location": "L691",
       "weight": 1.0
     },
     {
@@ -173504,7 +173504,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L704",
+      "source_location": "L703",
       "weight": 1.0
     },
     {
@@ -173516,7 +173516,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L626",
+      "source_location": "L625",
       "weight": 1.0
     },
     {
@@ -173564,7 +173564,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L530",
+      "source_location": "L529",
       "weight": 1.0
     },
     {
@@ -173576,7 +173576,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L531",
+      "source_location": "L530",
       "weight": 1.0
     },
     {
@@ -285477,7 +285477,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L286",
+      "source_location": "L287",
       "weight": 1.0
     },
     {
@@ -285488,7 +285488,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L293",
+      "source_location": "L294",
       "weight": 1.0
     },
     {
@@ -285499,7 +285499,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L300",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -285510,7 +285510,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L314",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -285521,7 +285521,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L318",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -285532,7 +285532,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L329",
+      "source_location": "L330",
       "weight": 1.0
     },
     {
@@ -285543,7 +285543,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L336",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -285554,7 +285554,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L341",
+      "source_location": "L342",
       "weight": 1.0
     },
     {
@@ -285565,7 +285565,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L350",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -291109,7 +291109,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L528",
+      "source_location": "L527",
       "weight": 1.0
     },
     {
@@ -291120,7 +291120,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L543",
+      "source_location": "L542",
       "weight": 1.0
     },
     {
@@ -291131,7 +291131,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L547",
+      "source_location": "L546",
       "weight": 1.0
     },
     {
@@ -291142,7 +291142,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L551",
+      "source_location": "L550",
       "weight": 1.0
     },
     {
@@ -291153,7 +291153,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L555",
+      "source_location": "L554",
       "weight": 1.0
     },
     {
@@ -291164,7 +291164,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L559",
+      "source_location": "L558",
       "weight": 1.0
     },
     {
@@ -291175,7 +291175,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L566",
+      "source_location": "L565",
       "weight": 1.0
     },
     {
@@ -291197,7 +291197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L573",
+      "source_location": "L572",
       "weight": 1.0
     },
     {
@@ -291208,7 +291208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L588",
+      "source_location": "L587",
       "weight": 1.0
     },
     {
@@ -291219,7 +291219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L597",
+      "source_location": "L596",
       "weight": 1.0
     },
     {
@@ -291230,7 +291230,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L617",
+      "source_location": "L616",
       "weight": 1.0
     },
     {
@@ -291241,7 +291241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L631",
+      "source_location": "L630",
       "weight": 1.0
     },
     {
@@ -291252,7 +291252,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L639",
+      "source_location": "L638",
       "weight": 1.0
     },
     {
@@ -291263,7 +291263,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L646",
+      "source_location": "L645",
       "weight": 1.0
     },
     {
@@ -291274,7 +291274,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L665",
+      "source_location": "L664",
       "weight": 1.0
     },
     {
@@ -291285,7 +291285,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L690",
+      "source_location": "L689",
       "weight": 1.0
     },
     {
@@ -291296,7 +291296,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L695",
+      "source_location": "L694",
       "weight": 1.0
     },
     {
@@ -291318,7 +291318,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L701",
+      "source_location": "L700",
       "weight": 1.0
     },
     {
@@ -291329,7 +291329,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L708",
+      "source_location": "L707",
       "weight": 1.0
     },
     {
@@ -291340,7 +291340,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L723",
+      "source_location": "L722",
       "weight": 1.0
     },
     {
@@ -291351,7 +291351,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L762",
+      "source_location": "L761",
       "weight": 1.0
     },
     {
@@ -291362,7 +291362,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L770",
+      "source_location": "L769",
       "weight": 1.0
     },
     {
@@ -291373,7 +291373,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L780",
+      "source_location": "L779",
       "weight": 1.0
     },
     {
@@ -291384,7 +291384,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L789",
+      "source_location": "L788",
       "weight": 1.0
     },
     {
@@ -291395,7 +291395,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L798",
+      "source_location": "L797",
       "weight": 1.0
     },
     {
@@ -291417,7 +291417,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/helpers/application_helper.rb",
-      "source_location": "L823",
+      "source_location": "L822",
       "weight": 1.0
     },
     {
@@ -345176,7 +345176,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L352",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -345188,7 +345188,7 @@
       "confidence_score": 0.85,
       "context": "call",
       "source_file": "app/controllers/expenses_controller.rb",
-      "source_location": "L343",
+      "source_location": "L344",
       "weight": 1.0
     },
     {
@@ -351840,5 +351840,5 @@
       "source_file": "public/icon.svg"
     }
   ],
-  "built_at_commit": "4194eb27675bdab928737e27986f3b34e99fbca6"
+  "built_at_commit": "23a145ec1a6987c18e724a1d4b6adccdbaa698b2"
 }
